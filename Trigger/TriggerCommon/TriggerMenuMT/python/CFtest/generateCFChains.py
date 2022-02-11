@@ -161,7 +161,7 @@ def generateCFChains(opt):
             makeChain(name='HLT_j460_a10t_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a10t]  ),
             makeChain(name='HLT_3j200_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_5j70_0eta240_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
-            makeChain(name='HLT_j45_pf_subresjesgscIS_ftf_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em_presel,step_a4_pf_em_ftf]  ),
+            makeChain(name='HLT_j45_pf_subresjesgscIS_ftf_preselj20_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em_presel,step_a4_pf_em_ftf]  ),
             ]
 
 
@@ -180,8 +180,8 @@ def generateCFChains(opt):
         step3 = makeChainStep("Step3_bjet", [getBJetSequence(ConfigFlags, jc_name)])
         
         menu.chainsInMenu['Bjet']  = [
-            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bdl1r70_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_preselj20_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_bdl1r70_preselj20_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
             ]
 
    

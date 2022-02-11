@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 # Definition of trigger EDM for the Run 3
@@ -455,6 +455,9 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bmumux_IDTrig',              'BS ESD AODFULL', 'Bphys', 'inViews:BmumuxViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_IDTrigAux.',       'BS ESD AODFULL', 'Bphys'),
     ('TrigRoiDescriptorCollection#HLT_Roi_Bmumux',                          'BS ESD AODFULL', 'Bphys'),
+    # Bphysics Bmux chains
+    ('xAOD::TrigBphysContainer#HLT_Bmux',                                   'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_BmuxAux.',                            'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
     # Bphysics Tag-and-Probe J/psi from muon + track
     ('xAOD::TrigBphysContainer#HLT_Bmutrk',                                 'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_BmutrkAux.',                          'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),

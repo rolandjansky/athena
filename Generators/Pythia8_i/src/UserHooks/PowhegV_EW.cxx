@@ -71,7 +71,7 @@ namespace Pythia8{
 
     // Initialize settings.
 
-    bool initAfterBeams() {
+    virtual bool initAfterBeams() override {
       m_si_data_.vetoqed              = settingsPtr->mode("m_si_data_.vetoqed");
       m_si_data_.py8veto              = settingsPtr->mode("m_si_data_.py8veto");
       m_si_event_info_.vetoscale_fsr  = settingsPtr->mode("m_si_event_info_.vetoscale_fsr");
@@ -81,7 +81,7 @@ namespace Pythia8{
 
     // Allow process cross section to be modified..
 
-    virtual bool canSetResonanceScale() {
+    virtual bool canSetResonanceScale() override {
       // If we are vetoing QED emissions, and ptmaxmatch = 1, and we are using PYTHIA8 based veto, set scale for QED radiation from leptons
       //  (the default would be the resonance mass)
       std::cout << "**** SI: Allow to set scale to veto QED emissions in PYTHIA" << std::endl;
@@ -89,6 +89,7 @@ namespace Pythia8{
       else return false;
     }
 
+      using UserHooks::scaleResonance;
       virtual double scaleResonance() {
  //   virtual double scaleResonance( const int iRes, const Event& event) {
       // Set scale for the emissions from the resonace (FSR), equal to the scale stored in the LHE file

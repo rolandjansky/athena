@@ -44,7 +44,7 @@ namespace xAODMaker {
 
    };
 
-   inline StatusCode EventInfoSelectorTool::initialize() {return StatusCode::SUCCESS;}
+   inline StatusCode EventInfoSelectorTool::initialize() {return EventInfoCnvTool::initialize();}
    inline StatusCode EventInfoSelectorTool::postInitialize() {return StatusCode::SUCCESS;}
    inline StatusCode EventInfoSelectorTool::preFinalize() {return StatusCode::SUCCESS;}
    inline StatusCode EventInfoSelectorTool::finalize() {return StatusCode::SUCCESS;}

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigBphysHypo.TrigBmumuxComboHypoMonitoringConfig import TrigBmumuxComboHypoMonitoring, TrigBmumuxComboHypoToolMonitoring
@@ -136,7 +136,12 @@ class TrigBmumuxComboHypoConfig(object):
             'BcmumuDploose' :    13,  # BCDPMUMU
             'BcmumuDsloose' :    11,  # BCDSMUMU
             'BcmumuD0Xloose' :   19,  # DZKPI
-            'BcmumuDstarloose' : 14   # BCDSTMUMU
+            'BcmumuDstarloose' : 14,  # BCDSTMUMU
+            'BpmuD0X' :          23,  # B2D0MUX
+            'BdmuDpX' :          24,  # BD2DMMUX
+            'BdmuDstarX' :       25,  # BD2DSTMUX
+            'BsmuDsX' :          26,  # BS2DSMUX
+            'LbmuLcX' :          27   # LB2LCMUX
         }
 
         tool.Decay = trigDecayDict[decay]

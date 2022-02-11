@@ -30,12 +30,8 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 {
   ATH_CHECK(m_evtKey.initialize());
   ATH_CHECK(m_mbtsKey.initialize(m_useMBTS));
-  if (not m_SpacePointsPixelKey.empty()) {
-    ATH_CHECK(m_SpacePointsPixelKey.initialize());
-  }
-  if (not m_SpacePointsSCTKey.empty()) {
-    ATH_CHECK(m_SpacePointsSCTKey.initialize());
-  }
+  ATH_CHECK(m_SpacePointsPixelKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_SpacePointsSCTKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_outputTracksKey.initialize());
 
   /// optional PRD to track association map
@@ -61,10 +57,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     m_useZBoundaryFinding = false;
   }
 
+  ATH_CHECK(m_beamSpotKey.initialize( (m_useNewStrategy or m_useZBoundaryFinding or m_ITKGeometry or m_useITkConvSeeded) && not m_beamSpotKey.key().empty() ));
   if (m_useNewStrategy or m_useZBoundaryFinding or m_ITKGeometry or m_useITkConvSeeded) {
 
     if (not m_beamSpotKey.key().empty()) {
-      ATH_CHECK(m_beamSpotKey.initialize());
       /// Get RungeKutta propagator tool
       ATH_CHECK( m_proptool.retrieve() );
 

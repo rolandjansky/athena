@@ -42,21 +42,18 @@
 #define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
 // Constructor:
-TileDetectorFactoryLite::TileDetectorFactoryLite(StoreGateSvc *pDetStore,
+TileDetectorFactoryLite::TileDetectorFactoryLite(StoreGateSvc */*pDetStore*/,
                                    TileDetDescrManager *manager,
-                                   GeoModelIO::ReadGeoModel* sqliteReader, 
+                                   GeoModelIO::ReadGeoModel* /*sqliteReader*/, 
                                    IRDBAccessSvc* paramsSvc,
                                    const TileSwitches & switches,
                                    MsgStream *log,
-                                   bool fullGeo)
-      : m_detectorStore(pDetStore)
-      , m_detectorManager(manager)
-      , m_sqliteReader(sqliteReader)
+                                   bool /*fullGeo*/)
+      : m_detectorManager(manager)
       , m_paramsSvc(paramsSvc)
       , m_switches(switches)
       , m_log(log)
       , m_verbose(log->level()<=MSG::VERBOSE) 
-      , m_fullGeo(fullGeo)
 {
   m_switches.testBeam = false;
 }
@@ -198,7 +195,7 @@ void TileDetectorFactoryLite::create(GeoPhysVol *world)
         cursor.next();
     }
 
-    (*m_log) << MSG::INFO << "Tile geometry from SQLite has been created." << endmsg;
+    (*m_log) << MSG::DEBUG << "Tile geometry from SQLite has been created." << endmsg;
 
 }
 

@@ -530,6 +530,8 @@ if not opt.createHLTMenuExternally:
 
 
     if opt.endJobAfterGenerate:
+        from AthenaCommon.AlgSequence import dumpSequence
+        dumpSequence( topSequence )
         import sys
         sys.exit(0)
 
@@ -543,7 +545,6 @@ CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 # ---------------------------------------------------------------
 if hasattr(topSequence,"SGInputLoader"):
     topSequence.SGInputLoader.Load += [
-        ('TrigConf::L1BunchGroupSet','DetectorStore+L1BunchGroup'),
         ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
         ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 

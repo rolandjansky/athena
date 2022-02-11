@@ -619,10 +619,14 @@ class ItemDef:
         MenuItem('L1_MU3V_jJ40'      ).setLogic( d.MU3V & d.jJ40    & physcond).setTriggerType(TT.calo)
         MenuItem('L1_MU5VF_jJ90'      ).setLogic( d.MU3V & d.jJ90    & physcond).setTriggerType(TT.calo)
 
+        MenuItem('L1_jLJ60'         ).setLogic( d.jLJ60        & physcond).setTriggerType(TT.calo) # Not in commissioning
         MenuItem('L1_jLJ80'         ).setLogic( d.jLJ80        & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jLJ100'        ).setLogic( d.jLJ100       & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jLJ100'        ).setLogic( d.jLJ100       & physcond).setTriggerType(TT.calo) # Not in commissioning
+        MenuItem('L1_jLJ120'        ).setLogic( d.jLJ120       & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jLJ140'        ).setLogic( d.jLJ140       & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jLJ160'        ).setLogic( d.jLJ160       & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jLJ160'        ).setLogic( d.jLJ160       & physcond).setTriggerType(TT.calo) # Not in commissioning
+        MenuItem('L1_jLJ180'        ).setLogic( d.jLJ180       & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jLJ200'        ).setLogic( d.jLJ200       & physcond).setTriggerType(TT.calo) # Not in commissioning
 
         MenuItem('L1_jEM20'         ).setLogic( d.jEM20        & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jEM20M'        ).setLogic( d.jEM20M       & physcond).setTriggerType(TT.calo)

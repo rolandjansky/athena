@@ -103,6 +103,13 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
   ATH_CHECK( m_cablingSvc.retrieve() );
   m_cablingService = m_cablingSvc->cablingService();
   m_runPeriod = m_cablingService->runPeriod();
+
+  // Handles must always be initialised
+  ATH_CHECK( m_hitContainerKey.initialize(m_runPeriod != 0) );
+  ATH_CHECK( m_muRcvDigitsContainerKey.initialize(m_runPeriod != 0) );
+  ATH_CHECK( m_muRcvRawChannelContainerKey.initialize(m_runPeriod != 0) );
+  ATH_CHECK( m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay && m_runPeriod != 0) );
+
   if ( m_runPeriod == 0) {
     ATH_MSG_INFO("TilePulseForTileMuonReceiver should not be used for RUN1 simulations");
     return StatusCode::SUCCESS;
@@ -175,12 +182,7 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
   ATH_MSG_INFO( "Masking Channels: \t" << ((m_maskBadChannels)?"true":"false"));
   ATH_MSG_INFO( "Pulse shapes from COOL: \t" << ((m_useCoolPulseShapes)?"true":"false"));
 
-  ATH_CHECK( m_hitContainerKey.initialize(true) );
-  ATH_CHECK( m_muRcvDigitsContainerKey.initialize(true) );
-  ATH_CHECK( m_muRcvRawChannelContainerKey.initialize(true) );
-
   m_inputDigitContainerName = m_inputDigitContainerKey.key();
-  ATH_CHECK( m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
 
   if (m_rndmEvtOverlay) {
     ATH_MSG_INFO( "Pileup and/or noise added by overlaying digits of random events");

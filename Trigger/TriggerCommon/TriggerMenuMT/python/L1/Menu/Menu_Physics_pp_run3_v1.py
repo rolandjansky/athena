@@ -15,6 +15,12 @@ def defineMenu():
     }
 
     L1MenuFlags.ItemMap = {
+        # jLJ thresholds for production
+        'L1_jLJ60' : '',
+        'L1_jLJ100': '',
+        'L1_jLJ160': '',
+        'L1_jLJ200': '',
+        # MC Performance thresholds
         'L1_jXEPerf100':'', 
     } 
 

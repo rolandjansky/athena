@@ -28,6 +28,7 @@ The tool is supposed to run on derivations (e.g. **DAOD_PHYS/TOPQ/SUSY**), as it
     - [Tau decays](#tau-decays)
     - [b- and c-hadron decays](#b-and-c-hadron-decays)
     - [Light-flavour decays](#light-flavour-decays)
+    - [Charge-flip muons](#charge-flip-muons)
     - [KnownUnknown leptons](#knownunknown-leptons)
     - [Unknown leptons](#unknown-leptons)
     
@@ -50,6 +51,7 @@ Based on this input, the function `StatusCode TruthClassificationTool::classify(
 + BHadronDecay
 + CHadronDecay
 + LightFlavorDecay
++ ChargeFlipMuon
 
 
 More details about the lepton categories can be found [here](#3-details-about-the-lepton-categories).
@@ -89,6 +91,7 @@ It may necessary to add `TruthClassification` to the `atlas_depends_on_subdirs()
 ```
 AsgToolConfig config ("TruthClassificationTool");
 ATH_CHECK(config.setProperty("separateChargeFlipElectrons", true));
+ATH_CHECK(config.setProperty("separateChargeFlipMuons",     true));
 ATH_CHECK(config.makePrivateTool(m_truthTool));
 ```
 
@@ -146,6 +149,10 @@ Electrons and muons originating from heavy-flavor decays can come from two types
 
 Leptons produced by light-flavor jets (**IFF class 10**) are identified by checking if the truth-type of the lepton corresponds to a hadron type (`== 17`). Also, if the truth-type corresponds to a background electron, muon or photon (`== 4/8/16`) and it originates from a light-meson, a strange-meson or light/strange-baryons, it is considered for the light-flavour category. For background electrons, the case of an intermediate photon-conversion (e.g. pi -> gg, g -> e+ e-) and Dalitz-decays are also considered for this category.
 
+### Charge-flip muons
+
+Muons with mis-identified charge can be selected. Similarly to electrons, it works via an extra option of the tool: `separateChargeFlipMuons` (`false` by default). If enabled, the tool will put (prompt) muons, where the reconstruction-level charge and the charge of the associated truth-particle are different, to a separate category (**IFF class 11**). This effect is expected to be extremely small compared to electrons and is not expected to have a sizable impact on physics analyses. It can, however, be used for specific studies on the underlying processes leading the charge-flip muons.
+
 ### KnownUnknown leptons
 
 The `KnownUnknown` category (**IFF class 1**)  refers to leptons which can (in principle) be classified, but the tool fails with the classification due to missing information (e.g. the truth-type/origin correspond to the unknown (or non-defined) cases in the MCTruthClassifier (`== 0/1`).  This type of leptons is not recommended to be used (or to have a significant impact) for fake lepton estimations or efficiency measurements. Please contact the developers of the tool or the IFF contacts if these types occur frequently for the leptons in your analysis.  
@@ -155,4 +162,3 @@ The `KnownUnknown` category (**IFF class 1**)  refers to leptons which can (in p
 Leptons are entering the category `Unknown` (**IFF class 0**), if they cannot be attributed to any or the classes listed above. If leptons of this category are encountered in an analysis, the user should contact the IFF group (see mailing lists above) and report the details about the unclassified leptons (truth-origin/type, mother-particle-origin/type, PDG-ID, etc.), as well as the MC files where such leptons are found. The IFFTruhClassifier team will take care and classify these leptons. Merge requested proposed by the user with a fix are also higher encouraged!
 
 Ideally, leptons should never fall into this category.
-

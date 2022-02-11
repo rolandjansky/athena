@@ -84,10 +84,13 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     if flags.Trigger.calo.doOffsetCorrection:
-        from AthenaCommon.CFElements import parOR
-        eventAcc = ComponentAccumulator(parOR("HLTBeginSeq"))
-        eventAcc.merge(CaloOffsetCorrectionCfg(flags), sequenceName="HLTBeginSeq")
-        acc.merge(eventAcc)
+        if flags.Trigger.doHLT:
+            from AthenaCommon.CFElements import parOR
+            eventAcc = ComponentAccumulator(parOR("HLTBeginSeq"))
+            eventAcc.merge(CaloOffsetCorrectionCfg(flags), sequenceName="HLTBeginSeq")
+            acc.merge(eventAcc)
+        else:
+            acc.merge(CaloOffsetCorrectionCfg(flags))
 
     acc.addService( svc )
     return acc

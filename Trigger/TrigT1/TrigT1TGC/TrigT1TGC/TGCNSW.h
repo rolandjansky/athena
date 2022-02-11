@@ -40,7 +40,7 @@ public:
   enum { NumberOfNSWTriggerProcesser = 16 };
 
   std::shared_ptr<const NSWTrigOut> getOutput(TGCRegionType region ,int side, int TGC_TriggerSector) const;
-  void  setOutput(int side, int NSWTriggerProcesser,uint8_t NSWeta_8bit,uint8_t NSWphi_6bit,uint8_t NSWDtheta_5bit); //eta:0.005 phi:10mrad Dtheta:1mrad 
+  void  setOutput(int side, int NSWTriggerProcesser,uint8_t NSWeta_8bit,uint8_t NSWphi_6bit,uint8_t NSWDtheta_5bit, bool lowRes, bool phiRes, bool NSWmonitor); //eta:0.005 phi:10mrad Dtheta:1mrad 
   void  eraseOutput();
   int   getNumberOfNSWTriggerProcesser() const { return NumberOfNSWTriggerProcesser; };   
 

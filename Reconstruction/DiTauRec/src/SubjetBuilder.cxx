@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DiTauRec/SubjetBuilder.h"
@@ -80,10 +80,10 @@ StatusCode SubjetBuilder::execute(DiTauCandidateData * data,
 
   for (const auto *cl: vConst) {
     double pt = cl->pt();
-    double px = pt*cos(cl->phi());  
-    double py = pt*sin(cl->phi());  
-    double pz = pt*sinh(cl->eta()); 
-    double e  = sqrt(px*px + py*py + pz*pz);
+    double px = pt*std::cos(cl->phi());  
+    double py = pt*std::sin(cl->phi());  
+    double pz = pt*std::sinh(cl->eta()); 
+    double e  = std::sqrt(px*px + py*py + pz*pz);
     PseudoJet c( px, py, pz, e);
 
     vpjClusters.push_back(c);
@@ -99,12 +99,12 @@ StatusCode SubjetBuilder::execute(DiTauCandidateData * data,
   // store (pt-sorted) subjets
   std::vector<PseudoJet> vSubjets = sorted_by_pt( cs.inclusive_jets(m_ptmin) );
 
-  if (vSubjets.size() < 2 ){
-    if (vSubjets.size() < 1) {
-      ATH_MSG_DEBUG("Found no subjet. Reject ditau candidate");
-      return StatusCode::FAILURE;
-    }
-    if (data->electrons.size() < 1 && data->muons.size() < 1) {
+  if (vSubjets.empty()) {
+    ATH_MSG_DEBUG("Found no subjet. Reject ditau candidate");
+    return StatusCode::FAILURE;
+  }
+  if (vSubjets.size()==1) {
+    if (data->electrons.empty() && data->muons.empty()) {
       ATH_MSG_DEBUG("Found 1 subjet, but no additional electron or muon. Reject ditau candidate");
       return StatusCode::FAILURE;
     }

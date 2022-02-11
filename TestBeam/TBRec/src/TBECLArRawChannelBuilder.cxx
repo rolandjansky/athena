@@ -123,9 +123,7 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
   
   // ***
 
-  if (m_hvcorr) {
-    ATH_CHECK( m_offlineHVScaleCorrKey.initialize() );
-  }
+  ATH_CHECK( m_offlineHVScaleCorrKey.initialize(m_hvcorr) );
 
 
   //m_larRawOrdering.setMap(&(*m_roiMap)); 

@@ -12,6 +12,10 @@ from .JetRecoCommon import jetRecoDictToString
 from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences
 from .JetTrackingConfig import JetRoITrackingSequence
 
+# Hypo tool generators
+from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
+from .JetPresel import caloPreselJetHypoToolFromDict
+
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -76,7 +80,6 @@ class JetHypoAlgType(Enum):
     PASSTHROUGH = 2
 
 def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.STANDARD):
-    from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
     def trigStreamerHypoTool(chain_dict):
         return conf2toConfigurable(CompFactory.TrigStreamerHypoTool(chain_dict["chainName"]))
 
@@ -89,6 +92,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"
         hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn, DoPresel=True))
+        trigHypoToolGen = caloPreselJetHypoToolFromDict
     else:
         hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn))
 

@@ -7,25 +7,41 @@
 # This defines the input format of the chain and it's properties with the defaults set
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
-#from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from .SignatureDicts import ChainStore
 
 import TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 as physics_menu 
-from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (SingleElectronGroup,
-                                                       BphysicsGroup,
-                                                       EOFBPhysL1MuGroup,
+from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import ( SingleElectronGroup,
+                                                        BphysicsGroup,
+                                                        EOFBPhysL1MuGroup,
+                                                        SupportPhIGroup,
+                                                        SingleJetGroup,
 )
 
-def setupMenu():
 
+def addMCSignatures(chains):
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
     log.info('[setupMenu] going to add the MC menu chains now')
-    
-    chains = physics_menu.setupMenu()
 
-    chains['Egamma'] += [
+    chainsMC = ChainStore()
 
+    chainsMC['Jet'] = [
+        # Low-threshold calibration Large-R jets
+        ChainProp(name='HLT_j85_a10sd_cssk_pf_nojcalib_ftf_preselj50_L1jLJ60', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ60']),
+        ChainProp(name='HLT_j85_a10sd_cssk_pf_jes_ftf_preselj50_L1jLJ60', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ60']),
+        ChainProp(name='HLT_j85_a10t_lcw_nojcalib_L1jLJ60', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ60']),
+        ChainProp(name='HLT_j85_a10t_lcw_jes_L1jLJ60',      l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ60']),
+
+        ChainProp(name='HLT_j110_a10sd_cssk_pf_jes_ftf_preselj80_L1jLJ80', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ80']),
+        ChainProp(name='HLT_j110_a10t_lcw_jes_L1jLJ80', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ80']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_preselj140_L1jLJ100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ100']),
+        ChainProp(name='HLT_j175_a10t_lcw_jes_L1jLJ100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ100']),
+        ChainProp(name='HLT_j260_a10sd_cssk_pf_jes_ftf_preselj200_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
+        ChainProp(name='HLT_j260_a10t_lcw_jes_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
+    ]
+
+    chainsMC['Egamma'] += [
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1eEM5', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
@@ -34,7 +50,6 @@ def setupMenu():
         ChainProp(name='HLT_e60_etcut_L1eEM26M', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_gsf_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_gsf_L1eEM5', groups=SingleElectronGroup),
-
     ]
 
     chains['Bphysics'] += [    
@@ -47,5 +62,26 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup+EOFBPhysL1MuGroup),
 
     ]
+
+    # check for chains that have the 'PS:Online' group, so that they are not simulated
+    # -- does not make sense in MC menu
+    for sig in chainsMC:
+        for chain in chainsMC[sig]:
+            if 'PS:Online' in chain.groups:
+                log.error("chain %s in MC menu has the group 'PS:Online', will not be simulated!", chain.name)
+                raise RuntimeError("Remove the group 'PS:Online' from the chain %s",chain.name)
+
+    for sig in chainsMC:
+        chains[sig] += chainsMC[sig]
+
+def setupMenu():
+
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger( __name__ )
+    log.info('[setupMenu] going to add the MC menu chains now')
+    
+    chains = physics_menu.setupMenu()
+
+    addMCSignatures(chains)
 
     return chains
