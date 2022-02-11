@@ -46,6 +46,9 @@ class opt:
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
     enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
     enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
+    enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
+    enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -234,6 +237,9 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
 ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
 ConfigFlags.Trigger.L1MuonSim.doMMTrigger = opt.enableL1NSWMMTrigger
+ConfigFlags.Trigger.L1MuonSim.doPadTrigger = opt.enableL1NSWPadTrigger
+ConfigFlags.Trigger.L1MuonSim.doStripTrigger = opt.enableL1NSWStripTrigger
+ConfigFlags.Trigger.L1MuonSim.doBIS78 = opt.enableL1RPCBIS78
 
 ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID

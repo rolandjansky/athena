@@ -56,6 +56,7 @@ include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas
 topSequence.NSWL1Simulation.DosTGC=True
+topSequence.NSWL1Simulation.DoStrip=True
 topSequence.NSWL1Simulation.UseLookup=False #use lookup table for the pad trigger
 topSequence.NSWL1Simulation.DoMM=True
 topSequence.NSWL1Simulation.DoMMDiamonds=True
