@@ -65,7 +65,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
     if(pLArAccDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
 
-    for (LArAccumulatedDigitContainer::const_iterator itDig = pLArAccDigitContainer->begin(); itDig!=pLArAccDigitContainer->end();++itDig) {
+    for (auto itDig = pLArAccDigitContainer->begin(); itDig!=pLArAccDigitContainer->end();++itDig) {
         unsigned int id = ((*itDig)->hardwareID()).get_identifier32().get_compact();
         if(chanids.find(id) == chanids.end()) chanids.emplace(id);
     }
@@ -77,7 +77,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
   SG::ReadHandle<xAOD::EventInfo> thisEvent = GetEventInfo(ctx);
   unsigned lumi_block = thisEvent->lumiBlock();
-  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
+  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error);
   ATH_MSG_DEBUG( "LArFEBMonAlg Lumi block: "<<lumi_block);
   
   SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_hdrContKey, ctx);
@@ -87,7 +87,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
     return StatusCode::FAILURE;
   }
   
-  if (hdrCont->size()==0) {
+  if (hdrCont->empty()) {
     ATH_MSG_WARNING( "Got empty LArFebHeaderContainer. Do nothing" );
   }
 
@@ -105,7 +105,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
   auto slmon = Monitored::Scalar<int>("slotnb",-1);
   auto ftmon = Monitored::Scalar<int>("FTnb",-1);
 
-  for ( LArFebHeaderContainer::const_iterator it = hdrCont->begin(); it!=hdrCont->end();++it) {
+  for ( auto it = hdrCont->begin(); it!=hdrCont->end();++it) {
     HWIdentifier febid=(*it)->FEBId();
     if (febid.get_identifier32().get_compact() >= 0x38000000 && febid.get_identifier32().get_compact() <= 0x3bc60000 && !(febid.get_identifier32().get_compact() & 0xFFF)) {
       int barrel_ec = m_onlineHelper->barrel_ec(febid);
@@ -137,7 +137,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
   // Loop over all febs to plot the error from statusword
   // This is mandatory to also monitor the FEBs with missing headers
    
-  for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); allFeb != m_onlineHelper->feb_end(); ++allFeb) {
+  for (auto allFeb = m_onlineHelper->feb_begin(); allFeb != m_onlineHelper->feb_end(); ++allFeb) {
     HWIdentifier febid = HWIdentifier(*allFeb);
     bool currentFebStatus = false;
     uint16_t feberrorSummary = lArFebErrorSummary->feb_error(febid);
@@ -152,12 +152,14 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
       if (partitionNb_dE < m_partitions.size()) {
          // Fill the errors in partition histograms
          fillErrorsSummary(partitionNb_dE,ft,slot,feberrorSummary,lar_inerror, rejectionBits, currentFebStatus, eventRejected);
-      }else{
+      } else{
          ATH_MSG_WARNING("Unknown partition number: "<< partitionNb_dE << " not filling !");
       }
 
       if (currentFebStatus && febInErrorTree.size()<33) febInErrorTree.push_back(febid.get_identifier32().get_compact());
-    }  
+    } else{
+      ATH_MSG_WARNING("Summarry FEB error: "<< feberrorSummary << " The histogram not created !");
+    }
   }
   
   
@@ -188,21 +190,15 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
   auto evtrej = Monitored::Scalar<int>("EvtRej",-1);
   float evt_yield=-1.;
   auto evtyield = Monitored::Scalar<float>("EvtRejYield",-1);
-  auto evtyield1D = Monitored::Scalar<float>("EvtRejYield1D",-1);
-  auto evtoneyield = Monitored::Scalar<float>("EvtOneYield",-1);
-  auto evtyieldout = Monitored::Scalar<float>("EvtRejYieldOut",-1);
   if (febInErrorTree.size()>=1 || newHighWaterMarkNFebBlocksTotal || nbOfFeb < m_nbOfFebBlocksTotal ){
-    evtrej=1; evt_yield = 100.; evtoneyield =100.;
+    evtrej=1; evt_yield = 100.;
     if (febInErrorTree.size()>=4) evtrej=2;
-  } else{
-     evtoneyield=0.;
   }
+    
   evtyield=evt_yield;
   auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/262144);
-  auto lb0 = Monitored::Scalar<int>("LB0",lumi_block); //to avoid 'NbOfEventsVSLB' being filled multiple times
-  fill(m_MonGroupName,evtrej,evtyieldout,evtyield,evtyield1D,evtoneyield,evSize,lb0);
-    evtrej=7;
-  fill(m_MonGroupName,evtrej);
+  auto lb0 = Monitored::Scalar<int>("LB0",lumi_block);
+  fill(m_MonGroupName,evtrej,evtyield,evSize,lb0);
   
   return StatusCode::SUCCESS;
 }

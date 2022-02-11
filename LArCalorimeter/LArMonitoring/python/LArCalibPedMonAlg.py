@@ -41,10 +41,6 @@ def LArCalibPedMonConfigCore(helper,algoinstance,inputFlags,gain="",doAccDigit=F
           
 # this creates a "Group" called "PedMonGroup" which will put its histograms into the subdirectory "'/LAr/'+GroupName+'/'"
     GroupName="PedMonGroup"
-
-    nslots=[]
-    for i in range(0,len(lArDQGlobals.FEB_Slot)): 
-       nslots.append(lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[i]][1])
        
     larPedMonAlgTest.LArPedGroupName=GroupName
     larPedMonAlgTest.PartitionNames=lArDQGlobals.Partitions

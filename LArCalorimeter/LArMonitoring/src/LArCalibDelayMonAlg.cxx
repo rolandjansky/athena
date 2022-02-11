@@ -27,9 +27,7 @@ StatusCode LArCalibDelayMonAlg::initialize() {
     ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
     return StatusCode::FAILURE;
   }
-  
-  ATH_CHECK( m_hdrContKey.initialize() );
-  
+    
   m_histoGroups.reserve(m_SubDetNames.size());
   for (unsigned i=0; i<m_SubDetNames.size(); ++i) {
     std::vector<std::string> part;
@@ -55,7 +53,7 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
   auto dac = Monitored::Scalar<int>("dac",0);  
   auto delay = Monitored::Scalar<int>("delay",0); 
   auto sample_max = Monitored::Scalar<double>("sample_max",0.);
-   auto sample_max30 = Monitored::Scalar<double>("sample_max30",0.);
+  auto sample_max30 = Monitored::Scalar<double>("sample_max30",0.);
   auto sample_min = Monitored::Scalar<double>("sample_min",0.);
   auto chid = Monitored::Scalar<unsigned int>("chid",-1);
   auto slot = Monitored::Scalar<int>("slot",-1);
@@ -74,9 +72,8 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
     }  
     if(pLArAccCalibDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
       
-    /** Define iterators to loop over AccCalibDigits containers*/
-    for (LArAccumulatedCalibDigitContainer::const_iterator ijDig = pLArAccCalibDigitContainer->begin(); 
-         ijDig != pLArAccCalibDigitContainer->end(); ++ijDig) {
+    /** Define var to loop over AccCalibDigits containers*/
+    for (auto ijDig=pLArAccCalibDigitContainer->begin();ijDig != pLArAccCalibDigitContainer->end(); ++ijDig) {
         HWIdentifier id = (*ijDig)->hardwareID();
         unsigned int ids = ((*ijDig)->hardwareID()).get_identifier32().get_compact();
         if(chanids.find(ids) == chanids.end()) chanids.emplace(ids);
@@ -89,7 +86,7 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
         // transform sampleSum vector from uint32_t to double
         std::vector <double> samplesum;     
 
-        for (std::vector < uint64_t >::const_iterator samplesum_it=(*ijDig)->sampleSum().begin();
+        for (auto samplesum_it=(*ijDig)->sampleSum().begin();
              samplesum_it!=(*ijDig)->sampleSum().end(); ++samplesum_it) {
             samplesum.push_back((double)(*samplesum_it));
             // Get the vector of sample values
@@ -130,9 +127,9 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
                 
     }//end loop over pLArAccCalibDigitContainer    
      
-  ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());
-  auto nbchan = Monitored::Scalar<unsigned int>("nbChan",chanids.size());
-  fill(m_MonGroupName,nbchan);
+    ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());
+    auto nbchan = Monitored::Scalar<unsigned int>("nbChan",chanids.size());
+    fill(m_MonGroupName,nbchan);
   }
         
   return StatusCode::SUCCESS;

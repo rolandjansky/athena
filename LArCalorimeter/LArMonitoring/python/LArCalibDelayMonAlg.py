@@ -37,10 +37,6 @@ def LArCalibDelayMonConfigCore(helper,algoinstance,inputFlags,gain="",doAccDigit
           
     GroupName="DelayMonGroup"
 
-    nslots=[]
-    for i in range(0,len(lArDQGlobals.FEB_Slot)): 
-       nslots.append(lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[i]][1])
-
     larDelayMonAlgTest.LArDelayGroupName=GroupName
     larDelayMonAlgTest.PartitionNames=lArDQGlobals.Partitions
     larDelayMonAlgTest.SubDetNames=lArDQGlobals.SubDet    
