@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <set>
@@ -7,6 +7,7 @@
 #include <MCTruthClassifier/MCTruthClassifierDefs.h>
 #include <xAODTruth/TruthParticle.h>
 #include <xAODTruth/xAODTruthHelpers.h>
+#include <FourMomUtils/xAODP4Helpers.h>
 
 #include "TruthClassification/TruthClassificationTool.h"
 
@@ -23,6 +24,7 @@ TruthClassificationTool::TruthClassificationTool(const std::string &type)
   : asg::AsgTool(type)
 {
   declareProperty ("separateChargeFlipElectrons", m_separateChargeFlipElectrons, "separate prompt charge-flipped electrons");
+  declareProperty ("separateChargeFlipMuons",     m_separateChargeFlipMuons,     "separate prompt charge-flipped muons");
 }
 
 
@@ -467,6 +469,12 @@ StatusCode TruthClassificationTool::classify(const xAOD::Muon &muon,
   });
   if (type == MC::IsoMuon && isInSet(origin, promptOrigin))
   {
+    //separate charge-flip muons
+    if (m_separateChargeFlipMuons && isChargeFlipMuon(muon))
+      {
+	classification = Truth::Type::ChargeFlipMuon;
+	return StatusCode::SUCCESS;
+      }
     classification = Truth::Type::PromptMuon;
     return StatusCode::SUCCESS;
   }
@@ -585,6 +593,18 @@ bool TruthClassificationTool::isChargeFlipElectron(const xAOD::Electron &electro
   return (firstMotherPdgId * (-pdgId)) > 0;
 }
 
+bool TruthClassificationTool::isChargeFlipMuon(const xAOD::Muon &muon) const
+{
+  const xAOD::TrackParticle* trackParticle = muon.primaryTrackParticle();
+  if(trackParticle != nullptr){
+    const xAOD::TruthParticle *truthMuon = xAOD::TruthHelpers::getTruthParticle(*trackParticle);
+    if( truthMuon != nullptr && xAOD::P4Helpers::isInDeltaR(*truthMuon, muon, 0.025) ){
+      return (truthMuon->charge() * muon.charge()) < 0;
+    }
+  }
+  ANA_MSG_DEBUG("Cannot find associated truth-particle... assuming muon has correct charge");
+  return false;
+}
 
 bool TruthClassificationTool::hasBHadronOrigin(int origin) const
 {
