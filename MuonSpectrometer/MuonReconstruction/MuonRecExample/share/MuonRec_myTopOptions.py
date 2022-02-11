@@ -51,7 +51,7 @@ rec.doTruth=True
 rec.doTrigger = False
 
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
-muonRecFlags.doTrackPerformance    = True
+muonRecFlags.doTrackPerformance    = False
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
