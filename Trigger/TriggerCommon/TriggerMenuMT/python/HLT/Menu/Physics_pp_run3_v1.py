@@ -579,6 +579,7 @@ def setupMenu():
 
         # ATR-20049
         ChainProp(name='HLT_j420_L1J100', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream,'express'], groups=PrimaryLegGroup+SingleJetGroup, monGroups=['jetMon:t0']),
+        ChainProp(name='HLT_j420_L1J120', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j260_320eta490_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1SC111-CJ15',         l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J100', l1SeedThresholds=['FSNOSEED'],  groups=PrimaryLegGroup+SingleJetGroup),
@@ -1525,8 +1526,8 @@ def setupMenu():
         ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_DJMASS1000j50dphi240_xe90_tcpufit_xe50_cell_L1jMJJ-500-NFF',l1SeedThresholds=['FSNOSEED']*5,stream=['VBFDelayed'], groups=PrimaryPhIGroup+JetMETGroup),
 
         # Photon+VBF
-        ChainProp(name='HLT_g20_tight_icaloloose_j35_pf_ftf_bdl1d77_3j35_pf_ftf_0eta490_j0_pf_ftf_DJMASS500j35_L1eEM22M_jMJJ-300-NFF',l1SeedThresholds=['eEM22M','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryPhIGroup+EgammaBjetGroup),
-        ChainProp(name='HLT_g20_tight_icaloloose_j35_pf_ftf_bdl1r77_3j35_pf_ftf_0eta490_j0_pf_ftf_DJMASS500j35_L1eEM22M_jMJJ-300-NFF',l1SeedThresholds=['eEM22M','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryPhIGroup+EgammaBjetGroup),
+        ChainProp(name='HLT_g20_tight_icaloloose_j35_pf_ftf_bdl1d77_3j35_pf_ftf_0eta490_j0_pf_ftf_DJMASS500j35_L1eEM22M_jMJJ-300',l1SeedThresholds=['eEM22M','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryPhIGroup+EgammaBjetGroup),
+        ChainProp(name='HLT_g20_tight_icaloloose_j35_pf_ftf_bdl1r77_3j35_pf_ftf_0eta490_j0_pf_ftf_DJMASS500j35_L1eEM22M_jMJJ-300',l1SeedThresholds=['eEM22M','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryPhIGroup+EgammaBjetGroup),
 
         # photon + VBF Hbb (ATR-23293) 
         ChainProp(name='HLT_g25_tight_icaloloose_2j35_pf_ftf_0eta490_bdl1d77_2j35_pf_ftf_0eta490_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaBjetGroup),
@@ -1632,8 +1633,21 @@ def setupMenu():
         ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+MinBiasGroup+SupportGroup),
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+MinBiasGroup+SupportGroup),
 
-        ChainProp(name='HLT_noalg_L1MU3V', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
-        ChainProp(name='HLT_noalg_L1MU8VF', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        # muon streamers
+        ChainProp(name='HLT_noalg_L1MU3V',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU8VF',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU3VC',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU4BO',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU3EOF',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU8FH',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU8EOF',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU9VF',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU9VFC',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU12FCH',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU14EOF',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU15VFCHR', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU18VFCH',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
+        ChainProp(name='HLT_noalg_L1MU20VFC',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup+SupportGroup),
 
         # L1 calo streamers
         ChainProp(name='HLT_noalg_L1EM3',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+EgammaStreamersGroup+SupportLegGroup),
@@ -1675,6 +1689,107 @@ def setupMenu():
 
         # Phase I jet inputs ATR-24411
         ChainProp(name='HLT_noalg_L1jJ500', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=PrimaryPhIGroup+JetStreamersGroup+['BW:Other']), # catch all high-Et
+
+        #Phase-I
+        ChainProp(name='HLT_noalg_L1eTAU12',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU20',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTAU20',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTAU30',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTAU30M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1cTAU20M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU20L',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU20M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU30',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1cTAU30M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU35',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1cTAU35M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU40HM',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU60',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU80',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU140',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+TauPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1eEM5',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM7',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM9',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM10L',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM12L',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM15',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM18',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM18L',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM18M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM22M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM24L',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM24VM',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM26',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM26L',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM26M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eEM26T',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1jEM20',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jEM20M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+EgammaPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1jJ30',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ30p0ETA25',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ40',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ40p0ETA25',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ40p31ETA49',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ50',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ50p31ETA49',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ55',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ55p0ETA23',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ60',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ60p31ETA49',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ70p0ETA23',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ80',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ80p0ETA25',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ85p0ETA21',   l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ90',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ90p31ETA49',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ125',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ125p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ140',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ160',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jJ180',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1jLJ80',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jLJ120',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jLJ140',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jLJ180',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1gJ20',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gJ30',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gJ40',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gJ50',          l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gJ100',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gJ160',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1gLJ80',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gLJ100',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gLJ140',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gLJ160',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+JetPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1jXE70',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jXE80',         l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jXE100',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup, monGroups=['metMon:val']),
+        ChainProp(name='HLT_noalg_L1jXE110',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jXE500',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gXEJWOJ70',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gXEJWOJ80',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gXEJWOJ100',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup, monGroups=['metMon:val']),
+        ChainProp(name='HLT_noalg_L1gXERHO70',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gXERHO100',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup, monGroups=['metMon:val']),
+        ChainProp(name='HLT_noalg_L1gXENC70',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gXENC100',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup, monGroups=['metMon:val']),
+        ChainProp(name='HLT_noalg_L1gMHT500',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+
+        ChainProp(name='HLT_noalg_L1jXEC100',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1gTE200',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTE200',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTEC200',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTEFWD100',     l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTEFWDA100',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1jTEFWDC100',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SupportPhIGroup+METPhaseIStreamersGroup),
+
 
         # Exotics support streamers
         ChainProp(name='HLT_noalg_L110DR-MU14FCH-MU5VF_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=SupportGroup+MuonXStreamersGroup),

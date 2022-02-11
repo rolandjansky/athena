@@ -52,7 +52,7 @@ def addMCSignatures(chains):
         ChainProp(name='HLT_e5_lhtight_gsf_L1eEM5', groups=SingleElectronGroup),
     ]
 
-    chains['Bphysics'] += [    
+    chainsMC['Bphysics'] += [    
 
         #ATR-21566, chains for di-muon TLA, but with HLT selections to test rates. Here streaming into BphysDelayed (not in TLA stream)   
         ChainProp(name='HLT_2mu4_b7invmAB22vtx20_L1BPH-7M22-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup+EOFBPhysL1MuGroup),
@@ -61,6 +61,10 @@ def addMCSignatures(chains):
         ChainProp(name='HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup+EOFBPhysL1MuGroup),
         ChainProp(name='HLT_2mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup+EOFBPhysL1MuGroup),
 
+    ]
+
+    chainsMC['Streaming'] += [
+        ChainProp(name='HLT_noalg_L1All', l1SeedThresholds=['FSNOSEED'], groups=['Primary:CostAndRate', 'RATE:SeededStreamers', 'BW:Other']), # ATR-22072, for rates in MC.
     ]
 
     # check for chains that have the 'PS:Online' group, so that they are not simulated
