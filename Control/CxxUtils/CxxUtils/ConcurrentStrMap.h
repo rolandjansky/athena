@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentStrMap.h
@@ -40,7 +40,7 @@ namespace CxxUtils {
  * Besides the mapped value type,
  * this class is templated on an UPDATER class, which is used to manage
  * the underlying memory.  The requirements are the same as for the 
- * UPDATER template argument of ConcurrentTangeMap; see there for
+ * UPDATER template argument of ConcurrentRangeMap; see there for
  * further details.  (AthenaKernel/RCUUpdater is a concrete version
  * that should work in the context of Athena.)
  *
@@ -266,7 +266,7 @@ public:
 
 
   /**
-   * @brief Return an interator range covering the entire map.
+   * @brief Return an iterator range covering the entire map.
    */
   const_iterator_range range() const;
 
@@ -454,7 +454,7 @@ private:
 
   /**
    * @brief Convert this type's mapped value to an underlying mapped value.
-   * @param val THe mapped value.
+   * @param val The mapped value.
    */
   static val_t mappedAsVal (mapped_type val);
 

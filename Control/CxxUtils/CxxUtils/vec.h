@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/vec.h
@@ -30,7 +30,7 @@
  * ++, --, +,-,*,/,%, =, &,|,^,~, >>,<<, !, &&, ||,
  * ==, !=, >, <, >=, <=, =, sizeof and Initialization from brace-enclosed lists
  *
- * Furthemore the GCC and clang vector types support the ternary operator.
+ * Furthermore the GCC and clang vector types support the ternary operator.
  *
  * We also support some additional operations.
  *
