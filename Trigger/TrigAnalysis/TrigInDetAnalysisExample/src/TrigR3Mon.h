@@ -1,17 +1,25 @@
-/* emacs: this is -*- c++ -*- */
+/// emacs: this is -*- c++ -*- 
 /**
- **     @file    TrigTestBase.h
+ **     @file    TrigR3Mon.h
  **
  **     @author  mark sutton
- **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **     @date    Tue  8 Feb 2022 09:08:26 GMT
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
-#ifndef TIDAEXAMPLE_TRIGTESTBASE_H
-#define TIDAEXAMPLE_TRIGTESTBASE_H
+#ifndef TIDAEXAMPLE_TRIGR3MON_H
+#define TIDAEXAMPLE_TRIGR3MON_H
 
+#include "GaudiKernel/ToolHandle.h"
+#include "Gaudi/Property.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
+#include "AthenaMonitoringKernel/Monitored.h"
+
+#include <string>
 
 
 // #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -27,49 +35,28 @@
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaR.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaRCosmic.h"
-#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
-#include "TrigInDetAnalysisExample/SigAnalysis.h"
-#include "TrigInDetAnalysisExample/TrackEfficiency.h"
-// #include "TrigInDetAnalysisExample/T_AnalysisConfig_Tier0.h"
+// #include "TrigInDetAnalysisExample/SigAnalysis.h"
+// #include "TrigInDetAnalysisExample/TrackEfficiency.h"
 #include "TrigInDetAnalysisExample/AnalysisConfig_Tier0.h"
 
-#include "TrigHLTMonitoring/IHLTMonTool.h"
 
-// class TrigTestPhysValMon : virtual public ManagedMonitorToolBase {
-class TrigTestBase : public IHLTMonTool {
+class TrigR3Mon : public AthAlgorithm {
 
-  //  typedef T_AnalysisConfig_Tier0<IHLTMonTool> AnalysisConfig_PhysValMon;
 
 public:
 
-  using IHLTMonTool::addHistogram;
+  TrigR3Mon( const std::string & name, ISvcLocator* pSvcLocator);
 
-public:
+  virtual ~TrigR3Mon();
 
-  TrigTestBase( const std::string & type, const std::string & name, const IInterface* parent);
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
+  virtual StatusCode finalize();
 
-  virtual ~TrigTestBase();
+  virtual StatusCode bookHistograms();
 
-  virtual StatusCode init();
-
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-  virtual StatusCode book();
-  virtual StatusCode fill();
-  virtual StatusCode proc();
-#else
-  virtual StatusCode book( bool newEventsBlock, bool newLumiBlock, bool newRun );
-  virtual StatusCode fill();
-  virtual StatusCode proc( bool /*newEventsBlock*/, bool /*newLumiBlock*/, bool newRun );
-#endif
-
-  // Inheriting class independant histogram registration
-  // histogram registration
-  virtual void addHistogram( TH1* h ) { 
-    ATH_MSG_DEBUG("TIDAMonTool::addHistogram()");
-    IHLTMonTool::addHistogram( h ); 
-  }
-
+  void addMonGroupFromBase( const std::string&  ) { }
 
 protected:
 
@@ -125,7 +112,8 @@ protected:
   std::vector<TrackFilter*>  m_filters;
   std::vector<TrackAssociator*>                 m_associators;
 
-  std::vector<T_AnalysisConfig<IHLTMonTool>*>   m_sequences;
+  /// dpo we need this ??? why not the base class ???
+  std::vector<T_AnalysisConfig<AthAlgorithm>*>   m_sequences;
 
   std::vector<std::string> m_chainNames;
   std::vector<std::string> m_ntupleChainNames;
@@ -178,8 +166,11 @@ protected:
 
   bool         m_legacy;
 
+  //  ToolHandleArray<GenericMonitoringTool> m_monTool { this, "MonTools", "", "chain monitor tool handles" };
+  ToolHandleArray<GenericMonitoringTool> m_monTools { this, "MonTools", {} }; // insane configuration paradigm ?
+
 };
 
 
 
-#endif //  TIDAEXAMPLE_TRIGTESTBASE_H
+#endif //  TIDAEXAMPLE_TRIGR3MON_H
