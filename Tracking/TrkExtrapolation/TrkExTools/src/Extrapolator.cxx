@@ -2319,7 +2319,7 @@ Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
   return extrapolateDirectlyImpl(ctx, prop, parm, sf, dir, bcheck, particle);
 }
 
-std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayer(const EventContext& ctx,
                                                 const TrackParameters& parm,
                                                 PropDirection dir,
@@ -2333,16 +2333,15 @@ Trk::Extrapolator::extrapolateToNextActiveLayer(const EventContext& ctx,
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      auto res = extrapolateToNextActiveLayerImpl(
+      return extrapolateToNextActiveLayerImpl(
         ctx, (*currentPropagator), parm, dir, bcheck, particle, matupmode);
-      return {res.first.release(), res.second};
     }
   }
   ATH_MSG_ERROR("[!] No default Propagator is configured ! Please check jobOptions.");
   return { nullptr, nullptr };
 }
 
-std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerM(
   const EventContext& ctx,
   const TrackParameters& parm,
@@ -2359,15 +2358,14 @@ Trk::Extrapolator::extrapolateToNextActiveLayerM(
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      auto res = extrapolateToNextActiveLayerMImpl(ctx,
-                                                   (*currentPropagator),
-                                                   parm,
-                                                   dir,
-                                                   bcheck,
-                                                   material,
-                                                   particle,
-                                                   matupmode);
-      return {res.first.release(), res.second};
+      return extrapolateToNextActiveLayerMImpl(ctx,
+                                               (*currentPropagator),
+                                               parm,
+                                               dir,
+                                               bcheck,
+                                               material,
+                                               particle,
+                                               matupmode);
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");

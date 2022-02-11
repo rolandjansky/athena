@@ -252,7 +252,7 @@ public:
     const Volume* boundaryVol = nullptr) const override final;
 
   /** 6) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayer(
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayer(
     const EventContext& ctx,
     const TrackParameters& parm,
     PropDirection dir = anyDirection,
@@ -261,7 +261,7 @@ public:
     MaterialUpdateMode matupmode = addNoise) const override final;
 
   /** 7) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerM(
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayerM(
     const EventContext& ctx,
     const TrackParameters& parm,
     PropDirection dir,

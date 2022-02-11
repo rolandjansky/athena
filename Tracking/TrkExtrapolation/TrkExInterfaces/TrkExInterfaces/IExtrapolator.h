@@ -188,7 +188,7 @@ public:
   /** 6) <b>Configured AlgTool extrapolation method</b>):
    *- extrapolation to the next active layer, based on the extrapolation to the
    next layer and layer identification*/
-  virtual std::pair<const TrackParameters*, const Trk::Layer*>
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Trk::Layer*>
   extrapolateToNextActiveLayer(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -198,7 +198,7 @@ public:
     MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** 7) <b>Configured AlgTool extrapolation method</b>):*/
-  virtual std::pair<const TrackParameters*, const Trk::Layer*>
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Trk::Layer*>
   extrapolateToNextActiveLayerM(
     const EventContext& ctx,
     const TrackParameters& parm,
