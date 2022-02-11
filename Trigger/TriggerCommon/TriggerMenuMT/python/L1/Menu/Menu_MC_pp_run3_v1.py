@@ -62,6 +62,11 @@ def defineMenu():
         'L1_MU3V_EMPTY', 'L1_MU5VF_EMPTY', 'L1_MU3V_FIRSTEMPTY', 'L1_MU8VF_EMPTY',
         'L1_MU3V_UNPAIRED_ISO',        
 
+        # test
+        'L1_MU3VC', 'L1_MU4BO', 'L1_MU3EOF', 
+        'L1_MU8FH', 'L1_MU8EOF', 'L1_MU9VF', 'L1_MU9VFC', 
+        'L1_MU12FCH', 'L1_MU14EOF', 'L1_MU15VFCHR', 'L1_MU18VFCH', 'L1_MU20VFC', 
+
         ##
         # combined lepton (e and mu)
         ##
@@ -132,7 +137,7 @@ def defineMenu():
 
         # single jet
         # L1_J12 must be kept in the menu for online monitoring of BIB (can be disabled via PS is necessary)
-        'L1_J12', 'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
+        'L1_J12', 'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J120', 'L1_J400',
         'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
         'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
@@ -162,6 +167,12 @@ def defineMenu():
 
         # jEM
         'L1_jEM20', 'L1_jEM20M',   
+
+        # gL
+        'L1_gJ20', 'L1_gJ30', 'L1_gJ40', 'L1_gJ50', 'L1_gJ100', 'L1_gJ160',
+
+        # gLJ
+        'L1_gLJ80', 'L1_gLJ100', 'L1_gLJ140', 'L1_gLJ160',
 
         # multi jet
         'L1_J45p0ETA21_3J15p0ETA25',
@@ -213,6 +224,7 @@ def defineMenu():
         'L1_RD3_FILLED',
 
         #LUCID
+        'L1_LUCID_A', 'L1_LUCID_C',
 
         # ZDC 
         # TODO: request for pilot run (ATR-22904), to be removed for pp
@@ -233,7 +245,7 @@ def defineMenu():
         'L1_CALREQ2',
 
         # BPTX
-        #'L1_BPTX0_BGRP12','L1_BPTX1_BGRP12',
+        'L1_BPTX0_BGRP12','L1_BPTX1_BGRP12',
 
         # BCM
         'L1_BCM_Wide_BGRP12', 'L1_BCM_AC_CA_BGRP12', 'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
@@ -350,11 +362,11 @@ def defineMenu():
         'L1_LFV-MU5VF',
         'L1_LFV-MU8VF', 
 
-        'L1_jMJJ-700-NFF',
+        'L1_jMJJ-700',
         'L1_jMJJ-300-NFF',
         'L1_jMJJ-500-NFF',
         'L1_jMJJ-400-CF',
-        'L1_eEM22M_jMJJ-300-NFF',
+        'L1_eEM22M_jMJJ-300',
 
         'L1_10DR-MU14FCH-MU5VF', #ATR-19376
         'L1_10DR-MU14FCH-MU5VF_EMPTY',
