@@ -37,6 +37,7 @@ namespace NSWL1 {
     declareProperty( "DoMM",         m_doMM         = false,  "Run data analysis for MM" );
     declareProperty( "DoMMDiamonds", m_doMMDiamonds = false, "Run data analysis for MM using Diamond Roads algorithm" );
     declareProperty( "DosTGC",       m_dosTGC       = false, "Run data analysis for sTGCs" );
+    declareProperty( "DoStrip",      m_doStrip      = false, "Run data analysis for sTGC strip trigger" );
 
     // declare monitoring tools
     declareProperty( "AthenaMonTools",          m_monitors,           "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
@@ -86,9 +87,11 @@ namespace NSWL1 {
       else{
         ATH_CHECK(m_pad_trigger.retrieve());
       }
-      ATH_CHECK(m_strip_tds.retrieve());
-      ATH_CHECK(m_strip_cluster.retrieve());
-      //ATH_CHECK(m_strip_segment.retrieve());
+      if(m_doStrip){
+	ATH_CHECK(m_strip_tds.retrieve());
+	ATH_CHECK(m_strip_cluster.retrieve());
+	//ATH_CHECK(m_strip_segment.retrieve());
+      }
     }
 
     if(m_doMM ){
@@ -136,10 +139,11 @@ namespace NSWL1 {
       else{
         ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
-
-      ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
-      //ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
+      if(m_doStrip){
+	ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
+	ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+	//ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
+      }
 
       ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
     }

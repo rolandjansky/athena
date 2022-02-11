@@ -101,6 +101,7 @@ namespace NSWL1 {
     bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_doMMDiamonds;                             //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    bool        m_doStrip;                                  //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
 
 
     protected:
