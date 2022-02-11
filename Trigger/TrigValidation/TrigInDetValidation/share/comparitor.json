@@ -60,6 +60,9 @@
     "L2fsjetvtx":{
         "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS/HLT_IDVertex_FS HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet/HLT_IDVertex_FSJet"
     },
+    "L2fst0vtx":{
+        "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
+    },
     "L2minbias":{
         "chains" : "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig"
     },

@@ -298,6 +298,7 @@ class TrigInDetCompStep(RefComparisonStep):
         os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-tier0.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-tier0-vtx.dat &> /dev/null' )
     
 
     def configure(self, test):
