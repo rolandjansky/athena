@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # File: FastCaloSim/python/AddNoiseCellBuilderTool.py
 # Created: Aug 2019, sss
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()
-    flags1.Input.Files = defaultTestFiles.RDO
+    flags1.Input.Files = defaultTestFiles.HITS_RUN2
     flags1.lock()
     acc1 = AddNoiseCellBuilderToolCfg (flags1)
     only = ['AddNoiseCellBuilderTool',

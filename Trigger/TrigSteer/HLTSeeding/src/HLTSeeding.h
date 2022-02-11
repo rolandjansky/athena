@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HLTSeeding_HLTSeeding_h
@@ -7,6 +7,7 @@
 
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
+#include "L1DataConsistencyChecker.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
@@ -84,6 +85,9 @@ private:
 
   ToolHandle<TrigConf::IKeyWriterTool> m_keyWriterTool{
     this, "KeyWriterTool", "", "Writes the keys used when the trigger executes on an event"};
+
+  ToolHandle<L1DataConsistencyChecker> m_consistencyChecker{
+    this, "L1DataConsistencyChecker", "", "L1 data consistency check tool"};
   /// @}
 };
 

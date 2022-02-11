@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -56,7 +56,7 @@ class DelayedConditionsCleanerSvcProps;
  * The cleaning can optionally be done as an asynchronous TBB job if
  * Async is true and allowAsync=true is passed to @c event.
  */
-class ATLAS_CHECK_THREAD_SAFETY DelayedConditionsCleanerSvc
+class DelayedConditionsCleanerSvc
   : public extends<AthService, IConditionsCleanerSvc>
 {
 public:

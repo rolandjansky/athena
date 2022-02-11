@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //======================================================
@@ -226,7 +226,11 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         int nmeas=(*iseg)->numberOfMeasurementBases();
         Amg::Vector3D surfpos(.5*((*iseg)->measurement(nmeas/2)->globalPosition()+(*iseg)->measurement(nmeas/2+1)->globalPosition()));
         Trk::PerigeeSurface persurf(surfpos);
-        inputMatchPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(ctx,*inputMatchLine,persurf));
+        std::unique_ptr<const Trk::TrackParameters> tmp =
+          m_extrapolator->extrapolateDirectly(ctx, *inputMatchLine, persurf);
+        if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+          inputMatchPerigee = static_cast<const Trk::Perigee*>(tmp.release());
+        }
       }
       ATH_MSG_DEBUG("Created inputMatchLine");
       
@@ -255,7 +259,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         }
         std::unique_ptr<const Trk::TrackParameters> myper;
         if (measpar){
-          myper.reset(m_extrapolator->extrapolate(ctx,*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting));
+          myper = m_extrapolator->extrapolate(ctx,*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
         }
         if (!myper){
           fittedTrack.reset();
@@ -413,7 +417,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* driftcircle,const EventContext& ctx) const
 {
   int numBarcodes = 0;
-  typedef PRD_MultiTruthCollection::const_iterator iter;
+  using iter = PRD_MultiTruthCollection::const_iterator;
 
   SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName,ctx);
 

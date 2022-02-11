@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
@@ -30,12 +30,8 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 {
   ATH_CHECK(m_evtKey.initialize());
   ATH_CHECK(m_mbtsKey.initialize(m_useMBTS));
-  if (not m_SpacePointsPixelKey.empty()) {
-    ATH_CHECK(m_SpacePointsPixelKey.initialize());
-  }
-  if (not m_SpacePointsSCTKey.empty()) {
-    ATH_CHECK(m_SpacePointsSCTKey.initialize());
-  }
+  ATH_CHECK(m_SpacePointsPixelKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_SpacePointsSCTKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_outputTracksKey.initialize());
 
   /// optional PRD to track association map
@@ -61,10 +57,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     m_useZBoundaryFinding = false;
   }
 
+  ATH_CHECK(m_beamSpotKey.initialize( (m_useNewStrategy or m_useZBoundaryFinding or m_ITKGeometry or m_useITkConvSeeded) && not m_beamSpotKey.key().empty() ));
   if (m_useNewStrategy or m_useZBoundaryFinding or m_ITKGeometry or m_useITkConvSeeded) {
 
     if (not m_beamSpotKey.key().empty()) {
-      ATH_CHECK(m_beamSpotKey.initialize());
       /// Get RungeKutta propagator tool
       ATH_CHECK( m_proptool.retrieve() );
 
@@ -518,7 +514,7 @@ StatusCode InDet::SiSPSeededTrackFinder::itkConvStrategy(const EventContext& ctx
   std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
 
   if(calo.isValid()) {
-    RoiDescriptor * roi =0;
+    RoiDescriptor * roi =nullptr;
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
     double beamZ = beamSpotHandle->beamVtx().position().z();
     roiComp->clear();
@@ -1095,6 +1091,6 @@ bool InDet::SiSPSeededTrackFinder::passEtaDepCuts(const Trk::Track* track,
 
   if(par->pT() < m_etaDependentCutsSvc->getMinPtAtEta(eta)) return false;
   if(!(*m)->type(Trk::TrackStateOnSurface::Perigee)) return true ;
-  if(fabs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
+  if(std::abs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
   return true;
 }

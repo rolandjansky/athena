@@ -36,14 +36,14 @@ class EgammaSshapeCalibration :
   virtual StatusCode finalize() override;
   
   /** Virtual function from IEgammaCalibration */
-  virtual void makeCorrection(xAOD::TrigEMCluster*, const void*) override;
+  virtual void makeCorrection(xAOD::TrigEMCluster*, const void*) const override;
 
  private:
   void docalc(int,
 	      const CaloClusterCorrectionCommon::TableBuilder&,
 	      const CxxUtils::Array<1>&, 
 	      CxxUtils::WritableArray<2>&,
-	      int&);
+	      int&) const;
   
  private:
   

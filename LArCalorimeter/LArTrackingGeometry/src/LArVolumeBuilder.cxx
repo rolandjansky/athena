@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -185,8 +185,8 @@ LAr::LArVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
   Trk::CylinderVolumeBounds* solenoidLArBarrelGapBounds = nullptr;
   
   // dummy objects
-  const Trk::LayerArray* dummyLayers = nullptr;
-  const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+  Trk::LayerArray* dummyLayers = nullptr;
+  Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   // default material definition
   Trk::Material solenoidMaterial = Trk::Material( 69.9, 811.5,  28.9, 13.8, 0.003); 

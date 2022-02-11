@@ -150,6 +150,8 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau ) con
   // not recommended until validated in R22: MVA TES always has better resolution than calo-only TES for true taus
   // in practice this check mostly discards muons faking taus with large track momentum but little energy deposit in the calorimeter:
   // when enforcing calo-only pt, the muon will likely fail the tau pt cut applied by TauSelectionTool
+
+  // WARNING: overwriting ptFinalCalib would lead to irreproducibilities upon re-calibration (re-apply in-situ TES on already-calibrated PHYSLITE)
   if (m_bApplyMVATESQualityCheck) {
     bool useCaloPt = false;     
     if(xTau.isAvailable<float>("ptTauEnergyScale")) {
@@ -229,7 +231,9 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau ) con
   }
 
   // finally apply correction
-  xTau.setP4( xTau.pt() * dCorrection,
+  // in-situ TES is applied w.r.t. ptFinalCalib, use explicit calibration for pt to avoid irreproducibility upon re-calibration (PHYSLITE)
+  // not required for eta/phi/m that we don't correct (only ptFinalCalib and etaFinalCalib are stored in DAODs)
+  xTau.setP4( xTau.ptFinalCalib() * dCorrection,
               xTau.eta(), xTau.phi(), xTau.m());
   return CP::CorrectionCode::Ok;
 }

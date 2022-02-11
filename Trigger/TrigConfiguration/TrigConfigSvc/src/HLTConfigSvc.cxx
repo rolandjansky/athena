@@ -6,6 +6,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTMonitoring.h"
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
@@ -20,7 +21,8 @@ TrigConf::HLTConfigSvc::HLTConfigSvc(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
 {
-  auto hltmenu = std::make_unique<TrigConf::HLTMenu>();
+  std::unique_ptr<TrigConf::HLTMenu> hltmenu = std::make_unique<TrigConf::HLTMenu>();
+  std::unique_ptr<TrigConf::HLTMonitoring> monitoring;
 
   if (m_inputType == "DB") {
     // db menu loader
@@ -36,6 +38,22 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
 
     ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
     hltmenu->setSMK(m_smk);  // allow assigning a dummy SMK when running from FILE
+
+    if (!m_monitoringFileName.empty()) {
+      monitoring.reset( new TrigConf::HLTMonitoring() );
+      const bool success = fileLoader.loadFile(m_monitoringFileName, *monitoring);
+      if (not success) {
+        if (m_monitoringOptional) {
+          ATH_MSG_INFO("Unable to read " << m_monitoringFileName 
+            << ", but the monitoring collection is flagged as optional. Continuing.");
+          monitoring.reset(); // This smartpointer goes back from having Some to having None.
+        } else {
+          ATH_MSG_ERROR("Unable to read " << m_monitoringFileName 
+            << ", the monitoring collection flagged as non-optional in this job.");
+          return StatusCode::FAILURE;
+        }
+      }
+    }
   }
   else {
     ATH_MSG_ERROR("Unknown input type '" << m_inputType
@@ -47,6 +65,9 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
   ATH_CHECK( detStore.retrieve() );
   if (detStore->record(std::move(hltmenu), "HLTTriggerMenu").isSuccess()) {
     ATH_MSG_INFO("Recorded HLT menu as 'HLTTriggerMenu' in detector store");
+  }
+  if (monitoring and detStore->record(std::move(monitoring), "HLTMonitoringMenu").isSuccess()) {
+    ATH_MSG_INFO("Recorded HLT monitoring menu as 'HLTMonitoringMenu' in detector store");
   }
 
   return StatusCode::SUCCESS;
@@ -70,6 +91,7 @@ StatusCode TrigConf::HLTConfigSvc::initialize()
   ATH_MSG_INFO(m_inputType);
   if (m_inputType == "FILE") {
     ATH_MSG_INFO(m_hltFileName);
+    ATH_MSG_INFO(m_monitoringFileName);
   }
   else if (m_inputType == "DB") {
     ATH_MSG_INFO(m_dbConnection);

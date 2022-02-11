@@ -20,7 +20,7 @@ def _fastCaloSeq(flags):
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoAlgCfg
     l2CaloHypo = TrigEgammaFastCaloHypoAlgCfg(flags,
-                                              name='ElectronEgammaFastCaloHypo',
+                                              name='PhotonEgammaFastCaloHypo',
                                               CaloClusters=recordable('HLT_FastCaloEMClusters'))
     selAcc.mergeHypo(l2CaloHypo)
 

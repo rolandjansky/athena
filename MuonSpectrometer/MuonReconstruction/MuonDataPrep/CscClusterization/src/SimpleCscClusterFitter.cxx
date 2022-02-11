@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleCscClusterFitter.h"
@@ -20,8 +20,10 @@ using MuonGM::CscReadoutElement;
 typedef ICscClusterFitter::Result Result;
 using Results = std::vector<Result>;
 
+namespace {
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_R, CSL_R, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
+}
 
 SimpleCscClusterFitter::SimpleCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent) {

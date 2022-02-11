@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -91,10 +91,15 @@ namespace RungeKuttaUtils {
 /////////////////////////////////////////////////////////////////////////////////
 
 double
-stepEstimator(int, double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&);
+stepEstimator(int,
+              double* ATH_RESTRICT,
+              const double* ATH_RESTRICT,
+              bool&);
 
 double
-stepEstimatorToCone(double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&);
+stepEstimatorToCone(double* ATH_RESTRICT,
+                    const double* ATH_RESTRICT,
+                    bool&);
 
 double
 stepEstimatorToPlane(const double* ATH_RESTRICT,

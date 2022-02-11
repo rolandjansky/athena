@@ -315,10 +315,10 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
 {
   assert(layer >= 0 && layer <= 1);
 
-  const Trk::TrackParameters* startParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> startParameters = nullptr;
 
   if (track->perigeeParameters()) {
-    startParameters = track->perigeeParameters()->clone();
+    startParameters = track->perigeeParameters()->uniqueClone();
   } else if (track->trackParameters()->front()) {
     startParameters =
       m_extrapolator->extrapolate(
@@ -336,8 +336,7 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
   }
 
   bool succeed =
-    getTrackStateOnPixelLayerInfo(startParameters, infoList, layer);
-  delete startParameters;
+    getTrackStateOnPixelLayerInfo(startParameters.get(), infoList, layer);
   return succeed;
 }
 
@@ -496,7 +495,7 @@ InDet::InDetTestBLayerTool::getPixelLayerParameters
 
   // extrapolate stepwise to this parameter (be careful, sorting might be
   // wrong)
-  std::vector<std::unique_ptr<const Trk::TrackParameters>> paramList =
+  std::vector<std::unique_ptr<Trk::TrackParameters>> paramList =
     m_extrapolator->extrapolateStepwise(
       ctx, *trackpar, BiggerThanBLayerSurface, Trk::alongMomentum, false);
 
@@ -504,7 +503,7 @@ InDet::InDetTestBLayerTool::getPixelLayerParameters
     return false;
   }
 
-  for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
+  for (std::unique_ptr<Trk::TrackParameters>& p : paramList) {
     Identifier id;
     if (!(p->associatedSurface().associatedDetectorElement() != nullptr &&
           p->associatedSurface().associatedDetectorElement()->identify() !=

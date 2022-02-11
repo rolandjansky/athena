@@ -289,8 +289,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
 
 
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
-    reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
-
+   
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
@@ -322,7 +321,6 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("Fitter"                        , getPrivateTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPrivateTool("iPatSLFitter") )
         kwargs.setdefault("CscRotCreator"                 , getPrivateTool("CscClusterOnTrackCreator") if reco_cscs else "")
-        kwargs.setdefault("MMRotCreator"                  , getPrivateTool("MMClusterOnTrackCreator") if reco_mircomegas else "" )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
         kwargs.setdefault("MuonErrorOptimizer"            , getPrivateTool('MuidErrorOptimisationTool'))
         kwargs.setdefault("MuonHoleRecovery"              , getPrivateTool("MuonChamberHoleRecoveryTool") ) 
@@ -353,8 +351,7 @@ def CombinedTrackBuilderFit_EMEO(name = "CombinedTrackBuilderFit_EMEO", **kwargs
 def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.AppMgr import ToolSvc
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
-    reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
-
+   
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -409,7 +406,6 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
         kwargs.setdefault("CscRotCreator"                 , getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "")
-        kwargs.setdefault("MMRotCreator"                  , getPublicTool("MMClusterOnTrackCreator") if reco_mircomegas else "" )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
 
 

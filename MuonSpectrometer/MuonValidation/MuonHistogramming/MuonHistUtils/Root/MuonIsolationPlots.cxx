@@ -25,12 +25,9 @@ m_oNEFlowIso40(this,"", "neflowisol40"),
 m_oPtVarCone20(this,"", "ptvarcone20"),
 m_oPtVarCone30(this,"", "ptvarcone30"),
 m_oPtVarCone40(this,"", "ptvarcone40")
-
-#ifndef XAOD_ANALYSIS
   //iso corrections
 , m_oTopoEtCone_coreCone(this,"","topoetcone_coreCone")
 , m_oNEFlowIso_coreCone(this,"","neflowisol_coreCone")
-#endif // not XAOD_ANALYSIS
 {}	
 
   void MuonIsolationPlots::fill(const xAOD::Muon& muon, float weight)
@@ -42,7 +39,7 @@ m_oPtVarCone40(this,"", "ptvarcone40")
   m_oTopoEtCone20.fill(muon, xAOD::Iso::topoetcone20, weight);
   m_oTopoEtCone30.fill(muon, xAOD::Iso::topoetcone30, weight);
   m_oTopoEtCone40.fill(muon, xAOD::Iso::topoetcone40, weight);
-#ifndef XAOD_ANALYSIS
+
   m_oNEFlowIso20.fill(muon, xAOD::Iso::neflowisol20, weight);
   m_oNEFlowIso30.fill(muon, xAOD::Iso::neflowisol30, weight);
   m_oNEFlowIso40.fill(muon, xAOD::Iso::neflowisol40, weight);
@@ -53,8 +50,6 @@ m_oPtVarCone40(this,"", "ptvarcone40")
 
   m_oTopoEtCone_coreCone.fill(muon, xAOD::Iso::topoetcone20, xAOD::Iso::topoetcone30, xAOD::Iso::topoetcone40, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
   m_oNEFlowIso_coreCone.fill(muon, xAOD::Iso::neflowisol20, xAOD::Iso::neflowisol30, xAOD::Iso::neflowisol40, xAOD::Iso::neflowisol, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
-#endif // not XAOD_ANALYSIS
-
 }
 
   

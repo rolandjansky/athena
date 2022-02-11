@@ -9,12 +9,7 @@
 namespace Muon{
 
 ChargeDepParamPlots::ChargeDepParamPlots(PlotBase* pParent, const std::string& sDir, std::string sType)
-  :PlotBase(pParent, sDir)
-  , q_times_eta(nullptr)
-  , q_over_p(nullptr)
-  , q_over_pt(nullptr)
-  , qMS_times_qCB(nullptr)
-  , qID_times_qCB(nullptr)
+  :PlotBase(pParent, sDir)  
   , m_sType(std::move(sType))
 {}
 

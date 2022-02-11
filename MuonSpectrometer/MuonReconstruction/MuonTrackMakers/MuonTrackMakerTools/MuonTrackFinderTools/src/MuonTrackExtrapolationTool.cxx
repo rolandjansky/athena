@@ -62,17 +62,17 @@ namespace Muon {
         if (m_cosmics) {
             // for cosmics try both directions
             const Trk::TrackParameters *entryPars =
-                m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, Trk::oppositeMomentum, particleHypo);
+                m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, Trk::oppositeMomentum, particleHypo).release();
             if (!entryPars) {
                 ATH_MSG_VERBOSE(" failed to extrapolate opposite momentum");
                 // retry in other direction
-                entryPars = m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, Trk::alongMomentum, particleHypo);
+                entryPars = m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, Trk::alongMomentum, particleHypo).release();
                 if (!entryPars) ATH_MSG_VERBOSE(" failed to extrapolate along momentum for the second trial");
             }
             return entryPars;
         }
 
-        return m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, dir, particleHypo);
+        return m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, dir, particleHypo).release();
     }
 
     const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToIP(const Trk::TrackParameters &pars,
@@ -93,13 +93,13 @@ namespace Muon {
                                                                                         : ""));
 
         // for cosmics try both directions
-        const Trk::TrackParameters *entryPars = m_atlasExtrapolator->extrapolate(ctx, pars, persurf, propDir, false, particleHypo);
+        const Trk::TrackParameters *entryPars = m_atlasExtrapolator->extrapolate(ctx, pars, persurf, propDir, false, particleHypo).release();
         if (!entryPars) ATH_MSG_VERBOSE(" failed to extrapolate to IP");
 
         if (m_cosmics && !entryPars) {
             // flip propagation direction and retry in other direction
             propDir = propDir == Trk::alongMomentum ? Trk::oppositeMomentum : Trk::alongMomentum;
-            entryPars = m_atlasExtrapolator->extrapolate(ctx, pars, persurf, propDir, false, particleHypo);
+            entryPars = m_atlasExtrapolator->extrapolate(ctx, pars, persurf, propDir, false, particleHypo).release();
             if (!entryPars) ATH_MSG_VERBOSE(" failed to extrapolate to IP in opposite direction");
         }
 
@@ -637,7 +637,7 @@ namespace Muon {
     const Trk::Perigee *MuonTrackExtrapolationTool::createPerigee(const Trk::TrackParameters &pars) const {
         if (m_muonExtrapolator2.empty()) { return nullptr; }
         Trk::PerigeeSurface persurf(pars.position());
-        const Trk::TrackParameters *exPars = m_muonExtrapolator2->extrapolateDirectly(Gaudi::Hive::currentContext(),pars, persurf);
+        const Trk::TrackParameters *exPars = m_muonExtrapolator2->extrapolateDirectly(Gaudi::Hive::currentContext(),pars, persurf).release();
         const Trk::Perigee *pp = dynamic_cast<const Trk::Perigee *>(exPars);
         if (!pp) {
             ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");

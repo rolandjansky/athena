@@ -37,7 +37,7 @@ class SlowMuonParamPlots: public PlotBase {
 
     void fill(const xAOD::SlowMuon& smu, float weight=1.0);
 
-    TH1* beta;
+    TH1* beta{nullptr};
     BetaPlots mdtBeta;
     BetaPlots rpcBeta;
     BetaPlots caloBeta;

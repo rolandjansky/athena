@@ -134,7 +134,7 @@ namespace Trig {
        **/  
       template<class CONTAINER>
       std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const asg::EventStoreType* eventStore,
-                SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
+                const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
                 unsigned int condition = TrigDefs::Physics,
                 const std::string& containerSGKey = "",
                 const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,

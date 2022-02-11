@@ -14,7 +14,7 @@ atlas_add_component( AFP_GlobReco
 
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )   
 
 atlas_install_runtime( share/*.txt )
 

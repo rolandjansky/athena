@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -44,14 +44,7 @@ def canAddDecorator(flags):
     if not (flags.Detector.GeometryID or flags.Detector.GeometryITk):
         return False
 
-    inputTags = flags.Input.ProcessingTags
-
-    for tag in inputTags:
-        if "StreamAOD" in tag:
-            return True
-
-        if "StreamESD" in tag:
-            return True
+    return ("StreamESD" in flags.Input.ProcessingTags or "StreamAOD" in flags.Input.ProcessingTags) and flags.IDPVM.runDecoration
 
     '''
     if rec.readTAG:
@@ -194,9 +187,8 @@ def AddDecoratorCfg(flags,**kwargs):
     acc.merge(TrackDecoratorsCfg(flags))
   
     if flags.Input.isMC:
-        if flags.Detector.GeometryITk:
-            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-            acc.merge(BeamSpotCondAlgCfg(flags))
+        from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+        acc.merge(BeamSpotCondAlgCfg(flags))
 
         acc.merge(InDetPhysValTruthDecoratorAlgCfg(flags))
 

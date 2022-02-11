@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -202,7 +202,7 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
                                                  SubEventIterator bSubEvents,
                                                  SubEventIterator eSubEvents) {
 
-  m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
+  m_seen.emplace_back(std::distance(bSubEvents,eSubEvents), bunchXing);
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
@@ -211,7 +211,7 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 
   //TRTUncompressedHit
 
-  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_dataObjectName, hitCollList, bunchXing,
@@ -528,7 +528,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   m_vDigits.clear();
 
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type;
   TimedHitCollection<TRTUncompressedHit> thpctrt;
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {

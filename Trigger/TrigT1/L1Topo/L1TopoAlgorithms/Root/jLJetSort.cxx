@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  jLJetSort.cxx
 //  TopoCore
@@ -27,7 +27,6 @@ TCS::jLJetSort::jLJetSort(const std::string & name) :
    defineParameter( "OutputWidth", 10 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 31);
-   defineParameter( "DoEtaCut", 1);
 }
 
 
@@ -41,7 +40,6 @@ TCS::jLJetSort::initialize() {
    m_numberOfJets = parameter("OutputWidth").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doEtaCut = parameter("DoEtaCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -53,8 +51,8 @@ TCS::jLJetSort::sort(const InputTOBArray & input, TOBArray & output) {
    
   // fill output array with GenericTOBs builds from jets
   for(jLargeRJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
-    if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) < m_minEta)) continue; 
-    if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) > m_maxEta)) continue;      	
+    if ( parType_t(std::abs((*jet)-> eta())) < m_minEta) continue; 
+    if ( parType_t(std::abs((*jet)-> eta())) > m_maxEta) continue;      	
     output.push_back( GenericTOB(**jet)  );
   }
 

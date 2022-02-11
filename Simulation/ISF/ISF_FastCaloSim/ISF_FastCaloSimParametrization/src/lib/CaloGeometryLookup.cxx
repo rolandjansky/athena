@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
@@ -272,7 +272,7 @@ float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* 
 
 const CaloDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float* distance,int* steps) 
 {
-  float dist;
+  float dist = 0;
   const CaloDetDescrElement* bestDDE=0;
   if(!distance) distance=&dist;
   *distance=+10000000;

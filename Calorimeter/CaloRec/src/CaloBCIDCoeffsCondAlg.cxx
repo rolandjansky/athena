@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/src/CaloBCIDCoeffsCondAlg.cxx
@@ -34,12 +34,12 @@ StatusCode CaloBCIDCoeffsCondAlg::initialize()
 
   
   if ( m_isSC ) {
-	const LArOnline_SuperCellID* ll;
+	const LArOnline_SuperCellID* ll = nullptr;
 	ATH_CHECK(detStore()->retrieve(ll,"LArOnline_SuperCellID"));
 	m_laronline_id = (const LArOnlineID_Base*)ll;
   }
   else {
-	const LArOnlineID* ll;
+	const LArOnlineID* ll = nullptr;
 	ATH_CHECK(detStore()->retrieve(ll,"LArOnlineID"));
 	m_laronline_id = (const LArOnlineID_Base*)ll;
   }

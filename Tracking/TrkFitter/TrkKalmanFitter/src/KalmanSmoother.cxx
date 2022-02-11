@@ -305,13 +305,15 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
       // now propagate updated TrkParameters to surface of ROT
       if (!m_useExEngine)
-        predPar.reset(  m_extrapolator->extrapolate(ctx,
-                                                    *updatedPar, sf,
-                                                    Trk::oppositeMomentum, // reverse filtering
-                                                    false,                 // no boundary check
-                                                    kalMec.particleType()) );
+        predPar = m_extrapolator->extrapolate(
+          ctx,
+          *updatedPar,
+          sf,
+          Trk::oppositeMomentum, // reverse filtering
+          false,                 // no boundary check
+          kalMec.particleType());
       else {
-	ATH_MSG_DEBUG ("Smoother Kalman Fitter --> starting extrapolation engine");
+        ATH_MSG_DEBUG ("Smoother Kalman Fitter --> starting extrapolation engine");
 	Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::oppositeMomentum);
 	ecc.setParticleHypothesis(kalMec.particleType());
 	Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &sf, false);

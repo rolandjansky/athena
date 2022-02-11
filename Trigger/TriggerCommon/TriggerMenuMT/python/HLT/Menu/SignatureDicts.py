@@ -262,13 +262,14 @@ JetChainParts = {
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
-      ['050momemfrac100','momhecfrac010','050momemfrac100XXmomhecfrac010'],
+      ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
     ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
      # jets by ordering by pt, and selecting those with indices in [X,Y]
      'PTRANGE0r1',
      'PTRANGE2r3'],
+    'bdips': ['95bdips','90bdips','85bdips','80bdips','77bdips'],
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -312,6 +313,7 @@ JetChainParts_Default = {
     'jvt'           : '',
     'momCuts'       : '',
     'prefilters'    : [],
+    'bdips'         : '',
     'hypoScenario'  : 'simple',
     'exotHypo'      : [],
     'smc'           : 'nosmc',
@@ -395,18 +397,22 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux','b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20',
+    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
     
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
+    'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX',
     # topoExtras
     'Lxy0','noos','nocut'
     #########Remove until here############
 
 ]
-AllowedTopos_Bphysics_topoVariant=['BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose']
-AllowedTopos_Bphysics_topoExtra=['Lxy0','noos','nocut']
+AllowedTopos_Bphysics_topoVariant = [
+    'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
+    'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX'
+]
+AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -458,8 +464,8 @@ TauChainParts_Default = {
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '20',
-    'preselection'  : 'tracktwoMVA',
-    'selection'     : 'mediumRNN',
+    'preselection'  : '',
+    'selection'     : '',
     'multiplicity'  :  '',
     'trigType'      : ['tau'],
     'trkInfo'       : [],
@@ -631,6 +637,7 @@ PhotonChainParts = {
     'reccalibInfo'   : [],
     'trkInfo'        : [],
     'caloInfo'       : [],
+    'L2IDAlg'        : ['ringer'],
     'hypoInfo'       : '',
     'recoAlg'        : [],
     'FSinfo'         : [],
@@ -655,6 +662,7 @@ PhotonChainParts_Default = {
     'reccalibInfo'   : '',
     'trkInfo'        : '',
     'caloInfo'       : '',
+    'L2IDAlg'        : '',
     'hypoInfo'       : '',
     'recoAlg'        : '',
     'FSinfo'         : '',
@@ -685,8 +693,8 @@ MinBiasChainParts = {
                         'sp1000', 'sp1100', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup0','pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
-                        'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
+    'pileupInfo'     : ['pusup0','pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup180', 'pusup190',
+                        'pusup200', 'pusup240', 'pusup250', 'pusup260', 'pusup270', 'pusup280', 'pusup290', 'pusup300'],
     'hypoTrkInfo'    : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280', 'trk290',
                          '2trk6', '1trk5'], #ranges for exclusive tracks

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -32,6 +32,7 @@ def TrigDecisionToolCfg(flags):
     msg = logging.getLogger('TrigDecisionToolCfg')
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.Enums import Format
     acc = ComponentAccumulator()
 
     from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
@@ -43,7 +44,7 @@ def TrigDecisionToolCfg(flags):
     tdt.NavigationFormat = 'TrigComposite' if use_run3_format else 'TriggerElement'
     tdt.HLTSummary = getRun3NavigationContainerFromInput(flags)
 
-    if flags.Input.Format == 'BS' and flags.Trigger.EDMVersion in [1, 2]:
+    if flags.Input.Format is Format.BS and flags.Trigger.EDMVersion in [1, 2]:
         tdt.TrigDecisionKey = 'TrigDecision'
         tdt.UseAODDecision = True
 

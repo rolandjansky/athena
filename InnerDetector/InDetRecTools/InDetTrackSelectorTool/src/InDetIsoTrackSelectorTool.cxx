@@ -115,7 +115,7 @@ bool InDet::InDetIsoTrackSelectorTool::decision(const Trk::AtaStraightLine& atl,
     trackPars,
     alSurface,
     Trk::anyDirection,
-    false);
+    false).release();
   // no parameterisation : bail out
   if (!trackAtBL) return false;
   // d0,z0 wrt BL for reference and track

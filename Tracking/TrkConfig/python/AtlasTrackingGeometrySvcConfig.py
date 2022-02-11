@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg 
 
@@ -147,8 +148,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
                        
     # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
     TRT_LayerBinning = 1        
-    if buildTrtStrawLayers:
+    if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in ["ATLFASTIIMT"]):
        TRT_LayerBinning = 2
+    if buildTrtStrawLayers:
        TRT_LayerBuilder.ModelLayersOnly = False
     # TRT -> ToolSvc                      
     result.addPublicTool(TRT_LayerBuilder)
@@ -438,7 +440,7 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
       # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry
       # So, here we only setup the default InDet geometry builder!
       inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder', flags=flags, result=result, envelopeDefinitionSvc=atlas_env_def_service,
-                                                                      buildTrtStrawLayers=flags.Beam.Type=='cosmics')
+                                                                      buildTrtStrawLayers=flags.Beam.Type is BeamType.Cosmics)
       
       atlas_geometry_builder.InDetTrackingGeometryBuilder = inDetTrackingGeometryBuilder
       

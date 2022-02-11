@@ -2,9 +2,6 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-if 'DQMonFlags' not in dir():
-    from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
-
 class TrigTauMonAlgBuilder:
 
   _configured = False
@@ -36,7 +33,7 @@ class TrigTauMonAlgBuilder:
         if key in self.__acceptable_keys_list:
           setattr(self,key,value)
       self.configureMode()
-
+  
   def configureMode(self):
 
     self.__logger.info("TrigTauMonToolBuilder.configureMode()")
@@ -55,7 +52,7 @@ class TrigTauMonAlgBuilder:
       else:
         self.activate_tau=True
     else:
-        self.activate_tau=True
+        self.activate_tau=True 
 
     
   def configure(self):
@@ -119,7 +116,7 @@ class TrigTauMonAlgBuilder:
   def get_monitoring_mode(self):
 
     self.__logger.info("TrigTauMonToolBuilder.get_monitoring_mode()")
-    self.data_type = dqflags.monManDataType()
+    self.data_type = self.helper.inputFlags.DQ.DataType
     if self.data_type == 'monteCarlo': 
       self.mc_mode = True
       return True
@@ -225,10 +222,14 @@ class TrigTauMonAlgBuilder:
        'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25',
        'HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20',
        # Phase-I
-       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
-       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
-       'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
-       'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
+       'HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20',
+       'HLT_tau25_perf_tracktwoMVABDT_L1eTAU20', 
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20',
+       'HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20M',
+       'HLT_tau25_perf_tracktwoMVABDT_L1eTAU20M',
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M',     
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU30', 
+       'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU140',
     ]
 
     self.tauList = monitoring_tau
@@ -243,7 +244,11 @@ class TrigTauMonAlgBuilder:
       self.__logger.info( "Creating the Tau monitor algorithm...")
       self.tauMonAlg = self.helper.addAlgorithm( CompFactory.TrigTauMonitorAlgorithm, "TrigTauMonAlg" )
       self.tauMonAlg.TriggerList=self.tauList    
-
+      isMC = False
+      self.data_type = self.helper.inputFlags.DQ.DataType
+      if self.data_type == 'monteCarlo':
+         isMC = True
+      self.tauMonAlg.isMC = isMC
 
 
   def configureHistograms(self):
@@ -269,16 +274,19 @@ class TrigTauMonAlgBuilder:
       self.bookbasicVars( monAlg, trigger, '1P', online=True )
       self.bookbasicVars( monAlg, trigger, 'MP', online=True )
       self.bookbasicVars( monAlg, trigger, '1P', online=False )
-      self.bookbasicVars( monAlg, trigger, 'MP', online=False )
+      self.bookbasicVars( monAlg, trigger, '3P', online=False )
 
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
-      self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+      self.bookHLTEffHistograms( monAlg, trigger,nProng='3P')
+
+      self.bookTruth( monAlg, trigger )
+      self.bookTruthEfficiency( monAlg, trigger )
 
       self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True ) 
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
       self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
-      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
+      self.bookRNNInputVars( monAlg, trigger,nProng='3P', online=False )
       self.bookRNNTrack( monAlg, trigger, online=True )
       self.bookRNNCluster( monAlg, trigger, online=True )
       self.bookRNNTrack( monAlg, trigger, online=False )
@@ -295,7 +303,7 @@ class TrigTauMonAlgBuilder:
             continue
         self.bookL1( monAlg, l1seed)
         self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
-        self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
+        self.bookL1EffHistograms( monAlg, l1seed, nProng='3P') 
            
 
   #
@@ -398,6 +406,8 @@ class TrigTauMonAlgBuilder:
                             xbins=140,xmin=10,xmax=80,
                             ybins=42,ymin=-1,ymax=20)
     monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
+    monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=20,xmin=0,xmax=2)
+    monGroup.defineHistogram('L1RoIRHad' , title='L1 RoI RHAD isolation; rHad isolation; N RoI'  ,xbins=20,xmin=0,xmax=2)
 
                              
   #
@@ -420,7 +430,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
     monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
     monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
-    if nProng=='MP':  
+    if nProng=='MP' or nProng=='3P':  
       monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
   def bookRNNTrack( self, monAlg, trigger, online ):
@@ -517,5 +527,41 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
     monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
 
+    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('Eta', title='Eta(#tau,#tau);Eta(#tau,#tau);Nevents',xbins=26,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('Phi', title='Phi(#tau,#tau);Phi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('M', title='M(#tau,#tau);M_{#tau,#tau};Nevents',xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('dPt', title='dPt |leading-subleading|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)  
 
+  def bookTruth( self, monAlg, trigger):
+
+    monGroupName = trigger+'EFVsTruth'
+    monGroupPath = 'EFVsTruth/'+trigger 
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('pt_vis,Etratio',title='Etratiovis vs Pt_{vis}; Pt_{vis};(reco pt - truth vis pt)/truth vis pt ',type='TProfile',xbins=21,xmin=20,xmax=250)
+    monGroup.defineHistogram('eta_vis,Etratio',title='Etratiovis vs #eta_{vis}; #eta_{vis}; (reco pt - truth vis pt)/truth vis pt ', type='TProfile', xbins=21,xmin=-3,xmax=3)
+    monGroup.defineHistogram('phi_vis,Etratio',title='Etratiovis vs #phi_{vis}; #phi_{vis}; (reco pt - truth vis pt)/truth vis pt ', type='TProfile', xbins=21,xmin=-3,xmax=3)
+
+    monGroup.defineHistogram('pt_vis', title='Pt_vis Value; P_{tvis}; Nevents', xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('eta_vis', title='Eta_vis Value; #eta_{vis};Nevents', xbins=26,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('phi_vis', title='Phi_vis Value; #phi_{vis}; Nevents', xbins=16,xmin=-3.2,xmax=3.2)
+
+  def bookTruthEfficiency( self, monAlg, trigger):
+  
+    monGroupName = trigger+'Truth_Efficiency'
+    monGroupPath = 'Truth_Efficiency/'+trigger
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+  
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Truth',
+                                title='HLT Efficiency ' +trigger+' ;'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('pt_vis', 'Pt_{vis} [GeV]', 60, 0.0, 300.)
+    defineEachStepHistograms('eta_vis','#eta_{vis}', 13, -2.6, 2.6)
+    defineEachStepHistograms('phi_vis','#phi_{vis}', 16, -3.2, 3.2)
 

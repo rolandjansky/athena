@@ -48,7 +48,7 @@ namespace Trk
     m_calorimeterVolume(nullptr),
     m_indetVolume(nullptr),
     m_messageHelper(nullptr) {
-    m_messageHelper = std::make_unique< MessageHelper>(*this);
+    m_messageHelper = std::make_unique< MessageHelper>(*this, 6);
     declareInterface<IMaterialAllocator>(this);
 
     declareProperty("AggregateMaterial", m_aggregateMaterial);
@@ -70,7 +70,6 @@ namespace Trk
 
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
-    m_messageHelper->setNumberOfMessages(6);
     m_messageHelper->setMessage(0,
                                 "leadingSpectrometerTSOS:  missing TrackingGeometrySvc - no leading material will be added");
     m_messageHelper->setMessage(1, "indetMaterial: extrapolateM finds no material on track");
@@ -2082,11 +2081,12 @@ namespace Trk
                                                                              *innerMeasurement,
                                                                              false));
       if (!innerParameters) innerParameters.reset(startParameters.clone());
-      entranceParameters.reset( m_extrapolator->extrapolateToVolume(ctx,
-                                                                    *innerParameters,
-                                                                    *spectrometerEntrance,
-                                                                    anyDirection,
-                                                                    Trk::nonInteracting));
+      entranceParameters =
+        m_extrapolator->extrapolateToVolume(ctx,
+                                            *innerParameters,
+                                            *spectrometerEntrance,
+                                            anyDirection,
+                                            Trk::nonInteracting);
       if (entranceParameters) {
         startDirection = entranceParameters->momentum().unit();
         startPosition = entranceParameters->position();
@@ -2126,13 +2126,14 @@ namespace Trk
    if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
 
    if (!endParameters) {
-     endParameters.reset(m_extrapolator->extrapolate(ctx,
-                                                     *outerParameters,
-                                                     endSurface,
-                                                     anyDirection,
-                                                     false,
-                                                     Trk::nonInteracting));
-     if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
+     endParameters = m_extrapolator->extrapolate(ctx,
+                                                 *outerParameters,
+                                                 endSurface,
+                                                 anyDirection,
+                                                 false,
+                                                 Trk::nonInteracting);
+     if (endParameters.get() == outerParameters.get())
+       throw std::logic_error("Extrapolator returned input parameters.");
 
      if (!endParameters) {
         // failed extrapolation

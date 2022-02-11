@@ -20,6 +20,7 @@ namespace TrigConf {
    class HLTChainList;
    class HLTSequenceList;
    class HLTMenu;
+   class HLTMonitoring;
    class HLTPrescalesSet;
 
    /**
@@ -49,6 +50,9 @@ namespace TrigConf {
 
       /// Returns the JSON configured HLTMenu ptree
       virtual const ::TrigConf::HLTMenu& hltMenu(const ::EventContext& ctx) const = 0;
+
+      /// Returns the JSON configured HLTMonitoring ptree
+      virtual const ::TrigConf::HLTMonitoring& hltMonitoring(const ::EventContext& ctx) const = 0;
 
       /// Returns the JSON configured HLT prescales ptree
       virtual const ::TrigConf::HLTPrescalesSet& hltPrescalesSet(const ::EventContext& ctx) const = 0;

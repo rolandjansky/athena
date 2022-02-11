@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -16,6 +16,8 @@
 
 #include <utility>
 #include "eflowRec/PFMatcher.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class eflowRecCluster;
 class eflowRecTrack;
@@ -61,6 +63,11 @@ private:
 
   /** The track cluster matcher to perform the actual matching */
   std::unique_ptr<PFMatch::TrackClusterMatcher> m_matcher;
+
+  /** Online monitoring tool for recording histograms of the alg in action */
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool_ClusterMatching","","Monitoring tool"};
+
+  const float m_invGeV = 1./CLHEP::GeV;
 };
 
 inline const InterfaceID& PFTrackClusterMatchingTool::interfaceID() { return IID_PFTrackClusterMatchingTool; }

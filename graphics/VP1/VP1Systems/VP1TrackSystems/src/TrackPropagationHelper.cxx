@@ -315,7 +315,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
         const Trk::TrackParameters*  trackPar = extrapolator->extrapolate(ctx,
                                                                           *trackParam,
                                                                           **bSurfsIt,
-                                                                          Trk::alongMomentum,true,hypo); // change this to extrapolate current param to surface.
+                                                                          Trk::alongMomentum,true,hypo).release(); // change this to extrapolate current param to surface.
 
         if (trackPar){
           messageVerbose("Extrapolation succeeded");
@@ -359,7 +359,7 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
     newpars = extrapolator->extrapolate(Gaudi::Hive::currentContext(),
                                         *prevpars,
                                         surf,
-                                        Trk::alongMomentum,false,hypo); // change this to extrapolate current param to surface.
+                                        Trk::alongMomentum,false,hypo).release(); // change this to extrapolate current param to surface.
   } catch (const std::runtime_error& e) {
     theclass->message("Failure trying to use extrapolator for track (Exception thrown: " + QString(e.what())+")");
     return nullptr;

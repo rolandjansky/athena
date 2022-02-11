@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -202,8 +202,8 @@ Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const
   double enclosedInnerSectorRadius = 0.;
    
    // dummy objects
-   const Trk::LayerArray* dummyLayers = nullptr;
-   const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+   Trk::LayerArray* dummyLayers = nullptr;
+   Trk::TrackingVolumeArray* dummyVolumes = nullptr;
   
   if (innerVol) {  
     ATH_MSG_VERBOSE( "Got Inner Detector Volume: " << innerVol->volumeName() ); 
@@ -1457,9 +1457,9 @@ void Calo::CaloTrackingGeometryBuilder::registerInLayerIndexCaloSampleMap(
   const Trk::LayerArray* confinedLayers = vol.confinedLayers();
   if (!confinedLayers) return;
   
-  const std::vector<const Trk::Layer*>& layerObjects = confinedLayers->arrayObjects();
-  std::vector<const Trk::Layer*>::const_iterator layerObjIter = layerObjects.begin();
-  std::vector<const Trk::Layer*>::const_iterator layerObjEnd  = layerObjects.end();
+  Trk::BinnedArraySpan<Trk::Layer const * const > layerObjects = confinedLayers->arrayObjects();
+  Trk::BinnedArraySpan<Trk::Layer const * const >::const_iterator layerObjIter = layerObjects.begin();
+  Trk::BinnedArraySpan<Trk::Layer const * const >::const_iterator layerObjEnd  = layerObjects.end();
   
   // now pick out the material layers (and skip the navigation ones)
   std::vector<const Trk::Layer*> materialLayers;
@@ -1502,8 +1502,8 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
   outerRadius = 0.;
 
   // dummy objects
-  const Trk::LayerArray* dummyLayers = nullptr;
-  const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+  Trk::LayerArray* dummyLayers = nullptr;
+  Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   // beam pipe thickness along the z distance
   if (m_bpCutouts.empty()) {

@@ -66,11 +66,11 @@ namespace FlavorTagDiscriminants {
 
 
   void OnnxUtil::runInference(
-    const std::map<std::string, std::vector<std::vector<float>>>& gnn_inputs,
+    std::map<std::string, input_pair>& gnn_inputs,
     std::map<std::string, float>& output) const {
 
     // Args:
-    //    gnn_inputs : {string: vector<vector<float>>} 
+    //    gnn_inputs : {string: input_pair} 
     //    outputs    : {string: float} 
 
     std::vector<float> input_tensor_values;
@@ -79,26 +79,12 @@ namespace FlavorTagDiscriminants {
     auto memory_info = Ort::MemoryInfo::CreateCpu(
       OrtArenaAllocator, OrtMemTypeDefault
     );
+
     std::vector<Ort::Value> input_tensors;
-
     for (auto const &node_name : m_input_node_names){
-
-      auto node_feat = gnn_inputs.at(node_name);
-
-      std::vector<int64_t> input_node_dims = {
-        static_cast<int>(node_feat.size()), 
-        static_cast<int>(node_feat.at(0).size())
-      };
-      input_tensor_values.clear();
-      
-      // flattening
-      for (auto it = node_feat.begin(); it != node_feat.end(); ++it){
-        input_tensor_values.insert(input_tensor_values.end(), it->begin(), it->end());
-      }
-
       input_tensors.push_back(Ort::Value::CreateTensor<float>(
-        memory_info, input_tensor_values.data(), input_tensor_values.size(),
-        input_node_dims.data(), input_node_dims.size())
+        memory_info, gnn_inputs.at(node_name).first.data(), gnn_inputs.at(node_name).first.size(),
+        gnn_inputs.at(node_name).second.data(), gnn_inputs.at(node_name).second.size())
       );
     }
 
@@ -124,4 +110,4 @@ namespace FlavorTagDiscriminants {
     }
   }
 
-} //. end of FlavorTagDiscriminants namespace
+} // end of FlavorTagDiscriminants namespace

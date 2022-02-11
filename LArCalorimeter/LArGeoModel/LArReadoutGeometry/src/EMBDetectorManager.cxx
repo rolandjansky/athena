@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -49,7 +49,8 @@ EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager
 EMBDetectorManager::~EMBDetectorManager()
 {
   for (unsigned int i=0;i<getNumDetectorRegions();i++) delete m_DetRegionsIterative[i];
-  for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
+  unsigned int ntree = EMBDetectorManager::getNumTreeTops();
+  for (unsigned int i=0;i<ntree;i++) EMBDetectorManager::getTreeTop(i)->unref();
 }
 
 

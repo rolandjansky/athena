@@ -20,13 +20,22 @@ if DetFlags.detdescr.Muon_on():
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.CombinedFitParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.ExtrapolatedMSParticles() ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.ExtrapolatedMSParticles()+"Aux." + excludedAuxData ]
+   if muonRecFlags.runCommissioningChain():
+      MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#EMEO_"+MuonCbKeys.CombinedFitParticles()]
+      MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#EMEO_"+MuonCbKeys.CombinedFitParticles()+"Aux." + excludedAuxData ]
+      MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#EMEO_"+MuonCbKeys.ExtrapolatedMSParticles() ]
+      MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#EMEO_"+MuonCbKeys.ExtrapolatedMSParticles()+"Aux." + excludedAuxData ]
+         
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.ExtrapolatedMSOnlyParticles() ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.ExtrapolatedMSOnlyParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.SpectrometerParticles() ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.SpectrometerParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::MuonContainer#Muons" ]
    MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData ] # See note
-  
+   if muonRecFlags.runCommissioningChain():
+      MuonCombinedAODList+=[ "xAOD::MuonContainer#EMEO_Muons" ]
+      MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#EMEO_MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData ] # See note
+      
    MuonCombinedAODList+=[ "xAOD::MuonContainer#"+MuonCbKeys.FinalMuonsLargeD0() ]
    MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#"+MuonCbKeys.FinalMuonsLargeD0()+"Aux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData] # See note
   

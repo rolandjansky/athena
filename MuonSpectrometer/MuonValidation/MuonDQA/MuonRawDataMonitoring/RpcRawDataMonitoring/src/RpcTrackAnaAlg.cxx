@@ -559,7 +559,7 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
                                                 gapSurface,
                                                 result.direction,
                                                 false,
-                                                Trk::muon);
+                                                Trk::muon).release();
   }
   else if (track_particle->track()) {
     detParameters = m_extrapolator->extrapolate(ctx,
@@ -567,7 +567,7 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
                                                 gapSurface,
                                                 result.direction,
                                                 true,
-                                                Trk::muon);
+                                                Trk::muon).release();
   }
   else {
     return StatusCode::FAILURE;

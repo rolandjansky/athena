@@ -27,6 +27,10 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions
 printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
 #See https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_CB_Report.php?CBAction=GlobalTagReport&cbgt=CONDBR2-BLKPA-2015-15#INDET
 
+# Required for older global conditions tags after https://gitlab.cern.ch/atlas/athena/-/merge_requests/49827 is merged
+conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
+
 ###These are not really needed anymore during overlay. Setup in muAlign_reco.py for reco.
 #TRT T0 constants
 #conddb.blockFolder("/TRT/Calib/T0")

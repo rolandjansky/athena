@@ -25,7 +25,7 @@ def StandaloneMuonOutputCfg(flags):
 
     aod_items+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
     aod_items+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
-    if flags.Detector.EnableMM or flags.Detector.EnablesTGC:
+    if flags.Muon.runCommissioningChain:
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
@@ -90,7 +90,7 @@ def StandaloneMuonOutputCfg(flags):
 
     # Tracks
     esd_items+=["TrackCollection#MuonSpectrometerTracks"] 
-    if flags.Detector.EnablesTGC or flags.Detector.EnableMM:
+    if flags.Muon.runCommissioningChain:
         esd_items+=["TrackCollection#EMEO_MuonSpectrometerTracks"] 
         
     # Truth
@@ -126,6 +126,9 @@ def StandaloneMuonOutputCfg(flags):
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
+    from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
+    result.merge(MuonPrepDataConvCfg(flags))
+
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
     result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags) )

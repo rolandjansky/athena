@@ -34,7 +34,7 @@ class InDetServMatManager : public GeoVDetectorManager  {
   virtual PVConstLink getTreeTop(unsigned int i) const;
 
   // Add a Tree top:
-  void addTreeTop(PVConstLink);
+  void addTreeTop(const PVConstLink&);
 
  private:  
   // prevent copy and assignment

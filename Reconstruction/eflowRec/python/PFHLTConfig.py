@@ -300,17 +300,25 @@ def PFCfg(inputFlags, tracktype="", clustersin=None, calclustersin=None, tracksi
     #---------------------------------------------------------------------------------#
     # PFO creators here
 
-    from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
-    result.addEventAlgo(getChargedPFOCreatorAlgorithm(
-        inputFlags,
-        f"HLT_{tracktype}ChargedParticleFlowObjects",
-        f"eflowCaloObjects_{tracktype}"
-    ))
-    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(
-        inputFlags,
-        f"HLT_{tracktype}NeutralParticleFlowObjects",
-        f"eflowCaloObjects_{tracktype}"
-    ))    
+    chargedPFOArgs = [
+            inputFlags,
+            f"HLT_{tracktype}ChargedParticleFlowObjects",
+            f"eflowCaloObjects_{tracktype}"
+    ]
+    neutralPFOArgs = [
+            inputFlags,
+            f"HLT_{tracktype}NeutralParticleFlowObjects",
+            f"eflowCaloObjects_{tracktype}"
+    ]
+    if inputFlags.Trigger.usexAODFlowElements:
+        from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
+        result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(*chargedPFOArgs))
+        result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(*neutralPFOArgs))
+    else:
+        from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
+        result.addEventAlgo(getChargedPFOCreatorAlgorithm(*chargedPFOArgs))
+        result.addEventAlgo(getNeutralPFOCreatorAlgorithm(*neutralPFOArgs))
+
     
     return result
 

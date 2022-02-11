@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # File: LumiBlockComps/python/LumiBlockMuWriterConfig.py
 # Created: May 2020, sss
@@ -8,12 +8,13 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType
 
 
 def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter', seqName="AthAlgSeq"):
     result = ComponentAccumulator(seqName)
 
-    if (configFlags.Beam.Type == 'cosmics' or configFlags.Input.isMC):
+    if configFlags.Beam.Type is BeamType.Cosmics or configFlags.Input.isMC:
         condkey = ''
     else:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
@@ -36,6 +37,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = []
     ConfigFlags.loadAllDynamicFlags()
 
     print ('--- collisions')
@@ -48,7 +50,7 @@ if __name__ == "__main__":
 
     print ('--- cosmics')
     flags2 = ConfigFlags.clone()
-    flags2.Beam.Type = 'cosmics'
+    flags2.Beam.Type = BeamType.Cosmics
     flags2.lock()
     acc2 = LumiBlockMuWriterCfg (flags2)
     acc2.printCondAlgs (summariseProps=True)

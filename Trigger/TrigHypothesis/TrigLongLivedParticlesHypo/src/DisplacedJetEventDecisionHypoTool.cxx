@@ -54,7 +54,7 @@ StatusCode DisplacedJetEventDecisionHypoTool::decide( std::vector<DecisionTuple>
 		}
 	}
 
-	if(n_h_jets >= m_min_h_jets && n_l_jets >= m_min_l_jets){
+	if(n_h_jets >= m_min_h_jets && (n_l_jets + (n_h_jets - m_min_h_jets)) >= m_min_l_jets){
 		//accept the event
 		for(auto d: jet_decisions){
 			addDecisionID( m_decisionId.numeric(), d );

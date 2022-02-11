@@ -400,12 +400,12 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     } else {
       if (!input_it->referenceParameters()) {
         // filter using extrapolator
-        predPar.reset((m_extrapolator->extrapolate(
-              ctx,
-              *updatedPar,
-					      *input_it->surface(),
-					      Trk::alongMomentum,
-					      false, particleType)));
+        predPar = (m_extrapolator->extrapolate(ctx,
+                                               *updatedPar,
+                                               *input_it->surface(),
+                                               Trk::alongMomentum,
+                                               false,
+                                               particleType));
       } else {
         // filter using differences
         const TransportJacobian& jac = *m_trajPiece.back().jacobian();
@@ -771,13 +771,13 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   } else { // ## case 2: DAF on a subset of trajectory
 
     if (m_forwardFitter->needsReferenceTrajectory()) ATH_MSG_ERROR("Code missing!");
-    start_predPar.reset(m_extrapolator->extrapolate(
+    start_predPar = m_extrapolator->extrapolate(
       ctx,
       *lastStateOnPiece->smoothedTrackParameters(),
       resumeKfState->measurement()->associatedSurface(),
       Trk::alongMomentum,
       false,
-      particleType));
+      particleType);
     if (!start_predPar) {
       ATH_MSG_INFO ("final extrapolation to finish off piecewise filter failed!" <<
 		    " input or internal sorting problem?" );

@@ -1,43 +1,40 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonConditionsTestAlg_H
-#define MuonConditionsTestAlg_H 
-//STL
+#define MuonConditionsTestAlg_H
+// STL
 #include <string>
 
-//Gaudi
+// Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-//Athena
+// Athena
 
+#include "MuonCondInterface/ICSCConditionsSvc.h"
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 #include "MuonCondInterface/IRPCConditionsSvc.h"
 #include "MuonCondInterface/ITGCConditionsSvc.h"
-#include "MuonCondInterface/ICSCConditionsSvc.h"
 
-//Forward declarations
+// Forward declarations
 class ISvcLocator;
 class StatusCode;
 
 class MuonConditionsTestAlg : public AthAlgorithm {
- public:
-  MuonConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
- ~MuonConditionsTestAlg();
+public:
+    MuonConditionsTestAlg(const std::string &name, ISvcLocator *pSvcLocator);
+    ~MuonConditionsTestAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
-   
- private:
+    StatusCode initialize() override;
+    StatusCode execute() override;
 
-
-  ServiceHandle<IMDTConditionsSvc> m_pSummarySvc;
-  ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;
-  ServiceHandle<ITGCConditionsSvc> m_tSummarySvc;
-  ServiceHandle<ICSCConditionsSvc> m_vSummarySvc;
-}; //end of class
+private:
+    ServiceHandle<IMDTConditionsSvc> m_pSummarySvc;
+    ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;
+    ServiceHandle<ITGCConditionsSvc> m_tSummarySvc;
+    ServiceHandle<ICSCConditionsSvc> m_vSummarySvc;
+};  // end of class
 
 #endif

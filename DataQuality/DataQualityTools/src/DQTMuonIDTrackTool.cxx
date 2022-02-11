@@ -463,7 +463,7 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
                                       (idPerigee->associatedSurface()),
                                       Trk::anyDirection,
                                       true,
-                                      Trk::pion);
+                                      Trk::pion).release();
         ATH_MSG_WARNING("measPerigee? " << measPerigee);
         if (!measPerigee) {
           ATH_MSG_WARNING("Extrapolation failed 1!!");
@@ -496,14 +496,14 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
                const Trk::Perigee *measPerigee2 = &((*muontracksItr2)->perigeeParameters());
 
                if (measPerigee2) {
-                 measPerigee2 = dynamic_cast<const Trk::Perigee*>(
-                   m_extrapolator->extrapolate(
-                     ctx,
-                     *measPerigee2,
-                     (idPerigee2->associatedSurface()),
-                     Trk::anyDirection,
-                     false,
-                     Trk::muon));
+                 std::unique_ptr<const Trk::TrackParameters> tmp = m_extrapolator->extrapolate(
+                   ctx, *measPerigee2, (idPerigee2->associatedSurface()), Trk::anyDirection, false, Trk::muon);
+                  
+                 //release ownership if of the right type
+                 if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+                   measPerigee2 = static_cast<const Trk::Perigee*>(tmp.release());
+                 }
+
                  if (!measPerigee2) {
                    ATH_MSG_WARNING("Extrapolation failed 2!!");
                  }

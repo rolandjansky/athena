@@ -22,6 +22,7 @@
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
 #include "TrigT1TGC/TGCNSW.h"
+#include "TrigT1TGC/NSWTrigOut.h"
 
 // Other stuff
 #include "TrigConfL1Data/TriggerThreshold.h"
@@ -322,15 +323,50 @@ StatusCode LVL1TGCTrigger::processOneBunch(const TgcDigitContainer* tgc_containe
 	  std::shared_ptr<TGCTrackSelectorOut>  trackSelectorOut;
 	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut);
 
+	  std::shared_ptr<TGCNSW> nsw = m_system->getNSW();
+	  int module = sector->getModuleId();
+	  int sectorId;
           if(sector->getRegionType()==Endcap){
             LVL1MUONIF::Lvl1MuEndcapSectorLogicDataPhase1 sldata;
             tgcsystem = LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem();
             if(trackSelectorOut != 0) FillSectorLogicData(&sldata,trackSelectorOut.get());
+	    
+	    if ( m_tgcArgs.USE_NSW() ){
+	      sectorId = ((module/3)*2+module%3) + sector->getOctantId()*6;
+	      std::shared_ptr<const NSWTrigOut> pNSWOut = nsw->getOutput(sector->getRegionType(),
+									 sector->getSideId(),
+									 sectorId);
+	      if ( pNSWOut ){
+		// set monitoring flag
+		for(bool NSWmonitor : pNSWOut->getNSWmonitor() ){
+		  if ( NSWmonitor ) {
+		    sldata.nsw(true);
+		    break;
+		  }
+		}
+	      }
+	    }
             muctpiinputPhase1->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_endcap++,muctpiBcId);
           } else if(sector->getRegionType()==Forward){
             LVL1MUONIF::Lvl1MuForwardSectorLogicDataPhase1 sldata;
             tgcsystem = LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem();
             if(trackSelectorOut != 0) FillSectorLogicData(&sldata,trackSelectorOut.get());
+
+	    if ( m_tgcArgs.USE_NSW() ) {
+	      sectorId =  (module/3) +  sector->getOctantId()*3;
+	      std::shared_ptr<const NSWTrigOut> pNSWOut = nsw->getOutput(sector->getRegionType(),
+									 sector->getSideId(),
+									 sectorId);
+	      if ( pNSWOut ){
+		// set monitoring flag
+		for(bool NSWmonitor : pNSWOut->getNSWmonitor() ){
+		  if ( NSWmonitor ) {
+		    sldata.nsw(true);
+		    break;
+		  }
+		}
+	      }
+	    }
             muctpiinputPhase1->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_forward++,muctpiBcId);
           }
 
@@ -1298,7 +1334,10 @@ StatusCode LVL1TGCTrigger::fillNSW(){
 		       nsw_sector->sectorId(), // Sector number in NSW
 		       nsw_trk->rIndex(),      // R-index
 		       nsw_trk->phiIndex(),    // Phi-index
-		       nsw_trk->deltaTheta() // Delta theta index
+		       nsw_trk->deltaTheta(), // Delta theta index
+		       nsw_trk->lowRes(),
+		       nsw_trk->phiRes(),
+		       nsw_trk->monitor() // monitoring flag
 	              );
       }
     } 

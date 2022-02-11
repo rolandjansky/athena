@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -205,8 +205,6 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    #from AthenaConfiguration.TestDefaults import defaultTestFiles
-    #ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
     #ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'CaloBaselineMonOutput.root'

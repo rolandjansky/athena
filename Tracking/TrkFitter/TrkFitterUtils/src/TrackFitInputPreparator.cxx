@@ -556,8 +556,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
               Trk::alongMomentum,
               false,
               partHypo
-
-              );
+              ).release();
             if (!trkPar) {
                 std::cout << "TrackFitInputPreparator: WARNING, extrapolation problem." << std::endl;
             }

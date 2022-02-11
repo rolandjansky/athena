@@ -1,10 +1,10 @@
 """Define methods to construct configured MDT Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
@@ -64,7 +64,7 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
-    kwargs.setdefault("UseTof", flags.Beam.Type != "cosmics")
+    kwargs.setdefault("UseTof", flags.Beam.Type is not BeamType.Cosmics)
     # "RT_Relation_DB_DigiTool" in jobproperties.Digitization.experimentalDigi() not migrated
     digiTool = acc.popToolsAndMerge(MDT_Response_DigiToolCfg(flags))
     kwargs.setdefault("DigitizationTool", digiTool)

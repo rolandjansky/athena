@@ -277,6 +277,15 @@ def configureFlagsATLFASTIIF_G4MS():
     ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
     return
 
+def configureFlagsATLFAST3F_G4MS():
+    configureFlagsATLFASTIIF()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3F_G4MS"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
+    return
+
 def configureFlagsMultiSimTest():
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True

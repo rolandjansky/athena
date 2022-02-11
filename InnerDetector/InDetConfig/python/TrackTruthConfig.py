@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+
 # -------------------------------------------------------------------------
 #
 # ------- fragment to handle track truth association
@@ -21,7 +23,7 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
     if (not flags.Detector.EnableSCT):
         kwargs.setdefault("TruthNameSCT", "")
     # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
-    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type == 'cosmics' and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
+    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type is BeamType.Cosmics and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
         kwargs.setdefault("TruthNameTRT", "")
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
@@ -81,7 +83,7 @@ if __name__ == "__main__":
     ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 
@@ -96,9 +98,7 @@ if __name__ == "__main__":
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
     #################### TRTPreProcessing Configurations #####################
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
-                                      useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
-                                      usePhase = False))
+    top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
     
     #//// TrackingSiPatternConfig configurations from Temporary location /////
     ################# SiSPSeededTrackFinder Configurations ###################

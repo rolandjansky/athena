@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "src/sTGCSensitiveDetector.h"
@@ -184,6 +184,8 @@ TEST_F ( sTGCSensitiveDetectortest, ProcessHits )
   ASSERT_EQ(a->begin()->globalDirection(), Amg::Vector3D(0,0,0));
   ASSERT_EQ(a->begin()->depositEnergy(), 5);
   ASSERT_EQ(a->begin()->particleLink(), plink);
+  ASSERT_EQ(a->begin()->kineticEnergy(), 1.5);
+  ASSERT_EQ(a->begin()->globalPrePosition(), Amg::Vector3D(0,0,1));
 }
 
 int main( int argc, char** argv ) {

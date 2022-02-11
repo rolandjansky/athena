@@ -74,7 +74,6 @@ namespace xAOD {
 
 
    private:
-      //tobWord = tobWord + (eta<<27) + (phi << 23) + (jFEXLargeRJetTOBEt << 10) + (Res<<1) + (Sat);
       //Constants used in converting to ATLAS units
       static const float s_tobEtScale;
       static const float s_towerEtaWidth;
@@ -83,19 +82,17 @@ namespace xAOD {
       static const std::vector<int> s_FWD_EtaPosition;
       
       // Data locations within word
-      
-      //static const int s_ResBit = 23;  //reserved bits kept for future
-      static const int s_etaBit = 18;
-      static const int s_phiBit = 14;
-      static const int s_etBit  = 1; 
+      static const int s_resBit = 23;
+      static const int s_etBit  = 10;
+      static const int s_etaBit = 5;
+      static const int s_phiBit = 1;
       static const int s_satBit = 0; 
-      
 
       //Data masks
       static const int s_etaMask  = 0x1f;
       static const int s_phiMask  = 0xf;
       static const int s_etMask   = 0x1fff;   
-      //static const int s_resMask  = 0x7ff; 
+      static const int s_resMask  = 0x7ff; 
       static const int s_satMask  = 0x1; 
 
    }; // class jFexLRJetRoI_v1
@@ -106,4 +103,3 @@ namespace xAOD {
 SG_BASE( xAOD::jFexLRJetRoI_v1, SG::AuxElement );
 
 #endif //XAODTRIGGER_VERSIONS_JFEXLRJETROI_V1_H
-

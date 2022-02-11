@@ -23,9 +23,12 @@ class TopoAlgoDef:
 
         # eEM inputs
         # ALL
-        alg = AlgConf.ClusterNoSort( name = 'eEMall', inputs = 'ClusterTobArray', outputs = 'eEMall' ) #TODO: change ClusterNoSort into...? still old tobs inputs
+        alg = AlgConf.eEmNoSort( name = 'eEMall', inputs = 'eEmTobs', outputs = 'eEMall' )
         alg.addgeneric('InputWidth', HW.eEmInputWidth)
         alg.addgeneric('OutputWidth', HW.eEmInputWidth)
+        alg.addvariable('REtaMin',   0)
+        alg.addvariable('RHadMin',   0)
+        alg.addvariable('WsTotMin',  0)
         tm.registerTopoAlgo(alg)  
 
         # SORT
@@ -95,21 +98,22 @@ class TopoAlgoDef:
 
         # eTAU inputs
         # all
-        alg = AlgConf.ClusterNoSort( name = 'eTAUall', inputs = 'ClusterTobArray', outputs = 'eTAUall') #TODO: change ClusterNoSort into...? still old tob inputs
+        alg = AlgConf.eTauNoSort( name = 'eTAUall', inputs = 'eTauTobs', outputs = 'eTAUall')
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauInputWidth)
-        alg.addvariable('IsoMask', 0)
+        alg.addvariable('RCore', 0)
+        alg.addvariable('RHad', 0)
         tm.registerTopoAlgo(alg)
 
         # SORT
-        # TODO: no isolation applied yet
-        alg = AlgConf.eTauSort( name = 'eTAUsi', inputs = 'eTauTobs', outputs = 'eTAUsi' )
+        # TODO: iso cut not yet implemented in topo sim
+        alg = AlgConf.eTauSort( name = 'eTAUsm', inputs = 'eTauTobs', outputs = 'eTAUsm' )
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSort)
-        alg.addvariable('IsoMask',   2)
+        alg.addvariable('RCore',  2)
+        alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
-        alg.addgeneric('DoIsoCut',   1)
         tm.registerTopoAlgo(alg)
 
         # SELECT
@@ -117,21 +121,21 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
         alg.addvariable('MinET',    12*_et_conversion)
-        alg.addvariable('IsoMask',   0)
+        alg.addvariable('RCore',  0)
+        alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
-        alg.addgeneric('DoIsoCut',   0)
         tm.registerTopoAlgo(alg) 
 
-        #TODO: fix iso cut with proper iso WP
+        # TODO: iso cut not yet implemented in topo sim
         alg = AlgConf.eTauSelect( name = 'eTAUabm', inputs = 'eTauTobs', outputs = 'eTAUabm' )
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
         alg.addvariable('MinET',    12*_et_conversion)
-        alg.addvariable('IsoMask',   2)
+        alg.addvariable('RCore',  2)
+        alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
-        alg.addgeneric('DoIsoCut',   1)
         tm.registerTopoAlgo(alg) 
 
         # Muon inputs 
@@ -209,7 +213,8 @@ class TopoAlgoDef:
         alg.addvariable('GoodMFieldCut', 0)
         tm.registerTopoAlgo(alg)
     
-        #LATE #TODO: update to new muon inputs
+        #LATE 
+        #TODO: update to new muon inputs
         alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs' )
         alg.addgeneric('InputWidth', HW.muonInputWidth)
         alg.addgeneric('OutputWidth', 1)
@@ -218,7 +223,8 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 25*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
-        #jJets inputs # TODO: switch to new jet TOB list
+        #jJets inputs
+        # TODO: switch to phase-I inputs when KF algorithm is fixed
         alg = AlgConf.JetNoSort( name = 'AjJall', inputs = 'JetTobArray', outputs = 'AjJall' ) 
         alg.addgeneric('InputWidth', HW.jJetInputWidth)
         alg.addgeneric('OutputWidth', HW.jJetInputWidth)
@@ -277,6 +283,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 49*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
+        # MET
         # TODO: replace to new TOB
         alg = AlgConf.METNoSort( name = 'jXENoSort', inputs = 'MetTobArray', outputs = 'jXENoSort' )
         alg.addgeneric('InputWidth', HW.jMetInputWidth)
@@ -327,8 +334,6 @@ class TopoAlgoDef:
             {"minDr": 0, "maxDr": 22, "mult": 2, "otype1" : "MU5VFab",  "otype2" : "",       }, #0DR22-2MU5VFab
             {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab" ,  "otype2" : "",       }, #2DR99-2MU3Vab
 
-            {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",   "otype2" : "",       }, #0DR12-2MU3Vab #ATR-21566
-            {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3VFab",   "otype2" : "",      }, #0DR12-2MU3VFab #ATR-21566
         ]
         for x in listofalgos:
             class d:
@@ -357,7 +362,7 @@ class TopoAlgoDef:
             alg.addvariable('MinET2',    0*_et_conversion)
             tm.registerTopoAlgo(alg)
 
-        # dimu DR with opposite charge, ATR-23073, ATR-21566
+        # dimu DR with opposite charge, ATR-23073
         listofalgos=[
             {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab", "otype2" : "", }, #0DR12C-2MU3Vab 
         ]
@@ -388,7 +393,7 @@ class TopoAlgoDef:
             alg.addvariable('MinET2',    0*_et_conversion)
             tm.registerTopoAlgo(alg)
 
-        # dimu INVM+DR with opposite charge, ATR-23073, ATR-21566
+        # dimu INVM+DR with opposite charge, ATR-23073
         listofalgos=[
             {"minInvm":7, "maxInvm":22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab", "otype2" : "", }, #7INVM22-0DR20C-2MU3Vab
         ]
@@ -551,8 +556,11 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #8INVM15-2MU5VFab
             {"minInvm": 2, "maxInvm": 9,  "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #2INVM9-2MU5VFab 
             {"minInvm": 7, "maxInvm": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM15-2MU3Vab 
-            {"minInvm": 8, "maxInvm": 22, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #8INVM22-2MU3Vab #ATR-21566
-            {"minInvm": 8, "maxInvm": 22, "mult": 2, "otype1" : "MU3VFab",  "otype2" : "",     }, #8INVM22-2MU3VFab #ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "mult": 2, "otype1" : "MU3VFab", "otype2" : "",      }, #7INVM22-2MU3VFab, ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "mult": 1, "otype1" : "MU5VFab", "otype2" : "MU3VFab",}, #7INVM22-MU5VFab-MU3VFab, ATR-21566
+            {"minInvm": 7, "maxInvm": 14, "mult": 1, "otype1" : "MU5VFab", "otype2" : "MU3VFab",}, #7INVM14-MU5VFab-MU3VFab, ATR-22782
+            {"minInvm": 7, "maxInvm": 14, "mult": 2, "otype1" : "MU3VFab", "otype2" : "",      }, #7INVM14-2MU3VFab, ATR-22782
+            {"minInvm": 7, "maxInvm": 14, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM14-2MU3Vab, ATR-22782
         ]
         for x in listofalgos:
             class d:
@@ -661,7 +669,7 @@ class TopoAlgoDef:
 
         # RATIO MATCH dedicated to Exotic #TODO: are eTAU correct to use here (and below)?
         toponame = '100RATIO-0MATCH-eTAU30si2-eEMall'
-        alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'eTAUsi', 'eEMall'], outputs = [ toponame ] )
+        alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'eTAUsm', 'eEMall'], outputs = [ toponame ] )
         alg.addgeneric('InputWidth1', HW.eTauOutputWidthSort)
         alg.addgeneric('InputWidth2', HW.eEmInputWidth)      
         alg.addgeneric('MaxTob1', 2)
@@ -674,7 +682,7 @@ class TopoAlgoDef:
 
         # NOT MATCH dedicated to Exotic
         toponame = 'NOT-0MATCH-eTAU30si1-eEMall'
-        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'eTAUsi', 'eEMall'], outputs = [ toponame ] )
+        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'eTAUsm', 'eEMall'], outputs = [ toponame ] )
         alg.addgeneric('InputWidth1', HW.eTauOutputWidthSort)
         alg.addgeneric('InputWidth2', HW.eEmInputWidth)
         alg.addgeneric('MaxTob1', 1)
@@ -1118,6 +1126,18 @@ class TopoAlgoDef:
         alg.addvariable('MinET1',      0*_et_conversion)
         tm.registerTopoAlgo(alg)
 
+        toponame = "0INVM10-3MU3VFab"
+        log.debug("Define %s", toponame)
+        inputList = 'MU3VFab'
+        alg = AlgConf.InvariantMassThreeTOBsIncl1( name = toponame, inputs = inputList, outputs = toponame )
+        alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+        alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+        alg.addgeneric('NumResultBits', 1)
+        alg.addvariable('MinMSqr',     0*_et_conversion*_et_conversion)
+        alg.addvariable('MaxMSqr', 10*10*_et_conversion*_et_conversion)
+        alg.addvariable('MinET1',      0*_et_conversion)
+        tm.registerTopoAlgo(alg)
+
         #ATR-19638, 3muon, not all with the same charge
         toponame = "0INVM10C-3MU3Vab"
         log.debug("Define %s", toponame)
@@ -1257,25 +1277,24 @@ class TopoAlgoDef:
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #2INVM9-0DR15-MU5VFab-MU3Vab 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #8INVM15-0DR22-MU5VFab-MU3Vab
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",       }, #2INVM9-0DR15-2MU3Vab
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",      }, #2INVM9-0DR15-2MU3VFab
 
             {"minInvm": 0, "maxInvm": 16, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-20DR99-2MU3Vab
             {"minInvm": 0, "maxInvm": 16, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-15DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-20DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-15DR99-2MU3Vab
 
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR12-2MU3Vab # ATR-21566          
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM22-0DR12-2MU3VFab # ATR-21566 
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR20-2MU3Vab # ATR-21566
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR12-MU5VFab-MU3Vab # ATR-21566
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3VFab",}, #7INVM22-0DR12-MU5VFab-MU3VFab # ATR-21566
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR20-MU5VFab-MU3Vab # ATR-21566 
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",   "otype2": "",},        #7INVM22-0DR20-2MU3Vab, ATR-21566          
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM22-0DR20-2MU3VFab, ATR-21566 
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR12-2MU3Vab, ATR-21566
 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "CMU5VFab","otype2": "CMU3Vab",}, #8INVM15-0DR22-CMU5VFab-CMU3Vab
  
             {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #7INVM14-0DR25-MU5VFab-MU3Vab
             {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #7INVM11-25DR99-2MU3Vab
             {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3VFab", }, #7INVM14-0DR25-MU5VFab-MU3VFab
-            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM11-25DR99-2MU3VFab
+            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM11-25DR99-2MU3VFab, ATR-22782
+
         ]
         for x in listofalgos:
             class d:
@@ -1306,7 +1325,7 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
             tm.registerTopoAlgo(alg)
 
-        #ATR-19639 and ATR-22782, BPH DR+M+OS dimuon
+        #ATR-19639, BPH DR+M+OS dimuon
         listofalgos=[
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab",}, #2INVM9-0DR15-C-MU5VFab-MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},       #8INVM15-20DR99-C-2MU3Vab
@@ -1342,7 +1361,7 @@ class TopoAlgoDef:
 
  
         # CEP_CjJ
-        # TODO: update with phase1 jets, what conversion for Xi?
+        # TODO: what conversion for Xi?
         CEPmap = [
             {"algoname": 'CEP_CjJ', "minETlist": [50, 60]}
         ]

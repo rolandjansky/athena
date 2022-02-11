@@ -212,10 +212,10 @@ class ThresholdDef:
             jJetThreshold('jJSPARE%i' % thrV, 'jJ').addThrValue(8191)
 
         # jLJET (default range)
-        for thrV in [80, 100, 140, 160]:
+        for thrV in [60, 80, 100, 120, 140, 160, 180, 200]:
             ThresholdDef.addJetVaryingThrValues( jLJetThreshold('jLJ%i' % thrV, 'jLJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=31 )
 
-        # jLJET SPARES
+        # jJET SPARES
         for thrV in range(1,5):
             jLJetThreshold('jLJSPARE%i' % thrV, 'jLJ').addThrValue(8191)
 

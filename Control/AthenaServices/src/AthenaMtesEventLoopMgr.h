@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_H
@@ -290,6 +290,8 @@ private:
       , "EventService_EventRanges"
       , "The name of the Yampl channel between AthenaMT and the Pilot"
       };
+
+  Gaudi::Property<std::string> m_socketName{this, "SocketName", {}, "YAMPL socket name"};
 
   // Hopefully a temporary measurement. For the time being we cannot
   // support event ranges from different input files.

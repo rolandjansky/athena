@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6WarmTCSD.h"
@@ -56,7 +56,7 @@ LArG4H6WarmTCSD::LArG4H6WarmTCSD(G4String name, G4String colname)
     m_CalibSD = ((LArG4CalibSD*)G4SDManager::GetSDMpointer()-> FindSensitiveDetector("TBEndcap::Dead"));
     if(!m_CalibSD) {
       std::cout << "LArG4H6WarmTCSD::LArG4H6WarmTCSD: could not find SD:  TBEndcap::Dead !!!" << std::endl;
-      throw;
+      std::abort();
     }
   }
 

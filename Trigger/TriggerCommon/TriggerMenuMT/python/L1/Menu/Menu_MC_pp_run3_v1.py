@@ -54,7 +54,7 @@ def defineMenu():
         'L1_MU3V', 'L1_MU5VF', 'L1_MU8F', 'L1_MU8VF', 'L1_MU14FCH', 'L1_MU14FCHR',
         'L1_MU3VF', 'L1_MU8FC', 'L1_MU8VFC', 'L1_MU15VFCH', 'L1_MU10BOM', 'L1_MU4BOM', 'L1_MU12BOM', 'L1_MU10BO', 
         'L1_2MU3V', 'L1_2MU5VF', 'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_MU5VF_2MU3V', 'L1_MU5VF_2MU3VF',
-        'L1_3MU3V', 'L1_3MU3VF', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_4MU3V', 
+        'L1_3MU3V', 'L1_3MU3VF', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_MU5VF_3MU3VF', 'L1_4MU3V', 
         'L1_2MU5VF_3MU3V', 'L1_2MU8VF', 
         'L1_MU8F_2MU5VF',
 
@@ -156,7 +156,9 @@ def defineMenu():
         'L1_MU3V_jJ30', 'L1_MU3V_jJ40', 'L1_MU5VF_jJ90',  #L1_MU3V_jJ30 added temporarily 
   
         # jLJ
-        'L1_jLJ80', 'L1_jLJ100', 'L1_jLJ140', 'L1_jLJ160', 
+        'L1_jLJ80', 'L1_jLJ120', 'L1_jLJ140', 'L1_jLJ180',
+        # Production thresholds, not used in commissioning
+        'L1_jLJ60', 'L1_jLJ100', 'L1_jLJ160', 'L1_jLJ200',
 
         # jEM
         'L1_jEM20', 'L1_jEM20M',   
@@ -360,6 +362,7 @@ def defineMenu():
     
         #ATR-19720, ATR-19639
         'L1_BPH-2M9-0DR15-2MU3V',
+        'L1_BPH-2M9-0DR15-2MU3VF',
         'L1_BPH-2M9-0DR15-MU5VFMU3V',
         'L1_BPH-2M9-0DR15-C-MU5VFMU3V',
         'L1_BPH-2M9-2DR15-2MU5VF',
@@ -367,20 +370,22 @@ def defineMenu():
         'L1_BPH-8M15-0DR22-2MU5VF',
         #ATR-19355
         'L1_BPH-0M10-3MU3V',
+        'L1_BPH-0M10-3MU3VF',
         #ATR-19638
         'L1_BPH-0M10C-3MU3V',
+
         #ATR-21566 
-        'L1_BPH-0DR12-2MU3V', 'L1_BPH-0DR12-2MU3VF',
+        'L1_BPH-7M22-2MU3VF',
+        'L1_BPH-7M22-MU5VFMU3VF',
         'L1_BPH-7M22-0DR20-2MU3V',
-        'L1_BPH-0DR12C-2MU3V',
-        'L1_BPH-7M22-0DR12-2MU3V', 'L1_BPH-7M22-0DR12-2MU3VF',
-        'L1_BPH-8M22-2MU3V', 'L1_BPH-8M22-2MU3VF',
-        'L1_BPH-7M22-0DR12-MU5VFMU3V','L1_BPH-7M22-0DR20-MU5VFMU3V', 'L1_BPH-7M22-0DR12-MU5VFMU3VF',
+        'L1_BPH-7M22-0DR20-2MU3VF', 
+        'L1_BPH-7M22-0DR12-2MU3V',
+
         #ATR-22782
-        'L1_BPH-0M16-20DR99-2MU3V', 'L1_BPH-0M16-15DR99-2MU3V',
-        'L1_BPH-8M15-20DR99-C-2MU3V', 'L1_BPH-8M15-20DR99-2MU3V', 'L1_BPH-8M15-15DR99-2MU3V',          
-        'L1_BPH-7M14-0DR25-MU5VFMU3V', 'L1_BPH-7M11-25DR99-2MU3V', 
-        'L1_BPH-7M14-0DR25-MU5VFMU3VF', 'L1_BPH-7M11-25DR99-2MU3VF',
+        'L1_BPH-7M11-25DR99-2MU3VF',
+        'L1_BPH-7M14-MU5VFMU3VF',
+        'L1_BPH-7M14-2MU3V', 
+        'L1_BPH-7M14-2MU3VF',
 
         # INVM + DPHI 
         'L1_jMJJ-400-NFF-0DPHI22',

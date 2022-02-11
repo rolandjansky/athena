@@ -58,16 +58,19 @@ StatusCode Muon::MdtPrepDataContainerCnv_p1::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Mdt ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-        return sc;
+    if (m_eventCnvTool.retrieve().isFailure()) {
+        log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
-
+const MuonGM::MdtReadoutElement* Muon::MdtPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::MdtReadoutElement*>(cnv_tool->getDetectorElement(id));
+}
 void Muon::MdtPrepDataContainerCnv_p1::transToPers(const Muon::MdtPrepDataContainer* transCont,  Muon::MuonPRD_Container_p1* persCont, MsgStream &log) 
 {
 
@@ -92,7 +95,7 @@ void Muon::MdtPrepDataContainerCnv_p1::transToPers(const Muon::MdtPrepDataContai
     MdtPrepDataCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int collIndex;
+    unsigned int collIndex= 0;
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     int numColl = transCont->numberOfCollections();
@@ -161,14 +164,13 @@ void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-//        MuonDD::MdtReadoutElement * de = m_muonDetMgr->getDetectorElement(collIDHash);
 // No hash based lookup for Mdts?
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::MdtPrepData* chan = dynamic_cast<Muon::MdtPrepData*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
             if (chan!=nullptr) {
-                const MuonGM::MdtReadoutElement * de = m_muonDetMgr->getMdtReadoutElement(chan->identify());
+                const MuonGM::MdtReadoutElement * de = getReadOutElement(chan->identify());
                 chan->m_detEl = de;
                 (*coll)[ichan] = chan;
             } else {

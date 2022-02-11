@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -197,6 +197,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
   }
   // create vector for new TSOS (the ones which are kept)
   auto trackStates = DataVector<const TrackStateOnSurface>();
+  trackStates.reserve(oldTrackStates->size());
   const TrackStateOnSurface* firstValidIDTSOS(nullptr);
   const TrackStateOnSurface* lastValidIDTSOS(nullptr);
   const TrackStateOnSurface* firstValidMSTSOS(nullptr);

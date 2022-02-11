@@ -10,7 +10,7 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 
 class tt(PowhegV2):
-    """! Default Powheg configuration for for top pair production.
+    """! Default Powheg configuration for top-pair production.
 
     Create a configurable object with all applicable Powheg options.
 

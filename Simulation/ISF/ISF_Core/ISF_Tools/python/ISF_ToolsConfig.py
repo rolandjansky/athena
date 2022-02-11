@@ -87,7 +87,7 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
         if simFlags.CosmicFilterVolumeName2=="Muon":
             useAndFilter = True
             volumeNames += ["MuonExitLayer"]
-        if simFlags.CosmicFilterVolumeName=="Calo":
+        if simFlags.CosmicFilterVolumeName2=="Calo":
             useAndFilter = True
             volumeNames += ["MuonEntryLayer"]
         if simFlags.CosmicFilterVolumeName2=="InnerDetector":

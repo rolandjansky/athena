@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,14 +16,14 @@
 #define ATHEXHIVE_BASEALG_H 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ICPUCrunchSvc.h"
 #include "AthExHive/IHiveExSvc.h"
-#include "rGen.h"
 
 #include <string>
 
-class HiveAlgBase  :  public AthAlgorithm, public rGen {
+class HiveAlgBase  :  public AthAlgorithm {
   
 public:
   
@@ -45,7 +45,10 @@ protected:
 
   // Handle to CPUCrunchSvc, which burns CPU time
   ServiceHandle<ICPUCrunchSvc> m_ccs;
-  
+
+  // Handle to random number service
+  ServiceHandle<IAthRNGSvc> m_rngSvc;
+
 private:
 
   Gaudi::Property<unsigned int> m_time{this, "Time", 0, "default alg sleep time in ms"};

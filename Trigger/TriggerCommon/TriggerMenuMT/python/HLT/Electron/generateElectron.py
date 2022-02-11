@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
@@ -7,6 +7,7 @@ from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -85,14 +86,14 @@ def _precisonCaloSeq(flags):
 
     copier = CompFactory.egammaTopoClusterCopier('TrigEgammaTopoClusterCopierPrecisionCaloRoIs',
                                                  InputTopoCollection='HLT_TopoCaloClustersRoI',
-                                                 OutputTopoCollection='HLT_CaloEMClusters',
-                                                 OutputTopoCollectionShallow='tmp_HLT_CaloEMClusters')
+                                                 OutputTopoCollection='HLT_CaloEMClusters_Electron',
+                                                 OutputTopoCollectionShallow='tmp_HLT_CaloEMClusters_Electron')
     recoAcc.addRecoAlgo(copier)
 
     selAcc = SelectionCA('PrecisionCalo')
     selAcc.mergeReco(recoAcc)
     hypoAlg = CompFactory.TrigEgammaPrecisionCaloHypoAlg(name='ElectronPrecisionCaloHypo',
-                                                           CaloClusters=recordable('HLT_CaloEMClusters'))
+                                                           CaloClusters=recordable('HLT_CaloEMClusters_Electron'))
     selAcc.addHypoAlgo(hypoAlg)
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
     menuSequence = MenuSequenceCA(selAcc,
@@ -104,7 +105,7 @@ def _precisonCalo(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionTrackingSeq(flags):
+def _precisionTrackingSeq(flags,chainDict):
     name='ElectronPrecisionTracking'
     selAcc=SelectionCA('ElectronPrecisionTracking')
 
@@ -121,17 +122,17 @@ def _precisionTrackingSeq(flags):
     from TrigInDetConfig.TrigInDetConfig import trigInDetPrecisionTrackingCfg
     idTracking = trigInDetPrecisionTrackingCfg(flags, signatureName='Electron')
     precisionInDetReco.mergeReco(idTracking)
-
     selAcc.mergeReco(precisionInDetReco)
-    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionTrackingHypo', CaloClusters='HLT_CaloEMClusters')
+    hypoAlg = CompFactory.TrigStreamerHypoAlg('ElectronprecisionTrackingHypo')
     selAcc.addHypoAlgo(hypoAlg)
+    def acceptAllHypoToolGen(chainDict):
+        return CompFactory.TrigStreamerHypoTool(chainDict["chainName"], Pass = True)
     menuSequence = MenuSequenceCA(selAcc,
-                                  HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
+                                  HypoToolGen=acceptAllHypoToolGen)
     return (selAcc , menuSequence)
 
 def _precisionTracking(flags, chainDict):
-    selAcc , menuSequence = _precisionTrackingSeq(flags)
+    selAcc , menuSequence = _precisionTrackingSeq(flags,chainDict)
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
@@ -145,7 +146,7 @@ def _precisionElectronSeq(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
                                                               DataObjects=[( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                                                           ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % TrigEgammaKeys.precisionCaloClusterContainer),
+                                                                           ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % TrigEgammaKeys.precisionElectronCaloClusterContainer),
                                                                            ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.precisionTrackingContainer)] ) )
 
 
@@ -163,14 +164,14 @@ def _precisionElectronSeq(flags):
                                                         useScoring         = True,
                                                         SecondPassRescale  = True,
                                                         UseRescaleMetric   = True,
-                                                        isCosmics          = flags.Beam.Type=='cosmics')
+                                                        isCosmics          = flags.Beam.Type is BeamType.Cosmics)
         acc.setPrivateTools(builderTool)
         return acc
 
     def TrigEgammaRecElectronCfg(flags, name='TrigEgammaRecElectron_noGSF'):
         acc = ComponentAccumulator()
         electronRec = CompFactory.egammaRecBuilder( name,
-                                                    InputClusterContainerName= 'HLT_CaloEMClusters',
+                                                    InputClusterContainerName= 'HLT_CaloEMClusters_Electron',
                                                     egammaRecContainer= TrigEgammaKeys.precisionCaloEgammaRecCollection,
                                                     doConversions = False,
                                                     TrackMatchBuilderTool = recoAcc.popToolsAndMerge(TrigEMTrackMatchBuilderToolCfg(flags)) )

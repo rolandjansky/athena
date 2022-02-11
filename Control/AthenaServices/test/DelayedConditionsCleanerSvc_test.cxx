@@ -87,7 +87,7 @@ public:
     default:
       std::abort();
     }
-    assert (typelessInsert (r, nullptr));
+    assert (CondContTest::typelessInsert (r, nullptr));
   }
   
   virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override

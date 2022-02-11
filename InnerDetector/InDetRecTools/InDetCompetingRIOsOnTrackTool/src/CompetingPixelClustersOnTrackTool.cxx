@@ -173,7 +173,7 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
                                                                         (trkParWithoutError ? *trkParWithoutError : trkPar), *detElementSurface,
                                                                         Trk::anyDirection, // propagate in any direction
                                                                         false, //do noBoundaryCheck!
-                                                                        Trk::nonInteracting); // without material interaction
+                                                                        Trk::nonInteracting).release(); // without material interaction
                 if (!newTrackParameters){
                     ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
                     delete ROTvector;
@@ -326,7 +326,7 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
                                                                 (trkParWithoutError ? *trkParWithoutError : trkPar), compROT->associatedSurface(),
                                                                 Trk::anyDirection, // propagate in any direction
                                                                 false, //do noBoundaryCheck!
-                                                                Trk::nonInteracting); // without material interaction
+                                                                Trk::nonInteracting).release(); // without material interaction
         delete trkParWithoutError;
         trkParWithoutError = nullptr;
         if (!newTrackParameters){

@@ -2,11 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonJiveXML/RpcPrepDataRetriever.h"
+#include "RpcPrepDataRetriever.h"
 
-#include "MuonJiveXML/MuonFullIDHelper.h"
+#include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
 
@@ -18,16 +17,15 @@ namespace JiveXML {
   {
 
     declareInterface<IDataRetriever>(this);
-   
-    declareProperty("StoreGateKey", m_sgKey = "RPC_Measurements", "Storegate key for RPC PredData container");
+
   }
   
   //--------------------------------------------------------------------------
 
   StatusCode RpcPrepDataRetriever::initialize(){
 
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
-
+    ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
+    ATH_CHECK(m_sgKey.initialize());
     ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -38,13 +36,9 @@ namespace JiveXML {
   StatusCode RpcPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
+    ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
 
-    const Muon::RpcPrepDataContainer *rpcContainer=nullptr;
-    if ( evtStore()->retrieve(rpcContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::RpcPrepDataContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcContainer(m_sgKey);
 
     int ndata = 0;
     Muon::RpcPrepDataContainer::const_iterator containerIt;
@@ -104,9 +98,9 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
+    ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
-    return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);
   }
 }

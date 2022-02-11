@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "STGC_DigitToRDO.h"
@@ -52,12 +52,12 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
       for (const sTgcDigit* digit : *digitColl ) {
         Identifier id = digit->identify();
         uint16_t bcTag = digit->bcTag();
-        // keep the time as a float for now, but it should also become an int
         float time   = digit->time();
-	      //uint16_t charge = (uint16_t) digit->charge_10bit();
-	      uint16_t charge = (uint16_t) digit->charge(); // 10bit charge conversion to PDO is done else where as a quick fix for now; correct version incoming in the next few days
+        unsigned int tdo = static_cast<unsigned int>(25.0+digit->time()); //place holder for time->tdo from calibration
+        // 10bit charge conversion to PDO is done in sTGC_digitization as a quick fix for now, it will be corrected once the calibration is in place
+	      unsigned int charge = static_cast<unsigned int>(digit->charge()); //place holder for charge->pdo from calibration
         bool isDead = digit->isDead();
-        STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, charge, isDead);
+        STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, tdo, charge, isDead);
         coll->push_back(rdo);
       }
     }

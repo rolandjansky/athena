@@ -133,7 +133,16 @@ stdJetModifiers.update(
                                    createfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,
                                    prereqs=["ghost:BHadronsFinal",
                                             "ghost:CHadronsFinal",
-                                            "ghost:TausFinal"])
+                                            "ghost:TausFinal"]
+                                   ),
+
+
+    JetGhostLabel =    JetModifier("ParticleJetGhostLabelTool","jetghostlabeler",
+                                   createfn=ParticleJetToolsConfig.getJetGhostLabelTool,
+                                   prereqs=["ghost:BHadronsFinal",
+                                            "ghost:CHadronsFinal",
+                                            "ghost:TausFinal"]
+                                   )
 )
 
 

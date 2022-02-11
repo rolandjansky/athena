@@ -7,7 +7,7 @@ include("Pythia8_i/Pythia8_Base_Fragment.py")
 genSeq.Pythia8.Commands += [
     "Tune:ee = 7",
     "Tune:pp = 14",
-#    "PDF:pSet=LHAPDF6:NNPDF23_lo_as_0130_qed",
+    "PDF:pSet=LHAPDF6:NNPDF23_lo_as_0130_qed",
     "MultipartonInteractions:bProfile = 2",
     "MultipartonInteractions:pT0Ref = 2.45",
     "MultipartonInteractions:ecmPow = 0.21",
@@ -15,14 +15,19 @@ genSeq.Pythia8.Commands += [
     "MultipartonInteractions:coreFraction = 0.9",
     "SigmaDiffractive:PomFlux = 4",
     "SigmaDiffractive:PomFluxEpsilon = 0.07",
-    "SigmaDiffractive:PomFluxAlphaPrime = 0.25"]
+    "SigmaDiffractive:PomFluxAlphaPrime = 0.25",
+    "SigmaElastic:rho = 0.0",
+    "SigmaDiffractive:mode = 0",
+    "SigmaTotal:sigmaAXB =0",
+    "SigmaDiffractive:OwnbMinDD = 5",
+    "ColourReconnection:range = 1.8"]
 #    "BeamRemnants:reconnectRange  = 1.8"]
 
 rel = os.popen("echo $AtlasVersion").read()
-
-genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:NNPDF23_lo_as_0130_qed",
-  "ColourReconnection:range = 1.8"]                            
+print("Atlas release " + rel)
 
 evgenConfig.tune = "A3 NNPDF23LO"
-print ("WARNING! These parameters are derived tuning Pythia 8.186 to data")
+print("WARNING! These parameters are derived tuning Pythia 8.186 to data")
+
+
 

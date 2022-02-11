@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -36,7 +36,7 @@ StatusCode PixelClusterContainerCnv::initialize() {
    }
    
    // get DetectorStore service
-   StoreGateSvc *detStore(0);
+   StoreGateSvc *detStore(nullptr);
    if (service("DetectorStore", detStore).isFailure()) {
      ATH_MSG_FATAL("DetectorStore service not found !");
      return StatusCode::FAILURE;
@@ -45,7 +45,7 @@ StatusCode PixelClusterContainerCnv::initialize() {
    }
    
    // Get the pixel helper from the detector store
-   const PixelID* idhelper(0);
+   const PixelID* idhelper(nullptr);
    if (detStore->retrieve(idhelper, "PixelID").isFailure()) {
      ATH_MSG_FATAL("Could not get PixelID helper !");
      return StatusCode::FAILURE;
@@ -71,7 +71,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv::createTransient() {
   static const pool::Guid   p2_guid("DE48E26B-9E03-4EAD-86B9-351AD88D060E"); // with pixelCluster_p2
   static const pool::Guid   p3_guid("7BF0F163-B227-434C-86A6-16130E005E6C"); // with pixelCluster_p3
   ATH_MSG_DEBUG("createTransient(): main converter");
-  InDet::PixelClusterContainer* p_collection(0);
+  InDet::PixelClusterContainer* p_collection(nullptr);
   if( compareClassGuid(p3_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
     std::unique_ptr< InDet::PixelClusterContainer_p3 >  p_coll( poolReadObject< InDet::PixelClusterContainer_p3 >() );

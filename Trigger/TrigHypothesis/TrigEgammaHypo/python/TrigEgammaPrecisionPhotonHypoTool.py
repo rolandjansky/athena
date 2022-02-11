@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerMenuMT.HLT.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from ROOT import egammaPID
 
 #
@@ -179,7 +179,7 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
     from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.pidVersion()
+      ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
 
     import collections
     # Configure the IsEM selectors

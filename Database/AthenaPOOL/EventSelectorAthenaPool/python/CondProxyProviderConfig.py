@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # File: EventSelectorAthenaPool/python/CondProxyProviderConfig.py
 # Created: Jun 2020, sss
@@ -31,6 +31,9 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import LHCPeriod
+    ConfigFlags.Input.Files = []
+    ConfigFlags.GeoModel.Run = LHCPeriod.Run2  # flags validation workaround
     ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaSuperClusterBuilderBase.h"
@@ -370,22 +370,20 @@ egammaSuperClusterBuilderBase::createNewCluster(
   }
 
   // create a new empty cluster
-  xAOD::CaloCluster* newCluster = 
-    CaloClusterStoreHelper::makeCluster(
-      clusters[0]->getCellLinks()->getCellContainer());
+  // collection will own it if not nullptr
+  xAOD::CaloCluster* newCluster = CaloClusterStoreHelper::makeCluster(
+    newClusters, clusters[0]->getCellLinks()->getCellContainer());
 
-  //collection will own it if not nullptr 
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
     return false;
   }
-  newClusters->push_back(newCluster);
   //
   newCluster->setClusterSize(xAOD::CaloCluster::SuperCluster);
   // Let's try to find the eta and phi of the hottest cell in L2.
   // This will be used as the center for restricting the cluster size.
   CentralPosition cpRef = findCentralPositionEM2(clusters);
-  // these are the same as the reference but in calo frame 
+  // these are the same as the reference but in calo frame
   // (after the processing below)
   CentralPosition cp0 = cpRef;
   // Get the hotest in raw co-ordinates
@@ -452,7 +450,8 @@ egammaSuperClusterBuilderBase::createNewCluster(
   }
 
   // Apply correction calibration
-  if (calibrateCluster(ctx, newCluster, mgr, egType, precorrClusters).isFailure()) {
+  if (calibrateCluster(ctx, newCluster, mgr, egType, precorrClusters)
+        .isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
     newClusters->pop_back();
     return false;
@@ -465,7 +464,7 @@ egammaSuperClusterBuilderBase::createNewCluster(
     return false;
   }
 
-  if (m_linkToConstituents){
+  if (m_linkToConstituents) {
     // EDM vector to constituent clusters
     std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
     static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer>>
@@ -684,18 +683,15 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
     return StatusCode::FAILURE;
   }
 
-  CaloCellList myList(&mgr,inputcells);
+  CaloCellList myList(&mgr, inputcells);
 
   const std::vector<CaloSampling::CaloSample> samples = {
     CaloSampling::TileGap3
   };
   for (auto samp : samples) {
     // quite slow
-    myList.select(tofill.eta0(),
-                  tofill.phi0(),
-                  searchWindowEta,
-                  searchWindowPhi,
-                  samp);
+    myList.select(
+      tofill.eta0(), tofill.phi0(), searchWindowEta, searchWindowPhi, samp);
     cells.insert(cells.end(), myList.begin(), myList.end());
   }
 
@@ -733,7 +729,7 @@ egammaSuperClusterBuilderBase::calibrateCluster(
   newCluster->setAltPhi(newCluster->phi());
   // first do the corrections
   if (precorrClusters) {
-    precorrClusters->push_back (std::make_unique<xAOD::CaloCluster>());
+    precorrClusters->push_back(std::make_unique<xAOD::CaloCluster>());
     *precorrClusters->back() = *newCluster;
   }
   ATH_CHECK(m_clusterCorrectionTool->execute(

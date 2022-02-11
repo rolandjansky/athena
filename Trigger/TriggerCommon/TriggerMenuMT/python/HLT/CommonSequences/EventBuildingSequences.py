@@ -196,14 +196,16 @@ def pebInputMaker(chain, eventBuildType):
                            ' is static or RoI-based PEB from a tool of type ' + type(_tmpTool))
     del _tmpTool
 
+    _isNoalg = (len(chain.steps) == 0)
+
     # Configure the InputMaker
     maker = CompFactory.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
-    # Allow more than one feature per input RoI if we care about RoIs
-    maker.mergeUsingFeature = _isRoIBasedPEB
+    # Allow more than one feature per input RoI if we care about RoIs, and have at least one Step
+    maker.mergeUsingFeature = _isRoIBasedPEB and not _isNoalg
 
     # Configure the InputMaker RoI tool
-    if len(chain.steps) == 0 or _isStaticPEB:
+    if _isNoalg or _isStaticPEB:
         # Streamers or static PEB: use initial RoI
         maker.RoITool = CompFactory.ViewCreatorInitialROITool()
     elif isFullscan and _isRoIBasedPEB:

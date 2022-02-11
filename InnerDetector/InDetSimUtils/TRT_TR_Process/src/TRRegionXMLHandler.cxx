@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -49,7 +49,7 @@ void TRRegionXMLHandler::Process(const std::string& name)
       msg(MSG::ERROR) << "Unable to locate StoreGate! Stopping!" << endmsg;
     throw std::runtime_error("Unable to locate StoreGate!");
   }
-  StoreGateSvc* detStore = 0;
+  StoreGateSvc* detStore = nullptr;
   sc = svcLocator->service( "DetectorStore", detStore);
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
@@ -57,7 +57,7 @@ void TRRegionXMLHandler::Process(const std::string& name)
     throw std::runtime_error("Unable to locate DetectorStore!");
   }
 
-  const IdDictManager * idDictMgr = 0;
+  const IdDictManager * idDictMgr = nullptr;
   if (StatusCode::SUCCESS == detStore->retrieve(idDictMgr, "IdDict")) {
     if (idDictMgr) {
       std::string tag = idDictMgr->manager()->tag();

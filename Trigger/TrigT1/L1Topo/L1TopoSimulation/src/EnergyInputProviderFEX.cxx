@@ -116,8 +116,15 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   ATH_MSG_DEBUG("Global MET candidate Ex = " << global_et_x << ", Ey = " <<global_et_y);
   unsigned int et =  std::sqrt( global_et_x*global_et_x + global_et_y*global_et_y );
   TCS::MetTOB met( -(global_et_x), -(global_et_y), et );
+
+  ATH_MSG_DEBUG( "Setting the EtDouble to : " << et/10.);
+  met.setExDouble( static_cast<double>(-global_et_x/10.) );
+  met.setEyDouble( static_cast<double>(-global_et_y/10.) );
+  met.setEtDouble( static_cast<double>(et/10.) );
+  ATH_MSG_DEBUG("MET EtDouble : " << met.EtDouble());
+
   inputEvent.setMET( met );
-  m_h_met_Pt->Fill(met.Et()/10.);
+  m_h_met_Pt->Fill(met.EtDouble());
   m_h_met_Phi->Fill( atan2(met.Ey(),met.Ex()) );
     
   /* not checking overflow currently to be enabled in release 22. 

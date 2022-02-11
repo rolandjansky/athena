@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict, getSpecialConfigurationMetadata
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, Format, ProductionStep
 from PyUtils.moduleExists import moduleExists
 
 
@@ -29,20 +29,20 @@ def _createCfgFlags():
     acf.addFlag('ExecutorSplitting.TotalEvents', -1)
 
     #Flags describing the input data 
-    acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
+    acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",]) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
-    acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
+    acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes", [])) # former global.isMC
     acf.addFlag('Input.OverrideRunNumber', False )
-    acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
-    acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers",[]))) # former global.RunNumber
-    acf.addFlag('Input.TimeStamp', lambda prevFlags : [] if not prevFlags.Input.OverrideRunNumber else getInitialTimeStampsFromRunNumbers(prevFlags.Input.RunNumber))
+    acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers", []))) # former global.RunNumber
+    acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers", []))) # former global.RunNumber
+    acf.addFlag('Input.TimeStamp', lambda prevFlags : getInitialTimeStampsFromRunNumbers(prevFlags.Input.RunNumber) if prevFlags.Input.OverrideRunNumber else [])
     # Configure EvtIdModifierSvc with a list of dictionaries of the form:
     # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'dt': 104.496, 'evts': 1, 'mu': 0.005, 'force_new': False}
     acf.addFlag("Input.RunAndLumiOverrideList", [])
 
-    acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
-    acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
-    acf.addFlag('Input.ProcessingTags', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("processingTags","") ) # list of names of streams written to this file
+    acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name", "data17_13TeV")) # former global.ProjectName
+    acf.addFlag('Input.Format', lambda prevFlags : Format.BS if GetFileMD(prevFlags.Input.Files).get("file_type", "BS") == "BS" else Format.POOL, enum=Format) # former global.InputFormat
+    acf.addFlag('Input.ProcessingTags', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("processingTags", []) ) # list of names of streams written to this file
     acf.addFlag('Input.SpecialConfiguration', lambda prevFlags : getSpecialConfigurationMetadata(prevFlags.Input.Files, prevFlags.Input.SecondaryFiles))  # special Configuration options read from input file metadata
 
     def _inputCollections(inputFile):
@@ -95,8 +95,7 @@ def _createCfgFlags():
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
-    acf.addFlag('Common.bunchCrossingSource', lambda prevFlags : "MC" if prevFlags.Input.isMC else "TrigConf") # what BunchCrossingTool should we use?
-    acf.addFlag('Common.ProductionStep', ProductionStep.Default)
+    acf.addFlag('Common.ProductionStep', ProductionStep.Default, enum=ProductionStep)
 
     def _checkProject():
         import os
@@ -112,8 +111,8 @@ def _createCfgFlags():
 
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
-    acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
-    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : 2. if prevFlags.Beam.Type=='collisions' else 0.) # former global.NumberOfCollisions
+    acf.addFlag('Beam.Type', lambda prevFlags : BeamType(GetFileMD(prevFlags.Input.Files).get('beam_type', 'collisions')), enum=BeamType)# former global.BeamType
+    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : 2. if prevFlags.Beam.Type is BeamType.Collisions else 0.) # former global.NumberOfCollisions
     acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_energy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
@@ -179,8 +178,8 @@ def _createCfgFlags():
     _addFlagsCategory(acf, "Reco", __reco, 'RecJobTransforms')
 
 #IOVDbSvc Flags:
-    acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
-    from IOVDbSvc.IOVDbAutoCfgFlags import getDatabaseInstanceDefault
+    from IOVDbSvc.IOVDbAutoCfgFlags import getLastGlobalTag, getDatabaseInstanceDefault
+    acf.addFlag("IOVDb.GlobalTag", getLastGlobalTag) # Retrieve last global tag used from metadata
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
     # Run dependent simulation
     # map from runNumber to timestamp; migrated from RunDMCFlags.py

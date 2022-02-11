@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
 
 ////////////////////////////////////////////////////////////////
 //                                                            //
@@ -23,7 +22,6 @@ class StoreGateSvc;
 namespace InDetDD { class TRT_DetectorManager; }
 namespace InDetDD { class PixelDetectorManager; }
 namespace InDetDD { class SCT_DetectorManager; }
-//namespace InDetDD { class InDetServMatManager; }
 namespace MuonGM { class MuonDetectorManager; }
 class TileDetDescrManager;
 class EMBDetectorManager;
@@ -31,12 +29,8 @@ class HECDetectorManager;
 class EMECDetectorManager;
 class LArDetectorManager;
 class FCALDetectorManager;
-class CaloTTDescrManager;
 class CaloIdManager;
 
-//class LUCID_DetectorManager;
-//class BeamPipeDetectorManager;
-//class CavernInfraDetectorManager;
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -70,11 +64,6 @@ public:
   static const EMECDetectorManager * emecDetMgr();
   static const LArDetectorManager * larDetMgr();
   static const FCALDetectorManager * fcalDetMgr();
-  static const CaloTTDescrManager * calottDetMgr();
-  //  static const LUCID_DetectorManager * lucidDetMgr();
-  //  static const BeamPipeDetectorManager * beamPipeDetMgr();
-  //  static const CavernInfraDetectorManager * cavernInfraDetMgr();
-  //Todo: Add ZeroDegree, ALFA and BCM when they become available.
 
   static const CaloIdManager * caloIDMgr();
 

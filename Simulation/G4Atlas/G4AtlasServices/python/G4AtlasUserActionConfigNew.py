@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from AthenaCommon.SystemOfUnits import MeV
 from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
@@ -53,7 +54,7 @@ def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserA
     kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name)
     if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
-    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'])
+    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3])
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
 
@@ -90,7 +91,7 @@ def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUse
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
         kwargs.setdefault("ParticleBroker", "")
-    if flags.Sim.ISF.Simulator in ["ATLFASTIIF_G4MS"]:
+    if flags.Sim.ISF.Simulator in ["ATLFASTIIF_G4MS", "ATLFAST3F_G4MS"]:
         kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
     kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name)
     kwargs.setdefault("PassBackEkinThreshold", 0.05*MeV)
@@ -118,10 +119,10 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge(G4TrackCounterToolCfg(ConfigFlags))]
 
     # Cosmic Perigee action
-    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG == "Off":
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and ConfigFlags.Sim.CavernBG == "Off":
         actions += [CompFactory.G4UA.CosmicPerigeeActionTool()]
     # Cosmic filter
-    if ConfigFlags.Beam.Type == "cosmics" and not ConfigFlags.Sim.ISFRun:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and not ConfigFlags.Sim.ISFRun:
         actions += [result.popToolsAndMerge(CosmicFilterToolCfg(ConfigFlags))]
     if ConfigFlags.Sim.StoppedParticleFile:
         actions += [result.popToolsAndMerge(StoppedParticleFilterToolCfg(ConfigFlags)),

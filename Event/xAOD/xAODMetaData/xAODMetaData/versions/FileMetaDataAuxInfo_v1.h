@@ -39,8 +39,10 @@ namespace xAOD {
       std::string productionRelease;
       /// Type of the data that's in the file
       std::string dataType;
-      /// run numbers in the file
+      /// run numbers in the file that went into making the file
       std::vector<uint32_t> runNumbers;
+      // luminosity block numbers that went into making the file
+      std::vector<uint32_t> lumiBlocks;
 
    }; // class FileMetaDataAuxInfo_v1
 

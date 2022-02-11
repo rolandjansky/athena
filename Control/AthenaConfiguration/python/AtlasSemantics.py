@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import GaudiConfig2.semantics
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray, PublicToolHandle, ServiceHandle
@@ -218,19 +218,3 @@ GaudiConfig2.semantics.SEMANTICS.append(PublicHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(MapMergeNoReplaceSemantics)
-
-
-#For some obscure reason, _ListHelper object never compare equal. Therefore PropertySemantics merge() method fails
-def _sequencemerge(instance,a,b):
-    if a.data != b.data:
-        raise ValueError('cannot merge sequence of values %r and %r' % (a, b))
-    else:
-        return a
-    
-from GaudiConfig2.semantics import SequenceSemantics
-SequenceSemantics.merge = _sequencemerge
-del _sequencemerge
-
-
-
-

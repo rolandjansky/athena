@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -37,10 +37,7 @@ MeasuredNeutralAtaSurfaceCnv_p1< SURFACE_CNV, ATA_SURFACE >::transToPers( const 
 
 
 
-namespace {
-   MeasuredNeutralAtaDiscCnv_p1	inst1;
-   MeasuredNeutralAtaCylinderCnv_p1	inst2;
-   MeasuredNeutralAtaPlaneCnv_p1	inst3;
-   MeasuredNeutralAtaStraightLineCnv_p1 isnt4;
-}
-
+template class MeasuredNeutralAtaSurfaceCnv_p1< NeutralAtaDiscCnv_p1, Trk::NeutralAtaDisc >;
+template class MeasuredNeutralAtaSurfaceCnv_p1< NeutralAtaCylinderCnv_p1, Trk::NeutralAtaCylinder >;
+template class MeasuredNeutralAtaSurfaceCnv_p1< NeutralAtaPlaneCnv_p1, Trk::NeutralAtaPlane >;
+template class MeasuredNeutralAtaSurfaceCnv_p1< NeutralAtaStraightLineCnv_p1, Trk::NeutralAtaStraightLine >;

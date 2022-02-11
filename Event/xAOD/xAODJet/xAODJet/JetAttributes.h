@@ -204,6 +204,9 @@ namespace xAOD {
       BchCorrJet, 
       BchCorrJetForCell, 
 
+      VariableRMinRadius,
+      VariableRMassScale,
+
       UnkownAttribute,
 
 

@@ -415,7 +415,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
       inputPar,
       startSurface,
       Trk::anyDirection,
-      false, Trk::nonInteracting);
+      false, Trk::nonInteracting).release();
     if (inputParAtStartSurface == nullptr) {
       ATH_MSG_WARNING ("-Fe can not transport input param to first measurement => extrap problem or bad input");
       ATH_MSG_INFO ("-Fe parameters R="<< inputPar.position().perp() << ", z="<<

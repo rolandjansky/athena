@@ -452,7 +452,7 @@ def getTauClusterFinder():
   
     from tauRecTools.tauRecToolsConf import TauClusterFinder
     TauClusterFinder = TauClusterFinder(name = _name,
-                                        JetVertexCorrection = False)
+                                        UseOriginalCluster = False)
 
     cached_instances[_name] = TauClusterFinder
     return TauClusterFinder

@@ -30,12 +30,9 @@ StatusCode ChargedHadronSubtractionTool::initialize() {
                   << m_inputType);
     return StatusCode::FAILURE;
   }
-  // Only initialise the DataHandle we will use, to avoid superfluous dependencies
-  if(m_useTrackToVertexTool && !m_ignoreVertex) {
-    ATH_CHECK( m_trkVtxAssoc_key.initialize() );
-  } else {
-    ATH_CHECK( m_vertexContainer_key.initialize() );
-  }
+
+  ATH_CHECK( m_trkVtxAssoc_key.initialize(m_useTrackToVertexTool && !m_ignoreVertex) );
+  ATH_CHECK( m_vertexContainer_key.initialize(!(m_useTrackToVertexTool && !m_ignoreVertex)) );
 
   return StatusCode::SUCCESS;
 }

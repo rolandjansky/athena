@@ -100,7 +100,11 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigT2MbtsBitsContainer );
   INIT_XAOD( HIEventShapeContainer );
   INIT_XAOD( TrigRNNOutputContainer );
+  INIT_XAOD( AFPSiHitsClusterContainer );
   INIT_XAOD( AFPTrackContainer );
+  INIT_XAOD( AFPToFTrackContainer );
+  INIT_XAOD( AFPProtonContainer );
+  INIT_XAOD( AFPVertexContainer );
 
 #undef INIT
 #undef INIT_XAOD
@@ -399,7 +403,11 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TrigT2MbtsBitsContainer, TrigT2MbtsBitsAuxContainer );
   CREATE_XAOD( HIEventShapeContainer, HIEventShapeAuxContainer );
   CREATE_XAOD( TrigRNNOutputContainer, TrigRNNOutputAuxContainer );
+  CREATE_XAOD( AFPSiHitsClusterContainer, AFPSiHitsClusterAuxContainer );
   CREATE_XAOD( AFPTrackContainer, AFPTrackAuxContainer );
+  CREATE_XAOD( AFPToFTrackContainer, AFPToFTrackAuxContainer );
+  CREATE_XAOD( AFPProtonContainer, AFPProtonAuxContainer );
+  CREATE_XAOD( AFPVertexContainer, AFPVertexAuxContainer );
 
   // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );

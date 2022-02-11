@@ -39,7 +39,7 @@
 
 #include "HepPDT/ParticleDataTable.hh"
 #include "xAODTracking/VertexContainer.h"
-
+#include "EventKernel/PdtPdg.h"
 #include "StoreGate/WriteDecorHandle.h"
 
 #include <vector>
@@ -566,10 +566,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                         myVxCandidate->clearTracks();
                         ElementLink<xAOD::TrackParticleContainer> newLink1;
                         newLink1.setElement(*tpIt1);
-                        newLink1.setStorableObject(*TPC);
+                        newLink1.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt1)->container() ) ) );
                         ElementLink<xAOD::TrackParticleContainer> newLink2;
                         newLink2.setElement(*tpIt2);
-                        newLink2.setStorableObject(*TPC);
+                        newLink2.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt2)->container() ) ) );
                         myVxCandidate->addTrackAtVertex(newLink1);
                         myVxCandidate->addTrackAtVertex(newLink2);
                         v0Container->push_back(myVxCandidate.release());
@@ -579,10 +579,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           myKshort->clearTracks();
                           ElementLink<xAOD::TrackParticleContainer> ksLink1;
                           ksLink1.setElement(*tpIt1);
-                          ksLink1.setStorableObject(*TPC);
+                          ksLink1.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt1)->container() ) ) );
                           ElementLink<xAOD::TrackParticleContainer> ksLink2;
                           ksLink2.setElement(*tpIt2);
-                          ksLink2.setStorableObject(*TPC);
+                          ksLink2.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt2)->container() ) ) );
                           myKshort->addTrackAtVertex(ksLink1);
                           myKshort->addTrackAtVertex(ksLink2);
                           ksContainer->push_back(myKshort.release());
@@ -602,10 +602,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           myLambda->clearTracks();
                           ElementLink<xAOD::TrackParticleContainer> laLink1;
                           laLink1.setElement(*tpIt1);
-                          laLink1.setStorableObject(*TPC);
+                          laLink1.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt1)->container() ) ) );
                           ElementLink<xAOD::TrackParticleContainer> laLink2;
                           laLink2.setElement(*tpIt2);
-                          laLink2.setStorableObject(*TPC);
+                          laLink2.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt2)->container() ) ) );
                           myLambda->addTrackAtVertex(laLink1);
                           myLambda->addTrackAtVertex(laLink2);
                           laContainer->push_back(myLambda.release());
@@ -625,10 +625,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           myLambdabar->clearTracks();
                           ElementLink<xAOD::TrackParticleContainer> lbLink1;
                           lbLink1.setElement(*tpIt1);
-                          lbLink1.setStorableObject(*TPC);
+                          lbLink1.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt1)->container() ) ) );
                           ElementLink<xAOD::TrackParticleContainer> lbLink2;
                           lbLink2.setElement(*tpIt2);
-                          lbLink2.setStorableObject(*TPC);
+                          lbLink2.setStorableObject( *( dynamic_cast<const xAOD::TrackParticleContainer*>( (*tpIt2)->container() ) ) );
                           myLambdabar->addTrackAtVertex(lbLink1);
                           myLambdabar->addTrackAtVertex(lbLink2);
                           lbContainer->push_back(myLambdabar.release());
@@ -722,11 +722,11 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
     std::vector<std::unique_ptr<const Trk::TrackParameters> >  cleanup;
     const Trk::TrackParameters* extrapolatedPerigee1(nullptr);
     const Trk::TrackParameters* extrapolatedPerigee2(nullptr);
-    extrapolatedPerigee1 = m_extrapolator->extrapolate(ctx,track1->perigeeParameters(), perigeeSurface);
+    extrapolatedPerigee1 = m_extrapolator->extrapolate(ctx,track1->perigeeParameters(), perigeeSurface).release();
     if (extrapolatedPerigee1 == nullptr) extrapolatedPerigee1 = &track1->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee1));
 
-    extrapolatedPerigee2 = m_extrapolator->extrapolate(ctx,track2->perigeeParameters(), perigeeSurface);
+    extrapolatedPerigee2 = m_extrapolator->extrapolate(ctx,track2->perigeeParameters(), perigeeSurface).release();
     if (extrapolatedPerigee2 == nullptr) extrapolatedPerigee2 = &track2->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee2));
 

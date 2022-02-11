@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace Rec {
         AthAlgTool(type, name, parent),
         m_alignUncertTool_theta("Muon::MuonAlignmentUncertTool/MuonAlignmentUncertToolTheta"),
         m_alignUncertTool_phi("Muon::MuonAlignmentUncertTool/MuonAlignmentUncertToolPhi") {
-        m_messageHelper = std::make_unique<MessageHelper>(*this);
+        m_messageHelper = std::make_unique<MessageHelper>(*this, 50);
 
         declareInterface<ICombinedMuonTrackBuilder>(this);
 
@@ -81,7 +81,6 @@ namespace Rec {
 
         // fill WARNING messages
         m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
-        m_messageHelper->setNumberOfMessages(50);
         m_messageHelper->setMessage(0, "combinedFit:: missing MeasuredPerigee for indet track");
         m_messageHelper->setMessage(1, "combinedFit:: fail with MS removed by cleaner");
         m_messageHelper->setMessage(2, "combinedFit:: fail with perigee outside indet");

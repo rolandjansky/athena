@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -143,12 +143,12 @@ private:
               if given, these are checked against the layer
      positions/dimensions. */
 
-  StatusCode estimateAndCheckDimension(
+  StatusCode estimateAndCheckDimension ATLAS_NOT_THREAD_SAFE(
     const std::vector<const Layer*>& layers,
     Trk::CylinderVolumeBounds*& cylBounds,
     Amg::Transform3D*& translation,
-    std::vector<const CylinderLayer*>& cylLayers,
-    std::vector<const DiscLayer*>& discLayers,
+    std::vector<CylinderLayer*>& cylLayers,
+    std::vector<DiscLayer*>& discLayers,
     double& rMinClean,
     double& rMaxClean,
     double& zMinClean,

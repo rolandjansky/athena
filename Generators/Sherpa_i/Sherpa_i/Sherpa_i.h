@@ -23,18 +23,28 @@ public:
   StatusCode callGenerator();
   StatusCode genFinalize();
   StatusCode fillEvt(HepMC::GenEvent* evt);
+  #ifndef IS_SHERPA_3
   void getParameters(int &argc, char** &argv);
+  #endif
   void compilePlugin(std::string);
 
 protected:
   
   SHERPA::Sherpa * p_sherpa;
 
+  #ifdef IS_SHERPA_3
+  /// Sherpa base settings (read from base fragment file) and run card snippet (from JO file)
+  std::map<std::string,std::string> m_inputfiles;
+  #else
+  /// Sherpa base settings (read from base fragment file)
+  std::string m_basefragment;
+
   /// Sherpa run card snippet (from JO file)
   std::string m_runcard;
 
   /// List of additional Sherpa parameters beyond run card snippet (from JO file)
   std::vector<std::string> m_params;
+  #endif
 
   /// List of needed OpenLoops process libraries (from JO file)
   std::vector<std::string> m_openloopslibs;
@@ -64,9 +74,14 @@ protected:
 
 class Atlas_RNG: public ATOOLS::External_RNG {
   CLHEP::HepRandomEngine* p_engine;
+
 public:
   Atlas_RNG(CLHEP::HepRandomEngine*);
   double Get();
+  bool CanRestoreStatus() const { return true; }
+  void SaveStatus();
+  void RestoreStatus();
+
 };
 
 

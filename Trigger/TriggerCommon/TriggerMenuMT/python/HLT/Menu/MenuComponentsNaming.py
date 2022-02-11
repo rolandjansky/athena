@@ -6,7 +6,7 @@ class CFNaming(object):
     """Static Class to collect all string manipulations on CF object names """
 
     RECO_POSTFIX = "_reco"
-    VIEW_POSTFIX = "_view"
+    CONTENT_POSTFIX = "_content"
     FILTER_POSTFIX = "_filter"
 
     @staticmethod
@@ -22,22 +22,22 @@ class CFNaming(object):
         return "F" + ChainStepName
 
     @staticmethod
-    def simplifyOutName(name):
+    def simplifyOutName(suffix, name):
         """Removes all HLT_decisions except the front one + additiona cleaning of common words"""
-        return "HLTNav_" + name.replace("HLTNav_", "").replace("Trig", "").replace("Alg", "")
+        return suffix + name.replace("HLTNav_", "").replace("Trig", "").replace("Alg", "")
+
 
     @staticmethod
     def filterOutName(filter_name, filterIn):
-        return CFNaming.simplifyOutName("HLTNav_" + filter_name + "__" + filterIn)
+        return CFNaming.simplifyOutName("HLTNav_", "HLTNav_" + filter_name + "__" + filterIn)
 
     @staticmethod
     def inputMakerOutName(IMname):
-        return CFNaming.simplifyOutName("HLTNav_" + IMname)    
+        return CFNaming.simplifyOutName("_HLTNav_", "HLTNav_" + IMname)    
 
     @staticmethod
     def hypoAlgOutName(HypoName):
-        name = CFNaming.simplifyOutName("HLTNav_" + HypoName)
-        return name
+        return CFNaming.simplifyOutName("_HLTNav_", "HLTNav_" + HypoName)        
 
     @staticmethod
     def comboHypoName(HypoName):
@@ -59,7 +59,7 @@ class CFNaming(object):
 
     @staticmethod
     def comboHypoOutputName(comboName, inputName):
-        return CFNaming.simplifyOutName("HLTNav_" + comboName+"_"+ str(inputName))
+        return CFNaming.simplifyOutName("_HLTNav_", "HLTNav_" + comboName+"_"+ str(inputName))
 
     @staticmethod
     def stepRecoNodeName(HLTNodeName, StepCFName):
@@ -74,5 +74,5 @@ class CFNaming(object):
         return stepName + CFNaming.RECO_POSTFIX
 
     @staticmethod
-    def stepViewName(stepName):
-        return stepName + CFNaming.VIEW_POSTFIX
+    def stepContentName(stepName):
+        return stepName + CFNaming.CONTENT_POSTFIX

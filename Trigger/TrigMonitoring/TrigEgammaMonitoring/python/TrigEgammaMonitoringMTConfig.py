@@ -34,6 +34,7 @@ def doOnlineMonForceCfg():
     doOnlineMonForce = False
     return doOnlineMonForce
 
+
 class TrigEgammaMonAlgBuilder:
   
   data_type = ''
@@ -601,12 +602,22 @@ class TrigEgammaMonAlgBuilder:
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_L1Calo', self.basePath+'/'+trigger+'/Distributions/L1Calo' )
     
-    self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.))
-    self.addHistogram(monGroup, TH1F("roi_eta", "RoI word Cluster Energy; E [GeV] ; Count", 100, 0, 200))
-    self.addHistogram(monGroup, TH1F("emIso", "EM Isolation; E [GeV] ; Count", 50, -1., 20.))
-    self.addHistogram(monGroup, TH1F("hadCore", "HAD Isolation; E [GeV] ; Count", 50, -1., 20.))
-    self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.5, 2.5))
-    self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
+    if 'L1eEM' in trigger:
+
+      self.addHistogram(monGroup, TH1F("et"     , "Et; Et [GeV] ; Count", 100, 0., 200.))
+      self.addHistogram(monGroup, TH1F("eta"    , "eta; eta ; Count"    , 50, -2.5, 2.5))
+      self.addHistogram(monGroup, TH1F("phi"    , "phi; phi ; Count"    , 20, -3.2, 3.2))
+      self.addHistogram(monGroup, TH1F("Rhad"   , "Rhad; Rhad ; Count"  , 50, -1, 3))
+      self.addHistogram(monGroup, TH1F("Reta"   , "Reta; Reta ; Count"  , 50, -1, 3 ))
+      self.addHistogram(monGroup, TH1F("Wstot"  , "Wstot; Wstot ; Count", 50, -1, 3 ))
+
+    else: # L1Calo Legacy
+      self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.))
+      self.addHistogram(monGroup, TH1F("roi_et", "RoI word Cluster Energy; E [GeV] ; Count", 100, 0, 200))
+      self.addHistogram(monGroup, TH1F("emIso", "EM Isolation; E [GeV] ; Count", 50, -1., 20.))
+      self.addHistogram(monGroup, TH1F("hadCore", "HAD Isolation; E [GeV] ; Count", 50, -1., 20.))
+      self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.5, 2.5))
+      self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
 
 
 
@@ -619,6 +630,7 @@ class TrigEgammaMonAlgBuilder:
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Calo', self.basePath+'/'+trigger+'/Distributions/FastCalo' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
+    self.addHistogram(monGroup, TH1F("highet", "ET; ET [GeV] ; Count", 100, 0., 500.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
 
@@ -632,6 +644,7 @@ class TrigEgammaMonAlgBuilder:
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Electron', self.basePath+'/'+trigger+'/Distributions/FastElectron' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
+    self.addHistogram(monGroup, TH1F("highet", "ET; ET [GeV] ; Count", 100, 0., 500.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
 
@@ -648,6 +661,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
     self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 50, 0., 100.))
+    self.addHistogram(monGroup, TH1F("highet", "Cluster Energy; E [GeV] ; Count", 100, 0., 500.))
     self.addHistogram(monGroup, TH1F("eta_calo", "eta_calo; eta_calo ; Count", 50, -2.47, 2.47))
     self.addHistogram(monGroup, TH1F("phi_calo", "phi_calo; phi_calo ; Count", 50, -3.14, 3.14))
     self.addHistogram(monGroup, TH1F("energyBE0", "Cluster Energy BE0; E [GeV] ; Count", 50, 0., 100.))
@@ -714,7 +728,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("charge","charge; charge; Count", 4,-2,2))
     self.addHistogram(monGroup, TH1F("pt", "p_{T}; p_{T} [GeV] ; Count", 100,0.,100.))
     self.addHistogram(monGroup, TH1F("ptcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
-    self.addHistogram(monGroup, TH1F("ptvarcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
+    self.addHistogram(monGroup, TH1F("ptvarcone20", "ptvarcone20; ptvarcone20; Count", 50, 0.0, 5.0))
     self.addHistogram(monGroup, TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0))
     self.addHistogram(monGroup, TH1F("ptvarcone20_rel", "ptvarcone20/pt; ptvarcone20/pt; Count", 50, 0.0, 0.5))
     self.addHistogram(monGroup, TH1F("z0", "z0; z0 ; Count", 40, -1, 1))

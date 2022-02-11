@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRODREADOUT_H
@@ -39,56 +39,31 @@ namespace Muon
 
     public:
       /** Constructor */
-      TgcRODReadOut();
+      TgcRODReadOut(const ITGCcablingSvc& cabling);
       /** Destructor */
       virtual ~TgcRODReadOut();
-
-      /** Get TgcRdo member */ 
-      const TgcRdo * getRdo(void) const;
-      /** Set TgcRdo member */ 
-      StatusCode setRdo(TgcRdo * v_tgcRdo);
 
       /** Convert BS (ROB fragment) to RDO */ 
       StatusCode byteStream2Rdo(const ByteStream& bs, 
 				TgcRdo& tgcRdo, 
-				uint32_t source_id);
+				uint32_t source_id) const;
       /** Convert BS (ROB fragment) to RDO and compare decoded RDO container 
        *  and another RDO container decoded by other converter */ 
       StatusCode check(const ByteStream& bs, 
 		       TgcRdo& tgcRdo, 
-		       uint32_t source_id);
+		       uint32_t source_id) const;
       /** Compare two RDO containers */ 
-      StatusCode compare(TgcRdo* rdo, TgcRdo* newRdo); 
+      StatusCode compare(TgcRdo* rdo, TgcRdo* newRdo) const;
       /** Compare two RDOs */ 
       bool isMatched(const TgcRawData* rdo1,
 		     const TgcRawData* rdo2) const;
       /** Decode BS to RDO container */
-      StatusCode decodeRodToRdo(const ByteStream& vData, 
+      StatusCode decodeRodToRdo(TgcRdo& tgcRdo,
+                                const ByteStream& vData, 
 				uint16_t subDetectorId,
 				uint16_t rodId, 
 				uint32_t l1Id, 
-				uint16_t bcId);
-  
-      /** Decode only header quickly */
-      StatusCode decodeHeader(const ByteStream& vData);
-  
-      /** Get subDetectorId of member TgcRdo */
-      uint16_t subDetectorId() const;
-      /** Get rodId of member TgcRdo */
-      uint16_t rodId() const;
-      /** Get l1Id of member TgcRdo */
-      uint32_t l1Id() const;
-      /** Get bcId of member TgcRdo */
-      uint16_t bcId() const;
-      /** Get triggerType of member TgcRdo */
-      uint16_t triggerType() const;
-  
-      /** Set ROD attributes (data header) to TgcRdo */
-      StatusCode setRodAttributes (const uint16_t subDetectorId, 
-				   const uint16_t rodId,
-				   const uint32_t l1Id,
-				   const uint16_t bcId,
-				   const uint16_t triggerType);
+				uint16_t bcId) const;
   
     protected:
       enum {
@@ -113,7 +88,7 @@ namespace Muon
       /** Set sbLoc */
       bool setSbLoc(uint16_t subDetectorId,
 		    uint16_t rodId, 
-		    TgcSlbData * slb, int rxId); 
+		    TgcSlbData * slb, int rxId) const;
 
     private:
       /** The number of RODs (1-24 for 12-fold, 0-15 for 8-fold) */
@@ -123,26 +98,21 @@ namespace Muon
 	CSIDE = 0x68  // 104
       };
       
-      /** The number of failures on setRdo */
-      unsigned int m_failedSetRdo;
       /** The number of failures on decodeRodToRdo */
-      unsigned int m_failedDecodeRodToRdo[NROD+1]{};
+      mutable std::atomic<unsigned int> m_failedDecodeRodToRdo[NROD+1];
       /** The number of strange header and SizeRawData */
-      unsigned int m_failedHeaderSizeRawData[NROD+1]{};
+      mutable std::atomic<unsigned int> m_failedHeaderSizeRawData[NROD+1];
       /** The number of failures on setSbLoc */
-      unsigned int m_failedSetSbLoc[NROD+1]{};
+      mutable std::atomic<unsigned int> m_failedSetSbLoc[NROD+1];
       /** The number of failures on setType */
-      unsigned int m_failedSetType[NROD+1]{};
+      mutable std::atomic<unsigned int> m_failedSetType[NROD+1];
       /** The number of failures on getSLBIDfromRxID */
-      unsigned int m_failedGetSLBIDfromRxID[NROD+1]{};
+      mutable std::atomic<unsigned int> m_failedGetSLBIDfromRxID[NROD+1];
       /** The number of failures on getReadoutIDfromSLBID */
-      unsigned int m_failedGetReadoutIDfromSLBID[NROD+1]{};
-
-      /** TGC RDO container */
-      TgcRdo* m_tgcRdo;
+      mutable std::atomic<unsigned int> m_failedGetReadoutIDfromSLBID[NROD+1];
 
       /** TGC Cabling Svc */
-      const ITGCcablingSvc* m_cabling;
+      const ITGCcablingSvc& m_cabling;
 
       /** TGC SLB data helper */
       TgcSlbDataHelper* m_tgcSlbDataHelper;

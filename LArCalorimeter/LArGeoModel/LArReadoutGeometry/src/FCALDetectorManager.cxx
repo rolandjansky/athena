@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Bootstrap.h"
@@ -44,7 +44,8 @@ FCALDetectorManager::~FCALDetectorManager()
       delete m_Module[s][m];
     }
   }
-  for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
+  unsigned int ntree = FCALDetectorManager::getNumTreeTops();
+  for (unsigned int i=0;i<ntree;i++) FCALDetectorManager::getTreeTop(i)->unref();
 }
 
 

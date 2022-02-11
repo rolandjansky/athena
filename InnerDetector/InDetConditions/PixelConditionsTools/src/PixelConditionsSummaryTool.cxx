@@ -155,7 +155,29 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
   int chFE = m_pixelReadout->getFE(pixid, moduleID);
   if (m_pixelReadout->getModuleType(moduleID)==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
 
-  int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
+  int indexFE = (1+chFE)*maxHash+static_cast<int>(moduleHash);    // (FE_channel+1)*2048 + moduleHash
+  uint64_t word = getBSErrorWord(moduleHash,indexFE,ctx);
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))          { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))            { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))              { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDEoECheck)) { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCBCIDEoECheck))   { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDCheck))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCEoEOverflow))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCHitOverflow))    { return true; }
+  return false;
+}
+
+bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx, Identifier pixid) const {
+
+  int maxHash = m_pixelID->wafer_hash_max();
+  Identifier moduleID = m_pixelID->wafer_id(pixid);
+  int chFE = m_pixelReadout->getFE(pixid, moduleID);
+  if (m_pixelReadout->getModuleType(moduleID)==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
+
+  int indexFE = (1+chFE)*maxHash+static_cast<int>(moduleHash);    // (FE_channel+1)*2048 + moduleHash
   uint64_t word = getBSErrorWord(moduleHash,indexFE,ctx);
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))          { return true; }
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))           { return true; }
@@ -335,7 +357,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
 
   if (!checkChipStatus(moduleHash, elementId)) { return false; }
 
-  if (hasBSError(moduleHash, elementId, ctx)) { return false; }
+  if (hasBSError(moduleHash, ctx, elementId)) { return false; }
 
   return true;
 }

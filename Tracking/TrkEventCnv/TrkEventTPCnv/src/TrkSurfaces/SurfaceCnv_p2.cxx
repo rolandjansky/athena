@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -95,12 +95,10 @@ void SurfaceCnv_p2<Trk::SaggedLineSurface>::transToPers( const Trk::SaggedLineSu
   }   
 }
 
-namespace {
-  ConeSurfaceCnv_p2           inst1;
-  CylinderSurfaceCnv_p2       inst2;
-  DiscSurfaceCnv_p2           inst3;
-  PerigeeSurfaceCnv_p2        inst4;
-  PlaneSurfaceCnv_p2          inst5;
-  StraightLineSurfaceCnv_p2   inst6;
-  SaggedLineSurfaceCnv_p2     inst7;
-}
+template class SurfaceCnv_p2<Trk::ConeSurface>;
+template class SurfaceCnv_p2<Trk::CylinderSurface>;
+template class SurfaceCnv_p2<Trk::DiscSurface>; 
+template class SurfaceCnv_p2<Trk::PerigeeSurface>;
+template class SurfaceCnv_p2<Trk::PlaneSurface>;
+template class SurfaceCnv_p2<Trk::StraightLineSurface>;
+template class SurfaceCnv_p2<Trk::SaggedLineSurface>;

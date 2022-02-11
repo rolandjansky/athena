@@ -31,6 +31,7 @@
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
+#include "TrigInDetAnalysisExample/TIDATools.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -77,49 +78,6 @@
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-
-
-
-
-template<typename T>
-void HighestPTOnly( std::vector<T*>& tracks ) { 
-
-  if ( tracks.size()>1 ) {
-    
-    std::vector<T*> tmp_tracks; 
-    
-    int ih = 0;
-    
-    for ( unsigned i=1 ; i<tracks.size() ; i++ ) { 
-      if ( std::fabs(tracks[i]->pT())>std::fabs(tracks[ih]->pT()) ) ih = i;
-    }
-    
-    tmp_tracks.push_back( tracks[ih] );
-    
-    tracks = tmp_tracks;
-  }
-}
-
-
-
-
-
-
-template<typename T>
-void FilterPT( std::vector<T*>& tracks, double pt ) { 
-
-  std::vector<T*> tmp_tracks; 
-  
-  tmp_tracks.reserve( tracks.size() );
-  
-  for ( unsigned i=0 ; i<tracks.size() ; i++ ) { 
-    if ( std::fabs(tracks[i]->pT())>=pt ) tmp_tracks.push_back( tracks[i] );
-  }
-
-  if ( tmp_tracks.size()<tracks.size() ) tracks = tmp_tracks;
-
-}
 
 
 

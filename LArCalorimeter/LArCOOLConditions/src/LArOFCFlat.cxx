@@ -1,26 +1,26 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArOFCFlat.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
 
-LArOFCFlat::LArOFCFlat():
-  m_nChannels(0),
-  m_nSamples(0)
+LArOFCFlat::LArOFCFlat()
+  : LArCondFlatBase("LArOFCFlat"),
+    m_nChannels(0),
+    m_nSamples(0)
   {}
 
 LArOFCFlat::~LArOFCFlat() {}
 
 
-LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
-  m_nChannels(0),
-  m_nSamples(0)
+LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList)
+  : LArCondFlatBase("LArOFCFlat"),
+    m_nChannels(0),
+    m_nSamples(0)
 {
- 
-  StatusCode sc=initializeBase("LArOFCFlat");
-  if (sc.isFailure()) return;
+  if (initializeBase().isFailure()) return;
  
   if (!attrList) return;
 
@@ -30,7 +30,7 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   m_pOFCa.resize(attrList->size());
   m_pOFCb.resize(attrList->size());
   m_pTimeOffset.resize(attrList->size());
-  (*m_log) << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endmsg;
+  ATH_MSG_DEBUG( "Found data for " << attrList->size() << " gains." );
   
   int blobSize=0;  //FIXME Force size to hash-max??? m_onlineHelper->channelHashMax()
 
@@ -39,7 +39,7 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   for(;gainIt!=gainIt_e;++gainIt) {
     const unsigned gain=gainIt->first;
     if (gain>=attrList->size() || gain>2) {
-      (*m_log) << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endmsg;
+      ATH_MSG_ERROR( "Found unexpected COOL-channel (=gain) number:" << gain );
       return; //ERROR
     }
     const coral::AttributeList& attr=gainIt->second;
@@ -51,13 +51,13 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
     
     //Sanity checks:
     if (blobSize!=ofcaBlob.size() || blobSize!=ofcbBlob.size()) {
-      (*m_log) << MSG::ERROR << "Unequal blob size (" << blobSize << "/" 
-	       << ofcaBlob.size() << "/" << ofcbBlob.size() << ")" <<endmsg;
+      ATH_MSG_ERROR( "Unequal blob size (" << blobSize << "/" 
+                     << ofcaBlob.size() << "/" << ofcbBlob.size() << ")" );
       return;
     }
     if (m_nSamples!=attr["nSamples"].data<unsigned>()) {
-      (*m_log) << MSG::ERROR << "Unequal number of samples (" << m_nSamples << "/" 
-	       << attr["nSamples"].data<unsigned>() << ")" << endmsg;
+      ATH_MSG_ERROR( "Unequal number of samples (" << m_nSamples << "/" 
+                     << attr["nSamples"].data<unsigned>() << ")" );
       return;
     }
 
@@ -68,11 +68,11 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   }// end loop over COOL channels
 
   if (m_nSamples==0) {
-    (*m_log) << MSG::ERROR << "Number of samples is zero!" << endmsg;
+    ATH_MSG_ERROR( "Number of samples is zero!" );
     return;
   }
   m_nChannels=blobSize/(sizeof(float)*m_nSamples);
-  (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
+  ATH_MSG_DEBUG( "Found data for " << m_nChannels );
 }
 
 LArOFCFlat::OFCRef_t LArOFCFlat::OFC_a(const HWIdentifier&  onId, int gain, int tbin) const {

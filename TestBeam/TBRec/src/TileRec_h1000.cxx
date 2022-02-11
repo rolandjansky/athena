@@ -162,7 +162,7 @@ TileRec_h1000::TileRec_h1000(TTree *tree)
       tree = (TTree*)gDirectory->Get("h1000");
 
    }
-   Init(tree);
+   TileRec_h1000::Init(tree);
 }
 
 TileRec_h1000::~TileRec_h1000()

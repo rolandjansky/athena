@@ -4,6 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from InDetRecExample.InDetKeys import InDetKeys
 
 
@@ -375,7 +376,7 @@ def pixelDataPrepCfg(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
   RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
 
-  if flags.Input.Format == 'BS':
+  if flags.Input.Format is Format.BS:
     PixelRodDecoder=CompFactory.PixelRodDecoder
     InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
     # Disable duplcated pixel check for data15 because duplication mechanism was used.
@@ -410,7 +411,7 @@ def sctDataPrepCfg(flags, roisKey, signature):
 
   # load the SCTRawDataProvider
 
-  if flags.Input.Format == 'BS':
+  if flags.Input.Format is Format.BS:
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
     sctProviderArgs = {}
     sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
@@ -436,7 +437,7 @@ def trtDataPrep(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
   RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
 
-  if flags.Input.Format == 'BS':
+  if flags.Input.Format is Format.BS:
     TRT_RodDecoder=CompFactory.TRT_RodDecoder
     InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder")
     if flags.Input.isMC:
@@ -773,7 +774,7 @@ def TRTRIOMakerCfg(flags):
   acc = ComponentAccumulator()
   from .InDetTrigCollectionKeys import TrigTRTKeys
   TRT_RDO_Key = "TRT_RDOs"
-  if flags.Input.Format == 'BS':
+  if flags.Input.Format is Format.BS:
         TRT_RDO_Key = TrigTRTKeys.RDOs
   
   from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, threfore the names are different
@@ -782,7 +783,7 @@ def TRTRIOMakerCfg(flags):
                                           TRTRDOLocation = TRT_RDO_Key,
                                           isRoI_Seeded = True,
                                           RoIs = flags.InDet.Tracking.ActivePass.roi,
-                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo=True, usePhase=False, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
+                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
   acc.addEventAlgo( alg )
   return acc
 
@@ -855,7 +856,7 @@ def TRTExtensionProcessorCfg(flags):
 
 def TRTExtrensionBuilderCfg(flags):
   acc = ComponentAccumulator()
-  if flags.Input.Format == 'BS':
+  if flags.Input.Format is Format.BS:
     acc.merge( TRTDataProviderCfg(flags) )
   acc.merge( TRTRIOMakerCfg(flags) )
 
@@ -1028,7 +1029,7 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
   if in_view:
     #TODO share setup with FTF
     TRT_RDO_Key = "TRT_RDOs"
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
           TRT_RDO_Key = TrigTRTKeys.RDOs
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDetPrecision'+flags.InDet.Tracking.ActivePass.suffix,
                                                       DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
@@ -1043,7 +1044,7 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
                                                                     ( 'InDet::PixelGangedClusterAmbiguities' , TrigPixelKeys.PixelClusterAmbiguitiesMap),
                                                                     ( 'TrackCollection', flags.InDet.Tracking.ActivePass.trkTracks_FTF )] )
 
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
         verifier.DataObjects += [ ('IDCInDetBSErrContainer' , 'PixelByteStreamErrs'),
                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
                                   ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'), ]

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ####################################################################
 # SlimmingHelper.py
@@ -223,7 +223,7 @@ class SlimmingHelper:
                 mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
 
                 # Add processed items to the stream
-                excludedAuxData = "-clusterAssociation"
+                excludedAuxData = "-clusterAssociation.-PseudoJet"
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
                 for item in mainEntries:
                         Stream.AddItem(item)
@@ -246,14 +246,17 @@ class SlimmingHelper:
                                 else:
                                         entry = "xAOD::AuxContainerBase!#"+item+"."
                                 for element in auxEntries[item]:
-                                        #Skip anything that shouldn't be written out to a DAOD for tracks 
+                                        #Skip anything that shouldn't be written out to a DAOD for tracks or jets
                                         if ('xAOD::TrackParticleContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
+                                        if ('xAOD::JetAuxContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
                                                 entry += element
                                         else:
                                                 entry += element+"."
                                 if ('xAOD::TrackParticleContainer' in theDictionary[item] and auxEntries[item]==""):
+                                        entry+=excludedAuxData
+                                if ('xAOD::JetAuxContainer' in theDictionary[item] and auxEntries[item]==""):
                                         entry+=excludedAuxData
                                 Stream.AddItem(entry)
 
@@ -377,10 +380,6 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt4EMTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
                         items.extend(AntiKt4EMTopoJetsCPContent)
-                elif collectionName=="AntiKt4EMTopoJets_BTagging201810":
-                        if "AntiKt4EMTopoJets_BTagging201810" not in  self.AppendToDictionary:
-                                self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810"]='xAOD::JetContainer'
-                                self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
                 elif collectionName=="AntiKt10TruthJets":
                         from DerivationFrameworkJetEtMiss.AntiKt10TruthJetsCPContent import AntiKt10TruthJetsCPContent
                         items.extend(AntiKt10TruthJetsCPContent)
@@ -543,15 +542,6 @@ class SlimmingHelper:
                 elif collectionName=="AntiKtVR30Rmax4Rmin02PV0TrackJets":
                         from DerivationFrameworkJetEtMiss.AntiKtVR30Rmax4Rmin02PV0TrackJetsCPContent import AntiKtVR30Rmax4Rmin02PV0TrackJetsCPContent
                         items.extend(AntiKtVR30Rmax4Rmin02PV0TrackJetsCPContent)
-                elif collectionName=="BTagging_AntiKt4EMTopo_201810":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMTopoJets_BTagging201810"))
-                elif collectionName=="BTagging_AntiKt4EMPFlow_201810":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201810"))
-                elif collectionName=="BTagging_AntiKt4EMPFlow_201903":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKt4EMPFlow":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
@@ -570,27 +560,6 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4PV0TrackJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
                 elif collectionName=="BTagging_AntiKt8EMTopoExKt2Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt2SubJets"))

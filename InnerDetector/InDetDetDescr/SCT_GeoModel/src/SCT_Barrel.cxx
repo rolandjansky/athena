@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Barrel.h"
@@ -44,7 +44,7 @@ SCT_Barrel::SCT_Barrel(const std::string & name,
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_Barrel::preBuild();
 }
 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloRec/python/CaloBCIDAvgAlgConfig.py
 # Created: Mar 2019, sss
@@ -30,7 +30,6 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloBCIDAvgAlg',
@@ -47,7 +46,7 @@ if __name__ == "__main__":
             ]
     print ('--- data')
     flags1 = ConfigFlags.clone()
-    flags1.Input.Files = defaultTestFiles.RAW
+    flags1.Input.Files = []
     flags1.lock()
     acc1 = CaloBCIDAvgAlgCfg (flags1)
     acc1.printConfig(summariseProps=True, onlyComponents=only)
@@ -55,7 +54,7 @@ if __name__ == "__main__":
 
     print ('--- mc')
     flags2 = ConfigFlags.clone()
-    flags2.Input.Files = defaultTestFiles.RAW
+    flags2.Input.Files = []
     flags2.Input.isMC = True
     flags2.lock()
     acc2 = CaloBCIDAvgAlgCfg (flags2)
@@ -64,7 +63,7 @@ if __name__ == "__main__":
 
     print ('--- online')
     flags3 = ConfigFlags.clone()
-    flags3.Input.Files = defaultTestFiles.RAW
+    flags3.Input.Files = []
     flags3.Common.isOnline = True
     flags3.lock()
     acc3 = CaloBCIDAvgAlgCfg (flags3)

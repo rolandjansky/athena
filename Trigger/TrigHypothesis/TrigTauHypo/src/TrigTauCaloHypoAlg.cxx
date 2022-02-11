@@ -60,7 +60,7 @@ StatusCode TrigTauCaloHypoAlg::execute( const EventContext& context ) const {
     ATH_MSG_DEBUG ( "Tau handle size: " << tauHandle->size() << "..." );
 
     if( tauHandle->size() != 1 ) {
-      ATH_MSG_WARNING("Something is wrong, unexpectd number of taus " << tauHandle->size() << " is found (expected 1), continuing anyways skipping view");
+      ATH_MSG_DEBUG("Something is wrong, unexpected number of taus " << tauHandle->size() << " is found (expected 1), continuing anyways skipping view");
       continue;
     }
 

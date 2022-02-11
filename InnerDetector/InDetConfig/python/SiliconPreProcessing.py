@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 def InDetSiElementPropertiesTableCondAlgCfg(flags, name="InDetSiElementPropertiesTableCondAlg", **kwargs):
     # For SCT DetectorElementCollection used
@@ -17,7 +18,7 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     # --- SiSpacePointMakerTool (public)
     #
 
-    if flags.Beam.Type == "cosmics" or flags.InDet.Tracking.doBeamGas:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault("StripLengthTolerance", 0.05)
         kwargs.setdefault("UsePerpendicularProjection", True)
     
@@ -53,7 +54,7 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
         kwargs.setdefault("OverlapLimitEtaMax", 5.0)
         kwargs.setdefault("OverlapLimitEtaMin", 0)
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("ProcessOverlaps", False)
         kwargs.setdefault("OverrideBeamSpot", True)
         kwargs.setdefault("VertexZ", 0)
@@ -231,7 +232,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
 
     ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 

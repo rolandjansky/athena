@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
@@ -24,7 +24,7 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # ConfigFlags.Sim.LArParameterization = 2
 
     # Fatras does not support simulating the BCM, so have to switch that off
-    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS'):
+    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS', 'ATLFAST3F_G4MS'):
         try:
             detectors.remove('BCM')
         except ValueError:
@@ -48,6 +48,7 @@ def fromRunArgs(runArgs):
 
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import BeamType
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     # Generate detector list
@@ -63,7 +64,7 @@ def fromRunArgs(runArgs):
     # Beam Type
     if hasattr(runArgs,'beamType'):
         if runArgs.beamType == 'cosmics':
-            ConfigFlags.Beam.Type = 'cosmics' # TODO would like to make these values into an enum to make it more robust
+            ConfigFlags.Beam.Type = BeamType.Cosmics
             ConfigFlags.Sim.CavernBG = 'Off'
 
     # Setup input: Three possible cases:
@@ -80,7 +81,7 @@ def fromRunArgs(runArgs):
         # 2a) Cosmics simulation
         # 2b) Stopped particle simulation
         # 2c) Cavern background simulation
-        if ConfigFlags.Beam.Type == 'cosmics':
+        if ConfigFlags.Beam.Type is BeamType.Cosmics:
             ConfigFlags.Sim.ReadTR = True
             ConfigFlags.Sim.CosmicFilterVolumeNames = ['Muon']
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern with a cosmic TR file
@@ -97,7 +98,7 @@ def fromRunArgs(runArgs):
         ConfigFlags.Input.Files = []
         ConfigFlags.Input.isMC = True
         log.info('No inputEVNTFile provided. Assuming that you are running a generator on the fly.')
-        if ConfigFlags.Beam.Type == 'cosmics':
+        if ConfigFlags.Beam.Type is BeamType.Cosmics:
             ConfigFlags.Sim.CosmicFilterVolumeNames = [getattr(runArgs, "CosmicFilterVolume", "InnerDetector")]
             ConfigFlags.Sim.CosmicFilterVolumeNames += [getattr(runArgs, "CosmicFilterVolume2", "NONE")]
             ConfigFlags.Sim.CosmicPtSlice = getattr(runArgs, "CosmicPtSlice", 'NONE')
@@ -118,7 +119,7 @@ def fromRunArgs(runArgs):
         if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
             # Case 1c)
             log.error('Stopped Particle simulation not supported yet!')
-        elif ConfigFlags.Beam.Type == 'cosmics':
+        elif ConfigFlags.Beam.Type is BeamType.Cosmics:
             # Case 3b)
             pass
         else:

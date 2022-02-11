@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -370,7 +370,7 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
     const Trk::BinnedArray< Trk::Layer >* confinedLayers = tvol.confinedLayers();
     if (confinedLayers) {
         // get the objects in a vector-like format
-        const std::vector<const Trk::Layer*>& layers = confinedLayers->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Layer const * const> layers = confinedLayers->arrayObjects();
         ATH_MSG_INFO("--> found : "<< layers.size() << "confined Layers");
         // the iterator over the vector
         // loop over layers
@@ -393,10 +393,10 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
     }
 
     // ----------------------------------- loop over confined volumes -----------------------------
-    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+    const Trk::BinnedArray< const Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
     if (confinedVolumes) {
         // get the objects in a vector-like format
-        const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes->arrayObjects();
         ATH_MSG_INFO("--> found : "<< volumes.size() << "confined TrackingVolumes");
         // loop over volumes
         for (const auto & volume : volumes) {
@@ -550,7 +550,7 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
     const Trk::BinnedArray< Trk::Layer >* confinedLayers = tvol.confinedLayers();
     if (confinedLayers) {
          // this go ahead with the layers
-         const std::vector<const Trk::Layer*>& layers = confinedLayers->arrayObjects();
+         Trk::BinnedArraySpan<Trk::Layer const * const> layers = confinedLayers->arrayObjects();
          for (int indent=0; indent<sublevel; ++indent)
              std::cout << " ";
          std::cout << "- found : "<< layers.size() << "confined Layers"<< std::endl;
@@ -571,9 +571,9 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
            insertLayerMaterialRecord(*lIter);
    
     // step dopwn the navigation tree to reach the confined volumes
-    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+    const Trk::BinnedArray< const Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
     if (confinedVolumes) {
-        const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes->arrayObjects();
 
         for (int indent=0; indent<sublevel; ++indent)
             std::cout << " ";

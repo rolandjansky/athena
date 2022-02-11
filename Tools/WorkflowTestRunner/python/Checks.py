@@ -1,4 +1,5 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+import logging
 from pathlib import Path
 import subprocess
 
@@ -180,11 +181,11 @@ class AODContentCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} AOD content check")
 
         file_name = "myAOD.pool.root"
-        output_name = "AOD_content.txt"
+        output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.txt"
 
         validation_file = test.validation_path / file_name
         validation_output = test.validation_path / output_name
-        validation_command = f"acmd.py chk-file {validation_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | sort > {validation_output}"
+        validation_command = f"acmd.py chk-file {validation_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | LC_ALL=C sort | uniq > {validation_output}"
 
         output_val, error_val = subprocess.Popen(["/bin/bash", "-c", validation_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         output_val, error_val = output_val.decode("utf-8"), error_val.decode("utf-8")
@@ -207,7 +208,7 @@ class AODContentCheck(WorkflowCheck):
             reference_output = reference_path / output_name
             reference_file = reference_path / file_name
 
-            reference_command = f"acmd.py chk-file {reference_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | sort > {reference_output}"
+            reference_command = f"acmd.py chk-file {reference_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | LC_ALL=C sort | uniq > {reference_output}"
             subprocess.Popen(["/bin/bash", "-c", reference_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
         # Remove HLT containers in some cases
@@ -228,9 +229,9 @@ class AODContentCheck(WorkflowCheck):
             print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
             print()
 
-            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error(f"Your change modifies the output in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
-            self.logger.error("The output (>) differs from the reference (<):")
+            self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
             if diff_output:
                 print()
                 print(diff_output)
@@ -253,7 +254,7 @@ class AODDigestCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} AOD digest")
 
         file_name = "myAOD.pool.root"
-        output_name = "AOD_digest.txt"
+        output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.txt"
 
         validation_file = test.validation_path / file_name
         validation_output = test.validation_path / output_name
@@ -301,9 +302,9 @@ class AODDigestCheck(WorkflowCheck):
             print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
             print()
 
-            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error(f"Your change breaks the digest in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
-            self.logger.error("The output (>) differs from the reference (<):")
+            self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
             if diff_output:
                 print()
                 print(diff_output)
@@ -443,6 +444,9 @@ class WarningsComparisonCheck(WorkflowCheck):
 class FPECheck(WorkflowCheck):
     """Run FPE check."""
 
+    # Ignore FPEs for these tests:
+    ignoreTests = [WorkflowType.FullSim, WorkflowType.DataOverlay, WorkflowType.MCOverlay]
+
     def run(self, test: WorkflowTest):
         self.logger.info("-----------------------------------------------------")
         self.logger.info(f"Running {test.ID} FPE Check")
@@ -451,23 +455,44 @@ class FPECheck(WorkflowCheck):
         for step in test.steps:
             log = test.validation_path / f"log.{step}"
             fpes = {}
+            stack_traces = {}
             with log.open() as file:
+                last_stack_trace = None
                 for line in file:
                     if "WARNING FPE" in line:
-                        fpe = line.split()[10].replace("[", "").replace("]", "")
-                        if fpe in fpes:
-                            fpes[fpe] += 1
-                        else:
-                            fpes[fpe] = 1
+                        last_stack_trace = None
+                        fpe = None
+                        for part in reversed(line.split()):
+                            if "[" in part:
+                                fpe = part.strip().replace("[", "").replace("]", "")
+                                break
+                        if fpe:
+                            if fpe in fpes:
+                                fpes[fpe] += 1
+                            else:
+                                fpes[fpe] = 1
+                                last_stack_trace = []
+                                stack_traces[fpe] = last_stack_trace
+                    elif "FPE stacktrace" in line and last_stack_trace is not None:
+                        line = next(file)
+                        last_stack_trace.append(line.strip()[9:])
+
             if fpes.keys():
+                msgLvl = logging.WARNING if test.type in self.ignoreTests else logging.ERROR
                 result = False
-                self.logger.error(f" {step} validation test step FPEs")
+                self.logger.log(msgLvl, f" {step} validation test step FPEs")
                 for fpe, count in sorted(fpes.items(), key=lambda item: item[1]):
-                    self.logger.error(f"{count:>5}  {fpe}")
+                    self.logger.log(msgLvl, f"{count:>5}  {fpe}")
+                for fpe in fpes.keys():
+                    self.logger.log(msgLvl, "-----------------------------------------------------")
+                    self.logger.log(msgLvl, f" first stack trace for algorithm {fpe}:")
+                    for line in stack_traces[fpe]:
+                        self.logger.log(msgLvl, line)
+                    self.logger.log(msgLvl, "-----------------------------------------------------")
 
         if result:
             self.logger.info("Passed!\n")
-        elif test.type in [WorkflowType.FullSim, WorkflowType.DataOverlay, WorkflowType.MCOverlay]:
+        elif test.type in self.ignoreTests:
             self.logger.warning("Failed!")
             self.logger.warning("Check disabled due to irreproducibilities!\n")
             result = True

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 
 def InDetPrdAssociationToolCfg(flags, name='InDetPrdAssociationTool', **kwargs) :
@@ -97,10 +98,8 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     BoundaryCheckTool = result.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
     kwargs.setdefault('BoundaryCheckTool', BoundaryCheckTool)
 
-  if flags.Beam.Type == "cosmics" :
-    kwargs.setdefault("Cosmics", True)
-
-  kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
+  kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
+  kwargs.setdefault("CountDeadModulesAfterLastHit", True)
 
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
   result.setPrivateTools(indet_hole_search_tool)

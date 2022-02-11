@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType, Format
 
 ##------------------------------------------------------------------------------
 def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
@@ -52,7 +53,7 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
     if flags.InDet.selectSCTIntimeHits :
-       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type == "collisions":
+       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type is BeamType.Collisions:
           InDetSCT_ClusteringTool.timeBins = "01X"
        else:
           InDetSCT_ClusteringTool.timeBins = "X1X"
@@ -179,7 +180,7 @@ def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticl
     ))
     return result
 
-def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputCombinedTracks=None, **kwargs):
+def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputCombinedTracks=None, CombinedInDetClusterSplitProbContainer=None, **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
@@ -191,7 +192,8 @@ def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputC
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
     from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name="CombinedInDetSplitProbTrackSummaryToolSharedHits"))
+    TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedInDetClusterSplitProbContainer
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
@@ -263,7 +265,7 @@ def CombinedTrackingPassFlagSets(flags):
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.VtxLumiPass")
     elif flags.InDet.Tracking.doVtxBeamSpot:
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.VtxBeamSpotPass")
-    elif flags.Beam.Type == "cosmics":
+    elif flags.Beam.Type is BeamType.Cosmics:
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.CosmicsPass")
     elif flags.Reco.EnableHI:
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.HeavyIonPass")
@@ -330,7 +332,7 @@ def InDetTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    if flags.Input.Format == "BS":
+    if flags.Input.Format is Format.BS:
         from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
         result.merge(PixelRawDataProviderAlgCfg(flags))
         from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
@@ -452,8 +454,7 @@ def InDetTrackRecoCfg(flags):
             result.merge(NewTrackingTRTExtensionCfg(current_flags,
                                                     SiTrackCollection = ResolvedTracks,
                                                     ExtendedTrackCollection = ExtendedTracks,
-                                                    ExtendedTracksMap = ExtendedTracksMap,
-                                                    doPhase=False))
+                                                    ExtendedTracksMap = ExtendedTracksMap))
 
             TrackContainer = ExtendedTracks
 
@@ -498,7 +499,9 @@ def InDetTrackRecoCfg(flags):
 
 
 
-    result.merge(TrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedInDetTracks))
+    result.merge(TrackCollectionMergerAlgCfg(flags,
+                                             InputCombinedTracks = InputCombinedInDetTracks,
+                                             CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer))
 
     if flags.InDet.doTruth:
         from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
@@ -533,7 +536,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.EnableCalo = False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg

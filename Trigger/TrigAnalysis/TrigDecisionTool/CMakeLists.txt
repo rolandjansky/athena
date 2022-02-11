@@ -17,7 +17,7 @@ if( XAOD_STANDALONE )
       PUBLIC_HEADERS TrigDecisionTool
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODBase xAODTrigger
+      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils xAODBase xAODTrigger
       TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
       TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib
       TrigCompositeUtilsLib TrigConfHLTUtilsLib
@@ -29,7 +29,7 @@ else()
          PUBLIC_HEADERS TrigDecisionTool
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
+         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
          TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
          TrigConfInterfaces TrigDecisionInterface TrigConfHLTUtilsLib
@@ -41,7 +41,7 @@ else()
          PUBLIC_HEADERS TrigDecisionTool
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
+         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils EventInfo xAODBase
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib

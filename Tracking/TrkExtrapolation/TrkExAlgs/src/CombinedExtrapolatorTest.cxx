@@ -127,7 +127,7 @@ StatusCode Trk::CombinedExtrapolatorTest::execute()
     *seed,
     *m_outerBoundary, 
     Trk::alongMomentum,
-    (Trk::ParticleHypothesis)m_particleType);
+    (Trk::ParticleHypothesis)m_particleType).release();
 
   if (!destParameters || !m_extrapolator->trackingGeometry()->atVolumeBoundary(destParameters->position(),m_outerBoundary,0.001) ) {
     msg(MSG::ERROR) << " extrapolation to outer boundary failed for input parameters: " << initialPerigee.parameters() << endmsg;
@@ -143,7 +143,7 @@ StatusCode Trk::CombinedExtrapolatorTest::execute()
       pSf, 
       Trk::oppositeMomentum,
       false,
-      (Trk::ParticleHypothesis)m_particleType);
+      (Trk::ParticleHypothesis)m_particleType).release();
     if ( peri) {
       msg(MSG::INFO) << " extrapolation to perigee:input: " << initialPerigee.parameters() << endmsg;
       msg(MSG::INFO) << " extrapolation to perigee:output: " << peri->parameters() << endmsg;

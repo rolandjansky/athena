@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -23,7 +23,7 @@ TileCosmicMuonFillerTool::TileCosmicMuonFillerTool(const string& type,
         const string& name, const IInterface* parent):
         BlockFillerTool<TileCosmicMuon>(type,name,parent)
 {
-  book().ignore(); // Avoid coverity warnings
+  TileCosmicMuonFillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 TileCosmicMuonFillerTool::~TileCosmicMuonFillerTool() {

@@ -371,7 +371,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to entrance ---
-    paramEntrance.reset(m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo));
+    paramEntrance = m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo);
     if (!paramEntrance) {
         ATH_MSG_DEBUG("Extrapolation to entrance failed without boundary check.");
         return nullptr;
@@ -414,7 +414,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to exit of layer ---
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Extrapolated to exit. ");
         return paramExit;
@@ -422,7 +422,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
     // --- Try to extrapolate to side ---
     std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
     if (!surfOutside) { return nullptr; }
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << descr->getSampling());
     } else {
@@ -454,12 +454,12 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         double zTrans = par->eta() > 0 ? halfLengthOfCylinder : -halfLengthOfCylinder;
         Trk::DiscSurface disc(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., zTrans))), 0, solenoidRadius);
 
-        parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo));
+        parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo);
 
         if (!parAtSolenoid) {
             ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation to cap of solenoid failed. Trying opposite side.");
             Trk::DiscSurface discOpp(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., -zTrans))), 0, solenoidRadius);
-            parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo));
+            parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo);
         }
 
         if (parAtSolenoid) { ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation succeeded for disc-type surface."); }
@@ -571,7 +571,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                 std::unique_ptr<Trk::Surface> surfExit{createSurface(descr, Exit)};
                 std::unique_ptr<const Trk::TrackParameters> paramExit;
                 if (surfExit) {
-                    paramExit.reset(m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+                    paramExit = m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
                     if (paramExit) {
                         ATH_MSG_VERBOSE("Extrapolated to exit. ");
                         energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -580,8 +580,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                         // Try to extrapolate to outside
                         std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
                         if (surfOutside) {
-                            paramExit.reset(
-                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+                            paramExit = 
+                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
                             if (paramExit) {
                                 ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << sample);
                                 energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -637,9 +637,11 @@ double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const
 ///////////////////////////////////////////////////////////////////////////////
 // initializeDetectorInfo()
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const {
-    
-  ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
+TrackDepositInCaloTool::LayerMaps
+TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const {
+    LayerMaps maps;
+
+    ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
     // Initialize LAr
     for (const CaloDetDescriptor* descr : caloDDM->calo_descriptors_range()) {
         if (descr) {
@@ -653,7 +655,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrMana
                 ATH_MSG_VERBOSE("  sign = " << descr->calo_sign());
                 ATH_MSG_VERBOSE("  range_low  = " << descr->calo_z_min());
                 ATH_MSG_VERBOSE("  range_high = " << descr->calo_z_max());
-                if (sample != CaloCell_ID::PreSamplerB) m_barrelLayerMap[r].push_back(descr);
+                if (sample != CaloCell_ID::PreSamplerB) maps.m_barrelLayerMap[r].push_back(descr);
             } else {
                 ATH_MSG_VERBOSE("  this is a disk-like detector element.");
                 double thickness = descr->calo_z_max() - descr->calo_z_min();
@@ -662,7 +664,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrMana
                 ATH_MSG_VERBOSE("  sign = " << descr->calo_sign());
                 ATH_MSG_VERBOSE("  range_low  = " << descr->calo_r_min());
                 ATH_MSG_VERBOSE("  range_high = " << descr->calo_r_max());
-                if (sample != CaloCell_ID::PreSamplerE) { m_endCapLayerMap[z].push_back(descr); }
+                if (sample != CaloCell_ID::PreSamplerE) { maps.m_endCapLayerMap[z].push_back(descr); }
             }
         } else
             ATH_MSG_VERBOSE("CaloDetDescriptor was not available!");
@@ -685,11 +687,11 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrMana
             ATH_MSG_VERBOSE("  sign = " << descr->calo_sign());
             ATH_MSG_VERBOSE("  range_low  = " << descr->calo_z_min());
             ATH_MSG_VERBOSE("  range_high = " << descr->calo_z_max());
-            m_barrelLayerMap[r].push_back(descr);
+            maps.m_barrelLayerMap[r].push_back(descr);
         } else
             ATH_MSG_VERBOSE("CaloDetDescriptor was not available!");
     }
-    return StatusCode::SUCCESS;
+    return maps;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -757,9 +759,10 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
                                                       std::map<double, const CaloDetDescriptor*>& caloInfo,
                                                       std::vector<Amg::Vector3D>& extrapolations) const {
     // Cannot do this in initialize: see ATLASRECTS-5012
-    StatusCode sc = StatusCode::SUCCESS;
-    std::call_once(m_initializeOnce, [this, &sc,caloDDM]() { sc = initializeDetectorInfo(caloDDM); });
-    if (!sc.isSuccess()) return sc;
+    if (!m_layerMaps.isValid()) {
+      m_layerMaps.set (initializeDetectorInfo (caloDDM));
+    }
+    const LayerMaps& layerMaps = *m_layerMaps.ptr();
 
     const Trk::TrackParameters* parAtSolenoid = nullptr;
     // --- To be replaced by a check, possibly extrapolating to solenoid surface if needed ---
@@ -783,7 +786,7 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
         double phi0 = parAtSolenoid->momentum().phi();
 
         // --- This Code fragment determines the Barrel crossings ---
-        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : m_barrelLayerMap) {
+        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : layerMaps.m_barrelLayerMap) {
             const double& radius = mapIt.first;
             std::unique_ptr<Amg::Vector3D> extrapolation = extrapolateR(positionAtSolenoid, phi0, theta0, radius);
             if (!extrapolation) { continue; }
@@ -798,7 +801,7 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
         }
 
         // This code fragment determines the EndCap crossings
-        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : m_endCapLayerMap) {
+        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : layerMaps.m_endCapLayerMap) {
             const double& zCenter = mapIt.first;
             for (const CaloDetDescriptor* descr : mapIt.second) {
                 double z = zCenter * descr->calo_sign();

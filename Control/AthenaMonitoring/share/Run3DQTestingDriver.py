@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file DQTestingDriver.py
@@ -13,6 +13,8 @@
 if __name__=='__main__':
     import sys
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import Format
+
     parser = ConfigFlags.getArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
     parser.add_argument('--postExec', help='Code to execute after setup')
@@ -35,9 +37,6 @@ if __name__=='__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
-
-    # Set the Athena configuration flags
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     
     # default input if nothing specified
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthenaMonitoring/q431/21.0/f946/myESD.pool.root']
@@ -60,8 +59,8 @@ if __name__=='__main__':
     # if --evtMax was specified as well this will override
     if args.maxEvents is not None:
         ConfigFlags.Exec.MaxEvents = args.maxEvents
-    isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'BS')
-    if isReadingRaw:
+
+    if ConfigFlags.Input.Format is Format.BS:
         if ConfigFlags.DQ.Environment not in ('tier0', 'tier0Raw', 'online'):
             log.warning('Reading RAW file, but DQ.Environment set to %s',
                         ConfigFlags.DQ.Environment)
@@ -107,15 +106,14 @@ if __name__=='__main__':
 
     # add FPE auditor
     from AthenaConfiguration.ComponentFactory import CompFactory
-    cfg.addService(CompFactory.AuditorSvc(Auditors=[CompFactory.FPEAuditor().getFullJobOptName()]))
+    cfg.addAuditor(CompFactory.FPEAuditor())
 
     # add perfmon
     if args.perfmon:
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
         cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
 
-
-    if isReadingRaw:
+    if ConfigFlags.Input.Format is Format.BS:
         # attempt to start setting up reco ...
         from CaloRec.CaloRecoConfig import CaloRecoCfg
         cfg.merge(CaloRecoCfg(ConfigFlags))

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimeTuning.h"
@@ -147,14 +147,14 @@ StatusCode LArTimeTuning::execute() {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   m_Nevents++;
 
-  const ILArPedestal* larPedestal;
-  const ILArOFC* larOFC;
+  const ILArPedestal* larPedestal = nullptr;
+  const ILArOFC* larOFC = nullptr;
   
-  LArGlobalTimeOffset *larGlobalTimeOffset;
-  LArGlobalTimeOffset *larGlobalTimeOffset_corr;
+  LArGlobalTimeOffset *larGlobalTimeOffset = nullptr;
+  LArGlobalTimeOffset *larGlobalTimeOffset_corr = nullptr;
   
-  LArFEBTimeOffset    *larFebTimeOffset;
-  LArFEBTimeOffset    *larFebTimeOffset_corr;
+  LArFEBTimeOffset    *larFebTimeOffset = nullptr;
+  LArFEBTimeOffset    *larFebTimeOffset_corr = nullptr;
   
   LArGlobalTimeOffset dummyGlobalTimeOffset;
   LArFEBTimeOffset    dummyFebTimeOffset;

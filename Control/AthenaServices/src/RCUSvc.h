@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,7 +36,7 @@ namespace Athena {
  * This service keeps a registry of RCU objects.  At EndEvent,
  * it declares them quiescent for the current event slot.
  */
-class ATLAS_CHECK_THREAD_SAFETY RCUSvc
+class RCUSvc
   : public extends<AthService, IRCUSvc, IIncidentListener>
 {
 public:

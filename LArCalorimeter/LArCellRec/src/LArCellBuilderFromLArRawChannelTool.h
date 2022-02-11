@@ -29,7 +29,6 @@
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-//#include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "AthAllocators/DataPool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -43,7 +42,7 @@ class LArCell;
 
 /**
  * @class LArCellBuilderFromLArRawChannelTool
- * @brief An AlgTool class to create a LArCellContainer out of a LArRawChannel container.
+ * @brief An AlgTool class to create a CaloCellContainer out of a LArRawChannel container.
  *
  * Inherits from ICaloCellMakerTool and should be called by an instance of the 
  * CaloCellMaker algorithm. 

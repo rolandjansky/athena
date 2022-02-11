@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 def ITkSiElementPropertiesTableCondAlgCfg(flags, name="ITkSiElementPropertiesTableCondAlg", **kwargs):
     # For strip DetectorElementCollection used
@@ -49,7 +50,7 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
     kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.Tracking.doFastTracking or flags.ITk.Tracking.doLargeD0))
     kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.Tracking.doFastTracking or flags.ITk.Tracking.doLargeD0))
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("ProcessOverlaps", False)
         kwargs.setdefault("OverrideBeamSpot", True)
         kwargs.setdefault("VertexZ", 0)
@@ -231,7 +232,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
 
     ConfigFlags.Detector.GeometryITkPixel   = True
     ConfigFlags.Detector.GeometryITkStrip   = True

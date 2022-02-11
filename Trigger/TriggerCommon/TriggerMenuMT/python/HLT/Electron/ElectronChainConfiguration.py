@@ -117,6 +117,101 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
         self.chainDict = chainDict
+
+
+    # ----------------------
+    # Prepare the sequence
+    # ----------------------
+    def prepareSequence(self):
+        # This function prepares the list of step names from which assembleChainImpl would make the chain assembly from.
+        
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration
+        # --------------------
+
+        stepNames = [] # This will contain the name of the steps we will want to configure
+
+        # Put first fast Calo. Two possible variants now: 
+        # getFastCalo 
+        # getFastCalo_fwd
+        # But first, we need to check whether this is a chain that will run smth at fast or precision. So if no L2IDAlg or IDinfo defined, just return this here
+
+        if not self.chainPart['IDinfo'] and not self.chainPart['L2IDAlg'] and not self.chainPart['isoInfo'] and not self.chainPart['addInfo']:
+            return stepNames
+
+        if "fwd" in self.chainPart['addInfo']:
+            stepNames += ['getFastCalo_fwd']
+            
+            # Actually, if its fwd and etcut we will stop here (for now)
+            if "etcut" in self.chainPart['addInfo']:
+                return stepNames
+        else:
+            stepNames += ['getFastCalo']
+
+
+        # Now lets do Fst Electron. Possible Flavours:
+        # getFastElectron
+        # getFastElectron_lrt
+
+        if self.chainPart['lrtInfo']:
+            stepNames += ['getFastElectron_lrt']
+        else:
+            stepNames += ['getFastElectron']
+
+
+        # After Fast Electron we have to build PrecisionCalo for electorns. Current available variantas are:
+        # getPrecisionCaloElectron
+        # getPrecisionCaloElectron_lrt
+        # Now, we will add this if there is any IDInfo (i.e. any of dnn* or lh* in the chain name). Otherwise we wont run precision steps
+        if not self.chainPart['IDinfo'] and not self.chainPart['isoInfo'] and not self.chainPart['addInfo']: 
+            log.debug("No IDInfo, no isoInfo and no addInfo. Returning here up to fastElectron")
+            return stepNames
+
+        if self.chainPart['lrtInfo']:
+            stepNames += ['getPrecisionCaloElectron_lrt']
+        else:
+            stepNames += ['getPrecisionCaloElectron']
+
+        # If its an etcut chain, we will not run precision Tracking Electron. Just precision Calo. So returning here if its an etcut chain unless its an etcut_idperf chaiin:
+        if 'etcut' in self.chainPart['addInfo'] and 'idperf' not in self.chainPart['idperfInfo']:
+            log.debug("This is an etcut chain. Returning here")
+            return stepNames
+
+        # After precisionCalo Electron we have to do precision tracking next. Current available variantas are:
+        # getPrecisionTracking
+        # getPrecisionTracking_lrt
+        if self.chainPart['lrtInfo']:
+            stepNames += ['getPrecisionTracking_lrt']
+        else:
+            stepNames += ['getPrecisionTracking']
+
+        # Now if a chain is configured to do gsf refitting we need to add another tracking step for the GSF refitting:
+        # getPrecisionTrack_GSFRefitted
+        if "gsf" in self.chainPart['gsfInfo']:
+            stepNames += ['getPrecisionTrack_GSFRefitted']
+
+           
+        # If its an idperf chain, we will not run precision Electron. Just precision Calo and Precision Tracking so returning here if its an etcut chain
+        if 'idperf' in self.chainPart['idperfInfo']:
+            log.debug("This is an idperf chain. Returning here")
+            return stepNames
+
+
+        # and Finally! once we have precision tracking adn precision calo, we can build our electrons!. Current available variantas are:
+        # getPrecisionElectron
+        # getPrecisionGSFElectron
+        # getPrecisionElectron_lrt
+
+        if self.chainPart['lrtInfo']:
+            stepNames += ['getPrecisionElectron_lrt']
+        elif "gsf" in self.chainPart['gsfInfo']:
+            stepNames += ['getPrecisionGSFElectron']
+        else:
+            stepNames += ['getPrecisionElectron']
+
+        log.debug("Returning chain with all steps in the sequence")
+        return stepNames
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -124,61 +219,12 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration
-        # --------------------
-        stepDictionary = {
-                'etcut1step': ['getFastCalo'],
-          
-                'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                
-                # nominal and nominal-idperf
-                'nominal'        : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'nominal_idperf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                
-                # gsf and gsf-idperf
-                'nominalgsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionTrack_GSFRefitted', 'getPrecisionGSFElectron'],
-                'gsf_idperf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionTrack_GSFRefitted'],
+        # This will contain the name of the steps we will want to configure
+        steps = self.prepareSequence()
 
-                # lrt and lrt-idperf
-                'nominallrt'         : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],  
-                'lrt_idperf'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
-                # fwd sequences
-                'etcutfwd' : ['getFastCalo_fwd']
-                }
 
-        log.debug('electron chain part = %s', self.chainPart)
-        key = "nominal"
-
-        if 'idperf' in self.chainPart['idperfInfo'] and not self.chainPart['gsfInfo'] and not self.chainPart['lrtInfo']:
-            key = "nominal_idperf"
- 
-        if self.chainPart['addInfo']:
-            if "etcut1step" in self.chainPart['addInfo']:
-                key = "etcut1step"
-            elif "etcut" in self.chainPart['addInfo'] and "fwd" in self.chainPart['addInfo']:
-                key = "etcutfwd"
-            else:
-                key = "etcut"
-        
-        if "gsf" in self.chainPart['gsfInfo']:
-            if self.chainPart['idperfInfo']:
-                key = "gsf_idperf"
-            else:
-                key = "nominalgsf"
-
-        if self.chainPart['lrtInfo']:
-            if self.chainPart['idperfInfo']:
-                key = "lrt_idperf"
-            else:  
-                key = "nominallrt"
-
-        log.debug('electron key = %s', key)
-        if key in stepDictionary:
-            steps=stepDictionary[key]
-        else:
-            raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
-        
+        # This is it, lets print the list of stepNames
+        log.debug("stepNames: %s", steps)
         for step in steps:
             log.debug('Adding electron trigger step %s', step)
             is_probe_leg = self.chainPart['tnpInfo']=='probe'

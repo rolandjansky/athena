@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import Format
 
 
 def createRecoConfigFlags():
@@ -37,7 +38,7 @@ def createRecoConfigFlags():
 
     # this flags enables trigger data decoding (not trigger simulation)
     flags.addFlag("Reco.EnableTrigger",
-                  lambda prevFlags: prevFlags.Input.Format == "BS")
+                  lambda prevFlags: prevFlags.Input.Format is Format.BS)
 
     # enable automatically for HI data
     flags.addFlag("Reco.EnableHI",

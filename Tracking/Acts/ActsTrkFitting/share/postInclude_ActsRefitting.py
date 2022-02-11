@@ -26,7 +26,7 @@ class ConfiguredActsRefittingTrackingGeometry( ActsTrackingGeometryTool ) :
     ActsTrackingGeometrySvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()                                                  
     ActsTrackingGeometrySvc.UseMaterialMap = True
     ActsTrackingGeometrySvc.BuildBeamPipe = True
-    ActsTrackingGeometrySvc.MaterialMapInputFile = "/eos/project-a/acts/public/MaterialMaps/ATLAS-material-maps.json"
+    ActsTrackingGeometrySvc.MaterialMapInputFile = "/eos/project-a/acts/public/MaterialMaps/ATLAS/material-maps.json"
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += ActsTrackingGeometrySvc
 
@@ -60,7 +60,8 @@ actsKF = ActsKalmanFitter(name = "ActsKalmanFitter",
                            ExtrapolationTool    = actsExtrapolationTool,
                            TrackingGeometryTool = actsReFittingTrackingGeometry,
                            ATLASConverterTool   = actsAtlasConverter,
-                           SummaryTool          = summary
+                           SummaryTool=summary,
+                           ReverseFilteringPt=1.0
 )
 ToolSvc+=actsKF
 
@@ -68,8 +69,6 @@ actsfitter = ActsReFitterAlg(name = "fitter",
                            ActsKalmanFitter    = actsKF,
                            TrackName           = "ResolvedTracks"
 )
-
-actsfitter.OutputLevel = INFO
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

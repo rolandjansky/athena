@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkTrack/Track.h"
@@ -148,9 +148,10 @@ Trk::Track::trackParameters() const
   }
   // Do work only if it is not valid.
   if (!m_cachedParameterVector.isValid()) {
-    // create cached parameter vector (which DOES NOT OWN ELEMENTS ...
+    // create cached parameter vector (which DOES NOT OWN ELEMENTS)
     DataVector<const Trk::TrackParameters> tmp_ParameterVector(
       SG::VIEW_ELEMENTS);
+    tmp_ParameterVector.reserve(m_trackStateVector.size());
     TSoS_iterator itTSoSEnd = m_trackStateVector.end();
     for (TSoS_iterator itTSoS = m_trackStateVector.begin(); itTSoS != itTSoSEnd;
          ++itTSoS) {

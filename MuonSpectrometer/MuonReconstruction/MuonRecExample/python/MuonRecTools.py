@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -364,6 +364,8 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
 
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
     kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
+    if ConfigFlags.Muon.MuonTrigger:
+        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
@@ -371,9 +373,11 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
     if ConfigFlags.Muon.MuonTrigger:
+        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
@@ -390,6 +394,8 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
 
+    kwargs.setdefault("TgcPrepDataContainer", 
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
     #MDT conditions information not available online
     if(athenaCommonFlags.isOnline):
         kwargs.setdefault("MdtCondKey","")
@@ -428,6 +434,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwargs):
     if extraFlags is None: extraFlags = ExtraFlags()
     extraFlags.setFlagDefault('doSegmentT0Fit',True)
+
     return DCMathSegmentMaker(name,extraFlags,**kwargs)
 
 # end of factory function DCMathSegmentMaker

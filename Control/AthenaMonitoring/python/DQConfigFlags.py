@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -65,15 +65,16 @@ def getUseTrigger(flags):
     return hlt_exists and flags.DQ.triggerDataAvailable
 
 def getDataType(flags):
+    from AthenaConfiguration.Enums import BeamType
     if flags.Input.isMC:
         return 'monteCarlo'
     elif (False): # this is the HI test, needs HI flags
         return 'heavyioncollisions'
-    elif flags.Beam.Type == 'cosmics':
+    elif flags.Beam.Type is BeamType.Cosmics:
         return 'cosmics'
-    elif flags.Beam.Type == 'collisions':
+    elif flags.Beam.Type is BeamType.Collisions:
         return 'collisions'
-    elif flags.Beam.Type == 'singlebeam':
+    elif flags.Beam.Type is BeamType.SingleBeam:
         # historically, singlebeam treated as collisions
         return 'collisions'
     else:
@@ -87,7 +88,8 @@ def getEnvironment(flags):
         return 'online'
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
-        if flags.Input.Format == 'BS':
+        from AthenaConfiguration.Enums import Format
+        if flags.Input.Format is Format.BS:
             if flags.Output.AODFileName:
                 return 'tier0'
             else:

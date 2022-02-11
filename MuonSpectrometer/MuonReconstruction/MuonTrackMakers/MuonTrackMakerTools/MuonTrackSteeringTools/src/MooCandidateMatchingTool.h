@@ -181,7 +181,7 @@ namespace Muon {
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "tool to print EDM objects"};
         ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
                                                            "curved extrapolator"};

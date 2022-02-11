@@ -41,8 +41,6 @@ L1CPCMXTools::L1CPCMXTools(const std::string &type, const std::string &name,
 StatusCode L1CPCMXTools::initialize() {
   m_debug = msgLvl(MSG::DEBUG);
 
-  ATH_CHECK( m_L1MenuKey.initialize() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -217,14 +215,15 @@ void L1CPCMXTools::formCMXCPTob(
 
 /** form complete CMX-CP hits from CMX-CP TOBs */
 
-void L1CPCMXTools::formCMXCPHits(const xAOD::CMXCPTobContainer *cmxTobVec,
+void L1CPCMXTools::formCMXCPHits(const TrigConf::L1Menu* l1menu,
+				 const xAOD::CMXCPTobContainer *cmxTobVec,
                                  xAOD::CMXCPHitsContainer *cmxHitsVec) const {
   xAOD::CMXCPHitsContainer *cmxHitsCrate = new xAOD::CMXCPHitsContainer;
   xAOD::CMXCPHitsContainer *cmxHitsSys = new xAOD::CMXCPHitsContainer;
   // @@vkousk
   // temporarily comment out cmxHitsTopo, see Jira ticket: ATLLONECAL-13
   // xAOD::CMXCPHitsContainer* cmxHitsTopo  = new xAOD::CMXCPHitsContainer;
-  formCMXCPHitsCrate(cmxTobVec, cmxHitsCrate);
+  formCMXCPHitsCrate(l1menu, cmxTobVec, cmxHitsCrate);
   formCMXCPHitsSystem(cmxHitsCrate, cmxHitsSys);
   // formCMXCPHitsTopo(cmxTobVec, cmxHitsTopo);
   mergeCMXCPHits(cmxHitsVec, cmxHitsCrate);
@@ -238,6 +237,7 @@ void L1CPCMXTools::formCMXCPHits(const xAOD::CMXCPTobContainer *cmxTobVec,
 /** form partial CMX-CP hits (crate) from CMX-CP TOBs */
 
 void L1CPCMXTools::formCMXCPHitsCrate(
+    const TrigConf::L1Menu* l1menu,
     const xAOD::CMXCPTobContainer *cmxTobVec,
     xAOD::CMXCPHitsContainer *cmxHitsCrate) const {
   uint8_t peakm = 0;
@@ -257,7 +257,7 @@ void L1CPCMXTools::formCMXCPHitsCrate(
     const std::vector<uint32_t> &error(tob->errorVec());
     hit0.clear();
     hit1.clear();
-    getHits(tob, hit0, hit1);
+    getHits(l1menu, tob, hit0, hit1);
 
     addCMXCPHits(hitVec[index], hit0);
     addCMXCPHits(hitVec[index + 1], hit1);
@@ -284,7 +284,7 @@ void L1CPCMXTools::formCMXCPHitsCrate(
   }
 }
 
-void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
+void L1CPCMXTools::getHits(const TrigConf::L1Menu* l1menu, const xAOD::CMXCPTob *tob, HitsVector &hit0,
                            HitsVector &hit1) const {
   using namespace TrigConf;
   const std::vector<uint8_t> &energy(tob->energyVec());
@@ -305,10 +305,9 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
   // Get thresholds from menu
   L1DataDef def;
   const std::string thrType = (type == 0) ? def.emType() : def.tauType();
-  // Get EM and TAU trigger thresholds
-  auto l1Menu = SG::makeHandle( m_L1MenuKey );
 
-  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
+  // Get EM and TAU trigger thresholds
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1menu->thresholds();
   std::vector<std::shared_ptr<TrigConf::L1Threshold>> thresholds;
   thresholds.reserve(16);
 
@@ -340,7 +339,7 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
         new CPMTobRoI(crate, cpm, chip, loc, type, et, isol));
 
     /* Now get the hit information using RecEmTauroI */
-    RecEmTauRoI recRoI(roi->roiWord(), &(*l1Menu));
+    RecEmTauRoI recRoI(roi->roiWord(), &(*l1menu));
     auto mask = recRoI.thresholdPattern();
     for (auto threshold : thresholds) {
       auto numThresh = threshold->mapping();

@@ -302,13 +302,13 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
         CREATE_PARAMETERS(*updatedPar, updatedParameters1, updatedCovariance1).release();
       updatedPar.reset(clonePars1);
       // --- Extrapolate changed updatedPar and calculate chi2 for step one
-      auto testPredPars = std::unique_ptr<const Trk::TrackParameters>(
+      std::unique_ptr<const Trk::TrackParameters> testPredPars =
         m_extrapolator->extrapolate(state.eventContext,
                                     *updatedPar,
                                     surf,
                                     direction,
                                     false,
-                                    matEff.particleType()));
+                                    matEff.particleType());
       if (testPredPars == nullptr) {
         ATH_MSG_WARNING("Test extrapolation for DNA step 1 failed");
         return nullptr;
@@ -340,12 +340,12 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       updatedPar.reset(clonePars2);
 
       // --- Extrapolate changed updatedPar and calculate chi2 for step two
-      testPredPars.reset(m_extrapolator->extrapolate(state.eventContext,
-                                                     *updatedPar,
-                                                     surf,
-                                                     direction,
-                                                     false,
-                                                     matEff.particleType()));
+      testPredPars = m_extrapolator->extrapolate(state.eventContext,
+                                                 *updatedPar,
+                                                 surf,
+                                                 direction,
+                                                 false,
+                                                 matEff.particleType());
       if (testPredPars == nullptr) {
         ATH_MSG_WARNING("Test extrapolation for DNA step 2 failed");
         return nullptr;

@@ -15,6 +15,15 @@ from . import TriggerJetMods
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+##########################################################################################
+### --- Extracting jet chain parts --- 
+
+def jetChainParts(chainParts):
+    jChainParts = []
+    for p in chainParts:
+        if p['trigType'] == 'j':
+            jChainParts.append(p)
+    return jChainParts
 
 ##########################################################################################
 ### --- General reco dict handling --- 
@@ -306,11 +315,21 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         modstring = ''.join(constitMods[1:-1])
         if modstring == '':
             modstring='CHS'
+
+        # ** ATR-24619 : Adding flag for validation of xAOD FlowElement use **
+        # TO BE REMOVED following validation.
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.usexAODFlowElements:
+            inputxADOType = xAODType.FlowElement
+            log.debug("defining jet constituents with xAODType FlowElement.")
+        else:
+            inputxADOType = xAODType.ParticleFlow
+            log.debug("defining jet constituents with xAODType ParticleFlow.")
         
         if not constitMods:
-            jetConstit = JetInputConstitSeq( "HLT_EMPFlow", xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow")
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow", inputxADOType, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow", jetinputtype="EMPFlow")
         else:
-            jetConstit = JetInputConstitSeq( "HLT_EMPFlow"+modstring, xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else '') )
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow"+modstring, inputxADOType, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else ''), jetinputtype="EMPFlow" )
 
             
     if jetRecoDict["constitType"] == "tc":

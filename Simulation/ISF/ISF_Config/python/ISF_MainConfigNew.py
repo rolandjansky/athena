@@ -382,6 +382,28 @@ def Kernel_ATLFASTIIF_G4MSCfg(flags, name="ISF_Kernel_ATLFASTIIF_G4MS", **kwargs
     acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs)) # Merge properly configured SimKernel here and let deduplication sort it out.
     return acc
 
+def Kernel_ATLFAST3F_G4MSCfg(flags, name="ISF_Kernel_ATLFAST3F_G4MS", **kwargs):
+    acc = ComponentAccumulator()
+    acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs)) # Force the SimKernel to be before the CollectionMerger by adding it here
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultFatrasSelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(MuonFatrasSelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(EtaGreater5ParticleKillerSimSelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultFastCaloSimV2SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags)))
+
+    kwargs.setdefault("BeamPipeSimulationSelectors", [ acc.getPublicTool("ISF_DefaultParticleKillerSelector") ])
+    kwargs.setdefault("IDSimulationSelectors"      , [ acc.getPublicTool("ISF_DefaultFatrasSelector") ])
+    kwargs.setdefault("CaloSimulationSelectors"    , [ acc.getPublicTool("ISF_MuonFatrasSelector"),
+                                                       acc.getPublicTool("ISF_EtaGreater5ParticleKillerSimSelector"),
+                                                       acc.getPublicTool("ISF_DefaultFastCaloSimV2Selector") ])
+    kwargs.setdefault("MSSimulationSelectors"      , [ acc.getPublicTool("ISF_DefaultAFIIGeant4Selector") ])
+    kwargs.setdefault("CavernSimulationSelectors"  , [ acc.getPublicTool("ISF_DefaultParticleKillerSelector") ])
+    #simFlags.SimulationFlavour = "ATLFAST3F_G4MS" # not migrated
+
+    acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs)) # Merge properly configured SimKernel here and let deduplication sort it out.
+    return acc
+
 def ISF_KernelCfg(flags):
     acc = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ('FullG4MT'):
@@ -400,6 +422,8 @@ def ISF_KernelCfg(flags):
         acc.merge(Kernel_ATLFASTIIFMTCfg(flags))
     elif flags.Sim.ISF.Simulator in ('ATLFASTIIF_G4MS'):
         acc.merge(Kernel_ATLFASTIIF_G4MSCfg(flags))
+    elif flags.Sim.ISF.Simulator in ('ATLFAST3F_G4MS'):
+        acc.merge(Kernel_ATLFAST3F_G4MSCfg(flags))
     else:
         print('Unsupported Simulator %s, bailing out', flags.Sim.ISF.Simulator)
         import sys

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -204,6 +204,10 @@ const Token* DbDatabase::cntToken(const string& cntName)
 
 /// Allow access to all known containers
 DbStatus DbDatabase::containers(vector<const Token*>& conts,bool with_internal)
+{  return isValid() ? ptr()->containers(conts,with_internal) : Error;   }
+
+/// Allow access to all known containers
+DbStatus DbDatabase::containers(vector<IDbContainer*>& conts,bool with_internal)
 {  return isValid() ? ptr()->containers(conts,with_internal) : Error;   }
 
 /// Allow access to all known associations between containers

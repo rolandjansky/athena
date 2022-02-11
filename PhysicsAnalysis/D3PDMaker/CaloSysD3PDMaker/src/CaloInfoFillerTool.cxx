@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,7 +44,7 @@ CaloInfoFillerTool::CaloInfoFillerTool
   declareProperty("PosNeg",m_posneg = 0);
   declareProperty("DoEt",m_doEt = 0);
 
-  book().ignore(); // Avoid coverity warnings
+  CaloInfoFillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 

@@ -1,24 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArDSPConfig.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/Blob.h"
 
-LArDSPConfig::LArDSPConfig():
-  m_attrList(nullptr),m_pBlob(nullptr),m_nFebs(0) 
+LArDSPConfig::LArDSPConfig()
+  : LArCondFlatBase("LArDSPConfig"),
+    m_attrList(nullptr),m_pBlob(nullptr),m_nFebs(0) 
 {}
 
 LArDSPConfig::~LArDSPConfig()  {}
 
 
-LArDSPConfig::LArDSPConfig(const AthenaAttributeList* attrList): 
-  m_attrList(attrList),m_pBlob(nullptr),m_nFebs(0) {
-  
- 
-  StatusCode sc=initializeBase("LArDSPConfig");
-  if (sc.isFailure()) return;
+LArDSPConfig::LArDSPConfig(const AthenaAttributeList* attrList)
+  : LArCondFlatBase("LArDSPConfig"),
+    m_attrList(attrList),m_pBlob(nullptr),m_nFebs(0)
+{
+  if (initializeBase().isFailure()) return;
 
   const coral::Blob& myBlob = (*m_attrList)["febdata"].data<coral::Blob>();
   m_pBlob=static_cast<const uint8_t*>(myBlob.startingAddress());
@@ -44,8 +44,7 @@ bool  LArDSPConfig::useLGRampInterceptByHash(const IdentifierHash& febHash) cons
 
 LArDSPConfigWrite::LArDSPConfigWrite() : m_pBlob_nc(nullptr)  {
 
-  StatusCode sc=this->initializeBase("LArDSPConfigWrite");
-  if (sc.isFailure()) return;
+  if (this->initializeBase().isFailure()) return;
     
 
   m_nFebs=m_onlineHelper->febHashMax();

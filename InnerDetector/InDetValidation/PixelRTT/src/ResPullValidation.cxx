@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ResPullValidation_C
 #define ResPullValidation_C
 
-#include <vector>
-#include <string>
 #include <cmath>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -25,8 +26,8 @@
 
 namespace PixelValid{
 
-ResPullValidation::ResPullValidation(std::string etaORphi, std::string pullORres, std::string cosmicORbeam):
-	m_respullname(pullORres),m_anglename(etaORphi){
+ResPullValidation::ResPullValidation(std::string etaORphi, std::string pullORres, const std::string& cosmicORbeam):
+	m_respullname(std::move(pullORres)),m_anglename(std::move(etaORphi)){
 
 
 	if(cosmicORbeam != "cosmic"){
@@ -44,14 +45,14 @@ ResPullValidation::ResPullValidation(std::string etaORphi, std::string pullORres
 	// first division (common to all!):
 	int nlayerBins = 6;
 	double *layerBins = IntegerBins(nlayerBins);
-	NameDiv.push_back("layer");
+	NameDiv.emplace_back("layer");
 	NDiv.push_back(nlayerBins);
 	BinsDiv.push_back(layerBins);
 	
 	// second division:
 	int nclusterSizeBins = 3;
 	double clusterSizeBins[4] = {2,3,4,10};
-	NameDiv.push_back("clustersize");
+	NameDiv.emplace_back("clustersize");
 	NDiv.push_back(nclusterSizeBins);
 	BinsDiv.push_back(clusterSizeBins);
 	
@@ -172,7 +173,7 @@ bool ResPullValidation::Fill(Int_t Layer, Double_t GeVTrkPt, Double_t Angle,
 	if(m_datatype == "cosmic") HighPtRes = 1;
 	else if(m_anglename == "phi") HighPtRes=0.05;
 	else HighPtRes=0.5;
-	if( fabs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt)
+	if( std::abs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt)
 				+ HighPtRes*HighPtRes) ){
                 std::vector<Double_t> Pars(3);
 		Pars[1] = ClusterSize;
@@ -192,14 +193,14 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 
 	TDirectory *old = gDirectory;
 
-	ResPullValidation *reference = 0;
-	if(ref_file != 0 ){
+	ResPullValidation *reference = nullptr;
+	if(ref_file != nullptr ){
 		ref_file->cd();
 		reference = new ResPullValidation(m_anglename,m_respullname);
 		reference->Read();
 	}
 
-	char *currpath = getcwd(NULL,0);
+	char *currpath = getcwd(nullptr,0);
         if (mkdir(m_globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO)!=0) {
           std::stringstream message;
           message << "Failed to create directory: " << m_globaldirname;
@@ -222,7 +223,7 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 		swap->SetMarkerColor(4);
 		swap->SetMarkerStyle(27);
 		swap->Draw("P");
-		if(reference != 0 ){
+		if(reference != nullptr ){
 			RMSProfile *swap1 = reference->GetPtProfile(i);
 			swap1->SetLineColor(2);
 			swap1->SetMarkerColor(2);
@@ -243,7 +244,7 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 		swap->SetMarkerColor(4);
 		swap->SetMarkerStyle(27);
 		swap->Draw("P");
-		if(reference != 0 ){
+		if(reference != nullptr ){
 			RMSProfile *swap1 = reference->GetAngleProfile(i);
 			swap1->SetLineColor(2);
 			swap1->SetMarkerColor(2);
@@ -265,7 +266,7 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 		swap->SetMarkerColor(4);
 		swap->SetMarkerStyle(27);
 		swap->Draw("P");
-		if(reference != 0 ){
+		if(reference != nullptr ){
 			TH1D *swap1 = reference->GetHistogram(i);
 			swap1->SetLineColor(2);
 			swap1->SetMarkerColor(2);
@@ -277,7 +278,7 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 		delete c1;
 	}
 
-	if(currpath==NULL) {
+	if(currpath==nullptr) {
           std::stringstream message;
           message << "Invalid current directory! ";
           throw std::runtime_error(message.str());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTTracksMonTool.cxx
@@ -176,7 +176,7 @@ SCTTracksMonTool::fillHistograms() {
     if (track->fitQuality()->numberDoF() > 0.) { // Fill Track Chi2/ndf histogram
       m_trk_chi2->Fill(track->fitQuality()->chiSquared() / track->fitQuality()->numberDoF());
     }
-    if (track->perigeeParameters() == 0) {
+    if (track->perigeeParameters() == nullptr) {
       continue;
     }
     double trackPerigeeTheta{track->perigeeParameters()->parameters()[Trk::theta]};

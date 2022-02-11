@@ -10,8 +10,7 @@ from .JetRecoCommon import jetRecoDictToString
 log = logging.getLogger(__name__)
 
 def generateChains( flags, chainDict ):
-    from .JetRecoCommon import extractRecoDict
-    from .JetChainConfiguration import jetChainParts
+    from .JetRecoCommon import extractRecoDict, jetChainParts
 
     jetRecoDict = extractRecoDict(jetChainParts(chainDict["chainParts"]))
     jetDefStr = jetRecoDictToString(jetRecoDict)

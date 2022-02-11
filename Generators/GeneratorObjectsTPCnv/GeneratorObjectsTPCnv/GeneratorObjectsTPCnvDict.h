@@ -41,5 +41,10 @@
 #include "GeneratorObjectsTPCnv/GenEvent_p5.h"
 #include "GeneratorObjectsTPCnv/McEventCollection_p5.h"
 
+#include "GeneratorObjectsTPCnv/GenParticle_p6.h"
+#include "GeneratorObjectsTPCnv/GenVertex_p6.h"
+#include "GeneratorObjectsTPCnv/GenEvent_p6.h"
+#include "GeneratorObjectsTPCnv/McEventCollection_p6.h"
+
 #endif // GENERATOROBJECTSTPCNV_GENERATOROBJECTSTPCNVDICT_H
 

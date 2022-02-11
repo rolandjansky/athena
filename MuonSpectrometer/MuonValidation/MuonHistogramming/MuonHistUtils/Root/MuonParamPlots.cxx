@@ -8,11 +8,7 @@
 namespace Muon{
 
 MuonParamPlots::MuonParamPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir)
-								   ,msInnerMatchChi2(nullptr)
-								   ,ELoss(nullptr)
-								   ,ELossSigma(nullptr)
-								   ,paramELoss(nullptr)
-								   ,measELoss(nullptr)
+								  
 {}
 
 void MuonParamPlots::initializePlots()
@@ -30,12 +26,10 @@ void MuonParamPlots::initializePlots()
   void MuonParamPlots::fill(const xAOD::Muon& mu, float weight)
 {
   FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2, weight);
-#ifndef XAOD_ANALYSIS
   FillPlot(ELoss,mu,xAOD::Muon::EnergyLoss,0.001, weight);
   FillPlot(measELoss,mu,xAOD::Muon::MeasEnergyLoss,0.001, weight);  
   FillPlot(ELossSigma,mu,xAOD::Muon::EnergyLossSigma,0.001, weight);
   FillPlot(paramELoss,mu,xAOD::Muon::ParamEnergyLoss,0.001, weight);
-#endif // not XAOD_ANALYSIS
 }
   
   void MuonParamPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale, float weight) {

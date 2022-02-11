@@ -268,7 +268,7 @@ namespace Muon {
                                                                  "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer",
                                                  "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};  //!< tool to print out EDM objects;
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ToolHandle<IMuonSeededSegmentFinder> m_seededSegmentFinder{this, "SeededSegmentFinder",

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -17,6 +17,7 @@ from .BphysicsMenuSequences import dimuL2Sequence, dimuEFSequence, bmumuxSequenc
 
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, StreamerDimuL2IOComboHypoCfg, StreamerDimuL2MTComboHypoCfg, DimuEFComboHypoCfg, BmutrkComboHypoCfg, StreamerDimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmumuxComboHypoToolFromDict
+from TrigBphysHypo.TrigBmuxComboHypoConfig import BmuxComboHypoCfg
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -67,6 +68,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'dimu'   : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
             'bmumux' : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getDimuEFCB', 'getBmumux']],
             'bmutrk' : [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB', 'getBmutrk']],
+            'bmux'   : [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB', 'getBmux']],
         }
         return stepDictionary
 
@@ -87,10 +89,12 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bPhi'       : 'dimu',
             'bTau'       : 'dimu',
             'b3mu'       : 'dimu',
+            'bBmux'      : 'bmux',
             'bBmumux'    : 'bmumux',
             'b0dRAB12vtx20' : 'dimu',
             'b0dRAB207invmAB22vtx20' : 'dimu',
             'b0dRAB127invmAB22vtx20' : 'dimu',
+            'b7invmAB22vtx20' : 'dimu',
         }
 
         return topo_dict[the_topo]
@@ -108,6 +112,9 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
     def getDimuEFCB(self):
         return self.getStep(4, 'dimuEFCB', [muEFCBSequenceCfg], comboHypoCfg=StreamerDimuEFComboHypoCfg)
+
+    def getBmux(self):
+        return self.getStep(5, 'bmux', [bmumuxSequenceCfg], comboHypoCfg=BmuxComboHypoCfg, comboTools=[TrigBmumuxComboHypoToolFromDict])
 
     def getBmumux(self):
         return self.getStep(5, 'bmumux', [bmumuxSequenceCfg], comboHypoCfg=BmumuxComboHypoCfg, comboTools=[TrigBmumuxComboHypoToolFromDict])

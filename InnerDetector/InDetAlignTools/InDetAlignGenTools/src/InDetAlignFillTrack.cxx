@@ -59,7 +59,7 @@ InDetAlignFillTrack::InDetAlignFillTrack (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : AthAlgTool(type, name, parent),
-  m_ntupleSvc(0),
+  m_ntupleSvc(nullptr),
   m_mctable{},
   m_totaltrks(0),
   m_totalhits(0),
@@ -133,7 +133,7 @@ StatusCode InDetAlignFillTrack::initialize() {
     ATH_CHECK(svcLoc()->service("PartPropSvc", p_PartPropSvc, CREATEIFNOTTHERE));
     //
     m_mctable = const_cast<HepPDT::ParticleDataTable*>(p_PartPropSvc->PDT());
-    if (m_mctable == 0) {
+    if (m_mctable == nullptr) {
       ATH_MSG_FATAL("FillTrack: PDG table not found");
       return StatusCode::FAILURE;
     }
@@ -247,7 +247,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   if (m_doTruth) {
     int nTracks = 0;
 
-    const TrackTruthCollection* truthCol = NULL;
+    const TrackTruthCollection* truthCol = nullptr;
 
     // retrieve all track truth collection from TDS
     if (StatusCode::SUCCESS != evtStore()->retrieve(truthCol, m_TruthTrkCol)) {
@@ -272,7 +272,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
       //looping over tracks
       for (; trackItr != trackItrE && nTracks < maxTracks; ++trackItr) {
         const Trk::Track* track = *trackItr;
-        if (track == NULL) {
+        if (track == nullptr) {
           ATH_MSG_WARNING("No associated Trk::Track object found for track "
                           << nTracks);
           continue;
@@ -298,7 +298,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
           // probability of the reco<->truth match
           float trkTruthProb = trkTruth.probability();
 
-          HepMcParticleLink HMPL = trkTruth.particleLink();
+          const HepMcParticleLink& HMPL = trkTruth.particleLink();
 
           if (HMPL.isValid()) {
 #ifdef HEPMC3
@@ -346,7 +346,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
             else {
               // currently cannot configure the TruthToTrack tool properly
 
-              const Trk::TrackParameters* generatedTrackPerigee = 0;
+              const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
               //using a tool to produce perigee track parameters from generated parameters
               generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genParticle);
@@ -442,7 +442,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                   ATH_MSG_DEBUG("Distance between perigee point and generated vertex: "
                                 << distance / CLHEP::m << " m");
 
-                  const Trk::TrackParameters* generatedTrackPerigee = 0;
+                  const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
                   // Extrapolate directly to exclude material effects!
                   if (distance > 1.e-4) {
@@ -454,7 +454,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                                                                                 perigeeSurface,
                                                                                 Trk::anyDirection,
                                                                                 false,
-                                                                                Trk::nonInteracting);
+                                                                                Trk::nonInteracting).release();
                     if (!generatedTrackPerigee) continue;
                   } else {
                     ATH_MSG_DEBUG("Distance between perigee and generated vertex is less than tolerance ("
@@ -820,7 +820,7 @@ int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks) {
 //  InDetAlignFillTrack::dumpTrackCol()
 //=====================================================================
 int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks,
-                                      const std::string TrkColName) {
+                                      const std::string& TrkColName) {
   ATH_MSG_DEBUG("In dump" << TrkColName << "TrackCol()");
 
   int itrk = 0;
@@ -830,7 +830,7 @@ int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks,
 
   //looping over tracks
   for (; trackItr != trackItrE && itrk < maxTracks; ++trackItr) {
-    if (*trackItr != 0) dumpTrack(itrk, (*trackItr), TrkColName);
+    if (*trackItr != nullptr) dumpTrack(itrk, (*trackItr), TrkColName);
 
     itrk++;
   }
@@ -842,12 +842,12 @@ int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks,
 //  InDetAlignFillTrack::dumpTrack()
 //=====================================================================
 void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
-                                    std::string TrkColName) {
+                                    const std::string& TrkColName) {
   ATH_MSG_VERBOSE("In dump" << TrkColName << "Track()");
 
   const Trk::Perigee* aMeasPer = trk->perigeeParameters();
 
-  if (aMeasPer == 0) {
+  if (aMeasPer == nullptr) {
     ATH_MSG_ERROR("Could not get Trk::MeasuredPerigee");
   } else {
     double d0 = aMeasPer->parameters()[Trk::d0];
@@ -949,7 +949,7 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
     double chi2Prob = 0.;
     const Trk::FitQuality* fitQual = (*trk).fitQuality();
-    if (fitQual == 0) {
+    if (fitQual == nullptr) {
       ATH_MSG_ERROR("No fit quality assigned to the track");
       chi2Prob = -1e12; // return big value
     } else {
@@ -1110,7 +1110,7 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
   TrackCollection::const_iterator trackItrUpperE = tracksUpper->end();
   for (; trackItrUpper != trackItrUpperE; ++trackItrUpper) {
     const Trk::Track* trackUpper = *trackItrUpper;
-    if (trackUpper == NULL) {
+    if (trackUpper == nullptr) {
       ATH_MSG_DEBUG("No associated Trk::Track object found for track " << nTracksUpper);
       continue;
     }
@@ -1151,7 +1151,7 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
     DataVector<Trk::Track>::const_iterator trackItrLowerE = tracksLower->end();
     for (; trackItrLower != trackItrLowerE; ++trackItrLower) { //looping over Lower tracks
       const Trk::Track* trackLower = *trackItrLower;
-      if (trackLower == NULL) {
+      if (trackLower == nullptr) {
         ATH_MSG_DEBUG("No associated Trk::Track object found for track " << nTracksLower);
         continue;
       }

@@ -1,0 +1,30 @@
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ l1Seq (seq: PAR OR)
+Py:ComponentAccumulator    INFO    \__ L1TriggerByteStreamDecoderAlg/L1TriggerByteStreamDecoder (alg) 
+Py:ComponentAccumulator    INFO    \__ SGInputLoader/SGInputLoader (alg) 
+Py:ComponentAccumulator    INFO    \__ HLTSeeding/HLTSeeding (alg) 
+Py:ComponentAccumulator    INFO Top sequence 1
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: PAR AND)
+Py:ComponentAccumulator    INFO    \__ hltTop (seq: SEQ OR)
+Py:ComponentAccumulator    INFO       \__ hltHypoSeq (seq: PAR OR)
+Py:ComponentAccumulator    INFO          \__ MTCalibPebHypoAlg/HypoAlg1 (alg) 
+Py:ComponentAccumulator    INFO       \__ hltEndSeq (seq: PAR OR)
+Py:ComponentAccumulator    INFO          \__ TriggerSummaryAlg/TriggerSummaryAlg (alg) 
+Py:ComponentAccumulator    INFO          \__ DecisionSummaryMakerAlg/DecisionSummaryMakerAlg (alg) 
+Py:ComponentAccumulator    INFO    \__ SGInputLoader/SGInputLoader (alg) 
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ HLTPrescaleCondAlg (cond alg)
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['ByteStreamCnvSvc', 'ByteStreamInputSvc', 'EventSelectorByteStream', 'EventPersistencySvc', 'ByteStreamAddressProviderSvc', 'ProxyProviderSvc', 'LVL1ConfigSvc', 'HLTConfigSvc', 'ROBDataProviderSvc', 'HltEventLoopMgr']
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO theApp properties
+Py:ComponentAccumulator    INFO   EvtSel : EventSelectorByteStream
+Py:ComponentAccumulator    INFO   EventLoop : HltEventLoopMgr

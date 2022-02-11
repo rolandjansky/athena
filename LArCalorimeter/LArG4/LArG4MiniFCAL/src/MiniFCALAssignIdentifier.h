@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // This class contains the geometry calculations needed to calculate
@@ -7,8 +7,8 @@
 
 // Aug-2008: M.Fincke
 
-#ifndef MiniFCALAssignIdentifier_H
-#define MiniFCALAssignIdentifier_H
+#ifndef LARG4MINIFCAL_MINIFCALASSIGNIDENTIFIER_H
+#define LARG4MINIFCAL_MINIFCALASSIGNIDENTIFIER_H
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -32,8 +32,6 @@ class ISvcLocator;
 class LArG4Identifier;
 class G4Step;
 class MsgStream;
-
-class CaloDetDescrManager ;
 
 namespace LArG4 {
 

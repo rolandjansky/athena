@@ -25,15 +25,6 @@ StatusCode TrigL1JetMonitorAlgorithm::initialize() {
     m_offmassrespKey = m_l1jetContainerkey.key() + ".massresp_" + m_matchedOfflineJetContainer;
     m_offptrefKey = m_l1jetContainerkey.key() + ".ptRef_" + m_matchedOfflineJetContainer;
     m_offetarefKey = m_l1jetContainerkey.key() + ".etaRef_" + m_matchedOfflineJetContainer;
-    ATH_CHECK( m_offmatchedKey.initialize() );
-    ATH_CHECK( m_offptdiffKey.initialize() );
-    ATH_CHECK( m_offenergydiffKey.initialize() );
-    ATH_CHECK( m_offmassdiffKey.initialize() );
-    ATH_CHECK( m_offptrespKey.initialize() );
-    ATH_CHECK( m_offenergyrespKey.initialize() );
-    ATH_CHECK( m_offmassrespKey.initialize() );
-    ATH_CHECK( m_offptrefKey.initialize() );
-    ATH_CHECK( m_offetarefKey.initialize() );
 
     m_hltmatchedKey = m_l1jetContainerkey.key() + ".matched_" + m_matchedHLTJetContainer;
     m_hltptdiffKey = m_l1jetContainerkey.key() + ".ptdiff_" + m_matchedHLTJetContainer;
@@ -44,16 +35,27 @@ StatusCode TrigL1JetMonitorAlgorithm::initialize() {
     m_hltmassrespKey = m_l1jetContainerkey.key() + ".massresp_" + m_matchedHLTJetContainer;
     m_hltptrefKey = m_l1jetContainerkey.key() + ".ptRef_" + m_matchedHLTJetContainer;
     m_hltetarefKey = m_l1jetContainerkey.key() + ".etaRef_" + m_matchedHLTJetContainer;
-    ATH_CHECK( m_hltmatchedKey.initialize() );
-    ATH_CHECK( m_hltptdiffKey.initialize() );
-    ATH_CHECK( m_hltenergydiffKey.initialize() );
-    ATH_CHECK( m_hltmassdiffKey.initialize() );
-    ATH_CHECK( m_hltptrespKey.initialize() );
-    ATH_CHECK( m_hltenergyrespKey.initialize() );
-    ATH_CHECK( m_hltmassrespKey.initialize() );
-    ATH_CHECK( m_hltptrefKey.initialize() );
-    ATH_CHECK( m_hltetarefKey.initialize() );
   }
+  ATH_CHECK( m_offmatchedKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offptdiffKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offenergydiffKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offmassdiffKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offptrespKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offenergyrespKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offmassrespKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offptrefKey.initialize(m_isMatched) );
+  ATH_CHECK( m_offetarefKey.initialize(m_isMatched) );
+
+  ATH_CHECK( m_hltmatchedKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltptdiffKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltenergydiffKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltmassdiffKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltptrespKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltenergyrespKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltmassrespKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltptrefKey.initialize(m_isMatched) );
+  ATH_CHECK( m_hltetarefKey.initialize(m_isMatched) );
+
   return AthMonitorAlgorithm::initialize();
 }
 

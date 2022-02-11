@@ -112,7 +112,7 @@ def createSimConfigFlags():
             doITk = False
             doCALO = False
             doMUON = False
-        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT"):
+        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT", "ATLFAST3F_G4MS"):
             doID = True
             doITk = True
             doCALO = True

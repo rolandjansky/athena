@@ -61,7 +61,7 @@ StatusCode EgammaTransitionRegions::finalize(){
 }
 
 void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
-    const void * /*param*/){
+    const void * /*param*/) const{
 
     float the_aeta = (clus->eta());
 

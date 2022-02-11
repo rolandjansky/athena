@@ -5,7 +5,7 @@
 #include "MuonTrackValidationPlots.h"
 
 MuonTrackValidationPlots::MuonTrackValidationPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTrackType, bool isData) :
-    PlotBase(pParent, sDir), m_oRecoMuonTrackPlots(nullptr), m_oMatchedMuonTrackPlots(nullptr), m_sTrackType(sTrackType) {
+    PlotBase(pParent, sDir), m_sTrackType(sTrackType) {
     std::vector<int> selectedRecoPlots(0);
     selectedRecoPlots.push_back(Muon::TRK_PARAM);
     selectedRecoPlots.push_back(Muon::TRK_RECOINFO);
@@ -14,7 +14,7 @@ MuonTrackValidationPlots::MuonTrackValidationPlots(PlotBase* pParent, const std:
         selectedRecoPlots.push_back(Muon::TRK_IDHITS);
     else
         selectedRecoPlots.push_back(Muon::TRK_MSHITS);
-    m_oRecoMuonTrackPlots = new Muon::RecoMuonTrackPlotOrganizer(this, "reco/" + sTrackType, &selectedRecoPlots);
+    m_oRecoMuonTrackPlots = std::make_unique<Muon::RecoMuonTrackPlotOrganizer>(this, "reco/" + sTrackType, selectedRecoPlots);
 
     if (!isData) {
         std::vector<int> selectedMatchedPlots(0);
@@ -22,14 +22,11 @@ MuonTrackValidationPlots::MuonTrackValidationPlots(PlotBase* pParent, const std:
         selectedMatchedPlots.push_back(Muon::TRK_MATCHEDRECO);
         selectedMatchedPlots.push_back(Muon::TRK_DEFPARAMPULLS);
         selectedMatchedPlots.push_back(Muon::MUON_RESOL);
-        m_oMatchedMuonTrackPlots = new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/" + sTrackType, true, &selectedMatchedPlots);
+        m_oMatchedMuonTrackPlots = std::make_unique<Muon::TruthRelatedMuonPlotOrganizer>(this, "matched/" + sTrackType, true, selectedMatchedPlots);
     }
 }
 
-MuonTrackValidationPlots::~MuonTrackValidationPlots() {
-    // delete m_oRecoMuonTrackPlots;
-    if (m_oMatchedMuonTrackPlots) delete m_oMatchedMuonTrackPlots;
-}
+MuonTrackValidationPlots::~MuonTrackValidationPlots()  = default;
 
 void MuonTrackValidationPlots::fill(const xAOD::TrackParticle& muTP, float weight) { m_oRecoMuonTrackPlots->fill(muTP, weight); }
 

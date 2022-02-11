@@ -102,7 +102,7 @@ namespace Muon {
         }
 
         // loop over truth coll
-        for (const auto truth : *truthContainer) {
+        for (const xAOD::TruthParticle* truth : *truthContainer) {
             if (truth->status() != 1 || !truth->isMuon() || truth->pt() < 1000.) continue;
             xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();
             muonTruthContainer->push_back(truthParticle);
@@ -161,7 +161,7 @@ namespace Muon {
     }
 
     void MuonTruthDecorationAlg::createSegments(const EventContext& ctx, const ElementLink<xAOD::TruthParticleContainer>& truthLink,
-                                                SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+                                                SG::WriteHandle<xAOD::MuonSegmentContainer>& segmentContainer,
                                                 const MuonTruthDecorationAlg::ChamberIdMap& ids) const {
         std::vector<SG::ReadHandle<MuonSimDataCollection> > sdoCollections(6);
         for (const SG::ReadHandleKey<MuonSimDataCollection>& k : m_SDO_TruthNames) {

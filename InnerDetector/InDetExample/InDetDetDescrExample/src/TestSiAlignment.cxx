@@ -62,13 +62,10 @@ StatusCode TestSiAlignment::initialize(){
   ATH_MSG_INFO( " ErrorTranslation: " << m_errTrans );  
   // Retrieve Detector Manager
   ATH_CHECK(detStore()->retrieve(m_manager, m_managerName));
-  if (m_managerName=="Pixel") {
-    // do nothing
-  } else if (m_managerName=="SCT") {
-    ATH_CHECK(m_detEleCollKey.initialize());
-  } else {
+  if (m_managerName!="Pixel" && m_managerName!="SCT") {
     ATH_MSG_FATAL("m_managerName " << m_managerName << " is not appropriate name");
   }
+  ATH_CHECK(m_detEleCollKey.initialize(m_managerName=="SCT"));
   printAlignmentShifts(true);
   return StatusCode::SUCCESS;
 }

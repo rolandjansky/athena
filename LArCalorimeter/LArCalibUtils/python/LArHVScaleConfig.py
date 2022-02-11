@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
+
 
 def LArHVScaleCfg(configFlags):
     result=ComponentAccumulator()
@@ -24,7 +26,8 @@ def LArHVScaleCfg(configFlags):
 
         result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap"], "LAR_OFL", className="AthenaAttributeList"))
         result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Pathologies"], "LAR_OFL", className="AthenaAttributeList"))
-        if configFlags.GeoModel.Run != "RUN1": result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Rvalues"], "LAR_OFL", className="AthenaAttributeList"))
+        if configFlags.GeoModel.Run is not LHCPeriod.Run1:
+            result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Rvalues"], "LAR_OFL", className="AthenaAttributeList"))
 
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
         result.merge(LArBadChannelCfg(configFlags))
@@ -43,7 +46,7 @@ def LArHVScaleCfg(configFlags):
         from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
         result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr",]))
 
-        if configFlags.GeoModel.Run != "RUN1":
+        if configFlags.GeoModel.Run is not LHCPeriod.Run1:
            hvcond = LArHVCondAlg(HVPathologies="LArHVPathology")
         else:   
            hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",doR=False)

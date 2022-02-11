@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
-# import the DetailedTrackGradeFactory configurable
-Analysis__DetailedTrackGradeFactory=CompFactory.Analysis.DetailedTrackGradeFactory
 
 def IPDetailedTrackGradeFactoryCfg( flags, name = 'IPDetailedTrackGradeFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPDetailedTrackGradeFactory tool and returns it.
@@ -22,7 +21,7 @@ def IPDetailedTrackGradeFactoryCfg( flags, name = 'IPDetailedTrackGradeFactory',
     output: The actual tool."""
     acc = ComponentAccumulator()
 
-    btagrun23 = (flags.GeoModel.Run in ['RUN2', 'RUN3'])
+    btagrun23 = flags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]
 
     if useBTagFlagsDefaults:
         defaults = { 'useSharedHitInfo'       : True,
@@ -30,11 +29,11 @@ def IPDetailedTrackGradeFactoryCfg( flags, name = 'IPDetailedTrackGradeFactory',
                      'useRun2TrackGrading'    : btagrun23,
                      'useInnerLayers0HitInfo' : btagrun23,
                      'useDetailSplitHitInfo'  : btagrun23,
-                     'useITkTrackGrading'     : flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'],
+                     'useITkTrackGrading'     : flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3],
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Analysis__DetailedTrackGradeFactory( **options))
+    acc.setPrivateTools(CompFactory.Analysis.DetailedTrackGradeFactory(**options))
 
     return acc

@@ -106,8 +106,8 @@ namespace xAOD {
       	ATH_MSG_DEBUG("Select calorimeter " << m_HadCaloNums[index]);
     }
 
-    if (!m_caloExtensionKey.empty())
-      ATH_CHECK(m_caloExtensionKey.initialize());
+    ATH_CHECK(m_caloExtensionKey.initialize(SG::AllowEmpty));
+    ATH_CHECK(m_caloMgrKey.initialize());
 #endif // XAOD_ANALYSIS
 
     if (!m_IsoLeakCorrectionTool.empty())

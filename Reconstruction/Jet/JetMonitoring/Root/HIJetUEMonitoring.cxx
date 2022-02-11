@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //HIJetUEMonitoring.cxx
@@ -136,7 +136,7 @@ int HIJetUEMonitoring::buildHistos(){
 
 int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
 
-  const xAOD::EventInfo* evtInfo;
+  const xAOD::EventInfo* evtInfo = nullptr;
   CHECK(evtStore()->retrieve( evtInfo ), 1);
 
 //LAr event veto: skip events rejected by LAr

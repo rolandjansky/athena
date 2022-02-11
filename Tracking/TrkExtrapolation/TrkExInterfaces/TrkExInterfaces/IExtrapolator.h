@@ -29,6 +29,7 @@
 #include "xAODTracking/NeutralParticle.h"
 #include "xAODTracking/TrackParticle.h"
 // STL
+#include <memory>
 #include <utility>
 
 namespace Trk {
@@ -72,7 +73,7 @@ public:
   /** [xAOD interface ] */
 
   /** xAOD 0) neutral xAOD particle */
-  virtual const NeutralParameters* extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const xAOD::NeutralParticle& xnParticle,
     const Surface& sf,
     PropDirection dir = anyDirection,
@@ -82,11 +83,11 @@ public:
    * ------------------------------------------------------------- */
 
   /** N 0) <b>Neutral parameters method </b>
-      - returns a ParametersBase object as well, nullptr if the extrapolation did not
-     succeed. 
+      - returns a ParametersBase object as well, nullptr if the extrapolation
+     did not succeed.
     */
 
-  virtual const NeutralParameters* extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const NeutralParameters& parameters,
     const Surface& sf,
     PropDirection dir = anyDirection,
@@ -96,7 +97,7 @@ public:
    * ------------------------------------------ */
 
   /** xAOD 0) xAOD track particle */
-  virtual const TrackParameters* extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const xAOD::TrackParticle& particleBase,
     const Surface& sf,
@@ -109,7 +110,7 @@ public:
    -  returns the TrackParameters at the Destination Surface (if extrapolation
    succeeds), nullptr if extrapolation to destination surface does not succeed
  */
-  virtual const TrackParameters* extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -124,7 +125,7 @@ public:
      elements hit in between and the TrackParameters at the destination Surface
      (if final extrapolation suceeds), empty if the extrapolation to the
      destination surface does not suceed*/
-  virtual std::vector<std::unique_ptr<const TrackParameters>>
+  virtual std::vector<std::unique_ptr<TrackParameters>>
   extrapolateStepwise(const EventContext& ctx,
                       const TrackParameters& parm,
                       const Surface& sf,
@@ -137,7 +138,7 @@ public:
   Surface
   - returns the TrackParameters at the Destination Surface (if extrapolation
   succeeds), nullptr if extrapolation to destination surface does not suceed */
-  virtual const TrackParameters* extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const Track& trk,
     const Surface& sf,
@@ -151,7 +152,7 @@ public:
    - direct extrapolation to the destination surface, no material effects
    or intermediate steps are taken into account
   */
-  virtual TrackParameters* extrapolateDirectly(
+  virtual std::unique_ptr<TrackParameters> extrapolateDirectly(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -163,7 +164,7 @@ public:
    Same as 4 but with propagator arguement (needed by a single client
    TRT_TrackExtensionToolCosmics
   */
-  virtual TrackParameters* extrapolateDirectly(
+  virtual std::unique_ptr<TrackParameters> extrapolateDirectly(
     const EventContext& ctx,
     const IPropagator& prop,
     const TrackParameters& parm,
@@ -176,7 +177,7 @@ public:
     - blind inside the given tracking Volume (boundaryVol),
     if none is given the reference surface for destination is used
    */
-  virtual std::vector<std::unique_ptr<const TrackParameters>>
+  virtual std::vector<std::unique_ptr<TrackParameters>>
   extrapolateBlindly(const EventContext& ctx,
                      const TrackParameters& parm,
                      PropDirection dir = anyDirection,
@@ -211,7 +212,7 @@ public:
     - extrapolation to the next active layer, based on the extrapolation to the
     next layer and layer identification
     * */
-  virtual const TrackParameters* extrapolateToVolume(
+  virtual std::unique_ptr<TrackParameters> extrapolateToVolume(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Trk::TrackingVolume& vol,
@@ -231,28 +232,13 @@ public:
     ParticleHypothesis particle = pion,
     Trk::ExtrapolationCache* cache = nullptr) const = 0;
 
-  /** 10) <b>Configured AlgTool extrapolation method</b>:
-   - Extrapolate to a destination surface, while collecting all the material
-   layers and transport jacobians in between.
-  */
-  virtual std::vector<const TrackParameters*>* extrapolateM(
-    const EventContext& ctx,
-    const TrackParameters& parameters,
-    const Surface& sf,
-    PropDirection dir,
-    const BoundaryCheck& bcheck,
-    std::vector<MaterialEffectsOnTrack>& material,
-    std::vector<Trk::TransportJacobian*>& jacs,
-    ParticleHypothesis particle = pion,
-    Trk::ExtrapolationCache* cache = nullptr) const = 0;
-
-  virtual const Trk::TrackParameters* extrapolateWithPathLimit(
+  virtual std::unique_ptr<Trk::TrackParameters> extrapolateWithPathLimit(
     const EventContext& ctx,
     const Trk::TrackParameters& parm,
     double& pathLim,
     Trk::PropDirection dir,
     Trk::ParticleHypothesis particle,
-    std::vector<const Trk::TrackParameters*>*& parmOnSf,
+    std::vector<Trk::TrackParameters*>*& parmOnSf,
     std::vector<const Trk::TrackStateOnSurface*>*& material,
     const Trk::TrackingVolume* boundaryVol = nullptr,
     MaterialUpdateMode matupmod = Trk::addNoise) const = 0;
@@ -263,7 +249,8 @@ public:
      TrackParameters. Material collection in option. Destination (subdetector
      boundary) : geoID (exit)
   */
-  virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  virtual std::unique_ptr<
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
   extrapolate(const EventContext& ctx,
               const Trk::TrackParameters& parm,
               Trk::PropDirection dir,
@@ -283,7 +270,6 @@ public:
   /** Access the subPropagator to the given volume*/
   virtual const IPropagator* subPropagator(
     const TrackingVolume& tvol) const = 0;
-
 };
 } // end of namespace
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to configure common TrigEgamma Tools" 
 
@@ -13,8 +13,8 @@ Offline configurations are available here:
 # athena imports
 from AthenaCommon.BeamFlags import jobproperties
 
-# slice flags
-from TriggerMenuMT.HLT.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+# flags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 
 # Calo tools imports
@@ -73,7 +73,7 @@ def TrigEgammaMVASvcCfg( ConfigFilePath ):
     return trigEgammaMVASvc
 
 """ Configuring trigger precision MVA Svc """
-TrigEgammaMVASvc = TrigEgammaMVASvcCfg( TrigEgammaSliceFlags.calibMVAVersion() )
+TrigEgammaMVASvc = TrigEgammaMVASvcCfg( ConfigFlags.Trigger.egamma.calibMVAVersion )
 
 
 """Configuring egammaRecBuilder """
@@ -93,7 +93,7 @@ TrigEgammaRec   = AlgFactory( egammaAlgsConf.egammaRecBuilder,
 TrigEgammaSuperClusterBuilder = AlgFactory( egammaAlgsConf.egammaSuperClusterBuilder,
         name = 'TrigEgammaSuperClusterBuilder',
         InputEgammaRecContainerName = TrigEgammaKeys.precisionCaloEgammaRecCollection,
-        SuperClusterCollectionName  = TrigEgammaKeys.precisionCaloClusterContainer,
+        SuperClusterCollectionName  = TrigEgammaKeys.precisionElectronCaloClusterContainer,
         ClusterCorrectionTool       = egammaSwSuperClusterTool,   
         MVACalibSvc                 = TrigEgammaMVASvc,
         CalibrationType             = 'electron',

@@ -201,14 +201,20 @@ StatusCode Trk::CETmaterial::execute()
         m_msentry = m_trackingGeometry->trackingVolume("Calo::Containers::Calorimeter");
       }
       if (m_msentry) {
-        const Trk::TrackParameters* msEntry = m_extrapolator->extrapolateToVolume(ctx,
-                                                                                  *currPar,*m_msentry,Trk::alongMomentum,
-                                                                                  (Trk::ParticleHypothesis)m_particleType);
+        const Trk::TrackParameters* msEntry =
+          m_extrapolator->extrapolateToVolume(
+            ctx,
+            *currPar,
+            *m_msentry,
+            Trk::alongMomentum,
+            (Trk::ParticleHypothesis)m_particleType).release();
         if (msEntry) {
-           printMat(theta,phi,
-                  currPar->momentum().mag()-msEntry->momentum().mag(),
-                  Amg::error(msEntry->covariance()->inverse().eval(),Trk::theta),
-                  Amg::error(msEntry->covariance()->inverse().eval(),Trk::phi));
+          printMat(
+            theta,
+            phi,
+            currPar->momentum().mag() - msEntry->momentum().mag(),
+            Amg::error(msEntry->covariance()->inverse().eval(), Trk::theta),
+            Amg::error(msEntry->covariance()->inverse().eval(), Trk::phi));
 
           const std::vector<const Trk::TrackStateOnSurface*>* mmsentry = m_extrapolator->extrapolateM(ctx,
                                                                                                       *currPar,

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 # Definition of trigger EDM for the Run 3
@@ -343,8 +343,11 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.',           'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo step
-    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloElectronViews,precisionCaloPhotonViews'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_Electron',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloElectronViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClusters_ElectronAux.',    'BS ESD AODFULL', 'Egamma'),
+
+    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_Photon',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloPhotonViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClusters_PhotonAux.',    'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionHICalo step
     ('xAOD::CaloClusterContainer#HLT_HICaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloElectronViews'),
@@ -452,6 +455,9 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bmumux_IDTrig',              'BS ESD AODFULL', 'Bphys', 'inViews:BmumuxViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_IDTrigAux.',       'BS ESD AODFULL', 'Bphys'),
     ('TrigRoiDescriptorCollection#HLT_Roi_Bmumux',                          'BS ESD AODFULL', 'Bphys'),
+    # Bphysics Bmux chains
+    ('xAOD::TrigBphysContainer#HLT_Bmux',                                   'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_BmuxAux.',                            'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
     # Bphysics Tag-and-Probe J/psi from muon + track
     ('xAOD::TrigBphysContainer#HLT_Bmutrk',                                 'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_BmutrkAux.',                          'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
@@ -868,8 +874,16 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias' ,'inViews:ZVertFinderRecoViews'),
     ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight.zfinder_tool', 'BS ESD AODFULL', 'MinBias'),
 
+    ('xAOD::AFPSiHitsClusterContainer#HLT_AFPSiHitsClusterContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPSiHitsClusterAuxContainer#HLT_AFPSiHitsClusterContainerAux.', 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::AFPTrackContainer#HLT_AFPTrackContainer', 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::AFPTrackAuxContainer#HLT_AFPTrackContainerAux.', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPToFTrackContainer#HLT_AFPToFTrackContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPToFTrackAuxContainer#HLT_AFPToFTrackContainerAux.', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPProtonContainer#HLT_AFPProtonContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPProtonAuxContainer#HLT_AFPProtonContainerAux.', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPVertexContainer#HLT_AFPVertexContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPVertexAuxContainer#HLT_AFPVertexContainerAux.', 'BS ESD AODFULL', 'MinBias'),
 
     # Cosmic
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_FTF',                 'BS ESD AODFULL', 'Cosmic'),

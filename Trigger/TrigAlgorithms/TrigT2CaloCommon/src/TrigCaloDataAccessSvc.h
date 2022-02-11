@@ -125,6 +125,9 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   struct  HLTCaloEventCache {
     std::mutex mutex;    
     LArCellCont* larContainer;
+    LArRodBlockStructure* larRodBlockStructure_per_slot; // LAr Rod Block to ease decoding
+    uint16_t rodMinorVersion;
+    uint32_t robBlockType;
     TileCellCont* tileContainer;
     CaloCellContainer* fullcont;
     TileROD_Decoder::D0CellsHLT* d0cells;
@@ -143,7 +146,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   unsigned int lateInit( const EventContext& context );
   bool m_lateInitDone = false;
 
-  unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
+  unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell, LArRodBlockStructure*& larRodBlockStructure, uint16_t rodMinorVersion, uint32_t robBlockType );
   unsigned int convertROBs( const EventContext& context, const std::vector<IdentifierHash>& rIds, TileCellCont* tilecell, TileROD_Decoder::D0CellsHLT* d0cells );
 
 

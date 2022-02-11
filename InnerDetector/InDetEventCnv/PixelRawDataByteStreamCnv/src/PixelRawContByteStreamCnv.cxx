@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ long PixelRawContByteStreamCnv::storageType()
 ////////////////////////
 StatusCode PixelRawContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const {
 
-  PixelRDO_Container* cont=0; 
+  PixelRDO_Container* cont=nullptr; 
   SG::fromStorable(pObj,cont); 
 
   if(!cont) {

@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
-from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
 from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
@@ -30,6 +30,7 @@ def TriggerRecoCfg(flags):
     acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
     acc.merge( L1ConfigSvcCfg(flags) )
     acc.merge( HLTConfigSvcCfg(flags) )
+    acc.merge( BunchGroupCondAlgCfg( flags ) )
     acc.merge( L1PrescaleCondAlgCfg(flags) )
     acc.merge( HLTPrescaleCondAlgCfg(flags) )
 

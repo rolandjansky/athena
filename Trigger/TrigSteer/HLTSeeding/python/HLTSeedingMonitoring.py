@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 import math
@@ -39,4 +39,26 @@ def PrescalingMonitoring():
     tool.defineHistogram('Random', path='EXPERT', type='TH1F',
                          title='Random number distribution;random number',
                          xbins=100, xmin=0, xmax=1)
+    return tool
+
+
+def L1DataConsistencyMonitoring(flags):
+    tool = GenericMonitoringTool('MonTool')
+    tool.HistPath="HLTFramework/HLTSeeding/L1DataConsistencyChecker"
+
+    tool.defineHistogram('TIME_consistencyCheck', path='EXPERT', type='TH1F',
+                         title='Time of consistencyCheck() calls;Time [ms];N calls',
+                         xbins=100, xmin=0, xmax=50)
+    tool.defineHistogram('MissingTOBs', path='EXPERT', type='TH1F',
+                         title='L1 thresholds with missing TOBs;Threshold name;Events with missing TOBs',
+                         xbins=1, xmin=0, xmax=1)
+    tool.defineHistogram('ThrName,CtpCount', path='EXPERT', type='TH2F',
+                         title='Max threshold multiplicity accepted by CTP;Threshold name;Multiplicity',
+                         xbins=1, xmin=0, xmax=1, ybins=20, ymin=0, ymax=20)
+    tool.defineHistogram('ThrName,TobCount', path='EXPERT', type='TH2F',
+                         title='Number of TOBs passing thresholds;Threshold name;Number of TOBs',
+                         xbins=1, xmin=0, xmax=1, ybins=200, ymin=0, ymax=200)
+    tool.defineHistogram('ThrName,TobMinusCtpCount', path='EXPERT', type='TH2F',
+                         title='Diff. between N TOBs and CTP multiplicity;Threshold name;N TOBs - CTP multiplicity',
+                         xbins=1, xmin=0, xmax=1, ybins=250, ymin=-50, ymax=200)
     return tool

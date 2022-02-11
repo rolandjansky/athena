@@ -20,7 +20,7 @@ namespace NSWL1 {
       m_pad_trigger("NSWL1::PadTriggerLogicOfflineTool",this),
       m_pad_trigger_lookup("NSWL1::PadTriggerLookupTool",this),
       m_strip_tds("NSWL1::StripTdsOfflineTool",this),
-      //m_strip_cluster("NSWL1::StripClusterTool",this),
+      m_strip_cluster("NSWL1::StripClusterTool",this),
       //m_strip_segment("NSWL1::StripSegmentTool",this), TODO: this line makes the code crash in initialization... please, sTGC friends, fix it!!!
       m_mmstrip_tds("NSWL1::MMStripTdsOfflineTool",this),
       m_mmtrigger("NSWL1::MMTriggerTool",this),
@@ -33,8 +33,8 @@ namespace NSWL1 {
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
     declareProperty( "UseLookup",    m_useLookup    = false, "Toggle Lookup mode on and off default is the otf(old) mode" );
-    declareProperty( "DoNtuple",     m_doNtuple     = true,  "Create an ntuple for data analysis" );
-    declareProperty( "DoMM",         m_doMM         = true,  "Run data analysis for MM" );
+    declareProperty( "DoNtuple",     m_doNtuple     = false,  "Create an ntuple for data analysis" );
+    declareProperty( "DoMM",         m_doMM         = false,  "Run data analysis for MM" );
     declareProperty( "DoMMDiamonds", m_doMMDiamonds = false, "Run data analysis for MM using Diamond Roads algorithm" );
     declareProperty( "DosTGC",       m_dosTGC       = false, "Run data analysis for sTGCs" );
 
@@ -87,7 +87,7 @@ namespace NSWL1 {
         ATH_CHECK(m_pad_trigger.retrieve());
       }
       ATH_CHECK(m_strip_tds.retrieve());
-      //ATH_CHECK(m_strip_cluster.retrieve());
+      ATH_CHECK(m_strip_cluster.retrieve());
       //ATH_CHECK(m_strip_segment.retrieve());
     }
 
@@ -138,7 +138,7 @@ namespace NSWL1 {
       }
 
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      //ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+      ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       //ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
 
       ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
@@ -158,7 +158,7 @@ namespace NSWL1 {
 
     SG::WriteHandle<Muon::NSW_TrigRawDataContainer> rdohandle( m_trigRdoContainer );
     auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
-    ATH_CHECK( m_trigProcessor->mergeRDO(padTriggerContainer.get(), trgContainer.get()) );
+    ATH_CHECK( m_trigProcessor->mergeRDO(padTriggerContainer.get(), MMTriggerContainer.get(), trgContainer.get()) );
     ATH_CHECK(rdohandle.record(std::move(trgContainer)));
     return StatusCode::SUCCESS;
   }

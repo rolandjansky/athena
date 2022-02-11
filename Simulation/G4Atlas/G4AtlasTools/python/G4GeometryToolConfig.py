@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 
 from AthenaCommon import Logging
 
@@ -238,7 +237,7 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     kwargs.setdefault("DetectorName", "ITK")
     kwargs.setdefault("InnerRadius", 28.8*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
+    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
         # ITk should include the HGTD (3420 mm < |z| < 3545 mm) for now
         kwargs.setdefault("dZ", 354.5*cm)
     else:
@@ -265,10 +264,9 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
 
 def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
     result = ComponentAccumulator()
-    isRUN2 = ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
-    if isRUN2:
+    if ConfigFlags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
         innerRadius = 28.9*mm #29.15*mm
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
@@ -299,7 +297,7 @@ def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
+    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
         # Make room for HGTD (3420 mm < |z| < 3545 mm)
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     else:
@@ -377,8 +375,8 @@ def generateSubDetectorList(ConfigFlags):
     result = ComponentAccumulator()
     SubDetectorList=[]
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
-        if ConfigFlags.Beam.Type == 'cosmics' and hasattr(ConfigFlags, "Sim.ReadTR"):
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+        if ConfigFlags.Beam.Type is BeamType.Cosmics and hasattr(ConfigFlags, "Sim.ReadTR"):
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
     if ConfigFlags.Detector.GeometryMuon:
@@ -429,7 +427,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    # if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
+    # if ConfigFlags.Beam.Type is not BeamType.Cosmics and not ConfigFlags.Detector.GeometryMuon and not \
     #    (ConfigFlags.Sim.CavernBG != 'Signal'):
     if not (ConfigFlags.Detector.GeometryMuon or ConfigFlags.Detector.GeometryCavern):
         AtlasOuterR1 = 4251.
@@ -467,7 +465,6 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
 
     #leave a check in for WorldRrange and WorldZrange?
     if ConfigFlags.Sim.WorldZRange:
-        print (ConfigFlags.Sim.WorldZRange)
         if ConfigFlags.Sim.WorldZRange < 26046.:
               raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldZRange must be > 26046. Current value: %f' % ConfigFlags.Sim.WorldZRange)
         zSurfaces[17] =  ConfigFlags.Sim.WorldZRange + 100.
@@ -515,9 +512,7 @@ def VoxelDensityToolCfg(ConfigFlags, name="VoxelDensityTool", **kwargs):
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
 
-    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
-
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
     if ConfigFlags.Detector.GeometryID:
@@ -527,7 +522,8 @@ def getATLAS_RegionCreatorList(ConfigFlags):
             regionCreatorList += [SCTPhysicsRegionToolCfg(ConfigFlags)]
         if ConfigFlags.Detector.GeometryTRT:
             regionCreatorList += [TRTPhysicsRegionToolCfg(ConfigFlags)]
-            if isRUN2:
+            if ConfigFlags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
+                # TODO: should we support old geometry tags with Run == "UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"]?
                 regionCreatorList += [TRT_ArPhysicsRegionToolCfg(ConfigFlags)] #'TRT_KrPhysicsRegionTool'
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.GeometryBpipe:
@@ -757,7 +753,7 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     else:
-        if ConfigFlags.Beam.Type == 'cosmics' or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
+        if ConfigFlags.Beam.Type is BeamType.Cosmics or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
             kwargs.setdefault("World", result.popToolsAndMerge(CavernWorldCfg(ConfigFlags)))
         else:
             kwargs.setdefault("World", result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags)))

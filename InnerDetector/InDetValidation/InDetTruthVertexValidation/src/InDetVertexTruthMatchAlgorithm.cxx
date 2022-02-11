@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetVertexTruthMatchAlgorithm.h"
@@ -32,7 +32,7 @@ StatusCode InDetVertexTruthMatchAlgorithm::initialize() {
 StatusCode InDetVertexTruthMatchAlgorithm::execute() {
 
   //Retrieve the vertices:
-  const xAOD::VertexContainer * vxContainer = 0;
+  const xAOD::VertexContainer * vxContainer = nullptr;
   ATH_CHECK( evtStore()->retrieve( vxContainer, m_sgKey ) );
 
   //pass to the tool for decoration:

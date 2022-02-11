@@ -186,7 +186,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                                                                              (trkParWithoutError ? *trkParWithoutError : trkPar), *RIOsurfacePointer,
                                                                              Trk::anyDirection, // propagate in any direction
                                                                              false, //do noBoundaryCheck!
-                                                                             Trk::noHypothesis); // without material interaction
+                                                                             Trk::noHypothesis).release(); // without material interaction
                     if (!newTrackParameters){
                         ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
                         delete ROTvector;
@@ -548,7 +548,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
                                                                     Trk::anyDirection, // propagate in any direction
                                                                     //Trk::alongMomentum, // propagate in any direction
                                                                     false, //do noBoundaryCheck!
-                                                                    Trk::noHypothesis); // without material interaction
+                                                                    Trk::noHypothesis).release(); // without material interaction
             if (!newTrackParameters){
                 ATH_MSG_ERROR("TrackParameters could not be propagated to RIO_OnTrack surface");
                 delete assgnProbVector;

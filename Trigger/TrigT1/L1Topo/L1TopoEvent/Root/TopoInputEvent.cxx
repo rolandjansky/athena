@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/TopoInputEvent.h"
 #include <fstream>
@@ -10,11 +10,11 @@ using namespace TCS;
 TopoInputEvent::TopoInputEvent() :
   TrigConfMessaging("TopoInputEvent"),
   m_clusters("InputClusters",120),
-  m_eems("InputeEms",120),
-  m_jems("InputjEms",60),
-  m_etaus("InputeTaus",120),
-  m_jtaus("InputjTaus",60),
-  m_ctaus("InputcTaus",120),
+  m_eEms("InputeEms",120),
+  m_jEms("InputjEms",60),
+  m_eTaus("InputeTaus",120),
+  m_jTaus("InputjTaus",60),
+  m_cTaus("InputcTaus",120),
   m_taus("InputTaus",120),
   m_jets("InputJets",60),
   m_jLargeRJets("InputjLargeRJets",60),
@@ -35,27 +35,27 @@ StatusCode TopoInputEvent::addCluster(const TCS::ClusterTOB & cluster) {
    return StatusCode::SUCCESS;
 }
 
-StatusCode TopoInputEvent::addeEm(const TCS::eEmTOB & eem) {
-   m_eems.push_back(eem);
+StatusCode TopoInputEvent::addeEm(const TCS::eEmTOB & eEm) {
+   m_eEms.push_back(eEm);
    return StatusCode::SUCCESS;
 }
 
-StatusCode TopoInputEvent::addjEm(const TCS::jEmTOB & jem) {
-   m_jems.push_back(jem);
+StatusCode TopoInputEvent::addjEm(const TCS::jEmTOB & jEm) {
+   m_jEms.push_back(jEm);
    return StatusCode::SUCCESS;
 }
 
-StatusCode TopoInputEvent::addeTau(const TCS::eTauTOB & etau) {
-   m_etaus.push_back(etau);
+StatusCode TopoInputEvent::addeTau(const TCS::eTauTOB & eTau) {
+   m_eTaus.push_back(eTau);
    return StatusCode::SUCCESS;
 }
 
-StatusCode TopoInputEvent::addcTau(const TCS::eTauTOB & etau) {
-   TCS::cTauTOB ctau(etau.Et(),etau.isolation(),etau.eta(),etau.phi(),TCS::ETAU);
-   ctau.setEtDouble( etau.EtDouble() );
-   ctau.setEtaDouble( etau.etaDouble() );
-   ctau.setPhiDouble( etau.phiDouble() );
-   m_ctaus.push_back(ctau);
+StatusCode TopoInputEvent::addcTau(const TCS::eTauTOB & eTau) {
+   TCS::cTauTOB cTau(eTau.Et(),eTau.isolation(),eTau.eta(),eTau.phi(),TCS::ETAU);
+   cTau.setEtDouble( eTau.EtDouble() );
+   cTau.setEtaDouble( eTau.etaDouble() );
+   cTau.setPhiDouble( eTau.phiDouble() );
+   m_cTaus.push_back(cTau);
    return StatusCode::SUCCESS;
 }
 
@@ -70,16 +70,16 @@ StatusCode TopoInputEvent::addJet(const TCS::JetTOB & jet) {
 }
 
 StatusCode TopoInputEvent::addjTau(const TCS::jTauTOB & tau) {
-   m_jtaus.push_back(tau);
+   m_jTaus.push_back(tau);
    return StatusCode::SUCCESS;
 }
 
-StatusCode TopoInputEvent::addcTau(const TCS::jTauTOB & jtau) {
-  TCS::cTauTOB ctau(jtau.Et(),jtau.isolation(),jtau.eta(),jtau.phi(),TCS::JTAU);
-   ctau.setEtDouble( jtau.EtDouble() );
-   ctau.setEtaDouble( jtau.etaDouble() );
-   ctau.setPhiDouble( jtau.phiDouble() );
-   m_ctaus.push_back(ctau);
+StatusCode TopoInputEvent::addcTau(const TCS::jTauTOB & jTau) {
+  TCS::cTauTOB cTau(jTau.Et(),jTau.isolation(),jTau.eta(),jTau.phi(),TCS::JTAU);
+   cTau.setEtDouble( jTau.EtDouble() );
+   cTau.setEtaDouble( jTau.etaDouble() );
+   cTau.setPhiDouble( jTau.phiDouble() );
+   m_cTaus.push_back(cTau);
    return StatusCode::SUCCESS;
 }
 
@@ -197,12 +197,12 @@ const InputTOBArray *
 TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    switch(tobType) {
    case CLUSTER: return &m_clusters;
-   case EEM: return &m_eems;
-   case JEM: return &m_jems;
-   case CTAU: return &m_ctaus;
+   case EEM: return &m_eEms;
+   case JEM: return &m_jEms;
+   case CTAU: return &m_cTaus;
    case JET: return &m_jets;
-   case ETAU: return &m_etaus;
-   case JTAU: return &m_jtaus;
+   case ETAU: return &m_eTaus;
+   case JTAU: return &m_jTaus;
    case JJET: return &m_jJets;
    case GJET: return &m_gJets;
    case JLARGERJET: return &m_jLargeRJets;
@@ -239,12 +239,12 @@ TCS::TopoInputEvent::clear() {
    // collected on the ClusterTOB::heap and reset by the
    // TopoSteering::reset
    m_clusters.clear();
-   m_eems.clear();
-   m_jems.clear();
-   m_etaus.clear();
-   m_ctaus.clear();
+   m_eEms.clear();
+   m_jEms.clear();
+   m_eTaus.clear();
+   m_cTaus.clear();
    m_jets.clear();
-   m_jtaus.clear();
+   m_jTaus.clear();
    m_jLargeRJets.clear();
    m_gLargeRJets.clear();
    m_jJets.clear();
@@ -286,23 +286,23 @@ TopoInputEvent::dump() {
    }
    file << "</cluster>" << std::endl;
 
-   file << "<eem>" << std::endl;
-   for(eEmTOB* eem : m_eems) {
-      file << eem->Et() << "  " << eem->isolation() << "  " << eem->eta() << "  " << eem->phi() << "  " << eem->etaDouble() << "  " << eem->phiDouble() << std::endl;
+   file << "<eEm>" << std::endl;
+   for(eEmTOB* em : m_eEms) {
+      file << em->Et() << "  " << em->isolation() << "  " << em->eta() << "  " << em->phi() << "  " << em->etaDouble() << "  " << em->phiDouble() << std::endl;
    }
-   file << "</eem>" << std::endl;
+   file << "</eEm>" << std::endl;
 
-   file << "<jem>" << std::endl;
-   for(jEmTOB* jem : m_jems) {
-      file << jem->Et() << "  " << jem->eta() << "  " << jem->phi() << "  " << jem->etaDouble() << "  " << jem->phiDouble() << std::endl;
+   file << "<jEm>" << std::endl;
+   for(jEmTOB* em : m_jEms) {
+      file << em->Et() << "  " << em->eta() << "  " << em->phi() << "  " << em->etaDouble() << "  " << em->phiDouble() << std::endl;
    }
-   file << "</jem>" << std::endl;
+   file << "</jEm>" << std::endl;
 
-   file << "<etau>" << std::endl;
-   for(eTauTOB* etau : m_etaus) {
-      file << etau->Et() << "  " << etau->isolation() << "  " << etau->eta() << "  " << etau->phi() << "  " << etau->etaDouble() << "  " << etau->phiDouble() << std::endl;
+   file << "<eTau>" << std::endl;
+   for(eTauTOB* tau : m_eTaus) {
+      file << tau->Et() << "  " << tau->isolation() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
    }
-   file << "</etau>" << std::endl;
+   file << "</eTau>" << std::endl;
 
    file << "<tau>" << std::endl;
    for(ClusterTOB* tau : m_taus) {
@@ -317,7 +317,7 @@ TopoInputEvent::dump() {
    file << "</jet>" << std::endl;
 
    file << "<jTau>" << std::endl;
-   for(jTauTOB* tau : m_jtaus) {
+   for(jTauTOB* tau : m_jTaus) {
       file << tau->Et() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
    }
    file << "</jTau>" << std::endl;
@@ -400,10 +400,11 @@ namespace TCS {
 std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "Event:" << std::endl;
    o << "  #clusters: " << evt.clusters().size() << " (capacity: " << evt.clusters().capacity() << ")" << std::endl;
-   o << "  #eems    : " << evt.eems().size() << " (capacity: " << evt.eems().capacity() << ")" << std::endl;
-   o << "  #etaus    : " << evt.etaus().size() << " (capacity: " << evt.etaus().capacity() << ")" << std::endl;
+   o << "  #eEms    : " << evt.eEms().size() << " (capacity: " << evt.eEms().capacity() << ")" << std::endl;
+   o << "  #eTaus    : " << evt.eTaus().size() << " (capacity: " << evt.eTaus().capacity() << ")" << std::endl;
    o << "  #taus    : " << evt.taus().size() << " (capacity: " << evt.taus().capacity() << ")" << std::endl;
    o << "  #jets    : " << evt.jets().size() << " (capacity: " << evt.jets().capacity() << ")" << std::endl;
+   o << "  #jJets    : " << evt.jJets().size() << " (capacity: " << evt.jJets().capacity() << ")" << std::endl;
    o << "  #muons   : " << evt.muons().size() << " (capacity: " << evt.muons().capacity() << ")" << std::endl;
    o << "  #latemuons   : " << evt.lateMuons().size() << " (capacity: " << evt.lateMuons().capacity() << ")" << std::endl;
    o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << std::endl;
@@ -412,10 +413,11 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    
    o << "Details:" << std::endl;
    o << "Cluster input vector (" << evt.clusters().name() << "):" << std::endl << evt.clusters();
-   o << "eEm input vector (" << evt.eems().name() << "):" << std::endl << evt.eems();
-   o << "eTau input vector (" << evt.etaus().name() << "):" << std::endl << evt.etaus();
+   o << "eEm input vector (" << evt.eEms().name() << "):" << std::endl << evt.eEms();
+   o << "eTau input vector (" << evt.eTaus().name() << "):" << std::endl << evt.eTaus();
    o << "Tau input vector (" << evt.taus().name() << "):" << std::endl << evt.taus();
    o << "Jet input vector (" << evt.jets().name() << "):" << std::endl << evt.jets();
+   o << "jJet input vector (" << evt.jJets().name() << "):" << std::endl << evt.jJets();
    o << "Muon input vector (" << evt.muons().name() << "):" << std::endl << evt.muons();
    o << "LateMuon input vector (" << evt.lateMuons().name() << "):" << std::endl << evt.lateMuons();
    o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << std::endl << evt.muonsNextBC();
@@ -438,10 +440,11 @@ void
 TopoInputEvent::print() const {
    TRG_MSG_INFO("Event:");
    TRG_MSG_INFO("  #clusters: " << clusters().size() << " (capacity: " << clusters().capacity() << ")");
-   TRG_MSG_INFO("  #eems    : " << eems().size() << " (capacity: " << eems().capacity() << ")");
-   TRG_MSG_INFO("  #etaus    : " << etaus().size() << " (capacity: " << etaus().capacity() << ")");
+   TRG_MSG_INFO("  #eEms    : " << eEms().size() << " (capacity: " << eEms().capacity() << ")");
+   TRG_MSG_INFO("  #eTaus   : " << eTaus().size() << " (capacity: " << eTaus().capacity() << ")");
    TRG_MSG_INFO("  #taus    : " << taus().size() << " (capacity: " << taus().capacity() << ")");
    TRG_MSG_INFO("  #jets    : " << jets().size() << " (capacity: " << jets().capacity() << ")");
+   TRG_MSG_INFO("  #jJets   : " << jJets().size() << " (capacity: " << jJets().capacity() << ")");
    TRG_MSG_INFO("  #muons   : " << muons().size() << " (capacity: " << muons().capacity() << ")");
    TRG_MSG_INFO("  #latemuons  : " << lateMuons().size() << " (capacity: " << lateMuons().capacity() << ")");
    TRG_MSG_INFO("  #muonsNextBC: " << muonsNextBC().size() << " (capacity: " << muonsNextBC().capacity() << ")");
@@ -450,14 +453,16 @@ TopoInputEvent::print() const {
    TRG_MSG_DEBUG("Details:");
    TRG_MSG_DEBUG("Cluster input vector (" << clusters().name() << "):");
    for(auto * x : clusters()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("eEm input vector (" << eems().name() << "):");
-   for(auto * x : eems()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("eTau input vector (" << etaus().name() << "):");
-   for(auto * x : etaus()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("eEm input vector (" << eEms().name() << "):");
+   for(auto * x : eEms()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("eTau input vector (" << eTaus().name() << "):");
+   for(auto * x : eTaus()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("Tau input vector (" << taus().name() << "):");// << std::endl << taus();
    for(auto * x : taus()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("Jet input vector (" << jets().name() << "):");// << std::endl << jets();
    for(auto * x : jets()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("jJet input vector (" << jJets().name() << "):");
+   for(auto * x : jJets()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("Muon input vector (" << muons().name() << "):");// << std::endl << muons();
    for(auto * x : muons()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("LateMuon input vector (" << lateMuons().name() << "):");// << std::endl << latemuons();

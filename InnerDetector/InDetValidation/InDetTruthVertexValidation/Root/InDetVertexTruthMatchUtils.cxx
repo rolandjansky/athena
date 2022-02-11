@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchUtils.h"
@@ -9,7 +9,7 @@ namespace InDetVertexTruthMatchUtils {
 
 namespace {
 
-bool isHardScatterEvent( const ElementLink<xAOD::TruthEventBaseContainer> evlink ) {
+bool isHardScatterEvent( const ElementLink<xAOD::TruthEventBaseContainer>& evlink ) {
   //good link of type "TruthEvent" (not truthpileupevent) and the first one in the collection
   return ( evlink.isValid() && (*evlink)->type() == xAOD::Type::TruthEvent && evlink.index() == 0 );
 }
@@ -54,7 +54,7 @@ const std::vector<std::pair<const xAOD::Vertex*, size_t> > hardScatterMatches( c
       }
       for ( size_t i = 0; i < info.size(); ++i ) {
         if ( isHardScatterEvent( std::get<0>(info[i]) ) ) {
-          result.push_back( std::make_pair(vxit, i) );
+          result.emplace_back(vxit, i );
           break;
         }
       }

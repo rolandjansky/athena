@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/RpcCalibData.h"
@@ -56,7 +56,7 @@ namespace MuonCalib{
     std::string::size_type start = etaRec.find_first_not_of(' ',pos);
     if(start == std::string::npos) {
       std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecEta -- crashing." << std::endl;
-      throw;      
+      std::abort();
     }
     std::string::size_type stop = etaRec.find_first_of(' ',start+1);
     if (stop == std::string::npos) stop = etaRec.size();
@@ -67,7 +67,7 @@ namespace MuonCalib{
     start = phiRec1.find_first_not_of(' ',pos);
     if(start == std::string::npos) {
       std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecPhi1 -- crashing." << std::endl;
-      throw;      
+      std::abort();      
     }
     stop = phiRec1.find_first_of(' ',start+1);
     if (stop == std::string::npos) stop = phiRec1.size();

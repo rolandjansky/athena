@@ -232,7 +232,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
         m_robDataProvider->getROBData( context, vrodid32fullDet, robFrags );      
       }
       
-      status |= convertROBs( robFrags, ( cache->larContainer ) );
+      status |= convertROBs( robFrags, ( cache->larContainer ), (cache->larRodBlockStructure_per_slot), cache->rodMinorVersion, cache->robBlockType );
       
       if ( vrodid32fullDet.size() != robFrags.size() ) {
         ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
@@ -367,6 +367,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
+  cache->larRodBlockStructure_per_slot = nullptr;
   if ( cache->larContainer->initialize( **roimap, **onoff, **mcsym, **febrod, **larBadChan, *theCaloDDM).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
@@ -475,7 +476,8 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
 }
 
 unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, 
-                                               LArCellCont* larcell ) {
+                                               LArCellCont* larcell, LArRodBlockStructure*& larRodBlockStructure_per_slot,
+						uint16_t rodMinorVersion, uint32_t robBlockType ) {
 
   unsigned int status(0);
   for ( auto rob: robFrags ) {
@@ -515,7 +517,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 	  reset_LArCol ( coll );
 	} else { // End of if small size
 	  //TB the converter has state
-	  m_larDecoder->fillCollectionHLT( *rob, roddata, roddatasize, *coll );
+	  m_larDecoder->fillCollectionHLT( *rob, roddata, roddatasize, *coll, larRodBlockStructure_per_slot, rodMinorVersion, robBlockType );
 
 	  // Accumulates inferior byte from ROD Decoder
 	  // TB the converter has state
@@ -664,7 +666,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
 	if ( avgPtr && onoffPtr ) cache->larContainer->updateBCID( *avgPtr, *onoffPtr ); 
   }
   
-  unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );
+  unsigned int status = convertROBs( robFrags, ( cache->larContainer ), (cache->larRodBlockStructure_per_slot), cache->rodMinorVersion, cache->robBlockType  );
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );

@@ -238,6 +238,10 @@ StatusCode LArPileUpTool::initialize()
   m_sampleGainChoice = 2 - m_firstSample;
   if (m_sampleGainChoice<0) m_sampleGainChoice=0;
 
+  //
+  // ..... get OFC pointer for overlay case
+  ATH_CHECK(m_OFCKey.initialize(m_RndmEvtOverlay  && !m_isMcOverlay));
+
   ATH_MSG_DEBUG("Initialization completed successfully");
 
   return StatusCode::SUCCESS;
@@ -284,7 +288,8 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
   }
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, ctx, m_randomSeedOffset, m_useLegacyRandomSeeds );
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, ctx, m_randomSeedOffset, seedingmode );
 
   // add random phase (i.e subtract it from trigtime)
   if (m_addPhase) {
@@ -321,10 +326,6 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
     m_DigitContainer_DigiHSTruth = SG::makeHandle(m_DigitContainerName_DigiHSTruth, ctx);//new LArDigitContainer();
     ATH_CHECK(m_DigitContainer_DigiHSTruth.record(std::make_unique<LArDigitContainer>()));
   }
-
-  //
-  // ..... get OFC pointer for overlay case
-  ATH_CHECK(m_OFCKey.initialize(m_RndmEvtOverlay  && !m_isMcOverlay));
 
   m_nhit_tot = 0;
   return StatusCode::SUCCESS;

@@ -108,9 +108,13 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   int countPassing = 0;
-  for (const auto trk : *offlineTrkHandle)
-  {
-    if (m_trackSelectionTool->accept(*trk) and std::fabs(trk->pt()) > m_minPt )
+
+  auto track_selector = [this](const xAOD::TrackParticle& trk ){
+    return m_trackSelectionTool->accept(trk) and std::abs(trk.pt()) > m_minPt  and std::abs(trk.z0()) < m_z0; 
+  };
+
+  for (const auto trk : *offlineTrkHandle) {
+    if ( track_selector(*trk) ) 
       ++countPassing;
   }
   ATH_MSG_DEBUG("::monitorTrkCounts countPassing  = " << countPassing);
@@ -121,12 +125,13 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
 
   auto nTrkOffline = Scalar("nTrkOffline", countPassing);
   auto nAllTrkOffline = Scalar("nAllTrkOffline", offlineTrkHandle->size());
-  auto trkMask = Collection("trkMask", *offlineTrkHandle, [&](const auto& trk) { return static_cast<bool>(m_trackSelectionTool->accept(*trk)); });
+  auto trkMask = Collection("trkMask", *offlineTrkHandle, [&](const auto& trk) { return track_selector(*trk); });
   auto trkPt = Collection("trkPt", *offlineTrkHandle, [](const auto& trk) { return trk->pt() * 1.e-3; });
   auto trkEta = Collection("trkEta", *offlineTrkHandle, [](const auto& trk) { return trk->eta(); });
   auto trkPhi = Collection("trkPhi", *offlineTrkHandle, [](const auto& trk) { return trk->phi(); });
   auto trkD0 = Collection("trkD0", *offlineTrkHandle, [](const auto& trk) { return trk->d0(); });
   auto trkZ0 = Collection("trkZ0", *offlineTrkHandle, [](const auto& trk) { return trk->z0(); });
+
   auto getNhits = [](const xAOD::TrackParticle* trk) {
     int nhits = 0; 
     uint32_t pattern = trk->hitPattern();
@@ -139,6 +144,9 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   auto onlTrkPt = Collection("onlTrkPt", *onlineTrkHandle, [](const auto& trk) { return trk->pt() * 1.e-3; });
   auto onlTrkEta = Collection("onlTrkEta", *onlineTrkHandle, [](const auto& trk) { return trk->eta(); });
   auto onlTrkPhi = Collection("onlTrkPhi", *onlineTrkHandle, [](const auto& trk) { return trk->phi(); });
+  auto onlTrkD0 = Collection("onlTrkD0", *onlineTrkHandle, [](const auto& trk) { return trk->d0(); });
+  auto onlTrkZ0 = Collection("onlTrkZ0", *onlineTrkHandle, [](const auto& trk) { return trk->z0(); });
+
   auto onlTrkHits = Collection("onlTrkHits", *onlineTrkHandle, getNhits);
 
 
@@ -188,7 +196,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
         SctTot, SctBarr_SP, SctECA_SP, SctECC_SP, 
         L1sumEt, 
         trkMask, trkPt, trkEta, trkPhi, trkD0, trkZ0, trkHits,
-        onlTrkPt, onlTrkEta, onlTrkPhi, onlTrkHits);
+        onlTrkPt, onlTrkEta, onlTrkPhi, onlTrkHits, onlTrkD0, onlTrkZ0);
     }
 
     // measure eff wrt the L1

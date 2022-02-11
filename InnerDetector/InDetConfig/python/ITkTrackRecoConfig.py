@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 ##------------------------------------------------------------------------------
 def ITk_BCM_ZeroSuppressionCfg(flags, name="ITk_BCM_ZeroSuppression", **kwargs):
@@ -164,7 +165,7 @@ def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTra
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
-def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", InputCombinedTracks=None, **kwargs):
+def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", InputCombinedTracks=None, CombinedITkClusterSplitProbContainer=None, **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
@@ -176,7 +177,8 @@ def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", Input
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
     from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+    TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags, name="CombinedITkSplitProbTrackSummaryToolSharedHits"))
+    TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedITkClusterSplitProbContainer
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
@@ -239,7 +241,7 @@ def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    if flags.Input.Format == "BS":
+    if flags.Input.Format is Format.BS:
         # TODO: ITk BS providers
         raise RuntimeError("BS imputs not supported")
 
@@ -283,7 +285,9 @@ def ITkTrackRecoCfg(flags):
         InputExtendedITkTracks += [TrackContainer]
 
 
-    result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
+    result.merge(ITkTrackCollectionMergerAlgCfg(flags,
+                                                InputCombinedTracks = InputCombinedITkTracks,
+                                                CombinedITkClusterSplitProbContainer = ClusterSplitProbContainer))
 
     if flags.ITk.Tracking.doTruth:
         from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
@@ -313,7 +317,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.EnableCalo = False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg

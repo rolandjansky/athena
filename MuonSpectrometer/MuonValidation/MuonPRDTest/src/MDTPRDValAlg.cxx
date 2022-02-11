@@ -715,8 +715,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   // ---------------------------------------
   // fill event data
   /** get EventInfo, used to obtain run and event number */
-  const xAOD::EventInfo* pevt;
-	const EventContext& ctx = Gaudi::Hive::currentContext();	
+  const xAOD::EventInfo* pevt = nullptr;
+  const EventContext& ctx = Gaudi::Hive::currentContext();	
 	
   if (evtStore()->retrieve(pevt).isFailure()) {
     ATH_MSG_WARNING("Could not find event");
@@ -879,7 +879,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       const Trk::SaggedLineSurface& sagSurf = detEl->surface(id);
 	
       const Trk::TrackParameters* expar = m_extrapolator->extrapolateDirectly(ctx,muonPerigee,sagSurf,
-								  Trk::alongMomentum,false);
+								  Trk::alongMomentum,false).release();
       if( !expar ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	continue;
@@ -901,7 +901,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 //
 //  Perform a full extrapolation including material and Eloss
 //
-      const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(ctx,muonPerigee,sagSurf,Trk::alongMomentum,false);
+      const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(ctx,muonPerigee,sagSurf,Trk::alongMomentum,false).release();
       if( !exparEloss ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	delete expar;
@@ -923,7 +923,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	continue;
       }
       const Trk::TrackParameters* exparSag = m_extrapolator->extrapolateDirectly(ctx, muonPerigee,*saggedSurface,
-								     Trk::alongMomentum,false);
+								     Trk::alongMomentum,false).release();
       if( !exparSag ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	delete saggedSurface;
@@ -958,7 +958,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       }
      
       const Trk::TrackParameters* exparSagRot = m_extrapolator->extrapolateDirectly(ctx,muonPerigee,rot->associatedSurface(),
-									Trk::alongMomentum,false);
+									Trk::alongMomentum,false).release();
       if( !exparSagRot ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
         delete rot;
