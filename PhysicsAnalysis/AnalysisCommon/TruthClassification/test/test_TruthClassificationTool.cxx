@@ -69,7 +69,8 @@ int main(int argc, char* argv[])
     {7, "TauDecay"},
     {8, "BHadronDecay"},
     {9, "CHadronDecay"},
-    {10, "LightFlavorDecay"}
+    {10, "LightFlavorDecay"},
+    {11, "ChargeFlipMuon"}
   };
 
   // Initialise TEvent reading
@@ -95,9 +96,15 @@ int main(int argc, char* argv[])
   bool do_electrons = true;
   bool do_muons = true;
 
+  bool el_CFsep = true;
+  bool mu_CFsep = true;
+
   // Create the truth classification tool:
   ANA_MSG_INFO("Creating TruthClassificationTool...");
   asg::AnaToolHandle< CP::IClassificationTool > tool("TruthClassificationTool/TruthClassificationTool");
+  ANA_CHECK(tool.setProperty("separateChargeFlipElectrons", el_CFsep));
+  ANA_CHECK(tool.setProperty("separateChargeFlipMuons",     mu_CFsep));
+  ANA_CHECK(tool.setProperty("OutputLevel", MSG::INFO ));
   ANA_CHECK(tool.retrieve());
 
   const SG::AuxElement::ConstAccessor<int> truthTypeAcc("truthType");
