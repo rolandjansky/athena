@@ -259,7 +259,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         if(found_id && size_ids_coll ) {
           // store results of three strips (Qmax, Qleft, Qright)
           std::vector<ICscStripFitter::Result> res;
-          res.reserve(3);
+          res.resize(3);
           bool range_check = (mxIdx > -1) && (mxIdx < int(noStrips));
 
           ATH_MSG_DEBUG ( " Range check = (" << mxIdx  << " > -1 ) && (" << mxIdx << " < " << noStrips << " ) = " << range_check
