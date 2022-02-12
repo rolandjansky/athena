@@ -142,6 +142,7 @@ StatusCode JetTagMonitoring::initialize() {
   }
 
   ATH_CHECK(m_jetName.initialize());
+  ATH_CHECK(m_jetBtagKey.initialize());
   ATH_CHECK(m_trackParticleName.initialize());
   ATH_CHECK(m_primaryVertexName.initialize());
   ATH_CHECK(m_electronName.initialize());
