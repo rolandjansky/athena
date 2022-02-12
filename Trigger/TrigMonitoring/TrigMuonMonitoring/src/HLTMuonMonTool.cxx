@@ -626,6 +626,7 @@ StatusCode HLTMuonMonTool::init()
   //Truth hists
   if (m_isData == 1) {
     sc = scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+    m_muonTruthParticlesKey="";
   }
   else {
     StatusCode scMuonTruthHists = initMuonTruthHists();

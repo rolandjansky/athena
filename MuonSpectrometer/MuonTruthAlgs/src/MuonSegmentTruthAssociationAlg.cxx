@@ -29,7 +29,7 @@ namespace Muon {
         ATH_CHECK(m_mcEventColl.initialize());
         if (!(m_idHelperSvc->hasSTgc() && m_idHelperSvc->hasMM())) m_muonSimData = {"MDT_SDO", "RPC_SDO", "TGC_SDO"};
         ATH_CHECK(m_muonSimData.initialize());
-        if (m_idHelperSvc->hasCSC()) ATH_CHECK(m_cscSimData.initialize());
+        ATH_CHECK(m_cscSimData.initialize(m_idHelperSvc->hasCSC()));
         ATH_CHECK(m_trackRecord.initialize());
         return StatusCode::SUCCESS;
     }
