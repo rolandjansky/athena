@@ -184,6 +184,9 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
                                                             "LArHitContainer#LArHitFCAL->LArHitFloatContainer#LArHitFCAL"]
         svcMgr.AddressRemappingSvc.ProxyDict="ActiveStoreSvc"
 
+    # add XTalk conditions
+    from LArRecUtils.LArXTalkWeightCondAlgDefault import LArXTalkWeightCondAlgDefault
+    LArXTalkWeightCondAlgDefault()
 
     return CfgMgr.LArPileUpTool(name, **kwargs)
 

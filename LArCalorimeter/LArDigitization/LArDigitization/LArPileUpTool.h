@@ -50,6 +50,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArSimEvent/LArHitFloatContainer.h"
+#include "LArRecConditions/LArXTalkWeightGlobal.h"
 
 class StoreGateSvc;
 class ITriggerTime;
@@ -101,7 +102,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 #define MAXADC 4096       // Maximal Adc count + 1 ( used for the overflows)
 
 
-  StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal);
+  StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal, const LArXTalkWeightGlobal& weights);
 
 
   StatusCode MakeDigit(const EventContext& ctx, const Identifier & cellId,
@@ -117,25 +118,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
                    const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
 
 
-  float  get_strip_xtalk(int eta);
-  float  get_middleback_xtalk(int eta);
-  float  get_strip_xtalk_ec(int region, int eta);
-  float  get_middleback_xtalk_ecow(int eta);
-  float  get_middleback_xtalk_eciw(int eta);
-  float  get_stripmiddle_xtalk(int eta);
-  float  get_stripmiddle_xtalk_ec(int region, int eta);
-  float  get_2strip_xtalk(int eta);
-  float  get_2strip_xtalk_ec(int region,int eta);
-  float  get_middle_xtalk1(int eta);
-  float  get_middle_xtalk2(int eta);
-  float  get_middle_xtalk1_ec(int eta);
-  float  get_middle_xtalk2_ec(int eta);
   void   cross_talk(const IdentifierHash& idHash,
                     const Identifier& cellId,
                     const float& energy,
                     std::vector<IdentifierHash>& neighbourList,
-                    std::vector<float>& energyList);
+                    std::vector<float>& energyList,
+                    const LArXTalkWeightGlobal& weights);
   bool  fillMapfromSum(float bunchTime);
+  template<class T> const T* pointerFromKey(const EventContext& context, SG::ReadCondHandleKey<T>& key) const;
 
 //
 // >>>>>>>> private data parts
@@ -261,6 +251,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
+
+  SG::ReadCondHandleKey<LArXTalkWeightGlobal>  m_xtalkKey{this,"LArXTalkWeightGlobal","LArXTalkWeightGlobal","SG Key of XTalk vector of object"};
+
  
   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
   
@@ -301,6 +294,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   int m_nhit_tot{0};
   float m_trigtime{0};
   
+};
+
+template<class T> 
+const T* LArPileUpTool::pointerFromKey(const EventContext& context, SG::ReadCondHandleKey<T>& key) const {
+  SG::ReadCondHandle<T> aHandle(key, context);
+  const T* object = *aHandle;
+  if (object == nullptr) ATH_MSG_ERROR("Object could not be fetched with key " << aHandle.key() );
+  return object;
 };
 
 #endif
