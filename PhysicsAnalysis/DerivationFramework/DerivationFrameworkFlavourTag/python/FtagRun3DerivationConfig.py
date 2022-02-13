@@ -86,7 +86,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     SecVertexers = [ 'JetFitter' , 'SV1']
 
     if cfgFlags.BTagging.RunFlipTaggers is True:
-        SecVertexersFlip = ['JetFitterFlip']
+        SecVertexersFlip = ['JetFitterFlip','SV1Flip']
         for ele in SecVertexersFlip:
             SecVertexers.append(ele)
 

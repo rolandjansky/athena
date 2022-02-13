@@ -28,6 +28,8 @@ from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 from DerivationFrameworkTrigger.TrigSlimmingHelper import addTrigEDMSetToOutput
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+#add to check whether flip tagger is run
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
 #====================================================================
 # SET UP STREAM   
@@ -212,6 +214,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
                                        "BTagging_AntiKt4EMPFlowJFVtx", 
 				       "BTagging_AntiKt4EMPFlowJFVtxFlip", #Flip version of JetFitter
                                        "BTagging_AntiKt4EMPFlowSecVtx",
+				       "BTagging_AntiKt4EMPFlowSecVtxFlip", #Flip version of SV1
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4LCTopo",
@@ -236,6 +239,8 @@ StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesA
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxAux.-vxTrackAtVertex"]
+if cfgFlags.BTagging.RunFlipTaggers is True:
+    StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxFlipAux.-vxTrackAtVertex"]
 
 PHYSVALSlimmingHelper.StaticContent = StaticContent
 
@@ -286,6 +291,7 @@ if DerivationFrameworkIsMonteCarlo:
                                             'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
                                             'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
 					    'BTagging_AntiKt4EMPFlowJFVtxFlip':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxFlipAux':'xAOD::BTagVertexAuxContainer',#For Flip version of JetFitter
+					    'BTagging_AntiKt4EMPFlowSecVtxFlip':'xAOD::VertexContainer','BTagging_AntiKt4EMPFlowSecVtxFlipAux':'xAOD::VertexAuxContainer',
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool

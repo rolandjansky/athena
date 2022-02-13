@@ -4,7 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-Analysis__JetSecVertexingAlg=CompFactory.Analysis.JetSecVertexingAlg
 
 def JetSecVertexingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, TrackCollection, PrimaryVertexCollectionName="", SVFinder="", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -23,6 +22,8 @@ def JetSecVertexingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, TrackC
         JetSVLink = 'JFVtxFlip'
     if SVFinder == 'SV1':
         JetSVLink = 'SecVtx'
+    if SVFinder == 'SV1Flip':
+        JetSVLink = 'SecVtxFlip'
     if SVFinder == 'MSV':
         JetSVLink = 'MSecVtx' # Maybe no used
 
@@ -41,6 +42,6 @@ def JetSecVertexingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, TrackC
     options['name'] = (JetCollection + '_' + SVFinder + '_secvtx').lower()
 
     # -- create the association algorithm
-    acc.addEventAlgo(Analysis__JetSecVertexingAlg(**options))
+    acc.addEventAlgo(CompFactory.Analysis.JetSecVertexingAlg(**options))
 
     return acc
