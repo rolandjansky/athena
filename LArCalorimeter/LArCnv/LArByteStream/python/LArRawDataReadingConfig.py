@@ -4,7 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
+from LArConfiguration.LArConfigFlags import RawChannelSource 
+
 
 def LArRawDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
@@ -15,12 +16,12 @@ def LArRawDataReadingCfg(configFlags, **kwargs):
     if configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
 
-    if configFlags.LAr.RawChannelSource=="calculated" or configFlags.Overlay.DataOverlay:
+    if configFlags.LAr.RawChannelSource is RawChannelSource.Calculated or configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArRawChannelKey", "")
 
     print('LArRawDataReadingCfg configFlags.LAr.RawChannelSource ',configFlags.LAr.RawChannelSource)
 
-    acc.addEventAlgo(LArRawDataReadingAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.LArRawDataReadingAlg(**kwargs))
     return acc
 
 

@@ -5,6 +5,7 @@ LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg
+from LArConfiguration.LArConfigFlags import RawChannelSource
 
 def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
@@ -30,7 +31,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
            dbInstance="LAR_OFL"
            acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
-        if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        if configFlags.Common.ProductionStep is ProductionStep.PileUpPresampling:
             kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         else:
             kwargs.setdefault("LArDigitKey", "LArDigitContainer_MC")
@@ -56,7 +57,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
     kwargs.setdefault(dspkey, sgkey)
 
-    if configFlags.LAr.ROD.forceIter or configFlags.LAr.RawChannelSource == "calculated":
+    if configFlags.LAr.ROD.forceIter or configFlags.LAr.RawChannelSource is RawChannelSource.Calculated:
        # iterative OFC procedure
        LArRawChannelBuilderIterAlg=CompFactory.LArRawChannelBuilderIterAlg
        kwargs.setdefault('minSample',2)
