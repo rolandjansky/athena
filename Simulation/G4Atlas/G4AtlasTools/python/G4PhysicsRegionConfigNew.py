@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
+from G4AtlasApps.SimEnums import BeamPipeSimMode
 
 RegionCreator=CompFactory.RegionCreator
 
@@ -17,7 +17,7 @@ def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsR
             print('BeampipeFwdCutPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
 
-    if ConfigFlags.Sim.BeamPipeSimMode == "FastSim":
+    if ConfigFlags.Sim.BeamPipeSimMode is BeamPipeSimMode.FastSim:
         kwargs.setdefault("ElectronCut", 10.)
         kwargs.setdefault("PositronCut", 10.)
         kwargs.setdefault("GammaCut", 10.)
@@ -28,11 +28,11 @@ def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsR
             msg = "Setting the forward beam pipe range cuts to %e mm " % ConfigFlags.Sim.BeamPipeCut
             msg += "-- cut is < 1 mm, I hope you know what you're doing!"
             print(msg)
-        if ConfigFlags.Sim.BeamPipeSimMode == "EGammaRangeCuts":
+        if ConfigFlags.Sim.BeamPipeSimMode is BeamPipeSimMode.EGammaRangeCuts:
             kwargs.setdefault("ElectronCut", ConfigFlags.Sim.BeamPipeCut)
             kwargs.setdefault("PositronCut", ConfigFlags.Sim.BeamPipeCut)
             kwargs.setdefault("GammaCut", ConfigFlags.Sim.BeamPipeCut)
-        elif ConfigFlags.Sim.BeamPipeSimMode == "EGammaPRangeCuts":
+        elif ConfigFlags.Sim.BeamPipeSimMode is BeamPipeSimMode.EGammaPRangeCuts:
             kwargs.setdefault("ElectronCut", ConfigFlags.Sim.BeamPipeCut)
             kwargs.setdefault("PositronCut", ConfigFlags.Sim.BeamPipeCut)
             kwargs.setdefault("GammaCut", ConfigFlags.Sim.BeamPipeCut)
@@ -286,7 +286,8 @@ def DriftWall2PhysicsRegionToolCfg(ConfigFlags, name='DriftWall2PhysicsRegionToo
 def MuonSystemFastPhysicsRegionToolCfg(ConfigFlags, name='MuonSystemFastPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'MuonSystemFastRegion')
     volumeList = []
-    if ConfigFlags.Sim.CavernBG  == 'World':
+    from G4AtlasApps.SimEnums import CavernBackground
+    if ConfigFlags.Sim.CavernBackground in [CavernBackground.SignalWorld, CavernBackground.WriteWorld]:
         if ConfigFlags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
             volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
         else:

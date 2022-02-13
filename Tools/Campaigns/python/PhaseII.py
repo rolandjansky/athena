@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+from G4AtlasApps.SimEnums import TruthStrategy
+
 
 def PhaseIIPileUp(flags):
     """Phase-II Upgrade / Run 4 flags for MC with pile-up"""
@@ -47,7 +49,7 @@ def PhaseIINoPileUp(flags):
 def PhaseIISimulation(flags):
     """Phase-II Upgrade / Run 4 flags for simulation"""
     flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
-    flags.Sim.TruthStrategy = 'MC15aPlus'
+    flags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
 
     flags.Input.RunNumber = [242000]
     flags.Input.OverrideRunNumber = True

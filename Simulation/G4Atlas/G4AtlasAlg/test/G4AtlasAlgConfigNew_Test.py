@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on G4AtlasAlgConfigNew
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 
@@ -37,11 +37,12 @@ if __name__ == '__main__':
     #Sim ConfigFlags
     #ConfigFlags.Sim.WorldRRange = 15000
     #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-    ConfigFlags.Sim.CalibrationRun = "Off"
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
+    ConfigFlags.Sim.CalibrationRun = CalibrationRun.Off
     ConfigFlags.Sim.RecordStepInfo = False
-    ConfigFlags.Sim.CavernBG = "Signal"
+    ConfigFlags.Sim.CavernBackground = CavernBackground.Signal
     ConfigFlags.Sim.ISFRun = False
-    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
+    ConfigFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     ConfigFlags.Sim.ReleaseGeoModel = False
 
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14"
