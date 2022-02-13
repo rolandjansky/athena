@@ -10,6 +10,7 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 # for PileUpTool
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArXTalkWeightCondAlgConfig import LArXTalkWeightCondAlgCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg,LArBadChannelCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
@@ -91,6 +92,8 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     else:
         requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
+    # add new conditions for LArXTalkWeight
+    acc.merge(LArXTalkWeightCondAlgCfg(flags))
 
     if flags.Common.ProductionStep != ProductionStep.Overlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
