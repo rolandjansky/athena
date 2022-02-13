@@ -531,7 +531,7 @@ def PixelOfflineCalibCondAlgCfg(flags, name="PixelOfflineCalibCondAlg", **kwargs
     """Return a ComponentAccumulator with configured PixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat"))
-    kwargs.setdefault("InputSource", 1 if flags.Common.isOnline else 2)
+    kwargs.setdefault("InputSource", 2)
     kwargs.setdefault("PixelClusterErrorDataFile", "PixelClusterErrorData.txt")
     kwargs.setdefault("PixelClusterOnTrackErrorDataFile", "PixelClusterOnTrackErrorData.txt")
     kwargs.setdefault("PixelChargeInterpolationDataFile", "PixelChargeInterpolationData.txt")

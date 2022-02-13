@@ -161,10 +161,7 @@ if DetFlags.pixel_on():
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        if athenaCommonFlags.isOnline():
-          PixelOfflineCalibCondAlg.InputSource = 1
-        else :
-          PixelOfflineCalibCondAlg.InputSource = 2
+        PixelOfflineCalibCondAlg.InputSource = 2
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
