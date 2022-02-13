@@ -197,16 +197,16 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
+StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClient) {
    ATH_MSG_VERBOSE("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
-   int workerCounter = 0;
    if (motherClient) {
       m_rootClientCount++;
    }
-   std::set<int> rootClientSet;
-   std::map<TString, int> workerCount;
-   while ((m_rootClientCount > 0 || workerCounter < (numClients - 1)) && (sc.isSuccess() || sc.isRecoverable())) {
+   // Allow ROOT clients to start up (by setting active clients)
+   // and wait to stop the ROOT server until all clients are done and metadata is written (commitOutput fail).
+   bool anyActiveClients = true;
+   while (sc.isSuccess() || sc.isRecoverable() || anyActiveClients) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {
@@ -235,6 +235,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
                   socket->Close();
                   --m_rootClientCount;
                   if (m_rootMonitor->GetActive() == 0 || m_rootClientCount == 0) {
+                     anyActiveClients = false;
                      ATH_MSG_INFO("ROOT Monitor: No more active clients...");
                   }
                } else if (message->What() == kMESS_ANY) {
@@ -244,11 +245,6 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
                   message->ReadInt(clientId);
                   message->ReadTString(filename);
                   message->ReadLong64(length);
-                  if (rootClientSet.insert(clientId).second) {
-                    // new client
-                     workerCount[filename]++;
-                     if (workerCount[filename] > workerCounter) workerCounter = workerCount[filename];
-                  }
                   ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
                   std::unique_ptr<TMemFile> transient(new TMemFile(filename, message->Buffer() + message->Length(), length, "UPDATE"));
                   message->SetBufferOffset(message->Length() + length);
@@ -266,7 +262,8 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
       } else if (m_rootMonitor == nullptr) {
          usleep(100);
       }
-      sc = m_cnvSvc->commitOutput("", false);
+      // Once commitOutput failed all legacy clients are finished (writing metadata), do not call again.
+      if (sc.isSuccess() || sc.isRecoverable()) sc = m_cnvSvc->commitOutput("", false);
    }
    ATH_MSG_INFO("End commitOutput loop");
    return StatusCode::SUCCESS;
