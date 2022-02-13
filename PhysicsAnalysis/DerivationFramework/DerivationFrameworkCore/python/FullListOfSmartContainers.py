@@ -103,5 +103,6 @@ FullListOfSmartContainers = [
    "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
    "HLT_xAOD__BTaggingContainer_HLTBjetFex",
    "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
-   "HLT_xAOD__TrigVertexCountsContainer_vertexcounts"
+   "HLT_xAOD__TrigVertexCountsContainer_vertexcounts",
+   "HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf"
 ]
