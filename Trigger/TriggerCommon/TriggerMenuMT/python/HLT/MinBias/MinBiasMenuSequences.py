@@ -143,7 +143,7 @@ def MinBiasSPSequence():
 @AccumulatorCache
 def MinBiasZVertexFinderSequenceCfg(flags):
     from ..Menu.MenuComponents import InViewRecoCA, SelectionCA, MenuSequenceCA
-    recoAcc = InViewRecoCA(name="ZVertFinderReco", roisKey="InputRoI", RequireParentView=True)
+    recoAcc = InViewRecoCA(name="ZVertFinderReco", InViewRoIs="InputRoI", RequireParentView=True)
     vdv = CompFactory.AthViews.ViewDataVerifier( "VDVZFinderInputs",
                                                   DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), 
                                                                  ( 'PixelID' , 'DetectorStore+PixelID' ) ])
