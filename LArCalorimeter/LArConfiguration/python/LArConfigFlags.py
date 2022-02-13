@@ -3,6 +3,13 @@
 from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
+from AthenaConfiguration.Enums import FlagEnum
+
+class RawChannelSource(FlagEnum):
+     Input="Input"           # read from the input-file, bytestream or RDO
+     Calculated="Calculated" #re-computed by the offline LArRawChannelBuilder
+     Both="Both"             # overwrite the digits computed
+
 
 def createLArConfigFlags():
     lcf=AthConfigFlags()
@@ -11,10 +18,7 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.doHVCorr",lambda prevFlags : not prevFlags.Input.isMC)
     lcf.addFlag("LAr.doCellEmMisCalib",lambda prevFlags : prevFlags.Input.isMC)
 
-    lcf.addFlag("LAr.RawChannelSource",_determineRawChannelSource)
-                #sensible value are "input": read from the input-file, bytestream or RDO)
-                #                   "calculated": re-computed by the offline LArRawChannelBuilder
-                #                   "both": overwrite the digits computed
+    lcf.addFlag("LAr.RawChannelSource",_determineRawChannelSource,enum=RawChannelSource)
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
@@ -86,20 +90,20 @@ def _getLArRunInfo(prevFlags):
 
 def _determineRawChannelSource(prevFlags):
     if prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay:
-        return "input"
+        return RawChannelSource.Input
 
     lri=_getLArRunInfo(prevFlags)
     #runType: 0=RawData, 1=RawDataResult, 2=Result
     if lri is None or lri.runType is None:
         print("WARNING do not have LArRunInfo !")
-        return "both"
+        return RawChannelSource.Both
     print("runType ",lri.runType())
     if (lri.runType()==0):
-        return "calculated" #Have only digits in bytestream
+        return RawChannelSource.Calculated #Have only digits in bytestream
     elif (lri.runType()==1):
-        return "both"       #Have both, digits and raw-channels in bytestream
+        return RawChannelSource.Both       #Have both, digits and raw-channels in bytestream
     elif (lri.runType()==2):
-        return "input"      #Have only raw-channels in bytestream
+        return RawChannelSource.Input      #Have only raw-channels in bytestream
     else:
         print("WARNING unknown LAr run type !")
-        return "both"
+        return RawChannelSource.Both
