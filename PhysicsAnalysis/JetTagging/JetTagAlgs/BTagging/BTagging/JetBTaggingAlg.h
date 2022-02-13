@@ -53,6 +53,10 @@ class  JetBTaggingAlg:
     //SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
     SG::ReadHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", "Input BTagging secondary vertex container"};
     SG::ReadHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", "Input BTagging Jet Fitter container"};
+    //SecVertexer collection names for the flip taggers
+    SG::ReadHandleKey<xAOD::VertexContainer> m_BTagSVFlipCollectionName {this, "BTagSVFlipCollectionName", "", "Input Flip BTagging secondary vertex container"};
+    SG::ReadHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxFlipCollectionName {this, "BTagJFVtxFlipCollectionName", "", "Input Flip BTagging Jet Fitter container"};
+    
     // Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_jetBTaggingLinkName {this, "BTaggingLinkName", "", "Element link from jet to BTagging container"};

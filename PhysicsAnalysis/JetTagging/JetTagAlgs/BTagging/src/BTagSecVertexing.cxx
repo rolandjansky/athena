@@ -201,7 +201,7 @@ namespace Analysis {
 
       if(tracksInJet.size()==0){
         ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet");
-        if("SV1" == basename){
+        if("SV1" == basename || "SV1Flip" == basename){
           std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
           newBTag->setSV1_TrackParticleLinks(TrkList);
           std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
@@ -402,7 +402,7 @@ namespace Analysis {
     const std::vector< const xAOD::Vertex*> vecTwoTrkVtx =  TwoTrkVtxInJet->getTwoTrackVertice();
 
     int N2TrkVtx = vecTwoTrkVtx.size();
-    if("JetFitter" == basename || "JetFitterFlip" == basename ){
+    if("JetFitter" == basename ){
       newBTag->setTaggerInfo(N2TrkVtx, xAOD::BTagInfo::JetFitter_N2Tpair);
     }
     else{
@@ -712,7 +712,7 @@ namespace Analysis {
 
         if(tracksInJet.size()==0){
           ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet. Set some with the track selection tool " << trackname << " for VertexFinderxAODBaseName "<< basename);
-          if("SV1" == basename){
+          if("SV1" == basename || "SV1Flip" == basename){
             std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
             (*btagIter)->setSV1_TrackParticleLinks(TrkList);
             std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
