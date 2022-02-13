@@ -1115,27 +1115,33 @@ class InEventRecoCA( ComponentAccumulator ):
 
 class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None): #TODO - make RequireParentView requireParentView for consistency
+    def __init__(self, name, viewMaker=None, **viewMakerArgs):
         super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        ViewCreatorInitialROITool=CompFactory.ViewCreatorInitialROITool
+        if viewMaker:
+            assert len(viewMakerArgs) == 0, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
+        if len(viewMakerArgs) != 0:
+            assert viewMaker is None, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
 
         if viewMaker:
             self.viewMakerAlg = viewMaker
-            assert RequireParentView is None, "Can not specify viewMaker and settings (RequireParentView) of default ViewMaker"
-            assert roisKey is None, "Can not specify viewMaker and settings (roisKey) of default ViewMaker"
         else:
-            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM_"+name,
-                                                          ViewFallThrough = True,
-                                                          RoIsLink        = 'initialRoI',
-                                                          RoITool         = ViewCreatorInitialROITool(),
-                                                          InViewRoIs      = roisKey if roisKey else name+'RoIs',
-                                                          Views           = name+'Views',
-                                                          ViewNodeName    = name+"InViews", 
-                                                          RequireParentView = RequireParentView if RequireParentView else False)
+            assert 'name' not in viewMakerArgs, "The name of view maker is predefined by the name of sequence"
+            assert 'Views' not in viewMakerArgs, "The Views is predefined by the name of sequence"
+            assert 'ViewsNodeName' not in viewMakerArgs, "The ViewsNodeName is predefined by the name of sequence"
+            args = {'name': f'IM_{name}', 
+                    'ViewFallThrough'   : True,
+                    'RoIsLink'          : 'initialRoI',
+                    'RoITool'           : CompFactory.ViewCreatorInitialROITool(),
+                    'InViewRoIs'        : f'{name}RoIs',
+                    'Views'             : f'{name}Views',
+                    'ViewNodeName'      : f'{name}InViews', 
+                    'RequireParentView' : False }
+            args.update(**viewMakerArgs)
+            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm(**args)
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name )
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )

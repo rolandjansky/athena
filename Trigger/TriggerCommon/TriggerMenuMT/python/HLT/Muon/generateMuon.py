@@ -373,15 +373,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
         roiTool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews")
         requireParentView = True
                                                          
-    viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
-                                                         ViewFallThrough = True,
-                                                         RequireParentView = requireParentView,
-                                                         RoIsLink        = 'initialRoI',
-                                                         RoITool         = roiTool,
-                                                         InViewRoIs      = viewName+'RoIs',
-                                                         Views           = viewName+'Views',
-                                                         ViewNodeName    = viewName+"InView")
-    recoMS = InViewRecoCA(name=viewName, viewMaker=viewMakerAlg)
+    recoMS = InViewRecoCA(name=viewName, RoITool = roiTool, RequireParentView = requireParentView)
     
     recoMS.merge(TrackingGeometrySvcCfg(flags))
     ###################
