@@ -7,6 +7,7 @@
 # art-output: *.pool.root
 # art-output: checkFile.txt
 # art-output: checkxAOD.txt
+# art-output: checkIndexRefs*.txt
 # art-athena-mt: 1
 
 set -e
@@ -26,3 +27,7 @@ echo "art-result: $?  checkfile"
 checkxAOD.py DAOD_PHYS.art.pool.root > checkxAOD.txt
 
 echo "art-result: $?  checkxAOD"
+
+checkIndexRefs.py DAOD_PHYS.art.pool.root > checkIndexRefs_PHYS.txt 2>&1
+
+echo "art-result: $?  checkIndexRefs PHYS"
