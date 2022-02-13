@@ -74,17 +74,24 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.chainDefModule = {}   # Generate[SIG]ChainDefs module for each SIGnature
 
     def setChainFilter(self, f):
-        """Set chain filter for menu generation. Function needs to take two
-        arguments for signature and chain name. E.g. to only generate Egamma chains:
+        """Set chain filter for menu generation.
 
-        menu.setChainFilter(lambda slice,chain : slice=='Egamma')
+           This can be any callable object taking two
+           arguments for signature and chain name and returning a boolean.
+           E.g. to only generate Egamma chains:
+                menu.setChainFilter(lambda slice,chain : slice=='Egamma').
+
+           In the special case that f is a functor with the list attributes
+           selectChains and/or disableChains, the contents will be explicitly
+           checked to be in the menu.
         """
+        fname = f.__class__.__name__ if isinstance(f,object) else f.__name__
         import inspect
         if len(inspect.signature(f).parameters)!=2:
-            log.error('%s is not a valid chain filter. Function needs take two arguments '
-                      'for signature and chain name and return a boolean', f.__name__)
+            log.error('%s is not a valid chain filter. Function/callable needs take two arguments '
+                      'for signature and chain name and return a boolean', fname)
         else:
-            log.warning('Setting chain filter to %s', f.__name__)
+            log.warning('Setting chain filter to %s', fname)
             self.chainFilter = f
 
 
@@ -294,6 +301,23 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # Filter chains if requested
         if self.chainFilter is not None:
             self.signaturesOverwritten = True
+
+            # Verify that if the chain filter has lists of chains
+            # they are all in the menu
+            chainsToCheck = []
+            if hasattr(self.chainFilter,'selectChains'):
+                chainsToCheck += self.chainFilter.selectChains
+            if hasattr(self.chainFilter,'disableChains'):
+                chainsToCheck += self.chainFilter.disableChains
+            for chain in chainsToCheck:
+                inMenu = False
+                for signame in self.chainsInMenu:
+                    if chain in [c.name for c in self.chainsInMenu[signame]]:
+                        inMenu = True
+                        break
+                if not inMenu:
+                    raise RuntimeError(f'Request to enable/disable chain {chain} that is not in menu')
+
             for signame in self.chainsInMenu:
                 self.chainsInMenu[signame] = [c for c in self.chainsInMenu[signame]
                                               if self.chainFilter(signame, c.name)]

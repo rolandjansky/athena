@@ -520,10 +520,18 @@ if not opt.createHLTMenuExternally:
     from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    def chainsToGenerate(signame, chain):
-        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
-                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
+    # Define as functor, to retain knowledge of the select/disableChains lists
+    class ChainsToGenerate(object):
+        def __init__(self,opt):
+            self.enabledSignatures  = opt.enabledSignatures
+            self.disabledSignatures = opt.disabledSignatures
+            self.selectChains       = opt.selectChains
+            self.disableChains      = opt.disableChains
+        def __call__(self, signame, chain):
+            return ((signame in self.enabledSignatures and signame not in self.disabledSignatures) and
+                (not self.selectChains or chain in self.selectChains) and chain not in self.disableChains)
 
+    chainsToGenerate = ChainsToGenerate(opt)
     menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
