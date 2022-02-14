@@ -58,7 +58,7 @@ namespace LVL1 {
 protected:
 
   private:
-        SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXSmallRJetAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         int m_jFEXalgoTowerID[7][7];
         int m_jFEXalgoSearchWindowSeedET[5][5];
 	bool m_seedSet;
