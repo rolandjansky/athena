@@ -5,7 +5,7 @@ from ..CommonSequences.FullScanDefs import caloFSRoI
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
