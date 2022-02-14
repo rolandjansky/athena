@@ -697,7 +697,7 @@ void usage() {
   cout << "[Input options]\n";
   cout << "  -f|--file             file1        ... input json file to test\n";
   cout << "  --smk                 smk          ... smk \n";
-  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDBDEV1) \n";
+  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDB_RUN3) \n";
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "\n";
@@ -708,7 +708,7 @@ int main(int argc, char** argv) {
    bool help { false };
    string filename{""};
    unsigned int smk{0};
-   std::string  dbalias {"TRIGGERDBDEV1"};
+   std::string  dbalias {"TRIGGERDB_RUN3"};
    std::vector<std::string> knownParameters { "file", "f", "smk", "db", "help", "h" };
 
    std::string currentParameter("");
