@@ -236,6 +236,36 @@ def compare_dicts(test, reference, ordered=False, diff_format="simple"):
     return result
 
 
+# This function perform recursive key removal. The key to remove is
+# provided in the current_path as a list of tokens
+# The dict to altered in-place using the payload command
+# An * match any key
+def recursive_key_remove(current_path, payload):
+    
+    if isinstance(payload, dict):
+    
+        if len(current_path) > 1:
+        
+            current_token = current_path[0]
+            new_path = current_path[1:]
+            
+            for k, v in payload.items():
+                if (current_token == k or current_token == '*') and isinstance(v, dict):
+                    recursive_key_remove(new_path, v)
+                
+        elif len(current_path) == 1:
+        
+            current_token = current_path[0]
+            keys_to_remove = []
+            
+            for k, v in payload.items():
+                if current_token == k or current_token == '*':
+                    keys_to_remove.append(k)
+            
+            for k in keys_to_remove:
+                del payload [ k ]
+    
+
 def meta_diff(
         files,
         verbose=False,
@@ -284,13 +314,11 @@ def meta_diff(
         promote=promote,
     )
 
-    try:
-        for key in drop:
-            for _, value in metadata.items():
-                value.pop(key, None)
-    except TypeError:
-        pass
-
+    if drop is not None:
+        for drop_key in drop:
+            for filename, content in metadata.items():
+                recursive_key_remove(list([ k for k in drop_key.split('/') if k ]), content)
+        
     result = compare_dicts(
         metadata[files[0]],
         metadata[files[1]],
