@@ -250,9 +250,7 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
               clus_noStrips = theClus->rdoList().size();
             }
 
-            // get no. of strips per cluster
-            unsigned int clus_noStrips = theClus ? theClus->rdoList().size() : 0;
-
+          
             //need at least three strips in an eta-cluster
             bool clus_eta_status = clus_status && ( clus_noStrips > 2 ) && (clus_measuresPhi == 0);
             bool clus_eta_eff = clus_stat_eff && ( clus_noStrips > 2 ) && (clus_measuresPhi == 0);
