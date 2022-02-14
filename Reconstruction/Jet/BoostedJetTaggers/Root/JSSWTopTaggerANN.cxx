@@ -4,6 +4,9 @@
 
 #include "BoostedJetTaggers/JSSWTopTaggerANN.h"
 
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/TStore.h"
+
 #include <fstream>
 
 JSSWTopTaggerANN::JSSWTopTaggerANN( const std::string& name ) :
@@ -349,10 +352,49 @@ std::map<std::string, std::map<std::string, double>> JSSWTopTaggerANN::getJetPro
     ANN_inputValues["Aplanarity"] = jet.getAttribute<float>("Aplanarity");
     ANN_inputValues["ZCut12"] = jet.getAttribute<float>("ZCut12");
     ANN_inputValues["KtDR"] = jet.getAttribute<float>("KtDR");
+        
+    //need pvLocation for getting Ntrk
+    int pvLocation=0;                                                                                    
+    const xAOD::VertexContainer* vertexcontainer=0;
+    if(evtStore()->retrieve( vertexcontainer, "PrimaryVertices" ) != StatusCode::SUCCESS){
+      ATH_MSG_ERROR("No primary vertex container with name 'PrimaryVertices' was found");
+      ANN_inputValues["Ntrk500"] = -999;
+      pvLocation=-1;
+    }else{
+      for( auto vtx_itr : *vertexcontainer ){
+	if(vtx_itr->vertexType() == xAOD::VxType::VertexType::PriVtx) {
+	  break;
+	}
+	pvLocation++;
+      }
+    }
+      
+    //should get this from derivations, but if not available try to reconstruct it
+    if (acc_NumTrkPt500.isAvailable( jet)){ 
+      ANN_inputValues["Ntrk500"] = acc_NumTrkPt500(jet)[pvLocation];
+    }else{
+      ATH_MSG_DEBUG("'NumTrkPt500' is not available as a jet attribute. Try retrieving it from ungroomed parent jet.");
+      if ( acc_parent(jet)  ) {
+	ElementLink<xAOD::JetContainer> largeRJetParentLink=acc_parent(jet);
+	if (largeRJetParentLink.isValid()){
+	  const xAOD::Jet* largeRJetParent {*largeRJetParentLink};	
+	  if ( acc_NumTrkPt500.isAvailable( *largeRJetParent) ) {
+		  ANN_inputValues["Ntrk500"] = (acc_NumTrkPt500( *largeRJetParent) )[pvLocation];
+	  }else{
+	    ATH_MSG_ERROR("The ungroomed parent jet doesn't have 'NumTrkPt500' as an attribute.");
+	    ANN_inputValues["Ntrk500"]=-999;
+	  }
+	}else{
+	  ATH_MSG_ERROR("The link to the ungroomed parent jet is not valid.");
+	  ANN_inputValues["Ntrk500"]=-999;
+	}
+      }else{
+	ATH_MSG_ERROR("No ungroomed parent jet available.");
+	ANN_inputValues["Ntrk500"]=-999;
+      }
+    }
 
-  }
-
-  else if ( m_tagClass == TAGCLASS::TopQuark ) {
+  }else if ( m_tagClass == TAGCLASS::TopQuark ) {
 
     ATH_MSG_DEBUG( "Loading variables for top quark tagger" );
 
