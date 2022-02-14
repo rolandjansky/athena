@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/cTauTOB.h"
 
@@ -25,15 +25,15 @@ TCS::cTauTOB::cTauTOB(unsigned int et, unsigned int isolation, int eta, unsigned
 {}
 
 // copy constructor
-TCS::cTauTOB::cTauTOB(const TCS::cTauTOB & eem) = default;
+TCS::cTauTOB::cTauTOB(const TCS::cTauTOB & ctau) = default;
 
 // destructor
 TCS::cTauTOB::~cTauTOB() = default;
 
 
 TCS::cTauTOB*
-TCS::cTauTOB::createOnHeap(const cTauTOB& eem) {
-   return fg_heap.create(eem);
+TCS::cTauTOB::createOnHeap(const cTauTOB& ctau) {
+   return fg_heap.create(ctau);
 }
 
 void

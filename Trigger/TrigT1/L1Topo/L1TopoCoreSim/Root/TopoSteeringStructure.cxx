@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "L1TopoCoreSim/TopoSteeringStructure.h"
 
@@ -243,7 +243,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 	      string *foundAlgo = std::find(std::begin(AvailableMultAlgs), std::end(AvailableMultAlgs), algo_klass);
 	      if (foundAlgo == std::end(AvailableMultAlgs)) cout << "TopoSteeringStructure: No L1Topo algorithm matching the configured multiplicity algorithm in the menu! Algorithm: " << algo_klass  << endl;
 
-	      if ( (algo_klass != "eEmMultiplicity") && (algo_klass != "eTauMultiplicity") && (algo_klass != "jJetMultiplicity") 
+	      if ( (algo_klass != "eEmMultiplicity") && (algo_klass != "eTauMultiplicity") && (algo_klass != "jTauMultiplicity") && (algo_klass != "jJetMultiplicity") 
 		   && (algo_klass != "jLJetMultiplicity") && (algo_klass != "cTauMultiplicity") && (algo_klass != "EnergyThreshold") ) continue; // Only available multiplicity algorithms so far
          
          //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
@@ -379,7 +379,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
       auto & l1algo = l1menu.algorithm(multAlgo, "MULTTOPO");
       
-      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eEmVarMultiplicity") && (l1algo.klass() != "eTauMultiplicity") 
+      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eEmVarMultiplicity") && (l1algo.klass() != "eTauMultiplicity") && (l1algo.klass() != "jTauMultiplicity")
 	   && (l1algo.klass() != "jJetMultiplicity") && (l1algo.klass() != "jLJetMultiplicity") && (l1algo.klass() != "cTauMultiplicity") && (l1algo.klass() != "EnergyThreshold") ) continue; // Only available multiplicities for now
 
       //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented

@@ -24,8 +24,8 @@ TCS::eTauSort::eTauSort(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 120 ); // for FW
    defineParameter( "InputWidth1stStage", 30 ); // for FW
    defineParameter( "OutputWidth", 6);
-   defineParameter( "RCore", 0);
-   defineParameter( "RHad", 0);
+   defineParameter( "RCoreMin", 0);
+   defineParameter( "RHadMin", 0);
    defineParameter( "MinEta", 0);
    defineParameter( "MaxEta", 63);
 }
@@ -38,8 +38,8 @@ TCS::eTauSort::~eTauSort() {}
 TCS::StatusCode
 TCS::eTauSort::initialize() {
    m_numberOfeTaus = parameter("OutputWidth").value();
-   m_rCore = parameter("RCore").value();
-   m_rHad = parameter("RHad").value();
+   m_minRCore = parameter("RCoreMin").value();
+   m_minRHad = parameter("RHadMin").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
    return TCS::StatusCode::SUCCESS;
@@ -57,7 +57,9 @@ TCS::eTauSort::sort(const InputTOBArray & input, TOBArray & output) {
       if (parType_t(std::abs((*etau)-> eta())) < m_minEta) continue; 
       if (parType_t(std::abs((*etau)-> eta())) > m_maxEta) continue;
 
-      // TODO: isolation cut
+      // Isolation cut
+      if ( !isocut(m_minRCore, (*etau)-> rCore()) ) {continue;}
+      if ( !isocut(m_minRHad, (*etau)-> rHad()) ) {continue;}
 
       const GenericTOB gtob(**etau);
       output.push_back( gtob );

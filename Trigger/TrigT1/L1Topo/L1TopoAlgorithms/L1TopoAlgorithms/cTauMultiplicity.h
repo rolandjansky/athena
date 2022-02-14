@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  cTauMultiplicity.h
 //  TopoCore
@@ -34,7 +34,7 @@ namespace TCS {
       TrigConf::L1Threshold const * m_threshold{nullptr};
       // This function is used to map the ctau isolation working points into a common format with eFEX EM and taus.
       // This allows us to use same functionalities from ConfigurableAlg (L1TopoInterfaces) to apply isolation cuts in multiplicity algorithms for all flavour of TOBS 
-      unsigned int convertIsoToBit(const TCS::GenericTOB & input_etau, const TCS::GenericTOB & input_jtau); 
+      unsigned int convertIsoToBit(const unsigned int & etauEt, const unsigned int & jtauIso); 
 
    };
 

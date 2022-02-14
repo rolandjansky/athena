@@ -1,12 +1,11 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-//  eTauMultiplicity.h
+//  jTauMultiplicity.h
 //  TopoCore
-//  Created by Carlos Moreno on 17/09/21.
 
-#ifndef __TopoCore__eTauMultiplicity__
-#define __TopoCore__eTauMultiplicity__
+#ifndef __TopoCore__jTauMultiplicity__
+#define __TopoCore__jTauMultiplicity__
 
 #include <iostream>
 #include <vector>
@@ -19,10 +18,10 @@ class TH2;
 
 namespace TCS { 
   
-   class eTauMultiplicity : public CountingAlg {
+   class jTauMultiplicity : public CountingAlg {
    public:
-      eTauMultiplicity(const std::string & name);
-      virtual ~eTauMultiplicity();
+      jTauMultiplicity(const std::string & name);
+      virtual ~jTauMultiplicity();
 
       virtual StatusCode initialize() override;
 
