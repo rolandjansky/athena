@@ -65,6 +65,8 @@ class SimulationTest(WorkflowTest):
              f" --inputEVNTFile {input_file} --outputHITSFile myHITS.pool.root"
              f" --imf False {extra_args}")
 
+            #  " --postExec 'ServiceMgr.AuditorSvc.FPEAuditor.NStacktracesOnFPE=500'"
+
         self.output_checks = [
             FrozenTier0PolicyCheck(setup, "HITS", 10)
         ]
@@ -104,6 +106,7 @@ class DataOverlayTest(WorkflowTest):
         self.command = \
             (f"Overlay_tf.py --AMIConfig {ID}"
              f" --inputHITSFile {input_HITS_data_overlay[run]} --inputBS_SKIMFile {input_BS_SKIM[run]} --outputRDOFile myRDO.pool.root"
+             " --triggerConfig 'Overlay=NONE'"  # disable trigger for now
              f" --imf False --athenaopts=\"--pmon=sdmonfp\" {extra_args}")
 
         self.output_checks = [
@@ -123,6 +126,7 @@ class PileUpTest(WorkflowTest):
         self.command = \
             (f"Digi_tf.py --AMIConfig {ID} --jobNumber 1 --digiSeedOffset1 1 --digiSeedOffset2 1"
              f" --inputHITSFile {input_HITS_neutrino[run]} --inputHighPtMinbiasHitsFile {input_HITS_minbias_high[run]} --inputLowPtMinbiasHitsFile {input_HITS_minbias_low[run]} --outputRDOFile myRDO.pool.root"
+             " --postExec 'FPEAuditor.NStacktracesOnFPE=500'"
              f" --imf False --athenaopts=\"--pmon=sdmonfp\" {extra_args}")
 
         self.output_checks = [
