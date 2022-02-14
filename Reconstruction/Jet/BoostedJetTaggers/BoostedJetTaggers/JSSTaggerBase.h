@@ -60,6 +60,9 @@ const static SG::AuxElement::ConstAccessor<float> acc_ECFG_3_3_1( "ECFG_3_3_1" )
 const static SG::AuxElement::ConstAccessor<float> acc_ECFG_3_1_1( "ECFG_3_1_1" );
 const static SG::AuxElement::ConstAccessor<float> acc_ECFG_2_1_2( "ECFG_2_1_2" );
 
+const static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> acc_parent("Parent");
+const static SG::AuxElement::ConstAccessor< std::vector<int> > acc_NumTrkPt500("NumTrkPt500");
+ 
 /// JSS moment ratio decorators
 const static SG::AuxElement::Decorator<float> dec_Tau21_wta( "Tau21_wta" );
 const static SG::AuxElement::Decorator<float> dec_Tau32_wta( "Tau32_wta" );

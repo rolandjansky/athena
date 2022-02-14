@@ -3,8 +3,7 @@
 */
 
 #include "BoostedJetTaggers/BoostedXbbTagger.h"
-
-static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> acc_parent("Parent");                                                                        
+                         
 static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc_ghostMatchedTrackJets("GhostAntiKt2TrackJet"); 
 
 BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :

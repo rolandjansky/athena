@@ -220,19 +220,15 @@ Root::TAccept& SmoothedWZTagger::tag( const xAOD::Jet& jet ) const {
     }
 
     if ( validVtx ) {
-      static SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
       const xAOD::Jet * ungroomedJet = 0;
 
-      if ( ungroomedLink.isAvailable(jet) ) {
-        ElementLink<xAOD::JetContainer> linkToUngroomed = ungroomedLink(jet);
+      if ( acc_parent.isAvailable(jet) ) {
+        ElementLink<xAOD::JetContainer> linkToUngroomed = acc_parent(jet);
         if (  linkToUngroomed.isValid() ) {
           ungroomedJet = *linkToUngroomed;
+          if ( acc_NumTrkPt500.isAvailable(*ungroomedJet) ) {
 
-          static SG::AuxElement::ConstAccessor< std::vector<int> >acc_Ntrk("NumTrkPt500");
-
-          if ( acc_Ntrk.isAvailable(*ungroomedJet) ) {
-
-            const std::vector<int> NTrkPt500 = acc_Ntrk(*ungroomedJet);
+            const std::vector<int> NTrkPt500 = acc_NumTrkPt500(*ungroomedJet);
 
             int jet_ntrk = NTrkPt500.at(primaryVertex->index());
             jet.auxdecor<int>("ParentJetNTrkPt500") = jet_ntrk;

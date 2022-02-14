@@ -8,7 +8,8 @@
 
 JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   JSSTaggerBase( name ),
-  m_lwnn(nullptr)
+  m_lwnn(nullptr),
+  m_lwnnGraph(nullptr)
 {
 
 }
@@ -149,13 +150,6 @@ StatusCode JSSWTopTaggerDNN::initialize() {
     ATH_MSG_ERROR( "Are you sure that the file exists at this path?" );
     return StatusCode::FAILURE;
   }
-
-  lwt::JSONConfig cfg = lwt::parse_json( input_cfg );
-
-  ATH_MSG_INFO( "Keras Network NLayers: " << cfg.layers.size() );
-
-  m_lwnn = std::make_unique<lwt::LightweightNeuralNetwork>(cfg.inputs, cfg.layers, cfg.outputs);
-
   /// Set internal tagger type
   if ( !m_tagType.compare("TopQuark") ) {
     ATH_MSG_DEBUG( "This is a top quark tagger" );
@@ -174,6 +168,25 @@ StatusCode JSSWTopTaggerDNN::initialize() {
     return StatusCode::FAILURE;
   }
 
+  if(m_tagClass == TAGCLASS::TopQuark){
+    lwt::JSONConfig cfg = lwt::parse_json( input_cfg );
+    ATH_MSG_INFO( "Keras Network NLayers: " << cfg.layers.size() );
+    m_lwnn = std::make_unique<lwt::LightweightNeuralNetwork>(cfg.inputs, cfg.layers, cfg.outputs);
+  }else if (m_tagClass== TAGCLASS::WBoson || m_tagClass== TAGCLASS::ZBoson){
+    lwt::GraphConfig config = lwt::parse_json_graph( input_cfg );
+    auto output_node_name = config.outputs.begin()->first;
+    m_out_names = config.outputs.at(output_node_name).labels;
+    ATH_MSG_INFO( "Keras Network NLayers: " << config.layers.size() );
+    m_lwnnGraph = std::make_unique< lwt::LightweightGraph >(config, output_node_name);
+    /// Build the network
+    try {
+      m_lwnnGraph.reset(new lwt::LightweightGraph(config, output_node_name));
+    } catch (lwt::NNConfigurationException& exc) {
+      ATH_MSG_ERROR( "NN configuration problem: " << exc.what() );
+      return StatusCode::FAILURE;
+    }
+  }
+  
   /// Set the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
   m_accept.addCut( "PassMassLow" , "mJet > mCutLow" );
   m_accept.addCut( "PassScore"   , "ScoreJet > ScoreCut" );
@@ -224,13 +237,13 @@ Root::TAccept& JSSWTopTaggerDNN::tag( const xAOD::Jet& jet ) const {
       }
     }
   }
-
   /// Print cut criteria and jet values
   ATH_MSG_VERBOSE( "Cut values : Mass window = [" << cut_mass_low << "," << cut_mass_high << "], score cut = " << cut_score );
   ATH_MSG_VERBOSE( "Jet values : Mass = " << jet_mass << ", score = " << jet_score );
 
   /// Get SF weight
-  getWeight( jet, jet_score > cut_score );
+  if(m_calcSF)
+    getWeight( jet, jet_score > cut_score );
 
   /// Decorate cut information if needed
   if ( m_decorate ) {
@@ -240,6 +253,7 @@ Root::TAccept& JSSWTopTaggerDNN::tag( const xAOD::Jet& jet ) const {
     (*m_dec_scoreCut)(jet)   = cut_score;
     (*m_dec_scoreValue)(jet) = jet_score;
   }
+
   
   /// Set the TAccept depending on whether it is a W/Z or a top tagger
   if ( m_tagClass == TAGCLASS::WBoson || m_tagClass == TAGCLASS::ZBoson ) {
@@ -277,8 +291,14 @@ double JSSWTopTaggerDNN::getScore( const xAOD::Jet& jet ) const {
   std::map<std::string,double> DNN_inputValues = getJetProperties(jet);
 
   /// Evaluate the network response
-  lwt::ValueMap discriminant = m_lwnn->compute(DNN_inputValues);
-
+  lwt::ValueMap discriminant;
+  if (m_tagClass== TAGCLASS::TopQuark)
+    discriminant= m_lwnn->compute(DNN_inputValues);
+  else if(m_tagClass== TAGCLASS::WBoson || m_tagClass== TAGCLASS::ZBoson){
+    std::map< std::string, std::map<std::string, double> > DNN_inputs;
+    DNN_inputs["node_0"] = DNN_inputValues;
+    discriminant= m_lwnnGraph->compute(DNN_inputs);
+  }
   /// Obtain the output associated with the single output node
   double DNNscore = -666.;
 
@@ -288,15 +308,15 @@ double JSSWTopTaggerDNN::getScore( const xAOD::Jet& jet ) const {
   if ( m_tagClass == TAGCLASS::TopQuark && acc_Tau32_wta(jet) < 0.0 ) validVars = false;
 
   if ( !validVars ) {
-
     if ( m_nWarnVar++ < m_nWarnMax ) ATH_MSG_WARNING( "One (or more) tagger input variable has an out-of-range value, setting score to -666" );
     else ATH_MSG_DEBUG( "One (or more) tagger input variable has an out-of-range value, setting score to -666" );
-
     return DNNscore;
-
   }
 
-  DNNscore = discriminant[m_kerasConfigOutputName];
+  if(m_tagClass== TAGCLASS::WBoson || m_tagClass== TAGCLASS::ZBoson)
+    DNNscore = discriminant.at(m_out_names.at(0));
+  else if (m_tagClass== TAGCLASS::TopQuark)
+    DNNscore = discriminant[m_kerasConfigOutputName];
 
   return DNNscore;
 
@@ -339,8 +359,48 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties( const xAOD::Jet
     DNN_inputValues["ZCut12"] = jet.getAttribute<float>("ZCut12");
     DNN_inputValues["KtDR"] = jet.getAttribute<float>("KtDR");
   
+    //need pvLocation for getting Ntrk                                                                                                          
+    int pvLocation=0;
+    const xAOD::VertexContainer* vertexcontainer=0;
+    if(evtStore()->retrieve( vertexcontainer, "PrimaryVertices" ) != StatusCode::SUCCESS){
+      ATH_MSG_ERROR("No primary vertex container with name 'PrimaryVertices' was found");
+      DNN_inputValues["Ntrk500"] = -999;
+      pvLocation=-1;
+    }else{
+      for( auto vtx_itr : *vertexcontainer ){
+	if(vtx_itr->vertexType() == xAOD::VxType::VertexType::PriVtx) {
+	  break;
+        }
+        pvLocation++;
+      }
+    }
+    //should get this from derivations, but if not available try to reconstruct it                                                              
+    if (acc_NumTrkPt500.isAvailable( jet)){
+      DNN_inputValues["Ntrk500"] = acc_NumTrkPt500(jet)[pvLocation];
+    }else{
+      ATH_MSG_DEBUG("'NumTrkPt500' is not available as a jet attribute. Try retrieving it from ungroomed parent jet.");
+      if ( acc_parent(jet)  ) {
+        ElementLink<xAOD::JetContainer> largeRJetParentLink=acc_parent(jet);
+        if (largeRJetParentLink.isValid()){
+          const xAOD::Jet* largeRJetParent {*largeRJetParentLink};
+          if ( acc_NumTrkPt500.isAvailable( *largeRJetParent) ) {
+	    DNN_inputValues["Ntrk500"] = (acc_NumTrkPt500( *largeRJetParent) )[pvLocation];
+          }else{
+            ATH_MSG_ERROR("The ungroomed parent jet doesn't have 'NumTrkPt500' as an attribute.");
+            DNN_inputValues["Ntrk500"]=-999;
+          }
+        }else{
+          ATH_MSG_ERROR("The link to the ungroomed parent jet is not valid.");
+          DNN_inputValues["Ntrk500"]=-999;
+        }
+      }else{
+        ATH_MSG_ERROR("No ungroomed parent jet available.");
+	DNN_inputValues["Ntrk500"]=-999;
+      }
+    }
+
   }
-  
+
   else if ( m_tagClass == TAGCLASS::TopQuark ) {
   
     ATH_MSG_DEBUG("Loading variables for top quark tagger");
