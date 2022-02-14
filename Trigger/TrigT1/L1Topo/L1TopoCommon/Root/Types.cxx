@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoCommon/Types.h"
@@ -40,13 +40,10 @@ TCS::inputType(const std::string& input) {
    if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
       return TCS::JEM;
 
-   if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
-      return TCS::CLUSTER;
-
-   if ( input == "eTAU" || input == "eTauTobArray" || input == "eTauTobs" )
+   if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" || input == "eTAU" )
       return TCS::ETAU;
 
-   if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
+   if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" || input == "jTAU" )
       return TCS::JTAU;
 
    if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" || input == "cTAU" )
