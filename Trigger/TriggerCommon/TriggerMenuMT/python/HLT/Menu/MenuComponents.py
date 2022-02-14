@@ -3,7 +3,7 @@
 from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLT.Menu.MenuComponentsNaming import CFNaming
 
-from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
+from AthenaCommon.CFElements import parOR, seqAND, compName, getProp, findAlgorithmByPredicate
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -1155,7 +1155,8 @@ class InViewRecoCA(ComponentAccumulator):
 class SelectionCA(ComponentAccumulator):
     def __init__(self, name):
         self.name = name
-        super( SelectionCA, self ).__init__()
+
+        super( SelectionCA, self ).__init__()   
 
         self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
         self.stepViewSequence = seqAND(CFNaming.stepContentName(name), [self.stepRecoSequence])
@@ -1172,6 +1173,17 @@ class SelectionCA(ComponentAccumulator):
         """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
+    def hypo(self):
+        """Access hypo algo (or throws)"""
+        h = findAlgorithmByPredicate(self.stepViewSequence, lambda alg: "HypoInputDecisions" in alg._descriptors ) # can't use isHypo
+        assert h is not None, "No hypo in SeelectionCA {}".format(self.name)
+        return h
+
+    def inputMaker(self):
+        """Access Input Maker (or throws)"""
+        im = findAlgorithmByPredicate(self.stepRecoSequence, lambda alg: "InputMakerInputDecisions" in alg._descriptors )
+        assert im is not None, "No input maker in SeelectionCA {}".format(self.name)
+        return im
 
 # mainline/rec-ex-common and CA based JO compatibility layer (basically converters)
 def algorithmCAToGlobalWrapper(gen, flags, *args, **kwargs):
