@@ -20,7 +20,8 @@ atlas_add_citest( G4ExHive
    PROPERTIES PROCESSORS 4 )
 
 atlas_add_citest( OverlayTier0
-   SCRIPT RunTier0Tests.py -o -n )
+   SCRIPT RunTier0Tests.py -o -n
+   POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/dumpOverlayLogs.sh )  # ATLINFR-4423
 
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
