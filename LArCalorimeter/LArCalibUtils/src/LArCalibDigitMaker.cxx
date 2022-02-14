@@ -56,11 +56,8 @@ StatusCode LArCalibDigitMaker::initialize()
        ATH_MSG_DEBUG ( "======== LArCalibDigitMaker isSC is True  ========" );
     }
   }
-  if(m_isSC){
-    ATH_CHECK( m_calibMapSCKey.initialize() );
-  }else{
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }
+  ATH_CHECK( m_calibMapSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_calibMapKey.initialize(!m_isSC) );
     
   //if we have calib board params as jobOpts, set them
 

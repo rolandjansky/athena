@@ -136,7 +136,7 @@ StatusCode LArPhysWavePredictor::initialize()
 
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
-  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+  ATH_CHECK( m_cablingKeySC.initialize(m_isSC) );
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   return StatusCode::SUCCESS ;
