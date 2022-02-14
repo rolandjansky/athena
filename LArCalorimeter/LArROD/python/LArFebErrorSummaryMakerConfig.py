@@ -8,7 +8,14 @@ def LArFebErrorSummaryMakerCfg(configFlags):
     febSummaryMaker =LArFebErrorSummaryMaker()
     projectName=configFlags.Input.ProjectName
     
-    yearNumber=int(projectName[4:6])
+    if projectName == "data_test":
+        from datetime import date
+        yearNumber=date.today().year-2000
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger('LArFebErrorSummaryMakerConfig')
+        log.info("Found project name data_test, assume year number to be %d",yearNumber)
+    else:
+        yearNumber=int(projectName[4:6])
 
     if yearNumber > 20:
        febSummaryMaker.MaskFebScacStatus = [0x38680000,0x38720000]
