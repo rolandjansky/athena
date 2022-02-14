@@ -36,8 +36,8 @@ UseAodMetaData True
 ##these are the settings for MC16a
 GRLDir GoodRunsLists
 GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20180129/physics_25ns_21.0.19.xml
-PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.FS.v2/prw.merged.root
-PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.AF.v2/prw.merged.root
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.topreco.Top.PRW.MC16a.FS.v2/prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.topreco.Top.PRW.MC16a.AF.v2/prw.merged.root
 PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root
 
 ###########Reco-level object definitions (i.e. object-level selection)##########
