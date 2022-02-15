@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -10,6 +10,7 @@
 #include "TFile.h"
 #include "TF1.h"
 #include "TH1D.h"
+#include <utility>
 
 #define GeV 1000
 
@@ -111,7 +112,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& tau) const
   auto tau_p4 = m_doVertexCorrection ? tau.p4(xAOD::TauJetParameters::IntermediateAxis) : tau.p4(xAOD::TauJetParameters::DetectorAxis);
 
   double absEta = std::abs( tau_p4.Eta() );
-  int etaBin = m_etaBinHist->GetXaxis()->FindBin(absEta) - 1;
+  int etaBin = std::as_const(m_etaBinHist)->GetXaxis()->FindBin(absEta) - 1;
         
   if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
