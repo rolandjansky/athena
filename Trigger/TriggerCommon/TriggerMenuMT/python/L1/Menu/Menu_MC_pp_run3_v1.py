@@ -3,12 +3,13 @@
 # Run this file in order to print out the empty slots
 
 from TriggerMenuMT.L1.Base.L1MenuFlags import L1MenuFlags
+from TriggerMenuMT.L1.Base.Limits import Limits
 
 def print_available():
     import logging
     defineMenu()
-    available = list(set(range(509)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
-    freeItems = 512 - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
+    available = list(set(range(Limits.MaxTrigItems-3)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
+    freeItems = Limits.MaxTrigItems - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
     floatingItems = sorted(list(set(L1MenuFlags.items.value) - set(L1MenuFlags.CtpIdMap.value.keys()))) # these items get their CTPID assigned automatically
     unusedItemsWithCTPID = set(L1MenuFlags.CtpIdMap.value.keys()) - set(L1MenuFlags.items.value) # this should be empty, otherwise remove the items from the CtpIdMap
     available.sort()
@@ -53,7 +54,7 @@ def defineMenu():
         ##
         'L1_MU3V', 'L1_MU5VF', 'L1_MU8F', 'L1_MU8VF', 'L1_MU14FCH', 'L1_MU14FCHR',
         'L1_MU3VF', 'L1_MU8FC', 'L1_MU8VFC', 'L1_MU15VFCH', 'L1_MU10BOM', 'L1_MU4BOM', 'L1_MU12BOM', 'L1_MU10BO', 
-        'L1_2MU3V', 'L1_2MU5VF', 'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_MU5VF_2MU3V', 'L1_MU5VF_2MU3VF',
+        'L1_2MU3V', 'L1_2MU3VF', 'L1_2MU5VF', 'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_MU5VF_2MU3V', 'L1_MU5VF_2MU3VF',
         'L1_3MU3V', 'L1_3MU3VF', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_MU5VF_3MU3VF', 'L1_4MU3V', 
         'L1_2MU5VF_3MU3V', 'L1_2MU8VF', 
         'L1_MU8F_2MU5VF',
@@ -134,6 +135,9 @@ def defineMenu():
         'L1_MU14FCH_XE30',
         'L1_MU14FCH_EMPTY',
         'L1_MU14FCH_UNPAIRED_ISO',
+
+        #'L1_MU14FCH_jJ80',
+        #'L1_MU14FCH_jXE70',
 
         # single jet
         # L1_J12 must be kept in the menu for online monitoring of BIB (can be disabled via PS is necessary)
@@ -368,9 +372,9 @@ def defineMenu():
         'L1_jMJJ-400-CF',
         'L1_eEM22M_jMJJ-300',
 
-        'L1_10DR-MU14FCH-MU5VF', #ATR-19376
-        'L1_10DR-MU14FCH-MU5VF_EMPTY',
-        'L1_10DR-MU14FCH-MU5VF_UNPAIRED_ISO',
+        #'L1_10DR-MU14FCH-MU5VF', #ATR-19376
+        #'L1_10DR-MU14FCH-MU5VF_EMPTY',
+        #'L1_10DR-MU14FCH-MU5VF_UNPAIRED_ISO',
     
         #ATR-19720, ATR-19639
         'L1_BPH-2M9-0DR15-2MU3V',

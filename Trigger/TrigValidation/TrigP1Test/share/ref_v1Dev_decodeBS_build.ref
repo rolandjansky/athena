@@ -534,6 +534,12 @@ HLT_2mu4_l2io_invmDimu_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu4_l2io_invmDimu_L12MU3VF:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu4_l2mt_L1MU4BOM:
   eventCount: 0
 HLT_2mu4_muonqual_L12MU3V:
@@ -572,12 +578,6 @@ HLT_2mu4_noL2Comb_bJpsimumu_L12MU3V:
     1: 2
 HLT_2mu50_msonly_L1MU14FCH:
   eventCount: 0
-HLT_2mu6_10invmAA70_L1MU5VF:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_11invmAA24_L1DY-BOX-2MU5VF:
   eventCount: 0
   stepCounts:
@@ -4596,12 +4596,6 @@ HLT_mu20_msonly_L1MU14FCH:
     0: 1
   stepFeatures:
     0: 1
-HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU14FCH-MU5VF:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH:
   eventCount: 0
   stepCounts:
@@ -4677,48 +4671,6 @@ HLT_mu24_idperf_L1MU14FCH:
     0: 1
     1: 1
 HLT_mu24_ivarmedium_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_ivarmedium_mu6_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
-HLT_mu24_ivarmedium_mu6_ivarmedium_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
-HLT_mu24_ivarmedium_mu6_ivarmedium_probe_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_ivarmedium_mu6_ivarperf_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
-HLT_mu24_ivarmedium_mu6_ivarperf_probe_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_ivarmedium_mu6_probe_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_mu10noL1_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -5606,12 +5558,6 @@ HLT_mu6_msonly_L1MU5VF:
   stepFeatures:
     0: 6
     1: 2
-HLT_mu6_mu4_L12MU3V:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 4
 HLT_mu6_mu4_L1BPH-7M14-MU5VFMU3VF:
   eventCount: 0
 HLT_mu6_mu4_PhysicsTLA_L1BPH-7M22-MU5VFMU3VF:
@@ -5743,10 +5689,6 @@ HLT_noalg_CostMonDS_L1All:
     0: 50
   stepFeatures:
     0: 50
-HLT_noalg_L110DR-MU14FCH-MU5VF_EMPTY:
-  eventCount: 0
-HLT_noalg_L110DR-MU14FCH-MU5VF_UNPAIRED_ISO:
-  eventCount: 0
 HLT_noalg_L1ABORTGAPNOTCALIB_noPS:
   eventCount: 0
 HLT_noalg_L1AFP_A_AND_C_TOF_J50:
