@@ -164,10 +164,9 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   // TODO : add configuration of the mapIndices - rather than just using the default of 0
   //m_mapIndices["Light"] = m_mapIndices["T"] = m_mapIndices["C"] = m_mapIndices["B"] = 0;
   m_initialised = false;
-  // m_getTagWeight = 0;
-  m_applySyst = false;
-  m_isContinuous = false;
-
+  m_applySyst      = false;
+  m_isContinuous   = false;
+  m_isContinuous2D = false;
   // declare the selection tool to be private (not absolutely sure this is needed?)
   m_selectionTool.declarePropertyFor(this, "BTaggingSelectionTool", "selection tool to be used internally");
 }
@@ -246,6 +245,10 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     //   ATH_MSG_FATAL( "No tag weight retrieval function defined for tagger = " << m_taggerName);
     // }
   }
+  else if  (m_OP == "Continuous2D") {
+    m_isContinuous2D = true;
+  }
+
   ATH_MSG_INFO( " JetAuthor = " << m_jetAuthor);
 
   std::string flavours[] = { "B", "C", "Light", "T" };
@@ -571,7 +574,7 @@ BTaggingEfficiencyTool::getScaleFactor( int flavour, const Analysis::Calibration
     }
   }
 
-  status = m_isContinuous ?
+  status = (m_isContinuous || m_isContinuous2D) ?
     m_CDI->getWeightScaleFactor(v,sfindex,efindex,
 				unc,unc_ind,result) :
     m_CDI->getScaleFactor(v,sfindex,efindex,
@@ -1048,7 +1051,6 @@ BTaggingEfficiencyTool::fillVariables( const xAOD::Jet & jet, CalibrationDataVar
   if (m_isContinuous) {
     const xAOD::BTagging* tagInfo = jet.btagging();
     if (!tagInfo) return false;
-    // x.jetTagWeight = (tagInfo->*m_getTagWeight)();
     // For now, we defer the tag weight computation to the selection tool only in the case of DL1* (this is likely to be revisited)
     if (m_taggerName.find("DL1") != std::string::npos) {
       return (m_selectionTool->getTaggerWeight(jet, x.jetTagWeight) == CP::CorrectionCode::Ok);
@@ -1056,6 +1058,11 @@ BTaggingEfficiencyTool::fillVariables( const xAOD::Jet & jet, CalibrationDataVar
       return tagInfo->MVx_discriminant(m_taggerName, x.jetTagWeight);
     }
   }
+  else if (m_isContinuous2D){
+    x.jetTagWeight = m_selectionTool->getQuantile(jet)+0.5;
+    //    std::cout <<"inside fill variables in EffTool: " <<x.jetTagWeight <<" " <<x.jetAuthor <<std::endl;
+  }
+
   return true;
 }
 

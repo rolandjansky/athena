@@ -52,14 +52,15 @@ class BTaggingSelectionTool: public asg::AsgTool,
 
   /// Get the decision using thet jet's pt and mv2c20 weight values
   virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* tag_weight */ ) const;
-  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2cl100 weight */, double /* mv2c100 weight */ ) const;
+  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta*/, double /* veto_taggerWeight */, double /* veto_taggerWeight */) const;
   virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */) const;
 
   /// Decide in which quantile of the MV2c20 weight distribution the jet belongs (continuous tagging)
   /// The return value represents the bin index of the quantile distribution
   virtual int getQuantile( const xAOD::IParticle* ) const;
   virtual int getQuantile( const xAOD::Jet& ) const;
-  virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */  ) const;
+  virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* tag weight */  ) const;
+  virtual int getQuantile(double /*pT*/, double /*eta*/, double /*tag_weight*/, double /*tag_weight_veto*/ ) const;
 
   virtual CP::CorrectionCode getCutValue(double /* jet pt */, double & cutval, bool useVetoWP = false) const;
   virtual CP::CorrectionCode getTaggerWeight( const xAOD::Jet& jet, double & weight ,bool useVetoWP = false) const;
@@ -73,7 +74,7 @@ private:
 
   bool m_initialised;
 
-	bool m_ErrorOnTagWeightFailure;
+  bool m_ErrorOnTagWeightFailure;
 
    /// Object used to store the last decision
   mutable Root::TAccept m_accept;
@@ -99,10 +100,18 @@ private:
   std::string m_taggerName_Veto;
   std::string m_OP_Veto;
 
+  enum Tag{
+    BTag, ///< b-tagging
+    CTag, ///< c-tagging
+    LTag  ///< light-tagging (okay, not definied now)
+  };
+
   struct taggerproperties{
+    std::string name;
     double fraction;
     TSpline3* spline;
     TVector* constcut;
+    Tag tagging = Tag::BTag; //b-tagging or c-tagging. b-tagging by default
   };
 
   taggerproperties m_tagger;

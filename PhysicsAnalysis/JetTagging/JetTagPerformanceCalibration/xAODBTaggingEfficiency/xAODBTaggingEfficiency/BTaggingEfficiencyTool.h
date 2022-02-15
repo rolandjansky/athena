@@ -329,6 +329,7 @@ private:
   std::string m_jetAuthor;
   ///  minimum jet pT
   float m_minPt;
+
   /// systematics model to be used (current choices are "SFEigen", "SFEigenRefined", and "Envelope")
   std::string m_systStrategy;
   /// if true, attempt to retrieve the data/MC efficiency scale factor calibration files from the @PathResolver development area
@@ -365,6 +366,8 @@ private:
   CP::SystematicSet m_systematics;
   // specifically for continuous tagging
   bool m_isContinuous;
+  // specifically for continuous 2D tagging
+  bool m_isContinuous2D;
   // pointer to a member function of a b-tagger
   // tagWeight_member_t m_getTagWeight;
 

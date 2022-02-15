@@ -407,6 +407,10 @@ CalibrationDataEigenVariations::getJacobianReductionMatrix() const
     }
   }
 
+  // **** COMMENTED OUT FOR NOW. 
+  // Leave it here in case the calibration method will change again in the future. 
+  // No need to reweight the SF by the efficiency of that bin (MCreference always = 0)
+
   // Determine whether the container is for "continuous" calibration.
   // This is important since the number of independent scale factors (for each pt or eta bin)
   // is reduced by 1 compared to the number of tag weight bins (related to the fact that the fractions
@@ -543,20 +547,21 @@ CalibrationDataEigenVariations::initialize(double min_variance)
   // // This is important since the number of independent scale factors (for each pt or eta bin)
   // // is reduced by 1 compared to the number of tag weight bins (related to the fact that the fractions
   // // of events in tag weight bins have to sum up to unity).
-  int axis = m_cnt->getTagWeightAxis();
+  //int axis = m_cnt->getTagWeightAxis();
   // bool doContinuous = false; unsigned int weightAxis = 0;
 
-  if (axis >= 0) {
+  //if (axis >= 0) {
   //   doContinuous = true;
   //   weightAxis = (unsigned int) axis;
   //   // In this case, verify that the special "uncertainty" entry that is in fact the reference MC tag
   //   // weight fractions is present. These tag weight fractions are needed in order to carry out the
   //   // diagonalisation successfully.
-    if (! dynamic_cast<TH1*>(m_cnt->GetValue("MCreference"))) {
-      std::cerr << " Problem: continuous calibration object found without MC reference tag weight histogram " << std::endl;
-      return;
-    }
-  }
+  //    NOTE: MCreference is not used at the moment (always 0 in the CDI). Comment it out. 
+  //    if (! dynamic_cast<TH1*>(m_cnt->GetValue("MCreference"))) {
+  //   std::cerr << " Problem: continuous calibration object found without MC reference tag weight histogram " << std::endl;
+  //  return;
+  // }
+  //}
 
   // Only relevant for continuous calibration containers, but in order to void re-computation we
   // retrieve them here
