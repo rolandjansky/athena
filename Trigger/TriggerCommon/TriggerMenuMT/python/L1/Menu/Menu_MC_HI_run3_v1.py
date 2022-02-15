@@ -3,12 +3,13 @@
 # Run this file in order to print out the empty slots
 
 from TriggerMenuMT.L1.Base.L1MenuFlags import L1MenuFlags
+from TriggerMenuMT.L1.Base.Limits import Limits
 
 def print_available():
     import logging
     defineMenu()
-    available = list(set(range(509)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
-    freeItems = 512 - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
+    available = list(set(range(Limits.MaxTrigItems-3)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
+    freeItems = Limits.MaxTrigItems - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
     floatingItems = sorted(list(set(L1MenuFlags.items.value) - set(L1MenuFlags.CtpIdMap.value.keys()))) # these items get their CTPID assigned automatically
     unusedItemsWithCTPID = set(L1MenuFlags.CtpIdMap.value.keys()) - set(L1MenuFlags.items.value) # this should be empty, otherwise remove the items from the CtpIdMap
     available.sort()

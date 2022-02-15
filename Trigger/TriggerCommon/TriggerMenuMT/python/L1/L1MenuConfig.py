@@ -633,6 +633,8 @@ class L1MenuConfig(object):
                 item.setTriggerType( item.trigger_type | TT.phys )
             # assign ctp IDs to items that don't have one
             if item.ctpid == -1:
+                if len(available_ctpids)==0:
+                    raise RuntimeError("No more CTP IDs available at L1!!")
                 item.setCtpid( available_ctpids.pop() )
             # add the items into the menu
             self.l1menu.addItem( item )
