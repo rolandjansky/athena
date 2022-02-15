@@ -44,7 +44,7 @@ StatusCode LArRawChannelBuilderIterAlg::initialize() {
                m_run1DSPThresholdsKey.key() << " (run1) " <<
                m_run2DSPThresholdsKey.key() << " (run2) ");
 
-  if(m_storeTiming) ATH_CHECK(m_timingContKey.initialize());
+  ATH_CHECK(m_timingContKey.initialize(SG::AllowEmpty));
 
   return StatusCode::SUCCESS;
 }     
@@ -63,10 +63,11 @@ StatusCode LArRawChannelBuilderIterAlg::execute(const EventContext& ctx) const {
   ATH_CHECK(outputContainer.record(std::make_unique<LArRawChannelContainer>()));
 	    
   //Should we store iter results ?
-  SG::WriteHandle<LArOFIterResultsContainer> outputTimingContainer;
-  if(m_storeTiming) {
-     outputTimingContainer = SG::WriteHandle<LArOFIterResultsContainer>(m_timingContKey,ctx);
-     ATH_CHECK(outputTimingContainer.record(std::make_unique<LArOFIterResultsContainer>()));
+  LArOFIterResultsContainer* outputTimingContainer{nullptr};
+  if(!m_timingContKey.empty()) {
+    SG::WriteHandle<LArOFIterResultsContainer> timingContHandle(m_timingContKey,ctx);
+    ATH_CHECK(timingContHandle.record(std::make_unique<LArOFIterResultsContainer>()));
+    outputTimingContainer = timingContHandle.ptr();
   }
   //Get Conditions input
   SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey,ctx);
@@ -196,7 +197,7 @@ StatusCode LArRawChannelBuilderIterAlg::execute(const EventContext& ctx) const {
 
     const LArOFIterResults results = peak(signal, id, gain, m_defaultPhase, ofcs, shapes, 
 					  nIteration, ipeak,peak_min, peak_max );
-    if(m_storeTiming) {
+    if(outputTimingContainer) {
        outputTimingContainer->push_back(results);
     }
     if (results.getValid()) {

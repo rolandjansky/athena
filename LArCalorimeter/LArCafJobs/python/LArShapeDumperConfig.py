@@ -22,7 +22,7 @@ def LArShapeDumperCfg(flags):
 
     from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
     result.merge(LArRawChannelBuilderAlgCfg(flags))
-    result.getEventAlgo("LArRawChannelBuilder").StoreTiming=True
+    result.getEventAlgo("LArRawChannelBuilder").TimingContainerKey="LArOFIterResult"
     
     from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
     result.merge(LArTimeVetoAlgCfg(flags))
