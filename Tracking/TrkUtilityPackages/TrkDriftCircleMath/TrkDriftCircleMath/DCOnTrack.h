@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_DCONTRACK_H
@@ -52,6 +52,7 @@ namespace TrkDriftCircleMath {
     private:
         double m_residual{0.};
         double m_errorTrack{1.e9};
+        // cppcheck-suppress duplInheritedMember
         DCOnTrackState m_state{OnTrack};  // Masks DriftCircle::m_state which is a DriftState
     };
 
