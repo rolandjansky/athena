@@ -11,7 +11,6 @@ def LArGMCfg(configFlags):
 
     doAlignment=configFlags.LAr.doAlign
     activateCondAlgs = configFlags.Common.Project != "AthSimulation"
-
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
     if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
         tool.GeometryConfig = "RECO"
@@ -21,8 +20,12 @@ def LArGMCfg(configFlags):
     if doAlignment:
         if configFlags.Input.isMC:
             #Monte Carlo case:
-            result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL",className="DetCondKeyTrans"))
-            result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL",className="CaloRec::CaloCellPositionShift"))
+            if activateCondAlgs:
+                result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL",className="DetCondKeyTrans"))
+                result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL",className="CaloRec::CaloCellPositionShift"))
+            else:
+                result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL"))
+                result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL"))
         else:
             if configFlags.Overlay.DataOverlay:
                 #Data overlay
