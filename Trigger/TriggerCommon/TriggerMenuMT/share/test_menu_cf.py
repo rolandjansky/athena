@@ -50,7 +50,7 @@ topSequence = AlgSequence()
 
 if testopt.menuType == 'menuManual':
     generateCFChains(opt)
-    from TriggerMenuMT.HLT.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+    from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
     checkL1HLTConsistency()
 elif testopt.menuType == 'emuMenuTest':
     # HLT_TestChain
