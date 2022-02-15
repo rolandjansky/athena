@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloTPCnv )
@@ -12,7 +12,7 @@ atlas_add_tpcnv_library( CaloTPCnv
                          PUBLIC_HEADERS CaloTPCnv
                          PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                          PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                         LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel LArRecEvent TileEvent )
+                         LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel LArRecEvent TileEvent CxxUtils )
 
 atlas_add_dictionary( CaloTPCnvDict
                       CaloTPCnv/CaloTPCnvDict.h
@@ -42,7 +42,7 @@ atlas_add_test( CaloClusterCellLinkContainerCnv_p1_test
 
 atlas_add_test( CaloCellPackerUtils_test
    SOURCES test/CaloCellPackerUtils_test.cxx
-   LINK_LIBRARIES GaudiKernel )
+   LINK_LIBRARIES GaudiKernel CxxUtils )
 
 atlas_add_test( CaloCompactCellTool_test
    SOURCES test/CaloCompactCellTool_test.cxx
