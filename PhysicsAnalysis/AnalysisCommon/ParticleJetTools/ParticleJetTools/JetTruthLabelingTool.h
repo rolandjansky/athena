@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEJETTOOLS_JETTRUTHLABELINGTOOL_H
@@ -54,14 +54,16 @@ protected:
 
   /// parameters for truth labeling
   std::string m_truthJetCollectionName;
-  bool m_useDRMatch;
-  double m_dRTruthJet;
-  double m_dRTruthPart;
-  double m_mLowTop;
-  double m_mLowW;
-  double m_mHighW;
-  double m_mLowZ;
-  double m_mHighZ;
+  bool m_useDRMatch; /// Use dR to match partons to truth jet
+  bool m_useWZMassHigh; /// Use upper mass cut for W/Z labels
+  bool m_matchUngroomedParent; /// Use the ungroomed reco jet parent to match to truth jet
+  double m_dRTruthJet; /// dR to match truth jet to reco jet
+  double m_dRTruthPart; /// dR to match truth particles to truth jet
+  double m_mLowTop; /// Lower mass cut for top label
+  double m_mLowW; /// Lower mass cut for W label
+  double m_mHighW; /// Upper mass cut for W label
+  double m_mLowZ; /// Lower mass cut for Z label
+  double m_mHighZ; /// Upper mass cut for Z label
 
   /// Label truth jet collection
   StatusCode labelTruthJets() const;
@@ -83,8 +85,11 @@ protected:
   /// Get label based on matching and containment criteria
   int getLabel( const xAOD::Jet &jet, bool matchH, bool matchW, bool matchZ, bool matchTop ) const;
 
-  /// Get R21Precision top label Split23 cut
-  float getTopSplit23CutR21Precision( float pt ) const;
+  /// Get W/Z label Split12 cut
+  float getWZSplit12Cut( float pt ) const;
+
+  /// Get top label Split23 cut
+  float getTopSplit23Cut( float pt ) const;
 
   /// Get number of ghost associated particles
   int getNGhostParticles( const xAOD::Jet &jet, std::string collection ) const;
@@ -113,6 +118,7 @@ protected:
   std::unique_ptr< SG::AuxElement::Accessor<float> > acc_dR_H;
   std::unique_ptr< SG::AuxElement::Accessor<float> > acc_dR_Top;
   std::unique_ptr< SG::AuxElement::Accessor<int> > acc_NB;
+  std::unique_ptr< SG::AuxElement::Accessor<float> > acc_Split12;
   std::unique_ptr< SG::AuxElement::Accessor<float> > acc_Split23;
 
   std::unique_ptr< SG::AuxElement::Decorator<int> > dec_label;
@@ -122,6 +128,7 @@ protected:
   std::unique_ptr< SG::AuxElement::Decorator<float> > dec_dR_Top;
   std::unique_ptr< SG::AuxElement::Decorator<int> > dec_NB;
   std::unique_ptr< SG::AuxElement::Decorator<float> > dec_TruthJetMass;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_TruthJetSplit12;
   std::unique_ptr< SG::AuxElement::Decorator<float> > dec_TruthJetSplit23;
 
 };

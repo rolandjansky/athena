@@ -352,6 +352,7 @@ if DerivationFrameworkHasTruth:
   for alg in largeRJetAlgs:
     addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
     addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Precision")
+    addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Precision_2022v1")
 
 addVRJets(jetm6Seq, largeRColls = largeRJetCollections)
 addVRJets(jetm6Seq, largeRColls = largeRJetCollections, training='201903')
