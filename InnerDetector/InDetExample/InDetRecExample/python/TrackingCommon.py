@@ -812,9 +812,13 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
 def getInDetPixelConditionsSummaryTool() :
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    has_bytestream_errors= globalflags.DataSource=='data' and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
+                                                               or globalflags.InputFormat() == 'bytestream' )
+
     pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
-                                                                 UseByteStreamFEI4=(globalflags.DataSource=='data'),
-                                                                 UseByteStreamFEI3=(globalflags.DataSource=='data'))
+                                                                 UseByteStreamFEI4=has_bytestream_errors,
+                                                                 UseByteStreamFEI3=has_bytestream_errors)
     if InDetFlags.usePixelDCS():
         pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]

@@ -3,6 +3,7 @@
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelDeadMapCondAlgCfg
@@ -17,8 +18,8 @@ def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
     acc.merge(PixelDeadMapCondAlgCfg(flags))
 
     kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
-    kwargs.setdefault("UseByteStreamFEI4", not flags.Input.isMC and not flags.Overlay.DataOverlay)
-    kwargs.setdefault("UseByteStreamFEI3", not flags.Input.isMC and not flags.Overlay.DataOverlay)
+    kwargs.setdefault("UseByteStreamFEI4", not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.Input.Format is Format.BS)
+    kwargs.setdefault("UseByteStreamFEI3", not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.Input.Format is Format.BS)
 
     if flags.InDet.usePixelDCS:
         kwargs.setdefault("IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ])
