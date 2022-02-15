@@ -12,12 +12,9 @@
 using namespace SCT_Monitoring;
 
 SCTErrMonAlg::SCTErrMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  :AthMonitorAlgorithm(name,pSvcLocator) {
+  :AthMonitorAlgorithm(name,pSvcLocator){
   for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     m_nMaskedLinks[reg] = 0;
-  }
-  for (int lb{0}; lb<=NBINS_LBs; lb++) {
-    m_firstEventOfLB[lb].store(true, std::memory_order_relaxed);
   }
 }
 
@@ -29,7 +26,6 @@ StatusCode SCTErrMonAlg::initialize() {
   else m_dcsTool.disable();
   ATH_CHECK(m_pSummaryTool.retrieve());
   ATH_CHECK(m_flaggedTool.retrieve());
-
   // Retrieve geometrical information
   const InDetDD::SCT_DetectorManager* sctManager{nullptr};
   ATH_CHECK(detStore()->retrieve(sctManager, "SCT"));
@@ -279,10 +275,18 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     }
   }
   
+
+   bool doCoverage = false;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (not (m_procLB.find(pEvent->lumiBlock()) != m_procLB.end() and  m_coverageCheckOnlyFirtsEventOfLB) ) {
+      m_procLB.insert(pEvent->lumiBlock());
+      doCoverage = m_coverageCheck;
+    }
+  }
+ 
   // Coverage check is time consuming and run at the first event of each lumi block.
-  if (m_coverageCheck and
-      (not m_coverageCheckOnlyFirtsEventOfLB or m_firstEventOfLB[pEvent->lumiBlock()])) {
-    m_firstEventOfLB[pEvent->lumiBlock()] = false;
+  if (doCoverage) {
     ATH_MSG_DEBUG("Detector Coverage calculation starts" );
 
     static const std::string names[numberOfProblemForCoverage] = {
