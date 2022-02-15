@@ -611,28 +611,6 @@ public:
       return obj.m_ref != m_ref;
    }
 
-   /** Helper method which only stores a "new" object if the given object is not the managed object of the given pointer.
-    * @param orig a pointer to a managed object (or an invalid pointer).
-    * @param obj a new object or the already managed object pointed to by orig (or a nullptr).
-    * @return a pointer to a managed object either the newly managed object or the original managed object.
-    */
-   static ObjPtr recapture(const ObjPtr &orig, std::unique_ptr<T_Obj> obj) {
-      if (obj) {
-         if (!orig.m_container) {
-            ObjContainerBase::throwNoContainer();
-         }
-         if (orig && obj.get() == orig.get()) {
-            return orig;
-         }
-         else {
-            return ObjPtr(*orig.m_container, orig.m_container->registerObj(obj.release()));
-         }
-      }
-      else {
-         return ObjPtr();
-      }
-   }
-
    T_Obj &operator*() {
       return *m_container->get(m_ref);
    }
@@ -734,6 +712,6 @@ public:
 
 private:
    ObjContainer<T_Obj, T_index, T_signed_counter>  *m_container = nullptr; ///< pointer to the conainer
-   ObjRef<T_index>                                  m_ref {};                                            ///< a valid reference to an object stored in the container or an invalid reference.
+   ObjRef<T_index>                                  m_ref {};              ///< a valid reference to an object stored in the container or an invalid reference.
 };
 #endif
