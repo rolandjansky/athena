@@ -2,7 +2,7 @@
 
 from TrigHypoCommonTools.TrigHypoCommonToolsConf import L1InfoHypo, L1InfoHypoTool
 
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND

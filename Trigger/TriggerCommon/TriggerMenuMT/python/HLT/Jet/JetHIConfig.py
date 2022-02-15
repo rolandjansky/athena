@@ -3,7 +3,7 @@
 #
 
 from AthenaCommon.CFElements import parOR
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import RecoFragmentsPool
 
 from JetRecConfig import JetRecConfig
 from AthenaConfiguration.ComponentFactory import CompFactory

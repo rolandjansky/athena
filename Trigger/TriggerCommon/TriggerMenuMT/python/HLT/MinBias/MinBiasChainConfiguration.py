@@ -5,7 +5,7 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLT.Menu.MenuComponents import EmptyMenuSequence
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLT.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
 from TriggerMenuMT.HLT.MinBias.ALFAMenuSequences import ALFAPerfSequence
 from TriggerMenuMT.HLT.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
