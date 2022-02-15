@@ -137,6 +137,14 @@ def LArDigitalTriggMonConfigCore(helper, algoinstance,inputFlags):
                                   xlabels=BinLabel,
                                   ylabels = [str(x) for x in range(1,33)])      
                             
+    SCGroup.defineHistogram('MlatomeSourceIdBIN,Msampos;BadQuality_SamplePosition_vs_LATOME',
+                                  title='Bad quality bit: Sample position vs. LATOME name',
+                                  type='TH2F',
+                                  path=sc_hist_path,
+                                  xbins=NLatomeBins,xmin=1,xmax=NLatomeBins+1,
+                                  ybins=32,ymin=0.5,ymax=32.5,
+                                  xlabels=BinLabel,
+                                  ylabels = [str(x) for x in range(1,33)])
 
     SCGroup.defineHistogram('MlatomeSourceIdBIN,MADC;ADC_LATOME', 
                                   title='ADC (zoom) vs LATOME name',
@@ -186,6 +194,13 @@ def LArDigitalTriggMonConfigCore(helper, algoinstance,inputFlags):
                                   title='SC coverage '+part+': #phi vs #eta with adc[max]-adc[0]>15;#eta;#phi',
                                   type='TH2F',
                                   path=sc_hist_path+'CoveragePerPartition/CutADC',
+                                  xbins=lArDQGlobals.Cell_Variables["etaRange"][Part][Side][Sampling],
+                                  ybins=lArDQGlobals.Cell_Variables["phiRange"][Part][Side][Sampling])
+
+        SCGroup.defineHistogram('badQualBit_eta_'+part+',badQualBit_phi_'+part+';CoverageEtaPhi_BadQualityBit_'+part,
+                                  title='SC coverage '+part+': #phi vs #eta for bad quality bits;#eta;#phi',
+                                  type='TH2F',
+                                  path=sc_hist_path+'CoveragePerPartition/BadQualityBit',
                                   xbins=lArDQGlobals.Cell_Variables["etaRange"][Part][Side][Sampling],
                                   ybins=lArDQGlobals.Cell_Variables["phiRange"][Part][Side][Sampling])
 
@@ -342,5 +357,7 @@ if __name__=='__main__':
    f=open("LArDigitalTriggMon.pkl","wb")
    cfg.store(f)
    f.close()
+
+
 
 
