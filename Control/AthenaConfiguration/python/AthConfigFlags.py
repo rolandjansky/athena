@@ -35,8 +35,9 @@ class CfgFlag(object):
         else:
             self._value=value
             self._setDef=None
-            if not self._validateEnum():
-                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(value) ))
+
+            if not self._validateEnum(self._value):
+                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(self._value) ))
         return
 
     def get(self, flagdict=None):
@@ -57,10 +58,15 @@ class CfgFlag(object):
             # optimise future reads, drop possibility to update this flag ever
             self._value=self._setDef(flagdict)
             self._setDef=None
+            if not self._validateEnum(self._value):
+                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(self._value) ))
             return deepcopy(self._value)
         else:
             #use function for as long as the flags are not locked
-            return deepcopy(self._setDef(flagdict))
+            val=self._setDef(flagdict)
+            if not self._validateEnum(val):
+                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(val)))
+            return deepcopy(val)
 
     def __repr__(self):
         if self._value is not None:
@@ -68,23 +74,15 @@ class CfgFlag(object):
         else:
             return "[function]"
 
-    def _validateEnum(self, flagdict=None):
+    def _validateEnum(self, value):
         if self._enum is None:
             return True
 
-        if self._value is not None:
+        if value is not None:
             try:
-                return self._value in self._enum
+                return value in self._enum
             except TypeError:
                 return False
-
-        if not flagdict:
-            raise RuntimeError("Flag is using a callable but all flags are not available.")
-
-        try:
-            return self._setDef(flagdict) in self._enum
-        except TypeError:
-            return False
 
 class FlagAddress(object):
     def __init__(self, f, name):
@@ -296,20 +294,12 @@ class AthConfigFlags(object):
 
     def lock(self):
         if not self._locked:
-            self._validateEnums()
             self._locked = True
             self._hash = self._calculateHash()
         return
 
     def locked(self):
         return self._locked
-
-    def _validateEnums(self):
-        if self._locked:
-            return
-        for name, flag in self._flagdict.items():
-            if not flag._validateEnum(self):
-                raise RuntimeError("Flag '{}' is of type '{}', but '{}' set.".format( name, flag._enum, type(flag.get(self)) ))
 
     def _tryModify(self):
         if self._locked:
