@@ -15,6 +15,10 @@ def defineMenu():
     }
 
     L1MenuFlags.ItemMap = {
+        # Phase-I items not for commissioning        
+        #'L1_MU14FCH_jJ80' : '',
+        #'L1_MU14FCH_jXE70': '',
+
         # jLJ thresholds for production
         'L1_jLJ60' : '',
         'L1_jLJ100': '',

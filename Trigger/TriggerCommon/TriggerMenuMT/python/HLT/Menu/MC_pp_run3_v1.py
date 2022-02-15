@@ -16,6 +16,8 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import ( SingleElectronGroup,
                                                         EOFBPhysL1MuGroup,
                                                         SupportPhIGroup,
                                                         SingleJetGroup,
+                                                        SingleMuonGroup,
+                                                        MultiMuonGroup,
                                                         BphysElectronGroup,
 )
 
@@ -26,6 +28,17 @@ def addMCSignatures(chains):
     log.info('[setupMenu] going to add the MC menu chains now')
 
     chainsMC = ChainStore()
+
+    chainsMC['Muon'] = [
+
+        ChainProp(name="HLT_mu8_L1MU5VF", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu10_L1MU8F", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu14_L1MU8F", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu14_L1MU8VFC", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu24_L1MU14FCH", groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu4_L12MU3V',  groups=MultiMuonGroup),
+
+    ]
 
     chainsMC['Jet'] = [
         # Low-threshold calibration Large-R jets
@@ -42,7 +55,7 @@ def addMCSignatures(chains):
         ChainProp(name='HLT_j260_a10t_lcw_jes_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
     ]
 
-    chainsMC['Egamma'] += [
+    chainsMC['Egamma'] = [
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1eEM5', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
@@ -70,7 +83,7 @@ def addMCSignatures(chains):
 
     ]
 
-    chainsMC['Bphysics'] += [    
+    chainsMC['Bphysics'] = [    
 
         #ATR-21566, chains for di-muon TLA, but with HLT selections to test rates. Here streaming into BphysDelayed (not in TLA stream)   
         ChainProp(name='HLT_2mu4_b7invmAB22vtx20_L1BPH-7M22-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup+EOFBPhysL1MuGroup),

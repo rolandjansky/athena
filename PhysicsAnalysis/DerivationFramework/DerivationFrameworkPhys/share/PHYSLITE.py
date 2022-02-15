@@ -167,6 +167,31 @@ if (inputIsDAODPHYS == False):
   ToolSvc += PHYSLITEDiTauLowPtTPThinningTool
   thinningTools.append(PHYSLITEDiTauLowPtTPThinningTool)
 
+# keep calo clusters around electrons
+  from DerivationFrameworkCalo.DerivationFrameworkCaloConf import (
+      DerivationFramework__CaloClusterThinning)
+  PHYSLITEElectronCaloClusterThinningTool = DerivationFramework__CaloClusterThinning(
+    name="PHYSLITEElectronCaloClusterThinningTool",
+    StreamName=streamName,
+    SGKey="AnalysisElectrons",
+    CaloClCollectionSGKey="egammaClusters",
+    ConeSize=-1.0)
+  ToolSvc += PHYSLITEElectronCaloClusterThinningTool
+  print(PHYSLITEElectronCaloClusterThinningTool)
+  thinningTools.append(PHYSLITEElectronCaloClusterThinningTool)
+
+# keep calo clusters around photons
+  PHYSLITEPhotonCaloClusterThinningTool = DerivationFramework__CaloClusterThinning(
+    name="PHYSLITEPhotonCaloClusterThinningTool",
+    StreamName=streamName,
+    SGKey="AnalysisPhotons",
+    CaloClCollectionSGKey="egammaClusters",
+    ConeSize=-1.0)
+  ToolSvc += PHYSLITEPhotonCaloClusterThinningTool
+  print(PHYSLITEPhotonCaloClusterThinningTool)
+  thinningTools.append(PHYSLITEPhotonCaloClusterThinningTool)
+
+
 #==============================================================================
 # Analysis-level variables 
 #==============================================================================

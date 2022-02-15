@@ -116,7 +116,7 @@ def getMinMaxRunNumbers(ConfigFlags):
 
 def EvtIdModifierSvcCfg(ConfigFlags, name="EvtIdModifierSvc", **kwargs):
     acc = ComponentAccumulator()
-    if ConfigFlags.Digitization.PileUp or ConfigFlags.Sim.DoFullChain:
+    if ConfigFlags.Common.Project != "AthSimulation" and (ConfigFlags.Digitization.PileUp or ConfigFlags.Sim.DoFullChain):
         kwargs.setdefault("EvtStoreName", "OriginalEvent_SG")
     else:
         kwargs.setdefault("EvtStoreName", "StoreGateSvc")

@@ -266,6 +266,8 @@ def LArSCL1MakerCfg(flags, **kwargs):
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc",
                       acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault("SCL1ContainerName",flags.Overlay.BkgPrefix + "LArDigitSCL2") # Output - why L2??
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc
