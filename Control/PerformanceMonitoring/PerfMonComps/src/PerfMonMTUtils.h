@@ -223,11 +223,11 @@ namespace PMonMT {
     }
 
     int64_t getEventLevelMemory(const uint64_t event_count,
-                                      const std::string stat) const {
+                                      const std::string& stat) const {
       return m_eventLevelDeltaMap.at(event_count).mem_stats.at(stat);
     }
 
-    int64_t getEventLevelMemoryMax(const std::string stat) const {
+    int64_t getEventLevelMemoryMax(const std::string& stat) const {
       int64_t result = 0;
       for (const auto& it : getEventLevelData()) {
         if (it.second.mem_stats.at(stat) > result) {
@@ -278,7 +278,7 @@ namespace PMonMT {
     double getDeltaWall() const { return m_delta_wall; }
     void add2DeltaWall(double val) { m_delta_wall += val; }
 
-    int64_t getMemMonDeltaMap(const std::string mem_stat) const {
+    int64_t getMemMonDeltaMap(const std::string& mem_stat) const {
       return m_memMonDeltaMap.at(mem_stat);
     }
 
