@@ -179,7 +179,6 @@ def NSWTriggerConfig(flags):
     MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False)
     MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
-                                               DoOffline = True, # so far only offline simulation is available
                                                UseLookup = False,
                                                DoNtuple = False,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
