@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARDIGITMAKER_H
@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "LArDigitization/ILArPileUpTool.h"
+#include "PileUpTools/IPileUpTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -23,7 +23,7 @@ class LArDigitMaker : public AthAlgorithm
 
  private:
 
-  ToolHandle<ILArPileUpTool> m_LArPileUpTool;
+  ToolHandle<IPileUpTool> m_LArPileUpTool;
 
 };
 
