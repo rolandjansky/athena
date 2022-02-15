@@ -156,6 +156,9 @@ if DetFlags.pixel_on():
             conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+        if not conddb.folderRequested("/PIXEL/PixReco") and not conddb.folderRequested("/PIXEL/Onl/PixReco") :
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat")
+
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
         PixelOfflineCalibCondAlg.InputSource = 2
