@@ -351,13 +351,13 @@ CalibrationDataContainer::computeVariables(const CalibrationDataVariables& x, bo
 	status  = (extrapolate || (m_vars[var] >= getUpperBound(m_variables[var], true))) ? kExtrapolatedRange : kRange;
 	// std::cout << "computeVariables(): variable " << var << ", value: " << m_vars[var] << ", extrapolate? " << extrapolate
 	// 	  << ", upper bound: " << getUpperBound(m_variables[var],extrapolate)
-	// 	  << " (extrapolation bound: " << getUpperBound(m_variables[var],true) << "), setting status to " << status << std::endl;
+	//	  << " (extrapolation bound: " << getUpperBound(m_variables[var],true) << "), setting status to " << status << std::endl;
       }
       if (m_restrict) m_vars[var] = getUpperBound(m_variables[var], extrapolate) - rangeEpsilon;
     }
   }
 
-  // std::cout << "computeVariables(): output variables: " << m_vars[0] << ", " << m_vars[1] << ", " << m_vars[2] << std::endl;
+  // std::cout << "computeVariables(): output variables: " << m_vars[0] << ", " << m_vars[1] << ", " << m_vars[2] <<" ." << std::endl;
 
   return status;
 }
@@ -565,13 +565,14 @@ CalibrationDataHistogramContainer::getResult(const CalibrationDataVariables& x,
   // Note: FindFixBin() is only available in "recent" ROOT versions (FindBin() is appropriate for older versions)
   // (otherwise we need to rely on the ResetBit(TH1::kCanRebin) method having been used)
   if (m_interpolate) {
-    // std::cout << "retrieving interpolated result" << std::endl;
     result = getInterpolatedResult(hist);
+    //    std::cout <<hist->GetName() <<"," <<hist->GetTitle() <<" result " <<result <<std::endl;
   } else {
     // std::cout << "retrieving binned result" << std::endl;
     Int_t bin = hist->FindFixBin(m_vars[0], m_vars[1], m_vars[2]);
     // Int_t bin = findBin(hist, false);
     result = hist->GetBinContent(bin);
+    //std::cout <<hist->GetName() <<"," <<hist->GetTitle() <<" bin " <<bin <<" result " <<result <<std::endl;
   }
 
   return status;
