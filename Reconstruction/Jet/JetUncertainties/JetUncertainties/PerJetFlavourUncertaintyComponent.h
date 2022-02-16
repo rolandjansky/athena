@@ -36,6 +36,7 @@ class PerJetFlavourUncertaintyComponent : public UncertaintyComponent
         // Additional private members
         const bool    m_absEta;
         const std::vector<int> m_labels;
+        const FlavourComp::TypeEnum m_flavourType;
 
         // Wrappers for special flavour histograms
         double getFlavourResponseUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
