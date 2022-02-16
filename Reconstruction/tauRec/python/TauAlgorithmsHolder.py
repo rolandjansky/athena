@@ -697,3 +697,33 @@ def getTauAODSelector():
                                       Min0pTauPt = tauFlags.tauRec0pMinPt(),
                                       MinTauPt = tauFlags.tauRecMinPt())
     return myTauAODSelector
+
+########################################################################
+# muon removal tool
+def getMuonRemoval():
+    _name = sPrefix + '_MuonRemoval'
+    from tauRecTools.tauRecToolsConf import tauRecTools__LeptonRemoval
+    myMuonRemoval = tauRecTools__LeptonRemoval( name                   = _name,
+                                                Key_MuonInputContainer = 'Muons',
+                                                doMuonTrkRm            = True,
+                                                doMuonClsRm            = True,
+                                                muonIDWP               = 'Medium'
+    )
+
+    return myMuonRemoval
+########################################################################
+
+########################################################################
+# elec removal tool
+def getElecRemoval():
+    _name = sPrefix + '_ElecRemoval'
+    from tauRecTools.tauRecToolsConf import tauRecTools__LeptonRemoval
+    myElecRemoval = tauRecTools__LeptonRemoval( name                   = _name,
+                                                Key_ElecInputContainer = 'Electrons',
+                                                doElecTrkRm            = True,
+                                                doElecClsRm            = True,
+                                                elecIDWP               = 'Medium'
+    )
+
+    return myElecRemoval
+########################################################################

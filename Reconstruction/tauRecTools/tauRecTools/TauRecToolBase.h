@@ -74,12 +74,15 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
 
  protected:
   bool m_in_trigger = false;
+  bool m_in_AOD = false;
   std::string m_tauRecToolsTag;
 
   bool inTrigger() const;
+  bool inAOD() const;
 
 };
 
 inline bool TauRecToolBase::inTrigger() const { return m_in_trigger; }
+inline bool TauRecToolBase::inAOD() const { return m_in_AOD; }
 
 #endif // TAURECTOOLS_TAURECTOOLBASE_H

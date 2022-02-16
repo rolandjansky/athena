@@ -291,6 +291,13 @@ class useOldVertexFitterAPI(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class inAOD(JobProperty):
+    """ indicate that the reconstruction is done in AOD. in R22 no jetSeed is stored some additional tweakings are needed
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 # Defines a sub-container for the algorithm switches
 class tauRecFlags(JobPropertyContainer):
     """ tau information """
@@ -299,38 +306,12 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,doTJVA_Tiebreak,associateLRT,classifyLRT,removeDuplicateCoreTracks,useGhostTracks,ghostTrackDR,tauRecRNNTrackClassification,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRec0pMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauJetRNNWPConfig,tauRecTauEleRNNConfig,tauRecTauEleRNNWPConfig,tauRecPi0ScoreConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRec0pMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,doTJVA_Tiebreak,associateLRT,classifyLRT,removeDuplicateCoreTracks,useGhostTracks,ghostTrackDR,tauRecRNNTrackClassification,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRec0pMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauJetRNNWPConfig,tauRecTauEleRNNConfig,tauRecTauEleRNNWPConfig,tauRecPi0ScoreConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRec0pMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI, inAOD]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau
 
 
-
-#################################################
-#### AOD flags ##################################
-#                                               #
-# only for re-running tau reco on AODs          #
-# !not for normal reconstruction!               #
-#################################################
-
-class doUpdate(JobProperty):
-    """ update the tau containers (if running in AODmode)
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class tauRecAODFlags(JobPropertyContainer):
-    """ tau information if re-running on AODs """
-
-# add the tau flags container to the top container 
-jobproperties.add_Container(tauRecAODFlags)
-
-# I want always the following flags in the Rec container  
-_list_tau=[doUpdate]
-for j in _list_tau: 
-    jobproperties.tauRecAODFlags.add_JobProperty(j)
-del _list_tau
 
 
 tauFlags=jobproperties.tauRecFlags

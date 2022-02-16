@@ -169,7 +169,7 @@ def addDiTauLowPt(Seq=None):
     jetList = [AntiKt10EMPFlow]
 
     addDAODJets(jetList,Seq)
-
+    
     import DiTauRec.DiTauAlgorithmsHolder as DiTauAlgs
     from DiTauRec.DiTauRecConf import DiTauBuilder
     
@@ -197,3 +197,118 @@ def addDiTauLowPt(Seq=None):
                                      Rcore=0.1,
                                      Tools=ditauTools)
     Seq += DiTauLowPtBuilder
+#=======================================
+# tauJet Muon RM Re-Reconstruction 
+#=======================================
+def addMuonRemovalTauReReco(Seq=None):
+
+    if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
+        print("Muon removal TauJets re-reconstruction will not be scheduled")
+        return
+
+    print ("Adding Muon removal TauJets re-reconstruction")
+
+    import tauRec.TauAlgorithmsHolder as taualgs
+    
+    tools_mod = []
+    tools_mod.append(taualgs.getMuonRemoval())
+    tools_after = []
+    tools_after.append(taualgs.getTauVertexedClusterDecorator())      # WORK!!!
+    tools_after.append(taualgs.getTauTrackRNNClassifier())
+    tools_after.append(taualgs.getEnergyCalibrationLC())              # WORK!!!
+    tools_after.append(taualgs.getTauCommonCalcVars())
+    tools_after.append(taualgs.getTauSubstructure())                  # WORK!!!
+    tools_after.append(taualgs.getPi0ClusterCreator())                # WORK!!!
+    tools_after.append(taualgs.getPi0ClusterScaler())                 # WORK!!!
+    tools_after.append(taualgs.getPi0ScoreCalculator())               # WORK!!!
+    tools_after.append(taualgs.getPi0Selector())                      # WORK!!!
+    import PanTauAlgs.JobOptions_Main_PanTau as pantau
+    tools_after.append(pantau.getPanTau())                            # WORK!!!
+    tools_after.append(taualgs.getTauCombinedTES())                   # WORK!!!
+    tools_after.append(taualgs.getMvaTESVariableDecorator())          # WORK!!!
+    tools_after.append(taualgs.getMvaTESEvaluator())                  # WORK!!!
+    tools_after.append(taualgs.getTauIDVarCalculator())               # WORK!!!
+    tools_after.append(taualgs.getTauJetRNNEvaluator())               # WORK!!!
+    tools_after.append(taualgs.getTauWPDecoratorJetRNN())             # WORK!!!
+    tools_after.append(taualgs.getTauEleRNNEvaluator())               # WORK!!!
+    tools_after.append(taualgs.getTauWPDecoratorEleRNN())             # WORK!!!
+    # tools_after.append(taualgs.getTauDecayModeNNClassifier())       # Charged PFO problem again!
+    from tauRec.tauRecFlags import tauFlags
+    for atool in tools_mod:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = True
+    for atool in tools_after:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = True
+
+    from tauRec.tauRecConf import TauAODRunnerAlg
+    MuonRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "MuonRemovalTauReReco_"+Seq.name(), 
+                                                Key_tauContainer                = "TauJets",
+                                                Key_tauOutputContainer          = "TauJets_MuonRM",
+                                                Key_pi0OutputContainer          = "TauFinalPi0s_MuonRM",
+                                                Key_neutralPFOOutputContainer   = "TauNeutralPFOs_MuonRM",
+                                                Key_chargedPFOOutputContainer   = "TauChargedPFOs_MuonRM",
+                                                Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_MuonRM",
+                                                Key_tauTrackOutputContainer     = "TauTracks_MuonRM",
+                                                Tools_mod                       = tools_mod,
+                                                Tools_after                     = tools_after
+    )
+    Seq += MuonRemovalAODReRecoAlg
+
+#=======================================
+# tauJet Electron RM Re-Reconstruction 
+#=======================================
+def addElecRemovalTauReReco(Seq=None):
+
+    if not Seq or hasattr(Seq,"ElecRemovalTauReReco_"+Seq.name()):
+        print("Elec removal TauJets re-reconstruction will not be scheduled")
+        return
+
+    print ("Adding Elec removal TauJets re-reconstruction")
+
+    import tauRec.TauAlgorithmsHolder as taualgs
+    
+    tools_mod = []
+    tools_mod.append(taualgs.getElecRemoval())
+    tools_after = []
+    tools_after.append(taualgs.getTauVertexedClusterDecorator())      # WORK!!!
+    tools_after.append(taualgs.getTauTrackRNNClassifier())
+    tools_after.append(taualgs.getEnergyCalibrationLC())              # WORK!!!
+    tools_after.append(taualgs.getTauCommonCalcVars())
+    tools_after.append(taualgs.getTauSubstructure())                  # WORK!!!
+    tools_after.append(taualgs.getPi0ClusterCreator())                # WORK!!!
+    tools_after.append(taualgs.getPi0ClusterScaler())                 # WORK!!!
+    tools_after.append(taualgs.getPi0ScoreCalculator())               # WORK!!!
+    tools_after.append(taualgs.getPi0Selector())                      # WORK!!!
+    import PanTauAlgs.JobOptions_Main_PanTau as pantau
+    tools_after.append(pantau.getPanTau())                            # WORK!!!
+    tools_after.append(taualgs.getTauCombinedTES())                   # WORK!!!
+    tools_after.append(taualgs.getMvaTESVariableDecorator())          # WORK!!!
+    tools_after.append(taualgs.getMvaTESEvaluator())                  # WORK!!!
+    tools_after.append(taualgs.getTauIDVarCalculator())               # WORK!!!
+    tools_after.append(taualgs.getTauJetRNNEvaluator())               # WORK!!!
+    tools_after.append(taualgs.getTauWPDecoratorJetRNN())             # WORK!!!
+    tools_after.append(taualgs.getTauEleRNNEvaluator())               # WORK!!!
+    tools_after.append(taualgs.getTauWPDecoratorEleRNN())             # WORK!!!
+    # tools_after.append(taualgs.getTauDecayModeNNClassifier())       # Charged PFO problem again!
+    from tauRec.tauRecFlags import tauFlags
+    for atool in tools_mod:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = True
+    for atool in tools_after:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = True
+
+    from tauRec.tauRecConf import TauAODRunnerAlg
+    ElecRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "ElecRemovalTauReReco_"+Seq.name(), 
+                                                Key_tauContainer                = "TauJets",
+                                                Key_tauOutputContainer          = "TauJets_ElecRM",
+                                                Key_pi0OutputContainer          = "TauFinalPi0s_ElecRM",
+                                                Key_neutralPFOOutputContainer   = "TauNeutralPFOs_ElecRM",
+                                                Key_chargedPFOOutputContainer   = "TauChargedPFOs_ElecRM",
+                                                Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_ElecRM",
+                                                Key_tauTrackOutputContainer     = "TauTracks_ElecRM",
+                                                Tools_mod                       = tools_mod,
+                                                Tools_after                     = tools_after
+    )
+    Seq += ElecRemovalAODReRecoAlg

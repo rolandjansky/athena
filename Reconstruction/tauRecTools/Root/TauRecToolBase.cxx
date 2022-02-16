@@ -125,6 +125,7 @@ StatusCode TauRecToolBase::readConfig() {
 TauRecToolBase::TauRecToolBase(const std::string& name) :
   asg::AsgTool(name) {
   declareProperty("inTrigger", m_in_trigger=false);
+  declareProperty("inAOD", m_in_AOD=false);
   declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/R22_preprod");
 }
 

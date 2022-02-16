@@ -13,7 +13,7 @@ find_package( lwtnn )
 set( extra_public_libs )
 set( extra_private_libs )
 if( NOT XAOD_ANALYSIS )
-   set( extra_public_libs CaloEvent Particle )
+   set( extra_public_libs CaloEvent Particle)
    set( extra_private_libs GaudiKernel StoreGateLib CaloIdentifier
       CaloInterfaceLib CaloUtilsLib TrkCaloExtension TrkLinks
       TrkParametersIdentificationHelpers TrkToolInterfaces
@@ -33,7 +33,7 @@ atlas_add_library( tauRecToolsLib
    ${ROOT_LIBRARIES}
    CxxUtils AthLinks AsgMessagingLib AsgDataHandlesLib AsgTools xAODCaloEvent
    xAODEventInfo xAODJet xAODParticleEvent xAODPFlow xAODTau xAODTracking xAODEventShape
-   MVAUtils ${extra_public_libs}
+   MVAUtils ${extra_public_libs} 
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers FourMomUtils PathResolver )
 
 atlas_add_dictionary( tauRecToolsDict

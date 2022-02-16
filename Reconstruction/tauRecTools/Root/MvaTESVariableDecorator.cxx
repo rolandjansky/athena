@@ -24,7 +24,8 @@ StatusCode MvaTESVariableDecorator::initialize() {
 
   ATH_CHECK(m_aveIntPerXKey.initialize());
   ATH_CHECK(m_vertexContainerKey.initialize(SG::AllowEmpty));
-  ATH_CHECK(m_eventShapeKey.initialize(SG::AllowEmpty));
+  if (!inAOD())
+    ATH_CHECK(m_eventShapeKey.initialize(SG::AllowEmpty));
   
   return StatusCode::SUCCESS;
 }
@@ -61,18 +62,19 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
     static const SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
     acc_nVtxPU(xTau) = nVtxPU;
   }
-
-  if(!m_eventShapeKey.empty()) {
-    double rho = 0.;
-    SG::ReadHandle<xAOD::EventShape> eventShape(m_eventShapeKey);
-    if(!eventShape.isValid()) {    
-      ATH_MSG_WARNING ("Could not retrieve EventShape with key " << m_eventShapeKey );
+  if (!inAOD()){
+    if(!m_eventShapeKey.empty()) {
+      double rho = 0.;
+      SG::ReadHandle<xAOD::EventShape> eventShape(m_eventShapeKey);
+      if(!eventShape.isValid()) {    
+        ATH_MSG_WARNING ("Could not retrieve EventShape with key " << m_eventShapeKey );
+      }
+      else if (!eventShape->getDensity(xAOD::EventShape::Density, rho)) {
+        ATH_MSG_WARNING ("Could not retrieve rho.");
+      }
+      static const SG::AuxElement::Accessor<float> acc_rho("rho");
+      acc_rho(xTau) = (float)rho;
     }
-    else if (!eventShape->getDensity(xAOD::EventShape::Density, rho)) {
-      ATH_MSG_WARNING ("Could not retrieve rho.");
-    }
-    static const SG::AuxElement::Accessor<float> acc_rho("rho");
-    acc_rho(xTau) = (float)rho;
   }
 
   double center_lambda=0.       , first_eng_dens=0.      , em_probability=0.      , second_lambda=0.      ;
@@ -176,17 +178,20 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   if(inTrigger()) {
     return StatusCode::SUCCESS;
   }
-
-  // retrieve Ghost Muon Segment Count (for punch-through studies)
-  if (! xTau.jetLink().isValid()) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
+  // no seed jets in AOD
+  if (!inAOD()){
+    // retrieve Ghost Muon Segment Count (for punch-through studies)
+    if (! xTau.jetLink().isValid()) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return StatusCode::FAILURE;
+    }
+    const xAOD::Jet* jetSeed = xTau.jet(); 
+    
+    int nMuSeg=0;
+    if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
+    xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
   }
-  const xAOD::Jet* jetSeed = xTau.jet(); 
-  
-  int nMuSeg=0;
-  if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
-  xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
+
   
   // summing corrected Pi0 PFO energies
   TLorentzVector Pi0_totalP4;
