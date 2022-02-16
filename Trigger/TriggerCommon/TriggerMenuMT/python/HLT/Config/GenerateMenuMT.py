@@ -3,15 +3,15 @@
 import importlib
 import string
 
-from .TriggerConfigHLT  import TriggerConfigHLT
-from .HLTCFConfig import makeHLTTree
-from .DictFromChainName import dictFromChainName
-from .ChainDictTools import splitInterSignatureChainDict
-from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
-from .ChainMerging import mergeChainDefs
-from .MenuAlignmentTools import MenuAlignment
-from ..CommonSequences import EventBuildingSequences, TLABuildingSequences
-from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
+from TriggerMenuMT.HLT.Menu.TriggerConfigHLT  import TriggerConfigHLT
+from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+from TriggerMenuMT.HLT.Menu.ChainDictTools import splitInterSignatureChainDict
+from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
+from TriggerMenuMT.HLT.Menu.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLT.Menu.MenuAlignmentTools import MenuAlignment
+from TriggerMenuMT.HLT.Menu.ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
+from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
@@ -508,16 +508,16 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.info("Generating HLT menu JSON...")
         
-        from .HLTMenuJSON import generateJSON
+        from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON
         generateJSON()
 
         log.info("Generating HLT prescale JSON...")
 
-        from .HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+        from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
 
         log.info('Generating HLTMonitoring JSON...')
-        from .HLTMonitoringJSON import generateDefaultMonitoringJSON
+        from TriggerMenuMT.HLT.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
         generateDefaultMonitoringJSON()
 
         log.info('Menu generation is complete.')

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
@@ -43,7 +43,7 @@ def generateEmuMenu():
     log.info("generateEmuMenu")  
     from TriggerMenuMT.HLT.Menu import Dev_pp_run3_v1
     from TriggerMenuMT.HLT.Menu import Dev_pp_run3_emu_v1 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
 
     # overwrite Dev_pp_run3_v1
     Dev_pp_run3_v1.setupMenu = Dev_pp_run3_emu_v1.setupMenu
