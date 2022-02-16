@@ -939,7 +939,6 @@ namespace top {
     inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
     std::string const& electronIsolationSF() const {return m_electronIsolationSF;}
     std::string const& electronIsolationSFLoose() const {return m_electronIsolationSFLoose;}
-    inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
     inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
     inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
     inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
@@ -2532,7 +2531,6 @@ namespace top {
     std::string m_electronIsolationLoose;
     std::string m_electronIsolationSF;
     std::string m_electronIsolationSFLoose;
-    bool const m_electronIsoSFs; // no longer supported, always true (use m_electronIsolationSF instead)
     int m_electron_d0SigCut;
     float m_electron_delta_z0;
 
