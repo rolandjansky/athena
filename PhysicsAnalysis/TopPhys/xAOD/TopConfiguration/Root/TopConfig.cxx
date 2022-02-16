@@ -220,7 +220,6 @@ namespace top {
     m_electronIsolationLoose("SetMe"),
     m_electronIsolationSF("SetMe"),
     m_electronIsolationSFLoose("SetMe"),
-    m_electronIsoSFs(true),
     m_electron_d0SigCut(5.0),
     m_electron_delta_z0(0.5),
     m_electronIDDecoration("SetMe"),

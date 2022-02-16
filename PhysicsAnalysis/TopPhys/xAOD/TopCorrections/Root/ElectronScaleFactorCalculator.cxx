@@ -154,24 +154,18 @@ namespace top {
     // valid reasons include you want no isolation or you know you are using an unsupported WP
     if (!m_electronEffIso_exists)
       if (m_config->electronIsolation() != "None")
-        if (m_config->electronIsoSFs()) { // ... check if we want to continue anyway without SFs anyway
+        if (m_config->electronIsolationSF() != "None") { // ... check if we want to continue without SFs
           ATH_MSG_WARNING(
-            "No electron isolation SFs available. You can run with ElectronIsolation set to None if you don't want isolation, or add:\tElectronIsoSFs False\tto your config file.");
+            "No electron isolation SFs available. You can run with ElectronIsolation set to None if you don't want isolation, or add:\tElectronIsolationSF None\tto your config file.");
           return StatusCode::FAILURE;
         }
 
     if (!m_electronEffIsoLoose_exists)                                          // If the electron isolation SFs don't
                                                                                 // exist
-      if (m_config->electronIsolationLoose() != "None")                                                           // If
-                                                                                                                  // the
-                                                                                                                  // isolation
-                                                                                                                  // is
-                                                                                                                  // not
-                                                                                                                  // 'None'
-                                                                                                                  // then...
-        if (m_config->electronIsoSFs()) { // ... check if we want to continue anyway without SFs anyway
+      if (m_config->electronIsolationLoose() != "None")
+        if (m_config->electronIsolationSFLoose() != "None") { // ... check if we want to continue anyway without SFs anyway
           ATH_MSG_WARNING(
-            "No (loose) electron isolation SFs available. You can run with ElectronIsolationLoose set to None if you don't want isolation, or add:\tElectronIsoSFs False\tto your config file.");
+            "No (loose) electron isolation SFs available. You can run with ElectronIsolationLoose set to None if you don't want isolation, or add:\tElectronIsolationSFLoose None\tto your config file.");
           return StatusCode::FAILURE;
         }
 
