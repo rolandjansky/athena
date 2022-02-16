@@ -179,7 +179,12 @@ namespace FlavourComp
         Response,       // Flavour response
         Composition,    // Flavour compositon
         bJES,           // bJES response
-        PerJetResponse  // Per-jet flavour response
+        PerJetResponse,  // Per-jet flavour response
+        PerJetResponse_Gluon,  // Per-jet flavour response
+        PerJetResponse_LQ,
+        PerJetResponse_B,
+        PerJetResponse_C
+
     };
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);

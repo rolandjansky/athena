@@ -531,6 +531,11 @@ namespace FlavourComp
             case Composition:       return "FlavourComposition";
             case bJES:              return "bJES";
             case PerJetResponse:    return "PerJetFlavourResponse";
+            case PerJetResponse_Gluon: return "PerJetFlavourResponse_Gluon";
+            case PerJetResponse_LQ: return "PerJetFlavourResponse_LQ";
+            case PerJetResponse_B: return "PerJetFlavourResponse_B";
+            case PerJetResponse_C: return "PerJetFlavourResponse_C";
+
             default:                return "UNKNOWN";
         }
     }
@@ -541,10 +546,16 @@ namespace FlavourComp
         {
             if (type.Contains("Response",TString::kIgnoreCase))
             {
-                if (type.Contains("PerJet",TString::kIgnoreCase))
-                    return PerJetResponse;
-                else
-                    return Response;
+                if (type.Contains("PerJet",TString::kIgnoreCase)){
+                    if(type.Contains("Response_Gluon",TString::kIgnoreCase)) return PerJetResponse_Gluon;
+                    else if(type.Contains("Response_LQ",TString::kIgnoreCase)) return PerJetResponse_LQ;
+                    else if(type.Contains("Response_B",TString::kIgnoreCase)) return PerJetResponse_B;
+                    else if(type.Contains("Response_C",TString::kIgnoreCase)) return PerJetResponse_C;
+                    else return PerJetResponse;
+                }
+                else{
+                        return Response;
+                    }
             }
             if (type.Contains("Composition",TString::kIgnoreCase))
                 return Composition;
