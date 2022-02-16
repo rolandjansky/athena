@@ -44,6 +44,7 @@ DECLARE_COMPONENT( TauPi0ClusterCreator )
 DECLARE_COMPONENT( TauPi0CreateROI )
 DECLARE_COMPONENT( TauPi0ClusterScaler )
 DECLARE_COMPONENT( TauVertexVariables )
+DECLARE_COMPONENT( tauRecTools::LeptonRemoval )
 #endif
 
 DECLARE_COMPONENT( TauCalibrateLC )
@@ -63,4 +64,4 @@ DECLARE_COMPONENT( TauJetRNNEvaluator )
 DECLARE_COMPONENT( TauDecayModeNNClassifier )
 DECLARE_COMPONENT( TauVertexedClusterDecorator )
 DECLARE_COMPONENT( TauAODSelector )
-DECLARE_COMPONENT( tauRecTools::LeptonRemoval )
+

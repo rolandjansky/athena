@@ -10,10 +10,10 @@ using namespace tauRecTools;
 LeptonRemoval::LeptonRemoval(const std::string& name):
 	TauRecToolBase(name)
 {
-    declareProperty("doMuonTrkRm",      m_do_muon_trk_rm        = 0);
-    declareProperty("doElecTrkRm",      m_do_elec_trk_rm        = 0);
-    declareProperty("doMuonClsRm",      m_do_muon_cls_rm        = 0);
-    declareProperty("doElecClsRm",      m_do_elec_cls_rm        = 0);
+    declareProperty("doMuonTrkRm",      m_do_muon_trk_rm        = false);
+    declareProperty("doElecTrkRm",      m_do_elec_trk_rm        = false);
+    declareProperty("doMuonClsRm",      m_do_muon_cls_rm        = false);
+    declareProperty("doElecClsRm",      m_do_elec_cls_rm        = false);
 	declareProperty("elecIDWP",         m_str_min_elec_id_wp    = "Medium");
     declareProperty("muonIDWP",         m_str_min_muon_id_wp    = "Medium");
     declareProperty("eleIDWPPrefix",    m_str_elec_id_wp_prefix = "DFCommonElectronsLH");
