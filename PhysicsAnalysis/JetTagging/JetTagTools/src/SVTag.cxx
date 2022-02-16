@@ -193,6 +193,7 @@ namespace Analysis
     // 
     float    ambtot = -1., xratio = -1., distnrm = 0., drJPVSV = 0., Lxy = -100., L3d = -100.;
     int NSVPair = -1;
+    float distnrmCorr=0.;
 
     //retrieving the secondary vertices
     bool status = true;
@@ -254,6 +255,8 @@ namespace Analysis
         distnrm=get3DSignificance(priVtx, vecVertices,
                                   Amg::Vector3D(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz()));
 	ATH_MSG_VERBOSE("#BTAG# SVX x = " << myVert->position().x() << " y = " << myVert->position().y() << " z = " << myVert->position().z());
+        distnrmCorr=get3DSignificanceCorr(priVtx, vecVertices,
+                                  Amg::Vector3D(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz()));
       } else {
 	ATH_MSG_VERBOSE("#BTAG# No vertex. Cannot calculate normalized distance.");
 	distnrm=0.;
@@ -290,8 +293,9 @@ namespace Analysis
 	}
       else if (m_xAODBaseName == "SV1")
 	{
-	  BTag.setTaggerInfo(distnrm, xAOD::BTagInfo::SV1_normdist);
+	  BTag.setTaggerInfo(distnrmCorr, xAOD::BTagInfo::SV1_normdist);
 	  BTag.setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
+	  BTag.setVariable<float>(m_xAODBaseName, "correctSignificance3d", distnrmCorr);
 	  BTag.setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
 	  BTag.setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
 	  BTag.setVariable<float>(m_xAODBaseName, "L3d", L3d);
@@ -555,18 +559,21 @@ namespace Analysis
     double Lz = meanPosition[2]-priVertex.position().z();
     
     const double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
+    if(decaylength==0.)return 0.;  //Safety
     const double inv_decaylength = 1. / decaylength;
     
     double dLdLx = Lx * inv_decaylength;
     double dLdLy = Ly * inv_decaylength;
     double dLdLz = Lz * inv_decaylength;
-    double decaylength_err = sqrt(dLdLx*dLdLx*covariance(0,0) +
+    double decaylength_err2 =     dLdLx*dLdLx*covariance(0,0) +
 				  dLdLy*dLdLy*covariance(1,1) +
 				  dLdLz*dLdLz*covariance(2,2) +
 				  2.*dLdLx*dLdLy*covariance(0,1) +
 				  2.*dLdLx*dLdLz*covariance(0,2) +
-				  2.*dLdLy*dLdLz*covariance(1,2));
-    
+				  2.*dLdLy*dLdLz*covariance(1,2);
+    if(decaylength_err2<=0.)return 0.;  //Something is wrong
+    double decaylength_err = sqrt(decaylength_err2);
+   
     double decaylength_significance = 0.;
     if (decaylength_err != 0.) decaylength_significance = decaylength/decaylength_err;
 
@@ -576,5 +583,35 @@ namespace Analysis
     
     return decaylength_significance;
   }
+
+  double SVTag::get3DSignificanceCorr(const xAOD::Vertex& priVertex,
+				  std::vector<const xAOD::Vertex*>& secVertex,
+				  const Amg::Vector3D jetDirection) const {
+
+    std::vector<double> Sig3D(0);
+    bool success=true;
+    AmgSymMatrix(3) Wgt;
+
+    for (auto & svrt : secVertex)
+      {
+         Amg::Vector3D SVmPV = svrt->position()-priVertex.position();
+         AmgSymMatrix(3) SVmPVCov=svrt->covariancePosition()+priVertex.covariancePosition();
+         SVmPVCov.computeInverseWithCheck(Wgt, success);
+         if( !success || Wgt(0,0)<=0. || Wgt(1,1)<=0. || Wgt(2,2)<=0. )continue;     //Inversion failure
+         double significance=SVmPV.transpose()*Wgt*SVmPV;
+         if(significance <= 0.) continue;                          //Something is still wrong!
+         significance=std::sqrt(significance);
+         if(SVmPV.dot(jetDirection)<0.)significance *= -1.;
+         Sig3D.push_back(significance);
+      }
+
+    if(Sig3D.size()==0)return 0.;
+
+    return *std::max_element(Sig3D.begin(),Sig3D.end());
+    //return std::accumulate(Sig3D.begin(),Sig3D.end(),0.);
+  }
+
+
+
 }
 

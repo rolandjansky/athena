@@ -54,6 +54,9 @@ namespace Analysis
       // double get3DSignificance(const Trk::RecVertex & priVertex,
       //                          std::vector<const Trk::RecVertex*> & secVertex,
       //                          const Amg::Vector3D jetDirection);
+      double get3DSignificanceCorr(const xAOD::Vertex& priVertex,
+                               std::vector<const xAOD::Vertex*>& secVertex,
+                               const Amg::Vector3D jetDirection) const;
       
 
       ToolHandle< NewLikelihoodTool > m_likelihoodTool;
