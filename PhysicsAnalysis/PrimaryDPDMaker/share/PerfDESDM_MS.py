@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ##-----------------------------------------------------------------------------
 ## Name: PerfDESDM_MS.py
 ##
@@ -28,6 +28,9 @@ from PrimaryDPDMaker.PrimaryDESDMFlags_PerfMS import primDPDAlignTrigMu
 
 ## This handels multiple output streams
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+
+## Retrieve the geometry flags to check which layout is being used
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ##====================================================================
 ## Write the used options to the log file
@@ -78,13 +81,19 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
 # ------------------------------------------------
-# All 'noalg' muon triggers
+# All 'noalg' muon triggers ( to be re-checked at the start of run-3 )
 # ------------------------------------------------
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonNoAlgTrig_TriggerSkimmingTool",
-                                                                                TriggerListOR =  ["HLT_noalg_L1MU4", "HLT_noalg_L1MU6", "HLT_noalg_L1MU10",
-                                                                                                  "HLT_noalg_L1MU11","HLT_noalg_L1MU15","HLT_noalg_L1MU20",
-                                                                                                  "HLT_noalg_L12MU4","HLT_noalg_L12MU6","HLT_noalg_L12MU10"] )
+if MuonGeometryFlags.hasCSC():
+    MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonNoAlgTrig_TriggerSkimmingTool",
+                                                                                    TriggerListOR =  ["HLT_noalg_L1MU4", "HLT_noalg_L1MU6", "HLT_noalg_L1MU10",
+                                                                                                      "HLT_noalg_L1MU11","HLT_noalg_L1MU15","HLT_noalg_L1MU20",
+                                                                                                      "HLT_noalg_L12MU4","HLT_noalg_L12MU6","HLT_noalg_L12MU10"] )
+else:
+    MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonNoAlgTrig_TriggerSkimmingTool",
+                                                                                    TriggerListOR =  [ "HLT_noalg_L1[0-9]?MU[0-9]*(FCH|RFCH|VF|F|VC|FC|BOM|EOF)"
+                                                                                                       "HLT_noalg_L1TGC_BURST",
+                                                                                                       "HLT_noalg_L1XE40" ] )
 ToolSvc += MuonNoAlgTrig_TriggerSkimmingTool
 print(MuonNoAlgTrig_TriggerSkimmingTool)
 
@@ -102,24 +111,39 @@ print(MuonNoAlgTrig_EventSkimmingTool)
 # ------------------------------------------------
 # Orthogonal triggers (RPC needs)
 # ------------------------------------------------
-OrthoTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "OrthoTrig_TriggerSkimmingTool",
-                                                                            TriggerListOR = ["HLT_xe.*",
-                                                                                             "HLT_[0-9]?j[0-9]*",
-                                                                                             "HLT_j[0-9]*_(jes|lcw|nojcalib|sub|L1RD0|280eta320|320eta490).*",
-                                                                                             "HLT_[0-9]?j[0-9]*_b.*|j[0-9]*_[0-9]j[0-9]*_b.*",
-                                                                                             "HLT_tau.*",
-                                                                                             "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight|etcut)",
-                                                                                             "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight|etcut)_(iloose|nod0|HLTCalo|cu\
-td0dphideta|smooth|L1EM[0-9]*VH|L1EM[0-9]*)",
-                                                                                             "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight)_(iloose|nod0|HLTCalo|cutd0dph\
-ideta|smooth)_(HLTCalo|iloose|L1EM[0-9]*VH|L1EM[0-9]*)",
-                                                                                             "HLT_[0-9]?g[0-9]*_(loose|medium|tight|etcut)",
-                                                                                             "HLT_g[0-9]*_(loose|etcut)_(L1EM[0-9]*|L1EM[0-9]*VH)",
-                                                                                             "HLT_(e|g)[0-9]*_(loose|medium|lhmedium|tight)_g.*",
-                                                                                             "HLT_ht.*",
-                                                                                             "HLT_te.*",
-                                                                                             "HLT_xs.*",
-                                                                                             "HLT_mb.*"] )
+if MuonGeometryFlags.hasCSC():
+    OrthoTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "OrthoTrig_TriggerSkimmingTool",
+                                                                                TriggerListOR = ["HLT_xe.*",
+                                                                                                 "HLT_[0-9]?j[0-9]*",
+                                                                                                 "HLT_j[0-9]*_(jes|lcw|nojcalib|sub|L1RD0|280eta320|320eta490).*",
+                                                                                                 "HLT_[0-9]?j[0-9]*_b.*|j[0-9]*_[0-9]j[0-9]*_b.*",
+                                                                                                 "HLT_tau.*",
+                                                                                                 "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight|etcut)",
+                                                                                                 "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight|etcut)_(iloose|nod0|HLTCalo|cu\
+                                                                                                 td0dphideta|smooth|L1EM[0-9]*VH|L1EM[0-9]*)",
+                                                                                                 "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight)_(iloose|nod0|HLTCalo|cutd0dph\
+                                                                                                 ideta|smooth)_(HLTCalo|iloose|L1EM[0-9]*VH|L1EM[0-9]*)",
+                                                                                                 "HLT_[0-9]?g[0-9]*_(loose|medium|tight|etcut)",
+                                                                                                 "HLT_g[0-9]*_(loose|etcut)_(L1EM[0-9]*|L1EM[0-9]*VH)",
+                                                                                                 "HLT_(e|g)[0-9]*_(loose|medium|lhmedium|tight)_g.*",
+                                                                                                 "HLT_ht.*",
+                                                                                                 "HLT_te.*",
+                                                                                                 "HLT_xs.*",
+                                                                                                 "HLT_mb.*"] )
+else:
+    OrthoTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "OrthoTrig_TriggerSkimmingTool",
+                                                                                TriggerListOR = ["HLT_xe.*",
+                                                                                                 "HLT_[0-9]?j[0-9]*",
+                                                                                                 "HLT_j[0-9]*_(pf_ftf|a10).*",
+                                                                                                 "HLT_[0-9]?j[0-9]*_b.*|j[0-9]*_[0-9]j[0-9]*_b.*",
+                                                                                                 "HLT_tau.*",
+                                                                                                 "HLT_[0-9]?e[0-9]*_(lhvloose|lhloose|lhmedium|lhtight|etcut)",
+                                                                                                 "HLT_[0-9]?g[0-9]*_(loose|medium|tight|etcut)",
+                                                                                                 "HLT_(e|g)[0-9]*_(loose|medium|lhmedium|tight)_g.*",
+                                                                                                 "HLT_ht.*",
+                                                                                                 "HLT_te.*",
+                                                                                                 "HLT_xs.*",
+                                                                                                 "HLT_mb.*"] )
 
 ToolSvc += OrthoTrig_TriggerSkimmingTool
 print(OrthoTrig_TriggerSkimmingTool)
@@ -178,11 +202,17 @@ print(OrthoTrig_EventSkimmingTool)
 # ------------------------------------------------
 # JPsi Trigger selection
 # ------------------------------------------------
-JPsiTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiTrig_TriggerSkimmingTool",
-                                                                           TriggerListOR = ["HLT_mu20_2mu0noL1_JpsimumuFS", "HLT_mu18_2mu0noL1_JpsimumuFS", 
-                                                                                            "HLT_mu20_2mu4_JpsimumuL2","HLT_mu18_2mu4_JpsimumuL2", 
-                                                                                            "HLT_mu6_bJpsi_Trkloose", "HLT_mu18_bJpsi_Trkloose", 
-                                                                                            "HLT_mu4_bJpsi_Trkloose", "HLT_mu20_msonly_mu6noL1_msonly_nscan05"] )
+if MuonGeometryFlags.hasCSC():
+    JPsiTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiTrig_TriggerSkimmingTool",
+                                                                               TriggerListOR = ["HLT_mu20_2mu0noL1_JpsimumuFS", "HLT_mu18_2mu0noL1_JpsimumuFS", 
+                                                                                                "HLT_mu20_2mu4_JpsimumuL2","HLT_mu18_2mu4_JpsimumuL2", 
+                                                                                                "HLT_mu6_bJpsi_Trkloose", "HLT_mu18_bJpsi_Trkloose", 
+                                                                                                "HLT_mu4_bJpsi_Trkloose", "HLT_mu20_msonly_mu6noL1_msonly_nscan05"])
+else:
+    JPsiTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiTrig_TriggerSkimmingTool",
+                                                                               TriggerListOR = ["HLT_2mu10_bJpsimumu","HLT_mu11_mu6_bJpsimumu","HLT_3mu4_bJpsi",
+                                                                                                "HLT_2mu6_bJpsimumu" ])
+    
 ToolSvc += JPsiTrig_TriggerSkimmingTool
 print(JPsiTrig_TriggerSkimmingTool)
 
@@ -331,7 +361,6 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#CombinedMuonTr
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux."+trackParticleAuxExclusions])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux."+trackParticleAuxExclusions])
-
 #Trigger General
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigation#TrigNavigation"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigationAuxInfo#TrigNavigationAux."])
@@ -343,7 +372,6 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::MuonRoIContainer#LVL1MuonRoIs"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux."])
 AlignmentTriggerMuonStream.AddItem(["Muon::RpcPrepDataContainer#*"])
 AlignmentTriggerMuonStream.AddItem(["Muon::TgcPrepDataContainer#*"])
-AlignmentTriggerMuonStream.AddItem(["Muon::CscPrepDataContainer#*"])
 AlignmentTriggerMuonStream.AddItem(["Muon::MdtPrepDataContainer#*"])
 #Alignment
 AlignmentTriggerMuonStream.AddItem(["Trk::SegmentCollection#TrackMuonSegments"])
@@ -369,6 +397,17 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackP
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#MSOnlyExtrapolatedMuonTrackParticles"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux."+trackParticleAuxExclusions])
 
+# (News) Small Wheel prep data and trigger
+if MuonGeometryFlags.hasCSC():
+    AlignmentTriggerMuonStream.AddItem(["Muon::CscPrepDataContainer#*"])
+    AlignmentTriggerMuonStream.AddItem(["Muon::CscStripPrepDataContainer#CSC_Measurements"])
+else:
+    AlignmentTriggerMuonStream.AddItem(["Muon::MMPrepDataContainer#*"])
+    AlignmentTriggerMuonStream.AddItem(["Muon::sTgcPrepDataContainer#*"])
+    ## trigger containers
+    AlignmentTriggerMuonStream.AddItem(["Muon::NSW_PadTriggerDataContainer#*"])
+    AlignmentTriggerMuonStream.AddItem(["Muon::NSW_TrigRawDataContainer#*"])
+## Tile containers to be checked    
 AlignmentTriggerMuonStream.AddItem(["TileDigitsContainer#MuRcvDigitsCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileRawChannelContainer#MuRcvRawChCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileMuonReceiverContainer#TileMuRcvCnt"])
@@ -407,4 +446,3 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__T
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTFAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFIDAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_MuonIso_FTFAux."])
-AlignmentTriggerMuonStream.AddItem(["Muon::CscStripPrepDataContainer#CSC_Measurements"])
