@@ -46,6 +46,8 @@ def _larLatomeCfg(configFlags,algo,folder,outkey):
         if folder in tagsperFolder:
             ft=tagsperFolder[folder]
             folderwithtag=folder+"<tag>"+ft+"</tag>"
+        else:    
+            folderwithtag=folder
     else:
         db='LAR_ONL'
         folderwithtag=folder
