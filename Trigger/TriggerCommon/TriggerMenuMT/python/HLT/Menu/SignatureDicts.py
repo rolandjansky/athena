@@ -1069,7 +1069,7 @@ UnconventionalTrackingChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
-    'IDinfo'         : ['loose','medium','tight'],
+    'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk", "dispj"],
     'addInfo'        : [],
