@@ -2,7 +2,7 @@
 #
 # art-description: Athena runs tracking reconstruction from a RAW data18 file
 # art-type: grid
-# art-athena-mt
+# art-athena-mt: 8
 # art-include: master/Athena
 # art-output: *.log   
 
