@@ -212,27 +212,30 @@ def addMuonRemovalTauReReco(Seq=None):
     
     tools_mod = []
     tools_mod.append(taualgs.getMuonRemoval())
+
     tools_after = []
     tools_after.append(taualgs.getTauVertexedClusterDecorator())
     tools_after.append(taualgs.getTauTrackRNNClassifier())
-    tools_after.append(taualgs.getEnergyCalibrationLC())
+    tools_after.append(taualgs.getEnergyCalibrationLC())        
     tools_after.append(taualgs.getTauCommonCalcVars())
-    tools_after.append(taualgs.getTauSubstructure())
-    tools_after.append(taualgs.getPi0ClusterCreator())
-    tools_after.append(taualgs.getPi0ClusterScaler())
-    tools_after.append(taualgs.getPi0ScoreCalculator())
+    tools_after.append(taualgs.getTauSubstructure())            
+    tools_after.append(taualgs.getPi0ClusterCreator())          
+    tools_after.append(taualgs.getPi0ClusterScaler())           
+    tools_after.append(taualgs.getPi0ScoreCalculator())         
     tools_after.append(taualgs.getPi0Selector())
+    tools_after.append(taualgs.getTauVertexVariables())
     import PanTauAlgs.JobOptions_Main_PanTau as pantau
-    tools_after.append(pantau.getPanTau())
-    tools_after.append(taualgs.getTauCombinedTES())
-    tools_after.append(taualgs.getMvaTESVariableDecorator())
-    tools_after.append(taualgs.getMvaTESEvaluator())
-    tools_after.append(taualgs.getTauIDVarCalculator())
-    tools_after.append(taualgs.getTauJetRNNEvaluator())
-    tools_after.append(taualgs.getTauWPDecoratorJetRNN())
-    tools_after.append(taualgs.getTauEleRNNEvaluator())
-    tools_after.append(taualgs.getTauWPDecoratorEleRNN())
-    # tools_after.append(taualgs.getTauDecayModeNNClassifier())       # Charged PFO problem
+    tools_after.append(pantau.getPanTau())                      
+    tools_after.append(taualgs.getTauCombinedTES())             
+    tools_after.append(taualgs.getMvaTESVariableDecorator())    
+    tools_after.append(taualgs.getMvaTESEvaluator())            
+    tools_after.append(taualgs.getTauIDVarCalculator())         
+    tools_after.append(taualgs.getTauJetRNNEvaluator())         
+    tools_after.append(taualgs.getTauWPDecoratorJetRNN())       
+    tools_after.append(taualgs.getTauEleRNNEvaluator())         
+    tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
+    tools_after.append(taualgs.getTauDecayModeNNClassifier())
+
     from tauRec.tauRecFlags import tauFlags
     for atool in tools_mod:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
@@ -270,6 +273,7 @@ def addElecRemovalTauReReco(Seq=None):
     
     tools_mod = []
     tools_mod.append(taualgs.getElecRemoval())
+
     tools_after = []
     tools_after.append(taualgs.getTauVertexedClusterDecorator())
     tools_after.append(taualgs.getTauTrackRNNClassifier())
@@ -280,6 +284,7 @@ def addElecRemovalTauReReco(Seq=None):
     tools_after.append(taualgs.getPi0ClusterScaler())
     tools_after.append(taualgs.getPi0ScoreCalculator())
     tools_after.append(taualgs.getPi0Selector())
+    tools_after.append(taualgs.getTauVertexVariables())
     import PanTauAlgs.JobOptions_Main_PanTau as pantau
     tools_after.append(pantau.getPanTau())
     tools_after.append(taualgs.getTauCombinedTES())
@@ -290,7 +295,7 @@ def addElecRemovalTauReReco(Seq=None):
     tools_after.append(taualgs.getTauWPDecoratorJetRNN())
     tools_after.append(taualgs.getTauEleRNNEvaluator())
     tools_after.append(taualgs.getTauWPDecoratorEleRNN())
-    # tools_after.append(taualgs.getTauDecayModeNNClassifier())       # Charged PFO problem
+    tools_after.append(taualgs.getTauDecayModeNNClassifier())
     from tauRec.tauRecFlags import tauFlags
     for atool in tools_mod:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
