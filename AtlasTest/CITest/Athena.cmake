@@ -42,6 +42,14 @@ atlas_add_citest( Egamma
    SCRIPT ut_egammaARTJob_test.sh )
 
 
+#################################################################################
+# Trigger
+#################################################################################
+
+atlas_add_citest( TriggerMC
+   SCRIPT test_trigAna_RDOtoRDOTrig_v1Dev_build.py )
+
+
 # TODO: We stop here for now (migration ongoing...)
 return()
 
@@ -104,9 +112,6 @@ atlas_add_citest( Trigger_athenaHLT_decodeBS
 
 atlas_add_citest( Trigger_athenaHLT_data
    SCRIPT test_trigP1_v1PhysP1_build.py )
-
-atlas_add_citest( Trigger_athena_MC
-   SCRIPT test_trigAna_RDOtoRDOTrig_v1Dev_build.py )
 
 atlas_add_citest( Trigger_athena_data
    SCRIPT test_trig_data_v1Dev_build.py )
