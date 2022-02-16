@@ -20,7 +20,7 @@ from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, Mdt
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
-from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
+from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg, MuonInDetToMuonSystemExtensionAlgCfg
 from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlgCfg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
 
@@ -468,7 +468,10 @@ def _muEFCBStepSeq(flags, name='RoI'):
         seqIOreco = parOR("muonInsideOutRecoSeq")
         acc.addSequence(seqIOreco, parentName=seqFilter.name)
         recoCB.mergeReco(MuonInsideOutViewDataVerifierCfg(flags))
-        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "IndetCandidates_"+name)
+        inDetExtensionCfg = MuonInDetToMuonSystemExtensionAlgCfg(flags, name="TrigInDetMuonExtensionAlg_"+name, InputInDetCandidates="InDetCandidates_"+name,
+                                                                 WriteInDetCandidates="InDetCandidatesSystemExtended_"+name)
+        acc.merge(inDetExtensionCfg, sequenceName=seqIOreco.name)
+        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "InDetCandidatesSystemExtended_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
         insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
                                                    MuonContainerLocation = "MuonsInsideOut_"+name, SegmentContainerName = "xaodInsideOutCBSegments", 
