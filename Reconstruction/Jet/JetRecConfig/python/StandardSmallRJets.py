@@ -29,6 +29,13 @@ calibmods = (
     "Calib:T0:mc",
     "Sort",
     )
+
+calibmods_lowCut = (
+    "ConstitFourMom", "CaloEnergies",
+    "Calib:T0:mc:JetArea_Residual",
+    "Sort",
+)
+
 standardmods = (
     "LArHVCorr", "Width",
      "CaloQuality", "TrackMoments","TrackSumMoments",
@@ -89,6 +96,57 @@ AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                               modifiers = calibmods+("Filter:15000",)+truthmods+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
+)
+
+# *********************************************************
+# EMPFlow CSSK jets
+# *********************************************************
+AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
+                                   ghostdefs = standardghosts+flavourghosts,
+                                   modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1",)+truthmods+standardmods,
+                                   ptmin = 2000,
+                                   standardRecoMode = True,
+                                   lock = True
+)
+
+# *********************************************************
+# Low and no pT cut containers used in JETMX derivations
+# *********************************************************
+AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+                                      infix = "NoPtCut",
+                                      ghostdefs = standardghosts+flavourghosts,
+                                      modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                      ptmin = 1,
+                                      standardRecoMode = True,
+                                      lock = True
+)
+
+
+AntiKt4EMTopoNoPtCut = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
+                                     infix = "NoPtCut",
+                                     ghostdefs = standardghosts+flavourghosts,
+                                     modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+clustermods,
+                                     ptmin = 1,
+                                     standardRecoMode = True,
+                                     lock = True
+)
+
+AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+                                    infix = "LowPt",
+                                    ghostdefs = standardghosts+flavourghosts,
+                                    modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                    ptmin = 2000,
+                                    standardRecoMode = True,
+                                    lock = True
+)
+
+AntiKt4EMTopoLowPt = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
+                                   infix = "LowPt",
+                                   ghostdefs = standardghosts+flavourghosts,
+                                   modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+clustermods,
+                                   ptmin = 2000,
+                                   standardRecoMode = True,
+                                   lock = True
 )
 
 # *********************************************************
