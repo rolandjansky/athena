@@ -122,7 +122,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
         );
     }
 
-	if(elec_tracks.size() == 0 && elec_clusters.size() == 0 && muon_tracks.size()==0 && muon_clusters.size()==0) return StatusCode::SUCCESS;
+	if(elec_tracks.empty() && elec_clusters.empty() && muon_tracks.empty() && muon_clusters.empty()) return StatusCode::SUCCESS;
 
 	// get tau track links 
 	auto tau_track_links = tau.allTauTrackLinksNonConst();
@@ -143,7 +143,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                             [&](auto mu_trk){ return trackMatch(mu_trk, tau_trk); }); 
                             where != muon_tracks.cend()) 
                         {
-                            ATH_MSG_INFO( "muon_track with pt " << tau_trk->pt()/1000 << " GeV removed");
+                            ATH_MSG_DEBUG( "muon_track with pt " << tau_trk->pt()/1000 << " GeV removed");
                             match = true;
                         }
                     }
@@ -153,7 +153,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                             [&](auto elec_trk){ return trackMatch(elec_trk, tau_trk); }); 
                             where != elec_tracks.cend()) 
                         {
-                            ATH_MSG_INFO( "elec_track with pt " << tau_trk->pt()/1000 << " GeV removed");
+                            ATH_MSG_DEBUG( "elec_track with pt " << tau_trk->pt()/1000 << " GeV removed");
                             match = true;
                         }
                     }
@@ -177,7 +177,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                             [&](auto mu_cls){ return clusterMatch(mu_cls, tau_cls); }); 
                             where != muon_clusters.cend()) 
                         {
-                            ATH_MSG_INFO( "muon_cluster with pt " << tau_cls->pt()/1000 << " GeV removed");
+                            ATH_MSG_DEBUG( "muon_cluster with pt " << tau_cls->pt()/1000 << " GeV removed");
                             match = true;
                         }
                     }
@@ -187,7 +187,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                             [&](auto elec_cls){ return clusterMatch(elec_cls, tau_cls); }); 
                             where != elec_clusters.cend()) 
                         {
-                            ATH_MSG_INFO( "elec_clusters with pt " << tau_cls->pt()/1000 << " GeV removed");
+                            ATH_MSG_DEBUG( "elec_clusters with pt " << tau_cls->pt()/1000 << " GeV removed");
                             match = true;
                         }
                     }

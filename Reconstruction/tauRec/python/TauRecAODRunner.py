@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -40,27 +40,27 @@ class TauRecAODRunner (TauRecAODRunConfigured):
         tools_mod.append(taualgs.getElecRemoval())
 
         tools_after = []
-        tools_after.append(taualgs.getTauVertexedClusterDecorator())      # WORK!!!
+        tools_after.append(taualgs.getTauVertexedClusterDecorator())
         tools_after.append(taualgs.getTauTrackRNNClassifier())
-        tools_after.append(taualgs.getEnergyCalibrationLC())              # WORK!!!
+        tools_after.append(taualgs.getEnergyCalibrationLC())        
         tools_after.append(taualgs.getTauCommonCalcVars())
-        tools_after.append(taualgs.getTauSubstructure())                  # WORK!!!
-        tools_after.append(taualgs.getPi0ClusterCreator())                # WORK!!!
-        tools_after.append(taualgs.getPi0ClusterScaler())                 # WORK!!!
-        tools_after.append(taualgs.getPi0ScoreCalculator())               # WORK!!!
-        tools_after.append(taualgs.getPi0Selector())                      # WORK!!!
+        tools_after.append(taualgs.getTauSubstructure())            
+        tools_after.append(taualgs.getPi0ClusterCreator())          
+        tools_after.append(taualgs.getPi0ClusterScaler())           
+        tools_after.append(taualgs.getPi0ScoreCalculator())         
+        tools_after.append(taualgs.getPi0Selector())                
 
         import PanTauAlgs.JobOptions_Main_PanTau as pantau
-        tools_after.append(pantau.getPanTau())                            # WORK!!!
-        tools_after.append(taualgs.getTauCombinedTES())                   # WORK!!!
-        tools_after.append(taualgs.getMvaTESVariableDecorator())          # WORK!!!
-        tools_after.append(taualgs.getMvaTESEvaluator())                  # WORK!!!
-        tools_after.append(taualgs.getTauIDVarCalculator())               # WORK!!!
-        tools_after.append(taualgs.getTauJetRNNEvaluator())               # WORK!!!
-        tools_after.append(taualgs.getTauWPDecoratorJetRNN())             # WORK!!!
-        tools_after.append(taualgs.getTauEleRNNEvaluator())               # WORK!!!
-        tools_after.append(taualgs.getTauWPDecoratorEleRNN())             # WORK!!!
-        # tools_after.append(taualgs.getTauDecayModeNNClassifier())       # Charged PFO problem again!
+        tools_after.append(pantau.getPanTau())                      
+        tools_after.append(taualgs.getTauCombinedTES())             
+        tools_after.append(taualgs.getMvaTESVariableDecorator())    
+        tools_after.append(taualgs.getMvaTESEvaluator())            
+        tools_after.append(taualgs.getTauIDVarCalculator())         
+        tools_after.append(taualgs.getTauJetRNNEvaluator())         
+        tools_after.append(taualgs.getTauWPDecoratorJetRNN())       
+        tools_after.append(taualgs.getTauEleRNNEvaluator())         
+        tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
+        # tools_after.append(taualgs.getTauDecayModeNNClassifier())       # Charged PFO problem
 
         TauRecAODRunConfigured.WrapTauRecToolExecHandle(self, tools_mod=tools_mod, tools_after=tools_after)
         return True

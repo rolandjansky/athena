@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -30,11 +30,11 @@ class TauRecAODRunConfigured ( Configured ) :
         from tauRec.tauRecConf import TauAODRunnerAlg
         self._TauAODRunnerAlgHandle = TauAODRunnerAlg( name=self.name+'Alg', 
                                                         Key_tauContainer="TauJets",
-                                                        Key_tauOutputContainer="TauJets_Fix",
-                                                        Key_pi0Container="TauFinalPi0s_Fix",
-                                                        Key_neutralPFOOutputContainer="TauNeutralPFOs_Fix",
-                                                        Key_chargedPFOOutputContainer="TauChargedPFOs_Fix",
-                                                        Key_hadronicPFOOutputContainer="TauHadronicPFOs_Fix",
+                                                        Key_tauOutputContainer="TauJets_AODReco",
+                                                        Key_pi0Container="TauFinalPi0s_AODReco",
+                                                        Key_neutralPFOOutputContainer="TauNeutralPFOs_AODReco",
+                                                        Key_chargedPFOOutputContainer="TauChargedPFOs_AODReco",
+                                                        Key_hadronicPFOOutputContainer="TauHadronicPFOs_AODReco",
                                                         OutputLevel = msglevel
                                                     )
                                                                                                 

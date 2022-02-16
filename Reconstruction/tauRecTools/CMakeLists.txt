@@ -13,7 +13,7 @@ find_package( lwtnn )
 set( extra_public_libs )
 set( extra_private_libs )
 if( NOT XAOD_ANALYSIS )
-   set( extra_public_libs CaloEvent Particle)
+   set( extra_public_libs CaloEvent Particle )
    set( extra_private_libs GaudiKernel StoreGateLib CaloIdentifier
       CaloInterfaceLib CaloUtilsLib TrkCaloExtension TrkLinks
       TrkParametersIdentificationHelpers TrkToolInterfaces

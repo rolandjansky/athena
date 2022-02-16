@@ -1,13 +1,13 @@
 /*
-	Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+	Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // TauJets_LepRMParticleThinning.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_TauJets_LepRMParticleThinning_H
-#define DERIVATIONFRAMEWORK_TauJets_LepRMParticleThinning_H
+#ifndef DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLEThinning_H
+#define DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLEThinning_H
 
 #include <string>
 #include <atomic>
@@ -55,4 +55,4 @@ namespace DerivationFramework {
 	};
 }
 
-#endif // DERIVATIONFRAMEWORK_TauJets_LepRMParticleThinning_H
+#endif // DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLEThinning_H

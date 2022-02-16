@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+	Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TauAODRunnerAlg.h"
@@ -42,7 +42,7 @@ StatusCode TauAODRunnerAlg::initialize()
   //-------------------------------------------------------------------------
   // No tools allocated!
   //-------------------------------------------------------------------------
-	if (m_tools_mod.size() == 0)
+	if (m_tools_mod.empty())
 	{
 		ATH_MSG_ERROR("no tools given!");
 		return StatusCode::FAILURE;
@@ -262,7 +262,7 @@ StatusCode TauAODRunnerAlg::execute()
 			{
 				sc = tool->executePanTau(*pTau, *pi0Container);
 			}
-			else if ( tool->type() == "tauRecTools::TauTrackClassifier" || tool->type() == "tauRecTools::TauTrackRNNClassifier" )
+			else if (tool->type() == "tauRecTools::TauTrackRNNClassifier")
 			{
 				sc = tool->executeTrackClassifier(*pTau, *newTauTrkCon);
 			}
@@ -277,7 +277,8 @@ StatusCode TauAODRunnerAlg::execute()
 		{
 			ATH_MSG_VERBOSE("The tau candidate has been modified successfully by the invoked modification tools.");
 		}
-		if (isTauModified(pTau, pTauContainer->at(pTau->index()))) // if tau is not modified by the above tools, never mind running the tool afterward
+		// if tau is not modified by the above tools, never mind running the tool afterward
+		if (isTauModified(pTau, pTauContainer->at(pTau->index()))) 
 		{
 			n_tau_modified++;
 			for (ToolHandle<ITauToolBase> &tool : m_tools_after)
@@ -307,7 +308,7 @@ StatusCode TauAODRunnerAlg::execute()
 				{
 					sc = tool->executePanTau(*pTau, *pi0Container);
 				}
-				else if ( tool->type() == "tauRecTools::TauTrackClassifier" || tool->type() == "tauRecTools::TauTrackRNNClassifier" )
+				else if (tool->type() == "tauRecTools::TauTrackRNNClassifier")
 				{
 					sc = tool->executeTrackClassifier(*pTau, *newTauTrkCon);
 				}
