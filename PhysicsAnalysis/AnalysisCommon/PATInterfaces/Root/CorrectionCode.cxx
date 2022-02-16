@@ -47,9 +47,9 @@ namespace {
          std::cerr << "Warning in <CP::CorrectionCode>:" << std::endl;
       }
 
-      int m_error; ///< Unchecked Error codes
-      int m_oov; ///< Unchecked OutOfValidityRange codes
-      int m_ok; ///< Unchecked Ok codes
+      std::atomic<int> m_error; ///< Unchecked Error codes
+      std::atomic<int> m_oov; ///< Unchecked OutOfValidityRange codes
+      std::atomic<int> m_ok; ///< Unchecked Ok codes
 
    }; // class UncheckedCounter
 
@@ -63,7 +63,7 @@ namespace CP {
    /// will just keep track of how many return codes were left unchecked by
    /// the user.
    ///
-   static bool s_failure = false;
+   static std::atomic<bool> s_failure = false;
 
    CorrectionCode::CorrectionCode( ErrorCode code )
       : m_code( code ), m_checked( false ) {
