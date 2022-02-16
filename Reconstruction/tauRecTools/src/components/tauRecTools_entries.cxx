@@ -11,6 +11,7 @@
 #include "../TauPi0CreateROI.h"
 #include "../TauPi0ClusterScaler.h"
 #include "../TauVertexVariables.h"
+#include "tauRecTools/LeptonRemoval.h"
 #endif
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -29,7 +30,6 @@
 #include "tauRecTools/TauDecayModeNNClassifier.h"
 #include "tauRecTools/TauVertexedClusterDecorator.h"
 #include "tauRecTools/TauAODSelector.h"
-#include "tauRecTools/LeptonRemoval.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetSeedBuilder )
