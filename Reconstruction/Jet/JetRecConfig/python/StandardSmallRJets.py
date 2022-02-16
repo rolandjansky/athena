@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 from .JetDefinition import  JetDefinition
@@ -85,7 +85,7 @@ AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
 
 
 AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
-                              ghostdefs = standardghosts+flavourghosts, 
+                              ghostdefs = standardghosts+["TrackLRT"]+flavourghosts,
                               modifiers = calibmods+("Filter:15000",)+truthmods+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
