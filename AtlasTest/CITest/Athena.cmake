@@ -19,9 +19,11 @@ atlas_add_citest( G4ExHive
    SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
    PROPERTIES PROCESSORS 4 )
 
-atlas_add_citest( OverlayTier0
-   SCRIPT RunTier0Tests.py -o -n
-   POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/dumpOverlayLogs.sh )  # ATLINFR-4423
+atlas_add_citest( OverlayRun2MC
+   SCRIPT RunWorkflowTests_Run2.py --CI -o -w MCOverlay )
+
+atlas_add_citest( OverlayRun2Data
+   SCRIPT RunWorkflowTests_Run2.py --CI -o -w DataOverlay )
 
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
