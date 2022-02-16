@@ -71,7 +71,7 @@ This scheduling is basically handled by menu construction. As a rule of thumb, w
 [GenerateJetChainDefs](../GenerateJetChainDefs.py)
 -----
 
-Called by the menu code in [`TriggerMenuMT/python/HLT/Menu/GenerateMenuMT.py`](../../Menu/GenerateMenuMT.py) to translate the HLT chain item into a concrete algorithm sequence.
+Called by the menu code in [`TriggerMenuMT/python/HLT/Config/GenerateMenuMT.py`](../../Config/GenerateMenuMT.py) to translate the HLT chain item into a concrete algorithm sequence.
 
 The menu code creates a chain dictionary from the chain name, of which the jet parts are given to `GenerateJetChainDefs.generateChainConfigs` to be interpreted by `JetChainConfiguration`.
 

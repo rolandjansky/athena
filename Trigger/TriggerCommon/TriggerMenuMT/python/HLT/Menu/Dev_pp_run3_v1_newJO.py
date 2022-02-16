@@ -120,7 +120,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu
     menu = generateMenu( ConfigFlags)
 
     acc.merge(menu)
