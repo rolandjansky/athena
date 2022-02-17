@@ -203,7 +203,6 @@ EMECSupportConstruction::EMECSupportConstruction(
     if(m_DB_EmecFan->size() == 0){
       m_DB_EmecFan = rdbAccess->getRecordsetPtr("EmecFan", "EmecFan-00");
     }
-    
     m_DB_ColdContraction = rdbAccess->getRecordsetPtr("ColdContraction", larVersionKey.tag(), larVersionKey.node());
     if(m_DB_ColdContraction->size() == 0){
       m_DB_ColdContraction = rdbAccess->getRecordsetPtr("ColdContraction", "ColdContraction-00");
