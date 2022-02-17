@@ -31,7 +31,7 @@ class TauRecAODRunConfigured ( Configured ) :
         self._TauAODRunnerAlgHandle = TauAODRunnerAlg( name=self.name+'Alg', 
                                                         Key_tauContainer="TauJets",
                                                         Key_tauOutputContainer="TauJets_AODReco",
-                                                        Key_pi0Container="TauFinalPi0s_AODReco",
+                                                        Key_pi0OutputContainer="TauFinalPi0s_AODReco",
                                                         Key_neutralPFOOutputContainer="TauNeutralPFOs_AODReco",
                                                         Key_chargedPFOOutputContainer="TauChargedPFOs_AODReco",
                                                         Key_hadronicPFOOutputContainer="TauHadronicPFOs_AODReco",
