@@ -67,8 +67,3 @@ topSequence+=EFexEratioAlgo(name="EFexEratioAlgo",InputClusterName="SCluster")
 topSequence+=EFexEratioAlgo(name="EFexEratioAlgoCl",InputClusterName="SClusterCl")
 topSequence+=EFexEratioRateAlgo(name="EFexEratioRateAlgo",InputClusterName="SCluster")
 topSequence+=EFexEratioRateAlgo(name="EFexEratioRateAlgoCl",InputClusterName="SClusterCl")
-
-import GaudiSvc.GaudiSvcConf as GaudiSvcConf
-svcMgr += GaudiSvcConf.StatusCodeSvc()
-svcMgr.StatusCodeSvc.AbortOnError=False
-
