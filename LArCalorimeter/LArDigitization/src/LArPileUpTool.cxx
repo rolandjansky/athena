@@ -679,6 +679,11 @@ StatusCode LArPileUpTool::mergeEvent(const EventContext& ctx)
       }     // check window
    }        // end of loop over the cells
 
+  // test part 
+  for(int i = 0; i< 10; i++){
+    const LArDigit* digit = m_DigitContainer->at(i);
+    std::cout << "DIGITS : " << digit->channelID() << " " << digit->gain() << " " << digit->nsamples() << " " << digit->samples()[2] << std::endl;
+  }
 
   ATH_MSG_DEBUG(" total number of hits found= " << m_nhit_tot);
   ATH_MSG_DEBUG(" number of created digits  = " << m_DigitContainer->size());
