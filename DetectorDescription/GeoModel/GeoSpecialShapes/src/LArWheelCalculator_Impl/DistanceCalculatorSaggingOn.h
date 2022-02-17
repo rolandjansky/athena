@@ -8,7 +8,6 @@
 #include "DistanceCalculatorSaggingOff.h"
 #include <vector>
 class LArWheelCalculator;
-
 namespace LArWheelCalculator_Impl
 {
 
