@@ -100,6 +100,9 @@ def setupMenu():
     chains['Egamma'] += [
         # ElectronChains----------
 
+        # Keep for validation of the AB/AC/BC overlap-removal, remove after
+        ChainProp(name='HLT_e24_lhmedium_g12_loose_g12_loose_02dRAB_02dRAC_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH','EM10VH'], groups=DevGroup+MultiElectronGroup),
+
         # electron forward triggers (keep this only for dev now)
         #ChainProp(name='HLT_e30_etcut_fwd_L1EM22VHI', groups=SingleElectronGroup),
 
