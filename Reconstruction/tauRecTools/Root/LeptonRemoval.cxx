@@ -67,14 +67,20 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
         std::for_each(elec_container->cbegin(), elec_container->cend(),
             [&](const xAOD::Electron* elec) -> void
             {
-                if(tau_p4.DeltaR(elec->p4()) < m_lep_removal_cone_size && elec->passSelection(elec_wp_str))
+                if(tau_p4.DeltaR(elec->p4()) < m_lep_removal_cone_size)// && elec->passSelection(elec_wp_str))
                 {
                     if (m_do_elec_trk_rm)
                     {
-                        auto elec_ID_tracks_links = elec->trackParticleLinks(); 
-                        for (auto elec_ID_track_link : elec_ID_tracks_links)
+                        auto elec_ID_tracks_links = elec->trackParticleLinks();
+                        for (auto elec_ID_tracks_link : elec_ID_tracks_links)
                         {
-                            if (elec_ID_track_link.isValid()) elec_tracks.push_back(std::move(*elec_ID_track_link));
+                            if (elec_ID_tracks_link.isValid())
+                            {
+                                if(auto orig_ele_trk = getOrignalTrackParticle(*elec_ID_tracks_link); orig_ele_trk)
+                                {
+                                    elec_tracks.push_back(orig_ele_trk);
+                                }
+                            }
                         }
                     }
                     if (m_do_elec_cls_rm)
@@ -82,7 +88,11 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                         auto elec_cluster_links = elec->caloClusterLinks(); 
                         for (auto elec_cluster_link : elec_cluster_links)
                         {
-                            if (elec_cluster_link.isValid()) elec_clusters.push_back(std::move(*elec_cluster_link));
+                            if (elec_cluster_link.isValid()) 
+                            {
+                                auto orig_elec_clusters = std::move(getOrignalTopoClusters(*elec_cluster_link));
+                                elec_clusters.insert(elec_clusters.end(), orig_elec_clusters.begin(), orig_elec_clusters.end());
+                            }
                         }
                     }
                 }
@@ -101,7 +111,9 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                     if (m_do_muon_trk_rm)
                     {
                         if(auto muon_ID_tracks_link = muon->inDetTrackParticleLink();  muon_ID_tracks_link.isValid())
+                        {
                             muon_tracks.push_back(std::move(*muon_ID_tracks_link));
+                        }
                     }
                     if (m_do_muon_cls_rm)
                     {
@@ -113,7 +125,10 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                             auto cls_e = muon_cluster->e();
                             auto loss_diff = ((cls_e - loss_e) / (cls_e + loss_e));
                             if (muon_e > cls_e && loss_diff < 0.1 && loss_diff > -0.3) 
-                                muon_clusters.push_back(std::move(muon_cluster));
+                            {
+                                auto orig_muon_clusters = std::move(getOrignalTopoClusters(muon_cluster));
+                                muon_clusters.insert(muon_clusters.end(), orig_muon_clusters.begin(), orig_muon_clusters.end());
+                            }
                         }
                     }
                 }
@@ -199,4 +214,40 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
     tau.setClusterLinks(tau_cluster_links);
 	tau.setAllTauTrackLinks(tau_track_links);
 	return StatusCode::SUCCESS;
+}
+
+//helpers
+std::vector<const xAOD::CaloCluster*> LeptonRemoval::getOrignalTopoClusters(const xAOD::CaloCluster *cluster) const
+{
+    static const SG::AuxElement::Accessor<std::vector<ElementLink<xAOD::CaloClusterContainer>>> orig("constituentClusterLinks");
+    std::vector< const xAOD::CaloCluster* > orig_cls;
+    if(orig.isAvailable(*cluster))
+    {
+        auto links = orig(*cluster); 
+        for (auto link : links)
+        {
+            if (link.dataID() != "CaloCalTopoClusters") 
+                ATH_MSG_ERROR("the clusters in the lepton cannot be converted to CaloCalTopoClusters");
+            if (link.isValid())
+                orig_cls.push_back(*link);
+        }
+    }
+    
+    return orig_cls;
+}
+
+const xAOD::TrackParticle* LeptonRemoval::getOrignalTrackParticle(const xAOD::TrackParticle* trk) const
+{
+    static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer>> orig ("originalTrackParticle");
+    const xAOD::TrackParticle* orig_trk = nullptr;
+    if(orig.isAvailable(*trk))
+    {
+        if (auto orig_link = orig(*trk); orig_link.isValid())
+        {
+            if (orig_link.dataID() != "InDetTrackParticles") 
+                ATH_MSG_ERROR("the tracks in the lepton cannot be converted to InDetTrackParticles");
+            orig_trk = *orig_link;
+        }
+    }
+    return orig_trk;
 }
