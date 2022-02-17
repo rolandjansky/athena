@@ -13,7 +13,7 @@ set -x
 echo "List of files = " ${ArtInFile}
 
 Reco_tf.py --maxEvents=9000 \
-           --conditionsTag RAWtoESD:CONDBR2-BLKPA-RUN2-06  \
+           --conditionsTag RAWtoESD:CONDBR2-BLKPA-RUN2-09  \
            --geometryVersion ATLAS-R2-2016-01-00-01 \
            --inputBSFile=${ArtInFile} \
            --outputAODFile=MuonCosmic_Reco.AOD.pool.root \

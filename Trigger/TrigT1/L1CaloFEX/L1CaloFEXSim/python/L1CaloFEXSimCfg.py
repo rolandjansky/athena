@@ -12,23 +12,8 @@ def ReadSCellFromPoolFileCfg(flags, key='SCell'):
     assert key in flags.Input.Collections or not flags.Input.Collections, 'MC input file is required to contain SCell container'
 
     # Need geometry and conditions for the SCell converter from POOL
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    gm = GeoModelCfg(flags)
-    gmtool = CompFactory.LArDetectorToolNV(GeometryConfig='RECO')
-    gm.getPrimary().DetectorTools += [ gmtool ]
-    acc.merge(gm)
-    if flags.LAr.doAlign:
-        acc.addCondAlgo(CompFactory.CaloAlignCondAlg())
-    else:
-        acc.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
-    acc.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
-
-    # Ensure correct dependency tree: conditions->(converter)->SCells->(SGInputLoader)->clients
-    from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
-    acc.merge(SGInputLoaderCfg(flags,
-                               Load=[('CaloCellContainer', key)],
-                               ExtraInputs=[('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'),
-                                            ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]))
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    acc.merge(LArGMCfg(flags))
 
     return acc
 
@@ -147,7 +132,6 @@ if __name__ == '__main__':
     flags.Trigger.EDMVersion = 3
     flags.Trigger.doLVL1 = True
     flags.Trigger.enableL1CaloPhase1 = True
-    flags.LAr.doAlign = not flags.Input.isMC
     if flags.Common.isOnline:
         flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag
 

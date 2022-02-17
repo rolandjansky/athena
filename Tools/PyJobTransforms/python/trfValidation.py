@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfValidation
 #
@@ -732,7 +732,7 @@ def returnIntegrityOfFile(file, functionName):
 ## @brief perform standard file validation
 #  @ detail This method performs standard file validation in either serial or
 #  @ parallel and updates file integrity metadata.
-def performStandardFileValidation(dictionary, io, parallelMode = False):
+def performStandardFileValidation(dictionary, io, parallelMode = False, multithreadedMode=False):
     if parallelMode is False:
         msg.info('Starting legacy (serial) file validation')
         for (key, arg) in dictionary.items():
@@ -750,6 +750,8 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
     
                 if io == "output":
                     msg.info('{0}: Testing corruption...'.format(fname))
+                    if multithreadedMode:
+                        os.environ['TRF_MULTITHREADED_VALIDATION']='TRUE'
                     if arg.getSingleMetadata(fname, 'integrity') is True:
                         msg.info('Corruption test passed.')
                     elif arg.getSingleMetadata(fname, 'integrity') is False:

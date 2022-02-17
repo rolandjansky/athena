@@ -40,11 +40,11 @@ def TrackCountHypoToolGen(chainDict):
     if "hmt" in chainDict["chainName"]:
         hypo.minNtrks = int(chainDict["chainParts"][0]["hypoTrkInfo"].strip("trk"))
     if "mb_sptrk" in chainDict["chainName"]:
-        hypo.minPt = 200
-        hypo.maxZ0 = 401
+        hypo.minPt = 100*Units.MeV
+        hypo.maxZ0 = 401*Units.millimeter
     if "mb_sptrk_pt" in chainDict["chainName"]:
         hypo.minPt = int(chainDict["chainParts"][0]["hypoPtInfo"].strip("pt"))*Units.GeV
-        hypo.maxZ0 = 401
+        hypo.maxZ0 = 401*Units.millimeter
     if "mb_excl" in chainDict["chainName"]:
         hypo.exclusive = True
         hypo.minPt = int(chainDict["chainParts"][0]["hypoPtInfo"].strip("pt"))*Units.GeV
@@ -143,7 +143,7 @@ def MinBiasSPSequence():
 @AccumulatorCache
 def MinBiasZVertexFinderSequenceCfg(flags):
     from ..Menu.MenuComponents import InViewRecoCA, SelectionCA, MenuSequenceCA
-    recoAcc = InViewRecoCA(name="ZVertFinderReco", roisKey="InputRoI", RequireParentView=True)
+    recoAcc = InViewRecoCA(name="ZVertFinderReco", InViewRoIs="InputRoI", RequireParentView=True)
     vdv = CompFactory.AthViews.ViewDataVerifier( "VDVZFinderInputs",
                                                   DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), 
                                                                  ( 'PixelID' , 'DetectorStore+PixelID' ) ])

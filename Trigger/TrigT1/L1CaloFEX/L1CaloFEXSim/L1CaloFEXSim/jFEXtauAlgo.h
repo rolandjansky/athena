@@ -63,7 +63,7 @@ namespace LVL1 {
 protected:
 
   private:
-        SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXtauAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         
         int realValue(int ID, int eta);
         int m_SeedIDs[3][3]={{0}};

@@ -61,13 +61,13 @@ StatusCode eSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<eTowe
 
   static constexpr float pi_over_32 = M_PI/32;
   
-  SG::ReadHandle<xAOD::TriggerTowerContainer> jk_triggerTowerCollection(m_triggerTowerCollectionSGKey/*,ctx*/);
-  if(!jk_triggerTowerCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_triggerTowerCollection " << m_triggerTowerCollectionSGKey.key() );
+  SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowerCollection(m_triggerTowerCollectionSGKey/*,ctx*/);
+  if(!triggerTowerCollection.isValid()){
+    ATH_MSG_FATAL("Could not retrieve collection " << m_triggerTowerCollectionSGKey.key() );
     return StatusCode::FAILURE;
   }
 
-  for(auto eachTower : *jk_triggerTowerCollection) {
+  for(auto eachTower : *triggerTowerCollection) {
     if(fabs(eachTower->eta())<1.5 && eachTower->sampling()==1) {
       int i_phi = int(eachTower->phi()/pi_over_32);
       int etaSign{-1};
@@ -108,9 +108,9 @@ void eSuperCellTowerMapper::reset(){
 
   bool doPrint = false;
 
-  SG::ReadHandle<CaloCellContainer> jk_scellsCollection(m_scellsCollectionSGKey/*,ctx*/);
-  if(!jk_scellsCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_scellsCollection " << m_scellsCollectionSGKey.key() );
+  SG::ReadHandle<CaloCellContainer> scellsCollection(m_scellsCollectionSGKey/*,ctx*/);
+  if(!scellsCollection.isValid()){
+    ATH_MSG_FATAL("Could not retrieve collection " << m_scellsCollectionSGKey.key() );
     return StatusCode::FAILURE;
   }
 
@@ -118,7 +118,7 @@ void eSuperCellTowerMapper::reset(){
   //const CaloCell_Base_ID* idHelper = caloIdManager->getCaloCell_SuperCell_ID(); // getting the id helper class
   const CaloCell_Base_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
-  for (const auto& cell : * jk_scellsCollection){
+  for (const auto& cell : * scellsCollection){
 
     const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
     const Identifier ID = (cell)->ID(); // super cell unique ID

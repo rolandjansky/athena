@@ -56,7 +56,6 @@ def MenuPrescaleConfig(triggerConfigHLT):
     elif menu_name.startswith('Physics_pp_run3_v1'):
         from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import setupMenu
         chains = setupMenu()
-        filterChains(chains, Prescales.HLTPrescales, ["PS:Online"])
         L1Prescales = Prescales.L1Prescales
         HLTPrescales = Prescales.HLTPrescales        
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -13,7 +13,7 @@
 def generateCFChains(opt):
     from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
     from TriggerMenuMT.HLT.Menu.SignatureDicts import ChainStore
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     from DecisionHandling.TestUtils import makeChain, makeChainStep
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 

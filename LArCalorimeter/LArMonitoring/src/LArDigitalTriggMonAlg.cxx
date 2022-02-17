@@ -238,7 +238,13 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 
       auto MlatomeSourceIdBIN_layer = Monitored::Scalar<float>("MlatomeSourceIdBIN_"+layer,MlatomeSourceIdBIN);
       auto Mmaxpos_layer = Monitored::Scalar<float>("Mmaxpos_"+layer,Mmaxpos);
+      auto eta_digi = Monitored::Scalar<float>("eta_digi_"+layerName,etaSC);
+      auto phi_digi = Monitored::Scalar<float>("phi_digi_"+layerName,phiSC);
+      auto badbit_eta_digi = Monitored::Scalar<float>("badQualBit_eta_"+layerName,etaSC);
+      auto badbit_phi_digi = Monitored::Scalar<float>("badQualBit_phi_"+layerName,phiSC);
       
+      bool isBadQualityBit=false;
+
       //samples
       for(unsigned i=0; i<trueNSamples;++i) {
 	Msampos=i+1;
@@ -249,7 +255,15 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	
 	fill(m_scMonGroupName, Msampos, MADC, MlatomeSourceIdBIN);
 
+	if(MADC==-1){
+	  isBadQualityBit=true;
+	  fill(m_scMonGroupName, Msampos, MlatomeSourceIdBIN);
+	}
       }
+
+      /** bad quality bit coverage plot*/
+      if(isBadQualityBit) 
+	fill(m_scMonGroupName, badbit_eta_digi, badbit_phi_digi);
 
       /** max sample vs latome per layer*/
       fill(m_scMonGroupName, Mmaxpos_layer, Mpartition, MlatomeSourceIdBIN_layer);
@@ -259,11 +273,10 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	auto MlatomeSourceIdBIN_layer_cut = Monitored::Scalar<float>("MlatomeSourceIdBIN_"+layer+"_cut",MlatomeSourceIdBIN);
 	auto Mmaxpos_layer_cut = Monitored::Scalar<float>("Mmaxpos_"+layer+"_cut",Mmaxpos);
 	fill(m_scMonGroupName, Mmaxpos_layer_cut, Mpartition, MlatomeSourceIdBIN_layer_cut);
-
-	auto eta_digi = Monitored::Scalar<float>("eta_digi_"+layerName,etaSC);
-	auto phi_digi = Monitored::Scalar<float>("phi_digi_"+layerName,phiSC);	
 	fill(m_scMonGroupName, eta_digi, phi_digi);
       }
+
+      
     }/** End of loop on LArDigit*/
     
     

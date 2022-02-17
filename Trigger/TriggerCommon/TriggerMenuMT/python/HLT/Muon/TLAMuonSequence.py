@@ -34,9 +34,11 @@ def TLAMuonMenuSequence( flags, muChainPart):
      #  add the hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonTLAHypoAlg
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoMonitoring import TrigMuonTLAHypoMonitoring
     hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg_"+muonsIn)  
 
     hypo.TLAOutputName = sequenceOut  
+    hypo.MonTool = TrigMuonTLAHypoMonitoring("TrigMuonTLAHypoAlg/")
 
     return MenuSequence( Sequence  = tlaMuonAthSequence,
                          Maker       = tlaMuonInputMakerAlg,

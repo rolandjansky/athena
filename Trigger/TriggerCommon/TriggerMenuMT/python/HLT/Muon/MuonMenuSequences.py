@@ -809,7 +809,7 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
 ##############################
 
 def getBphysChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Bphysics']]
     return chains
@@ -820,7 +820,7 @@ def getBphysChainNames():
 ############################################################
 
 def getInsideOutMuonChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2io" in chain.name]
     chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if not any(key in chain.name for key in ['noL2Comb','l2mt'])]
@@ -832,7 +832,7 @@ def getInsideOutMuonChainNames():
 ############################################################
 
 def getMultiTrackChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2mt" in chain.name]
     chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if "l2mt" in chain.name]

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -16,7 +16,6 @@
 //
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "LArDigitization/ILArPileUpTool.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
 
@@ -50,6 +49,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArSimEvent/LArHitFloatContainer.h"
+#include "LArRecConditions/LArXTalkWeightGlobal.h"
 
 class StoreGateSvc;
 class ITriggerTime;
@@ -64,7 +64,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
+class LArPileUpTool : public PileUpToolBase
 {
 //
 // >>>>>>>> public method
@@ -89,19 +89,16 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
-  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
+  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal, const LArXTalkWeightGlobal& weights);
 
-  virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal);
-
-  static const InterfaceID& interfaceID() {
-    return ILArPileUpTool::interfaceID();}
+  virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights);
 
  private:
 
 #define MAXADC 4096       // Maximal Adc count + 1 ( used for the overflows)
 
 
-  StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal);
+  StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal, const LArXTalkWeightGlobal& weights);
 
 
   StatusCode MakeDigit(const EventContext& ctx, const Identifier & cellId,
@@ -117,24 +114,12 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
                    const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
 
 
-  float  get_strip_xtalk(int eta);
-  float  get_middleback_xtalk(int eta);
-  float  get_strip_xtalk_ec(int region, int eta);
-  float  get_middleback_xtalk_ecow(int eta);
-  float  get_middleback_xtalk_eciw(int eta);
-  float  get_stripmiddle_xtalk(int eta);
-  float  get_stripmiddle_xtalk_ec(int region, int eta);
-  float  get_2strip_xtalk(int eta);
-  float  get_2strip_xtalk_ec(int region,int eta);
-  float  get_middle_xtalk1(int eta);
-  float  get_middle_xtalk2(int eta);
-  float  get_middle_xtalk1_ec(int eta);
-  float  get_middle_xtalk2_ec(int eta);
   void   cross_talk(const IdentifierHash& idHash,
                     const Identifier& cellId,
                     const float& energy,
                     std::vector<IdentifierHash>& neighbourList,
-                    std::vector<float>& energyList);
+                    std::vector<float>& energyList,
+                    const LArXTalkWeightGlobal& weights);
   bool  fillMapfromSum(float bunchTime);
 
 //
@@ -261,6 +246,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
+
+  SG::ReadCondHandleKey<LArXTalkWeightGlobal>  m_xtalkKey{this,"LArXTalkWeightGlobal","LArXTalkWeightGlobal","SG Key of XTalk vector of object"};
+
  
   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
   
@@ -300,7 +288,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot{0};
   float m_trigtime{0};
-  
+
 };
 
 #endif

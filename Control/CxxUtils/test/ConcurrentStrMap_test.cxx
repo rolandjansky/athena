@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/test/ConcurrentStrMap_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Dec, 2020
- * @brief Tests for ConcurrenStrMap.
+ * @brief Tests for ConcurrentStrMap.
  */
 
 

@@ -2,7 +2,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
-from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 import AthenaCommon.SystemOfUnits as Units
 #######################################################################
 
@@ -53,12 +53,7 @@ def PixelClusterNnWithTrackCondAlgCfg(flags, **kwargs):
 def LWTNNCondAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
     # Check for the folder
-    # TODO: not in global tag
-    # acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
-    if flags.Input.isMC:
-        acc.merge(addFolders(flags, "/PIXEL/PixelClustering/PixelNNCalibJSON", "PIXEL_OFL", className="CondAttrListCollection", tag="PixelNNCalibJSON-SIM-RUN2-000-02", db="OFLP200"))
-    else:
-        acc.merge(addFolders(flags, "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "PIXEL", className="CondAttrListCollection", tag="PixelNNCalibJSON-DATA-RUN2-000-02", db="CONDBR2"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
     # What we'll store it as
     kwargs.setdefault("WriteKey", 'PixelClusterNNJSON')
 

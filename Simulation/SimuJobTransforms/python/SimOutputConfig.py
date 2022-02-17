@@ -6,7 +6,8 @@ def getStreamEVNT_TR_ItemList(ConfigFlags):
         "IOVMetaDataContainer#*",
         "EventInfo#*"
     ]
-    if ConfigFlags.Sim.CavernBG in ['Write', 'WriteWorld']:
+    from G4AtlasApps.SimEnums import CavernBackground
+    if ConfigFlags.Sim.CavernBackground in [CavernBackground.Write, CavernBackground.WriteWorld]:
         ItemList += ["TrackRecordCollection#NeutronBG"]
     else:
         ItemList += ["TrackRecordCollection#CosmicRecord"]

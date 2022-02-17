@@ -58,8 +58,12 @@ public:
 			TrigObjectMatcher* /* objects */ ) {
     execute( tracks1, tracks2, matcher );
   };
-  
 
+  
+  virtual void execute( const std::vector<TIDA::Track*>& ,
+			const std::vector<TIDA::Track*>& ,
+			TrackAssociator* , 
+			const TIDA::Event* ) { } 
 
   //  virtual void execute( const std::vector<TIDA::Track*>& ,
   //			const std::vector<TIDA::Track*>& ,

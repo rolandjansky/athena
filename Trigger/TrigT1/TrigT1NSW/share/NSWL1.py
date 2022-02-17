@@ -56,11 +56,10 @@ include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas
 topSequence.NSWL1Simulation.DosTGC=True
+topSequence.NSWL1Simulation.DoStrip=True
 topSequence.NSWL1Simulation.UseLookup=False #use lookup table for the pad trigger
 topSequence.NSWL1Simulation.DoMM=True
 topSequence.NSWL1Simulation.DoMMDiamonds=True
-topSequence.NSWL1Simulation.NSWTrigRDOContainerName="NSWTRGRDO"
-topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
 
 #Toggle Ntuple making for Tools, if set to False for NSWL1Simulation, all the tools are set to False automatically as well
 topSequence.NSWL1Simulation.DoNtuple=True
@@ -100,15 +99,6 @@ if topSequence.NSWL1Simulation.DoNtuple:
     if not hasattr( ServiceMgr, "THistSvc" ):
         from GaudiSvc.GaudiSvcConf import THistSvc
         ServiceMgr += THistSvc()
-    ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='Monitoring.root' OPT='RECREATE'"];
-
-    if not hasattr( theApp.Dlls, "RootHistCnv" ):
-        theApp.Dlls += [ "RootHistCnv" ]
-        theApp.HistogramPersistency = "ROOT"
-
-    if not hasattr( ServiceMgr, "NTupleSvc" ):
-        from GaudiSvc.GaudiSvcConf import NTupleSvc
-        ServiceMgr += NTupleSvc()
 
     ServiceMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
     print(ServiceMgr)

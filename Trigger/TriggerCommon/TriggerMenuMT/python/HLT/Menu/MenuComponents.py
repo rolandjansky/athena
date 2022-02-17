@@ -3,7 +3,7 @@
 from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLT.Menu.MenuComponentsNaming import CFNaming
 
-from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
+from AthenaCommon.CFElements import parOR, seqAND, compName, getProp, findAlgorithmByPredicate
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -1085,16 +1085,25 @@ def createComboAlg(dummyFlags, name, comboHypoCfg):
 
 class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
-    def __init__(self, name, inputMaker=None):
+    def __init__(self, name, inputMaker=None, **inputMakerArgs):
         super( InEventRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        self.inputMakerAlg = inputMaker
-        if not self.inputMakerAlg:
-            self.inputMakerAlg = CompFactory.InputMakerForRoI("IM"+name, 
-                                                               RoITool = CompFactory.ViewCreatorInitialROITool())
+        if inputMaker:
+            assert len(inputMakerArgs) == 0, "No support for explicitly passed input maker and and input maker arguments at the same time" 
+            self.inputMakerAlg = inputMaker
+        else:
+            assert 'name' not in inputMakerArgs, "The name of input maker is predefined by the name of sequence"
+            args = {'name': "IM"+name,
+                    'RoIsLink' : 'initialRoI',
+                    'RoIs' : f'{name}RoIs',
+                    'RoITool': CompFactory.ViewCreatorInitialROITool(),
+                    'mergeUsingFeature': False}
+            args.update(**inputMakerArgs)
+            self.inputMakerAlg = CompFactory.InputMakerForRoI(**args)
+            
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
         self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
         self.addSequence( self.recoSeq, self.mainSeq.name )
@@ -1115,27 +1124,33 @@ class InEventRecoCA( ComponentAccumulator ):
 
 class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None): #TODO - make RequireParentView requireParentView for consistency
+    def __init__(self, name, viewMaker=None, **viewMakerArgs):
         super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        ViewCreatorInitialROITool=CompFactory.ViewCreatorInitialROITool
+        if len(viewMakerArgs) != 0:
+            assert viewMaker is None, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
 
         if viewMaker:
+            assert len(viewMakerArgs) == 0, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
             self.viewMakerAlg = viewMaker
-            assert RequireParentView is None, "Can not specify viewMaker and settings (RequireParentView) of default ViewMaker"
-            assert roisKey is None, "Can not specify viewMaker and settings (roisKey) of default ViewMaker"
         else:
-            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM_"+name,
-                                                          ViewFallThrough = True,
-                                                          RoIsLink        = 'initialRoI',
-                                                          RoITool         = ViewCreatorInitialROITool(),
-                                                          InViewRoIs      = roisKey if roisKey else name+'RoIs',
-                                                          Views           = name+'Views',
-                                                          ViewNodeName    = name+"InViews", 
-                                                          RequireParentView = RequireParentView if RequireParentView else False)
+            assert 'name' not in viewMakerArgs, "The name of view maker is predefined by the name of sequence"
+            assert 'Views' not in viewMakerArgs, "The Views is predefined by the name of sequence"
+            assert 'ViewsNodeName' not in viewMakerArgs, "The ViewsNodeName is predefined by the name of sequence"
+            args = {'name': f'IM_{name}', 
+                    'ViewFallThrough'   : True,
+                    'RoIsLink'          : 'initialRoI',
+                    'RoITool'           : CompFactory.ViewCreatorInitialROITool(),
+                    'InViewRoIs'        : f'{name}RoIs',
+                    'Views'             : f'{name}Views',
+                    'ViewNodeName'      : f'{name}InViews', 
+                    'RequireParentView' : False,
+                    'mergeUsingFeature' : False }
+            args.update(**viewMakerArgs)
+            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm(**args)
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name )
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )
@@ -1155,7 +1170,8 @@ class InViewRecoCA(ComponentAccumulator):
 class SelectionCA(ComponentAccumulator):
     def __init__(self, name):
         self.name = name
-        super( SelectionCA, self ).__init__()
+
+        super( SelectionCA, self ).__init__()   
 
         self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
         self.stepViewSequence = seqAND(CFNaming.stepContentName(name), [self.stepRecoSequence])
@@ -1172,6 +1188,17 @@ class SelectionCA(ComponentAccumulator):
         """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
+    def hypo(self):
+        """Access hypo algo (or throws)"""
+        h = findAlgorithmByPredicate(self.stepViewSequence, lambda alg: "HypoInputDecisions" in alg._descriptors ) # can't use isHypo
+        assert h is not None, "No hypo in SeelectionCA {}".format(self.name)
+        return h
+
+    def inputMaker(self):
+        """Access Input Maker (or throws)"""
+        im = findAlgorithmByPredicate(self.stepRecoSequence, lambda alg: "InputMakerInputDecisions" in alg._descriptors )
+        assert im is not None, "No input maker in SeelectionCA {}".format(self.name)
+        return im
 
 # mainline/rec-ex-common and CA based JO compatibility layer (basically converters)
 def algorithmCAToGlobalWrapper(gen, flags, *args, **kwargs):

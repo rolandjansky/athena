@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent_cTauTOB
 #define L1TopoEvent_cTauTOB
@@ -25,14 +25,14 @@ namespace TCS {
       cTauTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "cTauTOB");
 
       // constructor with initial values
-      cTauTOB(const cTauTOB & eem);
+      cTauTOB(const cTauTOB & ctau);
 
       // destructor
       virtual ~cTauTOB();
 
       // accessors
       unsigned int Et() const { return m_Et; }                  // Et in units of 100 MeV
-      unsigned int isolation() const { return m_isolation; }    
+      unsigned int isolation() const { return m_isolation; }    // jTau isolation
       int eta() const { return m_eta; }                         // eta in units of 0.025
       unsigned int phi() const { return m_phi; }                // phi in units of 0.05
 
@@ -40,9 +40,8 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }          // float eta with granularity 0.025
       double phiDouble() const { return m_phiDouble; }          // float phi with granularity 0.05
       
-      unsigned int Reta() const { return m_reta; }
-      unsigned int Rhad() const { return m_rhad; }
-      unsigned int Wstot() const { return m_wstot; }
+      unsigned int RCore() const { return m_rCore; }            // eTau isolation
+      unsigned int RHad() const { return m_rHad; }              // eTau isolation
      
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
@@ -54,12 +53,11 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
      
-      void setReta(unsigned int th) { m_reta = th; }
-      void setRhad(unsigned int th) { m_rhad = th; }
-      void setWstot(unsigned int th) { m_wstot = th; }
+      void setRCore(unsigned int rCore) { m_rCore = rCore; }
+      void setRHad(unsigned int rHad) { m_rHad = rHad; }
       
       // memory management
-      static cTauTOB* createOnHeap(const cTauTOB& eem);
+      static cTauTOB* createOnHeap(const cTauTOB& ctau);
       static void clearHeap();
       static const Heap<TCS::cTauTOB>& heap() { return fg_heap; }
 
@@ -84,9 +82,8 @@ namespace TCS {
       double m_etaDouble {0};
       double m_phiDouble {0};
 
-      unsigned int m_reta {0};
-      unsigned int m_rhad {0};
-      unsigned int m_wstot {0};
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
 
       inputTOBType_t  m_tobType { NONE };
 

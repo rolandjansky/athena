@@ -7,8 +7,8 @@
 
 // Basic includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaMonitoring/IMonitorToolBase.h"
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
 
@@ -30,10 +30,10 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "TTree.h"
 
 // Forward includes
 class StoreGateSvc;
-class IMonitorToolBase;
 class TTree;
 
 
@@ -61,7 +61,6 @@ namespace NSWL1 {
   NSWL1Simulation: public AthAlgorithm {
 
   public:
-
     NSWL1Simulation( const std::string& name, ISvcLocator* pSvcLocator );
 
     virtual StatusCode initialize() override;
@@ -69,44 +68,32 @@ namespace NSWL1 {
     virtual StatusCode execute() override;
     virtual StatusCode finalize() override;
 
-    //! handle to result builder (for easy data access), now returning a dummy int
-    int resultBuilder() const;
-
-
+  protected:
+    SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer{this, "NSWTrigRDOContainerName", "NSWTRGRDO", "Name of the NSW trigger RDO container"};
 
   private:
+    ToolHandle <IPadTdsTool>           m_pad_tds{this, "PadTdsTool", "NSWL1::PadTdsOfflineTool", "Tool simulating the functionalities of the PAD TDS"};
+    ToolHandle <IPadTriggerLogicTool>  m_pad_trigger{this, "PadTriggerTool", "NSWL1::PadTriggerLogicOfflineTool", "Tool simulating the pad trigger logic"};
+    ToolHandle <IPadTriggerLookupTool> m_pad_trigger_lookup{this, "PadTriggerLookupTool", "NSWL1::PadTriggerLookupTool", "Tool to lookup pad trigger patterns per execute against the same LUT as in trigger FPGA"};
+    ToolHandle <IStripTdsTool>         m_strip_tds{this, "StripTdsTool", "NSWL1::StripTdsOfflineTool", "Tool simulating the functionalities of the Strip TDS"};
+    ToolHandle <IStripClusterTool>     m_strip_cluster{this, "StripClusterTool", "NSWL1::StripClusterTool", "Tool simulating the Strip Clustering"};
+    ToolHandle <IStripSegmentTool>     m_strip_segment;
+    //ToolHandle <IStripSegmentTool>     m_strip_segment{this, "StripSegmentTool", "NSWL1::StripSegmentTool", "Tool simulating the Segment finding"};
+    ToolHandle <IMMStripTdsTool>       m_mmstrip_tds{this, "MMStripTdsTool", "NSWL1::MMStripTdsOfflineTool", "Tool simulating the functionalities of the MM Strip TDS"};
+    ToolHandle <IMMTriggerTool>        m_mmtrigger{this, "MMTriggerTool", "NSWL1::MMTriggerTool", "Tool simulating the MM Trigger"};
+    ToolHandle <TriggerProcessorTool>  m_trigProcessor{this, "MMTriggerProcessorTool", "NSWL1::TriggerProcessorTool", "Tool simulating the TP"};
 
-    // Needed tools:
-    ToolHandleArray < IMonitorToolBase > m_monitors;        //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IPadTdsTool >           m_pad_tds;         //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IPadTriggerLogicTool >  m_pad_trigger;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IPadTriggerLookupTool >  m_pad_trigger_lookup;
-    ToolHandle < IStripTdsTool >         m_strip_tds;       //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IStripClusterTool >     m_strip_cluster;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IStripSegmentTool >     m_strip_segment;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IMMStripTdsTool >       m_mmstrip_tds;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IMMTriggerTool >        m_mmtrigger;       //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < TriggerProcessorTool >  m_trigProcessor;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    Gaudi::Property<bool> m_useLookup{this, "UseLookup", false, "Toggle Lookup mode on and off default is the otf(old) mode"};
+    Gaudi::Property<bool> m_doNtuple{this, "DoNtuple", false,  "Create an ntuple for data analysis"};
+    Gaudi::Property<bool> m_doMM{this, "DoMM", false, "Run data analysis for MM"};
+    Gaudi::Property<bool> m_doMMDiamonds{this, "DoMMDiamonds", false, "Run data analysis for MM using Diamond Roads algorithm"};
+    Gaudi::Property<bool> m_dosTGC{this, "DosTGC", false, "Run data analysis for sTGCs"};
+    Gaudi::Property<bool> m_doStrip{this, "DoStrip", false, "Run data analysis for sTGC strip trigger"};
 
     // put analysis variables here
     TTree*       m_tree;                                    //!< analysis ntuple
     unsigned int m_current_run;                             //!< current run number
     unsigned int m_current_evt;                             //!< current event number
-
-
-    // properties: steering flags
-    bool        m_doOffline;                                //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    bool        m_useLookup;
-    bool        m_doNtuple;                                 //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    bool        m_doMMDiamonds;                             //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-
-
-    protected:
-    SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-
   };  // end of NSWL1Simulation class
-
 } // namespace NSWL1
 #endif

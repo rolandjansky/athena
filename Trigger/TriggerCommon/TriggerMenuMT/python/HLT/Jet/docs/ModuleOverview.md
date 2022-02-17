@@ -71,14 +71,14 @@ This scheduling is basically handled by menu construction. As a rule of thumb, w
 [GenerateJetChainDefs](../GenerateJetChainDefs.py)
 -----
 
-Called by the menu code in [`TriggerMenuMT/python/HLT/Menu/GenerateMenuMT.py`](../../Menu/GenerateMenuMT.py) to translate the HLT chain item into a concrete algorithm sequence.
+Called by the menu code in [`TriggerMenuMT/python/HLT/Config/GenerateMenuMT.py`](../../Config/GenerateMenuMT.py) to translate the HLT chain item into a concrete algorithm sequence.
 
 The menu code creates a chain dictionary from the chain name, of which the jet parts are given to `GenerateJetChainDefs.generateChainConfigs` to be interpreted by `JetChainConfiguration`.
 
 [JetChainConfiguration](../JetChainConfiguration.py)
 -----
 
-Defines the `JetChainConfiguration` object responsible for interpreting the chain dictionary and building a `Chain` object that is returned to the menu. `JetChainConfiguration` extends the [`ChainConfigurationBase`](../../Menu/ChainConfigurationBase.py) type.
+Defines the `JetChainConfiguration` object responsible for interpreting the chain dictionary and building a `Chain` object that is returned to the menu. `JetChainConfiguration` extends the [`ChainConfigurationBase`](../../Config/ChainConfigurationBase.py) type.
 
 Its `assembleChain` function extracts the reco configuration from the jet chain dictionary, using it (via functions from `JetMenuSequences.py`) to generate a `MenuSequence` that forms one or more jet `ChainStep` objects. Multiple `ChainSteps` may be combined into a single chain for filtering purpose, mainly to allow fast reco and filtering before slower reco is executed.
 

@@ -45,8 +45,6 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
         acc.merge(RenameInputContainerEmPflowHacksCfg('tracklessAODVersion'))
 
     for jetcol,pvCol in zip(jetcols, pvCols):
-        if 'AntiKt4EMPFlowJets' in jetcols and cfgFlags.BTagging.Trackless:
-            continue
         acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol, OutputLevel))
 
     Configurable.configurableRun3Behavior=0
@@ -86,7 +84,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     SecVertexers = [ 'JetFitter' , 'SV1']
 
     if cfgFlags.BTagging.RunFlipTaggers is True:
-        SecVertexersFlip = ['JetFitterFlip']
+        SecVertexersFlip = ['JetFitterFlip','SV1Flip']
         for ele in SecVertexersFlip:
             SecVertexers.append(ele)
 

@@ -41,6 +41,10 @@ def setupMenu():
         ChainProp(name='HLT_mu60_0eta105_msonly_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu60_msonly_3layersEC_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+
+        # idperf ATR-24675
+        ChainProp(name='HLT_mu4_idperf_L1MU3V', l1SeedThresholds=['MU3V'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+
     ]
 
     chains['Egamma'] = [

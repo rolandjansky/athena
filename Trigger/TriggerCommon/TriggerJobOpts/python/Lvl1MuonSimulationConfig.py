@@ -174,22 +174,24 @@ def NSWTriggerConfig(flags):
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
+    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False)
     MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
     MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False)
     MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
-                                               DoOffline = True, # so far only offline simulation is available
                                                UseLookup = False,
                                                DoNtuple = False,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DoMMDiamonds = flags.Trigger.L1MuonSim.doMMTrigger,
-                                               DosTGC = True, # sTGC pad-only trigger: default
-                                               PadTdsTool = PadTdsTool,
-                                               PadTriggerTool = PadTriggerLogicTool,
-                                               PadTriggerLookupTool = PadTriggerLookupTool,
-                                               StripTdsTool = StripTdsTool,
-                                               MMStripTdsTool = MMStripTdsTool,
-                                               MMTriggerTool = MMTriggerTool,
+                                               DosTGC = flags.Trigger.L1MuonSim.doPadTrigger,
+                                               DoStrip = flags.Trigger.L1MuonSim.doStripTrigger,
+                                               PadTdsTool = (PadTdsTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
+                                               PadTriggerTool = (PadTriggerLogicTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
+                                               PadTriggerLookupTool = (PadTriggerLookupTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
+                                               StripTdsTool = (StripTdsTool if flags.Trigger.L1MuonSim.doStripTrigger else ""),
+                                               StripClusterTool = (StripClusterTool if flags.Trigger.L1MuonSim.doStripTrigger else ""),
+                                               MMStripTdsTool = (MMStripTdsTool if flags.Trigger.L1MuonSim.doMMTrigger else ""),
+                                               MMTriggerTool = (MMTriggerTool if flags.Trigger.L1MuonSim.doMMTrigger else ""),
                                                MMTriggerProcessorTool = MMTriggerProcessorTool,
                                                NSWTrigRDOContainerName = "NSWTRGRDO" )
     acc.addEventAlgo(nswAlg)
@@ -222,6 +224,7 @@ def TGCTriggerConfig(flags):
         tgcAlg.NSWSideInfo = "AC"
         tgcAlg.NSWTrigger_Input = "NSWTRGRDO"
         tgcAlg.FORCENSWCOIN = not flags.Trigger.L1MuonSim.NSWVetoMode
+        tgcAlg.USEBIS78 = flags.Trigger.L1MuonSim.doBIS78
     else:
         tgcAlg.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
 

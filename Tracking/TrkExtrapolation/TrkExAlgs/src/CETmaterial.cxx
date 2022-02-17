@@ -272,7 +272,7 @@ StatusCode Trk::CETmaterial::execute()
     if (m_checkStepWise) {
       double matApp = 0.;
       while (currPar) {
-        std::pair<const Trk::TrackParameters*,const Trk::Layer*> next = m_extrapolator->extrapolateToNextActiveLayerM(
+        std::pair<std::unique_ptr<Trk::TrackParameters>,const Trk::Layer*> next = m_extrapolator->extrapolateToNextActiveLayerM(
                                                 ctx,
                                                 *currPar,
                                                 Trk::alongMomentum,
@@ -281,7 +281,7 @@ StatusCode Trk::CETmaterial::execute()
                                                 (Trk::ParticleHypothesis)m_particleType);
 
 
-        const Trk::TrackParameters* nextPar = next.first;
+        const Trk::TrackParameters* nextPar = next.first.release();
         const Trk::Layer* lay = next.second;
         currPar = nextPar;
 

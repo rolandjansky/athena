@@ -51,10 +51,12 @@ StatusCode TopoInputEvent::addeTau(const TCS::eTauTOB & eTau) {
 }
 
 StatusCode TopoInputEvent::addcTau(const TCS::eTauTOB & eTau) {
-   TCS::cTauTOB cTau(eTau.Et(),eTau.isolation(),eTau.eta(),eTau.phi(),TCS::ETAU);
+   TCS::cTauTOB cTau(eTau.Et(), eTau.isolation(), eTau.eta(), eTau.phi(), TCS::ETAU);
    cTau.setEtDouble( eTau.EtDouble() );
    cTau.setEtaDouble( eTau.etaDouble() );
    cTau.setPhiDouble( eTau.phiDouble() );
+   cTau.setRCore( eTau.rCore() );
+   cTau.setRHad( eTau.rHad() );
    m_cTaus.push_back(cTau);
    return StatusCode::SUCCESS;
 }
@@ -75,7 +77,7 @@ StatusCode TopoInputEvent::addjTau(const TCS::jTauTOB & tau) {
 }
 
 StatusCode TopoInputEvent::addcTau(const TCS::jTauTOB & jTau) {
-  TCS::cTauTOB cTau(jTau.Et(),jTau.isolation(),jTau.eta(),jTau.phi(),TCS::JTAU);
+  TCS::cTauTOB cTau(jTau.Et(), jTau.isolation(), jTau.eta(), jTau.phi(), TCS::JTAU);
    cTau.setEtDouble( jTau.EtDouble() );
    cTau.setEtaDouble( jTau.etaDouble() );
    cTau.setPhiDouble( jTau.phiDouble() );

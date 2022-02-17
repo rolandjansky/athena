@@ -506,6 +506,8 @@ def addFileValidationArguments(parser):
     
     parser.add_argument('--parallelFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
                         group='File Validation', help='Parallelise file validation if True')
+    parser.add_argument('--multithreadedFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
+                        group='File Validation', help='Use multithreaded ROOT file validation if True')
 
 def addParallelJobProcessorArguments(parser):
     parser.defineArgGroup('Parallel Job Processor', 'Parallel Job Processor arguments')

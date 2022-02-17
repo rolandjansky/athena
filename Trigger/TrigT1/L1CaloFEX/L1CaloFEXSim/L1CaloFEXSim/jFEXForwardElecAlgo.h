@@ -49,7 +49,7 @@ class jFEXForwardElecAlgo : public AthAlgTool, virtual public IjFEXForwardElecAl
 
     private:
 
-        SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFwElecAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         SG::ReadHandle<jTowerContainer> m_jTowerContainer;
         std::unordered_map<int,std::vector<int> > m_map_Etvalues_EM;
         std::unordered_map<int,std::vector<int> > m_map_Etvalues_HAD;

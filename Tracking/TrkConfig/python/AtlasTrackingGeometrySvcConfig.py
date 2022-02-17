@@ -147,8 +147,10 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     # SCT endcap specifications - assume defaults
                        
     # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
+    from G4AtlasApps.SimEnums import SimulationFlavour
     TRT_LayerBinning = 1        
-    if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in ["ATLFASTIIMT"]):
+    if buildTrtStrawLayers \
+      or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIMT]):
        TRT_LayerBinning = 2
     if buildTrtStrawLayers:
        TRT_LayerBuilder.ModelLayersOnly = False

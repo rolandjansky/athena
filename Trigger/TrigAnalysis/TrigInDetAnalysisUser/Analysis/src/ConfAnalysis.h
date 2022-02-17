@@ -80,8 +80,16 @@ public:
   virtual void execute(const std::vector<TIDA::Track*>& reftracks,
                        const std::vector<TIDA::Track*>& testtracks,
                        TrackAssociator* matcher ) { 
-    execute( reftracks, testtracks, matcher, 0 );
+    execute( reftracks, testtracks, matcher, (TrigObjectMatcher*)0 );
   }
+
+  virtual void execute(const std::vector<TIDA::Track*>& reftracks,
+                       const std::vector<TIDA::Track*>& testtracks,
+                       TrackAssociator* matcher,
+		       const TIDA::Event* ) { 
+    execute( reftracks, testtracks, matcher, (TrigObjectMatcher*)0 );
+  }
+
 
 #if 0
   virtual void execute(const std::vector<TIDA::Track*>& reftracks,

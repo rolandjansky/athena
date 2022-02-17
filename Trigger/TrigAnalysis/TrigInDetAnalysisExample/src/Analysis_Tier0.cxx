@@ -20,13 +20,14 @@ Analysis_Tier0::Analysis_Tier0(const std::string& name,
                                double /*etaCut*/,
                                double /*d0Cut*/,
                                double /*z0Cut*/)
-  : TrackAnalysis(name)
-  //, m_pTCut(pTCut)
-  //, m_etaCut(etaCut)
-  //, m_d0Cut(d0Cut)
-  //, m_z0Cut(z0Cut)
-  , m_debug(false)
-  , m_eventid(0)
+  : TrackAnalysis(name),
+    // m_pTCut(pTCut), /// left in commented for development purposes
+    // m_etaCut(etaCut),
+    // m_d0Cut(d0Cut),
+    // m_z0Cut(z0Cut),
+    m_debug(false),
+    m_eventid(0),
+    m_monTool(0)
 {}
 
 void Analysis_Tier0::initialise() {
@@ -424,6 +425,11 @@ void Analysis_Tier0::initialise() {
   addHistogram( h_d0vsphi ); 
   addHistogram( h_d0vsphi_rec );
  
+  ///  if ( cnams.extra().find("probe")!=std::string::npos ) { 
+  ///    h_invmass = new TH1F( "invmass", "invariant mass;mass [GeV]", 320, 0, 200 );
+  ///  addHistogram( h_invmass );
+  ///}
+
   //  h2d_d0vsphi     = 0; // new     TH2D( "d0_vs_phi",      "d0 vs phi",       25, -M_PI, M_PI, 50, -2.6, 2.6 );
   //  h2d_d0vsphi_rec = 0; // new     TH2D( "d0_vs_phi_rec",  "d0 vs phi rec",   25, -M_PI, M_PI, 50, -2.6, 2.6 );
 

@@ -78,20 +78,21 @@ StatusCode TruthResetAlg::execute() {
    std::unique_ptr<HepMC::GenEvent>  outputEvent = std::make_unique<HepMC::GenEvent>(inputEvent);
    if (inputEvent.run_info()) outputEvent->set_run_info(std::make_shared<HepMC3::GenRunInfo>(*(inputEvent.run_info().get())));
    for (;;) {
-     bool requires_update = false;
+     std::vector<HepMC::GenParticlePtr> p_to_remove;
+     std::vector<HepMC::GenVertexPtr> v_to_remove;
      for (auto particle: outputEvent->particles()) {
        if (HepMC::barcode(particle) > 200000) { 
-         outputEvent->remove_particle(particle);
-         requires_update = true;
+         p_to_remove.push_back(particle);
        }
      }
+     for (auto particle: p_to_remove) outputEvent->remove_particle(particle);
      for (auto vertex: outputEvent->vertices()) {
        if (HepMC::barcode(vertex) < -200000 || vertex->particles_out().empty() ) { 
-         outputEvent->remove_vertex(vertex);
-         requires_update = true;
+         p_to_remove.push_back(vertex);
        }
      }
-     if (!requires_update) break;
+     for (auto vertex: v_to_remove) outputEvent->remove_vertex(vertex);
+     if (p_to_remove.empty()&&v_to_remove.empty()) break;
    }
 #else
 

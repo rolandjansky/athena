@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,6 +11,7 @@
 #include <AsgMessaging/AsgMessagingForward.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <CxxUtils/AthUnlikelyMacros.h>
+#include <CxxUtils/checker_macros.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <functional>
 #include <tbb/concurrent_unordered_map.h>
@@ -126,7 +127,7 @@ namespace CP
     std::function<StatusCode (const CP::SystematicSet& sys, CalibData& result)> m_calc;
 
     /// the cache of previously calculated calibration data
-    mutable tbb::concurrent_unordered_map<CP::SystematicSet,std::shared_ptr<const CalibData>,SystematicSetHash> m_cache;
+    mutable tbb::concurrent_unordered_map<CP::SystematicSet,std::shared_ptr<const CalibData>,SystematicSetHash> m_cache ATLAS_THREAD_SAFE;
 
     /// a mutex to protext against concurrent execution of \ref m_calc
     ///

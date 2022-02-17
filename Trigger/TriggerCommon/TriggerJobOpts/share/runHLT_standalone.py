@@ -46,6 +46,9 @@ class opt:
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
     enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
     enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
+    enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
+    enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -234,6 +237,9 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
 ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
 ConfigFlags.Trigger.L1MuonSim.doMMTrigger = opt.enableL1NSWMMTrigger
+ConfigFlags.Trigger.L1MuonSim.doPadTrigger = opt.enableL1NSWPadTrigger
+ConfigFlags.Trigger.L1MuonSim.doStripTrigger = opt.enableL1NSWStripTrigger
+ConfigFlags.Trigger.L1MuonSim.doBIS78 = opt.enableL1RPCBIS78
 
 ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID
@@ -430,7 +436,8 @@ if ConfigFlags.Trigger.doCalo:
 
 
 if ConfigFlags.Trigger.doMuon:
-    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
+    CAtoGlobalWrapper(MuonCablingConfigCfg, ConfigFlags)
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
@@ -511,13 +518,21 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    def chainsToGenerate(signame, chain):
-        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
-                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
+    # Define as functor, to retain knowledge of the select/disableChains lists
+    class ChainsToGenerate(object):
+        def __init__(self,opt):
+            self.enabledSignatures  = opt.enabledSignatures
+            self.disabledSignatures = opt.disabledSignatures
+            self.selectChains       = opt.selectChains
+            self.disableChains      = opt.disableChains
+        def __call__(self, signame, chain):
+            return ((signame in self.enabledSignatures and signame not in self.disabledSignatures) and
+                (not self.selectChains or chain in self.selectChains) and chain not in self.disableChains)
 
+    chainsToGenerate = ChainsToGenerate(opt)
     menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires

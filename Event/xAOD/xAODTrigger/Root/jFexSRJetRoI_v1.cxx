@@ -187,7 +187,7 @@ namespace xAOD {
                 globalPhi = (16*fpgaNumber()) + 2*(tobLocalPhi());
             }
             else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
-                globalPhi = (16*fpgaNumber()) + 4*(tobLocalPhi());
+                globalPhi = (16*fpgaNumber()) + 4*(tobLocalPhi())+1;
             }
         }
         else { //Modules 1-4

@@ -37,12 +37,12 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackPatricles
   icf.addFlag("InDet.Tracking.perigeeExpression", lambda prevFlags: "Vertex" if prevFlags.Reco.EnableHI else "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
-  icf.addFlag("InDet.Tracking.doTIDE_Ambi", lambda prevFlags: not prevFlags.InDet.Tracking.doInnerDetectorCommissioning) # Switch for running TIDE Ambi
+  icf.addFlag("InDet.Tracking.doTIDE_Ambi", True) # Switch for running TIDE Ambi
   icf.addFlag("InDet.Tracking.doBremRecovery", lambda prevFlags: not(prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot or prevFlags.InDet.Tracking.doLowMu or prevFlags.Beam.Type is not BeamType.Collisions or not prevFlags.BField.solenoidOn) ) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
-  icf.addFlag("InDet.Tracking.doPixelClusterSplitting", lambda prevFlags: not prevFlags.InDet.Tracking.doInnerDetectorCommissioning) # Try to split pixel clusters
+  icf.addFlag("InDet.Tracking.doPixelClusterSplitting", True) # Try to split pixel clusters
   icf.addFlag("InDet.Tracking.pixelClusterSplittingType", "NeuralNet") # choose splitter type: NeuralNet or AnalogClus
   icf.addFlag("InDet.Tracking.pixelClusterSplitProb1", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run is LHCPeriod.Run1 else 0.55) # Cut value for splitting clusters into two parts
   icf.addFlag("InDet.Tracking.pixelClusterSplitProb2", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run is LHCPeriod.Run1 else 0.45) # Cut value for splitting clusters into three parts

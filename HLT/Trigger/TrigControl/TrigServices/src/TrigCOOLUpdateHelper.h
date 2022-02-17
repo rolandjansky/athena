@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_TRIGCOOLUPDATEHELPER_H
@@ -86,9 +86,9 @@ public:
   StatusCode getFolderName(CTPfragment::FolderIndex idx, std::string& folderName) const;
 
   /**
-   * @brief Schedule COOL folder updates according to extra payload in CTP fragment
+   * @brief Decode COOL folder updates according to extra payload in CTP fragment
    */
-  StatusCode scheduleFolderUpdates(const EventContext& ctx);
+  StatusCode extractFolderUpdates(const EventContext& ctx);
 
   /**
    * @brief Read information about existing COOL folders

@@ -46,7 +46,7 @@ StatusCode LVL1::jFEXForwardJetsAlgo::initialize()
 StatusCode LVL1::jFEXForwardJetsAlgo::safetyTest() {
 
     if(! m_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve m_jTowerContainer in LVL1::jFEXForwardJetsAlgo::safetyTest()  " << m_jFEXForwardJetsAlgo_jTowerContainerKey.key());
+        ATH_MSG_FATAL("Could not retrieve jTowerContainer " << m_jFEXForwardJetsAlgo_jTowerContainerKey.key());
 
         return StatusCode::FAILURE;
     }
@@ -280,7 +280,22 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
         
         for (const int iTTinSW : TTinSW) {
             if(iTTinSW == myTTKey) continue;
-            const auto [seed_eta,seed_phi] = globalEtaPhi(iTTinSW);
+            auto [seed_eta,seed_phi] = globalEtaPhi(iTTinSW);
+
+            //This corrects the overlap of FPGA 0 with FPGA 3 and viceversa
+            if(m_fpga==0 || m_fpga==3) { 
+                if(m_fpga==0) {
+                    if(seed_phi>M_PI){
+                       seed_phi = seed_phi-m_2PI; 
+                    }
+                }
+                else {
+                    if(seed_phi<M_PI){
+                       seed_phi = seed_phi+m_2PI; 
+                    }
+                }
+            }
+
 
             int delta_phi = std::round((seed_phi - centre_phi)*100);
             int delta_eta = std::round((seed_eta - centre_eta)*100);
