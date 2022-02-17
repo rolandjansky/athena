@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -376,7 +376,7 @@ IdDictDetDescrCnv::parseXMLDescription()
         }
 
         // Parse the dictionaries
-        m_parser->parse(m_idDictName.c_str(), tag);
+        m_parser->parse(m_idDictName, tag);
         
         if (tag == "") tag = "default";
         log << MSG::DEBUG << "Read dict:  " 
