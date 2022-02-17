@@ -2,7 +2,7 @@
 #
 # art-description: Athena runs calo reconstruction from a mc20e ESD file
 # art-type: grid
-# art-athena-mt
+# art-athena-mt: 8
 # art-include: master/Athena
 # art-output: *.log   
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -18,12 +18,16 @@ beamFlags                      = jobproperties.Beam
 atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
 muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
+from InDetRecExample import TrackingCommon
+TestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool("CombinedMuonPixelLayerToolDefault",
+                                                               Extrapolator = atlasExtrapolator)
 
 from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
 CombinedMuonIDBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
     name="CombinedMuonIDBoundaryCheckTool",
     UsePixel=DetFlags.haveRIO.pixel_on(),
-    UseSCT=DetFlags.haveRIO.SCT_on()
+    UseSCT=DetFlags.haveRIO.SCT_on(),
+    PixelLayerTool = TestPixelLayerTool
 )
 ToolSvc += CombinedMuonIDBoundaryCheckTool
 

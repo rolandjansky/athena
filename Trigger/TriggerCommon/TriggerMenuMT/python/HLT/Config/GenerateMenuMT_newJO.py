@@ -7,6 +7,7 @@ from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
+
 import importlib
 
 from AthenaCommon.Logging import logging

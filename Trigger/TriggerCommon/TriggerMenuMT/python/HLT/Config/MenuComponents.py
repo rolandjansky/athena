@@ -1085,16 +1085,25 @@ def createComboAlg(dummyFlags, name, comboHypoCfg):
 
 class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
-    def __init__(self, name, inputMaker=None):
+    def __init__(self, name, inputMaker=None, **inputMakerArgs):
         super( InEventRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        self.inputMakerAlg = inputMaker
-        if not self.inputMakerAlg:
-            self.inputMakerAlg = CompFactory.InputMakerForRoI("IM"+name, 
-                                                               RoITool = CompFactory.ViewCreatorInitialROITool())
+        if inputMaker:
+            assert len(inputMakerArgs) == 0, "No support for explicitly passed input maker and and input maker arguments at the same time" 
+            self.inputMakerAlg = inputMaker
+        else:
+            assert 'name' not in inputMakerArgs, "The name of input maker is predefined by the name of sequence"
+            args = {'name': "IM"+name,
+                    'RoIsLink' : 'initialRoI',
+                    'RoIs' : f'{name}RoIs',
+                    'RoITool': CompFactory.ViewCreatorInitialROITool(),
+                    'mergeUsingFeature': False}
+            args.update(**inputMakerArgs)
+            self.inputMakerAlg = CompFactory.InputMakerForRoI(**args)
+            
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
         self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
         self.addSequence( self.recoSeq, self.mainSeq.name )
@@ -1121,12 +1130,11 @@ class InViewRecoCA(ComponentAccumulator):
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        if viewMaker:
-            assert len(viewMakerArgs) == 0, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
         if len(viewMakerArgs) != 0:
             assert viewMaker is None, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
 
         if viewMaker:
+            assert len(viewMakerArgs) == 0, "No support for explicitly passed view maker and args for EventViewCreatorAlgorithm" 
             self.viewMakerAlg = viewMaker
         else:
             assert 'name' not in viewMakerArgs, "The name of view maker is predefined by the name of sequence"
@@ -1139,7 +1147,8 @@ class InViewRecoCA(ComponentAccumulator):
                     'InViewRoIs'        : f'{name}RoIs',
                     'Views'             : f'{name}Views',
                     'ViewNodeName'      : f'{name}InViews', 
-                    'RequireParentView' : False }
+                    'RequireParentView' : False,
+                    'mergeUsingFeature' : False }
             args.update(**viewMakerArgs)
             self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm(**args)
 

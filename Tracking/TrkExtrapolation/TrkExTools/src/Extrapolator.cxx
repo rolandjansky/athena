@@ -55,30 +55,7 @@
 #include <utility>
 #include <cstdint>
 
-inline const Trk::TrackParameters*
-replaceTrkParm(const Trk::TrackParameters* base_parm)
-{
-  return base_parm;
-}
 
-inline void
-replaceTrkParm(std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>* input)
-{
-  (void)input;
-}
-
-inline void
-replaceTrkParm(std::vector<const Trk::TrackStateOnSurface*>* input)
-{
-  (void)input;
-}
-
-template<>
-inline const Trk::TrackParameters*
-replaceManagedPtr<const Trk::TrackParameters>(const Trk::TrackParameters* p_ptr)
-{
-  return p_ptr;
-}
 
 // need specialisation of cloneObj used by ObjContainer to properly clones all
 // kinds of TrackParameters:
@@ -960,8 +937,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                       << nextPar->momentum().mag() - currPar->momentum().mag() << ","
                       << eloss->deltaE());
         // use curvilinear TPs to simplify retrieval by fitters
-        std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-          nextPar->position(), nextPar->momentum(), nextPar->charge())));
+        std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+          nextPar->position(), nextPar->momentum(), nextPar->charge()));
         //
         auto mefot =
           std::make_unique<Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
@@ -1293,8 +1270,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                       << eloss->deltaE());
 
         // use curvilinear TPs to simplify retrieval by fitters
-        std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-          nextPar->position(), nextPar->momentum(), nextPar->charge())));
+        std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+          nextPar->position(), nextPar->momentum(), nextPar->charge()));
 
         auto mefot =
           std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
@@ -1424,8 +1401,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                   *lmat, std::abs(1. / currentqoverp), 1. / costr, dir, particle);
 
                 // use curvilinear TPs to simplify retrieval by fitters
-                std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-                  nextPar->position(), nextPar->momentum(), nextPar->charge())));
+                std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+                  nextPar->position(), nextPar->momentum(), nextPar->charge()));
                 auto mefot =
                   std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
                 if (cache.m_extrapolationCache) {
@@ -1579,8 +1556,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 materialProperties, std::abs(1. / currentqoverp), 1. / costr, dir, particle);
 
               // use curvilinear TPs to simplify retrieval by fitters
-              std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-                nextPar->position(), nextPar->momentum(), nextPar->charge())));
+              std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+                nextPar->position(), nextPar->momentum(), nextPar->charge()));
               auto mefot =
                 std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
               if (cache.m_extrapolationCache) {
@@ -1914,11 +1891,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
                       false,
                       cache.m_currentDense,
                       cache.m_extrapolationCache)));
-    // does nothing
-    // can be used for debugging to instrument track parameters with some monitoring (e.g.
-    // construction and destruction)
-    replaceTrkParm(cache.m_identifiedParameters.get());
-    replaceTrkParm(cache.m_matstates);
+   
 
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "

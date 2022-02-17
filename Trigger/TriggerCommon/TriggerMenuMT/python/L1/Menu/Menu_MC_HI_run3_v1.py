@@ -169,11 +169,12 @@ def defineMenu():
         'L1_AFP_FSA_TOF_T0_BGRP12', 'L1_AFP_FSA_TOF_T1_BGRP12', 'L1_AFP_FSA_TOF_T2_BGRP12', 'L1_AFP_FSA_TOF_T3_BGRP12',
         'L1_AFP_FSC_TOF_T0_BGRP12', 'L1_AFP_FSC_TOF_T1_BGRP12', 'L1_AFP_FSC_TOF_T2_BGRP12', 'L1_AFP_FSC_TOF_T3_BGRP12',
 
-        # MBTS
-        'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
-        'L1_MBTS_2',
+        # MBTS (ATR-24701)
+        'L1_MBTS_1', 'L1_MBTS_1_1',  'L1_MBTS_2',
+        'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_A', 'L1_MBTS_C',
-
+ 
         #--------------------------------
         # TOPO items
         #--------------------------------

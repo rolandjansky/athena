@@ -942,7 +942,7 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
 
 # Misc 
 def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kwargs ):
-    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonClusterSegmentFinderCfg, MuonPRDSelectionToolCfg
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonPRDSelectionToolCfg
     result = ComponentAccumulator() 
 
     csc2d=""
@@ -959,19 +959,13 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     kwargs.setdefault("Csc4DSegmentMaker",               csc4d )
 
     kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge( MuonPRDSelectionToolCfg(flags) ) )
-    if flags.Beam.Type is not BeamType.Collisions:
-        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
-
-
+   
     acc = DCMathSegmentMakerCfg(flags, name = "DCMathSegmentMaker")
     segmentmaker = acc.popPrivateTools()
     kwargs.setdefault("SegmentMaker",               segmentmaker )
     result.merge(acc)
 
-    acc = MuonClusterSegmentFinderCfg(flags, name = "MuonClusterSegmentFinder")
-    clustersegmentfinder = acc.getPrimary() #Already adds it as a public tool.
-    kwargs.setdefault("MuonClusterSegmentFinder",               clustersegmentfinder )
-    result.merge(acc)
+    
     
     acc = MuonClusterSegmentFinderToolCfg(flags, name = "MuonClusterSegmentFinderTool")
     clustersegmentfindertool = acc.popPrivateTools() 

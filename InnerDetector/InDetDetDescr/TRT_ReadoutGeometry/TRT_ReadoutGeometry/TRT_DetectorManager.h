@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,8 +62,10 @@ namespace InDetDD {
      
   */
   
-  class TRT_DetectorManager : public InDetDetectorManager  {
-    
+  class TRT_DetectorManager
+    : public InDetDetectorManager,
+      public TRT_Conditions
+  {
   public:
     
     // Constructor
@@ -266,8 +268,6 @@ namespace InDetDD {
     ActiveGasType m_gasType;                                                       //
     unsigned int m_digvers;                                                        //
     std::string m_digversname;                                                     //
-
-    std::unique_ptr<TRT_Conditions> m_conditions;
 
     // Alignment stuff
     typedef std::map<Identifier, ExtendedAlignableTransform *> AlignableTransformMap;

@@ -350,14 +350,6 @@ def TrigBjetMonConfig(inputFlags):
                 BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D_pb/IP3D_pu probability ratio distribution;LogLH IP3D_pb/IP3D_pu;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
-            HistName = 'wMV2c10_tr_' + chain[2:]
-            if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c10 discriminant;MV2c10;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-            if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c10 discriminant;MV2c10;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-
             HistName = 'xMVtx_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='SV1 mass distribution;SV1 mass;Events',

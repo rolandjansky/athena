@@ -16,6 +16,7 @@
 
 #include <AsgMessaging/StatusCode.h>
 #include <PATInterfaces/SystematicVariation.h>
+#include "CxxUtils/CachedValue.h"
 
 
 namespace CP
@@ -161,14 +162,11 @@ namespace CP
     std::set<SystematicVariation> m_sysVariations;
 
     /// description: cache the joined string, useful for hash
-    mutable std::string m_joinedName;
-    mutable bool m_nameIsCached;
+    CxxUtils::CachedValue<std::string> m_joinedName;
 
     /// description: cached hash value for quick retrieval in
     /// unordered containers
-    mutable std::size_t m_hash;
-    mutable bool m_hashIsCached;
-
+    CxxUtils::CachedValue<std::size_t> m_hash;
   };
 
 

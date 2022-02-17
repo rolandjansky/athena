@@ -75,7 +75,7 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
     const IdentifierHash hash{iHash};
     if (not m_flaggedTool->isGood(hash)) {
       const Identifier wafer_id{m_pSCTHelper->wafer_id(hash)};
-      const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+      const unsigned barrel_ec{bec2Index(m_pSCTHelper->barrel_ec(wafer_id))};
       nFlaggedWafers[barrel_ec]++;
       nFlaggedWafers[GENERAL_INDEX]++;
     }

@@ -62,7 +62,7 @@ std::atomic<int> TestObj::s_dtorCounter=0;
 template <> TestObj *cloneObj<TestObj>( const TestObj *a) { return (a) ? new TestObj(*a) : nullptr; }
 
 using Registry  = ObjContainer<const TestObj>;
-using IndexedObj = ObjRef<>;
+using IndexedObj = ObjRef;
 using Registrar = ObjPtr<const TestObj>;
 
 
@@ -73,7 +73,7 @@ public:
       return Registry::registerObj(&obj, s_externalObj);
    };
     IndexedObj registerObj(TestObj *obj) {
-      return Registry::registerObj(replaceManagedPtr(obj), 0);
+      return Registry::registerObj(obj, 0);
    }
    IndexedObj share(IndexedObj ref) {
      return Registry::share(ref);

@@ -270,14 +270,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        wIP3D: " << wIP3D);
 	    fill("TrigBjetMonitor",wIP3D);
 	    
-	    // Discriminants
-	    NameH = "wMV2c10_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto wMV2c10 = Monitored::Scalar<double>(NameH,0.0);
-	    btag->MVx_discriminant("MV2c10",wMV2c10);
-	    ATH_MSG_DEBUG("        wMV2c10: " << wMV2c10);
-	    fill("TrigBjetMonitor",wMV2c10);
-	    
 	    // SV1 variables (credit LZ)
 	    NameH = "xNVtx_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );

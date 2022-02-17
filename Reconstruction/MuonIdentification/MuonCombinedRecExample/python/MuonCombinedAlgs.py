@@ -113,7 +113,7 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
     
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
-    kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit() or ConfigFlags.Muon.MuonTrigger)
+    kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit())
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
 
 def MuonInDetToMuonSystemExtensionAlg(name= "MuonInDetToMuonSystemExtensionAlg", **kwargs):

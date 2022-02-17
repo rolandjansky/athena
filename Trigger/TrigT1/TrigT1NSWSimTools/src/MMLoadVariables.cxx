@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
@@ -159,7 +159,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             // get specific digit and identify it
             const MmDigit* digit = item;
             Identifier id = digit->identify();
-
+            if (!m_MmIdHelper->is_mm(id)) continue;
+           
             Amg::Vector3D hit_gpos(0., 0., 0.);
 
             std::string stName   = m_MmIdHelper->stationNameString(m_MmIdHelper->stationName(id));
@@ -170,9 +171,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             int gas_gap          = m_MmIdHelper->gasGap(id);
             int channel          = m_MmIdHelper->channel(id);
 
-            if (!m_MmIdHelper->is_mm(id)) continue;
-            bool isSmall = (m_MmIdHelper->isSmall(id));
-            const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+            const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMReadoutElement(id);
 
             std::vector<float>  time          = digit->stripTimeForTrigger();
             std::vector<float>  charge        = digit->stripChargeForTrigger();
