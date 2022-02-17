@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -26,6 +26,7 @@
 #include <TLine.h>
 #include <TROOT.h>
 #include <TEfficiency.h>
+#include <TPython.h>
 
 #include "DataQualityInterfaces/CompositeAlgorithm.h"
 #include "DataQualityInterfaces/ConditionsSingleton.h"
@@ -39,6 +40,7 @@
 #include "DataQualityInterfaces/HanOutput.h"
 #include "DataQualityInterfaces/HanUtils.h"
 #include "DataQualityInterfaces/MiniConfig.h"
+#include "DataQualityInterfaces/HanInputRootFile.h"
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
 #include "dqm_core/ParameterConfig.h"
@@ -158,7 +160,7 @@ AssembleAndSave( std::string infileName, std::string outfileName, std::string co
 
 void
 HanConfig::
-BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output )
+BuildMonitors( std::string configName, HanInputRootFile& input, HanOutput& output )
 {
   bool isInitialized = Initialize( configName );
   if( !isInitialized ) {
@@ -172,12 +174,21 @@ BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output
 
 boost::shared_ptr<dqm_core::Region>
 HanConfig::
-BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::Output& output )
+BuildMonitorsNewRoot( std::string configName, HanInputRootFile& input, dqm_core::Output& output )
 {
   bool isInitialized = Initialize( configName );
   if( !isInitialized ) {
     return boost::shared_ptr<dqm_core::Region>();
   }
+
+  TDirectory* topdir = const_cast<TDirectory*>(input.getBasedir());
+  TPython::Bind(m_top_level, "top_level");
+  TPython::Bind(topdir, "path");
+  TPython::Exec("from DataQualityInterfaces.han import FixRegion");
+  TPython::Exec("import logging; logging.basicConfig(level='INFO')");
+  HanConfigGroup* new_top_level = TPython::Eval("FixRegion(top_level, path)");
+  delete m_top_level;
+  m_top_level = new_top_level;
 
   std::string algName( m_top_level->GetAlgName() );
   std::string algLibName( m_top_level->GetAlgLibName() );
