@@ -18,6 +18,8 @@ PrintHijingPars::PrintHijingPars(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode PrintHijingPars::initialize(){
 
+  ATH_CHECK( GenBase::initialize() );
+
   ATH_MSG_INFO(">>> PrintHijingPars from Initialize");
   std::cout << "----- PrintHijingPars From initialize" << std::endl;
 
