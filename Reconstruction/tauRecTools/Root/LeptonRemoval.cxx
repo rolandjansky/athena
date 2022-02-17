@@ -67,7 +67,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
         std::for_each(elec_container->cbegin(), elec_container->cend(),
             [&](const xAOD::Electron* elec) -> void
             {
-                if(tau_p4.DeltaR(elec->p4()) < m_lep_removal_cone_size)// && elec->passSelection(elec_wp_str))
+                if(tau_p4.DeltaR(elec->p4()) < m_lep_removal_cone_size && elec->passSelection(elec_wp_str))
                 {
                     if (m_do_elec_trk_rm)
                     {
@@ -210,7 +210,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
             }
         ), 
         tau_cluster_links.end()
-    );
+    );  
     tau.setClusterLinks(tau_cluster_links);
 	tau.setAllTauTrackLinks(tau_track_links);
 	return StatusCode::SUCCESS;
@@ -232,7 +232,6 @@ std::vector<const xAOD::CaloCluster*> LeptonRemoval::getOrignalTopoClusters(cons
                 orig_cls.push_back(*link);
         }
     }
-    
     return orig_cls;
 }
 

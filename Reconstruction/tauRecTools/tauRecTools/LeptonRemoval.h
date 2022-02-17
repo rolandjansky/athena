@@ -9,7 +9,7 @@
 #include "xAODTau/TauJet.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandle.h"
 
 class LeptonRemoval : public TauRecToolBase 
 {
@@ -35,7 +35,7 @@ class LeptonRemoval : public TauRecToolBase
 		std::string m_str_min_elec_id_wp 	= "Medium";   
 		std::string m_str_min_muon_id_wp 	= "Medium";   
 		std::string m_str_elec_id_wp_prefix = "DFCommonElectronsLH";
-		
+
 		const std::map<std::string, uint> m_map_muon_id_wp = {{"Tight", 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose",3}};
 		SG::ReadHandleKey<xAOD::MuonContainer>     m_muon_input_container{this, "Key_MuonInputContainer", "Muons", "input xAOD muons"};
 		SG::ReadHandleKey<xAOD::ElectronContainer> m_elec_input_container{this, "Key_ElecInputContainer", "Electrons", "input xAOD electrons"};
