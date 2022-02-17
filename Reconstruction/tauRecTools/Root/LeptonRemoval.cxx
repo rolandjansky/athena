@@ -4,19 +4,18 @@
 
 #include "tauRecTools/LeptonRemoval.h"
 
-using namespace tauRecTools;
-
 //________________________________________
 LeptonRemoval::LeptonRemoval(const std::string& name):
 	TauRecToolBase(name)
 {
-    declareProperty("doMuonTrkRm",      m_do_muon_trk_rm        = false);
-    declareProperty("doElecTrkRm",      m_do_elec_trk_rm        = false);
-    declareProperty("doMuonClsRm",      m_do_muon_cls_rm        = false);
-    declareProperty("doElecClsRm",      m_do_elec_cls_rm        = false);
-	declareProperty("elecIDWP",         m_str_min_elec_id_wp    = "Medium");
-    declareProperty("muonIDWP",         m_str_min_muon_id_wp    = "Medium");
-    declareProperty("eleIDWPPrefix",    m_str_elec_id_wp_prefix = "DFCommonElectronsLH");
+    declareProperty("doMuonTrkRm",          m_do_muon_trk_rm        = false);
+    declareProperty("doElecTrkRm",          m_do_elec_trk_rm        = false);
+    declareProperty("doMuonClsRm",          m_do_muon_cls_rm        = false);
+    declareProperty("doElecClsRm",          m_do_elec_cls_rm        = false);
+	declareProperty("elecIDWP",             m_str_min_elec_id_wp    = "Medium");
+    declareProperty("muonIDWP",             m_str_min_muon_id_wp    = "Medium");
+    declareProperty("eleIDWPPrefix",        m_str_elec_id_wp_prefix = "DFCommonElectronsLH");
+    declareProperty("lepRemovalConeSize",   m_lep_removal_cone_size = 0.6);
 }
 
 //________________________________________
@@ -68,7 +67,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
         std::for_each(elec_container->cbegin(), elec_container->cend(),
             [&](const xAOD::Electron* elec) -> void
             {
-                if(tau_p4.DeltaR(elec->p4()) < 0.6 && elec->passSelection(elec_wp_str))
+                if(tau_p4.DeltaR(elec->p4()) < m_lep_removal_cone_size && elec->passSelection(elec_wp_str))
                 {
                     if (m_do_elec_trk_rm)
                     {
@@ -97,7 +96,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
         std::for_each(muon_container->cbegin(), muon_container->cend(),
             [&](const xAOD::Muon* muon) -> void
             {
-                if(tau_p4.DeltaR(muon->p4()) < 0.6 && muon->quality() <= muon_wp_ui)
+                if(tau_p4.DeltaR(muon->p4()) < m_lep_removal_cone_size && muon->quality() <= muon_wp_ui)
                 {
                     if (m_do_muon_trk_rm)
                     {
@@ -140,7 +139,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                     if (m_do_muon_trk_rm)
                     {
                         if(auto where = std::find_if(muon_tracks.cbegin(), muon_tracks.cend(), 
-                            [&](auto mu_trk){ return trackMatch(mu_trk, tau_trk); }); 
+                            [&](auto mu_trk){ return tau_trk == mu_trk; }); 
                             where != muon_tracks.cend()) 
                         {
                             ATH_MSG_DEBUG( "muon_track with pt " << tau_trk->pt()/1000 << " GeV removed");
@@ -150,7 +149,7 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                     if (m_do_elec_trk_rm)
                     {
                         if(auto where = std::find_if(elec_tracks.cbegin(), elec_tracks.cend(), 
-                            [&](auto elec_trk){ return trackMatch(elec_trk, tau_trk); }); 
+                            [&](auto elec_trk){ return tau_trk == elec_trk; }); 
                             where != elec_tracks.cend()) 
                         {
                             ATH_MSG_DEBUG( "elec_track with pt " << tau_trk->pt()/1000 << " GeV removed");
@@ -170,11 +169,11 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                 bool match = false;
                 if(tau_cls_link.isValid())
                 {
-                    auto tau_cls = (*tau_cls_link);
+                    auto tau_cls = static_cast<const xAOD::CaloCluster*>(*tau_cls_link);
                     if (m_do_muon_cls_rm)
                     {
                         if(auto where = std::find_if(muon_clusters.cbegin(), muon_clusters.cend(), 
-                            [&](auto mu_cls){ return clusterMatch(mu_cls, tau_cls); }); 
+                            [&](auto mu_cls){ return tau_cls == mu_cls; }); 
                             where != muon_clusters.cend()) 
                         {
                             ATH_MSG_DEBUG( "muon_cluster with pt " << tau_cls->pt()/1000 << " GeV removed");
@@ -184,10 +183,10 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                     if (m_do_elec_cls_rm)
                     {
                         if(auto where = std::find_if(elec_clusters.cbegin(), elec_clusters.cend(), 
-                            [&](auto elec_cls){ return clusterMatch(elec_cls, tau_cls); }); 
+                            [&](auto elec_cls){ return tau_cls == elec_cls; }); 
                             where != elec_clusters.cend()) 
                         {
-                            ATH_MSG_DEBUG( "elec_clusters with pt " << tau_cls->pt()/1000 << " GeV removed");
+                            ATH_MSG_DEBUG( "elec_cluster with pt " << tau_cls->pt()/1000 << " GeV removed");
                             match = true;
                         }
                     }
@@ -200,25 +199,4 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
     tau.setClusterLinks(tau_cluster_links);
 	tau.setAllTauTrackLinks(tau_track_links);
 	return StatusCode::SUCCESS;
-}
-
-//Helpers
-template <typename T1, typename T2>
-bool LeptonRemoval::trackMatch(T1 trk1, T2 trk2) const
-{
-    auto diff_d0     = std::abs(trk1->d0()      - trk2->d0());
-    auto diff_z0     = std::abs(trk1->z0()      - trk2->z0());
-    auto diff_phi0   = std::abs(trk1->phi0()    - trk2->phi0());
-    auto diff_theta  = std::abs(trk1->theta()   - trk2->theta());
-    auto diff_qOverP = std::abs(trk1->qOverP()  - trk2->qOverP());
-    return diff_d0 + diff_z0 + diff_phi0 + diff_theta + diff_qOverP < 0.1;
-}
-
-template <typename T1, typename T2>
-bool LeptonRemoval::clusterMatch(T1 cls1, T2 cls2) const
-{
-    auto ener_diff = std::abs((cls1->e()   - cls2->e())   / (cls1->e()   + cls2->e()));
-    auto phi_diff  = std::abs((cls1->phi() - cls2->phi()) / (cls1->phi() + cls2->phi()));
-    auto eta_diff  = std::abs((cls1->eta() - cls2->eta()) / (cls1->eta() + cls2->eta()));
-    return ener_diff < 0.1 && phi_diff < 0.1 && eta_diff < 0.1;
 }

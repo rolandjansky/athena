@@ -6,8 +6,8 @@
 // TauJets_LepRMParticleThinning.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLEThinning_H
-#define DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLEThinning_H
+#ifndef DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLETHINNING_H
+#define DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLETHINNING_H
 
 #include <string>
 #include <atomic>
@@ -55,4 +55,4 @@ namespace DerivationFramework {
 	};
 }
 
-#endif // DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLEThinning_H
+#endif // DERIVATIONFRAMEWORK_TAUJETS_LEPRMPARTICLETHINNING_H

@@ -33,7 +33,7 @@ StatusCode DerivationFramework::TauJets_LepRMParticleThinning::initialize()
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
     ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
-    ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");
+    ATH_MSG_INFO("Using " << m_inDetSGKey << " as the source collection for inner detector track particles");
 
     if (m_LepRMTauKey.key().empty()) 
     {
