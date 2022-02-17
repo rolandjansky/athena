@@ -329,7 +329,9 @@ def main():
 
     logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.timestamp))
 
-    scopeString = "--scope=mc15"
+    ds_scopes = list(set(s[:4] for s in dataset_values.keys()))
+    scopeString = "--scope=" 
+    scopeString += ds_scopes[0] if len(ds_scopes) == 1 else "mc15"
     if not hasMC15 and hasMC16: scopeString="--scope=mc16"
 
     #do as one query, to be efficient
