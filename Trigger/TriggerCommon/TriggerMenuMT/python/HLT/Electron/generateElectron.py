@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, \
     ChainStep, Chain, EmptyMenuSequence, InViewRecoCA, SelectionCA
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict

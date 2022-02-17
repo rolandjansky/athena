@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool

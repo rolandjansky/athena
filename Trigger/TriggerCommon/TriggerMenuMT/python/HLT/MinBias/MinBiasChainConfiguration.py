@@ -4,7 +4,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger( __name__ )
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import EmptyMenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLT.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
 from TriggerMenuMT.HLT.MinBias.ALFAMenuSequences import ALFAPerfSequence
@@ -80,7 +80,7 @@ def ALFAPerfSequenceCfg(flags):
 
 def MinBiasZVertexFinderCfg(flags):
     #TODO we can do that inside of the getStep ... next interation
-    from ..Menu.MenuComponents import menuSequenceCAToGlobalWrapper
+    from ..Config.MenuComponents import menuSequenceCAToGlobalWrapper
     return menuSequenceCAToGlobalWrapper(MinBiasZVertexFinderSequenceCfg, flags)
 
 class MinBiasChainConfig(ChainConfigurationBase):

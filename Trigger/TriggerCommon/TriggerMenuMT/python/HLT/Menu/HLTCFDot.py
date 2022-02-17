@@ -4,7 +4,7 @@
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
 from AthenaCommon.AlgSequence import AthSequencer
-from TriggerMenuMT.HLT.Menu.MenuComponents import algColor, isPassFilterAlg
+from TriggerMenuMT.HLT.Config.MenuComponents import algColor, isPassFilterAlg
 import itertools
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
 

@@ -2,7 +2,7 @@
 import itertools
 
 from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLT.Menu.HLTCFConfig_newJO import generateDecisionTree
+from CFConfig_newJO import generateDecisionTree
 from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLT.Menu.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.Menu.ChainDictTools import splitInterSignatureChainDict
@@ -173,10 +173,10 @@ def generateMenu(flags):
     log.info('CF is built')
 
     # # generate JOSON representation of the config
-    from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON_newJO
+    from MenuJSON import generateJSON_newJO
     generateJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), menuAcc.getSequence("HLTAllSteps"))
 
-    from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
+    from PrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
     generatePrescaleJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList())
 
     return menuAcc

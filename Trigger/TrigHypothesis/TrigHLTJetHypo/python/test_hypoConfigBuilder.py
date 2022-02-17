@@ -7,7 +7,7 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (
     SingleJetGroup,
     MultiJetGroup)
 
-from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
 
 from TrigHLTJetHypo.hypoToolDisplay import hypoToolDisplay

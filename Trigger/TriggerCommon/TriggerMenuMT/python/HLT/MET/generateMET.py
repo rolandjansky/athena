@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from TriggerMenuMT.HLT.Menu.MenuComponents import Chain
+from TriggerMenuMT.HLT.Config.MenuComponents import Chain
 from .ConfigHelpers import AlgConfig
 from .METChainConfiguration import extractMETRecoDict
 from ..Menu.ChainMerging import mergeChainDefs

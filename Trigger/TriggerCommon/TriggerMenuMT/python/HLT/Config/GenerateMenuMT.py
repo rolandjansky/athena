@@ -4,7 +4,7 @@ import importlib
 import string
 
 from TriggerMenuMT.HLT.Menu.TriggerConfigHLT  import TriggerConfigHLT
-from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
+from CFConfig import makeHLTTree
 from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLT.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
@@ -508,16 +508,16 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.info("Generating HLT menu JSON...")
         
-        from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON
+        from MenuJSON import generateJSON
         generateJSON()
 
         log.info("Generating HLT prescale JSON...")
 
-        from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+        from PrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
 
         log.info('Generating HLTMonitoring JSON...')
-        from TriggerMenuMT.HLT.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        from MonitoringJSON import generateDefaultMonitoringJSON
         generateDefaultMonitoringJSON()
 
         log.info('Menu generation is complete.')

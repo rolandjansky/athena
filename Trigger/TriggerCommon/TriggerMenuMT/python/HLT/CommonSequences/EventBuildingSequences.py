@@ -5,7 +5,7 @@
 from TrigEDMConfig import DataScoutingInfo
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLT.Menu import EventBuildingInfo
-from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
