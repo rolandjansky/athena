@@ -48,7 +48,7 @@ def _algoTauRoiUpdater(name, inputRoIs, clusters):
     return algo
 
 def _algoTauCaloOnlyMVA(name, inputRoIs, clusters):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnlyMVA
+    from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauCaloOnlyMVA
 
     algo                               = TrigTauRecMerged_TauCaloOnlyMVA(name="TrigTauRecMerged_TauCaloOnlyMVA")
     algo.RoIInputKey                   = inputRoIs
@@ -91,7 +91,7 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     return algo
 
 def _algoTauPrecision(name, inputRoIs, tracks):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
+    from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauPrecisionMVA
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     if "MVA" in name:
