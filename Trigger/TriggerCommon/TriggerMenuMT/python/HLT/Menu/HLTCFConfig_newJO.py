@@ -5,14 +5,14 @@ from AthenaCommon.Logging import logging
 import GaudiConfig2
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainInLegs
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainInLegs
 from TriggerMenuMT.HLT.Config.MenuComponents import (isComboHypoAlg,
                                                              isFilterAlg,
                                                              isHypoAlg,
                                                              isInputMakerBase,
                                                              EmptyMenuSequence)
 from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
 log = logging.getLogger( __name__ )
 

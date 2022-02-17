@@ -13,7 +13,7 @@ def checkL1HLTConsistency():
     lvl1thtypes = lvl1access.thresholdTypes()
     lvl1items   = lvl1access.items(includeKeys=["name"])
     lvl1items_full   = lvl1access.items() 
-    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
     allUsedItems = []
     allUnusedItems = []

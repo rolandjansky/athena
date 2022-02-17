@@ -27,7 +27,7 @@ def getOverallL1item(chainName):
     """
     assert '_L1' in chainName, 'ERROR IN CHAIN {}, missing L1 seed at the end i.e. _L1...' .format(chainName)
 
-    from .L1Seeds import getSpecificL1Seeds
+    from TriggerMenuMT.HLT.Menu.L1Seeds import getSpecificL1Seeds
     from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
     from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
 
@@ -96,7 +96,7 @@ def getEBPartFromParts( chainName, chainParts ):
     Checks if there is only one identifier
     """
     # ---- event building identifier ----
-    from .EventBuildingInfo import getAllEventBuildingIdentifiers
+    from TriggerMenuMT.HLT.Menu.EventBuildingInfo import getAllEventBuildingIdentifiers
     eventBuildTypes = set( getAllEventBuildingIdentifiers() ).intersection( chainParts )
     assert len(eventBuildTypes) <= 1, 'Chain {} has more than one Event Building identifier: {}, that is not supported'.format( chainName, eventBuildTypes)
     if eventBuildTypes:
@@ -109,7 +109,7 @@ def getChainThresholdFromName(chainParts, signature):
     Decode threshold value from the chain name
     """
 
-    from .SignatureDicts import getBasePattern
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import getBasePattern
     pattern = getBasePattern()
     trigType = []
     thresholdToPass = 0
@@ -174,7 +174,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     """
 
     # ---- dictionary with all chain properties ----
-    from .SignatureDicts import ChainDictTemplate
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import ChainDictTemplate
     from copy import deepcopy
     genchainDict = deepcopy(ChainDictTemplate)
     genchainDict['chainName'] = chainName
@@ -201,7 +201,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from .SignatureDicts import AllowedTopos, AllowedTopos_comb, AllowedTopos_Bphysics_topoVariant, AllowedTopos_Bphysics_topoExtra
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import AllowedTopos, AllowedTopos_comb, AllowedTopos_Bphysics_topoVariant, AllowedTopos_Bphysics_topoExtra
     topo = ''
     topos=[]
     extraComboHypos = []
@@ -255,17 +255,17 @@ def analyseChainName(chainName, L1thresholds, L1item):
     # ---- expected format: <Multiplicity(int)><TriggerType(str)>
     #      <Threshold(int)><isolation,...(str|str+int)> ----
     # EXCEPT FOR CHAINS ...
-    from .SignatureDicts import getBasePattern
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import getBasePattern
     pattern = getBasePattern()
     mdicts=[]
     multichainindex=[]
 
 
     # ---- obtain dictionary parts for signature defining patterns ----
-    from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
     
-    from .MenuAlignmentTools import get_alignment_group_from_pattern as getAlignmentGroupFromPattern
+    from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import get_alignment_group_from_pattern as getAlignmentGroupFromPattern
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
@@ -419,7 +419,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
 
         #---- Check if topo is a bphysics topo -> change signature ----
-        from .SignatureDicts import AllAllowedTopos_Bphysics
+        from TriggerMenuMT.HLT.Menu.SignatureDicts import AllAllowedTopos_Bphysics
         for t in genchainDict['topo']:
             if (t in AllAllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
@@ -429,7 +429,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                     chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['extra'])
 
         # ---- import the relevant dictionaries for each part of the chain ----
-        from .SignatureDicts import getSignatureInformation
+        from TriggerMenuMT.HLT.Menu.SignatureDicts import getSignatureInformation
         SignatureDefaultValues, allowedSignaturePropertiesAndValues = getSignatureInformation(chainProperties['signature'])
         log.debug('SignatureDefaultValues: %s', SignatureDefaultValues)
         allDefaults = list(SignatureDefaultValues.values())

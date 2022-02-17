@@ -101,7 +101,7 @@ def  trigJetEJsHypoToolFromDict(chain_dict):
 import unittest
 class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLT.Menu.DictFromChainName import (
+        from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import (
             dictFromChainName,)
 
         chain_names = (

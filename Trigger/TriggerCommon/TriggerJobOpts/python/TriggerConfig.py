@@ -199,7 +199,7 @@ def triggerSummaryCfg(flags, hypos):
                     stepChains[chain] = hypoOutputKeys
         allChains.update( stepChains )
 
-    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
         __log.warning("No HLT menu, chains w/o algorithms are not handled")

@@ -8,7 +8,7 @@ from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoTool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -293,7 +293,7 @@ if __name__ == '__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
-    from ..Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     chain = generateChains(ConfigFlags, dictFromChainName('HLT_e26_L1EM15'))
     for step in chain.steps:
         for s in step.sequences:

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLT.Config.MenuComponents import Chain, ChainStep, MenuSequenceCA, SelectionCA, InViewRecoCA, EmptyMenuSequence
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
-    from ..Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     chain = generateChains(ConfigFlags, dictFromChainName('HLT_tau0_perf_ptonly_L1TAU8'))
     for step in chain.steps:
         for s in step.sequences:

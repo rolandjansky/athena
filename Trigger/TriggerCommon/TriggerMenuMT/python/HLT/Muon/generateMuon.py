@@ -9,7 +9,7 @@ from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFTrackIsolationHypoToolFromDict
 from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_Cfg, regSelTool_MDT_Cfg, regSelTool_CSC_Cfg

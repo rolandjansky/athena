@@ -3,7 +3,7 @@
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
 from TriggerMenuMT.HLT.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
 from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, SelectionCA, ChainStep, Chain
-from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict

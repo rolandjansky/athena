@@ -2,7 +2,7 @@
 from TriggerMenuMT.HLT.Config.MenuComponents import Chain
 from .ConfigHelpers import AlgConfig
 from .METChainConfiguration import extractMETRecoDict
-from ..Menu.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger(__name__)
