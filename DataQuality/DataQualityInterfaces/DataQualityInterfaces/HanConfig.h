@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef dqiHanConfig_h
@@ -39,6 +39,7 @@ class MiniConfig;
 class HanConfigAssessor;
 class HanConfigGroup;
 class HanOutput;
+class HanInputRootFile;
 
 class HanConfig : public TObject {
 public:
@@ -51,9 +52,9 @@ public:
                                 std::string connectionString="sqlite://;schema=/afs/cern.ch/user/a/atlasdqm/dqmdisk1/cherrypy-devel/RefDB.db;dbname=REFDB",
                                 long runNumber=2147483646, bool bulk=false);
 
-  virtual void BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output );
+  virtual void BuildMonitors( std::string configName, HanInputRootFile& input, HanOutput& output );
 #ifndef __CINT__
-  virtual boost::shared_ptr<dqm_core::Region> BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::Output& output );
+  virtual boost::shared_ptr<dqm_core::Region> BuildMonitorsNewRoot( std::string configName, HanInputRootFile& input, dqm_core::Output& output );
 #endif
   virtual void BuildConfigOutput( std::string configName, TFile* inputFile, std::string path,
                                   std::map<std::string,TSeqCollection*>* outputMap, TSeqCollection *outputList );
