@@ -60,7 +60,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         ########### here ends InDetGlobalTrackMonAlg ###########
 
 
-    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw') and flags.DQ.DataType == 'collisions':
+    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw') and (flags.InDet.Tracking.doLargeD0 or flags.InDet.Tracking.doR3LargeD0 or flags.InDet.Tracking.doLowPtLargeD0):
         ########### here begins InDetGlobalLRTMonAlg ###########
         kwargsInDetGlobalLRTMonAlg = { 
             'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
