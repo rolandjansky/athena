@@ -3,6 +3,7 @@
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2TriggerTowerMaker
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 class Run2TriggerTowerMakerBase (LVL1__Run2TriggerTowerMaker):
     __slots__ = []
@@ -75,6 +76,16 @@ def Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'):
     acc.merge(TileInfoLoaderCfg(flags))
     condFoldersAcc, condFolders = L1CaloCondFoldersCfg(flags)
     acc.merge(condFoldersAcc)
+
+    # R2TTMaker reads TTL1 containers from input POOL file (RDO, ESD, ...)
+    if flags.Input.Format is Format.POOL:
+        ttl1Containers = [
+            ('LArTTL1Container', 'LArTTL1EM'),
+            ('LArTTL1Container', 'LArTTL1HAD'),
+            ('TileTTL1Container', 'TileTTL1Cnt'),
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=ttl1Containers))
 
     # R2TTMaker reads L1Menu in BeginRun incident, so needs L1ConfigSvc
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
