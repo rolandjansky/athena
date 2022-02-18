@@ -43,7 +43,7 @@ StatusCode LArHitEMapToDigitAlg::initialize()
  
 }
 
-StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) {
+StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
 
    const LArBadFebCont* badFebs = pointerFromKey<LArBadFebCont>(context,m_badFebKey);
 
@@ -109,8 +109,15 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) {
 //  ATH_MSG_DEBUG(" total number of hits found= " << m_nhit_tot);
   ATH_MSG_DEBUG(" number of created digits  = " << DigitContainer->size());
 
+  // test part
+  for(int i = 0; i< 10; i++){
+      const LArDigit* digit = DigitContainer->at(i);
+      std::cout << "DIGITS from ALG: " << digit->channelID() << " " << digit->gain() << " " << digit->nsamples() << " " << digit->samples()[2] << std::endl;
+  }
+
   ATH_CHECK(DigitContainerHandle.record( std::move(DigitContainer) ) );
   ATH_CHECK(DigitContainer_DigiHSTruthHandle.record( std::move(DigitContainer_DigiHSTruth) ) );
+
 
   return StatusCode::SUCCESS;
 }
@@ -120,7 +127,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 				    LArDigit*& Digit, LArDigit*& Digit_DigiHSTruth,
                                     const std::vector<std::pair<float,float> >* TimeE,
                                     const LArDigit * rndmEvtDigit, CLHEP::HepRandomEngine * engine,
-                    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth)
+                    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth) const
 
 {
   bool createDigit_DigiHSTruth = true;
@@ -547,8 +554,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 
 StatusCode LArHitEMapToDigitAlg::ConvertHits2Samples(const EventContext& ctx,
                                               const Identifier & cellId, const HWIdentifier ch_id, CaloGain::CaloGain igain,
-                          //const std::vector<std::pair<float,float> >  *TimeE)
-                          const std::vector<std::pair<float,float> >  *TimeE, std::vector<double> &sampleList)
+                          const std::vector<std::pair<float,float> >  *TimeE, std::vector<double> &sampleList) const
 
 {
 // Converts  hits of a particular LAr cell into energy samples

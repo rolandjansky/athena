@@ -62,25 +62,24 @@ public:
   // initialize all condition keys
   virtual StatusCode initialize();
   // Just do it
-  virtual StatusCode execute(const EventContext& context);
+  virtual StatusCode execute(const EventContext& context) const;
 
 protected:
 
   // access to many conditions
-  template<class T> const T* pointerFromKey(const EventContext& context, SG::ReadCondHandleKey<T>& key) const;
+  template<class T> const T* pointerFromKey(const EventContext& context, const SG::ReadCondHandleKey<T>& key) const;
 
   StatusCode MakeDigit(const EventContext& ctx, const Identifier & cellId,
                const HWIdentifier & ch_id,
 	       LArDigit*& DigitContainer, LArDigit*& DigitContainer_DigiHSTruth,
                const std::vector<std::pair<float,float> >* TimeE,
                const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
-               const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr);
+               const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr) const;
   
   
   StatusCode ConvertHits2Samples(const EventContext& ctx, const Identifier & cellId, HWIdentifier ch_id,
                    CaloGain::CaloGain igain,
-                   //const std::vector<std::pair<float,float> >  *TimeE);
-                   const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
+                   const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList) const;
 
   // Keys to many conditions
   SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
@@ -173,7 +172,7 @@ protected:
 };
 
 template<class T>
-const T* LArHitEMapToDigitAlg::pointerFromKey(const EventContext& context, SG::ReadCondHandleKey<T>& key) const {
+const T* LArHitEMapToDigitAlg::pointerFromKey(const EventContext& context, const SG::ReadCondHandleKey<T>& key) const {
   SG::ReadCondHandle<T> aHandle(key, context);
   const T* object = *aHandle;
   if (object == nullptr) ATH_MSG_ERROR("Object could not be fetched with key " << aHandle.key() );
