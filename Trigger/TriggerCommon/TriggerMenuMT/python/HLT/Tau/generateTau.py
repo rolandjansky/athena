@@ -23,7 +23,7 @@ def generateChains( flags, chainDict ):
                                                     roisKey=recoAcc.inputMaker().InViewRoIs,
                                                     clustersKey='HLT_TopoCaloClustersLC'))
 
-        from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMergedOnlyMVACfg
+        from TrigTauRec.TrigTauRecConfig import TrigTauRecMergedOnlyMVACfg
         recoAcc.addRecoAlgo(CompFactory.TrigTauCaloRoiUpdater("TauCaloRoiUpdater",
                                                                 CaloClustersKey = 'HLT_TopoCaloClustersLC',
                                                                 RoIInputKey = 'HLT_TAURoI',
