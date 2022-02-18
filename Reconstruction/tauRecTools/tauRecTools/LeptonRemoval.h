@@ -10,6 +10,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 class LeptonRemoval : public TauRecToolBase 
 {
