@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
@@ -56,7 +56,7 @@ def addStandardTrfArgs(parser):
 #  @param parser trfArgParser object
 #  @param maxEventsDefaultSubstep Special option which can change the default substep for maxEvents (needed by
 #  some special transforms).
-def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True):
+def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True, addPerfMon=True):
     parser.defineArgGroup('Athena', 'General Athena Options')
     parser.add_argument('--athenaopts', group = 'Athena', type=argFactory(trfArgClasses.argSubstepList, splitter=' ', runarg=False), nargs="+", metavar='substep:ATHENAOPTS', 
                         help='Extra options to pass to athena. Opts will split on spaces. '
@@ -130,8 +130,21 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         metavar='BOOL', group='Athena', nargs='?', const=trfArgClasses.argBool('True'),
                         help='Remove intermediate input/output files of multi step TRF')
 
+    if addPerfMon:
+        addPerfMonArguments(parser)
+
     if addValgrind:
         addValgrindArguments(parser)
+
+## @brief Options for PerfMon
+#  @param parser trfArgParser object
+def addPerfMonArguments(parser):
+    parser.defineArgGroup('PerfMon', 'General PerfMon Options')
+    parser.add_argument('--perfmon',
+                        default=trfArgClasses.argString('fastmonmt'),
+                        type=argFactory(trfArgClasses.argString),
+                        help='Enable PerfMon (fastmonmt [default], fullmonmt, or none)',
+                        group='PerfMon')
 
 ## @brief Add Valgrind options
 def addValgrindArguments(parser):

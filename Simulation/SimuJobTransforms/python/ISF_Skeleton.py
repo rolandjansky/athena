@@ -131,7 +131,7 @@ def fromRunArgs(runArgs):
         raise RuntimeError('No outputHITSFile or outputEVNT_TRFile defined')
 
     # Setup perfmon flags from runargs
-    from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
+    from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
     setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
 
     # Special Configuration preInclude
