@@ -23,14 +23,11 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root"]
+
     ConfigFlags.Output.AODFileName = "outAOD.pool.root"
     ConfigFlags.Detector.GeometryLAr=True
     ConfigFlags.Detector.GeometryTile=True
-    # useful examples in commented lines left intentionally
-    # ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_mu4"])
-    # ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu6_2mu4","HLT_mu22"])
-    # ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_e5_lhvloose_nod0","HLT_e9_etcut","HLT_e26_lhtight_nod0","HLT_e28_lhtight_nod0"])
-    ConfigFlags.Exec.MaxEvents = 10
+    ConfigFlags.Exec.MaxEvents = 1000
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
@@ -51,11 +48,18 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     alg = CompFactory.Run2ToRun3TrigNavConverterV2("TrigNavCnv", OutputLevel=DEBUG, TrigConfigSvc=confSvc)
     alg.doSelfValidation = False
-
-    alg.Collections = ["xAOD::TrigEMCluster", "xAOD::TrigEMClusterContainer", "xAOD::TrigRingerRings", "xAOD::TrigRingerRingsContainer", "xAOD::TrigRNNOutput", "xAOD::TrigRNNOutputContainer", "xAOD::CaloClusterContainer", "xAOD::L2StandAloneMuonContainer", "xAOD::L2CombinedMuonContainer", "xAOD::L2IsoMuonContainer", "xAOD::MuonContainer", "xAOD::TauJetContainer", "xAOD::TauTrackContainer", "xAOD::ElectronContainer", "xAOD::PhotonContainer", "xAOD::JetContainer", "xAOD::BTaggingContainer", "xAOD::BTagVertexContainer", "xAOD::JetElementContainer"]
     alg.doCompression = True
+    alg.addTauTracks = False
+
+    alg.Collections = ["xAOD::TrigEMCluster", "xAOD::TrigEMClusterContainer", "xAOD::TrigRingerRings", "xAOD::TrigRingerRingsContainer", "xAOD::TrigRNNOutput", "xAOD::TrigRNNOutputContainer", "xAOD::CaloClusterContainer", "xAOD::L2StandAloneMuonContainer", "xAOD::L2CombinedMuonContainer", "xAOD::L2IsoMuonContainer", "xAOD::MuonContainer", "xAOD::TauJetContainer", "xAOD::ElectronContainer", "xAOD::PhotonContainer", "xAOD::JetContainer", "xAOD::BTaggingContainer", "xAOD::BTagVertexContainer", "xAOD::JetElementContainer", "xAOD::TrigMissingET", "xAOD::TrigBphysContainer"]
+    if (alg.addTauTracks):
+        alg.Collections.append("xAOD::TauTrackContainer")
+    
+    # simple mu test cases
     alg.Chains = ["HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu6_2mu4","HLT_mu22"]
+
     alg.Rois = ["initialRoI","forID","forID1","forID2","forMS","forSA","forTB","forMT","forCB"]
+
 
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
