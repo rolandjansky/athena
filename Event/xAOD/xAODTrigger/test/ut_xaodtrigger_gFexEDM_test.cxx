@@ -51,15 +51,15 @@ void testgFexJetRoI() {
    SIMPLE_ASSERT( obj->isgBlockSub() == 0 );
    SIMPLE_ASSERT( obj->isgJet() == 1 );
    SIMPLE_ASSERT( obj->gFexType() == 3 );
-
+   
    SIMPLE_ASSERT( obj->etMin() == 5510400 );
    SIMPLE_ASSERT( obj->etMax() == 5512000 );
    SIMPLE_ASSERT( obj->eta() == static_cast<float>(-3.4) );
    SIMPLE_ASSERT( obj->etaMin() == static_cast<float>(-3.5) );
    SIMPLE_ASSERT( obj->etaMax() == static_cast<float>(-3.3) );
-   SIMPLE_ASSERT( obj->phi() == static_cast<float>(3*(M_PI/16)+(M_PI/(16*2))) );
-   SIMPLE_ASSERT( obj->phiMin() == static_cast<float>(3*(M_PI/16)) );
-   SIMPLE_ASSERT( obj->phiMax() == static_cast<float>(3*(M_PI/16)+(M_PI/16)) );
+   SIMPLE_ASSERT( obj->phi_gFex() == static_cast<float>(3*(2*M_PI/16)+(2*M_PI/(16*2))) );
+   SIMPLE_ASSERT( obj->phiMin_gFex() == static_cast<float>(3*(2*M_PI/16)) );
+   SIMPLE_ASSERT( obj->phiMax_gFex() == static_cast<float>(3*(2*M_PI/16)+(2*M_PI/16)) );
 
    std::cout << "Test jet TOB completed!" << std::endl;
 
