@@ -26,6 +26,7 @@ if DetFlags.LAr_on():
         if digitizationFlags.doDigiTruth():
           from LArROD.LArRawChannelGetter_DigiHSTruth import LArRawChannelGetter_DigiHSTruth
           LArRawChannelGetter_DigiHSTruth()
+        job += CfgGetter.getAlgorithm("LArHitEMapToDigitAlg", tryDefaultConfigurable=True)
 ##################################################################
 # TileCalorimeter
 ##################################################################

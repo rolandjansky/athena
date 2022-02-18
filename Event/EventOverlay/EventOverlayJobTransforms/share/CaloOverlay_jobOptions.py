@@ -73,6 +73,8 @@ if DetFlags.overlay.LAr_on():
        if 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
           job.LArDigitThinner.InputContainerName = "LArDigitContainer_MC"
        job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
+    from LArDigitization.LArDigitizationConf import LArHitEMapToDigitAlg
+    job += CfgGetter.getAlgorithm("LArHitEMapToDigitAlg", tryDefaultConfigurable=True)
 
 
 

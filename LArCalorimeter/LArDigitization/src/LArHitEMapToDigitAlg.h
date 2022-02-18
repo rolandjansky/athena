@@ -105,12 +105,12 @@ protected:
   // keys to inputs
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey_DigiHSTruth{this,"LArHitEMap_DigiHSTruthKey","LArHitEMap_DigiHSTruth"};
-  SG::WriteHandleKey<LArDigitContainer> m_inputDigitContainerKey{this, "InputDigitContainer", "",
+  SG::ReadHandleKey<LArDigitContainer> m_inputDigitContainerKey{this, "InputDigitContainer", "",
        "Name of input digit container"}; // input digit container name 
   // keys to output
-  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC",
+  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC1",
        "Name of output digit container"};    // output digit container name list 
-  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth", 
+  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth1", 
        "LArDigitContainer_DigiHSTruth", "Name of output signal digit container"};    // output digit container name list
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArDigitization", ""};
  
@@ -167,7 +167,6 @@ protected:
   const LArHEC_ID*       m_larhec_id{};
   const LArFCAL_ID*      m_larfcal_id{};
   const LArOnlineID*     m_laronline_id{};
-
 
 };
 

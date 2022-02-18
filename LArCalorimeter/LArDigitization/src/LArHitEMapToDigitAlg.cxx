@@ -2,6 +2,8 @@
 #include "LArHitEMapToDigitAlg.h"
 #include "AthenaKernel/ITriggerTime.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArNeighbours.h"
@@ -27,9 +29,37 @@ StatusCode LArHitEMapToDigitAlg::initialize()
  
   ATH_CHECK(m_shapeKey.initialize());
   ATH_CHECK(m_fSamplKey.initialize());
+  ATH_CHECK(m_OFCKey.initialize());
   ATH_CHECK(m_pedestalKey.initialize());
+  ATH_CHECK(m_autoCorrNoiseKey.initialize());
+  ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_badFebKey.initialize());
+  ATH_CHECK(m_adc2mevKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
  
   ATH_CHECK(m_cablingKey.initialize());
+
+  // helpers
+  //retrieve ID helpers
+  ATH_CHECK(detStore()->retrieve(m_calocell_id,"CaloCell_ID"));
+
+
+  const CaloIdManager* caloIdMgr = nullptr;
+  StatusCode sc = detStore()->retrieve(caloIdMgr);
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR(" Unable to retrieve CaloIdManager from DetectoreStore");
+    return StatusCode::FAILURE;
+  }
+  m_larem_id   = caloIdMgr->getEM_ID();
+  m_larhec_id  = caloIdMgr->getHEC_ID();
+  m_larfcal_id = caloIdMgr->getFCAL_ID();
+
+  sc = detStore()->retrieve(m_laronline_id);
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR(" Unable to retrieve LArOnlineId from DetectoreStore");
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   // Services
   ATH_CHECK(m_rndmGenSvc.retrieve());
@@ -45,19 +75,27 @@ StatusCode LArHitEMapToDigitAlg::initialize()
 
 StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
 
+   // load many conditions
    const LArBadFebCont* badFebs = pointerFromKey<LArBadFebCont>(context,m_badFebKey);
-
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, context};
+   const LArOnOffIdMapping* cabling=*cablingHdl;
+   if(!cabling) {
+     ATH_MSG_ERROR("Failed to retrieve LAr Cabling map with key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+   }
 
    // Inputs
    SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey,context);
    const LArHitEMap* hitmapPtr = hitmap.cptr();
-   SG::ReadHandle<LArHitEMap> hitmap_DigitHSTruth(m_hitMapKey_DigiHSTruth,context);
-   const LArHitEMap* hitmapPtr_DigiHSTruth = hitmap.cptr();
+   const LArHitEMap* hitmapPtr_DigiHSTruth = nullptr;
+   if ( m_doDigiTruth ) {
+     SG::ReadHandle<LArHitEMap> hitmap_DigitHSTruth(m_hitMapKey_DigiHSTruth,context);
+     hitmapPtr_DigiHSTruth = hitmap_DigitHSTruth.cptr();
+   }
 
    // Prepare Output
    SG::WriteHandle<LArDigitContainer> DigitContainerHandle( m_DigitContainerName, context);
    auto DigitContainer = std::make_unique<LArDigitContainer>();
-   SG::WriteHandle<LArDigitContainer> DigitContainer_DigiHSTruthHandle( m_DigitContainerName_DigiHSTruth, context);
    auto DigitContainer_DigiHSTruth = std::make_unique<LArDigitContainer>();
    int it,it_end;
    it =  0;
@@ -84,7 +122,7 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
 
     if (TimeE->size() > 0 || m_NoiseOnOff || m_RndmEvtOverlay) {
       const Identifier cellID=m_calocell_id->cell_id(IdentifierHash(it));
-      HWIdentifier ch_id = m_cabling->createSignalChannelIDFromHash(IdentifierHash(it));
+      HWIdentifier ch_id = cabling->createSignalChannelIDFromHash(IdentifierHash(it));
       HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
       bool missing=!(badFebs->status(febId).good());
       if (!missing) {
@@ -98,7 +136,7 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
               if ( MakeDigit(context,cellID, ch_id, Digit, Digit_DigiHSTruth, TimeE, digit, engine, TimeE_DigiHSTruth)
            == StatusCode::FAILURE ) return StatusCode::FAILURE;
 	   DigitContainer->push_back(Digit);
-	   if (Digit_DigiHSTruth ) DigitContainer_DigiHSTruth->push_back(Digit_DigiHSTruth);
+	   if ( m_doDigiTruth && Digit_DigiHSTruth ) DigitContainer_DigiHSTruth->push_back(Digit_DigiHSTruth);
         }
       }
     }
@@ -116,7 +154,10 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
   }
 
   ATH_CHECK(DigitContainerHandle.record( std::move(DigitContainer) ) );
+  if ( m_doDigiTruth ){
+  SG::WriteHandle<LArDigitContainer> DigitContainer_DigiHSTruthHandle( m_DigitContainerName_DigiHSTruth, context);
   ATH_CHECK(DigitContainer_DigiHSTruthHandle.record( std::move(DigitContainer_DigiHSTruth) ) );
+  }
 
 
   return StatusCode::SUCCESS;
@@ -217,16 +258,21 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
   std::vector<double> Samples;
   std::vector<double> Samples_DigiHSTruth;
   std::vector<double> Noise;
+  Samples.resize(m_NSamples,0);
+  if(m_doDigiTruth) Samples_DigiHSTruth.resize(m_NSamples,0);
+  Noise.resize(m_NSamples,0);
 
 //
 // ....... make the five samples
 //
+/*
   for (i=0;i<m_NSamples;i++) {
    Samples[i]=0.;
    if(m_doDigiTruth) {
      Samples_DigiHSTruth[i]=0.;
    }
   }
+*/
 
 #ifndef NDEBUG
   ATH_MSG_DEBUG(" number of hit for this cell " << TimeE->size());
@@ -235,7 +281,9 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
 // convert Hits into energy samples and add result to Samples assuming LARHIGHGAIN for pulse shape
 //
+  std::cout << "Channel ID to check : " << ch_id << std::endl;
   bool isDead = m_bcMask.cellShouldBeMasked(bcCont,ch_id);
+  std::cout << "Did it work " << std::endl;
 
   if (!isDead) {
     if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE, Samples).isFailure() ) return StatusCode::SUCCESS;
