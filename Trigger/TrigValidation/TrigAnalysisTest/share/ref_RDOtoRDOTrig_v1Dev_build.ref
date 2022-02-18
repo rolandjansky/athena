@@ -6674,8 +6674,6 @@ HLT_g20_loose_L1eEM18L:
     1: 10
     2: 10
     3: 5
-HLT_g20_loose_LArPEBHLT_L1EM15:
-  eventCount: 0
 HLT_g20_loose_ringer_L1EM15VHI:
   eventCount: 7
   stepCounts:
@@ -7693,8 +7691,6 @@ HLT_g40_loose_L1eEM24L:
     1: 9
     2: 9
     3: 5
-HLT_g40_loose_LArPEBHLT_L1EM22VHI:
-  eventCount: 0
 HLT_g40_loose_mu40_msonly_L1MU14FCH:
   eventCount: 0
   stepCounts:
@@ -7798,8 +7794,6 @@ HLT_g60_loose_L1eEM26M:
     1: 7
     2: 7
     3: 3
-HLT_g60_loose_LArPEBHLT_L1EM22VHI:
-  eventCount: 0
 HLT_g60_tight_icaloloose_2j55_pf_ftf_0eta200_emergingPTF0p1dR0p4_L1EM22VHI:
   eventCount: 0
   stepCounts:
@@ -7841,8 +7835,6 @@ HLT_g80_loose_L1eEM26M:
     1: 6
     2: 6
     3: 2
-HLT_g80_loose_LArPEBHLT_L1EM22VHI:
-  eventCount: 0
 HLT_g85_tight_3j50_L1EM22VHI:
   eventCount: 1
   stepCounts:
