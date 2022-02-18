@@ -67,7 +67,7 @@ topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
 topSequence.NSWL1Simulation.MMTriggerTool.DoNtuple=True
 
 #useful for validation of geometry and offline analyses
@@ -80,6 +80,20 @@ topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=INFO
+
+if MuonGeometryFlags.hasSTGC():
+  from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegSelCondAlg
+  from AthenaCommon.AlgSequence import AthSequencer
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  condseq = AthSequencer('AthCondSeq')
+  if not hasattr( condseq, "MuonDetectorCondAlg" ):
+    import MuonRecExample.MuonAlignConfig
+
+  if not hasattr( condseq, "RegSelCondAlg_sTGC" ):
+    condseq += sTGC_RegSelCondAlg(name = "RegSelCondAlg_sTGC", ManagerName = "sTGC", PrintTable  = False, RegSelLUT = "RegSelLUTCondData_sTGC")
+    tool = CompFactory.RegSelTool(name="RegSelTool_sTGC")
+    tool.RegSelLUT = "RegSelLUTCondData_sTGC"
+    tool.Initialised = True
 
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
