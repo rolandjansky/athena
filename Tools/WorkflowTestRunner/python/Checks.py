@@ -14,6 +14,7 @@ class FailedOrPassedCheck(WorkflowCheck):
 
     def run(self, test: WorkflowTest) -> bool:
         result = True
+        printed_trf = False
         for step in test.steps:
             self.logger.info("-----------------------------------------------------")
             log = test.validation_path / f"log.{step}"
@@ -50,14 +51,22 @@ class FailedOrPassedCheck(WorkflowCheck):
             else:
                 result = False
                 if log.exists():
+                    printed_trf = True  # if one step fails, next steps are expected so don't be too verbose
                     self.logger.error(f"{step} validation test step failed")
                     self.logger.error(f"Full {step} step log:")
                     with log.open() as file:
                         for line in file:
-                            print(f"  {line.strip()}")
+                            self.logger.print(f"  {line.strip()}")
                     self.logger.info("-----------------------------------------------------")
                 else:
                     self.logger.error(f"{step} validation test step did not run")
+                    if not printed_trf:
+                        printed_trf = True
+                        self.logger.error(f"Full transform log:")
+                        with (test.validation_path / f"{test.ID}.log").open() as file:
+                            for line in file:
+                                self.logger.print(f"  {line.strip()}")
+                        self.logger.info("-----------------------------------------------------")
 
             if self.setup.validation_only:
                 continue  # Skip checking reference test because in this mode the clean tests have not been run
@@ -160,8 +169,8 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             self.logger.info("Passed!\n")
         else:
             # print CI helper directly to avoid logger decorations
-            print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            print()
+            self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+            self.logger.print()
 
             self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
@@ -226,17 +235,17 @@ class AODContentCheck(WorkflowCheck):
             result = True
         else:
             # print CI helper directly to avoid logger decorations
-            print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            print()
+            self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+            self.logger.print()
 
             self.logger.error(f"Your change modifies the output in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
             self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
             if diff_output:
-                print()
-                print(diff_output)
+                self.logger.print()
+                self.logger.print(diff_output)
             if diff_error:
-                print(diff_error)
+                self.logger.print(diff_error)
             self.logger.info("-----------------------------------------------------\n")
 
         return result
@@ -278,7 +287,7 @@ class AODDigestCheck(WorkflowCheck):
                 self.logger.info(f"No reference file '{reference_output_name}' to compare the digest with. Printing the full digest:")
                 with validation_output.open() as f:
                     for line in f:
-                        print(f"    {line.strip()}")
+                        self.logger.print(f"    {line.strip()}")
                 return True
         else:
             reference_path = test.reference_path
@@ -299,17 +308,17 @@ class AODDigestCheck(WorkflowCheck):
             result = True
         else:
             # print CI helper directly to avoid logger decorations
-            print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            print()
+            self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+            self.logger.print()
 
             self.logger.error(f"Your change breaks the digest in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
             self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
             if diff_output:
-                print()
-                print(diff_output)
+                self.logger.print()
+                self.logger.print(diff_output)
             if diff_error:
-                print(diff_error)
+                self.logger.print(diff_error)
             self.logger.info("-----------------------------------------------------\n")
 
         return result
