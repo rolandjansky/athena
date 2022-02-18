@@ -9,7 +9,6 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 import TriggerMenuMT.HLT.Menu.MC_pp_run3_v1 as mc_menu
-import TriggerMenuMT.HLT.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 
 # this is not the best option, due to flake violation, this list has to be changed when some groups are removed
