@@ -64,6 +64,15 @@ atlas_add_citest( Egamma
 atlas_add_citest( TriggerMC
    SCRIPT test_trigAna_RDOtoRDOTrig_v1Dev_build.py )
 
+atlas_add_citest( TriggerData
+   SCRIPT test_trig_data_v1Dev_build.py )
+
+atlas_add_citest( TriggerCosmic
+   SCRIPT test_trig_data_v1Cosmic_build.py )
+
+atlas_add_citest( TriggerDataCAConfig
+   SCRIPT test_trig_data_newJO_build.py )
+
 
 # TODO: We stop here for now (migration ongoing...)
 return()
@@ -127,12 +136,3 @@ atlas_add_citest( Trigger_athenaHLT_decodeBS
 
 atlas_add_citest( Trigger_athenaHLT_data
    SCRIPT test_trigP1_v1PhysP1_build.py )
-
-atlas_add_citest( Trigger_athena_data
-   SCRIPT test_trig_data_v1Dev_build.py )
-
-atlas_add_citest( Trigger_athena_cosmic
-   SCRIPT test_trig_data_v1Cosmic_build.py )
-
-atlas_add_citest( Trigger_athena_data_NewConfig
-   SCRIPT test_trig_data_newJO_build.py )
