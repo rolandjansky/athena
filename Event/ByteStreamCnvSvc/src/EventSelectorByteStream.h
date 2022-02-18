@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORBYTESTREAM_H
@@ -192,7 +192,6 @@ private: // properties
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "Input", {}, ""};
    void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
-   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
 
    Gaudi::Property<long> m_skipEvents{this, "SkipEvents", 0, ""}; // Number of events to skip at the beginning
    Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef READMDTDIGIT_H
@@ -23,7 +23,6 @@ class ReadMdtDigit: public AthAlgorithm {
  protected:
 
   NTuple::Tuple* m_ntuplePtr;
-  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
  private:
 

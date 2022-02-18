@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_NTUPLE_H
@@ -246,7 +246,7 @@ typedef struct _ALGOTREEOD
 } ALGOTREEOD, *PALGOTREEOD;
 
 class StoreGateSvc;
-class ActiveStoreSvc;
+
 
 class ALFA_Ntuple : public AthHistogramAlgorithm
 {

@@ -36,8 +36,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 # include "EventInfo/EventID.h"  /* number_type */
 #endif
 
-#include "StoreGate/ActiveStoreSvc.h"
-
 // Forward declarations
 class IConversionSvc;
 struct IDataManagerSvc;
@@ -92,10 +90,6 @@ protected:
   typedef ServiceHandle<IConversionSvc> IConversionSvc_t;
   /// @property Reference to the Histogram Persistency Service
   IConversionSvc_t   m_histoPersSvc;
-
-  typedef ServiceHandle<ActiveStoreSvc> ActiveStoreSvc_t;
-  /// @property Reference to the Histogram Persistency Service
-  ActiveStoreSvc_t   m_activeStoreSvc;
 
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile HLTMuonMonTool.cxx
@@ -109,7 +109,6 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("ZTPPtCone30RelCut",m_ztp_ptcone30rel_cut=0.06);
   declareProperty("ZTP_EFPtCone30RelCut",m_ztp_EF_ptcone30rel_cut=0.12);
   declareProperty("BCTool", m_bunchTool);
-  m_activeStore = 0;
   m_lumiblock = 0;
   m_event = 0;
   m_maxindep = 0;
@@ -164,14 +163,6 @@ StatusCode HLTMuonMonTool::init()
   // some switches and flags
   m_requestESchains = true;
   //initialization for common tools
-  StatusCode scAS;
-
-  scAS = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (scAS != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc ");
-    return scAS ;
-  }
-
   CHECK(m_bunchTool.retrieve());
 
   /*  not to use
