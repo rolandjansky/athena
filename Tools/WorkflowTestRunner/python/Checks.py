@@ -62,7 +62,7 @@ class FailedOrPassedCheck(WorkflowCheck):
                     self.logger.error(f"{step} validation test step did not run")
                     if not printed_trf:
                         printed_trf = True
-                        self.logger.error(f"Full transform log:")
+                        self.logger.error("Full transform log:")
                         with (test.validation_path / f"{test.ID}.log").open() as file:
                             for line in file:
                                 self.logger.print(f"  {line.strip()}")
