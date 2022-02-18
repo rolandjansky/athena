@@ -126,7 +126,7 @@ def fromRunArgs(runArgs):
         ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
 
     # Setup perfmon flags from runargs
-    from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
+    from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
     setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
 
     # Special Configuration preInclude
