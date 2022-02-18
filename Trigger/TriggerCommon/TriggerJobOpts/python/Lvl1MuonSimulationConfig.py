@@ -234,7 +234,7 @@ def TGCTriggerConfig(flags):
                                                        useRun3Config = True,
                                                        TileMuRcv_Input = "rerunTileMuRcvCnt",
                                                        TILEMU = True)
-    if (flags.Detector.GeometrysTGC or flags.Detector.GeometryMM) and flags.Input.isMC:
+    if (flags.Detector.GeometrysTGC or flags.Detector.GeometryMM):
         tgcAlg.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
         tgcAlg.USENSW = True
         tgcAlg.NSWSideInfo = "AC"
