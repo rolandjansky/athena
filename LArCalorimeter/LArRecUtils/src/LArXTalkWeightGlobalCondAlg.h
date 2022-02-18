@@ -44,7 +44,7 @@ class LArXTalkWeightGlobalCondAlg: public AthReentrantAlgorithm {
 const LArXTalkWeight* LArXTalkWeightGlobalCondAlg::pointerFromKey(const EventContext& context, const SG::ReadCondHandleKey<LArXTalkWeight>& key) const {
   SG::ReadCondHandle<LArXTalkWeight> aHandle(key, context);
   return *aHandle;
-};
+}
 
 #endif
 

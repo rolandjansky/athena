@@ -46,56 +46,56 @@ LArXTalkWeightCondAlg::execute(const EventContext& ctx) const {
 }
 
 LArXTalkWeightCondAlg::LArXTalkWeightCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-	AthReentrantAlgorithm(name,pSvcLocator){};
+	AthReentrantAlgorithm(name,pSvcLocator){}
 
 LArXTalkWeightCondAlg_strip::LArXTalkWeightCondAlg_strip(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_strip),std::end(LArXTalkWeightConstants::xtalk_strip));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_strip;
     m_xtalkKey = std::string("LArXTalkWeight_strip");
-};
+}
 
 LArXTalkWeightCondAlg_strip_ec::LArXTalkWeightCondAlg_strip_ec(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_strip_ec),std::end(LArXTalkWeightConstants::xtalk_strip_ec));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_withregion),std::end(LArXTalkWeightConstants::table_withregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_strip_ec;
     m_xtalkKey = std::string("LArXTalkWeight_strip_ec");
-};
+}
 
 LArXTalkWeightCondAlg_middleback::LArXTalkWeightCondAlg_middleback(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middleback),std::end(LArXTalkWeightConstants::xtalk_middleback));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middleback;
     m_xtalkKey = std::string("LArXTalkWeight_middleback");
-};
+}
 
 LArXTalkWeightCondAlg_middleback_ecow::LArXTalkWeightCondAlg_middleback_ecow(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middleback_ecow),std::end(LArXTalkWeightConstants::xtalk_middleback_ecow));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middleback_ecow;
     m_xtalkKey = std::string("LArXTalkWeight_middleback_ecow");
-};
+}
 
 LArXTalkWeightCondAlg_middleback_eciw::LArXTalkWeightCondAlg_middleback_eciw(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middleback_eciw),std::end(LArXTalkWeightConstants::xtalk_middleback_eciw));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middleback_eciw;
     m_xtalkKey = std::string("LArXTalkWeight_middleback_eciw");
-};
+}
 
 LArXTalkWeightCondAlg_stripmiddle::LArXTalkWeightCondAlg_stripmiddle(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_stripmiddle),std::end(LArXTalkWeightConstants::xtalk_stripmiddle));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_stripmiddle;
     m_xtalkKey = std::string("LArXTalkWeight_stripmiddle");
-};
+}
 
 LArXTalkWeightCondAlg_stripmiddle_ec::LArXTalkWeightCondAlg_stripmiddle_ec(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_stripmiddle_ec),std::end(LArXTalkWeightConstants::xtalk_stripmiddle_ec));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_withregion),std::end(LArXTalkWeightConstants::table_withregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_stripmiddle_ec;
     m_xtalkKey = std::string("LArXTalkWeight_stripmiddle_ec");
-};
+}
 
 LArXTalkWeightCondAlg_2strip::LArXTalkWeightCondAlg_2strip(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     for(int i=0;i<380;i++)  m_xtalk_to_inject.push_back(0.004);
@@ -103,7 +103,7 @@ LArXTalkWeightCondAlg_2strip::LArXTalkWeightCondAlg_2strip(const std::string& na
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_2strip;
     m_xtalkKey = std::string("LArXTalkWeight_2strip");
-};
+}
 
 LArXTalkWeightCondAlg_2strip_ec::LArXTalkWeightCondAlg_2strip_ec(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     for(int i=0;i<40;i++)  m_xtalk_to_inject.push_back(0.004);
@@ -112,33 +112,33 @@ LArXTalkWeightCondAlg_2strip_ec::LArXTalkWeightCondAlg_2strip_ec(const std::stri
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_withregion),std::end(LArXTalkWeightConstants::table_withregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_2strip_ec;
     m_xtalkKey = std::string("LArXTalkWeight_2strip_ec");
-};
+}
 
 LArXTalkWeightCondAlg_middle1::LArXTalkWeightCondAlg_middle1(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middle1),std::end(LArXTalkWeightConstants::xtalk_middle1));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middle1;
     m_xtalkKey = std::string("LArXTalkWeight_middle1");
-};
+}
 
 LArXTalkWeightCondAlg_middle2::LArXTalkWeightCondAlg_middle2(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middle2),std::end(LArXTalkWeightConstants::xtalk_middle2));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middle2;
     m_xtalkKey = std::string("LArXTalkWeight_middle2");
-};
+}
 
 LArXTalkWeightCondAlg_middle1_ec::LArXTalkWeightCondAlg_middle1_ec(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middle1_ec),std::end(LArXTalkWeightConstants::xtalk_middle1_ec));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middle1_ec;
     m_xtalkKey = std::string("LArXTalkWeight_middle1_ec");
-};
+}
 
 LArXTalkWeightCondAlg_middle2_ec::LArXTalkWeightCondAlg_middle2_ec(const std::string& name,ISvcLocator* pSvcLocator) : LArXTalkWeightCondAlg(name,pSvcLocator){
     m_xtalk_to_inject.insert(m_xtalk_to_inject.end(),std::begin(LArXTalkWeightConstants::xtalk_middle2_ec),std::end(LArXTalkWeightConstants::xtalk_middle2_ec));
     m_endcap_case_table.insert(m_endcap_case_table.end(),std::begin(LArXTalkWeightConstants::table_noregion),std::end(LArXTalkWeightConstants::table_noregion));
     m_xtalk_factor=LArXTalkWeightConstants::factor_middle2_ec;
     m_xtalkKey = std::string("LArXTalkWeight_middle2_ec");
-};
+}
 
