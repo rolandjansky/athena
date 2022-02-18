@@ -40,6 +40,12 @@ atlas_add_citest( SimulationRun4FullSim
 # Standard reconstruction workflows
 #################################################################################
 
+atlas_add_citest( RecoRun3MC
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25' --no-output-checks )
+
+atlas_add_citest( RecoRun3MC_CAConfig
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--CA --maxEvents 5' --no-output-checks )
+
 atlas_add_citest( RecoRun4MC
    SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder
    PROPERTIES REQUIRED_FILES ../SimulationRun4FullSim/run_s3761/myHITS.pool.root
