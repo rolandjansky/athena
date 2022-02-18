@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, InEventRecoCA, SelectionCA
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, ChainStep, Chain, InEventRecoCA, SelectionCA
 from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging

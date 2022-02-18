@@ -5,7 +5,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 import abc
-from TriggerMenuMT.HLT.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 

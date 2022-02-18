@@ -19,7 +19,7 @@ logging.INFO = logging.DEBUG
 
 from TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1 import setupMenu as setupDev
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import setupMenu as setupPhys
-from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 
 def get_args():
     parser = ArgumentParser(description=__doc__)

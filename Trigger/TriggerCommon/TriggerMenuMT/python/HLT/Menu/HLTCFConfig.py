@@ -25,8 +25,8 @@
 
 from TriggerMenuMT.HLT.Menu.HLTCFDot import stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLT.Config.Validation.CFValidation import testHLTTree
-from TriggerMenuMT.HLT.Menu.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
-from TriggerMenuMT.HLT.Menu.MenuComponentsNaming import CFNaming
+from TriggerMenuMT.HLT.Config.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
+from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
 
 from AthenaCommon.CFElements import parOR, seqAND, getSequenceChildren, isSequence, compName, findSubSequence,findAlgorithm
 from AthenaCommon.AlgSequence import AlgSequence, dumpSequence

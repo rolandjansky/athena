@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
-from TriggerMenuMT.HLT.Menu.MenuComponentsNaming import CFNaming
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
 
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp, findAlgorithmByPredicate
 from AthenaCommon.Configurable import Configurable

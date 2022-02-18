@@ -7,7 +7,7 @@
 # This defines the input format of the chain and it's properties with the defaults set
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
-from .ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 from .SignatureDicts import ChainStore
 
 PhysicsStream='Main'

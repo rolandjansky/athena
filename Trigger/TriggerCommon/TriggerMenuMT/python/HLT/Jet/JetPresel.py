@@ -7,7 +7,7 @@ import re
 
 from .JetRecoCommon import getJetCalibDefaultString, jetChainParts
 from ..Menu.SignatureDicts import JetChainParts_Default
-from ..Menu.MenuComponents import NoHypoToolCreated
+from ..Config.MenuComponents import NoHypoToolCreated
 
 
 from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict

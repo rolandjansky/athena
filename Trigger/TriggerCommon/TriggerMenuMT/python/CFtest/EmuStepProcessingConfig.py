@@ -4,7 +4,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
-from TriggerMenuMT.HLT.Menu.MenuComponents import EmptyMenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
 ###########################################################################    

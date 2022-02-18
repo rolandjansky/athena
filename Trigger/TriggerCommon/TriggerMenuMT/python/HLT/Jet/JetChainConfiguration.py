@@ -9,7 +9,7 @@ import re
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
 from . import JetRecoCommon
 from . import JetPresel
 
@@ -82,7 +82,7 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Assemble jet collection name based on reco dictionary
     # ----------------------
     def _setJetName(self):
-        from ..Menu.ChainDictTools import splitChainDict
+        from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
         subJetChainDict = {}
         for subChainDict in splitChainDict(self.dict):

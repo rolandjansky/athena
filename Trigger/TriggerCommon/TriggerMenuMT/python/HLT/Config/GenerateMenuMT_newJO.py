@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import itertools
 
-from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLT.Menu.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
-from TriggerMenuMT.HLT.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitInterSignatureChainDict
-from TriggerMenuMT.HLT.Menu.MenuAlignmentTools import MenuAlignment
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
+from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
+
 import importlib
 
 from AthenaCommon.Logging import logging

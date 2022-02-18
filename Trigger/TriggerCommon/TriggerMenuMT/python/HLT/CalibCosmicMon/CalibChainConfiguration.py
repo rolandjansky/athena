@@ -9,7 +9,7 @@ from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBa
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool # ChainStep,
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool # ChainStep,
 from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
 from TrigGenericAlgs.TrigGenericAlgsConfig import TimeBurnerCfg, TimeBurnerHypoToolGen
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool

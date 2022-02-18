@@ -3,15 +3,16 @@
 import importlib
 import string
 
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT  import TriggerConfigHLT
-from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitInterSignatureChainDict
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT  import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
-from TriggerMenuMT.HLT.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLT.Menu.MenuAlignmentTools import MenuAlignment
-from TriggerMenuMT.HLT.Menu.ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
+from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
+from TriggerMenuMT.HLT.Config.Utility.ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
+
+from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging

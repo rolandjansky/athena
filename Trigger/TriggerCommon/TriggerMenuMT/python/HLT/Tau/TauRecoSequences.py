@@ -8,7 +8,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, ViewCreatorFetchFromViewROITool, ViewCreatorPreviousROITool
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
 import AthenaCommon.CfgMgr as CfgMgr
 
 

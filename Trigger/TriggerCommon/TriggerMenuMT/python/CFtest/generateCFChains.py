@@ -11,7 +11,7 @@
 
 
 def generateCFChains(opt):
-    from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+    from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
     from TriggerMenuMT.HLT.Menu.SignatureDicts import ChainStore
     from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     from DecisionHandling.TestUtils import makeChain, makeChainStep

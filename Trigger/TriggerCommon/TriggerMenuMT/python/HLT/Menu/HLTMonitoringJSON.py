@@ -21,7 +21,7 @@ def __getMenuBaseName(menuName):
 def generateDefaultMonitoringJSON():
     __log.info("Generating HLT Monitoring JSON in the rec-ex-common job")
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
     __log.debug("[HLTMonitoring::generateJSON] HLTMenuFileName =  %s"        , getHLTMenuFileName(ConfigFlags)        )
     __log.debug("[HLTMonitoring::generateJSON] HLTMonitoringFileName =  %s"  , getHLTMonitoringFileName(ConfigFlags)  )
