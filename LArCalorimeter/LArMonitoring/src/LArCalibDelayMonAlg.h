@@ -52,8 +52,6 @@ class LArCalibDelayMonAlg: public AthMonitorAlgorithm
   // Handle to digits 
   SG::ReadHandleKey<LArAccumulatedCalibDigitContainer> m_accCalibDigitContainerKey{this,"LArAccumulatedCalibDigitContainerKey","","SG key of LArAccumulatedCalibDigitContainer read from Bytestream"};
   
-  SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
-  
   // MonGroup(s) name
   Gaudi::Property<std::string> m_MonGroupName {this,"LArDelayGroupName","LArDelayMonGroup"};
   

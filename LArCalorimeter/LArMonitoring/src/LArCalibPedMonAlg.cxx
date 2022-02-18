@@ -65,8 +65,8 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
     if(pLArAccDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
 
-    for (auto itDig = pLArAccDigitContainer->begin(); itDig!=pLArAccDigitContainer->end();++itDig) {
-        unsigned int id = ((*itDig)->hardwareID()).get_identifier32().get_compact();
+    for (auto itDig: * pLArAccDigitContainer) {
+        unsigned int id = (itDig->hardwareID()).get_identifier32().get_compact();
         if(chanids.find(id) == chanids.end()) chanids.emplace(id);
     }
 
@@ -105,14 +105,14 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
   auto slmon = Monitored::Scalar<int>("slotnb",-1);
   auto ftmon = Monitored::Scalar<int>("FTnb",-1);
 
-  for ( auto it = hdrCont->begin(); it!=hdrCont->end();++it) {
-    HWIdentifier febid=(*it)->FEBId();
+  for ( auto it: * hdrCont) {
+    HWIdentifier febid=it->FEBId();
     if (febid.get_identifier32().get_compact() >= 0x38000000 && febid.get_identifier32().get_compact() <= 0x3bc60000 && !(febid.get_identifier32().get_compact() & 0xFFF)) {
       int barrel_ec = m_onlineHelper->barrel_ec(febid);
       int pos_neg   = m_onlineHelper->pos_neg(febid);
-      int ft        = m_onlineHelper->feedthrough(febid);
-      int slot      = m_onlineHelper->slot(febid);      
-      unsigned int partitionNb_dE = returnPartition(barrel_ec,pos_neg,ft,slot);
+      ftmon        = m_onlineHelper->feedthrough(febid);
+      slmon      = m_onlineHelper->slot(febid);      
+      unsigned int partitionNb_dE = returnPartition(barrel_ec,pos_neg,ftmon,slmon);
       unsigned int subdet = partitionNb_dE / 2;
 
       if (partitionNb_dE < m_partitions.size()) {
@@ -121,16 +121,14 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
          ATH_MSG_WARNING("Unknown partition number: "<< partitionNb_dE << " not filling !");
          continue;
       }
-      larEventSize += (float) ((*it)->RodRawDataSize() + (*it)->RodResults1Size() + (*it)->RodResults2Size()); // This quantity is now in megabytes
+      larEventSize += (float) (it->RodRawDataSize() + it->RodResults1Size() + it->RodResults2Size()); // This quantity is now in megabytes
       
       // Eventype = 2 : transparent/raw data - 4 : Physic - 7 : calibration - 10 : pedestal - 14 : raw data + results
-      uint32_t eventType = (*it)->DetEventType();      
+      uint32_t eventType = it->DetEventType();      
       // If physic mode && raw data != 0, we are in rawdata+results
-      if (eventType == 4 && (*it)->RodRawDataSize() != 0) eventType = 14;
+      if (eventType == 4 && it->RodRawDataSize() != 0) eventType = 14;
       //if (firstEventType == 999) firstEventType = eventType;
       
-      slmon = slot;
-      ftmon = ft;
       fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitionNb_dE])],slmon,ftmon);
     } //Test on FEBid
   } //end of loop over FEB headers

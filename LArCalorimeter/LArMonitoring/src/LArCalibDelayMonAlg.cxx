@@ -73,55 +73,50 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
     if(pLArAccCalibDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
       
     /** Define var to loop over AccCalibDigits containers*/
-    for (auto ijDig=pLArAccCalibDigitContainer->begin();ijDig != pLArAccCalibDigitContainer->end(); ++ijDig) {
-        HWIdentifier id = (*ijDig)->hardwareID();
-        unsigned int ids = ((*ijDig)->hardwareID()).get_identifier32().get_compact();
-        if(chanids.find(ids) == chanids.end()) chanids.emplace(ids);
+    for (auto ijDig: * pLArAccCalibDigitContainer) {
+        HWIdentifier id = ijDig->hardwareID();
+        chid = (ijDig->hardwareID()).get_identifier32().get_compact();
+        if(chanids.find(chid) == chanids.end()) chanids.emplace(chid);
         
-        int channel = m_onlineHelper->channel(id);
+        febchid = m_onlineHelper->channel(id);
         
-        unsigned ntriggers = (*ijDig)->nTriggers();
+        unsigned ntriggers = ijDig->nTriggers();
         std::vector <double> sample;
         
         // transform sampleSum vector from uint32_t to double
         std::vector <double> samplesum;     
 
-        for (auto samplesum_it=(*ijDig)->sampleSum().begin();
-             samplesum_it!=(*ijDig)->sampleSum().end(); ++samplesum_it) {
-            samplesum.push_back((double)(*samplesum_it));
+        for (auto samplesum_it: ijDig->sampleSum()) {
+            samplesum.push_back((double)(samplesum_it));
             // Get the vector of sample values
-            sample.push_back((double)(*samplesum_it)/ntriggers);
+            sample.push_back((double)(samplesum_it)/ntriggers);
         }
         
         // Get highest and lowest energy samples
         double samplemax = * std::max_element(sample.begin(), sample.end());
         double samplemin = * std::min_element(sample.begin(), sample.end());
         // Get dac and delay
-        dac = (*ijDig)->DAC();
-        delay = (*ijDig)->delay();
+        dac = ijDig->DAC();
+        delay = ijDig->delay();
         
         // Then fill histo about max/min sample
-        chid = ids;
-        febchid = channel;
         sample_max = samplemax;
         sample_min = samplemin;
-        fill(m_MonGroupName, sample_max, sample_min, slot, febchid, ft, dac, delay, chid);
+        fill(m_MonGroupName, sample_max, sample_min, febchid, dac, delay, chid);
         
-        int Slot = m_onlineHelper->slot(id);
-        int feedthrough = m_onlineHelper->feedthrough(id);
+        slot = m_onlineHelper->slot(id);
+        ft = m_onlineHelper->feedthrough(id);
         int barrel_ec = m_onlineHelper->barrel_ec(id);
         int pos_neg   = m_onlineHelper->pos_neg(id);
-        unsigned int partitionNb = returnPartition(barrel_ec,pos_neg,feedthrough,Slot);
+        unsigned int partitionNb = returnPartition(barrel_ec,pos_neg,ft,slot);
         unsigned int subdet = partitionNb / 2;
         
-        slot = Slot;
-        ft = feedthrough;
         fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitionNb])],slot,ft,sample_max,sample_min);
         
         if (samplemax <= 3000.) {
             sample_max30 = samplemax;
-            slot30 = Slot;
-            ft30 = feedthrough;
+            slot30 = m_onlineHelper->slot(id);
+            ft30 = m_onlineHelper->feedthrough(id);
             fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitionNb])],slot30,ft30,sample_max30);
         }
                 

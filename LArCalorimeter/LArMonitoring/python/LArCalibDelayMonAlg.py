@@ -169,7 +169,7 @@ if __name__=='__main__':
    ConfigFlags.Detector.GeometryCSC=False
    ConfigFlags.Detector.GeometrysTGC=False
    ConfigFlags.Detector.GeometryMM=False
-   #ConfigFlags.Exec.OutputLevel=DEBUG
+   ConfigFlags.Exec.OutputLevel=DEBUG
    ConfigFlags.lock()
 
 # Initialize configuration object, add accumulator, merge, and run.
