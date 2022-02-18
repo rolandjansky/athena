@@ -1,5 +1,5 @@
 /*   
-     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETACCELERATIONSERVICE_TRIGINDETACCELERATIONSVC_H
@@ -21,6 +21,7 @@
 #include<vector>
 #include<map>
 #include<cstring>
+#include<mutex>
 
 /// Service for creating GPU-accelerated Work items for HLT ID algorithms
 
@@ -78,7 +79,8 @@ class TrigInDetAccelerationSvc : public extends<AthService, ITrigInDetAccelerati
   bool extractGeometryInformation(std::map<std::tuple<short,short,short>, std::vector<PhiEtaHash> >&);
 
   std::vector<short> m_layerInfo[3];
-  
+
+  mutable std::mutex m_workMutex;
 };
 
 

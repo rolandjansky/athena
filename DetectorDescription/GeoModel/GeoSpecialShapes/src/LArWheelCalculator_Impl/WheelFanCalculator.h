@@ -8,8 +8,6 @@
 #include "IFanCalculator.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
-#include "GaudiKernel/PhysicalConstants.h"
-
 #ifdef HARDDEBUG
 #undef HARDDEBUG
 #endif
@@ -151,7 +149,7 @@ namespace LArWheelCalculator_Impl
 
       virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const
       {
-        using Gaudi::Units::halfpi;
+        static const double halfpi=M_PI/2.0;
         int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi_ForDetNeaFan) / lwc()->m_FanStepOnPhi);
         const double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi_ForDetNeaFan;
 #ifdef HARDDEBUG
@@ -211,7 +209,7 @@ namespace LArWheelCalculator_Impl
 
       virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const
       {
-        using Gaudi::Units::halfpi;
+	static const double halfpi=M_PI/2.0;
         CLHEP::Hep3Vector p1 = p;
 
         int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi) / lwc()->m_FanStepOnPhi);

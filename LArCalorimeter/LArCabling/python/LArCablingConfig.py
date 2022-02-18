@@ -21,6 +21,8 @@ def _larCablingCfg(configFlags,algo,folder,algName=None):
         if folder in tagsperFolder:
             ft=tagsperFolder[folder]
             folderwithtag=folder+"<tag>"+ft+"</tag>"
+        else:    
+            folderwithtag=folder
     else:
         db='LAR_ONL'
         folderwithtag=folder

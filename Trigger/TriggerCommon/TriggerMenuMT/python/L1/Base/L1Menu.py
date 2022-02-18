@@ -323,8 +323,7 @@ class L1Menu(object):
 
         # Fail menu generation for menus going to P1:
         if ( totalInputs > Limits.MaxTrigItems or len(ctpOutputs) > Limits.MaxTrigItems ):
-            if L1MenuFlags.ApplyCTPLimits():
-                raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than %i in a physics menu!" % Limits.MaxTrigItems)
+            raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than %i in a physics menu!" % Limits.MaxTrigItems)
 
     # Avoid that L1 item is defined only for BGRP0 as this include also the CALREQ BGRP2 (ATR-24781)
     def checkBGRP(self):

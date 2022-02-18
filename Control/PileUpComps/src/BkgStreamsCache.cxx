@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -10,7 +10,6 @@
 #include "boost/bind/bind.hpp"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h" /*to print name() */
 #include "GaudiKernel/IEvtSelector.h"
 
@@ -30,7 +29,6 @@ BkgStreamsCache::BkgStreamsCache( const std::string& type,
                                   const std::string& name,
                                   const IInterface* parent)
   : base_class( type, name, parent )
-  , p_activeStore(nullptr)
   , m_nXings(0)
   , m_nStores(0)
   , m_collXing(23.0)
@@ -199,7 +197,7 @@ const xAOD::EventInfo* BkgStreamsCache::nextEvent(bool isCentralBunchCrossing)
   ATH_MSG_DEBUG (  "using store " << iS );
   PileUpStream* pCurrStream(current());
   if (0 != pCurrStream) {
-    p_activeStore->setStore(&(pCurrStream->store()));
+    pCurrStream->store().makeCurrent();
     //read a new event every downscaleFactor accesses
     //force reading of new event if the event is being used for in-time pile-up
     //FIXME a more careful strategy would have the PileUpStreams knowing if
@@ -225,7 +223,7 @@ StatusCode BkgStreamsCache::nextEvent_passive(bool isCentralBunchCrossing)
   ATH_MSG_DEBUG (  "using store " << iS );
   PileUpStream* pCurrStream(current());
   if (0 != pCurrStream) {
-    p_activeStore->setStore(&(pCurrStream->store()));
+    pCurrStream->store().makeCurrent();
     //read a new event every downscaleFactor accesses
     //force reading of new event if the event is being used for in-time pile-up
     //FIXME a more careful strategy would have the PileUpStreams knowing if
@@ -262,8 +260,6 @@ StatusCode BkgStreamsCache::initialize()
                    << xAOD::EventInfo::PileUpType2Name(m_pileUpEventType) );
 
   PileUpEventTypeHandler(m_pileUpEventTypeProp);
-  //locate the ActiveStoreSvc and initialize our local ptr
-  ATH_CHECK(service("ActiveStoreSvc", p_activeStore));
 
   //create random number generators
   ATH_CHECK(m_atRndmSvc.retrieve());

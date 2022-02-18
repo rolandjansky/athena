@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,6 @@
 #include "PileUpTools/IBkgStreamsCache.h"
 #include "PileUpTools/PileUpMisc.h"
 
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
@@ -230,10 +229,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 
 
   static int        total_nevt = 0;
-
-  //locate the ActiveStoreSvc and initialize our local ptr
-  ActiveStoreSvc* pActiveStore(nullptr);
-  CHECK(serviceLocator()->service("ActiveStoreSvc", pActiveStore));
 
   // These following two initialization loops are performed here in case new
   // Top level Algorithms or Output Streams have been created interactively
@@ -488,8 +483,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       ATH_MSG_DEBUG("PileUpMixtureID = " << pOverEvent->pileUpMixtureID());
 
       //set active store back to the overlaid one
-      pActiveStore->setStore(&(*m_evtStore));
-
+      m_evtStore->makeCurrent();
       // Execute event for all required algorithms. The overlaid event
       // (PileUpEventInfo) is considered to be current
       if(m_skipExecAlgs)

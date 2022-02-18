@@ -10,9 +10,7 @@
 
 #include <string>
 #include "IDistanceCalculator.h"
-
 class LArWheelCalculator;
-
 namespace LArWheelCalculator_Impl
 {
   /// @todo Why is this a class???

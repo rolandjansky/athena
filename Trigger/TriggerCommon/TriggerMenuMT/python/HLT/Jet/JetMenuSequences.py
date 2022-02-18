@@ -53,8 +53,8 @@ def getTrackingInputMaker(trkopt):
             RoITool = ViewCreatorJetSuperROITool(
                 'ViewCreatorJetSuperRoI',
                 RoisWriteHandleKey  = recordable( IDTrigConfig.roi ),
-                RoIEtaWidth = 0.5,
-                RoIPhiWidth = 0.5,
+                RoIEtaWidth = IDTrigConfig.etaHalfWidth,
+                RoIPhiWidth = IDTrigConfig.phiHalfWidth,
             ),
             Views = "JetSuperRoIViews",
             InViewRoIs = "InViewRoIs",
