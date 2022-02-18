@@ -10,14 +10,13 @@ find_package( ROOT COMPONENTS Core Hist MathCore Tree RIO  )
 
 # Component(s) in the package:
 atlas_add_library( InDetVKalVxInJetToolLib
-                   src/*.cxx
+                   src/*.cxx  src/components/*.cxx
                    PUBLIC_HEADERS InDetVKalVxInJetTool
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AnalysisUtilsLib AthenaBaseComps BeamPipeGeoModelLib CxxUtils GaudiKernel GeoPrimitives InDetRecToolInterfaces MVAUtils PathResolver PixelReadoutGeometryLib TrkNeutralParameters TrkParticleBase TrkToolInterfaces TrkTrackSummary TrkVKalVrtFitterLib TrkVertexFitterInterfaces VxSecVertex VxVertex xAODTracking xAODTruth )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AnalysisUtilsLib AthenaBaseComps BeamPipeGeoModelLib PixelReadoutGeometryLib CxxUtils GeoPrimitives InDetRecToolInterfaces MVAUtils PathResolver TrkNeutralParameters TrkToolInterfaces TrkVKalVrtFitterLib VxSecVertex xAODTracking xAODTruth xAODEventInfo)
 
 atlas_add_component( InDetVKalVxInJetTool
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     src/*.cxx src/components/*.cxx
                      LINK_LIBRARIES InDetVKalVxInJetToolLib )
 
 # Install files from the package:
