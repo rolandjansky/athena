@@ -4,207 +4,9 @@
 # create all the histograms for each analysis - this will get called once for each 
 # configured chain - we can set the HistPath either already here, or from the c++ 
 # code 
-
-
-def monitoring( name ) :  
-
-#       print( "SUTT creating monitoring: ", name )
-
-        tools = []
-
-        from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigR3Mon
-        from TrigInDetAnalysisExample.TIDAChains import getchains
-
-
-
-        #### electron #### 
-
-        tidaegamma = TrigR3Mon(name = "IDEgammaTool" )
-        tidaegamma.AnalysisConfig = "Tier0"
-        tidaegamma.SliceTag       = "HLT/TRIDT/Egamma/Expert"
-        tidaegamma.UseHighestPT   = True
-
-        chains = getchains( [ "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
-                              "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-                              "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
-                              "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el0_tag:te=0",
-                              "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el0_probe:te=1",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1eEM26M:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1eEM26M:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_tag:te=0",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_probe:te=1" ] )
-
-        tidaegamma.ntupleChainNames = chains
-        
-        tidaegamma.MonTools = createMonTools(  tidaegamma.SliceTag, chains )
-
-        tools += [ tidaegamma ]
-
-
-
-
-        #### LRT Egamma ####
-        
-        tidaegammalrt = TrigR3Mon(name = "IDEgammaLRTTool" ) 
-                                  
-        tidaegammalrt.AnalysisConfig = "Tier0"
-        tidaegammalrt.SliceTag = "HLT/TRIDT/Egamma/Expert"
-
-
-        chains = getchains( [ "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-                              "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" ] )
-        
-        tidaegammalrt.ntupleChainNames = chains
-
-        tidaegammalrt.MonTools = createMonTools( tidaegammalrt.SliceTag, chains )
-        
-        tools += [ tidaegammalrt ]
-                
-                
-
-
-        #### muon ####
-
-        tidamuon = TrigR3Mon(name = "IDMuonTool" )
-        tidamuon.AnalysisConfig = "Tier0"
-        tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
-        tidamuon.UseHighestPT = True
-
-        chains = getchains( [ "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-                              "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
-                              "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
-                              "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso" ] )
-                              
-
-        tidamuon.ntupleChainNames += chains
-        
-        tidamuon.MonTools = createMonTools(  tidamuon.SliceTag, chains )
-        
-
-        tools += [ tidamuon ]
-
-
-
-
-        #### tau ####
-
-        tidatau = TrigR3Mon(name = "IDTauTool" )
-        tidatau.AnalysisConfig = "Tier0"
-        tidatau.SliceTag = "HLT/TRIDT/Tau/Expert"
-        tidatau.UseHighestPT = True
-
-        chains = getchains( [ "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-                              "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
-                              "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
-                              "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
-                              "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT" ] )
-
-        tidatau.ntupleChainNames += chains
-        
-        tidatau.MonTools = createMonTools(  tidatau.SliceTag, chains )
-
-        tools += [ tidatau ]
-
-
-
-
-        #### bjets ####
-
-        tidabjet = TrigR3Mon(name = "IDBjetTool" )
-        tidabjet.AnalysisConfig = "Tier0"
-        tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
-        
-        chains = getchains( [ "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
-                              "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
-                              "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
-                              "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig" ] )
-                        
-        tidabjet.ntupleChainNames += chains
-
-        tidabjet.MonTools = createMonTools(  tidabjet.SliceTag, chains )
-
-        tools += [ tidabjet ]
-
-
-        return tools
-
-
-
-
-
-
-# create a separate specific monTool for each analysis chain
-# - simplifies the overall analysis configuration
-
-def createMonTools( tag, chains ) :
-        tools = []
-#       print( "chains size: ", len(chains) )
-        for mt in chains :
-                # print( "   ", mt )
-                tool = createMonTool( tag, mt )
-                tools += [ tool ]
-        return tools
         
 
 
-# generate the mongroup hist path from the analysis string 
-
-def monGroup( analysis_chain ) :
-
-        from TrigInDetAnalysisExample.chainString import chainString
-
-        chain = chainString( analysis_chain )
-
-        mg = ""
-
-        if chain.head == "" :
-            mg = "/Fullscan"
-        else :
-            mg = "/"+chain.head
-
-        mg += "/"+chain.tail
-
-        if chain.extra != "" :
-            mg += "_" + chain.extra
-
-        if chain.roi != "" :
-            mg += "_"+chain.roi
-            
-        if chain.vtx != "" :
-            mg += "_"+chain.vtx
-            
-        if chain.element != "" :
-            mg += "_" + chain.element
-        
-        if chain.passed :
-            mg += "/DTE"
-
-        return mg
-
-
-
-# wrapper around montool.defineHistogram to simplify the required histogram names
-# eg for a TProfile, automatically add the second variable, and create the histogram
-# alias to avoid having to write pages of tedious boier plate functions
-# FIXME: if there is some way to pass in the variables to avoid the horrible 
-#        "if" statements with the different numbers of arguments, that would be great 
-
-def defineHisto( montool, name, path, type, title, xbins, xmin=None, xmax=None, xlabels=None, weight=None ) :
-
-        if  type == "TProfile" : 
-                name = name + "," + name + "_weight;" + name
-
-        if xmin is None : 
-                if xlabels is None : 
-                        montool.defineHistogram( name, path=path, type=type, title=title, xbins=xbins )
-                else:
-                        montool.defineHistogram( name, path=path, type=type, title=title, xbins=xbins, xlabels=xlabels  )
-        else : 
-                if xlabels is None : 
-                        montool.defineHistogram( name, path=path, type=type, title=title, xbins=xbins, xmin=xmin, xmax=xmax )
-                else :
-                        montool.defineHistogram( name, path=path, type=type, title=title, xbins=xbins, xmin=xmin, xmax=xmax, xlabels=xlabels, weight=weight )
-        
 
 # actuall create the monTool to go along with a specifi chain
 # stores the histogram, binning, creates all the histograms etc
@@ -455,4 +257,53 @@ def createMonTool( slicetag, chain ) :
 
     
     return monTool
+
+
+
+# generate the mongroup hist path from the analysis string 
+
+def monGroup( analysis_chain ) :
+
+        from TrigInDetAnalysisExample.chainString import chainString
+
+        chain = chainString( analysis_chain )
+
+        mg = ""
+
+        if chain.head == "" :
+            mg = "/Fullscan"
+        else :
+            mg = "/"+chain.head
+
+        mg += "/"+chain.tail
+
+        if chain.extra != "" :
+            mg += "_" + chain.extra
+
+        if chain.roi != "" :
+            mg += "_"+chain.roi
+            
+        if chain.vtx != "" :
+            mg += "_"+chain.vtx
+            
+        if chain.element != "" :
+            mg += "_" + chain.element
+        
+        if chain.passed :
+            mg += "/DTE"
+
+        return mg
+
+
+# wrapper around montool.defineHistogram to simplify the required histogram names
+# eg for a TProfile, automatically add the second variable, and create the histogram
+# alias to avoid having to write pages of tedious boier plate functions
+
+def defineHisto( montool, name, **args ) : 
+
+        if "type" in args and args["type"] == "TProfile" : 
+                name = name + "," + name + "_weight;" + name
+
+        montool.defineHistogram( name, **args )
+
 

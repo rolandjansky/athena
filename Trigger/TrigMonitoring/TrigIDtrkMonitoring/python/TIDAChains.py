@@ -36,7 +36,8 @@ def getchains( analyses ):
                 else:
                     chain = c
 
-                chains.append( chain )
+                if chain not in chains:
+                    chains.append( chain )
 
     return chains
 
