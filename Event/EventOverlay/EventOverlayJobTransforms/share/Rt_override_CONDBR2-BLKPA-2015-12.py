@@ -31,6 +31,9 @@ printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
 conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
 conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
+# Required for older global conditions tags after https://gitlab.cern.ch/atlas/athena/-/merge_requests/50299 is merged
+conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-02")
+
 ###These are not really needed anymore during overlay. Setup in muAlign_reco.py for reco.
 #TRT T0 constants
 #conddb.blockFolder("/TRT/Calib/T0")
