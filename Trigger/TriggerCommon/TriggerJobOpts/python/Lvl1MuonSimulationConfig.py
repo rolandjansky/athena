@@ -2,11 +2,17 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def TMDBConfig(flags):
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
+
+    # Read MuRcvRawChCnt from the input file (for POOL directly, for BS via converter)
+    if flags.Input.Format is Format.POOL:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=[('TileRawChannelContainer','MuRcvRawChCnt')]))
+    else:
         from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
 
@@ -145,6 +151,16 @@ def RecoMuonSegmentSequence(flags):
 
 def MuonRdo2DigitConfig(flags):
     acc = ComponentAccumulator()
+
+    # Read RPCPAD and TGCRDO from the input POOL file (for BS it comes from [Rpc|Tgc]RawDataProvider)
+    if flags.Input.Format is Format.POOL:
+        rdoInputs = [
+            ('RpcPadContainer','RPCPAD'),
+            ('TgcRdoContainer','TGCRDO'),
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
+
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
     MuonRdoToMuonDigitTool = CompFactory.MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
