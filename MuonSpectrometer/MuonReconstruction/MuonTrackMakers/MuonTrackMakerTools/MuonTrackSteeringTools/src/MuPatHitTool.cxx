@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatHitTool.h"
@@ -478,10 +478,10 @@ namespace Muon {
             isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // recalculate distance
         }
         // check for chamber sorting issues
-        if (m_idHelperSvc->detElId(hit->info().id) != m_idHelperSvc->detElId((*pos)->info().id) && pos != list.begin()) {
+        if (pos != list.begin() && (*pos)->info().id.is_valid() && m_idHelperSvc->detElId(hit->info().id) != m_idHelperSvc->detElId((*pos)->info().id)) {
             Identifier posDetElId = m_idHelperSvc->detElId((*pos)->info().id);
             --pos;
-            if (posDetElId == m_idHelperSvc->detElId((*pos)->info().id)) {  // can't insert a hit from one chamber in the middle of hits of another chamber
+            if ((*pos)->info().id.is_valid() && posDetElId == m_idHelperSvc->detElId((*pos)->info().id)) {  // can't insert a hit from one chamber in the middle of hits of another chamber
                 while (posDetElId == m_idHelperSvc->detElId((*pos)->info().id)) {
                     if (isLargerInit)
                         --pos;  // we incremented up to get here, so go down to find the rest of the hits from this chamber
