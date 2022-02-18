@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLADDRESSPROVIEDERSVC_H
@@ -21,7 +21,6 @@
 #include <string>
 
 class DataHeader;
-class ActiveStoreSvc;
 class IClassIDSvc;
 
 /** @class AthenaPoolAddressProviderSvc
@@ -58,7 +57,6 @@ public: // Constructor and Destructor
                                     const EventContext& ctx);
 
 private: // data
-   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
    ServiceHandle<StoreGateSvc> m_metaDataStore;
    ServiceHandle<IClassIDSvc> m_clidSvc;
    Guid m_guid;

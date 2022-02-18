@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -38,7 +38,6 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthAllocators/ArenaHeader.h"
 
@@ -1841,8 +1840,7 @@ SGImplSvc::unboundHandle (IResetable* handle)
 
 
 /// The current store is becoming the active store.  Switch the
-/// allocation arena, if needed.
-// Only intended to be called by ActiveStoreSvc.
+/// allocation arena, if needed, and call SG::CurrentEventStore::setStore.
 void SGImplSvc::makeCurrent()
 {
   lock_t lock (m_mutex);
