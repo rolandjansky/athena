@@ -21,6 +21,10 @@ import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AthenaCommonFlags import jobproperties
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+acam.athMasterSeq += xAODMaker__EventInfoCnvAlg(xAODKey="TMPEvtInfo")
+
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
@@ -116,7 +120,9 @@ theApp.EvtMax = -1
 
 #evgenConfig.nEventsPerJob = 1
 if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
+   postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
+                         OutputEventInfo="McEventInfo",
+                         mcEventWeightsKey="")
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True

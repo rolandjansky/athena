@@ -45,7 +45,7 @@ StatusCode CountHepMC::initialize()
   if(m_corEvtID || m_corRunNumber) {
     ATH_CHECK(m_inputEvtInfoKey.initialize());
     ATH_CHECK(m_outputEvtInfoKey.initialize());
-    ATH_CHECK(m_mcWeightsKey.initialize());
+    if(!m_mcWeightsKey.empty()) ATH_CHECK(m_mcWeightsKey.initialize());
   }
 
   return StatusCode::SUCCESS;
@@ -86,8 +86,10 @@ StatusCode CountHepMC::execute() {
     outputEvtInfo = outputEvtInfoHandle.ptr();
     *outputEvtInfo = *inputEvtInfoHandle;
 
-    SG::ReadDecorHandle<xAOD::EventInfo,std::vector<float>> mcWeights(m_mcWeightsKey);
-    outputEvtInfo->setMCEventWeights(mcWeights(0));
+    if(!m_mcWeightsKey.empty()) {
+      SG::ReadDecorHandle<xAOD::EventInfo,std::vector<float>> mcWeights(m_mcWeightsKey);
+      outputEvtInfo->setMCEventWeights(mcWeights(0));
+    }
   }
 
   if (m_corEvtID) {
