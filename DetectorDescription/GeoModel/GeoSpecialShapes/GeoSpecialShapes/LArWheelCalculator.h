@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
@@ -32,7 +32,7 @@
 #define LARWC_SINCOS_POLY 5
 #define LARWC_DTNF_NEW
 
-class EMECData;
+struct EMECData;
 
 //#define HARDDEBUG
 
