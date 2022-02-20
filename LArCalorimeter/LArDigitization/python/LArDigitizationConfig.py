@@ -116,12 +116,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     else:
         kwargs.setdefault("LArHitFloatContainers",[])
 
-    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
-    else:
-        kwargs.setdefault('DigitContainer', 'LArDigitContainer_MC') ##FIXME - should not be hard-coded
-
     # if doing MC+MC overlay 
     from AthenaCommon.GlobalFlags import globalflags
     if isOverlay() and globalflags.DataSource() == 'geant4':
@@ -202,14 +196,14 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
     # check if using high gain for Fcal or not
     if  (not jobproperties.LArDigitizationFlags.useFcalHighGain()) and (not isOverlay()):
         mlog.info("do not use high gain in Fcal digitization ")
-        kwargs.setdefault('HighGainThreshFCAL', 0 )
+        #kwargs.setdefault('HighGainThreshFCAL', 0 ) ## commented out for now
     else:
         mlog.info("use high gain in Fcal digitization or overlay job")
 
     # check if using high gain for EMEC IW or not
     if (not jobproperties.LArDigitizationFlags.useEmecIwHighGain()) and (not isOverlay()):
        mlog.info("do not use high gain in EMEC IW digitization ")
-       kwargs.setdefault('HighGainThreshEMECIW',0)
+       #kwargs.setdefault('HighGainThreshEMECIW',0) ## commeted out for now
 
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
 
@@ -240,21 +234,8 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
     # bad channel masking
     kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
     # CosmicTriggerTimeTool for cosmics digitization
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType == "cosmics" :
-        from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
-        from AthenaCommon.AppMgr import ToolSvc
-        theTriggerTimeTool = CosmicTriggerTimeTool()
-        ToolSvc += theTriggerTimeTool
-        kwargs.setdefault('UseTriggerTime', True )
-        kwargs.setdefault('TriggerTimeToolName', theTriggerTimeTool )
 
-    # pileup configuration "algorithm" way
-    if not digitizationFlags.doXingByXingPileUp():
-        from AthenaCommon.DetFlags import DetFlags
-        if DetFlags.pileup.LAr_on() or isOverlay():
-            kwargs.setdefault('PileUp', True )
-
+    print("Finished configuring ",name)
     return CfgMgr.LArHitEMapToDigitAlg(name, **kwargs)
 
 def getLArDigitMaker(name="digitmaker1" , **kwargs):

@@ -100,17 +100,15 @@ protected:
  
   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
   
-  PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
-
   // keys to inputs
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey_DigiHSTruth{this,"LArHitEMap_DigiHSTruthKey","LArHitEMap_DigiHSTruth"};
   SG::ReadHandleKey<LArDigitContainer> m_inputDigitContainerKey{this, "InputDigitContainer", "",
        "Name of input digit container"}; // input digit container name 
   // keys to output
-  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC1",
+  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC",
        "Name of output digit container"};    // output digit container name list 
-  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth1", 
+  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth", 
        "LArDigitContainer_DigiHSTruth", "Name of output signal digit container"};    // output digit container name list
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArDigitization", ""};
  
@@ -127,8 +125,6 @@ protected:
        "Number of ADC samples (default=5)"};               // number of samples in Digit
   Gaudi::Property<bool> m_NoiseOnOff{this, "NoiseOnOff", true,
       "put electronic noise (default=true)"};            // noise (in all sub-detectors) is on if true
-  Gaudi::Property<bool> m_PileUp{this, "PileUp", false,
-      "Pileup mode (default=false)"};                // pile up or not
   Gaudi::Property<unsigned int> m_firstSample{this, "firstSample", 0,
        "First sample to use for the shape for in-time signal"};      // first sample to use for pulse shape for in time energy deposit
   Gaudi::Property<bool> m_usePhase{this, "UsePhase", false,
