@@ -96,8 +96,6 @@ namespace Muon {
             "NSWMuonClusterSegmentFinderTool",
             "Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool",
         };
-
-        MuonSectorMapping m_muonSectorMapping;
     };
 }  // namespace Muon
 
