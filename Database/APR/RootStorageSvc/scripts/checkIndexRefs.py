@@ -61,7 +61,7 @@ def main(infile, intree="CollectionTree"):
 if __name__ == '__main__':
     # Check user input
     if len(sys.argv) != 2:
-        logging.info(f"Help: Use as checkIndexRefs.py DAOD.pool.root")
+        logging.info("Help: Use as checkIndexRefs.py DAOD.pool.root")
         sys.exit(1)
     # Run the test
     main(infile=sys.argv[1])

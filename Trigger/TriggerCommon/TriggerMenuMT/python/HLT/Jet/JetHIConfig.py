@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR
@@ -428,7 +428,7 @@ def JetHICfg(flags, clustersKey, **jetRecoDict):
     acc = ComponentAccumulator()
 
     if jetRecoDict["ionopt"] == "noion":
-        raise ValueError(f"JetHICfg is called for ion option")
+        raise ValueError("JetHICfg is called for ion option")
 
     _jetNamePrefix = "HLT_"
     jetDef = JetRecoCommon.defineHIJets(

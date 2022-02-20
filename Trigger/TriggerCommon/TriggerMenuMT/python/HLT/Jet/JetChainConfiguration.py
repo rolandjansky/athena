@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -50,7 +50,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
             # Check if there is exactly one exotic hypothesis defined
             if len(p['exotHypo']) > 1:
-                raise RuntimeError(f'emerging chains currently not configurable with more than one emerging selection!')
+                raise RuntimeError('emerging chains currently not configurable with more than one emerging selection!')
             if p['exotHypo']:
                 self.exotHypo = p['exotHypo'][0]
 
