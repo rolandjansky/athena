@@ -13,6 +13,7 @@
 #ifndef EMEC_DATA_H
 #define EMEC_DATA_H
 #include <string> 
+#include <vector> 
 
 
 struct EMECGEOMETRY {
