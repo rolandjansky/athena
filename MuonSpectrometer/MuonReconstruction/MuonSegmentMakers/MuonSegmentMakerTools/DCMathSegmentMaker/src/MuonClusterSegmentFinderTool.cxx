@@ -995,9 +995,9 @@ namespace Muon {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const {
         std::vector<const Muon::MuonClusterOnTrack*> calibratedClusters;
 
-        std::cout << "seed global position " << seed.first << " seed direction " << seed.second.unit() << std::endl;
-        std::cout << "seed global position theta " << seed.first.theta() << " seed direction theta " << seed.second.theta() << std::endl;
-        std::cout << "seed global position phi " << seed.first.phi() << " seed direction phi " << seed.second.phi() << std::endl;
+        ATH_MSG_VERBOSE("seed global position " << seed.first << " seed direction " << seed.second.unit());
+        ATH_MSG_VERBOSE("seed global position theta " << seed.first.theta() << " seed direction theta " << seed.second.theta());
+        ATH_MSG_VERBOSE("seed global position phi " << seed.first.phi() << " seed direction phi " << seed.second.phi());
 
         /// loop on the segment clusters and use the phi of the seed to correct them
         for (const Muon::MuonClusterOnTrack* clus : clusters) {
