@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ class Surface;
 template <class Tvol>
 class BoundarySurface {
   /** typedef the BinnedArray */
-  typedef BinnedArray<Tvol> VolumeArray;
+  typedef BinnedArray<const Tvol> VolumeArray;
 
  public:
   /** Default Constructor - needed for pool and inherited classes */
@@ -139,24 +139,24 @@ void BoundarySurface<Tvol>::setOutsideVolume(const Tvol* vol) {
 }
 
 template <class Tvol>
-const SharedObject<BinnedArray<Tvol>>&
+const SharedObject<BinnedArray<const Tvol>>&
 BoundarySurface<Tvol>::insideVolumeArray() const {
   return m_insideVolumeArray;
 }
 template <class Tvol>
 void BoundarySurface<Tvol>::setInsideVolumeArray(
-    const SharedObject<BinnedArray<Tvol>>& volArray) {
+    const SharedObject<BinnedArray<const Tvol>>& volArray) {
   m_insideVolumeArray = volArray;
 }
 
 template <class Tvol>
-const SharedObject<BinnedArray<Tvol>>&
+const SharedObject<BinnedArray<const Tvol>>&
 BoundarySurface<Tvol>::outsideVolumeArray() const {
   return m_outsideVolumeArray;
 }
 template <class Tvol>
 void BoundarySurface<Tvol>::setOutsideVolumeArray(
-    const SharedObject<BinnedArray<Tvol>>& volArray) {
+    const SharedObject<BinnedArray<const Tvol>>& volArray) {
   m_outsideVolumeArray = volArray;
 }
 

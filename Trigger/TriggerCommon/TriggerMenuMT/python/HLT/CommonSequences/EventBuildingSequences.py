@@ -5,7 +5,7 @@
 from TrigEDMConfig import DataScoutingInfo
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLT.Menu import EventBuildingInfo
-from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
@@ -189,24 +189,26 @@ def pebInputMaker(chain, eventBuildType):
 
     # Check if we are configuring RoI-based PEB
     _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
-    isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
-    isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
-    if not isRoIBasedPEB and not isStaticPEB:
+    _isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    _isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
+    if not _isRoIBasedPEB and not _isStaticPEB:
         raise RuntimeError('Cannot determine whether ' + eventBuildType +
                            ' is static or RoI-based PEB from a tool of type ' + type(_tmpTool))
     del _tmpTool
 
+    _isNoalg = (len(chain.steps) == 0)
+
     # Configure the InputMaker
     maker = CompFactory.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
-    # Allow more than one feature per input RoI if we care about RoIs
-    maker.mergeUsingFeature = isRoIBasedPEB
+    # Allow more than one feature per input RoI if we care about RoIs, and have at least one Step
+    maker.mergeUsingFeature = _isRoIBasedPEB and not _isNoalg
 
     # Configure the InputMaker RoI tool
-    if len(chain.steps) == 0 or isStaticPEB:
+    if _isNoalg or _isStaticPEB:
         # Streamers or static PEB: use initial RoI
         maker.RoITool = CompFactory.ViewCreatorInitialROITool()
-    elif isFullscan and isRoIBasedPEB:
+    elif isFullscan and _isRoIBasedPEB:
         # Full-scan chains with RoI-based PEB: create RoI around feature IParticle
         maker.RoITool = CompFactory.ViewCreatorCentredOnIParticleROITool()
         maker.RoITool.RoisWriteHandleKey = recordable("HLT_Roi_" + eventBuildType)
@@ -269,6 +271,16 @@ def alignEventBuildingSteps(chain_configs, chain_dicts):
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
             log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+
+
+def isRoIBasedPEB(eventBuildType):
+    '''Helper function to determine if eventBuildType corresponds to RoI-based PEB'''
+    if not eventBuildType:
+        return False
+    _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
+    result = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    del _tmpTool
+    return result
 
 
 # Unit test

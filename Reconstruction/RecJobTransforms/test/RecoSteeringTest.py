@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger("RecoSteering")
 
@@ -22,15 +22,21 @@ def _run(input):
     args = flags.fillFromArgs(parser=parser)
 
     # test inputs
-    if flags.Input.Files == []:
+    if not flags.Input.Files:
         from AthenaConfiguration.TestDefaults import defaultTestFiles
+        from AthenaConfiguration.Enums import ProductionStep
         if input == "RAW":
             flags.Input.Files = defaultTestFiles.RAW
+            flags.Common.ProductionStep=ProductionStep.Reconstruction
         if input == "ESD":
             flags.Input.Files = defaultTestFiles.ESD
         if input == "RDO":
-            flags.Input.Files = defaultTestFiles.RDO
+            flags.Input.Files = defaultTestFiles.RDO_RUN2
+            flags.Common.ProductionStep=ProductionStep.Reconstruction
 
+    # Enable PerfMon
+    flags.PerfMon.doFullMonMT = True
+    flags.PerfMon.OutputJSON = f"perfmonmt_{input}.json"
 
     flags.lock()
     log.info("Configuring according to flag values listed below")

@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -32,7 +32,7 @@ namespace Athena {
  * the concrete class in one place.  The concrete service may be left
  * unspecified, in which case no garbage collection will be done.
  */
-class ATLAS_CHECK_THREAD_SAFETY ConditionsCleanerSvc
+class ConditionsCleanerSvc
   : public extends<AthService, IConditionsCleanerSvc>
 {
 public:

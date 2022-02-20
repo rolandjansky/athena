@@ -5,28 +5,26 @@
 #ifndef MUONPHYSVALMONITORING_SLOWMUONVALIDATIONPLOTS_H
 #define MUONPHYSVALMONITORING_SLOWMUONVALIDATIONPLOTS_H
 
-#include "xAODTruth/TruthParticle.h"
-#include "xAODMuon/SlowMuon.h"
 #include "MuonHistUtils/SlowMuonParamPlots.h"
+#include "xAODMuon/SlowMuon.h"
+#include "xAODTruth/TruthParticle.h"
 
-class SlowMuonValidationPlots:public PlotBase
-{
- public:
-  SlowMuonValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData);
+class SlowMuonValidationPlots : public PlotBase {
+public:
+    SlowMuonValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData);
 
-  virtual ~SlowMuonValidationPlots();
-  void fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);
-  void fill(const xAOD::TruthParticle *truthMu, const xAOD::SlowMuon *smu, const xAOD::Muon* mu, float weight=1.0);
+    virtual ~SlowMuonValidationPlots();
+    void fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight = 1.0);
+    void fill(const xAOD::TruthParticle* truthMu, const xAOD::SlowMuon* smu, const xAOD::Muon* mu, float weight = 1.0);
 
-  Muon::SlowMuonParamPlots* m_oSlowMuonRecoPlots;
-  Muon::SlowMuonParamPlots* m_oSlowMuonMatchedPlots;
+    std::unique_ptr<Muon::SlowMuonParamPlots> m_oSlowMuonRecoPlots{};
+    std::unique_ptr<Muon::SlowMuonParamPlots> m_oSlowMuonMatchedPlots{};
 
- private:
-  void fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);
-  void fillMatchedMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);
+private:
+    void fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight = 1.0);
+    void fillMatchedMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight = 1.0);
 
-  bool m_isData;
-
+    bool m_isData;
 };
 
 #endif

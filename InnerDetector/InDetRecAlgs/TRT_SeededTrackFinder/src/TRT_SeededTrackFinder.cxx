@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -308,11 +308,15 @@ InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
               Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 
               // uses perigee on track or extrapolates, no material in any case, we cut on impacts
-              const Trk::TrackParameters* parm = m_extrapolator->extrapolateDirectly(*input, perigeeSurface);
-              const Trk::Perigee* extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm );
+              std::unique_ptr<const Trk::TrackParameters> parm =
+                m_extrapolator->extrapolateDirectly(
+                  ctx, *input, perigeeSurface);
+              std::unique_ptr<const Trk::Perigee> extrapolatedPerigee = nullptr;
+              if (parm && parm->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+                extrapolatedPerigee.reset(static_cast<const Trk::Perigee*>(parm.release()));
+              }
               if (!extrapolatedPerigee) {
                 ATH_MSG_WARNING("Extrapolation of perigee failed, this should never happen" );
-                delete parm;
                 // statistics
                 ev_stat.m_counter[Stat_t::kNExtCut]++;
                 continue;
@@ -321,19 +325,16 @@ InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
               ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
               if (std::abs(extrapolatedPerigee->parameters()[Trk::d0]) > m_maxRPhiImp) {
                 ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
-                delete extrapolatedPerigee;
                 // statistics
                 ev_stat.m_counter[Stat_t::kNExtCut]++;
                 continue;
               }
               if (std::abs(extrapolatedPerigee->parameters()[Trk::z0]) > m_maxZImp) {
                 ATH_MSG_DEBUG ("Track Z impact > "<<m_maxZImp<<", reject it");
-                delete extrapolatedPerigee;
                 // statistics
                 ev_stat.m_counter[Stat_t::kNExtCut]++;
                 continue;
               }
-              delete extrapolatedPerigee;
             }
 
             // do re run a Track extension into TRT ?

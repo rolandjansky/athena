@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file EventCommonD3PDMaker/src/NavigableConstituentAssociationTool.h
  * @author scott snyder, W. H. Bell < W.Bell AT cern.ch > 
@@ -115,6 +112,8 @@ private:
   /// Variable: Association weight.
   float* m_weight;
 
+  /// Converter for the output type.
+  TypeConverter m_converter;
 
   /// NavigationToken selector.
   Selector m_selector;
@@ -122,9 +121,6 @@ private:
   /// Hold the state of the iteration.
   NavigationToken<INavigable4Momentum, double, IN4MHash> m_token;
   NavigationToken<INavigable4Momentum, double, IN4MHash>::const_iterator m_it;
-
-  /// Converter for the output type.
-  TypeConverter m_converter;
 };
 
 

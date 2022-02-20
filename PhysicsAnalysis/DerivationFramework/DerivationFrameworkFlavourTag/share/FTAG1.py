@@ -19,8 +19,6 @@ from DerivationFrameworkJetEtMiss import METCommon
 from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg
 from DerivationFrameworkCore import LHE3WeightMetadata
 from DerivationFrameworkFlavourTag import FtagCommon
-from DerivationFrameworkFlavourTag.FtagCommon import flag_trackless
-from DerivationFrameworkFlavourTag.FtagCommon import flag_pseudotrack
 
 import re
 
@@ -76,17 +74,21 @@ FTAG1SlimmingHelper.AllVariables = [
                                        "EventInfo",
                                        "PrimaryVertices",
                                        "InDetTrackParticles",
+                                       "InDetLargeD0TrackParticles",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "BTagging_AntiKt4EMPFlowJFVtx",
                                        "BTagging_AntiKt4EMPFlowSecVtx",
                                        "TruthParticles",
+                                       "TruthVertices",
                                         "TruthBottom", "TruthElectrons","TruthMuons","TruthTaus",
                                         ]
-if flag_pseudotrack == 1:
+
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+if flags.BTagging.Pseudotrack:
     FTAG1SlimmingHelper.AllVariables += [ "InDetPseudoTrackParticles" ]
 
-if flag_trackless == 1:
+if flags.BTagging.Trackless:
     FTAG1SlimmingHelper.AllVariables += [
                                         "JetAssociatedPixelClusters",
                                         "JetAssociatedSCTClusters",

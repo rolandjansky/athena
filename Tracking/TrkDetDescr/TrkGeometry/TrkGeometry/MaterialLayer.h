@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +33,9 @@ class LayerMaterialProperties;
 
  */
 
-class MaterialLayer final: public Layer {
- public:
+class MaterialLayer final : public Layer
+{
+public:
   /** Constructor with already existing boundary surface
     - the surface representation is the according boundary surface */
   MaterialLayer(const Surface& sf, const LayerMaterialProperties& mlprop);
@@ -82,6 +83,8 @@ class MaterialLayer final: public Layer {
 inline const Surface& MaterialLayer::surfaceRepresentation() const {
   return (*(m_surfaceRepresentation.get()));
 }
+
+
 
 }  // namespace Trk
 

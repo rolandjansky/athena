@@ -45,8 +45,14 @@ private:
   SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexRhoOutKey {this,"Key_gFexRhoOutputContainer","L1_gFexRhoRoI","Output gFexRho"};
   SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexBlockOutKey {this,"Key_gFexSRJetOutputContainer","L1_gFexSRJetRoI","Output gFexBlock"};
   SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexJetOutKey {this,"Key_gFexLRJetOutputContainer","L1_gFexLRJetRoI","Output gFexJet"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarEJwojOutKey {this,"Key_gScalarEJwojOutputContainer","L1_gScalarEJwoj","Output Scalar MET and SumET"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsJwojOutKey {this,"Key_gMETComponentsJwojOutputContainer","L1_gMETComponentsJwoj","Output total MET components"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojOutKey {this,"Key_gMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","Output hard MET components"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojOutKey {this,"Key_gMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","Output soft MET components"};
+
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
   
+
   gFEXOutputCollection* m_gFEXOutputCollection;
   float m_jet_nTOBs;
   float m_global_nTOBs;
@@ -94,13 +100,28 @@ private:
   std::vector<float> m_gRho_phi;
   std::vector<float> m_gRho_et;
 
+  std::vector<float> m_gSJ_iEta;
+  std::vector<float> m_gSJ_iPhi;
   std::vector<float> m_gSJ_eta;
+  std::vector<float> m_gSJ_gFEXphi;
   std::vector<float> m_gSJ_phi;
   std::vector<float> m_gSJ_et;
 
+  std::vector<float> m_gLJ_iEta;
+  std::vector<float> m_gLJ_iPhi;
   std::vector<float> m_gLJ_eta;
+  std::vector<float> m_gLJ_gFEXphi;
   std::vector<float> m_gLJ_phi;
   std::vector<float> m_gLJ_et;
+
+  std::vector<float> m_gGlobal_MET;
+  std::vector<float> m_gGlobal_SumET;
+  std::vector<float> m_gGlobal_METx;
+  std::vector<float> m_gGlobal_METy;
+  std::vector<float> m_gGlobal_MHTx;
+  std::vector<float> m_gGlobal_MHTy;
+  std::vector<float> m_gGlobal_MSTx;
+  std::vector<float> m_gGlobal_MSTy;
 
 
   StatusCode loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);

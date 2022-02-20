@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/EventSaverFlatNtuple.h"
@@ -546,8 +546,6 @@ namespace top {
             for (top::topSFSyst i = top::topSFSyst(top::topSFSyst::TAU_SF_NOMINAL + 1); i < top::topSFSyst::TAU_SF_END;
                  i = top::topSFSyst(i + 1)) {
               if (top::tauSF_alias.find(i) == top::tauSF_alias.end()) continue;
-              if (m_config->tauSFDoRNNID() == false && top::tauSF_name.at(i).Contains("RNN")) continue;
-              if (m_config->tauSFDoBDTID() == false && top::tauSF_name.at(i).Contains("JETID")) continue;
               m_weight_tauSF_variations[i] = 1;
               systematicTree->makeOutputVariable(m_weight_tauSF_variations[i], ("weight_tauSF_" + top::tauSF_alias.at(
                                                                                   i)).Data());

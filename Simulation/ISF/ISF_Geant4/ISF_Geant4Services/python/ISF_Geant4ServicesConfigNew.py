@@ -1,9 +1,10 @@
 """Geant4 services config for ISF with ComponentAccumulator
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import (
     Geant4ToolCfg, FullGeant4ToolCfg, LongLivedGeant4ToolCfg, PassBackGeant4ToolCfg,
     AFIIGeant4ToolCfg, AFII_QS_Geant4ToolCfg
@@ -15,7 +16,7 @@ def Geant4SimCfg(flags, name="ISFG4SimSvc", **kwargs):
 
     G4_DDDBEnvelopeDefSvc = CompFactory.DetDescrDBEnvelopeSvc("G4EnvelopeDefSvc")
     G4_DDDBEnvelopeDefSvc.DBBeamPipeNode = "BPipeEnvelopeG4"
-    G4_DDDBEnvelopeDefSvc.DBInDetNode = "InDetEnvelopeG4" if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3'] else "ITkEnvelopeG4"
+    G4_DDDBEnvelopeDefSvc.DBInDetNode = "InDetEnvelopeG4" if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] else "ITkEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBCaloNode = "CaloEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBMSNode = "MuonEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBCavernNode = "CavernEnvelopeG4"
@@ -26,27 +27,28 @@ def Geant4SimCfg(flags, name="ISFG4SimSvc", **kwargs):
         acc.addPublicTool(tool)
         kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
     kwargs.setdefault("Identifier", "Geant4")
-    Geant4SimService = CompFactory.iGeant4.Geant4SimSvc(name, **kwargs)
-    acc.addService(Geant4SimService)
+    acc.addService(CompFactory.iGeant4.Geant4SimSvc(name, **kwargs), primary = True)
     return acc
 
 
 def FullGeant4SimCfg(flags, name="ISF_FullGeant4SimSvc", **kwargs):
-    acc = ComponentAccumulator()
+    accTool = ComponentAccumulator()
     if "SimulatorTool" not in kwargs:
-        tool = acc.popToolsAndMerge(FullGeant4ToolCfg(flags))
-        acc.addPublicTool(tool)
-        kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
-    acc.merge(Geant4SimCfg(flags, name, **kwargs))
+        tool = accTool.popToolsAndMerge(FullGeant4ToolCfg(flags))
+        accTool.addPublicTool(tool)
+        kwargs.setdefault("SimulatorTool", accTool.getPublicTool(tool.name))
+    acc = Geant4SimCfg(flags, name, **kwargs)
+    acc.merge(accTool)
     return acc
 
 
 def LongLivedGeant4SimCfg(flags, name="ISF_LongLivedGeant4SimSvc", **kwargs):
-    acc = ComponentAccumulator()
-    tool = acc.popToolsAndMerge(LongLivedGeant4ToolCfg(flags))
-    acc.addPublicTool(tool)
-    kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
-    acc.merge(FullGeant4SimCfg(flags, name, **kwargs))
+    accTool = ComponentAccumulator()
+    tool = accTool.popToolsAndMerge(LongLivedGeant4ToolCfg(flags))
+    accTool.addPublicTool(tool)
+    kwargs.setdefault("SimulatorTool", accTool.getPublicTool(tool.name))
+    acc = FullGeant4SimCfg(flags, name, **kwargs)
+    acc.merge(accTool)
     return acc
 
 
@@ -61,18 +63,20 @@ def PassBackGeant4SimCfg(flags, name="ISF_PassBackGeant4SimSvc", **kwargs):
 
 
 def AFIIGeant4SimCfg(flags, name="ISF_AFIIGeant4SimSvc", **kwargs):
-    acc = ComponentAccumulator()
-    tool = acc.popToolsAndMerge(AFIIGeant4ToolCfg(flags))
-    acc.addPublicTool(tool)
-    kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
-    acc.merge(PassBackGeant4SimCfg(flags, name, **kwargs))
+    accTool = ComponentAccumulator()
+    tool = accTool.popToolsAndMerge(AFIIGeant4ToolCfg(flags))
+    accTool.addPublicTool(tool)
+    kwargs.setdefault("SimulatorTool", accTool.getPublicTool(tool.name))
+    acc = PassBackGeant4SimCfg(flags, name, **kwargs)
+    acc.merge(accTool)
     return acc
 
 
 def AFII_QS_Geant4SimCfg(flags, name="ISF_AFII_QS_Geant4SimSvc", **kwargs):
-    acc = ComponentAccumulator()
-    tool = acc.popToolsAndMerge(AFII_QS_Geant4ToolCfg(flags))
-    acc.addPublicTool(tool)
-    kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
-    acc.merge(PassBackGeant4SimCfg(flags, name, **kwargs))
+    accTool = ComponentAccumulator()
+    tool = accTool.popToolsAndMerge(AFII_QS_Geant4ToolCfg(flags))
+    accTool.addPublicTool(tool)
+    kwargs.setdefault("SimulatorTool", accTool.getPublicTool(tool.name))
+    acc = PassBackGeant4SimCfg(flags, name, **kwargs)
+    acc.merge(accTool)
     return acc

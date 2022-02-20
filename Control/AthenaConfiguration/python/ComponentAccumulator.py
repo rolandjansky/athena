@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,\
@@ -95,6 +95,7 @@ class ComponentAccumulator(object):
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._servicesToCreate=[]
+        self._auditors=[]                #List of auditors
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service
 
@@ -233,6 +234,10 @@ class ComponentAccumulator(object):
                 if summariseProps:
                     printProperties(msg, tool, printDefaults, printComponentsOnly)
         msg.info( "]" )
+        if self._auditors:
+            msg.info( "Auditors" )
+            msg.info( [ a[0].name for a in filterComponents(self._auditors, onlyComponents) ] )
+
         msg.info( "theApp properties" )
         for k, v in self._theAppProps.items():
             msg.info("  %s : %s", k, v)
@@ -301,7 +306,6 @@ class ComponentAccumulator(object):
                 raise ConfigurationError("Missing sequence {} to add new sequence to".format(parentName))
 
         parent.Members.append(newseq)
-        checkSequenceConsistency(self._sequence)
         if "trackSequence" in ComponentAccumulator.debugMode:
             self._componentsContext[newseq] = shortCallStack()
         return newseq
@@ -471,6 +475,22 @@ class ComponentAccumulator(object):
                 self._servicesToCreate.append(sname)
         if "trackService" in  ComponentAccumulator.debugMode:
             self._componentsContext[newSvc.name] = shortCallStack()
+        return
+
+    def addAuditor(self, auditor):
+        """Add Auditor to ComponentAccumulator.
+        This function will also create the required AuditorSvc."""
+        if not isinstance(auditor,GaudiConfig2._configurables.Configurable) and not isinstance(auditor,AthenaPython.Configurables.CfgPyAud):
+            raise TypeError("Attempt to add wrong type: {} as auditor".format(type( auditor ).__name__))
+
+        if auditor.__component_type__ != "Auditor":
+            raise TypeError("Attempt to add wrong type: {} as auditor".format(auditor.__component_type__))
+
+        context = createContextForDeduplication("Merging with existing auditors", auditor.name, self._componentsContext) # noqa : F841
+
+        deduplicate(auditor, self._auditors)  #may raise on conflict
+        self.addService(CompFactory.AuditorSvc(Auditors=[auditor.getFullJobOptName()]))
+        self._lastAddedComponent = auditor.name
         return
 
     def addPublicTool(self,newTool,primary=False):
@@ -657,7 +677,6 @@ class ComponentAccumulator(object):
                 self._allSequences.append( otherSeq )
                 mergeSequences( self._allSequences[-1], otherSeq )
 
-        checkSequenceConsistency(self._sequence)
 
 
 
@@ -718,6 +737,9 @@ class ComponentAccumulator(object):
 
         when withDefaultHandles is True, also the handles that are not set are saved
         """
+
+        checkSequenceConsistency(self._sequence)
+        
         self.wasMerged()
         if withDefaultHandles:
             from AthenaConfiguration.Utils import loadDefaultComps, exposeHandles
@@ -868,6 +890,9 @@ class ComponentAccumulator(object):
             pt.name = "ToolSvc." + pt.name
             getCompsToBeAdded(pt)
 
+        for aud in self._auditors:
+            getCompsToBeAdded(aud)
+
         return appPropsToSet, mspPropsToSet, bshPropsToSet
 
     def run(self,maxEvents=None,OutputLevel=INFO):
@@ -878,6 +903,8 @@ class ComponentAccumulator(object):
         from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 
+        checkSequenceConsistency(self._sequence)
+        
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 
@@ -1159,8 +1186,13 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                 indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
-                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
-                    pvalue=pvalue.data
+                if isinstance(pvalue, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper)):
+                    pvalue = pvalue.data
+                if isinstance(pvalue, list):
+                    pvalue = [item.data
+                              if isinstance(item, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper))
+                              else item
+                              for item in pvalue]
 
                 if pname not in alreadySetProperties:
                     _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )

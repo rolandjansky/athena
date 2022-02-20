@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
@@ -56,12 +56,12 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     kwargs.setdefault("PAI_Tool_Ar", TRT_PAI_Process_ArToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Kr", TRT_PAI_Process_KrToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Xe", TRT_PAI_Process_XeToolCfg(flags))
-    kwargs.setdefault("Override_TrtRangeCutProperty", flags.Digitization.TRTRangeCut)
+    kwargs.setdefault("Override_TrtRangeCutProperty", flags.Sim.TRTRangeCut)
     kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("Override_noiseInSimhits", 0)
         kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("PrintDigSettings", True)
         kwargs.setdefault("Override_cosmicFlag", 0)
         kwargs.setdefault("Override_doCosmicTimingPit", 1)
@@ -70,6 +70,8 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing", TRT_LastXing())
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     TRTDigitizationTool = CompFactory.TRTDigitizationTool
     tool = TRTDigitizationTool(name, **kwargs)
     acc.setPrivateTools(tool)

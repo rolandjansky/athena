@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -29,7 +29,10 @@
 
 
 //typedef DataVector<TrigL2Bjet> TrigL2BjetContainer;
-class TrigL2BjetContainer : public DataVector<TrigL2Bjet> { }; 
+class TrigL2BjetContainer : public DataVector<TrigL2Bjet> {
+public:
+  using DataVector::DataVector;  // inherit constructors
+};
 
 
 CLASS_DEF(TrigL2BjetContainer, 1272271823, 1)

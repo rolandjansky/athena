@@ -1,10 +1,10 @@
 """Geant4 tools config for ISF with ComponentAccumulator
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RngComps.RandomServices import RNG
+from RngComps.RandomServices import AthRNGSvcCfg
 from G4AtlasServices.G4AtlasServicesConfigNew import (
     DetectorGeometrySvcCfg, PhysicsListSvcCfg
 )
@@ -30,8 +30,7 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("DetGeoSvc", acc.getPrimaryAndMerge(DetectorGeometrySvcCfg(flags)).name)
 
-    acc.merge(RNG(flags.Random.Engine, name="AthRNGSvc"))
-    kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc").name) # FIXME
+    kwargs.setdefault("RandomNumberService", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     # Only add it if it's not added already
     if "InputConverter" not in kwargs.keys():
@@ -59,7 +58,8 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault("PhysicsListSvc", acc.getPrimaryAndMerge(PhysicsListSvcCfg(flags)).name)
 
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
-    if flags.Sim.ISF.Simulator in ["FullG4MT", "FullG4MT_QS", "PassBackG4MT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
+    from G4AtlasApps.SimEnums import SimulationFlavour
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.FullG4MT, SimulationFlavour.FullG4MT_QS, SimulationFlavour.PassBackG4MT, SimulationFlavour.ATLFAST3MT, SimulationFlavour.ATLFAST3MT_QS]:
         acc.setPrivateTools(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
     else:
         tool = acc.popToolsAndMerge(G4RunManagerHelperCfg(flags))

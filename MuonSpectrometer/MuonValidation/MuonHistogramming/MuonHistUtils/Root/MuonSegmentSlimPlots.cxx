@@ -9,38 +9,7 @@
 
 namespace Muon{
   
-MuonSegmentSlimPlots::MuonSegmentSlimPlots(PlotBase* pParent, const std::string& sDir): PlotBase(pParent, sDir)
-  ,  segmentfitChi2(nullptr)
-  ,  segmentfitNdof(nullptr)
-  ,  segmentfitChi2oNdof(nullptr)
-
-  ,  t0(nullptr)
-  ,  t0_top(nullptr)
-  ,  t0_bottom(nullptr)
-  ,  t0err(nullptr)
-  ,  t0err_top(nullptr)
-  ,  t0err_bottom(nullptr)
-
-  ,  nPrecisionHits(nullptr)
-  ,  nPhiLayers(nullptr)
-  ,  nTrigEtaLayers(nullptr)
-
-  ,  etaIndex(nullptr)
-  ,  sector(nullptr)
-  
-  ,  etadir(nullptr)
-  ,  etadir_barrel(nullptr)
-  ,  etadir_endcap(nullptr)
-  ,  phidir(nullptr)
-  ,  etaphidir(nullptr)
-
-	, chamberIndex(nullptr)
-  , chamberIndex_perSector(nullptr)
-  , eff_chamberIndex_perSector_numerator(nullptr)
-  , eff_chamberIndex_perSector_denominator(nullptr)
-  , eff_chamberIndex_perSector(nullptr)
-  //,chamberIndex_dtheta(NULL)
-{  
+MuonSegmentSlimPlots::MuonSegmentSlimPlots(PlotBase* pParent, const std::string& sDir): PlotBase(pParent, sDir) {  
 
   //booking histograms
   segmentfitChi2 = Book1D("segmentfitChi2", "Segment fit #chi^{2};#chi^{2};Entries", 100,0,200);
@@ -130,14 +99,12 @@ MuonSegmentSlimPlots::~MuonSegmentSlimPlots()
   
   //position and direction plots
   //protect against cases with no hit information!
-  if ( !(muSeg.px()) || !(muSeg.py()) || !(muSeg.pz()) ) return;
-  if ( (muSeg.px()==0) || (muSeg.py()==0) || (muSeg.pz()==0) ) return; 
+   Amg::Vector3D globalDir{muSeg.px(),muSeg.py(),muSeg.pz()};
+ 
+  if ( globalDir.mag() < DBL_EPSILON ) return;
 
-  Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
   float eta = globalDir.eta();
-  //if (globalDir.z() != 0 ) eta = atan2(globalDir.perp(), globalDir.z());//fix the global eta direction
   float phi = globalDir.phi();
-  if (phi>M_PI) phi-=2*M_PI;
   etadir->Fill(eta, weight);
   phidir->Fill(phi, weight);
   etaphidir->Fill(eta,phi);

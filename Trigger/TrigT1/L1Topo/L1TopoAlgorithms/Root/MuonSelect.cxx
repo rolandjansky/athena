@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  MuonSelect.cxx
 //  TopoCore
@@ -56,29 +56,29 @@ TCS::MuonSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
   const MuonTOBArray & muons = dynamic_cast<const MuonTOBArray&>(input);
   
-  // fill output array with GenericTOB buildt from clusters
-  for(MuonTOBArray::const_iterator cl = muons.begin(); cl!= muons.end(); ++cl ) {
-    const GenericTOB gtob(**cl);
+  // fill output array with GenericTOB built from clusters
+  for(MuonTOBArray::const_iterator muon = muons.begin(); muon!= muons.end(); ++muon ) {
 
     // Tmp, to be removed after new menu is implemented    
-    if( parType_t((*cl)->Et()) <= m_et ) continue; // ET cut
+    if( parType_t((*muon)->Et()) <= m_et ) continue; // ET cut
 
     // Apply the relevant cut to the right kind of muon
-    if( (parType_t((*cl)->Et()) <= m_MinEtTGC && parType_t((*cl)->isTGC())) ||  
-	(parType_t((*cl)->Et()) <= m_MinEtRPC && (!parType_t((*cl)->isTGC()))) ) continue; // ET cut
+    if( (parType_t((*muon)->Et()) <= m_MinEtTGC && parType_t((*muon)->isTGC())) ||  
+	(parType_t((*muon)->Et()) <= m_MinEtRPC && (!parType_t((*muon)->isTGC()))) ) continue; // ET cut
     
     // eta cut
-    if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
-    if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;  
+    if (parType_t(std::abs((*muon)-> eta())) < m_minEta) continue; 
+    if (parType_t(std::abs((*muon)-> eta())) > m_maxEta) continue;  
 
-    // Apply flag selection only for TGC muons. The flag selection is applied only if the corresponing parameter from the menu is 1.  
-    if ( parType_t((*cl)->isTGC()) )
+    // Apply flag selection only for TGC muons. The flag selection is applied only if the corresponding parameter from the menu is 1.  
+    if ( parType_t((*muon)->isTGC()) )
       {
-	if(m_InnerCoinCut == 1 && ( ! ((int)parType_t((*cl)->innerCoin()) == (int)m_InnerCoinCut ) ) ) continue;
-	if(m_FullStationCut == 1 && ( ! ((int)parType_t((*cl)->bw2or3()) == (int)m_FullStationCut ) ) ) continue;
-	if(m_GoodMFieldCut == 1 && ( ! ((int)parType_t((*cl)->goodMF()) == (int)m_GoodMFieldCut ) ) ) continue;
+	if(m_InnerCoinCut == 1 && ( ! ((int)parType_t((*muon)->innerCoin()) == (int)m_InnerCoinCut ) ) ) continue;
+	if(m_FullStationCut == 1 && ( ! ((int)parType_t((*muon)->bw2or3()) == (int)m_FullStationCut ) ) ) continue;
+	if(m_GoodMFieldCut == 1 && ( ! ((int)parType_t((*muon)->goodMF()) == (int)m_GoodMFieldCut ) ) ) continue;
       }
 
+    const GenericTOB gtob(**muon);
     output.push_back( gtob );
   }
 

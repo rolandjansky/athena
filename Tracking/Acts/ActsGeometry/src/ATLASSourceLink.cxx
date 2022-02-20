@@ -23,12 +23,27 @@ void ATLASSourceLinkCalibrator::calibrate(const Acts::GeometryContext& /*gctx*/,
     trackState.calibrated().head<1>() = sourceLink.values().head<1>();
     trackState.calibratedCovariance().topLeftCorner<1, 1>() = sourceLink.cov().topLeftCorner<1, 1>();
     trackState.data().measdim = sourceLink.dim();
-  } else if (sourceLink.dim() == 2) {
+    // Create a 1D projection matrix
+    Acts::ActsMatrix<Acts::MultiTrajectory::MeasurementSizeMax, 1> proj;
+    proj.setZero();
+    proj(Acts::eBoundLoc0,Acts::eBoundLoc0) = 1;
+    trackState.setProjector(proj);
+  }
+  else if (sourceLink.dim() == 2)
+  {
     // return Acts::makeMeasurement(sourceLink, sourceLink.values().head<2>(), sourceLink.cov().topLeftCorner<2, 2>(), Acts::eBoundLoc0, Acts::eBoundLoc1);
     trackState.calibrated().head<2>() = sourceLink.values().head<2>();
     trackState.calibratedCovariance().topLeftCorner<2, 2>() = sourceLink.cov().topLeftCorner<2, 2>();
     trackState.data().measdim = sourceLink.dim();
-  } else {
+    // Create a 2D projection matrix
+    Acts::ActsMatrix<Acts::MultiTrajectory::MeasurementSizeMax, 2> proj;
+    proj.setZero();
+    proj(Acts::eBoundLoc0, Acts::eBoundLoc0) = 1;
+    proj(Acts::eBoundLoc1, Acts::eBoundLoc1) = 1;
+    trackState.setProjector(proj);
+  }
+  else
+  {
     throw std::runtime_error("Dim " + std::to_string(sourceLink.dim()) +
                              " currently not supported.");
   }

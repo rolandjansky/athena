@@ -5,7 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from RngComps.RandomServices import RNG
+from RngComps.RandomServices import AthRNGSvcCfg
 from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -35,9 +35,9 @@ def BCM_RangeCfg(flags, name="BCM_Range", **kwargs):
 
 def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured BCM_DigitizationTool"""
-    # take initial ComponentAccumulator from RNG
-    acc = RNG(flags.Random.Engine)
-    kwargs.setdefault("RndmSvc", "AthRNGSvc")
+    acc = ComponentAccumulator()
+    kwargs.setdefault("RndmSvc",
+                      acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     kwargs.setdefault("HitCollName", "BCMHits")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
@@ -65,6 +65,7 @@ def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", BCM_FirstXing())
         kwargs.setdefault("LastXing",  BCM_LastXing())
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     BCM_DigitizationTool = CompFactory.BCM_DigitizationTool
     acc.setPrivateTools(BCM_DigitizationTool(name, **kwargs))

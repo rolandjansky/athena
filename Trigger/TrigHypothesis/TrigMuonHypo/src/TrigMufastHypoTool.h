@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPO_TRIGMUFASTHYPOTOOL_H 
@@ -49,15 +49,14 @@ class TrigMufastHypoTool: public ::AthAlgTool {
       roi( r ),
       muFast( f ),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
-			   TrigCompositeUtils::decisionIDs( previousDecision ).end() ),
-      passOR( true )
+			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
       {}
       
       TrigCompositeUtils::Decision* decision;
       const TrigRoiDescriptor* roi;
       const xAOD::L2StandAloneMuon* muFast;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
-      bool passOR;
+      TrigCompositeUtils::DecisionIDContainer isOR;
     };
 
     virtual StatusCode initialize() override;    

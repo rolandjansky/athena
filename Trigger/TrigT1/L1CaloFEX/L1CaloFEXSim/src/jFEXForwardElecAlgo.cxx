@@ -32,7 +32,7 @@ LVL1::jFEXForwardElecAlgo::~jFEXForwardElecAlgo() {
 }
 
 StatusCode LVL1::jFEXForwardElecAlgo::initialize() {
-    ATH_CHECK(m_jFEXFwElecAlgo_jTowerContainerKey.initialize());
+    ATH_CHECK(m_jTowerContainerKey.initialize());
     return StatusCode::SUCCESS;
 }
 
@@ -40,7 +40,7 @@ StatusCode LVL1::jFEXForwardElecAlgo::initialize() {
 StatusCode LVL1::jFEXForwardElecAlgo::safetyTest() {
 
     if(! m_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve m_jTowerContainer " << m_jFEXFwElecAlgo_jTowerContainerKey.key());
+        ATH_MSG_FATAL("Could not retrieve jTowerContainer " << m_jTowerContainerKey.key());
         return StatusCode::FAILURE;
     }
 
@@ -49,7 +49,7 @@ StatusCode LVL1::jFEXForwardElecAlgo::safetyTest() {
 
 StatusCode LVL1::jFEXForwardElecAlgo::reset() {
     
-    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jFEXFwElecAlgo_jTowerContainerKey);
+    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jTowerContainerKey);
     return StatusCode::SUCCESS;
 }
 

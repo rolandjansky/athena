@@ -74,10 +74,10 @@ def InDetPropagatorCfg(flags,
     result = ComponentAccumulator()
 
     InDetPropagator = None
-    if flags.InDet.propagatorType == "STEP":
+    if flags.InDet.Tracking.propagatorType == "STEP":
         InDetPropagator = result.popToolsAndMerge(
             AtlasSTEP_PropagatorCfg(flags, name, **kwargs))
-    elif flags.InDet.propagatorType == "RungeKutta":
+    elif flags.InDet.Tracking.propagatorType == "RungeKutta":
         kwargs.setdefault("AccuracyParameter", 0.0001)
         kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
         InDetPropagator = result.popToolsAndMerge(

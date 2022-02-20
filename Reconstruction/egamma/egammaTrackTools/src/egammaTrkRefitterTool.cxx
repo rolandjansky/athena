@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaTrkRefitterTool.h"
@@ -294,16 +294,16 @@ egammaTrkRefitterTool::provideVotFromBeamspot(const EventContext& ctx,
   Trk::LocalParameters beamSpotParameters(Par0);
 
   // calculate perigee parameters wrt. beam-spot
-  const Trk::Perigee* perigee = nullptr;
-  const Trk::TrackParameters* tmp =
-    m_extrapolator->extrapolate(*track, surface);
-  if (tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
-    perigee = static_cast<const Trk::Perigee*>(tmp);
+  std::unique_ptr<const Trk::Perigee> perigee = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> tmp =
+    m_extrapolator->extrapolate(ctx, *track, surface);
+  if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+    perigee.reset(static_cast<const Trk::Perigee*>(tmp.release()));
   }
   if (!perigee) { // if failure
     const Trk::Perigee* trackPerigee = track->perigeeParameters();
     if (trackPerigee && ((trackPerigee->associatedSurface())) == surface)
-      perigee = trackPerigee->clone();
+      perigee = trackPerigee->uniqueClone();
   }
 
   Eigen::Matrix<double, 1, 2> Jacobian;
@@ -317,7 +317,6 @@ egammaTrkRefitterTool::provideVotFromBeamspot(const EventContext& ctx,
   Amg::MatrixX errorMatrix(Jacobian * (beamSpotCov * Jacobian.transpose()));
   vot = new Trk::VertexOnTrack(beamSpotParameters, errorMatrix, surface);
 
-  delete perigee;
   return vot;
 }
 

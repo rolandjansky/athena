@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -265,6 +265,8 @@ StatusCode TrigMultiTrkComboHypo::mergeLeptonsFromDecisions(TrigMultiTrkState<T>
   leptons.clear();
 
   std::vector<const Decision*> previousDecisions(state.previousDecisions().begin(), state.previousDecisions().end());
+  std::map<const Decision*, int> decisionToInputCollectionIndexMap;
+  for (const auto& decision : previousDecisions) decisionToInputCollectionIndexMap.emplace(decision, 0);
   if (m_combineInputDecisionCollections && decisionsInput().size() > 1) {
     for (size_t k = 1; k < decisionsInput().size(); ++k) {
       auto previousDecisionsHandle = SG::makeHandle(decisionsInput().at(k), state.context());
@@ -272,6 +274,7 @@ StatusCode TrigMultiTrkComboHypo::mergeLeptonsFromDecisions(TrigMultiTrkState<T>
       ATH_MSG_DEBUG( "Adding " << previousDecisionsHandle->size() << " decisions from " << decisionsInput().at(k).key() );
       for (const Decision* decision : *previousDecisionsHandle) {
         previousDecisions.push_back(decision);
+        decisionToInputCollectionIndexMap.emplace(decision, static_cast<int>(k));
       }
     }
   }
@@ -310,7 +313,7 @@ StatusCode TrigMultiTrkComboHypo::mergeLeptonsFromDecisions(TrigMultiTrkState<T>
                          [this, lepton = lepton](const auto& x){ return this->isIdenticalTracks(lepton, *x.link); });
     }
     if (itr == leptons.end()) {
-      leptons.push_back({leptonEL, ElementLinkVector<DecisionContainer>(1, decisionEL), DecisionIDContainer()});
+      leptons.push_back({leptonEL, std::vector<ElementLink<DecisionContainer>>(1, decisionEL), DecisionIDContainer()});
     }
     else {
       (*itr).decisionLinks.push_back(decisionEL);
@@ -322,9 +325,21 @@ StatusCode TrigMultiTrkComboHypo::mergeLeptonsFromDecisions(TrigMultiTrkState<T>
   std::sort(leptons.begin(), leptons.end(), [](const auto& lhs, const auto& rhs){ return ((*lhs.link)->pt() > (*rhs.link)->pt()); });
 
   // for each muon we extract DecisionIDs stored in the associated Decision objects and copy them at muon.decisionIDs
+  const auto& legToInputCollectionIndexMap = legToInputCollectionMap();
   for (auto& item : leptons) {
-    for (const ElementLink<xAOD::TrigCompositeContainer> decisionEL : item.decisionLinks) {
-      TrigCompositeUtils::decisionIDs(*decisionEL, item.decisionIDs);
+    for (const ElementLink<xAOD::TrigCompositeContainer>& decisionEL : item.decisionLinks) {
+      if (m_combineInputDecisionCollections) {
+        auto decisionIndex = decisionToInputCollectionIndexMap[*decisionEL];
+        for (const auto& id : TrigCompositeUtils::decisionIDs(*decisionEL)) {
+          if (!TrigCompositeUtils::passed(id, m_allowedIDs) || !TrigCompositeUtils::isLegId(id)) continue;
+          auto legIndex = static_cast<size_t>(TrigCompositeUtils::getIndexFromLeg(id));
+          std::string chain = TrigCompositeUtils::getIDFromLeg(id).name();
+          if (legToInputCollectionIndexMap.at(chain).at(legIndex) == decisionIndex) item.decisionIDs.insert(id);
+        }
+      }
+      else {
+        TrigCompositeUtils::decisionIDs(*decisionEL, item.decisionIDs);
+      }
     }
   }
 
@@ -700,7 +715,7 @@ StatusCode TrigMultiTrkComboHypo::processMergedElectrons(TrigMultiTrkState<xAOD:
     // add electron from decision to state.leptons
     DecisionIDContainer decisionIDs;
     TrigCompositeUtils::decisionIDs(decision, decisionIDs);
-    leptons.push_back({electronEL, ElementLinkVector<DecisionContainer>(1, decisionEL), decisionIDs});
+    leptons.push_back({electronEL, std::vector<ElementLink<DecisionContainer>>(1, decisionEL), decisionIDs});
 
     // get initialRoI this electron originating from
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(decision, TrigCompositeUtils::initialRoIString(), true);
@@ -754,7 +769,7 @@ StatusCode TrigMultiTrkComboHypo::findMuTrkCandidates(TrigMultiTrkState<xAOD::Mu
     // add muon from decision to state.leptons
     DecisionIDContainer decisionIDs;
     TrigCompositeUtils::decisionIDs(decision, decisionIDs);
-    muons.push_back({muonEL, ElementLinkVector<DecisionContainer>(1, decisionEL), decisionIDs});
+    muons.push_back({muonEL, std::vector<ElementLink<DecisionContainer>>(1, decisionEL), decisionIDs});
 
     ATH_MSG_DEBUG( "Found muon (CombinedTrackParticle): " << muon->pt() << " / " << muon->eta() << " / " << muon->phi() << " / " << muon->charge() );
 

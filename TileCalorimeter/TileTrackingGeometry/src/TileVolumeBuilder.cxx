@@ -178,8 +178,8 @@ Tile::TileVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) con
   Trk::CylinderVolumeBounds* gapBounds                               = 0;
 
   // dummy objects
-  const Trk::LayerArray* dummyLayers = 0;
-  const Trk::TrackingVolumeArray* dummyVolumes = 0;
+  Trk::LayerArray* dummyLayers = nullptr;
+  Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
     m_surfBuilder->entrySurfaces(&caloDDM);

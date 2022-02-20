@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.Logging import logging
 
-from ..Menu.MenuComponents import RecoFragmentsPool
+from ..Config.MenuComponents import RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 logging.getLogger().info("Importing %s",__name__)
@@ -16,7 +16,7 @@ def UTTJetRecoSequence():
         from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 
         from ..Jet.JetRecoSequences     import jetRecoSequence
-        from ..Jet.JetRecoConfiguration import extractRecoDict
+        from ..Jet.JetRecoCommon import extractRecoDict
         from ..Menu.SignatureDicts      import JetChainParts_Default
         
         jetRecoDict = extractRecoDict([JetChainParts_Default])

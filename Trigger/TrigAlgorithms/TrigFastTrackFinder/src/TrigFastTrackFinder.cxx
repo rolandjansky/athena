@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +394,7 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
           bool isOnlineBeamspot = ((beamSpotBitMap & 0x4) == 0x4);
 
           if ((isOnlineBeamspot && (beamSpotBitMap & 0x3) == 0x3) || !isOnlineBeamspot){ //converged or MC event, if the original RoI has a zed > 3 sig + 10 then set it to 3 sig + 10.
-              TrigRoiDescriptor originRoI = **roiCollection->begin();
+              RoiDescriptor originRoI = **roiCollection->begin();
               double beamSpot_zsig = beamSpotHandle->beamSigma(2);
               Amg::Vector3D vertex = beamSpotHandle->beamPos();
               double zVTX = vertex.z();
@@ -409,17 +409,17 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
 
               if (origin_zedPlus > new_zedPlus && origin_zedMinus < new_zedMinus){
                   ATH_MSG_DEBUG("Updated RoI with zed = "<<new_zedRange<<" * sig + "<<new_zedMargin);
+                  double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
                   double origin_etaPlus  = originRoI.etaPlus() ;    //!< gets eta at zedPlus
                   double origin_etaMinus = originRoI.etaMinus();    //!< gets eta at zMinus
+
+                  double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
                   double origin_phiPlus  = originRoI.phiPlus() ;     //!< gets phiPlus
                   double origin_phiMinus = originRoI.phiMinus();    //!< gets phiMinus
-                  double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
-                  double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
-                  unsigned int origin_roiId   = originRoI.roiId() ;
-                  unsigned int origin_l1Id    = originRoI.l1Id() ;
-                  unsigned int origin_roiWord = originRoI.roiWord();
-                  internalRoI = TrigRoiDescriptor(origin_roiWord, origin_l1Id, origin_roiId, origin_eta, origin_etaMinus, origin_etaPlus, origin_phi, origin_phiMinus, origin_phiPlus, zVTX, new_zedMinus, new_zedPlus);
-                  if (originRoI.isFullscan()) internalRoI.setFullscan(true);
+
+                  internalRoI = TrigRoiDescriptor( origin_eta, origin_etaMinus, origin_etaPlus, 
+						   origin_phi, origin_phiMinus, origin_phiPlus, 
+						   zVTX, new_zedMinus, new_zedPlus );
               }
               else internalRoI = **roiCollection->begin(); // we have a more narrow zed range in RoI, no need to update.
           }else{ //Not converged, set to the fullScan RoI
@@ -1486,12 +1486,14 @@ StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) cons
    if( m_doHitDV ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
       ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
-   }
-   if( m_dodEdxTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
       ATH_CHECK( hitDVSPHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   }
+   if( m_dodEdxTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxTrkHandle(m_dEdxTrkKey, ctx);
       ATH_CHECK( dEdxTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+      SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxHitHandle(m_dEdxHitKey, ctx);
+      ATH_CHECK( dEdxHitHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    }
    if( m_doDisappearingTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> disTrkCandHandle(m_disTrkCandKey, ctx);
@@ -2926,10 +2928,13 @@ const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
 
    Amg::Vector3D gp(vtx_x, vtx_y, vtx_z);
    Trk::PerigeeSurface persf(gp);
-   const Trk::Perigee* vertexPerigee   = 0;
+   const Trk::Perigee* vertexPerigee = nullptr;
    const Trk::Perigee* trackparPerigee = t->perigeeParameters();
-   vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly((*trackparPerigee),persf));
-
+   std::unique_ptr<const Trk::TrackParameters> tmp =
+     m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(), (*trackparPerigee), persf);
+   if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+     vertexPerigee = static_cast<const Trk::Perigee*>(tmp.release());
+   }
    return vertexPerigee;
 }
 

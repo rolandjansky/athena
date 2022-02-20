@@ -374,20 +374,9 @@ EGAM5Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
-addAntiKt4TruthJets(EGAM5Sequence,"EGAM5")
-
-
-#========================================
-# ENERGY DENSITY
-#========================================
-if (DerivationFrameworkIsMonteCarlo):
-    # Schedule the two energy density tools for running after the pseudojets are created.
-    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-        if hasattr(topSequence, alg):
-            edtalg = getattr(topSequence, alg)
-            delattr(topSequence, alg)
-            EGAM5Sequence += edtalg
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth
+addDAODJets([AntiKt4Truth], EGAM5Sequence)
 
 
 #====================================================================

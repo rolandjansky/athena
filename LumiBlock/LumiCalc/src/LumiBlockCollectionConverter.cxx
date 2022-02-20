@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiCalc/LumiBlockCollectionConverter.h"
@@ -66,7 +66,7 @@ LumiBlockCollectionConverter::GetLumiBlockCollection(const Root::TGoodRunsList& 
 
 
 LumiBlockCollection* 
-LumiBlockCollectionConverter::GetLumiBlockCollection(const char* xmlfile) const
+LumiBlockCollectionConverter::GetLumiBlockCollection(const char* xmlfile)
 {
   Root::TGoodRunsList* pgrl = this->GetGRLObject( xmlfile );
   LumiBlockCollection* iovc = this->GetLumiBlockCollection( *pgrl );
@@ -76,7 +76,7 @@ LumiBlockCollectionConverter::GetLumiBlockCollection(const char* xmlfile) const
 
 
 LumiBlockCollection* 
-LumiBlockCollectionConverter::GetLumiBlockCollectionFromString( const TString& xmlstring ) const
+LumiBlockCollectionConverter::GetLumiBlockCollectionFromString( const TString& xmlstring )
 {
   m_reader->SetXMLString( xmlstring );
   (void) m_reader->Interpret();
@@ -85,7 +85,7 @@ LumiBlockCollectionConverter::GetLumiBlockCollectionFromString( const TString& x
 
 
 void 
-LumiBlockCollectionConverter::CreateXMLFile(const Root::TGRLCollection& grlcollection, const char* xmlfilename) const
+LumiBlockCollectionConverter::CreateXMLFile(const Root::TGRLCollection& grlcollection, const char* xmlfilename)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   m_writer->SetFilename( xmlfilename ) ;
@@ -94,7 +94,7 @@ LumiBlockCollectionConverter::CreateXMLFile(const Root::TGRLCollection& grlcolle
 
 
 void
-LumiBlockCollectionConverter::CreateXMLFile(const Root::TGoodRunsList& grl, const TString& xmlfilename, const TString& prefix) const
+LumiBlockCollectionConverter::CreateXMLFile(const Root::TGoodRunsList& grl, const TString& xmlfilename, const TString& prefix)
 {
   m_writer->SetGoodRunsList( grl ) ;
   TString xmlfile = ( xmlfilename.IsNull() ? prefix + grl.GetSuggestedName() + ".xml" : xmlfilename );
@@ -105,7 +105,7 @@ LumiBlockCollectionConverter::CreateXMLFile(const Root::TGoodRunsList& grl, cons
 
 void 
 LumiBlockCollectionConverter::CreateXMLFile(const LumiBlockCollection& lbc, const grlmetadatamap& metadata, const char* version, 
-                                            const TString& xmlfilename, const TString& prefix ) const
+                                            const TString& xmlfilename, const TString& prefix )
 {
   Root::TGoodRunsList* pgrl = this->GetGRLObject(lbc,metadata,version);
   m_writer->SetGoodRunsList( *pgrl ) ;
@@ -117,7 +117,7 @@ LumiBlockCollectionConverter::CreateXMLFile(const LumiBlockCollection& lbc, cons
 
 
 void
-LumiBlockCollectionConverter::CreateXMLFiles(const Root::TGRLCollection& grlcollection, const char* prefix) const
+LumiBlockCollectionConverter::CreateXMLFiles(const Root::TGRLCollection& grlcollection, const char* prefix)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   m_writer->SetPrefix( prefix ) ;
@@ -126,7 +126,7 @@ LumiBlockCollectionConverter::CreateXMLFiles(const Root::TGRLCollection& grlcoll
 
 
 const TString 
-LumiBlockCollectionConverter::GetXMLString(const Root::TGoodRunsList& grl) const
+LumiBlockCollectionConverter::GetXMLString(const Root::TGoodRunsList& grl)
 {
   m_writer->SetGoodRunsList( grl ) ;
   return m_writer->GetXMLString() ;
@@ -134,7 +134,7 @@ LumiBlockCollectionConverter::GetXMLString(const Root::TGoodRunsList& grl) const
 
 
 const TString
-LumiBlockCollectionConverter::GetXMLString(const Root::TGRLCollection& grlcollection) const
+LumiBlockCollectionConverter::GetXMLString(const Root::TGRLCollection& grlcollection)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   return m_writer->GetXMLString() ;
@@ -142,7 +142,7 @@ LumiBlockCollectionConverter::GetXMLString(const Root::TGRLCollection& grlcollec
 
 
 const std::vector<TString> 
-LumiBlockCollectionConverter::GetXMLStrings(const Root::TGRLCollection& grlcollection) const
+LumiBlockCollectionConverter::GetXMLStrings(const Root::TGRLCollection& grlcollection)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   return m_writer->GetXMLStrings() ;
@@ -150,7 +150,7 @@ LumiBlockCollectionConverter::GetXMLStrings(const Root::TGRLCollection& grlcolle
 
 
 const TString 
-LumiBlockCollectionConverter::GetXMLString( const LumiBlockCollection& lbc, const std::map<TString,TString>& metadata, const char* version ) const
+LumiBlockCollectionConverter::GetXMLString( const LumiBlockCollection& lbc, const std::map<TString,TString>& metadata, const char* version )
 {
   Root::TGoodRunsList* pgrl = this->GetGRLObject(lbc,metadata,version);
   m_writer->SetGoodRunsList( *pgrl ) ;
@@ -196,7 +196,7 @@ LumiBlockCollectionConverter::GetGRLObject( const LumiBlockCollection& lbc, cons
 
 
 Root::TGoodRunsList* 
-LumiBlockCollectionConverter::GetGRLObject( const char* xmlfile ) const
+LumiBlockCollectionConverter::GetGRLObject( const char* xmlfile )
 {
   m_reader->SetXMLFile( xmlfile );
   (void) m_reader->Interpret();
@@ -205,7 +205,7 @@ LumiBlockCollectionConverter::GetGRLObject( const char* xmlfile ) const
 
 
 Root::TGoodRunsList* 
-LumiBlockCollectionConverter::GetGRLObjectFromString( const TString& xmlstring ) const
+LumiBlockCollectionConverter::GetGRLObjectFromString( const TString& xmlstring )
 {
   m_reader->SetXMLString( xmlstring );
   (void) m_reader->Interpret();
@@ -214,7 +214,7 @@ LumiBlockCollectionConverter::GetGRLObjectFromString( const TString& xmlstring )
 
 
 Root::TGRLCollection*
-LumiBlockCollectionConverter::GetGRLCollection( const char* xmlfile ) const
+LumiBlockCollectionConverter::GetGRLCollection( const char* xmlfile )
 {
   m_reader->SetXMLFile( xmlfile );
   (void) m_reader->Interpret();
@@ -223,7 +223,7 @@ LumiBlockCollectionConverter::GetGRLCollection( const char* xmlfile ) const
 
 
 Root::TGRLCollection*
-LumiBlockCollectionConverter::GetGRLCollectionFromString( const TString& xmlstring ) const
+LumiBlockCollectionConverter::GetGRLCollectionFromString( const TString& xmlstring )
 {
   m_reader->SetXMLString( xmlstring );
   (void) m_reader->Interpret();

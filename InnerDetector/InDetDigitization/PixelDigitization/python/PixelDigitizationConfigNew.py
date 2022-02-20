@@ -1,10 +1,10 @@
 """Define methods to construct configured Pixel Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -83,6 +83,7 @@ def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoPixelPlanarRadiationDamage)
+    kwargs.setdefault("doRadDamageTemplate", flags.Digitization.DoPixelPlanarRadiationDamageTemplate)
     if flags.Digitization.DoPixelPlanarRadiationDamage:
         acc.merge(PixelRadSimFluenceMapAlgCfg(flags))
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
@@ -97,6 +98,7 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", SiTool)
     SensorSim3DTool = CompFactory.SensorSim3DTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoPixel3DRadiationDamage)
+    kwargs.setdefault("doRadDamageTemplate", flags.Digitization.DoPixel3DRadiationDamageTemplate)
     if flags.Digitization.DoPixel3DRadiationDamage:
         acc.merge(PixelRadSimFluenceMapAlgCfg(flags))
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
@@ -107,7 +109,7 @@ def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -124,7 +126,7 @@ def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -141,7 +143,7 @@ def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -157,7 +159,7 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -188,6 +190,8 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", Pixel_FirstXing(flags))
         kwargs.setdefault("LastXing", Pixel_LastXing(flags))
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     PixelDigitizationTool = CompFactory.PixelDigitizationTool
     acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))
@@ -217,6 +221,8 @@ def PixelGeantinoTruthDigitizationToolCfg(flags, name="PixelGeantinoTruthDigitiz
     rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("ParticleBarcodeVeto", 0)
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     PixelDigitizationTool = CompFactory.PixelDigitizationTool
     acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))
     return acc

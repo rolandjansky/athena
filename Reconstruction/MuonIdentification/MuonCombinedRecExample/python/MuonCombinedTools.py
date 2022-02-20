@@ -5,8 +5,6 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon.BeamFlags import jobproperties
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from MuonRecExample.MuonRecFlags import muonRecFlags
 beamFlags = jobproperties.Beam
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -43,7 +41,7 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
             kwargs.setdefault("nHitSct", 3 )
             kwargs.setdefault("nHitSi", 4 )
 
-    kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
+    kwargs.setdefault("TrackSummaryTool", "" )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
 
@@ -116,11 +114,7 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     else:
         kwargs.setdefault("MomentumBalanceTool", getPublicTool("MuonMomentumBalanceSignificanceTool"))
         kwargs.setdefault("ScatteringAngleTool", getPublicTool("MuonScatteringAngleSignificanceTool"))
-       
-        reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-        reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
-        kwargs.setdefault("RunComissioning", reco_stgcs or reco_mm)
-         
+    
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
@@ -161,7 +155,7 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
 def MuonCandidateTool_EMEO(name="MuonCandidateTool_EMEO" ):
     return MuonCandidateTool(name = name,
                              TrackBuilder= getPublicTool("CombinedMuonTrackBuilder_EMEO"),
-                             Comissioning = True)
+                             Commissioning = True)
 
 def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     tools = []

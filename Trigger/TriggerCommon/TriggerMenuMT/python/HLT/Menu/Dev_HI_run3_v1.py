@@ -9,7 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 
-from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import SingleMuonGroup,MinBiasGroup,MultiMuonGroup,SinglePhotonGroup,SingleElectronGroup,MultiElectronGroup,PrimaryLegGroup,PrimaryL1MuGroup,SupportLegGroup,SupportGroup,SingleJetGroup
 

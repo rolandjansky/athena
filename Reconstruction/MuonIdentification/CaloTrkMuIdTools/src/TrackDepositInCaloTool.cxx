@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
@@ -26,6 +26,7 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 // --- ROOT ---
 #include <cmath>
 
@@ -52,7 +53,6 @@ TrackDepositInCaloTool::TrackDepositInCaloTool(const std::string& type, const st
 StatusCode TrackDepositInCaloTool::initialize() {
     ATH_CHECK(detStore()->retrieve(m_tileDDM));
     if (!m_tileDDM) { return StatusCode::FAILURE; }
-    ATH_CHECK(service("THistSvc", m_histSvc));
     if (m_doHist) { ATH_CHECK(bookHistos()); }
 
     ATH_CHECK(m_extrapolator.retrieve());
@@ -371,7 +371,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to entrance ---
-    paramEntrance.reset(m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo));
+    paramEntrance = m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo);
     if (!paramEntrance) {
         ATH_MSG_DEBUG("Extrapolation to entrance failed without boundary check.");
         return nullptr;
@@ -414,7 +414,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to exit of layer ---
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Extrapolated to exit. ");
         return paramExit;
@@ -422,7 +422,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
     // --- Try to extrapolate to side ---
     std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
     if (!surfOutside) { return nullptr; }
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << descr->getSampling());
     } else {
@@ -454,12 +454,12 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         double zTrans = par->eta() > 0 ? halfLengthOfCylinder : -halfLengthOfCylinder;
         Trk::DiscSurface disc(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., zTrans))), 0, solenoidRadius);
 
-        parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo));
+        parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo);
 
         if (!parAtSolenoid) {
             ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation to cap of solenoid failed. Trying opposite side.");
             Trk::DiscSurface discOpp(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., -zTrans))), 0, solenoidRadius);
-            parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo));
+            parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo);
         }
 
         if (parAtSolenoid) { ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation succeeded for disc-type surface."); }
@@ -571,7 +571,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                 std::unique_ptr<Trk::Surface> surfExit{createSurface(descr, Exit)};
                 std::unique_ptr<const Trk::TrackParameters> paramExit;
                 if (surfExit) {
-                    paramExit.reset(m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+                    paramExit = m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
                     if (paramExit) {
                         ATH_MSG_VERBOSE("Extrapolated to exit. ");
                         energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -580,8 +580,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                         // Try to extrapolate to outside
                         std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
                         if (surfOutside) {
-                            paramExit.reset(
-                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+                            paramExit = 
+                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
                             if (paramExit) {
                                 ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << sample);
                                 energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -609,8 +609,9 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
         ATH_MSG_DEBUG("Sample: " << sample << "\tEnergyDeposit: " << energyDeposit << "\tEnergyLoss: " << energyLoss);
 
         if (m_doHist) {
-            m_hParELossEta->Fill(energyLoss, itP->eta());
-            m_hParELossSample->Fill(energyLoss, sample);
+            Hists& h = getHists();
+            h.m_hParELossEta->Fill(energyLoss, itP->eta());
+            h.m_hParELossSample->Fill(energyLoss, sample);
         }
 
         // itP++;
@@ -636,9 +637,11 @@ double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const
 ///////////////////////////////////////////////////////////////////////////////
 // initializeDetectorInfo()
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const {
-    
-  ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
+TrackDepositInCaloTool::LayerMaps
+TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const {
+    LayerMaps maps;
+
+    ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
     // Initialize LAr
     for (const CaloDetDescriptor* descr : caloDDM->calo_descriptors_range()) {
         if (descr) {
@@ -652,7 +655,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrMana
                 ATH_MSG_VERBOSE("  sign = " << descr->calo_sign());
                 ATH_MSG_VERBOSE("  range_low  = " << descr->calo_z_min());
                 ATH_MSG_VERBOSE("  range_high = " << descr->calo_z_max());
-                if (sample != CaloCell_ID::PreSamplerB) m_barrelLayerMap[r].push_back(descr);
+                if (sample != CaloCell_ID::PreSamplerB) maps.m_barrelLayerMap[r].push_back(descr);
             } else {
                 ATH_MSG_VERBOSE("  this is a disk-like detector element.");
                 double thickness = descr->calo_z_max() - descr->calo_z_min();
@@ -661,7 +664,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrMana
                 ATH_MSG_VERBOSE("  sign = " << descr->calo_sign());
                 ATH_MSG_VERBOSE("  range_low  = " << descr->calo_r_min());
                 ATH_MSG_VERBOSE("  range_high = " << descr->calo_r_max());
-                if (sample != CaloCell_ID::PreSamplerE) { m_endCapLayerMap[z].push_back(descr); }
+                if (sample != CaloCell_ID::PreSamplerE) { maps.m_endCapLayerMap[z].push_back(descr); }
             }
         } else
             ATH_MSG_VERBOSE("CaloDetDescriptor was not available!");
@@ -684,11 +687,11 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrMana
             ATH_MSG_VERBOSE("  sign = " << descr->calo_sign());
             ATH_MSG_VERBOSE("  range_low  = " << descr->calo_z_min());
             ATH_MSG_VERBOSE("  range_high = " << descr->calo_z_max());
-            m_barrelLayerMap[r].push_back(descr);
+            maps.m_barrelLayerMap[r].push_back(descr);
         } else
             ATH_MSG_VERBOSE("CaloDetDescriptor was not available!");
     }
-    return StatusCode::SUCCESS;
+    return maps;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -756,9 +759,10 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
                                                       std::map<double, const CaloDetDescriptor*>& caloInfo,
                                                       std::vector<Amg::Vector3D>& extrapolations) const {
     // Cannot do this in initialize: see ATLASRECTS-5012
-    StatusCode sc = StatusCode::SUCCESS;
-    std::call_once(m_initializeOnce, [this, &sc,caloDDM]() { sc = initializeDetectorInfo(caloDDM); });
-    if (!sc.isSuccess()) return sc;
+    if (!m_layerMaps.isValid()) {
+      m_layerMaps.set (initializeDetectorInfo (caloDDM));
+    }
+    const LayerMaps& layerMaps = *m_layerMaps.ptr();
 
     const Trk::TrackParameters* parAtSolenoid = nullptr;
     // --- To be replaced by a check, possibly extrapolating to solenoid surface if needed ---
@@ -772,8 +776,9 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
         double deltaR_solLast = std::abs(parAtSolenoid->position().perp() - par->position().perp());
         double deltaEta_solLast = std::abs(parAtSolenoid->position().eta() - par->position().eta());
         if (m_doHist) {
-            m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
-            m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
+            Hists& h = getHists();
+            h.m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
+            h.m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
         }
 
         const Amg::Vector3D positionAtSolenoid = parAtSolenoid->position();
@@ -781,7 +786,7 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
         double phi0 = parAtSolenoid->momentum().phi();
 
         // --- This Code fragment determines the Barrel crossings ---
-        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : m_barrelLayerMap) {
+        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : layerMaps.m_barrelLayerMap) {
             const double& radius = mapIt.first;
             std::unique_ptr<Amg::Vector3D> extrapolation = extrapolateR(positionAtSolenoid, phi0, theta0, radius);
             if (!extrapolation) { continue; }
@@ -796,7 +801,7 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
         }
 
         // This code fragment determines the EndCap crossings
-        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : m_endCapLayerMap) {
+        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : layerMaps.m_endCapLayerMap) {
             const double& zCenter = mapIt.first;
             for (const CaloDetDescriptor* descr : mapIt.second) {
                 double z = zCenter * descr->calo_sign();
@@ -1000,8 +1005,19 @@ TrackDepositInCaloTool::getClosestCellTile(
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode TrackDepositInCaloTool::bookHistos() {
     ATH_MSG_DEBUG("Booking the ROOT Histos");
-    StatusCode sc;
+    if (SG::getNSlots() > 1) {
+      ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK(service("THistSvc", m_histSvc));
+    if (!m_histSvc) return StatusCode::FAILURE;
+    m_h = std::make_unique<Hists>();
+    ATH_CHECK( m_h->book (*m_histSvc) );
+    return StatusCode::SUCCESS;
+}
 
+StatusCode TrackDepositInCaloTool::Hists::book (ITHistSvc& histSvc)
+{
     m_hDepositLayer12 = new TH1F("hDepositLayer12", "hDepositLayer12", 40, 0, 4000);
     m_hDepositLayer13 = new TH1F("hDepositLayer13", "hDepositLayer13", 40, 0, 4000);
     m_hDepositLayer14 = new TH1F("hDepositLayer14", "hDepositLayer14", 40, 0, 4000);
@@ -1021,31 +1037,42 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
     m_hEMB2vsdEta = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -M_PI, M_PI, 50, 0, 500);
     m_hEMB3vsdEta = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -M_PI, M_PI, 50, 0, 500);
 
-    if (m_histSvc) {
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC);
+#define H_CHECK(X) if((X).isFailure()) return StatusCode::FAILURE
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC) );
+    
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta) );
+#undef H_CHECK
 
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta);
-    } else {
-        return StatusCode::FAILURE;
-    }
-
-    return sc;
+    return StatusCode::SUCCESS;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Get reference to histograms.
+///////////////////////////////////////////////////////////////////////////////
+
+TrackDepositInCaloTool::Hists&
+TrackDepositInCaloTool::getHists() const
+{
+  // We earlier checked that no more than one thread is being used.
+  Hists* h ATLAS_THREAD_SAFE = m_h.get();
+  return *h;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions below are under development, these are not used yet.

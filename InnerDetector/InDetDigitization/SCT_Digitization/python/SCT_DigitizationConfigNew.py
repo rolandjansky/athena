@@ -1,11 +1,11 @@
 """Define methods to construct configured SCT Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -36,12 +36,14 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     kwargs.setdefault("EnableHits", True)
     kwargs.setdefault("BarrelOnly", False)
     # Set FixedTime for cosmics for use in SurfaceChargesGenerator
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("CosmicsRun", True)
         kwargs.setdefault("FixedTime", 10)
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", SCT_FirstXing())
         kwargs.setdefault("LastXing", SCT_LastXing() )
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     
     SCT_DigitizationTool = CompFactory.SCT_DigitizationTool
     tool = SCT_DigitizationTool(name, **kwargs)

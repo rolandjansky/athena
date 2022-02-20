@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DriftCircleContainerCnv_p0.h"
@@ -72,7 +72,7 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv_p0::createTransient
 	 MSG_VERBOSE(log,"TRT_DriftCircleContainer successfully added to Container !");
       } else {
          log << MSG::ERROR << "Failed to add TRT_DriftCircleContainer to container" << endmsg;
-         return 0;
+         return nullptr;
       }
    }
   return(trans.release());

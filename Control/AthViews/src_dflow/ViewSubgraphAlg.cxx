@@ -25,7 +25,7 @@ StatusCode ViewSubgraphAlg::initialize()
   renounce( m_w_int ); // To test ViewDataVerifier
   CHECK( m_w_int.initialize() );
   CHECK( m_w_views.initialize() );
-  if ( m_r_views.key() != "" ) CHECK( m_r_views.initialize() );
+  CHECK( m_r_views.initialize( SG::AllowEmpty ) );
   CHECK( m_scheduler.retrieve() );
 
   return StatusCode::SUCCESS;

@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 inline MagField::AtlasFieldCache::AtlasFieldCache(double solFieldScale,
                                                   double torFieldScale,
                                                   const AtlasFieldMap* fieldMap)
   : m_solScale(solFieldScale)
   , m_torScale(torFieldScale)
-  ,
-  // set field service
-  m_fieldMap(fieldMap)
-
+  , m_fieldMap(fieldMap)
 {
   if (m_fieldMap) {
     // save ZR bfield
@@ -22,26 +19,26 @@ inline MagField::AtlasFieldCache::AtlasFieldCache(double solFieldScale,
 inline bool
 MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
 {
-  // Get a new zone from the map ONLY if we are no longer in the current zone
-  // (see problems outside soleniod for this logic, try for the moment to only optimize for solenoid,
-  //  id = 7000. RDS 2021/12)
-  if (!m_zone3d || m_zone3d->id() != m_fieldMap->solenoidZoneId() || !m_zone3d->inside( z, r, phi )) {
-    
-    // search for the zone
-      m_zone3d = m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
+
+  // Check if are still in the current zone.
+  //  We have only one solenoid zone with  known id (m_solZoneId).
+  //  So if the id matches we aee fine.
+  //  Otherwise check if we are still inside.
+  if (!m_zone3d || m_zone3d->id() != m_solZoneId ||
+      !m_zone3d->inside(z, r, phi)) {
+    // we need to try and a find a new zone
+    m_zone3d = m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
   }
-  
+
   if (!m_zone3d) {
-    // outsize all zones
+    // we failed to find a zone
     return false;
   }
 
   // set scale for field
   m_scaleToUse = (m_zone3d->id() == m_solZoneId) ? m_solScale : m_torScale;
-
   // fill the cache, pass in current scale factor
   m_zone3d->getCache(z, r, phi, m_cache3d, m_scaleToUse);
-
   // save pointer to the conductors in the zone
   m_cond = m_zone3d->condVector();
 

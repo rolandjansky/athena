@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "MURoIsUnpackingTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -85,15 +85,21 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
     decisionProbe->setObjectLink( initialRecRoIString(),
                                   ElementLink<DataVector<LVL1::RecMuonRoI>>(m_recRoIsKey.key(), recRoIs->size()-1) );
 
+    std::vector<TrigCompositeUtils::DecisionID> passedThresholdIDs;
+
     for (const auto& th : muThresholds.value().get()) {
       if ( th->mapping() < thresholdNumber )  {
         //th->thresholdNumber() is defined to be [0,5] and thresholdNumber [0,6]
+        passedThresholdIDs.push_back(HLT::Identifier(th->name()));
         const std::string thresholdProbeName = getProbeThresholdName(th->name());
         ATH_MSG_DEBUG( "Passed Threshold names " << th->name() << " and " << thresholdProbeName);
         addChainsToDecision( HLT::Identifier( th->name() ), decisionMain, activeChains );
         addChainsToDecision( HLT::Identifier(thresholdProbeName ), decisionProbe, activeChains );
       }
     }
+
+    decisionMain->setDetail("thresholds", passedThresholdIDs);
+    decisionProbe->setDetail("thresholds", passedThresholdIDs);
   }
 
   // monitoring

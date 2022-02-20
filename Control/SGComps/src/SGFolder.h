@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGCOMPS_FOLDER_H
@@ -77,7 +77,7 @@ namespace SG {
 
 
     ///update contents of the ItemList
-    virtual void updateItemList(bool checkValidCLID) override;
+    virtual void updateItemList(bool checkValidCLID) override final;
 
     /// \name AlgTool boilerplate 
     //@{
@@ -93,7 +93,7 @@ namespace SG {
     StringArrayProperty m_itemList;
     void decodeItemList(Gaudi::Details::PropertyBase&) { 
       const bool DONTCHECKVALIDCLID(false);
-      updateItemList(DONTCHECKVALIDCLID); 
+      Folder::updateItemList(DONTCHECKVALIDCLID); 
     }
     void decodeItem(const std::string& item, bool checkValidCLID);
     friend class Folder_tester;

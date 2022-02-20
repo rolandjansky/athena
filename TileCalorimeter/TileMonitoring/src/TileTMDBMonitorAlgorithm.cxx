@@ -57,11 +57,35 @@ StatusCode TileTMDBMonitorAlgorithm::initialize() {
                                                                 "TMDB_CalibrationError_" + partitionName[partition],
                                                                 Tile::MAX_DRAWER, nChannels[partition]));
 
+    m_chanChannelNoiseGroups.push_back(buildToolMap<std::vector<std::vector<int>>>(m_tools,
+                                                                      "TMDB_ChanNoise_" + partitionName[partition],
+                                                                      Tile::MAX_DRAWER, nChannels[partition], nChannels[partition]));
+
+    m_chanPeakPosGroups.push_back(buildToolMap<std::vector<int>>(m_tools,
+                                                                 "TMDB_Peak_" + partitionName[partition],
+                                                                 Tile::MAX_DRAWER, nChannels[partition]));
+    
   }
 
   return StatusCode::SUCCESS;
 }
 
+
+void TileTMDBMonitorAlgorithm::fillNoiseHistograms(const TileDigitsCollection* muRcvDigitsCollection, const int drawer, const int partition) const {
+
+  for (unsigned int i = 0; i < muRcvDigitsCollection->size(); i++){
+    const std::vector<float> &samplesX = muRcvDigitsCollection->at(i)->samples();
+    float pedestalX = samplesX[0];
+    auto monPedestalX = Monitored::Scalar<float>("channX", pedestalX);
+    for (unsigned int j = 0; j < muRcvDigitsCollection->size(); j++){
+      const std::vector<float> &samplesY = muRcvDigitsCollection->at(j)->samples();
+      float pedestalY = samplesY[0];
+      auto monPedestalY = Monitored::Scalar<float>("channY", pedestalY);
+
+      fill(m_tools[m_chanChannelNoiseGroups[partition][drawer][i][j]], monPedestalX, monPedestalY);
+    }  
+  }
+}
 
 StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
@@ -108,6 +132,7 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   SG::ReadHandle<TileRawChannelContainer> muRcvRawChannelContainer(m_muRcvRawChannelContainerKey, ctx);
   ATH_CHECK( muRcvRawChannelContainer.isValid() );
 
+  // Collecting energy information
   for (const TileRawChannelCollection* muRcvRawChannelCollection : *muRcvRawChannelContainer) {
     if (muRcvRawChannelCollection->empty() ) continue;
 
@@ -116,7 +141,7 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     int ros = fragId >> 8;
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
     int partition = ros - 1;
-
+    
     for (const TileRawChannel* muRcvRawChannel : *muRcvRawChannelCollection) {
       HWIdentifier adc_id = muRcvRawChannel->adc_HWID();
       int channel = m_tileHWID->channel(adc_id);
@@ -133,11 +158,13 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       auto monCalibError = Monitored::Scalar<float>("error", referenceEnergies[partition][drawer][channel] - energy);
       fill(m_tools[m_calibErrorGroups[partition][drawer][channel]], monCalibError);
 
-      ATH_MSG_VERBOSE(Tile::getDrawerString(ros, drawer)
+      ATH_MSG_DEBUG(Tile::getDrawerString(ros, drawer)
                       << " TMDB channel " << channel
                       << ": energy [MeV] = " << energy);
     }
   }
+
+  //Collecting channel noise information
 
 
   std::vector<float> peakPositions[Tile::MAX_ROS - 1];
@@ -147,6 +174,7 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   SG::ReadHandle<TileDigitsContainer> muRcvDigitsContainer(m_muRcvDigitsContainerKey, ctx);
   ATH_CHECK( muRcvDigitsContainer.isValid() );
 
+  // Collecting peak and samples information
   for (const TileDigitsCollection* muRcvDigitsCollection : *muRcvDigitsContainer) {
     if (muRcvDigitsCollection->empty() ) continue;
 
@@ -155,6 +183,7 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     int ros = fragId >> 8;
     int partition = ros - 1;
 
+    fillNoiseHistograms(muRcvDigitsCollection, drawer, partition);
     for (const TileDigits* muRcvDigits : *muRcvDigitsCollection) {
       HWIdentifier adc_id = muRcvDigits->adc_HWID();
       int channel = m_tileHWID->channel(adc_id);
@@ -174,9 +203,13 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
         fill(m_tools[m_pulseGroups[partition][drawer][channel]], monSampleNumber, monSample);
 
-        int peakPosition = std::distance(samples.begin(), std::max_element(samples.begin(), samples.end()));
+        float peakPosition = std::distance(samples.begin(), std::max_element(samples.begin(), samples.end()));
         peakPositions[partition].push_back(peakPosition);
-        ATH_MSG_VERBOSE(Tile::getDrawerString(ros, drawer)
+
+        auto monPeakPos = Monitored::Scalar<float>("peak", peakPosition);
+        fill(m_tools[m_chanPeakPosGroups[partition][drawer][channel]], monPeakPos);
+
+        ATH_MSG_DEBUG(Tile::getDrawerString(ros, drawer)
                         << " TMDB channel " << channel
                         << ": peak position = " << peakPosition);
       }
@@ -196,7 +229,7 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     if (!peakPositions[partition].empty()) {
       auto monModule = Monitored::Collection("module", peakPositionDrawers[partition]);
       auto monChannel = Monitored::Collection("channel", peakPositionChannels[partition]);
-      auto monPeakPosition = Monitored::Collection("peakPosition", peakPositions[partition]);
+      auto monPeakPosition = Monitored::Collection("peakPositionTest", peakPositions[partition]);
       fill(m_tools[m_peakGroups[partition]], monModule, monChannel, monPeakPosition);
     }
   }
@@ -206,3 +239,4 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   return StatusCode::SUCCESS;
 }
+

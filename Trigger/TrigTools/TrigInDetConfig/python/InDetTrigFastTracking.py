@@ -11,12 +11,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
-def makeInDetTrigFastTrackingNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
+def makeInDetTrigFastTrackingNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None, LRTInputCollection = None ):
 
-  viewAlgs, viewVerify = makeInDetTrigFastTracking( config, rois, doFTF, None, secondStageConfig)
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config, rois, doFTF, None, secondStageConfig, LRTInputCollection)
   return viewAlgs
 
-def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
+def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None, LRTInputCollection = None):
 
   if config is None :
     raise ValueError('makeInDetTrigFastTracking() No config provided!')
@@ -358,6 +358,9 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
         theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.input_name,
                                         conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
         theFTF.RoIs           = rois
+
+        if LRTInputCollection is not None:
+          theFTF.inputTracksName = LRTInputCollection
 
         viewAlgs.append(theFTF)
 

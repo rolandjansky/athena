@@ -1,12 +1,13 @@
 /*
   Calculate mass and mass error for any subset of tracks
 
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include <cmath>
+#include <array>
 
 namespace Trk {
 

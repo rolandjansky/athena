@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArCondSuperCellBase.h"
@@ -15,47 +15,34 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
-LArCondSuperCellBase::LArCondSuperCellBase() :
+LArCondSuperCellBase::LArCondSuperCellBase(const std::string& name) :
+  AthMessaging(Athena::getMessageSvc(), name),
   m_isInitialized(false),
-  m_scOnlineID(NULL),
-  m_log(NULL) {}
+  m_scOnlineID(NULL)
+{
+}
+
 
 LArCondSuperCellBase::~LArCondSuperCellBase() {
-  delete m_log;
 }
   
-StatusCode LArCondSuperCellBase::initializeBase(const char* context) {
+StatusCode LArCondSuperCellBase::initializeBase() {
 
-  std::string sContext;
-  if (context==NULL || context[0]=='\0')//empty string
-    sContext="LArCondSuperCellBase";
-  else
-    sContext=context;
-
-  if (!m_log)
-    m_log=new MsgStream(Athena::getMessageSvc(), sContext);
-  (*m_log) << MSG::DEBUG << "initializeBase "<< endmsg;
+  ATH_MSG_DEBUG( "initializeBase " );
 
   if (m_isInitialized) {
-    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endmsg;
+    ATH_MSG_DEBUG( "already initialized - returning " );
     return (StatusCode::SUCCESS);
   }
   //Get SuperCellID ...
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  StoreGateSvc* detStore;
-  StatusCode sc = svcLoc->service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
-    return sc;
-  }
-  sc = detStore->retrieve( m_scOnlineID,"LArOnline_SuperCellID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArOnline_SuperCellID!" << endmsg;
-    return sc;
-  }
+  StoreGateSvc* detStore = nullptr;
+  ATH_CHECK_WITH_CONTEXT( svcLoc->service("DetectorStore",detStore), "LArCondSuperCellBase" );
+  ATH_CHECK_WITH_CONTEXT( detStore->retrieve( m_scOnlineID,"LArOnline_SuperCellID"), "LArCondSuperCellBase" );
 
   m_isInitialized = true;
-  (*m_log) << MSG::DEBUG << "end initializeBase " << endmsg;
+  ATH_MSG_DEBUG( "end initializeBase " );
   return (StatusCode::SUCCESS);
 }

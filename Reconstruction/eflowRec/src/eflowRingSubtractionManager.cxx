@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -25,7 +25,7 @@ using std::vector;
 
 eflowRingSubtractionManager::eflowRingSubtractionManager() : m_ringThickness(eflowCalo::nRegions), m_fudgeMean(0), m_fudgeStdDev(-1) {}
 
-double eflowRingSubtractionManager::ringMeanRank(const vector<double>& p, double rMin, double rMax) const {
+double eflowRingSubtractionManager::ringMeanRank(const vector<double>& p, double rMin, double rMax) {
 
   double x1 = 0.0;
   double x2 = 0.0;

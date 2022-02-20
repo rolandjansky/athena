@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONROADFINDERTOOL_H
@@ -66,7 +66,7 @@ namespace Muon {
             "TrackToSegmentTool",
             "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool",
         };  //<! track to segment converter
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+	PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
@@ -112,6 +112,8 @@ namespace Muon {
         // find segment seeds
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > segmentSeed(
             std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, bool usePhi) const;
+	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > segmentSeedFromMM(
+	    std::vector< Amg::Vector3D >& phiStereo) const;
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > segmentSeedFromPads(
             std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, const Muon::MuonSegment* etaSeg) const;
         std::vector<std::pair<double, double> > getPadPhiOverlap(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& pads) const;
@@ -128,6 +130,10 @@ namespace Muon {
 
         // check if enough surfaces are hitted
         bool belowThreshold(std::vector<const Muon::MuonClusterOnTrack*>& muonClusters, int threshold) const;
+
+	//get the phi-superpoint between two MM stereo layers
+	std::vector<Amg::Vector3D> getPhiFromStereo(std::vector<const Muon::MuonClusterOnTrack*>& clusters) const;
+
     };
 
 }  // namespace Muon

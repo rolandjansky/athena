@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_PAGEACCESSCONTROLSVC_H
@@ -12,7 +12,6 @@
  * @brief  A service that monitors access to memory pages
  * @author Paolo Calafiura
  *
- * $Id: PageAccessControlSvc.h,v 1.1 2009-03-04 23:44:28 calaf Exp $
  */
 #include <signal.h>   /*sigaction*/
 
@@ -21,6 +20,7 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/PageAccessControl.h"
 #include "CxxUtils/PtrAccessSEGVHandler.h"
 #include "Gaudi/Property.h"   /*BooleanProperty*/
@@ -53,7 +53,7 @@ class PageAccessControlSvc : virtual public IPageAccessControlSvc,
 public: 
 
   /// Standard GAUDI constructor
-  PageAccessControlSvc( const std::string& name, ISvcLocator* pSvcLocator );
+  PageAccessControlSvc( const std::string& name, ISvcLocator* pSvcLocator ) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
   
   /// Destructor
   virtual ~PageAccessControlSvc() {} 

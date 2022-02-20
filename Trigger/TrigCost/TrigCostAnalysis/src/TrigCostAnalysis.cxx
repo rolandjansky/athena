@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // silence Boost pragma message (fixed in Boost 1.76)
 #include <boost/property_tree/json_parser.hpp>
 
 #include "GaudiKernel/ThreadLocalContext.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -85,8 +85,9 @@ StatusCode TrigCostAnalysis::start() {
       // Data stored in Gaudi format of "AlgClassType/AlgInstanceName"
       size_t breakPoint = alg.second.data().find('/');
       std::string algType = alg.second.data().substr(0, breakPoint);
-      const std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
+      std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
       std::replace(algType.begin(), algType.end(), ':', '_');
+      std::replace(algName.begin(), algName.end(), ':', '_');
       m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
       ATH_MSG_VERBOSE("AlgType:" << algType << ", AlgName:" << algName );
       if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {
@@ -165,7 +166,7 @@ float TrigCostAnalysis::getWeight(const EventContext& context) {
 }
 
 
-TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) {
+TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) const {
   std::string histName(hist->GetName());
   std::string bookingString = "/COSTSTREAM/" + tDir + "/" + histName;
 

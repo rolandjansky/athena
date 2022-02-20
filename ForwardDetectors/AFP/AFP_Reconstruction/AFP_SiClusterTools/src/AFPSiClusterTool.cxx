@@ -132,7 +132,7 @@ StatusCode AFPSiClusterTool::fillLayersWithHits(std::vector< std::vector<AFPSiCl
 
     try {
       // fill layers with hits
-      for(const auto &theHit : *siHitContainer)
+      for(const auto theHit : *siHitContainer)
         my_layers.at(theHit->stationID()).at(theHit->pixelLayerID()).hits().push_back(theHit);
     }
     catch (const std::out_of_range& outOfRange) {

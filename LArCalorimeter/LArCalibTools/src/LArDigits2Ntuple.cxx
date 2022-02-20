@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArDigits2Ntuple.h"
@@ -185,7 +185,7 @@ StatusCode LArDigits2Ntuple::initialize()
 
   ATH_CHECK(m_evtInfoKey.initialize() );
 
-  if( !m_isSCFlag ) ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
+  ATH_CHECK( m_LArFebHeaderContainerKey.initialize(!m_isSCFlag));
   
   ATH_MSG_WARNING("Checked containerkeys");
   m_ipass	   = 0;
@@ -286,21 +286,15 @@ StatusCode LArDigits2Ntuple::execute()
 	ATH_MSG_DEBUG( "Got LArDigitContainer with key SC_LATOME_HEADER " ); 
     }
     
-    if (headcontainer){// loop through header container and fill map 
-      LArLATOMEHeaderContainer::const_iterator	hit   = headcontainer->begin();
-      LArLATOMEHeaderContainer::const_iterator	hit_e   = headcontainer->end();
-      for (;hit!=hit_e;hit++) {
-	LATOMEHeadMap.insert ( std::pair<unsigned int, const LArLATOMEHeader*>( (*hit)->SourceId(), (*hit) ) );
+    if (headcontainer){// loop through header container and fill map
+      for (const LArLATOMEHeader* hit : *headcontainer) {
+	LATOMEHeadMap.try_emplace ( hit->SourceId(), hit );
       }
     }
-  }else if(m_hasRawChan){ 
-    LArRawChannelContainer::const_iterator	raw   = RawChannelContainer->begin(); 
-    LArRawChannelContainer::const_iterator	raw_e   = RawChannelContainer->end(); 
-    for(;raw!=raw_e;raw++){
-      rawChannelMap.insert( std::pair<HWIdentifier, const LArRawChannel*>( raw->channelID(), &(*raw) ) );
-
+  }else if(m_hasRawChan){
+    for (const LArRawChannel& raw : *RawChannelContainer) {
+      rawChannelMap.try_emplace( raw.channelID(), &raw );
     }
-  
   }// end if m_isSC
   
 

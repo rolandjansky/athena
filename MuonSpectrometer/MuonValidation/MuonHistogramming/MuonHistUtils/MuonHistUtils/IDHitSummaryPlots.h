@@ -16,8 +16,8 @@ class HitFracTypePlots:public PlotBase {
   HitFracTypePlots(PlotBase* pParent, std::string sHitType, std::string sHitLabel);
   void fill(float hitval, float trketa, float weight=1.0);
 
-  TH1* fracHits;
-  TH1* fracHitsVsEta;
+  TH1* fracHits{nullptr};
+  TH1* fracHitsVsEta{nullptr};
  private:
   void initializePlots();
   std::string m_sHitType;

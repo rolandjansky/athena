@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTriggerTool/LArTTCellMap.h"
@@ -36,10 +36,10 @@ void LArTTCellMap::set( const LArTTCell& m )
 
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "LArTTCellMap");
 
-  const LArEM_ID* em_id;
-  const LArHEC_ID* hec_id;
-  const LArFCAL_ID* fcal_id;
-  const CaloLVL1_ID* lvl1_id;
+  const LArEM_ID* em_id = nullptr;
+  const LArHEC_ID* hec_id = nullptr;
+  const LArFCAL_ID* fcal_id = nullptr;
+  const CaloLVL1_ID* lvl1_id = nullptr;
 
   StatusCode status=detStore->retrieve(em_id);
   if(status.isFailure()){

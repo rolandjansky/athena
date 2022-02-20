@@ -186,6 +186,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<Gene
   dimu_mass = (*bphysLink)->mass() / GeV;
   dimu_pt   = (*bphysLink)->pt() / GeV;
   dimu_chi2 = (*bphysLink)->fitchi2();
+  dimu_y    = (*bphysLink)->eta();
   
   fill(currentMonGroup, dimu_mass, dimu_pt, dimu_y, dimu_chi2);
   

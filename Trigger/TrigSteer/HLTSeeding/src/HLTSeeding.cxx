@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HLTSeeding.h"
@@ -37,6 +37,10 @@ StatusCode HLTSeeding::initialize() {
 
   if ( !m_keyWriterTool.empty() ) {
     ATH_CHECK( m_keyWriterTool.retrieve() );
+  }
+
+  if ( !m_consistencyChecker.empty() ) {
+    ATH_CHECK( m_consistencyChecker.retrieve() );
   }
 
   if (m_doCostMonitoring) {
@@ -138,6 +142,10 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
 
   if ( !m_keyWriterTool.empty() ) {
     ATH_CHECK( m_keyWriterTool->writeKeys(ctx) );
+  }
+
+  if ( !m_consistencyChecker.empty() ) {
+    ATH_CHECK( m_consistencyChecker->consistencyCheck(l1SeededChains, ctx) );
   }
 
   return StatusCode::SUCCESS;

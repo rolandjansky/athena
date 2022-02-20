@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ StatusCode Trk::ExtrapolationValidation::finalize()
 
 StatusCode Trk::ExtrapolationValidation::execute()
 {
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // get the overall dimensions
   if (!m_highestVolume){
      // get TrackingGeometry and highest volume
@@ -325,10 +325,11 @@ StatusCode Trk::ExtrapolationValidation::execute()
    Amg::Transform3D CylTrf;
    CylTrf.setIdentity();
    Trk::CylinderSurface estimationCylinder(CylTrf, m_estimationR, 10e10);
-   const Trk::TrackParameters* estimationParameters = m_extrapolator->extrapolateDirectly(startParameters,
+   const Trk::TrackParameters* estimationParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                                                          startParameters,
                                                                                           estimationCylinder,
                                                                                           Trk::alongMomentum,
-                                                                                          false);
+                                                                                          false).release();
    if (!estimationParameters) {
         ATH_MSG_VERBOSE( "Estimation of intersection did not work - skip event !" );
         return StatusCode::SUCCESS;
@@ -392,19 +393,21 @@ StatusCode Trk::ExtrapolationValidation::execute()
    const Trk::TrackParameters* destParameters = nullptr; 
    // the standard validation ... 
    if (!m_materialCollectionValidation && !m_direct)
-       destParameters = m_extrapolator->extrapolate(startParameters,
+       destParameters = m_extrapolator->extrapolate(ctx,
+                                                    startParameters,
                                                     destinationSurface, 
                                                     Trk::alongMomentum,
                                                     false,
-                                                    (Trk::ParticleHypothesis)m_particleType,Trk::addNoise);
+                                                    (Trk::ParticleHypothesis)m_particleType,Trk::addNoise).release();
    else if(!m_direct){ // material collection validation
        // get the vector of TrackStateOnSurfaces back
       const std::vector<const Trk::TrackStateOnSurface*>* 
-                     collectedMaterial = m_extrapolator->extrapolateM(startParameters,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     (Trk::ParticleHypothesis)m_particleType);
+                     collectedMaterial = m_extrapolator->extrapolateM(ctx,
+                                                                      startParameters,
+                                                                      destinationSurface,
+                                                                      Trk::alongMomentum,
+                                                                      false,
+                                                                      (Trk::ParticleHypothesis)m_particleType);
 
       // get the last one and clone it  
       if (collectedMaterial && !collectedMaterial->empty()){
@@ -420,11 +423,12 @@ StatusCode Trk::ExtrapolationValidation::execute()
    }
 
    else{
-     destParameters = m_extrapolator->extrapolateDirectly(startParameters,
-							  destinationSurface, 
-							  Trk::alongMomentum,
-							  false,
-							  (Trk::ParticleHypothesis)m_particleType);
+     destParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                          startParameters,
+                                                          destinationSurface, 
+                                                          Trk::alongMomentum,
+                                                          false,
+                                                          (Trk::ParticleHypothesis)m_particleType).release();
      
    }
    // ----------------------- check if forward call was successful and continue then
@@ -466,19 +470,21 @@ StatusCode Trk::ExtrapolationValidation::execute()
        const Trk::TrackParameters* backParameters = nullptr;
        // the standard validation ... 
        if (!m_materialCollectionValidation && !m_direct)
-            backParameters = m_extrapolator->extrapolate(*destParameters,
-                                                          startSurface, 
-                                                          Trk::oppositeMomentum,
-                                                          false,
-							 (Trk::ParticleHypothesis)m_particleType,Trk::removeNoise);
+            backParameters = m_extrapolator->extrapolate(ctx,
+                                                         *destParameters,
+                                                         startSurface, 
+                                                         Trk::oppositeMomentum,
+                                                         false,
+                                                         (Trk::ParticleHypothesis)m_particleType,Trk::removeNoise).release();
        else if(!m_direct){ // material collection validation
             // get the vector of TrackStateOnSurfaces back
             const std::vector<const Trk::TrackStateOnSurface*>* 
-                     collectedBackMaterial = m_extrapolator->extrapolateM(*destParameters,
-                                                                     startSurface,
-                                                                     Trk::oppositeMomentum,
-                                                                     false,
-                                                                     (Trk::ParticleHypothesis)m_particleType);
+                     collectedBackMaterial = m_extrapolator->extrapolateM(ctx,
+                                                                          *destParameters,
+                                                                          startSurface,
+                                                                          Trk::oppositeMomentum,
+                                                                          false,
+                                                                          (Trk::ParticleHypothesis)m_particleType);
             // get the last one and clone it  
             if (collectedBackMaterial && !collectedBackMaterial->empty()){
                 // get the last track state on surface & clone the destination parameters
@@ -494,12 +500,13 @@ StatusCode Trk::ExtrapolationValidation::execute()
        }
 
        else{
-	 backParameters = m_extrapolator->extrapolateDirectly(*destParameters,
-							      startSurface, 
-							      Trk::oppositeMomentum,
-							      false,
-							      (Trk::ParticleHypothesis)m_particleType);
-	 
+	 backParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                        *destParameters,
+                                                        startSurface, 
+                                                        Trk::oppositeMomentum,
+                                                        false,
+                                                        (Trk::ParticleHypothesis)m_particleType).release();
+
        }
       // ----------------------- check if backward call was successful and continue then
       if (backParameters){

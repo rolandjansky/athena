@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -70,7 +70,12 @@ protected:
 
   Gaudi::Property<bool> m_doRadDamage
   {
-    this, "doRadDamage", false, "doRadDmaage bool: should be flag"
+    this, "doRadDamage", false, "doRadDamage bool: should be flag"
+  };
+
+  Gaudi::Property<bool> m_doRadDamageTemplate
+  {
+    this, "doRadDamageTemplate", false, "doRadDamageTemplate bool: should be flag - tells the code to use the template version of the radiation damage"
   };
 
   SG::ReadCondHandleKey<PixelRadiationDamageFluenceMapData> m_fluenceDataKey

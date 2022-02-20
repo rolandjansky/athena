@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESHISTOBASE_H
@@ -8,8 +8,9 @@
 #include "TH1.h"
 #include "TString.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <string>
 #include <unordered_map>
@@ -80,10 +81,10 @@ struct WeightingValuesSummary_t {
  * @brief Basic base class for any common functionality between RatesTrigger and RatesGroup
  * This means that everyone has access to the same histograms
  */
-class RatesHistoBase {
+class RatesHistoBase : public AthMessaging {
  public:
 
-  RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms = true);
+  RatesHistoBase(const std::string& name, IMessageSvc* msgSvc, const bool doHistograms = true);
   virtual ~RatesHistoBase();
 
   RatesHistoBase(const RatesHistoBase&) = delete;
@@ -114,8 +115,6 @@ class RatesHistoBase {
   bool  m_givenRateVsMu; //!< m_rateVsMu has been given to the THistSvc and should not be deleted
   bool  m_givenRateVsTrain; //!< m_rateVsTrain has been given to the THistSvc and should not be deleted
   bool  m_givenData; //!< m_data has been given to the THistSvc and should not be deleted
-
-  mutable MsgStream m_log; //!< For ATHENA messaging
 };
 
 #endif //> !RATESANALYSIS_RATESHISTOBASE_H

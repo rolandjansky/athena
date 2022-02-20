@@ -1,6 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+// Suppress warning from DataObjID for now.
+#if __clang_major__ >= 13
+# pragma clang diagnostic ignored "-Wdeprecated-copy"
+#endif
 
 // STL includes
 #include <iterator>

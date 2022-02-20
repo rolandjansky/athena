@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -11,13 +11,13 @@ def AthenaMonitoringAODRecoCfg(flags):
     if flags.DQ.Environment == 'AOD':
         info('Running on AOD: Scheduling rebuild of standard jet collections if necessary')
         from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo
-        from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
+        from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
         # first, check small R jets
         jets_to_schedule = [_ for _ in (AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo)
                             if _.fullname() not in flags.Input.Collections]
         # if we reschedule small R jets, check if we need to reschedule large R as well
         if jets_to_schedule:
-            jets_to_schedule += [_ for _ in (AntiKt10LCTopo,)
+            jets_to_schedule += [_ for _ in (AntiKt10LCTopo_noVR,)
                                  if _.fullname() not in flags.Input.Collections]
 
         if jets_to_schedule:

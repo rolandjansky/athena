@@ -12,7 +12,6 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
@@ -73,8 +72,6 @@ namespace Muon {
         SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj",
                                                                                   "Name of the Magnetic Field conditions object key"};
 
-        ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this, "TrackingGeometrySvc",
-                                                                       "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
         SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "",
                                                                                "Key of input TrackingGeometry"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
@@ -92,8 +89,6 @@ namespace Muon {
         Gaudi::Property<std::string> m_msEntranceName{this, "MuonSystemEntranceName", "MuonSpectrometerEntrance"};
 
         inline const Trk::TrackingVolume *getVolume(const std::string &vol_name, const EventContext& ctx) const {
-            /// Good old way of retrieving the volume via the geometry service
-            if (m_trackingGeometryReadKey.empty()) { return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name); }
             SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
             if (!handle.isValid()) {
                 ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");

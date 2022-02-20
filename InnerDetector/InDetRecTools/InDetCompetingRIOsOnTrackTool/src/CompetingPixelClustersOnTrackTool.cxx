@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -111,7 +111,8 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
     const std::list< const Trk::PrepRawData* >& RIO_List,
     const Trk::TrackParameters& trkPar,
     const Trk::IWeightCalculator::AnnealingFactor beta ) const {
-
+    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("********* in createCompetingROT() ********** ");
     // vector of ROTs
     std::vector< const InDet::PixelClusterOnTrack* >* ROTvector = new std::vector<const InDet::PixelClusterOnTrack*>;
@@ -168,10 +169,11 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
                 // first create trkParameter on the Surface of the RIO
                 // extrapolate to RIO surface
                 ATH_MSG_VERBOSE("Try to propagate TrackParameters to RIO surface");
-                newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), *detElementSurface,
+                newTrackParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                                        (trkParWithoutError ? *trkParWithoutError : trkPar), *detElementSurface,
                                                                         Trk::anyDirection, // propagate in any direction
                                                                         false, //do noBoundaryCheck!
-                                                                        Trk::nonInteracting); // without material interaction
+                                                                        Trk::nonInteracting).release(); // without material interaction
                 if (!newTrackParameters){
                     ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
                     delete ROTvector;
@@ -277,7 +279,7 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
 ) const {
 
     //   TODO:  if recreateROTs==true call standard createCompROT method
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("********* in updateCompetingROT() **********");
 
     // cast baseCompROT to CompPixelClusterOnTrack:
@@ -320,10 +322,11 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
         // clone TrkParameters without error to force the extrapolator to do propagation without error matrix
         const Trk::TrackParameters* trkParWithoutError = trkPar.clone();
         ATH_MSG_VERBOSE("Try to propagate TrackParameters to compROT surface");
-        newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), compROT->associatedSurface(),
+        newTrackParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                                (trkParWithoutError ? *trkParWithoutError : trkPar), compROT->associatedSurface(),
                                                                 Trk::anyDirection, // propagate in any direction
                                                                 false, //do noBoundaryCheck!
-                                                                Trk::nonInteracting); // without material interaction
+                                                                Trk::nonInteracting).release(); // without material interaction
         delete trkParWithoutError;
         trkParWithoutError = nullptr;
         if (!newTrackParameters){

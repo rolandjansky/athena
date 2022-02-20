@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackSummaryHelperTool.h"
@@ -425,6 +425,7 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent(Trk::MuonTrackSummary::
 
 void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary,
                                                          const Trk::TrackParameters& pars) const {
+    const EventContext& ctx =  Gaudi::Hive::currentContext();
     bool isStraightLine = false;
     if (pars.parameters().rows() < 5) {  // no momentum parameter given
         isStraightLine = true;
@@ -485,7 +486,10 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
         if (pars.associatedSurface() == surf) {
             exPars = &pars;
         } else {
-            exPars = extrapolator->extrapolateDirectly(pars, surf, Trk::anyDirection, false, Trk::muon);
+            exPars = extrapolator->extrapolateDirectly(ctx, 
+                                                       pars, 
+                                                       surf, 
+                                                       Trk::anyDirection, false, Trk::muon).release();
             if (!exPars) {
                 if (isStraightLine) {
                     ATH_MSG_DEBUG(" Straight line propagation to prd " << m_idHelperSvc->toString(id) << " failed");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -36,11 +36,8 @@ MeasuredAtaSurfaceCnv_p1< SURFACE_CNV, ATA_SURFACE >::transToPers( const ATA_SUR
 
 
 
-namespace {
-   MeasuredAtaDiscCnv_p1	inst1;
-   MeasuredAtaCylinderCnv_p1	inst2;
-   MeasuredAtaPlaneCnv_p1	inst3;
-   MeasuredAtaStraightLineCnv_p1 isnt4;
-   MeasuredCurvilinearParametersCnv_p1 isnt5; 
-}
-
+template class MeasuredAtaSurfaceCnv_p1< AtaDiscCnv_p1, Trk::AtaDisc >;
+template class MeasuredAtaSurfaceCnv_p1< AtaCylinderCnv_p1, Trk::AtaCylinder >;
+template class MeasuredAtaSurfaceCnv_p1< AtaPlaneCnv_p1, Trk::AtaPlane >;
+template class MeasuredAtaSurfaceCnv_p1< AtaStraightLineCnv_p1, Trk::AtaStraightLine >;
+template class MeasuredAtaSurfaceCnv_p1< CurvilinearParametersCnv_p1, Trk::CurvilinearParameters >; 

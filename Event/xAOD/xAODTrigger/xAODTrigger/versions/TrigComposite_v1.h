@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
@@ -18,7 +18,6 @@ extern "C" {
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 #include "xAODBase/IParticleContainer.h"
 
 #include "CxxUtils/checker_macros.h"
@@ -121,12 +120,12 @@ namespace xAOD {
       /// Add links to multiple objects within a collection.  Performs de-duplication
       template< class CONTAINER >
       bool addObjectCollectionLinks( const std::string& collectionName,
-                                     const ElementLinkVector< CONTAINER >& links );
+                                     const std::vector<ElementLink< CONTAINER >>& links );
       /// Check if links exist to a collection of objects with given name and type. CLID_NULL to not check type.
       bool hasObjectCollectionLinks( const std::string& collectionName, const CLID clid = CLID_NULL) const;
       /// Get a vector of all element links from the collection
       template< class CONTAINER >
-      ElementLinkVector< CONTAINER >
+      std::vector<ElementLink< CONTAINER >>
       objectCollectionLinks( const std::string& collectionName ) const;
 
       /// Add a link without type

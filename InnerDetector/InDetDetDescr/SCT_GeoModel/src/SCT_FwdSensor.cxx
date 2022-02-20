@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdSensor.h"
@@ -47,7 +47,7 @@ SCT_FwdSensor::SCT_FwdSensor(const std::string & name,
     m_noElementWarning{true}
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_FwdSensor::preBuild();
 }
 
 SCT_FwdSensor::~SCT_FwdSensor() {

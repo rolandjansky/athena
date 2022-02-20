@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EMECModuleConstruction
@@ -23,8 +23,8 @@
 #include "LArGeoTBEC/EMECModuleConstruction.h"
 #include "LArGeoEndcap/EMECSupportConstruction.h"
 
-#include "GeoSpecialShapes/LArCustomShape.h"
 
+#include "GeoModelKernel/GeoUnidentifiedShape.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -564,8 +564,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     std::string IAWname = innerName + "::Absorber";
     std::string IEWname = innerName + "::Electrode";
 
-    LArCustomShape* innerAbsorberShape  = new LArCustomShape(IAWname);
-    LArCustomShape* innerElectrodeShape = new LArCustomShape(IEWname);
+    GeoUnidentifiedShape* innerAbsorberShape  = new GeoUnidentifiedShape("LArCustomShape",IAWname);
+    GeoUnidentifiedShape* innerElectrodeShape = new GeoUnidentifiedShape("LArCustomShape", IEWname);
 
     GeoLogVol* innerAbsorberLogical  =
 	    new GeoLogVol( IAWname, innerAbsorberShape , innerAbsorberMaterial );
@@ -602,8 +602,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     std::string OAWname = outerName + "::Absorber";
     std::string OEWname = outerName + "::Electrode";
 
-    LArCustomShape* outerAbsorberShape  = new LArCustomShape( OAWname );
-    LArCustomShape* outerElectrodeShape = new LArCustomShape( OEWname );
+    GeoUnidentifiedShape* outerAbsorberShape  = new GeoUnidentifiedShape("LArCustomShape", OAWname );
+    GeoUnidentifiedShape* outerElectrodeShape = new GeoUnidentifiedShape("LArCustomShape", OEWname );
 
     GeoLogVol* outerAbsorberLogical  =
 	    new GeoLogVol( OAWname,outerAbsorberShape ,outerAbsorberMaterial );

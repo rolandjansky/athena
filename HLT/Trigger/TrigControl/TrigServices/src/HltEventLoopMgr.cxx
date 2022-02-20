@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -1222,13 +1222,8 @@ StatusCode HltEventLoopMgr::startNextEvent(EventLoopStatus& loopStatus)
   //-----------------------------------------------------------------------
   // COOL updates for LB changes
   //-----------------------------------------------------------------------
-  // Schedule COOL folder updates based on CTP fragment
-  sc = m_coolHelper->scheduleFolderUpdates(*eventContext);
-  if (check("Failure reading CTP extra payload", HLT::OnlineErrorCode::COOL_UPDATE, *eventContext)) {
-    return sc;
-  }
 
-  // Do an update if this is a new LB
+  // Check if this is a new LB
   EventIDBase::number_type oldMaxLB{0}, newMaxLB{0};
   bool updatedLB{false};
   do {
@@ -1237,11 +1232,27 @@ StatusCode HltEventLoopMgr::startNextEvent(EventLoopStatus& loopStatus)
     updatedLB = newMaxLB > oldMaxLB;
   } while (updatedLB && !loopStatus.maxLB.compare_exchange_strong(oldMaxLB, newMaxLB));
   loopStatus.maxLB.compare_exchange_strong(oldMaxLB, newMaxLB);
+
+  // Wait in case a COOL update is ongoing to avoid executeEvent
+  // reading conditions data while they are being updated.
+  {
+    std::unique_lock<std::mutex> lock(loopStatus.coolUpdateMutex);
+    loopStatus.coolUpdateCond.wait(lock, [&]{return !loopStatus.coolUpdateOngoing;});
+  }
+
+  // Do COOL updates (if needed) and notify other threads about it
   if (updatedLB) {
-    sc = m_coolHelper->hltCoolUpdate(*eventContext);
-    if (check("Failure during COOL update", HLT::OnlineErrorCode::COOL_UPDATE, *eventContext)) {
-      return sc;
+    {
+      std::lock_guard<std::mutex> lock(loopStatus.coolUpdateMutex);
+      loopStatus.coolUpdateOngoing = true;
+      sc = m_coolHelper->hltCoolUpdate(*eventContext);
+      if (check("Failure during COOL update", HLT::OnlineErrorCode::COOL_UPDATE, *eventContext)) {
+        loopStatus.coolUpdateOngoing = false;
+        return sc;
+      }
+      loopStatus.coolUpdateOngoing = false;
     }
+    loopStatus.coolUpdateCond.notify_all();
   }
 
   //------------------------------------------------------------------------

@@ -8,8 +8,6 @@
 #include "TRandom3.h"
 #include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 #include "CLHEP/Random/RandomEngine.h"
-#include "EventInfo/EventInfo.h" // For setting the weight
-#include "EventInfo/EventType.h" // From event info - the real holder of the event weight
 #include "TF1.h" // For holding the weighting function
 
 QCDTruthJetFilter::QCDTruthJetFilter(const std::string& name, ISvcLocator* pSvcLocator)

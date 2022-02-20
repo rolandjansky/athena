@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/TestTRT_Alignment.h"
@@ -39,8 +39,8 @@ namespace{
 
 TestTRT_Alignment::TestTRT_Alignment(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_manager(0),
-  m_idHelper(0)
+  m_manager(nullptr),
+  m_idHelper(nullptr)
 {  
   // Get parameter values from jobOptions file
   declareProperty("ManagerName", m_managerName = "TRT");
@@ -225,8 +225,8 @@ void
 TestTRT_Alignment::compareStraw(const TRT_BaseElement * element, int straw){
   static const Amg::Vector3D zeroPoint(0., 0., 0.); 
   static const Amg::Vector3D zAxis(0., 0., 1.); 
-  Amg::Transform3D strawDefXF = element->strawTransform(straw);
-  Amg::Transform3D strawXF = element->strawTransform(straw);
+  const Amg::Transform3D& strawDefXF = element->strawTransform(straw);
+  const Amg::Transform3D& strawXF = element->strawTransform(straw);
   
   Amg::Transform3D globalDelta = strawXF * strawDefXF.inverse();
   // test if it is the identity transform within some error

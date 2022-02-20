@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+from G4AtlasApps.SimEnums import SimulationFlavour, TruthStrategy
 from AthenaConfiguration.Enums import ProductionStep
 from LArConfiguration.LArConfigRun3 import LArConfigRun3PileUp, LArConfigRun3NoPileUp
 
@@ -12,6 +12,9 @@ def MC21a(flags):
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
+
+    # radiation damage
+    flags.Digitization.DoPixelPlanarRadiationDamage = True
 
     # pile-up
     # TODO: using MC20e pile-up profile for now
@@ -34,6 +37,9 @@ def MC21NoPileUp(flags):
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
 
+    # radiation damage
+    flags.Digitization.DoPixelPlanarRadiationDamage = True
+
 
 def BeamspotSplitMC21a():
     """MC21a beamspot splitting configuration"""
@@ -46,18 +52,18 @@ def BeamspotSplitMC21a():
 def MC21Simulation(flags):
     """MC21 flags for simulation"""
     flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
-    flags.Sim.TruthStrategy = 'MC15aPlus'
+    flags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
 
     flags.Input.RunNumber = [330000]
     flags.Input.OverrideRunNumber = True
     flags.Input.LumiBlockNumber = [1] # dummy value
 
-    flags.Digitization.TRTRangeCut = 30.0
+    flags.Sim.TRTRangeCut = 30.0
     flags.Sim.TightMuonStepping = True
 
     from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill #, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
-    if 'FullG4' in flags.Sim.ISF.Simulator:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.FullG4MT, SimulationFlavour.FullG4MT_QS]:
         # Not tuned yet for G4 10.6
         # enableFrozenShowersFCalOnly(flags)
         pass

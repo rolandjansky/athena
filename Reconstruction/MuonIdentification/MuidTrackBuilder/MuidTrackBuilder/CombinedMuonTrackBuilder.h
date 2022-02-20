@@ -33,7 +33,6 @@
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IIntersector.h"
@@ -263,8 +262,6 @@ namespace Rec {
         // Read handle for conditions object to get the field cache
         SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj",
                                                                                   "Name of the Magnetic Field conditions object key"};
-        ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{
-            this, "TrackingGeometrySvc", "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};  // init with callback
 
         SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "",
                                                                                "Key of the TrackingGeometry conditions data."};

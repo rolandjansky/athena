@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -98,5 +98,5 @@ SCT_Chip SCT_ReadoutTestAlg::initialiseChip(short id, std::string configString) 
   std::reverse(configString.begin(), configString.end());
   short config{bin2dec(configString.c_str())};
   const int minus1{-1};
-  return SCT_Chip(id, config, minus1, minus1, minus1, minus1);
+  return {id, config, static_cast<uint32_t>(minus1), static_cast<uint32_t>(minus1), static_cast<uint32_t>(minus1), static_cast<uint32_t>(minus1)};
 }

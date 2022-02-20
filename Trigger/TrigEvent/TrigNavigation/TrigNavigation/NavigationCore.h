@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -186,23 +186,23 @@ namespace HLT {
                      const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
 
     template<class T> 
-    const T* featureLink2Object( const TrigFeatureLink& );
+    const T* featureLink2Object( const TrigFeatureLink& ) const;
 
     template<class T> 
     TrigFeatureLink object2FeatureLink(const TriggerElement* te, const std::string& label,
-				       const T* obj);
+				       const T* obj) const;
 
 
     template<class C> 
     TrigFeatureLink object2FeatureLink(const TriggerElement* te, const std::string& label,
 				       const typename Container2Object<C>::type * obj, 
-				       const C* container);
+				       const C* container) const;
 
     //const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = m_unspecifiedLabel);
 
 
     template<class C, class T> 
-    bool getFeaturesLinks( const TriggerElement* te, ElementLinkVector<C>& links, const std::string& label="");
+    bool getFeaturesLinks( const TriggerElement* te, ElementLinkVector<C>& links, const std::string& label="") const;
 
     
 

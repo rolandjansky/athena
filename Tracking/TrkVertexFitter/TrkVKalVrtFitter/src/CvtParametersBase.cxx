@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //   TEMPORARY until track EDM is finalised!!!!
@@ -64,6 +64,7 @@ namespace Trk {
        tmp_refFrameY += perGlobalPos.y() ;
        tmp_refFrameZ += perGlobalPos.z() ;
        TrkMatControl tmpMat;                                    // Here we create structure to control material effects
+       tmpMat.trkSavedLocalVertex.setZero();
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
        if(m_firstMeasuredPoint){ tmpMat.extrapolationType=0;}   //First measured point strategy
        else{                     tmpMat.extrapolationType=1;}   //Any measured point strategy
@@ -173,6 +174,7 @@ namespace Trk {
        tmp_refFrameY += perGlobalPos.y() ;
        tmp_refFrameZ += perGlobalPos.z() ;
        TrkMatControl tmpMat;                                    // Here we create structure to control material effects
+       tmpMat.trkSavedLocalVertex.setZero();
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z()); // on track extrapolation
        tmpMat.extrapolationType=0;   //First measured point strategy
        tmpMat.TrkPnt=nullptr;           //No reference point for neutral track for the moment  !!!

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Tool configuration to instantiate all
  isolationTools with default configuration"""
@@ -6,6 +6,8 @@ __doc__ = """Tool configuration to instantiate all
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType
+
 
 def isoTTVAToolCfg(flags,**kwargs):
     from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
@@ -32,7 +34,7 @@ def TrackIsolationToolCfg(flags, **kwargs):
     if 'TTVATool' not in kwargs:
         kwargs['TTVATool'] = acc.popToolsAndMerge(isoTTVAToolCfg(flags))
 
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs['VertexLocation'] = ''
 
     acc.setPrivateTools(CompFactory.xAOD.TrackIsolationTool(**kwargs))

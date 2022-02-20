@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesHistoBase.h"
@@ -7,11 +7,11 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
-RatesHistoBase::RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms) : 
+RatesHistoBase::RatesHistoBase(const std::string& name, IMessageSvc* msgSvc, const bool doHistograms) :
+  AthMessaging(msgSvc, name),
   m_name(name),
   m_doHistograms(doHistograms), m_rateVsMu(nullptr), m_rateVsTrain(nullptr), m_data(nullptr),
-  m_rateVsMuCachedPtr(nullptr), m_rateVsTrainCachedPtr(nullptr), m_dataCachedPtr(nullptr),
-  m_log(log)
+  m_rateVsMuCachedPtr(nullptr), m_rateVsTrainCachedPtr(nullptr), m_dataCachedPtr(nullptr)
 {
   if (doHistograms) {
     m_rateVsMu = std::make_unique<TH1D>("",TString(name + ";#mu;Rate / Unit #mu [Hz]"),226,-.5,225.5);
@@ -46,18 +46,18 @@ RatesHistoBase::~RatesHistoBase() {
 
 StatusCode RatesHistoBase::giveMuHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
   if (!m_rateVsMu.get()) { 
-    m_log << MSG::ERROR << "RatesHistoBase::giveMuHist Warning requested histograms when histograming is OFF here." << endmsg;
+    ATH_MSG_ERROR("RatesHistoBase::giveMuHist Warning requested histograms when histograming is OFF here.");
     return StatusCode::FAILURE;
   }
   ATH_CHECK( svc->regHist(name, std::move(m_rateVsMu), m_rateVsMuCachedPtr) );
-  m_log << MSG::DEBUG << "For " << m_name << "(" << this << ") m_rateVsMuCachedPtr is updated to " << (uint64_t) m_rateVsMuCachedPtr << endmsg; 
+  ATH_MSG_DEBUG("For " << m_name << "(" << this << ") m_rateVsMuCachedPtr is updated to " << (uint64_t) m_rateVsMuCachedPtr);
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode RatesHistoBase::giveTrainHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
   if (!m_rateVsTrain.get()) {
-    m_log << MSG::ERROR << "RatesHistoBase::giveTrainHist Warning requested histograms when histograming is OFF here." << endmsg;
+    ATH_MSG_ERROR("RatesHistoBase::giveTrainHist Warning requested histograms when histograming is OFF here.");
     return StatusCode::FAILURE;
   }
   ATH_CHECK( svc->regHist(name, std::move(m_rateVsTrain), m_rateVsTrainCachedPtr) );
@@ -67,7 +67,7 @@ StatusCode RatesHistoBase::giveTrainHist(const ServiceHandle<ITHistSvc>& svc, co
 
 StatusCode RatesHistoBase::giveDataHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
   if (!m_data.get()) {
-    m_log << MSG::ERROR << "RatesHistoBase::giveDataHist Warning requested histograms when histograming is OFF here." << endmsg;
+    ATH_MSG_ERROR("RatesHistoBase::giveDataHist Warning requested histograms when histograming is OFF here.");
     return StatusCode::FAILURE;
   }
   ATH_CHECK( svc->regHist(name, std::move(m_data), m_dataCachedPtr) );
@@ -99,7 +99,7 @@ double RatesHistoBase::getExtrapolationFactor(const WeightingValuesSummary_t& we
     case kBUNCH_SCALING: return weights.m_bunchFactor;
     case kMU_SCALING: return weights.m_muFactor;
     case kNONE: return weights.m_noScaling;
-    default: m_log << MSG::ERROR << "Error in getExtrapolationFactor. Unknown ExtrapStrat_t ENUM supplied " << strat << endmsg;
+    default: ATH_MSG_ERROR("Error in getExtrapolationFactor. Unknown ExtrapStrat_t ENUM supplied " << strat);
   }
   return 0.;
 }

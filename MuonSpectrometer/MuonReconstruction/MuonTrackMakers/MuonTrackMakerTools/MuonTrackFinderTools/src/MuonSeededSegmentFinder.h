@@ -49,7 +49,7 @@ namespace Muon {
         std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs) const;
 
         /** @brief find segments in a set of MdtPrepData starting from seeding TrackParameters */
-        std::unique_ptr<Trk::SegmentCollection> find(const Trk::TrackParameters& pars,
+        std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                      const std::vector<const MdtPrepData*>& mdtPrds) const;
 
         /** @brief retrieve MDT PRD collections for the given hashes */
@@ -80,11 +80,11 @@ namespace Muon {
         std::vector<const MdtPrepData*> extractPrds(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs) const;
 
         /** @brief select a set of Mdt hits and calibrate them */
-        void selectAndCalibrate(const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
+        void selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
                                 std::vector<const MdtDriftCircleOnTrack*>& mdtROTs, bool& doHoleSearch) const;
 
         /** @brief select and calibrate a single MdtPrepData */
-        const MdtDriftCircleOnTrack* handleMdtPrd(const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd, bool& doHoleSearch) const;
+        const MdtDriftCircleOnTrack* handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd, bool& doHoleSearch) const;
 
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};

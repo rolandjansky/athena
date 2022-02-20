@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigNavTools )
@@ -7,7 +7,7 @@ atlas_subdir( TrigNavTools )
 atlas_add_library( TrigNavToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigNavTools
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel CxxUtils TrigConfHLTData TrigSteeringEvent xAODTrigger
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel CxxUtils TrigConfHLTData TrigConfHLTUtilsLib TrigSteeringEvent xAODTrigger
                    LINK_LIBRARIES GaudiKernel TrigDecisionToolLib TrigNavigationLib AnalysisTriggerEvent AthAnalysisBaseCompsLib AthContainers AthViews AthenaBaseComps AthenaKernel CxxUtils EventInfo GaudiKernel MuonCombinedToolInterfaces Particle StoreGateLib TrigCaloEvent TrigCompositeUtilsLib TrigConfHLTData TrigConfInterfaces TrigDecisionToolLib TrigInDetEvent TrigInDetTruthEvent TrigMissingEtEvent TrigMuonEvent TrigNavStructure TrigNavigationLib TrigParticle TrigRoiConversionLib TrigSteeringEvent TrigT1Interfaces VxSecVertex tauEvent xAODBTagging xAODCore xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigger xAODEventInfo )
 
 atlas_add_component( TrigNavTools

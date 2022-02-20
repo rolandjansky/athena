@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p1.h"
@@ -32,7 +32,7 @@ TRTUncompressedHitCollection* TRTUncompressedHitCollectionCnv::createTransient()
     static const pool::Guid   old_guid("35722E01-C4E3-420E-8A7E-E375C5E7989D");
 
 
-    TRTUncompressedHitCollection       *trans_cont(0);
+    TRTUncompressedHitCollection       *trans_cont(nullptr);
     if( this->compareClassGuid(p4_guid)) {
         std::unique_ptr< TRT_HitCollection_p4 >   col_vect( this->poolReadObject< TRT_HitCollection_p4 >() );
         trans_cont = converter_p4.createTransient( col_vect.get(), mlog );

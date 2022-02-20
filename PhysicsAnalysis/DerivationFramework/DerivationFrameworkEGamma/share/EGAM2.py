@@ -8,7 +8,8 @@
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__DerivationKernel)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
@@ -336,19 +337,7 @@ EGAM2Sequence += CfgMgr.DerivationFramework__DerivationKernel(
 # ====================================================================
 # JET/MET
 # ====================================================================
-addAntiKt4TruthJets(EGAM2Sequence, "EGAM2")
-
-
-# ========================================
-# ENERGY DENSITY
-# ========================================
-if (DerivationFrameworkIsMonteCarlo):
-    # Schedule the two energy density tools for running after the pseudojets are created.
-    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-        if hasattr(topSequence, alg):
-            edtalg = getattr(topSequence, alg)
-            delattr(topSequence, alg)
-            EGAM2Sequence += edtalg
+addDAODJets([AntiKt4Truth], EGAM2Sequence)
 
 
 # ====================================================================

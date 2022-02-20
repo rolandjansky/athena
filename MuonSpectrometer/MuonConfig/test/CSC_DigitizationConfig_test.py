@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on CSC_DigitizationConfigNew.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from AthenaCommon.Logging import log
@@ -17,7 +17,7 @@ from MuonConfig.CSC_DigitizationConfig import CSC_DigitBuilderDigitToRDOCfg
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.lock()

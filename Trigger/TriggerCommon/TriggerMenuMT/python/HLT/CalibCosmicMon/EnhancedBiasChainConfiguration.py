@@ -2,8 +2,8 @@
 
 from TrigHypoCommonTools.TrigHypoCommonToolsConf import L1InfoHypo, L1InfoHypoTool
 
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -21,7 +21,7 @@ l1seeds = { 'low'  : \
                 'L1_J15p31ETA49',\
                 'L1_J30',\
                 #'L1_J30p0ETA49_2J20p0ETA49',\
-                'L1_JPSI-1M5-eEM7',\
+                'L1_JPSI-1M5-eEM9',\
                 'L1_MU8F',\
                 'L1_ZB'],\
              'medium' : \

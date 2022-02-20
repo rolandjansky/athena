@@ -1,31 +1,15 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-from IOVDbSvc.IOVDbSvcConfig                  import addFoldersSplitOnline
-from InDetConfig.ITkRecToolConfig             import makeName
-import AthenaCommon.SystemOfUnits               as   Units
-#######################################################################
-
-
-def copyArgs(kwargs, copy_list):
-    dict_copy={}
-    for elm in copy_list :
-        if elm in kwargs :
-            dict_copy[elm]=kwargs[elm]
-    return dict_copy
-
-def stripArgs(kwargs, copy_list) :
-    dict_copy = copyArgs(kwargs,copy_list)
-    for an_arg in copy_list :
-        kwargs.pop(an_arg,None)
-    return dict_copy
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+import AthenaCommon.SystemOfUnits as Units
 
 
 def ITkEtaDependentCutsSvcCfg(flags, name = 'ITkEtaDependentCutsSvc', **kwargs):
     acc = ComponentAccumulator()
-    the_name = name + flags.ITk.Tracking.Pass.extension
 
-    cuts = flags.ITk.Tracking.Pass
+    cuts = flags.ITk.Tracking.ActivePass
 
     kwargs.setdefault("etaBins",              cuts.etaBins)
     kwargs.setdefault("etaWidthBrem",         cuts.etaWidthBrem)
@@ -49,38 +33,36 @@ def ITkEtaDependentCutsSvcCfg(flags, name = 'ITkEtaDependentCutsSvc', **kwargs):
     kwargs.setdefault("Xi2max",               cuts.Xi2max)
     kwargs.setdefault("Xi2maxNoAdd",          cuts.Xi2maxNoAdd)
 
-    ITkEtaDependentCutsSvc = CompFactory.InDet.InDetEtaDependentCutsSvc( name = the_name, **kwargs )
+    ITkEtaDependentCutsSvc = CompFactory.InDet.InDetEtaDependentCutsSvc( name = name + flags.ITk.Tracking.ActivePass.extension, **kwargs )
     acc.addService(ITkEtaDependentCutsSvc)
     return acc
 
 def ITkTruthClusterizationFactoryCfg(flags, name = 'ITkTruthClusterizationFactory', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
 
     kwargs.setdefault("InputSDOMap", 'ITkPixelSDO_Map')
-    ITkTruthClusterizationFactory = CompFactory.InDet.TruthClusterizationFactory( name = the_name, **kwargs )
+    ITkTruthClusterizationFactory = CompFactory.InDet.TruthClusterizationFactory( name, **kwargs )
     acc.setPrivateTools(ITkTruthClusterizationFactory)
     return acc
 
 def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
 
     from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelOfflineCalibCondAlgCfg
     acc.merge(ITkPixelOfflineCalibCondAlgCfg(flags))
 
-    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
-    if (flags.Beam.Type == "cosmics"):
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
     kwargs.setdefault("applyNNcorrection", False )
-    kwargs.setdefault("SplitClusterAmbiguityMap", 'SplitClusterAmbiguityMap' + split_cluster_map_extension )
+    split_cluster_map_extension = flags.ITk.Tracking.ActivePass.extension
+    kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
     kwargs.setdefault("RunningTIDE_Ambi", True )
 
     kwargs.setdefault("PixelErrorScalingKey", "")
 
-    acc.setPrivateTools(CompFactory.ITk.PixelClusterOnTrackTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.ITk.PixelClusterOnTrackTool(name, **kwargs))
     return acc
 
 def ITkPixelClusterOnTrackToolDigitalCfg(flags, name='ITkPixelClusterOnTrackToolDigital', **kwargs):
@@ -125,16 +107,15 @@ def ITkPixelClusterOnTrackToolCfg(flags, name='ITkPixelClusterOnTrackTool', **kw
 
     ITkPixelClusterOnTrackTool = None
     if flags.ITk.Tracking.doDigitalROTCreation:
-        ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags, name=name, **kwargs))
+        ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
     else:
-        ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolNNSplittingCfg(flags, name=name, **kwargs))
+        ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolNNSplittingCfg(flags, name, **kwargs))
 
     acc.setPrivateTools(ITkPixelClusterOnTrackTool)
     return acc
 
 def ITkStripClusterOnTrackToolCfg(flags, name='ITkStrip_ClusterOnTrackTool', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
 
     if 'LorentzAngleTool' not in kwargs :
         from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
@@ -146,7 +127,7 @@ def ITkStripClusterOnTrackToolCfg(flags, name='ITkStrip_ClusterOnTrackTool', **k
 
     kwargs.setdefault("ErrorScalingKey", "")
 
-    acc.setPrivateTools(CompFactory.ITk.StripClusterOnTrackTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.ITk.StripClusterOnTrackTool(name, **kwargs))
     return acc
 
 def ITkBroadStripClusterOnTrackToolCfg(flags, name='ITkBroadStripClusterOnTrackTool', **kwargs):
@@ -155,19 +136,14 @@ def ITkBroadStripClusterOnTrackToolCfg(flags, name='ITkBroadStripClusterOnTrackT
 
 def ITkBroadPixelClusterOnTrackToolCfg(flags, name='ITkBroadPixelClusterOnTrackTool', **kwargs):
     kwargs.setdefault("ErrorStrategy", 0)
-    return ITkPixelClusterOnTrackToolCfg(flags, name=name, **kwargs)
+    return ITkPixelClusterOnTrackToolCfg(flags, name, **kwargs)
 
-def ITk_RIO_OnTrackErrorScalingCondAlgCfg(flags, **kwargs):
+def ITk_RIO_OnTrackErrorScalingCondAlgCfg(flags, name='ITk_RIO_OnTrackErrorScalingCondAlg', **kwargs):
     acc = ComponentAccumulator()
-    the_name=kwargs.pop("name", None)
 
-    if flags.GeoModel.Run == "RUN1":
-        error_scaling_type   = ["PixelRIO_OnTrackErrorScalingRun1"]
-        error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
-    else:  # Run 2 and 3
-        error_scaling_type   = ["PixelRIO_OnTrackErrorScaling"]
-        error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
-    # TODO: cover Run 4 and beyond
+    # TODO: confirm for Run 4
+    error_scaling_type   = ["PixelRIO_OnTrackErrorScaling"]
+    error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
 
     error_scaling_type      += ["SCTRIO_OnTrackErrorScaling"]
     error_scaling_outkey    += ["/Indet/TrkErrorScalingSCT"]
@@ -178,22 +154,14 @@ def ITk_RIO_OnTrackErrorScalingCondAlgCfg(flags, **kwargs):
     kwargs.setdefault("ErrorScalingType", error_scaling_type)
     kwargs.setdefault("OutKeys", error_scaling_outkey)
 
-    if the_name is not None:
-        kwargs.setdefault("name", the_name)
-    acc.addCondAlgo(CompFactory.RIO_OnTrackErrorScalingCondAlg(**kwargs))
+    acc.addCondAlgo(CompFactory.RIO_OnTrackErrorScalingCondAlg(name, **kwargs))
     return acc
 
 def ITkRotCreatorCfg(flags, name='ITkRotCreator', **kwargs):
     acc = ComponentAccumulator()
-    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
-    pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
-    the_name = makeName(name, kwargs)
-
-    for an_arg in  strip_args:
-        kwargs.pop(an_arg, None)
 
     if 'ToolPixelCluster' not in kwargs :
-        ToolPixelCluster = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+        ToolPixelCluster = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)
 
     if 'ToolSCT_Cluster' not in kwargs :
@@ -202,30 +170,28 @@ def ITkRotCreatorCfg(flags, name='ITkRotCreator', **kwargs):
 
     kwargs.setdefault("ToolTRT_DriftCircle", None)
     kwargs.setdefault('Mode', 'indet')
-    acc.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name=the_name, **kwargs))
+
+    acc.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name, **kwargs))
     return acc
 
 def ITkPRDtoTrackMapToolGangedPixelsCfg(flags, name='ITkPRDtoTrackMapToolGangedPixels', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
     kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'ITkPixelClusterAmbiguitiesMap')
     kwargs.setdefault("addTRToutliers", False)
-    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( name=the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( name, **kwargs))
     return acc
 
 def ITkTrackPRD_AssociationCfg(flags, name='ITkTrackPRD_Association', **kwargs):
     acc = ComponentAccumulator()
-    from InDetConfig.ITkRecToolConfig import makeNameGetPreAndSuffix
-    the_name,prefix,suffix=makeNameGetPreAndSuffix(name,kwargs)
 
     if kwargs.get('TracksName', None) is None :
         raise Exception('Not TracksName argument provided')
 
-    AssociationTool = acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
-    kwargs.setdefault("AssociationTool", AssociationTool \
-                      if 'AssociationTool' not in kwargs else None )
-    kwargs.setdefault("AssociationMapName", prefix+'PRDtoTrackMap'+suffix )
-    acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name = the_name, **kwargs))
+    if 'AssociationTool' not in kwargs:
+        kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags)))
+
+    kwargs.setdefault("AssociationMapName", 'ITkPRDtoTrackMap' + flags.ITk.Tracking.ActivePass.extension)
+    acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name, **kwargs))
     return acc
 
 def ITkSummaryHelperNoHoleSearchCfg(flags, name='ITkSummaryHelperNoHoleSearch', **kwargs):
@@ -236,22 +202,14 @@ def ITkSummaryHelperNoHoleSearchCfg(flags, name='ITkSummaryHelperNoHoleSearch', 
 
 def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     acc = ComponentAccumulator()
-    # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
-    hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
-    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
-    kwargs.pop('ClusterSplitProbabilityName',None)
-    kwargs.pop('isHLT',None)
-    the_name = makeName( name, kwargs)
     do_holes=kwargs.get("doHolesInDet",True)
-    if do_holes :
-        id_helper_args.update(hlt_args)
 
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
             from  InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
-            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags, **id_helper_args))
+            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags))
         else:
-            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
+            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
 
     #
@@ -261,7 +219,20 @@ def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     kwargs.setdefault("doHolesInDet", do_holes)
     kwargs.setdefault("TRT_ElectronPidTool", None) # we don't want to use those tools during pattern
     kwargs.setdefault("PixelToTPIDTool", None) # we don't want to use those tools during pattern
-    acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name = the_name, **kwargs), primary=True)
+    acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name, **kwargs), primary=True)
+    return acc
+
+def ITkTrackSummaryToolAmbiCfg(flags, name='ITkTrackSummaryToolAmbi', **kwargs):
+    acc = ComponentAccumulator()
+
+    if 'InDetSummaryHelperTool' not in kwargs :
+        from InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
+        ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags,
+                                                                                 ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension))
+        kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
+
+    ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags, name, **kwargs))
+    acc.addPublicTool(ITkTrackSummaryTool, primary=True)
     return acc
 
 def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kwargs):
@@ -275,14 +246,7 @@ def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kw
 def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
     if 'InDetSummaryHelperTool' not in kwargs :
-        copy_args=['ClusterSplitProbabilityName','namePrefix','nameSuffix']
-        do_holes=kwargs.get("doHolesInDet",True)
-        if do_holes :
-            copy_args += ['isHLT']
-        id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
-        kwargs.pop('ClusterSplitProbabilityName',None)
-
-        ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags, **id_helper_args))
+        ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
 
     kwargs.setdefault( "PixelToTPIDTool", None)
@@ -294,40 +258,32 @@ def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits'
 
 def ITkMultipleScatteringUpdatorCfg(flags, name = "ITkMultipleScatteringUpdator", **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
 
     kwargs.setdefault( "UseTrkUtils", False)
-    MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator(name = the_name, **kwargs)
+    MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs)
     acc.setPrivateTools(MultipleScatteringUpdator)
     return acc
 
 def ITkMeasRecalibSTCfg(flags, name='ITkMeasRecalibST', **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
     if 'BroadPixelClusterOnTrackTool' not in kwargs :
-        ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+        ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault('BroadPixelClusterOnTrackTool', ITkBroadPixelClusterOnTrackTool)
     if 'BroadSCT_ClusterOnTrackTool' not in kwargs :
         ITkBroadStripClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadStripClusterOnTrackToolCfg(flags))
         kwargs.setdefault('BroadSCT_ClusterOnTrackTool', ITkBroadStripClusterOnTrackTool)
     if 'CommonRotCreator' not in kwargs :
         ITkRefitRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, 
-                                                                   name = 'ITkRefitRotCreator',
-                                                                   **pix_cluster_on_track_args))
+                                                                   name = 'ITkRefitRotCreator'))
         kwargs.setdefault('CommonRotCreator', ITkRefitRotCreator)
 
     MeasRecalibSteeringTool = CompFactory.Trk.MeasRecalibSteeringTool(name, **kwargs)
     acc.setPrivateTools(MeasRecalibSteeringTool)
     return acc
 
-def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs) :
+def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase', **kwargs) :
     acc = ComponentAccumulator()
-    nameSuffix=kwargs.pop('nameSuffix','')
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName'])
-    if len(pix_cluster_on_track_args)>0 and len(nameSuffix)>0 :
-        pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
@@ -336,8 +292,7 @@ def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs)
 
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
         ITkRefitRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, 
-                                                                   name = 'ITkRefitRotCreator',
-                                                                   **pix_cluster_on_track_args))
+                                                                   name = 'ITkRefitRotCreator'))
         kwargs.setdefault("RIO_OnTrackCreatorHandle", ITkRefitRotCreator)
 
     from  InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
@@ -352,12 +307,7 @@ def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs)
     kwargs.setdefault('BrempointAnalyserHandle', None)
     kwargs.setdefault('AlignableSurfaceProviderHandle',None)
 
-    if len(pix_cluster_on_track_args)>0 :
-        if 'RecalibratorHandle' not in kwargs :
-            the_tool_name = 'ITkMeasRecalibST'
-            ITkMeasRecalibST = acc.popToolsAndMerge(ITkMeasRecalibSTCfg(flags, name=the_tool_name+nameSuffix, **pix_cluster_on_track_args))
-            kwargs.setdefault('RecalibratorHandle', ITkMeasRecalibST)
-    else :
+    if 'RecalibratorHandle' not in kwargs :
         ITkMeasRecalibST = acc.popToolsAndMerge(ITkMeasRecalibSTCfg(flags))
         kwargs.setdefault('RecalibratorHandle', ITkMeasRecalibST)
 
@@ -457,8 +407,7 @@ def ITkBroadRotCreatorCfg(flags, name='ITkBroadRotCreator', **kwargs) :
     acc = ComponentAccumulator()
 
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-        ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+        ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault('ToolPixelCluster', ITkBroadPixelClusterOnTrackTool)
 
     if 'ToolSCT_Cluster' not in kwargs :
@@ -469,7 +418,7 @@ def ITkBroadRotCreatorCfg(flags, name='ITkBroadRotCreator', **kwargs) :
     acc.setPrivateTools(ITkRotCreator)
     return acc
 
-def ITkKalmanFitterCfg(flags, name='ITkKalmanFitter',**kwargs) :
+def ITkKalmanFitterCfg(flags, name='ITkKalmanFitter', **kwargs) :
     acc = ComponentAccumulator()
 
     ITkFKF = acc.popToolsAndMerge(ITkFKFCfg(flags))
@@ -490,11 +439,11 @@ def ITkKalmanFitterCfg(flags, name='ITkKalmanFitter',**kwargs) :
     ITkKalmanInternalDAF = acc.popToolsAndMerge(ITkKalmanInternalDAFCfg(flags))
     kwargs.setdefault('InternalDAFHandle', ITkKalmanInternalDAF)
 
-    ITkKalmanTrackFitter = acc.popToolsAndMerge(ITkKalmanTrackFitterBaseCfg(flags, name=name, **kwargs))
+    ITkKalmanTrackFitter = acc.popToolsAndMerge(ITkKalmanTrackFitterBaseCfg(flags, name, **kwargs))
     acc.setPrivateTools(ITkKalmanTrackFitter)
     return acc
 
-def ITkKalmanDNAFitterCfg(flags, name='ITkKalmanDNAFitter',**kwargs) :
+def ITkKalmanDNAFitterCfg(flags, name='ITkKalmanDNAFitter', **kwargs) :
     acc = ComponentAccumulator()
 
     ITkFKF = acc.popToolsAndMerge(ITkFKFCfg(flags))
@@ -507,11 +456,11 @@ def ITkKalmanDNAFitterCfg(flags, name='ITkKalmanDNAFitter',**kwargs) :
     kwargs.setdefault('BrempointAnalyserHandle', ITkDNASeparator)
     kwargs.setdefault('InternalDAFHandle', ITkKalmanInternalDAF)
 
-    ITkKalmanTrackFitter = acc.popToolsAndMerge(ITkKalmanTrackFitterBaseCfg(flags, name=name, **kwargs))
+    ITkKalmanTrackFitter = acc.popToolsAndMerge(ITkKalmanTrackFitterBaseCfg(flags, name, **kwargs))
     acc.setPrivateTools(ITkKalmanTrackFitter)
     return acc
 
-def ITkReferenceKalmanFitterCfg(flags, name='ITkReferenceKalmanFitter',**kwargs) :
+def ITkReferenceKalmanFitterCfg(flags, name='ITkReferenceKalmanFitter', **kwargs) :
     acc = ComponentAccumulator()
 
     ITkFKFRef = acc.popToolsAndMerge(ITkFKFRefCfg(flags))
@@ -520,21 +469,19 @@ def ITkReferenceKalmanFitterCfg(flags, name='ITkReferenceKalmanFitter',**kwargs)
     kwargs.setdefault('ForwardKalmanFitterHandle', ITkFKFRef)
     kwargs.setdefault('InternalDAFHandle', ITkKalmanInternalDAFRef)
 
-    ITkKalmanTrackFitter = acc.popToolsAndMerge(ITkKalmanTrackFitterBaseCfg(flags, name=name, **kwargs))
+    ITkKalmanTrackFitter = acc.popToolsAndMerge(ITkKalmanTrackFitterBaseCfg(flags, name, **kwargs))
     acc.setPrivateTools(ITkKalmanTrackFitter)
     return acc
 
 def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
     if 'ExtrapolatorTool' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
         kwargs.setdefault('ExtrapolatorTool', acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
     if 'ROTcreator' not in kwargs:
-        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags))
         kwargs.setdefault('ROTcreator', ITkRotCreator)
 
     DistributedKalmanFilter = CompFactory.Trk.DistributedKalmanFilter(name = name, **kwargs)
@@ -544,17 +491,15 @@ def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kw
 def ITkGlobalChi2FitterCfg(flags, name='ITkGlobalChi2Fitter', **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
     if 'RotCreatorTool' not in kwargs :
-        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags))
         kwargs.setdefault('RotCreatorTool', ITkRotCreator)
 
     if 'BroadRotCreatorTool' not in kwargs:
-        ITkBroadRotCreator = acc.popToolsAndMerge(ITkBroadRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        ITkBroadRotCreator = acc.popToolsAndMerge(ITkBroadRotCreatorCfg(flags))
         kwargs.setdefault('BroadRotCreatorTool', ITkBroadRotCreator)
 
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault('MaxOutliers', 99)
         kwargs.setdefault('Acceleration', False)
 
@@ -568,19 +513,8 @@ def ITkGlobalChi2FitterCfg(flags, name='ITkGlobalChi2Fitter', **kwargs) :
 def ITkGaussianSumFitterCfg(flags, name="ITkGaussianSumFitter", **kwargs):
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(
-        kwargs,
-        [
-            "SplitClusterMapExtension",
-            "ClusterSplitProbabilityName",
-            "nameSuffix",
-        ],
-    )
-
     if "ToolForROTCreation" not in kwargs:
-        ITkRotCreator = acc.popToolsAndMerge(
-            ITkRotCreatorCfg(flags, **pix_cluster_on_track_args)
-        )
+        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags))
         kwargs.setdefault("ToolForROTCreation", ITkRotCreator )
 
     kwargs.setdefault("MakePerigee", True)
@@ -604,7 +538,26 @@ def ITkTrackFitterCfg(flags, name='ITkTrackFitter', **kwargs) :
             'DistributedKalmanFilter' : ITkDistributedKalmanFilterCfg,
             'GlobalChi2Fitter'        : ITkGlobalChi2FitterCfg,
             'GaussianSumFilter'       : ITkGaussianSumFitterCfg
-    }[flags.ITk.Tracking.trackFitterType](flags, name=name, **kwargs)
+    }[flags.ITk.Tracking.trackFitterType](flags, name, **kwargs)
+
+def ITkTrackFitterAmbiCfg(flags, name='ITkTrackFitterAmbi', **kwargs) :
+    acc = ComponentAccumulator()
+
+    ITkTrackFitter = acc.popToolsAndMerge(ITkTrackFitterCfg(flags, name, **kwargs))
+    ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension
+
+    if flags.ITk.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter', 'DistributedKalmanFilter']:
+        ITkTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+
+    elif flags.ITk.Tracking.trackFitterType=='GlobalChi2Fitter':
+        ITkTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+        ITkTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+
+    elif flags.InDet.Tracking.trackFitterType=='GaussianSumFilter':
+        ITkTrackFitter.ToolForROTCreation.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+
+    acc.setPrivateTools(ITkTrackFitter)
+    return acc
 
 def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) :
     acc = ComponentAccumulator()
@@ -643,7 +596,7 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
     kwargs.setdefault("RecalibrateSilicon", True)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("RecalculateDerivatives", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
     GlobalChi2Fitter = CompFactory.Trk.GlobalChi2Fitter(name=name, **kwargs)
@@ -678,9 +631,7 @@ def ITkKOLCfg(flags, name = 'ITkKOL', **kwargs):
 def ITkRotCreatorDigitalCfg(flags, name='ITkRotCreatorDigital', **kwargs) :
     acc = ComponentAccumulator()
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
-        ToolPixelCluster = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags, **pix_cluster_on_track_args))
+        ToolPixelCluster = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags))
         kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
 
     ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, name=name, **kwargs))
@@ -717,9 +668,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     kwargs.setdefault("DriftCircleCutTool", None )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
-    kwargs.setdefault("maxEta", flags.ITk.Tracking.Pass.maxEta )
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.Pass.usePixel )
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.Pass.useSCT )
+    kwargs.setdefault("maxEta", flags.ITk.Tracking.ActivePass.maxEta )
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel )
+    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
     kwargs.setdefault("useITkAmbigFcn", True )
     kwargs.setdefault("minTRTonTrk", 0 )
@@ -727,23 +678,22 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
         acc.merge(ITkEtaDependentCutsSvcCfg(flags))
-        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.Pass.extension))
+        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 
-    the_name = name + flags.ITk.Tracking.Pass.extension
+    the_name = name + flags.ITk.Tracking.ActivePass.extension
     acc.setPrivateTools(CompFactory.InDet.InDetAmbiScoringTool(name = the_name, **kwargs))
     return acc
 
 def ITkCosmicsScoringToolBaseCfg(flags, name='ITkCosmicsScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    the_name=makeName(name, kwargs)
 
     ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.Pass.nWeightedClustersMin )
+    kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.ActivePass.nWeightedClustersMin )
     kwargs.setdefault("minTRTHits", 0 )
     kwargs.setdefault("SummaryTool", ITkTrackSummaryTool )
 
-    acc.setPrivateTools( CompFactory.InDet.InDetCosmicScoringTool(name = the_name, **kwargs ) )
+    acc.setPrivateTools( CompFactory.InDet.InDetCosmicScoringTool(name, **kwargs ) )
     return acc
 
 def ITkCosmicExtenScoringToolCfg(flags, name='ITkCosmicExtenScoringTool',**kwargs) :
@@ -752,7 +702,7 @@ def ITkCosmicExtenScoringToolCfg(flags, name='ITkCosmicExtenScoringTool',**kwarg
     return ITkCosmicsScoringToolBaseCfg(flags, name = 'ITkCosmicExtenScoringTool', **kwargs)
 
 def ITkAmbiScoringToolCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
-    return ITkAmbiScoringToolBaseCfg(flags, name = name + flags.ITk.Tracking.Pass.extension, **kwargs)
+    return ITkAmbiScoringToolBaseCfg(flags, name = name + flags.ITk.Tracking.ActivePass.extension, **kwargs)
 
 
 #############################################################################################
@@ -761,10 +711,9 @@ def ITkAmbiScoringToolCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
 def ITkPRDtoTrackMapToolCfg(flags, name='ITkPRDtoTrackMapTool',**kwargs) :
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    acc.setPrivateTools(CompFactory.Trk.PRDtoTrackMapTool( name=the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.Trk.PRDtoTrackMapTool(name, **kwargs))
     return acc
 
 def ITkCosmicsScoringToolCfg(flags, name='ITkCosmicsScoringTool', **kwargs) :
     return ITkCosmicsScoringToolBaseCfg(flags,
-                                        name=name+flags.ITk.Tracking.Pass.extension)
+                                        name=name+flags.ITk.Tracking.ActivePass.extension)

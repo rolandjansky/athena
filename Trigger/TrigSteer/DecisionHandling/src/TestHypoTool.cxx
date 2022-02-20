@@ -35,9 +35,9 @@ namespace HLTTest {
     size_t counter = 0;
     for ( const auto d: *decisions )  {
       //get previous decisions
-      ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(d);
+      std::vector<ElementLink<DecisionContainer>> inputLinks = getLinkToPrevious(d);
       ATH_MSG_DEBUG("Decision "<< counter <<": Got "<<inputLinks.size()<<" input decisions");
-      for (const auto previousDecisions: inputLinks){
+      for (const auto& previousDecisions: inputLinks){
 
         TrigCompositeUtils::DecisionIDContainer objDecisions;      
         TrigCompositeUtils::decisionIDs( *previousDecisions, objDecisions );

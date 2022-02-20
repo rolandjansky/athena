@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -124,7 +124,7 @@ StatusCode T2TrackBeamSpotTool::initialize()
 
     // Retrieve tools
     ATH_CHECK(m_trackFilterTool.retrieve());
-    ATH_CHECK( m_monTool.retrieve());
+    if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
     return StatusCode::SUCCESS;
 }

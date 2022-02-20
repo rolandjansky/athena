@@ -152,7 +152,7 @@ StatusCode LArRTMParamExtractor::initialize() {
     ATH_MSG_INFO( "Will ignore DAC selection and use first value found per channel per gain" );
 
   ATH_CHECK( m_cablingKey.initialize() );
-  if (m_isSC) ATH_CHECK( m_cablingKeySC.initialize() );
+  ATH_CHECK( m_cablingKeySC.initialize(m_isSC) );
 
   // Retrieve LArWFParamTool
   ATH_CHECK(m_larWFParamTool.retrieve());

@@ -1,26 +1,23 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, InEventRecoCA, createStepView
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, ChainStep, Chain, InEventRecoCA, SelectionCA
 from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
 from ..CommonSequences.FullScanDefs import trkFSRoI, em_clusters, caloFSRoI
-from .JetRecoConfiguration import jetRecoDictToString
+from .JetRecoCommon import jetRecoDictToString
 log = logging.getLogger(__name__)
 
 def generateChains( flags, chainDict ):
-    from .JetRecoConfiguration import extractRecoDict
-    from .JetChainConfiguration import jetChainParts
+    from .JetRecoCommon import extractRecoDict, jetChainParts
 
     jetRecoDict = extractRecoDict(jetChainParts(chainDict["chainParts"]))
     jetDefStr = jetRecoDictToString(jetRecoDict)
 
     stepName = f"MainStep_jet_{jetDefStr}"
-    stepReco, stepView = createStepView(stepName)
 
-    acc = ComponentAccumulator()
-    acc.addSequence(stepView)
+    acc = SelectionCA(stepName)
+#    acc.addSequence(stepView)
 
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
     InEventReco = InEventRecoCA(f"Jet_{jetDefStr}Reco",inputMaker=clusterFSInputMaker())
@@ -39,7 +36,7 @@ def generateChains( flags, chainDict ):
         else:
             trkcolls = None
 
-        from .JetRecoConfig import JetRecoCfg
+        from .JetRecoSequencesConfig import JetRecoCfg
         jet_acc, jetsOut, jetDef = JetRecoCfg(flags, clustersKey=clustersname, trkcolls=trkcolls, **jetRecoDict)
         InEventReco.mergeReco(jet_acc)
     else:
@@ -52,14 +49,11 @@ def generateChains( flags, chainDict ):
         jet_acc, jetsOut, jetDef = JetHICfg(flags, clustersKey=clustersname, **jetRecoDict)
         InEventReco.mergeReco(jet_acc)
         
-
-    acc.merge(InEventReco,stepReco.getName())
+    acc.mergeReco(InEventReco)
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    hypo = CompFactory.TrigJetHypoAlg(f"TrigJetHypoAlg_{jetDefStr}")
-    jetsfullname = jetDef.fullname()
-    hypo.Jets = jetsfullname
-    acc.addEventAlgo(hypo, sequenceName=stepView.getName() )
+    hypo = CompFactory.TrigJetHypoAlg(f"TrigJetHypoAlg_{jetDefStr}", Jets=jetDef.fullname())
+    acc.addHypoAlgo(hypo)
 
     jetSequence = MenuSequenceCA(acc,
                                  HypoToolGen = trigJetHypoToolFromDict)

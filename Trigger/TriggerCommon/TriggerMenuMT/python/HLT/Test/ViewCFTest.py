@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Menu.CFValidation import findViewAlgs, checkVDV
+from TriggerMenuMT.HLT.Config.Validation.CFValidation import findViewAlgs, checkVDV
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.CFElements import seqOR
 import AthenaCommon.CfgMgr as CfgMgr

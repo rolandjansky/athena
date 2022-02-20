@@ -1,7 +1,8 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
@@ -316,7 +317,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
         cfg.merge( MuonCacheCfg(ConfigFlags) )
 
-    if ConfigFlags.Input.Format == 'BS':
+    if ConfigFlags.Input.Format is Format.BS:
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         cfg.merge( MuonByteStreamDecodersCfg( ConfigFlags) )
 

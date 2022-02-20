@@ -73,8 +73,8 @@ namespace RCU
 	invariant
       };
     const int typeNum = invariant + 1;
-    extern const char *typeLiteral [typeNum];
-    extern bool typeAbort [typeNum];
+    extern const char * const typeLiteral [typeNum];
+    extern const bool typeAbort [typeNum];
 
 
     /// effects: report the error and abort either by exception or

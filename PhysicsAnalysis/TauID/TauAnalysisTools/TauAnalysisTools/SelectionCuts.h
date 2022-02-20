@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
@@ -20,9 +18,6 @@
 
 // ROOT include(s):
 #include "TH1F.h"
-
-// EDM include(s)
-#include "xAODMuon/MuonContainer.h"
 
 namespace TauAnalysisTools
 {
@@ -64,7 +59,7 @@ protected:
   std::string getProperty(const std::string& name);
 
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) = 0;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const = 0;
 };
 
 class SelectionCutPt
@@ -76,7 +71,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 class SelectionCutAbsEta
@@ -88,7 +83,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 class SelectionCutAbsCharge
@@ -100,7 +95,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 class SelectionCutNTracks
@@ -112,7 +107,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 class SelectionCutRNNJetScoreSigTrans
@@ -124,7 +119,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 
@@ -137,7 +132,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 class SelectionCutRNNEleScore
@@ -149,23 +144,23 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
-class SelectionCutEleRNNWP
+class SelectionCutEleIDWP
   : public SelectionCut
 {
 public:
-  SelectionCutEleRNNWP(TauSelectionTool* tTST);
+  SelectionCutEleIDWP(TauSelectionTool* tTST);
   virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 //added by Li-Gang Xia < ligang.xia@cern.ch >
-//to remove taus overlapping with mouns satisfying pt > 2 GeV and not calo-tagged
+//to remove taus overlapping with muons satisfying pt > 2 GeV and not calo-tagged
 class SelectionCutMuonOLR
   : public SelectionCut
 {
@@ -176,8 +171,7 @@ public:
                       asg::AcceptData& accept) override;
 private:
   bool m_bTauMuonOLR; //False: overlapped, the tau is not kept. True: not overlapped, the tau is kept.)
-  const xAOD::MuonContainer* m_xMuonContainer;
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const override;
 };
 
 

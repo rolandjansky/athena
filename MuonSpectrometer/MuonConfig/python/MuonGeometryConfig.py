@@ -151,6 +151,8 @@ def MuonAlignmentCondAlgCfg(flags):
             acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
             pass
+
+    MuonAlign.DoCSCs = flags.Detector.GeometryCSC
     acc.addCondAlgo(MuonAlign)
 
     if flags.IOVDb.DatabaseInstance != 'COMP200' and \

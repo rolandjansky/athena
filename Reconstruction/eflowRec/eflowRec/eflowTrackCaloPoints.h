@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -58,8 +58,8 @@ class eflowTrackCaloPoints {
   void setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec);
   void copyEtaPhi(eflowCalo::LAYER fromLay, eflowCalo::LAYER toLay);
 
-  Amg::Vector3D parToPosition(const Trk::TrackParameters* extrapolatedParameters);
-  Amg::Vector3D parToDirection(const Trk::TrackParameters* extrapolatedParameters);
+  static Amg::Vector3D parToPosition(const Trk::TrackParameters* extrapolatedParameters);
+  static Amg::Vector3D parToDirection(const Trk::TrackParameters* extrapolatedParameters);
 
   bool m_isEM1Barrel;
   bool m_isEM2Barrel;

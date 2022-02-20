@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,11 +39,11 @@ InDetAlignFillSiCluster::InDetAlignFillSiCluster(const std::string& type,
 						 const std::string& name,
 						 const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_ntupleSvc(0),
-    m_pixelid(0),
-    m_sctID(0),
-    m_Pixel_clcontainer(0),
-    m_Sct_clcontainer(0)
+    m_ntupleSvc(nullptr),
+    m_pixelid(nullptr),
+    m_sctID(nullptr),
+    m_Pixel_clcontainer(nullptr),
+    m_Sct_clcontainer(nullptr)
 {
   declareInterface<IInDetAlignFillSiCluster>(this);
   declareProperty("Pixel_SiClusterContainerName", m_Pixel_SiClustersName="PixelClusters");

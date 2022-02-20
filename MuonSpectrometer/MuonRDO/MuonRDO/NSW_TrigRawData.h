@@ -16,9 +16,9 @@ class NSW_TrigRawData : public DataVector<Muon::NSW_TrigRawDataSegment>
 
  public:
   NSW_TrigRawData();
-
   NSW_TrigRawData(uint16_t sectorId, uint16_t bcId);
   NSW_TrigRawData(uint16_t sectorId, char sectorSide, uint16_t bcId);
+  NSW_TrigRawData(const NSW_TrigRawData &trd);
 
   ~NSW_TrigRawData() { };
 

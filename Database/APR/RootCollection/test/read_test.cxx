@@ -230,7 +230,7 @@ TestDriver::write ATLAS_NOT_THREAD_SAFE ()
    for( unsigned int i=0; i<10; i++ )   {
       rowBuffer.attributeList()[ "attr1" ].data<int>() = i ;
       char s[20];
-      ::sprintf( s, "%s_%d", "testString", i );
+      ::sprintf( s, "%s_%u", "testString", i );
       rowBuffer.attributeList()[ "attr2" ].data<std::string>() = string( s );
       rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) * (1./3);
       rowBuffer.attributeList()[ "attr4" ].data<bool>() = ((i%3)!=0);

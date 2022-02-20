@@ -4,7 +4,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 
 
 
@@ -56,7 +56,8 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
             "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']],
             "dedx" : [['getdEdxEmpty'], ['getFTFTrackReco'],['getdEdxTrigger']],
             "hitdv": [['getJetReco'],['getFTFTrackReco'],['getHitDVTrigger']],
-            "distrk" : [['getDisTrkEmpty'],['getFTFTrackReco'],['getDisTrkTrigger']]
+            "distrk" : [['getDisTrkEmpty'],['getFTFTrackReco'],['getDisTrkTrigger']],
+            "dispj":  [['getJetReco'],['getFTFTrackReco'],['getDJ1'],['getDJ2'],['getDJ3']]
         }
 
         return stepDictionary
@@ -99,6 +100,15 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
     def getDisTrkEmpty(self):
         return self.getEmptyStep(1, 'DisTrkEmptyStep')
 
+    def getDJ1(self):
+        return self.getStep(7,'DJTrigger1',[DJStep1])
+
+    def getDJ2(self):
+        return self.getStep(8,'DJTrigger2',[DJStep2])
+
+    def getDJ3(self):
+        return self.getStep(9,'DJTrigger3',[DJStep3])
+
 
 def IsoHPtTrackTriggerCfg(flags):
     from TriggerMenuMT.HLT.UnconventionalTracking.IsoHighPtTrackTriggerConfiguration import IsoHPtTrackTriggerHypoSequence
@@ -127,3 +137,15 @@ def JetRecoOnlyCfg(flags):
 def DisTrkTriggerCfg(flags):
     from TriggerMenuMT.HLT.UnconventionalTracking.DisTrkTriggerConfiguration import DisTrkTriggerHypoSequence
     return DisTrkTriggerHypoSequence()
+
+def DJStep1(flags):
+    from TriggerMenuMT.HLT.UnconventionalTracking.DJTriggerConfiguration import DJPromptStep
+    return DJPromptStep()
+
+def DJStep2(flags):
+    from TriggerMenuMT.HLT.UnconventionalTracking.DJTriggerConfiguration import DJDispStep
+    return DJDispStep()
+
+def DJStep3(flags):
+    from TriggerMenuMT.HLT.UnconventionalTracking.DJTriggerConfiguration import DJEDStep
+    return DJEDStep()

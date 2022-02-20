@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = defaultTestFiles.HITS
+    ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
     ConfigFlags.Exec.MaxEvents = 3
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()

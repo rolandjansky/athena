@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCalibDigitMaker.h"
@@ -56,11 +56,8 @@ StatusCode LArCalibDigitMaker::initialize()
        ATH_MSG_DEBUG ( "======== LArCalibDigitMaker isSC is True  ========" );
     }
   }
-  if(m_isSC){
-    ATH_CHECK( m_calibMapSCKey.initialize() );
-  }else{
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }
+  ATH_CHECK( m_calibMapSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_calibMapKey.initialize(!m_isSC) );
     
   //if we have calib board params as jobOpts, set them
 
@@ -95,8 +92,8 @@ StatusCode LArCalibDigitMaker::initialize()
 	ATH_MSG_ERROR ( "Problem with jobOptions! One Pattern must conists of 4 32bit values! Pattern "<< i );
 	return StatusCode::FAILURE;
       }
-      for (std::vector<unsigned>::const_iterator it=theseBoardIDs[i].begin();it!=theseBoardIDs[i].end();it++) {
-	const HWIdentifier calibBoardHWID(*it);
+      for (unsigned id : theseBoardIDs[i]) {
+	const HWIdentifier calibBoardHWID(id);
 	calibParams->set(calibBoardHWID,m_nTrigger,cutPattern,theseDACs[i],m_vDelay);
       }
     }

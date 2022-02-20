@@ -11,23 +11,21 @@ RecoInfoPlots::RecoInfoPlots(PlotBase *pParent, const std::string& sDir):PlotBas
 								 ,m_oTrkRecoInfoPlots(this, "","IDTrk")
 								 ,m_oMSTrkRecoInfoPlots(this, "", "MSTrk")
 								 ,m_oRecoInfoPlots(this, "")
-								 ,author(nullptr)
-								 ,quality(nullptr)
-								 ,quality_cutflow(nullptr)
-								 ,muonType(nullptr)
 {}
 
 void RecoInfoPlots::initializePlots(){
 
-  author   = Book1D("author", "author;Author;Entries",11,-0.5,10.5);  
+  author      = Book1D("author", "author;primary author;Entries",xAOD::Muon::NumberOfMuonAuthors ,-0.5,xAOD::Muon::NumberOfMuonAuthors -0.5);
+  all_authors = Book1D("AllAuthors", "AllAuthors;all authors;Entries",xAOD::Muon::NumberOfMuonAuthors ,-0.5,xAOD::Muon::NumberOfMuonAuthors -0.5); 
   muonType = Book1D("muonType", "muonType;muonType;Entries",6,-0.5,5.5);
   quality  = Book1D("quality", "quality;quality;Entries",4,-0.5,3.5);
   quality_cutflow  = Book1D("quality_cutflow", "quality cut flow;quality;Entries",4,-0.5,3.5);
 
   //set labels
-  for (int i=1; i<=author->GetNbinsX(); i++) 
+  for (int i=1; i<=author->GetNbinsX(); i++) {
     author->GetXaxis()->SetBinLabel(i, EnumDefs::toString( (xAOD::Muon::Author)author->GetBinCenter(i) ));
-  
+    all_authors->GetXaxis()->SetBinLabel(i, EnumDefs::toString( (xAOD::Muon::Author)author->GetBinCenter(i) ));
+  }
   for (int i=1; i<=muonType->GetNbinsX(); i++)
     muonType->GetXaxis()->SetBinLabel(i, EnumDefs::toString( (xAOD::Muon::MuonType)muonType->GetBinCenter(i) ));
   
@@ -68,6 +66,9 @@ void RecoInfoPlots::initializePlots(){
   }
   
   author->Fill(mu.author(), weight);
+  for (unsigned int i =0 ; i < xAOD::Muon::NumberOfMuonAuthors; ++i){
+     if(mu.allAuthors() & (1<<i)) all_authors->Fill(i,weight);
+  }
   muonType->Fill(mu.muonType(), weight);
 
   xAOD::Muon::Quality muqual = mu.quality();

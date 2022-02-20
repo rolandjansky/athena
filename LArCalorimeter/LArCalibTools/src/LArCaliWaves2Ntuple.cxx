@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCaliWaves2Ntuple.h"
@@ -135,7 +135,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
 
 
     ATH_MSG_INFO( "Processing WaveContainer from StoreGate! key=" << m_keylist[k] ); 
-    const LArCaliWaveContainer* caliWaveContainer;
+    const LArCaliWaveContainer* caliWaveContainer = nullptr;
     StatusCode sc = m_detStore->retrieve(caliWaveContainer,key);	    
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Cannot read LArCaliWaveContainer from StoreGate! key=" << key );

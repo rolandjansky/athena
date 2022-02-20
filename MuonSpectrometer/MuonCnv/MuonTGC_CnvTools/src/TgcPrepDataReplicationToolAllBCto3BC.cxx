@@ -13,18 +13,10 @@
 //================ Constructor =================================================
 Muon::TgcPrepDataReplicationToolAllBCto3BC::TgcPrepDataReplicationToolAllBCto3BC 
   (const std::string& t, const std::string& n, const IInterface* p)
-  : base_class(t, n, p),
-  m_3BCKeys{"dummy", "dummy", "dummy"},
-  m_AllBCKey("TGC_MeasurementsAllBCs")
-{
-  declareProperty("BC3Keys", m_3BCKeys);
-  declareProperty("AllBCKey", m_AllBCKey);
-}  
+  : base_class(t, n, p) {}
 
 //================ Initialization ==============================================
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize()
-{
-  ATH_CHECK(AthAlgTool::initialize());
+StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize() {
   ATH_CHECK(m_idHelperSvc.retrieve());
   
   for(int ibc = 0; ibc < BC_ALL; ibc++) {
@@ -41,15 +33,14 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::replicate() const
+StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::replicate(const EventContext& ctx) const
 {
-    return convertAllBCto3BC();
+    return convertAllBCto3BC(ctx);
 }
 
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC() const
-{
+StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC(const EventContext& ctx) const {
 
-  SG::ReadHandle<TgcPrepDataContainer> tgcAll(m_AllBCKey);
+  SG::ReadHandle<TgcPrepDataContainer> tgcAll{m_AllBCKey, ctx};
  
   if(!tgcAll.isValid()) {
     ATH_MSG_FATAL("Cannot retrieve TGC_MeasurementsAllBCs");
@@ -58,22 +49,16 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC() const
 
 
   // convert
-  auto tgc3BCHandles = m_3BCKeys.makeHandles();
+  auto tgc3BCHandles = m_3BCKeys.makeHandles(ctx);
   for (int ibc = 0; ibc < BC_ALL; ibc++){
-      tgc3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()) );
+      tgc3BCHandles.at(ibc) = std::make_unique<TgcPrepDataContainer>(m_idHelperSvc->tgcIdHelper().module_hash_max());
   }
 
-  Muon::TgcPrepDataContainer::const_iterator tgcAllItr   = tgcAll->begin();
-  Muon::TgcPrepDataContainer::const_iterator tgcAllItrE  = tgcAll->end();
-  
-  for (; tgcAllItr != tgcAllItrE; ++tgcAllItr) {
-    Muon::TgcPrepDataCollection::const_iterator tgcAllColItr  = (*tgcAllItr)->begin();
-    Muon::TgcPrepDataCollection::const_iterator tgcAllColItrE = (*tgcAllItr)->end();
+  for (const Muon::TgcPrepDataCollection * coll : *tgcAll) {
+    for (const Muon::TgcPrepData* to_copy : *coll) {
 
-    for (; tgcAllColItr != tgcAllColItrE; ++tgcAllColItr) {
-
-      uint16_t bcBitMap = (*tgcAllColItr)->getBcBitMap();
-      uint16_t hasBC[BC_NUM] = {0};
+      uint16_t bcBitMap = to_copy->getBcBitMap();
+      std::array<uint16_t, BC_NUM> hasBC{0};
       if (bcBitMap & TgcPrepData::BCBIT_PREVIOUS) 
         hasBC[BC_PREVIOUS] = TgcPrepData::BCBIT_PREVIOUS;
       if (bcBitMap & TgcPrepData::BCBIT_CURRENT)  
@@ -81,15 +66,15 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC() const
       if (bcBitMap & TgcPrepData::BCBIT_NEXT)     
         hasBC[BC_NEXT] = TgcPrepData::BCBIT_NEXT;
 
-      Identifier channelId = (*tgcAllColItr)->identify();
-      Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelId);
+      const Identifier channelId = to_copy->identify();
+      const Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelId);
       std::array<Muon::TgcPrepDataCollection*, BC_ALL> collections{};
       for (int ibc = 0; ibc < BC_ALL; ibc++) {
         collections[ibc] = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
                             (elementId, tgc3BCHandles[ibc].ptr(), m_idHelperSvc->tgcIdHelper(), msg());
      
         if (!hasBC[ibc]) continue;
-        Muon::TgcPrepData* newPrepData = makeTgcPrepData(tgcAllColItr, hasBC[ibc]);
+        Muon::TgcPrepData* newPrepData = makeTgcPrepData(to_copy, hasBC[ibc]);
         newPrepData->setHashAndIndex(collections[ibc]->identifyHash(), collections[ibc]->size());
         collections[ibc]->push_back(newPrepData);
       }
@@ -102,17 +87,14 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC() const
 
 
 Muon::TgcPrepData*
-Muon::TgcPrepDataReplicationToolAllBCto3BC::makeTgcPrepData(Muon::TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap)
+Muon::TgcPrepDataReplicationToolAllBCto3BC::makeTgcPrepData(const Muon::TgcPrepData* to_copy, uint16_t bcBitMap)
 {
-  Identifier channelId = (*itr)->identify();
-  IdentifierHash tgcHashId = (*itr)->collectionHash();
-  const std::vector<Identifier> &identifierList = (*itr)->rdoList();
-  const Amg::MatrixX* errHitPos = &(*itr)->localCovariance();
-  const MuonGM::TgcReadoutElement* descriptor = (*itr)->detectorElement();
-
-  auto newErrHitPos = Amg::MatrixX(*errHitPos);
-
-  Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, (*itr)->localPosition(),
+  Identifier channelId = to_copy->identify();
+  IdentifierHash tgcHashId = to_copy->collectionHash();
+  const std::vector<Identifier> &identifierList = to_copy->rdoList();
+  const Amg::MatrixX newErrHitPos{to_copy->localCovariance()};
+  const MuonGM::TgcReadoutElement* descriptor = to_copy->detectorElement();
+  Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, to_copy->localPosition(),
                                                    identifierList, newErrHitPos, descriptor);
   newPrepData->setBcBitMap(bcBitMap);
 

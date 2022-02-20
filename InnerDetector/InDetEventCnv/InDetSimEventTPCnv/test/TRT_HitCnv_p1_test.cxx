@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -54,7 +54,7 @@ void compare (const TRTUncompressedHit& p1,
 
 void testit (const TRTUncompressedHit& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TRT_HitCnv_p1 cnv;
   TRT_Hit_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

@@ -1716,6 +1716,20 @@ class WriteDAOD_IDTR1Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_IDTR1Stream)
 listAODtoDPD.append(WriteDAOD_IDTR1Stream.StreamName)
 
+class WriteDAOD_IDTR2Stream(JobProperty):
+    """IDTR2 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_IDTR2'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkInDet/IDTR2.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_IDTR2Stream)
+listAODtoDPD.append(WriteDAOD_IDTR2Stream.StreamName)
+
+
 #####################################
 # Defined by the e-gamma group
 #####################################

@@ -51,3 +51,10 @@ atlas_add_test( HepMcParticleLinkCnv_p2_test
                 test/HepMcParticleLinkCnv_p2_test.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CLHEP_LIBRARIES} GeneratorObjectsTPCnv StoreGateLib TestTools )
+
+atlas_add_test( McEventCollectionCnv_p6_test
+                SOURCES
+                test/McEventCollectionCnv_p6_test.cxx
+                INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} GeneratorObjectsTPCnv TestTools 
+                LOG_IGNORE_PATTERN "HepMCWeightSvc +INFO|No run info" )

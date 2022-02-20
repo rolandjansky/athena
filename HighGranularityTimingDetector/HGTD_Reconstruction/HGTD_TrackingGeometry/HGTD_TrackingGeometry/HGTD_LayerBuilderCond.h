@@ -20,6 +20,7 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerBuilderCond.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/BinnedArray.h"
 // STL
 #include <vector>
 
@@ -80,7 +81,7 @@ public AthAlgTool, virtual public Trk::ILayerBuilderCond {
     const Trk::BinnedLayerMaterial discLayerMaterial(double rMin, double rMax) const;
 
     //!< layer association
-    void registerSurfacesToLayer( const std::vector<const Trk::Surface*>& surfaces,const Trk::Layer& layer) const;
+    void registerSurfacesToLayer( Trk::BinnedArraySpan<Trk::Surface const * const>& surfaces,const Trk::Layer& layer) const;
 
     static void evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
                              std::vector<float>& rBins,

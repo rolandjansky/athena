@@ -24,7 +24,7 @@
         "chains" : "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
     },
     "L2electron":{
-        "chains" : "HLT_e26_idperf_loose_L1EM24VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron HLT_e28_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron"
+        "chains" : "HLT_e26_idperf_loose_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron HLT_e28_idperf_loose_L1EM22VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron"
     },
     "EFelectron":{
         "chains" : "HLT_e26_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron HLT_e26_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_IDTrig HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI_HLT_IDTrack_Electron_GSF HLT_e26_idperf_gsf_tight_L1EM22VHI_HLT_IDTrack_Electron_GSF"
@@ -59,6 +59,9 @@
     },
     "L2fsjetvtx":{
         "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS/HLT_IDVertex_FS HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet/HLT_IDVertex_FSJet"
+    },
+    "L2fst0vtx":{
+        "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
     },
     "L2minbias":{
         "chains" : "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig"

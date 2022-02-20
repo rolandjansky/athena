@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -27,7 +27,7 @@ TileTTL1FillerTool::TileTTL1FillerTool(const string& type,
   m_tileTBID(0),
   m_TT_ID(0)
 {
-  book().ignore(); // Avoid coverity warnings
+  TileTTL1FillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 

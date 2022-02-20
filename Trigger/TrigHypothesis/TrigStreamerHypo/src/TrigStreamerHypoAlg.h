@@ -27,7 +27,8 @@ class TrigStreamerHypoAlg : public ::HypoBase {
 
   ToolHandleArray<ITrigStreamerHypoTool> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
-     
+
+  Gaudi::Property<bool> m_featureIsROI{this, "FeatureIsROI", true, "If the Streamer alg should re-use the initialRoI as the 'feature'. Will re-use the previous step's feature if false"};     
 }; 
 
 #endif

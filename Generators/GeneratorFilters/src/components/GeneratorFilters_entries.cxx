@@ -1,5 +1,6 @@
 // filters accepted for 22.6
 #include "GeneratorFilters/QCDTruthJetFilter.h"
+#include "GeneratorFilters/xAODBSignalFilter.h"
 #include "GeneratorFilters/xAODChargedTracksFilter.h"
 #include "GeneratorFilters/xAODChargedTracksWeightFilter.h"
 #include "GeneratorFilters/xAODDecaysFinalStateFilter.h"
@@ -7,6 +8,7 @@
 #include "GeneratorFilters/xAODDiLeptonMassFilter.h"
 #include "GeneratorFilters/xAODDirectPhotonFilter.h"
 #include "GeneratorFilters/xAODElectronFilter.h"
+#include "GeneratorFilters/xAODLeptonFilter.h"
 #include "GeneratorFilters/xAODLeptonPairFilter.h"
 #include "GeneratorFilters/xAODM4MuIntervalFilter.h"
 #include "GeneratorFilters/xAODMETFilter.h"
@@ -19,7 +21,13 @@
 #include "GeneratorFilters/xAODParentChildFilter.h"
 #include "GeneratorFilters/xAODParentTwoChildrenFilter.h"
 #include "GeneratorFilters/xAODPhotonFilter.h"
+#include "GeneratorFilters/xAODSameParticleHardScatteringFilter.h"
 #include "GeneratorFilters/xAODTauFilter.h"
+#include "GeneratorFilters/xAODTTbarWithJpsimumuFilter.h"
+#include "GeneratorFilters/xAODTTbarWToLeptonFilter.h"
+#include "GeneratorFilters/xAODVBFForwardJetsFilter.h"
+#include "GeneratorFilters/xAODVBFMjjIntervalFilter.h"
+#include "GeneratorFilters/xAODXtoVVDecayFilterExtended.h"
 
 
 // slimmers for 22.6
@@ -126,6 +134,7 @@
 
 //filters accepted for 22.6
 DECLARE_COMPONENT( QCDTruthJetFilter )
+DECLARE_COMPONENT( xAODBSignalFilter )
 DECLARE_COMPONENT( xAODChargedTracksFilter )
 DECLARE_COMPONENT( xAODChargedTracksWeightFilter )
 DECLARE_COMPONENT( xAODDecaysFinalStateFilter )
@@ -133,6 +142,7 @@ DECLARE_COMPONENT( xAODDecayTimeFilter )
 DECLARE_COMPONENT( xAODDiLeptonMassFilter )
 DECLARE_COMPONENT( xAODDirectPhotonFilter )
 DECLARE_COMPONENT( xAODElectronFilter )
+DECLARE_COMPONENT( xAODLeptonFilter ) 
 DECLARE_COMPONENT( xAODLeptonPairFilter )
 DECLARE_COMPONENT( xAODM4MuIntervalFilter )
 DECLARE_COMPONENT( xAODMETFilter)
@@ -145,7 +155,13 @@ DECLARE_COMPONENT( xAODMuonFilter )
 DECLARE_COMPONENT( xAODParentChildFilter )
 DECLARE_COMPONENT( xAODParentTwoChildrenFilter )
 DECLARE_COMPONENT( xAODPhotonFilter )
+DECLARE_COMPONENT( xAODSameParticleHardScatteringFilter )
 DECLARE_COMPONENT( xAODTauFilter )
+DECLARE_COMPONENT( xAODTTbarWithJpsimumuFilter )
+DECLARE_COMPONENT( xAODTTbarWToLeptonFilter )
+DECLARE_COMPONENT( xAODVBFForwardJetsFilter )
+DECLARE_COMPONENT( xAODVBFMjjIntervalFilter )
+DECLARE_COMPONENT( xAODXtoVVDecayFilterExtended )
 
 //slimmers accepted for 22.6
 DECLARE_COMPONENT( PileupTruthParticleSlimmer )

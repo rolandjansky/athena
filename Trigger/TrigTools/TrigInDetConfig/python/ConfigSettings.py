@@ -133,8 +133,19 @@ class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
       self._adaptiveVertex = True
       self._addSingleTrackVertices = True
       self._roi      = "HLT_Roi_JetSuper"
+      self._etaHalfWidth = 0.3
+      self._phiHalfWidth = 0.3
       self._doFullScan = True
       self._pTmin      = 1*GeV
+      #-----
+      self._doFullScan      = True
+      self._doTRT           = False
+      self._DoubletDR_Max   = 200
+      self._SeedRadBinWidth = 10
+      self._TripletDoPPS    = False
+      self._nClustersMin    = 8
+      self._RoadWidth       = 5
+      self._UseTrigSeedML   = 4
 
 
 class _ConfigSettings_minBias( _ConfigSettingsBase ):
@@ -144,7 +155,7 @@ class _ConfigSettings_minBias( _ConfigSettingsBase ):
       self._suffix   = "MinBias"
       self._roi      = "HLT_Roi_MinBias"
       self._doFullScan      = True
-      self._pTmin           = 0.2*GeV # TODO: double check
+      self._pTmin           = 0.1*GeV # TODO: double check
       self._etaHalfWidth    = 3
       self._phiHalfWidth    = math.pi
       self._doZFinder       = True
@@ -419,6 +430,39 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._minTRTonTrkPT       = 0
 
 
+class _ConfigSettings_DJetLRT( _ConfigSettingsBase ):
+   def __init__( self ):
+      _ConfigSettingsBase.__init__(self)
+      self._name     = "displacedJetLRT"
+      self._suffix   = "DJLRT"
+      self._roi      = "HLT_Roi_DJ"
+      self._doFullScan      = False
+      self._etaHalfWidth    = 3.
+      self._phiHalfWidth    = 3.14159
+      self._doTRT           = False
+      self._doSeedRedundancyCheck = True
+      self._UsePixelSpacePoints   = False
+      self._Triplet_D0Max         = 300.
+      self._TrackInitialD0Max     = 300.
+      self._TrackZ0Max            = 500.
+      self._Triplet_D0_PPS_Max    = 300.
+      self._DoubletDR_Max         = 200
+      self._nClustersMin          = 8
+      self._isLRT                 = True
+      self._LRTD0Min              = 2.0
+      self._LRTHardPtMin          = 1.0*GeV
+      #pt config
+      self._newConfig           = True
+      self._maxZImpactPT        = 500.
+      self._maxRPhiImpactPT     = 300.
+      self._maxEtaPT            = 2.7
+      self._maxDoubleHolesPT    = 0
+      self._maxSiHolesPT        = 2
+      self._maxPixelHolesPT     = 1
+      self._maxSCTHolesPT       = 1
+      self._minSiClustersPT     = 8
+      self._doEmCaloSeedPT      = False
+      self._minTRTonTrkPT       = 0
 
 
 
@@ -468,4 +512,5 @@ _ConfigSettings = {
     "muonLRT"        : _ConfigSettings_muonLRT(),
     "tauLRT"         : _ConfigSettings_tauLRT(),
     "bjetLRT"        : _ConfigSettings_bjetLRT(),
-    "fullScanLRT"    : _ConfigSettings_fullScanLRT() }
+    "fullScanLRT"    : _ConfigSettings_fullScanLRT(),
+    "DJetLRT"       : _ConfigSettings_DJetLRT() }

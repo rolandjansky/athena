@@ -36,7 +36,7 @@ public:
    unsigned int l1psk { 0 };
    unsigned int hltpsk { 0 };
    unsigned int bgsk { 0 };
-   std::string  dbalias { "TRIGGERDBDEV1" };
+   std::string  dbalias { "TRIGGERDB_RUN3" };
    bool doCtp { false }; // flag to read CTP files
 
    // output

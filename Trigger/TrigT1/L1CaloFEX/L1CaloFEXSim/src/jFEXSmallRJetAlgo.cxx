@@ -34,7 +34,7 @@ LVL1::jFEXSmallRJetAlgo::~jFEXSmallRJetAlgo()
 }
 StatusCode LVL1::jFEXSmallRJetAlgo::initialize()
 {
-   ATH_CHECK(m_jFEXSmallRJetAlgo_jTowerContainerKey.initialize());
+   ATH_CHECK(m_jTowerContainerKey.initialize());
 
    return StatusCode::SUCCESS;
 
@@ -43,10 +43,10 @@ StatusCode LVL1::jFEXSmallRJetAlgo::initialize()
 //calls container for TT
 StatusCode LVL1::jFEXSmallRJetAlgo::safetyTest(){
 
-  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey);
+  SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey);
 
-  if(! jk_jFEXSmallRJetAlgo_jTowerContainer.isValid()){
-    ATH_MSG_FATAL("Could not retrieve  jk_jFEXSmallRJetAlgo_jTowerContainer " << m_jFEXSmallRJetAlgo_jTowerContainerKey.key());
+  if(! jTowerContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve  jTowerContainer " << m_jTowerContainerKey.key());
 
     return StatusCode::FAILURE;
   }
@@ -87,9 +87,9 @@ unsigned int LVL1::jFEXSmallRJetAlgo::getRealPhi(unsigned int TTID ) {
     if(TTID == 0) {
         return 0;
     }
-    SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey/*,ctx*/);
 
-    unsigned int phi = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(TTID)->phi();
+    unsigned int phi = jTowerContainer->findTower(TTID)->phi();
     return phi;
 }
 //Gets Eta of the TT
@@ -97,8 +97,8 @@ int LVL1::jFEXSmallRJetAlgo::getRealEta(unsigned int TTID ) {
     if(TTID == 0) {
         return 0;
     }
-    SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
-    const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(TTID);
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey/*,ctx*/);
+    const LVL1::jTower * tmpTower = jTowerContainer->findTower(TTID);
     return realValue(TTID,tmpTower->eta());
 }
 

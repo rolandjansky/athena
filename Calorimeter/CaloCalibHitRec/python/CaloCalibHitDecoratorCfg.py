@@ -1,20 +1,16 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloCalibHitDecoratorCfg():
     result=ComponentAccumulator()
 
-    from CaloCalibHitRec.CaloCalibHitRecConf import CaloCalibClusterTruthMapMakerAlgorithm
-    CaloCalibClusterTruthMapMakerAlgorithm = CaloCalibClusterTruthMapMakerAlgorithm()
-    result.addEventAlgo(CaloCalibClusterTruthMapMakerAlgorithm)
+    result.addEventAlgo(CompFactory.CaloCalibClusterTruthMapMakerAlgorithm())
 
-    from CaloCalibHitRec.CaloCalibHitRecConf import CaloCalibClusterDecoratorAlgorithm
-    CaloCalibClusterDecoratorAlgorithm = CaloCalibClusterDecoratorAlgorithm()
+    CaloCalibClusterDecoratorAlgorithm = CompFactory.CaloCalibClusterDecoratorAlgorithm()
 
-    from CaloCalibHitRec.CaloCalibHitRecConf import CaloCalibClusterTruthAttributerTool as CalibClusterTruthAttributerTool
-    CaloCalibClusterTruthAttributerTool = CalibClusterTruthAttributerTool()
-    CaloCalibClusterDecoratorAlgorithm.TruthAttributerTool = CaloCalibClusterTruthAttributerTool
+    CaloCalibClusterDecoratorAlgorithm.TruthAttributerTool = CompFactory.CaloCalibClusterTruthAttributerTool()
     result.addEventAlgo(CaloCalibClusterDecoratorAlgorithm)
 
     return result

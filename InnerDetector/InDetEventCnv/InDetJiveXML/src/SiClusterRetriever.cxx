@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/SiClusterRetriever.h"
@@ -66,7 +66,7 @@ namespace JiveXML {
     }
    
     //Retrieve the truth collection
-    const PRD_MultiTruthCollection* simClusterMap = NULL ;
+    const PRD_MultiTruthCollection* simClusterMap = nullptr ;
     if ( evtStore()->contains<PRD_MultiTruthCollection>(m_SiTruthMapName) ){
       if ( evtStore()->retrieve(simClusterMap, m_SiTruthMapName).isFailure() ){
         //Just write out a warning if this fails
@@ -147,11 +147,11 @@ namespace JiveXML {
         side.push_back(DataType(m_geo->SCTIDHelper()->side(clusterId)));
         
         //Only process truth if its there
-        if ( simClusterMap == NULL ) continue;
+        if ( simClusterMap == nullptr ) continue;
 
         // Count the number of associated truth particles, and store their barcodes
         unsigned long countBarcodes=0;
-        typedef PRD_MultiTruthCollection::const_iterator iter;
+        using iter = PRD_MultiTruthCollection::const_iterator;
         std::pair<iter,iter> range = simClusterMap->equal_range(clusterId);
         for (iter i = range.first; i != range.second; ++i) {
           ++countBarcodes;

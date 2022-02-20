@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ const Amg::Vector3D iParSim::ISPtoPerigeeTool::getPerigee() const{
 
 
 const Trk::TrackParameters* iParSim::ISPtoPerigeeTool::extractTrkParameters(const ISF::ISFParticle& isp) const {
-
+    const EventContext& ctx =  Gaudi::Hive::currentContext();
     if( isp.charge() == 0 ) {
       ATH_MSG_WARNING("     ISPtoPerigeeTool is not for neutral particles!");
     }
@@ -55,9 +55,12 @@ const Trk::TrackParameters* iParSim::ISPtoPerigeeTool::extractTrkParameters(cons
     const Amg::Vector3D &position = isp.position();
     //do the rest
     const Trk::CurvilinearParameters cParameters(position, momentum, isp.charge());
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
     Trk::PerigeeSurface persf( beamSpotHandle->beamPos() );
-    const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
+    const Trk::TrackParameters* tP = m_extrapolator->extrapolate(ctx,
+                                                                 cParameters, 
+                                                                 persf, 
+                                                                 Trk::anyDirection, false).release();
     return tP;
 
 }

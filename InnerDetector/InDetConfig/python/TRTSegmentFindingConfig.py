@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 import InDetConfig.TrackingCommonConfig as TC
 
 def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker', **kwargs) :
@@ -30,14 +31,14 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     if extension == "_TRT":
         # TRT Subdetector segment finding
-        MinNumberDCs   = flags.InDet.Tracking.minTRTonly
-        pTmin          = flags.InDet.Tracking.minPT
-        sharedFrac     = flags.InDet.Tracking.maxTRTonlyShared
+        MinNumberDCs   = flags.InDet.Tracking.ActivePass.minTRTonly
+        pTmin          = flags.InDet.Tracking.ActivePass.minPT
+        sharedFrac     = flags.InDet.Tracking.ActivePass.maxTRTonlyShared
     else:
         # TRT-only/back-tracking segment finding
-        MinNumberDCs   = flags.InDet.Tracking.minSecondaryTRTonTrk
-        pTmin          = flags.InDet.Tracking.minSecondaryPt
-        sharedFrac     = flags.InDet.Tracking.maxSecondaryTRTShared
+        MinNumberDCs   = flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk
+        pTmin          = flags.InDet.Tracking.ActivePass.minSecondaryPt
+        sharedFrac     = flags.InDet.Tracking.ActivePass.maxSecondaryTRTShared
     #
     # --- offline version  of TRT segemnt making
     #
@@ -50,9 +51,9 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionTool)
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else '')
-    kwargs.setdefault("RemoveNoiseDriftCircles", flags.InDet.removeTRTNoise)
+    kwargs.setdefault("RemoveNoiseDriftCircles", False)
     kwargs.setdefault("MinNumberDriftCircles", MinNumberDCs)
-    kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.TRTSegFinderPtBins)
+    kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.ActivePass.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)
     kwargs.setdefault("sharedFrac", sharedFrac)
 
@@ -67,22 +68,22 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
     #
     if extension == "_TRT":
         # TRT Subdetector segment finding
-        pTmin = flags.InDet.Tracking.minPT
+        pTmin = flags.InDet.Tracking.ActivePass.minPT
     else:
         # TRT-only/back-tracking segment finding
-        pTmin = flags.InDet.Tracking.minSecondaryPt
+        pTmin = flags.InDet.Tracking.ActivePass.minSecondaryPt
 
     InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.TRTSegFinderPtBins)
+    kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.ActivePass.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)
 
     InDetTRT_TrackSegmentsMakerCondAlg = CompFactory.InDet.TRT_TrackSegmentsMakerCondAlg_ATLxk(name = name, **kwargs)
     acc.addCondAlgo(InDetTRT_TrackSegmentsMakerCondAlg)
     return acc
 
-def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
+def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
 
@@ -91,46 +92,35 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
     # --- now the main steering of the TRT segments finding
     #
     # ---------------------------------------------------------------
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         #
         # --- cosmics barrel segments (use TRT track segements even for NewT) 
         #
-        if doPhase:
-            InDetTRT_TrackSegmentsMakerPhase = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMakerPhase'+extension))
-            acc.addPublicTool(InDetTRT_TrackSegmentsMakerPhase)
+        InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker'+extension,
+                                                                                                   TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
+        acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-            kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMakerPhase)
-            kwargs.setdefault("SegmentsLocation", BarrelSegments)
-        else:
-            InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker'+extension,
-                                                                                                              TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
-            acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
-
-            if flags.Detector.EnableCalo and (flags.InDet.doCaloSeededTRTSegments or flags.InDet.Tracking.RoISeededBackTracking):
-                from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-                acc.merge(CaloClusterROI_SelectorCfg(flags))
-                kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
-                kwargs.setdefault("SegmentsLocation", BarrelSegments)
-                kwargs.setdefault("useCaloSeeds", True)
-                kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer
-            else:
-                kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
-                kwargs.setdefault("SegmentsLocation", BarrelSegments)
-                kwargs.setdefault("InputClusterContainerName", "")
     else:
         #
-        # --- offline version  of TRT segemnt making
+        # --- offline version  of TRT segment making
         #
         InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_ATLxkCfg( flags, 
                                                                                             name = 'InDetTRT_SeedsMaker'+extension, 
                                                                                             extension = extension,
                                                                                             InputCollections = InputCollections))
         acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
-        kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
 
         acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, 
                                                          name = 'InDetTRT_SeedsMakerCondAlg'+ extension, 
                                                          extension = extension))
+
+    kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
+    kwargs.setdefault("SegmentsLocation", BarrelSegments)
+
+    if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        kwargs.setdefault("useCaloSeeds", True)
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackSegmentsFinder( name = name, **kwargs))
     return acc
@@ -142,12 +132,12 @@ def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssVa
     #
     if extension == "_TRT":
         # TRT Subdetector segment finding
-        MinNumberDCs = flags.InDet.Tracking.minTRTonly
-        pTmin        = flags.InDet.Tracking.minPT
+        MinNumberDCs = flags.InDet.Tracking.ActivePass.minTRTonly
+        pTmin        = flags.InDet.Tracking.ActivePass.minPT
     else:
         # TRT-only/back-tracking segment finding
-        MinNumberDCs = flags.InDet.Tracking.minSecondaryTRTonTrk
-        pTmin        = flags.InDet.Tracking.minSecondaryPt
+        MinNumberDCs = flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk
+        pTmin        = flags.InDet.Tracking.ActivePass.minSecondaryPt
 
     #kwargs.setdefault("OrigTracksLocation", BarrelSegments)
     kwargs.setdefault("TRT_DriftCirclesName", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles
@@ -161,7 +151,7 @@ def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssVa
     acc.addEventAlgo(InDetSegmentDriftCircleAssValidation)
     return acc
 
-def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None, doPhase = False):
+def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None):
 
     acc = ComponentAccumulator()
     #
@@ -175,9 +165,10 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
     prefix = 'InDetSegment'
     suffix = extension
     if usePrdAssociationTool:
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags, namePrefix = prefix,
-                                                         nameSuffix = suffix,
-                                                         TracksName = list(InputCollections)))
+        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
+                                                  name = prefix + 'TrackPRD_Association' + suffix,
+                                                  AssociationMapName = prefix + 'PRDtoTrackMap' + suffix,
+                                                  TracksName = list(InputCollections)))
     #
     # --- TRT track reconstruction
     #
@@ -185,13 +176,12 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
                                           name = 'InDetTRT_TrackSegmentsFinder'+extension,
                                           extension =extension,
                                           BarrelSegments=BarrelSegments,
-                                          InputCollections = InputCollections,
-                                          doPhase = doPhase))
+                                          InputCollections = InputCollections))
     #
     # --- load TRT validation alg
     #
     
-    if flags.InDet.doTruth and not flags.Beam.Type == "cosmics":
+    if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
         acc.merge(SegmentDriftCircleAssValidationCfg(flags,
                                                     name="InDetSegmentDriftCircleAssValidation"+extension,
                                                     BarrelSegments=BarrelSegments))
@@ -205,8 +195,10 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    flags.Input.Files=defaultTestFiles.RDO
+    flags.Input.Files=defaultTestFiles.RDO_RUN2
 
+    # disable calo for this test
+    flags.Detector.EnableCalo = False
 
     numThreads=1
     flags.Concurrency.NumThreads=numThreads
@@ -224,14 +216,14 @@ if __name__ == "__main__":
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
-    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    if not flags.InDet.doDBMstandalone:
-        top_acc.merge(TRTPreProcessingCfg(flags,(not flags.InDet.doTRTPhaseCalculation or flags.Beam.Type =="collisions"),False))
+    if not flags.InDet.Tracking.doDBMstandalone:
+        from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+        top_acc.merge(TRTPreProcessingCfg(flags))
 
     top_acc.merge(TRTSegmentFindingCfg( flags,
-                                        "",
-                                        InputCombinedInDetTracks,
-                                        'TRTSegments')) # InDetKeys.TRT_Segments
+                                        extension = "",
+                                        InputCollections = InputCombinedInDetTracks,
+                                        BarrelSegments = 'TRTSegments'))
     #############################################################################
 
     iovsvc = top_acc.getService('IOVDbSvc')

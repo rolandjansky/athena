@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -337,10 +337,11 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
 {
   ATH_MSG_DEBUG("in fillHists()");
    StatusCode sc;
+   const EventContext& ctx = Gaudi::Hive::currentContext();
 
    //////////////////////////////////////////////////////
 
-   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey);
+   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey,ctx);
    if(! muons.isValid()) {
      ATH_MSG_WARNING( "No Container with name " << "Muons" << " found in evtStore" );
      return StatusCode::SUCCESS;
@@ -452,13 +453,21 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
       const Trk::TrackParameters *measPerigee(0);
      
       if (premeasPerigee) {
-	ATH_MSG_WARNING("idPerigee? " << idPerigee << " " << idPerigee->associatedSurface());
-	ATH_MSG_WARNING("premeasPerigee? " << premeasPerigee->associatedSurface());
-	measPerigee = m_extrapolator->extrapolate(**muontracksItr,(idPerigee->associatedSurface()),Trk::anyDirection,true,Trk::pion);
-	   ATH_MSG_WARNING("measPerigee? " << measPerigee);
-         if (!measPerigee) {            
-	   ATH_MSG_WARNING( "Extrapolation failed 1!!" );
-         } 
+        ATH_MSG_WARNING("idPerigee? " << idPerigee << " "
+                                      << idPerigee->associatedSurface());
+        ATH_MSG_WARNING("premeasPerigee? "
+                        << premeasPerigee->associatedSurface());
+        measPerigee =
+          m_extrapolator->extrapolate(ctx,
+                                      **muontracksItr,
+                                      (idPerigee->associatedSurface()),
+                                      Trk::anyDirection,
+                                      true,
+                                      Trk::pion).release();
+        ATH_MSG_WARNING("measPerigee? " << measPerigee);
+        if (!measPerigee) {
+          ATH_MSG_WARNING("Extrapolation failed 1!!");
+        }
       }
      
       if (idPerigee!=0 && measPerigee!=0) {
@@ -485,14 +494,21 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
             
                const Trk::Perigee *idPerigee2   = &((*idtracksItr2)->perigeeParameters());
                const Trk::Perigee *measPerigee2 = &((*muontracksItr2)->perigeeParameters());
-               
+
                if (measPerigee2) {
-                  measPerigee2 = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*measPerigee2,(idPerigee2->associatedSurface()),Trk::anyDirection,false,Trk::muon));
-                  if (!measPerigee2) {
-		    ATH_MSG_WARNING( "Extrapolation failed 2!!" );
-                  } 
+                 std::unique_ptr<const Trk::TrackParameters> tmp = m_extrapolator->extrapolate(
+                   ctx, *measPerigee2, (idPerigee2->associatedSurface()), Trk::anyDirection, false, Trk::muon);
+                  
+                 //release ownership if of the right type
+                 if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+                   measPerigee2 = static_cast<const Trk::Perigee*>(tmp.release());
+                 }
+
+                 if (!measPerigee2) {
+                   ATH_MSG_WARNING("Extrapolation failed 2!!");
+                 }
                }
-               
+
                if (idPerigee2!=0 && measPerigee2!=0) {
                   
                   // We should pay attention only to opposite sign tracks for forming masses

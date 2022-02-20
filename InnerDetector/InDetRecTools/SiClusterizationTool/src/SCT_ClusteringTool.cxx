@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -706,7 +706,7 @@ namespace InDet {
 
       SiWidth siWidth{Amg::Vector2D(dnStrips,1.), Amg::Vector2D(width,stripL)};
 
-      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, std::move(errorMatrix)};
+      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, errorMatrix};
 
       cluster->setHashAndIndex(idHash, clusterNumber);
 

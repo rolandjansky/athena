@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # D3PDMaker
@@ -23,6 +23,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         self.MinDigitADC      = kw.get('MinDigitADC',     20)
         self.MaxDeltaT        = kw.get('MaxDeltaT',        5)
         self.NtupleFileName   = kw.get('NtupleFileName', 'HECNoiseD3PD.root')
+        self.RequireTrigger   = kw.get('RequireTrigger', False)
         self.TriggerLines     = kw.get('TriggerLines',   ['HLT_noalg_L1EM20A',
                                                           'HLT_noalg_L1EM20C',
                                                           'L1_J12',
@@ -47,14 +48,14 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         print ("MinDigitADC:     ", self.MinDigitADC)
         print ("MaxDeltaT:       ", self.MaxDeltaT)
         print ("NtupleFileName:  ", self.NtupleFileName)
+        print ("RequireTrigger:  ", self.RequireTrigger)
         print ("TriggerLines:    ", self.TriggerLines)
         #
         self.sg = PyAthena.py_svc("StoreGateSvc")
         self.cond = PyAthena.py_svc('StoreGateSvc/ConditionStore')
         self.det = PyAthena.py_svc("StoreGateSve/DetectorStore")
         self.LArOID = self.det.retrieve("LArOnlineID","LArOnlineID")
-        self.cdd = PyAthena.CaloDetDescrManager.instance()
-        self.cid = self.cdd.getCaloCell_ID()
+        self.cid = self.det.retrieve("CaloCell_ID","CaloCell_ID")
         self.tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.ntfile =  ROOT.TFile(self.NtupleFileName,"RECREATE")
         self.hectree = ROOT.TTree("HECNoise","HECNoise")
@@ -133,6 +134,8 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         lcs=lcsCont.find(eid)
         pedCont = self.cond.retrieve("CondCont<ILArPedestal>","LArPedestal")
         ped=pedCont.find(eid)
+        cddCont = self.cond.retrieve("CondCont<CaloDetDescrManager>","CaloDetDescrManager")
+        cdd=cddCont.find(eid)
         # filter low gain cells
         passedTrigger = False
         foundLowCell = False
@@ -146,7 +149,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                 self.iTrigger[tl][0] = 0
                 pass
             pass
-        if passedTrigger or not passedTrigger: # take all events with LG Cells
+        if passedTrigger or not self.RequireTrigger: # take only triggered events or all if RequireTrigger is False (default)
             self.iEventCount[0] = 0
             ldc = self.sg.retrieve("LArDigitContainer","LArDigitContainer_Thinned")
             for ld in ldc:
@@ -209,7 +212,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                             self.t[0] = rcell.time()
                             self.iQuality[0] = rcell.quality()
                             pass
-                        cdde = self.cdd.get_element(oid)
+                        cdde = cdd.get_element(oid)
                         self.eta[0] = cdde.eta()
                         self.phi[0] = cdde.phi()
                         self.z[0] = cdde.z()

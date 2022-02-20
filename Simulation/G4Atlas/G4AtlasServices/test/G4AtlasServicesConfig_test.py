@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on G4AtlasServicesConfigNew
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 if __name__ == '__main__':
@@ -29,7 +29,8 @@ if __name__ == '__main__':
   from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
   setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
-  ConfigFlags.Sim.CavernBG = "Signal"  #for it to go via atlas?
+  from G4AtlasApps.SimEnums import CavernBackground
+  ConfigFlags.Sim.CavernBackground = CavernBackground.Signal  #for it to go via atlas?
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000
   # Finalize 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -39,7 +39,7 @@ namespace D3PD{
         declareProperty("SavePositionInfo",   m_savePosition = true );
         declareProperty("TileBadChanTool",    m_tileBadChanTool);
 
-        book().ignore(); // Avoid coverity warnings
+        TileCellDetailsFillerTool::book().ignore(); // Avoid coverity warnings
     }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetIsoTrackSelectorTool.h"
@@ -110,10 +110,12 @@ bool InDet::InDetIsoTrackSelectorTool::decision(const Trk::AtaStraightLine& atl,
   const Trk::StraightLineSurface& alSurface = atl.associatedSurface();
   // no surface: bail out
   // get the track to the BeamLine Parameters ( given by AtaStrainghtLine)
-  const Trk::TrackParameters* trackAtBL = m_extrapolator->extrapolate(trackPars,
-                                                                      alSurface,
-                                                                      Trk::anyDirection,
-                                                                      false);
+  const Trk::TrackParameters* trackAtBL = m_extrapolator->extrapolate(
+    Gaudi::Hive::currentContext(),
+    trackPars,
+    alSurface,
+    Trk::anyDirection,
+    false).release();
   // no parameterisation : bail out
   if (!trackAtBL) return false;
   // d0,z0 wrt BL for reference and track

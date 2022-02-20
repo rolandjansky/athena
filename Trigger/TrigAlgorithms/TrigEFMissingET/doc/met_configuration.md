@@ -37,7 +37,7 @@ standardised). Therefore before the chain is passed to the individual slice
 configurations it is broken up into a 'chain dictionary'.
 
 This is done (mostly) by the
-`TriggerMenuMT.HLT.Menu.DictFromChainName.analyseChainName` function.
+`TriggerMenuMT.HLT.Config.Utility.DictFromChainName.analyseChainName` function.
 
 > Note that I am not describing the full process done by this function, just the
 > most relevant parts. This is also not an official documentation of this

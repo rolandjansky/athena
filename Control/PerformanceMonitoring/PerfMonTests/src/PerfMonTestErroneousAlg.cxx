@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestErroneousAlg.cxx 
@@ -78,6 +78,7 @@ bool ErroneousAlg::jumpOnUninitializedValue()
   unsigned int yesNo[] = { 0, 0};
   
   for ( unsigned int i=0; i<64*maximum; ++i )
+    // cppcheck-suppress uninitvar; this is meant to be uninitialized
     if ( this->shouldIJump(someConditions[i]) )
       yesNo[0]++;
     else
@@ -121,7 +122,7 @@ bool ErroneousAlg::mismatchedFree()
   ATH_MSG_INFO ( "Found, that last element contains " << invalidReadPointer[maximum-1] ) ;
   
   // and delete
-  delete invalidReadPointer;
+  delete [] invalidReadPointer;
   
   return true;
 }

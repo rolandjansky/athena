@@ -5,7 +5,7 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
@@ -16,13 +16,13 @@ def precisionTracks_GSFRefittedSequence(ConfigFlags):
 
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
     TrigEgammaKeys = getTrigEgammaKeys('_GSF')
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
  
 
     InViewRoIs = "precisionTracks_GSFRefitted"
     # EVCreator:
     precisionTracks_GSFRefittedViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTracking_GSFRefitted")
-    precisionTracks_GSFRefittedViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    precisionTracks_GSFRefittedViewsMaker.mergeUsingFeature=True
     precisionTracks_GSFRefittedViewsMaker.RoITool = ViewCreatorPreviousROITool()
     precisionTracks_GSFRefittedViewsMaker.InViewRoIs = InViewRoIs
     precisionTracks_GSFRefittedViewsMaker.Views = "precisionTracks_GSFRefittedViews"
@@ -47,15 +47,16 @@ def precisionTracks_GSFRefittedMenuSequence(name, is_probe_leg=False):
     (sequence, precisionTracks_GSFRefittedViewsMaker,caloClusters,trackParticles) = RecoFragmentsPool.retrieve(precisionTracks_GSFRefittedSequence, ConfigFlags)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlg
-    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    thePrecisionTrack_GSFRefittedHypo = TrigEgammaPrecisionTrackingHypoAlg("precisionTracks_GSFRefittedHypo" )
-    thePrecisionTrack_GSFRefittedHypo.CaloClusters = caloClusters
+    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg, TrigStreamerHypoTool
+    thePrecisionTrack_GSFRefittedHypo = TrigStreamerHypoAlg("precisionTracks_GSFRefittedHypo")
+    thePrecisionTrack_GSFRefittedHypo.FeatureIsROI = False
+    def acceptAllHypoToolGen(chainDict):
+        return TrigStreamerHypoTool(chainDict["chainName"], Pass = True)
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTracks_GSFRefittedViewsMaker, 
                          Hypo        = thePrecisionTrack_GSFRefittedHypo,
-                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict,
+                         HypoToolGen = acceptAllHypoToolGen, # Note: TrigEgammaPrecisionTrackingHypoAlg does not use HypoTools
                          IsProbe     = is_probe_leg)
 
 

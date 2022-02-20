@@ -120,6 +120,8 @@ fi
 # partially successful build...)
 if [ "${ATLAS_CI_BUILD}" = "1" ]; then
    set -e
+   # Enable build of CITest package
+   ATLAS_EXTRA_CMAKE_ARGS+=(-DATLAS_ENABLE_CI_TESTS:BOOL=TRUE)
 else
    set +e
 fi

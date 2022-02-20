@@ -29,7 +29,7 @@ TrigEgammaKeys = getTrigEgammaKeys()
 # Factory for egamaRecBuilder/TrigEgammaRecPhoton
 TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
         name = 'TrigEgammaRecPhoton' ,
-        InputClusterContainerName = TrigEgammaKeys.precisionCaloClusterContainer, # Use as input, the clusters made by precisionCalo
+        InputClusterContainerName = TrigEgammaKeys.precisionPhotonCaloClusterContainer, # Use as input, the clusters made by precisionCalo
         egammaRecContainer=TrigEgammaKeys.precisionEgammaRecCollection ,
         doTrackMatching = False,
         doConversions = False,

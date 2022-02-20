@@ -118,7 +118,7 @@ namespace Muon {
             @param[in] segment  input segment
             @param[out] the MuPatSegment object, ownership is passed to caller
         */
-        std::unique_ptr<MuPatSegment> createSegInfo(const MuonSegment& segment, GarbageContainer& trash_bin) const;
+        std::unique_ptr<MuPatSegment> createSegInfo(const EventContext& ctx, const MuonSegment& segment, GarbageContainer& trash_bin) const;
 
         /** @brief get list of the readout elements of the hits on the entry */
         std::set<const MuonGM::MuonReadoutElement*> readoutElements(const MuPatCandidateBase& entry) const;
@@ -163,7 +163,7 @@ namespace Muon {
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool", "Tool to manipulate hit lists"};
         ToolHandle<Muon::IMuonSegmentSelectionTool> m_segmentSelector{
             this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", "Tool to resolve track ambiguities"};

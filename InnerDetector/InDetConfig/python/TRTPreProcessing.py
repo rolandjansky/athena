@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # ------------------------------------------------------------
 #
 # ----------- TRT Data-Preparation stage
@@ -6,6 +6,7 @@
 # ------------------------------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 
 def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
@@ -44,7 +45,7 @@ def InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker
     acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMaker(name, **kwargs))
     return acc
 
-def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT_DriftFunctionTool", **kwargs):
+def InDetTRT_DriftFunctionToolCfg(flags, name = "InDetTRT_DriftFunctionTool", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftFunctionTool
@@ -55,20 +56,12 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     acc.addPublicTool(CalDbTool)
 
     # --- overwrite for uncalibrated DC production
-    if (not useTimeInfo) or flags.InDet.noTRTTiming:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.noTRTTiming:
         kwargs.setdefault("DummyMode", True)
         kwargs.setdefault("UniversalError", 1.15)
 
     # --- set Data/MC flag
-    if( flags.Input.isMC ) :
-        kwargs.setdefault("IsMC", True)
-    else :
-        kwargs.setdefault("IsMC", False)
-
-    # --- overwrite for calibration of MC
-    if usePhase and flags.Beam.Type =='cosmics' and flags.Input.isMC:
-        kwargs.setdefault("AllowDigiVersionOverride", True)
-        kwargs.setdefault("ForcedDigiVersion", 9)
+    kwargs.setdefault("IsMC", flags.Input.isMC)
 
     kwargs.setdefault("TRTCalDbTool", CalDbTool)
     # --- set HT corrections
@@ -99,16 +92,16 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     return acc
 
 
-def TRTDriftTimes( isData, isCosmics ):
+def TRTDriftTimes(flags):
     from collections import namedtuple
     from AthenaCommon.SystemOfUnits import ns
     driftTimes = namedtuple("driftTimes", ("LowGate", "HighGate", "LowGateArgon", "HighGateArgon"))
-    if isCosmics:
+    if flags.Beam.Type is BeamType.Cosmics:
         return driftTimes(LowGate         = 19.0*ns,
                           HighGate        = 44.0*ns,
                           LowGateArgon    = 19.0*ns,
                           HighGateArgon   = 44.0*ns)
-    if isData:
+    if not flags.Input.isMC:
         return driftTimes(LowGate         = 17.1875*ns,
                           HighGate        = 45.3125*ns,
                           LowGateArgon    = 18.75*ns,
@@ -120,15 +113,12 @@ def TRTDriftTimes( isData, isCosmics ):
                       HighGateArgon   = 42.1875*ns)
 
 
-def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
+def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftCircleTool
     #
-    if usePhase:
-        TRT_DriftCircleTool = CompFactory.InDet.TRT_DriftCircleToolCosmics
-    else:
-        TRT_DriftCircleTool = CompFactory.InDet.TRT_DriftCircleTool
+    TRT_DriftCircleTool = CompFactory.InDet.TRT_DriftCircleTool
 
     # set gating values for MC/DATA
     from AthenaCommon.SystemOfUnits import ns
@@ -136,11 +126,11 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     ## sync with: ConfiguredInDetPreProcessingTRT.py
     MinTrailingEdge = 11.0*ns
     MaxDriftTime    = 60.0*ns
-    gains = TRTDriftTimes(isData= not flags.Input.isMC, isCosmics= flags.Beam.Type == 'cosmics')
+    gains = TRTDriftTimes(flags)
     #
     # --- TRT_DriftFunctionTool
     #
-    InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = prefix + "DriftFunctionTool", **kwargs))
+    InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, name = prefix + "DriftFunctionTool", **kwargs))
     acc.addPublicTool(InDetTRT_DriftFunctionTool)
 
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
@@ -151,29 +141,29 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     kwargs.setdefault("ConditionsSummaryTool", InDetTRTStrawStatusSummaryTool)
     kwargs.setdefault("UseConditionsStatus", True)
     kwargs.setdefault("UseConditionsHTStatus", True)
-    kwargs.setdefault("SimpleOutOfTimePileupSupression", flags.Beam.Type == 'cosmics') #flags.InDet.doCosmics
+    kwargs.setdefault("SimpleOutOfTimePileupSupression", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("RejectIfFirstBit", False)
     kwargs.setdefault("MinTrailingEdge", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTime", MaxDriftTime)
-    kwargs.setdefault("ValidityGateSuppression", flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
+    kwargs.setdefault("ValidityGateSuppression", flags.Beam.Type is not BeamType.Cosmics)
     kwargs.setdefault("LowGate", gains.LowGate)
     kwargs.setdefault("HighGate", gains.HighGate)
-    kwargs.setdefault("SimpleOutOfTimePileupSupressionArgon" , flags.Beam.Type == 'cosmics') #flags.InDet.doCosmics
+    kwargs.setdefault("SimpleOutOfTimePileupSupressionArgon" , flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("RejectIfFirstBitArgon", False)
     kwargs.setdefault("MinTrailingEdgeArgon", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTimeArgon", MaxDriftTime)
-    kwargs.setdefault("ValidityGateSuppressionArgon" , flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
+    kwargs.setdefault("ValidityGateSuppressionArgon" , flags.Beam.Type is not BeamType.Cosmics)
     kwargs.setdefault("LowGateArgon", gains.LowGate)  # see discussion in MR !45402 why these are not Argon specific settings
     kwargs.setdefault("HighGateArgon", gains.HighGate)
     kwargs.setdefault("useDriftTimeHTCorrection", True)
     kwargs.setdefault("useDriftTimeToTCorrection", True)
 
 
-    if flags.InDet.InDet25nsec and flags.Beam.Type == "collisions":
+    if flags.Beam.BunchSpacing<=25 and flags.Beam.Type is BeamType.Collisions:
         kwargs.setdefault("ValidityGateSuppression", True)
         kwargs.setdefault("SimpleOutOfTimePileupSupression", False)
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("SimpleOutOfTimePileupSupression", False)
 
     acc.setPrivateTools(TRT_DriftCircleTool(name, **kwargs))
@@ -181,12 +171,12 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
 
 
 
-def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name = "InDetTRT_RIO_Maker", **kwargs):
+def InDetTRT_RIO_MakerCfg(flags, prefix, collection, name = "InDetTRT_RIO_Maker", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftCircleTool
     #
-    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool"))
+    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool"))
     acc.addPublicTool(InDetTRT_DriftCircleTool)
 
     # Region selector tools for TRT
@@ -204,12 +194,12 @@ def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name
     acc.addEventAlgo(CompFactory.InDet.TRT_RIO_Maker(name, **kwargs))
     return acc
 
-def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, name = "InDetTRT_RIO_MakerPU", **kwargs):
+def InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = "InDetTRT_RIO_MakerPU", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftCircleTool
     #
-    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool"))
+    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool"))
     acc.addPublicTool(InDetTRT_DriftCircleTool)
 
     # Region selector tools for TRT
@@ -228,7 +218,7 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
     return acc
 ########################################################################################################
 ########################################################################################################
-def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
+def TRTPreProcessingCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
@@ -242,22 +232,23 @@ def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     #
     # --- setup naming of tools and algs
     #
-    if useTimeInfo:
-        prefix     = "InDetTRT_"
-        collection = 'TRT_DriftCircles' ##InDetKeys.TRT_DriftCircles
-        if flags.InDet.doSplitReco:
-            collectionPU = 'TRT_PU_DriftCircles' ##read from InDetKeys.TRT_PU_DriftCircles
-    else:
+    if flags.Beam.Type is BeamType.Cosmics:
         prefix     = "InDetTRT_noTime_"
         collection = 'TRT_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_DriftCirclesUncalibrated
         if flags.InDet.doSplitReco:
             collectionPU = 'TRT_PU_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_PU_DriftCirclesUncalibrated
+    else:
+        prefix     = "InDetTRT_"
+        collection = 'TRT_DriftCircles' ##InDetKeys.TRT_DriftCircles
+        if flags.InDet.doSplitReco:
+            collectionPU = 'TRT_PU_DriftCircles' ##read from InDetKeys.TRT_PU_DriftCircles
+
     #
     # --- TRT_RIO_Maker Algorithm
     #
-    acc.merge(InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name = prefix+"RIO_Maker"))
+    acc.merge(InDetTRT_RIO_MakerCfg(flags, prefix, collection, name = prefix+"RIO_Maker"))
     if flags.InDet.doSplitReco :
-        acc.merge(InDetTRT_RIO_MakerPUCfg(flags,  useTimeInfo, usePhase, prefix, collectionPU, name = prefix+"RIO_MakerPU", **kwargs))
+        acc.merge(InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = prefix+"RIO_MakerPU", **kwargs))
     #
     #    Include alg to save the local occupancy inside xAOD::EventInfo
     #
@@ -267,7 +258,7 @@ def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     #
     # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
     #
-    if flags.InDet.doTruth and useTimeInfo:
+    if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
         acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags, name = prefix + "PRD_MultiTruthMaker"))
         if flags.InDet.doSplitReco :
             acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
@@ -280,7 +271,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files=defaultTestFiles.RDO_RUN2
 
     # TODO: TRT only?
 
@@ -305,8 +296,8 @@ if __name__ == "__main__":
     top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
     top_acc.merge( SCT_ReadoutGeometryCfg(ConfigFlags) )
 
-    if not ConfigFlags.InDet.doDBMstandalone:
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+    if not ConfigFlags.InDet.Tracking.doDBMstandalone:
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
 
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5

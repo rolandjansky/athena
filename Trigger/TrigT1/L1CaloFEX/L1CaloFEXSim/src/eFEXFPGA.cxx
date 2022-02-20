@@ -55,7 +55,7 @@ eFEXFPGA::eFEXFPGA(const std::string& type,const std::string& name,const IInterf
 StatusCode eFEXFPGA::initialize()
 {
 
-  ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
+  ATH_CHECK(m_eTowerContainerKey.initialize());
   ATH_CHECK( m_eFEXegAlgoTool.retrieve() );
   ATH_CHECK( m_eFEXtauAlgoTool.retrieve() );
   
@@ -87,9 +87,9 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   m_emTobwords.clear();
   m_tauTobwords.clear();
 
-  SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey/*,ctx*/);
-  if(!jk_eFEXFPGA_eTowerContainer.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
+  SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
+  if(!eTowerContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve container " << m_eTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
 
@@ -255,21 +255,34 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       threshRCore.push_back(iso_medium.rCore_fw());
       threshRCore.push_back(iso_tight.rCore_fw());
 
+      std::vector<unsigned int> threshRHad;
+      threshRHad.push_back(iso_loose.rHad_fw());
+      threshRHad.push_back(iso_medium.rHad_fw());
+      threshRHad.push_back(iso_tight.rHad_fw());
+
       // Get isolation values
       std::vector<unsigned int> rCoreVec; 
       m_eFEXtauAlgoTool->getRCore(rCoreVec);
 
+      std::vector<unsigned int> rHadVec;
+      m_eFEXtauAlgoTool->getRHad(rHadVec);
+
       // Set isolation WP
       unsigned int rCoreWP = 0;
+      unsigned int rHadWP = 0;
 
       // Isolation bitshift value
       unsigned int RcoreBitS = 3;
+      unsigned int RhadBitS = 3;
 
       SetIsoWP(rCoreVec,threshRCore,rCoreWP,RcoreBitS);
+      SetIsoWP(rHadVec,threshRHad,rHadWP,RhadBitS);
 
-      // Currently only one WP defined for tau iso, decided to set as Medium WP for freedom to add looser and tighter WPs in the future 
-      if (rCoreWP > 2) {
-        rCoreWP = 1;
+      // Currently only one WP defined for tau rCore iso, decided to set as Medium WP for freedom to add looser and tighter WPs in the future 
+      if (rCoreWP >= 2) {
+        rCoreWP = 2;
+      } else {
+        rCoreWP = 0;
       }
 
       unsigned int seed = 0;
@@ -283,22 +296,26 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
       
-      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt, rCoreWP, seed, und, ptTauMinToTopoCounts);
+      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt, rHadWP, rCoreWP, seed, und, ptTauMinToTopoCounts);
       if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
 
       // for plotting
-      if (inputOutputCollection->getdooutput()) {
+      if ((inputOutputCollection->getdooutput()) && ( tobword != 0 )) {
         inputOutputCollection->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
         inputOutputCollection->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
         inputOutputCollection->addValue_tau("Eta", ieta);
         inputOutputCollection->addValue_tau("Phi", iphi);
-        const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
+        const LVL1::eTower * centerTower = eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
         inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
         inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
-        inputOutputCollection->addValue_tau("IsoCore", rCoreVec[0]);
-        inputOutputCollection->addValue_tau("IsoEnv", rCoreVec[1]);
-        inputOutputCollection->addValue_tau("RealIso", m_eFEXtauAlgoTool->getRealIso());
-        inputOutputCollection->addValue_tau("IsoWP", rCoreWP);
+        inputOutputCollection->addValue_tau("RCoreCore", rCoreVec[0]);
+        inputOutputCollection->addValue_tau("RCoreEnv", rCoreVec[1]);
+        inputOutputCollection->addValue_tau("RealRCore", m_eFEXtauAlgoTool->getRealRCore());
+        inputOutputCollection->addValue_tau("RCoreWP", rCoreWP);
+        inputOutputCollection->addValue_tau("RHadCore", rHadVec[0]);
+        inputOutputCollection->addValue_tau("RHadEnv", rHadVec[1]);
+        inputOutputCollection->addValue_tau("RealRHad", m_eFEXtauAlgoTool->getRealRHad());
+        inputOutputCollection->addValue_tau("RHadWP", rHadWP);
         inputOutputCollection->addValue_tau("Seed", seed);
         inputOutputCollection->addValue_tau("UnD", und);
         
@@ -364,9 +381,9 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   //-----------------------------------------------------------
   // Set up a the second CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
   if(false){ // CSV CODE TO BE RE-INTRODUCED VERY SOON
-    SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey);
-    if(!jk_eFEXFPGA_eTowerContainer.isValid()){
-      ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
+    SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey);
+    if(!eTowerContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve container " << m_eTowerContainerKey.key() );
     }
     
     std::ofstream tower_fpga_efex_map;
@@ -375,7 +392,7 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	
-	const LVL1::eTower * tmpTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[thisRow][thisCol]);
+	const LVL1::eTower * tmpTower = eTowerContainer->findTower(m_eTowersIDs[thisRow][thisCol]);
 	
 	tower_fpga_efex_map << m_efexid << "," << m_id << "," << m_eTowersIDs[thisRow][thisCol] << "," << tmpTower->eta() << "," << tmpTower->phi() << "\n";
 	

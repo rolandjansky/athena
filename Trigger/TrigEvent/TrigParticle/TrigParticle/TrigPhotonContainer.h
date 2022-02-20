@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,10 @@ Modified:
 #include "AthenaKernel/BaseInfo.h"
 
 //typedef DataVector<TrigPhoton> TrigPhotonContainer;
-class TrigPhotonContainer : public DataVector<TrigPhoton> { }; 
+class TrigPhotonContainer : public DataVector<TrigPhoton> {
+public:
+  using DataVector::DataVector;  // inherit constructors
+};
 
 CLASS_DEF( TrigPhotonContainer , 1296898266 , 1 )
 

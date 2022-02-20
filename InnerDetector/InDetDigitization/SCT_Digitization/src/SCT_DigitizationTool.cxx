@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DigitizationTool.h"
@@ -106,7 +106,7 @@ namespace {
         m_chargedDiodes(chargedDiodes) {
     }
 
-    void operator () (const SiSurfaceCharge& scharge) const;
+    void operator () (const SiSurfaceCharge& scharge);
   private:
     const InDetDD::SiDetectorElement* m_sielement;
     SiChargedDiodeCollection* m_chargedDiodes;
@@ -114,7 +114,7 @@ namespace {
 
 
   void SiDigitizationSurfaceChargeInserter::operator ()
-    (const SiSurfaceCharge& scharge) const {
+    (const SiSurfaceCharge& scharge) {
     // get the diode in which this charge is
     SiCellId diode{m_sielement->cellIdOfPosition(scharge.position())};
 
@@ -260,7 +260,7 @@ StatusCode SCT_DigitizationTool::mergeEvent(const EventContext& ctx) {
   return StatusCode::SUCCESS;
 }
 
-void SCT_DigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) {
   /////////////////////////////////////////////////
   //
   // In order to process all element rather than just those with hits we
@@ -360,7 +360,7 @@ void SCT_DigitizationTool::digitizeNonHits(const EventContext& ctx, SG::WriteHan
   return;
 }
 
-bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) {
   if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
@@ -416,7 +416,8 @@ bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDio
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes), rndmEngine, ctx);
+      SiDigitizationSurfaceChargeInserter inserter(sielement, chargedDiodes);
+      m_sct_SurfaceChargesGenerator->process(sielement, phit, inserter, rndmEngine, ctx);
       ATH_MSG_DEBUG("charges filled!");
     }
   }
@@ -457,7 +458,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
         m_HardScatterSplittingSkipper = true;
     }
 
-    typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+    using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
     TimedHitCollList hitCollList;
 
     if ((not (m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
@@ -703,7 +704,7 @@ std::unique_ptr<SCT_RDO_Collection> SCT_DigitizationTool::createRDO(SiChargedDio
 StatusCode SCT_DigitizationTool::getNextEvent(const EventContext& ctx) {
   ATH_MSG_DEBUG("SCT_DigitizationTool::getNextEvent");
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   // this is a list<pair<time_t, DataLink<SiHitCollection> >
 
   // In case of single hits container just load the collection using read handles
@@ -758,7 +759,7 @@ StatusCode SCT_DigitizationTool::getNextEvent(const EventContext& ctx) {
 // Convert a SiTotalCharge to a InDetSimData, and store it.
 // -----------------------------------------------------------------------------------------------
 void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const {
-  typedef SiTotalCharge::list_t list_t;
+  using list_t = SiTotalCharge::list_t;
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be
   // with pileup

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/CaloMuonScoreTool.h"
@@ -215,7 +215,12 @@ float CaloMuonScoreTool::runOnnxInference(std::vector<float> &tensor) const {
 
     // score model & input tensor, get back output tensor
 
-    auto output_tensors = m_session->Run(Ort::RunOptions{nullptr}, m_input_node_names.data(), &input_tensor, m_input_node_names.size(),
+    // Ort::Session::Run is non-const.
+    // However, the onxx authors claim that it is safe to call
+    // from multiple threads:
+    //  https://github.com/Microsoft/onnxruntime/issues/114
+    Ort::Session* session ATLAS_THREAD_SAFE = m_session.get();
+    auto output_tensors = session->Run(Ort::RunOptions{nullptr}, m_input_node_names.data(), &input_tensor, m_input_node_names.size(),
                                          m_output_node_names.data(), m_output_node_names.size());
 
     // Get pointer to output tensor float values

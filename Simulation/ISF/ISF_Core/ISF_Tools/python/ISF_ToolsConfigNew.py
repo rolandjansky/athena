@@ -1,6 +1,6 @@
 """ComponentAccumulator tool configuration for ISF
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -23,20 +23,23 @@ def MemoryMonitorToolCfg(flags, name="ISF_MemoryMonitor", **kwargs):
 
 def EntryLayerFilterCfg(ConfigFlags, **kwargs):
     """Return the MCxEntryLayerFilterCfg config flagged by Sim.TruthStrategy"""
+    from G4AtlasApps.SimEnums import TruthStrategy
     stratmap = {
-        "MC12": MC12EntryLayerFilterCfg,
-        "MC12LLP": MC12LLPEntryLayerFilterCfg,
-        "MC12Plus": MC12PlusEntryLayerFilterCfg,
-        "MC15": MC15EntryLayerFilterCfg,
-        "MC15a": MC15aEntryLayerFilterCfg,
-        "MC15aPlus": MC15aPlusEntryLayerFilterCfg,
-        "MC15aPlusLLP": MC15aPlusLLPEntryLayerFilterCfg,
-        "MC16": MC16EntryLayerFilterCfg,
-        "MC16LLP": MC16LLPEntryLayerFilterCfg,
-        "MC18": MC18EntryLayerFilterCfg,
-        "MC18LLP": MC18LLPEntryLayerFilterCfg,
-        "Validation": ValidationEntryLayerFilterCfg,
-        "Cosmic": CosmicEventFilterToolCfg,
+        TruthStrategy.MC12: MC12EntryLayerFilterCfg,
+        TruthStrategy.MC12LLP: MC12LLPEntryLayerFilterCfg,
+        TruthStrategy.MC12Plus: MC12PlusEntryLayerFilterCfg,
+        TruthStrategy.MC15: MC15EntryLayerFilterCfg,
+        TruthStrategy.MC15a: MC15aEntryLayerFilterCfg,
+        TruthStrategy.MC15aPlus: MC15aPlusEntryLayerFilterCfg,
+        TruthStrategy.MC15aPlusLLP: MC15aPlusLLPEntryLayerFilterCfg,
+        TruthStrategy.MC16: MC16EntryLayerFilterCfg,
+        TruthStrategy.MC16LLP: MC16LLPEntryLayerFilterCfg,
+        TruthStrategy.MC18: MC18EntryLayerFilterCfg,
+        TruthStrategy.MC18LLP: MC18LLPEntryLayerFilterCfg,
+        TruthStrategy.Validation: ValidationEntryLayerFilterCfg,
+        # TruthStrategy.PhysicsProcess: PhysicsProcessTruthServiceCfg,
+        # TruthStrategy.Global: GlobalTruthServiceCfg,
+        TruthStrategy.Cosmic: CosmicEventFilterToolCfg,
     }
     MCxCfg = stratmap[ConfigFlags.Sim.TruthStrategy]
     return MCxCfg(ConfigFlags, **kwargs)
@@ -101,25 +104,17 @@ def ValidationEntryLayerFilterCfg(flags, name="ISF_ValidationEntryLayerFilter", 
 
 
 def CosmicEventFilterToolCfg(flags, name="ISF_CosmicEventFilter", **kwargs):
-    volmap = {
-        "Muon": ["MuonExitLayer"],
-        "Calo": ["MuonEntryLayer"],
-        "InnerDetector": ["CaloEntryLayer"],
-        "TRT_Barrel": ["TRTBarrelEntryLayer"],
-        "TRT_EC": ["TRTECAEntryLayer", "TRTECBEntryLayer"],
-        "SCT_Barrel": ["SCTBarrelEntryLayer"],
-        "Pixel": ["PixelEntryLayer"],
-    }
-    volumeNames = []
-    for vol in flags.Sim.CosmicFilterVolumeNames:
-        volumeNames += volmap[name]
-
-    kwargs.setdefault("UseAndFilter", True)
-    kwargs.setdefault("VolumeNames", volumeNames)
-    kwargs.setdefault("PDG_ID", flags.Sim.CosmicFilterID)
-    kwargs.setdefault("ptMin", flags.Sim.CosmicFilterPTmin)
-    kwargs.setdefault("ptMax", flags.Sim.CosmicFilterPTmax)
+    from G4CosmicFilter.G4CosmicFilterConfigNew import configCosmicFilterVolumeNames
     acc = ComponentAccumulator()
+    volumeNames = configCosmicFilterVolumeNames(flags)
+    kwargs.setdefault("UseAndFilter", len(volumeNames)<3 )
+    kwargs.setdefault("VolumeNames", volumeNames)
+    if flags.Sim.CosmicFilterID:
+        kwargs.setdefault("PDG_ID", flags.Sim.CosmicFilterID)
+    if flags.Sim.CosmicFilterPTmin:
+        kwargs.setdefault("ptMin", flags.Sim.CosmicFilterPTmin)
+    if flags.Sim.CosmicFilterPTmax:
+        kwargs.setdefault("ptMax", flags.Sim.CosmicFilterPTmax)
     acc.setPrivateTools(CompFactory.ISF.CosmicEventFilterTool(name, **kwargs))
     return acc
 

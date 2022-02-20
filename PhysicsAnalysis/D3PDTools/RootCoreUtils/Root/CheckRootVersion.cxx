@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -13,6 +13,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <atomic>
 #include <TROOT.h>
 #include <RootCoreUtils/Assert.h>
 
@@ -24,7 +25,7 @@ namespace RCU
 {
   namespace
   {
-    bool checked = false;
+    std::atomic<bool> checked = false;
   }
 
   void check_root_version ()

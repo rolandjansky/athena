@@ -61,6 +61,8 @@ excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*AthFile/impl.py")
 excludeTracePattern.append("*/AthenaConfiguration/*")
 excludeTracePattern.append("*ROOT/_facade.py")
+excludeTracePattern.append("*/GaudiConfig2/*")
+
 #####################
 # Flags (separated) #
 #####################
@@ -418,7 +420,7 @@ if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFor
 # since we started locking ConfigFlags in here.
 from InDetRecExample.InDetJobProperties import InDetFlags
 if jobproperties.Beam.beamType() == 'cosmics':
-    ConfigFlags.InDet.doTIDE_Ambi = False
+    ConfigFlags.InDet.Tracking.doTIDE_Ambi = False
 
 if rec.doMonitoring():
     include ("AthenaMonitoring/DataQualityInit_jobOptions.py")

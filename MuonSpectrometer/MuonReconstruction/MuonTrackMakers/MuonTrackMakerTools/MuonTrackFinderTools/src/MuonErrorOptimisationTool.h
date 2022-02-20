@@ -34,7 +34,7 @@ namespace Muon {
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "helper to nicely print out tracks"};
         ToolHandle<Trk::ITrackSummaryHelperTool> m_trackSummaryTool{this, "TrackSummaryTool",
                                                                     "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"};

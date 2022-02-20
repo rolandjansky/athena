@@ -8,8 +8,10 @@ You can also use it to output a single PRW config file containing just your data
 Example: checkPRW.py --outPRWFile=my.prw.root --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
 
 """
-import os
 import argparse
+import os
+import pyAMI
+import re
 
 def main():
     from argparse import RawTextHelpFormatter
@@ -48,22 +50,54 @@ def main():
       if dataset.startswith("#"): continue
       dataset = dataset.rsplit(":")[-1].strip()
       if len(dataset)==0: continue
-      
+
       print "Doing %s" % dataset
       prov = atlasAPI.get_dataset_prov(client, dataset )
       if 'node' not in prov:
-          print "ERROR: Could not determine provenance of %s, skipping!" % dataset
-          continue
+        print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+        continue
+
       theParent=""
+      singleTagName=""
       for ds in prov['node']:
         if ds[u'dataType']!=u'AOD': continue
+        dsName = ds[u'logicalDatasetName']
         if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
-        theParent = str(ds[u'logicalDatasetName'])
+        etags = re.findall('e[0-9]+_', dsName)
+        stags = re.findall('s[0-9]+_', dsName)
+        if len(etags) == 2 or len(stags) == 2:
+          if len(etags) == 2:
+            print "INFO: Found a double e-tag container %s!" % dsName
+            dsName = dsName.replace(etags[1], "")
+          if len(stags) == 2:
+            print "INFO: Found a double s-tag container %s!" % dsName
+            dsName = dsName.replace(stags[1], "")
+          singleTagName = dsName
+          continue
+        theParent = str(dsName)
         theParentSize = int(ds[u'events'])
         break
-      if theParent=="":
-          print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+
+      if theParent == "":
+        if singleTagName == "":
+          print "ERROR: No single-tag name available for %s, skipping!" % dataset
           continue
+        else:
+          print "INFO: Trying with single-tag containers manually %s!" % singleTagName
+          try:
+            prov = atlasAPI.get_dataset_prov(client, singleTagName)
+          except pyAMI.exception.Error:
+            print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+            continue
+          if 'node' in prov:
+            for ds in prov['node']:
+              if ds[u'logicalDatasetName'] == singleTagName:
+                theParent = singleTagName
+                theParentSize = int(ds[u'events'])
+          else:
+            print "ERROR: key 'node' not found for %s, skipping!" % dataset
+            continue
+
       #extract the dsid ...
       theParent = theParent.split(".")[1]
       

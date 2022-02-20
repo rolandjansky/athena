@@ -452,7 +452,7 @@ def getTauClusterFinder():
   
     from tauRecTools.tauRecToolsConf import TauClusterFinder
     TauClusterFinder = TauClusterFinder(name = _name,
-                                        JetVertexCorrection = False)
+                                        UseOriginalCluster = False)
 
     cached_instances[_name] = TauClusterFinder
     return TauClusterFinder
@@ -472,48 +472,6 @@ def getTauVertexedClusterDecorator():
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator
 
-
-########################################################################
-# TauTrackClassifier
-def getTauTrackClassifier():
-
-    _name = sPrefix + 'TauTrackClassifier'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
-    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    input_file_name = 'EFtracks_BDT_classifier_v0.root'
-    BDTcut = 0.45
-    deltaZ0 = 1.0
-
-    # =========================================================================
-    EFtrackBDT = TrackMVABDT(
-        name = _name + "_MVABDT",
-        InputWeightsPath = input_file_name,
-        Threshold        = BDTcut,
-        DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
-        inTrigger        = True
-    )
-
-    ToolSvc += EFtrackBDT
-
-    trackclassifier = TauTrackClassifier(
-        name=_name, 
-        Classifiers=[EFtrackBDT]
-    )
-
-    cached_instances[_name] = trackclassifier
-    return trackclassifier
 
 ########################################################################
 # TauIDVarCalculator

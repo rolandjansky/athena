@@ -35,6 +35,9 @@ namespace Trk {
 /// A0, A3, A4, and A6 represent cross products of the direction
 ///  with the field across the 3 points. Each is a 3-vector.
 /// S3 is a step length
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
 inline void
 propJacobian(double* ATH_RESTRICT P,
              const double* ATH_RESTRICT H0,

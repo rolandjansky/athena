@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
@@ -18,17 +18,18 @@
 
 namespace TrkDriftCircleMath {
 
-    SegmentFinder::SegmentFinder() {
-        m_fitter = std::make_shared<DCSLFitter>();
-
+    SegmentFinder::SegmentFinder()
+      : m_fitter (std::make_shared<DCSLFitter>())
+    {
         // update the cached directions
         updateDirections();
     }
 
     SegmentFinder::SegmentFinder(double roadWidth, double deltaCut, bool fullScan) :
-        m_deltaCut{deltaCut}, m_roadWidth{roadWidth}, m_fullScan{fullScan} {
-        m_fitter = std::make_shared<DCSLFitter>();
-
+        m_deltaCut{deltaCut}, m_roadWidth{roadWidth},
+        m_fitter (std::make_shared<DCSLFitter>()),
+        m_fullScan{fullScan}
+    {
         // update the cached directions
         updateDirections();
     }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on PixelGeoModel configuration
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -9,9 +9,9 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    ConfigFlags.Input.Files = defaultTestFiles.HITS
+    ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-    ConfigFlags.GeoModel.Align.Dynamic    = False
+    ConfigFlags.GeoModel.Align.Dynamic = False
     ConfigFlags.lock()
 
     if ConfigFlags.Common.Project == "AthSimulation":

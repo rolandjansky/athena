@@ -103,7 +103,11 @@ namespace SHERPA {
 #endif
  /*End of content of Sherpa.H */
 #include "SHERPA/Initialization/Initialization_Handler.H"
+#ifdef IS_SHERPA_3
+#include "ATOOLS/Phys/Variations.H"
+#else
 #include "SHERPA/Tools/Variations.H"
+#endif
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
 
@@ -119,8 +123,13 @@ CLHEP::HepRandomEngine* p_rndEngine;
 Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
+  #ifdef IS_SHERPA_3
+  declareProperty("BaseFragment", m_inputfiles["Base.yaml"] = "");
+  declareProperty("RunCard", m_inputfiles["Sherpa.yaml"] = "");
+  #else
   declareProperty("RunCard", m_runcard = "");
   declareProperty("Parameters", m_params);
+  #endif
   declareProperty("OpenLoopsLibs", m_openloopslibs);
   declareProperty("ExtraFiles", m_extrafiles);
   declareProperty("NCores", m_ncores=1);
@@ -142,13 +151,69 @@ StatusCode Sherpa_i::genInitialize(){
 
   ATH_MSG_INFO("Sherpa initialising...");
 
+  #ifdef IS_SHERPA_3
+  for (auto& inputfile : m_inputfiles) {
+    // remove first line and last character containing '"'
+    // TODO fix Python/C++ string passing, to not contain " in first place
+    inputfile.second.erase(0, inputfile.second.find("\n") + 1);
+    inputfile.second.pop_back();
+  }
+  #endif
+
+  ATH_MSG_DEBUG("... compiling plugin code");
+  if (m_plugincode != "") {
+    compilePlugin(m_plugincode);
+    #ifdef IS_SHERPA_3
+    m_inputfiles["Base.yaml"] += "SHERPA_LDADD: Sherpa_iPlugin \n";
+    #else
+    m_params.push_back("SHERPA_LDADD=Sherpa_iPlugin");
+    #endif
+  }
+
+  ATH_MSG_DEBUG("... seeding Athena random number generator");
   p_rndEngine = atRndmGenSvc().GetEngine("SHERPA");
   const long* sip = p_rndEngine->getSeeds();
   long int si1 = sip[0];
   long int si2 = sip[1];
   atRndmGenSvc().CreateStream(si1, si2, "SHERPA");
 
+  #ifdef IS_SHERPA_3
+  ATH_MSG_DEBUG("... adapting output level");
+  if( msg().level()==MSG::FATAL || msg().level()==MSG::ERROR || msg().level()==MSG::WARNING ){
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 0 \n";
+  }
+  else if(msg().level()==MSG::INFO){
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 2 \n";
+  }
+  else if(msg().level()==MSG::DEBUG){
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 15 \n";
+  }
+  else{
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 15 \n";
+  }
+
+  ATH_MSG_DEBUG("... writing input files to directory");
+  for (auto& inputfile : m_inputfiles) {
+    // write input content to file in working directory
+    FILE *file = fopen(inputfile.first.c_str(),"w");
+    fputs(inputfile.second.c_str(),file);
+    fclose(file);
+    ATH_MSG_INFO("Sherpa_i using the following settings in "+inputfile.first);
+    ATH_MSG_INFO("\n"+inputfile.second+"\n");
+  }
+
+  ATH_MSG_DEBUG("... go Sherpa!");
+  int argc = 2;
+  char** argv = new char*[2];
+  argv[0] = new char[7];
+  argv[1] = new char[34];
+  strcpy(argv[0], "Sherpa");
+  strcpy(argv[1], "RUNDATA: [Base.yaml, Sherpa.yaml]");
+  p_sherpa = new SHERPA::Sherpa(argc, argv);
+  delete [] argv;
+  #else
   p_sherpa = new SHERPA::Sherpa();
+  #endif
 
 
   /***
@@ -156,6 +221,33 @@ StatusCode Sherpa_i::genInitialize(){
   ***/
   std::set_terminate(ATOOLS::Terminate);
   std::set_unexpected(ATOOLS::Terminate);
+  #ifdef IS_SHERPA_3
+  signal(SIGSEGV,ATOOLS::HandleSignal);
+  signal(SIGINT,ATOOLS::HandleSignal);
+  signal(SIGPIPE,ATOOLS::HandleSignal);
+  signal(SIGBUS,ATOOLS::HandleSignal);
+  signal(SIGFPE,ATOOLS::HandleSignal);
+  signal(SIGABRT,ATOOLS::HandleSignal);
+  signal(SIGTERM,ATOOLS::HandleSignal);
+  signal(SIGXCPU,ATOOLS::HandleSignal);
+  signal(SIGUSR1,ATOOLS::HandleSignal);
+
+  try {
+    p_sherpa->InitializeTheRun();
+    p_sherpa->InitializeTheEventHandler();
+  }
+  catch (const ATOOLS::normal_exit& exception) {
+    ATH_MSG_ERROR("Normal exit caught, this probably means:");
+    ATH_MSG_ERROR("Have to compile Amegic libraries");
+    ATH_MSG_ERROR("You probably want to run ./makelibs");
+    return StatusCode::FAILURE;
+  }
+  catch (const ATOOLS::Exception& exception) {
+    ATH_MSG_ERROR("Unwanted ATOOLS::exception caught.");
+    ATH_MSG_ERROR(exception);
+    return StatusCode::FAILURE;
+  }
+  #else 
   signal(SIGSEGV,ATOOLS::SignalHandler);
   signal(SIGINT,ATOOLS::SignalHandler);
   signal(SIGBUS,ATOOLS::SignalHandler);
@@ -184,17 +276,22 @@ StatusCode Sherpa_i::genInitialize(){
     }
     return StatusCode::FAILURE;
   }
+  #endif
   catch (const std::exception& exception) {
     ATH_MSG_ERROR("std::exception caught.");
     return StatusCode::FAILURE;
   }
 
-#ifdef HEPMC3
+  #ifdef HEPMC3
   m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
   /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
-  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("SHERPA"), std::string(SHERPA_VERSION)+ "." + std::string(SHERPA_SUBVERSION), std::string("Used generator")};
+  struct HepMC3::GenRunInfo::ToolInfo generator = {
+    std::string("SHERPA"), 
+    std::string(SHERPA_VERSION)+ "." + std::string(SHERPA_SUBVERSION), 
+    std::string("Used generator")
+  };
   m_runinfo->tools().push_back(generator);
-#endif
+  #endif
   return StatusCode::SUCCESS;
 }
 
@@ -225,7 +322,7 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 //Weight, MEWeight, WeightNormalisation, NTrials
   if (event->weights().size()>2) {
     double nominal = event->weight("Weight");
-    for (auto name: event->weight_names()) {
+    for (const auto& name: event->weight_names()) {
       if (name  == "WeightNormalisation") continue;
       if (name  == "NTrials") continue;
       if (name  == "Weight") continue;
@@ -291,6 +388,7 @@ StatusCode Sherpa_i::genFinalize() {
 }
 
 
+#ifndef IS_SHERPA_3
 void Sherpa_i::getParameters(int &argc, char** &argv) {
   std::vector<std::string> params;
 
@@ -348,6 +446,7 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   ATH_MSG_INFO("Further Sherpa initialisation output will be redirected to the LOG_FILE specified above.");
 
 }
+#endif
 
 void Sherpa_i::compilePlugin(std::string pluginCode) {
   // TODO: not very pretty, should we eventually do this in Python instead (base fragment)
@@ -384,6 +483,10 @@ double Atlas_RNG::Get(){
   return CLHEP::RandFlat::shoot(p_engine);
 
 }
+
+void Atlas_RNG::SaveStatus() { p_engine->saveStatus(); }
+
+void Atlas_RNG::RestoreStatus() { p_engine->restoreStatus(); }
 
 // some getter magic to make this random number generator available to sherpa
 DECLARE_GETTER(Atlas_RNG,"Atlas_RNG",External_RNG,RNG_Key);

@@ -1,15 +1,16 @@
 """Define functions for LAr Digitization with ComponentAccumulator
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, LHCPeriod, ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 # for PileUpTool
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArXTalkWeightCondAlgConfig import LArXTalkWeightCondAlgCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg,LArBadChannelCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
@@ -91,6 +92,8 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     else:
         requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
+    # add new conditions for LArXTalkWeight
+    acc.merge(LArXTalkWeightCondAlgCfg(flags))
 
     if flags.Common.ProductionStep != ProductionStep.Overlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
@@ -119,7 +122,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
     # cosmics digitization
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("UseTriggerTime", True)
         CosmicTriggerTimeTool = CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
@@ -260,9 +263,11 @@ def LArSCL1MakerCfg(flags, **kwargs):
     acc.merge(LArAutoCorrNoiseCondSCAlgCfg(flags))
     kwargs.setdefault("LArAutoCorrKey", "ConditionStore+LArAutoCorrNoiseSC") # Provided by LArAutoCorrNoiseCondAlg/LArAutoCorrNoiseSCCondAlg
     kwargs.setdefault("NSamples", flags.LAr.ROD.nSamples + 2)  # For consistency with LArAutoCorrNoiseSC - see ATLASSIM-5483
-    from RngComps.RandomServices import RNG
-    acc.merge(RNG(flags.Random.Engine))
-    kwargs.setdefault("RndmSvc", "AthRNGSvc")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc",
+                      acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault("SCL1ContainerName",flags.Overlay.BkgPrefix + "LArDigitSCL2") # Output - why L2??
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc
@@ -281,7 +286,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
-    if flags.GeoModel.Run in ['RUN3']:
+    if flags.GeoModel.Run in [LHCPeriod.Run3]:
         acc.merge(LArSCL1MakerCfg(flags))
         if flags.Common.ProductionStep is not ProductionStep.PileUpPresampling:
             from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg,LArSuperCellBCIDAlgCfg
@@ -295,7 +300,7 @@ def LArTriggerDigitizationCfg(flags, **kwargs):
     acc = LArTriggerDigitizationBasicCfg(flags)
     acc.merge(LArOutputCfg(flags))
     acc.merge(OutputStreamCfg(flags, "RDO", ["LArTTL1Container#*"]))
-    if flags.GeoModel.Run in ['RUN3']:
+    if flags.GeoModel.Run in [LHCPeriod.Run3]:
         if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
             acc.merge(OutputStreamCfg(flags, "RDO", ["LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitSCL2"]))
         else:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Run2ToRun3TrigNavConverter.h"
@@ -9,7 +9,7 @@
 #include "TrigNavStructure/TriggerElement.h"
 #include "xAODTrigger/TriggerMenu.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include <AsgTools/AsgMetadataTool.h>
 #include "TrigNavStructure/StandaloneNavigation.h"
@@ -697,9 +697,9 @@ StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::TrigNavStruct
   if (decisionPtr != nullptr && sgCLID == 1287425431) // CLASS_DEF( xAOD::TrackParticleContainer, 1287425431, 1 )
   {
     decisionPtr->typelessSetObjectLink("TEMP_TRACKS", sgKey, sgCLID, helper.getIndex().objectsBegin(), helper.getIndex().objectsEnd());
-    ElementLinkVector<xAOD::TrackParticleContainer> tracks = decisionPtr->objectCollectionLinks<xAOD::TrackParticleContainer>("TEMP_TRACKS");
+    std::vector<ElementLink<xAOD::TrackParticleContainer>> tracks = decisionPtr->objectCollectionLinks<xAOD::TrackParticleContainer>("TEMP_TRACKS");
     decisionPtr->removeObjectCollectionLinks("TEMP_TRACKS");
-    for (const ElementLink<xAOD::TrackParticleContainer> track : tracks)
+    for (const ElementLink<xAOD::TrackParticleContainer>& track : tracks)
     {
       if (track.isValid())
       {

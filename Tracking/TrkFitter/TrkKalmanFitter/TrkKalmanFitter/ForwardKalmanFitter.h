@@ -104,7 +104,8 @@ public:
 private:
 		
     //! internal method #1 with common code to make prediction to next node using dynamic extrapolation
-    const Trk::TrackParameters* predict(const TrackParameters*, 
+    std::unique_ptr<const Trk::TrackParameters>  
+    predict(std::unique_ptr<const Trk::TrackParameters> &, 
                                         const Surface&,
                                         const KalmanMatEffectsController&,
                                         const int,
@@ -113,8 +114,8 @@ private:
     //! internal method #2 with common code to evaluate and correct this prediction
     FitterStatusCode buildAndAnalyseTrajectory(Trajectory&,
                                                Trajectory::iterator&,
-                                               const TrackParameters*&,
-                                               const TrackParameters*&,
+                                               std::unique_ptr<const Trk::TrackParameters>&,
+                                               std::unique_ptr<const Trk::TrackParameters>&,
                                                const KalmanMatEffectsController&,
                                                const int&,
                                                ProtoTrackStateOnSurface*&,
@@ -122,8 +123,8 @@ private:
 
     //! internal method #3 with common code to perform the final update
     FitterStatusCode updateOrSkip(const Trajectory::iterator&,
-                                  const TrackParameters*&,
-                                  const TrackParameters*&,
+                                  std::unique_ptr<const Trk::TrackParameters>&,
+                                  std::unique_ptr<const Trk::TrackParameters>&,
                                   const int&,
                                   const RunOutlierRemoval&,
                                   ProtoTrackStateOnSurface*) const;

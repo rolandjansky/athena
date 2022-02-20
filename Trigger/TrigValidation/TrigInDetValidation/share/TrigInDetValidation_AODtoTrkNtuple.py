@@ -14,21 +14,8 @@ import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POO
 svcMgr.EventSelector.InputCollections=FilesInput
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-# algseq += CfgMgr.WillAlg()                                 #adds an instance of your alg to it
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
-
-### old TDT configuration - LEAVE THIS HERE FOR TH TIME BEING
-### this will be removed once we kow that the nightly tests are 
-### all working again...
-### from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-### ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
-
-### from TrigEDMConfig.TriggerEDM import EDMLibraries
-### ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
-
-### from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-### myAlg.TrigDecisionTool = conf2toConfigurable(tdtAcc.getPrimary())
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -40,21 +27,12 @@ Configurable.configurableRun3Behavior-=1
 appendCAtoAthena( tdtAcc )
 
 
-
-
 from AthenaCommon.AppMgr import topSequence
-
 
 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
 
 cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
 ToolSvc += cfgtool
-
-## tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-## tdt.ConfigTool = cfgtool
-## tdt.NavigationFormat = "TrigComposite"
-
-## tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
 
 jps.AthenaCommonFlags.FilesInput = FilesInput
@@ -71,7 +49,6 @@ doTier0Mon = False
 
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
-
 
 
 ############ TrigIDtrkMonitoring part ################################
@@ -95,7 +72,7 @@ if doTier0Mon :
 
   from GaudiSvc.GaudiSvcConf import THistSvc
   ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='TIDA_T0.root' OPT='RECREATE'"]
+  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
   HLTMonManager.FileKey = "AANT"
 
 

@@ -130,6 +130,19 @@ LArFCalTowerBuilderTool::execute(const EventContext& ctx,
                                  const CaloCellContainer* theCells,
                                  const CaloTowerSeg::SubSeg* subseg) const
 {
+
+  //Init internal structure m_cellStore on first invocation
+  //Alignment updates are not taken into account! 
+  if (m_cellStoreInit.load() == false) {
+    //Aquire mutex before writing to m_cellStore
+    std::scoped_lock guard(m_cellStoreMutex);
+    //cast alway const-ness, acceptable since this is protected by a mutex
+    LArFCalTowerBuilderTool* thisNC ATLAS_THREAD_SAFE = const_cast<LArFCalTowerBuilderTool*>(this);
+    ATH_CHECK( thisNC->rebuildLookup(ctx) );
+    m_cellStoreInit.store(true);
+  }
+
+
   if (m_cellStore.size() == 0) {
     ATH_MSG_ERROR("Cell store not initialized.");
     return StatusCode::FAILURE;
@@ -179,29 +192,22 @@ StatusCode LArFCalTowerBuilderTool::execute (const EventContext& ctx,
 {
   if (m_cellStore.size() == 0) {
     setTowerSeg (theContainer->towerseg());
-    ATH_CHECK( rebuildLookup() );
+    ATH_CHECK( rebuildLookup(ctx) );
   }
 
   return execute (ctx, theContainer, nullptr, nullptr);
 }
 
 
-void  LArFCalTowerBuilderTool::handle(const Incident&) 
-{
-  ATH_MSG_DEBUG( "In Incident-handle"  );
-  if (m_cellStore.size() == 0) {
-    rebuildLookup().ignore();
-  }
-}
-
 
 /**
  * @brief Rebuild the cell lookup table.
  */
-StatusCode LArFCalTowerBuilderTool::rebuildLookup()
+StatusCode LArFCalTowerBuilderTool::rebuildLookup(const EventContext& ctx)
 {
-  const CaloDetDescrManager* theManager = nullptr;
-  ATH_CHECK( detStore()->retrieve (theManager, "CaloMgr") );
+  ATH_MSG_DEBUG("Building lookup table");
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle(m_caloMgrKey,ctx);
+  const CaloDetDescrManager* theManager = *caloMgrHandle;
   CaloTowerContainer theTowers (towerSeg());
   if ( m_cellStore.buildLookUp(*m_cellIdHelper,
                                *theManager,
@@ -213,22 +219,4 @@ StatusCode LArFCalTowerBuilderTool::rebuildLookup()
 }
 
 
-/**
- * @brief Mark that cached data are invalid.
- *
- * Called when calibrations are updated.
- */
-StatusCode LArFCalTowerBuilderTool::invalidateCache()
-{
-  // FIXME: We don't currently handle changing alignments during a run.
-  //        This could be done if caloDD is updated to the new alignment
-  //        scheme.  Otherwise, it's incompatible with MT.
-  if (m_cellStore.size() > 0) {
-    ATH_MSG_ERROR("Cell store already filled.  FIXME: changing alignments is not handled.");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_CHECK( rebuildLookup() );
-  return StatusCode::SUCCESS;
-}
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,8 +37,11 @@ class OverlapDescriptor;
  @author Andreas.Salzburger@cern.ch
 */
 
-class CylinderLayer final : public CylinderSurface, public Layer {
- public:
+class CylinderLayer final
+  : public CylinderSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   CylinderLayer() {}
 

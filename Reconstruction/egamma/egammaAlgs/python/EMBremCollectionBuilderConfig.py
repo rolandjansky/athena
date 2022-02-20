@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from AthenaCommon.Logging import logging
 
 
@@ -56,7 +57,7 @@ def GSFTrackSummaryToolCfg(flags,
                 TRT_ElectronPidToolCfg(
                     flags,
                     name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=False,
+                    CalculateNNPid=(flags.GeoModel.Run is LHCPeriod.Run3),
                     MinimumTrackPtForNNPid=0.))
         else:
             kwargs["TRT_ElectronPidTool"] = None
@@ -135,7 +136,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.lock()
     acc = MainServicesCfg(flags)
     acc.merge(EMBremCollectionBuilderCfg(flags))

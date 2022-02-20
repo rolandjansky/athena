@@ -68,6 +68,10 @@ namespace TrigConf {
         m_hltJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
         m_hltJson->setStore( m_hltJsonAux.get() );
 
+        m_hltmonitoringJsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
+        m_hltmonitoringJson    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
+        m_hltmonitoringJson->setStore( m_hltmonitoringJsonAux.get() );
+
         m_l1JsonAux = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>();
         m_l1Json    = std::make_unique<xAOD::TriggerMenuJsonContainer>();
         m_l1Json->setStore( m_l1JsonAux.get() );
@@ -293,6 +297,17 @@ namespace TrigConf {
       return *(m_currentHlt.get(ctx));
    }
 
+   const HLTMonitoring& xAODConfigSvc::hltMonitoring(const EventContext& ctx) const {
+      if (!m_menuJSONContainerAvailable) {
+         REPORT_MESSAGE( MSG::FATAL ) << "Run 3 hltMonitoring JSON not loaded." << endmsg;
+         throw GaudiException( "Service not initialised correctly",
+                               "TrigConf::xAODConfigSvc::hltMenu",
+                               StatusCode::FAILURE );
+      }
+      // Run3: From in-file JSON metadata
+      return *(m_currentHltmonitoring.get(ctx));
+   }
+
    const L1Menu& xAODConfigSvc::l1Menu(const EventContext& ctx) const {
       if (!m_useInFileMetadata) {
          SG::ReadHandle<L1Menu> l1MenuHandle(m_l1MenuName);  // No context - Detector Store
@@ -427,6 +442,7 @@ namespace TrigConf {
 
       // Read the R3 metadata object...
       const xAOD::TriggerMenuJsonContainer* input_hlt = nullptr;
+      const xAOD::TriggerMenuJsonContainer* input_hltmonitoring = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_l1 = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_hltps = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_l1ps = nullptr;
@@ -435,6 +451,12 @@ namespace TrigConf {
           or m_metaStore->retrieve( input_hlt, m_metaNameJSON_hlt ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
+      }
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltmonitoring)
+          or m_metaStore->retrieve( input_hltmonitoring, m_metaNameJSON_hltmonitoring ).isFailure() )
+      {
+         // m_menuJSONContainerAvailable = false;
+         // Currently planning on only storing these data in MC. Hence this has to be an optional input.
       }
       if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1)
           or m_metaStore->retrieve( input_l1, m_metaNameJSON_l1 ).isFailure() )
@@ -515,6 +537,9 @@ namespace TrigConf {
       if (m_menuJSONContainerAvailable) {
 
          copyMetadataToPersonalStore(input_hlt, m_hltJson.get());
+         if (input_hltmonitoring) {
+            copyMetadataToPersonalStore(input_hltmonitoring, m_hltmonitoringJson.get());
+         }
          copyMetadataToPersonalStore(input_l1, m_l1Json.get());
          copyMetadataToPersonalStore(input_hltps, m_hltpsJson.get());
          copyMetadataToPersonalStore(input_l1ps, m_l1psJson.get());
@@ -806,6 +831,7 @@ namespace TrigConf {
       if (loadedHltJson == nullptr || loadedHltJson->key() != keys->smk()) {
          validConfig = false;
       }
+      // The check on loadedHltJson is good also for loadedHltmonitoringJson
       if (loadedL1Json == nullptr || loadedL1Json->key() != keys->smk()) {
          validConfig = false;
       }
@@ -832,30 +858,36 @@ namespace TrigConf {
       // but prevent the extension of m_hltJson et. al. from a BeginInputFile incident.
       std::shared_lock lockShared(m_sharedMutex);
 
-      TriggerMenuJsonPtrWrapper& currentHltJson   = *(m_currentHltJson.get(context));
-      TriggerMenuJsonPtrWrapper& currentL1Json    = *(m_currentL1Json.get(context));
+      TriggerMenuJsonPtrWrapper& currentHltJson = *(m_currentHltJson.get(context));
+      TriggerMenuJsonPtrWrapper& currentHltmonitoringJson = *(m_currentHltmonitoringJson.get(context));
+      TriggerMenuJsonPtrWrapper& currentL1Json = *(m_currentL1Json.get(context));
       TriggerMenuJsonPtrWrapper& currentHltpsJson = *(m_currentHltpsJson.get(context));
-      TriggerMenuJsonPtrWrapper& currentL1psJson  = *(m_currentL1psJson.get(context));
-      TriggerMenuJsonPtrWrapper& currentBgJson    = *(m_currentBgJson.get(context));
+      TriggerMenuJsonPtrWrapper& currentL1psJson = *(m_currentL1psJson.get(context));
+      TriggerMenuJsonPtrWrapper& currentBgJson = *(m_currentBgJson.get(context));
 
-      TrigConf::HLTMenu&         currentHlt   = *(m_currentHlt.get(context));
-      TrigConf::L1Menu&          currentL1    = *(m_currentL1.get(context));
+      TrigConf::HLTMenu& currentHlt = *(m_currentHlt.get(context));
+      TrigConf::HLTMonitoring& currentHltmonitoring = *(m_currentHltmonitoring.get(context));
+      TrigConf::L1Menu& currentL1 = *(m_currentL1.get(context));
       TrigConf::HLTPrescalesSet& currentHltps = *(m_currentHltps.get(context));
-      TrigConf::L1PrescalesSet&  currentL1ps  = *(m_currentL1ps.get(context));
-      TrigConf::L1BunchGroupSet& currentBg    = *(m_currentBg.get(context));
+      TrigConf::L1PrescalesSet& currentL1ps = *(m_currentL1ps.get(context));
+      TrigConf::L1BunchGroupSet& currentBg = *(m_currentBg.get(context));
 
-      ATH_CHECK( loadPtree("HLT Menu",      m_hltJson.get(),   keys->smk(),    currentHltJson,   currentHlt) );
-      ATH_CHECK( loadPtree("L1 Menu",       m_l1Json.get(),    keys->smk(),    currentL1Json,    currentL1) );
+      ATH_CHECK( loadPtree("HLT Menu", m_hltJson.get(), keys->smk(), currentHltJson, currentHlt) );
+      ATH_CHECK( loadPtree("HLT Monitoring", m_hltmonitoringJson.get(), keys->smk(), currentHltmonitoringJson, currentHltmonitoring, /*optional=*/true) );
+      ATH_CHECK( loadPtree("L1 Menu",  m_l1Json.get(), keys->smk(), currentL1Json, currentL1) );
       ATH_CHECK( loadPtree("HLT Prescales", m_hltpsJson.get(), keys->hltpsk(), currentHltpsJson, currentHltps) );
-      ATH_CHECK( loadPtree("L1 Prescales",  m_l1psJson.get(),  keys->l1psk(),  currentL1psJson,  currentL1ps) );
+      ATH_CHECK( loadPtree("L1 Prescales", m_l1psJson.get(), keys->l1psk(), currentL1psJson, currentL1ps) );
       if (bgKey) {
-         ATH_CHECK( loadPtree("Bunchgroups",   m_bgJson.get(),    bgKey->id(),           currentBgJson,    currentBg) );
+         ATH_CHECK( loadPtree("Bunchgroups", m_bgJson.get(), bgKey->id(), currentBgJson, currentBg) );
       }
 
       // Loading the payload doesn't additionally let the object know about its own key. We can load this in now too.
       // The current*Json objects were updated by loadPtree to point to the entry with the correct key.
       // We don't set this in loadPtree as the poperties are on the derived objects, not the base DataStructure.
       currentHlt.setSMK( currentHltJson.m_ptr->key() );
+      if (currentHltmonitoringJson.m_ptr) {
+         currentHltmonitoring.setSMK( currentHltmonitoringJson.m_ptr->key() );
+      }
       currentL1.setSMK( currentL1Json.m_ptr->key() );
       currentHltps.setPSK( currentHltpsJson.m_ptr->key() );
       currentL1ps.setPSK( currentL1psJson.m_ptr->key() );
@@ -898,10 +930,12 @@ namespace TrigConf {
                                        const xAOD::TriggerMenuJsonContainer* metaContainer,
                                        const uint32_t keyToCheck,
                                        TriggerMenuJsonPtrWrapper& cacheOfLoadedMenuPtr,
-                                       DataStructure& dataStructure) {
+                                       DataStructure& dataStructure,
+                                       const bool optional) {
       xAOD::TriggerMenuJsonContainer::const_iterator menu_itr = metaContainer->begin();
       xAOD::TriggerMenuJsonContainer::const_iterator menu_end = metaContainer->end();
       const xAOD::TriggerMenuJson* ptrToLocatedMenu = nullptr;
+      cacheOfLoadedMenuPtr.m_ptr = nullptr;
       for( ; menu_itr != menu_end; ++menu_itr ) {
          // Check if this is the menu we're looking for:
          if( keyToCheck != (*menu_itr)->key() ) continue;
@@ -923,7 +957,7 @@ namespace TrigConf {
          break;
       }
 
-      if (ptrToLocatedMenu == nullptr) {
+      if (not optional and ptrToLocatedMenu == nullptr) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Couldn't find configuration for current event"
             << ", Requested key=" << keyToCheck

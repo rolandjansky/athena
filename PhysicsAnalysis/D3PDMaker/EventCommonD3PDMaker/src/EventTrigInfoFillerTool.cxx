@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: EventTrigInfoFillerTool.cxx 596731 2014-05-13 08:14:49Z wlampl $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -22,7 +20,7 @@ namespace D3PD {
       declareProperty( "Streams", m_configStreams,
                        "Streams for which the decision should be stored" );
 
-      book().ignore();  // Avoid coverity warnings.
+      EventTrigInfoFillerTool::book().ignore();  // Avoid coverity warnings.
    }
 
    StatusCode EventTrigInfoFillerTool::book() {

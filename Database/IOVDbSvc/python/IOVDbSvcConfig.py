@@ -54,7 +54,7 @@ def IOVDbSvcCfg(configFlags):
     
     PoolSvc=CompFactory.PoolSvc
     poolSvc=PoolSvc()
-    poolSvc.MaxFilesOpen=0
+    poolSvc.MaxFilesOpen=configFlags.PoolSvc.MaxFilesOpen
     poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
                          "apcfile:poolcond/PoolCat_oflcond.xml",
                          ]

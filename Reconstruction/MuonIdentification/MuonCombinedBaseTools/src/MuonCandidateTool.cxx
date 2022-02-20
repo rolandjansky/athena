@@ -173,17 +173,16 @@ namespace MuonCombined {
             }
 
             std::unique_ptr<MuonCandidate> muon_candidate;
-
+            ElementLink<xAOD::TrackParticleContainer> MS_TrkLink{tracks, tLink->container_index, ctx};
             if (tLink->extp_succeed) {
                 outputTracks.push_back(std::move(tLink->track));
-                ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1);
+                ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1, ctx);
                 muon_candidate =
-                    std::make_unique<MuonCandidate>(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index), saLink);
+                    std::make_unique<MuonCandidate>(MS_TrkLink, saLink, outputTracks.size() - 1);
                 // remove track from set so it is not deleted
             } else {
                 // in this case the extrapolation failed
-                muon_candidate = std::make_unique<MuonCandidate>(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index),
-                                                                 ElementLink<TrackCollection>());
+                muon_candidate = std::make_unique<MuonCandidate>(MS_TrkLink);
             }
             muon_candidate->setComissioning(m_comissioning);
             /// Last but not least set the segments

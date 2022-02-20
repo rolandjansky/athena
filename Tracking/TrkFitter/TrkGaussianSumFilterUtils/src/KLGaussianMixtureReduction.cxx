@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/AlignedDynArray.h"
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 //
+#include "CxxUtils/assume_aligned.h"
 #include "CxxUtils/features.h"
 #include "CxxUtils/restrict.h"
 #include "CxxUtils/vec.h"
@@ -17,16 +18,6 @@
 #include <utility>
 #include <vector>
 
-#if !defined(__GNUC__)
-#define __builtin_assume_aligned(X, N) X
-#else
-#if defined(__clang__)
-#if !__has_builtin(__builtin_assume_aligned)
-#define __builtin_assume_aligned(X, N) X
-#endif
-#endif
-#endif
-
 ATH_ENABLE_VECTORIZATION;
 /**
  * @file  KLGaussianMixtureReduction.cxx
@@ -35,7 +26,20 @@ ATH_ENABLE_VECTORIZATION;
  *
  * Implementation of KLGaussianMixtureReduction
  */
+
 namespace {
+
+/**
+ * The methods in the anonymous namespace
+ * are used once in the findMerges.
+ * Typically they are getting inlined.
+ * But we want to enforce that
+ * as much we can.
+ * As this also ensures that the
+ * multiversioning is
+ * applied to them
+ */
+
 using namespace GSFUtils;
 
 /**
@@ -47,18 +51,6 @@ struct triangularToIJ
   int8_t I = -1;
   int8_t J = -1;
 };
-
-/*
- * these are q/P ,
- * mean = 1e9 means P=1e-9 MeV
- * 1e-3 ev
- * we want to approximate a delta function
- * at some impossible q/P with a normal.
- */
-constexpr double largeMean = 1e9;
-constexpr double tinySigma = 1e-15;
-constexpr double invertTinySigma = 1e15;
-
 /**
  * @brief Helper method to precalucate
  * the mapping of an triangular array index
@@ -78,7 +70,6 @@ createToIJMaxRowCols()
   }
   return indexMap;
 }
-
 /**
  * @brief we need one tringular to IJ map for the full job
  * so precalculate it here, const and static since inside
@@ -86,16 +77,44 @@ createToIJMaxRowCols()
  */
 const std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
+extraElements16(const int32_t nn)
+{
+  const int32_t remainder16 = (nn & 15);
+  return remainder16 == 0 ? 0 : (16 - remainder16);
+}
+
 /**
  * @brief given a number of components n
  * return the number pairwise distance
  * padding so as to be a multiple of 8
  */
-int32_t
-numDistances8(const int32_t n)
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
+numDistances16(const int32_t n)
 {
   const int32_t nn = n * (n - 1) / 2;
-  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  const int32_t nn2 = nn + extraElements16(nn);
+  return nn2;
+}
+
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
+numDistances16(const int32_t n, float* distancesIn)
+{
+  const int32_t nn = n * (n - 1) / 2;
+  const int32_t nn2 = nn + extraElements16(nn);
+  // Make sure the extra elements are set to max
+  // set the loop for the minimum can not find them
+  std::fill(
+    distancesIn + nn, distancesIn + nn2, std::numeric_limits<float>::max());
   return nn2;
 }
 
@@ -109,7 +128,10 @@ numDistances8(const int32_t n)
  * but not accounting for weights
  * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)
  */
-float
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline float
 symmetricKL(const Component1D& ATH_RESTRICT componentI,
             const Component1D& ATH_RESTRICT componentJ)
 {
@@ -128,7 +150,10 @@ symmetricKL(const Component1D& ATH_RESTRICT componentI,
  * Kullback-Leibler approach to Gaussian mixture reduction
  * equations (2),(3),(4)
  */
-void
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline void
 combine(GSFUtils::Component1D& ATH_RESTRICT updated,
         GSFUtils::Component1D& ATH_RESTRICT removed)
 {
@@ -149,13 +174,6 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
   updated.cov = sumVariance;
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
-  // approximate a delta function
-  // as a Gaussian  with large mean a small sigma
-  // the KL distance to it will always be large
-  removed.mean = largeMean;
-  removed.cov = tinySigma;
-  removed.invCov = invertTinySigma;
-  removed.weight = -1;
 }
 
 /**
@@ -172,7 +190,10 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
  * After this the remaining components are n-1
  * which we return
  */
-int32_t
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
 resetDistances(
   Component1D* ATH_RESTRICT componentsIn,
   std::array<int8_t, GSFConstants::maxComponentsAfterConvolution>& mergingIndex,
@@ -180,46 +201,35 @@ resetDistances(
   const int32_t minj,
   const int32_t n)
 {
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
-  Component1D* components = static_cast<Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  const int32_t j = minj;
   const int32_t last = (n - 1);
   // Look at KLGaussianMixtureReduction.h
   // for how things are indexed for triangular arrays
-  const int32_t indexOffsetJ = (j - 1) * j / 2;
+  const int32_t indexOffsetJ = (minj - 1) * minj / 2;
   const int32_t indexOffsetLast = (last - 1) * last / 2;
-  int32_t movedElements = 0;
 
-  // Rows
-  for (int32_t i = 0; i < j; ++i, ++movedElements) {
-    distances[indexOffsetJ + i] = std::numeric_limits<float>::max();
-    std::swap(distances[indexOffsetJ + i],
-              distances[indexOffsetLast + movedElements]);
+  // we do no need to swap the last with itself
+  if (minj != last) {
+    // Rows
+    for (int32_t i = 0; i < minj; ++i) {
+      std::swap(distances[indexOffsetJ + i], distances[indexOffsetLast + i]);
+    }
+    // The columns
+    // Note that we skip swapping distance
+    // corresponding to (last,minj)
+    for (int32_t i = minj + 1; i < last; ++i) {
+      const int32_t index = (i - 1) * i / 2 + minj;
+      std::swap(distances[index], distances[indexOffsetLast + i]);
+    }
+    // And now swap the components
+    std::swap(components[minj], components[last]);
+    std::swap(mergingIndex[minj], mergingIndex[last]);
   }
-
-  // This is for  the distance of the minj
-  // with the last so we do not need swap
-  // Also if minj is the last the element does not exist
-  // as we do not keep distance to self
-  if (j != last) {
-    const int32_t index = indexOffsetLast + j;
-    distances[index] = std::numeric_limits<float>::max();
-    ++movedElements;
-  }
-
-  // The columns
-  for (int32_t i = j + 1; i < last; ++i, ++movedElements) {
-    const int32_t index = (i - 1) * i / 2 + j;
-    distances[index] = std::numeric_limits<float>::max();
-    std::swap(distances[index], distances[indexOffsetLast + movedElements]);
-  }
-  // And now swap the components
-  std::swap(components[minj], components[last]);
-  std::swap(mergingIndex[minj], mergingIndex[last]);
   return last;
 }
 
@@ -230,36 +240,38 @@ resetDistances(
  * @c mini is the index of the element we merged to (keep)
  * @c n is the components before the removal
  */
-void
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline void
 recalculateDistances(const Component1D* componentsIn,
                      float* distancesIn,
                      const int32_t mini,
                      const int32_t n)
 {
-  const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  const Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
-  const int32_t j = mini;
-  const int32_t indexConst = (j - 1) * j / 2;
+  const int32_t indexConst = (mini - 1) * mini / 2;
   // This is the component that has been updated
   // so we calculate distances wrt.
-  const Component1D componentJ = components[j];
+  const Component1D componentJ = components[mini];
 
   // Rows
-  for (int32_t i = 0; i < j; ++i) {
+  for (int32_t i = 0; i < mini; ++i) {
     // only change for non-merged components
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
     distances[index] = symmetricKL(componentI, componentJ);
   }
   // Columns
-  for (int32_t i = j + 1; i < n; ++i) {
+  for (int32_t i = mini + 1; i < n; ++i) {
     // only change for non-merged components
     const Component1D componentI = components[i];
-    const int32_t index = (i - 1) * i / 2 + j;
+    const int32_t index = (i - 1) * i / 2 + mini;
     distances[index] = symmetricKL(componentI, componentJ);
   }
 }
@@ -273,17 +285,20 @@ recalculateDistances(const Component1D* componentsIn,
  * We need this once in the beginning to initialize
  * the distance map.
  */
-void
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline void
 calculateAllDistances(const Component1D* componentsIn,
                       float* distancesIn,
                       const int32_t n)
 {
 
-  const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  const Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
@@ -295,13 +310,121 @@ calculateAllDistances(const Component1D* componentsIn,
   }
 }
 
+/**
+ * findMinimumIndex
+ * Assume that the number of elements is a multiple
+ * of 16.
+ *
+ * It uses the CxxUtils:vec class which provides
+ * a degree of portability instead of using
+ * directly the intrinsics. SSE4.1 gives us efficient blend, so
+ * we use function multiversioning.
+ *
+ * For non-sizeable inputs
+ * std::distance(array, std::min_element(array, array + n))
+ * can be good enough instead of calling this function.
+ */
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
+findMinimumIndex(const float* distancesIn, const int n)
+{
+  using namespace CxxUtils;
+  const float* array = assume_aligned<GSFConstants::alignment>(distancesIn);
+  // Do 4 vectors of 4 elements , so 16 at time
+  const vec<int, 4> increment = { 16, 16, 16, 16 };
+  // setup indices
+  vec<int, 4> indices1 = { 0, 1, 2, 3 };
+  vec<int, 4> indices2 = { 4, 5, 6, 7 };
+  vec<int, 4> indices3 = { 8, 9, 10, 11 };
+  vec<int, 4> indices4 = { 12, 13, 14, 15 };
+  // initial min indices
+  vec<int, 4> minindices1 = indices1;
+  vec<int, 4> minindices2 = indices2;
+  vec<int, 4> minindices3 = indices3;
+  vec<int, 4> minindices4 = indices4;
+  // initial minvalue
+  vec<float, 4> minvalues1;
+  vec<float, 4> minvalues2;
+  vec<float, 4> minvalues3;
+  vec<float, 4> minvalues4;
+  vload(minvalues1, array);
+  vload(minvalues2, array + 4);
+  vload(minvalues3, array + 8);
+  vload(minvalues4, array + 12);
+  // values
+  vec<float, 4> values1;
+  vec<float, 4> values2;
+  vec<float, 4> values3;
+  vec<float, 4> values4;
+  // Main loop 16 elements at a time
+  // using vec/for SIMD
+  for (int i = 16; i < n; i += 16) {
+    // 1
+    vload(values1, array + i); // 0-3
+    indices1 = indices1 + increment;
+    vec<int, 4> lt1 = values1 < minvalues1;
+    vselect(minindices1, indices1, minindices1, lt1);
+    vmin(minvalues1, values1, minvalues1);
+    // 2
+    vload(values2, array + i + 4); // 4-7
+    indices2 = indices2 + increment;
+    vec<int, 4> lt2 = values2 < minvalues2;
+    vselect(minindices2, indices2, minindices2, lt2);
+    vmin(minvalues2, values2, minvalues2);
+    // 3
+    vload(values3, array + i + 8); // 8-11
+    indices3 = indices3 + increment;
+    vec<int, 4> lt3 = values3 < minvalues3;
+    vselect(minindices3, indices3, minindices3, lt3);
+    vmin(minvalues3, values3, minvalues3);
+    // 4
+    vload(values4, array + i + 12); // 12-15
+    indices4 = indices4 + increment;
+    vec<int, 4> lt4 = values4 < minvalues4;
+    vselect(minindices4, indices4, minindices4, lt4);
+    vmin(minvalues4, values4, minvalues4);
+  }
+  // SIMD compare 1 with 2 , minimum becomes 1
+  vec<int, 4> lt12 = minvalues1 < minvalues2;
+  vselect(minindices1, minindices1, minindices2, lt12);
+  vmin(minvalues1, minvalues1, minvalues2);
+  // SIMD compare 3 with 4 minimum becomes 3
+  vec<int, 4> lt34 = minvalues3 < minvalues4;
+  vselect(minindices3, minindices3, minindices4, lt34);
+  vmin(minvalues3, minvalues3, minvalues4);
+  // SIMD compare 1 with 3 minimum becomes 1
+  vec<int, 4> lt = minvalues1 < minvalues3;
+  vselect(minindices1, minindices1, minindices3, lt);
+  vmin(minvalues1, minvalues1, minvalues3);
+
+  // Do the final calculation scalar way
+  size_t minIndex = minindices1[0];
+  float minvalue = minvalues1[0];
+  for (size_t i = 1; i < 4; ++i) {
+    const float value = minvalues1[i];
+    if (value < minvalue) {
+      minvalue = value;
+      minIndex = minindices1[i];
+    }
+  }
+  return minIndex;
+}
+
 } // anonymous namespace
+
 namespace GSFUtils {
 
 /**
  * Merge the componentsIn and return
  * which componets got merged.
  */
+#if HAVE_TARGET_CLONES
+#if defined(__x86_64__)
+[[gnu::target_clones("sse4.2", "default")]]
+#endif // end of x86_64 versions
+#endif // HAVE_TARGET_CLONES
 MergeArray
 findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
 {
@@ -314,16 +437,17 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
   }
   // copy the array for internal use
   Component1DArray copyComponents(componentsIn);
-  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
-    copyComponents.components.data(), GSFConstants::alignment));
+  Component1D* components = CxxUtils::assume_aligned<GSFConstants::alignment>(
+    copyComponents.components.data());
   // Based on the inputSize n allocate enough space for the pairwise distances
-  int32_t nn2 = numDistances8(n);
+  int32_t nn2 = numDistances16(n);
   AlignedDynArray<float, GSFConstants::alignment> distances(
     nn2, std::numeric_limits<float>::max());
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
   // As we merge keep track where things moved
-  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution> mergingIndex;
+  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution>
+    mergingIndex{};
   std::iota(mergingIndex.begin(), mergingIndex.end(), 0);
   // Result to be returned
   MergeArray result{};
@@ -357,134 +481,9 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
                                             numberOfComponentsLeft);
 
     // number of remaining distances dividable by 8
-    nn2 = numDistances8(numberOfComponentsLeft);
+    nn2 = numDistances16(numberOfComponentsLeft, distances.buffer());
   } // end of merge while
   return result;
-}
-
-/**
- * findMinimumIndex
- * Assume that the number of elements is a multiple
- * of 8 and is to be used for sizeable inputs.
- *
- * It uses the CxxUtils:vec class which provides
- * a degree of portability.
- *
- * SSE4.1 gives us efficient blend
- * so we employ function multiversioning
- * An AVX version could gives us directly
- * lanes 8 float wide
- *
- * For non-sizeable inputs
- * std::distance(array, std::min_element(array, array + n))
- * can be good enough instead of calling this function.
- */
-#if HAVE_FUNCTION_MULTIVERSIONING
-#if defined(__x86_64__)
-__attribute__((target("sse4.1")))
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
-{
-  using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
-  // Do 2 vectors of 4 elements , so 8 at time
-  const vec<int, 4> increment = { 8, 8, 8, 8 };
-  vec<int, 4> indices1 = { 0, 1, 2, 3 };
-  vec<int, 4> indices2 = { 4, 5, 6, 7 };
-  vec<int, 4> minindices1 = indices1;
-  vec<int, 4> minindices2 = indices2;
-  vec<float, 4> minvalues1;
-  vec<float, 4> minvalues2;
-  vload(minvalues1, array);
-  vload(minvalues2, array + 4);
-  vec<float, 4> values1;
-  vec<float, 4> values2;
-  for (int i = 8; i < n; i += 8) {
-    // Load 8 elements at a time
-    vload(values1, array + i);     // first 4
-    vload(values2, array + i + 4); // second 4
-    // 1
-    indices1 = indices1 + increment;
-    vec<int, 4> lt1 = values1 < minvalues1;
-    vselect(minindices1, indices1, minindices1, lt1);
-    vmin(minvalues1, values1, minvalues1);
-    // 2
-    indices2 = indices2 + increment;
-    vec<int, 4> lt2 = values2 < minvalues2;
-    vselect(minindices2, indices2, minindices2, lt2);
-    vmin(minvalues2, values2, minvalues2);
-  }
-  // Compare //1 with //2
-  vec<int, 4> lt = minvalues1 < minvalues2;
-  vselect(minindices1, minindices1, minindices2, lt);
-  vmin(minvalues1, minvalues1, minvalues2);
-  /*
-   * Do the final calculation scalar way
-   */
-  size_t minIndex = minindices1[0];
-  float minvalue = minvalues1[0];
-  for (size_t i = 1; i < 4; ++i) {
-    const float value = minvalues1[i];
-    if (value < minvalue) {
-      minvalue = value;
-      minIndex = minindices1[i];
-    }
-  }
-  return minIndex;
-}
-#endif // end of x86_64 versions
-__attribute__((target("default")))
-#endif // HAVE_FUNCTION_MULTIVERSIONING
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
-{
-  using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
-  const vec<int, 4> increment = { 8, 8, 8, 8 };
-  vec<int, 4> indices1 = { 0, 1, 2, 3 };
-  vec<int, 4> indices2 = { 4, 5, 6, 7 };
-  vec<int, 4> minindices1 = indices1;
-  vec<int, 4> minindices2 = indices2;
-  vec<float, 4> minvalues1;
-  vec<float, 4> minvalues2;
-  vload(minvalues1, array);
-  vload(minvalues2, array + 4);
-  vec<float, 4> values1;
-  vec<float, 4> values2;
-  for (int i = 8; i < n; i += 8) {
-    // Load 8 elements at a time
-    vload(values1, array + i);     // first 4
-    vload(values2, array + i + 4); // second 4
-    // 1
-    indices1 = indices1 + increment;
-    vec<int, 4> lt1 = values1 < minvalues1;
-    vselect(minindices1, indices1, minindices1, lt1);
-    vmin(minvalues1, values1, minvalues1);
-    // 2
-    indices2 = indices2 + increment;
-    vec<int, 4> lt2 = values2 < minvalues2;
-    vselect(minindices2, indices2, minindices2, lt2);
-    vmin(minvalues2, values2, minvalues2);
-  }
-  // Compare //1 with //2
-  vec<int, 4> lt = minvalues1 < minvalues2;
-  vselect(minindices1, minindices1, minindices2, lt);
-  vmin(minvalues1, minvalues1, minvalues2);
-  /*
-   * Do the final calculation scalar way
-   */
-  size_t minIndex = minindices1[0];
-  float minvalue = minvalues1[0];
-  for (size_t i = 1; i < 4; ++i) {
-    const float value = minvalues1[i];
-    if (value < minvalue) {
-      minvalue = value;
-      minIndex = minindices1[i];
-    }
-  }
-  return minIndex;
 }
 
 } // end namespace GSFUtils

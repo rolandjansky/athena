@@ -1,19 +1,19 @@
 #
 # Changing the names of the RdoToPrepData output Containers
 #
-from AthenaCommon.AppMgr import ToolSvc
 
-if hasattr(ToolSvc,'MdtPrepDataProviderTool'):
-    ToolSvc.MdtPrepDataProviderTool.OutputCollection = "MDT_DriftCircles_unfiltered"
 
-if hasattr(ToolSvc,'CscPrepDataProviderTool'):
-    ToolSvc.CscPrepDataProviderTool.OutputCollection = "CSC_Measurements_unfiltered"
+if hasattr(topSequence,'MdtRdoToMdtPrepData'):
+    topSequence.MdtRdoToMdtPrepData.DecodingTool.OutputCollection = "MDT_DriftCircles_unfiltered"
 
-if hasattr(ToolSvc,'RpcPrepDataProviderTool'):
-    ToolSvc.RpcPrepDataProviderTool.OutputCollection = "RPC_Measurements_unfiltered"
+if hasattr(topSequence,'CscRdoToCscPrepData'):
+    topSequence.CscRdoToCscPrepData.CscRdoToCscPrepDataTool.OutputCollection = "CSC_Measurements_unfiltered"
 
-if hasattr(ToolSvc,'TgcPrepDataProviderTool'):
-    ToolSvc.TgcPrepDataProviderTool.OutputCollection = "TGC_Measurements_unfiltered"
+if hasattr(topSequence,'RpcRdoToRpcPrepData'):
+    topSequence.RpcRdoToRpcPrepData.DecodingTool.TriggerOutputCollection = "RPC_Measurements_unfiltered"
+
+if hasattr(topSequence,'TgcRdoToTgcPrepData'):
+    topSequence.TgcRdoToTgcPrepData.DecodingTool.OutputCollection = "TGC_Measurements_unfiltered"
 
 
 #--------------------------------------------------------------------------
@@ -47,6 +47,7 @@ MuonIdCutTool.CutMdtRegionList = [] #Inner-0,Extra-1,Middle-2,Outer-3
 #MuonIdCutTool.CutCscRegionList = []
 MuonIdCutTool.CutRpcRegionList = []
 #MuonIdCutTool.CutTgcRegionList = []
+MuonIdCutTool.CutRpcRegionList = [0, 1, 2, 3]
 
 MuonIdCutTool.CutMdtMultilayerList = []
 MuonIdCutTool.CutRpcDoubletRList = []
@@ -75,8 +76,6 @@ MuonIdCutTool.TgcEtaList = [] #-5 to +5 abs val increaseswith increasing |R|
 MuonIdCutTool.TgcEndcapPhiList = [] #1-24
 MuonIdCutTool.TgcForwardPhiList = []#1-48
 
-ToolSvc += MuonIdCutTool
-
 #
 # Creating an instance of the MuonPrdSelectorAlg
 #
@@ -95,9 +94,8 @@ MuonPrdSelectorAlg = MuonPrdSelectorAlg( MDT_PRDinputContainer  = "MDT_DriftCirc
                                          TGC_PRDoutputContainer = "TGC_Measurements",
 
                                          CSC_PRDinputContainer  = "CSC_Measurements_unfiltered",
-                                         CSC_PRDoutputContainer = "CSC_Measurements" )
-
-MuonPrdSelectorAlg.OutputLevel = INFO
+                                         CSC_PRDoutputContainer = "CSC_Measurements",
+                                         MuonIdCutTool = MuonIdCutTool )
 
 
 topSequence += MuonPrdSelectorAlg

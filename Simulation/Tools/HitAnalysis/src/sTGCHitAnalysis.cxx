@@ -134,12 +134,12 @@ StatusCode sTGCHitAnalysis::execute() {
       int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
 
-      static std::string TS11("TS11");
-      static std::string TS21("TS21");
-      static std::string TS31("TS31");
-      static std::string TL11("TL11");
-      static std::string TL21("TL21");
-      static std::string TL31("TL31");
+      static std::string QS1C("QS1C");
+      static std::string QS2C("QS2C");
+      static std::string QS3C("QS3C");
+      static std::string QL1P("QL1P");
+      static std::string QL2P("QL2P");
+      static std::string QL3P("QL3P");
 
       int sim_side = hitHelper->GetSide(simId);
 
@@ -157,25 +157,25 @@ StatusCode sTGCHitAnalysis::execute() {
 	m_h_r_C->Fill(r_C);
       }
 
-      if ((sim_stationName==TS11 || sim_stationName==TS21 || sim_stationName==TS31) && sim_side==1){ //Small sectors A side 
+      if ((sim_stationName==QS1C || sim_stationName==QS2C || sim_stationName==QS3C) && sim_side==1){ //Small sectors A side 
         double r_S_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
         m_h_S_rz_A->Fill(p.z(), r_S_A);
 	m_h_S_xy_A->Fill(p.x(), p.y());
       }
 
-      if ((sim_stationName==TS11 || sim_stationName==TS21 || sim_stationName==TS31) && sim_side==-1){ //Small sectors C side 
+      if ((sim_stationName==QS1C || sim_stationName==QS2C || sim_stationName==QS3C) && sim_side==-1){ //Small sectors C side 
         double r_S_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
         m_h_S_rz_C->Fill(p.z(), r_S_C);
         m_h_S_xy_C->Fill(p.x(), p.y());
       }
 
-      if ((sim_stationName==TL11 || sim_stationName==TL21 || sim_stationName==TL31) && sim_side==1){ //Large sectors A side
+      if ((sim_stationName==QL1P || sim_stationName==QL2P || sim_stationName==QL3P) && sim_side==1){ //Large sectors A side
 	double r_L_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
         m_h_L_rz_A->Fill(p.z(), r_L_A);
         m_h_L_xy_A->Fill(p.x(), p.y());
       }
 
-      if ((sim_stationName==TL11 || sim_stationName==TL21 || sim_stationName==TL31) && sim_side==-1){ //Large sectors C side
+      if ((sim_stationName==QL1P || sim_stationName==QL2P || sim_stationName==QL3P) && sim_side==-1){ //Large sectors C side
         double r_L_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
         m_h_L_rz_C->Fill(p.z(), r_L_C);
         m_h_L_xy_C->Fill(p.x(), p.y());

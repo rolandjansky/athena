@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_MUONALIGNMENTCONDALG_H
@@ -67,6 +67,8 @@ private:
     const MuonGM::MuonDetectorManager* m_muonDetMgrDS{};
     ServiceHandle<ICondSvc> m_condSvc;
     std::string m_geometryVersion;
+
+    Gaudi::Property<bool> m_doCSC{this, "DoCSCs", true};
 
     // std::vector<std::string>       m_parlineFolder;
     bool m_dumpALines;

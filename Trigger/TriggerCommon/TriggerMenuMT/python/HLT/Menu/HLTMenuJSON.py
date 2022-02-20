@@ -179,7 +179,7 @@ def __validateGlobalAlgs(menuDict):
 def generateJSON():
     __log.info("Generating HLT Menu JSON in the rec-ex-common job")
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.CFElements import findSubSequence
 

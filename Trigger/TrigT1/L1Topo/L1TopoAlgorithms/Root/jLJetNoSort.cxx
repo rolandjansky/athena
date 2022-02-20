@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // jLJetNoSort.cxx
 // TopoCore
@@ -20,7 +20,6 @@ TCS::jLJetNoSort::jLJetNoSort(const std::string & name) :
 {
    defineParameter( "InputWidth", 64 ); // for FW
    defineParameter( "OutputWidth", 64 );
-   defineParameter( "jLargeRJetSize", 2 );
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -31,12 +31,18 @@ namespace InDet{
       SelGoodTrkParticle( InpTrk, PrimVrt, Muon, SelectedTracks);
       long int NTracks = SelectedTracks.size();
       TLorentzVector TrkJet = TotalMom(SelectedTracks);
-      if(m_FillHist)m_hb_nseltrk->Fill( (double)NTracks, m_w_1);    
+      if(m_FillHist){
+        Hists& h = getHists();
+        h.m_hb_nseltrk->Fill( (double)NTracks, m_w_1);
+      }
       if( NTracks < 1 ) { return nullptr;}      // 0,1 selected track => nothing to do!
 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks dR-close to muon= " <<NTracks << endmsg;
 
-      if(m_FillHist)m_hb_muonPt->Fill( Muon->pt(), m_w_1);    
+      if(m_FillHist){
+        Hists& h = getHists();
+        h.m_hb_muonPt->Fill( Muon->pt(), m_w_1);
+      }
 
 //--------------------------------------------------------------------------------------------	 
 //                    Initial xAOD::TrackParticle list ready
@@ -87,9 +93,10 @@ namespace InDet{
 //
 
      if(m_FillHist){
-          m_hb_r2dc->Fill( FitVertex.perp(), m_w_1);    
-          m_hb_totmass->Fill( Momentum.M(), m_w_1); 
-          m_hb_nvrt2->Fill( (double)nTracksNearMuon, m_w_1);
+          Hists& h = getHists();
+          h.m_hb_r2dc->Fill( FitVertex.perp(), m_w_1);    
+          h.m_hb_totmass->Fill( Momentum.M(), m_w_1); 
+          h.m_hb_nvrt2->Fill( (double)nTracksNearMuon, m_w_1);
       }
 
 //-------------------------------------------------------------------------------------
@@ -250,9 +257,10 @@ namespace InDet{
          SignifR = Impact[0]/ sqrt(ImpactError[0]);
          SignifZ = Impact[1]/ sqrt(ImpactError[2]);
          if(m_FillHist){
-            m_hb_impactR->Fill( SignifR, m_w_1); 
-            m_hb_impactZ->Fill( SignifZ, m_w_1); 
-            m_hb_impact->Fill( TrackSignif[i], m_w_1);
+            Hists& h = getHists();
+            h.m_hb_impactR->Fill( SignifR, m_w_1); 
+            h.m_hb_impactZ->Fill( SignifZ, m_w_1); 
+            h.m_hb_impact->Fill( TrackSignif[i], m_w_1);
          }
       }
 
@@ -284,7 +292,10 @@ namespace InDet{
              if(Chi2 > m_Sel2VrtChi2Cut)       continue;          /* Bad Chi2 */
              double mass_PiPi =  Momentum.M();  
 	     if(mass_PiPi > 6000.)             continue;  // can't be from B decay
-             if(m_FillHist){m_hb_massPiPi->Fill( mass_PiPi, m_w_1);}
+             if(m_FillHist){
+               Hists& h = getHists();
+               h.m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
+             }
              Dist2D=FitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
              VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
@@ -295,8 +306,9 @@ namespace InDet{
 	     double vPos=(vDist.x()*Momentum.Px()+vDist.y()*Momentum.Py()+vDist.z()*Momentum.Pz())/Momentum.Rho();
 	     if(vPos<0.) continue;                                              /*  Vertex is too far behind primary one*/
              if(m_FillHist){
-	        m_hb_r2d->Fill( Dist2D, m_w_1);
- 	        m_hb_signif3D->Fill( Signif3D, m_w_1);
+                Hists& h = getHists();
+	        h.m_hb_r2d->Fill( Dist2D, m_w_1);
+ 	        h.m_hb_signif3D->Fill( Signif3D, m_w_1);
              }
 //
 //  Save track crossing muon

@@ -42,7 +42,7 @@ include("TriggerJobOpts/runHLT_standalone.py")
 
 # make menu manually here:
 from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.CFtest.generateCFChains import generateCFChains
 from TriggerMenuMT.CFtest.EmuStepProcessingConfig import generateHLTSeedingAndChainsManually, generateHLTSeedingAndChainsByMenu
 
@@ -50,7 +50,7 @@ topSequence = AlgSequence()
 
 if testopt.menuType == 'menuManual':
     generateCFChains(opt)
-    from TriggerMenuMT.HLT.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+    from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
     checkL1HLTConsistency()
 elif testopt.menuType == 'emuMenuTest':
     # HLT_TestChain

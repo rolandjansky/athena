@@ -117,24 +117,28 @@ public:
     const ParticleHypothesis matEffects = Trk::nonInteracting) const;
 
 private:
+  using PVPNodes = std::vector<std::unique_ptr<TrkBaseNode> >;
+  using PVPSurfaces = std::vector<std::unique_ptr<TrkPlanarSurface> >;
+  using PVPTrackStates = std::vector<std::unique_ptr<TrkTrackState> >;
+
   ///////////////////////////////////////////////////////////////////
   // Private functions:
   ///////////////////////////////////////////////////////////////////
 
-  Trk::TrkTrackState* extrapolate(TrkTrackState*,
-                                  TrkPlanarSurface*,
-                                  TrkPlanarSurface*,
-                                  MagField::AtlasFieldCache& fieldCache) const;
+  std::unique_ptr<Trk::TrkTrackState>
+  extrapolate(TrkTrackState*,
+              TrkPlanarSurface*,
+              TrkPlanarSurface*,
+              MagField::AtlasFieldCache& fieldCache) const;
 
-  bool runForwardKalmanFilter(TrkTrackState*,
+  bool runForwardKalmanFilter(PVPNodes& pvpNodes,
+                              PVPTrackStates& pvpTrackStates,
+                              TrkTrackState*,
                               MagField::AtlasFieldCache& fieldCache) const;
-  void runSmoother() const;
-  int findOutliers(double) const;
-  void calculateLRsolution() const;
+  void runSmoother(PVPTrackStates& pvpTrackStates) const;
+  int findOutliers(PVPNodes& pvpNodes, double) const;
+  void calculateLRsolution(PVPNodes& pvpNodes) const;
   TrackStateOnSurface* createTrackStateOnSurface(TrkBaseNode*) const;
-  void deleteNodes() const;
-  void deleteSurfaces() const;
-  void deleteTrackStates() const;
   void report();
   void report(char fileName[]);
   void getMagneticField(double[3],
@@ -171,10 +175,6 @@ private:
     "fieldCondObj",
     "Name of the Magnetic Field conditions object key"
   };
-
-  std::vector<TrkBaseNode*>* m_pvpNodes;
-  std::vector<TrkPlanarSurface*>* m_pvpSurfaces;
-  std::vector<TrkTrackState*>* m_pvpTrackStates;
 
   // ME temporary fix
   std::vector<double> m_option_sortingRefPoint;

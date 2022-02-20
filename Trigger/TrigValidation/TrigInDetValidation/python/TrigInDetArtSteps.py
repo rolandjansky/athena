@@ -98,9 +98,7 @@ class TrigInDetReco(ExecStep):
                 # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH',"
                 chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e5_idperf_loose_L1EM3',"
+                chains += "'HLT_e26_idperf_loose_L1EM22VHI',"
                 chains += "'HLT_e5_idperf_tight_L1EM3',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron-tnp') :
@@ -127,7 +125,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += "doMinBiasSlice=True;setMenu='Dev_pp_run3_v1';"
+                flags  += "doMinBiasSlice=True;setMenu='PhysicsP1_pp_lowMu_run3_v1';"
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU3V'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
@@ -298,6 +296,7 @@ class TrigInDetCompStep(RefComparisonStep):
         os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-tier0.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-tier0-vtx.dat &> /dev/null' )
     
 
     def configure(self, test):

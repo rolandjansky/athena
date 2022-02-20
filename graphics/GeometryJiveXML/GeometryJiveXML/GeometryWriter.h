@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_GEOMETRYWRITER
@@ -8,12 +8,12 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "StoreGate/ReadCondHandleKey.h"
 
 #include "JiveXML/IGeometryWriter.h"
 #include <string>
 #include <vector>
 #include <fstream>
+#include <memory>
 
 class CaloDetDescriptor;
 class Identifier;
@@ -46,8 +46,6 @@ namespace JiveXML{
     GeometryWriter(const std::string& t,const std::string& n,const IInterface* p):
       AthAlgTool(t,n,p){declareInterface<IGeometryWriter>(this);};
 
-    virtual StatusCode initialize() override;  
-    
     /**
      * Writes the inner detector and calorimeter geometry to an XML file.
      */
@@ -91,7 +89,7 @@ namespace JiveXML{
      * Writes the geometry of the LAr calorimeters.
      * \param out stream where the XML fragment is written to
      */
-    void writeLArGeometry(std::ofstream &out, const CaloDetDescrManager* caloMgr);
+    void writeLArGeometry(std::ofstream &out);
     
     /**
      * Writes the geometry of the Minimum Bias Trigger Scintillators.
@@ -156,25 +154,22 @@ namespace JiveXML{
     
     
     /** Pixel detector manager and ID helper */
-    const InDetDD::PixelDetectorManager* m_pixel_manager;
-    const PixelID * m_pixelIdHelper;   
+    const InDetDD::PixelDetectorManager* m_pixel_manager{nullptr};
+    const PixelID * m_pixelIdHelper{nullptr};
 
     /** Silicon detector manager and ID helper */
-    const InDetDD::SCT_DetectorManager* m_silicon_manager;
-    const SCT_ID * m_sctIdHelper;
+    const InDetDD::SCT_DetectorManager* m_silicon_manager{nullptr};
+    const SCT_ID * m_sctIdHelper{nullptr};
     
     /** TRT detector manager and ID helper */
-    const InDetDD::TRT_DetectorManager* m_trt_manager;
-    const TRT_ID * m_trtIdHelper;
+    const InDetDD::TRT_DetectorManager* m_trt_manager{nullptr};
+    const TRT_ID * m_trtIdHelper{nullptr};
     
     /** Calorimeter detector manager. */
-    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
-	, "CaloDetDescrManager"
-	, "CaloDetDescrManager"
-	, "SG Key for CaloDetDescrManager in the Condition Store" };
+    std::unique_ptr<CaloDetDescrManager> m_calo_manager;
 
-    const TileDetDescrManager* m_tile_manager;
-    const LArDetectorManager *m_lar_manager;
+    const TileDetDescrManager* m_tile_manager{nullptr};
+    const LArDetectorManager *m_lar_manager{nullptr};
     
     /** The number of calorimeter sampling types. */
     static const int m_numCaloTypes = 24;

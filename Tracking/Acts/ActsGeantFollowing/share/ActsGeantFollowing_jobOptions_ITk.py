@@ -14,13 +14,12 @@ import sys
 from argparse import ArgumentParser
 
 from AthenaCommon.Configurable import Configurable
-from AthenaCommon.Constants import INFO, VERBOSE
+from AthenaCommon.Constants import INFO
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg
 from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
 
 # Set up logging and new style config
@@ -47,7 +46,6 @@ def defaultTestFlags(configFlags, args):
     ConfigFlags.GeoModel.Align.Dynamic = False
     #ConfigFlags.Acts.TrackingGeometry.MaterialSource = "Input"
     # ConfigFlags.Acts.TrackingGeometry.MaterialSource = "material-maps.json"
-    ConfigFlags.Beam.Type =''
 
     ConfigFlags.Detector.GeometryCalo = False
     ConfigFlags.Detector.GeometryMuon = False
@@ -60,11 +58,12 @@ def defaultTestFlags(configFlags, args):
     
     configFlags.Output.HITSFileName = args.outputhitsfile
 
-    configFlags.Sim.CalibrationRun = "Off"
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
+    configFlags.Sim.CalibrationRun = CalibrationRun.Off
     configFlags.Sim.RecordStepInfo = False
-    configFlags.Sim.CavernBG = "Signal"
+    configFlags.Sim.CavernBackground = CavernBackground.Signal
     configFlags.Sim.ISFRun = False
-    configFlags.Sim.BeamPipeSimMode = 'FastSim'
+    configFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     configFlags.Sim.ReleaseGeoModel = False
 
 
@@ -122,8 +121,6 @@ def ITkCfg(configFlags):
 def ActsGeantFollowerCfg(configFlags, name="ActsGeantFollowerTool", **kwargs):
     
     result = ComponentAccumulator()
-    
-    import InDetRecExample.TrackingCommon as TrackingCommon
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     result.merge(TrackingGeometrySvcCfg(configFlags))
@@ -132,7 +129,7 @@ def ActsGeantFollowerCfg(configFlags, name="ActsGeantFollowerTool", **kwargs):
     nomAli = NominalAlignmentCondAlgCfg(configFlags, OutputLevel=INFO)
     result.merge(nomAli)
 
-    from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvcCfg, ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg
+    from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvcCfg
     tgSvc = ActsTrackingGeometrySvcCfg(configFlags, OutputLevel=INFO)
     result.merge(tgSvc)
 

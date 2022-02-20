@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Muon
@@ -302,15 +302,15 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
         // used : z = 14; A=28 ; rho = 2.33 g/cm^3, X0 = 93.7 mmm, l0 = 465.2 mm (Silicium)
         Trk::Material mat1(93.7 / scmat1, 465.2 / scmat1, scmat1 * 14, scmat1 * 28, 0.0023, 0.);
         Trk::Material mat2(93.7 / scmat2, 465.2 / scmat2, scmat2 * 14, scmat2 * 28, 0.0023, 0.);
-        const Trk::LayerArray* dummyLayers = nullptr;
-        const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+        Trk::LayerArray* dummyLayers = nullptr;
+        Trk::TrackingVolumeArray* dummyVolumes = nullptr;
         Trk::VolumeBounds* extraBounds1 = new Trk::CylinderVolumeBounds(850., 13000., 5.);
-        const Trk::TrackingVolume* mextra1 = new Trk::TrackingVolume(nullptr, extraBounds1, mat1, dummyLayers, dummyVolumes, "extraMat1");
+        Trk::TrackingVolume* mextra1 = new Trk::TrackingVolume(nullptr, extraBounds1, mat1, dummyLayers, dummyVolumes, "extraMat1");
         const Trk::TrackingVolume* simType1 = simplifyShape(mextra1, blend);
         Trk::DetachedTrackingVolume* eVol1 = new Trk::DetachedTrackingVolume("extraTGCmat1", simType1);
         if (blend) eVol1->saveConstituents(&(m_constituents.back()));
         Trk::VolumeBounds* extraBounds2 = new Trk::CylinderVolumeBounds(850., 13000., 5.);
-        const Trk::TrackingVolume* mextra2 = new Trk::TrackingVolume(nullptr, extraBounds2, mat2, dummyLayers, dummyVolumes, "extraMat2");
+        Trk::TrackingVolume* mextra2 = new Trk::TrackingVolume(nullptr, extraBounds2, mat2, dummyLayers, dummyVolumes, "extraMat2");
         const Trk::TrackingVolume* simType2 = simplifyShape(mextra2, blend);
         Trk::DetachedTrackingVolume* eVol2 = new Trk::DetachedTrackingVolume("extraTGCmat2", simType2);
         if (blend) eVol2->saveConstituents(&(m_constituents.back()));

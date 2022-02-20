@@ -22,7 +22,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 int MMRawDataMonAlg::get_PCB_from_channel(int channel) const {
 
-  if (channel>0 && channel<=1024) return 1;
+  if (channel>0 && channel<=1024) return 1; 
   if (channel>1024 && channel<=2048) return 2;
   if (channel>2048 && channel<=3072) return 3;
   if (channel>3072 && channel<=4096) return 4;
@@ -167,6 +167,15 @@ int MMRawDataMonAlg::get_bin_for_occ_lb_ASide_pcb_eta2_hist(int stationEta, int 
   if (stationEta != 2) return -1;
 
   return  (multiplet-1)*max_gas_gap*max_pcb*max_isector+ (gas_gap-1)*max_pcb*max_isector + isector*max_pcb + (PCB-1);
+
+}
+
+int MMRawDataMonAlg::get_bin_for_occ_lb_pcb_hist(int multiplet, int gas_gap, int PCB) const {
+
+  static const int max_pcb = 8;
+  static const int max_gas_gap = 4;
+  
+  return (multiplet-1)*max_gas_gap*max_pcb + (gas_gap-1)*max_pcb + (PCB-1);
 
 }
 

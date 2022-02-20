@@ -18,10 +18,9 @@
 
 using namespace MuonGM;
 
-BuildNSWReadoutGeometry::BuildNSWReadoutGeometry() {}
+BuildNSWReadoutGeometry::BuildNSWReadoutGeometry() = default;
 
-bool BuildNSWReadoutGeometry::BuildReadoutGeometry(
-    MuonGM::MuonDetectorManager* mgr /*, std::map<GeoFullPhysVol*, std::string>* vec*/) const {
+bool BuildNSWReadoutGeometry::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const {
     bool geoBuilt = true;
 
     ServiceHandle<IAGDDtoGeoSvc> svc("AGDDtoGeoSvc", "MMDetectorHelper");
@@ -37,10 +36,7 @@ bool BuildNSWReadoutGeometry::BuildReadoutGeometry(
 
             std::string stName = chTag.substr(0, 4);
 
-            int etaIndex = 999;
-            int phiIndex = 999;
-            int mLayer = 999;
-            int iSide = 0;
+            int etaIndex{999}, phiIndex{999}, mLayer{999}, iSide{0};
             int iLS = atoi((chTag.substr(3, 1)).c_str());  // sTG3 and sMD3 are small chambers for small sectors
             if (iLS == 3)
                 iLS = 1;  // small
@@ -59,14 +55,14 @@ bool BuildNSWReadoutGeometry::BuildReadoutGeometry(
                 std::string myVolName = (chTag.substr(0, 8)).c_str();
                 re->initDesign(-999., -999., -999., -999., -999.);
                 re->fillCache();
-                mgr->addMMReadoutElement_withIdFields(re, iLS, etaIndex, phiIndex, mLayer);
+                mgr->addMMReadoutElement(re, re->identify());
                 re->setDelta(mgr);
             } else if (chTag.substr(0, 3) == "sTG") {
                 sTgcReadoutElement* re = new sTgcReadoutElement((GeoVFullPhysVol*)vol, stName, etaIndex, phiIndex, mLayer, false, mgr);
                 std::string myVolName = (chTag.substr(0, 8)).c_str();
                 re->initDesign(-999., -999., -999., 3.2, -999., 2.7, -999., 2.6);
                 re->fillCache();
-                mgr->addsTgcReadoutElement_withIdFields(re, iLS, etaIndex, phiIndex, mLayer);
+                mgr->addsTgcReadoutElement(re, re->identify());
                 re->setDelta(mgr);
             }
         }

@@ -1,23 +1,10 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
-from InDetConfig.InDetRecToolConfig import makeName
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 import AthenaCommon.SystemOfUnits as Units
 #######################################################################
-
-def copyArgs(kwargs, copy_list):
-    dict_copy={}
-    for elm in copy_list :
-        if elm in kwargs :
-            dict_copy[elm]=kwargs[elm]
-    return dict_copy
-
-def stripArgs(kwargs, copy_list) :
-    dict_copy = copyArgs(kwargs,copy_list)
-    for an_arg in copy_list :
-        kwargs.pop(an_arg,None)
-    return dict_copy
 
 def NeuralNetworkToHistoToolCfg(**kwargs):
     acc = ComponentAccumulator()
@@ -66,12 +53,7 @@ def PixelClusterNnWithTrackCondAlgCfg(flags, **kwargs):
 def LWTNNCondAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
     # Check for the folder
-    # TODO: not in global tag
-    # acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
-    if flags.Input.isMC:
-        acc.merge(addFolders(flags, "/PIXEL/PixelClustering/PixelNNCalibJSON", "PIXEL_OFL", className="CondAttrListCollection", tag="PixelNNCalibJSON-SIM-RUN2-000-02", db="OFLP200"))
-    else:
-        acc.merge(addFolders(flags, "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "PIXEL", className="CondAttrListCollection", tag="PixelNNCalibJSON-DATA-RUN2-000-02", db="CONDBR2"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
     # What we'll store it as
     kwargs.setdefault("WriteKey", 'PixelClusterNNJSON')
 
@@ -82,57 +64,53 @@ def LWTNNCondAlgCfg(flags, **kwargs):
 
 def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
 
     if "PixelLorentzAngleTool" not in kwargs:
         from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool
         PixelLorentzAngleTool = PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs)
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
-    do_runI = flags.GeoModel.Run == "RUN1"
-
-    if flags.InDet.useNNTTrainedNetworks:
-        acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=do_runI))
-        acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=do_runI))
+    if flags.GeoModel.Run is LHCPeriod.Run1:
+        acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
+        acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))
     else:
         acc.merge(LWTNNCondAlgCfg(flags, name="LWTNNCondAlg"))
 
-    kwargs.setdefault("doRunI", do_runI)
-    kwargs.setdefault("useToT", False if do_runI else flags.InDet.doNNToTCalibration)
-    kwargs.setdefault("useRecenteringNNWithoutTracks", True  if do_runI else False)
-    kwargs.setdefault("useRecenteringNNWithTracks", False if do_runI else False)
+    kwargs.setdefault("doRunI", flags.GeoModel.Run is LHCPeriod.Run1)
+    kwargs.setdefault("useToT", False)
+    kwargs.setdefault("useRecenteringNNWithoutTracks", flags.GeoModel.Run is LHCPeriod.Run1)
+    kwargs.setdefault("useRecenteringNNWithTracks", False)
     kwargs.setdefault("correctLorShiftBarrelWithoutTracks", 0)
-    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if do_runI else 0.000)
-    kwargs.setdefault("useTTrainedNetworks", flags.InDet.useNNTTrainedNetworks)
-    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.InDet.useNNTTrainedNetworks else "")
-    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.InDet.useNNTTrainedNetworks else "")
-    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.InDet.useNNTTrainedNetworks else "PixelClusterNNJSON")
+    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if flags.GeoModel.Run is LHCPeriod.Run1 else 0.000)
+    kwargs.setdefault("useTTrainedNetworks", flags.GeoModel.Run is LHCPeriod.Run1)
+    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
+    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
+    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.GeoModel.Run is LHCPeriod.Run1 else "PixelClusterNNJSON")
 
-    acc.setPrivateTools(CompFactory.InDet.NnClusterizationFactory(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.NnClusterizationFactory(name, **kwargs))
     return acc
 
 
 def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
 
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-    if not (flags.InDet.doFatras or flags.InDet.doDBMstandalone):
+    if not flags.InDet.Tracking.doDBMstandalone:
         acc.merge(PixelDistortionAlgCfg(flags))
 
-    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
-    if flags.Beam.Type == "cosmics" or flags.InDet.doDBMstandalone:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
-    kwargs.setdefault("DisableDistortions", flags.InDet.doFatras or flags.InDet.doDBMstandalone)
-    kwargs.setdefault("applyNNcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == "NeuralNet")
-    kwargs.setdefault("NNIBLcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == "NeuralNet")
+    kwargs.setdefault("DisableDistortions", flags.InDet.Tracking.doDBMstandalone)
+    kwargs.setdefault("applyNNcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
+    kwargs.setdefault("NNIBLcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
+    split_cluster_map_extension = flags.InDet.Tracking.ActivePass.extension if flags.InDet.Tracking.ActivePass.useTIDE_Ambi else ""
     kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
-    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
+    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.Tracking.doTIDE_Ambi)
 
-    acc.setPrivateTools(CompFactory.InDet.PixelClusterOnTrackTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.PixelClusterOnTrackTool(name, **kwargs))
     return acc
 
 
@@ -146,12 +124,12 @@ def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrack
         PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
         kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool)
 
-    if flags.InDet.doDigitalROTCreation:
+    if flags.InDet.Tracking.doDigitalROTCreation:
         kwargs.setdefault("applyNNcorrection", False)
         kwargs.setdefault("NNIBLcorrection", False)
         kwargs.setdefault("ErrorStrategy", 2)
         kwargs.setdefault("PositionStrategy", 1)
-    else :
+    else:
         kwargs.setdefault("SplitClusterAmbiguityMap", "")
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
@@ -161,7 +139,7 @@ def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrack
 def InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name="InDetPixelClusterOnTrackToolNNSplitting", **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == "NeuralNet":
+    if flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet":
         if "NnClusterizationFactory" not in kwargs:
             kwargs.setdefault("NnClusterizationFactory", acc.popToolsAndMerge(NnClusterizationFactoryCfg(flags)))
 
@@ -176,7 +154,7 @@ def InDetPixelClusterOnTrackToolCfg(flags, name="InDetPixelClusterOnTrackTool", 
         from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
         kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
 
-    if flags.InDet.doDigitalROTCreation:
+    if flags.InDet.Tracking.doDigitalROTCreation:
         PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
     else:
         PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name, **kwargs))
@@ -184,10 +162,8 @@ def InDetPixelClusterOnTrackToolCfg(flags, name="InDetPixelClusterOnTrackTool", 
     acc.setPrivateTools(PixelClusterOnTrackTool)
     return acc
 
-
 def InDetSCT_ClusterOnTrackToolCfg(flags, name='InDetSCT_ClusterOnTrackTool', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
 
     if 'LorentzAngleTool' not in kwargs :
         from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
@@ -197,7 +173,7 @@ def InDetSCT_ClusterOnTrackToolCfg(flags, name='InDetSCT_ClusterOnTrackTool', **
     kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias
     kwargs.setdefault("ErrorStrategy", 2 ) # do use phi dependent errors
 
-    acc.setPrivateTools(CompFactory.InDet.SCT_ClusterOnTrackTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.SCT_ClusterOnTrackTool(name, **kwargs))
     return acc
 
 def InDetBroadSCT_ClusterOnTrackToolCfg(flags, name='InDetBroadSCT_ClusterOnTrackTool', **kwargs):
@@ -206,13 +182,12 @@ def InDetBroadSCT_ClusterOnTrackToolCfg(flags, name='InDetBroadSCT_ClusterOnTrac
 
 def InDetBroadPixelClusterOnTrackToolCfg(flags, name='InDetBroadPixelClusterOnTrackTool', **kwargs):
     kwargs.setdefault("ErrorStrategy", 0)
-    return InDetPixelClusterOnTrackToolCfg(flags, name=name, **kwargs)
+    return InDetPixelClusterOnTrackToolCfg(flags, name, **kwargs)
 
-def RIO_OnTrackErrorScalingCondAlgCfg(flags, **kwargs):
+def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAlg', **kwargs):
     acc = ComponentAccumulator()
-    the_name=kwargs.pop("name", None)
 
-    if flags.GeoModel.Run == "RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         error_scaling_type   = ["PixelRIO_OnTrackErrorScalingRun1"]
         error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
     else:  # Run 2 and 3
@@ -232,15 +207,13 @@ def RIO_OnTrackErrorScalingCondAlgCfg(flags, **kwargs):
     kwargs.setdefault("ErrorScalingType", error_scaling_type)
     kwargs.setdefault("OutKeys", error_scaling_outkey)
 
-    if the_name is not None:
-        kwargs.setdefault("name", the_name)
-    acc.addCondAlgo(CompFactory.RIO_OnTrackErrorScalingCondAlg(**kwargs))
+    acc.addCondAlgo(CompFactory.RIO_OnTrackErrorScalingCondAlg(name, **kwargs))
     return acc
 
 def LumiCondDataKeyForTRTMuScalingCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
     LuminosityOutputKey = ''
-    if not flags.Beam.Type == 'cosmics' and False: # InDetFlags.useMuForTRTErrorScaling()  "temporary value"
+    if flags.Beam.Type is not BeamType.Cosmics and False: # InDetFlags.useMuForTRTErrorScaling()  "temporary value"
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         LuminosityCondAlg = LuminosityCondAlgCfg (flags)
         acc.merge(LuminosityCondAlg)
@@ -250,20 +223,17 @@ def LumiCondDataKeyForTRTMuScalingCfg(flags, **kwargs) :
 
 def InDetTRT_DriftCircleOnTrackToolCfg(flags, name='TRT_DriftCircleOnTrackTool', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    kwargs.pop('isHLT',None)
-    acc.merge(RIO_OnTrackErrorScalingCondAlgCfg(flags, name = 'RIO_OnTrackErrorScalingCondAlg'))
+    acc.merge(RIO_OnTrackErrorScalingCondAlgCfg(flags))
     kwargs.setdefault("TRTErrorScalingKey", '/Indet/TrkErrorScalingTRT')
     tmpAcc, LuminosityOutputKey = LumiCondDataKeyForTRTMuScalingCfg(flags)
     acc.merge(tmpAcc)
     kwargs.setdefault("LumiDataKey", LuminosityOutputKey)
-    acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackTool(name = the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackTool(name, **kwargs))
     return acc
 
 def InDetBroadTRT_DriftCircleOnTrackToolCfg(name='InDetBroadTRT_DriftCircleOnTrackTool', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackNoDriftTimeTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackNoDriftTimeTool(name, **kwargs))
     return acc
 
 def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
@@ -273,21 +243,15 @@ def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
         return ITkRotCreatorCfg(flags, name, **kwargs)
 
     acc = ComponentAccumulator()
-    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
-    pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
-    the_name = makeName(name, kwargs)
 
-    for an_arg in  strip_args:
-        kwargs.pop(an_arg, None)
-
-    use_broad_cluster_pix = flags.InDet.useBroadPixClusterErrors and (not flags.InDet.doDBMstandalone)
-    use_broad_cluster_sct = flags.InDet.useBroadSCTClusterErrors and (not flags.InDet.doDBMstandalone)
+    use_broad_cluster_pix = flags.InDet.Tracking.useBroadPixClusterErrors and not flags.InDet.Tracking.doDBMstandalone
+    use_broad_cluster_sct = flags.InDet.Tracking.useBroadSCTClusterErrors and not flags.InDet.Tracking.doDBMstandalone
 
     if 'ToolPixelCluster' not in kwargs :
         if use_broad_cluster_pix :
-            ToolPixelCluster= acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+            ToolPixelCluster= acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
         else:
-            ToolPixelCluster= acc.popToolsAndMerge(InDetPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+            ToolPixelCluster= acc.popToolsAndMerge(InDetPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)
 
     if 'ToolSCT_Cluster' not in kwargs :
@@ -301,12 +265,12 @@ def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
         kwargs.setdefault("ToolTRT_DriftCircle", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
 
     kwargs.setdefault('Mode', 'indet')
-    acc.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name=the_name, **kwargs))
+
+    acc.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name, **kwargs))
     return acc
 
 def InDetTRT_DriftCircleOnTrackUniversalToolCfg(name='InDetTRT_RefitRotCreator', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
     default_ScaleHitUncertainty = 2.5
 
     if 'RIOonTrackToolDrift' not in kwargs :
@@ -316,14 +280,14 @@ def InDetTRT_DriftCircleOnTrackUniversalToolCfg(name='InDetTRT_RefitRotCreator',
         RIOonTrackToolTube = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
         kwargs.setdefault("RIOonTrackToolTube", RIOonTrackToolTube)
     kwargs.setdefault("ScaleHitUncertainty", default_ScaleHitUncertainty) 
-    acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackUniversalTool(name = the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackUniversalTool(name, **kwargs))
     return acc
 
 def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
     acc = ComponentAccumulator()
     default_ScaleHitUncertainty = 2.5
     ScaleHitUncertainty = kwargs.pop('ScaleHitUncertainty', default_ScaleHitUncertainty)
-    if flags.Detector.EnableTRT and flags.InDet.redoTRT_LR:
+    if flags.Detector.EnableTRT and flags.InDet.Tracking.redoTRT_LR:
         if 'ToolTRT_DriftCircle' not in kwargs :
             ToolTRT_DriftCircle = acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackUniversalToolCfg(ScaleHitUncertainty = ScaleHitUncertainty))
             kwargs.setdefault("ToolTRT_DriftCircle", ToolTRT_DriftCircle)
@@ -333,34 +297,32 @@ def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
 
 def InDetPRDtoTrackMapToolGangedPixelsCfg(flags, name='PRDtoTrackMapToolGangedPixels', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap') # InDetKeys.GangedPixelMap()
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap')
     kwargs.setdefault("addTRToutliers", True)
-    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( name=the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels(name, **kwargs))
     return acc
 
 def InDetTrackPRD_AssociationCfg(flags, name='InDetTrackPRD_Association', **kwargs):
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import makeNameGetPreAndSuffix
-    the_name,prefix,suffix=makeNameGetPreAndSuffix(name,kwargs)
 
     if kwargs.get('TracksName', None) is None :
         raise Exception('Not TracksName argument provided')
 
-    AssociationTool = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
-    kwargs.setdefault("AssociationTool", AssociationTool \
-                      if 'AssociationTool' not in kwargs else None )
-    kwargs.setdefault("AssociationMapName", prefix+'PRDtoTrackMap'+suffix )
-    acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name = the_name, **kwargs))
+    if 'AssociationTool' not in kwargs:
+        kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
+
+    if "AssociationMapName" not in kwargs:
+        kwargs.setdefault("AssociationMapName", "InDetPRDtoTrackMap" + flags.InDet.Tracking.ActivePass.extension)
+
+    acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name, **kwargs))
     return acc
 
 def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutForPatternReco', **kwargs):
-    the_name = makeName( name, kwargs)
     result = ComponentAccumulator()
     kwargs.setdefault("MinOffsetDCs", 5)
-    kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.useNewParameterizationTRT)
+    kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.ActivePass.useNewParameterizationTRT)
     kwargs.setdefault("UseActiveFractionSvc", flags.Detector.EnableTRT)
-    result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(the_name, **kwargs))
+    result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(name, **kwargs))
     return result
 
 def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearch', **kwargs):
@@ -376,22 +338,14 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
         return ITkTrackSummaryToolCfg(flags, name, **kwargs)
 
     acc = ComponentAccumulator()
-    # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
-    hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
-    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
-    kwargs.pop('ClusterSplitProbabilityName',None)
-    kwargs.pop('isHLT',None)
-    the_name = makeName( name, kwargs)
-    do_holes=kwargs.get("doHolesInDet",True)
-    if do_holes :
-        id_helper_args.update(hlt_args)
+    do_holes = kwargs.get("doHolesInDet",True)
 
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
-            from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, **id_helper_args))
+            from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags))
         else:
-            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
+            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
     #
@@ -401,7 +355,22 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     kwargs.setdefault("doHolesInDet", do_holes)
     kwargs.setdefault("TRT_ElectronPidTool", None) # we don't want to use those tools during pattern
     kwargs.setdefault("PixelToTPIDTool", None) # we don't want to use those tools during pattern
-    acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name = the_name, **kwargs), primary=True)
+
+    acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name, **kwargs), primary=True)
+    return acc
+
+def InDetTrackSummaryToolAmbiCfg(flags, name='InDetTrackSummaryToolAmbi', **kwargs):
+    acc = ComponentAccumulator()
+
+    if 'InDetSummaryHelperTool' not in kwargs :
+        from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+        InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
+                                                                                         name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
+                                                                                         ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension))
+        kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
+
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name, **kwargs))
+    acc.addPublicTool(InDetTrackSummaryTool, primary=True)
     return acc
 
 def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
@@ -412,18 +381,13 @@ def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
     return acc
 
 def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
-    acc = ComponentAccumulator()
-
-    acc.merge(PixeldEdxAlg(flags))
-
-    the_name = makeName( name, kwargs)
-    InDetPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name = the_name, **kwargs)
+    acc = PixeldEdxAlg(flags)
+    InDetPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name, **kwargs)
     acc.setPrivateTools(InDetPixelToTPIDTool)
     return acc
 
 def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
 
     if not flags.Detector.EnablePixel:
         return None
@@ -437,7 +401,7 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
         PixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
         kwargs.setdefault( "PixelSummaryTool", PixelConditionsSummaryTool)
 
-    InDetTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name=the_name, **kwargs)
+    InDetTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name, **kwargs)
     acc.setPrivateTools(InDetTestBLayerTool)
     return acc
 
@@ -455,10 +419,10 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
             InDetRecTestBLayerTool = None
         kwargs.setdefault("TestBLayerTool", InDetRecTestBLayerTool)
 
-    kwargs.setdefault("DoSharedHits", flags.InDet.doSharedHits)
+    kwargs.setdefault("DoSharedHits", flags.InDet.Tracking.doSharedHits)
 
     if flags.Detector.EnableTRT:
-        kwargs.setdefault("DoSharedHitsTRT", flags.InDet.doSharedHits)
+        kwargs.setdefault("DoSharedHitsTRT", flags.InDet.Tracking.doSharedHits)
 
     from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg    
     InDetSummaryHelper = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
@@ -470,19 +434,11 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
 def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
     if 'InDetSummaryHelperTool' not in kwargs :
-        copy_args=['ClusterSplitProbabilityName','namePrefix','nameSuffix']
-        do_holes=kwargs.get("doHolesInDet",True)
-        if do_holes :
-            copy_args += ['isHLT']
-        id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
-        kwargs.pop('ClusterSplitProbabilityName',None)
-
-        InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags, **id_helper_args))
+        InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
 
     if 'TRT_ElectronPidTool' not in kwargs:
-        if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
-            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
+        if not flags.Detector.EnableTRT or flags.InDet.Tracking.doHighPileup:
             kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
             from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
@@ -492,7 +448,7 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
         kwargs.setdefault( "PixelToTPIDTool", InDetPixelToTPIDTool)
 
-    kwargs.setdefault( "doSharedHits", flags.InDet.doSharedHits)
+    kwargs.setdefault( "doSharedHits", flags.InDet.Tracking.doSharedHits)
 
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name, **kwargs))
     acc.addPublicTool(InDetTrackSummaryTool, primary=True)
@@ -504,30 +460,28 @@ def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
         from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
         return ITkUpdatorCfg(flags, name, **kwargs)
 
-    the_name = makeName( name, kwargs )
     acc = ComponentAccumulator()
 
     tool = None
-    if flags.InDet.kalmanUpdator == "fast" :
-        tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
-    elif flags.InDet.kalmanUpdator == "weight" :
-        tool = CompFactory.Trk.KalmanWeightUpdator(name = the_name, **kwargs)
-    elif flags.InDet.kalmanUpdator == "smatrix" :
-        tool = CompFactory.Trk.KalmanUpdatorSMatrix(name = the_name, **kwargs)
-    elif flags.InDet.kalmanUpdator == "amg" :
-        tool = CompFactory.Trk.KalmanUpdatorAmg(name = the_name, **kwargs)
+    if flags.InDet.Tracking.kalmanUpdator == "fast" :
+        tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
+    elif flags.InDet.Tracking.kalmanUpdator == "weight" :
+        tool = CompFactory.Trk.KalmanWeightUpdator(name, **kwargs)
+    elif flags.InDet.Tracking.kalmanUpdator == "smatrix" :
+        tool = CompFactory.Trk.KalmanUpdatorSMatrix(name, **kwargs)
+    elif flags.InDet.Tracking.kalmanUpdator == "amg" :
+        tool = CompFactory.Trk.KalmanUpdatorAmg(name, **kwargs)
     else :
-        tool = CompFactory.Trk.KalmanUpdator(name = the_name, **kwargs)
+        tool = CompFactory.Trk.KalmanUpdator(name, **kwargs)
 
     acc.setPrivateTools(tool)
     return acc
 
 def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
 
     kwargs.setdefault( "UseTrkUtils", False)
-    MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator(name = the_name, **kwargs)
+    MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs)
     
     acc.setPrivateTools(MultipleScatteringUpdator)
     return acc
@@ -535,34 +489,28 @@ def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", *
 def InDetMeasRecalibSTCfg(flags, name='InDetMeasRecalibST', **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
     if 'BroadPixelClusterOnTrackTool' not in kwargs :
-        InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+        InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault('BroadPixelClusterOnTrackTool', InDetBroadPixelClusterOnTrackTool)
     if 'BroadSCT_ClusterOnTrackTool' not in kwargs :
         InDetBroadSCT_ClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadSCT_ClusterOnTrackToolCfg(flags))
         kwargs.setdefault('BroadSCT_ClusterOnTrackTool', InDetBroadSCT_ClusterOnTrackTool)
     if 'CommonRotCreator' not in kwargs :
-        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault('CommonRotCreator', InDetRefitRotCreator)
 
     MeasRecalibSteeringTool = CompFactory.Trk.MeasRecalibSteeringTool(name, **kwargs)
     acc.setPrivateTools(MeasRecalibSteeringTool)
     return acc
 
-def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase',**kwargs) :
+def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase', **kwargs) :
     acc = ComponentAccumulator()
-    nameSuffix=kwargs.pop('nameSuffix','')
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName'])
-    if len(pix_cluster_on_track_args)>0 and len(nameSuffix)>0 :
-        pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("ExtrapolatorHandle", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
-        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault("RIO_OnTrackCreatorHandle", InDetRefitRotCreator)
 
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
@@ -573,12 +521,7 @@ def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase',**kwa
     kwargs.setdefault('BrempointAnalyserHandle', None)
     kwargs.setdefault('AlignableSurfaceProviderHandle',None)
 
-    if len(pix_cluster_on_track_args)>0 :
-        if 'RecalibratorHandle' not in kwargs :
-            the_tool_name = 'InDetMeasRecalibST'
-            InDetMeasRecalibST = acc.popToolsAndMerge(InDetMeasRecalibSTCfg(flags, name=the_tool_name+nameSuffix, **pix_cluster_on_track_args))
-            kwargs.setdefault('RecalibratorHandle', InDetMeasRecalibST)
-    else :
+    if 'RecalibratorHandle' not in kwargs :
         InDetMeasRecalibST = acc.popToolsAndMerge(InDetMeasRecalibSTCfg(flags))
         kwargs.setdefault('RecalibratorHandle', InDetMeasRecalibST)
 
@@ -632,8 +575,7 @@ def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs) :
     acc = ComponentAccumulator()
 
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-        InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
+        InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault('ToolPixelCluster', InDetBroadPixelClusterOnTrackTool)
 
     if 'ToolSCT_Cluster' not in kwargs :
@@ -649,11 +591,11 @@ def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs) :
     acc.setPrivateTools(InDetRotCreator)
     return acc
 
-def KalmanFitterCfg(flags, name='KalmanFitter',**kwargs) :
+def KalmanFitterCfg(flags, name='KalmanFitter', **kwargs) :
     acc = ComponentAccumulator()
 
     kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKF())
-    if flags.InDet.doBremRecovery:
+    if flags.InDet.Tracking.doBremRecovery:
         kwargs.setdefault('DynamicNoiseAdjustorHandle', InDetDNAdjustor())
         kwargs.setdefault('BrempointAnalyserHandle', InDetDNASeparator())
         kwargs.setdefault('DoDNAForElectronsOnly', True)
@@ -663,11 +605,11 @@ def KalmanFitterCfg(flags, name='KalmanFitter',**kwargs) :
 
     kwargs.setdefault('InternalDAFHandle', KalmanInternalDAF())
 
-    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name=name, **kwargs))
+    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name, **kwargs))
     acc.setPrivateTools(InDetKalmanTrackFitterBase)
     return acc
 
-def KalmanDNAFitterCfg(flags, name='KalmanDNAFitter',**kwargs) :
+def KalmanDNAFitterCfg(flags, name='KalmanDNAFitter', **kwargs) :
     acc = ComponentAccumulator()
 
     kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKF())
@@ -675,31 +617,29 @@ def KalmanDNAFitterCfg(flags, name='KalmanDNAFitter',**kwargs) :
     kwargs.setdefault('BrempointAnalyserHandle', InDetDNASeparator())
     kwargs.setdefault('InternalDAFHandle', KalmanInternalDAF())
 
-    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name=name, **kwargs))
+    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name, **kwargs))
     acc.setPrivateTools(InDetKalmanTrackFitterBase)
     return acc
 
-def ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter',**kwargs) :
+def ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter', **kwargs) :
     acc = ComponentAccumulator()
     
     kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKFRef())
     kwargs.setdefault('InternalDAFHandle', KalmanInternalDAFRef())
 
-    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name=name, **kwargs))
+    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name, **kwargs))
     acc.setPrivateTools(InDetKalmanTrackFitterBase)
     return acc
 
 def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
     if 'ExtrapolatorTool' not in kwargs :
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault('ExtrapolatorTool', acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'ROTcreator' not in kwargs :
-        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault('ROTcreator', InDetRotCreator)
 
     DistributedKalmanFilter = CompFactory.Trk.DistributedKalmanFilter(name = name, **kwargs)
@@ -709,46 +649,37 @@ def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) 
 def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-    # PHF cut during fit iterations to save CPU time
-    kwargs.setdefault('MinPHFCut', flags.InDet.Tracking.minTRTPrecFrac)
-
     if 'RotCreatorTool' not in kwargs :
-        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault('RotCreatorTool', InDetRotCreator)
-
-    use_broad_cluster_any = flags.InDet.useBroadClusterErrors and (not flags.InDet.doDBMstandalone)
-
-    if 'BroadRotCreatorTool' not in kwargs and  not flags.InDet.doRefit:
-        InDetBroadRotCreator = acc.popToolsAndMerge(InDetBroadRotCreatorCfg(flags, **pix_cluster_on_track_args))
+    if 'BroadRotCreatorTool' not in kwargs:
+        InDetBroadRotCreator = acc.popToolsAndMerge(InDetBroadRotCreatorCfg(flags))
         kwargs.setdefault('BroadRotCreatorTool', InDetBroadRotCreator)
 
-    if flags.InDet.doDBMstandalone:
+    # PHF cut during fit iterations to save CPU time
+    kwargs.setdefault('MinPHFCut', flags.InDet.Tracking.ActivePass.minTRTPrecFrac)
+
+    if flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault('StraightLine', True)
         kwargs.setdefault('OutlierCut', 5)
         kwargs.setdefault('RecalibrateTRT', False)
         kwargs.setdefault('TRTExtensionCuts', False)
         kwargs.setdefault('TrackChi2PerNDFCut', 20)
 
-    if flags.InDet.doRefit or use_broad_cluster_any is True:
+    if (flags.InDet.Tracking.useBroadPixClusterErrors or flags.InDet.Tracking.useBroadSCTClusterErrors) and not flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault('RecalibrateSilicon', False)
 
-    if flags.InDet.doRefit:
-        kwargs.setdefault('BroadRotCreatorTool', None)
-        kwargs.setdefault('ReintegrateOutliers', False)
-        kwargs.setdefault('RecalibrateTRT', False)
-
-    if flags.InDet.doRobustReco:
+    if flags.InDet.Tracking.doRobustReco:
         kwargs.setdefault('OutlierCut', 10.0)
         kwargs.setdefault('TrackChi2PerNDFCut', 20)
 
-    if flags.InDet.doRobustReco or flags.Beam.Type == 'cosmics':
+    if flags.InDet.Tracking.doRobustReco or flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault('MaxOutliers', 99)
 
-    if flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault('Acceleration', False)
 
-    if flags.InDet.materialInteractions and not flags.BField.solenoidOn:
+    if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn:
         kwargs.setdefault('Momentum', 1000.*Units.MeV)
 
     InDetGlobalChi2FitterBase = acc.popToolsAndMerge(InDetGlobalChi2FitterBaseCfg(flags, name=name, **kwargs))
@@ -758,19 +689,8 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
 def GaussianSumFitterCfg(flags, name="GaussianSumFitter", **kwargs):
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(
-        kwargs,
-        [
-            "SplitClusterMapExtension",
-            "ClusterSplitProbabilityName",
-            "nameSuffix",
-        ],
-    )
-
     if "ToolForROTCreation" not in kwargs:
-        InDetRotCreator = acc.popToolsAndMerge(
-            InDetRotCreatorCfg(flags, **pix_cluster_on_track_args)
-        )
+        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault("ToolForROTCreation", InDetRotCreator)
 
     kwargs.setdefault("MakePerigee", True)
@@ -794,8 +714,31 @@ def InDetTrackFitterCfg(flags, name='InDetTrackFitter', **kwargs) :
             'DistributedKalmanFilter' : DistributedKalmanFilterCfg,
             'GlobalChi2Fitter'        : InDetGlobalChi2FitterCfg,
             'GaussianSumFilter'       : GaussianSumFitterCfg
-    }[flags.InDet.trackFitterType](flags, name=name, **kwargs)
+    }[flags.InDet.Tracking.trackFitterType](flags, name, **kwargs)
 
+def InDetTrackFitterAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
+    acc = ComponentAccumulator()
+
+    InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
+    ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension
+
+    if flags.InDet.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter', 'DistributedKalmanFilter']:
+        InDetTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+
+    elif flags.InDet.Tracking.trackFitterType=='GlobalChi2Fitter':
+        InDetTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+        InDetTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+        # Name change for tools can be cleaned ultimately when config is validated
+        InDetTrackFitter.RotCreatorTool.name = "InDetRotCreatorAmbi" + flags.InDet.Tracking.ActivePass.extension
+        InDetTrackFitter.BroadRotCreatorTool.name = "InDetBroadInDetRotCreatorAmbi" + flags.InDet.Tracking.ActivePass.extension
+        InDetTrackFitter.RotCreatorTool.ToolPixelCluster.name = "InDetPixelClusterOnTrackToolAmbi" + flags.InDet.Tracking.ActivePass.extension
+        InDetTrackFitter.BroadRotCreatorTool.ToolPixelCluster.name = "InDetBroadPixelClusterOnTrackToolAmbi" + flags.InDet.Tracking.ActivePass.extension
+
+    elif flags.InDet.Tracking.trackFitterType=='GaussianSumFilter':
+        InDetTrackFitter.ToolForROTCreation.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+
+    acc.setPrivateTools(InDetTrackFitter)
+    return acc
 
 def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     acc = ComponentAccumulator()
@@ -840,8 +783,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives",
-                      flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo)
+    kwargs.setdefault("RecalculateDerivatives", flags.InDet.Tracking.doMinBias or flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
@@ -854,10 +796,9 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
     '''
     Global Chi2 Fitter for TRT segments with different settings
     '''
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
 
     if 'RotCreatorTool' not in kwargs :
-        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault("RotCreatorTool", InDetRefitRotCreator)
 
     kwargs.setdefault("MaterialUpdateTool", '')
@@ -870,10 +811,10 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
     kwargs.setdefault("RecalculateDerivatives", False)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 999999)
-    kwargs.setdefault("Momentum", 1000.*Units.MeV   if flags.InDet.materialInteractions and not flags.BField.solenoidOn else  0)
+    kwargs.setdefault("Momentum", 1000.*Units.MeV   if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn else  0)
     kwargs.setdefault("OutlierCut", 5)
-    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.doRobustReco or flags.Beam.Type == 'cosmics' else 10)
-    kwargs.setdefault("ReintegrateOutliers", False if flags.InDet.doRefit else False)
+    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.Tracking.doRobustReco or flags.Beam.Type is BeamType.Cosmics else 10)
+    kwargs.setdefault("ReintegrateOutliers", False)
 
     InDetGlobalChi2FitterBase = acc.popToolsAndMerge(InDetGlobalChi2FitterBaseCfg(flags, name=name, **kwargs))
     acc.setPrivateTools(InDetGlobalChi2FitterBase)
@@ -882,7 +823,7 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
 def InDetTrackFitterTRTCfg(flags, name='InDetTrackFitterTRT', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.trackFitterType != 'GlobalChi2Fitter' :
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetTrackFitter)
     else :
@@ -893,16 +834,12 @@ def InDetTrackFitterTRTCfg(flags, name='InDetTrackFitterTRT', **kwargs) :
 
 def InDetGlobalChi2FitterLowPtCfg(flags, name='InDetGlobalChi2FitterLowPt', **kwargs) :
     acc = ComponentAccumulator()
-    # @TODO TrackingGeometrySvc was not set but is set now
-    #       RotCreatorTool and BroadRotCreatorTool not set
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
 
     if 'RotCreatorTool' not in kwargs :
-        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, **pix_cluster_on_track_args))
+        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault('RotCreatorTool', InDetRotCreator)
-
-    if 'BroadRotCreatorTool' not in kwargs and  not flags.InDet.doRefit:
-        InDetBroadRotCreator = acc.popToolsAndMerge(InDetBroadRotCreatorCfg(flags, **pix_cluster_on_track_args))
+    if 'BroadRotCreatorTool' not in kwargs:
+        InDetBroadRotCreator = acc.popToolsAndMerge(InDetBroadRotCreatorCfg(flags))
         kwargs.setdefault('BroadRotCreatorTool', InDetBroadRotCreator)
 
     kwargs.setdefault('OutlierCut', 5.0)
@@ -914,14 +851,28 @@ def InDetGlobalChi2FitterLowPtCfg(flags, name='InDetGlobalChi2FitterLowPt', **kw
     acc.setPrivateTools(InDetGlobalChi2FitterBase)
     return acc
 
-def InDetTrackFitterLowPt(flags, name='InDetTrackFitter', **kwargs) :
+def InDetTrackFitterLowPtCfg(flags, name='InDetTrackFitter', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.trackFitterType != 'GlobalChi2Fitter' :
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetTrackFitter)
     else :
         InDetGlobalChi2FitterLowPt = acc.popToolsAndMerge(InDetGlobalChi2FitterLowPtCfg(flags, name, **kwargs))
+        acc.setPrivateTools(InDetGlobalChi2FitterLowPt)
+    return acc
+
+def InDetTrackFitterLowPtAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
+    acc = ComponentAccumulator()
+
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
+        InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterAmbiCfg(flags, name, **kwargs))
+        acc.setPrivateTools(InDetTrackFitter)
+    else :
+        InDetGlobalChi2FitterLowPt = acc.popToolsAndMerge(InDetGlobalChi2FitterLowPtCfg(flags, name, **kwargs))
+        ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension
+        InDetGlobalChi2FitterLowPt.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
+        InDetGlobalChi2FitterLowPt.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         acc.setPrivateTools(InDetGlobalChi2FitterLowPt)
     return acc
 
@@ -939,7 +890,7 @@ def InDetGlobalChi2FitterBTCfg(flags, name='InDetGlobalChi2FitterBT', **kwargs):
 def InDetTrackFitterBTCfg(flags, name='InDetTrackFitterBT', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.trackFitterType != 'GlobalChi2Fitter' :
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetTrackFitter)
     else :
@@ -973,9 +924,8 @@ def InDetKOL(name = 'InDetKOL', **kwargs):
 #TRTSegmentFinder
 #############################################################################################
 def InDetPatternPropagatorCfg(name='InDetPatternPropagator', **kwargs):
-    the_name = makeName( name, kwargs)
     result = ComponentAccumulator()
-    tool = CompFactory.Trk.RungeKuttaPropagator(name = the_name, **kwargs)
+    tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
     result.addPublicTool( tool, primary=True )
     return result
 
@@ -985,7 +935,6 @@ def InDetTRT_DriftCircleOnTrackUniversalToolCosmicsCfg(name='TRT_DriftCircleOnTr
 
 def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
 
     if 'Propagator' not in kwargs :
         from TrkConfig.AtlasExtrapolatorToolsConfig import InDetPropagatorCfg
@@ -1007,21 +956,18 @@ def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics'
     kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles()
     kwargs.setdefault("SearchNeighbour", False)   # needs debugging!!!
     kwargs.setdefault("RoadWidth", 10.0)
-    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionToolCosmics(name = the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionToolCosmics(name, **kwargs))
     return acc
 
 def InDetPatternUpdatorCfg(name='InDetPatternUpdator', **kwargs):
-    the_name = makeName(name, kwargs)
     result = ComponentAccumulator()
-    tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
+    tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
     result.addPublicTool( tool, primary=True )
     return result
 
 def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
-
-    the_name = makeName( name, kwargs)
 
     if 'PropagatorTool' not in kwargs :
         InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
@@ -1042,33 +988,31 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
         InDetTRT_RoadMaker = acc.popToolsAndMerge(InDetTRT_RoadMakerCfg(flags))
         kwargs.setdefault("RoadTool", InDetTRT_RoadMaker)
 
-    kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles()
-    kwargs.setdefault("TrtManagerLocation", 'TRT') # InDetKeys.TRT_Manager()
+    kwargs.setdefault("TRT_ClustersContainer", "TRT_DriftCircles")
+    kwargs.setdefault("TrtManagerLocation", "TRT")
     kwargs.setdefault("UseDriftRadius", not flags.InDet.noTRTTiming)
-    kwargs.setdefault("MinNumberDriftCircles", flags.InDet.Tracking.minTRTonTrk)
+    kwargs.setdefault("MinNumberDriftCircles", flags.InDet.Tracking.ActivePass.minTRTonTrk)
     kwargs.setdefault("ScaleHitUncertainty", 2)
     kwargs.setdefault("RoadWidth", 20.)
-    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.useParameterizedTRTCuts)
-    kwargs.setdefault("maxImpactParameter", 500 if flags.InDet.doBeamHalo or flags.InDet.doBeamGas else 50 )  # single beam running, open cuts
+    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.ActivePass.useParameterizedTRTCuts)
+    kwargs.setdefault("maxImpactParameter", 500 if flags.InDet.Tracking.doBeamGas else 50 )  # single beam running, open cuts
 
-    if flags.InDet.Tracking.RoISeededBackTracking:
-        kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.minSecondaryPt)
+    if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
+        kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.ActivePass.minSecondaryPt)
 
     acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     acc.merge(TRTActiveCondAlgCfg(flags))
-    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(name, **kwargs))
     return acc
 
 def InDetWeightCalculatorCfg(name='InDetWeightCalculator', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    acc.setPrivateTools(CompFactory.Trk.DAF_SimpleWeightCalculator(name = the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.Trk.DAF_SimpleWeightCalculator(name, **kwargs))
     return acc
 
 def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
 
     if 'Extrapolator' not in kwargs :
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
@@ -1081,24 +1025,21 @@ def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwar
     if 'ToolForTRT_DriftCircleOnTrackCreation' not in kwargs :
         kwargs.setdefault("ToolForTRT_DriftCircleOnTrackCreation", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
 
-    acc.setPrivateTools(CompFactory.InDet.CompetingTRT_DriftCirclesOnTrackTool( the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.CompetingTRT_DriftCirclesOnTrackTool(name, **kwargs))
     return acc
 
 def InDetTRT_RoadMakerCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
-
-    the_name = makeName( name, kwargs)
     
     InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
     kwargs.setdefault("RoadWidth", 20.)
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    acc.setPrivateTools(CompFactory.InDet.TRT_DetElementsRoadMaker_xk(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_DetElementsRoadMaker_xk(name, **kwargs))
     return acc
 
 def InDetTRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',**kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
 
     if 'CompetingDriftCircleTool' not in kwargs :
         InDetCompetingTRT_DC_Tool = acc.popToolsAndMerge(InDetCompetingTRT_DC_ToolCfg(flags))
@@ -1114,23 +1055,22 @@ def InDetTRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',
 
     kwargs.setdefault("TRT_DriftCircleContainer", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles()
 
-    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_DAF(the_name,**kwargs))
+    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_DAF(name,**kwargs))
     return acc
 
-def TRT_DetElementsRoadCondAlgCfg(flags, **kwargs):
+def TRT_DetElementsRoadCondAlgCfg(flags, name="InDet__TRT_DetElementsRoadCondAlg_xk", **kwargs):
     acc = ComponentAccumulator()
-    the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")
-    acc.addCondAlgo(CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs))
+    acc.addCondAlgo(CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(name, **kwargs))
     return acc
 
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
-    if flags.InDet.trtExtensionType == 'xk':
-        if flags.Beam.Type == "cosmics":
+    if flags.InDet.Tracking.trtExtensionType == 'xk':
+        if flags.Beam.Type is BeamType.Cosmics:
             return InDetTRT_ExtensionToolCosmicsCfg(flags, **kwargs)
         else:
             return InDetTRT_TrackExtensionTool_xkCfg(flags, **kwargs)
-    if flags.InDet.trtExtensionType == 'DAF':
+    if flags.InDet.Tracking.trtExtensionType == 'DAF':
         return InDetTRT_TrackExtensionTool_DAFCfg(flags, name='InDetTRT_ExtensionTool', **kwargs)
 
 #############################################################################################
@@ -1139,9 +1079,7 @@ def InDetTRT_ExtensionToolCfg(flags, **kwargs):
 def InDetRotCreatorDigitalCfg(flags, name='InDetRotCreatorDigital', **kwargs) :
     acc = ComponentAccumulator()
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
-        ToolPixelCluster = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, **pix_cluster_on_track_args))
+        ToolPixelCluster = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags))
         kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name=name, **kwargs)))
@@ -1176,32 +1114,31 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
-    have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
+    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
         alg = acc.getPrimaryAndMerge(ROIInfoVecAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
-    kwargs.setdefault("maxZImp", flags.InDet.Tracking.maxZImpact )
-    kwargs.setdefault("maxEta", flags.InDet.Tracking.maxEta )
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.usePixel )
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.useSCT )
+    kwargs.setdefault("maxZImp", flags.InDet.Tracking.ActivePass.maxZImpact )
+    kwargs.setdefault("maxEta", flags.InDet.Tracking.ActivePass.maxEta )
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel )
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
     acc.setPrivateTools(CompFactory.InDet.InDetAmbiScoringTool(name, **kwargs))
     return acc
 
 def InDetCosmicsScoringToolBaseCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    the_name=makeName(name, kwargs)
 
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.nWeightedClustersMin )
+    kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.ActivePass.nWeightedClustersMin )
     kwargs.setdefault("minTRTHits", 0 )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
 
-    acc.setPrivateTools(CompFactory.InDet.InDetCosmicScoringTool(name = the_name, **kwargs ))
+    acc.setPrivateTools(CompFactory.InDet.InDetCosmicScoringTool(name, **kwargs ))
     return acc
 
 def InDetTRT_ExtensionToolPhaseCfg(flags, name='InDetTRT_ExtensionToolPhase', **kwargs) :
@@ -1218,7 +1155,7 @@ def InDetTRT_ExtensionToolPhaseCfg(flags, name='InDetTRT_ExtensionToolPhase', **
 def InDetCosmicExtenScoringToolCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs) :
     acc = ComponentAccumulator()
     kwargs.setdefault("nWeightedClustersMin", 0)
-    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.minTRTonTrk )
+    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minTRTonTrk )
     acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicsScoringToolBaseCfg(flags, name = 'InDetCosmicExtenScoringTool', **kwargs)))
     return acc
 
@@ -1257,7 +1194,7 @@ def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicExtenScoringTool',**kw
     acc = ComponentAccumulator()
     InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
-    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.minSecondaryTRTonTrk)
+    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
     kwargs.setdefault("SummaryTool", InDetTrackSummaryToolNoHoleSearch)
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicExtenScoringToolCfg(flags,
@@ -1269,15 +1206,15 @@ def InDetTRT_SeededScoringToolCfg(flags, name='InDetTRT_SeededScoringTool', **kw
 
     kwargs.setdefault("useAmbigFcn", False)
     kwargs.setdefault("useTRT_AmbigFcn", True)
-    kwargs.setdefault("minTRTonTrk",  flags.InDet.Tracking.minSecondaryTRTonTrk)
-    kwargs.setdefault("minTRTPrecisionFraction",  flags.InDet.Tracking.minSecondaryTRTPrecFrac)
-    kwargs.setdefault("minPt",  flags.InDet.Tracking.minSecondaryPt)
-    kwargs.setdefault("maxRPhiImp",  flags.InDet.Tracking.maxSecondaryImpact)
-    kwargs.setdefault("minSiClusters",  flags.InDet.Tracking.minSecondaryClusters)
-    kwargs.setdefault("maxSiHoles",  flags.InDet.Tracking.maxSecondaryHoles)
-    kwargs.setdefault("maxPixelHoles",  flags.InDet.Tracking.maxSecondaryPixelHoles)
-    kwargs.setdefault("maxSCTHoles",  flags.InDet.Tracking.maxSecondarySCTHoles)
-    kwargs.setdefault("maxDoubleHoles",  flags.InDet.Tracking.maxSecondaryDoubleHoles)
+    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
+    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.ActivePass.minSecondaryTRTPrecFrac)
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minSecondaryPt)
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxSecondaryImpact)
+    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.ActivePass.minSecondaryClusters)
+    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.ActivePass.maxSecondaryHoles)
+    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.ActivePass.maxSecondaryPixelHoles)
+    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.ActivePass.maxSecondarySCTHoles)
+    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.ActivePass.maxSecondaryDoubleHoles)
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name=name, **kwargs)))
     return acc
@@ -1292,15 +1229,15 @@ def InDetAmbiScoringToolCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("minTRTonTrk", 0 )
     kwargs.setdefault("minTRTPrecisionFraction", 0 )
-    kwargs.setdefault("minPt", flags.InDet.Tracking.minPT )
-    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.maxPrimaryImpact )
-    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.minClusters )
-    kwargs.setdefault("minPixel", flags.InDet.Tracking.minPixel )
-    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.maxHoles )
-    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.maxPixelHoles )
-    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.maxSctHoles )
-    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.maxDoubleHoles )
-    acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name + flags.InDet.Tracking.extension, **kwargs)))
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minPT )
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )
+    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.ActivePass.minClusters )
+    kwargs.setdefault("minPixel", flags.InDet.Tracking.ActivePass.minPixel )
+    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.ActivePass.maxHoles )
+    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.ActivePass.maxPixelHoles )
+    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.ActivePass.maxSctHoles )
+    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.ActivePass.maxDoubleHoles )
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name + flags.InDet.Tracking.ActivePass.extension, **kwargs)))
     return acc
 
 def InDetAmbiScoringToolSiCfg(flags, name='InDetAmbiScoringToolSi', **kwargs) :
@@ -1309,10 +1246,10 @@ def InDetAmbiScoringToolSiCfg(flags, name='InDetAmbiScoringToolSi', **kwargs) :
 
 def InDetExtenScoringToolCfg(flags, name='InDetExtenScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    if flags.InDet.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
+    if flags.InDet.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
         kwargs.setdefault("minTRTPrecisionFraction", 0.2)
-    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.minTRTonTrk)
-    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.minTRTPrecFrac)
+    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.ActivePass.minTRTonTrk)
+    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.ActivePass.minTRTPrecFrac)
     acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolCfg(flags, name = name,  **kwargs)))
     return acc
 
@@ -1332,29 +1269,20 @@ def InDetPixelClusterOnTrackToolDBMCfg(flags, name='InDetPixelClusterOnTrackTool
 def InDetRotCreatorDBMCfg(flags, name='InDetRotCreatorDBM', **kwargs) :
     acc = ComponentAccumulator()
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
-        if flags.Detector.EnablePixel and flags.InDet.loadRotCreator:
-            ToolPixelCluster = InDetPixelClusterOnTrackToolDBMCfg(flags, pix_cluster_on_track_args)
-            kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
-        else :
-            ToolPixelCluster= InDetPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args)
-            kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
-
+        ToolPixelCluster = InDetPixelClusterOnTrackToolDBMCfg(flags)
+        kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
     acc.setPrivateTools(acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name=name, **kwargs)))
     return acc
 
 def PRDtoTrackMapToolCfg(name='PRDtoTrackMapTool',**kwargs) :
     acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    acc.setPrivateTools(CompFactory.Trk.PRDtoTrackMapTool( name=the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.Trk.PRDtoTrackMapTool( name, **kwargs))
     return acc
 
 def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    the_name=makeName(name,kwargs)
 
-    have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
+    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois :
         alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
@@ -1368,18 +1296,18 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
     kwargs.setdefault("nnCutConfig", "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json" )
-    kwargs.setdefault("nnCutThreshold", flags.InDet.nnCutLargeD0Threshold )
+    kwargs.setdefault("nnCutThreshold", flags.InDet.Tracking.nnCutLargeD0Threshold )
     kwargs.setdefault("Extrapolator", InDetExtrapolator )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
-    kwargs.setdefault("maxZImp", flags.InDet.Tracking.maxZImpact )
-    kwargs.setdefault("maxEta", flags.InDet.Tracking.maxEta )
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.usePixel )
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.useSCT )
+    kwargs.setdefault("maxZImp", flags.InDet.Tracking.ActivePass.maxZImpact )
+    kwargs.setdefault("maxEta", flags.InDet.Tracking.ActivePass.maxEta )
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel )
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
 
-    acc.setPrivateTools(CompFactory.InDet.InDetNNScoringTool(name = the_name, **kwargs ))
+    acc.setPrivateTools(CompFactory.InDet.InDetNNScoringTool(name, **kwargs ))
     return acc
 
 def InDetNNScoringToolCfg(flags, name='InDetNNScoringTool', **kwargs) :
@@ -1387,16 +1315,16 @@ def InDetNNScoringToolCfg(flags, name='InDetNNScoringTool', **kwargs) :
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("minTRTonTrk", 0 )
     kwargs.setdefault("minTRTPrecisionFraction", 0 )
-    kwargs.setdefault("minPt", flags.InDet.Tracking.minPT )
-    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.maxPrimaryImpact )
-    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.minClusters )
-    kwargs.setdefault("minPixel", flags.InDet.Tracking.minPixel )
-    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.maxHoles )
-    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.maxPixelHoles )
-    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.maxSctHoles )
-    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.maxDoubleHoles)
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minPT )
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )
+    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.ActivePass.minClusters )
+    kwargs.setdefault("minPixel", flags.InDet.Tracking.ActivePass.minPixel )
+    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.ActivePass.maxHoles )
+    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.ActivePass.maxPixelHoles )
+    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.ActivePass.maxSctHoles )
+    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.ActivePass.maxDoubleHoles)
 
-    return InDetNNScoringToolBaseCfg(flags, name=name+flags.InDet.Tracking.extension, **kwargs )
+    return InDetNNScoringToolBaseCfg(flags, name=name+flags.InDet.Tracking.ActivePass.extension, **kwargs )
 
 def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
     kwargs.setdefault('DriftCircleCutTool','')
@@ -1404,7 +1332,7 @@ def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
 
 def InDetCosmicsScoringToolCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     return InDetCosmicsScoringToolBaseCfg(flags,
-                                          name=name+flags.InDet.Tracking.extension)
+                                          name=name+flags.InDet.Tracking.ActivePass.extension)
 
 def FullLinearizedTrackFactoryCfg(flags, name='TrackToVertexIPEstimator', **kwargs):
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg

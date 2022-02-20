@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
@@ -173,20 +173,24 @@ namespace Muon {
         /** pointer to the CSC segment combination collection */
         // const MuonSegmentCombinationCollection* m_csc_segments;
 
-        /** histogram file for studies on weighting (only in use, when m_use_histos is
-         * true) */
-        std::unique_ptr<TFile> m_file{};
-        /** all hits histograms for studies on weighting (only in use, when
-         * m_use_histos is true) */
-        std::unique_ptr<TH1> m_weighthistogram{};
-        /** mdt histogram */
-        std::unique_ptr<TH1> m_weighthistogrammdt{};
-        /** rpc histogram */
-        std::unique_ptr<TH1> m_weighthistogramrpc{};
-        /** tgc histogram */
-        std::unique_ptr<TH1> m_weighthistogramtgc{};
-        /** csc histogram */
-        std::unique_ptr<TH1> m_weighthistogramcsc{};
+        struct Hists {
+          /** histogram file for studies on weighting (only in use, when m_use_histos is
+           * true) */
+          std::unique_ptr<TFile> m_file{};
+          /** all hits histograms for studies on weighting (only in use, when
+           * m_use_histos is true) */
+          std::unique_ptr<TH1> m_weighthistogram{};
+          /** mdt histogram */
+          std::unique_ptr<TH1> m_weighthistogrammdt{};
+          /** rpc histogram */
+          std::unique_ptr<TH1> m_weighthistogramrpc{};
+          /** tgc histogram */
+          std::unique_ptr<TH1> m_weighthistogramtgc{};
+          /** csc histogram */
+          std::unique_ptr<TH1> m_weighthistogramcsc{};
+        };
+        std::unique_ptr<Hists> m_h;
+        Hists& getHists() const;
 
         SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey{this, "CosmicPhiKey", "CosmicPhiPatterns"};
         SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey{this, "CosmicEtaPatterns", "CosmicEtaPatterns"};

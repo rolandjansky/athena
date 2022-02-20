@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinder.h"
@@ -30,11 +30,11 @@ namespace Muon {
     StatusCode MuonClusterSegmentFinder::finalize() {
         if (m_doNtuple) {
             TDirectory* cdir = gDirectory;
-            m_file->cd();
-            m_tree->Write();
-            m_file->Write();
-            m_file->Close();
-            delete m_ntuple;
+            m_tree->m_file->cd();
+            m_tree->m_tree->Write();
+            m_tree->m_file->Write();
+            m_tree->m_file->Close();
+            delete m_tree->m_ntuple;
             gDirectory = cdir;
         }
         return StatusCode::SUCCESS;
@@ -59,10 +59,11 @@ namespace Muon {
         m_doNtuple &= Gaudi::Concurrency::ConcurrencyFlags::numThreads() <= 1;
         if (m_doNtuple) {
             TDirectory* cdir = gDirectory;
-            m_file = new TFile("ClusterNtuple.root", "RECREATE");
-            m_tree = new TTree("clusters", "clusters");
-            m_ntuple = new ClusterSeg::ClusterNtuple();
-            m_ntuple->initForWrite(*m_tree);
+            m_tree = std::make_unique<Tree>();
+            m_tree->m_file = new TFile("ClusterNtuple.root", "RECREATE");
+            m_tree->m_tree = new TTree("clusters", "clusters");
+            m_tree->m_ntuple = new ClusterSeg::ClusterNtuple();
+            m_tree->m_ntuple->initForWrite(*m_tree->m_tree);
             gDirectory = cdir;
         }
 
@@ -194,8 +195,9 @@ namespace Muon {
         ATH_MSG_DEBUG("now have " << segColl->size() << " segments");
 
         if (m_doNtuple) {
-            m_ntuple->fill(thisEvent->Clust());
-            m_tree->Fill();
+            Tree& t = getTree();
+            t.m_ntuple->fill(thisEvent->Clust());
+            t.m_tree->Fill();
         }
         delete thisEvent;
     }
@@ -229,8 +231,9 @@ namespace Muon {
         ATH_MSG_DEBUG("now have " << segColl->size() << " segments");
 
         if (m_doNtuple) {
-            m_ntuple->fill(thisEvent->Clust());
-            m_tree->Fill();
+            Tree& t = getTree();
+            t.m_ntuple->fill(thisEvent->Clust());
+            t.m_tree->Fill();
         }
         delete thisEvent;
     }
@@ -407,9 +410,10 @@ namespace Muon {
                 theEvent->keyVector().push_back(keyEntry);
                 double chi2 = segtrack->fitQuality()->chiSquared();
                 double dof = segtrack->fitQuality()->doubleNumberDoF();
-                if (m_ntuple) {
-                    if (truthSeed) m_ntuple->fill(chi2 / dof, ClusterSeg::FillType::chi2T);
-                    m_ntuple->fill(chi2 / dof, ClusterSeg::FillType::chi2);
+                if (m_tree) {
+                    Tree& t = getTree();
+                    if (truthSeed) t.m_ntuple->fill(chi2 / dof, ClusterSeg::FillType::chi2T);
+                    t.m_ntuple->fill(chi2 / dof, ClusterSeg::FillType::chi2);
                 }
                 ATH_MSG_DEBUG("the chi2 is " << chi2 << "the dof are " << dof << " and the chi2/dof is " << chi2 / dof);
                 theEvent->segTrkColl()->push_back(segtrack);
@@ -517,4 +521,13 @@ namespace Muon {
         }
         return true;
     }
+
+    MuonClusterSegmentFinder::Tree& MuonClusterSegmentFinder::getTree() const
+    {
+      // We earlier checked that no more than one thread is being used.
+      Tree* t ATLAS_THREAD_SAFE = m_tree.get();
+      return *t;
+    }
+
+
 }  // namespace Muon

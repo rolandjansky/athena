@@ -64,40 +64,108 @@ KnownProjects=KnownCosmicsProjects | Known1BeamProjects | KnownCollisionsProject
 fullSolenoidCurrent=7730.0
 fullToroidCurrent=20500.0
 
+
 def GetRunNumber():
-    runNb=None
-    from RecExConfig.RecFlags import rec
-    if rec.RunNumber.isDefault():
-        from PyUtils.MetaReaderPeeker import metadata
-        try:
+    """Retrieve run number from job configuration or in-file metadata.
+
+    If the run number has been set in the RecFlags, i.e. is not the default
+    value, use that. Should the RecFlags not be available or the run number not
+    be set in the job try the input file metadata.
+
+    First look up what the run number form events in the file is using the
+    list of run numbers provided bu EventStreamInfo. Should that fail try
+    getting the list of run numbers from events that the job creating the file
+    considered. That last will cover the case of event-less input files. Either
+    way use the first run number in the list.
+
+        Return:
+            int: run number is successful, None otherwise
+    """
+    runNb = None
+    try:
+        from RecExConfig.RecFlags import rec
+        if not rec.RunNumber.isDefault():
+            runNb = rec.RunNumber()
+    except ImportError:
+        logAutoConfiguration.debug("Could not import from RecFlags, trying "
+                                   "in-file metadata")
+    try:
+        if not runNb:
+            from PyUtils.MetaReaderPeeker import metadata
+    except ImportError as err:
+        logAutoConfiguration.error(f"Unexpected: {err}")
+        return None
+    try:
+        if not runNb:
             runNb = metadata['runNumbers'][0]
-        except Exception:
+    except KeyError:
+        logAutoConfiguration.info("no runNumbers from EventStreamInput in "
+                                  "in-file metadata")
+    except IndexError:
+        logAutoConfiguration.debug("Empty list of runNumbers from "
+                                   "EventStreamInfo, trying FileMetaData")
+    try:
+        if not runNb:
+            runNb = metadata['FileMetaData']['runNumbers'][0]
+    except KeyError:
+        logAutoConfiguration.debug("FileMetaData does not provide runNumbers")
+    except IndexError:
+        logAutoConfiguration.debug("Empty list of runNumbers in FileMetaData")
+    if not runNb:
+        try:
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            if not athenaCommonFlags.isOnline(): logAutoConfiguration.error("No RunNumber stored in InputFile!")
-    else:
-        runNb=rec.RunNumber()
-    logAutoConfiguration.debug("RunNumber is: %s",runNb)
+            if not athenaCommonFlags.isOnline():
+                logAutoConfiguration.error("No RunNumber stored in InputFile!")
+        except ImportError as err:
+            logAutoConfiguration.error(f"Unexpected: {err}")
+    logAutoConfiguration.debug(f"RunNumber is: {runNb}")
     return runNb
 
 
 def GetLBNumber():
-    # empty files do not have any lumi blocks!!
-    from PyUtils.MetaReaderPeeker import metadata
-    if metadata['nentries'] == 0:
-        return None
+    """Determine the lumi block from infile metadata.
 
-    lbs=[0,]
+    Look in the information from the EventStreamInfo for the lumi block number.
+    In event-less files the EventStreamInfo is expected to be empty, as it
+    summarizes the events in the stream that made the file. However the lumi
+    blocks of the events that were read to make the evenless files will be
+    stored in the FileMetaData, and may be available there. Whether the value
+    is taken from EventStreamInfo or FileMetaData this function returns the
+    first lumi block in the list of lumi blocks.
+
+        Returns:
+            int: lumi block number if successful, None otherwise
+    """
+    from PyUtils.MetaReaderPeeker import metadata
+    lbs = None
     try:
         lbs = metadata['lumiBlockNumbers']
+    except (KeyError,):
+        logAutoConfiguration.debug("No lumiBlockNumbers from EventStreamInfo")
+    if not lbs:
+        # if EventStreamInfo is empty, try FileMetaData
+        try:
+            lbs = metadata['FileMetaData']['lumiBlocks']
+        except (KeyError,):
+            logAutoConfiguration.debug("lumiBlocks missing from FileMetaData")
+    try:
+        if len(lbs)>1:
+            logAutoConfiguration.warning("Data from more than one lumi-block "
+                                         "in the same file. Use first "
+                                         "lumi-block number.")
+    except (TypeError,):
+        logAutoConfiguration.warning("No LumiBlock number stored in InputFile!"
+                                     " Use None")
+        return None
+    try:
+        lb = lbs[0]
+        logAutoConfiguration.debug("LumiBlock Number is: %i",lb)
+        return lb
+    except (IndexError,):
+        logAutoConfiguration.warning("No LumiBlock number stored in InputFile!"
+                                     " Use None")
+    return None
 
-    except Exception:
-        logAutoConfiguration.error("No LumiBlock number stored in InputFile! Use 0")
-        
-    if len(lbs)>1:
-        logAutoConfiguration.warning("Data from more than one lumi-block in the same file. Use first lumi-block number.")
-    lb=lbs[0]
-    logAutoConfiguration.debug("LumiBlock Number is: %i",lb)
-    return lb
 
 def GetFieldFromCool():
     logAutoConfiguration.info("Reading magnetic field status from COOL database.")

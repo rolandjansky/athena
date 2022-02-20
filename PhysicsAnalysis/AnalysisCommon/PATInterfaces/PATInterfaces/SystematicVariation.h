@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -136,7 +136,7 @@ namespace CP
     ///   certain situations).
   public:
     SystematicVariation (const std::set<CP::SystematicVariation>& systematics,
-			 std::string val_basename);
+			 const std::string& val_basename);
 
 
     /// returns: whether this is an empty systematic, i.e. whether we

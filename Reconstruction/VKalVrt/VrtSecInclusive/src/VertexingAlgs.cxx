@@ -1048,7 +1048,7 @@ namespace VKalVrtAthena {
   {
     
     const xAOD::TrackParticleContainer *allTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(allTracks, "InDetTrackParticles") );
+    ATH_CHECK( evtStore()->retrieve(allTracks, m_jp.TrackLocation) );
     
     const xAOD::VertexContainer *pvs (nullptr);
     ATH_CHECK( evtStore()->retrieve( pvs, "PrimaryVertices") );

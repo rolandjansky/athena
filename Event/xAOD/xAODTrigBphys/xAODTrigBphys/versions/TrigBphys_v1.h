@@ -58,19 +58,23 @@ namespace xAOD {
            BSPHIMUMU = 9,
            LBLMUMU   = 10,
            BCDSMUMU  = 11,
-            // added JW: 21/09/15 for 2016 edm running
-            LAMBDAPIP = 12, // Lambda^0 -> pi- p
-            BCDPMUMU  = 13, // B_c -> D+ mu mu
-            BCDSTMUMU = 14, // B_c -> D*+ mu mu
-            OMEGALAMK = 15, // Omega- -> Lambda^0 K-
-            XILAMPI   = 16, // Xi- -> Lambda^0 pi-
-            DSTDZPI   = 17, // D*+ -> D0 pi+
-            DZMUKX    = 18, // D0 -> mu+ K- X
-            DZKPI     = 19, // D0 -> K- pi+
-            DPKPIPI   = 20, // D+ -> K- pi+ pi+
-            BCPIMUMU  = 21, // B_c+ -> pi+ mu mu
-            LBPQMUMU  = 22, // Lambda_b0 -> P_c+ (-> J/psi p) K-, pentaquark states
-
+           // added JW: 21/09/15 for 2016 edm running
+           LAMBDAPIP = 12, // Lambda^0 -> pi- p
+           BCDPMUMU  = 13, // B_c -> D+ mu mu
+           BCDSTMUMU = 14, // B_c -> D*+ mu mu
+           OMEGALAMK = 15, // Omega- -> Lambda^0 K-
+           XILAMPI   = 16, // Xi- -> Lambda^0 pi-
+           DSTDZPI   = 17, // D*+ -> D0 pi+
+           DZMUKX    = 18, // D0 -> mu+ K- X
+           DZKPI     = 19, // D0 -> K- pi+
+           DPKPIPI   = 20, // D+ -> K- pi+ pi+
+           BCPIMUMU  = 21, // B_c+ -> pi+ mu mu
+           LBPQMUMU  = 22, // Lambda_b0 -> P_c+(-> J/psi p) K-, pentaquark states
+           B2D0MUX   = 23, // B+ -> mu+ nu_mu anti-D0(-> K+ pi-)
+           BD2DMMUX  = 24, // B0 -> mu+ nu_mu D-(->K+ pi- pi-)
+           BD2DSTMUX = 25, // B0 -> mu+ nu_mu D*-(->anti-D0(->K+ pi-) pi-)
+           BS2DSMUX  = 26, // B_s0 -> mu+ nu_mu D_s-(->phi(->K+ K-) pi-)
+           LB2LCMUX  = 27, // anti-Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-)
            UNKNOWNPTYPE = 9999
         };
 

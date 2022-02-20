@@ -10,18 +10,17 @@
 
 GenBase::GenBase(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_mcEventKey("GEN_EVENT"),
-    m_ppSvc("PartPropSvc", name),
-    m_mcevents_const("GEN_EVENT")
+    m_ppSvc("PartPropSvc", name)
 {
-  declareProperty("McEventKey", m_mcEventKey="GEN_EVENT", "StoreGate key of the MC event collection");
   declareProperty("MakeMcEvent", m_mkMcEvent=false, "Create a new MC event collection if it doesn't exist");
   declareProperty("PartPropSvc", m_ppSvc);
-  declareProperty("McEventsR", m_mcevents_const=SG::RVar<McEventCollection>(m_mcEventKey));
 }
 
 
 StatusCode GenBase::initialize() {
+  ATH_CHECK( m_mcevents_const.initialize() );
+  m_mcEventKey = m_mcevents_const.key();
+
   // Get the particle property service
   if (m_ppSvc.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not initialize ATLAS Particle Property Service");

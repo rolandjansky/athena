@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -23,7 +23,7 @@
 
 
 // Use the vectorized version if we're compiling with gcc on x86_64.
-// clang > 7 allows function multiversioning but some of the intrincs we 
+// clang > 7 allows function multiversioning but some of the intrinsics we 
 // use exist only for gcc
 #if defined(__x86_64__) && HAVE_GCC_INTRINSICS
 # define ATH_CRC64_VEC 1
@@ -155,7 +155,7 @@ uint64_t crc64 (const std::string& s);
  * @param x The integer to add.
  * @return The new CRC.
  */
-uint64_t crc64addint (uint64_t crc, unsigned int x);
+uint64_t crc64addint (uint64_t crc, uint64_t x);
 
 
 /**

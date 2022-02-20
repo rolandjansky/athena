@@ -1,6 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2TriggerTowerMaker
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 class Run2TriggerTowerMakerBase (LVL1__Run2TriggerTowerMaker):
     __slots__ = []
@@ -34,18 +37,63 @@ class Run2TriggerTowerMaker50ns(Run2TriggerTowerMaker):
     def __init__(self, name = "Run2TriggerTowerMaker"):
         super(Run2TriggerTowerMaker50ns, self).__init__(name)
 
-def Run2TriggerTowerMakerCfg(flags, name):
+
+def L1CaloCondFoldersCfg(flags):
+        L1CaloFolders = {}
+        L1CaloFolders['PprChanCalib'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib'
+        L1CaloFolders['PprChanDefaults'] = '/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults'
+        # Different folders for data and MC
+        ver = 'V2' if flags.Input.isMC else 'V1'
+        L1CaloFolders['DisabledTowers'] = f'/TRIGGER/L1Calo/{ver}/Conditions/DisabledTowers'
+        L1CaloFolders['PpmDeadChannels'] = f'/TRIGGER/L1Calo/{ver}/Calibration/PpmDeadChannels'
+
+        # TODO decide what is needed form below items, (likely only needed when re-running on the data)
+        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
+        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
+        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
+        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
+
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        db = 'TRIGGER_ONL' if flags.Common.isOnline else 'TRIGGER_OFL'
+        return addFolders(flags, list(L1CaloFolders.values()), db), L1CaloFolders
+
+
+def Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'):
     '''
     Basic setup of tower maker cfg for new JO 
     WARNING: need to add dependencies on digi flags (as above) that are missing as of now
     '''
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaConfiguration.ComponentFactory import CompFactory
 
     acc = ComponentAccumulator()
     # TODO this is only needed when re-running 
     #    from SGComps.AddressRemappingConfig import InputRenameCfg
     #    acc.merge(InputRenameCfg('xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers'))
+
+    # Configure conditions used by R2TTMaker
+    from CaloConditions.CaloConditionsConfig import CaloTTIdMapCfg
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge(CaloTTIdMapCfg(flags))
+    acc.merge(TileInfoLoaderCfg(flags))
+    condFoldersAcc, condFolders = L1CaloCondFoldersCfg(flags)
+    acc.merge(condFoldersAcc)
+
+    # R2TTMaker reads TTL1 containers from input POOL file (RDO, ESD, ...)
+    if flags.Input.Format is Format.POOL:
+        ttl1Containers = [
+            ('LArTTL1Container', 'LArTTL1EM'),
+            ('LArTTL1Container', 'LArTTL1HAD'),
+            ('TileTTL1Container', 'TileTTL1Cnt'),
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=ttl1Containers))
+
+    # R2TTMaker reads L1Menu in BeginRun incident, so needs L1ConfigSvc
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+    acc.merge(L1ConfigSvcCfg(flags))
+
+    # R2TTMaker needs the mu information available as EventInfo decoration
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    acc.merge(LumiBlockMuWriterCfg(flags))
 
     alg = CompFactory.LVL1.Run2TriggerTowerMaker(name,
                                                  DigiEngine = "{}_Digitization".format(name),
@@ -54,6 +102,10 @@ def Run2TriggerTowerMakerCfg(flags, name):
                                                  inputTTLocation = 'unused',
                                                  TriggerTowerLocationRerun = 'also_unused',
                                                  ZeroSuppress = True, 
+                                                 ChanCalibFolderKey = condFolders['PprChanCalib'],
+                                                 ChanDefaultsFolderKey = condFolders['PprChanDefaults'],
+                                                 DisabledTowersFolderKey = condFolders['DisabledTowers'],
+                                                 DeadChannelsFolderKey = condFolders['PpmDeadChannels'],
                                                  #ExtraInputs = ['LArTTL1Container#LArTTL1EM', 'LArTTL1Container#LArTTL1HAD', 'TileTTL1Container#TileTTL1Cnt']
                                                  )
     acc.addEventAlgo(alg)
@@ -66,8 +118,6 @@ def L1CaloLegacySimCfg(flags):
     '''
     Configures Legacy 1 calo in new JO style
     '''
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaConfiguration.ComponentFactory import CompFactory
     acc = ComponentAccumulator()
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc.merge (GeoModelCfg (flags))
@@ -105,24 +155,7 @@ def L1CaloLegacySimCfg(flags):
         acc.merge(LVL1CaloRun2ReadBSCfg(flags))
 
     if flags.Input.isMC:
-        L1CaloFolderList = []
-        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib']
-
-        # TODO decide what is needed form below items, (likely only needed when re-running on the data)
-        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
-        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
-        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
-        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
-        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Conditions/DisabledTowers']
-        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels']
-        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults']
-
-        from IOVDbSvc.IOVDbSvcConfig import addFolders
-        acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
-
-
-        from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg
-        acc.merge(Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'))
+        acc.merge(Run2TriggerTowerMakerCfg(flags))
         acc.addEventAlgo(CompFactory.LVL1.Run2CPMTowerMaker('CPMTowerMaker'))
         acc.addEventAlgo(CompFactory.LVL1.Run2JetElementMaker('JetElementMaker'))
 

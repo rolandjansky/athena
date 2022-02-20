@@ -56,18 +56,17 @@
 #include "TrkTruthData/TruthTrajectory.h"
 
 struct DetectorLayer {
-    DetectorLayer() :
-        stIndex(Muon::MuonStationIndex::StUnknown), isEndcap(false), minPos(1e9), maxPos(-1e9), nnsw(0), nmdtS(0), nmdtL(0), nphi(0) {}
-    Muon::MuonStationIndex::StIndex stIndex;
-    bool isEndcap;
-    double minPos;  // flag whether first and second globalpos have been filled
-    double maxPos;
-    int nnsw;
-    int nmdtS;
-    int nmdtL;
-    int nphi;
-    Amg::Vector3D first3D;
-    Amg::Vector3D last3D;
+    DetectorLayer() = default;
+    Muon::MuonStationIndex::StIndex stIndex{Muon::MuonStationIndex::StUnknown};
+    bool isEndcap{false};
+    double minPos{FLT_MAX};  // flag whether first and second globalpos have been filled
+    double maxPos{-FLT_MAX};
+    int nnsw{0};
+    int nmdtS{0};
+    int nmdtL{0};
+    int nphi{0};
+    Amg::Vector3D first3D{Amg::Vector3D::Zero()};
+    Amg::Vector3D last3D{Amg::Vector3D::Zero()};
     std::vector<const Trk::MeasurementBase*> meas;
 };
 
@@ -80,7 +79,7 @@ namespace {
     }
 
     struct SubDetPRDs {
-        std::set<Identifier> subDetHits[SubDetHitStatistics::NUM_SUBDETECTORS];
+        std::array<std::set<Identifier>, SubDetHitStatistics::NUM_SUBDETECTORS>  subDetHits;
     };
 
     SubDetPRDs& operator+=(SubDetPRDs& a, const SubDetPRDs& b) {

@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 
 def ITkPrdAssociationToolCfg(flags, name='ITkPrdAssociationTool',**kwargs) :
@@ -9,13 +10,11 @@ def ITkPrdAssociationToolCfg(flags, name='ITkPrdAssociationTool',**kwargs) :
   '''
   Provide an instance for all clients in which the tool is only set in c++
   '''
-  the_name = makeName( name, kwargs)
-
   kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'ITkPixelClusterAmbiguitiesMap')
   kwargs.setdefault("addTRToutliers", False)
 
-  ITkPRD_AssociationToolGangedPixels = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(the_name, **kwargs)
-  acc.addPublicTool(ITkPRD_AssociationToolGangedPixels, primary=True)
+  ITkPRD_AssociationToolGangedPixels = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name, **kwargs)
+  acc.setPrivateTools(ITkPRD_AssociationToolGangedPixels)
   return acc
 
 def ITkPrdAssociationTool_setupCfg(flags, name='ITkPrdAssociationTool_setup',**kwargs) :
@@ -25,28 +24,17 @@ def ITkPrdAssociationTool_setupCfg(flags, name='ITkPrdAssociationTool_setup',**k
   kwargs.setdefault("SetupCorrect", True)
   return ITkPrdAssociationToolCfg(flags, name, **kwargs)
 
-def ITkTrigPrdAssociationToolCfg(flags, name='ITkTrigPrdAssociationTool_setup',**kwargs) :
-  kwargs.setdefault("PixelClusterAmbiguitiesMapName", "ITkTrigPixelClusterAmbiguitiesMap")
-  kwargs.setdefault("addTRToutliers", False)
-  return ITkPrdAssociationToolCfg(flags, name, **kwargs)
-
 def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
   result = ComponentAccumulator()
 
-  the_name = makeName( name, kwargs)
-  isHLT=kwargs.pop("isHLT",False)
-
   if 'AssoTool' not in kwargs :
-    assoTool = None
-    if not isHLT:
-      assoTool = result.getPrimaryAndMerge(ITkPrdAssociationTool_setupCfg(flags))
-    else:
-      assoTool = result.getPrimaryAndMerge(ITkTrigPrdAssociationToolCfg(flags))
+    assoTool = result.popToolsAndMerge(ITkPrdAssociationTool_setupCfg(flags))
+    result.addPublicTool(assoTool)
     kwargs.setdefault("AssoTool", assoTool)
 
   if "HoleSearch" not in kwargs:
-    ITkTrackHoleSearchTool = result.getPrimaryAndMerge(ITkTrackHoleSearchToolCfg(flags))
-    # FIXME: assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
+    ITkTrackHoleSearchTool = result.popToolsAndMerge(ITkTrackHoleSearchToolCfg(flags))
+    result.addPublicTool(ITkTrackHoleSearchTool)
     kwargs.setdefault("HoleSearch", ITkTrackHoleSearchTool)
 
   kwargs.setdefault("TRTStrawSummarySvc", "")
@@ -58,7 +46,7 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
   kwargs.setdefault("useSCT", flags.Detector.EnableITkStrip)
   kwargs.setdefault("useTRT", False)
 
-  result.setPrivateTools(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs))
+  result.setPrivateTools(CompFactory.InDet.InDetTrackSummaryHelperTool(name, **kwargs))
   return result
 
 def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
@@ -96,16 +84,13 @@ def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
   if 'BoundaryCheckTool' not in kwargs:
     kwargs.setdefault('BoundaryCheckTool', result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags)))
 
-  if flags.Beam.Type == "cosmics":
-    kwargs.setdefault("Cosmics", True)
-
+  kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
   kwargs.setdefault("CountDeadModulesAfterLastHit", True)
 
-  result.addPublicTool(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs), primary=True)
+  result.setPrivateTools(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs))
   return result
 
 def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
-  the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
   if 'PixelSummaryTool' not in kwargs :
     from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
@@ -121,61 +106,36 @@ def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
   kwargs.setdefault("CheckDeadRegions", flags.ITk.checkDeadPixelsOnTrack)
   kwargs.setdefault("CheckDisabledFEs", flags.ITk.checkDeadPixelsOnTrack)
 
-  tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
+  tool = CompFactory.InDet.InDetTestPixelLayerTool( name, **kwargs)
   result.setPrivateTools( tool )
   return result
 
 def ITkPatternPropagatorCfg(flags, name='ITkPatternPropagator', **kwargs):
-    the_name = makeName( name, kwargs)
     result = ComponentAccumulator()
-    tool = CompFactory.Trk.RungeKuttaPropagator(name = the_name, **kwargs)
+    tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
     result.addPublicTool( tool, primary=True )
     return result
 
 def ITkPatternUpdatorCfg(flags, name='ITkPatternUpdator', **kwargs):
-    the_name = makeName(name, kwargs)
     result = ComponentAccumulator()
-    tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
+    tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
     result.setPrivateTools( tool )
     return result
 
 def ITkUpdatorCfg(flags, name = 'ITkUpdator', **kwargs):
-    the_name = makeName( name, kwargs )
     result = ComponentAccumulator()
 
     tool = None
     if flags.ITk.Tracking.kalmanUpdator == "fast" :
-        tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
+        tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
     elif flags.ITk.Tracking.kalmanUpdator == "weight" :
-        tool = CompFactory.Trk.KalmanWeightUpdator(name = the_name, **kwargs)
+        tool = CompFactory.Trk.KalmanWeightUpdator(name, **kwargs)
     elif flags.ITk.Tracking.kalmanUpdator == "smatrix" :
-        tool = CompFactory.Trk.KalmanUpdatorSMatrix(name = the_name, **kwargs)
+        tool = CompFactory.Trk.KalmanUpdatorSMatrix(name, **kwargs)
     elif flags.ITk.Tracking.kalmanUpdator == "amg" :
-        tool = CompFactory.Trk.KalmanUpdatorAmg(name = the_name, **kwargs)
+        tool = CompFactory.Trk.KalmanUpdatorAmg(name, **kwargs)
     else :
-        tool = CompFactory.Trk.KalmanUpdator(name = the_name, **kwargs)
+        tool = CompFactory.Trk.KalmanUpdator(name, **kwargs)
 
     result.setPrivateTools( tool )
     return result
-
-def splitDefaultPrefix(name) :
-    default_prefix=''
-    for prefix in ['ITk'] :
-        if name[0:len(prefix)] == prefix :
-            name=name[len(prefix):]
-            default_prefix=prefix
-            break
-    return default_prefix,name
-
-def makeName( name, kwargs) :
-    default_prefix,name=splitDefaultPrefix(name)
-    namePrefix=kwargs.pop('namePrefix',default_prefix)
-    nameSuffix=kwargs.pop('nameSuffix','')
-    return namePrefix + name + nameSuffix
-
-def makeNameGetPreAndSuffix( name, kwargs) :
-    default_prefix,name=splitDefaultPrefix(name)
-    namePrefix=kwargs.pop('namePrefix',default_prefix)
-    nameSuffix=kwargs.pop('nameSuffix','')
-    return namePrefix + name + nameSuffix,namePrefix,nameSuffix
-

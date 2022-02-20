@@ -342,7 +342,8 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         if not reco_cscs: kwargs.setdefault("CscPrepDataContainer","")
         if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
         if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
-    
+    kwargs.setdefault("TgcPrepDataContainer",
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
 # end of factory function MuonSeededSegmentFinder
@@ -414,7 +415,9 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
 
     if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
     if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
-
+    kwargs.setdefault("TgcPrepDataContainer",
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
+ 
     #MDT conditions information not available online
     if(athenaCommonFlags.isOnline):
         kwargs.setdefault("MdtCondKey","")

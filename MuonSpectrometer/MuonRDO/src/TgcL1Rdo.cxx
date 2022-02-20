@@ -58,9 +58,8 @@ std::pair<int, int> TgcL1Rdo::initOnlineId()
     return std::make_pair (-1, -1);
   }
 
-  bool isAtlas = tgcCabGet->isAtlas();
-  int offset = isAtlas ? -1 : 0;
-  int MAX_N_SROD = isAtlas ? 12 : 8;
+  int offset = -1; // 0 start 
+  int MAX_N_SROD = 3;
   return std::make_pair (offset, MAX_N_SROD);
 }
 

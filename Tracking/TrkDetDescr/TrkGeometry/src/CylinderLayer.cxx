@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -153,6 +153,7 @@ Trk::CylinderLayer& Trk::CylinderLayer::operator=(const CylinderLayer& clay) {
 const Trk::CylinderSurface& Trk::CylinderLayer::surfaceRepresentation() const {
   return (*this);
 }
+
 
 double Trk::CylinderLayer::preUpdateMaterialFactor(
     const Trk::TrackParameters& parm, Trk::PropDirection dir) const {

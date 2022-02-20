@@ -1,5 +1,5 @@
  /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaMVACalib/egammaMVACalibTool.h"
@@ -231,7 +231,7 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
                 << ", clus->e() = " << clus.e());
 
   // Normally, we'd just use FindFixBin here.  But TH2Poly overrides FindBin
-  // to handle its special bin defintions, but it doesn't also override
+  // to handle its special bin definitions, but it doesn't also override
   // FindFixBin.  But TH2Poly::FindBin (unlike TH1::FindBin) doesn't actually
   // do anything non-const, so just suppress the warning here.
   TH2Poly* hPoly ATLAS_THREAD_SAFE = m_hPoly.get();

@@ -58,16 +58,16 @@ StatusCode MuonCreatorAlg::initialize() {
     ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
     if (not m_monTool.name().empty()) { ATH_CHECK(m_monTool.retrieve()); }
-    ATH_MSG_DEBUG("MuonCreatorAlg has been setup  successfully");
-    ATH_MSG_DEBUG("    *** SegmentTrackContainer:            " << m_segTrkContainerName);
-    ATH_MSG_DEBUG("    *** SegmentContainer:                 " << m_segContainerName);
-    ATH_MSG_DEBUG("    *** CombinedTrackContainer:           " << m_combinedTrkCollectionName);
-    ATH_MSG_DEBUG("    *** xAOD::CombinedTrackContainer:     " << m_combinedCollectionName);
+    ATH_MSG_INFO("MuonCreatorAlg has been setup  successfully");
+    ATH_MSG_INFO("    *** SegmentTrackContainer:            " << m_segTrkContainerName);
+    ATH_MSG_INFO("    *** SegmentContainer:                 " << m_segContainerName);
+    ATH_MSG_INFO("    *** CombinedTrackContainer:           " << m_combinedTrkCollectionName);
+    ATH_MSG_INFO("    *** xAOD::CombinedTrackContainer:     " << m_combinedCollectionName);
 
-    ATH_MSG_DEBUG("    *** xAOD::ExtrpolatedTrackContainer:  " << m_extrapolatedCollectionName);
-    ATH_MSG_DEBUG("    *** ExtrpolatedTrackContainer:        " << m_extrapolatedTrkCollectionName);
-    ATH_MSG_DEBUG("    *** xAOD::MSOnlyTrackContainer:       " << m_msOnlyExtrapolatedCollectionName);
-    ATH_MSG_DEBUG("    *** ExtrpolatedTackContainer:         " << m_msOnlyExtrapolatedTrkCollectionName);
+    ATH_MSG_INFO("    *** xAOD::ExtrpolatedTrackContainer:  " << m_extrapolatedCollectionName);
+    ATH_MSG_INFO("    *** ExtrpolatedTrackContainer:        " << m_extrapolatedTrkCollectionName);
+    ATH_MSG_INFO("    *** xAOD::MSOnlyTrackContainer:       " << m_msOnlyExtrapolatedCollectionName);
+    ATH_MSG_INFO("    *** ExtrpolatedTackContainer:         " << m_msOnlyExtrapolatedTrkCollectionName);
 
     return StatusCode::SUCCESS;
 }

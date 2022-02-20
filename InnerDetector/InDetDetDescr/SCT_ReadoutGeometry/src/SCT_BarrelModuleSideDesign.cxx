@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -236,13 +236,13 @@ SCT_BarrelModuleSideDesign::cellIdOfPosition(const SiLocalPosition & localPositi
 {
   // NB We do not distinguish between the two crystals anymore.
   // Check if we are in the active region. No bondgap check.
-  if (!inActiveArea(localPosition, false)) return SiCellId(); // return an invalid id
+  if (!inActiveArea(localPosition, false)) return {}; // return an invalid id
   double xPhi=localPosition.xPhi();
   double dstrip=(xPhi-m_xPhiStripPatternCentre)/m_stripPitch+0.5*diodes();
-  if (dstrip < 0) return SiCellId(); // return an invalid id
+  if (dstrip < 0) return {}; // return an invalid id
   int strip = static_cast<int>(dstrip);
-  if (strip > diodes())  return SiCellId();// return an invalid id if strip # greater than number of diodes.
-  return SiCellId(strip-shift()); // strip numbering starts from first readout strip. 
+  if (strip > diodes())  return {};// return an invalid id if strip # greater than number of diodes.
+  return {strip-shift()}; // strip numbering starts from first readout strip. 
                                    // Those to the left will have negative numbers.
 
 }

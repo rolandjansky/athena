@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.h 
@@ -52,7 +52,7 @@ namespace item {
   };
 }
 
-class ATLAS_CHECK_THREAD_SAFETY ItemListSvc : public extends<AthService, IItemListSvc>
+class ItemListSvc : public extends<AthService, IItemListSvc>
 { 
 
 public: 

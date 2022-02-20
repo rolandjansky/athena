@@ -13,10 +13,6 @@ MuonIsolationPlots::MuonIsolationPlots(PlotBase* pParent, const std::string& sDi
 m_oPtCone20(this,"", "ptcone20"),
 m_oPtCone30(this,"", "ptcone30"),
 m_oPtCone40(this,"", "ptcone40"),
-									    
-m_oEtCone20(this,"", "etcone20"),
-m_oEtCone30(this,"", "etcone30"),
-m_oEtCone40(this,"", "etcone40"),
 
 m_oTopoEtCone20(this,"", "topoetcone20"),
 m_oTopoEtCone30(this,"", "topoetcone30"),
@@ -29,14 +25,9 @@ m_oNEFlowIso40(this,"", "neflowisol40"),
 m_oPtVarCone20(this,"", "ptvarcone20"),
 m_oPtVarCone30(this,"", "ptvarcone30"),
 m_oPtVarCone40(this,"", "ptvarcone40")
-
-#ifndef XAOD_ANALYSIS
   //iso corrections
-, m_oEtCone_coreCone(this,"","etcone_coreCone")
 , m_oTopoEtCone_coreCone(this,"","topoetcone_coreCone")
 , m_oNEFlowIso_coreCone(this,"","neflowisol_coreCone")
-, m_oEtCone_coreMuon(this,"","etcone_coreMuon")
-#endif // not XAOD_ANALYSIS
 {}	
 
   void MuonIsolationPlots::fill(const xAOD::Muon& muon, float weight)
@@ -45,14 +36,10 @@ m_oPtVarCone40(this,"", "ptvarcone40")
   m_oPtCone30.fill(muon, xAOD::Iso::ptcone30, weight);
   m_oPtCone40.fill(muon, xAOD::Iso::ptcone40, weight);
 
-  m_oEtCone20.fill(muon, xAOD::Iso::etcone20, weight);
-  m_oEtCone30.fill(muon, xAOD::Iso::etcone30, weight);
-  m_oEtCone40.fill(muon, xAOD::Iso::etcone40, weight);
-
   m_oTopoEtCone20.fill(muon, xAOD::Iso::topoetcone20, weight);
   m_oTopoEtCone30.fill(muon, xAOD::Iso::topoetcone30, weight);
   m_oTopoEtCone40.fill(muon, xAOD::Iso::topoetcone40, weight);
-#ifndef XAOD_ANALYSIS
+
   m_oNEFlowIso20.fill(muon, xAOD::Iso::neflowisol20, weight);
   m_oNEFlowIso30.fill(muon, xAOD::Iso::neflowisol30, weight);
   m_oNEFlowIso40.fill(muon, xAOD::Iso::neflowisol40, weight);
@@ -61,12 +48,8 @@ m_oPtVarCone40(this,"", "ptvarcone40")
   m_oPtVarCone30.fill(muon, xAOD::Iso::ptvarcone30, weight);
   m_oPtVarCone40.fill(muon, xAOD::Iso::ptvarcone40, weight);
 
-  m_oEtCone_coreCone.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
   m_oTopoEtCone_coreCone.fill(muon, xAOD::Iso::topoetcone20, xAOD::Iso::topoetcone30, xAOD::Iso::topoetcone40, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
   m_oNEFlowIso_coreCone.fill(muon, xAOD::Iso::neflowisol20, xAOD::Iso::neflowisol30, xAOD::Iso::neflowisol40, xAOD::Iso::neflowisol, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
-  m_oEtCone_coreMuon.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreMuon, xAOD::Iso::coreEnergy, weight);
-#endif // not XAOD_ANALYSIS
-
 }
 
   

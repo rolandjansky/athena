@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: FastCaloSim/python/AddNoiseCellBuilderTool_test.py
 # Author: scott snyder
@@ -34,28 +34,28 @@ TILEHIGHHIGH = -11
 TILEHIGHLOW = -12
 cell_desc = {
     # larem barrel
-    (LAREM, 1, 1, 0, 100, 10) : (1000,   LARHIGHGAIN,     1007.97),
-    (LAREM, 1, 1, 0, 100, 11) : (50000,  LARMEDIUMGAIN,  50020.05),
+    (LAREM, 1, 1, 0, 100, 10) : (1000,   LARHIGHGAIN,     1011.48),
+    (LAREM, 1, 1, 0, 100, 11) : (50000,  LARMEDIUMGAIN,  49967.99),
     (LAREM, 1, 1, 0, 100, 12) : (300000, LARLOWGAIN,    299961.5),
 
     # larem endcap
-    (LAREM, 2, 1, 2, 30, 10) : (1000,     LARHIGHGAIN,      995.08),
-    (LAREM, 2, 1, 2, 30, 11) : (50000,    LARMEDIUMGAIN,  49930.60),
-    (LAREM, 2, 1, 2, 30, 12) : (300000,   LARLOWGAIN,    299785.6),
+    (LAREM, 2, 1, 2, 30, 10) : (1000,     LARHIGHGAIN,      999.00),
+    (LAREM, 2, 1, 2, 30, 11) : (50000,    LARMEDIUMGAIN,  50016.62),
+    (LAREM, 2, 1, 2, 30, 12) : (300000,   LARLOWGAIN,    300378.72),
 
     # larhec
-    (LARHEC, 2, 1, 0, 3, 10) : (1000,     LARMEDIUMGAIN,    985.86),
-    (LARHEC, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  49526.75),
+    (LARHEC, 2, 1, 0, 3, 10) : (1000,     LARMEDIUMGAIN,    1381.22),
+    (LARHEC, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  50287.54),
     (LARHEC, 2, 1, 0, 3, 12) : (300000,   LARLOWGAIN,    299838.22),
 
     # fcal
-    (LARFCAL, 2, 1, 0, 3, 10) : (1000,     LARHIGHGAIN,      975.03),
-    (LARFCAL, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  49817.90),
-    (LARFCAL, 2, 1, 0, 3, 12) : (800000,   LARLOWGAIN,    795062.44),
+    (LARFCAL, 2, 1, 0, 3, 10) : (1000,     LARHIGHGAIN,     1042.98),
+    (LARFCAL, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  50249.20),
+    (LARFCAL, 2, 1, 0, 3, 12) : (800000,   LARLOWGAIN,    798303.31),
 
     # tile
-    (TILE, 1, 1, 10, 3, 1) : (1000,      TILEHIGHHIGH,    1024.70),
-    (TILE, 1, 1, 11, 3, 1) : (50000,     TILEHIGHLOW,    49563.63),
+    (TILE, 1, 1, 10, 3, 1) : (1000,      TILEHIGHHIGH,    986.54),
+    (TILE, 1, 1, 11, 3, 1) : (50000,     TILEHIGHLOW,    50179.39),
     }
 
 def make_calo_cells (detStore, desc):
@@ -175,7 +175,7 @@ Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-ConfigFlags.Input.Files = defaultTestFiles.RDO
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Input.TimeStamp = 1000
 ConfigFlags.Detector.GeometryLAr = True
 ConfigFlags.Detector.GeometryTile = True

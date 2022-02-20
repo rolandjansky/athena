@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -137,13 +137,13 @@ namespace InDetDD {
   Point
   UnboundedZone::findEntry(const Ray&) const {
     // Will never be called.
-    return Point();
+    return {};
   }
 
   Point
   UnboundedZone::findExit(const Ray&) const {
     // Invalid means no exit point.
-    return Point();
+    return {};
   }
 
   TubeZone::TubeZone(const std::string& label, double zmin, double zmax, double rmin, double rmax, bool rotated)
@@ -197,7 +197,7 @@ namespace InDetDD {
       std::cout << "Unexpected case" << std::endl;
     }
     // Return invalid point since doesn't intersect.
-    return Point(); // invalid point
+    return {}; // invalid point
   }
 
 // Assume already inside.
@@ -219,7 +219,7 @@ namespace InDetDD {
       std::cout << "Unexpected case" << std::endl;
     }
     // ends with. Return invalid point.
-    return Point();
+    return {};
   }
 
   PconZone::PconZone(const std::string& label, bool rotated)
@@ -284,7 +284,7 @@ namespace InDetDD {
       std::cout << "Unexpected case" << std::endl;
     }
     // Return invalid point since doesn't intersect.
-    return Point(); // invalid point
+    return {}; // invalid point
   }
 
 // Assume already inside.
@@ -310,7 +310,7 @@ namespace InDetDD {
       std::cout << "Unexpected case" << std::endl;
     }
     // ends with. Return invalid point.
-    return Point();
+    return {};
   }
 
   Ray::Ray()

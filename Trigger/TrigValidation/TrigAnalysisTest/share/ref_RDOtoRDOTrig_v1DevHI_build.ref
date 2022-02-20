@@ -497,7 +497,7 @@ HLT_noalg_LArPEBCalib_L1RD0_EMPTY:
     0: 20
   stepFeatures:
     0: 20
-HLT_noalg_LArPEBCalib_L1jJ400_LAR:
+HLT_noalg_LArPEBCalib_L1jJ500_LAR:
   eventCount: 20
   stepCounts:
     0: 20

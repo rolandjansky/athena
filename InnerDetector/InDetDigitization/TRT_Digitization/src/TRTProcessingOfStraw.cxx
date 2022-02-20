@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTProcessingOfStraw.h"
@@ -66,7 +66,7 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
   m_pSimDriftTimeTool(simdrifttool),
 // m_time_y_eq_zero(0.0),
 // m_ComTime(NULL),
-  m_pTimeCorrection(NULL),
+  m_pTimeCorrection(nullptr),
   m_pElectronicsProcessing(ep),
   m_pNoise(noise),
   m_pDigConditions(digcond),
@@ -104,14 +104,14 @@ void TRTProcessingOfStraw::Initialize(const ITRT_CalDbTool* calDbTool)
 
   m_maxelectrons = 100; // 100 gives good Gaussian approximation
 
-  if (m_pPAItoolXe==NULL) {
+  if (m_pPAItoolXe==nullptr) {
     ATH_MSG_FATAL ( "TRT_PAITool for Xenon not defined! no point in continuing!" );
   }
-  if (m_pPAItoolKr==NULL) {
+  if (m_pPAItoolKr==nullptr) {
     ATH_MSG_ERROR ( "TRT_PAITool for Krypton is not defined!!! Xenon TRT_PAITool will be used for Krypton straws!" );
     m_pPAItoolKr = m_pPAItoolXe;
   }
-  if (m_pPAItoolAr==NULL) {
+  if (m_pPAItoolAr==nullptr) {
     ATH_MSG_ERROR ( "TRT_PAITool for Argon is not defined!!! Xenon TRT_PAITool will be used for Argon straws!" );
     m_pPAItoolAr = m_pPAItoolXe;
   }
@@ -243,10 +243,10 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 
       //Append cluster (the energy is given by the PAI model):
       double clusE(activePAITool->GetEnergyTransfer(scaledKineticEnergy, paiRndmEngine));
-      clusterlist.push_back(cluster(clusE, timeOfHit,
+      clusterlist.emplace_back(clusE, timeOfHit,
                                     prex + lambda * deltaX,
                                     prey + lambda * deltaY,
-                                    prez + lambda * deltaZ));
+                                    prez + lambda * deltaZ);
     }
 
   return;
@@ -371,7 +371,7 @@ void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
               double hitx = TRThitGlobalPos[0];
               double hity = TRThitGlobalPos[1];
               double hitz = TRThitGlobalPos[2];
-              double hitEta = fabs(log(tan(0.5*atan2(sqrt(hitx*hitx+hity*hity),hitz))));
+              double hitEta = std::abs(log(tan(0.5*atan2(sqrt(hitx*hitx+hity*hity),hitz))));
               if ( hitEta < 0.5 ) { trEfficiencyBarrel *= ( 0.833333+0.6666667*hitEta*hitEta ); }
               // scale down the TR efficiency if we are emulating
               if ( strawGasType == 0 && emulationArflag ) { trEfficiencyBarrel *= ArEmulationScaling_BA; }
@@ -397,8 +397,7 @@ void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
           } // energyDeposit < 30.0
 
           // Append this (usually highly energetic) cluster to the list:
-          m_clusterlist.push_back(
-                                  cluster( energyDeposit*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
+          m_clusterlist.emplace_back( energyDeposit*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() 
                                   );
 
           // Regarding the CLHEP::keV above: In TRT_G4_SD we converting the hits to keV,
@@ -410,8 +409,7 @@ void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
                  (static_cast<int>(abs(particleEncoding)/100000) == 100) &&
                  (static_cast<int>((abs(particleEncoding))-10000000)/100>10)) )
         {
-          m_clusterlist.push_back(
-                                  cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
+          m_clusterlist.emplace_back((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() 
                                   );
         }
       else { // It's not a photon, monopole or Qball with charge > 10, so we proceed with regular ionization using the PAI model
@@ -461,7 +459,7 @@ void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
                 const double Mn(939.565*CLHEP::MeV);
 
                 particleCharge = (particleEncoding>0 ? 1. : -1.) * static_cast<double>(Z);
-                particleMass = fabs( Z*Mp+(A-Z)*Mn );
+                particleMass = std::abs( Z*Mp+(A-Z)*Mn );
 
                 if (!alreadyPrintedPDGcodeWarning)
                   {
@@ -754,8 +752,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
       // Finally, deposit the energy on the wire using the drift-time tool (diffusion is no longer available).
       double commondrifttime = m_pSimDriftTimeTool->getAverageDriftTime(cluster_r,effectiveField2,strawGasType);
       double dt = clusterTime + commondrifttime;
-      deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*depositEnergy*expdirect,  timedirect+dt));
-      deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*depositEnergy*expreflect, timereflect+dt));
+      deposits.emplace_back(0.5*depositEnergy*expdirect,  timedirect+dt);
+      deposits.emplace_back(0.5*depositEnergy*expreflect, timereflect+dt);
 
     } // end of cluster loop
 
@@ -831,19 +829,19 @@ double TRTProcessingOfStraw::setClusterZ(double cluster_z_in, bool isLong, bool 
   const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
   const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
   const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
-  if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
+  if ( isLong  && std::abs(cluster_z)>longBarrelStrawHalfLength+30 ) {
     double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
     ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
     ATH_MSG_WARNING ("Setting cluster_z = 0.0");
     cluster_z = 0.0;
   }
-  if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
+  if ( isShort && std::abs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
     double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
     ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
     ATH_MSG_WARNING ("Setting cluster_z = 0.0");
     cluster_z = 0.0;
   }
-  if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
+  if ( isEC    && std::abs(cluster_z)>EndcapStrawHalfLength+30 ) {
     double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
     ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
     ATH_MSG_WARNING ("Setting cluster_z = 0.0");

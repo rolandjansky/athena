@@ -6,8 +6,23 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoSpecialShapes/EMECData.h"
+#include "GeoSpecialShapes/toEMECData.h"
+
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IMessageSvc.h"
+
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 #include "G4GeometryTolerance.hh"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
@@ -98,7 +113,38 @@ void LArWheelSliceSolid::createSolid(const G4String& name, G4int zside, size_t s
         }
         break;
     }
-    if(m_Calculator == 0) m_Calculator = new LArWheelCalculator(calc_type, zside);
+    if(m_Calculator == 0) {
+
+      ISvcLocator* svcLocator = Gaudi::svcLocator();
+      
+      // Access the GeoModelSvc:     
+      IGeoModelSvc *geoModel=0;
+      if (svcLocator->service ("GeoModelSvc",geoModel) !=StatusCode::SUCCESS) {
+	G4Exception(
+		    "LArWheelSliceSolid", "AccessGeoModel", FatalException,
+		    "createSolid cannot access GeoModelSvc");
+      }
+
+      IGeoDbTagSvc *geoDbTagSvc(nullptr);
+      if ( svcLocator->service ("GeoDbTagSvc",geoDbTagSvc)!=StatusCode::SUCCESS ) {
+	G4Exception(
+		    "LArWheelSliceSolid", "AccessDbTagSvc", FatalException,
+		    "createSolid cannot access DbTagSvc");
+      }
+
+      // Access the geometry database:                                                        
+      IRDBAccessSvc *pAccessSvc=0;
+      if ( svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc)!=StatusCode::SUCCESS) {
+	G4Exception(
+		    "LArWheelSliceSolid", "AccessAccessSvc", FatalException,
+		    "createSolid cannot access AccessSvc");
+      }
+
+      DecodeVersionKey larVersionKey(geoModel, "LAr");
+      EMECData emecData=toEMECData(pAccessSvc,larVersionKey);
+      m_Calculator = new LArWheelCalculator(emecData, calc_type, zside);
+
+    }
     else if(m_Calculator->type() != calc_type){
         G4Exception(
             "LArWheelSliceSolid", "WrongCalculatorType", FatalException,

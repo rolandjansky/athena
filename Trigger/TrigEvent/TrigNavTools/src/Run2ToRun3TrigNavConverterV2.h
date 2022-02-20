@@ -46,10 +46,11 @@ struct ConvProxy {
 
   std::vector<HLT::TriggerElement::FeatureAccessHelper> features;
   std::vector<HLT::TriggerElement::FeatureAccessHelper> rois;
+  std::vector<HLT::TriggerElement::FeatureAccessHelper> tracks;
 
   TrigCompositeUtils::Decision* l1Node { nullptr };
-  TrigCompositeUtils::Decision* imNode; // for checks only
-  TrigCompositeUtils::Decision* hNode;
+  TrigCompositeUtils::Decision* imNode { nullptr };
+  std::vector<TrigCompositeUtils::Decision*> hNode;
   std::string description() const;
 };
 
@@ -81,6 +82,7 @@ private:
   Gaudi::Property<bool> m_doSelfValidation{ this, "doSelfValidation", false, "Run consistency checks after stages of conversion (slows down the alg)" };
   Gaudi::Property<bool> m_doCompression{ this, "doCompression", false, "Collapse navigation elements to save ouput space" };
   Gaudi::Property<bool> m_doLinkFeatures{ this, "doLinkFeatures", true, "Add links to objects, setting it false makes sense when running tests" };
+  Gaudi::Property<bool> m_includeTauTrackFeatures{ this, "addTauTracks", false, "Add Tau Track collection as feature element" };
   Gaudi::Property<size_t> m_hNodesPerProxyThreshold{ this, "hNodesPerProxyThreshhold", 15, "Limit number of H nodes per TE (if exceeded conversion results in an error)" };
   Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {}, "If not specified, all chains are handled" };
   Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "Collections", {} };
@@ -93,7 +95,7 @@ private:
   TEIdToChainsMap_t m_allTEIdsToChains, m_finalTEIdsToChains;
   
 
-  StatusCode mirrorTEsStructure(ConvProxySet_t&, const HLT::TrigNavStructure& run2NavPtr) const;
+  StatusCode mirrorTEsStructure(ConvProxySet_t&, const HLT::TrigNavStructure& run2Nav) const;
 
   StatusCode associateChainsToProxies(ConvProxySet_t&, const TEIdToChainsMap_t&) const;
 
@@ -101,9 +103,9 @@ private:
 
   StatusCode removeUnassociatedProxies(ConvProxySet_t&) const;
 
-  StatusCode doCompression(ConvProxySet_t&) const;
+  StatusCode doCompression(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Nav) const;
 
-  StatusCode collapseFeaturesProxies( ConvProxySet_t& ) const;
+  StatusCode collapseFeaturesProxies( ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Nav) const;
 
   StatusCode collapseFeaturelessProxies(ConvProxySet_t&) const;
 
@@ -111,28 +113,32 @@ private:
   StatusCode collapseProxies(ConvProxySet_t&, MAP&) const;
 
 
-  StatusCode fillRelevantFeatures(ConvProxySet_t& convProxies) const;
-  StatusCode fillRelevantRois(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2NavPtr) const;
+  //StatusCode fillRelevantFeatures(ConvProxySet_t& convProxies) const;
+  StatusCode fillRelevantFeatures(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Nav) const;
+  StatusCode fillRelevantTracks(ConvProxySet_t& convProxies) const;
+  StatusCode fillRelevantRois(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Nav) const;
 
   StatusCode createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer&, const EventContext&) const;
 
   StatusCode createL1Nodes(const ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer& decisions, const EventContext& context) const;
-  StatusCode createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs,  const EventContext& context) const;
+  StatusCode createSFNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs,  const EventContext& context) const;
 
-  StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
-
-  StatusCode linkFeaNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& navigationDecoderrun2NavPtr, const EventContext& context) const;
-  StatusCode linkRoiNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2NavPtr) const;
+  StatusCode linkFeaNode(ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer&, const HLT::TrigNavStructure& run2Nav, const EventContext& context) const;
+  StatusCode linkRoiNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Nav) const;
+  StatusCode linkTrkNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Nav) const;
 
   // helpers
   //!< both method skip TrigPassBits
-  uint64_t feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>&) const;
+  uint64_t feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>&, const HLT::TriggerElement*) const;
+  uint64_t feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& feaVector, const HLT::TriggerElement*te_ptr, const HLT::TrigNavStructure& navigationDecoder) const;
   bool feaEqual(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& a, const std::vector<HLT::TriggerElement::FeatureAccessHelper>& b ) const;
 
   //!< returns true if this particular feature is to be saved (linked)
   bool feaToSave(const HLT::TriggerElement::FeatureAccessHelper& fea) const;
   
-  bool roiToSave(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& fea) const;
+  bool roiToSave(const HLT::TrigNavStructure& run2Nav, const HLT::TriggerElement::FeatureAccessHelper& fea) const;
+
+  std::size_t getFeaSize(const ConvProxy&) const;
 
   // self validators
   // they return failure if something is not ok 
@@ -148,7 +154,8 @@ private:
   std::tuple<uint32_t, CLID, std::string> getSgKey(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const;
   const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure& navigationDecoder, bool filterOnCLID=true) const;
   const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEROIfeatures(const HLT::TriggerElement* te_ptr, const HLT::TrigNavStructure& navigationDecoder) const;
-
+  const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTRACKfeatures(const HLT::TriggerElement* te_ptr) const;
+  
   std::map<CLID, std::set<std::string>> m_collectionsToSaveDecoded;
 
   std::vector<std::string> m_setRoiName;
@@ -161,8 +168,8 @@ private:
   CLID m_TrigEMClusterContainerCLID{0};
   CLID m_CaloClusterCLID{0};
   CLID m_CaloClusterContainerCLID{0};
-  CLID m_TrackParticleContainerCLID{0};
-  CLID m_TauTrackContainerCLID{0};
+  CLID m_TrackParticleContainerCLID { 0 };
+  CLID m_TauTrackContainerCLID { 0 };
 
 };
 

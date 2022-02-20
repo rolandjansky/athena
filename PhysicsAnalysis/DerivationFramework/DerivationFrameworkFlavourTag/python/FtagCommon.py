@@ -10,8 +10,6 @@ from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTo
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import GSFTracksCPDetailedContent
 
 ## Common items used in PHYSVAL, FTAG1 and FTAG2
-flag_trackless = 0
-flag_pseudotrack = 0
 PHYSVAL_FTAG1_FTAG2_mc_AppendToDictionary = {
         'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
         'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
@@ -53,7 +51,7 @@ PHYSVAL_FTAG1_FTAG2_ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
         "Photons.TruthLink",
         "AntiKt2PV0TrackJets.pt.eta.phi.m",
         "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.GhostBHadronsFinalPt.GhostBHadronsFinalCount.GhostCHadronsFinalCount.GhostCHadronsFinalPt",
-        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt.GhostBHadronsFinalPt.GhostBHadronsFinalCount.GhostCHadronsFinalCount.GhostCHadronsFinalPt",
+        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt.GhostBHadronsFinalPt.GhostBHadronsFinalCount.GhostCHadronsFinalCount.GhostCHadronsFinalPt.HadronConeExclTruthLabelPt.SumPtChargedPFOPt1000.SumPtTrkPt1000.TrackSumMass.TrackSumPt.TrackWidthPt500.TracksForBTagging.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.HECQuality.GhostHBosonsPt",
         "TruthPrimaryVertices.t.x.y.z",
         "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
         "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",

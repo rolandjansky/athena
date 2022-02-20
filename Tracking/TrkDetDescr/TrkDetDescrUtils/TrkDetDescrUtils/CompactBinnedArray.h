@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ class MsgStream;
 
 namespace Trk {
 
-/** @class CompactBinnedArrayT
+/** @class CompactBinnedArray
 
    defines common utilities needed for implementation of binned material
 
@@ -27,21 +27,21 @@ namespace Trk {
    */
 
 template<class T>
-class CompactBinnedArrayT : public BinnedArrayT<T>
+class CompactBinnedArray : public BinnedArray<T>
 {
 
 public:
   /**Default Constructor - needed for inherited classes */
-  CompactBinnedArrayT()
+  CompactBinnedArray()
     : BinnedArray<T>()
   {}
 
   /**Virtual Destructor*/
-  virtual ~CompactBinnedArrayT() {}
+  virtual ~CompactBinnedArray() {}
 
   /** Implicit constructor */
-  virtual CompactBinnedArrayT* clone() const = 0;
-  virtual CompactBinnedArrayT* clone(const std::vector<T*>& ptrs) const = 0;
+  virtual CompactBinnedArray* clone() const = 0;
+  virtual CompactBinnedArray* clone(const std::vector<T*>& ptrs) const = 0;
 
   /** layer bin utility */
   virtual const Trk::BinUtility* layerBinUtility(const Amg::Vector3D& gp) const = 0;
@@ -50,7 +50,5 @@ public:
   virtual size_t layerBin(const Amg::Vector3D& gp) const = 0;
 };
 
-template<class T>
-using CompactBinnedArray = CompactBinnedArrayT < const T>;
 } // end of namespace Trk
 #endif // TRKDETDESCRUTILS_COMPACTBINNEDARRAY_H

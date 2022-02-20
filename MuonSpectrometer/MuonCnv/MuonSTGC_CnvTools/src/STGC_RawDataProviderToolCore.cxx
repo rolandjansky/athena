@@ -7,7 +7,6 @@
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 //================ Constructor =================================================
-
 Muon::STGC_RawDataProviderToolCore::STGC_RawDataProviderToolCore(const std::string& t, const std::string& n, const IInterface* p) 
 : AthAlgTool(t, n, p)
 , m_robDataProvider("ROBDataProviderSvc",n) 

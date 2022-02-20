@@ -140,14 +140,10 @@ StatusCode LArOFCAlg::initialize(){
     }
   }
   
-  if ( m_isSC ) {
-    ATH_CHECK( m_cablingKeySC.initialize() );
-    ATH_CHECK( m_caloSuperCellMgrKey.initialize() );
-  }
-  else {
-    ATH_CHECK( m_cablingKey.initialize() );
-    ATH_CHECK( m_caloMgrKey.initialize() );
-  }
+  ATH_CHECK( m_cablingKeySC.initialize(m_isSC) );
+  ATH_CHECK( m_caloSuperCellMgrKey.initialize(m_isSC) );
+  ATH_CHECK( m_cablingKey.initialize(!m_isSC) );
+  ATH_CHECK( m_caloMgrKey.initialize(!m_isSC) );
 
   ATH_MSG_INFO( "Number of wave points needed : " << m_nPoints  ) ;
   if (m_computeV2) {

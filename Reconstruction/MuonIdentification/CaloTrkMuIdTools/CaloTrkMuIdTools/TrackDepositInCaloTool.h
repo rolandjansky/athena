@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKDEPOSITINCALOTOOL_H
@@ -19,6 +19,7 @@
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "xAODTracking/TrackParticle.h"
+#include "CxxUtils/CachedValue.h"
 
 // --- STL ---
 #include <map>
@@ -107,11 +108,6 @@ private:
     StatusCode bookHistos();
 
     /**
-       Marked const because it must be called from some const methods
-       Actually will change mutable member variables
-    */
-    StatusCode initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const;
-    /**
        Retrieve the CaloCell for which its center is closest to the position of the particle.
        @param par TrackParameters of the particle.
        @param descr Calorimeter detector region information. Only cells from this detector region are considered.
@@ -196,34 +192,44 @@ private:
     bool m_doExtr;  //!< Flag to perform extrapolations using m_extrapolator
     bool m_doHist;  //!< Flag to write histograms to track performance
 
-    CaloLayerMap mutable m_barrelLayerMap
-        ATLAS_THREAD_SAFE;  //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
-    CaloLayerMap mutable m_endCapLayerMap ATLAS_THREAD_SAFE;  //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
+    struct LayerMaps {
+      //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
+      CaloLayerMap m_barrelLayerMap;
+      //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
+      CaloLayerMap m_endCapLayerMap;
+    };
+    CxxUtils::CachedValue<LayerMaps> m_layerMaps;
 
-    std::once_flag mutable m_initializeOnce ATLAS_THREAD_SAFE;
+    LayerMaps initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const;
 
     // Histograms
-    TH1F* m_hDepositLayer12{};
-    TH1F* m_hDepositLayer13{};
-    TH1F* m_hDepositLayer14{};
+    struct Hists {
+      StatusCode book (ITHistSvc& histSvc);
 
-    TH2F* m_hParELossEta{};
-    TH2F* m_hParELossSample{};
+      TH1F* m_hDepositLayer12{};
+      TH1F* m_hDepositLayer13{};
+      TH1F* m_hDepositLayer14{};
 
-    ///////////////////////////////
-    TH1F* m_hDeltaEtaLastPar{};
-    TH1F* m_hDeltaRadiusLastPar{};
-    TH1F* m_hDepositsInCore{};
-    TH1F* m_hDepositsInCone{};
-    TH2F* m_hDistDepositsTile{};
-    TH2F* m_hDistDepositsHEC{};
+      TH2F* m_hParELossEta{};
+      TH2F* m_hParELossSample{};
 
-    TH2F* m_hEMB1vsdPhi{};
-    TH2F* m_hEMB2vsdPhi{};
-    TH2F* m_hEMB3vsdPhi{};
-    TH2F* m_hEMB1vsdEta{};
-    TH2F* m_hEMB2vsdEta{};
-    TH2F* m_hEMB3vsdEta{};
+      ///////////////////////////////
+      TH1F* m_hDeltaEtaLastPar{};
+      TH1F* m_hDeltaRadiusLastPar{};
+      TH1F* m_hDepositsInCore{};
+      TH1F* m_hDepositsInCone{};
+      TH2F* m_hDistDepositsTile{};
+      TH2F* m_hDistDepositsHEC{};
+
+      TH2F* m_hEMB1vsdPhi{};
+      TH2F* m_hEMB2vsdPhi{};
+      TH2F* m_hEMB3vsdPhi{};
+      TH2F* m_hEMB1vsdEta{};
+      TH2F* m_hEMB2vsdEta{};
+      TH2F* m_hEMB3vsdEta{};
+    };
+    std::unique_ptr<Hists> m_h;
+    Hists& getHists() const;
 
     const Trk::ParticleMasses m_particlemasses;
 };

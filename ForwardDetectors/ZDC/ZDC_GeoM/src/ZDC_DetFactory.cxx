@@ -223,7 +223,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   for (int I=0;I<2;I++) {
 
-    std::string Vol_Name, Vol_Name_append;
+    std::string Vol_Name, Vol_Name_append = "";
     float sgn = 1.0;
    
     if (I==0) {sgn =-1.0; Vol_Name_append="_A"; }

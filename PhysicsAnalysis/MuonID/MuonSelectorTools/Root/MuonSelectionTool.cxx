@@ -75,6 +75,9 @@ namespace CP {
         declareProperty("UseMVALowPt", m_useMVALowPt = false);
 	declareProperty( "UseSegmentTaggedLowPt", m_useSegmentTaggedLowPt = false );
 
+	// switch to use CaloScore for calo-tags in the Loose working point
+	declareProperty( "UseCaloScore", m_useCaloScore = false );
+
         // MVA configs for low-pT working point
         declareProperty(
             "MVAreaderFile_EVEN_MuidCB",
@@ -1361,18 +1364,51 @@ namespace CP {
     }  // passedIDCuts
 
     bool MuonSelectionTool::passedCaloTagQuality(const xAOD::Muon& mu) const {
-        // float CaloLRLikelihood = 1.0;
-        int CaloMuonIDTag = -20;
 
-        // Rel 20.7
-        try {
-            bool readID = mu.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag);
-            if (!readID) {
-                ATH_MSG_VERBOSE("Unable to read CaloTag Quality information! Rejection the CALO muon!");
-                return false;
-            }
-            return (CaloMuonIDTag > 10);
-        } catch (const SG::ExcBadAuxVar& b) { return false; }
+        //Use CaloScore variable based on Neural Network if enabled
+        if (m_useCaloScore)
+	  return passedCaloScore(mu);
+
+	//Otherwise we use CaloMuonIDTag
+        int CaloMuonIDTag = -20;
+	
+        // Extract CaloMuonIDTag variable
+	bool readID = mu.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag);
+	if (!readID) {
+	  ATH_MSG_WARNING("Unable to read CaloMuonIDTag Quality information! Rejecting the CALO muon!");
+	  return false;
+	}
+
+	// Cut on CaloMuonIDTag variable
+	return (CaloMuonIDTag > 10);
+    }
+  
+    bool MuonSelectionTool::passedCaloScore(const xAOD::Muon& mu) const {
+
+        //We use a working point with a pT-dependent cut on the NN discriminant, designed to achieve a constant
+        //fakes rejection as function of pT in Z->mumu MC
+
+        //Extract the relevant score variable (NN discriminant)
+        float CaloMuonScore = -999.0;
+
+	bool readID = mu.parameter(CaloMuonScore, xAOD::Muon::CaloMuonScore);
+	if (!readID) {
+	  ATH_MSG_WARNING("Unable to read CaloScore information! Rejecting the CALO muon!");
+	  return false;
+	}
+      
+	//Cut on the score variable
+        float pT = mu.pt() * MeVtoGeV;  // GeV
+
+	if (pT > 20.0) //constant cut above 20 GeV
+	  return (CaloMuonScore >= 0.7694);
+	else {
+	  //pT-dependent cut below 20 GeV
+	  //The pT-dependent cut is based on a fit of a third-degree polynomial, with coefficients as given below
+	  constexpr float a = -1.80277888e-4,  b = 5.01552713e-3, c = -4.62271761e-2,  d = 1.12479350;
+	  float cutValue = a*std::pow(pT, 3) + b*std::pow(pT, 2) + c*pT + d;
+	  return (CaloMuonScore >= cutValue);
+	}
     }
 
     bool MuonSelectionTool::passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const {

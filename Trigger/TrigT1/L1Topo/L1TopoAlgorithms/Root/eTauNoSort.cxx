@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // eTauNoSort.cxx
 // TopoCore
@@ -17,8 +17,8 @@ REGISTER_ALG_TCS(eTauNoSort)
 TCS::eTauNoSort::eTauNoSort(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 120 ); // for fw
    defineParameter( "OutputWidth", 120 );    
-   defineParameter( "IsoMask", 0);
-   defineParameter( "DoIsoCut", 1);
+   defineParameter( "RCoreMin", 0);
+   defineParameter( "RHadMin", 0);
 }
 
 
@@ -28,8 +28,8 @@ TCS::eTauNoSort::~eTauNoSort() {}
 TCS::StatusCode
 TCS::eTauNoSort::initialize() {
    m_numberOfeTaus = parameter("OutputWidth").value();
-   m_iso = parameter("IsoMask").value();
-   m_doIsoCut = parameter("DoIsoCut").value();
+   m_minRCore = parameter("RCoreMin").value();
+   m_minRHad = parameter("RHadMin").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -39,14 +39,13 @@ TCS::eTauNoSort::sort(const InputTOBArray & input, TOBArray & output) {
    const eTauTOBArray & clusters = dynamic_cast<const eTauTOBArray&>(input);
 
    // fill output array with GenericTOB built from clusters
-   for(eTauTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
+   for(eTauTOBArray::const_iterator etau = clusters.begin(); etau!= clusters.end(); ++etau ) {
 
       // Isolation cut
-      if (m_doIsoCut && (m_iso != 0 )) {
-          if((parType_t((*cl)->isolation()) & m_iso) != m_iso ) continue;
-      }
+      if ( !isocut(m_minRCore, (*etau)-> rCore()) ) {continue;}
+      if ( !isocut(m_minRHad, (*etau)-> rHad()) ) {continue;}
       
-      const GenericTOB gtob(**cl);
+      const GenericTOB gtob(**etau);
       output.push_back( gtob );
    }
 

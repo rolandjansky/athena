@@ -1,4 +1,4 @@
-//  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/jEmTOB.h"
 
@@ -38,5 +38,5 @@ TCS::jEmTOB::clearHeap() {
 
 void
 TCS::jEmTOB::print(std::ostream &o) const {
-   o << "eEm cluster energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+   o << "jEm cluster energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
 }

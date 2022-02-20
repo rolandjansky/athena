@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -13,7 +13,7 @@
  *    We need to map between phi sector index used in the offline and
  *       the Source IDs programmed in the hardware.
  *
- * The m_identfier* and m_collID vectors are indexed by ROB source ID - 1.
+ * The m_identifier* and m_collID vectors are indexed by ROB source ID - 1.
  * The magic mapping between ROB source IDs and phi sector indices is in 
  * getRobID() and in fillCollID().  Everything else should just fall 
  * through and gets the Right Answer.
@@ -46,7 +46,7 @@ static const InterfaceID IID_ITRT_FillCablingData_SR1_ECC
   // Constructor
 TRT_FillCablingData_SR1_ECC::TRT_FillCablingData_SR1_ECC( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-				  m_TRTHelper(0)
+				  m_TRTHelper(nullptr)
 {
   declareInterface< TRT_FillCablingData_SR1_ECC >( this );   
 }
@@ -215,7 +215,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -272,7 +272,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -329,7 +329,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -386,7 +386,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -443,7 +443,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -500,7 +500,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -563,7 +563,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
     if ( thisLine.length() == 0 )
       continue;
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -709,7 +709,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
 
 	    if ( map_it == con_map.end() )
 	    {
-	      m_cabling->set_identfierForAllStraws( pos->first, 
+	      m_cabling->set_identifierForAllStraws( pos->first, 
 						    i + ConnectorCount*444,
 						    NULLstrawID );
 	      continue;
@@ -755,7 +755,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
 					     strawInLayerId );
 
 
-	    m_cabling->set_identfierForAllStraws( pos->first, BufferLocation,
+	    m_cabling->set_identifierForAllStraws( pos->first, BufferLocation,
 						  strawID );
 
 
@@ -781,7 +781,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
 	    }  
 
 
-	    m_cabling->set_identfierHashForAllStraws( pos->first,
+	    m_cabling->set_identifierHashForAllStraws( pos->first,
 						      BufferLocation,
 						      hashId );
 	  }
@@ -794,7 +794,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
 
 	    if ( map_it == con_map.end() )
 	    {
-	      m_cabling->set_identfierForAllStraws( pos->first, i,
+	      m_cabling->set_identifierForAllStraws( pos->first, i,
 						    NULLstrawID );
 	      continue;
 	    }
@@ -832,7 +832,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
 
 	    //	ATH_MSG_INFO( m_TRTHelper->print_to_string( strawID ) << " bufferOffset: " << BufferLocation );
 	    
-	    m_cabling->set_identfierForAllStraws( pos->first, BufferLocation,
+	    m_cabling->set_identifierForAllStraws( pos->first, BufferLocation,
 						  strawID );
 
 
@@ -858,9 +858,9 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
 	    }
 
 
-	    m_cabling->set_identfierHashForAllStraws( pos->first,
-						      BufferLocation,
-						      hashId );
+	    m_cabling->set_identifierHashForAllStraws( pos->first,
+                                                       BufferLocation,
+                                                       hashId );
 	  } // loop over bufferOffsets
 	}   // Endcap
      }      // loop over GCM
@@ -1104,7 +1104,7 @@ std::vector<IdentifierHash> & ids)
  * Input : Straw ID
  * Output: list of ROB Source IDs
  */
-std::vector<uint32_t> TRT_FillCablingData_SR1_ECC::getRobID(Identifier id) 
+std::vector<uint32_t> TRT_FillCablingData_SR1_ECC::getRobID(Identifier id) const
 {
   std::vector<uint32_t> v;
 
@@ -1125,17 +1125,12 @@ std::vector<uint32_t> TRT_FillCablingData_SR1_ECC::getRobID(Identifier id)
 
   id_phi_module = id_phi_module + 32 * id_barrel_ec;
 
-  std::vector<u_int32_t> SourceList = m_phi_to_source[id_phi_module];
-
-  vector<uint32_t>::iterator it1 = SourceList.begin();
-  vector<uint32_t>::iterator it2 = SourceList.end();
-
-  while( it1 != it2 )
-  {
-     eformat::helper::SourceIdentifier sid( *it1 );
-     v.push_back(sid.code());
-
-     ++it1;
+  const auto& it = m_phi_to_source.find (id_phi_module);
+  if (it != m_phi_to_source.end()) {
+    for (uint32_t id : it->second) {
+      eformat::helper::SourceIdentifier sid( id );
+      v.push_back(sid.code());
+    }
   }
 
   return v;

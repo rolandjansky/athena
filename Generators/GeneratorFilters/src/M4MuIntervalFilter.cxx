@@ -8,9 +8,6 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 #include "CLHEP/Random/RandomEngine.h"
-#include "EventInfo/EventInfo.h"        // For setting the weight
-#include "EventInfo/EventType.h"        // From event info - the real holder of the event weight
-
 
 // Pt  High --> Low
 namespace {

@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
     ------ Documentation on HLT Tree creation -----
@@ -24,9 +24,9 @@
 """
 
 from TriggerMenuMT.HLT.Menu.HLTCFDot import stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLT.Menu.CFValidation import testHLTTree
-from TriggerMenuMT.HLT.Menu.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
-from TriggerMenuMT.HLT.Menu.MenuComponentsNaming import CFNaming
+from TriggerMenuMT.HLT.Config.Validation.CFValidation import testHLTTree
+from TriggerMenuMT.HLT.Config.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
+from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
 
 from AthenaCommon.CFElements import parOR, seqAND, getSequenceChildren, isSequence, compName, findSubSequence,findAlgorithm
 from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
@@ -103,8 +103,7 @@ def createCFTree(CFseq):
         return seqAndWithFilter
 
     stepReco = parOR(CFseq.step.name + CFNaming.RECO_POSTFIX)  # all reco algorithms from all the sequences in a parallel sequence
-    seqAndView = seqAND(CFseq.step.name + CFNaming.VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
-    seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, seqAndView])  # add to the main step+filter
+    seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, stepReco])
 
     recoSeqSet=set()
     hypoSet=set()
@@ -112,9 +111,9 @@ def createCFTree(CFseq):
         menuseq.addToSequencer(recoSeqSet,hypoSet)
   
     stepReco   += sorted(list(recoSeqSet), key=lambda t: t.name())
-    seqAndView += sorted(list(hypoSet), key=lambda t: t.name()) 
-    if CFseq.step.combo is not None: 
-        seqAndView += CFseq.step.combo.Alg
+    seqAndWithFilter += sorted(list(hypoSet), key=lambda t: t.name()) 
+    if CFseq.step.combo is not None:         
+        seqAndWithFilter += CFseq.step.combo.Alg
 
     return seqAndWithFilter
 
@@ -185,24 +184,39 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     with ConfigurableRun3Behavior():
         summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
 
-    # A) First we check if any chain accepted the event
+    # Schedule the DecisionSummaryMakerAlg
     hltFinalizeSeq += conf2toConfigurable( summaryAlg )
     appendCAtoAthena( summaryAcc )
 
-    # B) Then (if true), we run the accepted event algorithms.
-    # Add any required algs to hltFinalizeSeq here
+    # Add end-of-event sequences executed conditionally on the DecisionSummaryMakerAlg filter status
+    acceptedEventChainDicts = [cd for cd in triggerConfigHLT.dictsList() \
+                               if 'Calib' in cd['signatures'] \
+                               and 'acceptedevts' in cd['chainParts'][0]['purpose']]
+    if ConfigFlags.Trigger.endOfEventProcessing.Enabled and acceptedEventChainDicts:
+        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg, EndOfEventPrescaleCheckAlgCfg
+        endOfEventRoIMaker = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
+        hltFinalizeSeq += endOfEventRoIMaker
+        acceptedEventTopSeq = parOR("acceptedEventTopSeq")
+        acceptedEventTopSeq.IgnoreFilterPassed=True
+        hltFinalizeSeq += conf2toConfigurable(acceptedEventTopSeq)
+        for acceptedEventChainDict in acceptedEventChainDicts:
+            # Common config for each chain
+            prescaleChain = acceptedEventChainDict['chainName']
+            seqLabel = prescaleChain.replace('HLT_acceptedevts','')
+            acceptedEventSeq = seqAND('acceptedEventSeq'+seqLabel)
+            endOfEventPrescaleAlg = EndOfEventPrescaleCheckAlgCfg('EndOfEventPrescaleCheckAlg'+seqLabel, chainName=prescaleChain)
+            acceptedEventSeq += conf2toConfigurable(endOfEventPrescaleAlg)
+            # Now add chain-specific end-of-event sequences executed conditionally on the prescale
 
-    if ConfigFlags.Trigger.endOfEventProcessing.Enabled:
-        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg
-        endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
-        hltFinalizeSeq += endOfEventAlg
-        if ConfigFlags.Trigger.endOfEventProcessing.doLArNoiseBurst:
-            from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
-            recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
-            endOfEventAlg.RoIs = [LArNBRoIs]
-            acceptedEventSeq = parOR('acceptedEventSeq')
-            acceptedEventSeq += conf2toConfigurable(recoSeq)
-            hltFinalizeSeq += conf2toConfigurable(acceptedEventSeq)
+            # The LAr Noise Burst end-of-event sequence
+            if 'larnoiseburst' in acceptedEventChainDict['chainParts'][0]['purpose']:
+                from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+                recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
+                endOfEventRoIMaker.RoIs += [LArNBRoIs]
+                acceptedEventSeq += conf2toConfigurable(recoSeq)
+            # elif ... add other end of event sequences (with the corresponding chain) here if needed
+
+            acceptedEventTopSeq += conf2toConfigurable(acceptedEventSeq)
     
     # More collections required to configure the algs below
     decObj = collectDecisionObjects( hypos, filters, hltSeeding, summaryAlg )

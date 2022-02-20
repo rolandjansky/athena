@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   m_trtcaldbTool("TRT_CalDbTool", this),
   m_neighbourSvc("TRT_StrawNeighbourSvc", name),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
-  m_TRTHelper(0),
-  m_trtman(0),
+  m_TRTHelper(nullptr),
+  m_trtman(nullptr),
   m_firstEventWarnings(true)
 { 
   
@@ -109,7 +109,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   //This is optional for the algorithm. If not there, just print a one-time warning
   // On ESD 
 
-  const PRD_MultiTruthCollection* prdmtColl = 0; // to be used in the loop later
+  const PRD_MultiTruthCollection* prdmtColl = nullptr; // to be used in the loop later
   if (m_useTruthInfo && (!m_multiTruth.key().empty())  ) {
     SG::ReadHandle<PRD_MultiTruthCollection> h_prdmtColl(m_multiTruth);
     if (not h_prdmtColl.isValid()){
@@ -123,7 +123,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   //This is optional for the algorithm. If not there, just print a one-time warning
   // On RDO
 
-  const InDetSimDataCollection* sdoCollection = 0; // to be used in the loop later
+  const InDetSimDataCollection* sdoCollection = nullptr; // to be used in the loop later
   if (m_writeSDOs && m_useTruthInfo && (!m_SDOcontainer.key().empty()) ) {
     SG::ReadHandle<InDetSimDataCollection> h_sdoCollection(m_SDOcontainer);
     if (not h_sdoCollection.isValid()) {

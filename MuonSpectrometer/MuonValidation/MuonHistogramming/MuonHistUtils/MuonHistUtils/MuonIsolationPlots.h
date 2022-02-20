@@ -26,11 +26,11 @@ class IsoCorrPlots:public PlotBase {
       void fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr, float weight=1.0);
       std::string m_sCorrType;
       
-      TH1* isocorr;
-      TH1* isocorr_relPt;
-      TH1* isocorr_relIsocone20;
-      TH1* isocorr_relIsocone30;
-      TH1* isocorr_relIsocone40;
+      TH1* isocorr{nullptr};
+      TH1* isocorr_relPt{nullptr};
+      TH1* isocorr_relIsocone20{nullptr};
+      TH1* isocorr_relIsocone30{nullptr};
+      TH1* isocorr_relIsocone40{nullptr};
       
  private:
       void initializePlots();
@@ -63,10 +63,6 @@ class MuonIsolationPlots:public PlotBase {
      IsoPlots m_oPtCone30;
      IsoPlots m_oPtCone40;
 
-     IsoPlots m_oEtCone20;
-     IsoPlots m_oEtCone30;
-     IsoPlots m_oEtCone40;
-
      IsoPlots m_oTopoEtCone20;
      IsoPlots m_oTopoEtCone30;
      IsoPlots m_oTopoEtCone40;
@@ -80,10 +76,8 @@ class MuonIsolationPlots:public PlotBase {
      IsoPlots m_oPtVarCone40;
 
 #ifndef XAOD_ANALYSIS
-     IsoCorrPlots m_oEtCone_coreCone;
      IsoCorrPlots m_oTopoEtCone_coreCone;
      IsoCorrPlots m_oNEFlowIso_coreCone;
-     IsoCorrPlots m_oEtCone_coreMuon;
 #endif // not XAOD_ANALYSIS
 	  
 };

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -26,7 +26,7 @@ LArRodBlockCalibrationV2::LArRodBlockCalibrationV2() : LArRodBlockStructure()
 {
   m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
   m_fixedGain=CaloGain::LARNGAIN;
-  resetPointers();
+  LArRodBlockCalibrationV2::resetPointers();
 }
 
 // clear temporary block vectors 

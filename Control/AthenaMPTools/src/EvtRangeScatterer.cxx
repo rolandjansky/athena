@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EvtRangeScatterer.h"
@@ -10,6 +10,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -254,9 +255,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
 
     // Parse the Event Range string 
     // Expected the following format: [{KEY:VALUE[,KEY:VALUE]}]
-    // Firs get rid of the leading '[{' and the trailing '}]'
-    if(eventRange.find("[{")==0) eventRange=eventRange.substr(2);
-    if(eventRange.rfind("}]")==eventRange.size()-2) eventRange=eventRange.substr(0,eventRange.size()-2);
+    // First get rid of the leading '[{' and the trailing '}]'
+    if(boost::starts_with (eventRange, "[{")) eventRange=eventRange.substr(2);
+    if(boost::ends_with (eventRange, "}]")) eventRange=eventRange.substr(0,eventRange.size()-2);
 
     std::map<std::string,std::string> eventRangeMap;
     size_t startpos(0);
@@ -457,15 +458,15 @@ void EvtRangeScatterer::trimRangeStrings(std::string& str)
   // or
   // "\"" and "\""
   // Get rid of them!
-  if(str.find("u\'")==0) {
+  if(boost::starts_with (str, "u\'")) {
     str = str.substr(2);
-    if(str.rfind('\'')==str.size()-1) {
+    if(boost::ends_with (str, "\'")) {
       str = str.substr(0,str.size()-1);
     }
   }
-  else if(str.find('\"')==0) {
+  else if(boost::starts_with (str, "\"")) {
     str = str.substr(1);
-    if(str.rfind('\"')==str.size()-1) {
+    if(boost::ends_with (str, "\"")) {
       str = str.substr(0,str.size()-1);
     }
   }
@@ -513,7 +514,7 @@ std::string EvtRangeScatterer::getNewRangeRequest(yampl::ISocket* socket2Process
   std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
   ATH_MSG_INFO("Received request from a processor: " << strProcessorRequest);
   // Decode the request. If it contains output file name then pass it over to the pilot and return empty string
-  if(strProcessorRequest.find('/')==0) {
+  if(boost::starts_with (strProcessorRequest, "/")) {
     void* outpFileNameMessage = malloc(strProcessorRequest.size());
     memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
     socket2Pilot->send(outpFileNameMessage,strProcessorRequest.size());

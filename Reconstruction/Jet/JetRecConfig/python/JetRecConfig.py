@@ -205,6 +205,16 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     return algs
 
 
+def getJetAlgs(configFlags, jetdef, returnConfiguredDef=False, monTool=None):
+    # Useful helper function For Run-II config style
+    if isinstance(jetdef, JetDefinition):
+        func = getJetDefAlgs
+    elif isinstance(jetdef, GroomingDefinition):
+        func = getJetGroomAlgs
+
+    return func(configFlags, jetdef, returnConfiguredDef, monTool)
+
+
 ########################################################################
 #
 # Mid level functions returning specific type of algs out of JetDefinition
@@ -331,7 +341,7 @@ def getConstitPJGAlg(constitdef,suffix=None):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(constitdef.name,constitdef.inputname))
 
     full_label = constitdef.label + '' if suffix is None else f'_{suffix}'
-    
+
     pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+full_label,
         InputContainer = constitdef.containername,
@@ -339,6 +349,11 @@ def getConstitPJGAlg(constitdef,suffix=None):
         Label = full_label,
         SkipNegativeEnergy=True
         )
+
+    if suffix == 'EMPFlowPUSB':
+        pjgalg.UseChargedPV=False
+        pjgalg.UseChargedPUsideband=True
+
     return pjgalg
 
 def getGhostPJGAlg(ghostdef):
@@ -638,7 +653,7 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
                 jetlog.info(f"{fullname} : removing {compType}  {comp}  reason={reason}")
                 if fullkey in jetdef._prereqOrder: 
                     jetdef._prereqOrder.remove(fullkey)
-                if compType=='ghost':
+                if compType=='ghost' and 'input:'+comp in jetdef._prereqOrder :
                     jetdef._prereqOrder.remove('input:'+comp)
             else:
                 outList.append(comp)
@@ -742,7 +757,7 @@ if __name__=="__main__":
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Add the components from our jet reconstruction job
-    from StandardJetDefs import AntiKt4EMTopo
+    from StandardSmallRJets import AntiKt4EMTopo
     AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Filter:15000","Sort"] + ["JVT"] + ["PartonTruthLabel"]
     cfg.merge(JetRecCfg(AntiKt4EMTopo,ConfigFlags,jetnameprefix="New"))
 

@@ -30,8 +30,6 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
-test.check_steps.remove(test.get_step("CheckLog"))
-test.check_steps.remove(test.get_step("MessageCount"))
 
 chaindump = test.get_step("ChainDump")
 chaindump.args = '--json --yaml ref_RDOtoRDOTrig_v1DevHI_build.new'

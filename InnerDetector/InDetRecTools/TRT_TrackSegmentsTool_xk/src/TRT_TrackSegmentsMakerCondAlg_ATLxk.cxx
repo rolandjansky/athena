@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_TrackSegmentsMakerCondAlg_ATLxk.h"
@@ -363,7 +363,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
     }
   }
 
-  if (writeHandle.record(rangeTrt, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(rangeTrt, writeCdo).isFailure()) {
     ATH_MSG_FATAL("Could not record " << writeHandle.key()
                   << " with EventRange " << rangeTrt
                   << " into Conditions Store");

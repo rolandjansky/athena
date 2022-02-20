@@ -14,9 +14,12 @@ TCS::MetTOB::MetTOB() : BaseTOB(0,"MetTOB")
 
 // constructor with initial values
 TCS::MetTOB::MetTOB(int ex, int ey, unsigned int et) : BaseTOB(0,"MetTOB")
-   , m_Ex( sizeCheckM(ex, nBitsEx()) )
-   , m_Ey( sizeCheckM(ey, nBitsEy()) )
-   , m_Et( sizeCheck(et, nBitsEt()) )
+   //, m_Ex( sizeCheckM(ex, nBitsEx()) )
+   //, m_Ey( sizeCheckM(ey, nBitsEy()) )
+   //, m_Et( sizeCheck(et, nBitsEt()) )
+   , m_Ex( ex )
+   , m_Ey( ey )
+   , m_Et( et )
 {}
 
 // constructor with initial values

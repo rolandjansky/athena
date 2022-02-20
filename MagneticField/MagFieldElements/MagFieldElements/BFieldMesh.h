@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,9 @@
  * Then we have
  * numz X numr X numphi field values at these corners
  *
- * The field type is templated - it is short for both solenoid and toroid
+ * The field type is templated simalar to BFieldVector
+ *
+ * It is short for both solenoid and toroid
  * for the nominal case.
  * There is a special case for BFieldSolenoid (not used in the nominal case)
  * which allows a tilt  between the nominal and 'tilted' solenoid fields
@@ -40,6 +42,9 @@ template<class T>
 class BFieldMesh
 {
 public:
+  static_assert((std::is_same<T, short>::value ||
+                 std::is_same<T, double>::value),
+                "Type for the BField Mesh must be one of short or double");
   BFieldMesh() = default;
   BFieldMesh(const BFieldMesh&) = default;
   BFieldMesh(BFieldMesh&&) = default;

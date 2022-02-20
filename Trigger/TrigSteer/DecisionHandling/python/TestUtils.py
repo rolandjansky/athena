@@ -88,13 +88,13 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
     """
 
-    from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+    from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
     prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
 
-    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
-    from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep
+    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep
 
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     chainDict = dictFromChainName( prop )
     global chainsCounter
     chainDict["chainCounter"] = chainsCounter
@@ -103,7 +103,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     #set default chain prescale
     chainDict['prescale'] = 1
 
-    from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainDictInLegs
+    from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDictInLegs
 
     listOfChainDicts = splitChainDictInLegs(chainDict)
 
@@ -118,7 +118,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
                                 comboHypoCfg=step.comboHypoCfg, 
                                 comboToolConfs=step.comboToolConfs)]
 
-    from TriggerMenuMT.HLT.Menu.MenuComponents import Chain
+    from TriggerMenuMT.HLT.Config.MenuComponents import Chain
     chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=StepConfig )
 
     TriggerConfigHLT.registerChain( chainDict, chainConfig )

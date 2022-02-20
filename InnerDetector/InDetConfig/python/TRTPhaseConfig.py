@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-import InDetConfig.TrackingCommonConfig         as   TC
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+import InDetConfig.TrackingCommonConfig as TC
 
 
 
@@ -10,8 +11,8 @@ def InDetCosmicsEventPhaseToolCfg(flags, name='InDetCosmicsEventPhaseTool', **kw
     # --- load tool
     #
     acc = ComponentAccumulator()
-    if( not flags.Input.isMC ):
-        if flags.Beam.Type =='cosmics':
+    if not flags.Input.isMC:
+        if flags.Beam.Type is BeamType.Cosmics:
             kwargs.setdefault("GlobalOffset", 8)
         else:
             kwargs.setdefault("GlobalOffset", 0)
@@ -33,8 +34,8 @@ def InDetFixedWindowTrackTimeToolCfg(flags, name='InDetFixedWindowTrackTimeTool'
     # --- load tool
     #
     acc = ComponentAccumulator()
-    if( not flags.Input.isMC ):
-        if flags.Beam.Type =='cosmics':
+    if not flags.Input.isMC:
+        if flags.Beam.Type is BeamType.Cosmics:
             kwargs.setdefault("GlobalOffset", 8)
         else:
             kwargs.setdefault("GlobalOffset", 0)
@@ -61,8 +62,8 @@ def InDetSlidingWindowTrackTimeToolCfg(flags, name='InDetSlidingWindowTrackTimeT
     # --- load tool
     #
     acc = ComponentAccumulator()
-    if( not flags.Input.isMC ):
-        if flags.Beam.Type =='cosmics':
+    if not flags.Input.isMC:
+        if flags.Beam.Type is BeamType.Cosmics:
             kwargs.setdefault("GlobalOffset", 8)
         else:
             kwargs.setdefault("GlobalOffset", 0)
@@ -111,7 +112,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
     kwargs.setdefault("EventPhaseTool"   , InDetSlidingWindowTrackTimeTool)
     #kwargs.setdefault("EventPhaseTool"  , InDetFixedWindowTrackTimeTool)
 
-    if flags.Beam.Type =='cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("EventPhaseTool"  , InDetCosmicsEventPhaseTool)
 
     acc.addEventAlgo(CompFactory.InDet.InDetCosmicsEventPhase(name = name, **kwargs))
@@ -145,7 +146,7 @@ if __name__ == "__main__":
     # TODO: TRT only?
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 

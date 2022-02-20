@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -178,7 +178,7 @@ if hasattr(runArgs, "rivetAnas"):
     from Rivet_i.Rivet_iConf import Rivet_i
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
-    anaSeq.Rivet_i.DoRootHistos = True
+    anaSeq.Rivet_i.AnalysisPath = os.environ['PWD']
     if hasattr(runArgs, "outputYODAFile"):
       anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
@@ -757,15 +757,17 @@ if hasattr(runArgs, "outputTXTFile"):
     # counting the number of events in LHE output
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
+
     printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 elif hasattr(runArgs, "inputGeneratorFile"):
-    # counting the number of events in LHE output
+    # counting the number of events in LHE input
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
+
     printfunc("MetaData: %s = %s" % ("Number of input LHE events ", count_ev))
 
 

@@ -14,8 +14,6 @@ def _larCablingCfg(configFlags,algo,folder,algName=None):
     tagsperFolder={"/LAR/Identifier/OnOffIdMap":"LARIdentifierOnOffIdMap-012",
                    "/LAR/Identifier/FebRodMap":"LARIdentifierFebRodMap-005",
                    "/LAR/Identifier/CalibIdMap":"LARIdentifierCalibIdMap-012",
-                   "/LAR/IdentifierOfl/OnOffIdMap_SC":"LARIdentifierOflOnOffIdMap_SC-000",
-                   "/LAR/IdentifierOfl/CalibIdMap_SC":"LARIdentifierOflCalibIdMap_SC-000",
                    }
 
     if configFlags.Input.isMC:
@@ -23,6 +21,8 @@ def _larCablingCfg(configFlags,algo,folder,algName=None):
         if folder in tagsperFolder:
             ft=tagsperFolder[folder]
             folderwithtag=folder+"<tag>"+ft+"</tag>"
+        else:    
+            folderwithtag=folder
     else:
         db='LAR_ONL'
         folderwithtag=folder
@@ -48,13 +48,14 @@ def _larLatomeCfg(configFlags,algo,folder,outkey):
         if folder in tagsperFolder:
             ft=tagsperFolder[folder]
             folderwithtag=folder+"<tag>"+ft+"</tag>"
+        else:    
+            folderwithtag=folder
     else:
-        #db='LAR_ONL'
-        db='<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/Phase1/test_mapping/LatomeMapping.db;dbname=CONDBR2</db>'
-        folderwithtag=db+folder
+        db='LAR_ONL'
+        folderwithtag=folder
 
     result.addCondAlgo(algo(ReadKey=folder,WriteKey=outkey),primary=True)
-    result.merge(addFolders(configFlags,folderwithtag,className="CondAttrListCollection"))
+    result.merge(addFolders(configFlags,folderwithtag,className="CondAttrListCollection",detDb=db))
     #print (result)
     return result
 
@@ -81,8 +82,13 @@ def LArCalibIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap")
 
 def LArCalibIdMappingSCCfg(configFlags):
+    result = ComponentAccumulator()
     if not configFlags.Input.isMC:
-       return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/IdentifierOfl/CalibIdMap_SC")
+       result.merge(_larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap_SC","LArCalibLineMappingAlgSC"))
+       result.getCondAlgo("LArCalibLineMappingAlgSC").WriteKey="LArCalibIdMapSC"
+       result.getCondAlgo("LArCalibLineMappingAlgSC").isSuperCell=True
+       result.getCondAlgo("LArCalibLineMappingAlgSC").MaxCL=16
+       return result
 
 def LArLATOMEMappingCfg(configFlags):
     if not configFlags.Input.isMC:

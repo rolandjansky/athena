@@ -44,6 +44,7 @@ if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
 if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
 
+muonRecFlags.runCommissioningChain = muonRecFlags.doMicromegas() or muonRecFlags.dosTGCs()
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
 
@@ -56,6 +57,8 @@ if rec.readRDO():
         include("MuonRecExample/MuonRDO_to_PRD_jobOptions.py")
 
 ### add PRD -> xAOD
+if rec.readESD():
+    import MuonCnvExample.MuonPrepDataCnvConfig  # noqa: F401
 if (rec.readRDO() or rec.readESD()) and muonRecFlags.prdToxAOD():
     from AthenaCommon import CfgMgr
     topSequence += CfgMgr.MDT_PrepDataToxAOD()
@@ -107,8 +110,6 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from MuonTruthAlgs.MuonTruthAlgsConf import MuonPRD_MultiTruthMaker
    topSequence+=MuonPRD_MultiTruthMaker()
 
-   from AthenaCommon.CfgGetter import getService
-   getService("AtlasTrackingGeometrySvc")
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
@@ -153,18 +154,24 @@ if muonRecFlags.doStandalone():
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
-        col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col],
+        track_cols = ["MuonSpectrometerTracks"]
+        track_colstp = ["MuonSpectrometerTrackParticles"]
+        if muonRecFlags.runCommissioningChain:
+            track_cols += ["EMEO_MuonSpectrometerTracks"]
+            track_colstp += ["EMEO_MuonSpectrometerTrackParticles"]
+            
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = track_cols,
                                                    PRD_TruthNames =["RPC_TruthMap", "TGC_TruthMap", "MDT_TruthMap"] + 
                                                    (["CSC_TruthMap"] if MuonGeometryFlags.hasCSC() else []) + 
                                                    (["MM_TruthMap"]if MuonGeometryFlags.hasMM() else []) + 
                                                    (["STGC_TruthMap"] if MuonGeometryFlags.hasSTGC() else []))
-        topSequence += TrackTruthSelector(name= col + "Selector", 
-                                          DetailedTrackTruthName = col + "DetailedTruth",
-                                          OutputName             = col + "Truth") 
-        topSequence += TrackParticleTruthAlg(name = col+"TruthAlg",
-                                             TrackTruthName=col+"Truth",
-                                             TrackParticleName = "MuonSpectrometerTrackParticles" )
+        for i in range(len(track_cols)):
+            topSequence += TrackTruthSelector(name= track_cols[i] + "Selector", 
+                                            DetailedTrackTruthName = track_cols[i] + "DetailedTruth",
+                                            OutputName             = track_cols[i] + "Truth") 
+            topSequence += TrackParticleTruthAlg(name = track_cols[i]+"TruthAlg",
+                                                TrackTruthName=track_cols[i]+"Truth",
+                                                TrackParticleName =  track_colstp[i])
 
 #--------------------------------------------------------------------------
 # Apply alignment corrections to geometry

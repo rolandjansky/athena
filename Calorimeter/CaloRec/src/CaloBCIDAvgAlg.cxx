@@ -14,7 +14,7 @@ StatusCode CaloBCIDAvgAlg::initialize() {
 
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_bcidAvgKey.initialize());
-  if (!m_isSC) ATH_CHECK(m_mcSym.initialize());
+  ATH_CHECK(m_mcSym.initialize(!m_isSC));
   ATH_CHECK(m_bcidLumiKey.initialize());
   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
 

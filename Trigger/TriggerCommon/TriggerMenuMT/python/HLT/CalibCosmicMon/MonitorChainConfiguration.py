@@ -1,17 +1,18 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND, parOR
 from TrigGenericAlgs.TrigGenericAlgsConfig import TimeBurnerCfg, TimeBurnerHypoToolGen
 from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.Enums import Format
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -44,7 +45,7 @@ def L1TopoOnlineMonitorSequenceCfg(dummyFlags, isLegacy):
 
         topoSimAlgs = []
         # if running on data without L1Sim, need to add L1TopoSim
-        if flags.Input.Format == 'BS' and not flags.Trigger.doLVL1:
+        if flags.Input.Format is Format.BS and not flags.Trigger.doLVL1:
             topoSimAlgCfg = TopoMonConfig.getL1TopoLegacySimForOnlineMonitor if isLegacy else TopoMonConfig.getL1TopoPhase1SimForOnlineMonitor
             topoSimAlgs = RecoFragmentsPool.retrieve(topoSimAlgCfg, flags)
 

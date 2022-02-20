@@ -82,6 +82,7 @@ public:
                             const int* nCategories) const;
 
   int getPixLayersID(int ec, int ld) const;
+  bool isIBL2D(int hashID) const;
   int getNumberOfFEs(int pixlayer, int etaMod) const;
   void getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;
   bool isHitOnTrack(Identifier id, std::vector<Identifier> const& RDOIDs) const;

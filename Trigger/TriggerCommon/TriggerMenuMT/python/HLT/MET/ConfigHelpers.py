@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from ..Menu.SignatureDicts import METChainParts_Default
-from ..Menu.MenuComponents import (
+from ..Config.MenuComponents import (
     RecoFragmentsPool,
     ChainStep,
     MenuSequence,
@@ -303,9 +303,9 @@ class AlgConfig(ABC):
         """ The input makers for each step """
         if hasattr(self, "_inputMakers"):
             return self._inputMakers
-        from ..Jet.JetMenuSequences import getInitialInputMaker, getTrackingInputMaker
+        from ..Jet.JetMenuSequences import getCaloInputMaker, getTrackingInputMaker
 
-        self._inputMakers = [getInitialInputMaker(), getTrackingInputMaker('ftf')]
+        self._inputMakers = [getCaloInputMaker(), getTrackingInputMaker('ftf')]
         return self._inputMakers
 
     @classmethod

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaYamplTool.h"
@@ -12,6 +12,7 @@
 #include "yampl/SocketFactory.h"
 #include <sstream>
 
+namespace {
 struct ShareEventHeader {
    long evtSeqNumber;
    long fileSeqNumber;
@@ -21,6 +22,7 @@ struct ShareEventHeader {
    uint32_t evtTerm1;
    uint32_t evtTerm2;
 };
+} // anonymous namespace
 
 //___________________________________________________________________________
 AthenaYamplTool::AthenaYamplTool(const std::string& type,

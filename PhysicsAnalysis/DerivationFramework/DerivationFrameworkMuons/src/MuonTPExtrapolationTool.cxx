@@ -24,18 +24,18 @@ namespace {
 MuonTPExtrapolationTool::MuonTPExtrapolationTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p) {}
 
 StatusCode MuonTPExtrapolationTool::initialize() {
+    ATH_CHECK(m_muon_key.initialize());
+    ATH_CHECK(m_id_trk_key.initialize());
     if (m_run_extrapolation) {
         ATH_CHECK(m_extrapolator.retrieve());
-        ATH_CHECK(m_muon_key.initialize());
-        ATH_CHECK(m_id_trk_key.initialize());
-
         m_ext_eta_key = (m_decor_muons ? m_muon_key.key() : m_id_trk_key.key()) + ".EtaTriggerPivot";
         m_ext_phi_key = (m_decor_muons ? m_muon_key.key() : m_id_trk_key.key()) + ".PhiTriggerPivot";
         m_ext_stat_key = (m_decor_muons ? m_muon_key.key() : m_id_trk_key.key()) + ".DecoratedPivotEtaPhi";
-        ATH_CHECK(m_ext_eta_key.initialize());
-        ATH_CHECK(m_ext_phi_key.initialize());
-        ATH_CHECK(m_ext_stat_key.initialize());
+       
     }
+    ATH_CHECK(m_ext_eta_key.initialize(m_run_extrapolation));
+    ATH_CHECK(m_ext_phi_key.initialize(m_run_extrapolation));
+    ATH_CHECK(m_ext_stat_key.initialize(m_run_extrapolation));
     return StatusCode::SUCCESS;
 }
 bool MuonTPExtrapolationTool::is_extrapolated(const xAOD::IParticle* probe) const {

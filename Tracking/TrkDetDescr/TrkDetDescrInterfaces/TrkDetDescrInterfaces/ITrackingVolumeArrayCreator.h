@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace Trk {
 
   /** @typedef TrackingVolumeArray
       simply for the eye */
-  typedef BinnedArray<TrackingVolume> TrackingVolumeArray;
+  typedef BinnedArray<const TrackingVolume> TrackingVolumeArray;
   
   /** Interface ID for ITrackingVolumeArrayCreator*/  
   static const InterfaceID IID_ITrackingVolumeArrayCreator("ITrackingVolumeArrayCreator", 1, 0);

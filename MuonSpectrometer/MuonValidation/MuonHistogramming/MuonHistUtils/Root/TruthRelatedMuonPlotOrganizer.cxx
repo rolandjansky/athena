@@ -12,88 +12,61 @@ typedef ElementLink< xAOD::TruthParticleContainer > TruthLink;
 
 namespace Muon{
   
-TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, bool doBinnedResolutionPlots, std::vector<int> *selPlots):
+TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, bool doBinnedResolutionPlots, std::vector<int> selPlots):
   PlotBase(pParent, sDir)
   // Truth related plots
-, m_oMatchedPlots(nullptr)
-, m_oMatchedRecoPlots(nullptr)
-, m_oMSHitDiffPlots(nullptr)
-, m_oMuonHitDiffSummaryPlots(nullptr)
-, m_oMuonTruthHitPlots(nullptr)
-, m_oMuonResolutionPlots(nullptr)
-, m_oDefParamPullPlots(nullptr)
-, m_oMomentumTruthPullPlots_Tail(nullptr)
-, m_oMomentumTruthPullPlots_NoTail(nullptr)
-, m_oMatchedRecoElossPlots(nullptr)
-
 {
   
-  if (!selPlots) {
-    m_selPlots.clear();
+  if (selPlots.empty()) {
     for (unsigned int i=0; i<MAX_TRUTHRELATEDPLOTCLASS; i++) m_selPlots.push_back(i);
   }
-  else m_selPlots = *selPlots;
+  else m_selPlots = std::move(selPlots);
   
   for (auto p: m_selPlots) {
     switch (p) {	
     case TRK_MATCHEDTRUE:
-      m_oMatchedPlots = new Trk::ParamPlots(this, "/kinematics/", "Matched Muons");
-      m_allPlots.push_back(m_oMatchedPlots);
+      m_oMatchedPlots = std::make_unique< Trk::ParamPlots>(this, "/kinematics/", "Matched Muons");
       break;
     case TRK_MATCHEDRECO:
-      m_oMatchedRecoPlots = new Trk::ParamPlots(this, "/kinematicsReco/", "Matched Muons");
-      m_allPlots.push_back(m_oMatchedRecoPlots);
+      m_oMatchedRecoPlots = std::make_unique< Trk::ParamPlots>(this, "/kinematicsReco/", "Matched Muons");
       break;
     case TRK_MSHITDIFF:
-      m_oMSHitDiffPlots = new Trk::MSHitDiffPlots(this,"/hits/");
-      m_allPlots.push_back(m_oMSHitDiffPlots);
+      m_oMSHitDiffPlots = std::make_unique< Trk::MSHitDiffPlots>(this,"/hits/");
       break;
     case MUON_HITDIFF:
-      m_oMuonHitDiffSummaryPlots = new Muon::MuonHitDiffSummaryPlots(this,"/hits/");
-      m_allPlots.push_back(m_oMuonHitDiffSummaryPlots);
+      m_oMuonHitDiffSummaryPlots = std::make_unique< Muon::MuonHitDiffSummaryPlots>(this,"/hits/");
       break;
     case MUON_TRUTHHIT:
-      m_oMuonTruthHitPlots = new Muon::MuonTruthHitPlots(this,"/truthHits/");
-      m_allPlots.push_back(m_oMuonTruthHitPlots);
+      m_oMuonTruthHitPlots = std::make_unique< Muon::MuonTruthHitPlots>(this,"/truthHits/");
       break;
     case MUON_RESOL:
-      m_oMuonResolutionPlots = new Muon::MuonResolutionPlots(this, "/resolution/","",doBinnedResolutionPlots);
-      m_allPlots.push_back(m_oMuonResolutionPlots);
+      m_oMuonResolutionPlots = std::make_unique< Muon::MuonResolutionPlots>(this, "/resolution/","",doBinnedResolutionPlots);
       break;
     case TRK_DEFPARAMPULLS:
-      m_oDefParamPullPlots = new Trk::DefParamPullPlots(this, "/pulls/","");
-      m_allPlots.push_back(m_oDefParamPullPlots);
+      m_oDefParamPullPlots = std::make_unique< Trk::DefParamPullPlots>(this, "/pulls/","");
       break;
     case MUON_PULLSTAIL:          
-      m_oMomentumTruthPullPlots_Tail = new Muon::MomentumTruthPullPlots(this,"/momentumPulls/","Tail");
-      m_allPlots.push_back(m_oMomentumTruthPullPlots_Tail);
+      m_oMomentumTruthPullPlots_Tail = std::make_unique< Muon::MomentumTruthPullPlots>(this,"/momentumPulls/","Tail");
       break;
     case MUON_PULLSNOTAIL:
-      m_oMomentumTruthPullPlots_NoTail = new Muon::MomentumTruthPullPlots(this,"/momentumPulls/","NoTail");
-      m_allPlots.push_back(m_oMomentumTruthPullPlots_NoTail);
+      m_oMomentumTruthPullPlots_NoTail = std::make_unique< Muon::MomentumTruthPullPlots>(this,"/momentumPulls/","NoTail");
       break;
     case MUON_PARAMELOSS:
-      m_oMatchedRecoElossPlots = new Muon::MuonParamElossPlots(this,"/Eloss/");
-      m_allPlots.push_back(m_oMatchedRecoElossPlots);
+      m_oMatchedRecoElossPlots = std::make_unique< Muon::MuonParamElossPlots>(this,"/Eloss/");     
       break;
     }
   }
   
 }
-TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer()
-{
-  for (auto plots: m_allPlots)  delete plots;
-  m_allPlots.clear();
-}
-  
+TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer() = default;
 
   void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks, float weight){
     if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu , weight);
     if (m_oMuonHitDiffSummaryPlots) m_oMuonHitDiffSummaryPlots->fill(mu, truthMu, weight);
     if (m_oMuonTruthHitPlots) m_oMuonTruthHitPlots->fill(mu,weight);
  
-  //new for eloss
-    if (m_oMatchedRecoElossPlots) m_oMatchedRecoElossPlots->fill(truthMu, mu , weight );
+  // for eloss
+  if (m_oMatchedRecoElossPlots) m_oMatchedRecoElossPlots->fill(truthMu, mu , weight );
  
   // Tracking related plots
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);

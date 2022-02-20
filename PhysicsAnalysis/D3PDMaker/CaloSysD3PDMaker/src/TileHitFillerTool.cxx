@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -25,7 +25,7 @@ TileHitFillerTool::TileHitFillerTool(const string& type,
   BlockFillerTool<TileHit>(type,name,parent),
   m_tileID(0)
 {
-  book().ignore(); // Avoid coverity warnings
+  TileHitFillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 /**

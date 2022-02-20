@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JepJemMonitorAlgorithm.h"
@@ -16,15 +16,15 @@ StatusCode JepJemMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("Package Name "<< m_packageName);
 
   // container names
-  ATH_MSG_DEBUG("m_JetElementLocation"<< m_JetElementLocation);
-  ATH_MSG_DEBUG("m_JEMEtSumsLocation"<< m_JEMEtSumsLocation);
-  ATH_MSG_DEBUG("m_JEMRoILocation" << m_JEMRoILocation);
+  ATH_MSG_DEBUG("m_JetElementLocation " << m_JetElementLocation);
+  ATH_MSG_DEBUG("m_JEMEtSumsLocation " << m_JEMEtSumsLocation);
+  ATH_MSG_DEBUG("m_JEMRoILocation " << m_JEMRoILocation);
 
   // steering parameters
-  ATH_MSG_DEBUG("m_maxSlices"<< m_maxSlices);
-  ATH_MSG_DEBUG("m_crates"<< m_crates);
-  ATH_MSG_DEBUG("m_modules"<< m_modules);
-  ATH_MSG_DEBUG("m_tobsPerJEM"<< m_tobsPerJEM);
+  ATH_MSG_DEBUG("m_maxSlices" << m_maxSlices);
+  ATH_MSG_DEBUG("m_crates" << m_crates);
+  ATH_MSG_DEBUG("m_modules" << m_modules);
+  ATH_MSG_DEBUG("m_tobsPerJEM" << m_tobsPerJEM);
 
   // we initialise all the containers that we need
   ATH_CHECK(m_JetElementLocation.initialize());

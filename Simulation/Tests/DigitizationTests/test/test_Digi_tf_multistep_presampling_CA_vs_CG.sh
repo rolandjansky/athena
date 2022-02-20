@@ -6,6 +6,7 @@
 # art-output: multistep_presampling.CG.RDO.pool.root
 # art-output: multistep_presampling.CA.RDO.pool.root
 # art-output: log.*
+# art-output: legacy.*
 # art-output: DigiPUConfig*
 
 Events=100
@@ -27,7 +28,7 @@ Digi_tf.py \
 --PileUpPresampling True \
 --conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles1} \
@@ -43,7 +44,7 @@ Digi_tf.py \
 --numberOfHighPtMinBias 0.1 \
 --pileupInitialBunch -32 \
 --pileupFinalBunch 6 \
---preExec "HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.OldBeamSpotZSize.set_Value_and_Lock(0);digitizationFlags.HighPtMinBiasInputColOffset=-1;" \
+--preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.OldBeamSpotZSize.set_Value_and_Lock(0);digitizationFlags.HighPtMinBiasInputColOffset=-1;' \
 --preInclude 'HITtoRDO:Campaigns/MC20e.py,RunDependentSimData/configEvtNbr_sequential.py,Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_run310000_splitting.py' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --skipEvents 15 \
@@ -56,7 +57,7 @@ Digi_tf.py \
 --PileUpPresampling True \
 --conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles1} \
@@ -72,7 +73,7 @@ Digi_tf.py \
 --numberOfHighPtMinBias 0.1 \
 --pileupInitialBunch -32 \
 --pileupFinalBunch 6 \
---preExec "HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.OldBeamSpotZSize.set_Value_and_Lock(0);digitizationFlags.HighPtMinBiasInputColOffset=-1;" \
+--preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.OldBeamSpotZSize.set_Value_and_Lock(0);digitizationFlags.HighPtMinBiasInputColOffset=-1;' \
 --preInclude 'HITtoRDO:Campaigns/MC20e.py,RunDependentSimData/configEvtNbr_sequential.py,Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_run310000_splitting.py' \
 --postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
@@ -80,10 +81,10 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc CGdigi"
-mv runargs.HITtoRDOExecutorStep0.py runargs.legacy.HITtoRDOExecutorStep0.py 
-mv runargs.HITtoRDOExecutorStep1.py runargs.legacy.HITtoRDOExecutorStep1.py 
-mv runargs.HITtoRDOExecutorStep2.py runargs.legacy.HITtoRDOExecutorStep2.py 
+echo "art-result: $rc digiOLD"
+mv runargs.HITtoRDOExecutorStep0.py runargs.legacy.HITtoRDOExecutorStep0.py
+mv runargs.HITtoRDOExecutorStep1.py runargs.legacy.HITtoRDOExecutorStep1.py
+mv runargs.HITtoRDOExecutorStep2.py runargs.legacy.HITtoRDOExecutorStep2.py
 mv runargs.RDOMergeAthenaMP0.py runargs.legacy.RDOMergeAthenaMP0.py
 mv log.HITtoRDOExecutorStep0 legacy.HITtoRDOExecutorStep0
 mv log.HITtoRDOExecutorStep1 legacy.HITtoRDOExecutorStep1
@@ -100,7 +101,7 @@ then
     --PileUpPresampling True \
     --conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
-    --digiSteeringConf "StandardSignalOnlyTruth" \
+    --digiSteeringConf 'StandardSignalOnlyTruth' \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
     --inputHITSFile ${HSHitsFile} \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles1} \
@@ -122,8 +123,7 @@ then
     rc2=$?
     status=$rc2
 fi
-
-echo  "art-result: $rc2 CAdigi"
+echo  "art-result: $rc2 digiCA"
 
 rc3=-9999
 if [ $rc2 -eq 0 ]
@@ -134,7 +134,6 @@ then
     rc3=$?
     status=$rc3
 fi
-
-echo  "art-result: $rc3 comparison"
+echo  "art-result: $rc3 OLDvsCA"
 
 exit $status

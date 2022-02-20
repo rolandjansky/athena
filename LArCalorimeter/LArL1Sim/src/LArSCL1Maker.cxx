@@ -252,7 +252,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
 
 
   SG::WriteHandle<LArDigitContainer> scContainerHandle( m_sLArDigitsContainerKey, context);
-  auto scContainer = std::make_unique<LArDigitContainer> (SG::VIEW_ELEMENTS);
+  auto scContainer = std::make_unique<LArDigitContainer> ();
 
   unsigned int nbSC = (unsigned int)m_scHelper->calo_cell_hash_max() ;
   scContainer->reserve(nbSC);
@@ -362,7 +362,8 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   std::vector<float> zeroSamp; 
   zeroSamp.assign(m_nSamples,0); // for empty channels 
   ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, m_useLegacyRandomSeeds );
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, seedingmode );
   CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(context);
   for( ; it != it_end; ++it){
       std::vector< float > *vecPtr = &zeroSamp; 

@@ -29,10 +29,11 @@ class ZdcModuleGetter ( Configured ) :
       #   return False
 
       # a bit unusual: check if input exist before scheduling the alg. Will nt report ERROR in input does not exist
-      from RecExConfig.ObjKeyStore import objKeyStore
-      if not objKeyStore.isInInput("xAOD::TriggerTowerContainer","ZdcTriggerTowers"):
-         mlog.info("no ZdcTriggerTowers: Quit.")
-         return False
+
+      #from RecExConfig.ObjKeyStore import objKeyStore
+      #if not objKeyStore.isInInput("xAOD::TriggerTowerContainer","ZdcTriggerTowers"):
+      #   mlog.info("no ZdcTriggerTowers: Quit.")
+      #   return False
 
       
       return True
@@ -51,22 +52,23 @@ class ZdcModuleGetter ( Configured ) :
             mlog.info("not DetFlags.makeRIO.Zdc_on : Quit.")
             return False
 
-        #from AthenaCommon.AppMgr import ToolSvc
+        from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon import CfgMgr
-        #mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
-        #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
-        zdcAnalysisTool = CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
+        mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled")
+        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="PbPb2018")   
+        #zdcAnalysisTool = CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
         
-        zdcAnalysisTool.FixTau1=True
-        zdcAnalysisTool.FixTau2=True
-        zdcAnalysisTool.Tau1=5
-        zdcAnalysisTool.Tau2=21
-        zdcAnalysisTool.Peak2ndDerivThresh=15
+        #zdcAnalysisTool.FixTau1=True
+        #zdcAnalysisTool.FixTau2=True
+        #zdcAnalysisTool.Tau1=5
+        #zdcAnalysisTool.Tau2=21
+        #zdcAnalysisTool.Peak2ndDerivThresh=15
 
         try:
             from ZdcRec.ZdcRecConf import ZdcRecV3
             mlog.info("got ZdcRecV2")
-            self._zdcRecHandle = ZdcRecV3(ZdcAnalysisTool = zdcAnalysisTool)
+            self._zdcRecHandle = ZdcRecV3()
+#            self._zdcRecHandle = ZdcRecV3(ZdcAnalysisTool = zdcAnalysisTool)
         except Exception:
             mlog.error("could not get handle to ZdcRecV3")
             import traceback

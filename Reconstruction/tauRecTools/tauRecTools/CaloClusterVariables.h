@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_CALOCLUSTERVARIABLES_H
@@ -26,16 +26,16 @@ public:
     bool update(const xAOD::TauJet& pTau); //!< update the internal variables for the given tau
 
     // ID Variables
-    unsigned int numConstituents() { return (unsigned int) m_numConstit; }
+    unsigned int numConstituents() const { return (unsigned int) m_numConstit; }
 
-    double totalMass()     { return m_totMass; }
-    double effectiveMass() { return m_effMass; }
+    double totalMass()     const { return m_totMass; }
+    double effectiveMass() const { return m_effMass; }
     
-    double effectiveNumConstituents()  { return m_effNumConstit; }
-    int effectiveNumConstituents_int() { return m_effNumConstit_int; }
+    double effectiveNumConstituents()  const { return m_effNumConstit; }
+    int effectiveNumConstituents_int() const { return m_effNumConstit_int; }
 
-    double averageEffectiveRadius() { return m_aveEffRadius; }
-    double averageRadius()          { return m_aveRadius; }
+    double averageEffectiveRadius() const { return m_aveEffRadius; }
+    double averageRadius()          const { return m_aveRadius; }
 
     // Energy Variables
     double totalEnergy()     { return m_totEnergy; }
@@ -53,14 +53,14 @@ private:
     double m_effEnergy;
 
     // Calculate the geometrical center of the tau constituents
-    TLorentzVector calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector);
+    TLorentzVector calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector) const;
 };
 
 //-------------------------------------------------------------------------
 //! Descending order by energy
 //-------------------------------------------------------------------------
 struct CaloClusterCompare { 
-  bool operator()(const TLorentzVector& left, const TLorentzVector& right) {
+  bool operator()(const TLorentzVector& left, const TLorentzVector& right) const {
     //volatile double leftE = left.e();
     //volatile double rightE = right.e();
     return CxxUtils::fpcompare::greater (left.E(),right.E());
@@ -68,7 +68,7 @@ struct CaloClusterCompare {
 };
 
 struct DefCaloClusterCompare { 
-  bool operator()(const xAOD::CaloCluster* left, const xAOD::CaloCluster* right) {
+  bool operator()(const xAOD::CaloCluster* left, const xAOD::CaloCluster* right) const {
     //volatile double leftE = left.e();
     //volatile double rightE = right.e();
     return CxxUtils::fpcompare::greater (left->e(),right->e());

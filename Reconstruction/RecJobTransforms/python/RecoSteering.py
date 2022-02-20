@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import Format
 
 
 def RecoSteering(flags):
@@ -17,7 +18,7 @@ def RecoSteering(flags):
     acc = MainServicesCfg(flags)
 
     # setup input
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
         log.info("---------- Configured BS reading")
@@ -139,6 +140,12 @@ def RecoSteering(flags):
         log.info("ESD ItemList: %s", acc.getEventAlgo(
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
+
+    # Set up PerfMon
+    if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        acc.merge(PerfMonMTSvcCfg(flags))
+        log.info("---------- Configured PerfMon")
 
     return acc
 

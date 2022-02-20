@@ -9,12 +9,12 @@ find_package( ROOT COMPONENTS Core MathCore Hist RIO )
 
 atlas_add_component( AFP_GlobReco
                      src/*.cxx src/components/*.cxx AFP_GlobReco/*.h 
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthenaBaseComps AthenaKernel GaudiKernel PathResolver StoreGateLib xAODForward )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthenaBaseComps AthenaKernel GaudiKernel PathResolver StoreGateLib xAODForward )
 
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )   
 
 atlas_install_runtime( share/*.txt )
 

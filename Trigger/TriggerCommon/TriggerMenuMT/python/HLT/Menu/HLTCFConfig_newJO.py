@@ -5,30 +5,30 @@ from AthenaCommon.Logging import logging
 import GaudiConfig2
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainInLegs
-from TriggerMenuMT.HLT.Menu.MenuComponents import (isComboHypoAlg,
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainInLegs
+from TriggerMenuMT.HLT.Config.MenuComponents import (isComboHypoAlg,
                                                              isFilterAlg,
                                                              isHypoAlg,
                                                              isInputMakerBase,
                                                              EmptyMenuSequence)
-from TriggerMenuMT.HLT.Menu.MenuComponentsNaming import CFNaming
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
 log = logging.getLogger( __name__ )
 
 def resetDF(acc):
     """
-    Find all algorithms involved in HLT decision DF and reset properites to empty (lists), unset
+    Find all algorithms involved in HLT decision DF and reset properties to empty (lists), unset
     """
     for alg in acc.getEventAlgos():
-        if isHypoAlg(alg):
-            log.verbose("Resetting IO for %s Hypo", alg.name )
-            alg.HypoInputDecisions  = ""
-            alg.HypoOutputDecisions = ""
+        # if isHypoAlg(alg):
+        #     log.verbose("Resetting IO for %s Hypo", alg.name )
+        #     alg.HypoInputDecisions  = ""
+        #     alg.HypoOutputDecisions = ""
         if isInputMakerBase(alg):
             log.verbose("Resetting IO for %s Input Maker", alg.name )
             alg.InputMakerInputDecisions = []
-            alg.InputMakerOutputDecisions = ""
+            # alg.InputMakerOutputDecisions = ""
         if isFilterAlg(alg):
             log.verbose("Resetting IO for %s Filter", alg.name )
             alg.Input = []
@@ -40,15 +40,14 @@ def resetDF(acc):
             alg.HypoInputDecisions = []
             alg.HypoOutputDecisions = []
 
-def setHypoOutputs(acc):
-    for alg in acc.getEventAlgos():
-        if isHypoAlg(alg):
-            alg.HypoOutputDecisions = CFNaming.hypoAlgOutName(alg.name)
 
-def setIMOutputs(acc):
-    for alg in acc.getEventAlgos():
-        if isInputMakerBase(alg):
-            alg.InputMakerOutputDecisions = CFNaming.inputMakerOutName(alg.name)
+def setupIMAndHypo(im, hypo):
+    im.InputMakerInputDecisions = []
+    im.InputMakerOutputDecisions = CFNaming.inputMakerOutName(im.name)
+    hypo.HypoInputDecisions = im.InputMakerOutputDecisions
+    hypo.HypoOutputDecisions =  CFNaming.hypoAlgOutName(hypo.name)
+
+
 
 def traverse(acc, startCollectionName, functor):
     """
@@ -157,7 +156,7 @@ def generateDecisionTree(flags, chains):
     @lru_cache(None)
     def getComboSequences( stepNumber, stepName ):
         """
-        Produces sequnece encompassing reconstruction sequences needed in combined chains
+        Produces sequence encompassing reconstruction sequences needed in combined chains
         """
         assert not theCFisFixed, "Can not create further sequences at this stage"
 
@@ -195,7 +194,7 @@ def generateDecisionTree(flags, chains):
 
     def __findAllOf( stepCounter, stepName, predicate):
         """
-        Find all algorithms fulfilling predicate, for sequnces that do not look like menu None is placed in the result instead
+        Find all algorithms fulfilling predicate, for sequences that do not look like menu None is placed in the result instead
         """
         _, comboRecoSeq = getComboSequences( stepCounter, stepName )
         result = []
@@ -229,7 +228,7 @@ def generateDecisionTree(flags, chains):
         return r
 
 
-    def addAndAssureUniqness( prop, toadd, context="" ):
+    def addAndAssureUniqueness( prop, toadd, context="" ):
         if isinstance(toadd, str):
             toadd = [toadd]
         missing = []
@@ -240,7 +239,7 @@ def generateDecisionTree(flags, chains):
 
     def assureUnsetOrTheSame(prop, toadd, context):
         """
-        Central function setting strnig like proeprties (collection keys). Assures that valid names are not overwritten.
+        Central function setting string like properties (collection keys). Assures that valid names are not overwritten.
         """
         if prop == "" or prop == [] or prop == toadd:
             return toadd
@@ -249,7 +248,7 @@ def generateDecisionTree(flags, chains):
 
     def clearUnderscores(s):
         """
-        Humanizes collection name by removing multiple underscroers and stripping trailing ones
+        Humanizes collection name by removing multiple underscores and stripping trailing ones
         """
         p = s
         while True:
@@ -313,7 +312,8 @@ def generateDecisionTree(flags, chains):
 
             needCombo = False
             for sequence in step.sequences:
-                if not isinstance(sequence,EmptyMenuSequence): # empty sequence
+                if not isinstance(sequence, EmptyMenuSequence): # empty sequence              
+                    setupIMAndHypo(sequence.ca.inputMaker(), sequence.ca.hypo())
                     acc.merge( sequence.ca, sequenceName=comboRecoSeq.name)
                     needCombo = True
                 else: # empty sequence
@@ -329,8 +329,6 @@ def generateDecisionTree(flags, chains):
     if log.getEffectiveLevel() <= logging.DEBUG:
         acc.printConfig()
     resetDF(acc)
-    setHypoOutputs(acc)
-    setIMOutputs(acc)
     log.debug("Configured Hypo Alg and IM Outputs")
 
     # continue DF setting using chains info
@@ -339,7 +337,7 @@ def generateDecisionTree(flags, chains):
             if isEmpty(step):
                 continue
 
-            def __commonWihtOtherOuptut( newInputColl, filterAlg, comboHypo ):
+            def __commonWithOtherOuptut( newInputColl, filterAlg, comboHypo ):
                 """
                 For a new input collection that is meant to be added to the filter algorithm check
                 if any hypo leading to it has the same input as any other input to that filter
@@ -373,14 +371,14 @@ def generateDecisionTree(flags, chains):
                 filterAlg = getFilterAlg(stepCounter, step.name, isEmpty(step))
                 comboOut = prevComboOut[sequenceCounter]
                 if comboOut not in filterAlg.Input: # input is not yet connected to filter
-                    commonWihtOutput = __commonWihtOtherOuptut( comboOut, filterAlg, comboHypo )
-                    if commonWihtOutput: # this input has commonalities with other input, appropriate output is returned
-                        filterOut = commonWihtOutput
-                        filterAlg.IOMapping[ filterAlg.Output.index(commonWihtOutput) ].append( len(filterAlg.Input) )
+                    commonWithOutput = __commonWithOtherOuptut( comboOut, filterAlg, comboHypo )
+                    if commonWithOutput: # this input has commonalities with other input, appropriate output is returned
+                        filterOut = commonWithOutput
+                        filterAlg.IOMapping[ filterAlg.Output.index(commonWithOutput) ].append( len(filterAlg.Input) )
                     else: # entirely new input
                         filterAlg.IOMapping.append( [len(filterAlg.Input)] )
                         filterOut = clearUnderscores(CFNaming.filterOutName( filterAlg.name, comboOut ).replace(prevComboName, ""))
-                        filterAlg.Output = addAndAssureUniqness(filterAlg.Output, filterOut, "{} output".format(filterAlg.name))
+                        filterAlg.Output = addAndAssureUniqueness(filterAlg.Output, filterOut, "{} output".format(filterAlg.name))
                     filterAlg.Input.append( comboOut )
                     filterAlg.ChainsPerInput.append([])
                 else: # that input is connected to the filter, so it was already wired correctly to the output, we need to find out to which output it was connected
@@ -390,20 +388,18 @@ def generateDecisionTree(flags, chains):
                             filterOut = filterAlg.Output[outIndex]
 
                 # set chain to filter on
-                filterAlg.ChainsPerInput[filterAlg.Input.index(comboOut)] = addAndAssureUniqness( filterAlg.ChainsPerInput[filterAlg.Input.index(comboOut)], chainDict["chainName"],
-                                                                                                    "{} filtered cahins".format(filterAlg.name))
-                filterAlg.Chains = addAndAssureUniqness( filterAlg.Chains, chainDict["chainName"],
-                                                        "{} filtered cahins".format(filterAlg.name))
+                filterAlg.ChainsPerInput[filterAlg.Input.index(comboOut)] = addAndAssureUniqueness( filterAlg.ChainsPerInput[filterAlg.Input.index(comboOut)], chainDict["chainName"],
+                                                                                                    "{} filtered chains".format(filterAlg.name))
+                filterAlg.Chains = addAndAssureUniqueness( filterAlg.Chains, chainDict["chainName"],
+                                                        "{} filtered chains".format(filterAlg.name))
 
                 imAlg = findAllInputMakers( stepCounter, step.name )[sequenceCounter]
                 if imAlg:
-                    imAlg.InputMakerInputDecisions = addAndAssureUniqness( imAlg.InputMakerInputDecisions, filterOut, "{} input".format( imAlg.name ) )
+                    imAlg.InputMakerInputDecisions = addAndAssureUniqueness( imAlg.InputMakerInputDecisions, filterOut, "{} input".format( imAlg.name ) )
 
                 # IM -> Hypo linking
                 hypoAlg = findAllHypoAlgs( stepCounter, step.name )[sequenceCounter]
                 if hypoAlg:
-                    hypoAlg.HypoInputDecisions = assureUnsetOrTheSame( hypoAlg.HypoInputDecisions, imAlg.InputMakerOutputDecisions,
-                        "{} hypo input".format( hypoAlg.name ) )
                     # chain selection is setup here
                     hypoTool = step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict )
                     assert isinstance(hypoTool, GaudiConfig2._configurables.Configurable), "The Hypo Tool for {} is not Configurable2".format(chainDict["chainName"])
@@ -411,10 +407,10 @@ def generateDecisionTree(flags, chains):
                 pass
 
             chainDictLegs = splitChainInLegs( chain.name )
-            # possible cases: A) number of seqeunces == number of chain parts, e5_mu10 or just e3 type of chain
+            # possible cases: A) number of sequences == number of chain parts, e5_mu10 or just e3 type of chain
             # ([0, 1], [0, 1]) is the set of indices
             indices = zip( range( len( step.sequences ) ), range( len( chainDictLegs ) ) )# case A
-            # B) number of sequences == 1 && number of chain parts > 1 for single signature assymetric combined chains e5_e3 type chain
+            # B) number of sequences == 1 && number of chain parts > 1 for single signature asymmetric combined chains e5_e3 type chain
             if len(step.sequences) == 1 and len(chainDictLegs) > 1:
                 indices = zip( [0]*len(chainDictLegs), range( len( chainDictLegs ) ) )
 
@@ -428,10 +424,10 @@ def generateDecisionTree(flags, chains):
                 rawInputsToCombo = []
                 for hypoName, hypoOutput in elementaryHyposOutputs:
                     rawInputsToCombo.append(hypoOutput)
-                    comboHypoAlg.HypoInputDecisions = addAndAssureUniqness( comboHypoAlg.HypoInputDecisions, hypoOutput,
+                    comboHypoAlg.HypoInputDecisions = addAndAssureUniqueness( comboHypoAlg.HypoInputDecisions, hypoOutput,
                         "{} comboHypo input".format( comboHypoAlg.name ) )
                     comboOut = CFNaming.comboHypoOutputName( comboHypoAlg.name, hypoName )
-                    comboHypoAlg.HypoOutputDecisions = addAndAssureUniqness( comboHypoAlg.HypoOutputDecisions, comboOut,
+                    comboHypoAlg.HypoOutputDecisions = addAndAssureUniqueness( comboHypoAlg.HypoOutputDecisions, comboOut,
                         "{} comboHypo output".format( comboHypoAlg.name ) )
                     # if the chain requires special combo tools
                     for comboToolConf in step.comboToolConfs:
@@ -461,7 +457,7 @@ def generateDecisionTree(flags, chains):
             filters = getFiltersStepSeq(stepNumber)
             for alg in filters.Members:
                 if isFilterAlg(alg):
-                    dumper.Decisions = addAndAssureUniqness( dumper.Decisions, alg.Output, context="Settings of decision dumper" )
+                    dumper.Decisions = addAndAssureUniqueness( dumper.Decisions, alg.Output, context="Settings of decision dumper" )
 
     for chain in chains:
         log.info("CF algorithms for chain %s", chain.name)
@@ -493,7 +489,7 @@ def generateDecisionTree(flags, chains):
                 log.info("%s  ComboHypoAlg: %s input: %s output: %s", stepCounter, combo.name,
                          ". ".join(combo.HypoInputDecisions), ", ".join(combo.HypoOutputDecisions))
                 log.info("%s  multiplicities: %s, leg index to input index: %s", stepCounter, combo.MultiplicitiesMap, combo.LegToInputCollectionMap)
-                assert len(combo.HypoInputDecisions) == len(combo.HypoInputDecisions), "Missconfiguraiton of {} ComboHypo input/output counts differ".format(combo.name)
+                assert len(combo.HypoInputDecisions) == len(combo.HypoInputDecisions), "Misconfiguration of {} ComboHypo input/output counts differ".format(combo.name)
         log.info("-"*50)
     log.info("")
     return acc
@@ -502,7 +498,7 @@ def generateDecisionTree(flags, chains):
 if __name__ == "__main__":
     # Test of DF collections traversal
     # build hypothetical structure of DF to test back traversing
-    # make it ressemble the combined chain with one arm that is hollow/empty
+    # make it resemble the combined chain with one arm that is hollow/empty
     # naming convention: H* - hypo, IM* - InputMaker, CH* - combo hypo, F* - filter
     #                    last digit is step
     #                    small letter a/b branch of the selection
@@ -562,7 +558,7 @@ if __name__ == "__main__":
     colls = []
     traverse(acc,  "Fb3_O", hypoInOut) # start from ComboHypo  output
     log.info(colls)
-    assert set(colls) == set(['Hb1_O', 'IMb1_O', 'Hb2_O', 'IMb2_O']), "Traversing cound not find hypo output & input for branch 'b'"
+    assert set(colls) == set(['Hb1_O', 'IMb1_O', 'Hb2_O', 'IMb2_O']), "Traversing could not find hypo output & input for branch 'b'"
 
     colls = []
     traverse(acc,  "CHa2altmerged_O", hypoInOut) # start from ComboHypo  output
@@ -571,10 +567,10 @@ if __name__ == "__main__":
     assert 'Hb2_0' not in colls, "This is another arm of selection 'b'"
 
     colls = []
-    traverse(acc,  "CHb2altmerged_O", hypoInOut) # start from ComboHypo  output from where 2nd setep hypo is not reachable
+    traverse(acc,  "CHb2altmerged_O", hypoInOut) # start from ComboHypo  output from where 2nd setup hypo is not reachable
     log.info(colls)
     assert 'Hb1_O' in colls
-    assert 'Hb2_0' not in colls, "Due to empty step, this shoudl nto be reachable"
+    assert 'Hb2_0' not in colls, "Due to empty step, this should nto be reachable"
 
 
     colls = []

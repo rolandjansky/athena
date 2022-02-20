@@ -227,7 +227,7 @@ namespace Muon {
         std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track> > splitTrack(const EventContext& ctx, const Trk::Track& track) const;
 
         /** @brief identify whether two track are split */
-        bool isSplitTrack(const Trk::Track& track1, const Trk::Track& track2) const;
+        bool isSplitTrack(const EventContext& ctx, const Trk::Track& track1, const Trk::Track& track2) const;
 
         /** @brief look for split tracks in collection and merge them */
         TrackCollection* mergeSplitTracks(const EventContext& ctx, const TrackCollection& tracks, GarbageContainer& trash_bin) const;
@@ -268,7 +268,7 @@ namespace Muon {
                                                                  "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer",
                                                  "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};  //!< tool to print out EDM objects;
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ToolHandle<IMuonSeededSegmentFinder> m_seededSegmentFinder{this, "SeededSegmentFinder",

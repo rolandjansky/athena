@@ -479,17 +479,8 @@ def getTauTrackFinder(removeDuplicateTracks=True):
 def getTauClusterFinder():
     _name = sPrefix + 'TauClusterFinder'
 
-    from JetRec.JetRecFlags import jetFlags
-
-    doJetVertexCorrection = False
-    if tauFlags.isStandalone():
-        doJetVertexCorrection = True
-    if jetFlags.useVertices() and jetFlags.useTracks():
-        doJetVertexCorrection = True
-
     from tauRecTools.tauRecToolsConf import TauClusterFinder
-    TauClusterFinder = TauClusterFinder(name = _name,
-                                        JetVertexCorrection = doJetVertexCorrection)
+    TauClusterFinder = TauClusterFinder(name = _name,)
 
     return TauClusterFinder
 

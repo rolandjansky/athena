@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''@file RunTileMonitoring.py
 @brief Script to run Tile Reconstrcution/Monitoring with new-style configuration
 '''
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType, Format
+
+
 def ByteStreamEmonReadCfg( inputFlags, type_names=[]):
     """
     Creates accumulator for BS Emon reading
@@ -96,7 +99,7 @@ def _configFlagsFromPartition(flags, partition, log):
             elif 'Pedestals' in runType:
                 flags.Tile.RunType = 'PED'
 
-    flags.Beam.Type = beamType
+    flags.Beam.Type = BeamType(beamType)
     flags.Input.ProjectName = projectName
     flags.Input.RunNumber = [runNumber]
 
@@ -216,7 +219,7 @@ if __name__=='__main__':
     if args.stateless:
         _configFlagsFromPartition(ConfigFlags, args.partition, log)
         ConfigFlags.Input.isMC = False
-        ConfigFlags.Input.Format = 'BS'
+        ConfigFlags.Input.Format = Format.BS
         if args.mbts and args.useMbtsTrigger:
             from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
             autoConfigOnlineRecoFlags(ConfigFlags, args.partition)
@@ -297,7 +300,7 @@ if __name__=='__main__':
         bsEmonInputSvc.LVL1Items = args.lvl1Items
         bsEmonInputSvc.LVL1Logic = args.lvl1Logic
         bsEmonInputSvc.LVL1Origin = args.lvl1Origin
-        bsEmonInputSvc.StreamType = 'express' if ConfigFlags.Beam.Type == 'singlebeam' else args.streamType
+        bsEmonInputSvc.StreamType = 'express' if ConfigFlags.Beam.Type is BeamType.SingleBeam else args.streamType
         bsEmonInputSvc.StreamNames = args.streamNames
         bsEmonInputSvc.StreamLogic = args.streamLogic
         bsEmonInputSvc.GroupName = args.groupName

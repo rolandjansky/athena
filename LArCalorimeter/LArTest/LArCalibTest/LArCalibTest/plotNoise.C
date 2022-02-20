@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 bool PSEUDO=false;//PSEUDO=true;
@@ -65,6 +65,7 @@ int calo(int detector)
   else if(abs(detector)==4) return HEC;
   else if(abs(detector)==5) return FCAL;
   //else if(abs(detector)==6) return TILE;
+  std::abort();
 }
 
 void initialize()

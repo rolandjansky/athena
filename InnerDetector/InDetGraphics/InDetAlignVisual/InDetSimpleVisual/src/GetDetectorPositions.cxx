@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -44,10 +44,10 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
   m_outputFileName("IDgeometry.txt"),  
 
   /** ID Tools */
-  m_PixelHelper(0),
-  m_SCTHelper(0),
-  m_TRTHelper(0),
-  m_TRTDetectorManager(0)
+  m_PixelHelper(nullptr),
+  m_SCTHelper(nullptr),
+  m_TRTHelper(nullptr),
+  m_TRTDetectorManager(nullptr)
 
 {
   declareProperty("OutputTextFile",m_outputFileName);

@@ -61,7 +61,12 @@ def compName(comp):
     return  comp.name() if callable(comp.name) else comp.name
 
 def getSequenceChildren(comp):
-    return  comp.getChildren() if hasattr(comp, "getChildren") and callable(comp.getChildren) else comp.Members
+    if hasattr(comp, "getChildren") and callable(comp.getChildren):
+        return comp.getChildren()
+    elif hasattr(comp, "Members"):
+        return comp.Members
+    else:
+        return []
 
 
 def getAllSequenceNames(seq, depth=0):
@@ -96,6 +101,8 @@ def checkSequenceConsistency( seq ):
                 __noSubSequenceOfName( c, n, seen )
 
     __noSubSequenceOfName( seq, compName(seq) )
+    for c in getSequenceChildren( seq ):
+        checkSequenceConsistency(c)
 
 
 
@@ -133,25 +140,32 @@ def findOwningSequence( start, nameToLookFor ):
             if found:
                 return found
     return None
+def findAlgorithmByPredicate( startSequence, predicate, depth = 1000000 ):
+    """ Traverse sequences tree to find the first algorithm satisfying given predicate. The first encountered is returned.
+
+    Depth of the search can be controlled by the depth parameter.
+    Typical use is to limit search to the startSequence with depth parameter set to 1
+    """
+    for c in getSequenceChildren(startSequence):
+        if not isSequence(c):
+            if predicate(c):
+                return c
+        else:
+            if depth > 1:
+                found = findAlgorithmByPredicate( c, predicate, depth-1 )
+                if found:
+                    return found
+
+    return None
 
 def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
     """ Traverse sequences tree to find the algorithm of given name. The first encountered is returned.
 
     The name() method is used to obtain the algorithm name, that one has to match to the request.
-    Depth of the search can be controlled by the depth parameter.
-    Typical use is to limit search to the startSequence with depth parameter set to 1
     """
-    for c in getSequenceChildren(startSequence):
-        if not isSequence( c ):
-            if  compName(c) == nameToLookFor:
-                return c
-        else:
-            if depth > 1:
-                found = findAlgorithm( c, nameToLookFor, depth-1 )
-                if found:
-                    return found
+    return findAlgorithmByPredicate( startSequence, lambda alg: compName(alg) == nameToLookFor, depth ) 
 
-    return None
+
 
 def findAllAlgorithms(sequence, nameToLookFor=None):
     """

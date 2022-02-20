@@ -160,6 +160,7 @@ ROBJECTS  = \
 
 LOBJECTS  = \
         $(OBJDIR)/TIDAEvent.o \
+        $(OBJDIR)/TagNProbe.o \
         $(OBJDIR)/Track.o \
         $(OBJDIR)/TIDAVertex.o   \
         $(OBJDIR)/TIDAVertexNew.o   \

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloExtensionBuilderAlgCfg(flags, name="CaloExtensionBuilderAlg", **kwargs):
@@ -30,6 +30,6 @@ def CaloExtensionBuilderAlgLRTCfg(flags, name="CaloExtensionBuilderAlg_LRT", **k
 
 def CaloExtensionBuilderCfg(flags):
     result = CaloExtensionBuilderAlgCfg(flags)
-    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0 and flags.InDet.storeSeparateLargeD0Container:
+    if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0 and flags.InDet.Tracking.storeSeparateLargeD0Container:
         result.merge(CaloExtensionBuilderAlgLRTCfg(flags))
     return result
