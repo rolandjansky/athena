@@ -25,7 +25,7 @@ LArHitEMapToDigitAlg::LArHitEMapToDigitAlg(const std::string& name, ISvcLocator*
 StatusCode LArHitEMapToDigitAlg::initialize()
 {
 
-  ATH_CHECK(m_noiseKey.initialize()); // (!m_RndmEvtOverlay || m_isMcOverlay) && !m_pedestalNoise && m_NoiseOnOff));
+  ATH_CHECK(m_noiseKey.initialize((!m_RndmEvtOverlay || m_isMcOverlay) && !m_pedestalNoise && m_NoiseOnOff));
  
   ATH_CHECK(m_shapeKey.initialize());
   ATH_CHECK(m_fSamplKey.initialize());
@@ -108,6 +108,8 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
 
    ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
    CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(context);
+   ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, seedingmode );
 
    for( ; it!=it_end;++it) // now loop on cells
    {
@@ -150,7 +152,7 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
   // test part
   for(int i = 0; i< 10; i++){
       const LArDigit* digit = DigitContainer->at(i);
-      std::cout << "DIGITS from ALG: " << digit->channelID() << " " << digit->gain() << " " << digit->nsamples() << " " << digit->samples()[2] << std::endl;
+      std::cout << "DIGITS from ALG: " << digit->channelID().get_identifier32().get_compact() << " " << digit->gain() << " " << digit->nsamples() << " " << digit->samples()[2] << std::endl;
   }
 
   ATH_CHECK(DigitContainerHandle.record( std::move(DigitContainer) ) );
@@ -281,9 +283,16 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
 // convert Hits into energy samples and add result to Samples assuming LARHIGHGAIN for pulse shape
 //
-  std::cout << "Channel ID to check : " << ch_id << std::endl;
   bool isDead = m_bcMask.cellShouldBeMasked(bcCont,ch_id);
-  std::cout << "Did it work " << std::endl;
+
+  if ( ch_id.get_identifier32().get_compact() == 0x3a506500) {
+   std::cout << "FOUND3 : " << initialGain << " ";
+   for(auto iter : *TimeE ) std::cout << iter.first << " " << iter.second << " ";
+   std::cout << " S : ";
+   for(const auto iter : Samples ) std::cout  << " " << iter;
+   std::cout << std::endl;
+  }
+
 
   if (!isDead) {
     if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE, Samples).isFailure() ) return StatusCode::SUCCESS;
@@ -297,6 +306,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
  float energy2adc ;
  float rAdc ;
+ if ( rndmEvtDigit ) std::cout << "channel id " << ch_id << " has rndmEvtDigit  " << std::endl;
  if(m_RndmEvtOverlay && rndmEvtDigit ) // no overlay if missing random digit
  {
   rndmGain= rndmEvtDigit->gain();
@@ -404,6 +414,15 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
        else Samples[i] = 0.;
      }
 
+
+  if ( ch_id.get_identifier32().get_compact() == 0x3a506500 ) {
+   std::cout << "FOUND4 : " << igain << " ";
+   for(auto iter : *TimeE ) std::cout << iter.first << " " << iter.second << " ";
+   std::cout << " S : ";
+   for(const auto iter : Samples ) std::cout  << " " << iter;
+   std::cout << std::endl;
+  }
+
      if (!isDead) {
        if( this->ConvertHits2Samples(ctx, cellId,ch_id,igain,TimeE, Samples) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
        if(m_doDigiTruth){
@@ -454,6 +473,12 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
            Noise[i]=Noise[i]*SigmaNoise;
         }
         addedNoise=true;
+        for (int i=0;i<m_NSamples;i++) Noise[i]=0.;
+        if ( ch_id.get_identifier32().get_compact() == 0x3a506500 ) {
+           std::cout << "Noise2 : ";
+           for(const auto iter : Noise ) std::cout << iter << " ";
+	   std::cout << std::endl;
+	}
      } else  {
         // overlay case a priori don't add any noise
         for (int i=0;i<m_NSamples;i++) Noise[i]=0.;
