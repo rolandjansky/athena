@@ -8542,7 +8542,7 @@ HLT_j15_pf_ftf_L1RD0_FILLED:
     1: 20
   stepFeatures:
     0: 20
-    1: 314
+    1: 313
 HLT_j175_0eta290_020jvt_pf_ftf_bdl1d60_j60_0eta290_020jvt_pf_ftf_bdl1d60_preselj140XXj45_L1J100:
   eventCount: 0
   stepCounts:
@@ -15639,7 +15639,7 @@ HLT_tau20_mediumRNN_tracktwoMVABDT_probe_j15_pf_ftf_03dRAB_L1RD0_FILLED:
     6: 7
   stepFeatures:
     0: 20
-    1: 314
+    1: 313
     2: 70
     3: 70
     4: 70
