@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_LARWHEELSOLID_H
 #define GEO2G4_LARWHEELSOLID_H
-
+#ifndef PORTABLE_LAR_SHAPE
 #include "AthenaKernel/MsgStreamMember.h"
+#endif
 #include "G4VSolid.hh"
 
 // set this to allow debug output in LArWheelSolid methods
@@ -50,6 +51,7 @@ class LArWheelCalculator;
 class TF1;
 class LArFanSections;
 class G4Polyhedra;
+class EMECData;
 
 #include "LArWheelSolid_type.h"
 
@@ -90,7 +92,8 @@ public:
 
   LArWheelSolid(const G4String& name, LArWheelSolid_t type,
      G4int zside = 1,
-     LArWheelCalculator *calc = 0
+		LArWheelCalculator *calc = 0,
+		const EMECData     *emecData=0
   );
   virtual ~LArWheelSolid();
 
@@ -123,10 +126,12 @@ public:
   const LArWheelCalculator *GetCalculator(void) const { return m_Calculator; }
   LArWheelSolid_t GetType(void) const { return m_Type; }
 
+#ifndef PORTABLE_LAR_SHAPE
   G4ThreeVector GetPointOnSurface(void) const;
   G4double GetCubicVolume(void);
   G4double GetSurfaceArea(void);
-
+#endif
+  
 private:
   static const G4double s_Tolerance;
   static const G4double s_AngularTolerance;
@@ -194,6 +199,7 @@ private:
 
   G4int select_section(const G4double &Z) const;
 
+#ifndef PORTABLE_LAR_SHAPE
   EInside Inside_accordion(const G4ThreeVector&) const;
   void get_point_on_accordion_surface(G4ThreeVector &) const;
   void get_point_on_polycone_surface(G4ThreeVector &) const;
@@ -214,10 +220,13 @@ private:
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+#endif
 
 protected:
   /// Private message stream member
+#ifndef PORTABLE_LAR_SHAPE
   mutable Athena::MsgStreamMember m_msg;
+#endif
 
   TF1 *m_f_area, *m_f_vol, *m_f_area_on_pc, *m_f_length, *m_f_side_area;
 
@@ -242,13 +251,16 @@ protected:
 public:
   static G4int Verbose;
   void SetVerbose(G4int v){ Verbose = v; }
+#ifndef PORTABLE_LAR_SHAPE
   G4bool test_dti(const G4ThreeVector &p,
                   const G4ThreeVector &v, const G4double distance) const;
   G4bool test_dto(const G4ThreeVector &p,
                   const G4ThreeVector &v, const G4double distance) const;
+#endif
 private:
   const char *TypeStr(void) const { return LArWheelSolidTypeString(m_Type); }
 #endif
 };
 
 #endif // GEO2G4_LARWHEELSOLID_H
+
