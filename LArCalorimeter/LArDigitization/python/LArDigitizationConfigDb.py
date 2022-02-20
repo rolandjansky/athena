@@ -6,4 +6,4 @@ addTool("LArDigitization.LArDigitizationConfig.getLArRangeHEC"               , "
 addTool("LArDigitization.LArDigitizationConfig.getLArRangeFCAL"              , "LArRangeFCAL")
 addTool("LArDigitization.LArDigitizationConfig.getLArPileUpTool"             , "LArPileUpTool")
 addAlgorithm("LArDigitization.LArDigitizationConfig.getLArDigitMaker"        , "digitmaker1")
-addAlgorithm("LArDigitization.LArDigitizationConfig.getLArHitEMapToDigitAlg" , "LArHitEMapToDigitAlg")
+#addAlgorithm("LArDigitization.LArDigitizationConfig.getLArHitEMapToDigitAlg" , "LArHitEMapToDigitAlg")
