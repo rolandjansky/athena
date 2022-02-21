@@ -7991,6 +7991,14 @@ HLT_j0_FBDJSHARED_L1J20:
     0: 8
   stepFeatures:
     0: 162
+HLT_j0_HT1000XX0eta240_pf_ftf_preselcHT400_L1HT190-J15s5pETA21:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 1
+  stepFeatures:
+    0: 5
+    1: 5
 HLT_j0_HT1000XX30et_L1J20:
   eventCount: 1
   stepCounts:
@@ -8097,6 +8105,14 @@ HLT_j0_HT1000_pf_ftf_presel5j25_L1HT190-J15s5pETA21:
   stepFeatures:
     0: 5
     1: 5
+HLT_j0_HT1000_pf_ftf_preselcHT400_L1HT190-J15s5pETA21:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 1
+  stepFeatures:
+    0: 5
+    1: 5
 HLT_j0_HT1000_pf_ftf_preselj140_L1HT190-J15s5pETA21:
   eventCount: 1
   stepCounts:
@@ -8136,6 +8152,30 @@ HLT_j0_HT1000_pf_ftf_preselj180_L1jJ160:
     1: 1
   stepFeatures:
     0: 5
+    1: 5
+HLT_j0_HT1000_pf_ftf_preseljHT350_L1HT190-J15s5pETA21:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 1
+  stepFeatures:
+    0: 5
+    1: 5
+HLT_j0_HT1000_pf_ftf_preseljHT400_L1HT190-J15s5pETA21:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 1
+  stepFeatures:
+    0: 5
+    1: 5
+HLT_j0_HT1000_pf_ftf_preseljHT500_L1HT190-J15s5pETA21:
+  eventCount: 1
+  stepCounts:
+    0: 4
+    1: 1
+  stepFeatures:
+    0: 4
     1: 5
 HLT_j0_HT500XX30et_L1J20:
   eventCount: 5
