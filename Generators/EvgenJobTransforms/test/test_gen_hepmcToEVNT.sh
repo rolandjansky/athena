@@ -1,0 +1,16 @@
+#!/bin/bash
+# art-description: Test of converting HepMC file into EVNT one 
+# art-include: 21.6/AthGeneration
+# art-type: build
+# art-output: *.root
+# art-output: log.generate
+## Any arguments are considered overrides, and will be added at the end
+export TRF_ECHO=True;
+Gen_tf.py --ecmEnergy=5020 --maxEvents=100 \
+    --jobConfig=421448  \
+    --inputGeneratorFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/HepMC_file/group.phys-gener.dpmjet.420338.gammaA_5TeV_PbPb_mb_photNegEta.TXT.mc16_PART.000.events \
+    --outputEVNTFile=test_epos_minbias_inelastic.EVNT.pool.root \
+
+echo "art-result: $? generate"
+
+
