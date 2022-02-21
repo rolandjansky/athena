@@ -285,8 +285,10 @@ class TrigTauMonAlgBuilder:
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
       self.bookHLTEffHistograms( monAlg, trigger,nProng='3P')
 
-      self.bookTruth( monAlg, trigger )
-      self.bookTruthEfficiency( monAlg, trigger )
+      self.bookTruth( monAlg, trigger, nProng='1P')
+      self.bookTruth( monAlg, trigger, nProng='3P')
+      self.bookTruthEfficiency( monAlg, trigger, nProng='1P')
+      self.bookTruthEfficiency( monAlg, trigger, nProng='3P')
 
       self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True ) 
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
@@ -585,10 +587,10 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('M', title='M(#tau,lep) DiTau;M_{#tau,lep};Nevents',xbins=50,xmin=0,xmax=250)
     monGroup.defineHistogram('dPt', title='dPt |lep-#tau|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)
 
-  def bookTruth( self, monAlg, trigger):
+  def bookTruth( self, monAlg, trigger, nProng):
 
-    monGroupName = trigger+'EFVsTruth'
-    monGroupPath = 'EFVsTruth/'+trigger 
+    monGroupName = trigger+'_EFVsTruth_'+nProng
+    monGroupPath = 'EFVsTruth/'+trigger+'/EFVsTruth_'+nProng 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
@@ -600,17 +602,17 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('eta_vis', title='Eta_vis Value; #eta_{vis};Nevents', xbins=26,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('phi_vis', title='Phi_vis Value; #phi_{vis}; Nevents', xbins=16,xmin=-3.2,xmax=3.2)
 
-  def bookTruthEfficiency( self, monAlg, trigger):
+  def bookTruthEfficiency( self, monAlg, trigger, nProng):
   
-    monGroupName = trigger+'Truth_Efficiency'
-    monGroupPath = 'Truth_Efficiency/'+trigger
+    monGroupName = trigger+'_Truth_Efficiency_'+nProng
+    monGroupPath = 'Truth_Efficiency/'+trigger+'/Truth_Efficiency_'+nProng
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
   
     def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
 
        monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Truth',
-                                title='HLT Efficiency ' +trigger+' ;'+xlabel+';Efficiency',
+                                title='HLT Efficiency ' +trigger+' ' +nProng+ ';'+xlabel+';Efficiency',
                                 type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
 
     defineEachStepHistograms('pt_vis', 'Pt_{vis} [GeV]', 60, 0.0, 300.)
