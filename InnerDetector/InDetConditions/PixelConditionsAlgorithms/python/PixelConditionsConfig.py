@@ -231,7 +231,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         #====================================================================================
         # ITK
         CondArgs.update(
-            BarrelToTThresholdITK       = [     3,     3,     3,     3,     3],
+            BarrelToTThresholdITK       = [-1,-1,-1,-1,-1],
             BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06],
             BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8],
             BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3],
@@ -243,7 +243,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                                    "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
                                    "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
                                    "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"],
-            EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3],
+            EndcapToTThresholdITK       = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
             EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
             EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
             EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
