@@ -51,6 +51,7 @@ from Wj import Wj
 from Wj_MiNNLO import Wj_MiNNLO
 from Wjj import Wjj
 from Wt_DR import Wt_DR
+from Wt_DR_Modified import Wt_DR_Modified
 from Wt_DS import Wt_DS
 from WW import WW
 from WWj import WWj
