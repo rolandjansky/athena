@@ -23,6 +23,7 @@
 #include "xAODTrigger/gFexGlobalRoI.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 
 namespace LVL1 {
 
