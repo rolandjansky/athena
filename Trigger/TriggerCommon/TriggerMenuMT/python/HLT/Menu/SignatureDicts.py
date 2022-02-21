@@ -189,6 +189,10 @@ JetChainParts = {
        'preselc60XXj45XXf40',
        'preselj60XXj45XXf40',
        'presela60XXa40XX2a25',
+       'preseljHT350',
+       'preseljHT400',
+       'preselcHT400',
+       'preseljHT500',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -254,7 +258,8 @@ JetChainParts = {
                       'HT50XX30etXX010jvt', # example of a HT chain using only jets passing JVT
                       'HT100XX10et',
                       'HT50XX10etXX0eta320', # HT selection with explicit jet et/eta cuts
-                      'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
+                      'HT50XX10ptXX0eta320', # HT selection with explicit jet et/eta cuts
+                      'HT1000XX0eta240',
                       ],
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
