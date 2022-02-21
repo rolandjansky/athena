@@ -210,6 +210,7 @@ def createKeyWriterTool():
     keyWriter = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOnline')
     keyWriter.ConfKeys = 'TrigConfKeysOnline'
     keyWriter.IncludeL1PrescaleKey = False
+    keyWriter.IncludeBunchgroupKey = False
     return keyWriter
 
 def getL1TriggerResultMaker(flags):
