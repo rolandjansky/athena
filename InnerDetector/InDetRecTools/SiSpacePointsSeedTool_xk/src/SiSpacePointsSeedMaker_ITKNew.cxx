@@ -61,7 +61,7 @@ InDet::SiSpacePointsSeedMaker_ITKNew::SiSpacePointsSeedMaker_ITKNew
   declareProperty("minZ"                  , m_zmin         = -250. );
   declareProperty("maxZ"                  , m_zmax         = +250. );
   declareProperty("mindRadiusPPP"         , m_drminPPP     = 6.    );
-  declareProperty("maxdRadiusPPP"         , m_drmaxPPP     = 140.  );
+  declareProperty("maxdRadiusPPP"         , m_drmaxPPP     = 120.  );
   declareProperty("mindRadiusSSS"         , m_drminSSS     = 20.   );
   declareProperty("maxdRadiusSSS"         , m_drmaxSSS     = 300.  );
   declareProperty("maxdZver"              , m_dzver        = 5.    );
@@ -143,7 +143,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITKNew::initialize()
 
     m_outputTree = new TTree( m_treeName.c_str() , "SeedMakerValTool");
 
-    m_outputTree->Branch("eventNumber",    &m_eventNumber);
+    m_outputTree->Branch("eventNumber",    &m_eventNumber,"eventNumber/L");
     m_outputTree->Branch("d0",             &m_d0);
     m_outputTree->Branch("z0",             &m_z0);
     m_outputTree->Branch("pt",             &m_pt);
@@ -998,8 +998,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::buildFrameWork()
   m_maxPhiBinSSS = static_cast<int>(twoPi*m_inverseBinSizePhiSSS);
   if (m_maxPhiBinSSS >=nPhiBinsMax) m_maxPhiBinSSS = nPhiBinsMax-1;
   /// recompute inverse bin size, taking into account rounding + truncation
-  m_inverseBinSizePhiPPP = m_maxPhiBinPPP/twoPi;
-  m_inverseBinSizePhiSSS = m_maxPhiBinSSS/twoPi;
+  m_inverseBinSizePhiPPP = (m_maxPhiBinPPP + 1) / twoPi;
+  m_inverseBinSizePhiSSS = (m_maxPhiBinSSS + 1) / twoPi;
 
   buildConnectionMaps(m_nNeighbourCellsBottomPPP,m_nNeighbourCellsTopPPP,
 		      m_neighbourCellsBottomPPP, m_neighbourCellsTopPPP,
@@ -1234,7 +1234,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillLists(EventData& data)
     if (!data.r_map[radialBin]) continue;
 
     // Stop when we reach strip SP in PPP iteration #1
-    std::list<InDet::SiSpacePointForSeedITK*>::iterator SP_first = data.r_Sorted_ITK[radialBin].begin();
+    std::vector<InDet::SiSpacePointForSeedITK*>::iterator SP_first = data.r_Sorted_ITK[radialBin].begin();
     if(data.iteration && (*SP_first)->spacepoint->clusterList().second) break;
 
     /// remember the first non-empty bin we encounter 
@@ -1418,7 +1418,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillListsFast(EventData& data)
   //
   for(int twoDbin(0); twoDbin!=arraySizePhiZ; ++twoDbin) {
     if(data.rfz_Sorted_ITK[twoDbin].size() > 1 ){
-      data.rfz_Sorted_ITK[twoDbin].sort(InDet::SiSpacePointsITKComparison_R());
+      std::sort(data.rfz_Sorted_ITK[twoDbin].begin(), data.rfz_Sorted_ITK[twoDbin].end(), InDet::SiSpacePointsITKComparison_R());
+
     }
   }
 
@@ -1522,14 +1523,15 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
   bool isPixel = (m_fastTracking && m_pixel) || data.iteration==1;
   const auto zBinIndex = isPixel ? zBinIndex_PPP : zBinIndex_SSS;
 
-  const float   RTmax[11] = {80.,100.,150.,200.,250., 250., 250.,200.,150.,100.,80.};
+  const float   RTmax[11] = { 80.,200.,200.,200.,250.,250.,250.,200.,200.,200., 80.};
+  const float   RTmin[11] = { 40., 40., 70., 70., 70., 70., 70., 70., 70., 40., 40.};
 
   /// prepare arrays to store the iterators over the SP containers for all 
   /// neighbouring cells we wish to consider in the seed formation
-  std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_topCands;
-  std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_endTopCands;
-  std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_bottomCands;
-  std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_endBottomCands;
+  std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_topCands;
+  std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_endTopCands;
+  std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_bottomCands;
+  std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator,arraySizeNeighbourBins> iter_endBottomCands;
   
   int nPhiBins;
   std::array<int,arraySizePhiZ> nNeighbourCellsBottom;
@@ -1571,7 +1573,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
     for (; z<arraySizeZ; ++z) {
       
       if(m_fastTracking && m_pixel){
-	m_RTmax = RTmax[ zBinIndex[z] ];
+	    m_RTmax = RTmax[ zBinIndex[z] ];
+            m_RTmin = RTmin[ zBinIndex[z] ];
       }
 
       int phiZbin  = phiBin *arraySizeZ+zBinIndex[z];
@@ -1636,17 +1639,16 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3Sp(EventData& data)
   data.endlist = true;
 }
 
-
 ///////////////////////////////////////////////////////////////////
 /// Production 3 space points seeds for full scan
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
 (EventData& data,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands ,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands ,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands ,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands ,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
  const int numberBottomCells, const int numberTopCells, int& nseed) const
 {
 
@@ -1657,8 +1659,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
    **/ 
 
   /// iterator across the candidates for the central space point. 
-  std::list<InDet::SiSpacePointForSeedITK*>::iterator iter_centralSP=iter_bottomCands[0];
-  std::list<InDet::SiSpacePointForSeedITK*>::iterator iter_otherSP;  ///< will be used for iterating over top/bottom SP
+  std::vector<InDet::SiSpacePointForSeedITK*>::iterator iter_centralSP=iter_bottomCands[0];
+  std::vector<InDet::SiSpacePointForSeedITK*>::iterator iter_otherSP;  ///< will be used for iterating over top/bottom SP
 
   /** 
    * Next, we work out where we are within the ATLAS geometry.
@@ -1713,8 +1715,6 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
     /// Loop over all the cells where we expect to find such SP 
     for (int cell=0; cell<numberTopCells; ++cell) {
 
-      if(iter_otherSP==iter_endTopCands[cell]) continue;
-
       for (iter_otherSP=iter_topCands[cell];iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
 	/// evaluate the radial distance, 
         float Rt =(*iter_otherSP)->radius();
@@ -1764,19 +1764,17 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
     /// Bottom links production
     /// Loop over all the cells where we expect to find such SP 
     for (int cell=0; cell<numberBottomCells; ++cell) {
-      /// in each cell, loop over the space points
-      for (iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
         
+      for(iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+        if((R-(*iter_otherSP)->radius()) <= m_drmaxSSS) break;
+      }  
+      iter_bottomCands[cell]=iter_otherSP;
+      /// in each cell, loop over the space points
+      for (; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
         /// evaluate the radial distance between the central and bottom SP
         const float& Rb =(*iter_otherSP)->radius();
         float dR = R-Rb;
 
-        /// if the bottom SP is too far, remember this for future iterations and 
-        /// don't bother starting from the beginning again 
-        if (dR > m_drmaxSSS) {
-          iter_bottomCands[cell]=iter_otherSP;
-          continue;
-        }
         /// if the points are too close in r, abort (future ones will be even closer). 
         if (dR < m_drminSSS) break;
 
@@ -1849,7 +1847,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
     }
 
     data.nOneSeeds = 0;
+    data.nOneSeedsQ =0;
     data.mapOneSeeds_ITK.clear();
+    data.mapOneSeeds_ITKQ.clear();
 
     /// Three space points comparison
     /// first, loop over the bottom point candidates
@@ -1937,8 +1937,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
 	float rb2   = 1./(xb*xb+yb*yb);
 	float rt2   = 1./(xt*xt+yt*yt);
 	
-	float tb    = -zb*std::sqrt(rb2);
+	float tb    = zb*std::sqrt(rb2);
 	float tz    = zt*std::sqrt(rt2);
+
 	
 	/// Apply a cut on the compatibility between the r-z slope of the two seed segments.
 	/// This is done by comparing the squared difference between slopes, and comparing
@@ -2017,21 +2018,22 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
 	  /// deviate from a straight line in r-z
 	  data.SP_ITK[t]->setScorePenalty(std::abs((tb-tz)/(dr*sTzb2)));
 	  data.SP_ITK[t]->setParam(d0);
-	  float DR = xt*xt+yt*yt+zt*zt; // distance between top and central SP
+	  float DR = std::sqrt(xt*xt+yt*yt+zt*zt); // distance between top and central SP
 	  data.SP_ITK[t]->setDR(DR);
+      
+          if (std::abs(meanOneOverTanTheta)<1e-8) meanOneOverTanTheta = 1e-8;
+          if (BSquare<1e-8) BSquare = 1e-8;
+          if(data.SP_ITK[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
+          float theta = std::atan(1./meanOneOverTanTheta);
+          data.SP_ITK[t]->setEta(-std::log(std::tan(0.5*theta)));
+          data.SP_ITK[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000*data.K));
 
-	  if (meanOneOverTanTheta<1e-8) meanOneOverTanTheta = 1e-8;
-	  if (BSquare<1e-8) BSquare = 1e-8;
-	  float theta = std::atan(1./meanOneOverTanTheta);
-	  data.SP_ITK[t]->setEta(-std::log(std::tan(0.5*theta)));
-	  data.SP_ITK[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000*data.K));
-	  
 	  /// record one possible seed candidate, sort by the curvature
 	  data.CmSp_ITK.emplace_back(std::make_pair(B/std::sqrt(onePlusAsquare), data.SP_ITK[t]));
 	  /// store the transverse IP, will later be used as a quality estimator
 	  if(data.CmSp_ITK.size()==500) break;
 	}
-      
+    
       }   ///< end loop over top space point candidates
       /// now apply further cleaning on the seed candidates for this central+bottom pair. 
       if (!data.CmSp_ITK.empty()) {
@@ -2048,10 +2050,10 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
 
 void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
 (EventData& data,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands ,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands ,
- std::array <std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands ,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands ,
+ std::array <std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
  const int numberBottomCells, const int numberTopCells, int& nseed)
 {
   /** 
@@ -2061,8 +2063,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
    **/ 
 
   /// iterator across the candidates for the central space point. 
-  std::list<InDet::SiSpacePointForSeedITK*>::iterator iter_centralSP=iter_bottomCands[0];
-  std::list<InDet::SiSpacePointForSeedITK*>::iterator iter_otherSP;  ///< will be used for iterating over top/bottom SP
+  std::vector<InDet::SiSpacePointForSeedITK*>::iterator iter_centralSP=iter_bottomCands[0];
 
   /** 
    * Next, we work out where we are within the ATLAS geometry.
@@ -2111,36 +2112,33 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
 
     float covr0 = (*iter_centralSP)->covr ();
     float covz0 = (*iter_centralSP)->covz ();
-    float ax    = X/R           ;
-    float ay    = Y/R           ;
+    float Ri    = 1./R          ;
+    float ax    = X*Ri           ;
+    float ay    = Y*Ri           ;
     float VR    = maxd0cut/(R*R) ;
     size_t   Ntm   = 2; if(R > m_rmaxPPP) Ntm = 1;
 
     /// initialise a counter for found bottom links
     /// This also serves as an index in the data.SP vector
     size_t Nt = 0;
-    
     /// Top links production
     /// Loop over all the cells where we expect to find such SP 
     for (int cell=0; cell<numberTopCells; ++cell) {
 
-      if(iter_otherSP==iter_endTopCands[cell]) continue;
+      std::vector<InDet::SiSpacePointForSeedITK*>::iterator iter_otherSP = iter_topCands[cell], iter_otherSPend = iter_endTopCands[cell];
+      if (iter_otherSP == iter_otherSPend) continue;
 
+      for(; iter_otherSP!=iter_otherSPend; ++iter_otherSP) {
+        if(( (*iter_otherSP)->radius()- R ) >= m_drminPPP) break;
+      } 
+      iter_topCands[cell]=iter_otherSP; 
       /// loop over each SP in each cell 
-      for (iter_otherSP=iter_topCands[cell];iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
-  
+      for (;iter_otherSP!=iter_otherSPend; ++iter_otherSP) {
+
 	/// evaluate the radial distance,
 	float Rt =(*iter_otherSP)->radius();
 	float dR = Rt-R;
-	/// and continue if we are too close
-        if (dR<m_drminPPP) {
-          iter_topCands[cell]=iter_otherSP;
-          continue;
-        }
-
-	/// if we are too far, the next ones will be even farther, so abort
-	if (!m_fastTracking && dR>m_drmaxPPP) break;
-	
+                     
 	const float dz   = (*iter_otherSP)->z()-Z;
 	const float dZdR = dz/dR;
 	/// Comparison with vertices Z coordinates
@@ -2176,7 +2174,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
 	data.V [Nt]   = v;    ///< transformed V coordinate
 	data.Er[Nt]   = ((covz0+(*iter_otherSP)->covz())+(tz*tz)*(covr0+(*iter_otherSP)->covr()))*r2;    ///<squared Error on 1/tan theta coming from the space-point position errors
 	data.SP_ITK[Nt]->setDR(std::sqrt(dxy+dz*dz));
-	data.SP_ITK[Nt]->setDZDR(dZdR);
+	if (m_writeNtuple) data.SP_ITK[Nt]->setDZDR(dZdR);
 	data.Tn[Nt].Fl = tz;
 	data.Tn[Nt].In = Nt;
 
@@ -2200,19 +2198,21 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
     /// Bottom links production
     /// Loop over all the cells where we expect to find such SP 
     for (int cell=0; cell<numberBottomCells; ++cell) {
+
+        std::vector<InDet::SiSpacePointForSeedITK*>::iterator iter_otherSP = iter_bottomCands[cell], iter_otherSPend = iter_endBottomCands[cell];
+
+        for(; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+            if( (R - (*iter_otherSP)->radius()) <= m_drmaxPPP) break;
+        } 
+        iter_bottomCands[cell]=iter_otherSP; 
+
       /// in each cell, loop over the space points
-      for (iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
-        
+      for (; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+    
         /// evaluate the radial distance between the central and bottom SP
         const float& Rb =(*iter_otherSP)->radius();
         float dR = R-Rb;
 
-        /// if the bottom SP is too far, remember this for future iterations and 
-        /// don't bother starting from the beginning again 
-        if (dR > m_drmaxPPP) {
-          iter_bottomCands[cell]=iter_otherSP;
-          continue;
-        }
         /// if the points are too close in r, abort (future ones will be even closer). 
         if (dR < m_drminPPP) break;
 
@@ -2227,8 +2227,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
         float dy  = (*iter_otherSP)->y()-Y   ;
         float x   = dx*ax+dy*ay ;
         float y   = dy*ax-dx*ay ;
-        float dxy = x*x+y*y     ;
-        float r2  = 1./dxy      ;
+        float r2  = 1./(x*x+y*y);
         float u   = x*r2        ;
         float v   = y*r2        ;
 
@@ -2251,21 +2250,20 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
         data.U [Nb]   = u;    ///< transformed U coordinate
         data.V [Nb]   = v;    ///< transformed V coordinate
         data.Er[Nb]   = ((covz0+(*iter_otherSP)->covz())+(tz*tz)*(covr0+(*iter_otherSP)->covr()))*r2;    ///<squared Error on 1/tan theta coming from the space-point position errors
-        data.SP_ITK[Nb]->setDR(std::sqrt(dxy+dz*dz));
-        data.SP_ITK[Nb]->setDZDR(dZdR);
+        if (m_writeNtuple) data.SP_ITK[Nb]->setDZDR(dZdR);
         data.Tn[Nb].Fl = tz;
         data.Tn[Nb].In = Nb;
 
         /// if we are exceeding the SP capacity of our data object,
         /// make it resize its vectors. Will add 50 slots by default,
-        /// so rarely should happen more than once per event.  
+        /// so rarely should happen more than once per event.
         if (++Nb==SPcapacity) {
-          data.resizeSPCont(); 
+          data.resizeSPCont();
           SPcapacity=data.SP_ITK.size();
         }
+      } ///< end of loop over SP within top candidate cell
+    } ///< end of loop over top candidate cells
 
-      } ///< end of loop over SP in bottom candidate cell
-    } ///< end of loop over bottom candidate cells
 
     /// if we found no bottom candidates (remember, Nb starts counting at Nt), abort 
     if (!(Nb-Nt)) continue;
@@ -2274,7 +2272,9 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
     sort(data.Tn,Nt,Nb-Nt);
 
     data.nOneSeeds = 0;
+    data.nOneSeedsQ =0;
     data.mapOneSeeds_ITK.clear();
+    data.mapOneSeeds_ITKQ.clear();
 
     /// Three space points comparison
     /// first, loop over the bottom point candidates
@@ -2302,7 +2302,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
       float d0max  =  maxd0cut;
 
       size_t Nc = 1; if(data.SP_ITK[b]->radius() > m_rmaxPPP) Nc = 0;
-      if(data.nOneSeeds) ++Nc;      
+      if(data.nOneSeedsQ) ++Nc;      
 
       /// inner loop over the top point candidates
       for (size_t it=it0;  it<Nt; ++it) {
@@ -2320,8 +2320,8 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
 
         /// squared error on the difference in tan(theta) due to space point position errors. 
         float sigmaSquaredSpacePointErrors = Erb+data.Er[t]   /// pre-computed individual squared errors on 1/tan(theta) for the two segments 
-                        + 2 * Rb2z * data.R[t]    /// mixed term with z-uncertainty on central SP
-                        + 2 * Rb2r * data.R[t] * meanOneOverTanThetaSquare; // mixed term with r-uncertainy on central SP
+                        +2* Rb2z * data.R[t]    /// mixed term with z-uncertainty on central SP
+                        +2* Rb2r * data.R[t] * meanOneOverTanThetaSquare; // mixed term with r-uncertainy on central SP
 
         /// start out by subtracting from the squared difference in 1/tanTheta the space-point-related squared error
         float remainingSquaredDelta  = (Tzb-Tzt)*(Tzb-Tzt) - sigmaSquaredSpacePointErrors; 
@@ -2377,7 +2377,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
         if (BSquare  > ipt2K*onePlusAsquare) continue;
         if(remainingSquaredDelta*onePlusAsquare > BSquare*sigmaSquaredScatteringPtDependent){
 	  if(Tzb-Tzt < 0.) break;
-	  it0 = it+1;
+	  it0 = it;
 	  continue;
         }
 
@@ -2399,28 +2399,31 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpPPP
         **/
         float d0 = std::abs((A-B*R)*R);
 
+
         /// apply d0 cut to seed
         if (d0 <= d0max) {
-	  /// evaluate distance the two closest-by SP in this seed candidate
-	  float dr = data.R[b];
-	  if (data.R[t] < data.R[b]) dr = data.R[t];
+          /// evaluate distance the two closest-by SP in this seed candidate
+          float dr = data.R[b];
+          if (data.R[t] < data.R[b]) dr = data.R[t];
 	  /// obtain a quality score - start from the d0 estimate, and add
 	  /// a penalty term corresponding to how far the seed segments
 	  /// deviate from a straight line in r-z
 	  data.SP_ITK[t]->setScorePenalty(std::abs((Tzb-Tzt)/(dr*sTzb2)));
 	  data.SP_ITK[t]->setParam(d0);
-
-	  float meanOneOverTanTheta = std::sqrt(meanOneOverTanThetaSquare);
-	  if (meanOneOverTanTheta<1e-8) meanOneOverTanTheta = 1e-8;
-	  if (BSquare<1e-8) BSquare = 1e-8;
-	  float theta = std::atan(1./std::sqrt(meanOneOverTanThetaSquare));
-	  data.SP_ITK[t]->setEta(-std::log(std::tan(0.5*theta)));
-	  data.SP_ITK[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000*data.K));
-	  
-	  /// record one possible seed candidate, sort by the curvature
-	  data.CmSp_ITK.emplace_back(std::make_pair(B/std::sqrt(onePlusAsquare), data.SP_ITK[t]));
-	  /// store the transverse IP, will later be used as a quality estimator
-	  if(data.CmSp_ITK.size()==500) break;
+          if (m_writeNtuple) {
+            float meanOneOverTanTheta = std::sqrt(meanOneOverTanThetaSquare);
+            if (meanOneOverTanTheta<1e-8) meanOneOverTanTheta = 1e-8;
+            if (BSquare<1e-8) BSquare = 1e-8;
+            if(data.SP_ITK[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
+            float theta = std::atan(1./meanOneOverTanTheta);
+        
+            data.SP_ITK[t]->setEta(-std::log(std::tan(0.5*theta)));
+            data.SP_ITK[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000*data.K));
+          }
+          /// record one possible seed candidate, sort by the curvature
+          data.CmSp_ITK.emplace_back(std::make_pair(B/std::sqrt(onePlusAsquare), data.SP_ITK[t]));
+          /// store the transverse IP, will later be used as a quality estimator
+          if(data.CmSp_ITK.size()==500) break;
         }
    
       }   ///< end loop over top space point candidates
@@ -2508,49 +2511,90 @@ InDet::SiSpacePointForSeedITK* InDet::SiSpacePointsSeedMaker_ITKNew::newSpacePoi
 // New 3 space points pro seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITKNew::newOneSeed
-(EventData& data,
+void InDet::SiSpacePointsSeedMaker_ITKNew::newOneSeedQ(EventData& data,
  InDet::SiSpacePointForSeedITK*& p1, InDet::SiSpacePointForSeedITK*& p2,
  InDet::SiSpacePointForSeedITK*& p3, float z, float seedCandidateQuality) const
 {
-  /// get the worst seed so far
-  float worstQualityInMap = std::numeric_limits<float>::min();
-  InDet::SiSpacePointsProSeedITK* worstSeedSoFar = nullptr;
-  if (!data.mapOneSeeds_ITK.empty()) {
-    std::multimap<float,InDet::SiSpacePointsProSeedITK*>::reverse_iterator l = data.mapOneSeeds_ITK.rbegin();
-    worstQualityInMap = (*l).first;
-    worstSeedSoFar = (*l).second;
-  }
-  /// There are three cases where we simply add our new seed to the list and push it into the map:
+    /// get the worst seed so far
+    float worstQualityInMap = std::numeric_limits<float>::min();
+    InDet::SiSpacePointsProSeedITK* worstSeedSoFar = nullptr;
+
+    if (!data.mapOneSeeds_ITKQ.empty()) {
+        std::multimap<float,InDet::SiSpacePointsProSeedITK*>::reverse_iterator l = data.mapOneSeeds_ITKQ.rbegin();
+        worstQualityInMap = (*l).first;
+        worstSeedSoFar = (*l).second;
+    }
+    /// There are three cases where we simply add our new seed to the list and push it into the map:
     /// a) we have not yet reached our max number of seeds
-  if (data.nOneSeeds < data.maxSeedsPerSP
+    if (data.nOneSeedsQ < data.maxSeedsPerSP
+        /// b) we have reached the max number but always want to keep confirmed seeds
+        /// and the new seed is a confirmed one, with worse quality than the worst one so far
+        || (m_useSeedConfirmation && data.keepAllConfirmedSeeds  && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeedsQ < data.seedPerSpCapacity)
+        /// c) we have reached the max number but always want to keep confirmed seeds
+        ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed
+        || (m_useSeedConfirmation && data.keepAllConfirmedSeeds  && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeedsQ < data.seedPerSpCapacity)
+    ){
+        data.OneSeeds_ITKQ[data.nOneSeedsQ].set(p1,p2,p3,z);
+        data.mapOneSeeds_ITKQ.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_ITKQ[data.nOneSeedsQ]));
+        ++data.nOneSeedsQ;
+    }
+    /// otherwise, we check if there is a poorer-quality seed that we can kick out
+    else if (worstQualityInMap > seedCandidateQuality){
+        /// Overwrite the parameters of the worst seed with the new one
+        worstSeedSoFar->set(p1,p2,p3,z);
+        /// re-insert it with its proper quality to make sure it ends up in the right place
+        std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator i = data.mapOneSeeds_ITKQ.insert(std::make_pair(seedCandidateQuality,worstSeedSoFar));
+        /// and remove the entry with the old quality to avoid duplicates
+        for (++i; i!=data.mapOneSeeds_ITKQ.end(); ++i) {
+            if ((*i).second==worstSeedSoFar) {
+                data.mapOneSeeds_ITKQ.erase(i);
+                return;
+            }
+        }
+    }
+}
+
+void InDet::SiSpacePointsSeedMaker_ITKNew::newOneSeed(EventData& data,
+ InDet::SiSpacePointForSeedITK*& p1, InDet::SiSpacePointForSeedITK*& p2,
+ InDet::SiSpacePointForSeedITK*& p3, float z, float seedCandidateQuality) const
+{
+    /// get the worst seed so far
+    float worstQualityInMap = std::numeric_limits<float>::min();
+    InDet::SiSpacePointsProSeedITK* worstSeedSoFar = nullptr;
+
+    if (!data.mapOneSeeds_ITK.empty()) {
+        std::multimap<float,InDet::SiSpacePointsProSeedITK*>::reverse_iterator l = data.mapOneSeeds_ITK.rbegin();
+        worstQualityInMap = (*l).first;
+        worstSeedSoFar = (*l).second;
+    }
+    /// There are three cases where we simply add our new seed to the list and push it into the map:
+    /// a) we have not yet reached our max number of seeds
+    if (data.nOneSeeds < data.maxSeedsPerSP
     /// b) we have reached the max number but always want to keep confirmed seeds
     /// and the new seed is a confirmed one, with worse quality than the worst one so far
-      || (m_useSeedConfirmation && data.keepAllConfirmedSeeds  && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
+        || (m_useSeedConfirmation && data.keepAllConfirmedSeeds  && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
     /// c) we have reached the max number but always want to keep confirmed seeds
     ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed
-      || (m_useSeedConfirmation && data.keepAllConfirmedSeeds  && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
+        || (m_useSeedConfirmation && data.keepAllConfirmedSeeds  && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
     ){
-    data.OneSeeds_ITK[data.nOneSeeds].set(p1,p2,p3,z);
-    data.mapOneSeeds_ITK.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_ITK[data.nOneSeeds]));
-    ++data.nOneSeeds;
-  }
-
-  /// otherwise, we check if there is a poorer-quality seed that we can kick out
-  else if (worstQualityInMap > seedCandidateQuality){
-    /// Overwrite the parameters of the worst seed with the new one
-    worstSeedSoFar->set(p1,p2,p3,z);
-    /// re-insert it with its proper quality to make sure it ends up in the right place
-    std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator
-      i = data.mapOneSeeds_ITK.insert(std::make_pair(seedCandidateQuality,worstSeedSoFar));
-    /// and remove the entry with the old quality to avoid duplicates
-    for (++i; i!=data.mapOneSeeds_ITK.end(); ++i) {
-      if ((*i).second==worstSeedSoFar) {
-	data.mapOneSeeds_ITK.erase(i);
-	return;
-      }
+        data.OneSeeds_ITK[data.nOneSeeds].set(p1,p2,p3,z);
+        data.mapOneSeeds_ITK.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_ITK[data.nOneSeeds]));
+        ++data.nOneSeeds;
     }
-  }
+    /// otherwise, we check if there is a poorer-quality seed that we can kick out
+    else if (worstQualityInMap > seedCandidateQuality){
+        /// Overwrite the parameters of the worst seed with the new one
+        worstSeedSoFar->set(p1,p2,p3,z);
+        /// re-insert it with its proper quality to make sure it ends up in the right place
+        std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator i = data.mapOneSeeds_ITK.insert(std::make_pair(seedCandidateQuality,worstSeedSoFar));
+        /// and remove the entry with the old quality to avoid duplicates
+        for (++i; i!=data.mapOneSeeds_ITK.end(); ++i) {
+            if ((*i).second==worstSeedSoFar) {
+                data.mapOneSeeds_ITK.erase(i);
+                return;
+            }
+        }
+    }
 }
 
 
@@ -2678,42 +2722,41 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::newOneSeedWithCurvaturesComparisonPPP
        **/
 
       for (it_otherSP=it_startInnerLoop;  it_otherSP!=ie; ++it_otherSP) {
-	/// if we are looking at the same SP, skip it
-	if (       it_otherSP == it_commonTopSP           ) continue;
-	/// if we have a lower curvature than the minimum, skip - and remember to
-	/// not bother with this candidate again later, as the vectors are curvature-sorted
-	if ( (*it_otherSP).first < minCurvature       ) {
-	  it_startInnerLoop=it_otherSP;
-	  ++it_startInnerLoop;
-	  continue;
-	}
-	/// abort once the the curvature gets too large
-	if ( (*it_otherSP).first > maxCurvature       ) break;
+	    /// if we are looking at the same SP, skip it
+	    if (       it_otherSP == it_commonTopSP           ) continue;
+	    /// if we have a lower curvature than the minimum, skip - and remember to
+	    /// not bother with this candidate again later, as the vectors are curvature-sorted
+	    if ( (*it_otherSP).first < minCurvature       ) {
+	      it_startInnerLoop=it_otherSP;
+	      ++it_startInnerLoop;
+	      continue;
+	    }
+	    /// abort once the the curvature gets too large
+	    if ( (*it_otherSP).first > maxCurvature       ) break;
 	
-	float L = (*it_otherSP).second->dR();
+	    float L = (*it_otherSP).second->dR();
 	
-	int k = 0;
-	for(; k!=NT; ++k) {
-	  if(std::abs(L-Lt[k]) < 20.) break;
-	}
-	if( k==NT ) {
-	  Lt[NT]= L;
-	  if(++NT==4) break;
-	}
+	    int k = 0;
+	    for(; k!=NT; ++k) {
+	      if(std::abs(L-Lt[k]) < 20.) break;
+	    }
+	    if( k==NT ) {
+	      Lt[NT]= L;
+	      if(++NT==4) break;
+	    }
       }
       
       int dN = NT-NTc;
-      if(dN < 0 || (data.nOneSeeds && !dN)) continue;
+      if(dN < 0 || (data.nOneSeedsQ && !dN)) continue;
       if(Qm && !dN && seedIP > 1.) continue;
-      
+
       // ITK seed quality used so far
       float Q = 100.*seedIP+(std::abs(Zob)-float(NT)*100.);
       if(Q > SPb->quality() && Q > SP0->quality() && Q > SPt->quality()) continue;
-      
-      if     (   dN    )  newOneSeed(data,SPb,SP0,SPt,Zob,Q);
-      else if(Q  < Qmin) {Qmin=Q; SPmin=SPt;}
+      if ( dN )  newOneSeedQ(data,SPb,SP0,SPt,Zob,Q);
+      else if(Q  < Qmin) {Qmin=Q; SPmin=SPt;}            
     } ///< end of loop over top SP candidates
-    if(SPmin && !data.nOneSeeds) newOneSeed(data,SPb,SP0,SPmin,Zob,Qmin);
+    if(SPmin && !data.nOneSeedsQ) newOneSeed(data,SPb,SP0,SPmin,Zob,Qmin);
     data.CmSp_ITK.clear();
   }
 }
@@ -2859,7 +2902,11 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillSeeds(EventData& data) const
   std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator it_firstSeedCandidate = data.mapOneSeeds_ITK.begin();
   std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator it_seedCandidate  = data.mapOneSeeds_ITK.begin();
   std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator it_endSeedCandidates = data.mapOneSeeds_ITK.end();
-  
+    if (data.nOneSeedsQ){
+      it_firstSeedCandidate = data.mapOneSeeds_ITKQ.begin();
+      it_seedCandidate  = data.mapOneSeeds_ITKQ.begin();
+      it_endSeedCandidates = data.mapOneSeeds_ITKQ.end();
+    }
   /// no seeds - nothing to do. 
   if (it_seedCandidate==it_endSeedCandidates) return;
 
@@ -2874,7 +2921,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillSeeds(EventData& data) const
 
     /// this will set the quality member of all points on the seed to the quality score of this candidate
     if (!theSeed->setQuality(quality)) continue;
-    
+
     /// if we have space, write the seed directly into an existing slot 
     if (data.i_seede_ITK!=data.l_seeds_ITK.end()) {
       theSeed  = &(*data.i_seede_ITK++);
@@ -2885,7 +2932,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::fillSeeds(EventData& data) const
       theSeed = &(data.l_seeds_ITK.back());
       data.i_seede_ITK = data.l_seeds_ITK.end();
     }
-    
+
     ++data.fillOneSeeds;
   } ///< end loop over seed candidates 
 
@@ -3018,6 +3065,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::sctInform(EventData& data,Trk::SpaceP
   r[13] = float(s0[1])-data.ybeam[0];
   r[14] = float(s0[2])-data.zbeam[0];
 }
+
 
 
 

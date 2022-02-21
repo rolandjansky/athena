@@ -321,6 +321,10 @@ namespace InDet {
 		      SiSpacePointForSeedITK*& p1, SiSpacePointForSeedITK*& p2,
 		      SiSpacePointForSeedITK*& p3, float z, float quality) const;
 
+      void newOneSeedQ(EventData& data,
+		      SiSpacePointForSeedITK*& p1, SiSpacePointForSeedITK*& p2,
+		      SiSpacePointForSeedITK*& p3, float z, float quality) const;
+
       /** This creates all possible seeds with the passed central and bottom SP, using all top SP 
        * candidates which are stored in the data.CmSp member.  Seeds are scored by a quality score 
        * seeded by abs(d0), and modified if there is a second-seed confirmation or in case of PPP/SSS 
@@ -381,27 +385,27 @@ namespace InDet {
        **/ 
       void production3SpSSS
 	(EventData& data,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
 	 const int numberBottomCells, const int numberTopCells, int& nseed) const;
 
       void production3SpPPP
 	(EventData& data,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands,
-	 std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+	 std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
 	 const int numberBottomCells, const int numberTopCells, int& nseed);
 
       /// as above, but for the trigger 
       void production3SpTrigger
       (EventData& /*data*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rb*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rbe*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rt*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rte*/,
+       std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rb*/,
+       std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rbe*/,
+       std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rt*/,
+       std::array<std::vector<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rte*/,
        const int /*numberBottomCells*/, const int /*numberTopCells*/, int& /*nseed*/) const{}
 
       /** This method updates the EventData based on the passed list of vertices. 
