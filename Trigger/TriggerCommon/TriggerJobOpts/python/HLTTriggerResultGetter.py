@@ -211,6 +211,10 @@ class HLTTriggerResultGetter(Configured):
             if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteESD():
                 _addSlimmingRun2('StreamESD', _TriggerESDList )                
                 log.info("configured navigation slimming for ESD output")
+            if ConfigFlags.Trigger.doEDMVersionConversion and 'HLTNav_R2ToR3Summary' not in ConfigFlags.Input.Collections:
+                from TrigNavTools.NavConverterConfig import NavConverterCfg
+                CAtoGlobalWrapper( NavConverterCfg, ConfigFlags)
+                log.info("Configured Run 1/3 -> Run3 Navigation conversion")
 
         if ConfigFlags.Trigger.EDMVersion >= 3:
             # Change in the future to 'if EDMVersion >= 3 or doEDMVersionConversion:'
