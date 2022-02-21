@@ -26,12 +26,12 @@ public: // Constructor and Destructor
 
 public:
    /// IAthenaSelectorTool Interface method implementations:
-   virtual StatusCode initialize();
-   virtual StatusCode postInitialize();
-   virtual StatusCode preNext() const;
-   virtual StatusCode postNext() const;
-   virtual StatusCode preFinalize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode postInitialize() override;
+   virtual StatusCode preNext() const override;
+   virtual StatusCode postNext() const override;
+   virtual StatusCode preFinalize() override;
+   virtual StatusCode finalize() override;
 private:
    StringProperty m_attrListKey{this,"AttributeListKey","Input","Key for attribute list input to be used"};
    StringProperty m_streamName{this,"AcceptStreams","","Name of stream to be used as a ACCEPT"};
