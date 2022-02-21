@@ -29,12 +29,8 @@ TauCalibrateLC::~TauCalibrateLC() {
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
 
-  if (inTrigger()) {
-    ATH_CHECK( m_aveIntPerXKey.initialize() );
-  }
-  else {
-    ATH_CHECK( m_vertexInputContainer.initialize() );
-  }
+  ATH_CHECK( m_aveIntPerXKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_vertexInputContainer.initialize(SG::AllowEmpty) );
   
   std::string fullPath = find_file(m_calibrationFile);
   ATH_MSG_INFO("Using calibration file: " << fullPath);

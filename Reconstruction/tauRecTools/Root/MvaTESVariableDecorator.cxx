@@ -24,8 +24,7 @@ StatusCode MvaTESVariableDecorator::initialize() {
 
   ATH_CHECK(m_aveIntPerXKey.initialize());
   ATH_CHECK(m_vertexContainerKey.initialize(SG::AllowEmpty));
-  if (!inAOD())
-    ATH_CHECK(m_eventShapeKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_eventShapeKey.initialize(SG::AllowEmpty));
   
   return StatusCode::SUCCESS;
 }

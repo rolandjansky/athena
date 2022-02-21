@@ -50,7 +50,6 @@ StatusCode LeptonRemoval::execute(xAOD::TauJet& tau) const {
                 (fail_elec ? "Could not retrieve Electron container with key " + elec_input_handle.key() : "") + 
                 (fail_muon ? "\tCould not retrieve Muon container with key " + muon_input_handle.key() : "")
         );
-        ATH_MSG_ERROR("Could not retrieve HiveDataObj with key " << muon_input_handle.key());
 		return StatusCode::FAILURE;
 	}
 	auto elec_container = elec_input_handle.cptr();
