@@ -166,6 +166,10 @@ HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100:
   eventCount: 0
 HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1jLJ140:
   eventCount: 0
+HLT_2j20_0eta240_roiftf_2j20_0eta240_85bdips_roiftf_presel4c20_L14J15p0ETA25:
+  eventCount: 0
+HLT_2j20_0eta240_roiftf_2j20_0eta240_85bdips_roiftf_presel4c20_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
 HLT_2j20_mb_afprec_afpdijet_L1RD0_FILLED:
   eventCount: 0
 HLT_2j250_ftf_0eta240_j120_ftf_0eta240_presel2j180XXj80_L1J100:
@@ -175,6 +179,14 @@ HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_L1J100:
 HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j180XXj80_L1J100:
   eventCount: 0
 HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j180XXj80_L1jJ160:
+  eventCount: 0
+HLT_2j25_0eta240_roiftf_2j25_0eta240_85bdips_roiftf_presel4c25_L14J15p0ETA25:
+  eventCount: 0
+HLT_2j25_0eta240_roiftf_2j25_0eta240_85bdips_roiftf_presel4c25_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
+HLT_2j30_0eta240_roiftf_2j30_0eta240_85bdips_roiftf_presel4c30_L14J15p0ETA25:
+  eventCount: 0
+HLT_2j30_0eta240_roiftf_2j30_0eta240_85bdips_roiftf_presel4c30_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
 HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
@@ -232,6 +244,10 @@ HLT_2j35_0eta240_020jvt_pf_ftf_bdl1r60_2j35_0eta240_020jvt_pf_ftf_presel4j25_L14
     2: 1
 HLT_2j35_0eta240_2j35_0eta240_L14J15p0ETA25:
   eventCount: 0
+HLT_2j35_0eta240_roiftf_2j35_0eta240_85bdips_roiftf_presel4c35_L14J15p0ETA25:
+  eventCount: 0
+HLT_2j35_0eta240_roiftf_2j35_0eta240_85bdips_roiftf_presel4c35_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
 HLT_2j35_0eta290_020jvt_pf_ftf_bdl1d60_3j35_pf_ftf_0eta320_presel5j25_L15J15p0ETA25:
   eventCount: 0
 HLT_2j35_0eta290_020jvt_pf_ftf_bdl1d60_3j35_pf_ftf_0eta320_presel5j25_L15jJ40p0ETA25:
@@ -274,6 +290,10 @@ HLT_2j35_0eta290_020jvt_pf_ftf_bdl1r70_2j35_0eta290_020jvt_pf_ftf_bdl1r85_presel
     0: 26
     1: 16
     2: 2
+HLT_2j45_0eta240_roiftf_2j35_0eta240_85bdips_roiftf_presel4c45_L14J15p0ETA25:
+  eventCount: 0
+HLT_2j45_0eta240_roiftf_2j35_0eta240_85bdips_roiftf_presel4c45_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
 HLT_2j45_0eta290_020jvt_pf_ftf_bdl1d60_2j45_pf_ftf_presel4j25_L14J15p0ETA25:
   eventCount: 0
 HLT_2j45_0eta290_020jvt_pf_ftf_bdl1d60_2j45_pf_ftf_presel4j25_L14jJ40p0ETA25:
