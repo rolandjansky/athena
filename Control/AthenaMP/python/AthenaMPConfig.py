@@ -118,7 +118,8 @@ def AthenaMPCfg(configFlags):
         mpevtloop.Tools += [ queue_provider, queue_consumer ]
 
         if use_shared_writer:
-            shared_writer = CompFactory.SharedWriterTool(MotherProcess=(mpevtloop.EventsBeforeFork>0))
+            shared_writer = CompFactory.SharedWriterTool(MotherProcess=(mpevtloop.EventsBeforeFork>0),
+                                                         IsPileup=mpevtloop.IsPileup)
             mpevtloop.Tools += [ shared_writer ]
 
     elif configFlags.MP.Strategy=='FileScheduling':
