@@ -9,7 +9,7 @@
 ESDMerge_tf.py \
     --multithreaded="True" \
     --inputESDFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/DESDM_MCP.26614755._001203.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/DESDM_MCP.26614755._001208.pool.root.1 \
-    --postInclude="all:RecJobTransforms/UseFrontier.py" \
+    --postInclude="all:PyJobTransforms/UseFrontier.py" \
     --autoConfiguration="everything" \
     --conditionsTag="all:CONDBR2-BLKPA-RUN2-09" \
     --geometryVersion="all:ATLAS-R2-2016-01-00-01" \
