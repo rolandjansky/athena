@@ -44,7 +44,7 @@ StatusCode PixelAthMVAMonAlg::initialize() {
 
     std::string partitionLabel("Disks");
     if (ii>1) partitionLabel = pixLayersLabel[ii];
-    
+
     //std::string fullPathToTrainingFile = partitionLabel + "_training.root"; //TEST
     std::string fullPathToTrainingFile = PathResolverFindCalibFile("PixelDQMonitoring/" + m_calibFolder + "/" + partitionLabel + "_training.root");
     
@@ -144,6 +144,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     }
 
     int nPixelHits = 0;
+    bool hasIBLTSOS(false);
 
     bool passJOTrkCut = static_cast<bool>( m_trackSelTool->accept(**itrack) );
     if (!passJOTrkCut) continue;
@@ -187,6 +188,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       if (!m_atlasid->is_pixel(surfaceID)) continue;
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID) );
       if (pixlayer == 99) continue;
+      if (pixlayer == PixLayers::kIBL) hasIBLTSOS = true;
 
       int indexModule = static_cast<int>( m_pixelid->wafer_hash(surfaceID) ); // [0,2047]
 
@@ -271,6 +273,17 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	}
     } // end of TSOS loop
     eventHasPixHits = eventHasPixHits || (nPixelHits > 0);
+
+    if (!hasIBLTSOS && (*itrack)->trackSummary()->get(Trk::expectInnermostPixelLayerHit))
+      {
+	const Trk::Perigee *perigee = (*itrack)->perigeeParameters();
+	float eta = perigee->eta();
+	float phi = perigee->parameters()[Trk::phi0];
+
+	std::pair<int, int> iblFEidxs = getIBLFEIdxsfromTrackEtaPhi(eta, phi);
+	if (iblFEidxs.first==-1) continue;
+	else holes[iblFEidxs.first+MAXHASH*iblFEidxs.second] += 1;
+      }
   } // end of track loop
 
   if (!eventHasPixHits) {
@@ -429,8 +442,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   //
   // compute BDT weights
   //
-  VecAccumulator2DMap BDT_Weights("BDTWeights");
   std::vector<float> bdtweights(MAXHASH*2);
+  VecAccumulator2DMap BDT_Weights("BDTWeights");
 
   for (int ih=12; ih<MAXHASH-12; ++ih) 
     {
