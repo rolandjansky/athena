@@ -7,9 +7,9 @@
 # art-output: mc21a.ttbar.nopileup.CA.RDO.pool.root
 # art-output: log.*
 # art-output: legacy.*
-# art-output: DigiPUConfig*
+# art-output: DigiConfig*
 
-Events=3
+Events=25
 DigiOutFileNameCG="mc21a.ttbar.nopileup.CG.RDO.pool.root"
 DigiOutFileNameCA="mc21a.ttbar.nopileup.CA.RDO.pool.root"
 HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/mc21_13p6TeV.601229.PhPy8EG_A14_ttbar_hdamp258p75_SingleLep.simul.HITS.e8357_e7400_s3775/HITS.27679639._068389.pool.root.1"
@@ -28,7 +28,7 @@ Digi_tf.py \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'all:Campaigns/MC21NoPileUp.py' \
 --skipEvents 0 \
---athenaopts '"--config-only=DigiPUConfigCG.pkl"'
+--athenaopts '"--config-only=DigiConfigCG.pkl"'
 
 # full run
 Digi_tf.py \
@@ -40,7 +40,7 @@ Digi_tf.py \
 --jobNumber 568 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
---postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
+--postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'all:Campaigns/MC21NoPileUp.py' \
 --skipEvents 0
@@ -110,7 +110,7 @@ echo "art-result: $rc5 checkFile"
 rc6=-9999
 if [[ $rc -eq 0 ]]
 then
-    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed --file="$DigiOutFileNameCG"
+    art.py compare grid --entries 25 "$1" "$2" --mode=semi-detailed --file="$DigiOutFileNameCG"
     rc6=$?
     status=$rc6
 fi
