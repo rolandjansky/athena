@@ -176,9 +176,8 @@ def __validateGlobalAlgs(menuDict):
     if inError:
         raise Exception("[validateJSON] Problems detected in validateGlobalAlgs().")    
 
-def generateJSON():
+def generateJSON(flags):
     __log.info("Generating HLT Menu JSON in the rec-ex-common job")
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.CFElements import findSubSequence
@@ -186,15 +185,14 @@ def generateJSON():
     return __generateJSON( TriggerConfigHLT.dictsList(), 
                            TriggerConfigHLT.configsList(), 
                            findSubSequence(AlgSequence(), "HLTAllSteps"),
-                           ConfigFlags.Trigger.triggerMenuSetup,
-                           getHLTMenuFileName(ConfigFlags) )
+                           flags.Trigger.triggerMenuSetup,
+                           getHLTMenuFileName(flags) )
     
-def generateJSON_newJO( chainDicts, chainConfigs, HLTAllSteps ):
+def generateJSON_newJO(flags, chainDicts, chainConfigs, HLTAllSteps ):
     __log.info("Generating HLT Menu JSON in the new JO")
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     return __generateJSON( chainDicts, 
                            chainConfigs, 
                            HLTAllSteps,
-                           ConfigFlags.Trigger.triggerMenuSetup, 
-                           getHLTMenuFileName( ConfigFlags) )
+                           flags.Trigger.triggerMenuSetup, 
+                           getHLTMenuFileName( flags) )

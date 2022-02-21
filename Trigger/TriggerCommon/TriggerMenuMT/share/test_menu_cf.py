@@ -51,7 +51,7 @@ topSequence = AlgSequence()
 if testopt.menuType == 'menuManual':
     generateCFChains(opt)
     from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
-    checkL1HLTConsistency()
+    checkL1HLTConsistency(ConfigFlags)
 elif testopt.menuType == 'emuMenuTest':
     # HLT_TestChain
     generateHLTSeedingAndChainsByMenu(topSequence)
@@ -67,17 +67,17 @@ TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig.log.setLevel(DEBUG)
 
 # from here generate the ControlFlow and the Dataflow
 # doing the same as menu.generateMT()
-makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
+makeHLTTree(ConfigFlags, triggerConfigHLT=TriggerConfigHLT )
 
        
 from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON
-generateJSON()
+generateJSON(ConfigFlags)
 
 from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
-generatePrescaleJSON()
+generatePrescaleJSON(ConfigFlags)
    
 from TriggerMenuMT.HLT.Config.JSON.HLTMonitoringJSON import generateDefaultMonitoringJSON
-generateDefaultMonitoringJSON()
+generateDefaultMonitoringJSON(ConfigFlags)
 
 # now some debug
 print ("EmuStepProcessing: dump top Sequence after CF/DF Tree build")
