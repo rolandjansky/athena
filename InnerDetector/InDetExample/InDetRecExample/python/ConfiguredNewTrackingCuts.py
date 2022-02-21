@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 #########################################################################
@@ -300,16 +300,22 @@ class ConfiguredNewTrackingCuts :
         self.__Xi2max                  = [9.0]
         self.__Xi2maxNoAdd             = [25.0]
         self.__nWeightedClustersMin    = [6]
-     
-        # --- seeding 
+
+        # --- seeding
         self.__maxdImpactSSSSeeds      = [20.0 * Units.mm]
-        self.__radMax                  = 1100. * Units.mm 
-                                       
-        # --- min pt cut for brem      
+        self.__radMax                  = 1100. * Units.mm
+
+        # --- min pt cut for brem
         self.__minPTBrem               = [1000.0 * Units.mm]
         self.__phiWidthBrem            = [0.3]
-        self.__etaWidthBrem            = [0.2]  
-        
+        self.__etaWidthBrem            = [0.2]
+
+        if self.__indetflags.doLowMuLowPt():
+          self.__minPT                 = [0.2 * Units.GeV, 0.2 * Units.GeV, 0.2 * Units.GeV]
+          self.__minPTSeed               = 0.2 * Units.GeV
+          self.__minClusters             = [6, 5, 4]
+          self.__minSiNotShared          = [6, 5, 4]
+
         if self.__indetflags.doFastTracking():
           self.__minPT                 = [1.0 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
           self.__maxZImpact            = [150.0 * Units.mm]
@@ -326,12 +332,12 @@ class ConfiguredNewTrackingCuts :
             self.__maxPixelHoles           = [2, 1, 1]
 
       else:
-        
+
         # --- higher pt cut and impact parameter cut
-        self.__minPT                   = 0.9 * Units.GeV      
+        self.__minPT                   = 0.9 * Units.GeV
         self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
         self.__maxZImpact              = 250.0 * Units.mm
-        
+
         # --- cluster cuts
         self.__minClusters             = 9
         self.__minSiNotShared          = 8
@@ -340,7 +346,7 @@ class ConfiguredNewTrackingCuts :
         #self.__maxPixelHoles           = D2
         #self.__maxSctHoles             = 2
         #self.__maxDoubleHoles          = 2
-        # --- also tighten pattern cuts 
+        # --- also tighten pattern cuts
         self.__radMax                  = 1000. * Units.mm
         #self.__seedFilterLevel         = 1
         #self.__nHolesMax               = self.__maxHoles
@@ -348,22 +354,47 @@ class ConfiguredNewTrackingCuts :
         #self.__Xi2max                  = 15.0
         #self.__Xi2maxNoAdd             = 35.0
         #self.__nWeightedClustersMin    = self.__minClusters-1
-     
-    # --- IBL setup
-    if mode == "IBL" :
-      self.__extension               = "IBL"
-      self.__seedFilterLevel         = 1
-      self.__minPT                   = 0.900 * Units.GeV
-      self.__minClusters             = 10
-      self.__maxPixelHoles           = 1
 
-    # --- High pile-up setup
-    if mode == "HighPileup" :
-      self.__extension               = "HighPileup"
-      self.__seedFilterLevel         = 1
-      self.__minPT                   = 0.900 * Units.GeV
-      self.__minClusters             = 9
-      self.__maxPixelHoles           = 0
+
+    if mode == "ITkLowPt":
+      self.__extension               = "ITkLowPt"
+      if self.__indetflags.useEtaDependentCuts():
+        self.__useEtaDepCuts           = True
+        self.__maxEta                  = 4.0
+        self.__etaBins                 = [-1.0, 2.0, 2.6, 4.0]
+        self.__minPT                   = [0.4 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
+        self.__minClusters             = [9, 8, 7]
+        self.__minSiNotShared          = [7, 6, 5]
+        self.__maxShared               = [2]
+        self.__minPixel                = [1]
+        self.__maxHoles                = [2]
+        self.__maxPixelHoles           = [2]
+        self.__maxSctHoles             = [2]
+        self.__maxDoubleHoles          = [1]
+        self.__maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
+        self.__maxZImpact              = [200.0 * Units.mm]
+        self.__minPTSeed               = 0.4 * Units.GeV
+        self.__maxPTSeed               = -1
+        self.__maxPrimaryImpactSeed    = 2.0 * Units.mm
+        self.__maxZImpactSeed          = 200.0 * Units.mm
+        self.__nHolesMax               = self.__maxHoles
+        self.__nHolesGapMax            = self.__maxHoles
+        self.__Xi2max                  = [9.0]
+        self.__Xi2maxNoAdd             = [25.0]
+        self.__nWeightedClustersMin    = [6]
+        self.__maxdImpactSSSSeeds      = [20.0 * Units.mm]
+        self.__radMax                  = 1100. * Units.mm
+        self.__minPTBrem               = [1000.0 * Units.mm]
+        self.__phiWidthBrem            = [0.3]
+        self.__etaWidthBrem            = [0.2]
+      else:
+        self.__minPT                   = 0.9 * Units.GeV
+        self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
+        self.__maxZImpact              = 250.0 * Units.mm
+        self.__minClusters             = 9
+        self.__minSiNotShared          = 8
+        self.__radMax                  = 1000. * Units.mm
+
 
     # --- mode for min bias, commissioning or doRobustReco
     if mode == 'MinBias' or self.__indetflags.doRobustReco(): 
@@ -1035,7 +1066,10 @@ class ConfiguredNewTrackingCuts :
       return self.__minPTSeed
     else:
       return self.__minPT
-  
+
+  def maxPTSeed( self ) :
+      return self.__maxPTSeed
+
   def etaBins( self ) :
     return self.__etaBins
 
@@ -1259,9 +1293,11 @@ class ConfiguredNewTrackingCuts :
     print '* Pixel used                  :  ', self.__usePixel
     print '* SCT used                    :  ', self.__useSCT
     print '* TRT used                    :  ', self.__useTRT
-    print '*'  
+    print '*'
     print '* min pT                      :  ', self.__minPT, ' MeV'
     print '* min pT for seeding          :  ', self.minPTSeed(), ' MeV'
+    if self.__extension == "ITkLowPt":
+      print '* max pT for seeding          :  ', self.maxPTSeed(), ' MeV'
     print '* max Z IP                    :  ', self.__maxZImpact, ' mm'
     if self.__useEtaDepCuts:
       print '* max Z IP for seeding        :  ', self.__maxZImpact[0], ' mm'

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
@@ -269,7 +269,19 @@ class doLowPt(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-                  
+
+class doITkLowPt(InDetFlagsJobProperty):
+    """Turn running of doITkLowPt second pass reconstruction on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
+class doLowMuLowPt(InDetFlagsJobProperty):
+    """Turn running of doLowMuLowPt reconstruction on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class doVeryLowPt(InDetFlagsJobProperty):
     """Turn running of doVeryLowPt thrid pass on and off"""
     statusOn     = True
@@ -2805,7 +2817,9 @@ _list_InDetJobProperties = [Enabled,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
+                            doITkLowPt,
                             doSLHCLargeD0,
+                            doLowMuLowPt,
                             usePixelSLHCLargeD0,
                             useSCTSLHCLargeD0,
                             doR3LargeD0,

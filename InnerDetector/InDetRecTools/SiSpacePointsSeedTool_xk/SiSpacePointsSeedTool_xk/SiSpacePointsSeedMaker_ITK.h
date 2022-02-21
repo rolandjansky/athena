@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -181,13 +181,18 @@ namespace InDet {
       float                       m_rmaxSSS                       ;
       float                       m_dazmax                        ;
       float                       m_ptmin                         ;
+      float                       m_ptmax                         ;
       float                       m_ipt                           ;
       float                       m_ipt2                          ;
+      float                       m_impt                          ;
+      float                       m_impt2                         ;
       float                       m_COF                           ;
       float                       m_K                             ;
       float                       m_ipt2K                         ;
+      float                       m_impt2K                        ;
       float                       m_ipt2C                         ;
-      float                       m_COFK                          ;  
+      float                       m_impt2C                        ;
+      float                       m_COFK                          ;
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
       

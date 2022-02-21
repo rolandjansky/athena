@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Blocking the include for after first inclusion
 include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
@@ -28,7 +28,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "SLHCLargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "ROIConv"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "ITkLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "SLHCLargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "ROIConv"):
 
          usePrdAssociationTool = True
       else:
@@ -40,7 +40,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
 
 
-      if InDetFlags.useEtaDependentCuts() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"):
+      if InDetFlags.useEtaDependentCuts() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ITkLowPt" or NewTrackingCuts.mode() == "SLHCLargeD0"):
 
          from InDetEtaDependentCuts.Configuration_EtaDependentCuts import ConfiguredEtaDependentCuts
          InDetEtaDependentCutsSvc = ConfiguredEtaDependentCuts(NewTrackingCuts)
@@ -85,7 +85,7 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
-         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ROIConv" or NewTrackingCuts.mode() == "SLHCLargeD0":
+         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ROIConv" or NewTrackingCuts.mode() == "SLHCLargeD0" or NewTrackingCuts.mode() == "ITkLowPt":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
@@ -106,7 +106,9 @@ class  ConfiguredNewTrackingSiPattern:
                                                                maxZ                   =  NewTrackingCuts.maxZImpactSeed(),
                                                                minZ                   = -NewTrackingCuts.maxZImpactSeed(),
                                                                etaMax                 = NewTrackingCuts.maxEta())
-          
+
+         if NewTrackingCuts.mode() == "ITkLowPt":
+            InDetSiSpacePointsSeedMaker.pTmax = NewTrackingCuts.maxPTSeed()
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
@@ -117,7 +119,7 @@ class  ConfiguredNewTrackingSiPattern:
             # not all classes have that property !!!
             InDetSiSpacePointsSeedMaker.UseAssociationTool = True
             InDetSiSpacePointsSeedMaker.AssociationTool    = InDetPrdAssociationTool
-         if not (InDetFlags.doCosmics() or NewTrackingCuts.mode() == "ROIConv") and not (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"):
+         if not (InDetFlags.doCosmics() or NewTrackingCuts.mode() == "ROIConv") and not (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0" or NewTrackingCuts.mode() == "ITkLowPt"):
             InDetSiSpacePointsSeedMaker.maxRadius1         = 0.75*NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius3         = NewTrackingCuts.radMax()
@@ -154,7 +156,7 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doFastTracking() :
             InDetSiSpacePointsSeedMaker.useFastTracking       = True
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
-            if NewTrackingCuts.mode() == "SLHC" :
+            if NewTrackingCuts.mode() == "SLHC":
                InDetSiSpacePointsSeedMaker.useSCT                = False
             elif NewTrackingCuts.mode() == "SLHCLargeD0":
                InDetSiSpacePointsSeedMaker.usePixel              = False
@@ -272,7 +274,7 @@ class  ConfiguredNewTrackingSiPattern:
          # --- Local track finding using sdCaloSeededSSSpace point seed
          #
 
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "DBM"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ITkLowPt" or NewTrackingCuts.mode() == "DBM"
          
          if commonGeoFlags.Run()=="RUN4":
            from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMakerITk_xk as SiTrackMaker
@@ -456,7 +458,7 @@ class  ConfiguredNewTrackingSiPattern:
           
           if commonGeoFlags.Run()=="RUN4":
               InDetSiSPSeededTrackFinder.ITKGeometry = True
-              if InDetFlags.doFastTracking() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"):
+              if InDetFlags.doFastTracking() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0" or NewTrackingCuts.mode() == "ITkLowPt"):
                 InDetSiSPSeededTrackFinder.doFastTracking = True
                 InDetSiSPSeededTrackFinder.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
 
@@ -504,7 +506,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          if InDetFlags.doTIDE_Ambi() and not ( NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
-         elif not InDetFlags.doTIDE_Ambi() and (NewTrackingCuts.mode()=="SLHC" or NewTrackingCuts.mode()=="SLHCLargeD0") and not DetFlags.makeRIO.pixel_on() and DetFlags.readRIOPool.pixel_on() and DetFlags.haveRIO.pixel_on():
+         elif not InDetFlags.doTIDE_Ambi() and (NewTrackingCuts.mode()=="SLHC" or NewTrackingCuts.mode() == "ITkLowPt" or NewTrackingCuts.mode()=="SLHCLargeD0") and not DetFlags.makeRIO.pixel_on() and DetFlags.readRIOPool.pixel_on() and DetFlags.haveRIO.pixel_on():
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
          else:
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool as AmbiTrackSelectionTool
@@ -613,7 +615,7 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # --- load Ambiguity Processor
          #
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ITkLowPt" or NewTrackingCuts.mode() == "SLHCLargeD0"
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
@@ -720,7 +722,7 @@ class  ConfiguredNewTrackingSiPattern:
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
        
-      elif InDetFlags.doFastTracking() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"):
+      elif InDetFlags.doFastTracking() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ITkLowPt" or NewTrackingCuts.mode() == "SLHCLargeD0"):
         if InDetFlags.doFastTrackingFit():
           #
           # defining setup without ambiguity solving for fast tracking reconstuction
@@ -734,7 +736,7 @@ class  ConfiguredNewTrackingSiPattern:
             fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
             fitter_list.append(CfgGetter.getPublicTool('ReferenceKalmanFitter'))
           
-          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"
+          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0" or NewTrackingCuts.mode() == "ITkLowPt"
           
           from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
           

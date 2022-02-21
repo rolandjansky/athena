@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -51,6 +51,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_endlist   = true    ;
   m_maxsize   = 10000   ;
   m_ptmin     =  500.   ;
+  m_ptmax     =  -1.    ;
   m_etamin    = 0.      ; m_etamax     = 2.7 ;
   m_drminSSS  = 20.     ;
   m_drmaxSSS  = 300.    ;
@@ -112,6 +113,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("etaMin"                ,m_etamin                );
   declareProperty("etaMax"                ,m_etamax                );  
   declareProperty("pTmin"                 ,m_ptmin                 );
+  declareProperty("pTmax"                 ,m_ptmax                 );
   declareProperty("radMax"                ,r_rmax                  );
   declareProperty("radMin"                ,r_rmin                  );
   declareProperty("radStep"               ,r_rstep                 );
@@ -190,7 +192,7 @@ InDet::SiSpacePointsSeedMaker_ITK::~SiSpacePointsSeedMaker_ITK()
 StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
 {
 
-  StatusCode sc = AlgTool::initialize(); 
+  StatusCode sc = AlgTool::initialize();
 
   // Get beam geometry
   //
@@ -305,9 +307,12 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
     }
     else m_K = 2./(300.* 5. );
 
-    m_ipt2K     = m_ipt2/(m_K*m_K);
-    m_ipt2C     = m_ipt2*m_COF    ;
-    m_COFK      = m_COF*(m_K*m_K) ;  
+    m_ipt2K     = m_ipt2/(m_K*m_K) ;
+    m_ipt2C     = m_ipt2*m_COF     ;
+
+    m_impt2K    = m_impt2/(m_K*m_K);
+    m_impt2C    = m_impt2*m_COF    ;
+    m_COFK      = m_COF*(m_K*m_K)  ;
     i_spforseed = l_spforseed.begin();
   }
   else {
@@ -434,9 +439,12 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
   }
   else m_K = 2./(300.* 5. );
 
-  m_ipt2K     = m_ipt2/(m_K*m_K);
-  m_ipt2C     = m_ipt2*m_COF    ;
-  m_COFK      = m_COF*(m_K*m_K) ;  
+  m_ipt2K     = m_ipt2/(m_K*m_K) ;
+  m_ipt2C     = m_ipt2*m_COF     ;
+
+  m_impt2K    = m_impt2/(m_K*m_K);
+  m_impt2C    = m_impt2*m_COF    ;
+  m_COFK      = m_COF*(m_K*m_K)  ;
 
   i_spforseed = l_spforseed.begin();
 
@@ -729,6 +737,9 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ITK::dumpConditions( MsgStream& out ) c
   out<<"| pTmin  (mev)            | "
      <<std::setw(12)<<std::setprecision(5)<<m_ptmin
      <<"                              |"<<std::endl;
+  out<<"| pTmax  (mev)            | "
+     <<std::setw(12)<<std::setprecision(5)<<m_ptmax
+     <<"                              |"<<std::endl;
   out<<"| |eta|               <=  | "
      <<std::setw(12)<<std::setprecision(5)<<m_etamax
      <<"                              |"<<std::endl;
@@ -911,8 +922,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   m_dzdrmin0  = 1./std::tan(2.*std::atan(std::exp(-m_etamin)));
   
   m_COF       =  134*.05*9.                    ;
-  m_ipt       = 1./std::abs(m_ptmin)               ;
+  m_ipt       = 1./std::abs(m_ptmin)           ;
   m_ipt2      = m_ipt*m_ipt                    ;
+
+  m_impt       = 1./std::abs(m_ptmax)          ;
+  m_impt2      = m_impt*m_impt                 ;
   m_K         = 0.                             ;
 
   m_ns = m_nsaz = m_nsazv = m_nr = m_nrfz = 0;
@@ -1654,6 +1668,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
           float A   = (v-V0)/(u+Ri)          ;
           float B   = V0+A*Ri                ;
           if((B*B) > (m_ipt2K*(1.+A*A))) continue;
+          if(m_ptmax > 0 && (B * B) < (m_impt2K * (1. + A * A))) continue;
         }
         
         float dr  = std::sqrt(r2)    ;
@@ -1707,6 +1722,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
           float A   = (v-V0)/(u+Ri)          ;
           float B   = V0+A*Ri                ;
           if((B*B) > (m_ipt2K*(1.+A*A))) continue;
+          if(m_ptmax > 0 && (B * B) < (m_impt2K * (1. + A * A))) continue;
         }
         
         float dr  = std::sqrt(r2)    ;
@@ -1777,6 +1793,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
         float B   = Vb-A*Ub                          ;
         float B2  = B*B                              ;
         if(B2  > m_ipt2K*S2) continue;
+        if(m_ptmax > 0 && (B * B) < (m_impt2K * (1. + A * A))) continue;
         if(dT*S2 > B2*CSA) {if(DT < 0.) break; it0 = it; continue;}
         
         float Im  = std::abs((A-B*R)*R)              ;
@@ -1874,6 +1891,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
             float A   = (v-V0)/(u+Ri)          ;
             float B   = V0+A*Ri                ;
             if((B*B) > (m_ipt2K*(1.+A*A))) continue;
+            if(m_ptmax > 0 && (B * B) < (m_impt2K * (1. + A * A))) continue;
           }
 
         }
@@ -1921,8 +1939,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
             float A   = (v-V0)/(u+Ri)          ;
             float B   = V0+A*Ri                ;
             if((B*B) > (m_ipt2K*(1.+A*A))) continue;
+            if(m_ptmax > 0 && (B * B) < (m_impt2K * (1. + A * A))) continue;
           }
-
         }
 
         m_SP[Nb]=(*r);
