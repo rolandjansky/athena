@@ -127,7 +127,7 @@ DerivationFramework::CaloClusterThinning::doThinning() const
     importedTopoCaloCluster =
       SG::ReadHandle<xAOD::CaloClusterContainer>(m_TopoClSGKey, ctx);
   }
-  // Check the event contains tracks
+  // Check if the event contains clusters
   unsigned int nClusters = 0;
   if (m_run_calo) {
     nClusters = importedCaloCluster->size();
@@ -140,7 +140,7 @@ DerivationFramework::CaloClusterThinning::doThinning() const
     return StatusCode::SUCCESS;
   }
 
-  // Set up a mask with the same entries as the full TrackParticle collection(s)
+  // Set up a mask with the same entries as the full cluster collection(s)
   std::vector<bool> mask(nClusters, false), topomask(nTopoClusters, false);
   m_ntot += nClusters;
   m_ntotTopo += nTopoClusters;
@@ -152,8 +152,16 @@ DerivationFramework::CaloClusterThinning::doThinning() const
     importedParticlesHandle.ptr();
 
   // No particles in the input
-  unsigned int nEgammas(importedParticles->size());
-  if (nEgammas == 0) {
+  unsigned int nParticles(importedParticles->size());
+  if (nParticles == 0) {
+    if (m_run_calo) {
+      SG::ThinningHandle<xAOD::CaloClusterContainer> thin(m_CaloClSGKey, ctx);
+      thin.keep(mask);
+    }
+    if (m_run_topo) {
+      SG::ThinningHandle<xAOD::CaloClusterContainer> thin(m_TopoClSGKey, ctx);
+      thin.keep(topomask);
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -191,14 +199,14 @@ DerivationFramework::CaloClusterThinning::doThinning() const
     std::vector<int> entries = m_parser->evaluateAsVector();
     unsigned int nEntries = entries.size();
     // check the sizes are compatible
-    if (nEgammas != nEntries) {
+    if (nParticles != nEntries) {
       ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string "
                     "used e-gamma objects??");
       return StatusCode::FAILURE;
     }
     std::vector<const xAOD::IParticle*> particlesToCheck = {};
     // identify which e-gammas to keep for the thinning check
-    for (unsigned int i = 0; i < nEgammas; ++i) {
+    for (unsigned int i = 0; i < nParticles; ++i) {
       if (static_cast<bool>(entries[i])) {
         particlesToCheck.push_back((*importedParticles)[i]);
       }

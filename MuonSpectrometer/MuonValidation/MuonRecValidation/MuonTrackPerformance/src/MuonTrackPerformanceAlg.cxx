@@ -108,10 +108,9 @@ StatusCode MuonTrackPerformanceAlg::initialize() {
         msg(MSG::DEBUG) << endmsg;
     }
 
-    if (!m_trackKey.key().empty())
-        ATH_CHECK(m_trackKey.initialize());
-    else
-        ATH_CHECK(m_muons.initialize());
+    ATH_CHECK(m_trackKey.initialize(!m_trackKey.key().empty())); 
+    ATH_CHECK(m_muons.initialize(!m_muons.key().empty())); 
+    
     ATH_CHECK(m_eventInfoKey.initialize());
 
     ATH_CHECK(m_mcEventColl.initialize(m_doTruth));

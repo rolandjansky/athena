@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Geo2G4SolidFactory.h"
@@ -28,7 +28,22 @@
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoUnidentifiedShape.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+
+
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+
+#include "GeoSpecialShapes/EMECData.h"
+#include "GeoSpecialShapes/toEMECData.h"
+
+
 
 #include "G4VSolid.hh"
 #include "G4Box.hh"
@@ -528,8 +543,35 @@ for(int i=0; i<nVertices; i++)
       if (nullptr==customShape) throw std::runtime_error("TypeID did not match cast for custom shape");
       if (customShape->name()=="LArCustomShape") {
 
+
+
+	ISvcLocator* svcLocator = Gaudi::svcLocator();       
+	// Access the GeoModelSvc:     
+        IGeoModelSvc *geoModel=0;
+	if (svcLocator->service ("GeoModelSvc",geoModel) !=StatusCode::SUCCESS) {
+	  G4Exception(
+		      "Geo2G4SolidFactory", "AccessGeoModel", FatalException,
+		      "Build cannot access GeoModelSvc");
+	} 
+        IGeoDbTagSvc *geoDbTagSvc(nullptr);
+        if ( svcLocator->service ("GeoDbTagSvc",geoDbTagSvc)!=StatusCode::SUCCESS ) {
+	  G4Exception(
+		      "Geo2G4SolidFactory", "AccessDbTagSvc", FatalException,
+		      "Build cannot access DbTagSvc");
+	} 
+	// Access the geometry database:                                                        
+        IRDBAccessSvc *pAccessSvc=0;
+	if ( svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc)!=StatusCode::SUCCESS) {
+	  G4Exception(
+		      "Geo2G4SolidFactory", "AccessAccessSvc", FatalException,
+		      "Build cannot access AccessSvc");
+	} 
+        DecodeVersionKey larVersionKey(geoModel, "LAr");
+	EMECData emecData=toEMECData(pAccessSvc,larVersionKey);
+
+
+ 
 	std::string customName = customShape->asciiData();
-   
 	customSolidMap::const_iterator it = customSolids.find(customName);
 	if(it!=customSolids.end())
 	  theSolid = it->second;
@@ -537,9 +579,9 @@ for(int i=0; i<nVertices; i++)
 	  {
 	    theSolid = nullptr;
 	    if(customName.find("Slice") != std::string::npos){
-	      theSolid = createLArWheelSliceSolid(customShape);
+	      theSolid = createLArWheelSliceSolid(customShape,emecData);
 	    } else {
-	      theSolid = createLArWheelSolid(customName, s_lwsTypes.at(customName) ); // map.at throws std::out_of_range exception on unknown shape name
+	      theSolid = createLArWheelSolid(customName, s_lwsTypes.at(customName) ,emecData); // map.at throws std::out_of_range exception on unknown shape name
 	    }
 	    if ( nullptr == theSolid ) {
 	      std::string error = std::string("Can't create LArWheelSolid for name ") + customName + " in Geo2G4SolidFactory::Build";
@@ -565,11 +607,11 @@ for(int i=0; i<nVertices; i++)
   return theSolid;
 }
 
-G4VSolid* Geo2G4SolidFactory::createLArWheelSolid(const std::string& name, const LArWheelSolidDef_t & lwsdef) const { // LArWheelSolid_t wheelType, int zside
+G4VSolid* Geo2G4SolidFactory::createLArWheelSolid(const std::string& name, const LArWheelSolidDef_t & lwsdef, const EMECData & emecData) const { // LArWheelSolid_t wheelType, int zside
         LArWheelSolid_t wheelType = lwsdef.first;
         int zside = lwsdef.second;
 
-        LArWheelSolid * theLWS = new LArWheelSolid(name, wheelType, zside);
+        LArWheelSolid * theLWS = new LArWheelSolid(name, wheelType, zside,nullptr, &emecData);
 
         LArWheelSolidDDProxy * theLWS_p = new LArWheelSolidDDProxy(theLWS);
         // ownership is passed to detStore
@@ -580,9 +622,9 @@ G4VSolid* Geo2G4SolidFactory::createLArWheelSolid(const std::string& name, const
         return theLWS;
 }
 
-G4VSolid* Geo2G4SolidFactory::createLArWheelSliceSolid(const GeoUnidentifiedShape* customShape) const
+G4VSolid* Geo2G4SolidFactory::createLArWheelSliceSolid(const GeoUnidentifiedShape* customShape, const EMECData & emecData) const
 {
-  LArWheelSliceSolid *theLWS = new LArWheelSliceSolid(customShape->asciiData());
+  LArWheelSliceSolid *theLWS = new LArWheelSliceSolid(customShape->asciiData(),&emecData);
 
     LArWheelSolidDDProxy *theLWS_p = new LArWheelSolidDDProxy(theLWS);
     // ownership is passed to detStore

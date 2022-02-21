@@ -198,7 +198,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   TrigTimeStamp stage4;
   const size_t nodesBefore = transientNavGraph.nodes();
   const size_t edgesBefore = transientNavGraph.edges();
-  std::set<const Decision*> thinnedInputNodes = transientNavGraph.thin();
+  std::vector<const Decision*> thinnedInputNodes = transientNavGraph.thin();
 
   // TODO - thinnedInputNodes will be dropped, these may link to "features", "roi", or other objects in other containers.
   // Need to let the slimming svc know that we no longer need the objects pointed to here, and hence they can be thinned.
@@ -219,7 +219,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   ATH_CHECK(inputToOutput(terminusNode, terminusNodeOut, cache, outputContainers, chainIDs, ctx));
   // Don't have to walk the graph here, just iterate through the set of (thinned) nodes.
   // We won't end up with two terminus nodes because of this (it checks that the node hasn't already been processed)
-  const std::set<NavGraphNode*> allNodes = transientNavGraph.allNodes();
+  const std::vector<NavGraphNode*> allNodes = transientNavGraph.allNodes();
   for (const NavGraphNode* inputNode : allNodes) {
     Decision* outputNode = nullptr;
     ATH_CHECK(inputToOutput(inputNode->node(), outputNode, cache, outputContainers, chainIDs, ctx));

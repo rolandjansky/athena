@@ -11,9 +11,7 @@ namespace NSWL1 {
       m_tree(nullptr),
       m_current_run(-1),
       m_current_evt(-1)
-  {
-    declareProperty( "StripSegmentTool", m_strip_segment, "Tool simulating the Segment finding");
-  }
+  {}
 
 
   StatusCode NSWL1Simulation::initialize() {
@@ -51,7 +49,7 @@ namespace NSWL1 {
       if(m_doStrip){
         ATH_CHECK(m_strip_tds.retrieve());
         ATH_CHECK(m_strip_cluster.retrieve());
-        //ATH_CHECK(m_strip_segment.retrieve());
+        ATH_CHECK(m_strip_segment.retrieve());
       }
     }
 
@@ -78,8 +76,9 @@ namespace NSWL1 {
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
-    std::vector< std::unique_ptr<StripClusterData> > clusters;
+    std::vector<std::unique_ptr<StripClusterData> > clusters;
     auto padTriggerContainer = std::make_unique<Muon::NSW_PadTriggerDataContainer>();
+    auto stripTriggerContainer = std::make_unique<Muon::NSW_TrigRawDataContainer>();
     auto MMTriggerContainer = std::make_unique<Muon::NSW_TrigRawDataContainer>();
 
     if(m_dosTGC){
@@ -93,9 +92,8 @@ namespace NSWL1 {
       if(m_doStrip){
         ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
         ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
-        //ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
+        ATH_CHECK( m_strip_segment->find_segments(clusters,stripTriggerContainer) );
       }
-
       ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
     }
 

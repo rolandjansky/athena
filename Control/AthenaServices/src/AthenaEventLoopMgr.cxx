@@ -34,7 +34,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 #include "GaudiKernel/Algorithm.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -63,7 +62,6 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_evtSelector(nullptr), m_evtSelCtxt(nullptr),
     m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
-    m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
     m_currentRun(0), m_firstRun(true), m_tools(this),
     m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false), 
@@ -282,17 +280,6 @@ StatusCode AthenaEventLoopMgr::initialize()
   } catch(...) {
     return StatusCode::FAILURE;
   }
-//-------------------------------------------------------------------------
-// Make sure the ActiveStoreSvc is initialized.
-// We don't use this, but want to be sure that it gets created
-// during initialization, to avoid heap fragmentation.
-//-------------------------------------------------------------------------
-  sc = m_activeStoreSvc.retrieve();
-  if( !sc.isSuccess() )  
-  {
-    fatal() << "Error retrieving ActiveStoreSvc." << endmsg;
-    return sc;
-  }
 
   // Get the AlgExecStateSvc
   m_aess = serviceLocator()->service("AlgExecStateSvc");
@@ -394,7 +381,6 @@ StatusCode AthenaEventLoopMgr::finalize()
   // Release all interfaces (ignore StatusCodes)
   m_histoDataMgrSvc.release().ignore();
   m_histoPersSvc.release().ignore();
-  m_activeStoreSvc.release().ignore();
 
   m_evtSelector   = releaseInterface(m_evtSelector);
   m_incidentSvc.release().ignore();

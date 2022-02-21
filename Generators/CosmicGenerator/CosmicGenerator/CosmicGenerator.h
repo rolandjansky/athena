@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -70,7 +70,6 @@ in the vertical position (the way it is positioned in the ATLAS detector)
 #include <string>
 
 
-class ActiveStoreSvc;
 
 class CosmicGun;
 
@@ -90,8 +89,6 @@ public:
   static IAtRndmGenSvc*         p_AtRndmGenSvc;
 
 private:
-  ActiveStoreSvc* m_activeStore;
-
   // event counter, used for event ID
   int m_events, m_rejected,m_accepted;
   std::vector<int> m_pdgCode;

@@ -272,4 +272,4 @@ const float xtalk_middle2_ec[]={
 };
 const float factor_middle2_ec = 1.0;
 
-}; // end of namespace
+} // end of namespace

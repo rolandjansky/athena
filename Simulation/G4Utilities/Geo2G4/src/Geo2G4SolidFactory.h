@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_Geo2G4SolidFactory_h
@@ -18,6 +18,7 @@
 class G4VSolid;
 class GeoShape;
 class GeoUnidentifiedShape;
+class EMECData;
 class Geo2G4SolidFactory
 {
 public:
@@ -37,8 +38,8 @@ public:
     */
    StoreGateSvc_t& detStore() const;
 private:
-  G4VSolid* createLArWheelSolid(const std::string& name, const LArWheelSolidDef_t & lwsdef) const;
-  G4VSolid* createLArWheelSliceSolid(const GeoUnidentifiedShape* ) const;
+   G4VSolid* createLArWheelSolid(const std::string& name, const LArWheelSolidDef_t & lwsdef, const EMECData &emecData) const;
+   G4VSolid* createLArWheelSliceSolid(const GeoUnidentifiedShape* ,const EMECData &emecData) const;
 
   static const LArWheelSolid_typemap s_lwsTypes;
 

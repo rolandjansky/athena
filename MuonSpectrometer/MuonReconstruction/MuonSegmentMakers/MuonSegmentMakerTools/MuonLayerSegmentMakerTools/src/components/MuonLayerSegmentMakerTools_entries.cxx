@@ -2,5 +2,4 @@
 
 using namespace Muon;
 
-DECLARE_COMPONENT( MuonLayerSegmentFinderTool )
-
+DECLARE_COMPONENT(MuonLayerSegmentFinderTool)

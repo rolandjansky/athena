@@ -14,6 +14,7 @@ atlas_add_component( EventSelectorAthenaPool
                      src/DoubleEventSelectorAthenaPool.cxx
                      src/EventSelectorAthenaPool.cxx
                      src/PoolCollectionConverter.cxx
+                     src/StreamSelectorTool.cxx
                      src/registerKeys.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}

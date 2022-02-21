@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -16,7 +16,6 @@
 //
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "LArDigitization/ILArPileUpTool.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
 
@@ -55,7 +54,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
+class LArPileUpTool : public PileUpToolBase
 {
 //
 // >>>>>>>> public method
@@ -78,12 +77,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
-  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
+  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal, const LArXTalkWeightGlobal& weights);
 
-  virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal);
-
-  static const InterfaceID& interfaceID() {
-    return ILArPileUpTool::interfaceID();}
+  virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights);
 
  private:
 
@@ -100,7 +96,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
                     std::vector<float>& energyList,
                     const LArXTalkWeightGlobal& weights);
   bool  fillMapfromSum(float bunchTime);
-  template<class T> const T* pointerFromKey(const EventContext& context, SG::ReadCondHandleKey<T>& key) const;
 
 //
 // >>>>>>>> private data parts
@@ -242,15 +237,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot{0};
   float m_trigtime{0};
-  
-};
 
-template<class T> 
-const T* LArPileUpTool::pointerFromKey(const EventContext& context, SG::ReadCondHandleKey<T>& key) const {
-  SG::ReadCondHandle<T> aHandle(key, context);
-  const T* object = *aHandle;
-  if (object == nullptr) ATH_MSG_ERROR("Object could not be fetched with key " << aHandle.key() );
-  return object;
 };
 
 #endif

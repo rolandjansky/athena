@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHLINKS_ELEMENTLINKVECTOR_H
@@ -73,7 +73,8 @@ public:
   /** @class Short2LongRef
    *  @brief a functor turning an ElemLinkRef into an ElementLink
    */
-  struct Short2LongRef : public std::unary_function<ElemLinkRef, ElemLink> {
+  struct Short2LongRef
+  {
     // i.e.    friend class ElemLinkRef;
     typedef ElementLinkVector<DOBJ> ElemLinkVec;
     ElemLink operator()(ElemLinkRef& shortRef) const { 

@@ -2,8 +2,8 @@
 
 from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-
 from AthenaConfiguration.Enums import FlagEnum
+from AthenaCommon.Logging import logging
 
 class RawChannelSource(FlagEnum):
      Input="Input"           # read from the input-file, bytestream or RDO
@@ -78,26 +78,28 @@ def createLArConfigFlags():
 _lArRunInfo=None
 
 def _getLArRunInfo(prevFlags):
-    global _lArRunInfo #Model-level cache of lar run info
+    log = logging.getLogger('LArConfigFlags.getLArRunInfo')
+    global _lArRunInfo #Cache of lar run info
     if _lArRunInfo is None:
         from LArConditionsCommon.LArRunFormat import getLArFormatForRun
         runnbr=prevFlags.Input.RunNumber[0] #If more than one run, assume config for first run is valid for all runs
         dbStr="COOLONL_LAR/"+prevFlags.IOVDb.DatabaseInstance
         _lArRunInfo=getLArFormatForRun(run=runnbr,connstring=dbStr)
-        print ("Got LArRunInfo for run ",runnbr)
+        log.info("Got LArRunInfo for run %d",runnbr)
     return _lArRunInfo
 
 
 def _determineRawChannelSource(prevFlags):
+    log = logging.getLogger('LArConfigFlags.determineRawChannelSource')
     if prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay:
         return RawChannelSource.Input
 
     lri=_getLArRunInfo(prevFlags)
     #runType: 0=RawData, 1=RawDataResult, 2=Result
     if lri is None or lri.runType is None:
-        print("WARNING do not have LArRunInfo !")
+        log.warning("WARNING do not have LArRunInfo !")
         return RawChannelSource.Both
-    print("runType ",lri.runType())
+    log.info("runType %d",lri.runType())
     if (lri.runType()==0):
         return RawChannelSource.Calculated #Have only digits in bytestream
     elif (lri.runType()==1):
@@ -105,5 +107,5 @@ def _determineRawChannelSource(prevFlags):
     elif (lri.runType()==2):
         return RawChannelSource.Input      #Have only raw-channels in bytestream
     else:
-        print("WARNING unknown LAr run type !")
+        log.warning("Unknown LAr run type %i",lri.runType())
         return RawChannelSource.Both

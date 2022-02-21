@@ -263,7 +263,6 @@ if ConfigFlags.Input.isMC:  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
-                     'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'useOnlineLumi',
                      #for running with real data
@@ -436,7 +435,8 @@ if ConfigFlags.Trigger.doCalo:
 
 
 if ConfigFlags.Trigger.doMuon:
-    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
+    CAtoGlobalWrapper(MuonCablingConfigCfg, ConfigFlags)
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
@@ -517,7 +517,7 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
     # Define as functor, to retain knowledge of the select/disableChains lists

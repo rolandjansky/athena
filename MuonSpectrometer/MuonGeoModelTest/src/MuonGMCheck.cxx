@@ -1002,10 +1002,12 @@ void MuonGMCheck::checkreadoutmmgeo() {
                 }
                 fout << "------------------------------------- ISL, etaC, iphi8, ml " << iSL << " " << etaC << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const MMReadoutElement* mmC = p_MuonMgr->getMMRElement_fromIdFields(iSL, etaC, iphi8, iml + 1);
+                const Identifier id_c = helper.elementID(iSL, etaC, iphi8, iml + 1);
+                const MMReadoutElement* mmC = p_MuonMgr->getMMReadoutElement(id_c);
                 fout << "------------------------------------- ISL, etaA, iphi8, ml " << iSL << " " << etaA << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const MMReadoutElement* mmA = p_MuonMgr->getMMRElement_fromIdFields(iSL, etaA, iphi8, iml + 1);
+                const Identifier id_a = helper.elementID(iSL, etaA, iphi8, iml + 1);                
+                const MMReadoutElement* mmA = p_MuonMgr->getMMReadoutElement(id_a);
 
                 if (!mmC)
                     ATH_MSG_INFO(" Something not found on the C side - ISL, etaC, iphi8, ml " << iSL << " " << etaC << " " << iphi8 << " "
@@ -1097,10 +1099,12 @@ void MuonGMCheck::checkreadoutstgcgeo() {
                 }
                 fout << "------------------------------------- ISL, etaC, iphi8, ml " << iSL << " " << etaC << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const sTgcReadoutElement* mmC = p_MuonMgr->getsTgcRElement_fromIdFields(iSL, etaC, iphi8, iml + 1);
+                const Identifier idc = helper.elementID(iSL, etaC, iphi8, iml + 1);
+                const sTgcReadoutElement* mmC = p_MuonMgr->getsTgcReadoutElement(idc);
                 fout << "------------------------------------- ISL, etaA, iphi8, ml " << iSL << " " << etaA << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const sTgcReadoutElement* mmA = p_MuonMgr->getsTgcRElement_fromIdFields(iSL, etaA, iphi8, iml + 1);
+                const Identifier ida = helper.elementID(iSL, etaA, iphi8, iml + 1);
+                const sTgcReadoutElement* mmA = p_MuonMgr->getsTgcReadoutElement(ida);
 
                 if (!mmC)
                     ATH_MSG_INFO(" Something not found on the C side - ISL, etaC, iphi8, ml " << iSL << " " << etaC << " " << iphi8 << " "

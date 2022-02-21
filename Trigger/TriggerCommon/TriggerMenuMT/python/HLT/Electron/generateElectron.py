@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, \
     ChainStep, Chain, EmptyMenuSequence, InViewRecoCA, SelectionCA
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -293,7 +293,7 @@ if __name__ == '__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
-    from ..Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     chain = generateChains(ConfigFlags, dictFromChainName('HLT_e26_L1EM15'))
     for step in chain.steps:
         for s in step.sequences:

@@ -34,7 +34,7 @@ def photonViewDataVerifierCfg():
     return result
 
 def l2PhotonRecoCfg( flags ):
-    from TriggerMenuMT.HLT.Menu.MenuComponents import InViewRecoCA
+    from TriggerMenuMT.HLT.Config.MenuComponents import InViewRecoCA
 
     reco = InViewRecoCA("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
@@ -66,7 +66,7 @@ def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
 def generatePhotonsCfg( flags ):
 
     acc = ComponentAccumulator()
-    from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
+    from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg

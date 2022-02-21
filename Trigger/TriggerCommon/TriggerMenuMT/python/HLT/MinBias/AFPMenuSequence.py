@@ -2,12 +2,12 @@
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 #
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
 
 
 def AFPTrkRecoBaseSequence(ConfigFlags):

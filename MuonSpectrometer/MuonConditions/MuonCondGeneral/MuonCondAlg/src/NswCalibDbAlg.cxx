@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/NswCalibDbAlg.h"
@@ -168,12 +168,12 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readK
 		unsigned int nChns = 0; 
 		for(unsigned int iEvt=0; iEvt<tree->GetEntries(); ++iEvt){
 			tree->GetEntry(iEvt);
-			Identifier* channelId = nullptr;
+			Identifier channelId;
 			if(!buildChannelId(channelId, elinkId, vmm, channel)){
 				ATH_MSG_WARNING("Could not find valid channelId for elink "<<elinkId);
 				continue;
 			}
-			writeCdo->setData(channelId, threshold);
+			writeCdo->setData(&channelId, threshold);
         	++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
@@ -263,12 +263,12 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 		unsigned int nChns = 0; 
 		for(unsigned int iEvt=0; iEvt<tree->GetEntries(); ++iEvt){
 			tree->GetEntry(iEvt);
-			Identifier* channelId = nullptr;
+			Identifier channelId;
 			if(!buildChannelId(channelId, elinkId, vmm, channel)){
 				ATH_MSG_WARNING("Could not find valid channelId for elink "<<elinkId);
 				continue;
 			}
-			writeCdo->setData(type, channelId, slope, slopeError, intercept, interceptError);
+			writeCdo->setData(type, &channelId, slope, slopeError, intercept, interceptError);
         	++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
@@ -291,7 +291,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 
 // buildChannelId
 bool
-NswCalibDbAlg::buildChannelId(Identifier*& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const {
+NswCalibDbAlg::buildChannelId(Identifier& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const {
 
 	// build NSWOfflineHelper
 	Muon::nsw::NSWResourceId* resId = new Muon::nsw::NSWResourceId((uint32_t) elinkId);
@@ -328,7 +328,7 @@ NswCalibDbAlg::buildChannelId(Identifier*& channelId, unsigned int elinkId, unsi
 			ATH_MSG_WARNING("Could not extract valid channelId for MM elink "<<elinkId);
 			return false;
 		}
-		channelId = &chnlId;
+		channelId = chnlId;
 	}
 	// sTGC
 	else{
@@ -337,7 +337,7 @@ NswCalibDbAlg::buildChannelId(Identifier*& channelId, unsigned int elinkId, unsi
 			ATH_MSG_WARNING("Could not extract valid channelId for STGC elink "<<elinkId);
 			return false;
 		}
-		channelId = &chnlId;
+		channelId = chnlId;
 	}
 
 	return true;

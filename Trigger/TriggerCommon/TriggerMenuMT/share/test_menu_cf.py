@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 ## This file runs runHLT_standalone with external menus
@@ -41,8 +41,8 @@ include("TriggerJobOpts/runHLT_standalone.py")
 
 
 # make menu manually here:
-from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.CFtest.generateCFChains import generateCFChains
 from TriggerMenuMT.CFtest.EmuStepProcessingConfig import generateHLTSeedingAndChainsManually, generateHLTSeedingAndChainsByMenu
 
@@ -50,7 +50,7 @@ topSequence = AlgSequence()
 
 if testopt.menuType == 'menuManual':
     generateCFChains(opt)
-    from TriggerMenuMT.HLT.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+    from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
     checkL1HLTConsistency()
 elif testopt.menuType == 'emuMenuTest':
     # HLT_TestChain
@@ -62,21 +62,21 @@ else:
 
 
 # set DEBUG flag on the control-flow builder (before building)
-import TriggerMenuMT.HLT.Menu.HLTCFConfig
-TriggerMenuMT.HLT.Menu.HLTCFConfig.log.setLevel(DEBUG)
+import TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig
+TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig.log.setLevel(DEBUG)
 
 # from here generate the ControlFlow and the Dataflow
 # doing the same as menu.generateMT()
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
        
-from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON
+from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON
 generateJSON()
 
-from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
 generatePrescaleJSON()
    
-from TriggerMenuMT.HLT.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+from TriggerMenuMT.HLT.Config.JSON.HLTMonitoringJSON import generateDefaultMonitoringJSON
 generateDefaultMonitoringJSON()
 
 # now some debug

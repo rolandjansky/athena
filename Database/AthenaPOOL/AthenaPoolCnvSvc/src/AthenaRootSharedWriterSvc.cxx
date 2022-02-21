@@ -205,7 +205,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
    }
    // Allow ROOT clients to start up (by setting active clients)
    // and wait to stop the ROOT server until all clients are done and metadata is written (commitOutput fail).
-   bool anyActiveClients = true;
+   bool anyActiveClients = (m_rootServerSocket != nullptr);
    while (sc.isSuccess() || sc.isRecoverable() || anyActiveClients) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");

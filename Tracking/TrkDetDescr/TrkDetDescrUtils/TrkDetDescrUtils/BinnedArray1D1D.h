@@ -15,6 +15,7 @@
 
 #include "CxxUtils/CachedUniquePtr.h"
 #include <vector>
+#include <utility>
 
 class MsgStream;
 
@@ -196,7 +197,7 @@ public:
   T* object(const Amg::Vector2D& lp) const
   {
     int steerBin = m_steeringBinUtility->bin(lp, 0);
-    int singleBin = (*m_singleBinUtilities)[steerBin]->bin(lp, 0);
+    int singleBin = std::as_const(*m_singleBinUtilities)[steerBin]->bin(lp, 0);
     return (m_array[steerBin][singleBin]).get();
   }
 
@@ -206,7 +207,7 @@ public:
   T* object(const Amg::Vector3D& gp) const
   {
     int steerBin = m_steeringBinUtility->bin(gp, 0);
-    int singleBin = (*m_singleBinUtilities)[steerBin]->bin(gp, 0);
+    int singleBin = std::as_const(*m_singleBinUtilities)[steerBin]->bin(gp, 0);
     return (m_array[steerBin][singleBin]).get();
   }
 
@@ -215,7 +216,7 @@ public:
   T* entryObject(const Amg::Vector3D& gp) const
   {
     int steerBin = m_steeringBinUtility->entry(gp, 0);
-    int singleBin = (*m_singleBinUtilities)[steerBin]->entry(gp, 0);
+    int singleBin = std::as_const(*m_singleBinUtilities)[steerBin]->entry(gp, 0);
     return (m_array[steerBin][singleBin]).get();
   }
 
@@ -253,7 +254,7 @@ private:
         std::make_unique<std::vector<T*>>();
       for (size_t isteer = 0; isteer < m_steeringBinUtility->bins(); ++isteer) {
         for (size_t isingle = 0;
-             isingle < (*m_singleBinUtilities)[isteer]->bins();
+             isingle < std::as_const(*m_singleBinUtilities)[isteer]->bins();
              ++isingle) {
           arrayObjects->push_back((m_array[isteer][isingle]).get());
         }

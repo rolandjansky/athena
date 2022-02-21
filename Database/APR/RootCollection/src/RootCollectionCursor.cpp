@@ -65,7 +65,7 @@ RootCollectionCursor(
 
 pool::RootCollection::RootCollectionCursor::~RootCollectionCursor()
 {
-   close();
+   RootCollectionCursor::close();
    if(m_eventList) delete m_eventList;
 }
 

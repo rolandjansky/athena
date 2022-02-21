@@ -882,7 +882,7 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const
         if(found_id && size_ids_coll ) {
           // store results of three strips (Qmax, Qleft, Qright)
           std::vector<ICscStripFitter::Result> res;
-          res.reserve(3);
+          res.resize(3);
           bool range_check = (mxIdx > -1) && (mxIdx < int(noStrips));
 
           ATH_MSG_DEBUG ( " Range check = (" << mxIdx  << " > -1 ) && (" << mxIdx << " < " << noStrips << " ) = " << range_check
@@ -1119,7 +1119,7 @@ bool CscClusterValAlg::evtSelTriggersPassed() {
   if(!m_doEvtSel) return true;
   std::vector<std::string>::const_iterator 
     it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
-  for ( ; it != itE; it++ ) {
+  for ( ; it != itE; ++it ) {
     if (m_trigDec->isPassed(*it, TrigDefs::eventAccepted)) {
       return true;
     }

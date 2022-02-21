@@ -283,7 +283,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     
                     int meta_LM = meta;
                     int mphi_LM = mphi;
-                    if(check  && is_Jet_LM) {
+                    if(check && meta>8 && mphi>8) {
                         meta_LM = meta -1;
                         mphi_LM = mphi -1;
 

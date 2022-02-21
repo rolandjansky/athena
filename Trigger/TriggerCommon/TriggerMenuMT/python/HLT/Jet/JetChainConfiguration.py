@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -8,8 +8,8 @@ import re
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
 from . import JetRecoCommon
 from . import JetPresel
 
@@ -50,7 +50,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
             # Check if there is exactly one exotic hypothesis defined
             if len(p['exotHypo']) > 1:
-                raise RuntimeError(f'emerging chains currently not configurable with more than one emerging selection!')
+                raise RuntimeError('emerging chains currently not configurable with more than one emerging selection!')
             if p['exotHypo']:
                 self.exotHypo = p['exotHypo'][0]
 
@@ -82,7 +82,7 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Assemble jet collection name based on reco dictionary
     # ----------------------
     def _setJetName(self):
-        from ..Menu.ChainDictTools import splitChainDict
+        from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
         subJetChainDict = {}
         for subChainDict in splitChainDict(self.dict):

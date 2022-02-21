@@ -4,6 +4,7 @@
 #define PATINTERFACES_CORRECTIONCODE_H
 
 #include "CxxUtils/nodiscard.h"
+#include <atomic>
 //          
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -77,7 +78,7 @@ namespace CP {
 
    private:
       ErrorCode m_code; ///< The stored correction code
-      mutable bool m_checked; ///< Checked status of the object
+      mutable std::atomic<bool> m_checked; ///< Checked status of the object
 
    }; // class CorrectionCode
 

@@ -103,7 +103,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ActiveStoreSvc;
 class CondSvc;
 namespace SG { 
   class VarHandleBase; 
@@ -506,6 +505,9 @@ public:
     return StoreGateSvc::currentStore();
   }
 
+  ///get current StoreGate
+  static StoreGateSvc* currentStoreGate();
+
 
   ///////////////////////////////////////////////////////////////////////
   /// \name IHiveStoreMgr implementation
@@ -821,13 +823,17 @@ public:
                         IOpaqueAddress* addr,
                         DataObject*& refpObject) override;
 
+  /// The current store is becoming the active store.  Switch the
+  /// allocation arena, and call SG::CurrentEventStore::setStore
+  /// NOTE: No longer only intended to be called by ActiveStoreSvc.
+  void makeCurrent();
+
 
 private:
 
   SGImplSvc* m_defaultStore;
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
-  ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; ///< property
 
 
   friend class SG::TestHiveStoreSvc;
@@ -937,13 +943,7 @@ private:
                         const std::type_info* tinfo,
                         bool warn_nobib = true);
 
-  friend class ActiveStoreSvc;
-  /// The current store is becoming the active store.  Switch the
-  /// allocation arena, if needed.
-  /// Only intended to be called by ActiveStoreSvc.
-  void makeCurrent();
-
-  bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent 
+  bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent
   bool m_ActivateHistory; ///< property: activate the history service
 
   /// Cache store type in the facade class.

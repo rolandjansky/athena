@@ -1122,16 +1122,7 @@ void JetTagMonitorAlgorithm::fillExtraTaggerHistos(const xAOD::Jet *jet) const {
   auto jet_MV_pc_good = Monitored::Scalar<float>("jet_MV_pc_good",0);
   auto jet_MV_pb_good = Monitored::Scalar<float>("jet_MV_pb_good",0);
 
-  auto jet_IP2D_good = Monitored::Scalar<float>("jet_IP2D_good",0);
-  auto jet_IP3D_good = Monitored::Scalar<float>("jet_IP3D_good",0);
-  auto jet_SV1_good = Monitored::Scalar<float>("jet_SV1_good",0);
-  auto jet_JetFitter_good = Monitored::Scalar<float>("jet_JetFitter_good",0);
-  auto jet_RNNIP_good = Monitored::Scalar<float>("jet_RNNIP_good",0);
-
-  auto jet_IP3D_nTrack_good = Monitored::Scalar<int>("jet_IP3D_nTrack_good",0);
-  auto jet_SV1_nTrack_good = Monitored::Scalar<int>("jet_SV1_nTrack_good",0);
-
-  double rnnip_llr = 0, mv_pu = 0, mv_pb = 0, mv_pc = 0;  
+  double mv_pu = 0, mv_pb = 0, mv_pc = 0;  
 
   if (m_TaggerName=="DL1dv00" || m_TaggerName=="DL1r"){
     bTaggingObject->pu(m_TaggerName,mv_pu);
@@ -1141,18 +1132,8 @@ void JetTagMonitorAlgorithm::fillExtraTaggerHistos(const xAOD::Jet *jet) const {
   jet_MV_pu_good = mv_pu;
   jet_MV_pc_good = mv_pc;
   jet_MV_pb_good = mv_pb;
-
-  jet_IP2D_good = bTaggingObject->IP2D_loglikelihoodratio();
-  jet_IP3D_good = bTaggingObject->IP3D_loglikelihoodratio();
-  jet_SV1_good = bTaggingObject->SV1_loglikelihoodratio();
-  jet_JetFitter_good = bTaggingObject->JetFitter_loglikelihoodratio();
-  bTaggingObject->loglikelihoodratio("rnnip",rnnip_llr);
-  jet_RNNIP_good = rnnip_llr;
-
-  bTaggingObject->taggerInfo(jet_SV1_nTrack_good, xAOD::SV1_NGTinSvx);
-  jet_IP3D_nTrack_good = bTaggingObject->nIP3D_TrackParticles();
-
-  fill(tool,jet_MV_pu_good,jet_MV_pc_good,jet_MV_pb_good,jet_IP2D_good,jet_IP3D_good,jet_SV1_good,jet_JetFitter_good,jet_RNNIP_good,jet_IP3D_nTrack_good,jet_SV1_nTrack_good);
+  
+  fill(tool,jet_MV_pu_good,jet_MV_pc_good,jet_MV_pb_good);
 
   return;
 }
@@ -1168,7 +1149,6 @@ void JetTagMonitorAlgorithm::fillJetTracksHistos(const xAOD::Jet *jet, float PV_
 
   auto tool = getGroup("JetTagMonitor");
 
-  auto JetTracks_nSV = Monitored::Scalar<int>("JetTracks_nSV",0);
   auto JetTracks_n = Monitored::Scalar<int>("JetTracks_n",0);
   auto JetTracks_pT = Monitored::Scalar<float>("JetTracks_pT",0);
   auto JetTracks_eta = Monitored::Scalar<float>("JetTracks_eta",0);
@@ -1195,15 +1175,12 @@ void JetTagMonitorAlgorithm::fillJetTracksHistos(const xAOD::Jet *jet, float PV_
   TLorentzVector jet_TLV;
   jet_TLV.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
 
-  std::vector<ElementLink<xAOD::VertexContainer>> SVs = bTaggingObject->auxdata<std::vector< ElementLink< xAOD::VertexContainer > > >("SV1_vertices");
-
-  JetTracks_nSV = SVs.size();
-
+ 
   std::vector<ElementLink<xAOD::TrackParticleContainer>> assocTracks = bTaggingObject->auxdata< std::vector< ElementLink<xAOD::TrackParticleContainer > > >("BTagTrackToJetAssociator");
 
   JetTracks_n = assocTracks.size();
 
-  fill(tool,JetTracks_n,JetTracks_nSV);
+  fill(tool,JetTracks_n);
 
   for ( const ElementLink< xAOD::TrackParticleContainer >& jetTracks : assocTracks ) {
     if ( not jetTracks.isValid() ) continue;

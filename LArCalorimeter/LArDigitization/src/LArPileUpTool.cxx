@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -38,7 +38,27 @@ using CLHEP::RandGaussZiggurat;
 LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, const IInterface* parent) :
   PileUpToolBase(type, name, parent) {
 
-  declareInterface<ILArPileUpTool>(this);
+  // default properties
+  m_LowGainThresh[EM]    = 3900;//ADC counts in MediumGain
+  m_HighGainThresh[EM]   = 1300;//ADC counts in MediumGain
+  m_LowGainThresh[HEC]   = 2500;//ADC counts in MediumGain
+  m_HighGainThresh[HEC]  = 0;//-> high-gain never used for HEC
+  m_LowGainThresh[FCAL]  = 2000.;//ADC counts in Medium Gain
+  m_HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
+  m_LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
+  m_HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
+  //
+  // ........ declare the private data as properties
+  //
+  declareProperty("LowGainThreshEM",m_LowGainThresh[EM],"Medium/Low gain transition in EM");
+  declareProperty("HighGainThreshEM",m_HighGainThresh[EM],"Medium/High gain transition in EM");
+  declareProperty("LowGainThreshHEC",m_LowGainThresh[HEC],"Medium/Low gain transition in HEC");
+  declareProperty("HighGainThreshHEC",m_HighGainThresh[HEC],"Medium/High gain transition in HEC");
+  declareProperty("LowGainThreshFCAL",m_LowGainThresh[FCAL],"Medium/Low gain transition in FCAL");
+  declareProperty("HighGainThreshFCAL",m_HighGainThresh[FCAL],"Medium/High gain transition in FCAL");
+  declareProperty("LowGainThreshEMECIW",m_LowGainThresh[EMIW],"Medium/Low gain transition in EMEC IW");
+  declareProperty("HighGainThreshEMECIW",m_HighGainThresh[EMIW],"Medium/High gain transition in EMEC IW");
+
   return;
 }
 
@@ -291,6 +311,9 @@ StatusCode LArPileUpTool::processBunchXing(int bunchXing,
 {
   ATH_MSG_VERBOSE ( "processBunchXing()" );
   float tbunch = (float)(bunchXing);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<LArXTalkWeightGlobal> weightHdl(m_xtalkKey, ctx);
+  const LArXTalkWeightGlobal& weights = **weightHdl;
 
 //
 // ............ loop over the wanted hit containers
@@ -302,7 +325,7 @@ StatusCode LArPileUpTool::processBunchXing(int bunchXing,
     bool isSignal = ( (iEvt->type()==xAOD::EventInfo_v1::PileUpType::Signal) || m_RndmEvtOverlay);
 
     // fill LArHits in map
-    if (this->fillMapFromHit(iEvt, tbunch,isSignal).isFailure()) {
+    if (this->fillMapFromHit(iEvt, tbunch,isSignal, weights).isFailure()) {
 
       ATH_MSG_ERROR(" cannot fill map from hits ");
       return StatusCode::FAILURE;
@@ -346,7 +369,8 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
      return StatusCode::FAILURE;
   }
 
-  const LArXTalkWeightGlobal* weights = pointerFromKey<LArXTalkWeightGlobal>(ctx,m_xtalkKey);
+  SG::ReadCondHandle<LArXTalkWeightGlobal> weightHdl(m_xtalkKey, ctx);
+  const LArXTalkWeightGlobal& weights = **weightHdl;
 
   if(!m_onlyUseContainerName && m_RndmEvtOverlay) {
     auto hitVectorHandles = m_hitContainerKeys.makeHandles(ctx);
@@ -376,7 +400,7 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
             timeCurrBunch = SubEvtTimOffset;
           }
         }
-        if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+        if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
       } // End of loop over LArHitContainer
     } // End of loop over SG::ReadHandles
   }
@@ -384,7 +408,7 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
   if (!m_PileUp) {
     float time=0.;
     StoreGateSvc* myEvtStore = &(*evtStore());
-    if (this->fillMapFromHit(myEvtStore,time,true).isFailure()) {
+    if (this->fillMapFromHit(myEvtStore,time,true,weights).isFailure()) {
       ATH_MSG_ERROR("error in fillMapFromHit");
       return StatusCode::FAILURE;
     }
@@ -447,7 +471,7 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
                   timeCurrBunch = SubEvtTimOffset;
               }
             }
-            if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+            if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
           }              //  loop over  hits
           ++iFirstCont;
         }                 // loop over subevent list
@@ -503,7 +527,7 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
                   timeCurrBunch = SubEvtTimOffset;
               }
             }
-            if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+            if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
           }              //  loop over  hits
           ++iFirstCont;
         }                 // loop over subevent list
@@ -577,10 +601,8 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
 
 // ============================================================================================
 
-StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime, bool isSignal)
+StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights)
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  const LArXTalkWeightGlobal* weights = pointerFromKey<LArXTalkWeightGlobal>(ctx,m_xtalkKey);
   for (const std::string& containerName : m_hitContainerNames) {
 
   //
@@ -605,7 +627,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
          else time   = (float) (hit.time() - m_trigtime);
          time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
        }
      }
      else {
@@ -634,7 +656,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
          else time   = (float) ((*hititer)->time() - m_trigtime);
          time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
        }
      }
      else {
@@ -649,10 +671,8 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
 }
 
 // ============================================================================================
-StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal)
+StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights)
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  const LArXTalkWeightGlobal* weights = pointerFromKey<LArXTalkWeightGlobal>(ctx,m_xtalkKey);
   for (const std::string& containerName : m_hitContainerNames) {
 
   //
@@ -681,7 +701,7 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 	  else time   = (float) (hit.time() - m_trigtime);
 	  time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
 	}
     }
     else {
@@ -706,7 +726,7 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 	  else time   = (float) ((*hititer)->time() - m_trigtime);
 	  time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,*weights).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
 	}
     }
   }   // end loop over containers

@@ -2,11 +2,17 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def TMDBConfig(flags):
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
+
+    # Read MuRcvRawChCnt from the input file (for POOL directly, for BS via converter)
+    if flags.Input.Format is Format.POOL:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=[('TileRawChannelContainer','MuRcvRawChCnt')]))
+    else:
         from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
 
@@ -145,6 +151,16 @@ def RecoMuonSegmentSequence(flags):
 
 def MuonRdo2DigitConfig(flags):
     acc = ComponentAccumulator()
+
+    # Read RPCPAD and TGCRDO from the input POOL file (for BS it comes from [Rpc|Tgc]RawDataProvider)
+    if flags.Input.Format is Format.POOL:
+        rdoInputs = [
+            ('RpcPadContainer','RPCPAD'),
+            ('TgcRdoContainer','TGCRDO'),
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
+
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
     MuonRdoToMuonDigitTool = CompFactory.MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
@@ -179,7 +195,6 @@ def NSWTriggerConfig(flags):
     MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False)
     MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
-                                               DoOffline = True, # so far only offline simulation is available
                                                UseLookup = False,
                                                DoNtuple = False,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
@@ -219,7 +234,7 @@ def TGCTriggerConfig(flags):
                                                        useRun3Config = True,
                                                        TileMuRcv_Input = "rerunTileMuRcvCnt",
                                                        TILEMU = True)
-    if (flags.Detector.GeometrysTGC or flags.Detector.GeometryMM) and flags.Input.isMC:
+    if (flags.Detector.GeometrysTGC or flags.Detector.GeometryMM):
         tgcAlg.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
         tgcAlg.USENSW = True
         tgcAlg.NSWSideInfo = "AC"

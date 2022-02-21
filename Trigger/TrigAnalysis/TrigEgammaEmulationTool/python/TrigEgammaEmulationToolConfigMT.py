@@ -80,7 +80,7 @@ class TrigEgammaEmulationToolConfig:
         import cppyy
         cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
-        from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+        from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
         d = dictFromChainName(trigger)
 
         signature = d['signatures'][0]

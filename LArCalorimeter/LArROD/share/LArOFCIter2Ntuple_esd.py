@@ -77,7 +77,7 @@ theLArRawChannelBuilderToolOFCIter.maxSample = 12
 theLArRawChannelBuilderToolOFCIter.minADCforIterInSigma=0 # ADCmax at least 3 sigma above noise for iteration
 theLArRawChannelBuilderToolOFCIter.minADCforIter=15 # min adc for iteration (only if no pedestalRMS found)
 theLArRawChannelBuilderToolOFCIter.defaultPhase=12  # starting delay, also the fixed delay for ADC below min.
-theLArRawChannelBuilderToolOFCIter.StoreTiming=True
+theLArRawChannelBuilderToolOFCIter.TimingContainerKey="LArOFIterResult"
 ToolSvc += theLArRawChannelBuilderToolOFCIter
 
 

@@ -11,6 +11,7 @@
 // AuthorList: 
 //   Sami Kama:       Initial code.
 //   Sebastian Piec:  Adaptation for Epos 1.99.crmc.r2790.
+//   Andrii Verbytskyi: 2.0.1+
 // ---------------------------------------------------------------------- 
 
 #include "TruthUtils/GeneratorName.h"
@@ -19,17 +20,14 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "AtlasHepMC/IO_HEPEVT.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/HeavyIon.h"
 #include "AtlasHepMC/SimpleVector.h"
 
-
 #include "Epos_i/Epos.h"
-
-#ifdef HEPMC3
 #include "CRMChepevt.h"
-#endif
+#define CRMC_STATIC
+#include "CRMCinterface.h"
 
 namespace{
   static std::string epos_rndm_stream = "EPOS_INIT";
@@ -41,7 +39,6 @@ extern "C" double atl_epos_rndm_( int* )
   CLHEP::HepRandomEngine* engine = p_AtRndmGenSvcEpos->GetEngine(epos_rndm_stream);
   return CLHEP::RandFlat::shoot(engine);
 }
-
 // ---------------------------------------------------------------------- 
 // Epos Fortran bindings.
 // ---------------------------------------------------------------------- 
@@ -61,7 +58,6 @@ extern "C"
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
 
 }
-
 // ----------------------------------------------------------------------
 Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ): 
   GenModule( name, pSvcLocator )
@@ -132,24 +128,12 @@ StatusCode Epos::genInitialize()
     crmc_init_f_( m_degymx, iSeed, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str(), m_lheout.c_str() , lout);
     crmc_set_f_(m_nEvents,m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle);
 
-
     // ... and set them back to the stream for proper save
   p_AtRndmGenSvcEpos->CreateStream( si1, si2, epos_rndm_stream );
 
   epos_rndm_stream = "EPOS";
 
-    // setup HepMC
-#ifdef HEPMC3
-    /// Not needed anymore
-#else    
-    HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
-    HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
-    HepMC::HEPEVT_Wrapper::set_max_number_entries(kMaxParticles);
-#endif
-
   m_events = 0;
-
-  //  m_ascii_out = new HepMC::IO_GenEvent(m_eposEventInfo);
  
  return StatusCode::SUCCESS;
 }
@@ -175,10 +159,7 @@ StatusCode Epos::callGenerator()
  
     // generate event 
   crmc_f_( m_iout, m_ievent ,nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
-	   m_partEnergy[0], m_partMass[0], m_partStat[0]  );
-
-
-
+           m_partEnergy[0], m_partMass[0], m_partStat[0]  );
 
   return StatusCode::SUCCESS;
 }
@@ -215,16 +196,16 @@ StatusCode Epos::genFinalize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::fillEvt( HepMC::GenEvent* evt ) 
 {
+  CRMChepevt<HepMC::GenParticlePtr, HepMC::GenVertexPtr, HepMC::FourVector, HepMC::GenEvent> hepevtconverter;
 #ifdef HEPMC3
-  CRMChepevt<HepMC3::GenParticlePtr, HepMC3::GenVertexPtr, HepMC3::FourVector, HepMC3::GenEvent> hepevtconverter;
   hepevtconverter.convert(*evt);
 #else
   /// We use the old approach for HepMC2, as the CRMC 2.0.1 has a bug that prevents us from using the same approach as for HepMC3.
   /// This should be changed once the bug is fixed.
-  HepMC::IO_HEPEVT hepio;
-  hepio.set_trust_mothers_before_daughters(0);
-  hepio.set_print_inconsistency_errors(0);
-  hepio.fill_next_event(evt);
+  hepevtconverter.convert();
+  for (auto v: hepevtconverter.vertices()) evt->add_vertex(v);
+  if  (hepevtconverter.beams().size() == 2) evt->set_beam_particles(hepevtconverter.beams()[0],hepevtconverter.beams()[1]);
+  if  (hepevtconverter.beams().size() == 1) evt->set_beam_particles(hepevtconverter.beams()[0],nullptr);
 #endif
   evt->set_event_number(m_events);
 

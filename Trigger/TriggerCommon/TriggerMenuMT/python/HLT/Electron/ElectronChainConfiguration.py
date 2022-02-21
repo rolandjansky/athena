@@ -5,7 +5,7 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 
-from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Config.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..CommonSequences.CaloSequences_FWD import fastCaloMenuSequence_FWD
 

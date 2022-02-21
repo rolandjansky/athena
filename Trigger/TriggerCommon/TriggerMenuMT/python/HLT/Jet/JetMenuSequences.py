@@ -2,7 +2,7 @@
 #
 
 from enum import Enum
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -53,8 +53,8 @@ def getTrackingInputMaker(trkopt):
             RoITool = ViewCreatorJetSuperROITool(
                 'ViewCreatorJetSuperRoI',
                 RoisWriteHandleKey  = recordable( IDTrigConfig.roi ),
-                RoIEtaWidth = 0.5,
-                RoIPhiWidth = 0.5,
+                RoIEtaWidth = IDTrigConfig.etaHalfWidth,
+                RoIPhiWidth = IDTrigConfig.phiHalfWidth,
             ),
             Views = "JetSuperRoIViews",
             InViewRoIs = "InViewRoIs",

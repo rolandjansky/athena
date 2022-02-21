@@ -323,31 +323,21 @@ void ElectronPhotonVariableCorrectionBase::correct(float& return_corrected_varia
     }
     else
     {
-        // Set range of function to 5 sigma in both directions -
-        // otherwise default range is 0 to 1, and shape of PDF will be incorrect
-        // NB - this assumes random function is a Gaussian, or at least a PDF
-        // with a mean and width parameters
+        // Get Gaussian mean and width from TF1 function, to be used with
+        // TRandom::Gaus (assumes function given is a gaussian)
         const double gaussMean = m_correctionFunctionTF1->GetParameter(0);
         const double gaussAbsWidth = std::abs(m_correctionFunctionTF1->GetParameter(1));
 
-        const double maxRange = gaussMean + 5*gaussAbsWidth;
-        const double minRange = gaussMean - 5*gaussAbsWidth;
-        m_correctionFunctionTF1->SetRange(minRange, maxRange);
-
-        // Set number of points used to draw function - the higher the better
-        // the result from using GetRandom, but also takes a lot longer
-        m_correctionFunctionTF1->SetNpx(500);
-
-        // If the Gaussian width is 0, can't use GetRandom() - just apply shift
+        // If the Gaussian width is 0, can't use TRandom::Gaus - just apply shift
         if (gaussAbsWidth == 0.0)
         {
             return_corrected_variable = original_variable + gaussMean;
         }
-        // Otherwise, can apply smear using GetRandom on TF1
+        // Otherwise, can apply smear using TRandom::Gaus
         else
         {
-	  return_corrected_variable = original_variable +
-	    m_correctionFunctionTF1->GetRandom(getTLSRandomGen(rndSeed));
+	        return_corrected_variable = original_variable +
+	            getTLSRandomGen(rndSeed)->Gaus(gaussMean, gaussAbsWidth);
         }
     }
 

@@ -49,10 +49,8 @@ namespace LVL1 {
     // uint32_t tobWord1 = 0;
 
     // Translate eFEX index into Shelf+eFEX:
-    // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
-    int inShelf = eFexNum % 12;
     uint8_t shelf = int(eFexNum/12);
-    uint8_t eFEX  = 3*int(inShelf/3) + 2 - (eFexNum%3);
+    uint8_t eFEX  = eFexNum%12;
     
     // Now create the object and fill it
     xAOD::eFexEMRoI* myEmEDM = new xAOD::eFexEMRoI();
@@ -61,7 +59,7 @@ namespace LVL1 {
     
     myEmEDM->initialize(eFEX, shelf, tobWord0); 
 
-    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEmEDM->eFexNumber() << " shelf: " << +myEmEDM->shelfNumber() << " et: " << myEmEDM->et() << " eta: " << myEmEDM->eta() <<  " phi: " << myEmEDM->phi() << " input eFexNum: " << MSG::hex << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
+    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEmEDM->eFexNumber() << " shelf: " << +myEmEDM->shelfNumber() << " et: " << myEmEDM->et() << " eta: " << myEmEDM->eta() <<  " phi: " << myEmEDM->phi() << " input eFexNum: " << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
 
   }
 
@@ -72,17 +70,15 @@ namespace LVL1 {
     //  uint32_t tobWord1 = 0;
 
     // Translate eFEX index into Shelf+eFEX:
-    // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
-    int inShelf = eFexNum % 12;
     uint8_t shelf = int(eFexNum/12);
-    uint8_t eFEX  = 3*int(inShelf/3) + 2 - (eFexNum%3);
+    uint8_t eFEX  = eFexNum%12;
     
     xAOD::eFexTauRoI* myTauEDM = new xAOD::eFexTauRoI();
 
     container->push_back(myTauEDM);
 
     myTauEDM->initialize(eFEX, shelf, tobWord0);
-    ATH_MSG_DEBUG(" setting tau eFEX Number: " << +myTauEDM->eFexNumber() << " et: " << myTauEDM->et() << " eta: " << myTauEDM->eta() << " phi: " << myTauEDM->phi() );
+    ATH_MSG_DEBUG(" setting tau eFEX Number: " << +myTauEDM->eFexNumber() << " shelf: " << +myTauEDM->shelfNumber() << " et: " << myTauEDM->et() << " eta: " << myTauEDM->eta() << " phi: " << myTauEDM->phi() << " input eFexNum: " << +eFexNum << " TOB word: " << tobWord0 << MSG::dec);
 
   }
 

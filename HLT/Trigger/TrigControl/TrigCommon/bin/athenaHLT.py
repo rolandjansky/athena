@@ -208,6 +208,8 @@ def HLTMPPy_cfgdict(args):
    }
    if args.debug:
       cdict['HLTMPPU']['debug'] = args.debug
+   if args.script_after_fork:
+      cdict['HLTMPPU']['scriptAfterFork'] = args.script_after_fork
 
    cdict['datasource'] = {
       'module': 'dffileds',
@@ -341,6 +343,9 @@ def main():
    g = parser.add_argument_group('Performance and debugging')
    g.add_argument('--debug', '-d', nargs='?', const='child', choices=['parent','child'],
                   help='attach debugger (to child by default)')
+   g.add_argument('--script-after-fork', metavar='CMD', help='Execute a command after forking. The command has to be in the'
+                  ' form "whichProc:cmd" where whichProc is one of [mother,firstFork,allForks] and cmd can contain a format'
+                  ' string {pid} which will be replaced with the PID of the corresponding process (mother or fork).')
    g.add_argument('--perfmon', action='store_true', help='enable PerfMon')
    g.add_argument('--leak-check', metavar='<stage>', nargs='?', const='execute',
                   choices=['all','initialize','start','beginrun','execute','finalize','endrun','stop'],
