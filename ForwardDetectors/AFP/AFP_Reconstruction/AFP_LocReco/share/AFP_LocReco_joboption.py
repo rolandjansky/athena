@@ -56,19 +56,19 @@ def AFP_LocReco_TD_Cfg(kwargs={}):
 
 	# Prepare ToF reconstruction algorithm tools - one for each station
 	BarWeight = [1.0, 1.0, 1.0, 1.0] 
-	TimeOffset0 = [ 105707, 105670, 105675, 105638,
-					105834, 105819, 105778, 105754,
-					105900, 105892, 105870, 105820,
-					105953, 105924, 105905, 105877]
 
-	basicTool0 = CompFactory.AFPTDBasicTool("AFPTDBasicTool0", stationID=0, maxAllowedLength=100, TimeOffset=TimeOffset0, BarWeight=BarWeight, **kwargs)
+	TimeOffset0 = [1494, 1500, 1500, 1500,
+	1500, 1500, 1500, 1500,
+	1500, 1500, 1500, 1500,
+	1500, 1500, 1500, 1500]
+	basicTool0 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool0", stationID=0, maxAllowedLength=1500, TimeOffset=TimeOffset0, BarWeight=BarWeight, **kwargs)
 
-	TimeOffset3 = [ 105796, 105761, 105742, 105696,
-					105890, 105871, 105839, 105816,
-					105923, 105899, 105862, 105853,
-					105953, 105930, 105908, 105879]
+	TimeOffset3 = [1500, 1500, 1500, 1500,
+	1500, 1500, 1500, 1500,
+	1500, 1500, 1500, 1500,
+	1500, 1500, 1500, 1500]
+	basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=1500, TimeOffset=TimeOffset3, BarWeight=BarWeight, **kwargs)
 
-	basicTool3 = CompFactory.AFPTDBasicTool("AFPTDBasicTool3", stationID=3, maxAllowedLength=100, TimeOffset=TimeOffset3, BarWeight=BarWeight, **kwargs)
 	basicToolsList=[basicTool0, basicTool3]
 
 	# collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_SIDLocRecoTool::initialize() will complain
