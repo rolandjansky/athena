@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
@@ -274,6 +275,9 @@ if InDetFlags.doStoreTrackCandidates() and InDetFlags.doParticleCreation():
  xAODTrkCanTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
  xAODTrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededTrackCandidates()
  xAODTrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededTrackCandidates()+'TruthCollection'
+ if InDetFlags.doSLHC() or InDetFlags.doITkLowPt():
+     xAODTrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededSLHCTracks()
+     xAODTrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededSLHCTracks()+'TruthCollection'
  xAODTrkCanTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODTrkCanTrackParticleCnvAlg.ConvertTracks = True
  xAODTrkCanTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
@@ -321,9 +325,6 @@ if InDetFlags.doStoreTrackCandidates() and InDetFlags.doLowPtRoI() and InDetFlag
  xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
  xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededLowPtRoITracks()
  xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededLowPtRoITracks()+'TruthCollection'
- if InDetFlags.doSLHC():
-     xAODTrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededSLHCTracks()
-     xAODTrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededSLHCTracks()+'TruthCollection'
  xAODLowPtRoITrkCanTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODLowPtRoITrkCanTrackParticleCnvAlg.ConvertTracks = True
  xAODLowPtRoITrkCanTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()

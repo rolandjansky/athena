@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
@@ -504,14 +504,17 @@ else:
     #
     # ------------------------------------------------------------
 
-    if InDetFlags.doLowPt():
+    if InDetFlags.doLowPt() or InDetFlags.doITkLowPt():
       #
       # --- configure cuts for Low Pt tracking
       #
       if (not 'InDetNewTrackingCutsLowPt' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsLowPt not set before - import them now"      
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsLowPt = ConfiguredNewTrackingCuts("LowPt")
+        if InDetFlags.doLowPt():
+          InDetNewTrackingCutsLowPt = ConfiguredNewTrackingCuts("LowPt")
+        elif InDetFlags.doITkLowPt():
+          InDetNewTrackingCutsLowPt = ConfiguredNewTrackingCuts("ITkLowPt")
       InDetNewTrackingCutsLowPt.printInfo()
       #
       # --- now run Si pattern for Low Pt
