@@ -18,7 +18,7 @@
 class G4VSolid;
 class GeoShape;
 class GeoUnidentifiedShape;
-class EMECData;
+struct EMECData;
 class Geo2G4SolidFactory
 {
 public:
