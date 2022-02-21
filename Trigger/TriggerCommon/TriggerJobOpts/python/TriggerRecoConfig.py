@@ -226,10 +226,30 @@ def Run1xAODConversionCfg(flags):
 
     navTool = CompFactory.HLT.Navigation("Navigation", 
                                          ClassesToPreregister = getPreregistrationList(flags.Trigger.EDMVersion) )
+    
+    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,TrackParticleCreatorToolCfg,RecTrackParticleContainerCnvToolCfg
+    partCreatorTool = acc.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, 
+                                                                          #name="InDetxAODParticleCreatorTool"
+                                                                          )
+                                             )
+    trackCollCnvTool = acc.popToolsAndMerge(TrackCollectionCnvToolCfg(flags,
+                                                                      name="TrackCollectionCnvTool",
+                                                                      TrackParticleCreator= partCreatorTool
+                                                                      )
+                                            )
 
+    recPartCnvTool = acc.popToolsAndMerge(RecTrackParticleContainerCnvToolCfg(flags,
+                                                                              name="RecParticleCnv",
+                                                                              TrackParticleCreator=partCreatorTool
+                                                                              )
+                                          )
+    
     bstoxaodTool = CompFactory.TrigBStoxAODTool("BStoxAOD", 
                                                 ContainersToConvert = getL2Run1BSList() + getEFRun1BSList(), 
-                                                NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList() )
+                                                NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList(),
+                                                TrackCollectionCnvTool = trackCollCnvTool,
+                                                TrackParticleContainerCnvTool = recPartCnvTool
+                                                )
 
     xaodConverter = CompFactory.TrigHLTtoxAODConversion( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] if flags.Trigger.readBS else [],
                                                          Navigation = navTool,
@@ -266,10 +286,10 @@ if __name__ == '__main__':
 
     flags.fillFromArgs()
 
-    log.info('Checking setup for EDMVersion %d', flags.Trigger.EDMVersion)
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files = defaultTestFiles.RAW # need to update this depending on EDMversion
     flags.Exec.MaxEvents=5
+    log.info('Checking setup for EDMVersion %d', flags.Trigger.EDMVersion)
 
     flags.lock()
 

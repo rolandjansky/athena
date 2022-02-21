@@ -561,3 +561,31 @@ def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs
     kwargs.setdefault("WriteRadiationFluenceMapKey", "PixelRadiationDamageFluenceMapData")
     acc.addCondAlgo(CompFactory.PixelRadSimFluenceMapAlg(name, **kwargs))
     return acc
+
+
+if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+
+    flags.fillFromArgs()
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    flags.Input.Files = defaultTestFiles.RAW # need to update this depending on EDMversion
+    flags.Exec.MaxEvents=5
+
+    flags.lock()
+
+    acc = MainServicesCfg(flags)
+    acc.merge( PixelDetectorElementCondAlgCfg(flags) )
+    acc.printConfig(withDetails=True)
+    with open("PixelConditions.pkl", "wb") as file:
+        acc.store(file)
+    # TODO decide if we want to run actually
+    sc = acc.run()
+    # if sc.isFailure():
+    #     import sys
+    #     sys.exit(-1)
+
+
