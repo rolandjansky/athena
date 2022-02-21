@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthResetAlg.h"
@@ -88,11 +88,11 @@ StatusCode TruthResetAlg::execute() {
      for (auto particle: p_to_remove) outputEvent->remove_particle(particle);
      for (auto vertex: outputEvent->vertices()) {
        if (HepMC::barcode(vertex) < -200000 || vertex->particles_out().empty() ) { 
-         p_to_remove.push_back(vertex);
+         v_to_remove.push_back(vertex);
        }
      }
      for (auto vertex: v_to_remove) outputEvent->remove_vertex(vertex);
-     if (p_to_remove.empty()&&v_to_remove.empty()) break;
+     if (p_to_remove.empty() && v_to_remove.empty()) break;
    }
 #else
 
