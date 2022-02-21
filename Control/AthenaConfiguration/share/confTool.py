@@ -11,7 +11,7 @@ import re
 import sys
 
 from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict, loadDifferencesFile
-class color:
+class fullColor:
     reset="\033[0m"
     difference="\033[91m"
     knowndifference="\033[35m"
@@ -20,6 +20,16 @@ class color:
     second="\033[35m"
     component="\33[92m"
     value="\33[91m"
+
+class noColor:
+    reset=""
+    difference=""
+    knowndifference=""
+    first=""
+    property=""
+    second=""
+    component=""
+    value=""
 
 
 def parse_args():
@@ -70,6 +80,9 @@ knownDifferences={}
 def main(args):
     if args.ignoreIrrelevant:
         print(f"Components to ignore: {args.ignore}")
+    color = fullColor()
+    if not sys.stdout.isatty(): #Remove colors when writing to a file
+        color = noColor()
     if args.printComps:
         for fileName in args.file:
             conf = loadConfigFile(fileName, args)
@@ -78,7 +91,7 @@ def main(args):
     if args.printConf:
         for fileName in args.file:
             conf = loadConfigFile(fileName, args)
-            _print(conf)
+            _print(conf, color)
 
     if args.toJSON:
         if len(args.file) != 1:
@@ -109,11 +122,13 @@ def main(args):
         global knownDifferences
         if args.knownDifferencesFile:
             knownDifferences = loadDifferencesFile(args.knownDifferencesFile)
+        _compareConfig(configRef, configChk, args, color)
 
 
-        _compareConfig(configRef, configChk, args)
 
-def _print(conf):
+
+
+def _print(conf, color):
     for k, settings in conf.items():
         print(f"{color.component}{k}{color.reset}")
         if isinstance(settings, dict):
@@ -127,7 +142,7 @@ def _printComps(conf):
         if isinstance(item, dict):
             print(k)
 
-def _compareConfig(configRef, configChk, args):
+def _compareConfig(configRef, configChk, args, color):
     # Find superset of all components:
     allComps = list(set(configRef.keys()) | set(configChk.keys()))
     allComps.sort()
@@ -169,7 +184,7 @@ def _compareConfig(configRef, configChk, args):
         else:
             print(f"{color.difference} Component", _componentDescription(component), f"differ {color.reset}")
             if not args.allComponentPrint:
-                _compareComponent(refValue, chkValue, "\t", args, component)
+                _compareComponent(refValue, chkValue, "\t", args, component, color)
             else:
                 print(
                     f"\t{color.first}Ref{color.reset}\t",
@@ -222,7 +237,7 @@ def _handleComponentsReanaming( refVal ):
             updatedRef.append(v)
     return updatedRef if isinstance(refVal, list) else updatedRef[0]
 
-def _compareComponent(compRef, compChk, prefix, args, component):
+def _compareComponent(compRef, compChk, prefix, args, component, color):
 
     if isinstance(compRef, dict):
 
@@ -274,10 +289,10 @@ def _compareComponent(compRef, compChk, prefix, args, component):
 
             if refVal and ( isinstance(refVal, list) or isinstance(refVal, dict) ):
                 if component == "IOVDbSvc" and prop == "Folders":
-                    _compareIOVDbFolders(refVal, chkVal, "\t", args)
+                    _compareIOVDbFolders(refVal, chkVal, "\t", args, color)
                 else:
                     _compareComponent(
-                        refVal, chkVal, "\t" + prefix + ">> ", args, component
+                        refVal, chkVal, "\t" + prefix + ">> ", args, component, color
                     )
 
     elif isinstance(compRef, (list, tuple)) and len(compRef) > 1:
@@ -342,14 +357,14 @@ def _parseIOVDbFolder(definition):
     return json.dumps(result)
 
 
-def _compareIOVDbFolders(compRef, compChk, prefix, args):
+def _compareIOVDbFolders(compRef, compChk, prefix, args, color):
     refParsed = []
     chkParsed = []
     for item in compRef:
         refParsed.append(_parseIOVDbFolder(item))
     for item in compChk:
         chkParsed.append(_parseIOVDbFolder(item))
-    _compareComponent(refParsed, chkParsed, prefix, args, "")
+    _compareComponent(refParsed, chkParsed, prefix, args, "", color)
 
 
 if __name__ == "__main__":
