@@ -148,8 +148,6 @@ StatusCode TrigR3Mon::initialize() {
 
   return bookHistograms();
 
-  //  return StatusCode::SUCCESS;
-
 }
 
 
@@ -158,9 +156,6 @@ StatusCode TrigR3Mon::bookHistograms() {
   msg(MSG::DEBUG) << " ----- enter book() ----- " << endmsg;
 
   msg(MSG::INFO) << "TrigR3Mon::book() " << gDirectory->GetName() << endmsg;
-
-  //  MMTB_DEPRECATED(duff)
-
 
   /// create sequences if need be ...
   
@@ -200,7 +195,7 @@ StatusCode TrigR3Mon::bookHistograms() {
   
   msg(MSG::INFO) << "^[[91;1m" << name() << "\t:AnalysisConfig " << m_analysis_config << "^[[m" << endmsg;
   
-  msg(MSG::DEBUG) << "configuring chains: " << m_ntupleChainNames.size() << endmsg;
+  msg(MSG::DEBUG) << "configuring chains: " << m_ntupleChainNames.size() << "\tmonTools: " << m_monTools.size() << endmsg;
   
   /// keep counters of how many efid or ftf chains have been created
   /// for shifter histograms, only want m_shifterMaxChains of each
@@ -210,39 +205,29 @@ StatusCode TrigR3Mon::bookHistograms() {
   
   std::string lastvtx = "";
   
-  // if (m_analysis_config == "Tier0") {
-  {
+  if (m_analysis_config == "Tier0") {
+  
     std::vector<std::string> chains;
-    // std::vector<ChainString> chains;
-    chains.reserve( m_ntupleChainNames.size() );
     
-    /// handle wildcard chain selection 
-    std::vector<std::string>::iterator chainitr = m_ntupleChainNames.begin();
+    chains.reserve( m_monTools.size() );
     
     /// in the tier 0 analysis the wildcard selection should always 
     /// return one and only one chain
 
-    if ( m_monTools.size()!=m_ntupleChainNames.size() ) {
-      msg(MSG::ERROR) << "chain name and monTool counts do not match: chains: " << m_ntupleChainNames.size() << "\t: monTools: " << m_monTools.size() << endmsg;
-    } 
-
-
     std::vector<ToolHandle<GenericMonitoringTool>*> monTools;
-    monTools.reserve(m_ntupleChainNames.size());
+    monTools.reserve(m_monTools.size());
 
-
-    size_t itool = 0;
-
-    while ( chainitr!=m_ntupleChainNames.end() ) {
-      
+    ToolHandleArray<GenericMonitoringTool>::iterator toolitr = m_monTools.begin();;
+    
+    while ( toolitr!=m_monTools.end() ) {
+         
       /// get chain
-      ChainString chainName = (*chainitr);
+      ChainString chainName = (toolitr->name());
       
       msg(MSG::DEBUG) << "configuring chain: " << chainName.head() << "\t: " << chainName.tail() << endmsg;
-      
-      //	std::cout << "\tconfiguring chain: " << (*chainitr) << "\t" << chainName.head() << "\t: " << chainName.tail() << "\t:" << chainName.roi() << std::endl;
-      
-      
+
+      //      std::cout << "\tconfiguring chain: " << (*toolitr) << "\t" << chainName.head() << "\t: " << chainName.tail() << "\t:" << chainName.roi() << std::endl;
+            
       if ( chainName.roi()!="" ) { 
 	msg(MSG::DEBUG) << "trying chain: " << chainName.head() 
 			<< "\ttracks: " << chainName.tail()
@@ -277,11 +262,11 @@ StatusCode TrigR3Mon::bookHistograms() {
 
 	//	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
 	
-	//	m_monTools[itool]->setPath( m_sliceTag+"/"+chainName );
+	//     toolitr->setPath( m_sliceTag+"/"+chainName );
 
 	if (std::find(chains.begin(), chains.end(), selectChain) == chains.end()) { // deduplicate
   	  chains.push_back( selectChain );
-	  monTools.push_back( &m_monTools[itool] );
+	  monTools.push_back( &(*toolitr) );
 	}
 	
       }
@@ -289,130 +274,100 @@ StatusCode TrigR3Mon::bookHistograms() {
 	
 	/// check for configured chains only ...
 	
-	if ( chainName.head().find("HLT_")==std::string::npos && 
-	     chainName.head().find("EF_")==std::string::npos  && 
-	     chainName.head().find("L2_")==std::string::npos ) { 
-	  chainitr++;
-	  itool++;
+	if ( chainName.head().find("HLT_")==std::string::npos ) {
+	  toolitr++;
 	  continue;
 	}
 	
 	/// get matching chains
 	
-	std::vector<std::string> selectChains;
-	selectChains.clear();
+	std::string selectChain = chainName.head();
 	
 	/// for the Run 3 python config based, shoud return one-and-only one chains per item
 
 	msg(MSG::INFO) << "checking chain: " << chainName.head() << endmsg;
 
-	/// this doesn;t work now because this has to be called in the initialize where there is NO IOV
 	
-	//	if ( chainName.head()!="" ) selectChains = m_tdt->getListOfTriggers( chainName.head() );
-
-	if ( chainName.head()!="" ) selectChains.push_back( chainName.head() );
-	
-	if ( selectChains.size()==0 ) { 
-	  msg(MSG::WARNING) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
-	  chainitr++;
-	  itool++;
+	if ( selectChain=="" ) { 
+	  msg(MSG::WARNING) << "^[[91;1m" << "No chain matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
+	  toolitr++;
 	  continue;
 	}
-
-	
-	if ( selectChains.size()>1 ) { 
-	  msg(MSG::ERROR) << "^[[91;1m" << "Greater than one chain matched input " << chainName << "^[[m"<< endmsg;
-	  chainitr++;
-	  itool++;
-	  continue;
-	}
-
-	
-	//	  std::cout << "^[[91;1m" << "\tChain count matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< std::endl;
-	
-	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	  
-	  std::string mchain = selectChains[iselected]; //chainName.head();
+	std::string mchain = selectChain; //chainName.head();
 
-	  if ( chainName.tail()!="" )     mchain += "/"+chainName.tail();
-	  if ( chainName.extra()!="" )    mchain += "_"+chainName.extra();
-	  if ( chainName.roi()!="" )      mchain += "_"+chainName.roi();
-	  if ( chainName.vtx()!="" )      mchain += "_"+chainName.vtx();
-	  if ( chainName.element()!="" )  mchain += "_"+chainName.element();
-	  if ( !chainName.passed() )      mchain += "_DTE";
+	if ( chainName.tail()!="" )     mchain += "/"+chainName.tail();
+	if ( chainName.extra()!="" )    mchain += "_"+chainName.extra();
+	if ( chainName.roi()!="" )      mchain += "_"+chainName.roi();
+	if ( chainName.vtx()!="" )      mchain += "_"+chainName.vtx();
+	if ( chainName.element()!="" )  mchain += "_"+chainName.element();
+	if ( !chainName.passed() )      mchain += "_DTE";
+	
+	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
+	if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
+	if ( chainName.roi()!="" )     selectChain += ":roi="+chainName.roi();
+	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
+	if ( chainName.element()!="" ) selectChain += ":te="+chainName.element();
+	if ( !chainName.passed() )     selectChain += ":DTE";
 	  
-	  if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	  if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-	  if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-	  if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-	  if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
-	  if ( !chainName.passed() )     selectChains[iselected] += ":DTE";
-	  
-	  if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
+	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
 	  
 #if 0
-	  std::cout << "\nTrigR3Mon::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
-	  std::cout << "\tchain: " << chainName.head()    << std::endl;
-	  std::cout << "\tkey:   " << chainName.tail()    << std::endl;
-	  std::cout << "\troi:   " << chainName.roi()     << std::endl;
-	  std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
-	  std::cout << "\tte:    " << chainName.element() << std::endl;
-	  std::cout << "\textra: " << chainName.extra()   << std::endl;
+	std::cout << "\nTrigR3Mon::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
+	std::cout << "\tchain: " << chainName.head()    << std::endl;
+	std::cout << "\tkey:   " << chainName.tail()    << std::endl;
+	std::cout << "\troi:   " << chainName.roi()     << std::endl;
+	std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
+	std::cout << "\tte:    " << chainName.element() << std::endl;
+	std::cout << "\textra: " << chainName.extra()   << std::endl;
 #endif
-	  
-	  int shifterChains = m_shifterChains;
-	  if ( chainName.vtx()=="" ) shifterChains = ( m_shifterChains>1 ? 1 : m_shifterChains );
-	  
-	  if ( m_sliceTag.find("Shifter")!=std::string::npos || m_shifter ) { 
-	    /// shifter histograms 
-	    if ( chainName.tail().find("_FTF")!=std::string::npos ) { 
-	      /// FTF chain
-	      if (   shifter_ftf>=shifterChains || 
-		     ( shifter_ftf<shifterChains && chainName.vtx()!="" && chainName.vtx()==lastvtx ) ) {  
-		msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
-		continue;
-	      }
-	      shifter_ftf++;
-	      lastvtx = chainName.vtx();
+	
+	int shifterChains = m_shifterChains;
+	if ( chainName.vtx()=="" ) shifterChains = ( m_shifterChains>1 ? 1 : m_shifterChains );
+	
+	if ( m_sliceTag.find("Shifter")!=std::string::npos || m_shifter ) { 
+	  /// shifter histograms 
+	  if ( chainName.tail().find("_FTF")!=std::string::npos ) { 
+	    /// FTF chain
+	    if (   shifter_ftf>=shifterChains || 
+		   ( shifter_ftf<shifterChains && chainName.vtx()!="" && chainName.vtx()==lastvtx ) ) {  
+	      msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChain << " excluded - Shifter chain already definied^[[m" << endmsg;
+	      continue;
 	    }
-	    else if ( chainName.tail().find("_IDTrig")!=std::string::npos || chainName.tail().find("CosmicsN_EFID")!=std::string::npos ) { 
-	      /// EFID chain
-	      shifter_efid++;
-	      if ( shifter_efid>shifterChains ) {
-		msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
-		continue;
-	      }
-	    }
-	    else if ( chainName.tail().find("_EFID")!=std::string::npos ) { 
-	      /// EFID chain
-	      shifter_efid_run1++;
-	      if ( shifter_efid_run1>shifterChains ) {
-		msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
-		continue;
-	      }
+	    shifter_ftf++;
+	    lastvtx = chainName.vtx();
+	  }
+	  else if ( chainName.tail().find("_IDTrig")!=std::string::npos || chainName.tail().find("CosmicsN_EFID")!=std::string::npos ) { 
+	    /// EFID chain
+	    shifter_efid++;
+	    if ( shifter_efid>shifterChains ) {
+	      msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChain << " excluded - Shifter chain already definied^[[m" << endmsg;
+	      continue;
 	    }
 	  }
-	    
-	  /// replace wildcard with actual matching chains ...
-	  //            chains.push_back( ChainString(selectChains[iselected]) );
-	  if (std::find(chains.begin(), chains.end(), selectChains[iselected]) == chains.end()) { // deduplicate
-            chains.push_back( selectChains[iselected] );
- 
-	    //	    std::cout << "monTool for " << name() << "  chain: " << chains.back() << "  " << mchain << "\t" << m_monTools[itool]->name() << std::endl;
-
-	    //	    m_monTools[itool]->setPath( m_sliceTag+"/"+mchain );
-	    monTools.push_back( &m_monTools[itool] );
+	  else if ( chainName.tail().find("_EFID")!=std::string::npos ) { 
+	    /// EFID chain
+	    shifter_efid_run1++;
+	    if ( shifter_efid_run1>shifterChains ) {
+	      msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChain << " excluded - Shifter chain already definied^[[m" << endmsg;
+	      continue;
+	    }
 	  }
-	  
-	  //  	  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
-	  
-	  //	  std::cout << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << std::endl;;
-	  
 	}
-      } 
- 
-      itool++;
-      chainitr++;
+	
+	if (  std::find(chains.begin(), chains.end(), selectChain) == chains.end() ) { // deduplicate
+	  chains.push_back( selectChain );
+	  monTools.push_back( &(*toolitr) );
+	}
+	
+	//  	  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
+	
+	//	  std::cout << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << std::endl;;
+	  
+      }
+     
+      
+      toolitr++;
     }
 	
     m_chainNames = chains;
@@ -420,33 +375,28 @@ StatusCode TrigR3Mon::bookHistograms() {
     //      std::cout << "TrigR3Mon::book() chains " << m_chainNames.size() << std::endl;
       
     // tag and probe object creation                                                                                                                                                                            
-    std::vector<std::string>& allchains = m_chainNames;
+    std::vector<std::string>& allchains = m_ntupleChainNames;
     
     for ( size_t i=0 ; i<m_chainNames.size() ; i++ ) {
 
       ChainString probe = m_chainNames[i] ;
 
-      //      if ( probe.extra().find("_tag")!=std::string::npos ) continue;
-
       TagNProbe* tnp = 0;
 
-      if ( probe.extra().find("_probe")!=std::string::npos ) {
+      if ( probe.extra().find("probe")!=std::string::npos ) {
 
-	std::string probe_key = probe.extra().erase( probe.extra().find("_probe"), 6 ) ;
+	std::string probe_key = probe.extra().erase( probe.extra().find("probe"), 5 ) ;
 
 	for ( size_t j=0 ; j<allchains.size() ; j++ ) {
-
-	  /// could use i==j here 
-	  if ( m_chainNames[i]==allchains[j] ) continue;
 
 	  ChainString tag = allchains[j];
 
 	  // tag chain must be the same as probe chain but with te=0 and extra=*_tag                                                                                                                            
 	  if ( tag.head() != probe.head() ) continue;
 	  if ( tag.element() == probe.element() ) continue;
-	  if ( tag.extra().find("_tag")==std::string::npos ) continue;
+	  if ( tag.extra().find("tag")==std::string::npos ) continue;
 
-	  std::string tag_key = tag.extra().erase( tag.extra().find("_tag"), 4 ) ;
+	  std::string tag_key = tag.extra().erase( tag.extra().find("tag"), 3 ) ;
 
 	  if ( tag_key != probe_key ) continue;
 
@@ -462,31 +412,10 @@ StatusCode TrigR3Mon::bookHistograms() {
 	}
       }
 
-      if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
 
+      /// can only iuse R3 navigation now
 
-	/// this will all have to be removed - cant use polymorphism this 
-	/// way in this case
-
-#if 0
-	AnalysisConfig_Tier0* analysis = new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
-								   m_chainNames[i], "", "",
-								   m_chainNames[i], "", "",
-								   &m_roiInfo,
-								   filterTest, filterRef,
-								   dR_matcher,
-								   new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
-
-	analysis->setRunPurity(m_runPurity);
-	analysis->setShifter(m_shifter);
-	analysis->containTracks(m_containTracks);
-
-#endif
-	  	  
-	//	m_sequences.push_back( analysis );
-
-      }
-      else { 
+      if ( m_tdt->getNavigationFormat() != "TriggerElement" ) { 
 
 	msg(MSG::INFO)  << "configure analysis: " << m_chainNames[i] << endmsg; 
 
@@ -502,10 +431,6 @@ StatusCode TrigR3Mon::bookHistograms() {
 	analysis->setRunPurity(m_runPurity);
 	analysis->setShifter(m_shifter);
 	analysis->containTracks(m_containTracks);
-
-	//   for ( size_t it=0 ; it<monTools.size() ; it++ ) { 
-	//      std::cout << "\t" << it << "\tmontool: " << monTools[it] << std::endl; 
-	//   }
 
 	analysis->set_monTool( monTools[i] );
 
@@ -576,13 +501,9 @@ StatusCode TrigR3Mon::execute() {
     msg(MSG::DEBUG) << " ----- enter fill() ----- " << endmsg;
    }
 
-  //  std::cout << "TrigR3Mon::fill()      " << gDirectory->GetName() << "\tslice: " << m_sliceTag << std::endl;
-
   std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( "HLT_e.*" );
 
   msg(MSG::DEBUG) << " TDT selected chains " << selectChains.size() << endmsg;
-  
-  //  std::cout << " TDT selected chains " << selectChains.size() << std::endl;
   
   int passed_count = 0;
   
@@ -602,35 +523,21 @@ StatusCode TrigR3Mon::execute() {
 #endif
 
   _first = false;
-  
-  //  std::cout << "TrigR3Mon::selectedChains size: " << selectChains.size() << std::endl;
 
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
-    
-    //    std::cout << "\t chain: " << selectChains[i] << "\tpassed: " << m_tdt->isPassed( selectChains[i] ) << std::endl;
-
     if ( m_tdt->isPassed(selectChains[i]) ) {
       passed_count++;
       ATH_MSG_DEBUG( "chain " << selectChains[i] << "\tpass: " << m_tdt->isPassed(selectChains[i]) << "\tprescale: " << m_tdt->getPrescale(selectChains[i]) );
      }
   }
-
-  //  std::cout << "sequences::size: " << m_sequences.size() << std::endl;
   
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
-
-    //    std::cout << "execute sequence: " << m_sequences[i]->name() << "  (" << m_chainNames[i] << ")" << std::endl;
-
     m_sequences[i]->execute();
-
   }
 
   if(msg().level() <= MSG::DEBUG) {
     msg(MSG::DEBUG) << " ----- exit fill() ----- " << endmsg;
   }
-
-  //  std::cout << "TrigR3Mon::fill() exit " << gDirectory->GetName() << "\tslice: " << m_sliceTag << std::endl;
-
 
   return StatusCode::SUCCESS;
 }
