@@ -89,7 +89,7 @@ class LArPileUpTool : public PileUpToolBase
 
   virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
-  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal, const LArXTalkWeightGlobal& weights);
+  virtual StatusCode fillMapFromHit(const EventContext& ctx,float tbunch,bool isSignal, const LArXTalkWeightGlobal& weights);
 
   virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights);
 

@@ -46,6 +46,10 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    if jobproperties.Digitization.doXingByXingPileUp():
       kwargs.setdefault("FirstXing", MDT_FirstXing() ) # this should match the range for the MDT in Digitization/share/MuonDigitization.py
       kwargs.setdefault("LastXing",  MDT_LastXing() )  # this should match the range for the MDT in Digitization/share/MuonDigitization.py
+   from AthenaCommon.DetFlags import DetFlags
+   if not DetFlags.pileup.any_on():
+       kwargs.setdefault("PileUpMergeSvc", '')
+       kwargs.setdefault("OnlyUseContainerName", False)
 
    kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
    if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():

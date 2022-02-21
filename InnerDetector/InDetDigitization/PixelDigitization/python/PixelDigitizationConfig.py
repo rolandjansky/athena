@@ -571,6 +571,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
     return CfgMgr.PixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
