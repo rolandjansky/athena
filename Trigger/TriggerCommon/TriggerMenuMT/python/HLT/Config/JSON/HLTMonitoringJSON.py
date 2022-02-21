@@ -18,17 +18,16 @@ def __getMenuBaseName(menuName):
         __log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
     return menuName
 
-def generateDefaultMonitoringJSON():
+def generateDefaultMonitoringJSON(flags):
     __log.info("Generating HLT Monitoring JSON in the rec-ex-common job")
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
-    __log.debug("[HLTMonitoring::generateJSON] HLTMenuFileName =  %s"        , getHLTMenuFileName(ConfigFlags)        )
-    __log.debug("[HLTMonitoring::generateJSON] HLTMonitoringFileName =  %s"  , getHLTMonitoringFileName(ConfigFlags)  )
+    __log.debug("[HLTMonitoring::generateJSON] HLTMenuFileName =  %s"        , getHLTMenuFileName(flags)        )
+    __log.debug("[HLTMonitoring::generateJSON] HLTMonitoringFileName =  %s"  , getHLTMonitoringFileName(flags)  )
 
-    return generateMonitoringJSON(ConfigFlags.Trigger.triggerMenuSetup,
+    return generateMonitoringJSON(flags.Trigger.triggerMenuSetup,
                                   TriggerConfigHLT.dictsList(), 
-                                  getHLTMonitoringFileName(ConfigFlags))
+                                  getHLTMonitoringFileName(flags))
 
 def generateMonitoringJSON(menuName, chainDicts, fileName):
 

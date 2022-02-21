@@ -33,7 +33,6 @@ from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
 from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from AthenaCommon.Logging import logging
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
 from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
@@ -122,7 +121,7 @@ def createCFTree(CFseq):
 ## CORE of Decision Handling
 #######################################
 
-def makeHLTTree(newJO=False, triggerConfigHLT = None):
+def makeHLTTree(flags, newJO=False, triggerConfigHLT = None):
     """ Creates the full HLT tree, main function called from GenerateMenu.py"""
 
     # Check if triggerConfigHLT exits, if yes, derive information from this
@@ -148,7 +147,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     log.debug("[makeHLTTree] will now make the DF and CF tree from chains")
 
     # make DF and CF tree from chains
-    finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
+    finalDecisions = decisionTreeFromChains(flags, steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
 
     successful_scan = sequenceScanner( steps )
     
@@ -182,7 +181,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
                 log.debug(f"Tag leg does not match probe: '{vmname[:-6]}', will not use cached views")
 
     with ConfigurableRun3Behavior():
-        summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
+        summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
 
     # Schedule the DecisionSummaryMakerAlg
     hltFinalizeSeq += conf2toConfigurable( summaryAlg )
@@ -192,7 +191,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     acceptedEventChainDicts = [cd for cd in triggerConfigHLT.dictsList() \
                                if 'Calib' in cd['signatures'] \
                                and 'acceptedevts' in cd['chainParts'][0]['purpose']]
-    if ConfigFlags.Trigger.endOfEventProcessing.Enabled and acceptedEventChainDicts:
+    if flags.Trigger.endOfEventProcessing.Enabled and acceptedEventChainDicts:
         from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg, EndOfEventPrescaleCheckAlgCfg
         endOfEventRoIMaker = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
         hltFinalizeSeq += endOfEventRoIMaker
@@ -223,18 +222,18 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     with ConfigurableRun3Behavior():
-        monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, hltSeeding )
+        monAcc, monAlg = triggerMonitoringCfg( flags, hypos, filters, hltSeeding )
 
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
         
     with ConfigurableRun3Behavior():
-        edmAlg = triggerMergeViewsAndAddMissingEDMCfg(ConfigFlags, ['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
+        edmAlg = triggerMergeViewsAndAddMissingEDMCfg(flags, ['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
 
     # C) Finally, we create the EDM output
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
-    if ConfigFlags.Trigger.doOnlineNavigationCompactification:
+    if flags.Trigger.doOnlineNavigationCompactification:
         onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
         hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
 
@@ -348,7 +347,7 @@ def sequenceScanner( HLTNode ):
     return _status
    
 
-def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
+def decisionTreeFromChains(flags, HLTNode, chains, allDicts, newJO):
     """ Creates the decision tree, given the starting node and the chains containing the sequences  """
 
     log.info("[decisionTreeFromChains] Run decisionTreeFromChains on %s", HLTNode.name())
@@ -359,7 +358,7 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
 
     (finalDecisions, CFseq_list) = createDataFlow(chains, allDicts)
     if not newJO:
-        createControlFlow(HLTNode, CFseq_list)
+        createControlFlow(flags, HLTNode, CFseq_list)
     else:
         raise RuntimeError('createControlFlowNewJO not implemented')
         # createControlFlowNewJO(HLTNode, CFseq_list)
@@ -372,7 +371,7 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
     # create dot graphs
     log.debug("finalDecisions: %s", finalDecisions)
 
-    if ConfigFlags.Trigger.generateMenuDiagnostics:
+    if flags.Trigger.generateMenuDiagnostics:
         all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
     # matrix display
@@ -480,7 +479,7 @@ def createDataFlow(chains, allDicts):
     return (finalDecisions, CFseqList)
 
 
-def createControlFlow(HLTNode, CFseqList):
+def createControlFlow(flags, HLTNode, CFseqList):
     """ Creates Control Flow Tree starting from the CFSequences"""
 
     HLTNodeName= HLTNode.name()
@@ -508,7 +507,7 @@ def createControlFlow(HLTNode, CFseqList):
 
         HLTNode += summary
 
-        if ConfigFlags.Trigger.generateMenuDiagnostics:
+        if flags.Trigger.generateMenuDiagnostics:
             log.debug("Now Draw...")
             stepCF_DataFlow_to_dot(stepRecoNode.name(), CFseqList[nstep])
             stepCF_ControlFlow_to_dot(stepRecoNode)
