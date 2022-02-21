@@ -33,7 +33,7 @@ class DBM_Module : public GeoVPixelFactory {
 
   private:
 
-  InDetDD::SiDetectorDesign* m_design;
+  const InDetDD::SiDetectorDesign* m_design;
 
   std::shared_ptr<const InDetDD::PixelDiodeMatrix> makeMatrix(double phiPitch, double etaPitch, double etaPitchLong, double etaPitchLongEnd,
 					 int circuitsPhi, int circuitsEta, int diodeRowPerCirc, int diodeColPerCirc);

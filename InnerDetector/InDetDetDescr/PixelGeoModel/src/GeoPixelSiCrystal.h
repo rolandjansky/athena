@@ -31,9 +31,9 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
   std::shared_ptr<const InDetDD::PixelDiodeMatrix> makeMatrix(double phiPitch, double etaPitch, double etaPitchLong, double etaPitchLongEnd,
 					 int circuitsPhi, int circuitsEta, int diodeRowPerCirc, int diodeColPerCirc);
   Identifier m_id;
-  InDetDD::SiDetectorDesign* m_design;
-  bool m_isBLayer;
-  bool m_isModule3D;
+  const InDetDD::SiDetectorDesign* m_design;
+  bool m_isBLayer = false;
+  bool m_isModule3D = false;
 };
 //
 // Add this method to store the ID in the factory. This is used by the
