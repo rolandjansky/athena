@@ -263,7 +263,6 @@ if ConfigFlags.Input.isMC:  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
-                     'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'useOnlineLumi',
                      #for running with real data
