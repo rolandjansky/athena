@@ -12,7 +12,7 @@ from TriggerMenuMT.HLT.Config.Utility.ComboHypoHandling import addTopoInfo, comb
 from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
 
-from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
@@ -509,16 +509,16 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.info("Generating HLT menu JSON...")
         
-        from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON
+        from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON
         generateJSON()
 
         log.info("Generating HLT prescale JSON...")
 
-        from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+        from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
 
         log.info('Generating HLTMonitoring JSON...')
-        from TriggerMenuMT.HLT.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        from TriggerMenuMT.HLT.Config.JSON.HLTMonitoringJSON import generateDefaultMonitoringJSON
         generateDefaultMonitoringJSON()
 
         log.info('Menu generation is complete.')

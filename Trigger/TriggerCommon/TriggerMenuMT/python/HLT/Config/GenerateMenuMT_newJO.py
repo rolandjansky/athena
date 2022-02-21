@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import itertools
 
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLT.Menu.HLTCFConfig_newJO import generateDecisionTree
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO import generateDecisionTree
 from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
@@ -174,10 +174,10 @@ def generateMenu(flags):
     log.info('CF is built')
 
     # # generate JOSON representation of the config
-    from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON_newJO
+    from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON_newJO
     generateJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), menuAcc.getSequence("HLTAllSteps"))
 
-    from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
+    from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
     generatePrescaleJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList())
 
     return menuAcc
