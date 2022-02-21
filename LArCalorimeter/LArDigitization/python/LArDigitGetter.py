@@ -25,14 +25,17 @@ class LArDigitGetter (Configured) :
             if digitizationFlags.doXingByXingPileUp():
                 # Defined in LArDigitizationConfig.py
                 job.PileUpToolsAlg.PileUpTools += [ CfgGetter.getPrivateTool("LArPileUpTool", checkType=True) ]
-                job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DigitContainer = self.outputKey()
-                job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
+                #job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DigitContainer = self.outputKey()
+                #job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
                 job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
             else:
                 # Defined in LArDigitizationConfig.py
                 job += CfgGetter.getAlgorithm("digitmaker1", tryDefaultConfigurable=True)
-                job.digitmaker1.LArPileUpTool.DigitContainer = self.outputKey()
-                job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
+                #job += CfgGetter.getAlgorithm("LArHitEMapToDigitAlg", tryDefaultConfigurable=True)
+                from LArDigitization.LArDigitizationConfig import getLArHitEMapToDigitAlg
+                job += getLArHitEMapToDigitAlg()
+                #job.digitmaker1.LArPileUpTool.DigitContainer = self.outputKey()
+                #job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
                 #job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = "LArDigitContainer_DigiHSTruth"
                 job.digitmaker1.LArPileUpTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
                 # if pileup or overlay

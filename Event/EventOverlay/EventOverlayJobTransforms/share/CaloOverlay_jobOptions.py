@@ -51,6 +51,8 @@ if DetFlags.overlay.LAr_on():
     from LArDigitization.LArDigitGetter import LArDigitGetter
     theLArDigitGetter = LArDigitGetter()
 
+    #from LArDigitization.LArDigitizationConfig import getLArHitEMapToDigitAlg
+    #job += getLArHitEMapToDigitAlg()
 
     if overlayFlags.isDataOverlay():
        from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
@@ -73,8 +75,6 @@ if DetFlags.overlay.LAr_on():
        if 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
           job.LArDigitThinner.InputContainerName = "LArDigitContainer_MC"
        job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
-    from LArDigitization.LArDigitizationConf import LArHitEMapToDigitAlg
-    job += CfgGetter.getAlgorithm("LArHitEMapToDigitAlg", tryDefaultConfigurable=True)
 
 
 

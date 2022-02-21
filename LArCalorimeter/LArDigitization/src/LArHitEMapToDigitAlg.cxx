@@ -267,14 +267,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
 // ....... make the five samples
 //
-/*
-  for (i=0;i<m_NSamples;i++) {
-   Samples[i]=0.;
-   if(m_doDigiTruth) {
-     Samples_DigiHSTruth[i]=0.;
-   }
-  }
-*/
 
 #ifndef NDEBUG
   ATH_MSG_DEBUG(" number of hit for this cell " << TimeE->size());
@@ -473,7 +465,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
            Noise[i]=Noise[i]*SigmaNoise;
         }
         addedNoise=true;
-        for (int i=0;i<m_NSamples;i++) Noise[i]=0.;
         if ( ch_id.get_identifier32().get_compact() == 0x3a506500 ) {
            std::cout << "Noise2 : ";
            for(const auto iter : Noise ) std::cout << iter << " ";
