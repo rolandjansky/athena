@@ -85,6 +85,7 @@ namespace InDet {
     int fvNmin{0};
     int zMin{0};
     int nOneSeeds{0};
+    int nOneSeedsQ{0};
     int fillOneSeeds{0};
     int nprint{0};
     int nseeds{0};
@@ -151,6 +152,7 @@ namespace InDet {
     std::vector<InDet::SiSpacePointsSeed> OneSeeds;
     std::vector<InDet::SiSpacePointsProSeed> OneSeeds_Pro;
     std::vector<InDet::SiSpacePointsProSeedITK> OneSeeds_ITK;
+    std::vector<InDet::SiSpacePointsProSeedITK> OneSeeds_ITKQ;
 
     std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> CmSp;
     std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>> CmSp_ITK;
@@ -159,8 +161,8 @@ namespace InDet {
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rf_Sorted;
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfz_Sorted;   ///< vector of space points in each bin of the 2D phi-z binning
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfzv_Sorted;
-    std::vector<std::list<InDet::SiSpacePointForSeedITK*>> r_Sorted_ITK;
-    std::vector<std::list<InDet::SiSpacePointForSeedITK*>> rfz_Sorted_ITK;
+    std::vector<std::vector<InDet::SiSpacePointForSeedITK*>> r_Sorted_ITK;
+    std::vector<std::vector<InDet::SiSpacePointForSeedITK*>> rfz_Sorted_ITK;
     std::vector<std::list<InDet::SiSpacePointForSeedITK*>> rfzv_Sorted_ITK;
 
     std::vector<InDet::SiSpacePointsSeed> seeds;
@@ -194,6 +196,7 @@ namespace InDet {
     std::multimap<float,InDet::SiSpacePointsProSeed*> seeds_Pro;
     std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator seed_Pro;
     std::multimap<float,InDet::SiSpacePointsProSeedITK*> mapOneSeeds_ITK;
+    std::multimap<float,InDet::SiSpacePointsProSeedITK*> mapOneSeeds_ITKQ;
     std::multimap<float,InDet::SiSpacePointsProSeedITK*> seeds_ITK;
     std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator seed_ITK;
 
@@ -247,6 +250,7 @@ namespace InDet {
         OneSeeds.resize(maxOneSize);
       } else if (type==ITK) {
         OneSeeds_ITK.resize(maxOneSize);
+        OneSeeds_ITKQ.resize(maxOneSize);
       }
 
       // Build radius sorted containers
