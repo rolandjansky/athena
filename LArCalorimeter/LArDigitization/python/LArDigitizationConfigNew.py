@@ -15,6 +15,7 @@ from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg,LArBadChannelCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg
 # for Digitization
 from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
@@ -101,12 +102,25 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if "ProblemsToMask" not in kwargs:
         kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]
     # defaults
-    kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        # Some noise needs to be added during MC Overlay
+        # No noise should be added during Data Overlay
+        kwargs.setdefault("NoiseOnOff", not flags.Overlay.DataOverlay)
+    kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise) # For other jobs go with the noise flag setting.
     kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)
     kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
-    if flags.Digitization.DoXingByXingPileUp:
-        kwargs.setdefault("FirstXing", -751)
-        kwargs.setdefault("LastXing", 101)
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp:
+            kwargs.setdefault("FirstXing", -751)
+            kwargs.setdefault("LastXing", 101)
+        else:
+            intervals += [acc.popToolsAndMerge(LArRangeEMCfg(flags))]
+            intervals += [acc.popToolsAndMerge(LArRangeHECCfg(flags))]
+            intervals += [acc.popToolsAndMerge(LArRangeFCALCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
     if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
         kwargs.setdefault("HighGainThreshFCAL", 0)
     if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
@@ -118,7 +132,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
     # if doing MC+MC overlay
     if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
-          kwargs.setdefault("isMcOverlay", True)
+        kwargs.setdefault("isMcOverlay", True)
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
     # cosmics digitization
@@ -126,10 +140,8 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("UseTriggerTime", True)
         CosmicTriggerTimeTool = CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
-    # pileup configuration "algorithm" way
-    if not flags.Digitization.DoXingByXingPileUp:
-        if flags.Digitization.PileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
-            kwargs.setdefault("PileUp", True)
+    if flags.Digitization.PileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
+        kwargs.setdefault("PileUp", True)
     kwargs.setdefault("useLArFloat", useLArFloat(flags))
     if useLArFloat(flags):
         acc.merge(InputOverwriteCfg("LArHitContainer","LArHitEMB","LArHitFloatContainer","LArHitEMB"))
@@ -145,6 +157,8 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
             kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "FREE")
         else:
             kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
+    else:
+        kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     LArPileUpTool = CompFactory.LArPileUpTool
     acc.setPrivateTools(LArPileUpTool(name, **kwargs))
     return acc

@@ -75,8 +75,14 @@ def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
 def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with BCM_DigitizationTool for non-overlay"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(BCM_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(BCM_RangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("MergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name))
     acc.setPrivateTools(tool)
     return acc
@@ -105,8 +111,6 @@ def BCM_OutputCfg(flags):
 def BCM_DigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for BCM digitization"""
     acc = PixelReadoutGeometryCfg(flags)
-    rangetool = acc.popToolsAndMerge(BCM_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if "PileUpTools" not in kwargs:
         PileUpTools = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags))
         kwargs["PileUpTools"] = PileUpTools

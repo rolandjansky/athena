@@ -89,12 +89,20 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
             kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value())
-    kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
+    if isOverlay():
+        # Some noise needs to be added during MC Overlay
+        # No noise should be added during Data Overlay
+        kwargs.setdefault('NoiseOnOff', not overlayFlags.isDataOverlay())
+    kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() ) # For other jobs go with the noise flag setting.
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault('FirstXing', -751 )
         kwargs.setdefault('LastXing', 101 )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     from LArDigitization.LArDigitizationFlags import jobproperties
     # check if using high gain for Fcal or not
@@ -163,11 +171,9 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         kwargs.setdefault('TriggerTimeToolName', theTriggerTimeTool )
 
 
-    # pileup configuration "algorithm" way
-    if not digitizationFlags.doXingByXingPileUp():
-        from AthenaCommon.DetFlags import DetFlags
-        if DetFlags.pileup.LAr_on() or isOverlay():
-            kwargs.setdefault('PileUp', True )
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.pileup.LAr_on() or isOverlay():
+        kwargs.setdefault('PileUp', True )
 
     kwargs.setdefault('useLArFloat', useLArFloat() )
     if useLArFloat():

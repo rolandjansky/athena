@@ -36,6 +36,17 @@ def TGC_RangeCfg(flags, name="TGC_Range", **kwargs):
 def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured TgcDigitizationTool"""
     acc = ComponentAccumulator()
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp:
+            kwargs.setdefault("FirstXing", TGC_FirstXing())
+            kwargs.setdefault("LastXing", TGC_LastXing())
+        else:
+            intervals += [acc.popToolsAndMerge(TGC_RangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     rangetool = acc.popToolsAndMerge(TGC_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp:

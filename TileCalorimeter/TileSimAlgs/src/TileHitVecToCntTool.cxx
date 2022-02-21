@@ -791,7 +791,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
   rngWrapper->setSeed( name(), ctx );
   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
 
-  if(!m_onlyUseContainerName && m_rndmEvtOverlay) {
+  if(!m_onlyUseContainerName) {
     auto hitVectorHandles = m_hitVectorKeys.makeHandles(ctx);
     for (auto & inputHits : hitVectorHandles) {
       if (!inputHits.isValid()) {
