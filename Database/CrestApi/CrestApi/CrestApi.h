@@ -179,7 +179,7 @@ namespace Crest {
  * This is an auxillary method to make an request to store several payloads in the batch mode.
  * (The old method name - store_batch_payload_request)
  * @param tag - tag name.
- * @param since - since.
+ * @param endtime - end time.
  * @param js - payloads in the JSON format.
  */
     std::string storeBatchPayloadRequest(const std::string& tag, uint64_t endtime, const std::string& js);
@@ -579,12 +579,14 @@ namespace Crest {
     nlohmann::json findAllIovs(const std::string& tagname);
 
 /**
- * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all
+ * This method finds all iovs for a given tag name. The result is a JSON object. It is a version of this method with all
  * parameters.
  * (This method is an analogue of the find_all_iovs method in Python)
  * @param tagname - tag name.
  * @param size - page size.
  * @param page - page number.
+ * @param sort - sort pattern (for example "{id.since:ASC}").
+ * @param dateformat - format of the input time fields.
  */
     nlohmann::json findAllIovs(const std::string& tagname, int size, int page, const std::string& sort,
                                const std::string& dateformat);
@@ -777,7 +779,7 @@ namespace Crest {
 // Stores payloads in batch mode
 
 /**
- * This method stores several payloads in batch mode.
+ * This method stores several payloads in batch mode. (The deprecated method.)
  * (This method is an analogue of the store_batch_payloads method in Python)
  * @param tag_name - tag name.
  * @param endtime - end time.
@@ -794,7 +796,7 @@ namespace Crest {
 
 
 /**
- * This method stores several payloads in batch mode.
+ * This method stores several payloads in batch mode. (The deprecated method.)
  * (This method is an analogue of the store_batch_payloads method in Python)
  * @param tag_name - tag name.
  * @param endtime - end time.
@@ -810,6 +812,38 @@ namespace Crest {
  */
     void storeBatchPayloads(const std::string& tag_name, uint64_t endtime, nlohmann::json& js);
 
+/**
+ * This method stores several payloads in batch mode.
+ * (This method is an analogue of the store_batch_payloads method in Python)
+ * @param tag_name - tag name.
+ * @param endtime - end time, if endtime = 0, the server does not use this parameter in the internal check.
+ * @param iovsetupload - iov data as a string.
+ * <br> Example how to use these parameters: <br>
+ * <pre>
+ *    std::string name58 = "test_MvG3b";
+ *    uint64_t endtime58 = 200;
+ *    std::string str58 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+ *    myCrestClient.storeBatchPayloads(name58, endtime58, str58);
+ * </pre>
+ */
+    void storeBatchPayloads(const std::string& tag_name, const std::string& iovsetupload, uint64_t endtime = 0);
+
+/**
+ * This method stores several payloads in batch mode.
+ * (This method is an analogue of the store_batch_payloads method in Python)
+ * @param tag_name - tag name.
+ * @param endtime - end time, if endtime = 0, the server does not use this parameter in the internal check.
+ * @param iovsetupload - iov data as a JSON object.
+ * <br> Example how to use these parameters: <br>
+ * <pre>
+ *    std::string name58 = "test_MvG3a";
+ *    uint64_t endtime58 = 200;
+ *    std::string str58 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+ *    nlohmann::json js58 = myCrestClient.getJson(str58);
+ *    myCrestClient.storeBatchPayloads(name58, endtime58, js58)
+ * </pre>
+ */
+    void storeBatchPayloads(const std::string& tag_name, nlohmann::json& js, uint64_t endtime = 0);
 
 //=======================================================
 
@@ -1026,6 +1060,16 @@ namespace Crest {
     nlohmann::json findAllIovsFs(const std::string& tagname);
 
 /**
+ * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all
+ * parameters. This method works with the file data storage.
+ * (This method is an analogue of the find_all_iovs method in Python)
+ * @param tagname - tag name.
+ * @param size - page size.
+ * @param page - page number.
+ */
+    nlohmann::json findAllIovsFs(const std::string& tagname, int size, int page);
+
+/**
  * Auxillary method to extract the file name from iov hash (the hash is a path in the file storage).
  * (The old method name is get_filename)
  * @param path - an iov hash.
@@ -1065,7 +1109,7 @@ namespace Crest {
  *    myCrestClient.storeBatchPayloadsFs(name39, str39);
  * </pre>
  */
-    void storeBatchPayloadsFs(const std::string &tag_name, std::string& iovsetupload);
+    void storeBatchPayloadsFs(const std::string& tag_name, std::string& iovsetupload);
 
 /**
  * This auxillary method stores several payloads in batch mode in the file storage.
@@ -1080,7 +1124,7 @@ namespace Crest {
  *    myCrestClient.storeBatchPayloadsFs(name39, js39);
  * </pre>
  */
-    void storeBatchPayloadsFs(const std::string &tag_name, nlohmann::json& js);
+    void storeBatchPayloadsFs(const std::string& tag_name, nlohmann::json& js);
 
 
 /**
@@ -1386,22 +1430,9 @@ namespace Crest {
     nlohmann::json findGlobalTagMapFs(const std::string& name);
 
 
-// new methods
-
-
-/**
- * The auxillary method to calculate a hash code for a given string.
- * This method uses SHA256 algorithm (PicoSHA2 C++ library)
- * @param str - a string
- */
-    std::string getHash(std::string_view str);
-
-/**
- * The auxillary method to get a current data and time.
- * It used to create a payload meta info on the local file storage
- * using the storePayloadDump method.
- */
-    std::string getDateAndTime();
+//=====================================================
+// Payloads methods for the file storage
+//
 
 /**
  * This auxillary method finds a payload resource associated to the hash
@@ -1438,6 +1469,78 @@ namespace Crest {
     nlohmann::json getPayloadMetaInfoAsJsonFS(const std::string& hash);
 
 
+
+//=====================================================
+// IOV number methods for the file storage
+//
+
+/**
+ * This metghod gets the number of iovs for the given tag. This method allows to select the count of iovs in a tag.
+ * This method works with the file storage.
+ * This method works with the file storage. (This method is an analogue of the get_size method in Python)
+ * @param tagname - tag name.
+ */
+    int getSizeFS(const std::string& tagname);
+
+
+/**
+ * This method gets the number of iovs for tags matching pattern. This method allows to select the count of iovs in a
+ * tag. This method works with the file storage.
+ * (This method is an analogue of the get_size_by_tag method in Python)
+ * The result is a JSON object.
+ * @param tagname - tag name.
+ */
+    nlohmann::json getSizeByTagFS(const std::string& tagname);
+
+
+//=====================================================
+// select IOV list methods
+//
+
+
+/**
+ * This method selects all iovs for a given tag name and for the selected time interval (since-until).
+ * The result is a JSON array. It is a verion of this method with all
+ * parameters. This method works with the CREST server. If until=-1 it means until is infinity,
+ * in this case "until=INF" in the URL request.
+ * @param tagname - tag name.
+ * @param since - start time.
+ * @param until - end time.
+ * @param snapshot - snapshot (the default value is 0)
+ */
+    nlohmann::json selectIovs(const std::string& tagname, long since, long until, long snapshot = 0);
+
+
+/**
+ * This method selects all iovs for a given tag name and for the selected time interval (since-until).
+ * The result is a JSON array. It is a verion of this method with all
+ * parameters. This method works with the file storage. If until=-1 it means until is infinity,
+ * in this case "until=INF" in the URL request.
+ * @param tagname - tag name.
+ * @param since - start time.
+ * @param until - end time.
+ */
+    nlohmann::json selectIovsFS(const std::string& tagname, long since, long until);
+
+
+//=====================================================
+// Auxillary methods
+//
+
+/**
+ * The auxillary method to calculate a hash code for a given string.
+ * This method uses SHA256 algorithm (PicoSHA2 C++ library)
+ * @param str - a string
+ */
+    std::string getHash(std::string_view str);
+
+/**
+ * The auxillary method to get a current data and time.
+ * It used to create a payload meta info on the local file storage
+ * using the storePayloadDump method.
+ */
+    std::string getDateAndTime();
+
 /**
  * This auxillary method creates a JSON array from a JSON object.
  * It used to convert a single objects (such as tags and global tags to
@@ -1445,6 +1548,15 @@ namespace Crest {
  * @param js - JSON object.
  */
     nlohmann::json returnJArray(nlohmann::json js);
+
+/**
+ * This is an auxillary method for checking how many unique IOVs(hashcodes) are in an IOV list.
+ * It is used to check how many payload files are in the data storage, and how this number
+ * corresponds to the unique hashcode number.
+ * It works with the file data storage.
+ * @param tagname - tag name.
+ */
+    void getTagDataInfo(std::string tagname);
   };
 } // namespace
 
