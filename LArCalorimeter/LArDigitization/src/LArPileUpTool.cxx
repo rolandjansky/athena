@@ -38,28 +38,6 @@ using CLHEP::RandGaussZiggurat;
 LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, const IInterface* parent) :
   PileUpToolBase(type, name, parent) {
 
-  // default properties
-  m_LowGainThresh[EM]    = 3900;//ADC counts in MediumGain
-  m_HighGainThresh[EM]   = 1300;//ADC counts in MediumGain
-  m_LowGainThresh[HEC]   = 2500;//ADC counts in MediumGain
-  m_HighGainThresh[HEC]  = 0;//-> high-gain never used for HEC
-  m_LowGainThresh[FCAL]  = 2000.;//ADC counts in Medium Gain
-  m_HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
-  m_LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
-  m_HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
-  //
-  // ........ declare the private data as properties
-  //
-  declareProperty("LowGainThreshEM",m_LowGainThresh[EM],"Medium/Low gain transition in EM");
-  declareProperty("HighGainThreshEM",m_HighGainThresh[EM],"Medium/High gain transition in EM");
-  declareProperty("LowGainThreshHEC",m_LowGainThresh[HEC],"Medium/Low gain transition in HEC");
-  declareProperty("HighGainThreshHEC",m_HighGainThresh[HEC],"Medium/High gain transition in HEC");
-  declareProperty("LowGainThreshFCAL",m_LowGainThresh[FCAL],"Medium/Low gain transition in FCAL");
-  declareProperty("HighGainThreshFCAL",m_HighGainThresh[FCAL],"Medium/High gain transition in FCAL");
-  declareProperty("LowGainThreshEMECIW",m_LowGainThresh[EMIW],"Medium/Low gain transition in EMEC IW");
-  declareProperty("HighGainThreshEMECIW",m_HighGainThresh[EMIW],"Medium/High gain transition in EMEC IW");
-
-  return;
 }
 
 

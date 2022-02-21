@@ -17,9 +17,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 ##################################################################
 if DetFlags.LAr_on():
     if DetFlags.digitize.LAr_on():
-        #job += CfgGetter.getLArHitEMapToDigitAlg("LArHitEMapToDigitAlg", tryDefaultConfigurable=True)
-        from LArDigitization.LArDigitizationConfig import getLArHitEMapToDigitAlg
-        job += getLArHitEMapToDigitAlg("LArHitEMapToDigitAlg")
+        job += CfgGetter.getAlgorithm("LArHitEMapToDigitAlg")
         job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
 
         if not digitizationFlags.PileUpPresampling() and 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():

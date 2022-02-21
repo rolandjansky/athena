@@ -112,7 +112,6 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
    }
 
    // Prepare Output
-   SG::WriteHandle<LArDigitContainer> DigitContainerHandle( m_DigitContainerName, context);
    auto DigitContainer = std::make_unique<LArDigitContainer>();
    auto DigitContainer_DigiHSTruth = std::make_unique<LArDigitContainer>();
    int it,it_end;
@@ -151,10 +150,9 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
         // MakeDigit called if in no overlay mode or
         // if in overlay mode and random digit exists
         if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
-	      LArDigit* Digit;
-	      LArDigit* Digit_DigiHSTruth;
-              if ( MakeDigit(context,cellID, ch_id, Digit, Digit_DigiHSTruth, TimeE, digit, engine, TimeE_DigiHSTruth)
-           == StatusCode::FAILURE ) return StatusCode::FAILURE;
+	      LArDigit* Digit = nullptr;
+	      LArDigit* Digit_DigiHSTruth = nullptr;
+              ATH_CHECK( MakeDigit(context,cellID, ch_id, Digit, Digit_DigiHSTruth, TimeE, digit, engine, TimeE_DigiHSTruth));
 	   DigitContainer->push_back(Digit);
 	   if ( m_doDigiTruth && Digit_DigiHSTruth ) DigitContainer_DigiHSTruth->push_back(Digit_DigiHSTruth);
         }
@@ -167,6 +165,7 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
 //  ATH_MSG_DEBUG(" total number of hits found= " << m_nhit_tot);
   ATH_MSG_DEBUG(" number of created digits  = " << DigitContainer->size());
 
+  SG::WriteHandle<LArDigitContainer> DigitContainerHandle( m_DigitContainerName, context);
   ATH_CHECK(DigitContainerHandle.record( std::move(DigitContainer) ) );
   if ( m_doDigiTruth ){
   SG::WriteHandle<LArDigitContainer> DigitContainer_DigiHSTruthHandle( m_DigitContainerName_DigiHSTruth, context);

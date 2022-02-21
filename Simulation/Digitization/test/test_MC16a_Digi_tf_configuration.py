@@ -277,11 +277,10 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['ADC2MeVKey', 'AutoCorrNoiseKey', 'BadChanKey', 'BadFebKey', 'CablingKey', 'DetStore', 'CaloDetDescrManager', 'DigitContainer', 'DigitContainer_DigiHSTruth', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LArXTalkWeightGlobal', 'LastXing', 'NoiseKey', 'NoiseOnOff', 'Nsamples', 'OFCKey', 'PedestalKey', 'PileUpMergeSvc', 'ProblemsToMask', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'ShapeKey', 'TriggerTimeToolName', 'fSamplKey', 'firstSample', 'useLArFloat']
-
+        expected_property_list = ['CablingKey', 'DetStore', 'CaloDetDescrManager', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LArXTalkWeightGlobal', 'LastXing', 'NoiseOnOff', 'Nsamples', 'PileUpMergeSvc', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
+        expected_string_properties = {}
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4',
                                          'LArHitContainers': '["StoreGateSvc+LArHitEMB","StoreGateSvc+LArHitEMEC","StoreGateSvc+LArHitHEC","StoreGateSvc+LArHitFCAL"]', 'LArHitFloatContainers':'[]'}
-        expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
         self._detailed_ConfigurablePropertiesCheck(
             tested_configurable_name,
             expected_property_list,

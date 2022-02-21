@@ -51,9 +51,6 @@ if DetFlags.overlay.LAr_on():
     from LArDigitization.LArDigitGetter import LArDigitGetter
     theLArDigitGetter = LArDigitGetter()
 
-    #from LArDigitization.LArDigitizationConfig import getLArHitEMapToDigitAlg
-    #job += getLArHitEMapToDigitAlg()
-
     if overlayFlags.isDataOverlay():
        from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
        LArRawChannelBuilderDefault()
