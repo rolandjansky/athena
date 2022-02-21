@@ -164,10 +164,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   Gaudi::Property<float> m_WindowsPtCut{this, "WindowsPtCut", 5000.,
       "Pt cut on e/photons for window mode (Default=5GeV)"};
   //
-  enum CaloNum{EM,HEC,FCAL,EMIW};
-  double m_LowGainThresh[4]{};       // energy thresholds for the low gain
-  double m_HighGainThresh[4]{};      // energy thresholds for the high gain
-
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
       "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
   //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal

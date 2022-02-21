@@ -92,19 +92,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         kwargs.setdefault('FirstXing', -751 )
         kwargs.setdefault('LastXing', 101 )
 
-    from LArDigitization.LArDigitizationFlags import jobproperties
-    # check if using high gain for Fcal or not
-    if  (not jobproperties.LArDigitizationFlags.useFcalHighGain()) and (not isOverlay()):
-        mlog.info("do not use high gain in Fcal digitization ")
-        kwargs.setdefault('HighGainThreshFCAL', 0 )
-    else:
-        mlog.info("use high gain in Fcal digitization or overlay job")
-
-    # check if using high gain for EMEC IW or not
-    if (not jobproperties.LArDigitizationFlags.useEmecIwHighGain()) and (not isOverlay()):
-       mlog.info("do not use high gain in EMEC IW digitization ")
-       kwargs.setdefault('HighGainThreshEMECIW',0)
-
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
 
     if useLArFloat():
@@ -122,7 +109,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     kwargs.setdefault('firstSample', larRODFlags.firstSample() )
 
     if isOverlay() :
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
         if overlayFlags.isOverlayMT():
             kwargs.setdefault("OnlyUseContainerName", False)
             kwargs.setdefault('InputDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
@@ -192,14 +178,14 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
     # check if using high gain for Fcal or not
     if  (not jobproperties.LArDigitizationFlags.useFcalHighGain()) and (not isOverlay()):
         mlog.info("do not use high gain in Fcal digitization ")
-        #kwargs.setdefault('HighGainThreshFCAL', 0 ) ## commented out for now
+        kwargs.setdefault('HighGainThreshFCAL', 0 ) ## commented out for now
     else:
         mlog.info("use high gain in Fcal digitization or overlay job")
 
     # check if using high gain for EMEC IW or not
     if (not jobproperties.LArDigitizationFlags.useEmecIwHighGain()) and (not isOverlay()):
        mlog.info("do not use high gain in EMEC IW digitization ")
-       #kwargs.setdefault('HighGainThreshEMECIW',0) ## commeted out for now
+       kwargs.setdefault('HighGainThreshEMECIW',0) ## commeted out for now
 
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
 

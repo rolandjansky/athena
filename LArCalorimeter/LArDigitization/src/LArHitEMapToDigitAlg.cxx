@@ -20,6 +20,24 @@ using CLHEP::RandGaussZiggurat;
 LArHitEMapToDigitAlg::LArHitEMapToDigitAlg(const std::string& name, ISvcLocator* pSvcLocator) :
    AthReentrantAlgorithm(name,pSvcLocator)
 {
+  // default properties
+  m_LowGainThresh[EM]    = 3900;//ADC counts in MediumGain
+  m_HighGainThresh[EM]   = 1300;//ADC counts in MediumGain
+  m_LowGainThresh[HEC]   = 2500;//ADC counts in MediumGain
+  m_HighGainThresh[HEC]  = 0;//-> high-gain never used for HEC
+  m_LowGainThresh[FCAL]  = 2000.;//ADC counts in Medium Gain
+  m_HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
+  m_LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
+  m_HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
+  // given the enum, it seems complicated to do it with modern configuration
+  declareProperty("LowGainThreshEM",m_LowGainThresh[EM],"Medium/Low gain transition in EM");
+  declareProperty("HighGainThreshEM",m_HighGainThresh[EM],"Medium/High gain transition in EM");
+  declareProperty("LowGainThreshHEC",m_LowGainThresh[HEC],"Medium/Low gain transition in HEC");
+  declareProperty("HighGainThreshHEC",m_HighGainThresh[HEC],"Medium/High gain transition in HEC");
+  declareProperty("LowGainThreshFCAL",m_LowGainThresh[FCAL],"Medium/Low gain transition in FCAL");
+  declareProperty("HighGainThreshFCAL",m_HighGainThresh[FCAL],"Medium/High gain transition in FCAL");
+  declareProperty("LowGainThreshEMECIW",m_LowGainThresh[EMIW],"Medium/Low gain transition in EMEC IW");
+  declareProperty("HighGainThreshEMECIW",m_HighGainThresh[EMIW],"Medium/High gain transition in EMEC IW");
 }
 
 StatusCode LArHitEMapToDigitAlg::initialize()
@@ -149,12 +167,6 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
 //  ATH_MSG_DEBUG(" total number of hits found= " << m_nhit_tot);
   ATH_MSG_DEBUG(" number of created digits  = " << DigitContainer->size());
 
-  // test part
-  for(int i = 0; i< 10; i++){
-      const LArDigit* digit = DigitContainer->at(i);
-      std::cout << "DIGITS from ALG: " << digit->channelID().get_identifier32().get_compact() << " " << digit->gain() << " " << digit->nsamples() << " " << digit->samples()[2] << std::endl;
-  }
-
   ATH_CHECK(DigitContainerHandle.record( std::move(DigitContainer) ) );
   if ( m_doDigiTruth ){
   SG::WriteHandle<LArDigitContainer> DigitContainer_DigiHSTruthHandle( m_DigitContainerName_DigiHSTruth, context);
@@ -174,19 +186,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 
 {
   bool createDigit_DigiHSTruth = true;
-
-  enum CaloNum{EM,HEC,FCAL,EMIW};
-  double LowGainThresh[4]{};       // energy thresholds for the low gain
-  double HighGainThresh[4]{};
-  // default properties
-  LowGainThresh[EM]    = 3900;//ADC counts in MediumGain
-  HighGainThresh[EM]   = 1300;//ADC counts in MediumGain
-  LowGainThresh[HEC]   = 2500;//ADC counts in MediumGain
-  HighGainThresh[HEC]  = 0;//-> high-gain never used for HEC
-  LowGainThresh[FCAL]  = 2000.;//ADC counts in Medium Gain
-  HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
-  LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
-  HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
 
   int sampleGainChoice{2};
 
@@ -277,14 +276,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
   bool isDead = m_bcMask.cellShouldBeMasked(bcCont,ch_id);
 
-  if ( ch_id.get_identifier32().get_compact() == 0x3a506500) {
-   std::cout << "FOUND3 : " << initialGain << " ";
-   for(auto iter : *TimeE ) std::cout << iter.first << " " << iter.second << " ";
-   std::cout << " S : ";
-   for(const auto iter : Samples ) std::cout  << " " << iter;
-   std::cout << std::endl;
-  }
-
 
   if (!isDead) {
     if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE, Samples).isFailure() ) return StatusCode::SUCCESS;
@@ -298,7 +289,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
  float energy2adc ;
  float rAdc ;
- if ( rndmEvtDigit ) std::cout << "channel id " << ch_id << " has rndmEvtDigit  " << std::endl;
  if(m_RndmEvtOverlay && rndmEvtDigit ) // no overlay if missing random digit
  {
   rndmGain= rndmEvtDigit->gain();
@@ -384,9 +374,9 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
   //
   // ......... try a gain
   //
-  if ( pseudoADC3 <= HighGainThresh[iCalo])
+  if ( pseudoADC3 <= m_HighGainThresh[iCalo])
     igain = CaloGain::LARHIGHGAIN;
-   else if ( pseudoADC3 <= LowGainThresh[iCalo])
+   else if ( pseudoADC3 <= m_LowGainThresh[iCalo])
     igain = CaloGain::LARMEDIUMGAIN;
   else
     igain = CaloGain::LARLOWGAIN;
@@ -405,15 +395,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
        if (m_RndmEvtOverlay) Samples[i]= rndm_energy_samples[i] ;
        else Samples[i] = 0.;
      }
-
-
-  if ( ch_id.get_identifier32().get_compact() == 0x3a506500 ) {
-   std::cout << "FOUND4 : " << igain << " ";
-   for(auto iter : *TimeE ) std::cout << iter.first << " " << iter.second << " ";
-   std::cout << " S : ";
-   for(const auto iter : Samples ) std::cout  << " " << iter;
-   std::cout << std::endl;
-  }
 
      if (!isDead) {
        if( this->ConvertHits2Samples(ctx, cellId,ch_id,igain,TimeE, Samples) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
@@ -465,11 +446,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
            Noise[i]=Noise[i]*SigmaNoise;
         }
         addedNoise=true;
-        if ( ch_id.get_identifier32().get_compact() == 0x3a506500 ) {
-           std::cout << "Noise2 : ";
-           for(const auto iter : Noise ) std::cout << iter << " ";
-	   std::cout << std::endl;
-	}
      } else  {
         // overlay case a priori don't add any noise
         for (int i=0;i<m_NSamples;i++) Noise[i]=0.;

@@ -90,10 +90,6 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", -751)
         kwargs.setdefault("LastXing", 101)
-    if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
-        kwargs.setdefault("HighGainThreshFCAL", 0)
-    if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
-        kwargs.setdefault("HighGainThreshEMECIW", 0)
     kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
     # if doing MC+MC overlay
     if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
@@ -154,10 +150,10 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)
     kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
-    #if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
-    #    kwargs.setdefault("HighGainThreshFCAL", 0)
-    #if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
-    #    kwargs.setdefault("HighGainThreshEMECIW", 0)
+    if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
+        kwargs.setdefault("HighGainThreshFCAL", 0)
+    if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
+        kwargs.setdefault("HighGainThreshEMECIW", 0)
     kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
@@ -168,15 +164,6 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
           kwargs.setdefault("isMcOverlay", True)
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
-    # cosmics digitization
-    #if flags.Beam.Type is BeamType.Cosmics:
-    #    kwargs.setdefault("UseTriggerTime", True)
-    #    CosmicTriggerTimeTool = CompFactory.CosmicTriggerTimeTool
-    #    kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
-    # pileup configuration "algorithm" way
-    #if not flags.Digitization.DoXingByXingPileUp:
-    #    if flags.Digitization.PileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
-    #        kwargs.setdefault("PileUp", True)
     LArHitEMapToDigitAlg = CompFactory.LArHitEMapToDigitAlg
     acc.addEventAlgo(LArHitEMapToDigitAlg(name, **kwargs))
     return acc

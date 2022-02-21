@@ -118,6 +118,9 @@ protected:
   Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false,
        "Use MC16-style random number seeding"};
 
+  enum CaloNum{EM,HEC,FCAL,EMIW};
+  double m_LowGainThresh[4]{};
+  double m_HighGainThresh[4]{};
   // Some properties for digits production
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
        "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
