@@ -402,6 +402,11 @@ if opt.strictDependencies:
 # Always enable magnetic field
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
+# But don't make the job think it is doing any sim+digi
+DetFlags.simulate.all_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
+
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
