@@ -5,7 +5,7 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 
 from TriggerMenuMT.HLT.Tau.TauRecoSequences import tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauMVASequence, tauLLPSequence, tauPrecIsoTrackSequence
 

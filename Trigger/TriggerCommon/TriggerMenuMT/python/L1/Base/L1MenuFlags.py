@@ -49,7 +49,6 @@ class L1MenuFlagsCont(object):
         "CtpIdMap"                :  FlagArgs( dict, dict() ),
         "ThresholdMap"            :  FlagArgs( dict, dict() ),
         "ItemMap"                 :  FlagArgs( dict, dict() ),
-        "ApplyCTPLimits"          :  FlagArgs( bool, True ),
     }
 
     def __setattr__(self, attr, value):

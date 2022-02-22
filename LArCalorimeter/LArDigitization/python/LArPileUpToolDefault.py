@@ -18,6 +18,9 @@ def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitCon
         theTool.DigitContainer_DigiHSTruth = outputKey_DigiHSTruth
         from Digitization.DigitizationFlags import digitizationFlags
         theTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
+        # Need new conditions
+        from LArRecUtils.LArXTalkWeightCondAlgDefault import LArXTalkWeightCondAlgDefault
+        LArXTalkWeightCondAlgDefault()
 
 
     except Exception:

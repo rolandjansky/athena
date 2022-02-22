@@ -100,11 +100,17 @@ private:
   std::vector<float> m_gRho_phi;
   std::vector<float> m_gRho_et;
 
+  std::vector<float> m_gSJ_iEta;
+  std::vector<float> m_gSJ_iPhi;
   std::vector<float> m_gSJ_eta;
+  std::vector<float> m_gSJ_gFEXphi;
   std::vector<float> m_gSJ_phi;
   std::vector<float> m_gSJ_et;
 
+  std::vector<float> m_gLJ_iEta;
+  std::vector<float> m_gLJ_iPhi;
   std::vector<float> m_gLJ_eta;
+  std::vector<float> m_gLJ_gFEXphi;
   std::vector<float> m_gLJ_phi;
   std::vector<float> m_gLJ_et;
 

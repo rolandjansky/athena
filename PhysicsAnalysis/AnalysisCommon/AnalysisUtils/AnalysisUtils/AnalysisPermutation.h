@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSISUTILS_ANALYSISPERMUTATION_H
@@ -46,6 +46,9 @@ namespace AnalysisUtils {
       for (unsigned int i=0; i<m_index_for_comb.size(); ++i)
 	delete m_index_for_comb[i];
     }
+
+    Permutation (const Permutation&) = delete;
+    Permutation& operator= (const Permutation&) = delete;
 
     /** get a permutation. This method changes the sequence in increasing order
 	and return true if succeeds. If the current sequence is the last permutation,

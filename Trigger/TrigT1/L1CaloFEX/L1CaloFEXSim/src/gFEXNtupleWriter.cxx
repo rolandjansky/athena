@@ -72,11 +72,17 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gRho_phi", &m_gRho_phi);
   m_valiTree->Branch ("gRho_et", &m_gRho_et);
 
+  m_valiTree->Branch ("gSJ_iEta", &m_gSJ_iEta);  
+  m_valiTree->Branch ("gSJ_iPhi", &m_gSJ_iPhi);
   m_valiTree->Branch ("gSJ_eta", &m_gSJ_eta);  
+  m_valiTree->Branch ("gSJ_gFEXphi", &m_gSJ_gFEXphi);
   m_valiTree->Branch ("gSJ_phi", &m_gSJ_phi);
   m_valiTree->Branch ("gSJ_et", &m_gSJ_et);
 
+  m_valiTree->Branch ("gLJ_iEta", &m_gLJ_iEta);  
+  m_valiTree->Branch ("gLJ_iPhi", &m_gLJ_iPhi);
   m_valiTree->Branch ("gLJ_eta", &m_gLJ_eta);  
+  m_valiTree->Branch ("gLJ_gFEXphi", &m_gLJ_gFEXphi);
   m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
   m_valiTree->Branch ("gLJ_et", &m_gLJ_et);
 
@@ -194,11 +200,17 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gRho_phi.clear();
   m_gRho_et.clear();
 
+  m_gSJ_iEta.clear();
+  m_gSJ_iPhi.clear();
   m_gSJ_eta.clear();
+  m_gSJ_gFEXphi.clear();
   m_gSJ_phi.clear();
   m_gSJ_et.clear();
 
+  m_gLJ_iEta.clear();
+  m_gLJ_iPhi.clear();
   m_gLJ_eta.clear();
+  m_gLJ_gFEXphi.clear();
   m_gLJ_phi.clear();
   m_gLJ_et.clear();
 
@@ -237,14 +249,20 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   }
 
   for (auto const gSJ : *gBlockHandle) {
-    m_gSJ_eta.push_back(gSJ->iEta());
-    m_gSJ_phi.push_back(gSJ->iPhi());
+    m_gSJ_iEta.push_back(gSJ->iEta());
+    m_gSJ_iPhi.push_back(gSJ->iPhi());
+    m_gSJ_eta.push_back(gSJ->eta());
+    m_gSJ_gFEXphi.push_back(gSJ->phi_gFex());
+    m_gSJ_phi.push_back(gSJ->phi());
     m_gSJ_et.push_back(gSJ->tobEt());
   }
 
   for (auto const gLJ : *gJetHandle) {
-    m_gLJ_eta.push_back(gLJ->iEta());
-    m_gLJ_phi.push_back(gLJ->iPhi());
+    m_gLJ_iEta.push_back(gLJ->iEta());
+    m_gLJ_iPhi.push_back(gLJ->iPhi());
+    m_gLJ_eta.push_back(gLJ->eta());
+    m_gLJ_gFEXphi.push_back(gLJ->phi_gFex());
+    m_gLJ_phi.push_back(gLJ->phi());
     m_gLJ_et.push_back(gLJ->tobEt());
   }
 

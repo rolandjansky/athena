@@ -85,7 +85,7 @@ private:
   virtual const GeoLogVol * preBuild();
   void makeDesign(); 
 
-  int m_ringType;
+  int m_ringType{};
 
   double m_thickness = 0.0;     // Thickness of sensor
   double m_outerRadius = 0.0;   // Outer radius of physical sensor
@@ -118,7 +118,7 @@ private:
 
   GeoPhysVol * m_inactive = nullptr;
   
-  InDetDD::SiDetectorDesign * m_design = nullptr;
+  const InDetDD::SiDetectorDesign * m_design = nullptr;
 
   mutable std::atomic_bool m_noElementWarning;
 };

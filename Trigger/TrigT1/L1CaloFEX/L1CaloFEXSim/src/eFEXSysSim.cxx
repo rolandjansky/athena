@@ -112,7 +112,7 @@ namespace LVL1 {
       int tmp_eTowersIDs_subset_eFEX[10][18];
       for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
           ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));
-          m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
+          m_eFEXSimTool->init(i_efex);
           ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX, inputOutputCollection));
           m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
           m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getTauTOBs() ) ));
@@ -150,11 +150,9 @@ namespace LVL1 {
     int initialTRANS = calcTowerID(transEta,transPhi,transMod); //300897;
     int embEta = 13; int embPhi = 1; int embMod = 100000;
     int initialEMB = calcTowerID(embEta,embPhi,embMod); //100833;
+    int eFEXa = 0;
 
-    int maxPhi = 8;//maximum number of efexes in phi
-    int eFEXa = 160;//changed from 0
-
-    for (int thisEFEX=eFEXa; thisEFEX<eFEXa+maxPhi; thisEFEX++){
+    for (int thisEFEX=eFEXa; thisEFEX<=21; thisEFEX+=3){
       
       if(fexcounter > 0){ initialEMEC += 8; initialTRANS += 8; initialEMB += 8; } // TODO // SOMEHOW REMOVE HARD-CODING?
 
@@ -173,7 +171,7 @@ namespace LVL1 {
 
 	  int towerid = initialEMEC - (thisCol * 64) + thisRow;
 
-	  if( (thisEFEX-eFEXa == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX == 21) && (thisRow >= 7)){ towerid -= 64; };
 	  
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -186,7 +184,7 @@ namespace LVL1 {
 
 	int towerid = initialTRANS + thisRow;
 
-	if( (thisEFEX-eFEXa == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	if( (thisEFEX == 21) && (thisRow >= 7)){ towerid -= 64; };
 
 	tmp_eTowersIDs_subset[thisRow][10] = towerid;
 	tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -199,7 +197,7 @@ namespace LVL1 {
 
 	  int towerid = initialEMB - ( (thisCol-11) * 64) + thisRow;
 
-	  if( (thisEFEX-eFEXa == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX == 21) && (thisRow >= 7)){ towerid -= 64; };
 
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -239,9 +237,9 @@ namespace LVL1 {
     int initialEMB_neg = calcTowerID(embnegEta,embnegPhi,embnegMod); //100513;
     int embposEta = 0; int embposPhi = 1; int embposMod = 200000;
     int initialEMB_pos = calcTowerID(embposEta,embposPhi,embposMod); //200001;
-    int eFEXb = 176;
+    int eFEXb = 1;
 
-    for (int thisEFEX=eFEXb; thisEFEX-eFEXb<maxPhi; thisEFEX++){
+    for (int thisEFEX=eFEXb; thisEFEX<=22; thisEFEX+=3){
 
       if(fexcounter > 0){  initialEMB_neg += 8; initialEMB_pos += 8; }
       
@@ -269,7 +267,7 @@ namespace LVL1 {
 	    towerid = tmp_initEMB + ( (thisCol-9) * 64) + thisRow;
 	  }
 
-	  if( (thisEFEX-eFEXb == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX == 22) && (thisRow >= 7)){ towerid -= 64; };
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 
@@ -313,9 +311,9 @@ namespace LVL1 {
     initialTRANS = calcTowerID(transEta,transPhi,transMod); //400897;
     embEta = 7; embPhi = 1; embMod = 200000;
     initialEMB = calcTowerID(embEta,embPhi,embMod); //200449;
-    int eFEXc = 192;
+    int eFEXc = 2;
 
-    for (int thisEFEX=eFEXc; thisEFEX-eFEXc<maxPhi; thisEFEX++){
+    for (int thisEFEX=eFEXc; thisEFEX<=23; thisEFEX+=3){
 
       if(fexcounter > 0){ initialEMEC += 8; initialTRANS += 8; initialEMB += 8; }
 
@@ -333,7 +331,7 @@ namespace LVL1 {
         for(int thisRow=0; thisRow<rows; thisRow++){
           int towerid = initialEMB + ( (thisCol) * 64) + thisRow;
 
-          if( (thisEFEX-eFEXc == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX == 23) && (thisRow >= 7)){ towerid -= 64; };
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -344,7 +342,7 @@ namespace LVL1 {
       for(int thisRow = 0; thisRow < rows; thisRow++){
         int towerid = initialTRANS + thisRow;
 
-        if( (thisEFEX-eFEXc == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	if( (thisEFEX == 23) && (thisRow >= 7)){ towerid -= 64; };
 
         tmp_eTowersIDs_subset[thisRow][7] = towerid;
         tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -355,7 +353,7 @@ namespace LVL1 {
         for(int thisRow=0; thisRow<rows; thisRow++){
           int towerid = initialEMEC + ( (thisCol-8) * 64) + thisRow;
 
-          if( (thisEFEX-eFEXc == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX == 23) && (thisRow >= 7)){ towerid -= 64; };
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -381,13 +379,15 @@ namespace LVL1 {
       m_eFEXSimTool->init(thisEFEX);
       ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
+      m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
 
     }
     
-    }
+    }//close the non-csv loop over eFEXes
+
     m_eContainer = std::make_unique<xAOD::eFexEMRoIContainer> ();
     m_eAuxContainer = std::make_unique<xAOD::eFexEMRoIAuxContainer> ();
     m_eContainer->setStore(m_eAuxContainer.get());

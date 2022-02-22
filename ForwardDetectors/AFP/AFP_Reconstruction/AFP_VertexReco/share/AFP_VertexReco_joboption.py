@@ -10,13 +10,13 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 # Prepare Vertex reconstruction algorithm tools
 def AFP_VertexReco_Cfg(kwargs={}):
 
-	TimeOffsetA = [64,57,30,52]
-	TimeSlopeA = [-8.6,-10.4,-9.7,-17.]
-	TimeOffsetC = [-4,1,17,7]     
-	TimeSlopeC = [9.6,11,11,11]
+	TimeOffsetA = [64,45,25,11]
+	TimeSlopeA = [-7.3,-5.0,-4.0,-4.]
+	TimeOffsetC = [2,9,14,12]     
+	TimeSlopeC = [4,5,3,6]
 	TrainEdgesA = [-18.7,-13.2,-8.1,-4.0,-2.5]
 	TrainEdgesC = [-18.7,-13.2,-8.1,-4.0,-2.5]
-	TimeGlobalOffset = 0
+	TimeGlobalOffset = 5
 
 	afpVertexRecoTool = CompFactory.AFP_VertexRecoBasic("AFP_VertexRecoBasic",TrackDistance=0.5,TimeOffsetA = TimeOffsetA, TimeSlopeA = TimeSlopeA, TimeOffsetC = TimeOffsetC, TimeSlopeC = TimeSlopeC, TimeGlobalOffset = TimeGlobalOffset, TrainEdgesA = TrainEdgesA, TrainEdgesC = TrainEdgesC, **kwargs)
 

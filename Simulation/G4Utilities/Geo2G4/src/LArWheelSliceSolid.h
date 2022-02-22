@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_LARWHEELSLICESOLID_H
 #define GEO2G4_LARWHEELSLICESOLID_H
-
+#ifndef PORTABLE_LAR_SHAPE
 #include "AthenaKernel/MsgStreamMember.h"
+#endif
 #include "G4VSolid.hh"
 
 // set this to allow debug output in LArWheelSliceSolid methods
@@ -36,7 +37,7 @@ class G4AffineTransform;
 class LArWheelCalculator;
 class TF1;
 class G4Polyhedra;
-
+class EMECData;
 class LArWheelSliceSolid : public G4VSolid
 {
   public:
@@ -47,9 +48,10 @@ class LArWheelSliceSolid : public G4VSolid
         const G4String& name,
         pos_t pos, type_t type, size_t slice,
         G4int zside = 1,
-        const LArWheelCalculator *calc = 0
+        const LArWheelCalculator *calc = 0,
+	const EMECData * emecData=0
     );
-    LArWheelSliceSolid(const G4String& name);
+    LArWheelSliceSolid(const G4String& name, const EMECData *emecData);
     virtual ~LArWheelSliceSolid(){}
 
   // Mandatory for custom solid Geant4 functions
@@ -75,9 +77,11 @@ class LArWheelSliceSolid : public G4VSolid
     G4Polyhedron* CreatePolyhedron() const;
     virtual std::ostream& StreamInfo(std::ostream& os) const { return os; }
 
+#ifndef PORTABLE_LAR_SHAPE
     G4ThreeVector GetPointOnSurface(void) const;
     G4double GetCubicVolume(void);
     G4double GetSurfaceArea(void);
+#endif
   //
 
     const G4VSolid *GetBoundingShape(void) const { return m_BoundingShape; }
@@ -125,6 +129,7 @@ class LArWheelSliceSolid : public G4VSolid
         const G4ThreeVector &, G4ThreeVector &, const int
     ) const;
 
+#ifndef PORTABLE_LAR_SHAPE
     EInside Inside_accordion(const G4ThreeVector&) const;
     void get_point_on_accordion_surface(G4ThreeVector &) const;
     void get_point_on_polycone_surface(G4ThreeVector &) const;
@@ -145,13 +150,16 @@ class LArWheelSliceSolid : public G4VSolid
     MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
     bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
+#endif
+  
 protected:
   /// Private message stream member
+#ifndef PORTABLE_LAR_SHAPE
     mutable Athena::MsgStreamMember m_msg;
 
     TF1 *m_f_area, *m_f_vol, *m_f_area_on_pc, *m_f_length, *m_f_side_area;
-
+#endif
+  
     double m_test_index;
     friend double LArWheelSliceSolid_fcn_area(double *, double *);
     friend double LArWheelSliceSolid_fcn_vol(double *, double *);
@@ -181,7 +189,7 @@ protected:
   private:
     G4String TypeStr(void) const;
 
-    void createSolid(const G4String& name, G4int zside, size_t slice);
+  void createSolid(const G4String& name, G4int zside, size_t slice, const EMECData *emecData);
     inline void check_slice(size_t size, size_t slice) const;
 };
 

@@ -133,12 +133,7 @@ void MuonChamber::makesTgc (const Identifier& id)
   elt->initDesign (0, 0, 0, 0, 0, 0, 0, 1);
   //elt->m_ngasgaps = 2;
   elt->fillCache();
-  //m_muo_dd.addsTgcReadoutElement (elt.release(), id);
-  int isSmall = m_muo_dd.stgcIdHelper()->isSmall(id);
-  int iStEta = m_muo_dd.stgcIdHelper()->stationEta(id);
-  int iStPhi = m_muo_dd.stgcIdHelper()->stationPhi(id);
-  int iML = m_muo_dd.stgcIdHelper()->multilayer(id);
-  m_muo_dd.addsTgcReadoutElement_withIdFields (elt.release(), isSmall, iStEta, iStPhi, iML);
+  m_muo_dd.addsTgcReadoutElement(elt.release(), id);
 }
 
 
@@ -150,11 +145,7 @@ void MuonChamber::makeMm (const Identifier& id)
   elt->initDesign (0, 0, 0, 0, 0);
   //elt->m_ngasgaps = 2;
   elt->fillCache();
-  int isSmall = m_muo_dd.mmIdHelper()->isSmall(id);
-  int iStEta = m_muo_dd.mmIdHelper()->stationEta(id);
-  int iStPhi = m_muo_dd.mmIdHelper()->stationPhi(id);
-  int iML = m_muo_dd.mmIdHelper()->multilayer(id);
-  m_muo_dd.addMMReadoutElement_withIdFields (elt.release(), isSmall, iStEta, iStPhi, iML);
+  m_muo_dd.addMMReadoutElement(elt.release(), id);
 }
 
 

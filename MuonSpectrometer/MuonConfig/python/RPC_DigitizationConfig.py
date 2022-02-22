@@ -88,6 +88,14 @@ def RPC_DigitizationToolCommonCfg(flags, name="RpcDigitizationTool", **kwargs):
 def RPC_DigitizationToolCfg(flags, name="RpcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitizationTool"""
     acc = ComponentAccumulator()
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(RPC_RangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     rangetool = acc.popToolsAndMerge(RPC_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")

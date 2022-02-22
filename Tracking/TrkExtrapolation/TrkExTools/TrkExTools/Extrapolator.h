@@ -74,7 +74,7 @@ typedef std::vector<std::unique_ptr<Trk::TrackParameters>> TrackParametersUVecto
 typedef std::pair<const Surface*, BoundaryCheck> DestSurf;
 
 using TrackParmContainer = ObjContainer<Trk::TrackParameters>;
-using TrackParmPtr = ObjRef<>;
+using TrackParmPtr = ObjRef;
 using ManagedTrackParmPtr = ObjPtr<Trk::TrackParameters>;
 
 /** @struct ParametersAtBoundarySurface
@@ -252,7 +252,7 @@ public:
     const Volume* boundaryVol = nullptr) const override final;
 
   /** 6) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayer(
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayer(
     const EventContext& ctx,
     const TrackParameters& parm,
     PropDirection dir = anyDirection,
@@ -261,7 +261,7 @@ public:
     MaterialUpdateMode matupmode = addNoise) const override final;
 
   /** 7) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerM(
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayerM(
     const EventContext& ctx,
     const TrackParameters& parm,
     PropDirection dir,

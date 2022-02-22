@@ -185,7 +185,7 @@ StatusCode LArDigits2Ntuple::initialize()
 
   ATH_CHECK(m_evtInfoKey.initialize() );
 
-  if( !m_isSCFlag ) ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
+  ATH_CHECK( m_LArFebHeaderContainerKey.initialize(!m_isSCFlag));
   
   ATH_MSG_WARNING("Checked containerkeys");
   m_ipass	   = 0;

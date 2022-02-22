@@ -34,6 +34,14 @@ StatusCode SharedWriterTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
 
+  if( m_isPileup ) {
+    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
+    ATH_MSG_INFO("The job is running in pileup mode");
+  }
+  else {
+    ATH_MSG_INFO("The job is running in non-pileup mode");
+  }
+
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess()) return sc;
 

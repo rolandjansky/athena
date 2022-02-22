@@ -247,6 +247,10 @@ _stdSeqList = [
     # Track constituents (e.g. track-jets, trackSelOptions quality criteria, TTVA)
     JetInputConstit("PV0Track", xAODType.TrackParticle, 'PV0JetSelectedTracks'),
 
+    # LRT. Only used as ghosts
+    JetInputConstit("TrackLRT", xAODType.TrackParticle, "InDetLargeD0TrackParticles", 
+                    filterfn = lambda flags : (flags.InDet.Tracking.doR3LargeD0 and "InDetLargeD0TrackParticles" in flags.Input.Collections, "Large radius tracking did not run")),
+
     # *****************************
     # Muon segments. Only used as ghosts
     JetInputConstit("MuonSegment", "MuonSegment", "MuonSegments",                    ),

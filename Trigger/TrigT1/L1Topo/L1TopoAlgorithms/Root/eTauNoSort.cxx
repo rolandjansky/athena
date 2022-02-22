@@ -17,8 +17,8 @@ REGISTER_ALG_TCS(eTauNoSort)
 TCS::eTauNoSort::eTauNoSort(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 120 ); // for fw
    defineParameter( "OutputWidth", 120 );    
-   defineParameter( "RCore", 0);
-   defineParameter( "RHad", 0);
+   defineParameter( "RCoreMin", 0);
+   defineParameter( "RHadMin", 0);
 }
 
 
@@ -28,8 +28,8 @@ TCS::eTauNoSort::~eTauNoSort() {}
 TCS::StatusCode
 TCS::eTauNoSort::initialize() {
    m_numberOfeTaus = parameter("OutputWidth").value();
-   m_rCore = parameter("RCore").value();
-   m_rHad = parameter("RHad").value();
+   m_minRCore = parameter("RCoreMin").value();
+   m_minRHad = parameter("RHadMin").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -41,7 +41,9 @@ TCS::eTauNoSort::sort(const InputTOBArray & input, TOBArray & output) {
    // fill output array with GenericTOB built from clusters
    for(eTauTOBArray::const_iterator etau = clusters.begin(); etau!= clusters.end(); ++etau ) {
 
-      // TODO: isolation cut
+      // Isolation cut
+      if ( !isocut(m_minRCore, (*etau)-> rCore()) ) {continue;}
+      if ( !isocut(m_minRHad, (*etau)-> rHad()) ) {continue;}
       
       const GenericTOB gtob(**etau);
       output.push_back( gtob );

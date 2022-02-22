@@ -13,6 +13,7 @@ AFPTrackContainerAux.
 AFPVertexContainer
 AFPVertexContainerAux.
 AllCalo
+BunchConfKey
 BunchId
 ByteStreamMetadata
 CaloCalFwdTopoTowers
@@ -1299,6 +1300,8 @@ TopoClusterIsoForwardEventShapeAuxDyn.DensitySigma
 TrigConfKeys
 TrigNavigation
 TrigNavigationAux.
+TriggerMenuJson_BG
+TriggerMenuJson_BGAux.
 TriggerMenuJson_HLT
 TriggerMenuJson_HLTAux.
 TriggerMenuJson_HLTMonitoring

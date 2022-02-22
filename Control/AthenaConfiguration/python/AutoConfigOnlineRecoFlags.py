@@ -99,7 +99,7 @@ def trySetFlagsFromIS(flags, partition=None):
         hltpsk = tryReadFromISObject(hltpsk_is, 'HltPrescaleKey')
         bgk = tryReadFromISObject(bgk_is, 'L1BunchGroupKey')
         if all([v is not None for v in [smk, l1psk, hltpsk, bgk]]):
-            dbname = 'TRIGGERDBDEV1_I8'  # Temporary DB to be replaced for Run 3
+            dbname = 'TRIGGERDB_RUN3'  # Run3 DB name (not listed in IS)
             flags.Trigger.triggerConfig = 'DB:{:s}:{:d},{:d},{:d},{:d}'.format(
                 dbname, smk, l1psk, hltpsk, bgk)
 

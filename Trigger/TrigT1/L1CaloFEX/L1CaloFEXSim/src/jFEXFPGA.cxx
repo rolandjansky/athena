@@ -61,10 +61,9 @@ jFEXFPGA::~jFEXFPGA()
   
 StatusCode jFEXFPGA::initialize() {
 
-    ATH_CHECK(m_jFEXFPGA_jTowerContainerKey.initialize());
-    ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
+    ATH_CHECK(m_jTowerContainerKey.initialize());
     ATH_CHECK(m_l1MenuKey.initialize());
-    ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
+    ATH_CHECK(m_jFEXtauAlgoTool.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -93,11 +92,11 @@ void jFEXFPGA::reset() {
 
 StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     
-    
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXFPGA_jTowerContainer(m_jFEXFPGA_jTowerContainerKey/*,ctx*/);
-    if(!jk_jFEXFPGA_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
+
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey/*,ctx*/);
+    if(!jTowerContainer.isValid()) {
+        ATH_MSG_FATAL("Could not retrieve container " << m_jTowerContainerKey.key() );
         return StatusCode::FAILURE;
     }
 
@@ -284,7 +283,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     
                     int meta_LM = meta;
                     int mphi_LM = mphi;
-                    if(check  && is_Jet_LM) {
+                    if(check && meta>8 && mphi>8) {
                         meta_LM = meta -1;
                         mphi_LM = mphi -1;
 
@@ -853,8 +852,8 @@ int jFEXFPGA::getTTowerET_forMET(unsigned int TTID) {
 //Returns de ET of a given TT ID for Algorithm
 int jFEXFPGA::getTTowerET_SG(unsigned int TTID) {
 
-    SG::ReadHandle<jTowerContainer> jFEXFPGA_jTowerContainer(m_jFEXFPGA_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jFEXFPGA_jTowerContainer->findTower(TTID);
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey);
+    const LVL1::jTower * tmpTower = jTowerContainer->findTower(TTID);
     return tmpTower->getTotalET();
 }
 

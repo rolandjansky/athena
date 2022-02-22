@@ -32,6 +32,9 @@ def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults
             defaults = {
                      'ExistIBL'         : geoFlags.isIBL(),
                      }
+            if 'Flip' in name:
+                defaults['getNegativeTag'] = True
+
         for option in defaults:
             options.setdefault(option, defaults[option])
 

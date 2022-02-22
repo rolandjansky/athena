@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  TopoCore
 //
@@ -12,7 +12,6 @@
 
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/cTauTOBArray.h"
-#include "L1TopoEvent/GenericTOB.h"
 
 REGISTER_ALG_TCS(cTauMultiplicity)
 
@@ -63,66 +62,75 @@ TCS::cTauMultiplicity::process( const TCS::InputTOBArray & input, Count & count 
   const cTauTOBArray & cTaus = dynamic_cast<const cTauTOBArray&>(input);
 
   int counting = 0;
-
-  // fill output array with GenericTOB buildt from ctaus
+  int count_eTaus = 0; 
+  // Loop over eTau candidates
   for(cTauTOBArray::const_iterator etau_cand = cTaus.begin(); etau_cand != cTaus.end(); ++etau_cand ) {
+
+    if((*etau_cand)->tobType() != TCS::ETAU) continue;
+    
+    bool matching  = false; // Is it matched to a jTau?
+    bool isolation = false; // If matched: does it pass the isolation cut?
+    bool passed    = false; // passed = true if (matching==true && isolation==true) || (matching==false)
+
+    // Loop over jTau candidates
     for(cTauTOBArray::const_iterator jtau_cand = cTaus.begin(); jtau_cand != cTaus.end(); ++jtau_cand ) {
       
-      const GenericTOB gtob_etau(**etau_cand);
-      const GenericTOB gtob_jtau(**jtau_cand);
-      
-      if((*etau_cand)->tobType() != TCS::ETAU) continue;
       if((*jtau_cand)->tobType() != TCS::JTAU) continue;
-      
-      bool matching = (gtob_etau.eta() == gtob_jtau.eta()) && (gtob_etau.phi() == gtob_jtau.phi());
-      // Isolation condition coded as in firmware https://indico.cern.ch/event/1079697/contributions/4541419/attachments/2315137/3940824/cTAU_FirmwareAlgoProposal.pdf page 8. 
-      // Using physics values for the cut
-      unsigned int isolation_score = convertIsoToBit(gtob_etau,gtob_jtau);
-      bool isolation = isocut( TrigConf::Selection::wpToString(cTauThr.isolation()), isolation_score );
 
-      bool passed = false;
-      
-      // This is a good ctau
-      if( matching && isolation )
-	{
-	  passed = true;
-	}
-      // In case of non matched tau passes
-      if( !(matching) )
-	{
-	  passed = true;
-	}
+      // Matching is done comparing eta_tower and phi_tower (granularity = 0.1)
+      // These coordinates represent the lower edge of the towers (both for eFEX and jFEX)
+      int eTauEtaTower = (*etau_cand)->eta() - (*etau_cand)->eta()%4;  // eTau eta = 4*eta_tower + seed 
+      int jTauEtaTower = (*jtau_cand)->eta();                          // jTau eta = 4*eta_tower
+      unsigned int eTauPhiTower = (*etau_cand)->phi();                 // eTau phi = 2*phi_tower 
+      unsigned int jTauPhiTower = (*jtau_cand)->phi();                 // jTau phi = 2*phi_tower 
 
-      // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.                                                                              
-      // Requirement on pT based on etau candidate 
-      passed = passed && gtob_etau.Et() >= cTauThr.thrValue100MeV(gtob_etau.eta()/4);
-      
-      if (passed) {
-	counting++;
-	fillHist2D( m_histAccept[0], gtob_etau.eta(), gtob_etau.EtDouble() );
+      bool matching = (eTauEtaTower == jTauEtaTower) && (eTauPhiTower == jTauPhiTower);
+
+      if (matching) {
+        // Isolation condition coded as in firmware https://indico.cern.ch/event/1079697/contributions/4541419/attachments/2315137/3940824/cTAU_FirmwareAlgoProposal.pdf page 8. 
+        // Using physics values for the cut
+        unsigned int isolation_score = convertIsoToBit( (*etau_cand)->Et(), (*jtau_cand)->isolation() );
+        isolation = isocut( TrigConf::Selection::wpToString(cTauThr.isolation()), isolation_score );
       }
-    }
-    
-    fillHist1D( m_histAccept[1], counting);
-    
-    // Pass counting to TCS::Count object - output bits are composed there                                                                                                                               
-    
-    count.setSizeCount(counting);
 
-  }
+    } // End of jTau loop
+
+    
+    // This is a good cTau
+    if( matching && isolation ) { passed = true; }
+    // This is a non-matched eTau
+    if( !(matching) ) { passed = true; }
+
+    // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity                                                                      
+    // Requirement on pT based on eTau candidate 
+    passed = passed && (*etau_cand)->Et() >= cTauThr.thrValue100MeV((*etau_cand)->eta()/4);
+    if (passed) {
+      counting++;
+      fillHist2D( m_histAccept[0], (*etau_cand)->eta(), (*etau_cand)->EtDouble() );
+    }
+    count_eTaus++;
+    
+  } // End of eTau loop
+
+
+  fillHist1D( m_histAccept[1], counting);
   
+  // Pass counting to TCS::Count object - output bits are composed there                                                                                                                               
+  
+  count.setSizeCount(counting);
+
   return TCS::StatusCode::SUCCESS;
   
 }
 
 
 unsigned int
-TCS::cTauMultiplicity::convertIsoToBit(const TCS::GenericTOB & input_etau, const TCS::GenericTOB & input_jtau){
+TCS::cTauMultiplicity::convertIsoToBit(const unsigned int & etauEt, const unsigned int & jtauIso){
   unsigned int bit = 0;
   // Assign the tightest passed WP as default bit
-  if(input_jtau.jtauiso() < input_etau.Et()* 0.4 ) bit = 1; // Loose
-  if(input_jtau.jtauiso() < input_etau.Et()* 0.35) bit = 2; // Medium
-  if(input_jtau.jtauiso() < input_etau.Et()* 0.3 ) bit = 3; // Tight 
+  if( jtauIso < etauEt * 0.4 ) bit = 1; // Loose
+  if( jtauIso < etauEt * 0.35) bit = 2; // Medium
+  if( jtauIso < etauEt * 0.3 ) bit = 3; // Tight 
   
   return bit;
 }

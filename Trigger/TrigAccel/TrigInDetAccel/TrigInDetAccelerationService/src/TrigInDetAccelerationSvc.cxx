@@ -1,5 +1,5 @@
 /*   
-     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -13,6 +13,7 @@
 #include "TrigInDetAccelerationSvc.h"
 #include "TrigAccelEvent/TrigInDetAccelCodes.h"
 #include "TrigAccelEvent/TrigInDetAccelEDM.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <dlfcn.h>
 
@@ -136,7 +137,11 @@ TrigAccel::Work* TrigInDetAccelerationSvc::createWork(unsigned int jobCode, std:
   
   if(!m_factoryConfigured) return 0;
 
-  return m_pWF->createWork(jobCode, pB);
+  // To remove this, WorkFactory::createWork() should be made const
+  // (and thread-safe).
+  std::scoped_lock lock (m_workMutex);
+  TrigAccel::WorkFactory* wf ATLAS_THREAD_SAFE = m_pWF;
+  return wf->createWork(jobCode, pB);
 
 }
 

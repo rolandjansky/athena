@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewRecoCA
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewRecoCA
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.Enums import BeamType, Format
 
@@ -9,7 +9,7 @@ from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFTrackIsolationHypoToolFromDict
 from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_Cfg, regSelTool_MDT_Cfg, regSelTool_CSC_Cfg
@@ -20,7 +20,7 @@ from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, Mdt
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
-from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
+from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg, MuonInDetToMuonSystemExtensionAlgCfg
 from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlgCfg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
 
@@ -373,15 +373,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
         roiTool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews")
         requireParentView = True
                                                          
-    viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
-                                                         ViewFallThrough = True,
-                                                         RequireParentView = requireParentView,
-                                                         RoIsLink        = 'initialRoI',
-                                                         RoITool         = roiTool,
-                                                         InViewRoIs      = viewName+'RoIs',
-                                                         Views           = viewName+'Views',
-                                                         ViewNodeName    = viewName+"InView")
-    recoMS = InViewRecoCA(name=viewName, viewMaker=viewMakerAlg)
+    recoMS = InViewRecoCA(name=viewName, RoITool = roiTool, RequireParentView = requireParentView)
     
     recoMS.merge(TrackingGeometrySvcCfg(flags))
     ###################
@@ -476,7 +468,10 @@ def _muEFCBStepSeq(flags, name='RoI'):
         seqIOreco = parOR("muonInsideOutRecoSeq")
         acc.addSequence(seqIOreco, parentName=seqFilter.name)
         recoCB.mergeReco(MuonInsideOutViewDataVerifierCfg(flags))
-        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "IndetCandidates_"+name)
+        inDetExtensionCfg = MuonInDetToMuonSystemExtensionAlgCfg(flags, name="TrigInDetMuonExtensionAlg_"+name, InputInDetCandidates="InDetCandidates_"+name,
+                                                                 WriteInDetCandidates="InDetCandidatesSystemExtended_"+name)
+        acc.merge(inDetExtensionCfg, sequenceName=seqIOreco.name)
+        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "InDetCandidatesSystemExtended_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
         insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
                                                    MuonContainerLocation = "MuonsInsideOut_"+name, SegmentContainerName = "xaodInsideOutCBSegments", 

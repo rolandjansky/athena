@@ -18,7 +18,6 @@
 #include "VxVertex/VxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include <string>
 #include <vector>

@@ -7,7 +7,7 @@ import re
 
 from .JetRecoCommon import getJetCalibDefaultString, jetChainParts
 from ..Menu.SignatureDicts import JetChainParts_Default
-from ..Menu.MenuComponents import NoHypoToolCreated
+from ..Config.MenuComponents import NoHypoToolCreated
 
 
 from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
@@ -51,34 +51,42 @@ def caloPreselJetHypoToolFromDict(mainChainDict):
 
     # Get from the last chainPart in order to avoid to specify preselection for every leg
     #TODO: add protection for cases where the preselection is not specified in the last chainPart
-    presel_matched = re.match(r'presel(?P<cut>\d?\d?[jacf][\d\D]+)', trkpresel)
+    presel_matched = re.match(r'presel(?P<cut>\d?\d?[jacf](HT)?[\d\D]+)', trkpresel)
     assert presel_matched is not None, "Impossible to match preselection pattern for self.trkpresel=\'{0}\'.".format(trkpresel)
     presel_cut_str = presel_matched.groupdict()['cut'] #This is the cut string you want to parse. For example 'presel2j50XXj40'
 
     preselCommonJetParts = dict(JetChainParts_Default)
 
     for ip,p in enumerate(presel_cut_str.split('XX')):
-        matched = re.match(r'(?P<mult>\d?\d?)(?P<region>[jacf])(?P<cut>\d+)', p)
+        matched = re.match(r'(?P<mult>\d?\d?)(?P<region>[jacf])(?P<scenario>(HT)?)(?P<cut>\d+)', p)
         assert matched is not None, "Impossible to extract preselection cut for \'{0}\' substring. Please investigate.".format(p)
         cut_dict = matched.groupdict()
-        mult,region,cut=cut_dict['mult'],cut_dict['region'],cut_dict['cut']
-        chainPartName=f'{mult}j{cut}'
-        if mult=='': mult='1'
+        mult,region,scenario,cut=cut_dict['mult'],cut_dict['region'],cut_dict['scenario'],cut_dict['cut']
         etarange = {
             "j":"0eta320", # default
             "a":"0eta490",
             "c":"0eta240",
             "f":"320eta490"}[region]
+        if scenario == "HT":
+            hyposcenario=f'HT{cut}XX{etarange}'
+            threshold='0'
+            chainPartName=f'j0_{hyposcenario}'
+        else:
+            hyposcenario='simple'
+            threshold=cut
+            chainPartName=f'{mult}j{cut}_{etarange}'
+        if mult=='': mult='1'
 
         tmpChainDict = dict(preselCommonJetParts)
         tmpChainDict.update(
             {'L1threshold': 'FSNOSEED',
             'chainPartName': chainPartName,
             'multiplicity': mult,
-            'threshold': cut,
+            'threshold': threshold,
             'etaRange':etarange,
             'jvt':'',
             'chainPartIndex': ip,
+            'hypoScenario': hyposcenario,
             }
         )
         preselChainDict['chainParts'] += [tmpChainDict]
@@ -112,7 +120,6 @@ def caloPreselJetHypoToolFromDict(mainChainDict):
     for porig,ppresel in zip(mainChainDict['chainParts'],preselChainDict['chainParts']):
         for key in ['chainPartIndex','signature']:
             ppresel[key] = porig[key]
-        ppresel['chainPartName']=f"{ppresel['multiplicity']}j{ppresel['threshold']}_{ppresel['etaRange']}'"
 
     assert(len(preselChainDict['chainParts'])==len(mainChainDict['chainParts']))
     try:

@@ -152,20 +152,15 @@ if DetFlags.pixel_on():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
 
-        if not conddb.folderRequested("/PIXEL/PixReco"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
-
         if not conddb.folderRequested("/Indet/PixelDist"):
             conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        if athenaCommonFlags.isOnline():
-          PixelOfflineCalibCondAlg.InputSource = 1
-        else :
-          PixelOfflineCalibCondAlg.InputSource = 2
-
+        PixelOfflineCalibCondAlg.InputSource = 2
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat")
+        
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()

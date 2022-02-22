@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CFElements import (seqAND, parOR)
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.Logging import logging
 
-from ..Menu.MenuComponents import RecoFragmentsPool
+from ..Config.MenuComponents import RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Hephaestus/Hephaestus.h"
@@ -634,6 +634,10 @@ static void *hhh_ReallocHook( void *ptr, size_t size, const void *unused ) {
 /* let realloc do its thing */
    result = realloc( ptr, size );
 
+#if __GNUC__ >= 12
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif
 /* memory size may have changed or perhaps memory was freed w/ tracking off */
    if ( ! hhh_HashTable_remove( gTraceInfo, ptr, &hhh_MemoryTrace_delete ) ) {
 
@@ -643,6 +647,9 @@ static void *hhh_ReallocHook( void *ptr, size_t size, const void *unused ) {
             break;
       }
    }
+#if __GNUC__ >= 12
+# pragma GCC diagnostic pop
+#endif
 
 /* track (or re-track if ptr == result), if stack passes filter */
    if ( gFlags & IS_RUNNING )

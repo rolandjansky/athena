@@ -78,43 +78,6 @@ class reducedLArCalibFolders(_modifier):
         larCondFlags.SingleVersion=True
         larCondFlags.OFCShapeFolder=""
 
-
-class useHLTMuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
-            from MuonRecExample import MuonAlignConfig  # noqa: F401
-            #temporary hack to workaround DB problem - should not be needed any more
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MDT/BARREL')!=-1:
-                    f+='<key>/MUONALIGN/MDT/BARREL</key>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-            svcMgr.AmdcsimrecAthenaSvc.AlignmentSource=2
-
-
-class useRecentHLTMuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
-            from MuonRecExample import MuonAlignConfig  # noqa: F401
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MUONALIGN')!=-1 and f.find('TGC')==-1:
-                    f+='<forceTimestamp> 1384749388 </forceTimestamp>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-
-
 class ForceMuonDataType(_modifier):
     """
     Hardcode muon data to be of type of atlas

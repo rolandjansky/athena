@@ -59,8 +59,8 @@ namespace LVL1 {
 
 StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputCollection* gFEXOutputs){
 
-   typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
-   typedef  std::array<std::array<int, 8>, 32> gTowersForward;
+   typedef  std::array<std::array<int, FEXAlgoSpaceDefs::centralNeta>, FEXAlgoSpaceDefs::centralNphi> gTowersCentral;
+   typedef  std::array<std::array<int, FEXAlgoSpaceDefs::forwardNeta>, FEXAlgoSpaceDefs::centralNphi> gTowersForward;
 
    int rows = tmp_gTowersIDs_subset.size();
    int cols = tmp_gTowersIDs_subset[0].size();
@@ -77,7 +77,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    //FPGA A----------------------------------------------------------------------------------------------------------------------------------------------
    gTowersCentral tmp_gTowersIDs_subset_centralFPGA;
    memset(&tmp_gTowersIDs_subset_centralFPGA, 0, sizeof tmp_gTowersIDs_subset_centralFPGA);
-   for (int myrow = 0; myrow<32; myrow++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
       for (int mycol = 0; mycol<12; mycol++){
          tmp_gTowersIDs_subset_centralFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+8];
       }
@@ -91,7 +91,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    //FPGA B----------------------------------------------------------------------------------------------------------------------------------------------
    gTowersCentral tmp_gTowersIDs_subset_centralFPGA_B;
    memset(&tmp_gTowersIDs_subset_centralFPGA_B, 0, sizeof tmp_gTowersIDs_subset_centralFPGA_B);
-   for (int myrow = 0; myrow<32; myrow++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
       for (int mycol = 0; mycol<12; mycol++){
          tmp_gTowersIDs_subset_centralFPGA_B[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+20];
       }
@@ -104,18 +104,18 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    //FPGA C-P ----------------------------------------------------------------------------------------------------------------------------------------------
-   //Use a matrix with 32 rows, even if FPGA-C (positive) mostly deals with regions of 16 bins in phi.
-   //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
-   //but we fill half of it in the region 2.8<|eta|<4.8.
+   //Use a matrix with 32 rows, even if FPGA-C (positive) also deals with regions of 16 bins in phi (those connected to FCAL).
+   //We have 4 columns with 32 rows and 4 columns with 16 rows for each FPGA-C.
+   //So we use a matrix 32x8 but we fill only half of it in the region 3.3<|eta|<4.8.
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA;
    memset(&tmp_gTowersIDs_subset_forwardFPGA, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA);
-   for (int myrow = 0; myrow<32; myrow++){
-      for (int mycol = 0; mycol<1; mycol++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
+      for (int mycol = 0; mycol<4; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+32];
       }
    }
-   for (int myrow = 0; myrow<16; myrow++){
-      for (int mycol = 1; mycol<8; mycol++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::forwardNphi; myrow++){
+      for (int mycol = 4; mycol<8; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+32];
       }
    }
@@ -127,18 +127,18 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------
-   //Use a matrix with 32 rows, even if FPGA-C (negative) mostly deals with regions of 16 bins in phi.
-   //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
-   //but we fill half of it in the region 2.8<|eta|<4.8.
+   //Use a matrix with 32 rows, even if FPGA-N (negative) also deals with regions of 16 bins in phi (those connected to FCAL).
+   //We have 4 columns with 32 rows and 4 columns with 16 rows for each FPGA-C.
+   //So we use a matrix 32x8 but we fill only half of it in the region 3.3<|eta|<4.8.
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA_N;
    memset(&tmp_gTowersIDs_subset_forwardFPGA_N, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA_N);
-   for (int myrow = 0; myrow<16; myrow++){
-      for (int mycol = 0; mycol<7; mycol++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::forwardNphi; myrow++){
+      for (int mycol = 0; mycol<4; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA_N[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol];
       }
    }
-   for (int myrow = 0; myrow<32; myrow++){
-      for (int mycol = 7; mycol<8; mycol++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
+      for (int mycol = 4; mycol<8; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA_N[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol];
       }
    }

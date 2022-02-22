@@ -94,7 +94,6 @@ namespace LVL1 {
             const LVL1::gTower * tmpTower = gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_central[myrow][mycol]);
             if (tmpTower == nullptr) continue;
             output_gTower_energies[myrow][mycol] = tmpTower->getET();
-
          }
       }
    }

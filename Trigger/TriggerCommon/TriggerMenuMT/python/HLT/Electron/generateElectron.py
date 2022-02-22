@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, \
     ChainStep, Chain, EmptyMenuSequence, InViewRecoCA, SelectionCA
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -39,25 +39,15 @@ def _fastCalo(flags, chainDict):
 def _ftfSeq(flags):
     selAcc=SelectionCA('ElectronFTF')
     # # # fast ID (need to be customised because require secialised configuration of the views maker - i.e. parent has to be linked)
-    name = 'IMFastElectron'
-    evtViewMaker = CompFactory.EventViewCreatorAlgorithm(name,
-                                                            ViewFallThrough = True,
-                                                            RoIsLink        = 'initialRoI',
-                                                            RoITool         = CompFactory.ViewCreatorInitialROITool(),
-                                                            InViewRoIs      = name+'RoIs',
-                                                            Views           = name+'Views',
-                                                            ViewNodeName    = 'FastElectronInView',
-                                                            RequireParentView = True)
-    del name
+    fastInDetReco = InViewRecoCA('FastElectron', RequireParentView = True)
     from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
-    idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName='Electron')
-    fastInDetReco = InViewRecoCA('FastElectron', viewMaker=evtViewMaker)
+    idTracking = trigInDetFastTrackingCfg(flags, roisKey=fastInDetReco.inputMaker().InViewRoIs, signatureName='Electron')
     fastInDetReco.mergeReco(idTracking)
     fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVElectronFastCalo',
                                 DataObjects=[('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
 
     from TrigEgammaRec.TrigEgammaFastElectronConfig import fastElectronFexAlgCfg
-    fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
+    fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=fastInDetReco.inputMaker().InViewRoIs))
     selAcc.mergeReco(fastInDetReco)
     fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlg()
     fastElectronHypoAlg.Electrons = 'HLT_FastElectrons'
@@ -109,15 +99,10 @@ def _precisionTrackingSeq(flags,chainDict):
     name='ElectronPrecisionTracking'
     selAcc=SelectionCA('ElectronPrecisionTracking')
 
-    evtViewMaker = CompFactory.EventViewCreatorAlgorithm(f'IM{name}',
-                                                            ViewFallThrough = True,
-                                                            RoIsLink        = 'initialRoI',
-                                                            RoITool         = CompFactory.ViewCreatorPreviousROITool(),
-                                                            InViewRoIs      = flags.Trigger.InDetTracking.Electron.roi, #this will then be renamed to: flags.InDet.Tracking.roi
-                                                            Views           = f'IM{name}Views',
-                                                            ViewNodeName    = f'{name}InView',
-                                                            RequireParentView = True)
-    precisionInDetReco = InViewRecoCA(name, viewMaker=evtViewMaker)
+    precisionInDetReco = InViewRecoCA(name, 
+                                        RoITool=CompFactory.ViewCreatorPreviousROITool(), # view maker args
+                                        RequireParentView=True, 
+                                        InViewRoIs=flags.Trigger.InDetTracking.Electron.roi)
 
     from TrigInDetConfig.TrigInDetConfig import trigInDetPrecisionTrackingCfg
     idTracking = trigInDetPrecisionTrackingCfg(flags, signatureName='Electron')
@@ -308,7 +293,7 @@ if __name__ == '__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
-    from ..Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     chain = generateChains(ConfigFlags, dictFromChainName('HLT_e26_L1EM15'))
     for step in chain.steps:
         for s in step.sequences:

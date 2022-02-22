@@ -15,3 +15,7 @@ atlas_add_citest( G4ExHive
 atlas_add_citest( SimulationRun2FullSim
    SCRIPT RunWorkflowTests_Run2.py --CI -s -w FullSim -e '--maxEvents 10'
    LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4
+
+atlas_add_citest( SimulationRun3FullSim
+   SCRIPT RunWorkflowTests_Run3.py --CI -s -w FullSim -e '--maxEvents 10'
+   LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4

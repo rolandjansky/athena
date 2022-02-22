@@ -1,8 +1,13 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # File taking care of pointing the downstream projects at the right
 # version of LCG.
 #
+
+# Use the -pthread flag for the build instead of the -lpthread linker option,
+# if the main project was set up in that way.
+set( THREADS_PREFER_PTHREAD_FLAG @THREADS_PREFER_PTHREAD_FLAG@ CACHE BOOL
+   "Prefer using the -pthread compiler flag over -lpthread" )
 
 # Set the version of LCG to use.
 set( LCG_VERSION_POSTFIX "@LCG_VERSION_POSTFIX@" CACHE STRING

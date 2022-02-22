@@ -15,7 +15,7 @@ Py:ComponentAccumulator    INFO          \__ TriggerSummaryAlg/TriggerSummaryAlg
 Py:ComponentAccumulator    INFO          \__ DecisionSummaryMakerAlg/DecisionSummaryMakerAlg (alg) 
 Py:ComponentAccumulator    INFO    \__ SGInputLoader/SGInputLoader (alg) 
 Py:ComponentAccumulator    INFO Condition Algorithms
-Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ TrigConf__BunchGroupCondAlg (cond alg)
 Py:ComponentAccumulator    INFO  \__ HLTPrescaleCondAlg (cond alg)
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO ['ByteStreamCnvSvc', 'ByteStreamInputSvc', 'EventSelectorByteStream', 'EventPersistencySvc', 'ByteStreamAddressProviderSvc', 'ProxyProviderSvc', 'LVL1ConfigSvc', 'HLTConfigSvc', 'ROBDataProviderSvc', 'HltEventLoopMgr']

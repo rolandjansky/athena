@@ -44,7 +44,7 @@ class L1JetMonAlg():
     Path += 'NoTriggerSelection/' if triggerChain == '' else triggerChain+'/'
     if jFex:
       myGroup = monhelper.addGroup(alg,'TrigL1JFexSRJetMonitor','HLT/JetMon/L1/')
-      myGroup.defineHistogram('et',title='et',path=Path,xbins=400,xmin=1.0,xmax=400.0)
+      myGroup.defineHistogram('et',title='et',path=Path,xbins=400,xmin=0.0,xmax=400.0)
 
     else:
       myGroup = monhelper.addGroup(alg,'TrigL1JetMonitor','HLT/JetMon/L1/')

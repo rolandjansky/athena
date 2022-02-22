@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 from .JetDefinition import  JetDefinition
@@ -29,6 +29,13 @@ calibmods = (
     "Calib:T0:mc",
     "Sort",
     )
+
+calibmods_lowCut = (
+    "ConstitFourMom", "CaloEnergies",
+    "Calib:T0:mc:JetArea_Residual",
+    "Sort",
+)
+
 standardmods = (
     "LArHVCorr", "Width",
      "CaloQuality", "TrackMoments","TrackSumMoments",
@@ -85,10 +92,61 @@ AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
 
 
 AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
-                              ghostdefs = standardghosts+flavourghosts, 
+                              ghostdefs = standardghosts+["TrackLRT"]+flavourghosts,
                               modifiers = calibmods+("Filter:15000",)+truthmods+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
+)
+
+# *********************************************************
+# EMPFlow CSSK jets
+# *********************************************************
+AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
+                                   ghostdefs = standardghosts+flavourghosts,
+                                   modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1",)+truthmods+standardmods,
+                                   ptmin = 2000,
+                                   standardRecoMode = True,
+                                   lock = True
+)
+
+# *********************************************************
+# Low and no pT cut containers used in JETMX derivations
+# *********************************************************
+AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+                                      infix = "NoPtCut",
+                                      ghostdefs = standardghosts+flavourghosts,
+                                      modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                      ptmin = 1,
+                                      standardRecoMode = True,
+                                      lock = True
+)
+
+
+AntiKt4EMTopoNoPtCut = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
+                                     infix = "NoPtCut",
+                                     ghostdefs = standardghosts+flavourghosts,
+                                     modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+clustermods,
+                                     ptmin = 1,
+                                     standardRecoMode = True,
+                                     lock = True
+)
+
+AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+                                    infix = "LowPt",
+                                    ghostdefs = standardghosts+flavourghosts,
+                                    modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                    ptmin = 2000,
+                                    standardRecoMode = True,
+                                    lock = True
+)
+
+AntiKt4EMTopoLowPt = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
+                                   infix = "LowPt",
+                                   ghostdefs = standardghosts+flavourghosts,
+                                   modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+clustermods,
+                                   ptmin = 2000,
+                                   standardRecoMode = True,
+                                   lock = True
 )
 
 # *********************************************************

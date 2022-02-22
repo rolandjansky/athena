@@ -5,7 +5,7 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
-from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Config.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence

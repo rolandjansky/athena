@@ -11,6 +11,8 @@
 from AthenaCommon.Logging import logging
 logger = logging.getLogger(__name__)
 
+from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+
 #####################################
 # Offline jet collections to monitor
 #####################################
@@ -56,6 +58,8 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J20'  : 'LVL1JetRoIs',
   'L1_J100' : 'LVL1JetRoIs',
   'L1_jJ40' : 'L1_jFexSRJetRoI',
+  'L1_jJ50' : 'L1_jFexSRJetRoI',
+  'L1_jJ60' : 'L1_jFexSRJetRoI',
   # 'L1_jJ50' : 'L1_jFexSRJetRoI',
   # 'L1_jJ160' : 'L1_jFexSRJetRoI',
 }
@@ -356,6 +360,7 @@ def TrigJetMonConfig(inputFlags):
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg)
 
   # Match offline to offline jets
@@ -365,11 +370,13 @@ def TrigJetMonConfig(inputFlags):
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg)
 
   # Match L1 to offline as well as HLT jets
   for l1jetColl,collDict in L1JetCollections.items():
     for matchjetcoll in collDict['MatchTo']:
+
       kwds = {'name' : 'Matching_{}_{}'.format(l1jetColl,matchjetcoll),
               l1Coll2MatcherKey[l1jetColl] : l1jetColl,
               'JetContainerName2': matchjetcoll,
@@ -377,6 +384,7 @@ def TrigJetMonConfig(inputFlags):
               }
               
       alg = CompFactory.JetMatcherAlg(**kwds)
+      alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
       cfg.addEventAlgo(alg)
 
   # The following class will make a sequence, configure algorithms, and link
@@ -887,6 +895,7 @@ if __name__=='__main__':
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
 
   # Match offline to offline jets
@@ -896,6 +905,7 @@ if __name__=='__main__':
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm')
 
   # Match L1 to offline as well as HLT jets
@@ -904,6 +914,7 @@ if __name__=='__main__':
       if matchjetcoll != 'NONE':
         name = 'Matching_{}_{}'.format(l1jetColl,matchjetcoll)
         alg = CompFactory.JetMatcherAlg(name, L1JetContainerName1=l1jetColl,JetContainerName2=matchjetcoll,MatchL1=True)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm')
   
   # Loop over L1 jet collectoins

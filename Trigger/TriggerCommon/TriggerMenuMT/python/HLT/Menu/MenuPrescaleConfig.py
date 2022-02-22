@@ -6,14 +6,13 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 
-def MenuPrescaleConfig(triggerConfigHLT):
+def MenuPrescaleConfig(triggerConfigHLT, flags):
     L1Prescales = {}
     HLTPrescales = {}
     chains = {}
     Prescales = PrescaleClass()
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    menu_name = ConfigFlags.Trigger.triggerMenuSetup
+    menu_name = flags.Trigger.triggerMenuSetup
 
     ## Do some aliasing here
     if menu_name == 'Physics_default': 
@@ -56,7 +55,6 @@ def MenuPrescaleConfig(triggerConfigHLT):
     elif menu_name.startswith('Physics_pp_run3_v1'):
         from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import setupMenu
         chains = setupMenu()
-        filterChains(chains, Prescales.HLTPrescales, ["PS:Online"])
         L1Prescales = Prescales.L1Prescales
         HLTPrescales = Prescales.HLTPrescales        
 

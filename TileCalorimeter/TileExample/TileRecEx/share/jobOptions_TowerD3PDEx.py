@@ -82,4 +82,4 @@ theAlg=CaloD3PD(tuple_name)
 
 if readRaw :
   # put OF iteration results on SG 
-  ToolSvc.LArRawChannelBuilderToolOFCIter.StoreTiming=True
+  ToolSvc.LArRawChannelBuilderToolOFCIter.TimingContainerKey="LArOFIterResult"

@@ -17,6 +17,7 @@
 from PyJobTransforms.TransformUtils import executeFromFragment
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
+from G4AtlasApps.SimEnums import CavernBackground
 
 
 def specialConfigPreInclude(ConfigFlags):
@@ -58,7 +59,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg = MainServicesCfg(ConfigFlags)
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         cfg.merge(PoolReadCfg(ConfigFlags))
-        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBG == "Read":
+        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBackground is CavernBackground.Read:
             # Cases 2a, 2b, 2c
             from TrackRecordGenerator.TrackRecordGeneratorConfigNew import Input_TrackRecordGeneratorCfg
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))
@@ -91,7 +92,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         # add the ISF_MainConfig
         from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
         cfg.merge(ISF_KernelCfg(ConfigFlags))
-        AcceptAlgNames = ['ISF_Kernel_' + ConfigFlags.Sim.ISF.Simulator]
+        AcceptAlgNames = ['ISF_Kernel_' + ConfigFlags.Sim.ISF.Simulator.value]
         if ConfigFlags.Sim.ISF.ReSimulation:
             AcceptAlgNames += ['RenameHitCollections']
     else:

@@ -10,10 +10,12 @@ export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-
 
 
 Reco_tf.py  \
---AMI x608  \
+--AMI x609  \
 --inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data21_comm.00404400.express_express.merge.RAW._lb2497._SFO-ALL._0001.1" \
---outputHISTFile="HIST.root" \
 --outputAODFile="AOD.root" \
+--outputESDFile="ESD.pool.root" \
+--outputDAOD_L1CALO2File="L1CALO2.pool.root" \
+--outputHISTFile="HIST.root" \
 --imf False
 
 rc1=$?

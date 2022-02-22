@@ -56,6 +56,10 @@ StatusCode AFPHitsMonitorTool::initialize()
   }
 
 
+  ATH_CHECK(m_lumiBlockMuTool.retrieve());
+
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
+
   ManagedMonitorToolBase::MonGroup managedBookingLumiBlock(this, histsDirectoryName() + "shifter/", lumiBlock, ManagedMonitorToolBase::ATTRIB_MANAGED);   // to re-booked every luminosity block
   AFPSiLayerSummaryProfileBase* timeOverThresholdMean = m_summaryManager->createSummaryHits(this, 
 											    managedBookingLumiBlock, 

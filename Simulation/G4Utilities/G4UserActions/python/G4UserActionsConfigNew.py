@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from G4AtlasApps.SimEnums import CalibrationRun
 
 # this is a bit cumbersome, but it seems ike it is a lot easier to separate
 # the getter functionality from all the rest (i.e. adding the action).
@@ -13,18 +14,18 @@ def AthenaStackingActionToolCfg(ConfigFlags, name='G4UA::AthenaStackingActionToo
 
     result = ComponentAccumulator()
     ## Killing neutrinos
-    if "ATLAS" in ConfigFlags.Sim.Layout:
-        kwargs.setdefault('KillAllNeutrinos',  True)
+    if "ATLAS" in ConfigFlags.GeoModel.AtlasVersion:
+        kwargs.setdefault('KillAllNeutrinos', True)
     ## Neutron Russian Roulette
     if ConfigFlags.Sim.NRRThreshold and ConfigFlags.Sim.NRRWeight:
-        if ConfigFlags.Sim.CalibrationRun != 'Off':
+        if ConfigFlags.Sim.CalibrationRun is not CalibrationRun.Off:
             raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
         kwargs.setdefault('ApplyNRR', True)
         kwargs.setdefault('NRRThreshold', ConfigFlags.Sim.NRRThreshold)
         kwargs.setdefault('NRRWeight', ConfigFlags.Sim.NRRWeight)
     ## Photon Russian Roulette
     if ConfigFlags.Sim.PRRThreshold and ConfigFlags.Sim.PRRWeight:
-        if ConfigFlags.Sim.CalibrationRun != 'Off':
+        if ConfigFlags.Sim.CalibrationRun is not CalibrationRun.Off:
             raise NotImplementedError("Photon Russian Roulette should not be used in Calibration Runs.")
         kwargs.setdefault('ApplyPRR', True)
         kwargs.setdefault('PRRThreshold', ConfigFlags.Sim.PRRThreshold)
@@ -40,7 +41,7 @@ def AthenaTrackingActionToolCfg(ConfigFlags, name='G4UA::AthenaTrackingActionToo
     kwargs.setdefault('SecondarySavingLevel', 2)
     
     subDetLevel=1
-    if "ATLAS" in ConfigFlags.Sim.Layout and ConfigFlags.Detector.GeometryCavern:
+    if "ATLAS" in ConfigFlags.GeoModel.AtlasVersion and ConfigFlags.Detector.GeometryCavern:
         subDetLevel=2
 
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
