@@ -652,14 +652,37 @@ StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantFeatures(ConvProxySet_t &co
 
 StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantRois(ConvProxySet_t &convProxies, const HLT::TrigNavStructure &run2Nav) const
 {
+
+  // ordered_sorter
+  auto ordered_sorter = [&](const auto &left, const auto &right) -> bool
+  {
+    return std::find(cbegin(m_setRoiName), cend(m_setRoiName), left) < std::find(cbegin(m_setRoiName), cend(m_setRoiName), right);
+  };
+
+  std::map<std::string, HLT::TriggerElement::FeatureAccessHelper, decltype(ordered_sorter)> mp(ordered_sorter);
+
   for (auto &proxy : convProxies)
   {
     // TODO need check & handling of case when there is more RoIs, now overwriting
     if (HLT::TrigNavStructure::getRoINodes(proxy->te).size() > 1)
+      ATH_MSG_WARNING("Several RoIs pointing to a proxy, taking latest one for now");
+
+    mp.clear();
+
+    for (HLT::TriggerElement::FeatureAccessHelper helper : proxy->te->getFeatureAccessHelpers())
     {
-      ATH_MSG_DEBUG("Several RoIs pointing to a proxy, taking latest one for now");
+      auto [sgKey, sgCLID, sgName] = getSgKey(run2Nav, helper);
+      if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) == m_setRoiName.end())
+      {
+        // do not filter continue;
+        continue;
+      }
+      mp[sgName] = helper;
     }
-    proxy->rois = getTEROIfeatures(proxy->te, run2Nav);
+
+    std::transform(cbegin(mp), cend(mp), back_inserter(proxy->rois),
+                   [](const std::map<std::string, HLT::TriggerElement::FeatureAccessHelper>::value_type &p)
+                   { return p.second; });
   }
 
   // roiPropagator
@@ -690,7 +713,13 @@ StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantTracks(ConvProxySet_t &conv
 {
   for (auto &proxy : convProxies)
   {
-    proxy->tracks = getTRACKfeatures(proxy->te);
+    for (HLT::TriggerElement::FeatureAccessHelper helper : proxy->te->getFeatureAccessHelpers())
+    {
+      if (helper.getCLID() == m_TrackParticleContainerCLID || helper.getCLID() == m_TauTrackContainerCLID)
+      {
+        proxy->tracks.push_back(helper);
+      }
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -1133,46 +1162,4 @@ std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverterV2::getSgKey(c
   }
 
   return {evtStore()->stringToKey(sgStringKey, saveCLID), saveCLID, hltLabel}; // sgKey, sgCLID, sgName
-}
-
-const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverterV2::getTEROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const
-{
-  // ordered_sorter
-  auto ordered_sorter = [&](const auto &left, const auto &right) -> bool
-  {
-    return std::find(cbegin(m_setRoiName), cend(m_setRoiName), left) < std::find(cbegin(m_setRoiName), cend(m_setRoiName), right);
-  };
-
-  std::map<std::string, HLT::TriggerElement::FeatureAccessHelper, decltype(ordered_sorter)> mp(ordered_sorter);
-
-  for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
-  {
-    auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
-    if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) == m_setRoiName.end())
-    {
-      // do not filter continue;
-      continue;
-    }
-    mp[sgName] = helper;
-  }
-
-  std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
-  std::transform(cbegin(mp), cend(mp), back_inserter(ptrFAHelper),
-                 [](const std::map<std::string, HLT::TriggerElement::FeatureAccessHelper>::value_type &p)
-                 { return p.second; });
-
-  return ptrFAHelper;
-}
-
-const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverterV2::getTRACKfeatures(const HLT::TriggerElement *te_ptr) const
-{
-  std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
-  for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
-  {
-    if (helper.getCLID() == m_TrackParticleContainerCLID || helper.getCLID() == m_TauTrackContainerCLID)
-    {
-      ptrFAHelper.push_back(helper);
-    }
-  }
-  return ptrFAHelper;
 }
