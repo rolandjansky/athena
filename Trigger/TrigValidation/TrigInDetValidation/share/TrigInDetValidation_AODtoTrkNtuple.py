@@ -50,7 +50,7 @@ doTier0Mon = False
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
 
-doTier0Mon = False
+doNewTier0Mon = False
 
 if 'doNewTIDATier0' in locals():
   doNewTier0Mon = doNewTIDATier0
@@ -84,11 +84,8 @@ if doTier0Mon :
 if doNewTier0Mon :
 
 # this is the new location ...
-#  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
-#  for git in TIDAMonitoring( "idtrigger" ):
-# but until then ... 
-  from TrigInDetAnalysisExample.TIDAMonTool import monitoring
-  for git in monitoring( "idtrigger" ):
+  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  for git in TIDAMonitoring( "idtrigger" ):
     algseq += git
 
   from GaudiSvc.GaudiSvcConf import THistSvc

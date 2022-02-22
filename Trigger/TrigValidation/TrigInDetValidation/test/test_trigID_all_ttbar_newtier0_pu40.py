@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_tier0_pu40
+# art-description: art job for all_ttbar_newtier0_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
