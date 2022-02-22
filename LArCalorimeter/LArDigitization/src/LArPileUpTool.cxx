@@ -49,26 +49,36 @@ LArPileUpTool::~LArPileUpTool()
 
 StatusCode LArPileUpTool::initialize()
 {
-	
-   ATH_MSG_INFO(" initialize LArPileUpTool : digit container empty now ");
+
+  //
+  // ........ Check for inconsistent configuration
+  //
+  if (m_RndmEvtOverlay && !m_isMcOverlay && m_NoiseOnOff) {
+    ATH_MSG_FATAL("Adding noise to hard-scatter Hits is not supported for Data Overlay! Fix your configuration. Bailing out.");
+    return StatusCode::FAILURE;
+  }
+  if (m_RndmEvtOverlay && m_isMcOverlay && !m_NoiseOnOff) {
+    ATH_MSG_FATAL("MC overlay. Need to switch back on noise only to emulate extra noise for cells with different gains! Fix your configuration. Bailing out.");
+    return StatusCode::FAILURE;
+  }
+  if (m_RndmEvtOverlay && !m_PileUp) {
+    ATH_MSG_FATAL("If RndmEvtOverlay==True then PileUp must also be True. Fix your configuration. Bailing out.");
+    return StatusCode::FAILURE;
+  }
+  if (!m_PileUp && m_onlyUseContainerName) {
+     ATH_MSG_FATAL("If PileUp==False then OnlyUserContainerName must also be False. Fix your configuration. Bailing out.");
+    return StatusCode::FAILURE;
+  }
   //
   // ........ print random event overlay flag
   //
-  if (m_RndmEvtOverlay)
-  {
-    if (!m_isMcOverlay) m_NoiseOnOff = false ;
-    else {
-       ATH_MSG_INFO(" MC overlay case => switch back on noise only to emulate extra noise for cells with different gains");
-       m_NoiseOnOff=true;
-    }
-    m_PileUp = true ;
+  if (m_RndmEvtOverlay) {
     ATH_MSG_INFO(" pileup and/or noise added by overlaying digits of random events");
-    if (m_isMcOverlay) ATH_MSG_INFO("   random events are from MC ");
-    else               ATH_MSG_INFO("   random events are from data ");
+    if (m_isMcOverlay) { ATH_MSG_INFO("   random events are from MC "); }
+    else { ATH_MSG_INFO("   random events are from data "); }
   }
-  else
-  {
-     ATH_MSG_INFO(" No overlay of random events");
+  else {
+    ATH_MSG_INFO(" No overlay of random events");
   }
 
   if (m_onlyUseContainerName) {
@@ -385,8 +395,7 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
 
   if (!m_PileUp) {
     float time=0.;
-    StoreGateSvc* myEvtStore = &(*evtStore());
-    if (this->fillMapFromHit(myEvtStore,time,true,weights).isFailure()) {
+    if (this->fillMapFromHit(ctx, time,true,weights).isFailure()) {
       ATH_MSG_ERROR("error in fillMapFromHit");
       return StatusCode::FAILURE;
     }
@@ -579,69 +588,52 @@ StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
 
 // ============================================================================================
 
-StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights)
+StatusCode LArPileUpTool::fillMapFromHit(const EventContext& ctx, float bunchTime, bool isSignal, const LArXTalkWeightGlobal& weights)
 {
-  for (const std::string& containerName : m_hitContainerNames) {
-
-  //
-  // ..... Get the pointer to the Hit Container from StoreGate
-  //
-    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << containerName);
-
-    if (m_useLArHitFloat) {
-     const LArHitFloatContainer* hit_container = nullptr;
-     if (myStore->contains<LArHitFloatContainer>(containerName)) {
-       StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
-       if (sc.isFailure() || !hit_container) {
-          return StatusCode::FAILURE;
-       }
-       for (const LArHitFloat& hit : *hit_container)
-       {
-         m_nhit_tot++;
-         Identifier cellId = hit.cellID();
-         float energy = (float) hit.energy();
-         float time;
-         if (m_ignoreTime) time=0.;
-         else time   = (float) (hit.time() - m_trigtime);
-         time = time + bunchTime;
-
-         if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
-       }
-     }
-     else {
-      if (isSignal)  {
-         ATH_MSG_WARNING(" LAr HitFloat container not found for signal event key " << containerName);
+  if (m_useLArHitFloat) {
+    auto hitVectorHandles = m_hitFloatContainerKeys.makeHandles(ctx);
+    for (auto & hit_container : hitVectorHandles) {
+      if (hit_container.isValid()) {
+        for (const LArHitFloat& hit : *hit_container)
+          {
+            m_nhit_tot++;
+            Identifier cellId = hit.cellID();
+            float energy = (float) hit.energy();
+            float time;
+            if (m_ignoreTime) time=0.;
+            else time   = (float) (hit.time() - m_trigtime);
+            time = time + bunchTime;
+            if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
+          }
       }
-     }
-
+      else {
+        if (isSignal)  {
+          ATH_MSG_WARNING(" LAr HitFloat container not found for signal event key " << hit_container.key());
+        }
+      }
     }
-    else {
-     const LArHitContainer* hit_container = nullptr;
-     if (myStore->contains<LArHitContainer>(containerName)) {
-       StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
-       if (sc.isFailure() || !hit_container) {
-          return StatusCode::FAILURE;
-       }
-       LArHitContainer::const_iterator hititer;
-       for(hititer=hit_container->begin();
-           hititer != hit_container->end();++hititer)
-       {
-         m_nhit_tot++;
-         Identifier cellId = (*hititer)->cellID();
-         float energy = (float) (*hititer)->energy();
-         float time;
-         if (m_ignoreTime) time=0.;
-         else time   = (float) ((*hititer)->time() - m_trigtime);
-         time = time + bunchTime;
-
-         if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
-       }
-     }
-     else {
-      if (isSignal)  {
-         ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << containerName);
+  }
+  else {
+    auto hitVectorHandles = m_hitContainerKeys.makeHandles(ctx);
+    for (auto & hit_container : hitVectorHandles) {
+      if (hit_container.isValid()) {
+        for (const LArHit* hit : *hit_container)
+          {
+            m_nhit_tot++;
+            Identifier cellId = hit->cellID();
+            float energy = (float) hit->energy();
+            float time;
+            if (m_ignoreTime) time=0.;
+            else time   = (float) (hit->time() - m_trigtime);
+            time = time + bunchTime;
+            if (this->AddHit(cellId,energy,time,isSignal,weights).isFailure()) return StatusCode::FAILURE;
+          }
       }
-     }
+      else {
+        if (isSignal)  {
+          ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << hit_container.key());
+        }
+      }
     }
   }   // end loop over containers
 

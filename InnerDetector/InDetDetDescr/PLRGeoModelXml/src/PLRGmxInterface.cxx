@@ -116,7 +116,7 @@ void PLRGmxInterface::makePLRModule(const std::string &typeName,
 
   ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << " " <<design->rows() << " " << design->columns());
 
-  m_detectorManager->addDesign(std::move(design));
+  [[maybe_unused]] auto observedPtr = m_detectorManager->addDesign(std::move(design));
 
   // Add to map for addModule routine
   m_geometryMap[typeName] = m_detectorManager->numDesigns() - 1;

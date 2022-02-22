@@ -38,21 +38,19 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName):
         json.dump( prescaleDict, fp, indent=4, sort_keys=False )
 
 
-def generateJSON():
+def generateJSON(flags):
     __log.info("Generating HLT Prescale JSON in the rec-ex-common job")
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
     return __generateJSON( TriggerConfigHLT.dictsList(),
                            TriggerConfigHLT.configsList(),
-                           ConfigFlags.Trigger.triggerMenuSetup,
-                           getHLTPrescalesSetFileName(ConfigFlags))
+                           flags.Trigger.triggerMenuSetup,
+                           getHLTPrescalesSetFileName(flags))
 
-def generateJSON_newJO( chainDicts, chainConfigs ):
+def generateJSON_newJO(flags, chainDicts, chainConfigs ):
     __log.info("Generating HLT Prescale JSON in the new JO")
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     return __generateJSON( chainDicts,
                            chainConfigs,
-                           ConfigFlags.Trigger.triggerMenuSetup,
-                           getHLTPrescalesSetFileName(ConfigFlags) )
+                           flags.Trigger.triggerMenuSetup,
+                           getHLTPrescalesSetFileName(flags) )

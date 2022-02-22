@@ -14,7 +14,6 @@ from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildin
 
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -201,7 +200,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         # get all chain names from menu
         log.info("Will now get chains from the menu")
-        self.getChainsFromMenu()
+        self.getChainsFromMenu(flags)
 
         # decoding of the chain name
         log.info("Will now get chain dictionaries for each chain")
@@ -283,21 +282,15 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return TriggerConfigHLT.configsList()
 
 
-    def getChainsFromMenu(self):
+    def getChainsFromMenu(self, flags):
         """
         == Returns the list of chain names that are in the menu
         """
 
         # go over the slices and put together big list of signatures requested
-        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(TriggerConfigHLT)
+        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(TriggerConfigHLT, flags)
 
         log.debug("Setup HLT menu with prescales: %s", self.HLTPrescales)
-
-        ## we can already use new set of flags
-        #from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        #from TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1_newJO import setupMenu as setupMenuFlags
-        #setupMenuFlags( ConfigFlags )
-        #ConfigFlags.lock()
 
         # Filter chains if requested
         if self.chainFilter is not None:
@@ -470,7 +463,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return chainConfigs 
  
 
-    def generateMT(self, flags=ConfigFlags):
+    def generateMT(self, flags):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
@@ -491,7 +484,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             log.debug('Steps for %s are %s', cc.name, cc.steps)
 
         log.info("Making the HLT configuration tree")
-        makeHLTTree(newJO=False, triggerConfigHLT = TriggerConfigHLT)
+        makeHLTTree(flags, newJO=False, triggerConfigHLT = TriggerConfigHLT)
         # the return values used for debugging, might be removed later
 
         log.info("Applying HLT prescales")
@@ -501,7 +494,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         log.info("Checking the L1HLTConsistency...")
         from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
-        checkL1HLTConsistency()
+        checkL1HLTConsistency(flags)
         
         log.info("Checking the Coherent Prescale assignments...")
         from TriggerMenuMT.HLT.Config.Validation.CheckCPSGroups import checkCPSGroups
@@ -510,16 +503,15 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("Generating HLT menu JSON...")
         
         from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON
-        generateJSON()
+        generateJSON(flags)
 
         log.info("Generating HLT prescale JSON...")
 
         from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
-        generatePrescaleJSON()
+        generatePrescaleJSON(flags)
 
-        log.info('Generating HLTMonitoring JSON...')
         from TriggerMenuMT.HLT.Config.JSON.HLTMonitoringJSON import generateDefaultMonitoringJSON
-        generateDefaultMonitoringJSON()
+        generateDefaultMonitoringJSON(flags)
 
         log.info('Menu generation is complete.')
         return finalListOfChainConfigs

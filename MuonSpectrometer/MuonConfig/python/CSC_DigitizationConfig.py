@@ -37,6 +37,15 @@ def CSC_RangeCfg(flags, name="CSC_Range", **kwargs):
 def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
     acc = ComponentAccumulator()
+    if flags.Digitization.PileUp and flags.Common.ProductionStep is not ProductionStep.Overlay:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(CSC_RangeCfg(flags))]
+            kwargs.setdefault("OnlyUseContainerName", True)
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("PileUpMergeSvc", '')
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", CSC_FirstXing())
         kwargs.setdefault("LastXing",  CSC_LastXing())
@@ -60,8 +69,6 @@ def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
 def CSC_DigitizationToolCfg(flags, name="CscDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(CSC_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:

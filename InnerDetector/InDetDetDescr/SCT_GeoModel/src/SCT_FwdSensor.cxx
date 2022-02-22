@@ -283,8 +283,7 @@ void SCT_FwdSensor::makeDesign()
                                              etaCenter, 
                                              phiCenter,
                                              readoutSide);
-  m_design = design.get();
-  m_detectorManager->addDesign(std::move(design));
+  m_design = m_detectorManager->addDesign(std::move(design));
 
   //
   // Flags to signal if axis can be swapped.

@@ -4,11 +4,10 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 #this function checks each threshold within each chain to make sure that it is defined in the L1Menu
-def checkL1HLTConsistency():
+def checkL1HLTConsistency(flags):
     from TrigConfIO.L1TriggerConfigAccess   import L1MenuAccess
     from TrigConfigSvc.TrigConfigSvcCfg     import getL1MenuFileName
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    lvl1name    = getL1MenuFileName(ConfigFlags)
+    lvl1name    = getL1MenuFileName(flags)
     lvl1access  = L1MenuAccess(lvl1name)
     lvl1thtypes = lvl1access.thresholdTypes()
     lvl1items   = lvl1access.items(includeKeys=["name"])
@@ -44,7 +43,7 @@ def checkL1HLTConsistency():
             #now check that the thresholds of the chain are listed in the L1Menu.thresholds field
             th = p['L1threshold'][5:] if p['L1threshold'].startswith("PROBE") else p['L1threshold']
             l1thr_vec.append(th)
-            if ('TAU' in th) and ('e' not in th) and ('j' not in th): 
+            if ('TAU' in th) and th[0] not in ['e','j','c']: #legacy TAU
                 th = th.replace('TAU','HA')
             thFoundInL1Menu = False
             l1type          = "NOTFOUND"

@@ -63,10 +63,10 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillDiTauHLTEfficiencies(const EventContext& ctx,const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const;
   void fillTAndPHLTEfficiencies(const EventContext& ctx, const std::string& trigger, const std::vector<TLorentzVector>& offline_lep_vec, const std::vector<TLorentzVector>& online_lep_vec, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const;
   void fillL1Efficiencies(const EventContext& ctx, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois) const;
-  void fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec_all, const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger) const;
+  void fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec_all, const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger, const std::string& nProng) const;
   
   StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
-  void fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& tau_vec, const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger) const; 
+  void fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& tau_vec, const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger, const std::string& nProng) const; 
 
   inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
   {

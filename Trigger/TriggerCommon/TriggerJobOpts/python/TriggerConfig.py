@@ -451,10 +451,14 @@ def triggerPOOLOutputCfg(flags):
     menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
 
-    # Schedule the insertion of L1 prescales into the conditions store
+    # Schedule the insertion of menus,  prescales & bunchgroups into the conditions store
     # Required for metadata production
-    from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg
-    acc.merge( L1PrescaleCondAlgCfg( flags ) )
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
+    acc.merge( L1ConfigSvcCfg(flags) )
+    acc.merge( HLTConfigSvcCfg(flags) )
+    acc.merge( BunchGroupCondAlgCfg( flags ) )
+    acc.merge( L1PrescaleCondAlgCfg(flags) )
+    acc.merge( HLTPrescaleCondAlgCfg(flags) )
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg

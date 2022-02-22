@@ -311,7 +311,8 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   }
 
   // true_taus
-  std::vector<const xAOD::TruthParticle*> true_taus;
+  std::vector<const xAOD::TruthParticle*> true_taus_1p;
+  std::vector<const xAOD::TruthParticle*> true_taus_3p;
   if(m_isMC){
     SG::ReadHandle<xAOD::TruthParticleContainer> truth_cont(m_truthParticleKey, ctx); 
     if(!truth_cont.isValid())
@@ -335,16 +336,26 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
         ATH_MSG_DEBUG("True Tau visible pt: " << pt);
         float eta = xTruthTau->auxdata<double>("eta_vis");
         bool lep = xTruthTau->auxdata<char>("IsLeptonicTau");
-        if(pt < 20. || lep || fabs(eta) > 2.47 ) continue;        
-        true_taus.push_back(xTruthTau);
+        if(pt < 20. || lep || fabs(eta) > 2.47 ) continue; 
+
+        if(xTruthTau->auxdata<int>("nTracks") == 1){
+          true_taus_1p.push_back(xTruthTau);
+        } else if(xTruthTau->auxdata<int>("nTracks") == 3){
+          true_taus_3p.push_back(xTruthTau);
+        }
       }
     }
   }
 
-  if(true_taus.size()>0){
-    fillTruthEfficiency(online_tau_vec_all, true_taus, trigger);
-    fillEFTauVsTruth(online_tau_vec_all, true_taus, trigger);
-  }
+  if(true_taus_1p.size()>0){
+    fillTruthEfficiency(online_tau_vec_all, true_taus_1p, trigger, "1P");
+    fillEFTauVsTruth(online_tau_vec_all, true_taus_1p, trigger, "1P");
+  } 
+
+  if(true_taus_3p.size()>0){
+    fillTruthEfficiency(online_tau_vec_all, true_taus_3p, trigger, "3P");
+    fillEFTauVsTruth(online_tau_vec_all, true_taus_3p, trigger, "3P");
+  } 
   
   offline_for_hlt_tau_vec_all.clear();
   offline_for_hlt_tau_vec_1p.clear();
@@ -353,7 +364,8 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   online_tau_vec_1p.clear();
   online_tau_vec_mp.clear();
   online_tau_vec_all.clear();
-  true_taus.clear();
+  true_taus_1p.clear();
+  true_taus_3p.clear();
   online_tau_vec.clear();
   online_electrons.clear();
   online_muons.clear();
@@ -1145,11 +1157,11 @@ StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& x
   return StatusCode::SUCCESS;
 }
 
-void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger) const
+void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger, const std::string& nProng) const
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillEFTauVsTruth");
 
-  std::string monGroupName = trigger+"EFVsTruth";
+  std::string monGroupName = trigger+"_EFVsTruth_"+nProng;
   
   auto monGroup = getGroup(monGroupName);
 
@@ -1198,12 +1210,12 @@ void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::Tau
 
 }
 
-void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger) const
+void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger, const std::string& nProng) const
 {
 
   ATH_MSG_DEBUG("Truth Tau Matching to Offline and Online Taus for trigger");
 
-  std::string monGroupName = trigger+"Truth_Efficiency";
+  std::string monGroupName = trigger+"_Truth_Efficiency_"+nProng;
 
   auto monGroup = getGroup(monGroupName);
 

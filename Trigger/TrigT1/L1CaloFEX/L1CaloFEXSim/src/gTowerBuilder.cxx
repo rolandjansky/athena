@@ -96,7 +96,7 @@ void gTowerBuilder::BuildEMEgTowers(std::unique_ptr<gTowerContainer> & gTowerCon
   int EME_MODIFIER = 8;
   int tmpVal = EME_MODIFIER;
   int nphi = 32;
-  for (int ieta = tmpVal; ieta < tmpVal + 5; ++ieta){ // loop over eta steps
+  for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < nphi; ++iphi){ // loop over 32 phi steps
       BuildSingleTower(gTowerContainerRaw, ieta, iphi, nphi, 500000, -1);
       BuildSingleTower(gTowerContainerRaw, ieta, iphi, nphi, 600000, 1);
@@ -106,14 +106,14 @@ void gTowerBuilder::BuildEMEgTowers(std::unique_ptr<gTowerContainer> & gTowerCon
 
 }
 
-void gTowerBuilder::BuildTRANSFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const
+void gTowerBuilder::BuildFwdEMECgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const
 {
 // Transition region between EMEC and FCAL (for gFEX: Eta Range 2.8-3.2)
-  int TRANSFCAL_MODIFIER = 13;
+  int TRANSFCAL_MODIFIER = 12;
   int tmpVal = TRANSFCAL_MODIFIER;
-  int nphi = 16;
-  for (int ieta = tmpVal; ieta < tmpVal + 3; ++ieta){ // loop over eta steps
-    for (int iphi = 0; iphi < 16; ++iphi){ // loop over 16 phi steps
+  int nphi = 32;
+  for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps
+    for (int iphi = 0; iphi < nphi; ++iphi){ // loop over 32 phi steps
       BuildSingleTower(gTowerContainerRaw, ieta, iphi, nphi, 700000, -1);
       BuildSingleTower(gTowerContainerRaw, ieta, iphi, nphi, 800000, 1);
     }
@@ -154,7 +154,7 @@ void gTowerBuilder::BuildFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerCo
   BuildEMBgTowers(gTowerContainerRaw);
   BuildTransEMBgTowers(gTowerContainerRaw);
   BuildEMEgTowers(gTowerContainerRaw);
-  BuildTRANSFCALgTowers(gTowerContainerRaw);
+  BuildFwdEMECgTowers(gTowerContainerRaw);
   BuildFCALgTowers(gTowerContainerRaw);
 
 }

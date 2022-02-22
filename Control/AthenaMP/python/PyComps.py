@@ -104,7 +104,8 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                                                        Debug=debug_worker)   ]
             if use_shared_writer:
                 from AthenaMPTools.AthenaMPToolsConf import SharedWriterTool
-                self.Tools += [ SharedWriterTool(MotherProcess=(events_before_fork>0)) ]
+                self.Tools += [ SharedWriterTool(MotherProcess=(events_before_fork>0),
+                                                 IsPileup=pileup) ]
 
             # Enable seeking
             if not use_shared_reader:

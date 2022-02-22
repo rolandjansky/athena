@@ -175,10 +175,10 @@ def generateMenu(flags):
 
     # # generate JOSON representation of the config
     from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON_newJO
-    generateJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), menuAcc.getSequence("HLTAllSteps"))
+    generateJSON_newJO(flags, TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), menuAcc.getSequence("HLTAllSteps"))
 
     from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
-    generatePrescaleJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList())
+    generatePrescaleJSON_newJO(flags, TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList())
 
     return menuAcc
 
