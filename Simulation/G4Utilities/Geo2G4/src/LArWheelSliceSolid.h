@@ -37,7 +37,7 @@ class G4AffineTransform;
 class LArWheelCalculator;
 class TF1;
 class G4Polyhedra;
-class EMECData;
+struct EMECData;
 class LArWheelSliceSolid : public G4VSolid
 {
   public:
