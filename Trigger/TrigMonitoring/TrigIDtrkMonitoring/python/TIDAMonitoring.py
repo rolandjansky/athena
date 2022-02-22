@@ -13,7 +13,7 @@ def TIDAMonitoring( name ) :
         tools = []
 
         from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigR3Mon
-        from TrigIDtrkMoniotring.TIDAChains import getchains
+        from TrigIDtrkMonitoring.TIDAChains import getchains
         
 
 
