@@ -179,6 +179,9 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
+  /// Reset the timeout flag and the timer, and mark the slot as busy or idle according to the second argument
+  void resetEventTimer(const EventContext& eventContext, bool processing);
+
   /// Perform all start-of-event actions for a single new event and push it to the scheduler
   StatusCode startNextEvent(EventLoopStatus& loopStatus);
 
