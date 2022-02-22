@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL1JFexSRJetMonitorAlgorithm.h"
@@ -9,7 +9,7 @@
 TrigL1JFexSRJetMonitorAlgorithm::TrigL1JFexSRJetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
 {
-  declareProperty("L1JetContainer", m_l1jetContainerkey = "LVL1JetRoIs");
+  declareProperty("L1JetContainer", m_l1jetContainerkey = "L1_jFexSRJetRoI");
 }
 
 TrigL1JFexSRJetMonitorAlgorithm::~TrigL1JFexSRJetMonitorAlgorithm() {}
@@ -19,6 +19,7 @@ TrigL1JFexSRJetMonitorAlgorithm::~TrigL1JFexSRJetMonitorAlgorithm() {}
 StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
 
   ATH_CHECK(m_l1jetContainerkey.initialize());
+
   if (m_isMatched) {
     m_offmatchedKey = m_l1jetContainerkey.key() + ".matched_" + m_matchedOfflineJetContainer;
     m_offptdiffKey = m_l1jetContainerkey.key() + ".ptdiff_" + m_matchedOfflineJetContainer;
@@ -29,6 +30,7 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     m_offmassrespKey = m_l1jetContainerkey.key() + ".massresp_" + m_matchedOfflineJetContainer;
     m_offptrefKey = m_l1jetContainerkey.key() + ".ptRef_" + m_matchedOfflineJetContainer;
     m_offetarefKey = m_l1jetContainerkey.key() + ".etaRef_" + m_matchedOfflineJetContainer;
+
     ATH_CHECK( m_offmatchedKey.initialize() );
     ATH_CHECK( m_offptdiffKey.initialize() );
     ATH_CHECK( m_offenergydiffKey.initialize() );
@@ -38,7 +40,7 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     ATH_CHECK( m_offmassrespKey.initialize() );
     ATH_CHECK( m_offptrefKey.initialize() );
     ATH_CHECK( m_offetarefKey.initialize() );
-
+    
     m_hltmatchedKey = m_l1jetContainerkey.key() + ".matched_" + m_matchedHLTJetContainer;
     m_hltptdiffKey = m_l1jetContainerkey.key() + ".ptdiff_" + m_matchedHLTJetContainer;
     m_hltenergydiffKey = m_l1jetContainerkey.key() + ".energydiff_" + m_matchedHLTJetContainer;
@@ -48,19 +50,48 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     m_hltmassrespKey = m_l1jetContainerkey.key() + ".massresp_" + m_matchedHLTJetContainer;
     m_hltptrefKey = m_l1jetContainerkey.key() + ".ptRef_" + m_matchedHLTJetContainer;
     m_hltetarefKey = m_l1jetContainerkey.key() + ".etaRef_" + m_matchedHLTJetContainer;
-    ATH_CHECK( m_hltmatchedKey.initialize() );
-    ATH_CHECK( m_hltptdiffKey.initialize() );
-    ATH_CHECK( m_hltenergydiffKey.initialize() );
-    ATH_CHECK( m_hltmassdiffKey.initialize() );
-    ATH_CHECK( m_hltptrespKey.initialize() );
-    ATH_CHECK( m_hltenergyrespKey.initialize() );
-    ATH_CHECK( m_hltmassrespKey.initialize() );
-    ATH_CHECK( m_hltptrefKey.initialize() );
-    ATH_CHECK( m_hltetarefKey.initialize() );
+    
+    ATH_CHECK( m_hltmatchedKey.initialize());
+    ATH_CHECK( m_hltptdiffKey.initialize());
+    ATH_CHECK( m_hltenergydiffKey.initialize());
+    ATH_CHECK( m_hltmassdiffKey.initialize());
+    ATH_CHECK( m_hltptrespKey.initialize());
+    ATH_CHECK( m_hltenergyrespKey.initialize());
+    ATH_CHECK( m_hltmassrespKey.initialize());
+    ATH_CHECK( m_hltptrefKey.initialize());
+    ATH_CHECK( m_hltetarefKey.initialize());
+
+  } else {
+    // declare the keys unused if no matching is configured
+
+    // offline container matching
+    ATH_CHECK(m_offmatchedKey.initialize(false));
+    ATH_CHECK( m_offptdiffKey.initialize(false));
+    ATH_CHECK( m_offenergydiffKey.initialize(false));
+    ATH_CHECK( m_offmassdiffKey.initialize(false));
+    ATH_CHECK( m_offptrespKey.initialize(false));
+    ATH_CHECK( m_offenergyrespKey.initialize(false));
+    ATH_CHECK( m_offmassrespKey.initialize(false));
+    ATH_CHECK( m_offptrefKey.initialize(false));
+    ATH_CHECK( m_offetarefKey.initialize(false));
+
+    // trigger container matching
+    ATH_CHECK( m_hltmatchedKey.initialize(false));
+    ATH_CHECK( m_hltptdiffKey.initialize(false));
+    ATH_CHECK( m_hltenergydiffKey.initialize(false));
+    ATH_CHECK( m_hltmassdiffKey.initialize(false));
+    ATH_CHECK( m_hltptrespKey.initialize(false));
+    ATH_CHECK( m_hltenergyrespKey.initialize(false));
+    ATH_CHECK( m_hltmassrespKey.initialize(false));
+    ATH_CHECK( m_hltptrefKey.initialize(false));
+    ATH_CHECK( m_hltetarefKey.initialize(false));
+
   }
-  
+    
+
   return   AthMonitorAlgorithm::initialize();
 }
+
 
 void TrigL1JFexSRJetMonitorAlgorithm::fillMatchedHistograms(const xAOD::jFexSRJetRoIContainer & jets, const EventContext& ctx) const {
 
@@ -168,6 +199,7 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::fillHistograms( const EventContext& 
     fill(tool,et,eta,phi);
   }
   // Adding histograms for L1 jets matched to offline/online jets
+
   if (m_isMatched) {
     // turn SG::ReadHandle<xAOD::jFexSRJetRoIContainer> into xAOD::jFexSRJetRoIContainer to be able to use Monitored::Collection on the L1 jet collection
     ConstDataVector< xAOD::jFexSRJetRoIContainer > tmpCont(SG::VIEW_ELEMENTS);

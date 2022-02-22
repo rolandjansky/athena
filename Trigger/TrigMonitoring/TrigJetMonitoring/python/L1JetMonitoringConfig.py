@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 class L1JetMonAlg():
   def __init__(self,name,jetcoll,triggerChain='',matched=False,matchedOfflineJets='',matchedHLTJets=''):
@@ -9,22 +9,34 @@ class L1JetMonAlg():
     self.MatchedOJ      = matchedOfflineJets
     self.MatchedHLTJ    = matchedHLTJets
 
+  def __str__(self):
+    text = ' '.join(['%s: %s' % (str(k), str(v)) for k, v in self.__dict__.items()])
+    return self.__class__.__name__ + ':: ' + text
+
+
   def toAlg(self,monhelper):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     jFex = self.L1JetContainer == 'L1_jFexSRJetRoI'
+
+    jetcontainer       = self.L1JetContainer
+    triggerChain       = self.TriggerChain
+    ismatched          = self.Matched
 
     if jFex:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1JFexSRJetMonitorAlgorithm, self.name)
     else:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1JetMonitorAlgorithm, self.name)
 
+    # aliases to save typing
     jetcontainer       = self.L1JetContainer
     triggerChain       = self.TriggerChain
     ismatched          = self.Matched
+    
     alg.L1JetContainer = jetcontainer
     alg.TriggerChain   = triggerChain
     alg.IsMatched      = ismatched
+    
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool
 
@@ -45,8 +57,10 @@ class L1JetMonAlg():
     if ismatched:
       matchedOJ   = self.MatchedOJ
       matchedHLTJ = self.MatchedHLTJ
+
       alg.MatchedOfflineJets = matchedOJ
       alg.MatchedHLTJets     = matchedHLTJ
+        
       for matchcoll,tag in [ [matchedOJ, 'off'], [matchedHLTJ, 'hlt'] ]:
         Path = jetcontainer + '/NoTriggerSelection/MatchedJets_' + matchcoll + '/'
         for histname in [ 'ptdiff', 'energydiff' ]: #defines which variable difference will be plotted, mass difference makes no sense for L1 as m=0
