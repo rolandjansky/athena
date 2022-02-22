@@ -199,12 +199,12 @@ def triggerSummaryCfg(flags, hypos):
                     stepChains[chain] = hypoOutputKeys
         allChains.update( stepChains )
 
-    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
-    if len(TriggerConfigHLT.dicts()) == 0:
+    if len(HLTMenuConfig.dicts()) == 0:
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
     else:
-        for chainName, chainDict in TriggerConfigHLT.dicts().items():
+        for chainName, chainDict in HLTMenuConfig.dicts().items():
             if chainName not in allChains:
                 __log.debug("The chain %s is not mentioned in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here

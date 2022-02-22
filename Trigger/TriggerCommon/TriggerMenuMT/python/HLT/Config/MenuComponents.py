@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
 
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp, findAlgorithmByPredicate
@@ -1038,7 +1038,7 @@ class ChainStep(object):
 
 
     def createComboHypoTools(self, chainName):      
-        chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
+        chainDict = HLTMenuConfig.getChainDictFromChainName(chainName)
         self.combo.createComboHypoTools(chainDict, self.comboToolConfs)
             
     def getChainLegs(self):

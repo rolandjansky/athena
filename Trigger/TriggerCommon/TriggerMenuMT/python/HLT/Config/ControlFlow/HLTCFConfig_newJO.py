@@ -12,7 +12,7 @@ from TriggerMenuMT.HLT.Config.MenuComponents import (isComboHypoAlg,
                                                              isInputMakerBase,
                                                              EmptyMenuSequence)
 from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
-from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 
 log = logging.getLogger( __name__ )
 
@@ -431,7 +431,7 @@ def generateDecisionTree(flags, chains):
                         "{} comboHypo output".format( comboHypoAlg.name ) )
                     # if the chain requires special combo tools
                     for comboToolConf in step.comboToolConfs:
-                        comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+                        comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( HLTMenuConfig.getChainDictFromChainName( chain.name ) ) )
                 ###
                 # Here we map each leg-index to the input DecisionContainer (after the input ReadHandleKeyArray is de-duplicated)
                 # Please note that this has not been extensively tested in newJO as we do not have any jet triggers, or asymmetric leg triggers such as
