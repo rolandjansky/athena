@@ -3006,8 +3006,7 @@ namespace top {
             int rndcharge = rand() % 2;
             m_el_charge[j] = (rndcharge-0.5)*2;  //random charge -1 or 1
             m_el_emfrac[j] = jetPtr->auxdataConst<float>("EMFrac");
-            ++j;//next jet-electron
-            ++i;//next jet for the loop
+            ++j;//increase jet-electron index j, but do no increase real jet index i, since a jet-electron was filled instead
             continue;
         }
         m_jet_pt[i] = jetPtr->pt();
@@ -3157,8 +3156,7 @@ namespace top {
         i = 0;
         for (const auto* const jetPtr : event.m_jets) {// loop on jets
           if (m_config->useJetElectrons() && jetPtr->auxdataConst<int>("jet_electron")) {
-              // skip this jet, since this is a jet-electron
-              ++i;
+              // skip this jet, since this is a jet-electron, and do no increase real jet index i, since a jet-electron was filled instead
               continue;
           }
           m_jet_DLx_pick[i] = DLx_acc(*jetPtr);
