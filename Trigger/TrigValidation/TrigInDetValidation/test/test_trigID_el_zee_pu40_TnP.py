@@ -40,9 +40,9 @@ Jobs = [( "Truth",       " TIDAdata-run3-TnP.dat                    -o data-hist
         ( "Offline",     " TIDAdata-run3-offline-TnP.dat -r Offline -o data-hists-offline.root" )] 
  
 Comp = [( "L2ele",              "L2electronTnP",      "data-hists.root",         " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
-        ( "L2eleoffline",       "L2electronTnP",      "data-hists-offline.root", " -c TIDAhisto-panel-TnP.dat  -d HLTL2-plots-offline " ),
+        ( "L2eleoffline",       "L2electronTnP",      "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ),
         ( "EFele",              "EFelectronTnP",      "data-hists.root",         " -c TIDAhisto-panel.dat      -d HLTEF-plots " ),
-        ( "EFeleoffline",       "EFelectronTnP",      "data-hists-offline.root", " -c TIDAhisto-panel-TnP.dat  -d HLTEF-plots-offline " ) ]
+        ( "EFeleoffline",       "EFelectronTnP",      "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTEF-plots-offline " ) ]
 
 
     
