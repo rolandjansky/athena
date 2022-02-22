@@ -51,21 +51,13 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
 
     return tool
 
-def TrigBjetBtagHypoToolFromName( name, conf ):
-    """ Configure a b-jet hypo tool from chain name. """
-    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName( conf )
-    decodedDict['chainName'] = name # override
-    
-    return TrigBjetBtagHypoToolFromDict( decodedDict )
-
 
 ####################################################################################################  
 
 def decodeThreshold( threshold_btag ):
     """ decodes the b-tagging thresholds """
 
-    log.debug("TrigBjetBtagHypoToolFromName: decoding threshold b%s", threshold_btag)
+    log.debug("decoded b-jet threshold: b%s", threshold_btag)
 
     tagger = "offperf" if threshold_btag == "offperf" else re.findall("(.*)[0-9]{2}",threshold_btag)[0]
 
