@@ -89,7 +89,8 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         # Some noise needs to be added during MC Overlay
         # No noise should be added during Data Overlay
         kwargs.setdefault('NoiseOnOff', not overlayFlags.isDataOverlay())
-    kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() ) # For other jobs go with the noise flag setting.
+    else:
+        kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() ) # For other jobs go with the noise flag setting.
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
     if digitizationFlags.doXingByXingPileUp():
@@ -177,7 +178,12 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
             kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value())
-    kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
+    if isOverlay():
+         # Some noise needs to be added during MC Overlay
+         # No noise should be added during Data Overlay
+         kwargs.setdefault('NoiseOnOff', not overlayFlags.isDataOverlay() )
+    else :
+         kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
     from LArDigitization.LArDigitizationFlags import jobproperties
@@ -218,6 +224,7 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
     if not isOverlay():
         from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
         LArAutoCorrNoiseCondAlgDefault()
+        kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
 
     # bad channel masking
     kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])

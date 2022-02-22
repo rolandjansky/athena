@@ -149,6 +149,7 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
     acc.merge(LArBadChannelCfg(flags))
     if flags.Overlay.DataOverlay:
         kwargs.setdefault("ShapeKey", "LArShape")
+        kwargs.setdefault("AutoCorrNoiseKey", "LArAutoCorr")
     if not flags.Digitization.DoCaloNoise:
         requiredConditons=["fSampl", "Pedestal", "Shape"]
     else:
@@ -157,11 +158,17 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
 
     if flags.Common.ProductionStep != ProductionStep.Overlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
+        kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
 
     if "ProblemsToMask" not in kwargs:
         kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]
     # defaults
-    kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        # Some noise needs to be added during MC Overlay
+        # No noise should be added during Data Overlay
+        kwargs.setdefault("NoiseOnOff", not flags.Overlay.DataOverlay)
+    else :
+        kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)
     kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
