@@ -40,10 +40,11 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName):
 
 def generateJSON(flags):
     __log.info("Generating HLT Prescale JSON in the rec-ex-common job")
-    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
 
-    return __generateJSON( TriggerConfigHLT.dictsList(),
-                           TriggerConfigHLT.configsList(),
+    from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
+
+    return __generateJSON( HLTMenuConfig.dictsList(),
+                           HLTMenuConfig.configsList(),
                            flags.Trigger.triggerMenuSetup,
                            getHLTPrescalesSetFileName(flags))
 

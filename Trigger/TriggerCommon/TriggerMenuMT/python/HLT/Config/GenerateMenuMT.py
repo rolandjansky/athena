@@ -3,7 +3,7 @@
 import importlib
 import string
 
-from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT  import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig  import HLTMenuConfig
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
@@ -251,18 +251,18 @@ class GenerateMenuMT(object, metaclass=Singleton):
               #parallel-merged single-signature chains or single signature chains. Anything that needs no splitting!
               if len(set(alignmentGroups)) == 1: 
                   alignedChainConfig = menuAlignment.single_align(chainDict, chainConfig)
-                  TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )
+                  HLTMenuConfig.registerChain( chainDict, alignedChainConfig )
 
               elif len(alignmentGroups) >= 2:
                   alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, lengthOfChainConfigs)
 
-                  TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )              
+                  HLTMenuConfig.registerChain( chainDict, alignedChainConfig )              
 
               else: 
                   log.error("Menu can't deal with combined chains with more than two alignmentGroups at the moment. oops...")
                   raise NotImplementedError("more than three alignment groups still needs implementing in ChainMerging.py, ATR-22206")
 
-              if not TriggerConfigHLT.isChainRegistered(chainDict['chainName']):
+              if not HLTMenuConfig.isChainRegistered(chainDict['chainName']):
                 log.error("Chain %s has not been registered in the menu!", chainDict['chainName'])
                 import pprint
                 pp = pprint.PrettyPrinter(indent=4, depth=8)
@@ -273,13 +273,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         # align event building sequences
         log.info("[generateAllChainConfigs] general alignment complete, will now align TLA chains")
-        TLABuildingSequences.alignTLASteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())    
+        TLABuildingSequences.alignTLASteps(HLTMenuConfig.configs(), HLTMenuConfig.dicts())    
         log.info("[generateAllChainConfigs] general and TLA alignment complete, will now align PEB chains")
-        EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
+        EventBuildingSequences.alignEventBuildingSteps(HLTMenuConfig.configs(), HLTMenuConfig.dicts())
         
          
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
-        return TriggerConfigHLT.configsList()
+        return HLTMenuConfig.configsList()
 
 
     def getChainsFromMenu(self, flags):
@@ -288,7 +288,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
 
         # go over the slices and put together big list of signatures requested
-        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(TriggerConfigHLT, flags)
+        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(HLTMenuConfig, flags)
 
         log.debug("Setup HLT menu with prescales: %s", self.HLTPrescales)
 
@@ -484,13 +484,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
             log.debug('Steps for %s are %s', cc.name, cc.steps)
 
         log.info("Making the HLT configuration tree")
-        makeHLTTree(flags, newJO=False, triggerConfigHLT = TriggerConfigHLT)
+        makeHLTTree(flags, newJO=False, hltMenuConfig = HLTMenuConfig)
         # the return values used for debugging, might be removed later
 
         log.info("Applying HLT prescales")
 
         # Having built the Menu add prescales for disabling items (e.g. MC production)
-        applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
+        applyHLTPrescale(HLTMenuConfig, self.HLTPrescales, self.signaturesOverwritten)
 
         log.info("Checking the L1HLTConsistency...")
         from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
@@ -498,7 +498,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         log.info("Checking the Coherent Prescale assignments...")
         from TriggerMenuMT.HLT.Config.Validation.CheckCPSGroups import checkCPSGroups
-        checkCPSGroups(TriggerConfigHLT.dictsList())
+        checkCPSGroups(HLTMenuConfig.dictsList())
 
         log.info("Generating HLT menu JSON...")
         

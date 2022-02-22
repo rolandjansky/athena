@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################################
 #
-# TriggerConfigHLT class, providing basic functionality for assembling the menu
+# HLTMenuConfig class, providing basic functionality for assembling the menu
 #
 #########################################################################################
 
@@ -10,7 +10,7 @@ import sys
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-class TriggerConfigHLT(object):
+class HLTMenuConfig(object):
     """
     Repository of all configured chains. Contains chain dictionaries and Menu Chain objects
     """
@@ -107,13 +107,13 @@ if __name__ == "__main__": # selftest
         def __init__(self, n):
             self.name = n
 
-    TriggerConfigHLT.registerChain({'chainName':'HLT_bla1'}, ChainClassGoodForThisTest('HLT_bla1'))
-    TriggerConfigHLT.registerChain({'chainName':'HLT_bla2'}, ChainClassGoodForThisTest('HLT_bla2'))
-    TriggerConfigHLT.getChainDictFromChainName('HLT_bla1') # if missing will assert
-    TriggerConfigHLT.getChainDictFromChainName('HLT_bla2') # if missing will assert
+    HLTMenuConfig.registerChain({'chainName':'HLT_bla1'}, ChainClassGoodForThisTest('HLT_bla1'))
+    HLTMenuConfig.registerChain({'chainName':'HLT_bla2'}, ChainClassGoodForThisTest('HLT_bla2'))
+    HLTMenuConfig.getChainDictFromChainName('HLT_bla1') # if missing will assert
+    HLTMenuConfig.getChainDictFromChainName('HLT_bla2') # if missing will assert
     log.info("ok, registration works")
     try:
-        TriggerConfigHLT.getChainDictFromChainName('HLT_blabla')
+        HLTMenuConfig.getChainDictFromChainName('HLT_blabla')
     except Exception as e:
         if isinstance(e, AssertionError):
             log.info("ok, unregistered chain handling works")

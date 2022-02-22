@@ -6,7 +6,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 
-def MenuPrescaleConfig(triggerConfigHLT, flags):
+def MenuPrescaleConfig(hltMenuConfig, flags):
     L1Prescales = {}
     HLTPrescales = {}
     chains = {}

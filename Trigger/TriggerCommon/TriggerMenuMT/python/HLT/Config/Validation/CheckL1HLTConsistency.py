@@ -12,13 +12,13 @@ def checkL1HLTConsistency(flags):
     lvl1thtypes = lvl1access.thresholdTypes()
     lvl1items   = lvl1access.items(includeKeys=["name"])
     lvl1items_full   = lvl1access.items() 
-    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 
     allUsedItems = []
     allUnusedItems = []
     chainsWithWrongLabel = {}
 
-    for chain in TriggerConfigHLT.dictsList():
+    for chain in HLTMenuConfig.dictsList():
         log.debug('[checkL1HLTConsistency] Checking the l1thresholds in the chain %s', chain["chainName"])
 #        #don't check the noalg chains (they don't do anything in the HLT anyway)
 #        if 'HLT_noalg_' in chain["chainName"]:

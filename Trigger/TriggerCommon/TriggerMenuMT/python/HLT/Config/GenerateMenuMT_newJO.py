@@ -3,7 +3,7 @@ import itertools
 
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
@@ -98,7 +98,7 @@ def generateChainConfig(flags, chain, sigGenMap):
 
 def doMenuAlignment(chains):
     """
-    Invoke menu alignment procedures and register aligned chains in the TriggerConfigHLT
+    Invoke menu alignment procedures and register aligned chains in the HLTMenuConfig
 
     Input is a list of pairs, (chain dict, chain config)
     """
@@ -133,12 +133,12 @@ def doMenuAlignment(chains):
             alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, reverseAlignmentLengths)
         else:
             assert False, "Do not handle more than one calignment group"
-        TriggerConfigHLT.registerChain(chainDict, alignedChainConfig)
+        HLTMenuConfig.registerChain(chainDict, alignedChainConfig)
 
 
 def loadChains(flags):
     """
-    Using the menu set in flags load configuration of all needed chains into the TriggerConfigHLT
+    Using the menu set in flags load configuration of all needed chains into the HLTMenuConfig
     return list of pairs(chain dict, chain config)
     """
     log.info('Obtaining Menu Chain objects for menu %s', flags.Trigger.triggerMenuSetup)
@@ -166,7 +166,7 @@ def generateMenu(flags):
     """
     loadChains(flags)
 
-    menuAcc = generateDecisionTree(flags, TriggerConfigHLT.configsList())
+    menuAcc = generateDecisionTree(flags, HLTMenuConfig.configsList())
     menuAcc.wasMerged()
     if log.getEffectiveLevel() <= logging.DEBUG:
         menuAcc.printConfig()
@@ -175,10 +175,10 @@ def generateMenu(flags):
 
     # # generate JOSON representation of the config
     from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON_newJO
-    generateJSON_newJO(flags, TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), menuAcc.getSequence("HLTAllSteps"))
+    generateJSON_newJO(flags, HLTMenuConfig.dictsList(), HLTMenuConfig.configsList(), menuAcc.getSequence("HLTAllSteps"))
 
     from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
-    generatePrescaleJSON_newJO(flags, TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList())
+    generatePrescaleJSON_newJO(flags, HLTMenuConfig.dictsList(), HLTMenuConfig.configsList())
 
     return menuAcc
 
