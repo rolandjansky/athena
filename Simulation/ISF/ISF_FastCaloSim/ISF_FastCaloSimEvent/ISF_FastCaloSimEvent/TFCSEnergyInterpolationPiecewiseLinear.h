@@ -38,6 +38,8 @@ public:
 
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
+  double evaluate(const double& Ekin) const;
+
   void Print(Option_t *option="") const override;
 
   static void unit_test(TFCSSimulationState* simulstate = nullptr, TFCSTruthState* truth = nullptr, const TFCSExtrapolationState* extrapol = nullptr, TGraph* grlinear = nullptr);
@@ -50,7 +52,7 @@ private:
   std::vector<double> m_response;
   std::pair<double, double> m_MinMaxlogEkin;
 
-  ClassDefOverride(TFCSEnergyInterpolationPiecewiseLinear, 3)  //TFCSEnergyInterpolationPiecewiseLinear
+  ClassDefOverride(TFCSEnergyInterpolationPiecewiseLinear, 4)  //TFCSEnergyInterpolationPiecewiseLinear
 
 };
 
