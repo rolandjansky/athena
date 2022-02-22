@@ -188,10 +188,36 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
   return sf;
 }
 
+bool SUSYObjDef_xAOD::GetTauTriggerMatch(const xAOD::TauJet& tau, const std::string& trigExpr){
+  bool match = false;
+
+  auto map_it = m_tau_trig_support.find(trigExpr); 
+  if(map_it == m_tau_trig_support.end()) {
+    ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported! Matching set to false.");
+    return match;
+  }
+
+  // trigger matching (dR=0.2)
+  std::vector<std::string> chains;
+  boost::split(chains, map_it->second, [](char c){return c == ',';});
+
+  for(const std::string& chain : chains)
+    if(m_trigMatchingTool->match({&tau}, chain, 0.2)) {
+      match = true;
+      break;
+    }
+  return match;
+}
 
 double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const std::string& trigExpr) {
+  bool match = false;
+  return GetTauTriggerEfficiencySF(tau, match,trigExpr);
+}
+
+double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, bool& match, const std::string& trigExpr) {
 
   double eff(1.);
+  match = false;
 
   auto map_it = m_tau_trig_support.find(trigExpr); 
   if(map_it == m_tau_trig_support.end()) {
@@ -199,15 +225,8 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
     return eff;
   }
 
-  // trigger matching (dR=0.2)
-  std::vector<std::string> chains;
-  boost::split(chains, map_it->second, [](char c){return c == ',';});
-  bool match = false;
-  for(const std::string& chain : chains)
-    if(m_trigMatchingTool->match({&tau}, chain, 0.2)) {
-      match = true;
-      break;
-    }
+  match = GetTauTriggerMatch(tau,trigExpr);
+
   if(!match) {
     ATH_MSG_VERBOSE("Tau did not match trigger " << trigExpr);
     return eff;
@@ -218,7 +237,6 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
     ATH_MSG_ERROR("Some problem found to retrieve SF for trigger item  requested ("  << trigExpr << ")");
     eff = -99;
   }
-  
   return eff;
 }
 
@@ -234,7 +252,6 @@ double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const b
       sf *= tmpSF;
     }
   }
-
   return sf;
 }
 

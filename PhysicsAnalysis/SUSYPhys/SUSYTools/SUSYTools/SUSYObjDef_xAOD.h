@@ -273,8 +273,12 @@ namespace ST {
 
     double GetSignalTauSFsys(const xAOD::TauJet& tau, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
+    bool GetTauTriggerMatch(const xAOD::TauJet& tau, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
+
     double GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
+    double GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, bool& matched, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
+    
     double GetTotalTauSF(const xAOD::TauJetContainer& taus, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
     double GetTotalTauSFsys(const xAOD::TauJetContainer& taus, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
