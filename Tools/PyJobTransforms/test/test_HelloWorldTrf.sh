@@ -26,6 +26,13 @@ ATHENA_CORE_NUMBER=2 HelloWorld_tf.py --maxEvents=5 --CA --multithreaded=True --
 grep 'runArgs.threads = 2' runargs.athena.py
 grep 'runArgs.concurrentEvents = 2' runargs.athena.py
 
+# MP test
+ATHENA_CORE_NUMBER=2 HelloWorld_tf.py --maxEvents=5 --CA --multiprocess=True
+
+grep 'runArgs.nprocs = 2' runargs.athena.py
+grep 'runArgs.threads = 0' runargs.athena.py
+grep 'runArgs.concurrentEvents = 0' runargs.athena.py
+
 # postInclude/Exec
 HelloWorld_tf.py --maxEvents=5 --CA --postInclude 'AthenaConfiguration.JobOptsDumper.JobOptsDumperCfg,PyJobTransforms.DumpPickle'
 
