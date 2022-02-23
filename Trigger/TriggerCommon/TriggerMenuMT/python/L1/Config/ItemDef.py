@@ -590,6 +590,7 @@ class ItemDef:
         MenuItem('L1_J400' ).setLogic( d.J400 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J400_LAR' ).setLogic( d.J400 & physcond).setTriggerType(TT.lardemo) # ATR-22344
 
+        MenuItem('L1_jJ20'          ).setLogic( d.jJ20         & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ30'          ).setLogic( d.jJ30         & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ30p0ETA25'   ).setLogic( d.jJ300ETA25   & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ40'          ).setLogic( d.jJ40         & physcond).setTriggerType(TT.calo)
@@ -1389,6 +1390,10 @@ class ItemDef:
         MenuItem('L1_AFP_A_OR_C_J5').setLogic( (AFP_A | AFP_C) & d.J5 & physcond )
         MenuItem('L1_AFP_A_AND_C_J12').setLogic( AFP_A & AFP_C & d.J12 & physcond )
         MenuItem('L1_AFP_A_OR_C_J12').setLogic( (AFP_A | AFP_C) & d.J12 & physcond )
+        MenuItem('L1_AFP_A_AND_C_jJ20').setLogic( AFP_A & AFP_C & d.jJ20 & physcond )
+        MenuItem('L1_AFP_A_OR_C_jJ20').setLogic( (AFP_A | AFP_C) & d.jJ20 & physcond )
+        MenuItem('L1_AFP_A_AND_C_jJ30').setLogic( AFP_A & AFP_C & d.jJ30 & physcond )
+        MenuItem('L1_AFP_A_OR_C_jJ30').setLogic( (AFP_A | AFP_C) & d.jJ30 & physcond )
         MenuItem('L1_MU5VF_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.MU5VF & physcond )
         MenuItem('L1_MU5VF_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.MU5VF & physcond )
         MenuItem('L1_EM7_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM7 & physcond )
