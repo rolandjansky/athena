@@ -174,6 +174,9 @@ void GlobalNNCalibration::loadSplineHists(const TString & fileName, const std::s
 
 
 double GlobalNNCalibration::getSplineCorr(const int etaBin, double pT) const {
+  if(pT >=  m_ptCorrFactors[ etaBin ]->GetBinLowEdge( m_ptCorrFactors[ etaBin ]->GetNbinsX()+1)){
+     pT =  m_ptCorrFactors[ etaBin ]->GetBinLowEdge( m_ptCorrFactors[ etaBin ]->GetNbinsX());
+  }
   if(pT < m_JPtS_MinPt_Pt[etaBin]){
     double ptCutoff = m_JPtS_MinPt_Pt[etaBin];
     double Rcutoff = m_JPtS_MinPt_R[etaBin];
