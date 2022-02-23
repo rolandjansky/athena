@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigHLTMonitorAlgorithm.py
@@ -16,7 +16,11 @@ def TrigGeneralMonConfig(inputFlags):
     from AthenaCommon.Logging import logging
     log_trighlt = logging.getLogger( 'TrigGeneralMonitorAlgorithm' )
 
+    log_trighlt.debug('In TrigGeneralMonitorAlgorithm.py')
 
+    ###Read the menu from the database
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMenuAccess
+    from TrigConfigSvc.TriggerConfigAccess import getL1MenuAccess
 
     ################################
     # HLT general monitoring
@@ -25,6 +29,7 @@ def TrigGeneralMonConfig(inputFlags):
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigHLTAthMonitorCfg')
+
 
 
     # Adding algorithms to the helper. 
@@ -110,14 +115,12 @@ def TrigGeneralMonConfig(inputFlags):
     ############################################################
     #### Overall summary histograms ############################
 
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
-
 
     ########################
     ## The HLT chains
     HLT_names_AllChains = []
     log_trighlt.debug('HLT chains:')
-    for chain_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['HLTChains']:
+    for chain_name in getHLTMenuAccess(inputFlags):
         log_trighlt.debug('HLT chain_name = %s',chain_name)
         HLT_names_AllChains.append(chain_name)
     max_hlt_chains = len(HLT_names_AllChains)
@@ -133,7 +136,8 @@ def TrigGeneralMonConfig(inputFlags):
     #########################
     ## The L1 items
     L1_names =[]
-    for item_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['L1Items']:
+    log_trighlt.debug('L1 items: ') 
+    for item_name in getL1MenuAccess(inputFlags):
         log_trighlt.debug('L1 item_name = %s',item_name) 
         L1_names.append(item_name)
     max_L1_items = len(L1_names)
@@ -209,6 +213,9 @@ def TrigGeneralMonConfig(inputFlags):
     hltJetGroup.defineHistogram(histname,type='TH2F',title=titlename,
                                 path='',xbins=64,xmin=-3.2,xmax=3.2,
                                 ybins=64,ymin=-3.2,ymax=3.2)
+
+
+    log_trighlt.debug('End of TrigGeneralMonitorAlgorithm')
 
 
     #####################################
