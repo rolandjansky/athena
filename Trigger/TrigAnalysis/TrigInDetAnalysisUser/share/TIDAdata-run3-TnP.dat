@@ -33,14 +33,10 @@ DataFiles = { "TrkNtuple-0000.root"};
 #include "TIDAbeam.dat"
 
 TagnProbe = {
-        "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:0",
-        "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1",
-	//"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon:0",
-        //"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon:1",
+        "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:0",
+        "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1",
 
-	"HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:0",
-	"HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:1"
-        //"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon:0",
-        //"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon:1"
+	"HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:0",
+	"HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:1"
 }; 
 
