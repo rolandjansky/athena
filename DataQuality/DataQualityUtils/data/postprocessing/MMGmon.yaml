@@ -1,0 +1,11 @@
+#
+#   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Separate blocks with ---
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Efficiency/pcb_eta(?P<eta>.)_(?P=side)Side_phi(?P<phi>[0-9]|[0-9]{1,2})_multiplet(?P<ml>.)_gas_gap(?P<gasgap>.)_vs_hitcut']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Efficiency_per_PCB_eta{eta}_E{side}']
+Function : MMRawDataMonitoring.MMPostProcessing.make_eff_histo_per_PCB
+Description: make_eff_histo_per_PCB
+---
+
