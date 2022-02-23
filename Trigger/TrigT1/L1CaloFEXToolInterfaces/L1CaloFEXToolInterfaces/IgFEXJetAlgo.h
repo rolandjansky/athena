@@ -25,6 +25,8 @@ Interface definition for eFEXegAlgo
     static const InterfaceID& interfaceID( ) ;
 
 
+    virtual void pileUpCalculation(gTowersCentral &twrs, int rhoThreshold_Max, int rhoThreshold_Min, int inputScale,  int &PUCp) = 0;
+
     virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atwr, gTowersCentral Btwr, 
                                                                   gTowersForward CNtwr, gTowersForward CPtwr, 
                                                                   int pucA, int pucB, int gLJ_seedThrA, int gLJ_seedThrB, 
