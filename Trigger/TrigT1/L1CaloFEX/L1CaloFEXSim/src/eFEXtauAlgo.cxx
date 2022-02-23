@@ -114,9 +114,17 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
       }
       
       // Cells to the up and right must have strictly lesser ET
-      if (((beta == 0) && (bphi == 0)) || ((beta == 1) && (bphi == 0)) || ((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)))
+      if (((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)) || ((beta == 2) && (bphi == 2)) || ((beta == 1) && (bphi == 2)))
       {
         if (centralET <= m_twrcells[beta][bphi])
+        {
+          out = false;
+        }
+      }
+      // Cells down and to the left must have lesser or equal ET. If strictly lesser would create zero TOB if two adjacent cells had equal energy
+      else if (((beta == 0) && (bphi == 0)) || ((beta == 0) && (bphi == 1)) || ((beta == 0) && (bphi == 2)) || ((beta == 1) && (bphi == 0)))
+      { 
+        if (centralET < m_twrcells[beta][bphi])
         {
           out = false;
         }
