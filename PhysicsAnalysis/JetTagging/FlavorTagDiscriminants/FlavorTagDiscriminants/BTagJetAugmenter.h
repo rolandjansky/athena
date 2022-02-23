@@ -95,6 +95,7 @@ private:
 
   // Add new variable
   AE::Decorator<float> m_secondaryVtx_DmesonMass;
+  AE::Decorator<bool> m_secondaryVtx_isDmesonRecon;
 
   AE::ConstAccessor<char> m_rnnip_pbIsValid;
   AE::Decorator<char> m_rnnip_isDefaults;

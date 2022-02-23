@@ -108,6 +108,7 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_secondaryVtx_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumTrackRelativeEta"),
   m_secondaryVtx_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageTrackRelativeEta"),
   m_secondaryVtx_DmesonMass(jfSvNew(f) + "_DmesonMass"),
+  m_secondaryVtx_isDmesonRecon(jfSvNew(f) + "_isDmesonRecon"),
   m_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumAllJetTrackRelativeEta"),
   m_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumAllJetTrackRelativeEta"),
   m_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageAllJetTrackRelativeEta"),
@@ -150,6 +151,7 @@ std::set<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_secondaryVtx_max_trk_flightDirRelEta.auxid(),
         m_secondaryVtx_avg_trk_flightDirRelEta.auxid(),
         m_secondaryVtx_DmesonMass.auxid(),
+        m_secondaryVtx_isDmesonRecon.auxid(),
         m_min_trk_flightDirRelEta.auxid(),
         m_max_trk_flightDirRelEta.auxid(),
         m_avg_trk_flightDirRelEta.auxid(),
@@ -391,6 +393,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
     m_secondaryVtx_E(btag) = E;
     m_secondaryVtx_EFrac(btag) = EFrac;
     m_secondaryVtx_DmesonMass(btag) = m;
+    m_secondaryVtx_isDmesonRecon(btag) = false;
 
     // now reconstruct D mesons
     if(secondaryVtx_track_number == 3 && abs(secondaryVtx_charge) == 1){ // D+ -> K- pi+ pi+, and charge conjugate
@@ -409,6 +412,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
       }
       if(secondaryVtx_4momentum_Dmeson.M()>1000 && secondaryVtx_4momentum_Dmeson.M()<2200){
         m_secondaryVtx_DmesonMass(btag) = secondaryVtx_4momentum_Dmeson.M();
+        m_secondaryVtx_isDmesonRecon(btag) = true;
       }
     } else if(secondaryVtx_track_number == 2 && secondaryVtx_charge == 0){ // D0 -> K- pi+
       std::vector<TLorentzVector>::const_iterator secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
@@ -426,6 +430,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
       }
       if(secondaryVtx_4momentum_Dmeson.M()>1000 && secondaryVtx_4momentum_Dmeson.M()<2200){
         m_secondaryVtx_DmesonMass(btag) = secondaryVtx_4momentum_Dmeson.M();
+        m_secondaryVtx_isDmesonRecon(btag) = true;
       }
     } else if(secondaryVtx_track_number == 4 && secondaryVtx_charge == 0){ // D0 -> K- pi+ pi- pi+
       std::vector<TLorentzVector>::const_iterator secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
@@ -462,8 +467,14 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
         ++secondaryVtx_4momentum_Iter;
       } 
       double mDmeson_2 = secondaryVtx_4momentum_Dmeson_new.M();
-      if (abs(mDmeson_1 - 1864.83)<abs(mDmeson_2 - 1864.83) && mDmeson_1>1000 && mDmeson_1<2200)m_secondaryVtx_DmesonMass(btag)=mDmeson_1;
-      else if(abs(mDmeson_2 - 1864.83)<abs(mDmeson_2 - 1864.83) && mDmeson_2>1000 && mDmeson_2<2200)m_secondaryVtx_DmesonMass(btag)=mDmeson_2; 
+      if (abs(mDmeson_1 - 1864.83)<=abs(mDmeson_2 - 1864.83) && mDmeson_1>1000 && mDmeson_1<2200){
+          m_secondaryVtx_DmesonMass(btag)=mDmeson_1;
+          m_secondaryVtx_isDmesonRecon(btag) = true;
+      }
+      else if(abs(mDmeson_2 - 1864.83)<=abs(mDmeson_1 - 1864.83) && mDmeson_2>1000 && mDmeson_2<2200){
+          m_secondaryVtx_DmesonMass(btag)=mDmeson_2; 
+          m_secondaryVtx_isDmesonRecon(btag) = true;
+      }
     }
   }
   if(secondaryVtx_track_number > 0){
