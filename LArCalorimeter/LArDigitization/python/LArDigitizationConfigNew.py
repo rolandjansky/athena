@@ -149,7 +149,7 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
     acc.merge(LArBadChannelCfg(flags))
     if flags.Overlay.DataOverlay:
         kwargs.setdefault("ShapeKey", "LArShape")
-        kwargs.setdefault("AutoCorrNoiseKey", "LArAutoCorr")
+        #kwargs.setdefault("AutoCorrNoiseKey", "LArAutoCorr")
     if not flags.Digitization.DoCaloNoise:
         requiredConditons=["fSampl", "Pedestal", "Shape"]
     else:
@@ -158,7 +158,7 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
 
     if flags.Common.ProductionStep != ProductionStep.Overlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
-        kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
+        #kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
 
     if "ProblemsToMask" not in kwargs:
         kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]

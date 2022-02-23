@@ -224,7 +224,6 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
     if not isOverlay():
         from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
         LArAutoCorrNoiseCondAlgDefault()
-        kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
 
     # bad channel masking
     kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
