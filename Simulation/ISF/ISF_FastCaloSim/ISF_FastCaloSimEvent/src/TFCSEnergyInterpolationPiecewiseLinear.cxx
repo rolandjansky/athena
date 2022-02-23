@@ -76,23 +76,6 @@ FCSReturnCode TFCSEnergyInterpolationPiecewiseLinear::simulate(TFCSSimulationSta
   return FCSSuccess;
 }
 
-double TFCSEnergyInterpolationPiecewiseLinear::evaluate(const double& Ekin) const
-{
-  //returns simple evaluation of the interpolation
-  //if the lookup is below the minimum interpolation value, will return minimum evaluation
-  //if the lookup is above the maximum interpolation value, will return maximum evalution
-  //this means no extrapolation beyond the interpolation will be performed
-
-  //catch very small values of Ekin (use 1 keV here) and fix the interpolation lookup to the 1keV value
-  const float logEkin = Ekin > Gaudi::Units::keV ? TMath::Log(Ekin) : TMath::Log(Gaudi::Units::keV);
-
-  if(logEkin < m_MinMaxlogEkin.first)       return m_linInterpol.Eval(m_MinMaxlogEkin.first);
-  else if(logEkin > m_MinMaxlogEkin.second) return m_linInterpol.Eval(m_MinMaxlogEkin.second);
-  else                                      return m_linInterpol.Eval(logEkin);
-  
-}
-
-
 void TFCSEnergyInterpolationPiecewiseLinear::Print(Option_t *option) const
 {
 
