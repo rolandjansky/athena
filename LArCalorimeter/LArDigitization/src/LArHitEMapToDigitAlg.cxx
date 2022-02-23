@@ -133,43 +133,42 @@ StatusCode LArHitEMapToDigitAlg::execute(const EventContext& context) const {
       const LArHitList& hitlist = hitmapPtr->GetCell(it);
       
       if (!m_Windows || hitlist.inWindows()) {
-    TimeE = &(hitlist.getData());
-    if(m_doDigiTruth) {
-      auto& hitlist_DigiHSTruth=hitmapPtr_DigiHSTruth->GetCell(it);
-      TimeE_DigiHSTruth = &(hitlist_DigiHSTruth.getData());
-    }
-
-    if (TimeE->size() > 0 || m_NoiseOnOff || m_RndmEvtOverlay) {
-      const Identifier cellID=m_calocell_id->cell_id(IdentifierHash(it));
-      HWIdentifier ch_id = cabling->createSignalChannelIDFromHash(IdentifierHash(it));
-      HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
-      bool missing=!(badFebs->status(febId).good());
-      if (!missing) {
-        const LArDigit * digit = 0 ;
-        if(m_RndmEvtOverlay) digit = hitmapPtr->GetDigit(it);
-        // MakeDigit called if in no overlay mode or
-        // if in overlay mode and random digit exists
-        if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
-	      LArDigit* Digit = nullptr;
-	      LArDigit* Digit_DigiHSTruth = nullptr;
-              ATH_CHECK( MakeDigit(context,cellID, ch_id, Digit, Digit_DigiHSTruth, TimeE, digit, engine, TimeE_DigiHSTruth));
-	   DigitContainer->push_back(Digit);
-	   if ( m_doDigiTruth && Digit_DigiHSTruth ) DigitContainer_DigiHSTruth->push_back(Digit_DigiHSTruth);
+        TimeE = &(hitlist.getData());
+        if(m_doDigiTruth) {
+          auto& hitlist_DigiHSTruth=hitmapPtr_DigiHSTruth->GetCell(it);
+          TimeE_DigiHSTruth = &(hitlist_DigiHSTruth.getData());
         }
-      }
-    }
+
+        if (TimeE->size() > 0 || m_NoiseOnOff || m_RndmEvtOverlay) {
+           const Identifier cellID=m_calocell_id->cell_id(IdentifierHash(it));
+           HWIdentifier ch_id = cabling->createSignalChannelIDFromHash(IdentifierHash(it));
+           HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
+           bool missing=!(badFebs->status(febId).good());
+           if (!missing) {
+             const LArDigit * digit = 0 ;
+             if(m_RndmEvtOverlay) digit = hitmapPtr->GetDigit(it);
+             // MakeDigit called if in no overlay mode or
+             // if in overlay mode and random digit exists
+             if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
+	       LArDigit* Digit = nullptr;
+	       LArDigit* Digit_DigiHSTruth = nullptr;
+               ATH_CHECK( MakeDigit(context,cellID, ch_id, Digit, Digit_DigiHSTruth, TimeE, digit, engine, TimeE_DigiHSTruth));
+	       DigitContainer->push_back(Digit);
+	       if ( m_doDigiTruth && Digit_DigiHSTruth ) DigitContainer_DigiHSTruth->push_back(Digit_DigiHSTruth);
+             }
+           }
+        }
       }     // check window
    }        // end of loop over the cells
 
 
-//  ATH_MSG_DEBUG(" total number of hits found= " << m_nhit_tot);
   ATH_MSG_DEBUG(" number of created digits  = " << DigitContainer->size());
 
   SG::WriteHandle<LArDigitContainer> DigitContainerHandle( m_DigitContainerName, context);
   ATH_CHECK(DigitContainerHandle.record( std::move(DigitContainer) ) );
   if ( m_doDigiTruth ){
-  SG::WriteHandle<LArDigitContainer> DigitContainer_DigiHSTruthHandle( m_DigitContainerName_DigiHSTruth, context);
-  ATH_CHECK(DigitContainer_DigiHSTruthHandle.record( std::move(DigitContainer_DigiHSTruth) ) );
+    SG::WriteHandle<LArDigitContainer> DigitContainer_DigiHSTruthHandle( m_DigitContainerName_DigiHSTruth, context);
+    ATH_CHECK(DigitContainer_DigiHSTruthHandle.record( std::move(DigitContainer_DigiHSTruth) ) );
   }
 
 
@@ -181,8 +180,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 				    LArDigit*& Digit, LArDigit*& Digit_DigiHSTruth,
                                     const std::vector<std::pair<float,float> >* TimeE,
                                     const LArDigit * rndmEvtDigit, CLHEP::HepRandomEngine * engine,
-                    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth) const
-
+                                    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth) const
 {
   bool createDigit_DigiHSTruth = true;
 
@@ -410,7 +408,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 
   double Rndm[32]{};
   int BvsEC=0;
-  if(iCalo==EM || iCalo==EMIW) BvsEC=abs(m_larem_id->barrel_ec(cellId));
+  if(iCalo==EM || iCalo==EMIW) BvsEC=std::abs(m_larem_id->barrel_ec(cellId));
 
   bool addedNoise=false;
   if(    m_NoiseOnOff
@@ -664,7 +662,7 @@ StatusCode LArHitEMapToDigitAlg::ConvertHits2Samples(const EventContext& ctx,
        ATH_MSG_DEBUG(" time/i/j " << time << " "<< i << " " << j);
 #endif
        if (j >=0 && j < nsamples ) {
-         if (j<nsamples_der && std::fabs(ShapeDer[j])<10. )
+         if (j<nsamples_der && std::abs(ShapeDer[j])<10. )
               sampleList[i] += (Shape[j]- ShapeDer[j]*dtime)*energy ;
          else sampleList[i] += Shape[j]*energy ;
        }
@@ -713,7 +711,7 @@ StatusCode LArHitEMapToDigitAlg::ConvertHits2Samples(const EventContext& ctx,
        ATH_MSG_DEBUG(" time/i/j " << time << " "<< i << " " << j);
 #endif
        if (j >=0 && j < nsamples ) {
-         if (j<nsamples_der && std::fabs(ShapeDer[j])<10. )
+         if (j<nsamples_der && std::abs(ShapeDer[j])<10. )
               sampleList[i] += (Shape[j]- ShapeDer[j]*dtime)*energy ;
          else sampleList[i] += Shape[j]*energy ;
        }
