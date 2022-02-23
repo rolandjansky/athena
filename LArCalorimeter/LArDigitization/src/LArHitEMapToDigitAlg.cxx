@@ -49,7 +49,7 @@ StatusCode LArHitEMapToDigitAlg::initialize()
   ATH_CHECK(m_fSamplKey.initialize());
   ATH_CHECK(m_OFCKey.initialize());
   ATH_CHECK(m_pedestalKey.initialize());
-  ATH_CHECK(m_autoCorrNoiseKey.initialize());
+  ATH_CHECK(m_autoCorrNoiseKey.initialize(!m_RndmEvtOverlay && m_NoiseOnOff) );
   ATH_CHECK(m_bcContKey.initialize());
   ATH_CHECK(m_badFebKey.initialize());
   ATH_CHECK(m_adc2mevKey.initialize());
