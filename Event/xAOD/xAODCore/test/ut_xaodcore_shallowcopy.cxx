@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodcore_shallowcopy.cxx 673658 2015-06-09 12:45:34Z krasznaa $
-//
 // This is a unit test for xAOD::ShallowAuxContainer that can only run in
 // standalone mode. As it needs to access some internals of DataLink
 // unfortunately.
@@ -46,6 +44,8 @@ int main() {
       SG::AuxElement* e = new SG::AuxElement();
       origVec.push_back( e );
       e->auxdata< int >( "IntVar" ) = i;
+      e->auxdata< int >( "Int2Var" ) = i;
+      e->auxdata< int >( "Int3Var" ) = i;
       e->auxdata< float >( "FloatVar" ) = i + 1;
    }
 
@@ -62,18 +62,20 @@ int main() {
 
    // Some starting tests:
    copyAux.setShallowIO( true );
-   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 2 );
+   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 4 );
    SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 0 );
    SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 0 );
    copyAux.setShallowIO( false );
-   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 2 );
-   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 2 );
-   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 2 );
+   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 4 );
+   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 4 );
+   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 4 );
 
    int index = 0;
    for( const SG::AuxElement* el : copyVec ) {
-      SIMPLE_ASSERT( el->auxdata< int >( "IntVar" ) == index );
-      SIMPLE_ASSERT( std::abs( el->auxdata< float >( "FloatVar" ) -
+      SIMPLE_ASSERT( el->auxdataConst< int >( "IntVar" ) == index );
+      SIMPLE_ASSERT( el->auxdataConst< int >( "Int2Var" ) == index );
+      SIMPLE_ASSERT( el->auxdataConst< int >( "Int3Var" ) == index );
+      SIMPLE_ASSERT( std::abs( el->auxdataConst< float >( "FloatVar" ) -
                                static_cast< float >( index + 1 ) ) < 0.0001 );
       ++index;
    }
@@ -83,26 +85,34 @@ int main() {
       copyVec[ i ]->auxdata< int >( "IntVar" ) = i + 2;
       copyVec[ i ]->auxdata< double >( "DoubleVar" ) = 3.14;
    }
+   copyVec.front()->auxdata< int >( "Int2Var" ) = 5;
+   copyVec.front()->auxdecor< int >( "Int3Var" ) = 6;
 
    // Check what happened:
    copyAux.setShallowIO( true );
-   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 3 );
-   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 2 );
-   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 2 );
+   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 5 );
+   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 4 );
+   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 4 );
    copyAux.setShallowIO( false );
-   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 3 );
-   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 3 );
-   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 3 );
+   SIMPLE_ASSERT( copyAux.getAuxIDs().size() == 5 );
+   SIMPLE_ASSERT( copyAux.getDynamicAuxIDs().size() == 5 );
+   SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 5 );
 
    index = 0;
    for( const SG::AuxElement* el : copyVec ) {
-      SIMPLE_ASSERT( el->auxdata< int >( "IntVar" ) == index + 2 );
-      SIMPLE_ASSERT( std::abs( el->auxdata< float >( "FloatVar" ) -
+      SIMPLE_ASSERT( el->auxdataConst< int >( "IntVar" ) == index + 2 );
+      SIMPLE_ASSERT( std::abs( el->auxdataConst< float >( "FloatVar" ) -
                                static_cast< float >( index + 1 ) ) < 0.0001 );
-      SIMPLE_ASSERT( std::abs( el->auxdata< double >( "DoubleVar" ) -
+      SIMPLE_ASSERT( std::abs( el->auxdataConst< double >( "DoubleVar" ) -
                                3.14 ) < 0.0001 );
+      if( index > 0 ) {
+         SIMPLE_ASSERT( el->auxdataConst< int >( "Int2Var" ) == index );
+         SIMPLE_ASSERT( el->auxdataConst< int >( "Int3Var" ) == index );
+      }
       ++index;
    }
+   SIMPLE_ASSERT( copyVec.front()->auxdataConst< int >( "Int2Var" ) == 5 );
+   SIMPLE_ASSERT( copyVec.front()->auxdataConst< int >( "Int3Var" ) == 6 );
 
    // Finally, test variable filtering:
    copyAux.selectAux( std::set< std::string >( { "FloatVar", "DoubleVar" } ) );
