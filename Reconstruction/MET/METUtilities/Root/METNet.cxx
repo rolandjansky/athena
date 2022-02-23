@@ -108,25 +108,25 @@ namespace met {
     m_metmaker_tight.setTypeAndName( "met::METMaker/metmaker_tight" );
     ATH_CHECK( m_metmaker_tight.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_tight.setProperty( "JetSelection", "Tight" ) );
-    ATH_CHECK( m_metmaker_tight.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metmaker_tight.setProperty( "JetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_tight.retrieve() );
 
     m_metmaker_loose.setTypeAndName( "met::METMaker/metmaker_loose" );
     ATH_CHECK( m_metmaker_loose.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_loose.setProperty( "JetSelection", "Loose" ) );
-    ATH_CHECK( m_metmaker_loose.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metmaker_loose.setProperty( "JetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_loose.retrieve() );
 
     m_metmaker_tghtr.setTypeAndName( "met::METMaker/metmaker_tghtr" );
     ATH_CHECK( m_metmaker_tghtr.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_tghtr.setProperty( "JetSelection", "Tighter" ) );
-    ATH_CHECK( m_metmaker_tghtr.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metmaker_tghtr.setProperty( "JetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_tghtr.retrieve() );
 
     m_metmaker_fjvt.setTypeAndName( "met::METMaker/metmaker_fjvt" );
     ATH_CHECK( m_metmaker_fjvt.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_fjvt.setProperty( "JetSelection", "Tight" ) );
-    ATH_CHECK( m_metmaker_fjvt.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metmaker_fjvt.setProperty( "JetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_fjvt.setProperty( "JetRejectionDec", m_jetFwdJvtCutName ) );
     ATH_CHECK( m_metmaker_fjvt.retrieve() );
 
@@ -134,7 +134,7 @@ namespace met {
     ATH_CHECK( m_metsigtool.setProperty( "JetCollection", m_JetCollection ) );
     ANA_CHECK( m_metsigtool.setProperty( "TreatPUJets", true ) );
     ANA_CHECK( m_metsigtool.setProperty( "DoPhiReso", true ) );
-    ATH_CHECK( m_metsigtool.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metsigtool.setProperty( "JetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metsigtool.setProperty( "JetFwdJvtMomentName", m_jetFwdJvtMomentName ) );
     ATH_CHECK( m_metsigtool.retrieve() );
 
@@ -587,7 +587,7 @@ namespace met {
     double unc = 0.0;
 
     if(m_JetCollection == "AntiKt4EMTopo"){
-      if(jet_eta<2.4){
+      if(std::abs(jet_eta)<2.4){
 	if(jet_pt<30){
 	  if(jet_jvt<0.11)      unc = 1;
 	  else if(jet_jvt<0.25) unc = 0.0730 + 0.0024 * avgmu + 0.00001 * avgmu * avgmu;
@@ -616,7 +616,7 @@ namespace met {
 	}else if(jet_pt<150){
 	  unc = 0.7888 -1.8372 * jet_jvt + 1.05539 * jet_jvt * jet_jvt;
 	}
-      }else if(jet_eta<2.6){
+      }else if(std::abs(jet_eta)<2.6){
 	if(jet_pt<30){
 	  if(jet_jvt<0.11)      unc = 0.2633 + 0.0091 * avgmu + -0.00009 * avgmu * avgmu;
 	  else if(jet_jvt<0.25) unc = 0.1841 + 0.0144 * avgmu + -0.00008 * avgmu * avgmu;
@@ -645,7 +645,7 @@ namespace met {
 	}else if(jet_pt<150){
 	  unc = 0.9998 -1.7319 * jet_jvt + 0.72680 * jet_jvt * jet_jvt;
 	}
-      }else if(jet_eta<2.7){
+      }else if(std::abs(jet_eta)<2.7){
 	if(jet_pt<30){
 	  if(jet_jvt<0.11)      unc = 0.3001 + 0.0054 * avgmu -0.00004 * avgmu * avgmu  ;
 	  else if(jet_jvt<0.25) unc = 0.0663 + 0.0198 * avgmu -0.00013 * avgmu * avgmu  ;
@@ -687,7 +687,7 @@ namespace met {
       }
       // end emtopo
     }else{//p-flow inputs
-      if(jet_eta<2.4){
+      if(std::abs(jet_eta)<2.4){
 	if(jet_pt<30){
 	  if(jet_jvt<0.11)      unc = 1;
 	  else if(jet_jvt<0.25) unc = 0.2494 + 0.0076 * avgmu -0.00001 * avgmu * avgmu ;
@@ -716,7 +716,7 @@ namespace met {
 	}else if(jet_pt<150){
 	  unc = 0.6474 -1.4491 * jet_jvt + 0.80591 * jet_jvt * jet_jvt;
 	}
-      }else if(jet_eta<2.6){
+      }else if(std::abs(jet_eta)<2.6){
 	if(jet_pt<30){
 	  if(jet_jvt<0.11)      unc = 0.2633 + 0.0091 * avgmu + -0.00009 * avgmu * avgmu;
 	  else if(jet_jvt<0.25) unc = 0.1841 + 0.0144 * avgmu + -0.00008 * avgmu * avgmu;
@@ -745,7 +745,7 @@ namespace met {
 	}else if(jet_pt<150){
 	  unc = 0.9762 -2.4160 * jet_jvt + 1.45763 * jet_jvt * jet_jvt;
 	}
-      }else if(jet_eta<2.7){
+      }else if(std::abs(jet_eta)<2.7){
 	if(jet_pt<30){
 	  if(jet_jvt<0.11)      unc = 0.2877 + 0.0056 * avgmu -0.00004 * avgmu * avgmu;
 	  else if(jet_jvt<0.25) unc = 0.0353 + 0.0196 * avgmu -0.00012 * avgmu * avgmu;
