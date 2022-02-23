@@ -445,6 +445,7 @@ namespace NSWL1 {
     for (const auto &diam : m_diamond->getDiamondVector()) {
       std::vector<int> slopeBC;
       for (const auto &slope : diam.slopes) slopeBC.push_back(slope.BC);
+      if (slopeBC.empty()) continue;
       std::sort(slopeBC.begin(), slopeBC.end());
       slopeBC.erase( std::unique(slopeBC.begin(), slopeBC.end()), slopeBC.end() );
       for (const auto &bc : slopeBC) {
