@@ -8673,14 +8673,6 @@ HLT_j15_320eta490_L1RD0_FILLED:
     0: 6
   stepFeatures:
     0: 7
-HLT_j15_pf_ftf_L1RD0_FILLED:
-  eventCount: 20
-  stepCounts:
-    0: 20
-    1: 20
-  stepFeatures:
-    0: 20
-    1: 313
 HLT_j175_0eta290_020jvt_pf_ftf_bdl1d60_j60_0eta290_020jvt_pf_ftf_bdl1d60_preselj140XXj45_L1J100:
   eventCount: 0
   stepCounts:
@@ -15765,24 +15757,6 @@ HLT_tau20_mediumRNN_tracktwoMVABDT_L1TAU8:
     2: 70
     3: 70
     4: 10
-HLT_tau20_mediumRNN_tracktwoMVABDT_probe_j15_pf_ftf_03dRAB_L1RD0_FILLED:
-  eventCount: 7
-  stepCounts:
-    0: 20
-    1: 20
-    2: 20
-    3: 20
-    4: 20
-    5: 20
-    6: 7
-  stepFeatures:
-    0: 20
-    1: 313
-    2: 70
-    3: 70
-    4: 70
-    5: 70
-    6: 10
 HLT_tau20_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 2
   stepCounts:
