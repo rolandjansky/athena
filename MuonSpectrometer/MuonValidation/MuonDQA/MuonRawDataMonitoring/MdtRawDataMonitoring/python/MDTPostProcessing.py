@@ -119,14 +119,14 @@ def make_hits_per_evt(inputs):
    OccECap_norm.Scale(1./nTriggers)
    OccECap_norm.Divide(VolumeMapECap)
 
-   putBoxMdtGlobal(EvtOccBCap, "B")
-   putBoxMdtGlobal(EvtOccECap, "E")
-   putBoxMdtGlobal(VolumeMapBCap, "B")
-   putBoxMdtGlobal(VolumeMapECap, "E")
-   putBoxMdtGlobal(EvtTubeNormOccBCap, "B")
-   putBoxMdtGlobal(EvtTubeNormOccECap, "E")
-   putBoxMdtGlobal(OccBCap_norm, "B")
-   putBoxMdtGlobal(OccECap_norm, "E")
+   putBoxMdtGlobal(EvtOccBCap, "B", 0)
+   putBoxMdtGlobal(EvtOccECap, "E", 0)
+   putBoxMdtGlobal(VolumeMapBCap, "B", 0)
+   putBoxMdtGlobal(VolumeMapECap, "E", 0)
+   putBoxMdtGlobal(EvtTubeNormOccBCap, "B", 0)
+   putBoxMdtGlobal(EvtTubeNormOccECap, "E", 0)
+   putBoxMdtGlobal(OccBCap_norm, "B", 0)
+   putBoxMdtGlobal(OccECap_norm, "E", 0)
    
 
    return [EvtOccBCap, EvtOccECap, VolumeMapBCap, VolumeMapECap, EvtTubeNormOccBCap, EvtTubeNormOccECap, OccBCap_norm, OccECap_norm]
@@ -387,11 +387,11 @@ def drift_time_monitoring(inputs, ec):
 
    return [sumt0, sumtmax, sumtdrift]
 
-def MdtGlobalBox(inputs):
+def MdtGlobalBox(inputs, run3):
    EvtOccBCap = inputs[0][1][0]
    EvtOccECap = inputs[0][1][1]
-   putBoxMdtGlobal(EvtOccBCap, "B")
-   putBoxMdtGlobal(EvtOccECap, "E")
+   putBoxMdtGlobal(EvtOccBCap, "B", run3)
+   putBoxMdtGlobal(EvtOccECap, "E", 0)
    return [EvtOccBCap, EvtOccECap]
 
 

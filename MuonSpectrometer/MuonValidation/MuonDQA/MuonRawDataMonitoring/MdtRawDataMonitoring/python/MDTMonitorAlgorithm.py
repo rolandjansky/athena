@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 #from MdtRawDataMonitoring.MdtRawMonLabels import *
 from .MdtMonUtils import getMDTLabel, getMDTLabelx
 from .MDTTubeMax import tubeMax
@@ -52,6 +53,9 @@ def MdtMonitoringConfig(inputFlags):
     mdtMonAlg.do_mdtChamberHits=True
     mdtMonAlg.do_mdttdccut_sector=True
     mdtMonAlg.do_mdtchamberstatphislice=True
+    if (inputFlags.GeoModel.Run == LHCPeriod.Run3):
+        mdtMonAlg.do_Run3Geometry=True
+
     if not inputFlags.DQ.triggerDataAvailable:
         mdtMonAlg.L1RoiKey=''
     # Add a generic monitoring tool (a "group" in old language). The returned 
@@ -101,7 +105,11 @@ def MdtMonitoringConfig(inputFlags):
         sectPhi=str(phi+1)
         if phi+1 < 10: 
             sectPhi="0"+sectPhi
-        thisLabelx=getMDTLabelx("labels_sectorPhi"+sectPhi)
+
+        if mdtMonAlg.do_Run3Geometry :
+            thisLabelx=getMDTLabelx("run3_labels_sectorPhi"+sectPhi)
+        else:
+            thisLabelx=getMDTLabelx("labels_sectorPhi"+sectPhi)            
         labels_allSec=labels_allSec+thisLabelx
         title="MDTHitsOccup_ADCCut_Sector"+sectPhi
         maxbin=len(thisLabelx)
@@ -200,7 +208,6 @@ def MdtMonitoringConfig(inputFlags):
                              path='Overview/Expert',  xbins=400, xmin=0., xmax=1600.
                             )
 
-
     bigRegions = ["Barrel","EndCap"]
     regions = ["BA","BC","EA","EC"]
     layers = ["Inner","Middle","Outer","Extra"]
@@ -246,6 +253,7 @@ def MdtMonitoringConfig(inputFlags):
 
         mdtGroup.defineHistogram(hits_eff+theTitle_eff, type='TH2F', title=theTitle_eff+";Eta;LayerPhi", path='Overview/Expert/RecoMonitoring',
                                  xbins=etabins, xmin=etamin, xmax=etamax,  ybins=phibins, ymin=phimin, ymax=phimax, xlabels=thisLabelx, ylabels=thisLabely)  
+        
 
 
     for ilayer in layers:
@@ -272,6 +280,8 @@ def MdtMonitoringConfig(inputFlags):
     for iregion in regions:
         MDT_regionGroup="MDT_regionGroup{0}".format(iregion)
         mdtRegionGroup=helper.addGroup(mdtMonAlg, MDT_regionGroup, "Muon/MuonRawDataMonitoring/MDT/MDT"+iregion)
+        MDT_regionGroup_bycrate="MDT_regionGroup_bycrate{0}".format(iregion)
+        mdtRegionGroup_bycrate=helper.addGroup(mdtMonAlg, MDT_regionGroup_bycrate, "Muon/MuonRawDataMonitoring/MDT/MDT"+iregion)
 
         #histograms from segments 
 
@@ -349,21 +359,23 @@ def MdtMonitoringConfig(inputFlags):
                                            path='Overview',  xbins=etamax, xmin=0, xmax=etamax, ybins=phimaxML, ymin=0., ymax=phimaxML, xlabels=thisLabelx, ylabels=thisLabely)
 
             for phi in range(1, phimax+1):
-                if not ((iregion=="BA" or iregion=="BC") and ilayer=="Extra" and (phi%2!=0)):
-                    var="stEta_"+iregion+"_"+ilayer+"_phi"+str(phi)+";"
-                    title_MDTHitSummary="MDTHits_ADCCut_"+iregion+"_"+ilayer+"_StPhi"+str(phi)
-                    max=7
-                    if ilayer=="Inner" and (iregion=="BA" or iregion=="BC"):
-                        max=11
-
-                    mdtRegionGroup.defineHistogram(var+title_MDTHitSummary, title=title_MDTHitSummary+";StationEta;Number of Entries", type='TH1F',
-                                                   path='Overview/Hits',  xbins=max-1, xmin=1., xmax=max)
-
+                if not (mdtMonAlg.do_Run3Geometry and (iregion=="EA" or iregion=="EC") and (phi%2==0)):
+                    if not ((iregion=="BA" or iregion=="BC") and ilayer=="Extra" and (phi%2!=0)):
+                        var="stEta_"+iregion+"_"+ilayer+"_phi"+str(phi)+";"
+                        title_MDTHitSummary="MDTHits_ADCCut_"+iregion+"_"+ilayer+"_StPhi"+str(phi)
                     
-                    vartdc="tdc_segs_"+iregion+"_"+ilayer+"_phi"+str(phi)+";"
-                    title_MDTTDCSummary="MDTTDC_ADCCut_"+iregion+"_"+ilayer+"_StPhi"+str(phi)
-                    mdtRegionGroup.defineHistogram(vartdc+title_MDTTDCSummary, title=title_MDTTDCSummary+";[nsec];Number of Entries", type='TH1F',
-                                                   path='Overview/TDC',  xbins=100, xmin=0, xmax=2000)
+                        max=7
+                        if ilayer=="Inner" and (iregion=="BA" or iregion=="BC"):
+                            max=11
+                        
+                        mdtRegionGroup.defineHistogram(var+title_MDTHitSummary, title=title_MDTHitSummary+";StationEta;Number of Entries", type='TH1F',
+                                                    path='Overview/Hits',  xbins=max-1, xmin=1., xmax=max)
+    
+                    
+                        vartdc="tdc_segs_"+iregion+"_"+ilayer+"_phi"+str(phi)+";"
+                        title_MDTTDCSummary="MDTTDC_ADCCut_"+iregion+"_"+ilayer+"_StPhi"+str(phi)
+                        mdtRegionGroup.defineHistogram(vartdc+title_MDTTDCSummary, title=title_MDTTDCSummary+";[nsec];Number of Entries", type='TH1F',
+                                                       path='Overview/TDC',  xbins=100, xmin=0, xmax=2000)
                     
 
             if(ilayer=="Outer"):
@@ -380,21 +392,28 @@ def MdtMonitoringConfig(inputFlags):
                      maxy=127 # outer sideA
             elif(ilayer=="Middle" or ilayer=="Inner"):
                 labelsY=getMDTLabelx("labelY_OccupancyVsLB_"+iregion+"_"+ilayer)
+                titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer
+                var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
                 if(ilayer=="Inner"):
                     if(iregion=="BA" or iregion=="BC"):
                         maxy=122
+                        if (mdtMonAlg.do_Run3Geometry and iregion=="BA"):
+                            labelsY=getMDTLabelx("run3_labelY_OccupancyVsLB_"+iregion+"_"+ilayer)
+                            maxy=114
                     if(iregion=="EA" or iregion=="EC"):
                         maxy=50
+                        if (mdtMonAlg.do_Run3Geometry):
+                            maxy=10
+                            labelsY=getMDTLabelx("run3_labelY_OccupancyVsLB_"+iregion+"_"+ilayer)
                 elif (ilayer=="Middle"):
                     if(iregion=="BA" or iregion=="BC"):
                         maxy=95
                     if(iregion=="EA" or iregion=="EC"):
                         maxy=80
-                titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer
-                var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
-
+                
+            
             mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerLayer+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
+                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
 
         for icrate in crates:
             maxy=122
@@ -408,30 +427,50 @@ def MdtMonitoringConfig(inputFlags):
                     maxy= 80
                 elif(icrate=="04"):
                     maxy= 79
+                    if(iregion=="BA"):
+                        maxy= 80
             elif(iregion=="EA" or iregion=="EC"):
+                if mdtMonAlg.do_Run3Geometry:
+                    labelsY=getMDTLabelx("run3_labelY_OccupancyVsLB_"+iregion+icrate)
                 if(icrate=="01"):
                     maxy=73
+                    if(mdtMonAlg.do_Run3Geometry and iregion=="EA"):
+                        maxy=61
+                    if(mdtMonAlg.do_Run3Geometry  and iregion=="EC"):
+                        maxy=63
                 elif(icrate=="02"):
                     maxy=71
+                    if(mdtMonAlg.do_Run3Geometry and iregion=="EA"):
+                        maxy=59
+                    if(mdtMonAlg.do_Run3Geometry  and iregion=="EC"):
+                        maxy=61
                 elif(icrate=="03"):
                     maxy= 73
+                    if(mdtMonAlg.do_Run3Geometry and iregion=="EA"):
+                        maxy=61
+                    if(mdtMonAlg.do_Run3Geometry  and iregion=="EC"):
+                        maxy=63
                 elif(icrate=="04"):
                     maxy= 72
+                    if(mdtMonAlg.do_Run3Geometry and iregion=="EA"):
+                        maxy=60
+                    if(mdtMonAlg.do_Run3Geometry  and iregion=="EC"):
+                        maxy=62
 
             titleOccvsLbPerRegionPerCrate = "OccupancyVsLB_"+iregion+icrate 
             var="lb_mon,y_mon_bin_bycrate_"+iregion+"_"+icrate+";"+titleOccvsLbPerRegionPerCrate
-            mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerCrate+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically') 
+            mdtRegionGroup_bycrate.defineHistogram(var, type='TH2F', title=titleOccvsLbPerRegionPerCrate+";LB;[Eta-Phi]", 
+                                                   path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
                                            
             titleOccvsLbPerRegionPerCrate_ontrack = "OccupancyVsLB_ontrack_"+iregion+icrate
             var="lb_mon,y_mon_bin_bycrate_ontrack_"+iregion+"_"+icrate+";"+titleOccvsLbPerRegionPerCrate_ontrack
-            mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerCrate_ontrack+";LB;[Eta - Phi]", type='TH2F',
+            mdtRegionGroup_bycrate.defineHistogram(var, title=titleOccvsLbPerRegionPerCrate_ontrack+";LB;[Eta - Phi]", type='TH2F',
                                            path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically') 
 
     labelsY=getMDTLabelx("labelY_OccupancyVsLB")
     mdtGroup.defineHistogram('lb_mon,sector;OccupancyPerSectorVsLB', type='TH2F',
                              title='OccupancyPerSectorVsLB;LB;[Phi]',
-                             path='Overview',  xbins=834,xmin=1.,xmax=2502., ybins=64, ymin=0., ymax=64., ylabels=labelsY, opt='kAddBinsDynamically')
+                             path='Overview', xbins=834, xmin=1, xmax=2502, ybins=64, ymin=0., ymax=64., ylabels=labelsY, opt='kAddBinsDynamically')
     
 
     #histograms per chambers
@@ -793,12 +832,13 @@ if __name__=='__main__':
     #from AthenaCommon.Constants import DEBUG
     #log.setLevel(DEBUG)    
 
+
+
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    #ConfigFlags.Input.Files =['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.ESD.e6337_e5984_s3170_r12399_r12253_r12399/ESD.24234434._000058.pool.root.1']
-    #ConfigFlags.Input.Files =['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.ESD.e6337_e5984_s3170_r12399_r12253_r12399/ESD.24234434._000058.pool.root.1']
+
     #ConfigFlags.Input.isMC = True
     #ConfigFlags.Common.isOnline = True
     ConfigFlags.Output.HISTFileName = 'MdtMonitorOutput.root'
@@ -810,28 +850,26 @@ if __name__=='__main__':
     #ConfigFlags.IOVDb.DatabaseInstance=""
     #ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01  "
 
+
     ConfigFlags.Muon.doCSCs = False
     ConfigFlags.Muon.doRPCs = False
     ConfigFlags.Muon.doTGCs = False
     ConfigFlags.Detector.GeometryMuon=False
     ConfigFlags.Detector.GeometryCSC=False
+
     ConfigFlags.Detector.GeometryRPC=False
-    ConfigFlags.Detector.GeometryTGC=False
-    ConfigFlags.Detector.GeometryMM=False
     ConfigFlags.Detector.GeometryMDT=True
     ConfigFlags.Muon.doMicromegas = False
-    #ConfigFlags.Muon.useAlignmentCorrections=False
     ConfigFlags.Muon.Align.UseILines = False
-    #ConfigFlags.Muon.Align.UseAsBuilt = True
     ConfigFlags.Muon.Align.UseALines = False
     ConfigFlags.Muon.Align.UseBLines = False
-    
+
     ConfigFlags.DQ.useTrigger=False
 
 
     ConfigFlags.lock()
     ConfigFlags.dump()
-
+    
     # Initialize configuration object, add accumulator, merge, and run.
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -849,5 +887,5 @@ if __name__=='__main__':
 
     #cfg.printConfig(withDetails=True, summariseProps = True)
     
-    cfg.run(300)
+    cfg.run(5000)
 
