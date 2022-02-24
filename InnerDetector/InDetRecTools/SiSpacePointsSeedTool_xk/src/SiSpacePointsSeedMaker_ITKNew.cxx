@@ -1937,7 +1937,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::production3SpSSS
 	float rb2   = 1./(xb*xb+yb*yb);
 	float rt2   = 1./(xt*xt+yt*yt);
 	
-	float tb    = zb*std::sqrt(rb2);
+	float tb    = -zb*std::sqrt(rb2);
 	float tz    = zt*std::sqrt(rt2);
 
 	
