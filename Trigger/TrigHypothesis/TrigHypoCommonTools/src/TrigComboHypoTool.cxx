@@ -25,7 +25,8 @@ const std::map<std::string, TrigComboHypoTool::ComboHypoVars> VarMap = {
   {"dR",   TrigComboHypoTool::ComboHypoVars::DR},
   {"invm", TrigComboHypoTool::ComboHypoVars::INVM},
   {"dphi", TrigComboHypoTool::ComboHypoVars::DPHI},
-  {"mT",   TrigComboHypoTool::ComboHypoVars::MT}
+  {"mT",   TrigComboHypoTool::ComboHypoVars::MT},
+  {"deta", TrigComboHypoTool::ComboHypoVars::DETA}
 };
 
 TrigComboHypoTool::TrigComboHypoTool(const std::string& type, 
@@ -137,9 +138,10 @@ bool TrigComboHypoTool::executeAlg(const Combination& combination) const {
   if(lastDecision && !m_monTool_vec.empty()) {
     for (auto varInfo = m_varInfo_vec.cbegin(); varInfo!=m_varInfo_vec.cend(); ++varInfo){
       float value = values[varInfo->index];
-      auto varOfAccepted  = Monitored::Scalar(varInfo->monToolName+"OfAccepted", value );
+      auto varOfAccepted  = Monitored::Scalar(m_varTag_vec[varInfo->index]+"OfAccepted", value );//varInfo->monToolName+"OfAccepted", value );
       auto monitorIt      = Monitored::Group (m_monTool_vec[varInfo->index], varOfAccepted);
       ATH_MSG_DEBUG( varInfo->varTag << " = " << value << " is in range " << varInfo->rangeStr() << ".");
+      ATH_MSG_DEBUG("m_varTag_vec = "<< m_varTag_vec<<", values = "<<values << ", valIndex = "<< varInfo->index <<", monToolName = " << varInfo->monToolName << ", monToolVec = "<< m_monTool_vec);
     }
   }
   return lastDecision;
@@ -167,7 +169,7 @@ bool TrigComboHypoTool::executeAlgStep(const Combination& combination, const Var
   // apply the cut
   float value = compute(kinepair,varInfo.var);
   if(!m_monTool_vec.empty()) {
-    auto varOfProcessed = Monitored::Scalar(varInfo.monToolName+"OfProcessed"  , value );
+    auto varOfProcessed = Monitored::Scalar(m_varTag_vec[varInfo.index]+"OfProcessed"  , value );
     auto monitorIt      = Monitored::Group (m_monTool_vec[varInfo.index], varOfProcessed);
   }
   vals.push_back(value);
@@ -325,6 +327,11 @@ float TrigComboHypoTool::compute(const std::pair<KineInfo,KineInfo>& kinepair, C
       {
         ROOT::Math::Polar2DVectorF p1(pt1,phi1), p2(pt2,phi2);
         value = sqrt((p1+p2).Mag2())*invGeV; // Convert to GeV
+        break;
+      }
+    case ComboHypoVars::DETA:
+      {
+        value = std::fabs(eta2-eta1);
         break;
       }
     default:

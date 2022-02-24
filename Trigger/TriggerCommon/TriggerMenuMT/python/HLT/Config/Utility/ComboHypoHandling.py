@@ -35,6 +35,12 @@ allowed_obs = {
         'hist_min'   : 0.,
         'hist_max'   : math.pi
     },
+    'deta' : {
+        'n_MET_legs' : [0,1,2],
+        'hist_nbins' : 50,
+        'hist_min'   : 0.,
+        'hist_max'   : 10.
+    },
     'mT' : {
         'n_MET_legs' : [1],
         'hist_nbins' : 100,
@@ -80,7 +86,7 @@ def TrigComboHypoToolFromDict(chainDict):
             log.error("[TrigComboHypoToolFromDict] Topo expression %s does not specify a min or max cut value.",topoInfo)
             raise ValueError(f"[TrigComboHypoToolFromDict] Invalid topo expression {topoInfo} received in 'extraComboHypos'!")
         # Convert into float values, dividing for 0.1 precision as needed
-        if var in ['dR','dphi']:
+        if var in ['dR','dphi','deta']:
             cut_min = float(str_min)/10. if use_min else float('nan')
             cut_max = float(str_max)/10. if use_max else float('nan')
         else:
@@ -152,6 +158,7 @@ def TrigComboHypoToolFromDict(chainDict):
                                               xmin=allowed_obs[var]['hist_min'],
                                               xmax=allowed_obs[var]['hist_max'])]
         log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", chainName, topoInfo)
+        log.debug("[TrigComboHypoToolFromDict] histName = %s", histNameTag)
 
         if len(chainDict['extraComboHypos'])==1:#to avoid breaking changes in the ref files
             monTool.HistPath = f'ComboHypo/{chainName}'
@@ -194,6 +201,7 @@ def TrigComboHypoToolFromDict(chainDict):
 comboConfigurator = {
     'dR':TrigComboHypoToolFromDict,
     'dphi':TrigComboHypoToolFromDict,
+    'deta':TrigComboHypoToolFromDict,
     'invm':TrigComboHypoToolFromDict,
     'mT':TrigComboHypoToolFromDict,
     'afpdijet':TrigAFPDijetComboHypoToolCfg,
