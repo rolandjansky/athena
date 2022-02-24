@@ -5,7 +5,7 @@
 #ifndef TrigConf_DiffStruct
 #define TrigConf_DiffStruct
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 #include <string>
 #include <vector>
@@ -40,7 +40,7 @@ namespace TrigConf {
       std::string                name;
       std::vector<AttDiff>       attdiffs;
       std::vector<DiffStruct*>   subs;
-      typedef boost::unordered_map<std::string, std::string> OnlyMap_t;
+      typedef std::unordered_map<std::string, std::string> OnlyMap_t;
       OnlyMap_t                  rightonly;
       OnlyMap_t                  leftonly;
 
