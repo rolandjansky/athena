@@ -37,7 +37,6 @@ def defineMenu():
     L1MenuFlags.ItemMap = {
 
         # non-primary EM
-        'L1_EM12':'', 
         'L1_EM8VH':'', 
         'L1_EM18VHI':'',
         'L1_EM20VHI':'',
