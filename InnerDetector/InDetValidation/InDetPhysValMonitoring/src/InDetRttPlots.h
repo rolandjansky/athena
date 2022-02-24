@@ -69,6 +69,9 @@ public:
     m_hitEffPlot.FillAdditionalITkPlots(fillthem);
   }
 
+  void SetFillTailTracksPlots(bool fillthem);
+  void SetITkResoForTailPlots(std::string resoFileName);
+
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
   void fill(const unsigned int nTrkLRT, const unsigned int nTrkSTD, const unsigned int nTrkConv, const float mu, const unsigned int nVtx);

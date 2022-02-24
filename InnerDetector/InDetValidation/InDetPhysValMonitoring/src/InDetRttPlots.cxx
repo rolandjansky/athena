@@ -131,6 +131,26 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
 }
 
 void
+InDetRttPlots::SetFillTailTracksPlots(bool fillthem) {
+  if (m_ITkResolutionPlotPrim) {
+    m_ITkResolutionPlotPrim->fillITkTailsPlots(fillthem);
+  }
+  if (m_ITkResolutionPlotSecd) {
+    m_ITkResolutionPlotSecd->fillITkTailsPlots(fillthem);
+  }
+}
+
+void
+InDetRttPlots::SetITkResoForTailPlots(std::string resoFileName) {
+  if (m_ITkResolutionPlotPrim) {
+    m_ITkResolutionPlotPrim->inResoFileForTailPlots(resoFileName);
+  }
+  if (m_ITkResolutionPlotSecd) {
+    m_ITkResolutionPlotSecd->inResoFileForTailPlots(resoFileName);
+  }
+}
+
+void
 InDetRttPlots::fillSpectrum(const xAOD::TrackParticle& trackParticle) {
   float prob = getMatchingProbability(trackParticle);
   m_specPlots.fillSpectrum(trackParticle, prob);

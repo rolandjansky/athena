@@ -23,6 +23,7 @@
 #include "TH2.h"
 #include "TObject.h"
 #include "TClass.h"
+#include "TEfficiency.h"
 
 using namespace std;
 
@@ -82,6 +83,19 @@ TH1* cloneExisting(const std::string & name){
     return ret; // will also catch ret == nullptr
 }
 
+TEfficiency* cloneExistingEff(const std::string & name){
+  auto h = gDirectory->Get(name.c_str());
+  if (!h){
+    std::cerr << "Could not find existing histogram "<<name<<" - will not postprocess "<<std::endl;
+    return nullptr;
+  }
+  auto ret = dynamic_cast<TEfficiency*>(h->Clone(name.c_str()));
+  if (!ret){
+    std::cerr << "Found an existing object "<<name<<", but it is not a histogram ("<<h->IsA()->GetName()<<") - will not postprocess "<<std::endl;
+  }
+  return ret;
+}
+
 // get the names of the 1D histograms following IDPVM conventions. 
 std::pair<std::string, std::string> getPullAndResoNames(const std::string & type){
   if (type == "res"){
@@ -117,6 +131,59 @@ int postProcessHistos(TObject* resHelper, IDPVM::ResolutionHelper & theHelper){
     // update our 1D histos 
     h_width->Write();
     h_mean->Write();
+
+    if ((type == "res") && (vars.first == "eta" || vars.first == "pt")) {
+      TH2* coretail2D = dynamic_cast<TH2*>(cloneExisting("tail_vs_"+vars.first+"_"+vars.second));
+      coretail2D->Reset();
+
+      for (int ibinx = 1; ibinx <= h_width->GetNbinsX(); ibinx++) {
+        double param_reso;
+        if ((vars.second == "d0") || (vars.second == "z0") || (vars.second == "z0sin")) {
+          param_reso = h_width->GetBinContent(ibinx)/1000.;
+        }
+        else {
+          param_reso = h_width->GetBinContent(ibinx);
+        }
+
+	std::shared_ptr<TH1D> h_py {resHelper2D->ProjectionY("h_py", ibinx, ibinx)};
+	
+	double cutoff = 3.0 * param_reso;
+        int min_bin = h_py->FindBin(-cutoff);
+        int max_bin = h_py->FindBin(cutoff);
+	
+	double Error_nentries_core = 0;
+	double nentries_core = h_py->IntegralAndError(min_bin, max_bin, Error_nentries_core);
+	coretail2D->SetBinContent(ibinx+1,1,nentries_core);
+	coretail2D->SetBinError(ibinx+1,1,Error_nentries_core);
+	
+	double Error_nentries_tail = 0;
+	double nentries_tail = h_py->IntegralAndError(1, min_bin, Error_nentries_tail) + h_py->IntegralAndError(max_bin, h_py->GetNbinsX(), Error_nentries_tail);
+	coretail2D->SetBinContent(ibinx+1,2,nentries_tail);
+	coretail2D->SetBinError(ibinx+1,2,Error_nentries_tail);
+	
+      }
+      coretail2D->Write();
+
+      std::shared_ptr<TH1D> hTotal {coretail2D->ProjectionX("hTotal", 1, 2)};
+      std::shared_ptr<TH1D> hTail {coretail2D->ProjectionX("hTail", 2, 2)};
+
+      TEfficiency* htailfrac = cloneExistingEff("tailfrac_vs_"+vars.first+"_"+vars.second);
+
+      htailfrac->SetTotalHistogram(*hTotal, "");
+      htailfrac->SetPassedHistogram(*hTail, "");
+
+      string tailfrac_title0;
+      if (vars.first == "eta"){
+        tailfrac_title0 = string("tailfrac_vs_") + vars.first + string("_") + vars.second + string("; true track #eta; #epsilon = N_{Tail} / N_{Total}");
+      }
+      else if (vars.first == "pt"){
+        tailfrac_title0 = string("tailfrac_vs_") + vars.first + string("_") +   vars.second + string("; true track p_{T}[GeV]; #epsilon = N_{Tail} / N_{Total}");
+      }
+      const char* tailfrac_title = tailfrac_title0.c_str();
+      htailfrac->SetTitle(tailfrac_title);
+      htailfrac->Write();
+
+    }
     // and we are done
     return 0;
 }

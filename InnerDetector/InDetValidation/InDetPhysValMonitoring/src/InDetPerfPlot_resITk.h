@@ -29,6 +29,8 @@
 // std includes
 #include <string>
 #include <vector>
+#include "TEfficiency.h"
+#include <array>
 
 // fwd declaration
 class IToolSvc;
@@ -60,6 +62,10 @@ public:
   InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
+
+  void fillITkTailsPlots(bool filltail=false);
+  void inResoFileForTailPlots(std::string resoFileName);
+
 //  virtual bool isDefined(TString t);
   virtual ~InDetPerfPlot_resITk() {/** nop **/
   }
@@ -71,14 +77,13 @@ private:
   const double  m_etaMax = 4.0;
   static const int m_nPtBins = 9;
   static const int m_nResHist = 2;
-
-  float m_EtaBins[m_nEtaBins + 1];
-  float m_PtBins[m_nPtBins + 1] = {
-    0.0, 0.5, 0.7, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0, 50.0
-  };
-  std::string m_resHisto[m_nResHist] = {
-    "resolutionRMS", "meanRMS"
-  };
+  
+  std::array<float, m_nEtaBins + 1> m_EtaBins = {};
+  std::array<float, m_nPtBins + 1> m_PtBins = {0.0, 0.5, 0.7, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0, 50.0};
+  
+  std::array<double, m_nPtBins + 1> m_PtBins_eff = {};
+  
+  std::array<std::string, m_nResHist> m_resHisto = {"resolutionRMS", "meanRMS"};
   
   IDPVM::ResolutionHelper m_resolutionHelper;
   IDPVM::ResolutionHelper::methods m_resolutionMethod;
@@ -86,6 +91,9 @@ private:
   bool m_primTrk;
   bool m_secdTrk;
   bool m_allTrk;
+  bool m_fillITkTailsPlots;
+  std::string m_resoFileName;
+  std::shared_ptr<TFile> m_resoFile;
 
   void initializePlots();
   void finalizePlots();
@@ -119,11 +127,38 @@ private:
   TH1* m_resITk_chargeID_vs_pt;
   TH1* m_resITk_chargeID_vs_phi;
 
-  TH1* m_resITk_momTail;
-  TH1* m_resITk_momTail_vs_eta;
-  TH1* m_resITk_momTail_vs_pt;
-  TH1* m_resITk_momTail_vs_phi;
-  TH1* m_resITk_momTail_Frac;
+  TH2* m_resITk_tail_vs_eta[NPARAMS];
+  TH2* m_resITk_tail_vs_pt[NPARAMS];
+
+  TEfficiency* m_resITk_tailfrac_vs_eta[NPARAMS];
+  TEfficiency* m_resITk_tailfrac_vs_pt[NPARAMS];
+
+  TH1* m_eta_tail[NPARAMS];
+  TH1* m_pT_tail[NPARAMS];
+
+  TH1* m_InnermostLayerHits_tail[NPARAMS];
+  TH1* m_InnermostLayerOutliers_tail[NPARAMS];
+  TH1* m_InnermostLayerSharedHits_tail[NPARAMS];
+  TH1* m_InnermostLayerSplitHits_tail[NPARAMS];
+  TH1* m_NextToInnermostLayerHits_tail[NPARAMS];
+  TH1* m_NextToInnermostLayerOutliers_tail[NPARAMS];
+  TH1* m_NextToInnermostLayerSharedHits_tail[NPARAMS];
+  TH1* m_NextToInnermostLayerSplitHits_tail[NPARAMS];
+  TH1* m_PixelHits_tail[NPARAMS];
+  TH1* m_PixelHoles_tail[NPARAMS];
+  TH1* m_PixelOutliers_tail[NPARAMS];
+  TH1* m_PixelContribLayers_tail[NPARAMS];
+  TH1* m_PixelSharedHits_tail[NPARAMS];
+  TH1* m_PixelSplitHits_tail[NPARAMS];
+  TH1* m_PixelGangedHits_tail[NPARAMS];
+  TH1* m_PixelGangedHitsFlaggedFakes_tail[NPARAMS];
+  TH1* m_SCTHits_tail[NPARAMS];
+  TH1* m_SCTHoles_tail[NPARAMS];
+  TH1* m_SCTOutliers_tail[NPARAMS];
+  TH1* m_SCTDoubleHoles_tail[NPARAMS];
+  TH1* m_SCTSharedHits_tail[NPARAMS];
+
+
   TH2* m_resITk_chargeID_chgvschg;
 
   TH2* m_resITk_resHelpereta[NPARAMS];
