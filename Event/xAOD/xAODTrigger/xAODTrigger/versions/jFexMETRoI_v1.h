@@ -26,7 +26,7 @@ namespace xAOD {
       jFexMETRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord);
+      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution);
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t  tobWord()       const;
@@ -36,6 +36,7 @@ namespace xAOD {
       int       tobEy()         const;
       uint8_t   tobRes()        const;
       uint8_t   tobSat()        const; 
+      int       tobEtScale()    const;
 
       /// Set the "raw" 32-bit words describing the object candidate
       void setTobWord   ( uint32_t tobWord   );
@@ -59,6 +60,9 @@ namespace xAOD {
       //Unpack the saturarion bits from the TOB word
       unsigned int  unpackSat() const;
       void setTobSat(uint8_t value);
+      
+      //Et resolution
+      void setResolution(int value);      
 
    private:
       //Constants used in converting to ATLAS units

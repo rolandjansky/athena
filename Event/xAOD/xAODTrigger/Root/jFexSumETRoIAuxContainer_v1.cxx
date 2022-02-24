@@ -17,6 +17,7 @@ namespace xAOD{
       AUX_VARIABLE(tobSat_lower);
       AUX_VARIABLE(tobEt_upper);
       AUX_VARIABLE(tobSat_upper);
+      AUX_VARIABLE(tobEtScale);
        
   }
 
