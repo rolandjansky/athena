@@ -187,7 +187,6 @@ ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
 ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
-jobproperties.Beam.bunchSpacing = 25
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
@@ -256,6 +255,7 @@ setModifiers = ['noLArCalibFolders',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
                 'useOracle',
+                'BunchSpacing25ns',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -375,7 +375,7 @@ rec.doTruth = False
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.preSetup()
+    mod.preSetup(ConfigFlags)
 
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
@@ -672,7 +672,7 @@ if ConfigFlags.Input.isMC:
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.postSetup()
+    mod.postSetup(ConfigFlags)
 
 #-------------------------------------------------------------
 # Print top sequence
