@@ -285,8 +285,7 @@ namespace MuonGM {
         //-------------------
         // Pads
         //-------------------
-
-        AGDDDetectorPositioner* detPos = (stgc->GetDetectorPositioners())[0];
+        double radius = absTransform().translation().perp() + m_offset;
         for (int il = 0; il < m_nlayers; il++) {
             m_padDesign[il].Length  = length;
             m_padDesign[il].sWidth  = sWidth;
@@ -297,7 +296,7 @@ namespace MuonGM {
             m_padDesign[il].ylFrame = ylFrame;
             m_padDesign[il].yCutout = yCutout;
             m_padDesign[il].etasign = Etasign;
-            m_padDesign[il].setR(detPos->position.Radius + m_offset);
+            m_padDesign[il].setR(radius);
 
             m_padDesign[il].sPadWidth = roParam.sPadWidth;
             m_padDesign[il].lPadWidth = roParam.lPadWidth;
