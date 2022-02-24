@@ -59,10 +59,9 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J100' : 'LVL1JetRoIs',
   'L1_jJ40' : 'L1_jFexSRJetRoI',
   'L1_jJ50' : 'L1_jFexSRJetRoI',
-  'L1_jJ60' : 'L1_jFexSRJetRoI',
-  # 'L1_jJ50' : 'L1_jFexSRJetRoI',
-  # 'L1_jJ160' : 'L1_jFexSRJetRoI',
+  'L1_jJ160' : 'L1_jFexSRJetRoI',
 }
+
 Legacy2PhaseIJetThresholdDict = {
   'J5'   : 'jJ20',
   'J12'  : 'jJ30',

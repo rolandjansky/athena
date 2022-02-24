@@ -182,14 +182,28 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::fillHistograms( const EventContext& 
     return StatusCode::SUCCESS;
   }
 
+ 
   // Declare the quantities which should be monitored
   auto et = Monitored::Scalar<float>("et");
   auto eta   = Monitored::Scalar<float>("eta");
   auto phi   = Monitored::Scalar<float>("phi");
 
+
   // Loop over jets
+  
   for(const auto j : *jets){
-    // Set the values of the monitored variables for the event
+
+    //Set the values of the monitored variables for the event
+
+    /*
+      Ensure that the the et is above a hardware threshold:
+      From Sergi Rodriguez 23/02/2022
+      in the bitwise simulation we also have an energy threshold, which is taken from the trigger menu.
+      If the Et is below the threshold the TOB word is set to 0
+    */
+    
+    if (j->tobWord() == 0) {continue;}
+
     et = j->et()*0.001;
     eta   = j->eta();
     phi   = j->phi();
