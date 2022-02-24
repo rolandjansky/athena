@@ -25,7 +25,6 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  SingleBjetGroup,
                                                                  MultiBjetGroup,
                                                                  SingleTauGroup,
-                                                                 MultiTauGroup,
                                                                  BphysicsGroup,
                                                                  BphysElectronGroup,
                                                                  EgammaMETGroup,
@@ -633,7 +632,6 @@ def setupMenu():
     ]
 
     chains['Tau'] += [
-        #ATR-20049
         ChainProp(name="HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_looseRNN_tracktwoLLP_L1TAU12IM", groups=SingleTauGroup),
@@ -645,28 +643,6 @@ def setupMenu():
         ChainProp(name="HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_ptonly_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau180_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),    # 
-
-        # displaced tau+X (ATR-21754)
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB30_L1DR-TAU20ITAU12I',         l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I',   l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM',    l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM', l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-
-        # More Phase-I tau chains (ATR-24182)
-        ChainProp(name='HLT_tau200_mediumRNN_tracktwoMVABDT_L1eTAU140', groups=PrimaryPhIGroup+SingleTauGroup),
-        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1eTAU80_2eTAU60', l1SeedThresholds=['eTAU80','eTAU60'], groups=PrimaryPhIGroup+MultiTauGroup),
-        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB30_L1eTAU80_2cTAU20M_DR-eTAU30eTAU20', l1SeedThresholds=['eTAU80','eTAU20'], groups=PrimaryPhIGroup+MultiTauGroup), # TODO: seeding from cTAU20M
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M-jJ55', l1SeedThresholds=['eTAU30','eTAU20'], groups=PrimaryPhIGroup+MultiTauGroup), # TODO: seeding from cTAU20M,cTAU30M
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1cTAU30M_2cTAU20M_4jJ30p0ETA25', l1SeedThresholds=['eTAU30','eTAU20'], groups=PrimaryPhIGroup+MultiTauGroup), # TODO: seeding from cTAU20M,cTAU30M
-        ChainProp(name='HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1cTAU35M_2cTAU30M_2jJ55_3jJ50', l1SeedThresholds=['eTAU35','eTAU30'], groups=PrimaryPhIGroup+MultiTauGroup), # TODO: seeding from cTAU30M,cTAU35M
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1eTAU80_2eTAU60", l1SeedThresholds=['eTAU80','eTAU60'], groups=PrimaryPhIGroup+MultiTauGroup), 
-
-        # Phase-I support
-        #ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1cTAU20",   groups=SupportPhIGroup+SingleTauGroup), #TODO: cTAU seeding missing
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU30",   groups=SupportPhIGroup+SingleTauGroup),
-        #ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1cTAU30",   groups=SupportPhIGroup+SingleTauGroup), #TODO: cTAU seeding missing
-
     ]
 
     chains['Bphysics'] += [

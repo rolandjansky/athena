@@ -97,6 +97,7 @@ def defineMenu():
         'L1_eTAU80_2eTAU60', 
         'L1_cTAU30M_2cTAU20M_4jJ30p0ETA25',
         'L1_cTAU35M_2cTAU30M_2jJ55_3jJ50',  
+        'L1_cTAU35M_2cTAU30M',
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
@@ -111,6 +112,7 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
         'L1_TAU20IM_2TAU12IM_4J12p0ETA25',
         'L1_TAU25IM_2TAU20IM_2J25_3J20',
+        'L1_TAU25IM_2TAU20IM',
 
         # combined tau - xe
         'L1_TAU20IM_2J20_XE45',
@@ -342,11 +344,10 @@ def defineMenu():
         'L1_jJ90_DETA20-jJ90J', 
 
         # tau 
-        'L1_DR-eTAU30eTAU20', 'L1_DR-eTAU30eTAU20-jJ55', 
-        'L1_DR-eTAU30MeTAU20M', 'L1_DR-eTAU30MeTAU20M-jJ55', 
+        'L1_cTAU30M_2cTAU20M',
         'L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M', 'L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M-jJ55',
         'L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20', 'L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20-jJ55', 
-        'L1_eTAU80_2cTAU20M_DR-eTAU30eTAU20', 
+        'L1_eTAU80_2cTAU30M_DR-eTAU30eTAU20', 
 
         #ATR-19510
         'L1_DY-BOX-2MU5VF', 'L1_DY-BOX-MU5VFMU3V', 'L1_DY-BOX-2MU3V',
