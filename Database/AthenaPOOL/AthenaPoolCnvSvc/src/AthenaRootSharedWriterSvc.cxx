@@ -193,12 +193,11 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
          ATH_MSG_DEBUG("Successfully created ROOT TServerSocket and added it to TMonitor: ready to accept connections, " << streamPort);
       }
    }
-
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClient) {
-   ATH_MSG_VERBOSE("Start commitOutput loop");
+   ATH_MSG_DEBUG("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
    if (motherClient) {
       m_rootClientCount++;
@@ -231,7 +230,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
                   message->ReadString(str, 64);
                   ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << str);
                   m_rootMonitor->Remove(socket);
-                  ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << socket->GetBytesRecv() << ", " << socket->GetBytesSent());
+                  ATH_MSG_DEBUG("ROOT Monitor client: " << socket << ", " << socket->GetBytesRecv() << ", " << socket->GetBytesSent());
                   socket->Close();
                   --m_rootClientCount;
                   if (m_rootMonitor->GetActive() == 0 || m_rootClientCount == 0) {
@@ -245,7 +244,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
                   message->ReadInt(clientId);
                   message->ReadTString(filename);
                   message->ReadLong64(length);
-                  ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
+                  ATH_MSG_DEBUG("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
                   std::unique_ptr<TMemFile> transient(new TMemFile(filename, message->Buffer() + message->Length(), length, "UPDATE"));
                   message->SetBufferOffset(message->Length() + length);
                   ParallelFileMerger* info = static_cast<ParallelFileMerger*>(m_rootMergers.FindObject(filename));
@@ -263,7 +262,12 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
          usleep(100);
       }
       // Once commitOutput failed all legacy clients are finished (writing metadata), do not call again.
-      if (sc.isSuccess() || sc.isRecoverable()) sc = m_cnvSvc->commitOutput("", false);
+      if (sc.isSuccess() || sc.isRecoverable()) {
+         sc = m_cnvSvc->commitOutput("", false);
+         if (sc.isFailure()) {
+            ATH_MSG_INFO("commitOutput failed, metadata done.");
+         }
+      }
    }
    ATH_MSG_INFO("End commitOutput loop");
    return StatusCode::SUCCESS;
