@@ -309,71 +309,74 @@ std::tuple<unsigned int, const xAOD::TruthParticle*> MCTruthClassifier::defOrigO
 
   unsigned int outputvalue;
 
-  bool isStable=0; bool fromhad = 0; bool uncat = 0; bool isHadTau=0; bool mybeam=0; bool fromTau=0; bool fromBSM=0; bool isGeant=0; bool isBSM=0;
+  bool fromhad = 0; bool uncat = 0; bool isHadTau=0; bool mybeam=0; bool fromTau=0; bool fromBSM=0; bool isGeant=0; bool isBSM=0;
  
-  if(iParticleStat == 1 || iParticleStat == 2){ 
-    isStable = 1;
-  }
+  bool isStable = bool(iParticleStat == 1 || iParticleStat == 2);
 
-  if(isStable == 1){
-   const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():0;
-   if( partOriVert!=0 ) {
-    for (unsigned int ipIn=0; ipIn<partOriVert->nIncomingParticles(); ++ipIn) {
-      const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(ipIn);
-      if(!theMother) continue;
+  if (isStable) {
+    const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx() : 0;
+    if (partOriVert) {
+      for (unsigned int ipIn=0; ipIn<partOriVert->nIncomingParticles(); ++ipIn) {
+        const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(ipIn);
+        if (!theMother) continue;
 
-      if(std::abs(thePart->barcode()) >= m_barcodeG4Shift){
-      isGeant = 1; break;
-    }
-    if(MC::PID::isBSM(iParticlePDG) && abs(iParticleStat) == 1){
-      isBSM=1;
-    }
-
-    while (mybeam==0){
-      const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():0;
-      if( partOriVert!=0 ) { 
-        const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
-        if(!theMother) continue;
-
-        if(std::abs(theMother->pdgId()) == 2212){ 
-          mybeam = 1; break;
+        if (std::abs(thePart->barcode()) >= m_barcodeG4Shift){
+          isGeant = 1; break;
         }
-        if(MC::PID::isTau(theMother->pdgId()) && theMother->status() == 2 ){
-          fromTau = 1; isHadTau =0;
-        }
-        if(isHadron(theMother) == true && theMother->status() == 2 ) {
-          fromhad = 1;
-          parent_hadron_pointer = theMother;
-          if(fromTau == 1){
-        isHadTau = 1;
-          } 
-        }
-        if(MC::PID::isBSM(theMother->pdgId())){
-          fromBSM = 1;
+        if (MC::PID::isBSM(iParticlePDG) && abs(iParticleStat) == 1){
+          isBSM=1;
         }
 
-        thePart = theMother;
+        while (mybeam==0) {
+          const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx() : 0;
+          if (partOriVert) { 
+            const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
+            if (!theMother) continue;
+            int motherStatus = theMother->status();
+
+            if (std::abs(theMother->pdgId()) == 2212) {
+              mybeam = 1; break;
+            }
+            // sometimes Athena replaces status 2 with 10902, see e.g.
+            // PhysicsAnalysis/TruthParticleID/McParticleTools/src/EtaPtFilterTool.cxx#L374
+            // not at all clear why and unfortunately there's no documentation in the code
+            if (MC::PID::isTau(theMother->pdgId()) && (motherStatus == 2 || motherStatus == 10902)) {
+              fromTau = 1; isHadTau =0;
+            }
+            if (isHadron(theMother) && (motherStatus == 2 || motherStatus == 10902)) {
+              fromhad = 1;
+              parent_hadron_pointer = theMother;
+              if (fromTau) {
+                isHadTau = 1;
+              } 
+            }
+            if (MC::PID::isBSM(theMother->pdgId())) {
+              fromBSM = 1;
+            }
+            thePart = theMother;
+          }
+          else { 
+            break;
+          }
+        }
       }
-       else{break;}
     }
+    else {
+      uncat=1;
     }
-   }
-   else{
-     uncat=1;
-   }
     
-   std::bitset<MCTC_bits::totalBits> status;
+    std::bitset<MCTC_bits::totalBits> status;
 
-   status[MCTC_bits::stable] = isStable;
-   status[MCTC_bits::isgeant] = isGeant;
-   status[MCTC_bits::isbsm] = isBSM;
-   status[MCTC_bits::uncat] = uncat;
-   status[MCTC_bits::frombsm] = fromBSM;
-   status[MCTC_bits::hadron] = fromhad;
-   status[MCTC_bits::Tau] = fromTau;
-   status[MCTC_bits::HadTau] = isHadTau;
+    status[MCTC_bits::stable] = isStable;
+    status[MCTC_bits::isgeant] = isGeant;
+    status[MCTC_bits::isbsm] = isBSM;
+    status[MCTC_bits::uncat] = uncat;
+    status[MCTC_bits::frombsm] = fromBSM;
+    status[MCTC_bits::hadron] = fromhad;
+    status[MCTC_bits::Tau] = fromTau;
+    status[MCTC_bits::HadTau] = isHadTau;
 
-   outputvalue = static_cast<unsigned int>(status.to_ulong());
+    outputvalue = static_cast<unsigned int>(status.to_ulong());
   }
   else {
     std::bitset<MCTC_bits::totalBits> unclass;
