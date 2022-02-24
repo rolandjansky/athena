@@ -200,6 +200,8 @@ from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonito
 InDetPhysValMonitoringTool = InDetPhysValMonitoringTool("InDetPhysValMonitoringTool")
 InDetPhysValMonitoringTool.useTrackSelection = True
 InDetPhysValMonitoringTool.FillITkResolutionPlots = True
+InDetPhysValMonitoringTool.fillITkTailsPlots = False
+InDetPhysValMonitoringTool.inResoFileForTailPlots = "IDPVM_out.root"
 InDetPhysValMonitoringTool.FillAdditionalITkPlots = True
 InDetPhysValMonitoringTool.TrackSelectionTool = InDetTrackSelectorTool
 #InDetPhysValMonitoringTool.TruthSelectionTool = TrackTruthSelectionTool

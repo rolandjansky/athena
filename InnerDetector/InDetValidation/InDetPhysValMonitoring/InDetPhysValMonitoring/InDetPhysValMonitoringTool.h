@@ -145,6 +145,9 @@ private:
         bool m_fillAdditionalITkPlots;
         bool m_fillLargeRadiusTrackingPlots;
 
+	bool m_fillITkTailsPlots;
+	std::string m_resoFileName;
+
 	std::string m_folder;
     // accessor to check if a truth particle origin matches the HS switch (if we request PU or HS)
     SG::AuxElement::Accessor<bool> m_acc_selectedByPileupSwitch;

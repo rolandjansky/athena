@@ -10,12 +10,14 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 // #include <iostream>
 #include <utility>
 #include <cmath>
+#include "TFile.h"
 
 InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent, sDir),
   m_resolutionMethod(IDPVM::ResolutionHelper::iterRMS_convergence),
   m_primTrk(false),
   m_secdTrk(false),
   m_allTrk(false),
+  m_fillITkTailsPlots(false),
   m_trkP{},
   m_truetrkP{},
   m_trkErrP{},
@@ -34,11 +36,37 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_resITk_chargeID_vs_pt{},
   m_resITk_chargeID_vs_phi{},
 
-  m_resITk_momTail{},
-  m_resITk_momTail_vs_eta{},
-  m_resITk_momTail_vs_pt{},
-  m_resITk_momTail_vs_phi{},
-  m_resITk_momTail_Frac{},
+  m_resITk_tail_vs_eta{},
+  m_resITk_tail_vs_pt{},
+
+  m_resITk_tailfrac_vs_eta{},
+  m_resITk_tailfrac_vs_pt{},
+
+  m_eta_tail{},
+  m_pT_tail{},
+
+  m_InnermostLayerHits_tail{},
+  m_InnermostLayerOutliers_tail{},
+  m_InnermostLayerSharedHits_tail{},
+  m_InnermostLayerSplitHits_tail{},
+  m_NextToInnermostLayerHits_tail{},
+  m_NextToInnermostLayerOutliers_tail{},
+  m_NextToInnermostLayerSharedHits_tail{},
+  m_NextToInnermostLayerSplitHits_tail{},
+  m_PixelHits_tail{},
+  m_PixelHoles_tail{},
+  m_PixelOutliers_tail{},
+  m_PixelContribLayers_tail{},
+  m_PixelSharedHits_tail{},
+  m_PixelSplitHits_tail{},
+  m_PixelGangedHits_tail{},
+  m_PixelGangedHitsFlaggedFakes_tail{},
+  m_SCTHits_tail{},
+  m_SCTHoles_tail{},
+  m_SCTOutliers_tail{},
+  m_SCTDoubleHoles_tail{},
+  m_SCTSharedHits_tail{},
+
   m_resITk_chargeID_chgvschg{},
 
   m_resITk_resHelpereta{},
@@ -212,7 +240,7 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[THETA].limSig = {
     0.0, 0.0005
   };
-  m_paramProp[THETA].resUnit = std::string("[mrad]");
+  m_paramProp[THETA].resUnit = std::string("[rad]");
 
   m_paramProp[PHI].paraName = std::string("phi");
   m_paramProp[PHI].paraLabel = std::string("#phi");
@@ -230,7 +258,7 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[PHI].limSig = {
     0.0, 0.0005
   };
-  m_paramProp[PHI].resUnit = std::string("[mrad]");
+  m_paramProp[PHI].resUnit = std::string("[rad]");
 
   m_paramProp[PT].paraName = std::string("pt");
   m_paramProp[PT].paraLabel = std::string("p_{T}");
@@ -252,6 +280,20 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
 }
 
 void
+InDetPerfPlot_resITk::fillITkTailsPlots(bool filltail) {
+  m_fillITkTailsPlots = filltail;
+}
+
+void
+InDetPerfPlot_resITk::inResoFileForTailPlots(std::string resoFileName) {
+  m_resoFileName = resoFileName;
+
+  if (m_fillITkTailsPlots) {
+    m_resoFile = std::shared_ptr<TFile> (new TFile(m_resoFileName.c_str(), "READ"));
+  }
+}
+
+void
 InDetPerfPlot_resITk::initializePlots() {
   
   // Bins for resolutions
@@ -264,7 +306,7 @@ InDetPerfPlot_resITk::initializePlots() {
   float nMinPt = 0.;
   float nMaxPt = 50.0;
 
-  Float_t* ptlimits = m_PtBins;
+  Float_t* ptlimits = m_PtBins.data();
 
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
     ///pull
@@ -307,6 +349,127 @@ InDetPerfPlot_resITk::initializePlots() {
     tmpTitle = tmpName + "; #sigma_{" + m_paramProp[iparam].paraLabel + "} " + m_paramProp[iparam].paraUnit;
     m_resITk_sigma[iparam] = Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsSig, m_paramProp[iparam].limSig.at(
                                       0), m_paramProp[iparam].limSig.at(1), false);
+
+    tmpName = "tail_vs_eta_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta;";
+    m_resITk_tail_vs_eta[iparam] = Book2D(tmpName, tmpTitle, m_nEtaBins, nMinEta, nMaxEta, 2, 0., 2., false);
+    m_resITk_tail_vs_eta[iparam]->GetYaxis()->SetBinLabel(1, "Core");
+    m_resITk_tail_vs_eta[iparam]->GetYaxis()->SetBinLabel(2, "Tail");
+
+    tmpName = "tail_vs_pt_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T} [GeV];";
+    m_resITk_tail_vs_pt[iparam] = Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, 2, 0., 2., false);
+    m_resITk_tail_vs_pt[iparam]->GetXaxis()->Set(nBinsPt,ptlimits);
+    m_resITk_tail_vs_pt[iparam]->GetYaxis()->SetBinLabel(1, "Core");
+    m_resITk_tail_vs_pt[iparam]->GetYaxis()->SetBinLabel(2, "Tail");
+
+    tmpName = "tailfrac_vs_eta_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; " + "N_{Tails}/N_{Total}";
+    m_resITk_tailfrac_vs_eta[iparam] = BookTEfficiency(tmpName, tmpTitle, m_nEtaBins, nMinEta, nMaxEta, false);
+
+    for (int nptbins = 0; nptbins <= m_nPtBins; nptbins++) {
+      m_PtBins_eff[nptbins] = m_PtBins[nptbins];
+    }
+    tmpName = "tailfrac_vs_pt_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T} [GeV];";
+    m_resITk_tailfrac_vs_pt[iparam] = BookTEfficiency(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, false);
+    m_resITk_tailfrac_vs_pt[iparam]->SetBins(nBinsPt,m_PtBins_eff.data());
+
+    if (m_fillITkTailsPlots) {
+      tmpName = "eta_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; true track #eta;";
+      m_eta_tail[iparam] = Book1D(tmpName, tmpTitle, m_nEtaBins, nMinEta, nMaxEta, false);
+      
+      tmpName = "pt_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; true track p_{T} [GeV];";
+      m_pT_tail[iparam] = Book1D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, false);
+      m_pT_tail[iparam]->SetBins(nBinsPt,m_PtBins_eff.data());
+
+      tmpName = "HitContent_NInnermostLayerHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Innermost Layer Clusters";
+      m_InnermostLayerHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NInnermostLayerOutliers_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Innermost Layer Outliers";
+      m_InnermostLayerOutliers_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NInnermostLayerSharedHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Innermost Layer Shared Clusters";
+      m_InnermostLayerSharedHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NInnermostLayerSplitHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Innermost Layer Split Clusters";
+      m_InnermostLayerSplitHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NNextToInnermostLayerHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Next-To-Innermost Layer clusters";
+      m_NextToInnermostLayerHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NNextToInnermostLayerOutliers_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Next-To-Innermost Layer Outliers";
+      m_NextToInnermostLayerOutliers_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NNextToInnermostLayerSharedHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Next-To-Innermost Layer Shared Clusters";
+      m_NextToInnermostLayerSharedHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NNextToInnermostLayerSplitHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Next-To-Innermost Layer Split Clusters";
+      m_NextToInnermostLayerSplitHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NPixelHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Clusters";
+      m_PixelHits_tail[iparam] = Book1D(tmpName, tmpTitle, 50, -0.5, 49.5, false);
+      
+      tmpName = "HitContent_NPixelHoles_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Holes";
+      m_PixelHoles_tail[iparam] = Book1D(tmpName, tmpTitle, 10, -0.5, 9.5, false);
+      
+      tmpName = "HitContent_NPixelOutliers_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Outliers";
+      m_PixelOutliers_tail[iparam] = Book1D(tmpName, tmpTitle, 10, -0.5, 9.5, false);
+      
+      tmpName = "HitContent_NPixelContribLayers_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Layers";
+      m_PixelContribLayers_tail[iparam] = Book1D(tmpName, tmpTitle, 10, -0.5, 9.5, false);
+      
+      tmpName = "HitContent_NPixelSharedHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Shared Clusters";
+      m_PixelSharedHits_tail[iparam] = Book1D(tmpName, tmpTitle, 10, -0.5, 9.5, false);
+      
+      tmpName = "HitContent_NPixelSplitHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Split Clusters";
+      m_PixelSplitHits_tail[iparam] = Book1D(tmpName, tmpTitle, 5, -0.5, 4.5, false);
+      
+      tmpName = "HitContent_NPixelGangedHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Clusters";
+      m_PixelGangedHits_tail[iparam] = Book1D(tmpName, tmpTitle, 10, -0.5, 9.5, false);
+      
+      tmpName = "HitContent_NPixelGangedHitsFlaggedFakes_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; #eta";
+      m_PixelGangedHitsFlaggedFakes_tail[iparam] = Book1D(tmpName, tmpTitle, 80, -4, 4, false);
+      
+      tmpName = "HitContent_NSCTHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Clusters";
+      m_SCTHits_tail[iparam] = Book1D(tmpName, tmpTitle, 41, -0.5, 40.5, false);
+      
+      tmpName = "HitContent_NSCTHoles_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Holes";
+      m_SCTHoles_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NSCTOutliers_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Outliers";
+      m_SCTOutliers_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NSCTDoubleHoles_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Double Holes";
+      m_SCTDoubleHoles_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+      
+      tmpName = "HitContent_NSCTSharedHits_tail_" + m_paramProp[iparam].paraName;
+      tmpTitle = tmpName + "; Number of Shared Clusters";
+      m_SCTSharedHits_tail[iparam] = Book1D(tmpName, tmpTitle, 21, -0.5, 20.5, false);
+    }
+
     // res versus eta
     tmpName = "resHelpereta_" + m_paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
@@ -423,14 +586,14 @@ InDetPerfPlot_resITk::initializePlots() {
       tmpName = m_paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_pt";
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitlePull[ires];
       m_resITk_pullResolution_vs_pt[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
-      m_resITk_pullResolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
+      m_resITk_pullResolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins.data());
     }
 
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = m_paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_eta";
       tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + ytitlePull[ires];
       m_resITk_pullResolution_vs_eta[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, 0., 50.0, false);
-      m_resITk_pullResolution_vs_eta[iparam][ires]->GetXaxis()->Set(m_nEtaBins, m_EtaBins);
+      m_resITk_pullResolution_vs_eta[iparam][ires]->GetXaxis()->Set(m_nEtaBins, m_EtaBins.data());
     }
 
 
@@ -467,7 +630,7 @@ InDetPerfPlot_resITk::initializePlots() {
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
                  m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_pt[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
-      m_resITk_Resolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
+      m_resITk_Resolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins.data());
     }
     tmpName = "resHelperpt_pos" + m_paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
@@ -487,7 +650,7 @@ InDetPerfPlot_resITk::initializePlots() {
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
                  m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_pt_pos[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
-      m_resITk_Resolution_vs_pt_pos[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
+      m_resITk_Resolution_vs_pt_pos[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins.data());
     }
     tmpName = "resHelperpt_neg" + m_paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
@@ -508,7 +671,7 @@ InDetPerfPlot_resITk::initializePlots() {
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
                  m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_pt_neg[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
-      m_resITk_Resolution_vs_pt_neg[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
+      m_resITk_Resolution_vs_pt_neg[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins.data());
     }
     // res versus eta pt
     tmpName = "resHelperetapt_" + m_paramProp[iparam].paraName;
@@ -522,7 +685,7 @@ InDetPerfPlot_resITk::initializePlots() {
         tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
                    m_paramProp[iparam].resUnit;
         m_resITk_Resolution_vs_pt_EtaBin[iparam][ibin][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
-        m_resITk_Resolution_vs_pt_EtaBin[iparam][ibin][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
+	m_resITk_Resolution_vs_pt_EtaBin[iparam][ibin][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins.data());
       }
       for (int iPtBin = 0; iPtBin < 4; iPtBin++) {
         tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_PtBin" + std::to_string(iPtBin + 1);
@@ -564,20 +727,6 @@ InDetPerfPlot_resITk::initializePlots() {
                                    nBinsPt, nMaxPt, nMaxPt, false);
   m_resITk_chargeID_vs_pt->GetXaxis()->Set(nBinsPt,ptlimits);
 
-  m_resITk_momTail = Book1D("momTail", "momTail", 2, 0., 2., false);
-  m_resITk_momTail->GetXaxis()->SetBinLabel(1, "Core");
-  m_resITk_momTail->GetXaxis()->SetBinLabel(2, "Tail");
-
-  m_resITk_momTail_vs_eta = Book1D("momTail_vs_eta", "momTail_vs_eta; truth track #eta; Fraction of p_{T}-tail [%]",
-                                   nBinsEta, nMinEta, nMaxEta, false);
-  m_resITk_momTail_vs_pt = Book1D("momTail_vs_pt", "momTail_vs_pt; truth track p_{T} [GeV]; Fraction of p_{T}-tail [%]",
-                                  nBinsPt, nMinPt, nMaxPt, false);
-  m_resITk_momTail_vs_pt->GetXaxis()->Set(nBinsPt,ptlimits);
-  m_resITk_momTail_vs_phi = Book1D("momTail_vs_phi", "momTail_vs_phi; truth track #phi; Fraction of p_{T}-tail [%]",
-                                   nBinsEta, nMinEta, nMaxEta, false);
-
-  m_resITk_momTail_Frac = Book1D("momTail_Frac", "momTail_Frac; (p^{reco}_{T}-p^{true}_{T})/p^{true}_{T}", 100, 0.,
-                                 100., false);
   m_trk_chi2ndof = Book1D("trk_chi2ndof", "trk_chi2ndof; #chi_{0}/ndof", 200, 0., 20, false);
   m_trk_chi2 = Book1D("trk_chi2", "trk_chi2; #chi^{2}/ndof", 200, 0., 200, false);
   m_trk_ndof = Book1D("trk_ndof", "trk_ndof; #chi^{2}/ndof", 200, 0., 200, false);
@@ -655,6 +804,101 @@ InDetPerfPlot_resITk::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthP
 
   m_trk_chi2->Fill(trkprt.chiSquared());
   m_trk_ndof->Fill(trkprt.numberDoF());
+
+  if (m_fillITkTailsPlots) {
+    uint8_t iInnermostHits, iInnermostOutliers, iInnermostShared, iInnermostSplit, iNextToInnermostHits, iNextToInnermostOutliers, iNextToInnermostShared, iNextToInnermostSplit, iPixHoles, iPixelOutliers, iPixelContribLayers, iPixelShared, iPixelSplit, iPixelGanged, iPixelGangedFF, iSCTHoles, iSCTOutliers, iSCTDoubleHoles, iSCTShared;
+    
+    float eta = truthprt.eta();
+    
+    for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
+      std::string hReso_name = std::string("IDPerformanceMon/Tracks/SelectedMatchedTracks/Primary/") + m_paramProp[iparam].paraName + std::string("resolutionRMS_vs_eta");
+      
+      std::shared_ptr<TH1D> hReso {static_cast<TH1D*>(m_resoFile->Get(hReso_name.c_str()))};
+      
+      for (unsigned int ieta = 1; ieta <= m_nEtaBins; ieta++) {	
+        if (eta >= m_EtaBins[ieta-1] && eta < m_EtaBins[ieta]) {
+	  double param_trkReso_eta;
+
+	  if (iparam == D0 || iparam == Z0 || iparam == Z0SIN) {
+	    param_trkReso_eta = hReso->GetBinContent(ieta)/1000.; //Conversion factor between resolutions and m_resITk_resHelper
+	  }
+	  else {
+	    param_trkReso_eta = hReso->GetBinContent(ieta);
+	  }
+	  
+	  double cutoff = 3.0 * param_trkReso_eta;
+	  if (fabs(m_resP[iparam]) > cutoff) {
+	    m_eta_tail[iparam]->Fill(eta);
+	    m_pT_tail[iparam]->Fill(m_truetrkP[PT]);
+	    
+            if (trkprt.summaryValue(iInnermostHits, xAOD::numberOfInnermostPixelLayerHits)) {
+              m_InnermostLayerHits_tail[iparam]->Fill(iInnermostHits);
+            }
+	    if (trkprt.summaryValue(iInnermostOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
+	      m_InnermostLayerOutliers_tail[iparam]->Fill(iInnermostOutliers);
+	    }
+	    if (trkprt.summaryValue(iInnermostShared, xAOD::numberOfInnermostPixelLayerSharedHits)) {
+	      m_InnermostLayerSharedHits_tail[iparam]->Fill(iInnermostShared);
+	    }
+	    if (trkprt.summaryValue(iInnermostSplit, xAOD::numberOfInnermostPixelLayerSplitHits)) {
+	      m_InnermostLayerSplitHits_tail[iparam]->Fill(iInnermostSplit);
+	    }
+	    if (trkprt.summaryValue(iNextToInnermostHits, xAOD::numberOfNextToInnermostPixelLayerHits)) {
+	      m_NextToInnermostLayerHits_tail[iparam]->Fill(iNextToInnermostHits);
+	    }
+	    if (trkprt.summaryValue(iNextToInnermostOutliers, xAOD::numberOfNextToInnermostPixelLayerOutliers)) {
+	      m_NextToInnermostLayerOutliers_tail[iparam]->Fill(iNextToInnermostOutliers);
+	    }
+	    if (trkprt.summaryValue(iNextToInnermostShared, xAOD::numberOfNextToInnermostPixelLayerSharedHits)) {
+	      m_NextToInnermostLayerSharedHits_tail[iparam]->Fill(iNextToInnermostShared);
+	    }
+	    if (trkprt.summaryValue(iNextToInnermostSplit, xAOD::numberOfNextToInnermostPixelLayerSplitHits)) {
+	      m_NextToInnermostLayerSplitHits_tail[iparam]->Fill(iNextToInnermostSplit);
+	    }
+	    if (trkprt.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
+	      m_PixelHits_tail[iparam]->Fill(iPixHits);
+	    }
+	    if (trkprt.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
+	      m_PixelHoles_tail[iparam]->Fill(iPixHoles);
+	    }
+	    if (trkprt.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {
+	      m_PixelOutliers_tail[iparam]->Fill(iPixelOutliers);
+	    }
+	    if (trkprt.summaryValue(iPixelContribLayers, xAOD::numberOfContribPixelLayers)) {
+	      m_PixelContribLayers_tail[iparam]->Fill(iPixelContribLayers);
+	    }
+	    if (trkprt.summaryValue(iPixelShared, xAOD::numberOfPixelSharedHits)) {
+	      m_PixelSharedHits_tail[iparam]->Fill(iPixelShared);
+	    }
+	    if (trkprt.summaryValue(iPixelSplit, xAOD::numberOfPixelSplitHits)) {
+	      m_PixelSplitHits_tail[iparam]->Fill(iPixelSplit);
+	    }
+	    if (trkprt.summaryValue(iPixelGanged, xAOD::numberOfGangedPixels)) {
+	      m_PixelGangedHits_tail[iparam]->Fill(iPixelGanged);
+	    }
+	    if (trkprt.summaryValue(iPixelGangedFF, xAOD::numberOfGangedFlaggedFakes)) {
+	      m_PixelGangedHitsFlaggedFakes_tail[iparam]->Fill(iPixelGangedFF);
+	    }
+	    if (trkprt.summaryValue(iSCTHits, xAOD::numberOfSCTHits)) {
+	      m_SCTHits_tail[iparam]->Fill(iSCTHits);
+	    }
+	    if (trkprt.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
+	      m_SCTHoles_tail[iparam]->Fill(iSCTHoles);
+	    }
+	    if (trkprt.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
+	      m_SCTOutliers_tail[iparam]->Fill(iSCTOutliers);
+	    }
+	    if (trkprt.summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
+	      m_SCTDoubleHoles_tail[iparam]->Fill(iSCTDoubleHoles);
+	    }
+	    if (trkprt.summaryValue(iSCTShared, xAOD::numberOfSCTSharedHits)) {
+	      m_SCTSharedHits_tail[iparam]->Fill(iSCTShared);
+	    }	  
+	  }
+	}
+      }
+    }
+  }
 }
 
 void
@@ -699,18 +943,6 @@ InDetPerfPlot_resITk::getPlots() {
 
         m_resITk_chargeID_chgvschg->Fill(m_trkP[QOVERP] / fabs(m_trkP[QOVERP]),
                                          m_truetrkP[QOVERP] / fabs(m_truetrkP[QOVERP]));
-      }
-    }
-    // Look at PT tails
-    if (iparam == PT) {
-      m_resITk_momTail_Frac->Fill((m_trkP[PT] - m_truetrkP[PT]) / m_truetrkP[PT]);
-      if ((m_trkP[PT] - m_truetrkP[PT]) / m_truetrkP[PT] > 0.5 && m_truetrkP[PT] > 0.0) {
-        m_resITk_momTail->Fill(1.);
-        m_resITk_momTail_vs_phi->Fill(m_truetrkP[PHI]);
-        m_resITk_momTail_vs_eta->Fill(eta);
-        m_resITk_momTail_vs_pt->Fill(m_truetrkP[PT]);
-      } else {
-        m_resITk_momTail->Fill(0.);
       }
     }
 
@@ -831,7 +1063,7 @@ InDetPerfPlot_resITk::finalizePlots() {
     m_resolutionHelper.makeResolutions(m_resITk_resHelperpt_neg[iparam], m_resITk_Resolution_vs_pt_neg[iparam][0], m_resITk_Resolution_vs_pt_neg[iparam][1], m_resolutionMethod);
     m_resolutionHelper.makeResolutions(m_resITk_resHelpereta_pos[iparam], m_resITk_Resolution_vs_eta_pos[iparam][0], m_resITk_Resolution_vs_eta_pos[iparam][1], m_resolutionMethod);
     m_resolutionHelper.makeResolutions(m_resITk_resHelpereta_neg[iparam], m_resITk_Resolution_vs_eta_neg[iparam][0], m_resITk_Resolution_vs_eta_neg[iparam][1], m_resolutionMethod);
-
+    
     // add for the pull vs pT
     m_resolutionHelper.makeResolutions(m_resITk_pullHelperpt[iparam], m_resITk_pullResolution_vs_pt[iparam][0], m_resITk_pullResolution_vs_pt[iparam][1],
 				       m_resITk_pullProjections_vs_pt[iparam], true, m_resolutionMethod);
@@ -854,8 +1086,84 @@ InDetPerfPlot_resITk::finalizePlots() {
     m_significance_z0_vs_eta->SetBinError(ieta + 1, tmp->GetRMSError());
   }
 
-}
+  for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
+    for (unsigned int ieta = 1; ieta <= m_nEtaBins; ieta++) {
+      double param_reso_eta;
+      if (iparam == D0 || iparam == Z0 || iparam == Z0SIN) {
+	param_reso_eta = m_resITk_Resolution_vs_eta[iparam][0]->GetBinContent(ieta)/1000.; //Conversion factor between resolutions and m_resITk_resHelper
+      }
+      else {
+	param_reso_eta = m_resITk_Resolution_vs_eta[iparam][0]->GetBinContent(ieta);
+      }
+      
+      std::shared_ptr<TH1D> h_py_eta {m_resITk_resHelpereta[iparam]->ProjectionY("h_py_eta", ieta, ieta)};
+      
+      double cutoff_eta = 3.0 * param_reso_eta;
+      int min_bin_eta = h_py_eta->FindBin(-cutoff_eta);
+      int max_bin_eta = h_py_eta->FindBin(cutoff_eta);
+      
+      double Error_nentries_core_eta = 0;
+      double nentries_core_eta = h_py_eta->IntegralAndError(min_bin_eta, max_bin_eta, Error_nentries_core_eta);
+      m_resITk_tail_vs_eta[iparam]->SetBinContent(ieta+1,1,nentries_core_eta);
+      m_resITk_tail_vs_eta[iparam]->SetBinError(ieta+1,1,Error_nentries_core_eta);
+      
+      double Error_nentries_tail_eta = 0;
+      double nentries_tail_eta = h_py_eta->IntegralAndError(1, min_bin_eta, Error_nentries_tail_eta) + h_py_eta->IntegralAndError(max_bin_eta, h_py_eta->GetNbinsX(), Error_nentries_tail_eta);
+      m_resITk_tail_vs_eta[iparam]->SetBinContent(ieta+1,2,nentries_tail_eta);
+      m_resITk_tail_vs_eta[iparam]->SetBinError(ieta+1,2,Error_nentries_tail_eta);
+    }
+    
+    for (unsigned int ipt = 1; ipt <= m_nPtBins; ipt++) {
+      double param_reso_pt;
+      if (iparam == D0 || iparam == Z0 || iparam == Z0SIN) {
+	param_reso_pt = m_resITk_Resolution_vs_pt[iparam][0]->GetBinContent(ipt)/1000.; //Conversion factor between resolutions and m_resITk_resHelper
+      }
+      else {
+	param_reso_pt = m_resITk_Resolution_vs_pt[iparam][0]->GetBinContent(ipt);
+      }
+      
+      std::shared_ptr<TH1D> h_py_pt {m_resITk_resHelperpt[iparam]->ProjectionY("h_py_pt", ipt, ipt)};
+      
+      double cutoff_pt = 3.0 * param_reso_pt;
+      int min_bin_pt = h_py_pt->FindBin(-cutoff_pt);
+      int max_bin_pt = h_py_pt->FindBin(cutoff_pt);
+      
+      double Error_nentries_core_pt = 0;
+      double nentries_core_pt = h_py_pt->IntegralAndError(min_bin_pt, max_bin_pt, Error_nentries_core_pt);
+      m_resITk_tail_vs_pt[iparam]->SetBinContent(ipt+1,1,nentries_core_pt);
+      m_resITk_tail_vs_pt[iparam]->SetBinError(ipt+1,1,Error_nentries_core_pt);
+      
+      double Error_nentries_tail_pt = 0;
+      double nentries_tail_pt = h_py_pt->IntegralAndError(1, min_bin_pt, Error_nentries_tail_pt) + h_py_pt->IntegralAndError(max_bin_pt, h_py_pt->GetNbinsX(), Error_nentries_tail_pt);
+      m_resITk_tail_vs_pt[iparam]->SetBinContent(ipt+1,2,nentries_tail_pt);
+      m_resITk_tail_vs_pt[iparam]->SetBinError(ipt+1,2,Error_nentries_tail_pt);
+    }
+    
+    std::shared_ptr<TH1D> hTotal_eta {m_resITk_tail_vs_eta[iparam]->ProjectionX("hTotal_eta", 1, 2)};
+    std::shared_ptr<TH1D> hTail_eta {m_resITk_tail_vs_eta[iparam]->ProjectionX("hTail_eta", 2, 2)};
+    
+    m_resITk_tailfrac_vs_eta[iparam]->SetTotalHistogram(*hTotal_eta, "");
+    m_resITk_tailfrac_vs_eta[iparam]->SetPassedHistogram(*hTail_eta, "");
+    
+    std::string eta_eff_title0 = std::string("tailfrac_vs_eta_") + m_paramProp[iparam].paraName + std::string("; true track #eta; #epsilon = N_{Tail} / N_{Total}");
+    const char* eta_eff_title = eta_eff_title0.c_str();
+    m_resITk_tailfrac_vs_eta[iparam]->SetTitle(eta_eff_title);
+    
+    std::shared_ptr<TH1D> hTotal_pt {m_resITk_tail_vs_pt[iparam]->ProjectionX("hTotal_pt", 1, 2)};
+    std::shared_ptr<TH1D> hTail_pt {m_resITk_tail_vs_pt[iparam]->ProjectionX("hTail_pt", 2, 2)};
+    
+    m_resITk_tailfrac_vs_pt[iparam]->SetTotalHistogram(*hTotal_pt, "");
+    m_resITk_tailfrac_vs_pt[iparam]->SetPassedHistogram(*hTail_pt, "");
+    
+    m_resITk_tailfrac_vs_pt[iparam]->SetStatisticOption(TEfficiency::kFCP);
+    
+    std::string pt_eff_title0 = std::string("tailfrac_vs_pt_") + m_paramProp[iparam].paraName + std::string("; true track p_{T}[GeV]; #epsilon = N_{Tail} / N_{Total}");
+    const char* pt_eff_title = pt_eff_title0.c_str();
+    m_resITk_tailfrac_vs_pt[iparam]->SetTitle(pt_eff_title);
+    
+  }
 
+}
 
 void
 InDetPerfPlot_resITk::cloneHistogram(TH1D* h, TH1* hcopy) {

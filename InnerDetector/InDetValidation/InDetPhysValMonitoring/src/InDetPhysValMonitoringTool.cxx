@@ -162,6 +162,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_fillITkResolutionPlots(false),
   m_fillAdditionalITkPlots(false),
   m_fillLargeRadiusTrackingPlots(false),
+  m_fillITkTailsPlots(false),
   m_acc_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
   m_dec_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
   m_usingSpecialPileupSwitch(false)
@@ -193,6 +194,8 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("FillITkResolutionPlots", m_fillITkResolutionPlots = false);
   declareProperty("FillAdditionalITkPlots", m_fillAdditionalITkPlots=false);
   declareProperty("FillLargeRadiusTrackingPlots", m_fillLargeRadiusTrackingPlots=false);
+  declareProperty("fillITkTailsPlots", m_fillITkTailsPlots = false);
+  declareProperty("inResoFileForTailPlots", m_resoFileName = "IDPVM_out.root");
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -223,6 +226,8 @@ InDetPhysValMonitoringTool::initialize() {
   m_monPlots->SetFillLargeRadiusTrackingPlots(m_fillLargeRadiusTrackingPlots);
   m_monPlots->SetFillITkResolutionPlots(m_fillITkResolutionPlots);
   m_monPlots->SetFillAdditionalITkPlots(m_fillAdditionalITkPlots);
+  m_monPlots->SetFillTailTracksPlots(m_fillITkTailsPlots);
+  m_monPlots->SetITkResoForTailPlots(m_resoFileName);
 
   return StatusCode::SUCCESS;
 }
