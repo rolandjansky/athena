@@ -81,26 +81,9 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     """Return ComponentAccumulator with configured LArPileUpTool"""
     acc = LArGMCfg(flags)
 
-    #The LArPileupTool needs: Noise, fSampl, Pedestal,Shape ADC2MeV
-    # AutoCorrNoise, the list of bad FEBs and the cabling
-    acc.merge(LArADC2MeVCondAlgCfg(flags))
-    acc.merge(LArBadFebCfg(flags))
-    acc.merge(LArBadChannelCfg(flags))
-    if flags.Overlay.DataOverlay:
-        kwargs.setdefault("ShapeKey", "LArShape")
-    if not flags.Digitization.DoCaloNoise:
-        requiredConditons=["fSampl", "Pedestal", "Shape"]
-    else:
-        requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
-    acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
     # add new conditions for LArXTalkWeight
     acc.merge(LArXTalkWeightCondAlgCfg(flags))
 
-    if flags.Common.ProductionStep != ProductionStep.Overlay:
-        acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
-
-    if "ProblemsToMask" not in kwargs:
-        kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]
     # defaults
     if flags.Common.ProductionStep == ProductionStep.Overlay:
         # Some noise needs to be added during MC Overlay
@@ -121,15 +104,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
     else:
         kwargs.setdefault("PileUpMergeSvc", '')
-    if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
-        kwargs.setdefault("HighGainThreshFCAL", 0)
-    if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
-        kwargs.setdefault("HighGainThreshEMECIW", 0)
     kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
-    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
-        kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
-    else:
-        kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
     # if doing MC+MC overlay
     if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
         kwargs.setdefault("isMcOverlay", True)
@@ -163,6 +138,56 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     acc.setPrivateTools(LArPileUpTool(name, **kwargs))
     return acc
 
+def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
+    """Return ComponentAccumulator with configured LArHitEMapToDigitAlg"""
+    acc = LArGMCfg(flags)
+
+    #The LArHitEMapToDigit needs: Noise, fSampl, Pedestal,Shape ADC2MeV
+    # AutoCorrNoise, the list of bad FEBs and the cabling
+    acc.merge(LArADC2MeVCondAlgCfg(flags))
+    acc.merge(LArBadFebCfg(flags))
+    acc.merge(LArBadChannelCfg(flags))
+    if flags.Overlay.DataOverlay:
+        kwargs.setdefault("ShapeKey", "LArShape")
+        #kwargs.setdefault("AutoCorrNoiseKey", "LArAutoCorr")
+    if not flags.Digitization.DoCaloNoise:
+        requiredConditons=["fSampl", "Pedestal", "Shape"]
+    else:
+        requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
+    acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
+
+    if flags.Common.ProductionStep != ProductionStep.Overlay:
+        acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
+        #kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
+
+    if "ProblemsToMask" not in kwargs:
+        kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]
+    # defaults
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        # Some noise needs to be added during MC Overlay
+        # No noise should be added during Data Overlay
+        kwargs.setdefault("NoiseOnOff", not flags.Overlay.DataOverlay)
+    else :
+        kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)
+    kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
+    if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
+        kwargs.setdefault("HighGainThreshFCAL", 0)
+    if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
+        kwargs.setdefault("HighGainThreshEMECIW", 0)
+    kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
+    else:
+        kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
+    # if doing MC+MC overlay
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
+          kwargs.setdefault("isMcOverlay", True)
+    kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
+    kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
+    LArHitEMapToDigitAlg = CompFactory.LArHitEMapToDigitAlg
+    acc.addEventAlgo(LArHitEMapToDigitAlg(name, **kwargs))
+    return acc
 
 def LArOutputCfg(flags):
     """Return ComponentAccumulator with Output for LAr. Not standalone."""
@@ -191,6 +216,7 @@ def LArDigitizationBasicCfg(flags, **kwargs):
         PileUpTools = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
         kwargs["PileUpTools"] = PileUpTools
     acc.merge(PileUpToolsCfg(flags, **kwargs))
+    acc.merge(LArHitEMapToDigitAlgCfg(flags))
     acc.merge(LArRawChannelBuilderAlgCfg(flags))
     if flags.Digitization.AddCaloDigiThinned:
         acc.merge(LArDigitThinnerCfg(flags))
@@ -220,6 +246,7 @@ def LArOverlayDigitizationBasicCfg(flags, name="digitmaker1", **kwargs):
 
     LArDigitMaker = CompFactory.LArDigitMaker
     acc.addEventAlgo(LArDigitMaker(name, **kwargs))
+    acc.merge(LArHitEMapToDigitAlgCfg(flags))
 
     acc.merge(LArRawChannelBuilderAlgCfg(flags))
     if flags.Digitization.AddCaloDigiThinned:

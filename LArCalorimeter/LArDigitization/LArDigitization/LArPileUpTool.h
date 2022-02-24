@@ -22,15 +22,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
-#include "LArElecCalib/ILArNoise.h"
-#include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArfSampl.h"
 #include "LArCabling/LArOnOffIdMapping.h"
-
-#include "LArRecConditions/LArBadChannelCont.h"
-#include "LArRecConditions/LArBadChannelMask.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -41,8 +33,6 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
-#include "LArRawConditions/LArADC2MeV.h"
-#include "LArRawConditions/LArAutoCorrNoise.h"
 #include "LArDigitization/LArHitEMap.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
@@ -81,8 +71,6 @@ class LArPileUpTool : public PileUpToolBase
 
   virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int nInputEvents) override final;
 
-  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
-
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
@@ -99,19 +87,6 @@ class LArPileUpTool : public PileUpToolBase
 
 
   StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal, const LArXTalkWeightGlobal& weights);
-
-
-  StatusCode MakeDigit(const EventContext& ctx, const Identifier & cellId,
-		       HWIdentifier & ch_id,
-		       const std::vector<std::pair<float,float> >* TimeE,
-		       const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
-		       const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr);
-
-
-  StatusCode ConvertHits2Samples(const EventContext& ctx, const Identifier & cellId, HWIdentifier ch_id,
-                   CaloGain::CaloGain igain,
-                   //const std::vector<std::pair<float,float> >  *TimeE);
-                   const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
 
 
   void   cross_talk(const IdentifierHash& idHash,
@@ -145,13 +120,6 @@ class LArPileUpTool : public PileUpToolBase
 //
 // ........ Algorithm properties
 //
-  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC",
-      "Name of output digit container"};    // output digit container name list 
-  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth", 
-      "LArDigitContainer_DigiHSTruth", "Name of output signal digit container"};    // output digit container name list  
-  SG::WriteHandle<LArDigitContainer> m_DigitContainer;
-  SG::WriteHandle<LArDigitContainer> m_DigitContainer_DigiHSTruth;
-
   Gaudi::Property<bool> m_NoiseOnOff{this, "NoiseOnOff", true,
       "put electronic noise (default=true)"};            // noise (in all sub-detectors) is on if true
   Gaudi::Property<bool> m_PileUp{this, "PileUp", false,
@@ -191,10 +159,6 @@ class LArPileUpTool : public PileUpToolBase
   Gaudi::Property<float> m_WindowsPtCut{this, "WindowsPtCut", 5000.,
       "Pt cut on e/photons for window mode (Default=5GeV)"};
   //
-  enum CaloNum{EM,HEC,FCAL,EMIW};
-  double m_LowGainThresh[4]{};       // energy thresholds for the low gain
-  double m_HighGainThresh[4]{};      // energy thresholds for the high gain
-
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
       "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
   //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
@@ -233,19 +197,8 @@ class LArPileUpTool : public PileUpToolBase
   Gaudi::Property<bool> m_roundingNoNoise{this, "RoundingNoNoise", true,
       "if true add random number [0:1[ in no noise case before rounding ADC to integer, if false add only 0.5 average"};  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
  
-  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
-  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
-  SG::ReadCondHandleKey<ILArOFC>      m_OFCKey{this, "OFCKey", "LArOFC", "SG Key of OFC conditions object"};
-  SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
-  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShapeSym","SG Key of LArShape object"};
-  SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent
-
-  SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
-
-  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
-  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
 
   SG::ReadCondHandleKey<LArXTalkWeightGlobal>  m_xtalkKey{this,"LArXTalkWeightGlobal","LArXTalkWeightGlobal","SG Key of XTalk vector of object"};
 
@@ -259,10 +212,6 @@ class LArPileUpTool : public PileUpToolBase
   const LArHEC_ID*       m_larhec_id{};
   const LArFCAL_ID*      m_larfcal_id{};
   const LArOnlineID*     m_laronline_id{};
-
-
-  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},"Bad-Channel categories to mask entirly"}; 
-  LArBadChannelMask m_bcMask;
 
   Gaudi::Property<bool> m_skipNoHit{this, "SkipNoHit", false,
       "Skip events with no LAr hits (default=false)"};

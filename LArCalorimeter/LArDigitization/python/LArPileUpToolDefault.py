@@ -3,7 +3,7 @@
 from AthenaCommon.AlgSequence import AthSequencer
 
 # function to configure LArPileUpTool
-def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitContainer_MC',outputKey_DigiHSTruth='LArDigitContainer_DigiHSTruth',name='LArPileUpToolDefault'):
+def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,name='LArPileUpToolDefault'):
 
     if isOverlay:
         #For all other cases, this is already done by LArConditionsCommon_MC_jobOptions.py
@@ -14,8 +14,6 @@ def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitCon
     try:
         from AthenaCommon import CfgGetter
         theTool = CfgGetter.getPublicTool("LArPileUpTool")
-        theTool.DigitContainer = outputKey
-        theTool.DigitContainer_DigiHSTruth = outputKey_DigiHSTruth
         from Digitization.DigitizationFlags import digitizationFlags
         theTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
         # Need new conditions
