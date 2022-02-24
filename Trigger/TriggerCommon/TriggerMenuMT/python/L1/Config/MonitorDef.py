@@ -116,8 +116,8 @@ class MonitorDef:
 
         if 'HI' not in menuName:
             monItems[TBP|TAP|TAV] = [
-#                "L1_EM3",
-#                "L1_EM12", # keep for LUMI group
+                "L1_EM12", # keep for LUMI group
+
 #                "L1_EM20VH","L1_EM22VHI", "L1_EM24VHI",
 #                "L1_MU8F","L1_MU8VF","L1_MU14FCH", "L1_MU14FCHR",
 #                "L1_TAU12IM", "L1_TAU20IM", "L1_TAU40", "L1_TAU100",
@@ -135,8 +135,8 @@ class MonitorDef:
                 ]
         else:
             monItems[TBP|TAP|TAV] = [
-#                "L1_EM20VH", 
-#                "L1_EM12", # keep for LUMI group
+                "L1_EM12", # keep for LUMI group
+
 #                "L1_MU8F","L1_MU8VF","L1_MU14FCH", "L1_MU14FCHR",
 #                "L1_J100", "L1_J75p31ETA49","L1_J30p31ETA49",
 #                "L1_XE35", "L1_XE50",
