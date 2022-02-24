@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file PixelDigitization/EnergyDepositionTool.h
@@ -17,6 +17,7 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "HitManagement/TimedHitPtr.h"
+#include "BichselData.h"
 
 #include "PixelConditionsData/PixelDistortionData.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -34,15 +35,7 @@ namespace CLHEP{
 }
 class SiHit;
 
-//=============================
-// C U S T O M   S T R U C T
-//=============================
-struct BichselData {
-  std::vector<double> Array_BetaGammaLog10;
-  std::vector<std::vector<double> > Array_BetaGammaLog10_ColELog10;  // ColE = CollisionEnergy in eV
-  std::vector<std::vector<double> > Array_BetaGammaLog10_IntXLog10;  // IntX = Integrated Xsection. The unit doesn't matter
-  std::vector<double> Array_BetaGammaLog10_UpperBoundIntXLog10;      // upper bound of log10(IntX)
-};
+
 
 //====================
 //  C L A S S   D E F
@@ -62,8 +55,7 @@ public:
                                                      double InciEnergy, CLHEP::HepRandomEngine* rndmEngine) const;   // output hit record in the format (hit position, energy loss)
 
   std::vector<std::pair<double, double> > ClusterHits(std::vector<std::pair<double, double> >& rawHitRecord,
-                                                      int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
-  static int trfPDG(int pdgId) ;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
+                                                      int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)                                                            
 
   virtual StatusCode depositEnergy(const TimedHitPtr<SiHit>& phit, const InDetDD::SiDetectorElement& Module,
                                    std::vector<std::pair<double, double> >& trfHitRecord,
@@ -137,14 +129,7 @@ private:
 private:
   void simulateBow(const InDetDD::SiDetectorElement* element, double& xi, double& yi, const double zi, double& xf,
                    double& yf, const double zf) const;
-  static std::pair<int, int> FastSearch(std::vector<double> vec, double item) ;               // A quick implementation of binary search in 2D table
-  static std::pair<int, int> GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) ; // get beta-gamma index. This is so commonly used by other functions that a caching would be beneficial
-  static double GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) ;       // return ColE NOT ColELog10
                                                                                            // ! unit is eV
-  static double GetColE(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) ;       // return ColE NOT ColELog10 ! unit is eV
-  static double GetUpperBound(double BetaGammaLog10, BichselData& iData) ;                   // return IntX upper bound
-  static double GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) ;// return IntX upper bound
-  static void SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) ; // return (-1,-1) which indicates failure in running BichselSim
 };
 
 #endif //PIXELDIGITIZATION_EnergyDepositionTool_H
