@@ -155,12 +155,16 @@ def putBoxMdtRegional(h, xAxis):
         h.GetListOfFunctions().Add(ly)
 
 
-def putBoxMdtGlobal(h, ecap):
+def putBoxMdtGlobal(h, ecap, run3):
     if(ecap == "B"):
         offset = 8
         # Left Side
         putBox(h, 0, 0, 6, 16, offset); putLine(h, 6, 0, 6, 16, offset); putLine(h, 2, 16, 6, 16, offset)
-        putBox(h, 0, 16, 2, 18, offset); putLine(h, 2, 16, 2, 18, offset); putLine(h, 0, 18, 2, 18, offset)
+        putBox(h, 0, 16, 2, 18, offset); putLine(h, 2, 16, 2, 18, offset)
+        if run3==0:
+            putLine(h, 0, 18, 2, 18, offset)
+        elif run3==1:
+            putLine(h, 1, 18, 2, 18, offset)
         putBox(h, 0, 20, 2, 22, offset); putLine(h, 2, 20, 2, 22, offset); putLine(h, 0, 20, 2, 20, offset); putLine(h, 0, 22, 2, 22, offset)  # 3
         putBox(h, 0, 24, 2, 26, offset); putLine(h,2,24,2,26,offset); putLine(h, 0, 24, 2, 24, offset); putLine(h, 0, 26, 2, 26, offset)  # 5
         putBox(h, 0, 28, 2, 30, offset); putLine(h,2,28,2,30,offset); putLine(h,0,28,2,28,offset); putLine(h,0,30,2,30,offset)  # 7
@@ -170,9 +174,17 @@ def putBoxMdtGlobal(h, ecap):
         putBox(h, 0, 42, 2, 44, offset);  putLine(h,0,42,2,42,offset); putLine(h,2,42,2,44,offset); putLine(h,0,44,2,44,offset)  # 13
         putBox(h, 0, 46, 3, 48, offset);  putLine(h,3,46,3,48,offset); putLine(h,0,46,3,46,offset); putLine(h,2,48,3,48,offset)  # 15M
         putBox(h, 0, 48, 2, 50, offset);  putLine(h,2,48,2,50,offset); putLine(h,0,50,2,50,offset)  # 15R
-        putBox(h, 0, 52, 2, 106, offset); putLine(h,0,52,2,52,offset); putLine(h,0,106,2,106,offset)
+        putBox(h, 0, 52, 2, 106, offset)
+        if run3==0 :
+            putLine(h,0,52,2,52,offset)
+        elif run3==1 :
+            putLine(h,1,52,2,52,offset)
+
+        putLine(h,0,106,2,106,offset)
         putBox(h, 0, 108, 1, 110, offset); putLine(h,1,108,1,110,offset); putLine(h,0,108,1,108,offset); putLine(h,0,110,1,110,offset)
         putBox(h, 0, 112, 2, 116, offset); putLine(h,2,112,2,116,offset); putLine(h,0,112,2,112,offset)
+        if run3==1:
+            putBox(h, -8, 18, -7, 52, 0)
 
         putLine(h,2,52,2,106,offset)
 
@@ -183,7 +195,11 @@ def putBoxMdtGlobal(h, ecap):
 
         # Right Side
         putBox(h, 11, 0, 17, 16, offset);     putLine(h,11,0,11,16, offset); putLine(h,11,16,15,16, offset)
-        putBox(h, 15, 16, 17, 18, offset);  putLine(h,15,16,15,18, offset); putLine(h,15,18,17,18, offset)  # 1
+        putBox(h, 15, 16, 17, 18, offset);  putLine(h,15,16,15,18, offset)
+        if run3==0:
+            putLine(h,15,18,17,18, offset)  # 1
+        elif run3==1:
+            putLine(h,15,18,16,18, offset)  # 1
         putBox(h, 15, 20, 17, 22, offset);  putLine(h,15,20,15,22, offset); putLine(h,15,20,17,20, offset); putLine(h,15,22,17,22, offset)  # 3
         putBox(h, 15, 24, 17, 26, offset);  putLine(h,15,24,15,26, offset); putLine(h,15,24,17,24, offset); putLine(h,15,26,17,26, offset)  # 5
         putBox(h, 15, 28, 17, 30, offset);  putLine(h,15,28,15,30, offset); putLine(h,15,28,17,28, offset); putLine(h,15,30,17,30, offset)  # 7
@@ -193,9 +209,17 @@ def putBoxMdtGlobal(h, ecap):
         putBox(h, 15, 42, 17, 44, offset);    putLine(h,15,42,15,44, offset); putLine(h,15,42,17,42, offset); putLine(h,15,44,17,44, offset)  # 13
         putBox(h, 14, 46, 17, 48, offset);    putLine(h,14,46,14,48, offset); putLine(h,14,46,17,46, offset); putLine(h,14,48,15,48, offset)  # 15M
         putBox(h, 15, 48, 17, 50, offset);    putLine(h,15,48,15,50, offset); putLine(h,15,50,17,50, offset)  # 15R
-        putBox(h, 15, 52, 17, 106, offset);  putLine(h,15,52,17,52, offset); putLine(h,15,106,17,106, offset)
+        putBox(h, 15, 52, 17, 106, offset)
+        if run3==0:
+            putLine(h,15,52,17,52, offset)
+        elif run3==1:
+            putLine(h,15,52,16,52, offset)
+        putLine(h,15,106,17,106, offset)
         putBox(h, 16, 108, 17, 110, offset);   putLine(h,16,108,16,110, offset); putLine(h,16,108,17,108, offset); putLine(h,16,110,17,110, offset)
         putBox(h, 15, 112, 17, 116, offset);   putLine(h,15,112,15,116, offset); putLine(h,15,112,17,112, offset)
+
+        if run3==1:
+            putBox(h, 8, 18, 9, 52, 0)
 
         putLine(h,15,52,15,106, offset)
 
