@@ -5,6 +5,8 @@
 #==============================================================
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def AFP_LocReco_SiD_Cfg(kwargs={}):
@@ -62,12 +64,18 @@ def AFP_LocReco_TD_Cfg(kwargs={}):
 	1500, 1500, 1500, 1500,
 	1500, 1500, 1500, 1500]
 	basicTool0 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool0", stationID=0, maxAllowedLength=1500, TimeOffset=TimeOffset0, BarWeight=BarWeight, **kwargs)
+	
+	if ConfigFlags.Input.Format is Format.POOL and "AFPToFHitContainer" not in ConfigFlags.Input.Collections:
+		basicTool0.AFPToFHitClusterContainerKey=""
 
 	TimeOffset3 = [1500, 1500, 1500, 1500,
 	1500, 1500, 1500, 1500,
 	1500, 1500, 1500, 1500,
 	1500, 1500, 1500, 1500]
 	basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=1500, TimeOffset=TimeOffset3, BarWeight=BarWeight, **kwargs)
+
+	if ConfigFlags.Input.Format is Format.POOL and "AFPToFHitContainer" not in ConfigFlags.Input.Collections:
+		basicTool3.AFPToFHitClusterContainerKey=""
 
 	basicToolsList=[basicTool0, basicTool3]
 
