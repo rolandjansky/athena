@@ -1,4 +1,6 @@
-
+/*
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+ */
 #include "LArHitEMapToDigitAlg.h"
 #include "AthenaKernel/ITriggerTime.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
