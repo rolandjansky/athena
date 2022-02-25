@@ -272,7 +272,11 @@ def json_chains( slice ) :
         return None
         
     with open(json_fullpath) as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            print(f"Failed to load json file {json_fullpath}")
+            raise e
 
     chainmap = data[slice]
 
