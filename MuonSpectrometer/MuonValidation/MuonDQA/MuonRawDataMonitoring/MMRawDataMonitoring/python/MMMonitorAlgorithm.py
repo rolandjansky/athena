@@ -3,7 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from .MMMonUtils import getMMLabel
+from .MMMonUtils import getMMLabel, getMMLabelY
 
 def MMMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
@@ -123,12 +123,13 @@ def MMMonitoringConfig(inputFlags):
                 elif (isector=="MML"):
                     phi16=2*phi
 
+
                 title_MMSummary="Number of strips per cluster,"+iside+" "+isector+" stPhi "+str(phi)   
                 var="sector_strip_"+iside+"_"+isector+"_phi"+str(phi)+",strip_number_"+iside+"_"+isector+"_phi"+str(phi)+";Strip_number_pergap_"+iside+"_"+isector+"stPhi"+str(phi)
                 mmSideGroup.defineHistogram(var, type='TH2F', title=title_MMSummary+"; ;Strip Number",      
                                             path='Number_of_strips_percluster_perPhiSector',   xbins=16, xmin=0, xmax=16, xlabels=thisLabelx11, ybins=5120, ymin=0., ymax=5120.)
-
-                mmSideGroup.defineHistogram('lb_mon,sector_lb_'+iside+'_phi'+str(phi16)+';Occupancy_lb_'+iside+'_phi'+str(phi16), type='TH2F', title="Occupancy wrt lb per PCB", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically',  ybins=63, ymin=0., ymax=63.)# , opt='kAddBinsDynamically')                      
+                thisLabely=getMMLabelY("y_lab_occ_lb")
+                mmSideGroup.defineHistogram('lb_mon,sector_lb_'+iside+'_phi'+str(phi16)+';Occupancy_lb_'+iside+'_phi'+str(phi16), type='TH2F', title="Occupancy wrt lb per PCB; LB; ", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically',  ybins=64, ymin=0., ymax=64,  ylabels=thisLabely)
 
                 for eta in etasector:
                     maxpcb=5
