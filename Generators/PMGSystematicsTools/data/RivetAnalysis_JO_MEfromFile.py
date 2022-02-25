@@ -27,12 +27,9 @@ if '/Generation/Parameters' in metadata:
     else:
         print('HepMCWeightName not found in /Generation/Parameters:')
         print(genpars)
-        #raise RuntimeError('HepMCWeightName not found in /Generation/Parameters. Exiting...')
 else:
     print('/Generation/Parameters not found in metadata:')
     print(metadata)
-    #raise RuntimeError('/Generation/Parameters not found in metadata. Exiting...')
-
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
