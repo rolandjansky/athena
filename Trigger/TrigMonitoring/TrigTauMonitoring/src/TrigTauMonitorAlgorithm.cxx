@@ -1025,9 +1025,9 @@ TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string& trigger) const{
 void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
 { 
 
-  std::string idwp="",type="",l1item="",l1type="";
+  std::string type="",l1item="";
   float hlthr=0.,electhr=0.,muthr=0.,l1thr=0.;
-  bool isRNN=false,isPerf=false,isL1=false,isDiTau=false,isTAndP=false,hasElectron=false,hasMuon=false;
+  bool isL1=false,isDiTau=false,isTAndP=false,hasElectron=false,hasMuon=false;
 
   size_t l=trigger.length();
   size_t pos=trigger.find('_');
@@ -1051,11 +1051,6 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
   //If lepton+tau trigger use tau threshold
   else if(hasElectron) {hlthr = std::stof(names[4].substr(3,names[4].length()));electhr = std::stof(names[1].substr(1,names[1].length()));}
   else if(hasMuon) {hlthr = std::stof(names[3].substr(3,names[4].length()));muthr = std::stof(names[1].substr(2,names[1].length()));}
- 
-  idwp=names[2];
-
-  if(idwp=="perf" || idwp=="idperf") isPerf=true;
-  else if(idwp.find("RNN")!=std::string::npos) isRNN=true;
 
   if(names[0].find("L1")!=std::string::npos) isL1=true;
 
@@ -1095,7 +1090,7 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
       else if(trigger.find("ivarmedium")!=std::string::npos) hasMuon = true;
   }  
 
-  TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isPerf,hlthr,l1thr,false,isDiTau,isTAndP,hasElectron,hasMuon,electhr,muthr};
+  TrigInfo info{trigger,l1item,type,isL1,hlthr,l1thr,false,isDiTau,isTAndP,hasElectron,hasMuon,electhr,muthr};
 
   m_trigInfo[trigger] = info;
 }
