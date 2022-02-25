@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from ..Menu.SignatureDicts import METChainParts_Default
-from ..Menu.MenuComponents import (
+from ..Config.MenuComponents import (
     RecoFragmentsPool,
     ChainStep,
     MenuSequence,

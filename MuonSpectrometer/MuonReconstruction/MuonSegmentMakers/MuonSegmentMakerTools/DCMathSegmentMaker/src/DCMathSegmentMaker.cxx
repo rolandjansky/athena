@@ -2341,6 +2341,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
             bool isMdt = m_idHelperSvc->isMdt(id);
             bool measuresPhi = m_idHelperSvc->measuresPhi(id);
             if (isMdt) {
+                lpos.setZero();
                 const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*it);
                 if (!mdt) continue;
                 TubeEnds tubeEnds = localTubeEnds(*mdt, gToSegment, segmentToGlobal);

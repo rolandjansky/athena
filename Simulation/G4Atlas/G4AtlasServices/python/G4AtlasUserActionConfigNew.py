@@ -1,23 +1,25 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon.SystemOfUnits import MeV
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
-from AthenaCommon.SystemOfUnits import MeV
-from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
+from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
+from G4AtlasApps.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
+from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
     AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg,
-    LooperKillerToolCfg, G4SimTimerToolCfg, G4TrackCounterToolCfg,
-    StoppedParticleActionToolCfg, HitWrapperToolCfg
-)
-from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
-from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
-from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
-from ISF_Services.ISF_ServicesConfigNew import (
-    TruthServiceCfg, ParticleBrokerSvcCfg, AFIIParticleBrokerSvcCfg
+    G4SimTimerToolCfg, G4TrackCounterToolCfg, HitWrapperToolCfg,
+    LooperKillerToolCfg, StoppedParticleActionToolCfg
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
-from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
+from ISF_Services.ISF_ServicesCoreConfigNew import AFIIGeoIDSvcCfg, GeoIDSvcCfg
+from ISF_Services.ISF_ServicesConfigNew import (
+    AFIIParticleBrokerSvcCfg, ParticleBrokerSvcCfg, TruthServiceCfg
+)
+from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
+from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
+
 
 def OptionalUserActionCfg(flags):
     """ flags.Sim.OptionalUserActionList = ['G4UserActions.G4UserActionsConfigNew.FixG4CreatorProcessToolCfg']"""
@@ -45,7 +47,7 @@ def getOptionalUACfg(flags, userActionString):
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ['FullG4MT', 'FullG4MT_QS']:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.FullG4MT, SimulationFlavour.FullG4MT_QS]:
         tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
     else:
         tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))
@@ -82,16 +84,16 @@ def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTo
 
 
 def PassBackG4TrackProcessorUserActionToolCfg(flags, name="PassBackG4TrackProcessorUserActionTool", **kwargs):
-    if flags.Sim.ISF.Simulator in ["PassBackG4MT"]:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.PassBackG4MT]:
         kwargs.setdefault("ParticleBroker", "")
     return TrackProcessorUserActionToolCfg(flags, name, **kwargs)
 
 
 def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.PassBackG4MT, SimulationFlavour.ATLFASTIIMT, SimulationFlavour.ATLFAST3MT, SimulationFlavour.ATLFAST3MT_QS]:
         kwargs.setdefault("ParticleBroker", "")
-    if flags.Sim.ISF.Simulator in ["ATLFASTIIF_G4MS", "ATLFAST3F_G4MS"]:
+    elif flags.Sim.ISF.Simulator in [SimulationFlavour.ATLFASTIIF_G4MS, SimulationFlavour.ATLFAST3F_G4MS]:
         kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
     kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name)
     kwargs.setdefault("PassBackEkinThreshold", 0.05*MeV)
@@ -119,7 +121,7 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge(G4TrackCounterToolCfg(ConfigFlags))]
 
     # Cosmic Perigee action
-    if ConfigFlags.Beam.Type is BeamType.Cosmics and ConfigFlags.Sim.CavernBG == "Off":
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and ConfigFlags.Sim.CavernBackground is CavernBackground.Off:
         actions += [CompFactory.G4UA.CosmicPerigeeActionTool()]
     # Cosmic filter
     if ConfigFlags.Beam.Type is BeamType.Cosmics and not ConfigFlags.Sim.ISFRun:
@@ -128,13 +130,13 @@ def getDefaultActions(ConfigFlags):
         actions += [result.popToolsAndMerge(StoppedParticleFilterToolCfg(ConfigFlags)),
                     result.popToolsAndMerge(StoppedParticleActionToolCfg(ConfigFlags))]
     # Hit wrapper action
-    if ConfigFlags.Sim.CavernBG == "Read":
+    if ConfigFlags.Sim.CavernBackground is CavernBackground.Read:
         actions += [result.popToolsAndMerge(HitWrapperToolCfg(ConfigFlags))]
     # Photon killer
     if ConfigFlags.Sim.PhysicsList == "QGSP_BERT_HP":
         actions += [CompFactory.G4UA.PhotonKillerTool()]
     # Calo calibration default processing
-    if ConfigFlags.Sim.CalibrationRun == "LAr+Tile":
+    if ConfigFlags.Sim.CalibrationRun is CalibrationRun.LArTile:
         actions += [result.popToolsAndMerge(CalibrationDefaultProcessingToolCfg(ConfigFlags))]
 
     actions += [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))]

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -109,6 +109,9 @@ class TrigTauMonAlgBuilder:
 
       def isDiTau(self):
         return True if ( self.chain().count('tau') == 2 and '03dRAB' in self.chain()) else False
+
+      def isTAndP(self):
+        return True if ( ("ivarloose" in self.chain() or "ivarmedium" in self.chain()) and '03dRAB' in self.chain()) else False
 
     return TrigTauInfo(trigger)
 
@@ -221,6 +224,9 @@ class TrigTauMonAlgBuilder:
        'HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20',
        'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25',
        'HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20',
+       # Tag and probe
+       'HLT_e26_lhtight_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRAB_L1EM22VHI',
+       'HLT_mu26_ivarmedium_tau20_mediumRNN_tracktwoMVA_03dRAB_L1MU14FCH',
        # Phase-I
        'HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20',
        'HLT_tau25_perf_tracktwoMVABDT_L1eTAU20', 
@@ -279,8 +285,10 @@ class TrigTauMonAlgBuilder:
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
       self.bookHLTEffHistograms( monAlg, trigger,nProng='3P')
 
-      self.bookTruth( monAlg, trigger )
-      self.bookTruthEfficiency( monAlg, trigger )
+      self.bookTruth( monAlg, trigger, nProng='1P')
+      self.bookTruth( monAlg, trigger, nProng='3P')
+      self.bookTruthEfficiency( monAlg, trigger, nProng='1P')
+      self.bookTruthEfficiency( monAlg, trigger, nProng='3P')
 
       self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True ) 
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
@@ -295,6 +303,10 @@ class TrigTauMonAlgBuilder:
       if(info.isDiTau()):
         self.bookDiTauVars(monAlg, trigger)   
         self.bookDiTauHLTEffHistograms(monAlg, trigger)
+
+      if(info.isTAndP()):
+        self.bookTAndPVars(monAlg, trigger)
+        self.bookTAndPHLTEffHistograms(monAlg, trigger)
 
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
@@ -351,6 +363,30 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('dEta',' dEta(#tau,#tau)',20,0,4)
     defineEachStepHistograms('dPhi',' dPhi(#tau,#tau)',8, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
+  #
+  # Booking TAndP efficiencies
+  #
+
+  def bookTAndPHLTEffHistograms(self, monAlg, trigger):
+  
+    monGroupName = trigger+'_TAndPHLT_Efficiency'
+    monGroupPath = 'TAndPHLT_Efficiency/'+trigger+'/TAndPHLT_Efficiency'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_TAndPHLTpass,'+monGroupName+'_'+xvariable+';EffTAndPHLT_'+xvariable+'_wrt_Offline',
+                                title='TAndP HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('dR',' dR(#tau,lep)',20,0,4)
+    defineEachStepHistograms('dEta',' dEta(#tau,lep)',20,0,4)
+    defineEachStepHistograms('dPhi',' dPhi(#tau,lep)',8, -3.2, 3.2)
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
 
   #
   # Booking L1 efficiencies
@@ -533,10 +569,28 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('M', title='M(#tau,#tau);M_{#tau,#tau};Nevents',xbins=50,xmin=0,xmax=250)
     monGroup.defineHistogram('dPt', title='dPt |leading-subleading|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)  
 
-  def bookTruth( self, monAlg, trigger):
+  def bookTAndPVars(self, monAlg, trigger):
 
-    monGroupName = trigger+'EFVsTruth'
-    monGroupPath = 'EFVsTruth/'+trigger 
+    monGroupName = trigger+"_TAndPVars"
+    monGroupPath = 'TAndPVars/'+trigger
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('hdR', title='EF dR(#tau,lep);dR(#tau,lep);Nevents',xbins=40,xmin=0,xmax=4)
+    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,lep);dEta(#tau,lep);Nevents',xbins=40,xmin=0,xmax=4)
+    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,lep);dPhi(#tau,lep);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+
+    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('Eta', title='Eta DiTau;Eta;Nevents',xbins=26,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('Phi', title='Phi DiTau;Phi;Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('M', title='M(#tau,lep) DiTau;M_{#tau,lep};Nevents',xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('dPt', title='dPt |lep-#tau|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)
+
+  def bookTruth( self, monAlg, trigger, nProng):
+
+    monGroupName = trigger+'_EFVsTruth_'+nProng
+    monGroupPath = 'EFVsTruth/'+trigger+'/EFVsTruth_'+nProng 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
@@ -548,17 +602,17 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('eta_vis', title='Eta_vis Value; #eta_{vis};Nevents', xbins=26,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('phi_vis', title='Phi_vis Value; #phi_{vis}; Nevents', xbins=16,xmin=-3.2,xmax=3.2)
 
-  def bookTruthEfficiency( self, monAlg, trigger):
+  def bookTruthEfficiency( self, monAlg, trigger, nProng):
   
-    monGroupName = trigger+'Truth_Efficiency'
-    monGroupPath = 'Truth_Efficiency/'+trigger
+    monGroupName = trigger+'_Truth_Efficiency_'+nProng
+    monGroupPath = 'Truth_Efficiency/'+trigger+'/Truth_Efficiency_'+nProng
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
   
     def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
 
        monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Truth',
-                                title='HLT Efficiency ' +trigger+' ;'+xlabel+';Efficiency',
+                                title='HLT Efficiency ' +trigger+' ' +nProng+ ';'+xlabel+';Efficiency',
                                 type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
 
     defineEachStepHistograms('pt_vis', 'Pt_{vis} [GeV]', 60, 0.0, 300.)

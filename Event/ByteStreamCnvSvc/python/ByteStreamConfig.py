@@ -48,12 +48,15 @@ def ByteStreamReadCfg(flags, type_names=None):
     bytestream_conversion = comp_factory.ByteStreamCnvSvc()
     result.addService(bytestream_conversion)
 
-    bytestream_input = comp_factory.ByteStreamEventStorageInputSvc(
-        name="ByteStreamInputSvc",
-        EventInfoKey="{}EventInfo".format(
-            flags.Overlay.BkgPrefix if flags.Overlay.DataOverlay else ""
-        ),
-    )
+    if flags.Common.isOnline and not any(flags.Input.Files) and not (flags.Trigger.doHLT or flags.Trigger.doLVL1):
+        bytestream_input = comp_factory.ByteStreamEmonInputSvc("ByteStreamInputSvc")
+    else:
+        bytestream_input = comp_factory.ByteStreamEventStorageInputSvc(
+            name="ByteStreamInputSvc",
+            EventInfoKey="{}EventInfo".format(
+                flags.Overlay.BkgPrefix if flags.Overlay.DataOverlay else ""
+            ),
+        )
     result.addService(bytestream_input)
 
     if flags.Input.SecondaryFiles:

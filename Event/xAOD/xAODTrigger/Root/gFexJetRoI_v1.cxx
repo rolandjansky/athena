@@ -19,8 +19,8 @@ namespace xAOD {
   const float gFexJetRoI_v1::s_gRhotobEtScale = 50.; //50 MeV is the energy resolution for large-R jets (gJets) TOBs
   const float gFexJetRoI_v1::s_gJtobEtScale = 800.; //800 MeV is the energy resolution for small-R jets (gBlocks) TOBs
   const float gFexJetRoI_v1::s_gLJtobEtScale = 1600.; //1600 MeV is the energy resolution for large-R jets (gJets) TOBs
-  const float gFexJetRoI_v1::s_centralPhiWidth = M_PI/32; ///Phi is 32-bit starting from 0 with steps of 0.2; gPhi = 0 is 0.0 < phi < 0.2 while gPhi = 31 is 6.2 < phi < 6.4 
-  const float gFexJetRoI_v1::s_forwardPhiWidth = M_PI/16; ///Phi is 32-bit starting from 0 with steps of 0.4; gPhi = 0 is 0.0 < phi < 0.4 while gPhi = 15 is 6.2 < phi < 6.4 
+  const float gFexJetRoI_v1::s_centralPhiWidth = (2*M_PI)/32; //In central region, gFex has 32 bins in phi
+  const float gFexJetRoI_v1::s_forwardPhiWidth = (2*M_PI)/16; //In forward region, gFex has 16 bins in phi
   const std::vector<float> gFexJetRoI_v1::s_EtaEdge     = { -4.9, -4.45, -4.0, -3.5, -3.3, -3.1, 
                                                             -2.9, -2.7, -2.5, -2.2, -2.0, -1.8, -1.6, -1.4, -1.2, -1.0,  
                                                             -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0,                                                 
@@ -36,215 +36,244 @@ namespace xAOD {
 
   //vector<float> gFexJetRoI_v1::s_maxEta = {}; 
 
-   gFexJetRoI_v1::gFexJetRoI_v1()
-      : SG::AuxElement() {
+  gFexJetRoI_v1::gFexJetRoI_v1()
+    : SG::AuxElement() {
 
-   }
+  }
 
-   void gFexJetRoI_v1::initialize( uint32_t word ) {
+  void gFexJetRoI_v1::initialize( uint32_t word ) {
 
-      setWord( word );
-      setgFexType(unpackType());
-      setTobEt( unpackEtIndex() );
-      setEta( unpackEtaIndex() );
-      setPhi( unpackPhiIndex() );
-      setStatus( unpackStatus());
-      setSaturated(unpackSaturated());
+    setWord( word );
+    setgFexType(unpackType());
+    setTobEt( unpackEtIndex() );
+    setEta( unpackEtaIndex() );
+    setPhi( unpackPhiIndex() );
+    setStatus( unpackStatus());
+    setSaturated(unpackSaturated());
 
-   }
+  }
 
 
-   /// Raw data words
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint32_t, word,
+  /// Raw data words
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint32_t, word,
                                          setWord )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, saturated,
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, saturated,
                                          setSaturated )
 
-   /// Only calculable externally
-   ///eFex puts here RetaCore, RetaEnv, RhadEM, RhadHad, WstotNumerator etc (coming from algorithms)
+  /// Only calculable externally
+  ///eFex puts here RetaCore, RetaEnv, RhadEM, RhadHad, WstotNumerator etc (coming from algorithms)
    
-   /// Extracted from data words
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, int, gFexType,
+  /// Extracted from data words
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, int, gFexType,
                                          setgFexType )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint16_t, tobEt,
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint16_t, tobEt,
                                          setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, iEta,
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, iEta,
                                          setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, iPhi,
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, iPhi,
                                          setPhi )
 
-   uint8_t gFexJetRoI_v1::status() const {
-   static const Accessor< uint8_t > acc( "gFexJetStatus" );
-   return acc( *this );                                   
-   }
-   void gFexJetRoI_v1::setStatus ( uint8_t value ) {
-      static const Accessor< uint8_t > acc( "gFexJetStatus" );
-      acc( *this ) = value;
-      return;
-   }
+  uint8_t gFexJetRoI_v1::status() const {
+  static const Accessor< uint8_t > acc( "gFexJetStatus" );
+  return acc( *this );                                   
+  }
+  void gFexJetRoI_v1::setStatus ( uint8_t value ) {
+     static const Accessor< uint8_t > acc( "gFexJetStatus" );
+     acc( *this ) = value;
+    return;
+  }
 
 
-   /// Methods to decode data from the TOB/RoI and return to the user
+  // Methods to decode data from the TOB/RoI and return to the user
 
 
-   /// Object disambiguation ()
-   int gFexJetRoI_v1::unpackType() const {
-     auto tobID = (word() >> s_tobIDBit) & s_tobIDMask;
-     if (tobID == 0 ){
+  // Object disambiguation ()
+  int gFexJetRoI_v1::unpackType() const {
+    auto tobID = (word() >> s_tobIDBit) & s_tobIDMask;
+    if (tobID == 0 ){
       return gRho;
-     }  
-     else if (tobID == 1 || tobID == 2) {
-       return gBlockLead;
-     } 
-     else if (tobID == 3 || tobID == 4 ) {
-       return gBlockSub;
-     }      
-     else if (tobID == 5 || tobID == 6) {
+    }  
+    else if (tobID == 1 || tobID == 2) {
+      return gBlockLead;
+    } 
+    else if (tobID == 3 || tobID == 4 ) {
+      return gBlockSub;
+    }      
+    else if (tobID == 5 || tobID == 6) {
       return gJet;
-     }  
-     else return -999;
-   }
+    }  
+    else return -999;
+  }
 
-   bool gFexJetRoI_v1::isgBlockLead() const {
-     return gFexType() == gBlockLead;
-   }
+  bool gFexJetRoI_v1::isgBlockLead() const {
+    return gFexType() == gBlockLead;
+  }
 
-   bool gFexJetRoI_v1::isgBlockSub() const {
-     return gFexType() == gBlockSub;
-   }
+  bool gFexJetRoI_v1::isgBlockSub() const {
+    return gFexType() == gBlockSub;
+  }
 
-   bool gFexJetRoI_v1::isgJet() const {
-     return gFexType() == gJet;
-   }
+  bool gFexJetRoI_v1::isgJet() const {
+    return gFexType() == gJet;
+  }
 
-   bool gFexJetRoI_v1::isgRho() const {
-     return gFexType() == gRho;
-   }
+  bool gFexJetRoI_v1::isgRho() const {
+    return gFexType() == gRho;
+  }
 
 
-   unsigned int gFexJetRoI_v1::unpackStatus() const{
+  unsigned int gFexJetRoI_v1::unpackStatus() const{
     return (word() >> s_statusBit) & s_statusMask;
-   }
+  }
 
-   unsigned int gFexJetRoI_v1::unpackSaturated() const{
+  unsigned int gFexJetRoI_v1::unpackSaturated() const{
     return (word() >> s_saturBit) & s_saturMask;
-   }
+  }
     
 
-   /// Raw ET on TOB scale (3200 MeV/count)
-   unsigned int gFexJetRoI_v1::unpackEtIndex() const {
-    // Data content = TOB
-    return (word() >> s_etBit) & s_etMask;
+  // Raw ET on TOB scale (3200 MeV/count)
+  unsigned int gFexJetRoI_v1::unpackEtIndex() const {
+  // Data content = TOB
+    return (word() >> s_etBit) & s_etMask; 
+  }
+
+  // Return an eta index in the range 0-49
+  unsigned int gFexJetRoI_v1::unpackEtaIndex() const {
+    return (word() >> s_etaBit) & s_etaMask;
+  }
    
-   }
+  // Return an eta index in the range 0-32
+  unsigned int gFexJetRoI_v1::unpackPhiIndex() const {
+    return (word() >> s_phiBit) & s_phiMask;
 
-   /// Return an eta index in the range 0-49
-   unsigned int gFexJetRoI_v1::unpackEtaIndex() const {
-     return (word() >> s_etaBit) & s_etaMask;
+  }
 
-   }
-   
-   /// Return an eta index in the range 0-32
-   unsigned int gFexJetRoI_v1::unpackPhiIndex() const {
-     return (word() >> s_phiBit) & s_phiMask;
+  // Methods that require combining results or applying scales
 
-   }
-
-   /// Methods that require combining results or applying scales
-
-   /// ET on TOB scale
-   float gFexJetRoI_v1::etMin() const {
-     if (gFexType() == gRho){
+  // ET on TOB scale
+  float gFexJetRoI_v1::etMin() const {
+    if (gFexType() == gRho){
       return tobEt()*s_gRhotobEtScale;
-     }
-     else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
+    }
+    else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
       return tobEt()*s_gJtobEtScale;
-     }
-     else {//if (gFexType() == gJet)
+    }
+    else {//if (gFexType() == gJet)
       return tobEt()*s_gLJtobEtScale;
-     }
-   }
+    }
+  }
 
-   float gFexJetRoI_v1::etMax() const {
-     if (gFexType() == gRho){
+  float gFexJetRoI_v1::etMax() const {
+    if (gFexType() == gRho){
       return tobEt()*s_gRhotobEtScale + s_gRhotobEtScale;
-     }
-     else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
+    }
+    else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
       return tobEt()*s_gJtobEtScale + s_gJtobEtScale;
-     }
-     else { //if (gFexType() == gJet)
+    }
+    else { //if (gFexType() == gJet)
       return tobEt()*s_gLJtobEtScale + s_gLJtobEtScale;
-     }
-   }
+    }
+  }
 
-   /// Floating point coordinates. Return the center of Eta. 
-   float gFexJetRoI_v1::eta() const {
-     if (gFexType() != gRho){
-         return s_EtaCenter[iEta()];
-     } 
-     return -999;
-
+  // Floating point coordinates. Return the center of Eta. 
+  float gFexJetRoI_v1::eta() const {
+    if (gFexType() != gRho){
+      return s_EtaCenter[iEta()];
+    } 
+    return -999;
    }
 
    /// Floating point coordinates. Return he minimum Eta and he maximum Eta of the Eta range. 
-   float gFexJetRoI_v1::etaMin() const {
-     if (gFexType() != gRho){
-         return s_EtaEdge[iEta()];
-     } 
-     return -999;
-
-   }
+  float gFexJetRoI_v1::etaMin() const {
+    if (gFexType() != gRho){
+      return s_EtaEdge[iEta()];
+    } 
+    return -999;
+  }
    
-   float gFexJetRoI_v1::etaMax() const {
-     if (gFexType() != gRho){
-       return s_EtaEdge[iEta()+1];
-     } 
-     return -999;
+  float gFexJetRoI_v1::etaMax() const {
+    if (gFexType() != gRho){
+      return s_EtaEdge[iEta()+1];
+    } 
+    return -999;
+  }
 
-   }
 
-   /// Floating point coordinates. 
-   float gFexJetRoI_v1::phi() const {
-     if (gFexType() != gRho){
-       if (( iEta() <= 5 ) || ( (iEta() >= 32) && (iEta() <= 37) )){
-        return (iPhi() * s_forwardPhiWidth) + (s_forwardPhiWidth/2);
-       }
-       else if ( iEta() > 6 && iEta() < 37 ){
-        return (iPhi() * s_centralPhiWidth) + s_centralPhiWidth/2;
-       } 
-       else return -999; 
-     } 
-     return -999; 
-   }
+  // Floating point coordinates using gFex convention [0, 2pi].
+  float gFexJetRoI_v1::phi_gFex() const {
+    float phi_out = -999;
+    if (gFexType() != gRho){
+      if (( iEta() <= 6 ) || ( (iEta() >= 33) )){
+        phi_out = (iPhi() * s_forwardPhiWidth) + (s_forwardPhiWidth/2);
+      }
+      else if ( iEta() >6  && iEta() < 33 ){
+        phi_out = (iPhi() * s_centralPhiWidth) + s_centralPhiWidth/2;
+      } 
+      else return -999; 
+    } 
+    return phi_out; 
+  }
 
-   /// Floating point coordinates. 
-   float gFexJetRoI_v1::phiMin() const {
-     if (gFexType() != gRho){
-       if (( iEta() <= 6 ) || ( (iEta() >= 32) && (iEta() <= 37) )){
-        return iPhi() * s_forwardPhiWidth;
-       }
-       else if ( iEta() > 6 && iEta() < 32 ){
-        return iPhi() * s_centralPhiWidth;
-       } 
-       else return -999; 
-     } 
-     return -999; 
-   }
 
-   float gFexJetRoI_v1::phiMax() const {
-     if (gFexType() != gRho){
-       if (( iEta() <= 6 ) || ( iEta() >= 32 && iEta() <= 37 )){
-        return iPhi() * s_forwardPhiWidth + s_forwardPhiWidth;
-       }
-       else if ( iEta() > 6 && iEta() < 32 ){
-        return iPhi() * s_centralPhiWidth + s_centralPhiWidth;
-       } 
-       else return -999; 
-     } 
-     return -999; 
-   }
+  // Floating point coordinates using gFex convention [0, 2pi]. 
+  float gFexJetRoI_v1::phiMin_gFex() const {
+    float phi_out = -999;
+    if (gFexType() != gRho){
+      if (( iEta() <= 6 ) || ( (iEta() >= 33) )){
+        phi_out = iPhi() * s_forwardPhiWidth;
+      }
+      else if ( iEta() > 6 && iEta() < 33 ){
+        phi_out = iPhi() * s_centralPhiWidth;
+      } 
+      else return -999; 
+    } 
+    return phi_out; 
+  }
 
-  
+  // Floating point coordinates using gFex convention [0, 2pi].
+  float gFexJetRoI_v1::phiMax_gFex() const {
+    float phi_out = -999;
+    if (gFexType() != gRho){
+      if (( iEta() <= 6 ) || ( iEta() >= 33  )){//&& iEta() <= 37
+        phi_out = iPhi() * s_forwardPhiWidth + s_forwardPhiWidth;
+      }
+      else if ( iEta() > 6 && iEta() < 33 ){
+        phi_out = iPhi() * s_centralPhiWidth + s_centralPhiWidth;
+      } 
+      else return -999; 
+    } 
+    return phi_out; 
+  }
+
+  // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  float gFexJetRoI_v1::phi() const {
+    float phi_out = -999;
+    if (gFexType() != gRho){
+      if (phi_gFex() < M_PI) phi_out = phi_gFex();
+      else phi_out = (phi_gFex() - 2*M_PI);
+    }
+    return phi_out; 
+  }
+
+  // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  float gFexJetRoI_v1::phiMax() const {
+    float phi_out = -999;
+    if (gFexType() != gRho){
+      if (phiMax_gFex() < M_PI) phi_out = phiMax_gFex();
+      else phi_out = (phiMax_gFex() - 2*M_PI);
+    }
+    return phi_out; 
+  }
+
+  // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  float gFexJetRoI_v1::phiMin() const {
+    float phi_out = -999;
+    if (gFexType() != gRho){
+      if (phiMin_gFex() < M_PI) phi_out = phiMin_gFex();
+      else phi_out = (phiMin_gFex() - 2*M_PI);
+    }
+    return phi_out; 
+  }
 
 
 } // namespace xAOD

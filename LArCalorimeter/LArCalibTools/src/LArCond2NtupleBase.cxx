@@ -79,6 +79,8 @@ StatusCode LArCond2NtupleBase::initialize() {
   ATH_CHECK(detStore()->retrieve(calo_id_manager,"CaloIdManager"));
 
   StatusCode sc;
+  ATH_CHECK(m_caloSuperCellMgrKey.initialize(m_realgeom && m_isSC));
+  ATH_CHECK(m_caloMgrKey.initialize(m_realgeom && !m_isSC));
   if ( m_isSC ){
     const LArOnline_SuperCellID* ll;
     sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
@@ -90,9 +92,6 @@ StatusCode LArCond2NtupleBase::initialize() {
       ATH_MSG_DEBUG("Found the LArOnlineID helper");
     }
     m_caloId = calo_id_manager->getCaloCell_SuperCell_ID();
-    if(m_realgeom) {
-      ATH_CHECK(m_caloSuperCellMgrKey.initialize());
-    }
   } else { // m_isSC
     const LArOnlineID* ll;
     sc = detStore()->retrieve(ll, "LArOnlineID");
@@ -104,9 +103,6 @@ StatusCode LArCond2NtupleBase::initialize() {
       ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
     m_caloId = calo_id_manager->getCaloCell_ID();
-    if(m_realgeom) {
-      ATH_CHECK(m_caloMgrKey.initialize());
-    }
   } // end of m_isSC if
 
   m_emId=m_caloId->em_idHelper();
@@ -138,14 +134,10 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   ATH_CHECK( m_BCKey.initialize() );
   /// do we need both of them at some point when data has both SC and cells?
-  if(m_isSC){
-    ATH_CHECK( m_cablingSCKey.initialize() );
-    ATH_CHECK( m_calibMapSCKey.initialize() );
-  }
-  else{
-    ATH_CHECK( m_cablingKey.initialize() );
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }
+  ATH_CHECK( m_cablingSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_calibMapSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_cablingKey.initialize(!m_isSC) );
+  ATH_CHECK( m_calibMapKey.initialize(!m_isSC) );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);

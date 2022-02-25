@@ -187,7 +187,6 @@ ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
 ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
-jobproperties.Beam.bunchSpacing = 25
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
@@ -256,6 +255,7 @@ setModifiers = ['noLArCalibFolders',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
                 'useOracle',
+                'BunchSpacing25ns',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -263,7 +263,6 @@ if ConfigFlags.Input.isMC:  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
-                     'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'useOnlineLumi',
                      #for running with real data
@@ -376,7 +375,7 @@ rec.doTruth = False
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.preSetup()
+    mod.preSetup(ConfigFlags)
 
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
@@ -403,6 +402,11 @@ if opt.strictDependencies:
 # Always enable magnetic field
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
+# But don't make the job think it is doing any sim+digi
+DetFlags.simulate.all_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
+
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
@@ -436,7 +440,8 @@ if ConfigFlags.Trigger.doCalo:
 
 
 if ConfigFlags.Trigger.doMuon:
-    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
+    CAtoGlobalWrapper(MuonCablingConfigCfg, ConfigFlags)
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
@@ -517,13 +522,21 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    def chainsToGenerate(signame, chain):
-        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
-                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
+    # Define as functor, to retain knowledge of the select/disableChains lists
+    class ChainsToGenerate(object):
+        def __init__(self,opt):
+            self.enabledSignatures  = opt.enabledSignatures
+            self.disabledSignatures = opt.disabledSignatures
+            self.selectChains       = opt.selectChains
+            self.disableChains      = opt.disableChains
+        def __call__(self, signame, chain):
+            return ((signame in self.enabledSignatures and signame not in self.disabledSignatures) and
+                (not self.selectChains or chain in self.selectChains) and chain not in self.disableChains)
 
+    chainsToGenerate = ChainsToGenerate(opt)
     menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
@@ -659,7 +672,7 @@ if ConfigFlags.Input.isMC:
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.postSetup()
+    mod.postSetup(ConfigFlags)
 
 #-------------------------------------------------------------
 # Print top sequence

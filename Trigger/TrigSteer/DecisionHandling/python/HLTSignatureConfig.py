@@ -3,7 +3,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from DecisionHandling.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 

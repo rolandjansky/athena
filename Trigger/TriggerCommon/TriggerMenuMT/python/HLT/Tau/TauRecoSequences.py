@@ -8,7 +8,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, ViewCreatorFetchFromViewROITool, ViewCreatorPreviousROITool
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
 import AthenaCommon.CfgMgr as CfgMgr
 
 
@@ -48,7 +48,7 @@ def _algoTauRoiUpdater(name, inputRoIs, clusters):
     return algo
 
 def _algoTauCaloOnlyMVA(name, inputRoIs, clusters):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnlyMVA
+    from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauCaloOnlyMVA
 
     algo                               = TrigTauRecMerged_TauCaloOnlyMVA(name="TrigTauRecMerged_TauCaloOnlyMVA")
     algo.RoIInputKey                   = inputRoIs
@@ -91,7 +91,7 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     return algo
 
 def _algoTauPrecision(name, inputRoIs, tracks):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
+    from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauPrecisionMVA
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     if "MVA" in name:

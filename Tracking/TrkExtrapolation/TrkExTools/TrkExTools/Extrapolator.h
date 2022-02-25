@@ -74,7 +74,7 @@ typedef std::vector<std::unique_ptr<Trk::TrackParameters>> TrackParametersUVecto
 typedef std::pair<const Surface*, BoundaryCheck> DestSurf;
 
 using TrackParmContainer = ObjContainer<Trk::TrackParameters>;
-using TrackParmPtr = ObjRef<>;
+using TrackParmPtr = ObjRef;
 using ManagedTrackParmPtr = ObjPtr<Trk::TrackParameters>;
 
 /** @struct ParametersAtBoundarySurface

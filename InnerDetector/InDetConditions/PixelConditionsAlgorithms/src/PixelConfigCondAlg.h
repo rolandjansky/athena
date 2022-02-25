@@ -173,7 +173,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  Run Number:             [240000-250000] 
     //                               
     // Barrel:                       
-    //  ToT:         [   3,   3,   3,   3,   3]
+    //  ToT:         [   -1,   -1,   -1,   -1,   -1]
     //  CrossTalk:   [0.06,0.06,0.06,0.06,0.06]
     //  NoiseOcc.:   [5e-8,5e-8,5e-8,5e-8,5e-8]
     //  DisalbePix:  [9e-3,9e-3,9e-3,9e-3,9e-3]
@@ -182,7 +182,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  Fluence(e14):[ 0.0, 0.0, 0.0, 0.0, 0.0]
     //                               
     // Endcap:                       
-    //  ToT:         [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3]
+    //  ToT:         [   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1]
     //  CrossTalk:   [0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06]
     //  NoiseOcc.:   [5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8]
     //  DisalbePix:  [9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3]
@@ -708,7 +708,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //====================================================================================
     // Barrel ITK
     Gaudi::Property<std::vector<int>> m_BarrelToTThresholdITK
-    {this, "BarrelToTThresholdITK", {3,3,3,3,3}, "ToT thresholds for barrel pixel layers in ITK"};
+    {this, "BarrelToTThresholdITK", {-1,-1,-1,-1,-1}, "ToT thresholds for barrel pixel layers in ITK"};
 
     Gaudi::Property<std::vector<float>> m_BarrelBiasVoltageITK
     {this, "DefaultBarrelBiasVoltageITK", {150.0,150.0,150.0,150.0,150.0}, "Default barrel bias voltage in ITK"};
@@ -748,7 +748,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     // Endcap ITK
     Gaudi::Property<std::vector<int>> m_EndcapToTThresholdITK
-    {this, "EndcapToTThresholdITK", {3,3,3,3,3,3,3,3,3,3,3,3,3,3}, "ToT thresholds for endcap pixel layers in ITK"};
+    {this, "EndcapToTThresholdITK", {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, "ToT thresholds for endcap pixel layers in ITK"};
 
     Gaudi::Property<std::vector<float>> m_EndcapBiasVoltageITK
     {this, "DefaultEndcapBiasVoltageITK", {150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0}, "Default endcap bias voltage in ITK"};

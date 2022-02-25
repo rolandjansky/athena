@@ -14,6 +14,13 @@ atlas_add_component( PixelDigitization
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel AthenaKernel PileUpToolsLib StoreGateLib GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry PixelReadoutGeometryLib SiDigitization InDetCondTools InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver InDetConditionsSummaryService )
 
+atlas_add_test( BichselData_test
+   SOURCES test/BichselData_test.cxx  src/BichselData.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils 
+   POST_EXEC_SCRIPT "nopost.sh" )
+
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/PixelDigitization_jobOptions.py share/PixelDigiTool_jobOptions.py )

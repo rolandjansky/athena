@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef ASSOCIATION_CONTEXT
@@ -12,9 +12,15 @@
  */
 
  class AssociationVectorIterator
-   : public std::iterator<std::bidirectional_iterator_tag, asso_type*>
  {
  public:
+   using iterator_category = std::bidirectional_iterator_tag;
+   using value_type = asso_type*;
+   using difference_type = std::ptrdiff_t;
+   using pointer = value_type*;
+   using reference = value_type&;
+
+   
    /*! \brief alternate constructor
     *
     * The alternate constructor is the only meaningful constructor. It requires

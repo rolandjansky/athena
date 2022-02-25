@@ -48,7 +48,7 @@ def primaryVertexFindingCfg(flags, **kwargs):
 
     # setup the finder alg
     InDetPriVxFinder = CompFactory.InDet.InDetPriVxFinder(
-        name=f"InDetPriVxFinder",
+        name="InDetPriVxFinder",
         doVertexSorting=True,
         VertexCollectionSortingTool=vertexSorter,
         VertexFinderTool=finderTool,
@@ -295,7 +295,7 @@ if __name__ == "__main__":
 
     printProperties(
         mlog,
-        acc.getEventAlgo(f"InDetPriVxFinder"),
+        acc.getEventAlgo("InDetPriVxFinder"),
         nestLevel=2,
         printDefaults=True,
     )

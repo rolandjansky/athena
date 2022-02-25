@@ -72,7 +72,7 @@ namespace Analysis {
     ATH_CHECK( m_TrackCollectionName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
-    ATH_CHECK( m_BTagSVCollectionName.initialize( (m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV") ) );
+    ATH_CHECK( m_BTagSVCollectionName.initialize( (m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV") || (m_secVertexFinderBaseName == "SV1Flip") ) );
     ATH_CHECK( m_BTagJFVtxCollectionName.initialize( (m_secVertexFinderBaseName == "JetFitter") || (m_secVertexFinderBaseName == "JetFitterFlip") ) );
     ATH_CHECK( m_jetSVLinkName.initialize() );
 
@@ -111,7 +111,7 @@ namespace Analysis {
     }
 
     /* Record the BTagging Secondary Vertex output container */
-    if ((basename == "SV1") || (basename == "MSV")) {
+    if ((basename == "SV1") ||(basename == "SV1Flip")  || (basename == "MSV")) {
       ATH_MSG_DEBUG("#BTAG# Record the BTagging Secondary Vertex output container");
       h_BTagSVCollectionName = SG::WriteHandle<xAOD::VertexContainer>(m_BTagSVCollectionName);
       ATH_CHECK( h_BTagSVCollectionName.record(std::make_unique<xAOD::VertexContainer>(),
@@ -196,7 +196,7 @@ namespace Analysis {
           }  
         }
       } 
-      else if(basename == "SV1")  { //SV1
+      else if(basename == "SV1" || basename == "SV1Flip")  { //SV1
         SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
         std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
         if(myVertexInfo != nullptr) {

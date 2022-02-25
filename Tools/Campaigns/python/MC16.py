@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+from G4AtlasApps.SimEnums import SimulationFlavour, TruthStrategy
 from LArConfiguration.LArConfigRun2 import LArConfigRun2PileUp, LArConfigRun2NoPileUp
 
 
@@ -65,7 +65,7 @@ def MC16NoPileUp(flags):
 def MC16Simulation(flags):
     """MC16 flags for simulation"""
     flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
-    flags.Sim.TruthStrategy = 'MC15aPlus'
+    flags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
 
     flags.Input.RunNumber = [284500]
     flags.Input.OverrideRunNumber = True
@@ -76,5 +76,5 @@ def MC16Simulation(flags):
 
     from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
-    if 'FullG4' in flags.Sim.ISF.Simulator:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.FullG4MT, SimulationFlavour.FullG4MT_QS]:
         enableFrozenShowersFCalOnly(flags)

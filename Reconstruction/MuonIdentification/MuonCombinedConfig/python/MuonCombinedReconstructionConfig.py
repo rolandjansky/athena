@@ -198,7 +198,7 @@ def MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidateAlg"
     
     #### Switch off the muon system extensions if we fit combined muons 
     #### The MuonInDetToSystemExtensionAlg will perform the system extensions then
-    kwargs.setdefault("ExtendBulk", not  flags.MuonCombined.doCombinedFit or flags.Muon.MuonTrigger)
+    kwargs.setdefault("ExtendBulk", not  flags.MuonCombined.doCombinedFit)
     
     ### FIX ME... Are the CaloExtensions already available in CA?
     if False and not flags.Muon.MuonTrigger:

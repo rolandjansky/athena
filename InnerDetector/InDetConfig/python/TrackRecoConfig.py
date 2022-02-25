@@ -165,6 +165,15 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
     result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
     return result
 
+def RecTrackParticleContainerCnvToolCfg(flags, name="RecTrackParticleContainerCnvTool", TrackParticleCreator = None):
+    result = ComponentAccumulator()
+    if TrackParticleCreator is None:
+        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
+    result.setPrivateTools(CompFactory.xAODMaker.RecTrackParticleContainerCnvTool(name,
+                                                                                  TrackParticleCreator=TrackParticleCreator,
+    ))
+    return result
+
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")

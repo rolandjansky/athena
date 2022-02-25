@@ -60,8 +60,6 @@ topSequence.NSWL1Simulation.DoStrip=True
 topSequence.NSWL1Simulation.UseLookup=False #use lookup table for the pad trigger
 topSequence.NSWL1Simulation.DoMM=True
 topSequence.NSWL1Simulation.DoMMDiamonds=True
-topSequence.NSWL1Simulation.NSWTrigRDOContainerName="NSWTRGRDO"
-topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
 
 #Toggle Ntuple making for Tools, if set to False for NSWL1Simulation, all the tools are set to False automatically as well
 topSequence.NSWL1Simulation.DoNtuple=True
@@ -69,7 +67,7 @@ topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
 topSequence.NSWL1Simulation.MMTriggerTool.DoNtuple=True
 
 #useful for validation of geometry and offline analyses
@@ -82,6 +80,20 @@ topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=INFO
+
+if MuonGeometryFlags.hasSTGC():
+  from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegSelCondAlg
+  from AthenaCommon.AlgSequence import AthSequencer
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  condseq = AthSequencer('AthCondSeq')
+  if not hasattr( condseq, "MuonDetectorCondAlg" ):
+    import MuonRecExample.MuonAlignConfig
+
+  if not hasattr( condseq, "RegSelCondAlg_sTGC" ):
+    condseq += sTGC_RegSelCondAlg(name = "RegSelCondAlg_sTGC", ManagerName = "sTGC", PrintTable  = False, RegSelLUT = "RegSelLUTCondData_sTGC")
+    tool = CompFactory.RegSelTool(name="RegSelTool_sTGC")
+    tool.RegSelLUT = "RegSelLUTCondData_sTGC"
+    tool.Initialised = True
 
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
@@ -101,15 +113,6 @@ if topSequence.NSWL1Simulation.DoNtuple:
     if not hasattr( ServiceMgr, "THistSvc" ):
         from GaudiSvc.GaudiSvcConf import THistSvc
         ServiceMgr += THistSvc()
-    ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='Monitoring.root' OPT='RECREATE'"];
-
-    if not hasattr( theApp.Dlls, "RootHistCnv" ):
-        theApp.Dlls += [ "RootHistCnv" ]
-        theApp.HistogramPersistency = "ROOT"
-
-    if not hasattr( ServiceMgr, "NTupleSvc" ):
-        from GaudiSvc.GaudiSvcConf import NTupleSvc
-        ServiceMgr += NTupleSvc()
 
     ServiceMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
     print(ServiceMgr)

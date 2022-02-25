@@ -158,15 +158,18 @@ Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
 Description: BoxesAndLines
+Parameters: { run3 : 0}
 
 ---
 Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInEndCapPerChamber_ADCCut']
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInEndCapPerChamber_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
 Description: BoxesAndLines
+Parameters: { run3 : 0}
 
 ---
 Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
 Description: BoxesAndLines
+Parameters: { run3 : 0}

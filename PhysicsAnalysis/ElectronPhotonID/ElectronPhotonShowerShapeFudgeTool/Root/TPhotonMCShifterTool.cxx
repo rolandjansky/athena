@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define TPhotonMCShifterTool_cxx
@@ -80,6 +80,27 @@ void TPhotonMCShifterTool::FudgeShowers( float  pt     ,
     this->LoadFFs(preselection,m_corr_file);
   }
 
+  FudgeShowers (pt, eta2, rhad1, rhad, e277, reta, rphi,
+                weta2, f1, fside, wtot, w1, deltae, eratio, isConv);
+}
+
+
+void TPhotonMCShifterTool::FudgeShowers( float  pt     ,
+					 float  eta2   ,
+					 float& rhad1  ,
+					 float& rhad   ,
+					 float& e277   ,
+					 float& reta   ,
+					 float& rphi   ,
+					 float& weta2  ,
+					 float& f1     ,
+					 float& fside  ,
+					 float& wtot   ,
+					 float& w1     ,
+					 float& deltae ,
+					 float& eratio ,
+					 int     isConv) const
+{
   //fudge showers
   rhad1  = Fudge_Rhad1(rhad1, pt, eta2, isConv);
   rhad   = Fudge_Rhad(rhad, pt, eta2, isConv);
@@ -93,7 +114,6 @@ void TPhotonMCShifterTool::FudgeShowers( float  pt     ,
   fside  = Fudge_Fside(fside, pt, eta2, isConv);
   w1     = Fudge_W1(w1, pt, eta2, isConv);
   eratio = Fudge_Eratio(eratio, pt, eta2, isConv);
-
 }
 
 void TPhotonMCShifterTool::FudgeShowers(  std::vector<float> clE,

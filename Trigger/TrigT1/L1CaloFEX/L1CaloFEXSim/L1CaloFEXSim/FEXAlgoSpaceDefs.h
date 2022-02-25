@@ -115,16 +115,19 @@ namespace LVL1 {
    //define constants needed by gFEX Jet algorithm
     constexpr static int centralNphi = 32;
     constexpr static int forwardNphi = 16;
+    constexpr static int centralNeta = 12;
+    constexpr static int forwardNeta = 8;
+    constexpr static int totalNeta = 40;
 
     constexpr static int n_partial = 4;
     constexpr static int ABCrows = 32;
     constexpr static int ABcolumns = 12;
-    constexpr static int Ccolumns = 7;
     constexpr static int ABcolumnsEng = 6;
     constexpr static bool ENABLE_INTER_AB = true;
     constexpr static bool ENABLE_INTER_C = true;
     constexpr static int gJetTOBfib = 4;
     constexpr static int BTOBFIB = 6;
+    constexpr static bool ENABLE_PUC = true;
     //define constants needed by gFEX JwoJ algorithm
     constexpr static unsigned int aFPGA_A = 48;
     constexpr static unsigned int bFPGA_A = 48;

@@ -309,7 +309,7 @@ def BunchGroupCondAlgCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     TrigConf__BunchGroupCondAlg = CompFactory.getComp("TrigConf::BunchGroupCondAlg")
-    bunchGroupCondAlg = TrigConf__BunchGroupCondAlg("BunchGroupCondAlg")
+    bunchGroupCondAlg = TrigConf__BunchGroupCondAlg("TrigConf__BunchGroupCondAlg")
 
     tc = getTrigConfigFromFlag( flags )
     bunchGroupCondAlg.Source = tc["SOURCE"]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -25,7 +25,6 @@ const int MAX_DATA = 1024;
 ReadTgcRDO::ReadTgcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_ntuplePtr(nullptr), 
-  m_activeStore("ActiveStoreSvc", name),
   m_hashFunc(nullptr)
 {
   // Declare the properties
@@ -38,7 +37,6 @@ ReadTgcRDO::ReadTgcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode ReadTgcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
 
@@ -75,8 +73,9 @@ StatusCode ReadTgcRDO::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
 
-  const TgcRdoContainer* TgcRDO = nullptr; 
-  ATH_CHECK( (*m_activeStore)->retrieve( TgcRDO, "TGCRDO" ) );
+  SG::ReadHandle<TgcRdoContainer> hndl("TGCRDO");
+  const TgcRdoContainer* TgcRDO = hndl.get();
+  ATH_CHECK(TgcRDO != nullptr);
 
   ATH_MSG_DEBUG("****** TgcRDO->size() : " << TgcRDO->size() );
 

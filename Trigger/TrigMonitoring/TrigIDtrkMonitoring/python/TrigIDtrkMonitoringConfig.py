@@ -92,14 +92,18 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
                                 "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
                                 "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
 
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
+                                "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
+                                "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
 
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
+                                "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
+                                "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
+
+                                "HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_tag:te=0",
+                                "HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_probe:te=1",
+
+                                "HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el2_tag:te=0",
+                                "HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el2_probe:te=1"
                         ]
                 else:
                         tidaegamma.ntupleChainNames += [

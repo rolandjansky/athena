@@ -15,6 +15,7 @@
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 #include "JetRecTools/PuppiWeightTool.h"
 #include "JetRecTools/JetTrackSelectionAlg.h"
+#include "JetRecTools/JetPFlowSelectionAlg.h"
 
 #if !defined(XAOD_ANALYSIS)
 #include "JetRecTools/JetUsedInFitTrackDecoratorTool.h"
@@ -38,6 +39,7 @@ DECLARE_COMPONENT( CorrectPFOTool )
 DECLARE_COMPONENT( ChargedHadronSubtractionTool )
 DECLARE_COMPONENT( PuppiWeightTool )
 DECLARE_COMPONENT( JetTrackSelectionAlg )
+DECLARE_COMPONENT( JetPFlowSelectionAlg )
 
 #if !defined(XAOD_ANALYSIS)
 DECLARE_COMPONENT( JetUsedInFitTrackDecoratorTool )

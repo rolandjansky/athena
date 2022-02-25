@@ -18,4 +18,9 @@ typedef struct _trigtauinfo
   float L1thr; // L1 Et threshold
   bool trigIsEmulation;
   bool isDiTau; // is DiTau chain
+  bool isTAndP; // is Tag and Probe chain
+  bool hasElectron; // is Tau Electron chain
+  bool hasMuon; // is Tau Muon chain
+  float electhr; // HLT pt threshold for electron T&P chains
+  float muthr; //HLT pt threshold for muon T&P chains
 } TrigInfo;

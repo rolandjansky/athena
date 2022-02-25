@@ -680,7 +680,7 @@ StatusCode JMSCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const {
       float mTA;
       if(trackSumPt==0) mTA = 0;
       else{mTA = (jetStartP4.pt()/trackSumPt)*trackSumMass;}
-      if(mTA<0) mTA = 0;
+      if(mTA<0 || mTA > jetStartP4.e()) mTA = 0;
       mass_corr = mTA;
       
       if ( ( ( !m_use3Dhisto && absdetectorEta < m_massEtaBins.back() ) ||

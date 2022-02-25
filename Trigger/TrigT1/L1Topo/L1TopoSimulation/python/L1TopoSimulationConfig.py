@@ -67,7 +67,10 @@ def L1TopoSimulationCfg(flags):
                                                     EMTAUInputProvider = emtauProvider,
                                                     JetInputProvider = jetProvider,
                                                     EnergyInputProvider = energyProvider,
-                                                    IsLegacyTopo = False)
+                                                    IsLegacyTopo = False,
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump 
+                                                    #UseBitwise = True
+                                                    )
     acc.addEventAlgo(topoSimAlg)
     return acc
 

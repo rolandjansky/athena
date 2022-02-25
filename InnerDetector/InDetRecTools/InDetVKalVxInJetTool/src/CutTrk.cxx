@@ -5,7 +5,6 @@
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
-#include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
 #include "TH1F.h"
@@ -16,7 +15,8 @@ namespace InDet{
 
 
   StatusCode InDetVKalVxInJetTool::cutTrk(std::unordered_map<std::string,double> TrkVarDouble,
-                                          std::unordered_map<std::string,int> TrkVarInt)
+                                          std::unordered_map<std::string,int> TrkVarInt,
+					  float evtWgt)
   const
   {
 
@@ -42,7 +42,7 @@ namespace InDet{
     if ( CovTrkMtx22 > m_zTrkErrorCut*m_zTrkErrorCut )    return StatusCode::FAILURE;
     if ( ConeDist > m_coneForTag )                        return StatusCode::FAILURE;
     if(trkP>10000.){
-      if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);
+      if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , evtWgt);
       if(trkPErr>0.5) return StatusCode::FAILURE;
     }
 
@@ -100,7 +100,8 @@ namespace InDet{
    int  InDetVKalVxInJetTool::selGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                                   const xAOD::Vertex                           & PrimVrt,
 	                                          const TLorentzVector                         & JetDir,
-                                                        std::vector<const xAOD::TrackParticle*>& SelectedTracks)
+                                                        std::vector<const xAOD::TrackParticle*>& SelectedTracks,
+							float evtWgt)
    const
    {    
 
@@ -151,7 +152,7 @@ namespace InDet{
           double ImpactZ=perigeePos.z()-PrimVrt.z();
           double ImpactSignif=std::sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
 
-          if(m_fillHist){  m_hb_trkD0->Fill( ImpactA0, m_w_1); }
+          if(m_fillHist){  m_hb_trkD0->Fill( ImpactA0, evtWgt); }
 
 	  double eta = (*i_ntrk)->eta();
 

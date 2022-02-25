@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
@@ -17,7 +17,7 @@ TRT_Conditions::dxContainer() const
 }
 
 void 
-TRT_Conditions::setDxContainer(const TRTCond::StrawDxContainer* container)
+TRT_Conditions::setDxContainer(const TRTCond::StrawDxContainer* container) const
 {
   m_dxContainer = container;
 }

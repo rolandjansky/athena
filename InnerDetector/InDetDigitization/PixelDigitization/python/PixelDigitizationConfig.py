@@ -388,7 +388,7 @@ def PixelConfigCondAlg_MC():
 
     #====================================================================================
     # ITK
-    alg.BarrelToTThresholdITK       = [     3,     3,     3,     3,     3]
+    alg.BarrelToTThresholdITK       = [ -1, -1, -1, -1, -1]
     alg.BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06]
     alg.BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8]
     alg.BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3]
@@ -402,7 +402,7 @@ def PixelConfigCondAlg_MC():
                                "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
                                "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"]
 
-    alg.EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3]
+    alg.EndcapToTThresholdITK       = [ -1, -1, -1, -1, -1,  -1, -1,  -1, -1, -1, -1, -1, -1, -1]
     alg.EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
@@ -571,6 +571,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
     return CfgMgr.PixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):

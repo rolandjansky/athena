@@ -82,10 +82,16 @@
 	"chains" : "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF  HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig"
     },
     "L2electronTnP":{
-	"chains" : "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1"
+	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1"
     },
     "EFelectronTnP":{
-	"chains" : "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:1"
+	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:1"
+    },
+    "L2electronTier0TnP":{
+       "chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el2_probe:HLT_Roi_FastElectron:1"
+    },
+    "EFelectronTier0TnP":{
+       "chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:el2_probe:HLT_Roi_FastElectron:1"
     },
     "L2cosmic":{
     "chains" : "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_FTF HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Package : MMRawDataMonAlg
@@ -61,6 +61,7 @@ namespace {
     std::vector<int> sector_CSide_eta1_ontrack;
     std::vector<int> sector_ASide_eta1_ontrack;
     std::vector<int> sector_CSide_eta2_ontrack;
+
     std::vector<int> sector_lb_ASide_eta1_ontrack;
     std::vector<int> sector_lb_ASide_eta2_ontrack;
     std::vector<int> sector_lb_CSide_eta1_ontrack;
@@ -73,11 +74,11 @@ namespace {
     std::vector<int> sector_ASide_eta2;
     std::vector<int> sector_CSide_eta1;
     std::vector<int> sector_ASide_eta1;
-    std::vector<int> sector_lb_ASide_eta1;
-    std::vector<int> sector_lb_ASide_eta2;
-    std::vector<int> sector_lb_CSide_eta1;
-    std::vector<int> sector_lb_CSide_eta2;
 
+  };
+
+  struct MMByPhiStruct{
+    std::vector<int> sector_lb;
   };
 
   struct MMSummaryHistogramStruct {
@@ -106,13 +107,8 @@ namespace {
 // ********************************************************************* 
 
 MMRawDataMonAlg::MMRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
-  :AthMonitorAlgorithm(name,pSvcLocator),
-   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-   m_MMContainerKey("MM_Measurements")
-{
-  //Declare the property 
-  declareProperty("MMPrepDataContainerName",m_MMContainerKey);
-}
+  :AthMonitorAlgorithm(name,pSvcLocator)
+{ }
 
 /*---------------------------------------------------------*/
 StatusCode MMRawDataMonAlg::initialize()
@@ -144,31 +140,28 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
   lumiblock = GetEventInfo(ctx)->lumiBlock();
 
-  ATH_MSG_INFO("MMRawDataMonAlg::MM RawData Monitoring Histograms being filled" );
+  ATH_MSG_DEBUG("MMRawDataMonAlg::MM RawData Monitoring Histograms being filled" );
 
   SG::ReadHandle<Muon::MMPrepDataContainer> mm_container(m_MMContainerKey,ctx);
 
-  ATH_MSG_INFO("****** mmContainer->size() : " << mm_container->size());
+  ATH_MSG_DEBUG("****** mmContainer->size() : " << mm_container->size());
 
 
   if (m_doMMESD) {
     MMOverviewHistogramStruct overviewPlots;
     MMSummaryHistogramStruct summaryPlots[2][2][8][2][2][4];
-
+    MMByPhiStruct occupancyPlots[16][2];
   //loop in MMPrepDataContainer                                                                             
          
   for(const Muon::MMPrepDataCollection* coll : *mm_container) {
-
     for (const Muon::MMPrepData* prd : *coll){
-
-      ATH_CHECK(fillMMOverviewVects(prd, overviewPlots));
+      ATH_CHECK(fillMMOverviewVects(prd, overviewPlots, occupancyPlots));
       ATH_CHECK(fillMMSummaryVects(prd, summaryPlots));
       ATH_CHECK(fillMMHistograms(prd));
-
     }
   }
 
-  if (m_do_mm_overview) fillMMOverviewHistograms(overviewPlots,lumiblock);
+  if (m_do_mm_overview) fillMMOverviewHistograms(overviewPlots,occupancyPlots, lumiblock);
 
   ATH_CHECK( fillMMSummaryHistograms(summaryPlots) );
 
@@ -184,7 +177,8 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
 }
 
-StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MMOverviewHistogramStruct& vects ) const {
+
+StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2] ) const {
 
   Identifier Id = prd->identify();
   const std::vector<Identifier>& stripIds = prd->rdoList();
@@ -193,7 +187,6 @@ StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MM
  
   std::string stName   = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(Id));
   int gas_gap          = m_idHelperSvc->mmIdHelper().gasGap(Id);
-  int stationNumber    = m_idHelperSvc->mmIdHelper().stationName(Id);
   int stationEta       = m_idHelperSvc->mmIdHelper().stationEta(Id);
   int stationPhi       = m_idHelperSvc->mmIdHelper().stationPhi(Id);
   int multiplet        = m_idHelperSvc->mmIdHelper().multilayer(Id);
@@ -228,40 +221,41 @@ StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MM
   vects.z_mon.push_back(pos.z());
   vects.R_mon.push_back(R);
 
-    
-
-  //MMS and MML phi sectors
-  int phisec=0;
-  if (stationNumber%2 == 0) phisec=1;
-    
   //16 phi sectors, 8 stationPhi times 2 stName, MMS and MML
   int sectorPhi=get_sectorPhi_from_stationPhi_stName(stationPhi,stName);  
   
   //Occupancy plots with PCB granularity further divided for each eta sector: -2, -1, 1, 2
   
+  //CSide and ASide
+  int iside=0;
+  if(stationEta>0) iside=1;
+  auto& thisSect = occupancyPlots[sectorPhi-1][iside];
+  
+  int PCBeta12=PCB;
+  if(fabs(stationEta)==2) PCBeta12=PCB+5;
+
+  thisSect.sector_lb.push_back(get_bin_for_occ_lb_pcb_hist(multiplet,gas_gap,PCBeta12));
+  
+  
   //Filling Vectors for stationEta=-2
   if (stationEta==-2){
     vects.sector_CSide_eta2.push_back(get_bin_for_occ_CSide_pcb_eta2_hist(stationEta,multiplet,gas_gap,PCB));
     vects.stationPhi_CSide_eta2.push_back(sectorPhi);
-    vects.sector_lb_CSide_eta2.push_back(get_bin_for_occ_lb_CSide_pcb_eta2_hist(stationEta,multiplet,gas_gap,PCB,phisec));
   }
   //Filling Vectors for stationEta=-1
   else if (stationEta==-1){
     vects.sector_CSide_eta1.push_back(get_bin_for_occ_CSide_pcb_eta1_hist(stationEta,multiplet,gas_gap,PCB));
     vects.stationPhi_CSide_eta1.push_back(sectorPhi);
-    vects.sector_lb_CSide_eta1.push_back(get_bin_for_occ_lb_CSide_pcb_eta1_hist(stationEta,multiplet,gas_gap,PCB,phisec));
   }
   //Filling Vectors for stationEta=1
   else if (stationEta==1){
     vects.sector_ASide_eta1.push_back(get_bin_for_occ_ASide_pcb_eta1_hist(stationEta,multiplet,gas_gap,PCB));
     vects.stationPhi_ASide_eta1.push_back(sectorPhi);
-    vects.sector_lb_ASide_eta1.push_back(get_bin_for_occ_lb_ASide_pcb_eta1_hist(stationEta,multiplet,gas_gap,PCB,phisec));
   }
   //Filling Vectors for stationEta=2
   else {
     vects.sector_ASide_eta2.push_back(get_bin_for_occ_ASide_pcb_eta2_hist(stationEta,multiplet,gas_gap,PCB));
     vects.stationPhi_ASide_eta2.push_back(sectorPhi);
-    vects.sector_lb_ASide_eta2.push_back(get_bin_for_occ_lb_ASide_pcb_eta2_hist(stationEta,multiplet,gas_gap,PCB,phisec));
   }
 
   //loop on each strip                                                                                       
@@ -279,7 +273,7 @@ StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MM
 }
 
 
-void MMRawDataMonAlg::fillMMOverviewHistograms( const MMOverviewHistogramStruct& vects, int lb ) const {
+void MMRawDataMonAlg::fillMMOverviewHistograms( const MMOverviewHistogramStruct& vects,  MMByPhiStruct (&occupancyPlots)[16][2], int lb ) const {
 
   auto charge_all = Monitored::Collection("charge_all", vects.charge_all);
   auto numberofstrips_percluster = Monitored::Collection("numberofstrips_percluster", vects.numberofstrips_percluster);
@@ -301,14 +295,16 @@ void MMRawDataMonAlg::fillMMOverviewHistograms( const MMOverviewHistogramStruct&
   fill("mmMonitor",x_mon,y_mon,z_mon,R_mon);
     
   auto lb_mon = Monitored::Scalar<int>("lb_mon", lb);
-    
-  auto sector_lb_CSide_eta2 = Monitored::Collection("sector_lb_CSide_eta2",vects.sector_lb_CSide_eta2);
-  auto sector_lb_CSide_eta1 = Monitored::Collection("sector_lb_CSide_eta1",vects.sector_lb_CSide_eta1);
-  auto sector_lb_ASide_eta2 = Monitored::Collection("sector_lb_ASide_eta2",vects.sector_lb_ASide_eta2);
-  auto sector_lb_ASide_eta1 = Monitored::Collection("sector_lb_ASide_eta1",vects.sector_lb_ASide_eta1);
-    
-  fill("mmMonitor",lb_mon,sector_lb_CSide_eta2,sector_lb_CSide_eta1,sector_lb_ASide_eta1,sector_lb_ASide_eta2);
-    
+
+  for( int statPhi=0; statPhi<16; statPhi++) {
+    for( int iside=0; iside<2; iside++) {
+      auto& occ_lb = occupancyPlots[statPhi][iside];    
+      auto sector_lb =  Monitored::Collection("sector_lb_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1),occ_lb.sector_lb);
+      std::string MM_sideGroup = "MM_sideGroup"+MM_Side[iside];
+      fill(MM_sideGroup, lb_mon, sector_lb);
+    }
+  }
+
   auto sector_CSide_eta2 = Monitored::Collection("sector_CSide_eta2",vects.sector_CSide_eta2);
   auto sector_CSide_eta1 = Monitored::Collection("sector_CSide_eta1",vects.sector_CSide_eta1);
   auto sector_ASide_eta1 = Monitored::Collection("sector_ASide_eta1",vects.sector_ASide_eta1);
@@ -320,8 +316,6 @@ void MMRawDataMonAlg::fillMMOverviewHistograms( const MMOverviewHistogramStruct&
   
   fill("mmMonitor",sector_CSide_eta1,sector_CSide_eta2,sector_ASide_eta1,sector_ASide_eta2,stationPhi_CSide_eta1,stationPhi_CSide_eta2,stationPhi_ASide_eta1,stationPhi_ASide_eta2);
     
-    
-
 }
 
 StatusCode MMRawDataMonAlg::fillMMSummaryVects( const Muon::MMPrepData* prd, MMSummaryHistogramStruct (&vects)[2][2][8][2][2][4]) const{
@@ -511,7 +505,6 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	  if(  trk_stPhi==stPhi  and trk_stEta==stEta and trk_multi==multi and trk_gap==gap ){
 	    double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
 	    
-	    
 	    int stPhi16=0;
 	    if (stName=="MML")   stPhi16=2*stPhi-1;
 	    
@@ -521,6 +514,21 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	    if(stEta>0) iside=1;
 	    
 	    float res_stereo = (x - x_trk);
+	    
+	    if(m_do_stereoCorrection){ 
+	      
+	      float stereo_angle=		      0.02618;
+	      double y_trk = trkState->trackParameters()->parameters()[Trk::locY];
+	      float stereo_correction=sin(stereo_angle)*y_trk;
+	      if(multi==1 && gap<3) stereo_correction=0;
+	      if(multi==2 && gap>2) stereo_correction=0;
+	      if(multi==1 && gap==3 ) stereo_correction*=-1;
+	      if(multi==2 && gap==1 ) stereo_correction*=-1;
+	      if(multi==1 && gap<3) stereo_angle=0;
+	      if(multi==2 && gap>2) stereo_angle=0;
+	      res_stereo = (x - x_trk)*cos(stereo_angle) - stereo_correction;
+	    }
+
 	    auto residual_mon = Monitored::Scalar<float>("residual", res_stereo);
 	    auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",stPhi16);
 	    fill("mmMonitor",residual_mon, eta_trk, phi_trk, stPhi_mon);
@@ -580,8 +588,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
   auto stationPhi_ASide_eta2_ontrack = Monitored::Collection("stationPhi_ASide_eta2_ontrack",vects.stationPhi_ASide_eta2_ontrack);
   auto sector_ASide_eta1_ontrack = Monitored::Collection("sector_ASide_eta1_ontrack",vects.sector_ASide_eta1_ontrack);
   auto sector_ASide_eta2_ontrack = Monitored::Collection("sector_ASide_eta2_ontrack",vects.sector_ASide_eta2_ontrack);
-  auto sector_CSide_eta2_ontrack = Monitored::Collection("sector_CSide_eta2_ontrack",vects.sector_CSide_eta2_ontrack);                                                                                         
-  auto sector_CSide_eta1_ontrack = Monitored::Collection("sector_CSide_eta1_ontrack",vects.sector_CSide_eta1_ontrack);   
+  auto sector_CSide_eta2_ontrack = Monitored::Collection("sector_CSide_eta2_ontrack",vects.sector_CSide_eta2_ontrack);                                                                  auto sector_CSide_eta1_ontrack = Monitored::Collection("sector_CSide_eta1_ontrack",vects.sector_CSide_eta1_ontrack);   
 
   auto lb_ontrack = Monitored::Scalar<int>("lb_ontrack", lb);
 

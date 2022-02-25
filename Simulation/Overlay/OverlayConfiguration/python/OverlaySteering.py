@@ -108,4 +108,9 @@ def OverlayMainCfg(configFlags):
     if configFlags.Detector.EnableTGC:
         acc.merge(TgcOverlayCfg(configFlags))
 
+    # Add MT-safe PerfMon
+    if configFlags.PerfMon.doFastMonMT or configFlags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        acc.merge(PerfMonMTSvcCfg(configFlags))
+
     return acc

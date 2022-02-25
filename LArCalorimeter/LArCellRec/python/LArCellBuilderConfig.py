@@ -6,6 +6,7 @@ LArCellBuilderFromLArRawChannelTool, LArCellMerger, LArCellNoiseMaskingTool=Comp
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
 from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+from LArConfiguration.LArConfigFlags import RawChannelSource 
 
 def LArCellBuilderCfg(configFlags):
     result=ComponentAccumulator()
@@ -14,7 +15,7 @@ def LArCellBuilderCfg(configFlags):
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
     theLArCellBuilder.LArCablingKey = "ConditionStore+LArOnOffIdMap"
     theLArCellBuilder.MissingFebKey = "ConditionStore+LArBadFeb"
-    if configFlags.LAr.RawChannelSource=="calculated":
+    if configFlags.LAr.RawChannelSource is RawChannelSource.Calculated:
        theLArCellBuilder.RawChannelsName="LArRawChannels_FromDigits"
     else:
        theLArCellBuilder.RawChannelsName = "LArRawChannels"
@@ -28,7 +29,7 @@ def LArCellCorrectorCfg(configFlags):
 
     correctionTools=[]
 
-    if configFlags.LAr.RawChannelSource in ("both","input") and not configFlags.Input.isMC and not configFlags.Overlay.DataOverlay:
+    if configFlags.LAr.RawChannelSource in (RawChannelSource.Both, RawChannelSource.Input) and not configFlags.Input.isMC and not configFlags.Overlay.DataOverlay:
         theMerger=LArCellMerger(RawChannelsName="LArRawChannels_FromDigits")
         correctionTools.append(theMerger)
 

@@ -57,11 +57,6 @@ muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
 muonRecFlags.doCalibNtuple = False # do not write calibration ntuples
 
-# flags to tweak standalone muon reconstruction
-if doMig5:
-    muonStandaloneFlags.doSegmentsOnly       = False
-    muonStandaloneFlags.patternsOnly         = False
-    muonStandaloneFlags.createTrackParticles = False
 
 muonStandaloneFlags.printSummary         = True
 muonCombinedRecFlags.doTrackPerformance  = True

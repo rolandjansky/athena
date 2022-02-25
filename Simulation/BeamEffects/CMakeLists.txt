@@ -1,6 +1,4 @@
-################################################################################
-# Package: BeamEffects
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( BeamEffects )
@@ -23,7 +21,7 @@ atlas_add_test( BeamEffectsAlg_test
 #Added test of new component accumulator syntax
 atlas_add_test( BeamEffectsAlgConfig_test
                 SCRIPT python/BeamEffectsAlgConfig.py
-                POST_EXEC_SCRIPT nopost.sh )
+                POST_EXEC_SCRIPT noerror.sh )
 
 atlas_add_component( BeamEffects
                      src/*.cxx

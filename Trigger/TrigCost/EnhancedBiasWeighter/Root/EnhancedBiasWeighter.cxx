@@ -35,6 +35,8 @@ EnhancedBiasWeighter::EnhancedBiasWeighter( const std::string& name )
 StatusCode EnhancedBiasWeighter::initialize() 
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_CHECK( m_bunchCrossingKey.initialize( m_calculateWeightingData && m_useBunchCrossingData ) );
+
   if (m_calculateWeightingData == true) {
 
     if (m_isMC) {
@@ -60,8 +62,6 @@ StatusCode EnhancedBiasWeighter::initialize()
       ATH_CHECK( loadLumi() );
 
     } // end isData
-
-    if (m_useBunchCrossingData) ATH_CHECK( m_bunchCrossingKey.initialize() );
 
   } else {
     ATH_MSG_INFO ("calculateWeightingData is FALSE. This job must be running over an EnhancedBias TRIG1 dAOD which has already been decorated with weighting data.");

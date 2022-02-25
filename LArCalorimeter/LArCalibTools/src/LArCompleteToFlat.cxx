@@ -74,7 +74,7 @@ LArCompleteToFlat::~LArCompleteToFlat()
 StatusCode LArCompleteToFlat::initialize()
 {
   ATH_CHECK( m_cablingKey.initialize() );
-  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+  ATH_CHECK( m_cablingKeySC.initialize(m_isSC) );
   return StatusCode::SUCCESS;
 }
 

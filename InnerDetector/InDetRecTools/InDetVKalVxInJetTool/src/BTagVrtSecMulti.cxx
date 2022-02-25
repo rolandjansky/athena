@@ -65,11 +65,19 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
     return finalVertices;
   } // 0,1 track => nothing to do!
 
+  float evtWgt=1.;
+  const EventContext & ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_eventInfoKey,ctx};
+  if (eventInfo.isValid()) {
+    if(eventInfo->hasBeamSpotWeight()) evtWgt *= eventInfo->beamSpotWeight();
+  } else ATH_MSG_DEBUG("No event info object found!");
+
+
   long int nTracks = 0;
   TLorentzVector momentumJet;
   int nRefPVTrk = 0;
   if (xAODwrk) {
-    nRefPVTrk = selGoodTrkParticle(xAODwrk->InpTrk, primVrt, jetDir, xAODwrk->listJetTracks);
+    nRefPVTrk = selGoodTrkParticle(xAODwrk->InpTrk, primVrt, jetDir, xAODwrk->listJetTracks,evtWgt);
     while (!xAODwrk->listJetTracks.empty() &&
            xAODwrk->listJetTracks[0]->pt() / jetDir.Pt() > 1.)
       xAODwrk->listJetTracks.erase(xAODwrk->listJetTracks.begin());
@@ -85,8 +93,8 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
   ATH_MSG_DEBUG("Number of selected tracks inside jet= " << nTracks);
 
   if (m_fillHist) {
-    m_hb_jmom->Fill(momentumJet.Perp(), m_w_1);
-    m_hb_ntrkjet->Fill((double)nTracks, m_w_1);
+    m_hb_jmom->Fill(momentumJet.Perp(), evtWgt);
+    m_hb_ntrkjet->Fill((double)nTracks, evtWgt);
   }
 
   //
@@ -285,7 +293,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
        }
     } while( icvrt != vrtWithCommonTrk.rend() );
     if(m_fillHist){ int cvgood=0; for(int iv=0; iv<(int)(*wrkVrtSet).size(); iv++) if((*wrkVrtSet)[iv].Good)cvgood++;
-                    m_hb_rawVrtN->Fill( (float)cvgood, m_w_1); }
+                    m_hb_rawVrtN->Fill( (float)cvgood, evtWgt); }
 //-Identify/remove vertices behind the PV wrt jet direction
 //-Identify remaining 2-track vertices with very bad Chi2 and mass (b-tagging)
 //    for(int iv=0; iv<(int)(*wrkVrtSet).size(); iv++ ){
@@ -455,7 +463,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
              //if( useMaterialRejection && insideMatLayer(curVrt.vertex.x(),curVrt.vertex.y()) ) continue;
              std::vector<double> Impact,ImpactError;   double Signif3DP = 0;
              if     (xAODwrk) Signif3DP=m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[curVrt.selTrk[0]],primVrt.position(), 1, Impact, ImpactError, *state);
-             if(m_fillHist&&curVrt.vertex.perp()>20.){m_hb_diffPS->Fill( Signif3DP, m_w_1); }
+             if(m_fillHist&&curVrt.vertex.perp()>20.){m_hb_diffPS->Fill( Signif3DP, evtWgt); }
              if( Signif3DP>2.*m_trkSigCut && Signif3D>m_sel2VrtSigCut) curVrt.Good=true; // accept only tracks which are far from primary vertex
           }
        }
@@ -505,7 +513,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 	  }
 //
 //---  Check interactions on pixel layers
-          if(m_fillHist && nth==2){ m_hb_r2d->Fill( curVrt.vertex.perp(), m_w_1);          }
+          if(m_fillHist && nth==2){ m_hb_r2d->Fill( curVrt.vertex.perp(), evtWgt);          }
 
 	  if(m_useITkMaterialRejection){
 	    double xvt = curVrt.vertex.x(); double yvt = curVrt.vertex.y();
@@ -514,21 +522,22 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 	    if(m_ITkPixMaterialMap->GetBinContent(bin)>0) continue;
 	  }
 
+          if(m_fillHist && nth==2){ m_hb_r2d->Fill( curVrt.vertex.perp(), evtWgt);          }
 //
 //---  Check V0s and conversions
           if(nth==2 && curVrt.vertexCharge==0 && curVrt.detachedTrack<0){
              double mass_PiPi =  curVrt.vertexMom.M();  
              double mass_PPi  =  massV0(curVrt.trkAtVrt,m_massP,m_massPi);
              double mass_EE   =  massV0(curVrt.trkAtVrt,m_massE,m_massE);
-             if(m_fillHist){ m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
-                             m_hb_massPPi ->Fill( mass_PPi,  m_w_1); 
-                             if( curVrt.vertex.perp()>20.)m_hb_massEE  ->Fill( mass_EE,   m_w_1);  } 
+             if(m_fillHist){ m_hb_massPiPi->Fill( mass_PiPi, evtWgt);
+                             m_hb_massPPi ->Fill( mass_PPi,  evtWgt); 
+                             if( curVrt.vertex.perp()>20.)m_hb_massEE  ->Fill( mass_EE,   evtWgt);  } 
  	     if( std::abs(mass_PiPi-m_massK0) < 22.)     continue;
  	     if( std::abs(mass_PPi-m_massLam) <  8.)     continue;
              if( mass_EE < 60. && curVrt.vertex.perp() > 20.) continue;
           }          
 //---
-	  if(m_fillHist){m_hb_sig3DTot->Fill( Signif3D, m_w_1); }
+	  if(m_fillHist){m_hb_sig3DTot->Fill( Signif3D, evtWgt); }
           if(Signif3D<m_sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
 //---
           curVrt.Good = true;  /* Vertex is absolutely good */
@@ -580,7 +589,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
     if(ngoodVertices>1){
       if( goodVertices[1].vertexMom.M()-goodVertices[0].vertexMom.M() > 5000.) std::swap( goodVertices[0], goodVertices[1] );
     }
-    if(m_fillHist){m_hb_distVV->Fill( minVrtVrtDist( wrkVrtSet.get(), foundV1, foundV2), m_w_1); }
+    if(m_fillHist){m_hb_distVV->Fill( minVrtVrtDist( wrkVrtSet.get(), foundV1, foundV2), evtWgt); }
 //----------------------------------------------------------------------------------
 //  Nonused tracks for one-track-vertex search
 //
@@ -639,21 +648,21 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
              if     (xAODwrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listJetTracks[j] );
           }
           if( m_fillHist ){
-            if(nth==1)m_hb_r1dc->Fill( goodVertices[iv].vertex.perp(), m_w_1);
-            if(nth==2)m_hb_r2dc->Fill( goodVertices[iv].vertex.perp(), m_w_1);
-            if(nth==3)m_hb_r3dc->Fill( goodVertices[iv].vertex.perp(), m_w_1);
-            if(nth> 3)m_hb_rNdc->Fill( goodVertices[iv].vertex.perp(), m_w_1);
+            if(nth==1)m_hb_r1dc->Fill( goodVertices[iv].vertex.perp(), evtWgt);
+            if(nth==2)m_hb_r2dc->Fill( goodVertices[iv].vertex.perp(), evtWgt);
+            if(nth==3)m_hb_r3dc->Fill( goodVertices[iv].vertex.perp(), evtWgt);
+            if(nth> 3)m_hb_rNdc->Fill( goodVertices[iv].vertex.perp(), evtWgt);
             Signif3D=vrtVrtDist(primVrt, goodVertices[iv].vertex, goodVertices[iv].vertexCov, jetDir);
             if( nth==2 ){
-              if(goodVertices[iv].vertexCharge==0){ m_hb_totmass2T1->Fill( goodVertices[iv].vertexMom.M(), m_w_1);}
-              else                                { m_hb_totmass2T2->Fill( goodVertices[iv].vertexMom.M(), m_w_1);}
-              m_hb_sig3D2tr->Fill( Signif3D , m_w_1);
-              if(goodVertices[iv].vertexCharge==0)m_hb_totmassEE->Fill(massV0(goodVertices[iv].trkAtVrt,m_massE,m_massE),m_w_1);
+              if(goodVertices[iv].vertexCharge==0){ m_hb_totmass2T1->Fill( goodVertices[iv].vertexMom.M(), evtWgt);}
+              else                                { m_hb_totmass2T2->Fill( goodVertices[iv].vertexMom.M(), evtWgt);}
+              m_hb_sig3D2tr->Fill( Signif3D , evtWgt);
+              if(goodVertices[iv].vertexCharge==0)m_hb_totmassEE->Fill(massV0(goodVertices[iv].trkAtVrt,m_massE,m_massE),evtWgt);
             //} else if( nth==1){
             } else if( goodVertices[iv].vertexMom.M()>6000.){
-              m_hb_sig3D1tr->Fill( Signif3D, m_w_1);
+              m_hb_sig3D1tr->Fill( Signif3D, evtWgt);
             } else {
-              m_hb_sig3DNtr->Fill( Signif3D, m_w_1);
+              m_hb_sig3DNtr->Fill( Signif3D, evtWgt);
             }
           }
 //
@@ -707,8 +716,9 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 //    }       finalVertices.push_back(tmpVertex);
 //==============================================
 
-    if(m_fillHist){m_hb_goodvrtN->Fill( ngoodVertices+0.1, m_w_1);
-                   if(n1trVrt)m_hb_goodvrtN->Fill( n1trVrt+15., m_w_1);
+    if(m_fillHist){m_hb_goodvrtN->Fill( ngoodVertices+0.1, evtWgt);
+                   m_curTup->ewgt=evtWgt;
+                   if(n1trVrt)m_hb_goodvrtN->Fill( n1trVrt+15., evtWgt);
                    fillNVrtNTup( goodVertices, trkScore, primVrt, jetDir);
     }
     if(ngoodVertices == 0){
@@ -729,10 +739,10 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       results.push_back(0.);                                        //6th  -  not clear what to use here -> return 0.
       results.push_back(momentumJet.E());                 //7th
 
-      if(m_fillHist){m_hb_ratio->Fill( results[1], m_w_1); }
-      if(m_fillHist){m_hb_totmass->Fill( results[0], m_w_1); }
-      if(m_fillHist){m_hb_nvrt2->Fill( results[2], m_w_1); }
-      if(m_fillHist){m_hb_mom->Fill( momentumJet.Perp(), m_w_1);} 
+      if(m_fillHist){m_hb_ratio->Fill( results[1], evtWgt); }
+      if(m_fillHist){m_hb_totmass->Fill( results[0], evtWgt); }
+      if(m_fillHist){m_hb_nvrt2->Fill( results[2], evtWgt); }
+      if(m_fillHist){m_hb_mom->Fill( momentumJet.Perp(), evtWgt);} 
 
       return finalVertices;
 

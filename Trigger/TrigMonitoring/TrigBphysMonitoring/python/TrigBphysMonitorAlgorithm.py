@@ -11,11 +11,12 @@ def TrigBphysMonConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags,'TrigBphysAthMonitorCfg')
     
     from TrigBphysMonitoring.TrigBphysMonitoringConfigMT import TrigBphysMonAlgBuilder
-    monAlgCfg = TrigBphysMonAlgBuilder( helper, monitorL1Topo = True ) 
+    monAlgCfg = TrigBphysMonAlgBuilder( helper, useMonGroups = True ) 
     
     # build monitor and book histograms
     monAlgCfg.configure()
     
+    helper.result().printConfig(withDetails=True, summariseProps=True)
     return helper.result()
     
 

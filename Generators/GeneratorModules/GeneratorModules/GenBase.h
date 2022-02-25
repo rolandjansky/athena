@@ -11,7 +11,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/errorcheck.h"
-#include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "AtlasHepMC/GenEvent.h"
@@ -93,11 +93,14 @@ public:
   McEventCollection* events();
 
   /// Access the current event's McEventCollection (const)
-  SG::ReadHandle<McEventCollection> events_const() const {
-    SG::ReadHandle<McEventCollection> ret (m_mcevents_const);
+  const McEventCollection* events_const() const {
+    return events_const( getContext() );
+  }
+  const McEventCollection* events_const( const EventContext& ctx ) const {
+    SG::ReadHandle<McEventCollection> ret = SG::makeHandle(m_mcevents_const, ctx);
     if (!ret.isValid())
-      ATH_MSG_ERROR("No McEventCollection found in StoreGate with key " << m_mcEventKey);
-    return ret;
+      ATH_MSG_ERROR("No McEventCollection found in StoreGate with key " << m_mcevents_const.key());
+    return ret.cptr();
   }
 
   //@}
@@ -157,7 +160,7 @@ private:
   ServiceHandle<IPartPropSvc> m_ppSvc;
 
   /// Const handle to the MC event collection
-  SG::ReadHandle<McEventCollection> m_mcevents_const;
+  SG::ReadHandleKey<McEventCollection> m_mcevents_const{ this, "McEventKey", "GEN_EVENT", "StoreGate key of the MC event collection" };
 
 };
 

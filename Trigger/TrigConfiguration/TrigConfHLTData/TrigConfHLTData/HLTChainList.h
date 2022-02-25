@@ -8,11 +8,9 @@
 #include <string>
 #include <iosfwd>
 #include <vector>
-#include <map>
 
 #include "TrigConfHLTData/HLTChain.h"
 
-#include <boost/unordered_map.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/hashed_index.hpp>

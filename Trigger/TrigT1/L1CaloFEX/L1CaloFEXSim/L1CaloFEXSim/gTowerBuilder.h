@@ -41,7 +41,7 @@ class gTowerBuilder: public AthAlgTool, virtual public IgTowerBuilder {
   virtual void BuildEMBgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
   virtual void BuildTransEMBgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
   virtual void BuildEMEgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
-  virtual void BuildTRANSFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
+  virtual void BuildFwdEMECgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
   virtual void BuildFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
   virtual void BuildAllTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const override ;
   virtual void BuildSingleTower(std::unique_ptr<gTowerContainer> & gTowerContainerRaw, int eta, int phi, int nphi, int keybase, int posneg) const override ;

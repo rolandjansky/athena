@@ -49,6 +49,11 @@ doTier0Mon = False
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
 
+doNewTier0Mon = False
+
+if 'doNewTIDATier0' in locals():
+  doNewTier0Mon = doNewTIDATier0
+
 
 ############ TrigIDtrkMonitoring part ################################
 
@@ -75,6 +80,17 @@ if doTier0Mon :
   HLTMonManager.FileKey = "AANT"
 
 
+if doNewTier0Mon :
+
+# this is the new location ...
+  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  for git in TIDAMonitoring( "idtrigger" ):
+    algseq += git
+
+  from GaudiSvc.GaudiSvcConf import THistSvc
+  ServiceMgr += THistSvc()
+  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-new-tier0.root' OPT='RECREATE'"]
+  HLTMonManager.FileKey = "AANT"
 
 
 
@@ -205,6 +221,13 @@ if ( True ) :
 
     "HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=0",
     "HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=0",
+
+    # double electron chains for tag and probe analysis
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
+
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=1",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",

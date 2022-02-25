@@ -80,17 +80,13 @@ namespace MuonGM {
         void addTreeTop(PVLink);
 
         // Add a XxxReadoutElement to the Collection
-        void addMdtReadoutElement(MdtReadoutElement*, Identifier);    //!< store the MdtReadoutElement using as "key" the identifier
-        void addRpcReadoutElement(RpcReadoutElement*, Identifier);    //!< store the RpcReadoutElement using as "key" the identifier
-        void addTgcReadoutElement(TgcReadoutElement*, Identifier);    //!< store the TgcReadoutElement using as "key" the identifier
-        void addCscReadoutElement(CscReadoutElement*, Identifier);    //!< store the CscReadoutElement using as "key" the identifier
-        void addsTgcReadoutElement(sTgcReadoutElement*, Identifier);  //!< store the sTGCReadoutElement using as "key" the identifier
-        void addMMReadoutElement(MMReadoutElement*, Identifier);      //!< store the MMReadoutElement using as "key" the identifier
-        void addsTgcReadoutElement_withIdFields(sTgcReadoutElement*, int isSmall, int stEta, int stPhi,
-                                                int ml);  //!< store the sTgcReadoutElement using as "key" the identifier
-        void addMMReadoutElement_withIdFields(MMReadoutElement*, int isSmall, int stEta, int stPhi,
-                                              int ml);  //!< store the MMReadoutElement using as "key" the identifier
-
+        void addMdtReadoutElement(MdtReadoutElement*, const Identifier&);    //!< store the MdtReadoutElement using as "key" the identifier
+        void addRpcReadoutElement(RpcReadoutElement*, const Identifier&);    //!< store the RpcReadoutElement using as "key" the identifier
+        void addTgcReadoutElement(TgcReadoutElement*, const Identifier&);    //!< store the TgcReadoutElement using as "key" the identifier
+        void addCscReadoutElement(CscReadoutElement*, const Identifier&);    //!< store the CscReadoutElement using as "key" the identifier
+        void addsTgcReadoutElement(sTgcReadoutElement*, const Identifier&);  //!< store the sTGCReadoutElement using as "key" the identifier
+        void addMMReadoutElement(MMReadoutElement*, const Identifier&);      //!< store the MMReadoutElement using as "key" the identifier
+       
         // storeTgcReadoutParams
         void storeTgcReadoutParams(std::unique_ptr<const TgcReadoutParams> x);
 
@@ -100,62 +96,33 @@ namespace MuonGM {
         void storeMdtAsBuiltParams(const MdtAsBuiltPar& x);
 
         // access to Readout Elements
-        const MdtReadoutElement* getMdtReadoutElement(Identifier) const;    //!< access via extended identifier (requires unpacking)
-        const RpcReadoutElement* getRpcReadoutElement(Identifier) const;    //!< access via extended identifier (requires unpacking)
-        const TgcReadoutElement* getTgcReadoutElement(Identifier) const;    //!< access via extended identifier (requires unpacking)
-        const CscReadoutElement* getCscReadoutElement(Identifier) const;    //!< access via extended identifier (requires unpacking)
-        const MMReadoutElement* getMMReadoutElement(Identifier) const;      //!< access via extended identifier (requires unpacking)
-        const sTgcReadoutElement* getsTgcReadoutElement(Identifier) const;  //!< access via extended identifier (requires unpacking)
+        const MdtReadoutElement* getMdtReadoutElement(const Identifier&) const;    //!< access via extended identifier (requires unpacking)
+        const RpcReadoutElement* getRpcReadoutElement(const Identifier&) const;    //!< access via extended identifier (requires unpacking)
+        const TgcReadoutElement* getTgcReadoutElement(const Identifier&) const;    //!< access via extended identifier (requires unpacking)
+        const CscReadoutElement* getCscReadoutElement(const Identifier&) const;    //!< access via extended identifier (requires unpacking)
+        const MMReadoutElement* getMMReadoutElement(const Identifier&) const;      //!< access via extended identifier (requires unpacking)
+        const sTgcReadoutElement* getsTgcReadoutElement(const Identifier&) const;  //!< access via extended identifier (requires unpacking)
 
-        const MuonClusterReadoutElement* getMuonClusterReadoutElement(
-            Identifier) const;  //!< access via extended identifier (requires unpacking)
-
-        /// Returns the const detector readout elements
-
-        const MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4) const;
-        const sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4) const;
-        const MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4) const;
-        const TgcReadoutElement* getTgcReadoutElement(int i1, int i2, int i3) const;
-        const CscReadoutElement* getCscReadoutElement(int i1, int i2, int i3, int i4) const;
+        //!< access via extended identifier (requires unpacking)
+        const MuonClusterReadoutElement* getMuonClusterReadoutElement(const Identifier&) const;
 
         //// Non const version
         MdtReadoutElement* getMdtReadoutElement(const Identifier& id);
         CscReadoutElement* getCscReadoutElement(const Identifier& id);
         TgcReadoutElement* getTgcReadoutElement(const Identifier& id);
-        
+      
 
-        MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4);
-        sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4);
-        MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4);
-        TgcReadoutElement* getTgcReadoutElement(int i1, int i2, int i3);
-        CscReadoutElement* getCscReadoutElement(int i1, int i2, int i3, int i4);
+        const MdtReadoutElement* getMdtReadoutElement(const IdentifierHash& id) const;  //!< access via detector-element hash id
+        const RpcReadoutElement* getRpcReadoutElement(const IdentifierHash& id) const;  //!< access via detector-element hash id
+        const TgcReadoutElement* getTgcReadoutElement(const IdentifierHash& id) const;  //!< access via detector-element hash id
+        const CscReadoutElement* getCscReadoutElement(const IdentifierHash& id) const;  //!< access via detector-element hash id
 
-        const MdtReadoutElement* getMdtRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
-        //!< access via extended identifier field (no unpacking)
-
-        const sTgcReadoutElement* getsTgcRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const;
-        //!< access via extended identifier field (no unpacking)
-
-        const MMReadoutElement* getMMRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const;
-        //!< access via extended identifier field (no unpacking)
-
-        const TgcReadoutElement* getTgcRElement_fromIdFields(int i1, int i2, int i3) const;
-        //!< access via extended identifier field (no unpacking)
-
-        const CscReadoutElement* getCscRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
-        //!< access via extended identifier field (no unpacking)
-
-        const MdtReadoutElement* getMdtReadoutElement(IdentifierHash id) const;  //!< access via detector-element hash id
-        const RpcReadoutElement* getRpcReadoutElement(IdentifierHash id) const;  //!< access via detector-element hash id
-        const TgcReadoutElement* getTgcReadoutElement(IdentifierHash id) const;  //!< access via detector-element hash id
-        const CscReadoutElement* getCscReadoutElement(IdentifierHash id) const;  //!< access via detector-element hash id
-
-        const MdtDetectorElement* getMdtDetectorElement(IdentifierHash id) const;  //!< access via data-collection hash id
+        const MdtDetectorElement* getMdtDetectorElement(const IdentifierHash& id) const;  //!< access via data-collection hash id
 
         // access to Detector Elements (via hash id ) - NOTICE Detector Elements have the granularity of the EDM digit collections
-        const RpcDetectorElement* getRpcDetectorElement(IdentifierHash id) const;
-        const TgcDetectorElement* getTgcDetectorElement(IdentifierHash id) const;
-        const CscDetectorElement* getCscDetectorElement(IdentifierHash id) const;
+        const RpcDetectorElement* getRpcDetectorElement(const IdentifierHash& id) const;
+        const TgcDetectorElement* getTgcDetectorElement(const IdentifierHash& id) const;
+        const CscDetectorElement* getCscDetectorElement(const IdentifierHash& id) const;
 
         inline unsigned int nMuonStation() const;  //!< Number of MuonStations
 
@@ -337,16 +304,16 @@ namespace MuonGM {
         StatusCode initCSCInternalAlignmentMap();
         StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer& cscIntAline);
 
-        void   initABlineContainers();
-        void   setMMAsBuiltCalculator(const std::string& jsonPath);
-        void   setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; } // temporary way for passing MM passivation
+        void initABlineContainers();
+        void setMMAsBuiltCalculator(const std::string& jsonPath);
+        void setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; }  // temporary way for passing MM passivation
 #ifndef SIMULATIONBASE
-        const  NswAsBuilt::StripCalculator* getMMAsBuiltCalculator() const { return m_MMAsBuiltCalculator.get(); }
+        const NswAsBuilt::StripCalculator* getMMAsBuiltCalculator() const { return m_MMAsBuiltCalculator.get(); }
 #endif
-        double getMMPassivationCorrection() const { return m_MM_passivationCorr; } // temporary way for passing MM passivation
+        double getMMPassivationCorrection() const { return m_MM_passivationCorr; }  // temporary way for passing MM passivation
 
         // get Mdt AsBuilt parameters for chamber specified by Identifier
-        const MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id) const;
+        const MdtAsBuiltPar* getMdtAsBuiltParams(const Identifier& id) const;
 
         // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
         int rpcStationName(const int stationIndex) const;
@@ -356,31 +323,24 @@ namespace MuonGM {
 
     private:
         unsigned int rpcStationTypeIdx(const int stationName) const;  // map the RPC stationNames from the RpcIdHelper to 0-NRpcStatType
-        enum RpcStatType {
-            BML = 0,
-            BMS,
-            BOL,
-            BOS,
-            BMF,
-            BOF,
-            BOG,
-            BME,
-            BIR,
-            BIM,
-            BIL,
-            BIS,
-            UNKNOWN,
-        };
-        /// Helper method to pick-up convert the Identifier into the corresponding index accessing the array
+        enum RpcStatType { BML = 0, BMS, BOL, BOS, BMF, BOF, BOG, BME, BIR, BIM, BIL, BIS, UNKNOWN };
+        /// Helper method to convert the Identifier into the corresponding index accessing the array
         int rpcIdentToArrayIdx(const Identifier& id) const;
+        int mdtIdentToArrayIdx(const Identifier& id) const;
+        int tgcIdentToArrayIdx(const Identifier& id) const;
+        int cscIdentToArrayIdx(const Identifier& id) const;
+        int stgcIdentToArrayIdx(const Identifier& id) const;
+        int mmIdenToArrayIdx(const Identifier& id) const;
+
         /// The doublet z index is required during the initialization of the
         /// detector element
         int rpcIdentToArrayIdx(const Identifier& id, int& dbz_index) const;
 
-        void checkTgcReadoutElementIndices(int i1, int i2, int i3) const;
-        void checkCscReadoutElementIndices(int i1, int i2, int i3, int i4) const;
-        void checkMdtReadoutElementIndices(int i1, int i2, int i3, int i4) const;
-
+        int cscIdentToArrayIdx(const int stationName, const int eta, const int phi, const int layer) const;
+        int mdtIdentToArrayIdx(const int stationName, const int eta, const int phi, const int multi_layer) const;
+        int tgcIdentToArrayIdx(const int stationName, const int eta, const int phi) const;
+        int stgcIdentToArrayIdx(const int isSmall, const int stEta, const int stPhi, const int ml) const;
+        int mmIdenToArrayIdx(const int isSmall, const int stEta, const int stPhi, const int ml) const;
         int m_cachingFlag{1};
         int m_cacheFillingFlag{1};
         int m_minimalgeo{0};
@@ -401,11 +361,11 @@ namespace MuonGM {
         GenericTGCCache m_genericTGC;
 
         // Geometry versioning
-        std::string m_geometryVersion;  // generic name of the Layout
-        std::string m_DBMuonVersion;    // name of the MuonVersion table-collection in Oracle
+        std::string m_geometryVersion{};  // generic name of the Layout
+        std::string m_DBMuonVersion{};    // name of the MuonVersion table-collection in Oracle
 
-        std::string m_NSWABLinesAsciiSideA;
-        std::string m_NSWABLinesAsciiSideC;
+        std::string m_NSWABLinesAsciiSideA{};
+        std::string m_NSWABLinesAsciiSideC{};
 
         // pointers to IdHelpers
         const MdtIdHelper* m_mdtIdHelper{nullptr};
@@ -416,15 +376,18 @@ namespace MuonGM {
         const MmIdHelper* m_mmIdHelper{nullptr};
 
         // 115.6 kBytes.
-        std::unique_ptr<MdtReadoutElement> m_mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
-        std::unique_ptr<CscReadoutElement> m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
-
+        static constexpr int s_NumMaxMdtElements = NMdtStatType * NMdtStatEta * NMdtStatPhi * NMdtMultilayer;
+        static constexpr int s_NumMaxCscElements = NCscStatType * NCscStatEta * NCscStatPhi * NCscChamberLayer;
         static constexpr int s_NumMaxRpcElements = NRpcStatType * NRpcStatEta * NRpcStatPhi * NDoubletR * NDoubletZ;
+        static constexpr int s_NumMaxTgcElements = NTgcStatType * NTgcStatEta * NTgcStatPhi;
+        static constexpr int s_NumMaxSTgcElemets = NsTgStatEta * NsTgStatPhi * NsTgChamberLayer;
+        static constexpr int s_NumMaxMMElements = NMMcStatEta * NMMcStatPhi * NMMcChamberLayer;
+        std::array<std::unique_ptr<MdtReadoutElement>, s_NumMaxMdtElements> m_mdtArray;
+        std::array<std::unique_ptr<CscReadoutElement>, s_NumMaxCscElements> m_cscArray;
         std::array<std::unique_ptr<RpcReadoutElement>, s_NumMaxRpcElements> m_rpcArray;
-
-        std::unique_ptr<TgcReadoutElement> m_tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
-        std::unique_ptr<sTgcReadoutElement> m_stgArray[NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
-        std::unique_ptr<MMReadoutElement> m_mmcArray[NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
+        std::array<std::unique_ptr<TgcReadoutElement>, s_NumMaxTgcElements> m_tgcArray;
+        std::array<std::unique_ptr<sTgcReadoutElement>, s_NumMaxSTgcElemets> m_stgArray;
+        std::array<std::unique_ptr<MMReadoutElement>, s_NumMaxMMElements> m_mmcArray;
         //
         std::array<const MdtReadoutElement*, MdtRElMaxHash> m_mdtArrayByHash{nullptr};
         std::array<const CscReadoutElement*, CscRElMaxHash> m_cscArrayByHash{nullptr};
@@ -472,6 +435,10 @@ namespace MuonGM {
 #endif
         // temporary way to pass MM correction for passivation
         double m_MM_passivationCorr{0.};
+
+        template <typename read_out, size_t N> void clearCache(std::array<std::unique_ptr<read_out>, N>& array);
+        template <typename read_out, size_t N> void fillCache(std::array<std::unique_ptr<read_out>, N>& array);
+        template <typename read_out, size_t N> void refreshCache(std::array<std::unique_ptr<read_out>, N>& array);
     };
 
     const MdtIdHelper* MuonDetectorManager::mdtIdHelper() const { return m_mdtIdHelper; }

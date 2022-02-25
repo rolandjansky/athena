@@ -42,7 +42,7 @@ namespace TrigConf {
        * @param outputTEs list of trigger elements that form the signature
        */
       HLTSignature( unsigned int signature_counter, int logic,
-                    const std::vector<HLTTriggerElement*>& outputTEs = std::vector<HLTTriggerElement*>() );
+                    std::vector<HLTTriggerElement*>&& outputTEs  );
 
       /**@brief copy constructor
        *

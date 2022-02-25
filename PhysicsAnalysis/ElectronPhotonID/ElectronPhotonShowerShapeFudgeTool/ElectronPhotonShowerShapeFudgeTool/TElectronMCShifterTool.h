@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! @file TElectronMCShifterTool.h
@@ -89,6 +89,7 @@ namespace ElePIDNames{
     ,wstot
     ,e277
     ,DeltaE
+    ,NumVars
   };
 }
 
@@ -185,12 +186,12 @@ public:
                 float& DeltaE ,
                 float& deltaeta1,
                 float& deltaphiRescaled
-              );
+              ) const;
 
  //static const double Shifts[17][54]; // 17 variables x 9 eta bins x 6 et bins
- std::map<ElePIDNames::Var, std::vector<float> > Shifts;
+ std::vector<float> Shifts[ElePIDNames::NumVars];
  /** @brief vector to hold the widths to be applied */
- std::map<ElePIDNames::Var, std::vector<float> > Widths;
+ std::vector<float> Widths[ElePIDNames::NumVars];
 
 private :
  //! Matrix of shift values.

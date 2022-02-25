@@ -81,7 +81,7 @@ namespace LVL1 {
     bool m_und = true;
     bool m_offPhi = 2;
 
-    SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXtauAlgo_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
+    SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
 
   };
   

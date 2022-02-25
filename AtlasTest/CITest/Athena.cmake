@@ -19,8 +19,11 @@ atlas_add_citest( G4ExHive
    SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
    PROPERTIES PROCESSORS 4 )
 
-atlas_add_citest( OverlayTier0
-   SCRIPT RunTier0Tests.py -o -n )
+atlas_add_citest( OverlayRun2MC
+   SCRIPT RunWorkflowTests_Run2.py --CI -o -w MCOverlay )
+
+atlas_add_citest( OverlayRun2Data
+   SCRIPT RunWorkflowTests_Run2.py --CI -o -w DataOverlay )
 
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
@@ -28,8 +31,29 @@ atlas_add_citest( FastChain
 atlas_add_citest( SimulationRun2AF3
    SCRIPT RunWorkflowTests_Run2.py --CI -s -w AF3 )
 
+atlas_add_citest( SimulationRun4FullSim
+   SCRIPT RunWorkflowTests_Run4.py --CI -s -w FullSim -e '--maxEvents 5'
+   LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4
+
+
 #################################################################################
-# Reconstruction
+# Standard reconstruction workflows
+#################################################################################
+
+atlas_add_citest( RecoRun3MC
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25' --no-output-checks )
+
+atlas_add_citest( RecoRun3MC_CAConfig
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--CA --maxEvents 5' --no-output-checks )
+
+atlas_add_citest( RecoRun4MC
+   SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder
+   PROPERTIES REQUIRED_FILES ../SimulationRun4FullSim/run_s3761/myHITS.pool.root
+   DEPENDS SimulationRun4FullSim )
+
+
+#################################################################################
+# Special reconstruction
 #################################################################################
 
 atlas_add_citest( EgammaCAConfig
@@ -37,6 +61,23 @@ atlas_add_citest( EgammaCAConfig
 
 atlas_add_citest( Egamma
    SCRIPT ut_egammaARTJob_test.sh )
+
+
+#################################################################################
+# Trigger
+#################################################################################
+
+atlas_add_citest( TriggerMC
+   SCRIPT test_trigAna_RDOtoRDOTrig_v1Dev_build.py )
+
+atlas_add_citest( TriggerData
+   SCRIPT test_trig_data_v1Dev_build.py )
+
+atlas_add_citest( TriggerCosmic
+   SCRIPT test_trig_data_v1Cosmic_build.py )
+
+atlas_add_citest( TriggerDataCAConfig
+   SCRIPT test_trig_data_newJO_build.py )
 
 
 # TODO: We stop here for now (migration ongoing...)
@@ -101,21 +142,3 @@ atlas_add_citest( Trigger_athenaHLT_decodeBS
 
 atlas_add_citest( Trigger_athenaHLT_data
    SCRIPT test_trigP1_v1PhysP1_build.py )
-
-atlas_add_citest( Trigger_athena_MC
-   SCRIPT test_trigAna_RDOtoRDOTrig_v1Dev_build.py )
-
-atlas_add_citest( Trigger_athena_data
-   SCRIPT test_trig_data_v1Dev_build.py )
-
-atlas_add_citest( Trigger_athena_cosmic
-   SCRIPT test_trig_data_v1Cosmic_build.py )
-
-atlas_add_citest( Trigger_athena_data_NewConfig
-   SCRIPT test_trig_data_newJO_build.py )
-
-#################################################################################
-# Upgrade
-#################################################################################
-atlas_add_citest( PhaseIIUpgrade
-   SCRIPT RunWorkflowTests_Run4.py --CI -e '--maxEvents 5' )

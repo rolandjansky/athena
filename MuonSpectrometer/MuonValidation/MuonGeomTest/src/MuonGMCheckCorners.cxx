@@ -28,7 +28,8 @@
 typedef std::istringstream mystream;
 
 MuonGMCheckCorners::MuonGMCheckCorners(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), p_EventStore(nullptr), p_ActiveStore(nullptr) {
+    AthAlgorithm(name, pSvcLocator), p_EventStore(nullptr)
+{
     m_check_surfaces = 0;
     declareProperty("check_surfaces", m_check_surfaces);
 
@@ -68,9 +69,6 @@ StatusCode MuonGMCheckCorners::initialize() {
     // Locate the StoreGateSvc and initialize our local ptr
     ATH_CHECK(serviceLocator()->service("StoreGateSvc", p_EventStore));
     ATH_MSG_DEBUG("StoreGateSvc found");
-    // Locate the ActiveStoreSvc and initialize our local ptr
-    ATH_CHECK(serviceLocator()->service("ActiveStoreSvc", p_ActiveStore));
-    ATH_MSG_DEBUG("ActiveStoreSvc found");
 
     if (m_check_csc) checkreadoutcscgeo();
     if (m_check_mdt) checkreadoutmdtgeo();

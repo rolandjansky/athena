@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionUtilities/CollMetaRegistry.h"
@@ -7,14 +7,15 @@
 
 using namespace pool;
 
-CollMetaRegistry* CollMetaRegistry::m_instance = 0;
+std::unique_ptr<CollMetaRegistry> CollMetaRegistry::m_instance = 0;
 
 CollMetaRegistry* CollMetaRegistry::Instance()
 {
-   if (m_instance == 0) {
-      m_instance = new CollMetaRegistry();
+   if (!m_instance) {
+     // Can't use make_unique because ctor is protected.
+     m_instance.reset (new CollMetaRegistry);
    }
-   return m_instance;
+   return m_instance.get();
 }
 
 CollMetaRegistry::Container::const_iterator CollMetaRegistry::seek(std::string input)

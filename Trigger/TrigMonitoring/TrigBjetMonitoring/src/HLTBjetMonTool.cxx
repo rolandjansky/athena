@@ -1090,14 +1090,9 @@ StatusCode HLTBjetMonTool::book(){
 	    ATH_CHECK( btaggingLinkInfo.isValid() ) ;
 	    const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
 
-	    double wIP3D, wSV1, wCOMB, wMV2c10  = 0.; // discriminant variables
+	    double wIP3D = 0.; // discriminant variable
 	    float svp_efrc, svp_mass = -1.; int svp_n2t = -1; // SV1 variables
 	    btag->loglikelihoodratio("IP3D", wIP3D);
-	    btag->loglikelihoodratio("SV1", wSV1);
-	    double SV1_loglikelihoodratioLZ = btag->SV1_loglikelihoodratio();
-	    wCOMB = wIP3D+wSV1;
-
-	    btag->MVx_discriminant("MV2c10",wMV2c10);
 
 	    // Suggestion of LZ
 	    btag->variable<float>("SV1", "masssvx", svp_mass);
@@ -1114,13 +1109,8 @@ StatusCode HLTBjetMonTool::book(){
 	    if (HistBjet) hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(btag->IP3D_pu());
 	    if (HistBjet) hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(btag->IP3D_pb());
 	    if (HistBjet) hist("IP3D_pc_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(btag->IP3D_pc());
-	    ATH_MSG_DEBUG("                 -   IP3D / SV1 / IP3D+SV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB );
-	    ATH_MSG_DEBUG("                 -   SV1 LZ: " << SV1_loglikelihoodratioLZ );
-	    ATH_MSG_DEBUG("                 -   MV2c10 : " << wMV2c10 );
+	    ATH_MSG_DEBUG("                 -   IP3D: " << wIP3D );
 	    if (HistBjet) hist("wIP3D_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wIP3D);
-	    if (HistBjet) hist("wSV1_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wSV1);
-	    if (HistBjet) hist("wCOMB_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wCOMB);
-	    if (HistBjet) hist("wMV2c10_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c10);
 	    
 	    // Get SV1 secondary vtx information, see:
 	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and

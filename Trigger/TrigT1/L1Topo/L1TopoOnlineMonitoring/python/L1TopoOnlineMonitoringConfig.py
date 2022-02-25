@@ -49,6 +49,10 @@ def getL1TopoLegacyOnlineMonitor(flags):
     alg.MonTool = GenericMonitoringTool('MonTool')
     configureLegacyHistograms(alg, flags)
 
+    # Disable ByteStream monitoring when running on MC
+    alg.doRawMon = not flags.Input.isMC
+    alg.doCnvMon = not flags.Input.isMC
+
     def getAlgProp(prop):
         return getattr(alg, prop) if hasattr(alg, prop) \
                else alg.getDefaultProperty(prop)

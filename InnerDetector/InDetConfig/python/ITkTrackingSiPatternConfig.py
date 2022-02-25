@@ -47,6 +47,11 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
         if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
             kwargs.setdefault("usePixel", False)
 
+    if flags.ITk.Tracking.writeSeedValNtuple:
+        kwargs.setdefault("WriteNtuple", True)
+        HistService = CompFactory.THistSvc(Output = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"])
+        acc.addService(HistService)
+
     ITkSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
 
     acc.setPrivateTools(ITkSiSpacePointsSeedMaker)

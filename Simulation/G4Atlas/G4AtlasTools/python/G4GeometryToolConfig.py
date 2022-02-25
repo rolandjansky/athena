@@ -5,6 +5,8 @@ from AthenaConfiguration.Enums import BeamType, LHCPeriod
 
 from AthenaCommon import Logging
 
+from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, LArParameterization
+
 #the physics region tools
 from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,HGTDPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
@@ -375,7 +377,7 @@ def generateSubDetectorList(ConfigFlags):
     result = ComponentAccumulator()
     SubDetectorList=[]
 
-    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Signal]:
         if ConfigFlags.Beam.Type is BeamType.Cosmics and hasattr(ConfigFlags, "Sim.ReadTR"):
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
@@ -428,7 +430,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
     # if ConfigFlags.Beam.Type is not BeamType.Cosmics and not ConfigFlags.Detector.GeometryMuon and not \
-    #    (ConfigFlags.Sim.CavernBG != 'Signal'):
+    #    (ConfigFlags.Sim.CavernBackground is not CavernBackground.Signal):
     if not (ConfigFlags.Detector.GeometryMuon or ConfigFlags.Detector.GeometryCavern):
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
@@ -512,7 +514,7 @@ def VoxelDensityToolCfg(ConfigFlags, name="VoxelDensityTool", **kwargs):
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
 
-    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Signal]:
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
     if ConfigFlags.Detector.GeometryID:
@@ -527,7 +529,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                 regionCreatorList += [TRT_ArPhysicsRegionToolCfg(ConfigFlags)] #'TRT_KrPhysicsRegionTool'
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.GeometryBpipe:
-            if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+            if ConfigFlags.Sim.BeamPipeSimMode is not BeamPipeSimMode.Normal:
                 regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
             #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
             if False:
@@ -542,7 +544,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: I do not know why this is only for ITk (and HGTD)
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.GeometryBpipe:
-            if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+            if ConfigFlags.Sim.BeamPipeSimMode is not BeamPipeSimMode.Normal:
                 regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
             #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
             if False:
@@ -550,22 +552,22 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryCalo:
         if ConfigFlags.Detector.GeometryLAr:
             # Shower parameterization overrides the calibration hit flag
-            if ConfigFlags.Sim.LArParameterization > 0 \
-               and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
+            if ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers \
+               and ConfigFlags.Sim.CalibrationRun in [CalibrationRun.LAr, CalibrationRun.LArTile, CalibrationRun.DeadLAr]:
                 Logging.log.info('You requested both calibration hits and frozen showers / parameterization in the LAr.')
                 Logging.log.info('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                Logging.log.info('  Please try again with a different value of either ConfigFlags.Sim.LArParameterization (' + str(ConfigFlags.Sim.LArParameterization) + ') or ConfigFlags.Sim.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+                Logging.log.info('  Please try again with a different value of either ConfigFlags.Sim.LArParameterization (' + str(ConfigFlags.Sim.LArParameterization.value) + ') or ConfigFlags.Sim.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun.value)+')')
                 raise RuntimeError('Configuration not allowed')
             regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags),
                                   EMECPhysicsRegionToolCfg(ConfigFlags),
                                   HECPhysicsRegionToolCfg(ConfigFlags),
                                   FCALPhysicsRegionToolCfg(ConfigFlags)]
-            if ConfigFlags.Sim.LArParameterization > 0:
+            if ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers:
                 # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
                 regionCreatorList += [EMECParaPhysicsRegionToolCfg(ConfigFlags),
                                       FCALParaPhysicsRegionToolCfg(ConfigFlags),
                                       FCAL2ParaPhysicsRegionToolCfg(ConfigFlags)]
-                if ConfigFlags.Sim.LArParameterization > 1:
+                if ConfigFlags.Sim.LArParameterization in [LArParameterization.DeadMaterialFrozenShowers, LArParameterization.FrozenShowersFCalOnly]:
                     pass
                     #todo - add the line below
                     regionCreatorList += [PreSampLArPhysicsRegionToolCfg(ConfigFlags), DeadMaterialPhysicsRegionToolCfg(ConfigFlags)]
@@ -576,7 +578,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryMuon:
         #todo - add the line below
         regionCreatorList += [DriftWallPhysicsRegionToolCfg(ConfigFlags), DriftWall1PhysicsRegionToolCfg(ConfigFlags), DriftWall2PhysicsRegionToolCfg(ConfigFlags)]
-        if ConfigFlags.Sim.CavernBG not in ['Off', 'Read']:# and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+        if ConfigFlags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Read]:# and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
             regionCreatorList += [MuonSystemFastPhysicsRegionToolCfg(ConfigFlags)]
     return regionCreatorList
 
@@ -753,7 +755,7 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     else:
-        if ConfigFlags.Beam.Type is BeamType.Cosmics or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
+        if ConfigFlags.Beam.Type is BeamType.Cosmics or (ConfigFlags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Signal]):
             kwargs.setdefault("World", result.popToolsAndMerge(CavernWorldCfg(ConfigFlags)))
         else:
             kwargs.setdefault("World", result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags)))
@@ -779,7 +781,7 @@ def CavernWorldCfg(ConfigFlags, name="Cavern", **kwargs):
     kwargs.setdefault("DetectorName", "World")
     bedrockDX = 302700
     bedrockDZ = 301000
-    if ConfigFlags.Sim.CavernBG == 'Off':
+    if ConfigFlags.Sim.CavernBackground is CavernBackground.Off:
         ## Be ready to resize bedrock if the cosmic generator needs more space
         if ConfigFlags.Sim.ISFRun:
             # for ISF cosmics simulation, set world volume to biggest possible case

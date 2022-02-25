@@ -122,3 +122,13 @@ def getTrackUsedInFitTool(trkOpt=""):
         Decorator = IDUsedInFitTrkDecoTool
     )
     return JetUsedInFitTrkDecoTool
+
+def getPFlowSelAlg():
+    # PFlow objects matched to electrons/muons filtering algorithm 
+    return  CompFactory.JetPFlowSelectionAlg( "pflowselalg",
+                                              electronID = "LHMedium",
+                                              ChargedPFlowInputContainer  = "JetETMissChargedParticleFlowObjects",
+                                              NeutralPFlowInputContainer  = "JetETMissNeutralParticleFlowObjects",
+                                              ChargedPFlowOutputContainer = "GlobalPFlowChargedParticleFlowObjects",
+                                              NeutralPFlowOutputContainer = "GlobalPFlowNeutralParticleFlowObjects"
+                                             )

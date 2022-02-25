@@ -863,7 +863,7 @@ if __name__ == '__main__':
                      'HLT_mu20_ivarmedium_L1MU20',
                      'HLT_2mu6_L12MU6']
 
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 
     for c in configToTest:
         log.info("testing config %s", c)

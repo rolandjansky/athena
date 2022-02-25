@@ -94,7 +94,7 @@ elif METalgorithm == "pufit" or METalgorithm == "tc":
 elif METalgorithm == "mht":
   from TriggerMenuMT.HLT.Jet.JetRecoSequences import jetRecoSequence
   from TrigUpgradeTest.jetMenuHelper import jetDictFromString
-  from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+  from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
   jetRecoDict=jetDictFromString("a4_tc_em_subjes")
   (jetSequence, jetsKey) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", RoIs="FullScanRoIs", **jetRecoDict )
   topSequence += jetSequence
