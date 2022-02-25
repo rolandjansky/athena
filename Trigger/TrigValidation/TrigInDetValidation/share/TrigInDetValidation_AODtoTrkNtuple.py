@@ -3,7 +3,6 @@
 
 FilesInput = [ "AOD.pool.root" ]
 
-
 theApp.EvtMax=-1                                       #says how many events to run over. Set to -1 for all events
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -194,14 +193,18 @@ if ( True ) :
     "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
     "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
-    # double electron chains for tag and probe analysis
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=-1",
+    # electron lrt e tag
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=1",
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=1",
 
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=-1",
+    "HLT_e26_lhtight_ivarloose_e26_lhloose_nopix_lrttight_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=1",
+    "HLT_e26_lhtight_ivarloose_e26_lhloose_nopix_lrttight_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=1",
+    # electron lrt photon tag
+    "HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=0",
+    "HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=0",
+
+    "HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=0",
+    "HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=0",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",

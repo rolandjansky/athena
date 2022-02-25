@@ -18,10 +18,10 @@
         "chains" : "HLT_mu6_idperf_L1MU5VF:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon  HLT_mu6_idperf_L1MU5VF:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon  HLT_mu6_ivarmedium_L1MU5VF:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso"
     },
     "L2electronLRT":{
-	"chains" : "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT"
+	"chains" : "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT:0 HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT:0"
     },
     "EFelectronLRT":{
-        "chains" : "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
+        "chains" : "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT:0 HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT:0"
     },
     "L2electron":{
         "chains" : "HLT_e26_idperf_loose_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron HLT_e28_idperf_loose_L1EM22VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron"
