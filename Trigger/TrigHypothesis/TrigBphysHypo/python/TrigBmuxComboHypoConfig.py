@@ -38,6 +38,8 @@ def BmuxComboHypoCfg(name):
         MuonCollectionKey = 'HLT_Muons_Bmumux',
         TrackCollectionKey = 'HLT_IDTrack_Bmumux_IDTrig',
         DeltaR = 0.01,
+        FitAttemptsWarningThreshold = 200,
+        FitAttemptsBreakThreshold = 1000,
         # B+ -> mu+ nu_mu anti-D0(-> K+ pi-) and B0 -> mu+ nu_mu D*-(-> anti-D0(-> K+ pi-) pi-)
         BToD0 = True,
         BToD0_makeDstar = True,
