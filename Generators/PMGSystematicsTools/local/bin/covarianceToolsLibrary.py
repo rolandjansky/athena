@@ -427,16 +427,8 @@ def calculateChi2(data, mc, cov=None, verbosity=0):
     values = {}
     for name, obj in {'data': data, 'mc': mc}.items():
       if type(obj) in (yoda.Scatter1D, yoda.Scatter2D, yoda.Scatter3D):
-         # tmpErrors = GetDiagonalCovMatricesFromScatter(obj)
-         # TODO handle asymmetric errors...
-         # errorsSq[name] = tmpErrors[0]
-         # errorsSq[name] += tmpErrors[1]
-         # errorsSq[name] *= float(0.5)
-         # ndf = errorsSq[name].shape[0]
          values[name] = scatterToMatrix(obj)
       else:  # Histo*D hopefully !
-        # ndf = obj.numBins
-        # errorsSq[name] = np.zeros([ndf, ndf])
         values[name] = histoToMatrix(obj, bw=True)  # bw true ??
 
     v = values['data'].copy()
@@ -452,8 +444,7 @@ def calculateChi2(data, mc, cov=None, verbosity=0):
     if (cov.shape[0] != v.shape[0]):
       print("[ERROR] the specified covariance matrix is incompatible with the vector of data-MC", cov, v)
       exit(1)
-    # cov0 = makeCovarianceMatrix(data, True)
-    # print("diag cov this matrix has determinant ", LA.det(cov0))
+
     precision_matrix = LA.inv(cov.copy())
 
     if (verbosity > 1):
@@ -492,7 +483,6 @@ def chi2ContributionMatrix(diff, prec):
     for j in range(nbins):
        for i in range(nbins):
          mo[i][j] = diff[0][j] * prec[i][j] * diffT[i][0]
-         # print("row ", i, " col ", j, " diff ", diff[0][j], " diffT ", diffT[i][0], " prc ", prec[i][j], " = ", mo[i][j])
     return mo
 
 
@@ -503,7 +493,6 @@ def chi2ContribsByRow(chi2contribs):
        mo[j] = 0.0
        for i in range(nbins):
          mo[j] += float(chi2contribs[i][j])
-         # print("row ", i, " col ", j, " diff ", diff[0][j], " diffT ", diffT[i][0], " prc ", prec[i][j], " = ", mo[i][j])
     return mo
 
 
@@ -534,7 +523,6 @@ def makeSuperAO(aoList, verbosity=0):
              corrOut.setdefault(pointCounter, {})[syst] = {'up': 0.0, 'dn': 0.0}
         pointsOut.append(aoIn.points()[ipt])
         pointCounter += 1
-    # aoOut.addPoints(pointsOut)
     for i in range(aoOut.numPoints()):
       if (verbosity) > 1: print("[INFO] Super AO points ", aoOut.points()[i])
     corrs = yaml.dump(corrOut, default_flow_style=True, default_style='', width=1e6)
