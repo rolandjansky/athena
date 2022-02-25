@@ -66,7 +66,7 @@ def _ftf(flags, chainDict):
 def _precisonCaloSeq(flags):
     recoAcc = InViewRecoCA('ElectronRoITopoClusterReco', RequireParentView = True)
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
-                                                              DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
+                                                              DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs.Path),
                                                                            ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage')]))
 
     from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
