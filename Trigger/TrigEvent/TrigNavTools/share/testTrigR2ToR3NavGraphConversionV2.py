@@ -22,7 +22,8 @@ if __name__=='__main__':
     ###test input file format: --filesInput='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root'
 
     # Set the Athena configuration flags
-    ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root"]
+    #ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root"]
+    ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357772.physics_Main.recon.AOD.r13286/AOD.27654050._000557.pool.root.1"]
 
     ConfigFlags.Output.AODFileName = "outAOD.pool.root"
     ConfigFlags.Detector.GeometryLAr=True
@@ -51,7 +52,7 @@ if __name__=='__main__':
     alg.doCompression = True
     alg.addTauTracks = False
 
-    alg.Collections = ["xAOD::TrigEMCluster", "xAOD::TrigEMClusterContainer", "xAOD::TrigRingerRings", "xAOD::TrigRingerRingsContainer", "xAOD::TrigRNNOutput", "xAOD::TrigRNNOutputContainer", "xAOD::CaloClusterContainer", "xAOD::L2StandAloneMuonContainer", "xAOD::L2CombinedMuonContainer", "xAOD::L2IsoMuonContainer", "xAOD::MuonContainer", "xAOD::TauJetContainer", "xAOD::ElectronContainer", "xAOD::PhotonContainer", "xAOD::JetContainer", "xAOD::BTaggingContainer", "xAOD::BTagVertexContainer", "xAOD::JetElementContainer", "xAOD::TrigMissingET", "xAOD::TrigBphysContainer"]
+    alg.Collections = ["xAOD::TrigEMCluster", "xAOD::TrigEMClusterContainer", "xAOD::TrigRingerRings", "xAOD::TrigRingerRingsContainer", "xAOD::TrigRNNOutput", "xAOD::TrigRNNOutputContainer", "xAOD::CaloClusterContainer", "xAOD::L2StandAloneMuonContainer", "xAOD::L2StandAloneMuonAuxContainer", "xAOD::L2CombinedMuonContainer", "xAOD::L2CombinedMuonAuxContainer","xAOD::L2IsoMuonContainer", "xAOD::MuonContainer", "xAOD::MuonAuxContainer","xAOD::TauJetContainer", "xAOD::ElectronContainer", "xAOD::PhotonContainer", "xAOD::JetContainer", "xAOD::BTaggingContainer", "xAOD::BTagVertexContainer", "xAOD::JetElementContainer", "xAOD::TrigMissingET", "xAOD::TrigBphysContainer"]
     if (alg.addTauTracks):
         alg.Collections.append("xAOD::TauTrackContainer")
     
