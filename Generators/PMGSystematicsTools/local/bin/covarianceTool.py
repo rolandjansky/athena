@@ -714,33 +714,22 @@ if __name__ == "__main__":
          ct.updateAOinYODA(hmc, model)
          plotDictionary['chi2-value'].setdefault("data-vs-%s" % mcName, {})
          plotDictionary['chi2-value']["data-vs-%s" % mcName][hmc.name()] = "$%.2f / %d$" % (chi2, ndf)
-         # uoutfile.write("\n")
-
-         # outfile.write("\n")
-         # outfile.write("Total Chi2=%.3f/%d \n"% (chi2, ndf))
 
          mcResults[model] = [chi2, ndf]
          print("[INFO] %s:%s vs %s:%s --> chi2=%.2f/%d (prob=%.2f) " % (opts.data, hdata.name(), model, hmc.name(), chi2, ndf, prob))
 
          if "superAO" in hdata.name(): continue
-         # print(("rivet-cmphistos %s:Title='%s ($\chi^2=%.2f/%d$)' -m .*%s -o %s " % (model, mcName, chi2, ndf, hmc.name, outdir + "/data-vs-%s/plots/" % mcName)))
-         # os.system("rivet-cmphistos %s:Title='%s ($\chi^2=%.2f/%d$)' -m .*%s -o %s " % (model, mcName, chi2, ndf, hmc.name, outdir + "/data-vs-%s/plots/" % mcName))
-         # os.system("local/bin/make-plots-lcompare %s/.%s.dat -q " % (outdir + "/data-vs-%s/plots/" % mcName, hmc.path().replace("/%s" %hmc.name, "_%s" %hmc.name)))
-         # os.system("make-plots %s/.%s.dat -q " % (outdir + "/data-vs-%s/plots/" % mcName, hmc.path().replace("/%s" %hmc.name, "_%s" %hmc.name)))
+         
          res = {'%s' % opts.data: '[Data]', '%s' % model: '[%s (# chi^2=%.2f/%d)]' % (mcName, chi2, ndf)}
          outdirplots = outdir + "/data-vs-%s/plots/" % mcName
          plots = st.makeSystematicsPlotsWithROOT(res, outdirplots, nominalName='Data', ratioZoom=None, regexFilter=".*%s.*" % hmc.name(), regexVeto=None)
 
          plotDictionary['data-vs-mc'].setdefault("data-vs-%s" % mcName, {})
-         # plotDictionary['data-vs-mc']["data-vs-%s" % mcName][hmc.name] = "%s/.%s.pdf" % (outdir + "/data-vs-%s/plots/" % mcName, hmc.path().replace("/%s" %hmc.name, "_%s" %hmc.name))
          plotDictionary['data-vs-mc']["data-vs-%s" % mcName][hmc.name()] = plots[0]
 
-       # commandLine_cmphistos = 'rivet-cmphistos '
-       # commandLine_makeplots = 'make-plots '
-       # commandLine_makeplots = 'local/bin/make-plots-lcompare '
        outdir = "outputs/%s/summary" % (opts.data.replace(".yoda", ""))
        pathName = hdata.path().replace("/REF", "")
-       # commandLine_makeplots += "%s/.%s.dat " % (outdir, pathName.replace("/%s" % hdata.name, "_%s" % hdata.name))
+
        res = {'%s' % opts.data: '[Data]'}
        for model in histograms['models']:
          mcName = mcNames[model]
@@ -750,14 +739,6 @@ if __name__ == "__main__":
 
        if "superAO" in hdata.name(): continue
        plots = st.makeSystematicsPlotsWithROOT(res, outdir, nominalName='Data', ratioZoom=None, regexFilter=".*%s.*" % hmc.name(), regexVeto=None)
-       # os.system('mkdir -p %s' % outdir)
-       # commandLine_cmphistos += "-o %s" %outdir
-       # commandLine_makeplots += "-q"
-       # print(commandLine_cmphistos)
-       # print(commandLine_makeplots)
-       # os.system(commandLine_cmphistos)
-       # os.system(commandLine_makeplots)
-       # plotDictionary['summary-plot'][hmc.name()] = "%s/.%s.pdf" % (outdir, pathName.replace("/%s" % hdata.name(), "_%s" % hdata.name()))
        plotDictionary['summary-plot'][hmc.name()] = plots[0]
        makeSummaryTable(plotDictionary, outdir + "/summary_%s.tex" % hdata.name(), hdata.name())
        plotDictionary['summary-table'][hmc.name()] = outdir + "/summary_%s.tex" % hdata.name()
@@ -779,5 +760,4 @@ if __name__ == "__main__":
        os.system('pdflatex %s > /dev/null' % beamerPath)
        beamerPath = beamerPath.replace("tex", "pdf").split("/")[-1]
        print("[INFO] your summary slides are here: \n", beamerPath)
-     # os.system('cp %s ~/www/UCL/QualTask/sandbox/summarySlides/%s ' % (beamerPath, beamerPath))
-     # print("https://lcorpe.web.cern.ch/lcorpe/UCL/QualTask/sandbox/summarySlides/%s" % beamerPath)
+
