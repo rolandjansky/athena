@@ -45,7 +45,7 @@ def getTrackSelAlg(trkOpt="default", trackSelOpt=False):
         trkSelAlg = CompFactory.JetTrackSelectionAlg( "trackselalg",
                                                       TrackSelector = idtracksel,
                                                       InputContainer = trkProperties["Tracks"],
-                                                      OutputContainer = trkProperties["JetTracks"],
+                                                      OutputContainer = trkProperties["JetTracks"],                              
                                                     )
                                                     
         
@@ -57,6 +57,7 @@ def getTrackSelAlg(trkOpt="default", trackSelOpt=False):
                                                       TrackSelector = idtracksel,
                                                       InputContainer = trkProperties["Tracks"],
                                                       OutputContainer = trkProperties["JetTracksQualityCuts"],
+                                                      DecorDeps = ["TTVA_AMVFWeights_forReco", "TTVA_AMVFVertices_forReco"] # Hardcoded for now... we might want to have this context-dependent ??
                                                     )
 
     return trkSelAlg

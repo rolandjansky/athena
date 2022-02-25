@@ -10,6 +10,12 @@ def METAssociatorCfg(configFlags, jetType):
     sequencename = "METAssociation"
 
     components = ComponentAccumulator()
+
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg   
+    extrapCfg = AtlasExtrapolatorCfg(configFlags)
+    extrapCfg.popPrivateTools()
+    components.merge(extrapCfg)
+    
     from AthenaConfiguration.ComponentFactory import CompFactory
     AthSequencer=CompFactory.AthSequencer
     components.addSequence( AthSequencer(sequencename) )

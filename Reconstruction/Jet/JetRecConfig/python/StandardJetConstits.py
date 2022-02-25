@@ -16,6 +16,7 @@
 ########################################################################
 from .JetDefinition import xAODType,  JetInputConstitSeq, JetInputExternal, JetConstitModifier, JetInputConstit
 from .StandardJetContext import inputsFromContext
+from AthenaConfiguration.Enums import BeamType
 
 # Prepare dictionnaries to hold all of our standard definitions.
 # They will be filled from the list below
@@ -106,24 +107,26 @@ _stdInputList = [
 
     JetInputExternal("PrimaryVertices",   xAODType.Vertex,
                      prereqs = ["input:InDetTrackParticles"],
+                     filterfn = lambda flags : (flags.Beam.Type == BeamType.Collisions, f"No vertexing with {BeamType.Collisions}"), # should be changed when a reliable "EnableVertexing" flag exists
                      ),
     # No quality criteria are applied to the tracks, used for ghosts for example
     JetInputExternal("JetSelectedTracks",     xAODType.TrackParticle,
-                     prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
+                     prereqs= [ inputsFromContext("Tracks") ], # in std context, this is InDetTrackParticles (see StandardJetContext)
                      algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context, trackSelOpt=False )
                      ),
     # Apply quality criteria defined via trackSelOptions in jdef.context (used e.g. for track-jets)
     JetInputExternal("JetSelectedTracks_trackSelOpt",     xAODType.TrackParticle,
-                     prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)  
+                     prereqs= [ inputsFromContext("Tracks") ], # in std context, this is InDetTrackParticles (see StandardJetContext)  
                      algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context, trackSelOpt=True )
                      ),
     JetInputExternal("JetTrackUsedInFitDeco", xAODType.TrackParticle,
-                     prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
+                     prereqs= [ inputsFromContext("Tracks") , # in std context, this is InDetTrackParticles (see StandardJetContext)
+                                inputsFromContext("Vertices")],
                      algoBuilder = inputcfg.buildJetTrackUsedInFitDeco
                      ),
     JetInputExternal("JetTrackVtxAssoc",      xAODType.TrackParticle,
                      algoBuilder = inputcfg.buildJetTrackVertexAssoc,
-                     prereqs = ["input:JetTrackUsedInFitDeco"]
+                     prereqs = ["input:JetTrackUsedInFitDeco", inputsFromContext("Vertices") ]
                      ),
 
     # *****************************
@@ -257,7 +260,11 @@ _stdSeqList = [
 
     # *****************************
     # VR track jets as ghosts for large-R jets
-    JetInputConstit("AntiKtVR30Rmax4Rmin02PV0TrackJet", xAODType.Jet, "AntiKtVR30Rmax4Rmin02PV0TrackJets"),
+    #  this could work : 
+    #JetInputConstit("AntiKtVR30Rmax4Rmin02PV0TrackJet", xAODType.Jet, "AntiKtVR30Rmax4Rmin02PV0TrackJets"),
+    # BUT a better solution is to call
+    # registerAsInputConstit(AntiKtVR30Rmax4Rmin02PV0Track) 
+    #  at the place where the jetdef 'AntiKtVR30Rmax4Rmin02PV0Track' is defined : see StandardSmallRJets.py 
     
     # *****************************
     # Truth particles (see JetInputExternal declarations above for more details)
@@ -302,19 +309,21 @@ _stdModList = [
     # JetConstitModifier( name , toolType, dictionnary_of_tool_properties )
     # (see JetDefinition.py for more details)
     
-    JetConstitModifier("Origin", "CaloClusterConstituentsOrigin", prereqs=inputsFromContext("Vertices")),
+    JetConstitModifier("Origin", "CaloClusterConstituentsOrigin", prereqs=[inputsFromContext("Vertices")]),
     JetConstitModifier("EM",     "ClusterAtEMScaleTool", ),
     JetConstitModifier("LC",     "", ),
     # Particle flow
     JetConstitModifier("CorrectPFO", "CorrectPFOTool",
                        # get the track properties from the context with wich jet will be configured with propFromContext
                        # See StandardJetContext.py for the default values.
+                       prereqs=[inputsFromContext("Vertices")],
                        properties=dict(VertexContainerKey=propFromContext("Vertices"),
                                        WeightPFOTool= _getPFOTool ) ), 
               
     JetConstitModifier("CHS",    "ChargedHadronSubtractionTool",
                        # get the track properties from the context with wich jet will be configured with propFromContext
                        # See StandardJetContext.py for the default values.
+                       prereqs=[inputsFromContext("Vertices")],
                        properties=dict(VertexContainerKey=propFromContext("Vertices"),
                                        TrackVertexAssociation=propFromContext("TVA"))),
     
