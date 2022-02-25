@@ -21,7 +21,6 @@ class ProphecyPowhegMerge(object) :
 
     ## This needs to be set so that Generate_trf finds an appropriate file format for showering
     self.__output_events_file_name = 'ProphecyPowhegMergedOTF._1.events'
-    # self.__output_events_file_name = 'events.lhe'
 
     
     ## Using default output names from PowhegConfig_base and ProphecyConfig
@@ -36,10 +35,6 @@ class ProphecyPowhegMerge(object) :
       self.logger.warning( 'No run arguments found! Using defaults.' )
     else :
       # Read values from runArgs
-      # if hasattr(runArgs,'outputTXTFile') :
-        # self.logger.info( 'outputTXTFile {0} {1}'.format (runArgs.outputTXTFile, type(runArgs.outputTXTFile) ) )
-        # self.__output_events_file_name = runArgs.outputTXTFile
-        # self.output_events_file_name = runArgs.outputTXTFile.split('.tar.gz')[0]+'.events'
       # Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
       runArgs.inputGeneratorFile = self.output_events_file_name
 
@@ -81,14 +76,6 @@ class ProphecyPowhegMerge(object) :
       powhegLHE_input = "merged_powheg_events.lhe"
       self.merge_lhe_files(allFiles, powhegLHE_input)
     
-    # if tarfile.is_tarfile(powhegLHE):
-    #   tar = tarfile.open(powhegLHE)
-    #   tar.extractall()
-    #   tar.close()
-    #   powhegLHE_old = powhegLHE
-    #   powhegLHE = powhegLHE.replace("tar.gz.1","events")
-    #   self.logger.info( 'Extracted tar file, and renaming {0} to {1}'.format ( powhegLHE_old, powhegLHE ) )
-    #   pass
       
     ## Initialise timer
     time_start = time.time()
@@ -123,11 +110,6 @@ class ProphecyPowhegMerge(object) :
 
     self.logger.info( 'Input files found. Moving them to temporary files to produce properly named final output {0}.'.format( self.output_events_file_name ) )
 
-    # try :
-    #   self.logger.info( 'Renaming {0}.'.format( powhegLHE ) )
-    #   os.rename( powhegLHE, powhegLHE + '.tmp' )
-    # except OSError :
-    #   self.logger.error( 'Moving of file {0} failed - not expected.'.format( powhegLHE ) )
 
     try :
       os.rename( prophecyLHE4e, prophecyLHE4e + '.tmp' )
@@ -156,11 +138,6 @@ class ProphecyPowhegMerge(object) :
     self.logger.info( 'Running ProphecyPowhegMerger took {0}.'.format( HeartbeatTimer.readable_duration(elapsed_time) ) )
 
     self.logger.info( 'Removing initial LHE files of Prophecy and Powheg stored as *tmp.' )
-    # try :
-    #   for fl in glob.glob('*.lhe.tmp'): os.remove(fl)
-    #   for fl in glob.glob('*.ev*ts.tmp'): os.remove(fl)
-    # except OSError :
-    #   pass
 
     ## Print finalisation message
     self.logger.info( 'Finished at {0}'.format( time.asctime() ) )

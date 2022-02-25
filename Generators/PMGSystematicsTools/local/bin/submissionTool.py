@@ -49,7 +49,6 @@ def findTestFile(testSampleDir, identifier):
  check the specified directory for a test EVNT file for a specified DISD
  """
  for dirName in os.listdir(testSampleDir):
-  # if identifier in dirName and "EVNT" in dirName:
   if identifier in dirName:
      testSamplePath = testSampleDir + "/" + dirName
      for fileName in os.listdir(testSamplePath):
@@ -263,7 +262,6 @@ def main(argv):
               else:
                   print('HepMCWeightName not found in /Generation/Parameters:')
                   print(genpars)
-                  # raise RuntimeError('HepMCWeightName not found in /Generation/Parameters. Exiting...')
           else:
               print('/Generation/Parameters not found in metadata:')
               print(metadata)

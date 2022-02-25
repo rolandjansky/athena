@@ -11,7 +11,6 @@ parser = optparse.OptionParser(usage = "%prog [options]")
 parser.add_option("-i","--inputSamples", help="list of samples. One per line. Default=Sherpa_samples.txt", dest="inputSamples", default="Sherpa_samples.txt")
 parser.add_option("--testSampleDir", help="where to store the test samples. Default=testSamples", dest="testSampleDir",default="testSamples" )
 parser.add_option("--weightDir", help="where to store the weight files. Default=Weight_files", dest="weightDir", default="Weight_files")
-#parser.add_option("-g","--gen", help="specify the generator of the inputSamples. Options: Sherpa, Powheg, MadGraph. Default = Sherpa", dest="gen", default="Sherpa" )
 (opts, args) = parser.parse_args()
 
 
@@ -85,7 +84,6 @@ for line in f.readlines():
             testSamplePath=testSamplePath+"/"+fileName
             flag=True
             break
-    #if not any(dsid in dname for dname in os.listdir(opts.weightDir)) or flag==True:
     if flag is True:
         print("[SUCCESS] found test file ", testSamplePath)
         athenaCommand= "athena --filesInput=%s --evtMax=1 DSIDDatabaseTool/DSIDDatabaseToolAlgJobOptions.py" % (testSamplePath)

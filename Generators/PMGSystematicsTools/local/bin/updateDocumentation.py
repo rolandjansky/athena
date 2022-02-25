@@ -14,13 +14,9 @@ for pyfile in os.listdir(pydir):
   if not (".py" in pyfile and pyfile[-1]=='y'): continue
   if ("updateDocumentation" in pyfile): continue
   print('processing ', pyfile)
-  #if not pyfile=="systematicsTool.py": continue
   pymodule=pyfile.replace(".py","")
   print("pydoc %s > %s/%s.doc" % (pymodule, docdir, pymodule))
   os.system("pydoc %s > %s/%s.doc" % (pymodule, docdir, pymodule))
-  #os.system("pydoc -w %s" % pymodule)
-  #print("pydoc -w %s" % pymodule)
-  #os.system("mv %s.html %s/." % (pymodule,docdir))
   fin = open ("%s/%s.doc" %(docdir, pymodule), 'r')
   fout = open ("%s/%s.md" %(docdir, pymodule), 'w')
   inHeader=True
@@ -45,7 +41,5 @@ for pyfile in os.listdir(pydir):
       lout= "## %s"%line
     else:
       pass
-      #lout= line.replace("\\\r","  ")
-    #lout=lout+"  "
     if "Help on module" in lout: lout ="Help on module %s" % pymodule
     fout.write("%s\n" % lout)

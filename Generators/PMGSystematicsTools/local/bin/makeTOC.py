@@ -18,7 +18,6 @@ inCodeBlock=False
 for line in f.readlines():
   if '```' in line: inCodeBlock= not inCodeBlock
   if '<br/>' in line: 
-    #regularLines+=[line]
     afterBreak=True
   if 'Table of Contents:' in line: 
     regularLines+=[line]

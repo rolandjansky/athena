@@ -27,11 +27,9 @@ if '/Generation/Parameters' in metadata:
     else:
         print('HepMCWeightName not found in /Generation/Parameters:')
         print(genpars)
-        #raise RuntimeError('HepMCWeightName not found in /Generation/Parameters. Exiting...')
 else:
     print('/Generation/Parameters not found in metadata:')
     print(metadata)
-    #raise RuntimeError('/Generation/Parameters not found in metadata. Exiting...')
 
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -56,11 +54,9 @@ for i in systWeights:
       rivet.Analyses +=[analysis]
     
     rivet.RunName = ""
-    #rivet.HistoFile = "myanalysis"
     if i!="Nominal" : rivet.WeightName=i
     rivet.HistoFile = systName
     rivet.DoRootHistos = False
-    #rivet.IgnoreBeamCheck = True
     rivet.AnalysisPath = os.environ['PWD']
     rivet.CrossSection = 1.0
 

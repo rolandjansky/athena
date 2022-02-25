@@ -155,7 +155,6 @@ def makeCovarianceMatrixFromToys(ao, ntoys=10000, ignore_corrs=False):
 
 
 def plotVariations(ao, outdir, label, threshold=0.05, xLabel=None, title=None):
-   # print(ao, ao.numPoints())
    if ao.dim() != 2: return
    tgraphs = {}
    tgraphs['all'] = [r.TGraphAsymmErrors(), r.TGraphAsymmErrors(), r.TGraphAsymmErrors(), r.TGraphAsymmErrors()]
@@ -191,8 +190,6 @@ def plotVariations(ao, outdir, label, threshold=0.05, xLabel=None, title=None):
         if (abs(edn) > threshold): draw = 1
         if (abs(edn) > threshold): draw = 1
         if abs(all_up[i]) > maxErr: maxErr = abs(all_up[i])
-        # if ('ident' in sname): draw = 1
-        # if ('umi' in sname): draw = 1
         tgu.SetPointError(pt, xerr, xerr, 0, eup)
         tgd.SetPointError(pt, xerr, xerr, 0, edn)
         tgu_line.SetPoint(pt, nominalx, 1 + eup)
@@ -211,7 +208,6 @@ def plotVariations(ao, outdir, label, threshold=0.05, xLabel=None, title=None):
      if (draw): tgraphs[sname] = [tgd, tgu, tgd_line, tgu_line]
    r.gROOT.SetBatch()
    tc = r.TCanvas("c", "c", 500, 500)
-   # tc.SetLogy()
    same = 0
    itg = 0
    leg = r.TLegend(.13, .6, .9, .8)
@@ -227,8 +223,6 @@ def plotVariations(ao, outdir, label, threshold=0.05, xLabel=None, title=None):
       isCorr = not (('stat' in tgname) or ('all' in tgname))
       if 'nominal' == tgname: continue
       if 'mc' == tgname: continue
-      # tg[1].SetMarkerColor(1)  # kBlack
-      # tg[1].SetMarkerStyle(21)
       tg[0].SetFillColorAlpha(0 + itg, 0.3)
       tg[1].SetFillColorAlpha(0 + itg, 0.3)
       tg[0].SetMarkerColor(1)  # kBlack
@@ -259,7 +253,6 @@ def plotVariations(ao, outdir, label, threshold=0.05, xLabel=None, title=None):
    lat.SetTextSize(0.05)
    lat.DrawLatex(0.1, 0.91, "#it{ATLAS} #bf{Internal}")
    lat.SetTextSize(0.035)
-   # lat.DrawLatex(0.13, 0.85, "#bf{Error analysis for} %s" % (title.replace("$", "") if title else label))
    lat.DrawLatex(0.13, 0.83, "#bf{All variations >%1.1f%% anywhere in range:}" % (threshold * 100))
    if xLabel:
       lat.SetTextAlign(33)
@@ -357,7 +350,6 @@ def drawMatrix(matrix, outfile, xLabel=None):
    Length = array('d', [0.0, 0.5, 1.0])
    r.TColor.CreateGradientColorTable(len(Length), Length, Red, Grn, Blu, 50)
    if ('chi2' in outfile): nRows += 1
-   # th2 = r.TH2D(outfile.split("/")[-1], outfile.split("/")[-1], nRows, 0, nRows, nBins, 0, nBins)
    th2 = r.TH2D(outfile.split("/")[-1], outfile.split("/")[-1], nRows, 0, nRows, nBins, 0, nBins)
    th2.SetTitle("")
    totalOverall = 0.
@@ -381,7 +373,6 @@ def drawMatrix(matrix, outfile, xLabel=None):
       for i in range(nBins):
         lat.DrawLatex(i + 0.5, nBins - j - 0.5, "%.2f" % matrix[i][j])
       if('chi2' in outfile): lat.DrawLatex(nBins + 0.5, nBins - j - 0.5, "%.2f" % totalsPerRow[j])
-   # if('chi2' in outfile): lat.DrawLatex(nBins + 0.5, 0 - 0.5, "%.2f" % totalOverall)
    th2.SetMaximum(max(abs(th2.GetMaximum()), abs(th2.GetMinimum())))
    th2.SetMinimum(-1 * (th2.GetMaximum()))
    th2.SetStats(0)
@@ -390,7 +381,6 @@ def drawMatrix(matrix, outfile, xLabel=None):
    lat.SetTextSize(0.05)
    lat.DrawLatex(0.1, 0.91, "#it{ATLAS} #bf{Internal}")
    lat.SetTextSize(0.035)
-   # lat.DrawLatex(0.13, 0.85, "#bf{Error analysis for} %s" % (title.replace("$", "") if title else label))
    if xLabel:
       lat.SetTextAlign(33)
       lat.SetTextSize(0.04)
@@ -427,17 +417,9 @@ def calculateChi2(data, mc, cov=None, verbosity=0):
     values = {}
     for name, obj in {'data': data, 'mc': mc}.items():
       if type(obj) in (yoda.Scatter1D, yoda.Scatter2D, yoda.Scatter3D):
-         # tmpErrors = GetDiagonalCovMatricesFromScatter(obj)
-         # TODO handle asymmetric errors...
-         # errorsSq[name] = tmpErrors[0]
-         # errorsSq[name] += tmpErrors[1]
-         # errorsSq[name] *= float(0.5)
-         # ndf = errorsSq[name].shape[0]
          values[name] = scatterToMatrix(obj)
       else:  # Histo*D hopefully !
-        # ndf = obj.numBins
-        # errorsSq[name] = np.zeros([ndf, ndf])
-        values[name] = histoToMatrix(obj, bw=True)  # bw true ??
+        values[name] = histoToMatrix(obj, bw=True)  
 
     v = values['data'].copy()
     v -= values['mc'].copy()
@@ -452,8 +434,6 @@ def calculateChi2(data, mc, cov=None, verbosity=0):
     if (cov.shape[0] != v.shape[0]):
       print("[ERROR] the specified covariance matrix is incompatible with the vector of data-MC", cov, v)
       exit(1)
-    # cov0 = makeCovarianceMatrix(data, True)
-    # print("diag cov this matrix has determinant ", LA.det(cov0))
     precision_matrix = LA.inv(cov.copy())
 
     if (verbosity > 1):
@@ -492,7 +472,6 @@ def chi2ContributionMatrix(diff, prec):
     for j in range(nbins):
        for i in range(nbins):
          mo[i][j] = diff[0][j] * prec[i][j] * diffT[i][0]
-         # print("row ", i, " col ", j, " diff ", diff[0][j], " diffT ", diffT[i][0], " prc ", prec[i][j], " = ", mo[i][j])
     return mo
 
 
@@ -503,7 +482,6 @@ def chi2ContribsByRow(chi2contribs):
        mo[j] = 0.0
        for i in range(nbins):
          mo[j] += float(chi2contribs[i][j])
-         # print("row ", i, " col ", j, " diff ", diff[0][j], " diffT ", diffT[i][0], " prc ", prec[i][j], " = ", mo[i][j])
     return mo
 
 
@@ -534,7 +512,6 @@ def makeSuperAO(aoList, verbosity=0):
              corrOut.setdefault(pointCounter, {})[syst] = {'up': 0.0, 'dn': 0.0}
         pointsOut.append(aoIn.points()[ipt])
         pointCounter += 1
-    # aoOut.addPoints(pointsOut)
     for i in range(aoOut.numPoints()):
       if (verbosity) > 1: print("[INFO] Super AO points ", aoOut.points()[i])
     corrs = yaml.dump(corrOut, default_flow_style=True, default_style='', width=1e6)

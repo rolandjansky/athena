@@ -109,7 +109,6 @@ def makeBeamer(plotDictionary, outdir):
      os.system("sed -i -e 's|!AOREF!|%s|g' %s/%s_%s_errorAnalysis.tex" % (histo, outdir, 'data', histo))
      os.system("sed -i -e 's|!SAMPLE!|%s|g' %s/%s_%s_errorAnalysis.tex" % ('data', outdir, 'data', histo))
      os.system("sed -i -e 's|!ERRORBREAKDOWN!|%s|g' %s/%s_%s_errorAnalysis.tex" % (plotDictionary['error-analysis']['data'][histo], outdir, 'data', histo))
-     # os.system("sed -i -e 's|!COVMATRIX!|%s|g' %s/%s_%s_errorAnalysis.tex" % (plotDictionary['covariance-matrix']['data'][histo], outdir, 'data', histo))
      os.system("sed -i -e 's|!COVMATRIX!|%s|g' %s/%s_%s_errorAnalysis.tex" % (plotDictionary['correlation-matrix']['data'][histo], outdir, 'data', histo))
      os.system("sed -i -e 's|!COVDETAILS!|%s|g' %s/%s_%s_errorAnalysis.tex" % (plotDictionary['covDetails']['data'][histo], outdir, 'data', histo))
      frames.append("%s/%s_%s_errorAnalysis.tex" % (outdir, 'data', histo))
@@ -165,7 +164,7 @@ def makeSummaryTable(plotDictionary, outfile, hdataName=None):
    for sample in samples:
      line = " %s " % sample.replace("-", " ").replace("_", " ")
      for hist in histos:
-       line += " & %s" % plotDictionary['chi2-value'][sample][hist]  # .replace("chi2", "$\\chi^2$")
+       line += " & %s" % plotDictionary['chi2-value'][sample][hist]  
      line += "\\\\"
      outf.write(line + '\n')
    outf.write("\\hline" + '\n')
@@ -281,10 +280,7 @@ def markupYODAwithCorrelationsFromYODAs(reference, correlationsDir):
               totalDiff += abs(binValues[i] - nominal[i])
             if (totalDiff < smallestDiff):
               smallestDiff = totalDiff
-            # print("candidate", nominal, totalDiff," nearest match is ", nearestMatch)
-      # print("[INFO] mapping", histname," ---> ", nearestMatch)
 
-    # binErrors = {..} # a python dictionary
     corrs = yaml.dump(binErrors, default_flow_style=True, default_style='', width=1e6)
     hAll.setAnnotation("ErrorBreakdown", corrs)
     yoda.writeYODA(hAll, reference_outf)
@@ -304,7 +300,7 @@ def markupYODAwithCorrelationsFromYAML(reference, correlationsDir):
     if 'comb' in f: continue
     if "syst" in f:
       infiles.setdefault(correlationsDir + "/" + f.replace('syst', 'xsect'), [])
-    else:  # experimental
+    else:  
       infiles.setdefault(correlationsDir + "/" + f, [])
 
   for f in infiles.keys():
@@ -363,8 +359,6 @@ def markupYODAwithCorrelationsFromYAML(reference, correlationsDir):
       docsyst = yaml.load(streamsyst)
       binErrorsGranular['name'] = "uncertainties"
       for itemtype, itemarray in docsyst.items():
-        # print()
-        # print(itemtype, itemarray)
         if "variables" not in itemtype: continue
         if (itemtype == "independent_variables"):
           systNames = [v['value'] for v in itemarray[0]['values']]
@@ -373,7 +367,6 @@ def markupYODAwithCorrelationsFromYAML(reference, correlationsDir):
           for line in itemarray:
             binCounter += 1
             binErrorsGranular[binCounter] = {}
-            # print(line)
             if 'values' not in line.keys(): continue
             systCounter = -1
             for error in line['values']:
@@ -391,7 +384,6 @@ def markupYODAwithCorrelationsFromYAML(reference, correlationsDir):
 
   hists = yoda.read(reference, unpatterns=".*RAW.*")
   for name in hists:
-    # print("[INFO] Looking for systematics breakdown matching %s " % (name))
     nearestMatch = ""
     smallestDiff = 999.
     nearestMatchErrors = ""
@@ -487,7 +479,6 @@ def getCorrelationInfoFromWeb(name=None, dlformat="yoda"):
   # try to get the YAML files for the corresponding HEPData record
   # download and untar them...
   if (name is None): name = opts.data
-  # dlformat = 'yaml'
   inspireID = [t for t in name.split("_") if "I" in t]
   inspireID = inspireID[0].replace("I", "")
   hdurl = "http://www.hepdata.net/record/ins%s?format=%s" % (inspireID, dlformat)
@@ -617,15 +608,9 @@ if __name__ == "__main__":
          aoMap = matchAOs(histograms['data'], histograms['models'][model])
          hmc = aoMap[hdata]
          mcName = mcNames[model]
-         # if (opts.verbosity >1):
-         # print("processing %s:%s vs %s:%s" % (opts.data, hdata.path(), model, hmc.path()))
          outdir = "outputs/%s" % (opts.data.replace(".yoda", ""))
          os.system("mkdir -p %s/data-vs-%s/plots" % (outdir, mcName))
-         # os.system("mkdir -p %s/tables" % outdir)
-         # outfile = open("%s/tables/summary.txt" % outdir, 'w')
 
-         # ct.plotVariations(hdata, outdir + "/validation-plots/", 'data')
-         # if not (opts.ignore_errs_mc): ct.plotVariations(hmc, outdir + "/validation-plots/", 'mc', 0.01)
 
          # produce covariance matrix for data
          # covDetailsData = "Data Covariance Matrix"
@@ -637,8 +622,6 @@ if __name__ == "__main__":
          else:
            covData = ct.makeCovarianceMatrix(hdata, opts.ignore_corrs_data)
            covDetailsData += " produced from direct propagation%s" % (", ignoring correlations" if opts.ignore_corrs_data else "")
-         # outfile.write("%s \n" % covDetails)
-         # ct.printMatrix(covData, outfile)
          plotparser = rivet.mkStdPlotParser([], [])
          headers = plotparser.getHeaders(hdata.path())
          if 'XLabel' in headers.keys(): XLabel = headers['XLabel']
@@ -649,7 +632,6 @@ if __name__ == "__main__":
          ct.drawMatrix(ct.correlationMatrix(covData), outdir + "/data/plots/data-%s-correlation-matrix" % hdata.name())
          plotDictionary['correlation-matrix'].setdefault('data', {})
          plotDictionary['correlation-matrix']['data'][hdata.name()] = outdir + "/data/plots/data-%s-correlation-matrix.pdf" % hdata.name()
-         # outfile.write("\n")
 
          # produce covariance matrix for MC
          covDetailsMC = "MC Covariance Matrix"
@@ -660,15 +642,12 @@ if __name__ == "__main__":
          else:
            covMC = ct.makeCovarianceMatrix(hmc, opts.ignore_corrs_mc)
            covDetailsMC += " produced from direct propagation%s" % (", ignoring correlations" if opts.ignore_corrs_mc else "")
-         # outfile.write("%s \n" % covDetails)
-         # ct.printMatrix(covMC, outfile)
          ct.drawMatrix(covMC, outdir + "/%s/plots/%s-%s-covariance-matrix" % (mcName, mcName, hdata.name()))
          plotDictionary['covariance-matrix'].setdefault(mcName, {})
          plotDictionary['covariance-matrix'][mcName][hmc.name()] = outdir + "/%s/plots/%s-%s-covariance-matrix.pdf" % (mcName, mcName, hmc.name())
          ct.drawMatrix(ct.correlationMatrix(covMC), outdir + "/%s/plots/%s-%s-correlation-matrix" % (mcName, mcName, hmc.name()))
          plotDictionary['correlation-matrix'].setdefault(mcName, {})
          plotDictionary['correlation-matrix'][mcName][hmc.name()] = outdir + "/%s/plots/%s-%s-correlation-matrix.pdf" % (mcName, mcName, hmc.name())
-         # outfile.write("\n")
 
          # sum covariance matrices
          covTotal = covData + covMC
@@ -682,8 +661,6 @@ if __name__ == "__main__":
            covTotal = covData
            covDetailsMC = "Ignoring MC uncertainties (Data cov matrix only)"
            covDetailsData += ". Ignoring MC uncertainties"
-         # outfile.write(" Total Covariance Matrix %s \n" % covDetails)
-         # ct.printMatrix(covTotal, outfile)
          plotDictionary['covDetails'].setdefault("%s" % mcName, {})
          plotDictionary['covDetails'].setdefault("data", {})
          plotDictionary['covDetails']["data"][hdata.name()] = covDetailsData
@@ -695,15 +672,9 @@ if __name__ == "__main__":
          ct.drawMatrix(ct.correlationMatrix(covMC), outdir + "/data-vs-%s/plots/data-vs-%s-%s-correlation-matrix" % (mcName, mcName, hdata.name()))
          plotDictionary['correlation-matrix'].setdefault("data-vs-%s" % mcName, {})
          plotDictionary['correlation-matrix']["data-vs-%s" % mcName][hmc.name()] = outdir + "/data-vs-%s/plots/data-vs-%s-%s-correlation-matrix.pdf" % (mcName, mcName, hdata.name())
-         # outfile.write("\n")
 
-         # outfile.write("Total Correlation Matrix %s \n" % covDetails)
-         # ct.printMatrix(ct.correlationMatrix(covTotal), outfile)
-         # outfile.write("\n")
 
          chi2, ndf, prob, chi2contribs = ct.calculateChi2(hdata, hmc, covTotal)
-         # outfile.write("Chi2 Contributions Matrix %s \n" % covDetails)
-         # ct.printMatrix(chi2contribs, outfile)
          ct.drawMatrix(chi2contribs, outdir + "/data-vs-%s/plots/data-vs-%s-%s-chi2-contribs" % (mcName, mcName, hdata.name()))
          plotDictionary['chi2-contribs'].setdefault("data-vs-%s" % mcName, {})
          plotDictionary['chi2-contribs']["data-vs-%s" % mcName][hmc.name()] = outdir + "/data-vs-%s/plots/data-vs-%s-%s-chi2-contribs.pdf" % (mcName, mcName, hdata.name())
@@ -714,33 +685,21 @@ if __name__ == "__main__":
          ct.updateAOinYODA(hmc, model)
          plotDictionary['chi2-value'].setdefault("data-vs-%s" % mcName, {})
          plotDictionary['chi2-value']["data-vs-%s" % mcName][hmc.name()] = "$%.2f / %d$" % (chi2, ndf)
-         # uoutfile.write("\n")
 
-         # outfile.write("\n")
-         # outfile.write("Total Chi2=%.3f/%d \n"% (chi2, ndf))
 
          mcResults[model] = [chi2, ndf]
          print("[INFO] %s:%s vs %s:%s --> chi2=%.2f/%d (prob=%.2f) " % (opts.data, hdata.name(), model, hmc.name(), chi2, ndf, prob))
 
          if "superAO" in hdata.name(): continue
-         # print(("rivet-cmphistos %s:Title='%s ($\chi^2=%.2f/%d$)' -m .*%s -o %s " % (model, mcName, chi2, ndf, hmc.name, outdir + "/data-vs-%s/plots/" % mcName)))
-         # os.system("rivet-cmphistos %s:Title='%s ($\chi^2=%.2f/%d$)' -m .*%s -o %s " % (model, mcName, chi2, ndf, hmc.name, outdir + "/data-vs-%s/plots/" % mcName))
-         # os.system("local/bin/make-plots-lcompare %s/.%s.dat -q " % (outdir + "/data-vs-%s/plots/" % mcName, hmc.path().replace("/%s" %hmc.name, "_%s" %hmc.name)))
-         # os.system("make-plots %s/.%s.dat -q " % (outdir + "/data-vs-%s/plots/" % mcName, hmc.path().replace("/%s" %hmc.name, "_%s" %hmc.name)))
          res = {'%s' % opts.data: '[Data]', '%s' % model: '[%s (# chi^2=%.2f/%d)]' % (mcName, chi2, ndf)}
          outdirplots = outdir + "/data-vs-%s/plots/" % mcName
          plots = st.makeSystematicsPlotsWithROOT(res, outdirplots, nominalName='Data', ratioZoom=None, regexFilter=".*%s.*" % hmc.name(), regexVeto=None)
 
          plotDictionary['data-vs-mc'].setdefault("data-vs-%s" % mcName, {})
-         # plotDictionary['data-vs-mc']["data-vs-%s" % mcName][hmc.name] = "%s/.%s.pdf" % (outdir + "/data-vs-%s/plots/" % mcName, hmc.path().replace("/%s" %hmc.name, "_%s" %hmc.name))
          plotDictionary['data-vs-mc']["data-vs-%s" % mcName][hmc.name()] = plots[0]
 
-       # commandLine_cmphistos = 'rivet-cmphistos '
-       # commandLine_makeplots = 'make-plots '
-       # commandLine_makeplots = 'local/bin/make-plots-lcompare '
        outdir = "outputs/%s/summary" % (opts.data.replace(".yoda", ""))
        pathName = hdata.path().replace("/REF", "")
-       # commandLine_makeplots += "%s/.%s.dat " % (outdir, pathName.replace("/%s" % hdata.name, "_%s" % hdata.name))
        res = {'%s' % opts.data: '[Data]'}
        for model in histograms['models']:
          mcName = mcNames[model]
@@ -750,14 +709,6 @@ if __name__ == "__main__":
 
        if "superAO" in hdata.name(): continue
        plots = st.makeSystematicsPlotsWithROOT(res, outdir, nominalName='Data', ratioZoom=None, regexFilter=".*%s.*" % hmc.name(), regexVeto=None)
-       # os.system('mkdir -p %s' % outdir)
-       # commandLine_cmphistos += "-o %s" %outdir
-       # commandLine_makeplots += "-q"
-       # print(commandLine_cmphistos)
-       # print(commandLine_makeplots)
-       # os.system(commandLine_cmphistos)
-       # os.system(commandLine_makeplots)
-       # plotDictionary['summary-plot'][hmc.name()] = "%s/.%s.pdf" % (outdir, pathName.replace("/%s" % hdata.name(), "_%s" % hdata.name()))
        plotDictionary['summary-plot'][hmc.name()] = plots[0]
        makeSummaryTable(plotDictionary, outdir + "/summary_%s.tex" % hdata.name(), hdata.name())
        plotDictionary['summary-table'][hmc.name()] = outdir + "/summary_%s.tex" % hdata.name()
@@ -779,5 +730,3 @@ if __name__ == "__main__":
        os.system('pdflatex %s > /dev/null' % beamerPath)
        beamerPath = beamerPath.replace("tex", "pdf").split("/")[-1]
        print("[INFO] your summary slides are here: \n", beamerPath)
-     # os.system('cp %s ~/www/UCL/QualTask/sandbox/summarySlides/%s ' % (beamerPath, beamerPath))
-     # print("https://lcorpe.web.cern.ch/lcorpe/UCL/QualTask/sandbox/summarySlides/%s" % beamerPath)

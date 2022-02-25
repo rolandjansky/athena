@@ -124,10 +124,6 @@ def customReplacements(name, removeExtension=True, customReps=None):
   else:
     print("[ERROR], customReps must be either OrderedDict or path to a txt file, not ", type(OrderedDict))
     exit(1)
-  # name = name.strip()
-  # name = name.replace(".", "p")
-  # for decimalPoint in re.findall("[0-9].[0-9]", name):
-  # name = name.replace(decimalPoint, decimalPoint.replace(".", "p"))
   name = name.replace("user.", "userp")
   name = name.replace(".yoda", "pyoda")
   name = name.replace("yoda.", "yodap")
@@ -138,7 +134,6 @@ def customReplacements(name, removeExtension=True, customReps=None):
   name = name.replace("pyoda", ".yoda")
   name = name.replace("yodap", "yoda.")
   name = name.replace("proot", ".root")
-  # name = name.replace("/", "over")
   if (removeExtension and ".root" in name): name = name.rpartition(".root")[0]
   if (removeExtension and ".yoda" in name): name = name.rpartition(".yoda")[0]
   return name
@@ -157,23 +152,16 @@ def safeFileName(name, removeExtension=True, reverse=False):
   ' ' --> '_'
   ':' --> '_'
   """
-  # name = name.strip()
-  # name = name.replace(".", "p")
-  # for decimalPoint in re.findall("[0-9].[0-9]", name):
-  # name = name.replace(decimalPoint, decimalPoint.replace(".", "p"))
   name = name.replace("user.", "userp")
   name = name.replace(".yoda", "pyoda")
   name = name.replace("yoda.", "yodap")
   name = name.replace(".root", "proot")
-  # name = name.replace(" ", "_")
-  # name = name.replace(":", "_")
   name = rivet_i_replacements(name)
   name = name.replace(r"\+", "")
   name = name.replace("userp", "user.")
   name = name.replace("pyoda", ".yoda")
   name = name.replace("yodap", "yoda.")
   name = name.replace("proot", ".root")
-  # name = name.replace("/", "over")
   if (removeExtension and ".root" in name): name = name.rpartition(".root")[0]
   if (removeExtension and ".yoda" in name): name = name.rpartition(".yoda")[0]
   return name
@@ -249,19 +237,10 @@ def weightCorrection(var, nom, sampleDir="", varWeightName="", nominalWeightName
   w_var = 1.
   w_nom = 1.
   # Construct the filenames for variation and nominal
-  # fn_var = '%s/%s.yoda' % (sampleDir, safeFileName(var))
-  # fn_nom = '%s/%s.yoda' % (sampleDir, safeFileName(nom))
   fn = {}
   fn['var'] = '%s' % (var)
   fn['nom'] = '%s' % (nom)
   for k, v in fn.items():
-    # in case .yoda gets duplicated.
-    # if '.yoda.yoda' in fn[k]:
-    # fn[k] = v.replace('.yoda.yoda', '.yoda')
-    # if '.root.root' in fn[k]:
-    # fn[k] = v.replace('.root.root', '.root')
-    # if '.root.yoda' in fn[k]:
-    # fn[k] = v.replace('.root.yoda', '.yoda')
     if not os.path.isfile(fn[k]):
       fn[k] = fn[k] + '.yoda'
     if not os.path.isfile(fn[k]):
@@ -362,8 +341,6 @@ def safeDiv(numerator, denominator):
   New:Does the division 'where' denominator does not equal zero. When denominator is zero for an indice, 0 is put in the array
   """
   ratio = np.divide(numerator, denominator, out=np.zeros_like(numerator), where=denominator != 0)
-  # ratio = numerator / denominator
-  # ratio[~ np.isfinite(ratio)] = 0.0  # account for division by zero error
   return ratio
 
 
@@ -918,13 +895,12 @@ def readFromROOT(filename, regexFilter=None, regexVeto=None):
     aoResult['path'] = filename[0] + '/' + aoName
     if (type(r.TH1D()) == type(ao)) or (type(r.TH1F()) == type(ao)):
       binRange = range(1, ao.GetNbinsX() + 1)
-      # ao.Sumw2()
       aoResult['info'] = 'Was_a_TH1'
       aoResult['bw'] = np.array([ao.GetBinWidth(b) for b in binRange])
       aoResult['y'] = np.array([ao.GetBinContent(b) for b in binRange])
       stat = np.array([ao.GetBinError(b) for b in binRange])
-      aoResult['yup'] = (aoResult['y'] + stat)  # / aoResult['bw']
-      aoResult['ydn'] = (aoResult['y'] - stat)  # / aoResult['bw']
+      aoResult['yup'] = (aoResult['y'] + stat)  
+      aoResult['ydn'] = (aoResult['y'] - stat)  
       aoResult['x'] = np.array([ao.GetBinCenter(b) for b in binRange])
       aoResult['xup'] = np.array([ao.GetBinLowEdge(b + 1) for b in binRange])
       aoResult['xdn'] = np.array([ao.GetBinLowEdge(b) for b in binRange])
@@ -932,14 +908,13 @@ def readFromROOT(filename, regexFilter=None, regexVeto=None):
     elif (type(r.TH2D()) == type(ao)) or (type(r.TH2F()) == type(ao)):
       xbinRange = range(1, ao.GetNbinsX() + 1)
       ybinRange = range(1, ao.GetNbinsY() + 1)
-      # ao.Sumw2()
       aoResult['info'] = 'Was_a_TH2'
       aoResult['xbw'] = np.array([ao.GetXaxis().GetBinWidth(b) for b in xbinRange for c in ybinRange])
       aoResult['ybw'] = np.array([ao.GetYaxis().GetBinWidth(c) for b in xbinRange for c in ybinRange])
       aoResult['z'] = np.array([ao.GetBinContent(b, c) for b in xbinRange for c in ybinRange])
       stat = np.array([ao.GetBinError(b, c) for b in xbinRange for c in ybinRange])
-      aoResult['zup'] = (aoResult['z'] + stat)  # / aoResult['bw']
-      aoResult['zdn'] = (aoResult['z'] - stat)  # / aoResult['bw']
+      aoResult['zup'] = (aoResult['z'] + stat)  
+      aoResult['zdn'] = (aoResult['z'] - stat)  
       aoResult['x'] = np.array([ao.GetXaxis().GetBinCenter(b) for b in xbinRange for c in ybinRange])
       aoResult['xup'] = np.array([ao.GetXaxis().GetBinLowEdge(b + 1) for b in xbinRange for c in ybinRange])
       aoResult['xdn'] = np.array([ao.GetXaxis().GetBinLowEdge(b) for b in xbinRange for c in ybinRange])
@@ -963,7 +938,6 @@ def readFromROOT(filename, regexFilter=None, regexVeto=None):
       aoResult['tree'] = ao.GetTree()
     else:
        continue
-    # assert(len(aoResult['y']) == len(aoResult['x']))
     result[aoName] = aoResult
   if len(result) == 0:
     print("[ERROR] no analysis objects passed your filter, or your input files are empty of TH1 or TGraph objects. Exiting")
@@ -1015,8 +989,8 @@ def readFromYODA(filename, regexFilter=None, regexVeto=None):
       aoResult['bw'] = np.array([b.xWidth() for b in ao.bins()])
       aoResult['y'] = np.array([b.sumW() for b in ao.bins()]) / aoResult['bw']
       stat = np.array([b.sumW2() for b in ao.bins()]) / (aoResult['bw']) ** 2
-      aoResult['yup'] = (aoResult['y'] + np.sqrt(stat))  # / aoResult['bw']
-      aoResult['ydn'] = (aoResult['y'] - np.sqrt(stat))  # / aoResult['bw']
+      aoResult['yup'] = (aoResult['y'] + np.sqrt(stat))  
+      aoResult['ydn'] = (aoResult['y'] - np.sqrt(stat))  
       aoResult['x'] = np.array([b.xMid() for b in ao.bins()])
       aoResult['xup'] = np.array([b.xMax() for b in ao.bins()])
       aoResult['xdn'] = np.array([b.xMin() for b in ao.bins()])
@@ -1035,7 +1009,7 @@ def readFromYODA(filename, regexFilter=None, regexVeto=None):
       aoResult['ybw'] = np.array([b.yWidth() for b in ao.bins()])
       aoResult['z'] = np.array([b.sumW() for b in ao.bins()]) / (aoResult['xbw'] * aoResult['ybw'])
       stat = np.array([b.sumW2() for b in ao.bins()]) / ((aoResult['xbw'] * aoResult['ybw'])) ** 2
-      aoResult['zup'] = (aoResult['z'] + np.sqrt(stat))  # / aoResult['bw']
+      aoResult['zup'] = (aoResult['z'] + np.sqrt(stat))  
       aoResult['zdn'] = (aoResult['z'] - np.sqrt(stat))  # / aoResult['bw']
       aoResult['x'] = np.array([b.xMid() for b in ao.bins()])
       aoResult['xup'] = np.array([b.xMax() for b in ao.bins()])
@@ -1238,7 +1212,6 @@ def combineVariation(wName, wInfo, fOut, regexFilter=None, regexVeto=None):
   for var in wInfo['weights']:
     if "Weight" in var: continue
     if ":" in var and 'yoda' in var:
-      # var = var.split(":")[0]
       variationHists_Var_AO[var] = readFromFile(var, regexFilter, regexVeto)
     else:
       variationHists_Var_AO[var] = readFromFile(var, regexFilter, regexVeto)
@@ -1289,9 +1262,8 @@ def combineVariation(wName, wInfo, fOut, regexFilter=None, regexVeto=None):
     syst_central = (syst_central)
 
     outputHists[ao][y] = syst_central
-    # LC this is maybe not quite right? FIXME TODO
-    outputHists[ao][yup] = syst_up  # - syst_central)
-    outputHists[ao][ydn] = syst_dn  # - syst_central)
+    outputHists[ao][yup] = syst_up  
+    outputHists[ao][ydn] = syst_dn  
 
   # write the outputs!
   writeToFile(outputHists, fOut)
@@ -1331,9 +1303,7 @@ def arrayDictToTGraph(ao, isData=False, setYErrorsToZero=False, nominalAOForRati
                      yErrDn, yErrUp,
                      )
     if not isData:
-      # tg.SetLineColor(colour)
       tg.SetLineWidth(2)
-      # tg.SetFillColorAlpha(colour, 0.5)
     else:
       tg.SetMarkerSize(1)
       tg.SetMarkerStyle(20)
@@ -1464,7 +1434,6 @@ def makeDummyHisto(tg, isLog=False, XandYMinAndMax=None, ratioZoom=None, isRatio
     ymax *= multiplierUp
   if ratioZoom is not None:
     # if a particular axis rangefor the ratio plot is specified, use that
-    # ymin = 1 - (ratioZoom - 1) + 0.001
     ymin = ratioZoom[0] + 0.001
     ymax = ratioZoom[1] - 0.001
     multiplierUp = 1.
@@ -1558,8 +1527,6 @@ def makeSystematicsPlotsWithROOT(mergedSystDict, outdir, nominalName="Nominal", 
        setYErrorsToZero = True
 
      # fill the holding dicts with TGraphs
-     # aos[aoName][fn] = arrayDictToTGraph(ao, colorList[fnIndex], False, setYErrorsToZero)
-     # aos_ratio[aoName][fn] = arrayDictToTGraph(ao, colorList[fnIndex], False, setYErrorsToZero, nominalForRatio[aoName])
      nfr = ""
      if aoName in nominalForRatio.keys():
        nfr = nominalForRatio[aoName]
@@ -1862,7 +1829,6 @@ def makeSystematicsPlotsWithROOT(mergedSystDict, outdir, nominalName="Nominal", 
       lat.SetTextSize(latex[1])
       lat.SetTextAngle(latex[2])
       lat.DrawLatex(latex[3], latex[4], latex[5])
-      # lat.DrawMathText(latex[3], latex[4], latex[5])
 
     # now print(the canvas and move to next AO)
     tc.Print("%s/%s%s.pdf" % (outdir, label, aoNameSafe))
@@ -2159,14 +2125,12 @@ def combineAllVariations(weightList, indir, outdir, regexFilter=None, regexVeto=
   if recipe is not None: formulaComponents = getFormulaComponents(formula)
   for k, v in sorted(averageErrorSize.items(), key=lambda x: x[1], reverse=True):
       if k == 'all':
-        # result['%d![%s]' % (counter, "Total Uncertainty")] = fOut[k]
         result[fOut[k]] = "[Total Uncertainty]"
       else:
         isComponent = False
         for component in formulaComponents:
           if component == k: isComponent = True
         if (not isComponent) and returnOnlyVariationsInComination: continue
-        # result['%d![%s]' % (counter, labels[k])] = fOut[k]
         result[fOut[k]] = '[%s]' % labels[k]
       counter += 1
   # finally, return the odered files
@@ -2208,12 +2172,10 @@ def extractTarballsFromDirectory(fulldir, force=False, verbose=False, rootOrYoda
      if (not subsample.endswith('gz') and not notTGZ): continue
      if ("untarred" in subsample and not force): continue
      if ("merged" in subsample and not force): continue
-     # if ("tgz" in subsample and not os.path.isdir(newfulldir)): continue
      counter += 1
      verbose = 1
      if ('tgz' in subsample) and not (os.path.isdir(newfulldir) and not notTGZ):
        os.system("mkdir -p %s" % newfulldir)
-       # if verbose: sys.stdout.write('\r Thread %d: untar job output %s (%d/%d) '%(multiprocessing.dummy.current_process().ident, subsample, counter, nSubSamples))
        if verbose: sys.stdout.write('\r Unpacking job output %s (%d/%d) ' % (subsample, counter, nSubSamples))
        sys.stdout.flush()
        with tarfile.TarFile.open(fulldir + "/" + subsample, 'r:gz') as tar:
@@ -2227,10 +2189,8 @@ def extractTarballsFromDirectory(fulldir, force=False, verbose=False, rootOrYoda
              if ".yoda.gz" not in fn:
                  os.rename(newfulldir + "/" + fn, newfulldir + "/" + safeFileName(newfn) + "." + rootOrYoda)
              res.append([fulldir, newfn, newfulldir + "/" + safeFileName(newfn, removeExtension=False)])
-             # infiles.setdefault(sample,{}).setdefault(newfn,[]).append(newfulldir + "/" + safeFileName(newfn, removeExtension=False))
      elif (not notTGZ):
        for fn in os.listdir(newfulldir):
-          # infiles.setdefault(sample,{}).setdefault(fn,[]).append(newfulldir + "/" + safeFileName(fn, removeExtension=False))
           res.append([fulldir, fn, newfulldir + "/" + safeFileName(fn, removeExtension=False)])
      else:
        fn = os.path.basename(newfulldir)
@@ -2238,7 +2198,6 @@ def extractTarballsFromDirectory(fulldir, force=False, verbose=False, rootOrYoda
        os.system("mkdir -p %s/%s" % (newfulldir, safeFileName(fn, removeExtension=True)))
        renamedfn = '_Nominal.yoda'
        os.system("cp %s/%s %s/%s/%s" % (newfulldir, fn, newfulldir, safeFileName(fn, removeExtension=True), renamedfn))
-       # infiles.setdefault(sample,{}).setdefault(fn,[]).append(newfulldir + "/" + safeFileName(fn, removeExtension=False))
        res.append([fulldir, renamedfn, newfulldir + "/" + safeFileName(fn, removeExtension=True) + "/" + renamedfn])
   print('\r[INFO] Done untar-ing %s' % sample)
   return res
@@ -2317,19 +2276,13 @@ def mergeInChunks(outfn, paths, progressDict=None, nFilesPerChunk=100, force=Fal
     pass
   else:
     time.sleep(0.1 * randint(1, 50))
-    # sys.stdout.write('\r[INFO] merging files of type %s (%s)                                    ' % (fnShort, progressText))
-    # sys.stdout.flush()
     filesToMerge = " "
     if len(paths) > nFilesPerChunk:
       for iChunk in range(0, len(paths), nFilesPerChunk):
          # if progressDict is not None:
-         # updateProgress(progressDict, multiprocessing.dummy.current_process(), fnShort + "chunk%d" % iChunk)
-         # printProgress(progressDict))
          chunkPaths = paths[iChunk:iChunk + nFilesPerChunk]
          chunkFilesToMerge = ' '.join(chunkPaths)
          chunkMergedFile = "%s/tmp/%s.chunk%d.%s" % (fulldir, fnShort, iChunk, rootOrYoda + gzsuffix)
-         # for p in chunkPaths:
-         # if not os.path.isfile(p): print("ERROR, issue with ", p)
          os.system("%s %s %s &> out1.%d.log " % (mergeTool, chunkMergedFile, chunkFilesToMerge, iChunk))
          print("%s %s %s &> out1.%d.log " % (mergeTool, chunkMergedFile, chunkFilesToMerge, iChunk))
          filesToMerge += chunkMergedFile + " "
@@ -2342,7 +2295,6 @@ def mergeInChunks(outfn, paths, progressDict=None, nFilesPerChunk=100, force=Fal
     os.system("%s %s %s &> out2.log " % (mergeTool, outfn, filesToMerge))
   if progressDict is not None:
     updateProgress(progressDict, fnShort, "done")
-    # printProgress(progressDict))
 
 
 def getCrossSectionCorrection(xsList, systFiles, nomFiles, rivetNormalised=False, applyKFactorCorrection=False, varWeightName="", nominalWeightName="", sumwHistName=""):
@@ -2432,7 +2384,6 @@ def main(argv):
   (opts, args) = parser.parse_args()
 
   r.gErrorIgnoreLevel = r. kError
-  # opts.skipSteps = opts.skipSteps.split(",")
   # Loop through each process,
   # and get hold of the corresponding regexes
   for process in opts.process.split(","):
@@ -2502,8 +2453,6 @@ def main(argv):
       counter += 1
       fulldir = workingDir + "/" + sample
       if not re.search(thisFilter, sample): continue
-      # needed?
-      # if not re.search('user.%s'%os.getlogin(), sample): continue
       if not re.search('user.', sample): continue
       # for each each job start by extracting the tarball if not already done
       if not os.path.isfile(fulldir):
@@ -2669,10 +2618,8 @@ def main(argv):
       systName = safeFileName(inputs[0])
       progressDict = inputs[4]
       updateProgress(progressDict, systName, "run")
-      # printProgress(progressDict))
       res = getCrossSectionCorrection(inputs[1], inputs[2], inputs[3], inputs[5], inputs[6], inputs[7], inputs[8])
       updateProgress(progressDict, systName, "done")
-      # printProgress(progressDict))
       return systName, res
 
     pool = ThreadPool(int(opts.nThreads))
@@ -2690,7 +2637,6 @@ def main(argv):
       xsList = []
       nomSampleFiles = []
       for sampleName, path in sample.items():
-        # dsid = sampleName.split("mc15_13TeV.")[-1].split(".")[0]
         dsid = re.findall("[0-9]{6,6}", sampleName)[0].replace(".", "")
         xsList += [xsDict[dsid][0]]
         if applyKFactorCorrection is None: applyKFactorCorrection = xsDict[dsid][1]
@@ -2731,10 +2677,7 @@ def main(argv):
       generator = inputs[1]
       process = inputs[2]
       updateProgress(progressDict, s, "run")
-      # printProgress(progressDict))
-      # sys.stdout.flush()
       os.system("mkdir -p %s_%s_%s/merged_sample" % (process, generator, opts.label))
-      # fileExists = os.path.isfile(mergedFile)
       if rootOrYoda == 'root':
 
         if structure == "AllVariationsInFile":
@@ -2774,7 +2717,6 @@ def main(argv):
               command = "yodascale -c '.* %fx' -i %s &> out.txt \n" % (float(sampleToMerge[1]), mergedFile)
               if debug: print(command)
               os.system(command)
-            # os.system("sed -i 's/\[%s\]//g' %s" % (rivet_i_replacements(s), mergedFile))
         if structure == "OneFilePerVariation":
           if len(allFilesToMerge[s]) == 1:
            sampleToMerge = allFilesToMerge[s][0].split(":")
@@ -2784,9 +2726,7 @@ def main(argv):
           if debug: print(command)
           os.system(command)
 
-      # print("yodamerge --add -o %s %s &> out.txt " % (mergedFile, " ".join(allFilesToMerge[s]))))
       updateProgress(progressDict, s, "done")
-      # printProgress(progressDict))
 
     if rootOrYoda == 'root': nThreads = 1  # for the merging of root files, IO errors if running with more than 1 thread
     else: nThreads = int(opts.nThreads)
@@ -2821,7 +2761,6 @@ def main(argv):
     print("-----------------------------------------------")
 
     if not opts.skipPlots and rootOrYoda == "yoda":
-      # plots = makeSystematicsPlotsWithROOT(mergedSystDict, opts.plotsDir, "Nominal", label=opts.label, plotInfo=opts.plotInfo)
       plots = makeSystematicsPlotsWithRIVET(mergedSystDict, opts.plotsDir, "Nominal", label=opts.label, plotInfo=opts.plotInfo, normalize=opts.normalize)
       for p in plots:
         print("[INFO] printed: " + p)
