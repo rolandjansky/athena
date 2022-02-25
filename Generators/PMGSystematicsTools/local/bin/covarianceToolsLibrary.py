@@ -434,6 +434,7 @@ def calculateChi2(data, mc, cov=None, verbosity=0):
     if (cov.shape[0] != v.shape[0]):
       print("[ERROR] the specified covariance matrix is incompatible with the vector of data-MC", cov, v)
       exit(1)
+
     precision_matrix = LA.inv(cov.copy())
 
     if (verbosity > 1):

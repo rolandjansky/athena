@@ -76,7 +76,6 @@ class ProphecyPowhegMerge(object) :
       powhegLHE_input = "merged_powheg_events.lhe"
       self.merge_lhe_files(allFiles, powhegLHE_input)
     
-      
     ## Initialise timer
     time_start = time.time()
     self.logger.info( 'Input files: {0} {1} {2} {3}'.format( powhegLHE_input, prophecyLHE4e, prophecyLHE4mu, prophecyLHE2e2mu ) )
@@ -109,7 +108,6 @@ class ProphecyPowhegMerge(object) :
       raise ValueError('File {0} does NOT exist.'.format( prophecyLHE2e2mu ))
 
     self.logger.info( 'Input files found. Moving them to temporary files to produce properly named final output {0}.'.format( self.output_events_file_name ) )
-
 
     try :
       os.rename( prophecyLHE4e, prophecyLHE4e + '.tmp' )

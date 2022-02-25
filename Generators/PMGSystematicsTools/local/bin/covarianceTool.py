@@ -691,6 +691,7 @@ if __name__ == "__main__":
          print("[INFO] %s:%s vs %s:%s --> chi2=%.2f/%d (prob=%.2f) " % (opts.data, hdata.name(), model, hmc.name(), chi2, ndf, prob))
 
          if "superAO" in hdata.name(): continue
+
          res = {'%s' % opts.data: '[Data]', '%s' % model: '[%s (# chi^2=%.2f/%d)]' % (mcName, chi2, ndf)}
          outdirplots = outdir + "/data-vs-%s/plots/" % mcName
          plots = st.makeSystematicsPlotsWithROOT(res, outdirplots, nominalName='Data', ratioZoom=None, regexFilter=".*%s.*" % hmc.name(), regexVeto=None)
@@ -700,6 +701,7 @@ if __name__ == "__main__":
 
        outdir = "outputs/%s/summary" % (opts.data.replace(".yoda", ""))
        pathName = hdata.path().replace("/REF", "")
+
        res = {'%s' % opts.data: '[Data]'}
        for model in histograms['models']:
          mcName = mcNames[model]
