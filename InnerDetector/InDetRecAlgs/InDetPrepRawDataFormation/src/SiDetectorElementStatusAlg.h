@@ -11,7 +11,7 @@
 
 #include "StoreGate/WriteHandleKey.h"
 
-#include "InDetConditionsSummaryService/IExtendedInDetConditionsTool.h"
+#include "InDetConditionsSummaryService/IDetectorElementStatusTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementStatus.h"
 
 
@@ -29,15 +29,10 @@ namespace InDet {
       // virtual bool isClonable() const override { return true; };
 
    private:
-      ToolHandle <IExtendedInDetConditionsTool> m_condSummaryTool
+      ToolHandle <IDetectorElementStatusTool> m_condSummaryTool
          {this, "ConditionsSummaryTool", "", "Tool to retrieve e.g. Pixel or SCT Conditions summary"};
-      SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_readKey
-         {this, "ReadKey", "", "Optional key of an input SiDetectorElementStatus to be anded with the summary information from the tool "};
-
       SG::WriteHandleKey<InDet::SiDetectorElementStatus> m_writeKey
          {this, "WriteKey", "", "Key of output SiDetectorElementStatus data"};
-      Gaudi::Property< bool> m_activeOnly
-         {this, "ActiveOnly", false, "Module and chip status will only reflect whether the modules or chips are active not necessarily whether the signals are good."};
    };
 }
 #endif // PIXELCONDITIONSALGORITHMS_SIDETECTORELEMENTINFOALG_H

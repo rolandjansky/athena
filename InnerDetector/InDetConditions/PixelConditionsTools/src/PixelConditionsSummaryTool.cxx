@@ -34,6 +34,11 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condDeadMapKey.initialize());
   ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
+  if (!m_pixelDetElStatusEventKey.empty() && !m_pixelDetElStatusCondKey.empty()) {
+     ATH_MSG_FATAL("The event data (PixelDetElStatusEventDataBaseKey) and cond data (PixelDetElStatusCondDataBaseKey) keys cannot be set at the same time.");
+  }
+  ATH_CHECK(m_pixelDetElStatusEventKey.initialize( !m_pixelDetElStatusEventKey.empty()));
+  ATH_CHECK(m_pixelDetElStatusCondKey.initialize( !m_pixelDetElStatusCondKey.empty()));
 
   m_activeStateMask=0;
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
@@ -344,16 +349,48 @@ namespace {
    }
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx, bool active_only) const  {
-   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
-   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
-   std::tuple< std::unique_ptr<InDet::SiDetectorElementStatus>,EventIDRange> element_status( std::make_tuple(new InDet::PixelDetectorElementStatus(*elements), pixelDetEleHandle.getRange() ) );
-   EventIDRange &the_range = std::get<1>(element_status);
-   std::vector<bool> &status=std::get<0>(element_status)->getElementStatus();
+namespace {
+   const InDet::PixelDetectorElementStatus *castToDerived(const InDet::SiDetectorElementStatus *input) {
+      const InDet::PixelDetectorElementStatus *ret = dynamic_cast<const InDet::PixelDetectorElementStatus *>(input);
+      if (!ret) {
+         throw std::runtime_error("Object is not of expected type InDet::PixelDetectorElementStatus");
+      }
+      return ret;
+   }
+}
+std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelConditionsSummaryTool::createDetectorElementStatus(const EventContext& ctx) const  {
+   if (!m_pixelDetElStatusCondKey.empty()) {
+      SG::ReadCondHandle<InDet::SiDetectorElementStatus> input_element_status{m_pixelDetElStatusCondKey, ctx};
+      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*castToDerived(input_element_status.cptr()))),
+                             input_element_status.getRange() );
+   }
+   else if (!m_pixelDetElStatusEventKey.empty()) {
+      SG::ReadHandle<InDet::SiDetectorElementStatus> input_element_status{m_pixelDetElStatusEventKey, ctx};
+      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*castToDerived(input_element_status.cptr()))),
+                                                                             EventIDRange() );
+   }
+   else {
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
+      if (not pixelDetEleHandle.isValid() ) {
+         std::stringstream msg;
+         msg << m_pixelDetEleCollKey.fullKey() << " is not available.";
+         throw std::runtime_error(msg.str());
+      }
+      const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*elements)),
+                             pixelDetEleHandle.getRange() );
+   }
+}
+
+std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx) const  {
+   std::tuple< std::unique_ptr<InDet::SiDetectorElementStatus>,EventIDRange> element_status_and_range( createDetectorElementStatus(ctx));
+   EventIDRange &the_range = std::get<1>(element_status_and_range);
+   InDet::SiDetectorElementStatus *element_status = std::get<0>(element_status_and_range).get();
+   std::vector<bool> &status=element_status->getElementStatus();
    status.resize(m_pixelID->wafer_hash_max(),
                     ((1<<0) & m_activeStateMask)     // default value of PixelDCSStateData  is 0
                  );
-   std::vector<InDet::ChipFlags_t> &chip_status=std::get<0>(element_status)->getElementChipStatus();
+   std::vector<InDet::ChipFlags_t> &chip_status=element_status->getElementChipStatus();
    chip_status.resize(status.size(),0);
 
    // module state
@@ -362,6 +399,7 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
       setStatus(dcs_state_handle->moduleStatusMap(),   m_activeStateMask,  status);
       the_range = EventIDRange::intersect( the_range, dcs_state_handle.getRange() );
    }
+   const bool active_only = m_activeOnly;
    if (!active_only) {
       SG::ReadCondHandle<PixelDCSStatusData> dcs_status_handle(m_condDCSStatusKey, ctx);
       andStatus(dcs_status_handle->moduleStatusMap(), m_activeStatusMask, status);
@@ -376,21 +414,20 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
       SG::ReadCondHandle<PixelDeadMapCondData> dead_map_handle(m_condDeadMapKey, ctx);
       andNotStatus(dead_map_handle->moduleStatusMap(), status);
       the_range = EventIDRange::intersect( the_range, dead_map_handle.getRange() );
-      if (elements) {
-         const PixelDeadMapCondData *dead_map = dead_map_handle.cptr();
-         unsigned int element_i=0;
-         for (const InDetDD::SiDetectorElement *element : *elements) {
-            if (status[element_i]) {
-               const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-               InDetDD::PixelReadoutTechnology readout_technology = p_design->getReadoutTechnology();
-               unsigned int number_of_chips = readout_technology == InDetDD::PixelReadoutTechnology::FEI3  ? 2*p_design->numberOfCircuits() : p_design->numberOfCircuits();
-               InDet::ChipFlags_t  chip_mask = (1ul<<number_of_chips)-1ul;
-               assert( chip_mask != 0 );
-               std::bitset<16> dead_chip_mask(dead_map->getChipStatus(element_i));
-               chip_status[element_i]  =   chip_mask & (~static_cast<InDet::ChipFlags_t>(dead_chip_mask.to_ulong()));
-            }
-            ++element_i;
+
+      const PixelDeadMapCondData *dead_map = dead_map_handle.cptr();
+      unsigned int element_i=0;
+      for (const InDetDD::SiDetectorElement *element : element_status->getDetectorElements()) {
+         if (status[element_i]) {
+            const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+            InDetDD::PixelReadoutTechnology readout_technology = p_design->getReadoutTechnology();
+            unsigned int number_of_chips = readout_technology == InDetDD::PixelReadoutTechnology::FEI3  ? 2*p_design->numberOfCircuits() : p_design->numberOfCircuits();
+            InDet::ChipFlags_t  chip_mask = (1ul<<number_of_chips)-1ul;
+            assert( chip_mask != 0 );
+            std::bitset<16> dead_chip_mask(dead_map->getChipStatus(element_i));
+            chip_status[element_i]  =   chip_mask & (~static_cast<InDet::ChipFlags_t>(dead_chip_mask.to_ulong()));
          }
+         ++element_i;
       }
    }
 
@@ -401,8 +438,8 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
    unsigned int readout_technology_mask=  Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::FEI4, 1 && m_useByteStreamFEI4 )
       | Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::FEI3, 1 && m_useByteStreamFEI3 )
       | Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::RD53, 1 && m_useByteStreamRD53 );
-   if (elements && readout_technology_mask) {
-      the_range = IExtendedInDetConditionsTool::getInvalidRange();
+   if (readout_technology_mask) {
+      the_range = IDetectorElementStatusTool::getInvalidRange();
       std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
       const IDCInDetBSErrContainer_Cache *idcCachePtr = nullptr;
       idcCachePtr = getCacheEntry(ctx)->IDCCache;
@@ -410,10 +447,6 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
          ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
       }
       else {
-
-         if (not pixelDetEleHandle.isValid() or elements==nullptr) {
-            ATH_MSG_WARNING(m_pixelDetEleCollKey.fullKey() << " is not available.");
-         }
 
          constexpr uint64_t error_mask = PixelByteStreamErrors::makeError(PixelByteStreamErrors::TruncatedROB)
             | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MaskedROB)
@@ -445,7 +478,7 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
 
          unsigned int element_i=0;
          unsigned int maxHash = m_pixelID->wafer_hash_max();
-         for (const InDetDD::SiDetectorElement *element : *elements) {
+         for (const InDetDD::SiDetectorElement *element : element_status->getDetectorElements()) {
             const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
             InDetDD::PixelReadoutTechnology readout_technology = p_design->getReadoutTechnology();
             unsigned int readout_technology_flags = readout_technology_mask & Pixel::makeReadoutTechnologyBit(readout_technology);
@@ -480,7 +513,7 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
          }
       }
    }
-   return element_status;
+   return element_status_and_range;
 }
 
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const EventContext& ctx) const {

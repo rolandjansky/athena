@@ -7,7 +7,7 @@
 // Athena
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetConditionsSummaryService/IExtendedInDetConditionsTool.h"
+#include "InDetConditionsSummaryService/IDetectorElementStatusTool.h"
 #include "SCT_DetectorElementStatus.h"
 
 // Constructor
@@ -74,7 +74,7 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventC
 
 void SCT_FlaggedConditionTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
    const IDCInDetBSErrContainer* badIds{getCondData(ctx)};
-   the_range = IExtendedInDetConditionsTool::getInvalidRange();
+   the_range = IDetectorElementStatusTool::getInvalidRange();
    std::vector<bool> &status = element_status.getElementStatus();
    if (badIds==nullptr) {
       if (m_numWarnForFailures<m_maxNumWarnForFailures) {

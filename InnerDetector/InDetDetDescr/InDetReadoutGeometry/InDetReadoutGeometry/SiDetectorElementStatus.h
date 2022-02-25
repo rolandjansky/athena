@@ -114,12 +114,20 @@ namespace InDet {
        const std::vector<ChipFlags_t>  &getElementChipStatus()         const { return m_elementChipStatus; }
        std::vector<ChipFlags_t>        &getElementChipStatus()               { return m_elementChipStatus; }
        const std::vector<std::vector<unsigned short> >  &getBadCells() const { return *m_badCells; }
-       std::vector<std::vector<unsigned short> >        &getBadCells()       { if (!m_owner) { notOwningBadCells(); } return *m_badCells; }
+
+       /** Get a non-const bad cells container owned by this instance.
+        * Will create a copy of the bad cells container if it is not owned by this instance.
+        */
+       std::vector<std::vector<unsigned short> >        &getBadCells()       { if (!m_owner) { copyBadCells(); } return *m_badCells; }
 
     protected:
        virtual unsigned int numberOfChips(const InDetDD::SiDetectorDesign& design) const = 0;
     private:
        void notOwningBadCells() const;
+       void copyBadCells() {
+          m_badCells = new std::vector<std::vector<unsigned short> > (*m_badCells);
+          m_owner=true;
+       }
 
        const InDetDD::SiDetectorElementCollection *m_detectorElements = nullptr;
        std::vector<bool>                           m_elementStatus;
@@ -132,5 +140,7 @@ namespace InDet {
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( InDet::SiDetectorElementStatus , 154354418 , 1 )
+
+CONDCONT_DEF( InDet::SiDetectorElementStatus, 207353830 );
 
 #endif // INDETREADOUTGEOMETRY_SIDETECTORELEMENTINFO_H

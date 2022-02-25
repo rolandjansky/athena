@@ -13,6 +13,7 @@ namespace InDet {
    class PixelDetectorElementStatus : public InDet::SiDetectorElementStatus
    {
    public:
+      PixelDetectorElementStatus(const PixelDetectorElementStatus &si_detector_element_status) = default;
       PixelDetectorElementStatus(const InDetDD::SiDetectorElementCollection &detector_elements)
          : InDet::SiDetectorElementStatus(detector_elements) {}
     protected:

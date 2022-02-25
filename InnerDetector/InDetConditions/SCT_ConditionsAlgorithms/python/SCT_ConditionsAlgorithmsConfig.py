@@ -93,12 +93,29 @@ def SCT_DetectorElementCondAlgCfg(flags, name="SCT_DetectorElementCondAlg", **kw
     return acc
 
 # SCTDetectorElementStatusAlg which creates the status data to be used in the SCT_Clusterization
-def SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags, name="SCTDetectorElementStatusAlgWithoutFlagged",**kwargs) :
+def SCT_DetectorElementStatusCondAlgCfg(flags, name="SCTDetectorElementStatusCondAlg",**kwargs) :
     acc = ComponentAccumulator()
     if 'ConditionsSummaryTool' not in kwargs :
         from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False)) )
-    kwargs.setdefault("WriteKey", "SCTDetectorElementStatusWithoutFlagged")
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False, withByteStreamErrorsTool=False)) )
+    kwargs.setdefault("WriteKey", "SCTDetectorElementStatusCondData")
+
+    # not a conditions algorithm since it combines conditions data and data from the bytestream
+    acc.addCondAlgo( CompFactory.InDet.SiDetectorElementStatusCondAlg(name, **kwargs) )
+    return acc
+
+def SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags, name="SCTDetectorElementStatusAlgWithoutFlagged",**kwargs) :
+    '''
+    Algorithm which just creates event data from conditions data.
+    '''
+    acc = SCT_DetectorElementStatusCondAlgCfg(flags)
+    if 'ConditionsSummaryTool' not in kwargs :
+        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DetectorElementStatusAddByteStreamErrorsToolCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_DetectorElementStatusAddByteStreamErrorsToolCfg(
+                                                                           flags,
+                                                                           SCTDetElStatusCondDataBaseKey  = "SCTDetectorElementStatusCondData",
+                                                                           SCTDetElStatusEventDataBaseKey = "")) )
+    kwargs.setdefault("WriteKey",                      "SCTDetectorElementStatusWithoutFlagged")
 
     # not a conditions algorithm since it combines conditions data and data from the bytestream
     acc.addEventAlgo( CompFactory.InDet.SiDetectorElementStatusAlg(name, **kwargs) )
@@ -106,16 +123,15 @@ def SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags, name="SCTDetectorElemen
 
 # SCTDetectorElementStatusAlg which creates the status data to be used everywhere but the SCT_Clusterization
 def SCT_DetectorElementStatusAlgCfg(flags, name = "SCTDetectorElementStatusAlg", **kwargs) :
-    acc = ComponentAccumulator()
+    acc = SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags)
     if 'ConditionsSummaryTool' not in kwargs :
-        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolFlaggedOnlyCfg
-        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolFlaggedOnlyCfg(flags)) )
+        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DetectorElementStatusAddFlaggedToolCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_DetectorElementStatusAddFlaggedToolCfg(
+                                                                           flags,
+                                                                           SCTDetElStatusCondDataBaseKey  = "",
+                                                                           SCTDetElStatusEventDataBaseKey = "SCTDetectorElementStatusWithoutFlagged")) )
 
-    if "ReadKey" not in kwargs :
-        acc.merge( SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags) )
-        kwargs.setdefault("ReadKey", "SCTDetectorElementStatusWithoutFlagged")
-
-    kwargs.setdefault("WriteKey","SCTDetectorElementStatus")
+    kwargs.setdefault("WriteKey",                      "SCTDetectorElementStatus")
     acc.merge( SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags, name, **kwargs) )
     return acc
 
