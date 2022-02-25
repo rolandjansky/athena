@@ -15,6 +15,8 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import ( SingleElectronGroup,
                                                         BphysicsGroup,
                                                         EOFBPhysL1MuGroup,
                                                         SupportPhIGroup,
+                                                        SupportLegGroup,
+                                                        SingleBjetGroup,
                                                         SingleJetGroup,
                                                         SingleMuonGroup,
                                                         MultiMuonGroup,
@@ -53,6 +55,12 @@ def addMCSignatures(chains):
         ChainProp(name='HLT_j175_a10t_lcw_jes_L1jLJ100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ100']),
         ChainProp(name='HLT_j260_a10sd_cssk_pf_jes_ftf_preselj200_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
         ChainProp(name='HLT_j260_a10t_lcw_jes_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
+    ]
+
+    chainsMC['Bjet'] = [
+        # B-tagger training
+        ChainProp(name='HLT_j20_0eta290_020jvt_pf_ftf_boffperf_L1J15', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j20_0eta290_020jvt_pf_ftf_boffperf_L1jJ40', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+SupportPhIGroup),
     ]
 
     chainsMC['Egamma'] = [
