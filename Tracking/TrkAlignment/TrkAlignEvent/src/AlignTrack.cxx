@@ -441,13 +441,14 @@ namespace Trk {
       newTrackStateOnSurfaces.reserve( states->size() );
       
       for (; tsit!=tsit_end ; ++tsit) {
-        const Trk::MeasurementBase*     newMeas  = (*tsit)->measurementOnTrack() ? (*tsit)->measurementOnTrack()->clone() : nullptr;
-        const Trk::TrackParameters*     newPars  = (*tsit)->trackParameters() ? (*tsit)->trackParameters()->clone() : nullptr;
-        const Trk::FitQualityOnSurface* newFitQoS= (*tsit)->fitQualityOnSurface() ? (*tsit)->fitQualityOnSurface()->clone() : nullptr;
-        const Trk::MaterialEffectsBase* meb      = (*tsit)->materialEffectsOnTrack() ? (*tsit)->materialEffectsOnTrack()->clone() : nullptr;
+        std::unique_ptr<const Trk::MeasurementBase>     newMeas  = (*tsit)->measurementOnTrack() ? (*tsit)->measurementOnTrack()->uniqueClone() : nullptr;
+        std::unique_ptr<const Trk::TrackParameters>    newPars  = (*tsit)->trackParameters() ? (*tsit)->trackParameters()->uniqueClone() : nullptr;
+        std::unique_ptr<const Trk::FitQualityOnSurface> newFitQoS= (*tsit)->fitQualityOnSurface() ? (*tsit)->fitQualityOnSurface()->uniqueClone() : nullptr;
+        std::unique_ptr<const Trk::MaterialEffectsBase> meb      = (*tsit)->materialEffectsOnTrack() ? (*tsit)->materialEffectsOnTrack()->uniqueClone() : nullptr;
   
         if (meb) {
-          const Trk::MaterialEffectsOnTrack* meot=dynamic_cast<const Trk::MaterialEffectsOnTrack*>(meb);
+          //meot is just used as observer, not owner, so can safely duplicate the pointer
+          auto meot=dynamic_cast<const Trk::MaterialEffectsOnTrack*>(meb.get());
           if (meot) {
             double tinX0=meot->thicknessInX0();
             const Trk::EnergyLoss* eLoss=meot->energyLoss() ? meot->energyLoss()->clone() : nullptr;
@@ -456,8 +457,7 @@ namespace Trk {
             if (eLoss) typeMaterial.set(MaterialEffectsBase::EnergyLossEffects);
             const Trk::MaterialEffectsOnTrack* newmeot=
                 new Trk::MaterialEffectsOnTrack(tinX0,std::nullopt,eLoss,surf,typeMaterial);
-            delete meb;
-            meb=newmeot;
+            meb.reset(newmeot);
           }
         }
   
@@ -466,7 +466,7 @@ namespace Trk {
           if ((*tsit)->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType(i)))
             typePattern.set(i);
         }
-        const Trk::TrackStateOnSurface* newTsos= new Trk::TrackStateOnSurface( newMeas, newPars, newFitQoS, meb, typePattern);
+        const Trk::TrackStateOnSurface* newTsos= new Trk::TrackStateOnSurface( std::move(newMeas), std::move(newPars), std::move(newFitQoS), std::move(meb), typePattern);
         newTrackStateOnSurfaces.push_back(newTsos);
       }
       
