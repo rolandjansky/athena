@@ -259,7 +259,7 @@ class InDetCacheNames(object):
   PixRDOCacheKey     = "PixRDOCache"
   PixBSErrCacheKey   = "PixBSErrCache"
 
-def InDetIDCCacheCreatorCfg():
+def InDetIDCCacheCreatorCfg(flags):
   #Create IdentifiableCaches
   acc = ComponentAccumulator()
   InDet__CacheCreator=CompFactory.getComp("InDet::CacheCreator")
@@ -273,6 +273,8 @@ def InDetIDCCacheCreatorCfg():
                                               SCTFlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
                                               PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
+  if not flags.Detector.GeometryTRT:
+    InDetCacheCreatorTrig.disableTRT = True
 
   acc.addEventAlgo( InDetCacheCreatorTrig )
   return acc
