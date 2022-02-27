@@ -122,6 +122,10 @@ class TrigBmuxComboHypo: public ::ComboHypo {
   // general properties
   Gaudi::Property<double> m_deltaR {this,
     "DeltaR", 0.01, "minimum deltaR between same-sign tracks (overlap removal)"};
+  Gaudi::Property<size_t> m_fitAttemptsWarningThreshold {this,
+    "FitAttemptsWarningThreshold", 200, "Events processing this many calls of the vertex fitter will generate a WARNING message (time-out protect)"};
+  Gaudi::Property<size_t> m_fitAttemptsBreakThreshold {this,
+    "FitAttemptsBreakThreshold", 1000, "Events processing this many calls of the vertex fitter will generate a second WARNING message and the loop over combinations will be terminated at this point (time-out protect)"};
 
   // B+ -> mu+ nu_mu anti-D0(-> K+ pi-) and B0 -> mu+ nu_mu D*-(-> anti-D0(-> K+ pi-) pi-)
   Gaudi::Property<bool> m_BToD0 {this,

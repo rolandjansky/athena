@@ -140,10 +140,10 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
     "DeltaR", 0.01, "minimum deltaR between same-sign tracks (overlap removal)"};
   Gaudi::Property<double> m_trkZ0 {this,
     "TrkZ0", 50., "maximum z0 impact parameter of the track wrt the fitted dimuon vertex; no preselection if negative"};
-  Gaudi::Property<unsigned int> m_maxFitAttempts_DimuTrk1 {this,
-    "MaxFitAttempts_DimuTrk1", 200, "maximum vertex fitter calls for dimu+trk1 decays (time-out protect)"};
-  Gaudi::Property<unsigned int> m_maxFitAttempts_DimuTrk1Trk2 {this,
-    "MaxFitAttempts_DimuTrk1Trk2", 2000, "maximum vertex fitter calls for dimu+trk1+trk2 decays (time-out protect)"};
+  Gaudi::Property<size_t> m_fitAttemptsWarningThreshold {this,
+    "FitAttemptsWarningThreshold", 200, "Events processing this many calls of the vertex fitter will generate a WARNING message (time-out protect)"};
+  Gaudi::Property<size_t> m_fitAttemptsBreakThreshold {this,
+    "FitAttemptsBreakThreshold", 1000, "Events processing this many calls of the vertex fitter will generate a second WARNING message and the loop over combinations will be terminated at this point (time-out protect)"};
 
   // dimuon properties
   Gaudi::Property<bool> m_dimuon_rejectSameChargeTracks {this,

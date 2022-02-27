@@ -39,8 +39,8 @@ def BmumuxComboHypoCfg(name):
         TrackCollectionKey = 'HLT_IDTrack_Bmumux_IDTrig',
         DeltaR = 0.01,
         TrkZ0 = 50.,
-        MaxFitAttempts_DimuTrk1 = 200,
-        MaxFitAttempts_DimuTrk1Trk2 = 2000,
+        FitAttemptsWarningThreshold = 200,
+        FitAttemptsBreakThreshold = 1000,
         # dimuon properties
         Dimuon_rejectSameChargeTracks = True,
         Dimuon_massRange = (100., 5500.),

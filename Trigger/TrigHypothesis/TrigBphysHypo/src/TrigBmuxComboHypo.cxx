@@ -176,6 +176,8 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
       }
     }
 
+    size_t iterations = 0;
+    bool isOverWarningThreshold = false;
     for (size_t itrk1 = 0; itrk1 < tracks.size(); ++itrk1) {
       const xAOD::TrackParticle* trk1 = *tracks[itrk1];
       auto p_trk1 = trk1->genvecP4();
@@ -198,6 +200,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
             isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BToD0_D0MassRange) &&
             isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BToD0_massRange)) {
           vtx_D0 = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2]}, kD0);
+          ++iterations;
 
           if (vtx_D0 && vtx_D0->chiSquared() < m_BToD0_chi2) {
             ATH_MSG_DEBUG( "Partially reconstructed B+ -> mu+ nu_mu anti-D0(-> K+ pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << " }" );
@@ -263,6 +266,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_BdToD_DMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_BdToD_massRange)) {
             auto vtx_D = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kDplus);
+            ++iterations;
 
             if (vtx_D && vtx_D->chiSquared() < m_BdToD_chi2) {
               ATH_MSG_DEBUG( "Partially reconstructed B0 -> mu+ nu_mu D-(-> K+ pi- pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << ", " << itrk3 << " }" );
@@ -285,6 +289,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_BsToDs_DsMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_BsToDs_massRange)) {
             auto vtx_Ds = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kDs);
+            ++iterations;
 
             if (vtx_Ds && vtx_Ds->chiSquared() < m_BsToDs_chi2) {
               ATH_MSG_DEBUG( "Partially reconstructed B_s0 -> mu+ nu_mu D_s-(->phi(-> K+ K-) pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << ", " << itrk3 << " }" );
@@ -305,6 +310,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               isInMassRange((p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_LambdaBToLambdaC_LambdaCMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_LambdaBToLambdaC_massRange)) {
             auto vtx_LambdaC = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kLambdaC);
+            ++iterations;
 
             if (vtx_LambdaC && vtx_LambdaC->chiSquared() < m_LambdaBToLambdaC_chi2) {
               ATH_MSG_DEBUG( "Partially reconstructed Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << ", " << itrk3 << " }" );
@@ -319,6 +325,15 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
         }
         vtx_D0.reset();
 
+      }
+
+      if (iterations > m_fitAttemptsWarningThreshold && !isOverWarningThreshold) {
+        ATH_MSG_WARNING( iterations << " combinations for vertex fitter have been processed; " << mon_nBPhysObject << " vertices have been created" );
+        isOverWarningThreshold = true;
+      }
+      if (iterations > m_fitAttemptsBreakThreshold) {
+        ATH_MSG_WARNING( "the number of fit attempts has exceeded the limit; breaking the loop at this point" );
+        break;
       }
     }
   }
