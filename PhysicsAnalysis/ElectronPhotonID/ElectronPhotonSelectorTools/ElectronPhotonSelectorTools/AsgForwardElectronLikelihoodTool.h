@@ -136,6 +136,15 @@ public:
                    const xAOD::Egamma* eg,
                    double mu) const override;
 
+  /** The result method for multiple outputs:
+      only one output is used so return vector of that output */
+  virtual std::vector<float> calculateMultipleOutputs(const EventContext &ctx,
+                                                      const xAOD::Electron *eg,
+                                                      double mu = -99) const override
+  {
+    return {static_cast<float>(calculate(ctx, eg, mu))};
+  }
+
   virtual std::string getOperatingPointName() const override;
 
   // Private methods
