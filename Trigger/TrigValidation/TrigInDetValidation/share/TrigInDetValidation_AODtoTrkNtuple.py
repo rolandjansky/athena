@@ -64,14 +64,11 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if doTier0Mon :
+if doTier0Mon and not doNewTier0Mon:
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 
   montools = TrigIDtrkMonitoringTool()
-
-  #  print "\n\nMonTools\n"
-  #  print montools
 
   HLTMonManager.AthenaMonTools += montools
 
@@ -81,17 +78,16 @@ if doTier0Mon :
   HLTMonManager.FileKey = "AANT"
 
 
-if doNewTier0Mon :
+if doNewTier0Mon :   
 
-# this is the new location ...
+  # this is the new location ...
   from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
   for git in TIDAMonitoring( "idtrigger" ):
     algseq += git
 
   from GaudiSvc.GaudiSvcConf import THistSvc
   ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-new-tier0.root' OPT='RECREATE'"]
-  HLTMonManager.FileKey = "AANT"
+  ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
 
 
 
