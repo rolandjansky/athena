@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -188,7 +188,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
    //######################
 
-
   //Note that m_xxx are pointers to vectors set to 0, not set to empty vector! see note around TBranch
 {
   declareProperty("NtupleFileName", m_ntupleFileName);
@@ -200,11 +199,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("FastCaloSimCaloExtrapolation",   m_FastCaloSimCaloExtrapolation );
 
   //###########################
-  //declareProperty("ExtrapolatorName",               m_extrapolatorName );
-  //declareProperty("ExtrapolatorInstanceName",       m_extrapolatorInstanceName );
-  //declareProperty("CalosurfMiddleInstanceName",     m_calosurf_InstanceName);
-  //declareProperty("CalosurfEntranceInstanceName",   m_calosurf_entrance_InstanceName);
-
   declareProperty("CaloBoundaryR", m_CaloBoundaryR);
   declareProperty("CaloBoundaryZ", m_CaloBoundaryZ);
   declareProperty("CaloMargin", m_calomargin);
@@ -226,18 +220,13 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("DoG4Hits", m_doG4Hits = false);
   declareProperty("TimingCut", m_TimingCut = 999999);
 
-
-
-
   m_surfacelist.resize(0);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerB);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerE);
   m_surfacelist.push_back(CaloCell_ID_FCS::EME1);
   m_surfacelist.push_back(CaloCell_ID_FCS::EME2);
   m_surfacelist.push_back(CaloCell_ID_FCS::FCAL0);
-
 }
-
 
 ISF_HitAnalysis::~ISF_HitAnalysis()
 {
@@ -411,74 +400,6 @@ StatusCode ISF_HitAnalysis::initialize()
       return StatusCode::FAILURE;
     }
 
-  m_final_cell_energy = new std::vector<Float_t>;
-  m_final_hit_energy = new std::vector<Float_t>;
-  m_final_g4hit_energy = new std::vector<Float_t>;
-
-  m_newTTC_entrance_eta = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_r = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_z = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_back_eta = new std::vector<std::vector<float> >;
-  m_newTTC_back_phi = new std::vector<std::vector<float> >;
-  m_newTTC_back_r = new std::vector<std::vector<float> >;
-  m_newTTC_back_z = new std::vector<std::vector<float> >;
-  m_newTTC_back_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_back_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_mid_eta = new std::vector<std::vector<float> >;
-  m_newTTC_mid_phi = new std::vector<std::vector<float> >;
-  m_newTTC_mid_r = new std::vector<std::vector<float> >;
-  m_newTTC_mid_z = new std::vector<std::vector<float> >;
-  m_newTTC_mid_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_mid_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_r = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_z = new std::vector<float>;
-  m_newTTC_Angle3D = new std::vector<float>;
-  m_newTTC_AngleEta = new std::vector<float>;
-
-  m_MuonEntryLayer_E = new std::vector<float>;
-  m_MuonEntryLayer_px = new std::vector<float>;
-  m_MuonEntryLayer_py = new std::vector<float>;
-  m_MuonEntryLayer_pz = new std::vector<float>;
-  m_MuonEntryLayer_x = new std::vector<float>;
-  m_MuonEntryLayer_y = new std::vector<float>;
-  m_MuonEntryLayer_z = new std::vector<float>;
-  m_MuonEntryLayer_pdg = new std::vector<int>;
-
-
-  // Optional branches
-  if(m_saveAllBranches){
-    m_tree->Branch("HitX",                 &m_hit_x);
-    m_tree->Branch("HitY",                 &m_hit_y);
-    m_tree->Branch("HitZ",                 &m_hit_z);
-    m_tree->Branch("HitE",                 &m_hit_energy);
-    m_tree->Branch("HitT",                 &m_hit_time);
-    m_tree->Branch("HitIdentifier",        &m_hit_identifier);
-    m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
-    m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
-    m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
-    m_tree->Branch("HitIsHEC",             &m_islarhec);
-    m_tree->Branch("HitIsFCAL",            &m_islarfcal);
-    m_tree->Branch("HitIsTile",            &m_istile);
-    m_tree->Branch("HitSampling",          &m_hit_sampling);
-    m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
-
-    m_tree->Branch("CellIdentifier",       &m_cell_identifier);
-    m_tree->Branch("CellE",                &m_cell_energy);
-    m_tree->Branch("CellSampling",         &m_cell_sampling);
-
-    m_tree->Branch("G4HitE",               &m_g4hit_energy);
-    m_tree->Branch("G4HitT",               &m_g4hit_time);
-    m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
-    m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
-    m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
-    m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
-  }
-
   // Grab the Ntuple and histogramming service for the tree
   sc = service("THistSvc",m_thistSvc);
   if (sc.isFailure())
@@ -486,18 +407,6 @@ StatusCode ISF_HitAnalysis::initialize()
       ATH_MSG_ERROR( "Unable to retrieve pointer to THistSvc" );
       return StatusCode::FAILURE;
     }
-
-  if(m_doClusterInfo){
-    m_tree->Branch("ClusterE",               &m_cluster_energy);
-    m_tree->Branch("ClusterEta",             &m_cluster_eta);
-    m_tree->Branch("ClusterPhi",             &m_cluster_phi);
-    m_tree->Branch("ClusterSize",            &m_cluster_size);
-    m_tree->Branch("ClusterCellID",          &m_cluster_cellID);
-  }
-  m_oneeventcells = new FCS_matchedcellvector;
-  if(m_doAllCells){
-    m_tree->Branch("AllCells", &m_oneeventcells);
-  }
 
   //#########################
   IPartPropSvc* p_PartPropSvc=0;
@@ -602,6 +511,15 @@ StatusCode ISF_HitAnalysis::initialize()
       m_newTTC_Angle3D = new std::vector<float>;
       m_newTTC_AngleEta = new std::vector<float>;
 
+      m_MuonEntryLayer_E = new std::vector<float>;
+      m_MuonEntryLayer_px = new std::vector<float>;
+      m_MuonEntryLayer_py = new std::vector<float>;
+      m_MuonEntryLayer_pz = new std::vector<float>;
+      m_MuonEntryLayer_x = new std::vector<float>;
+      m_MuonEntryLayer_y = new std::vector<float>;
+      m_MuonEntryLayer_z = new std::vector<float>;
+      m_MuonEntryLayer_pdg = new std::vector<int>;
+
       // Optional branches
       if(m_saveAllBranches){
         m_tree->Branch("HitX",                 &m_hit_x);
@@ -639,6 +557,14 @@ StatusCode ISF_HitAnalysis::initialize()
       m_tree->Branch("TruthPDG",             &m_truth_pdg);
       m_tree->Branch("TruthBarcode",         &m_truth_barcode);
       m_tree->Branch("TruthVtxBarcode",      &m_truth_vtxbarcode);
+
+      if(m_doClusterInfo){
+        m_tree->Branch("ClusterE",               &m_cluster_energy);
+        m_tree->Branch("ClusterEta",             &m_cluster_eta);
+        m_tree->Branch("ClusterPhi",             &m_cluster_phi);
+        m_tree->Branch("ClusterSize",            &m_cluster_size);
+        m_tree->Branch("ClusterCellID",          &m_cluster_cellID);
+      }
 
       m_oneeventcells = new FCS_matchedcellvector;
       if(m_doAllCells){
@@ -1140,22 +1066,6 @@ StatusCode ISF_HitAnalysis::execute()
          m_newTTC_mid_detaBorder  ->push_back(detaBorder_vec_MID);
          m_newTTC_mid_OK  ->push_back(OK_vec_MID);
 
-         //*****************************
-
-         //OLD EXTRAPOLATION
-         /*
-         std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
-         for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it) {
-           if((*it).trackParms) {
-             delete (*it).trackParms;
-             (*it).trackParms=0;
-           }
-         }
-         delete hitVector;
-         */
-
-         //Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
-
          m_truth_energy->push_back((part)->momentum().e());
          m_truth_px->push_back((part)->momentum().px());
          m_truth_py->push_back((part)->momentum().py());
@@ -1239,8 +1149,7 @@ StatusCode ISF_HitAnalysis::execute()
 
  if (sc.isFailure())
  {
-  ATH_MSG_WARNING( "Couldn't read AllCalo cells from StoreGate");
-  //return NULL;
+   ATH_MSG_WARNING( "Couldn't read AllCalo cells from StoreGate");
  }
  else
  {
@@ -1249,20 +1158,20 @@ StatusCode ISF_HitAnalysis::execute()
   CaloCellContainer::const_iterator itrLastCell = cellColl->end();
   for ( ; itrCell!=itrLastCell; ++itrCell)
   {
-         m_cell_energy->push_back((*itrCell)->energy());
-         m_cell_identifier->push_back((*itrCell)->ID().get_compact());
-         if (m_tileID->is_tile_aux((*itrCell)->ID())) {
-           // special case for E4'
-           m_cell_sampling->push_back(CaloCell_ID::TileGap3);
-         }
-         else if (m_calo_dd_man->get_element((*itrCell)->ID()))
-         {
-          // all other Tile cells
-          CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
-          m_cell_sampling->push_back(layer);
-         }
-         else
-          m_cell_sampling->push_back(-1);
+    m_cell_energy->push_back((*itrCell)->energy());
+    m_cell_identifier->push_back((*itrCell)->ID().get_compact());
+    if (m_tileID->is_tile_aux((*itrCell)->ID())) {
+      // special case for E4'
+      m_cell_sampling->push_back(CaloCell_ID::TileGap3);
+    }
+    else if (m_calo_dd_man->get_element((*itrCell)->ID()))
+    {
+    // all other Tile cells
+    CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
+    m_cell_sampling->push_back(layer);
+    }
+    else
+    m_cell_sampling->push_back(-1);
   }
  } //calorimeter cells
 
@@ -1281,18 +1190,18 @@ StatusCode ISF_HitAnalysis::execute()
       const LArHit* larHit = *hi;
       const CaloDetDescrElement *hitElement = m_calo_dd_man->get_element(larHit->cellID());
       if(!hitElement)
-	continue;
+        continue;
       Identifier larhitid = hitElement->identify();
       if(m_calo_dd_man->get_element(larhitid)) {
-	CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+      CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
 
-	float larsampfrac=fSampl->FSAMPL(larhitid);
-	m_g4hit_energy->push_back( larHit->energy() );
-	m_g4hit_time->push_back( larHit->time() );
-	m_g4hit_identifier->push_back( larhitid.get_compact() );
-	m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
-	m_g4hit_sampling->push_back( larlayer);
-	m_g4hit_samplingfraction->push_back( larsampfrac );
+      float larsampfrac=fSampl->FSAMPL(larhitid);
+      m_g4hit_energy->push_back( larHit->energy() );
+      m_g4hit_time->push_back( larHit->time() );
+      m_g4hit_identifier->push_back( larhitid.get_compact() );
+      m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
+      m_g4hit_sampling->push_back( larlayer);
+      m_g4hit_samplingfraction->push_back( larsampfrac );
       }
     } // End while LAr hits
     ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
@@ -1313,27 +1222,23 @@ StatusCode ISF_HitAnalysis::execute()
    hitnumber++;
    Identifier pmt_id = (*i_hit).identify();
    Identifier cell_id = m_tileID->cell_id(pmt_id);
-   //const  CaloDetDescrElement* ddElement = m_tileMgr->get_cell_element(cell_id);
 
-   if (m_calo_dd_man->get_element(cell_id))
-         {
-          CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
+   if (m_calo_dd_man->get_element(cell_id)){
+      CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
 
-          float tilesampfrac = m_tileInfo->HitCalib(cell_id);
+      float tilesampfrac = m_tileInfo->HitCalib(cell_id);
 
-          //could there be more subhits??
-          for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)
-          {
-           //!!
-           //std::cout <<"Tile subhit: "<<tilesubhit_i<<"/"<<(*i_hit).size()<< " E: "<<(*i_hit).energy(tilesubhit_i)<<std::endl;
-           m_g4hit_energy->push_back( (*i_hit).energy(tilesubhit_i) );
-           m_g4hit_time->push_back(   (*i_hit).time(tilesubhit_i)   );
-           m_g4hit_identifier->push_back( pmt_id.get_compact() );
-           m_g4hit_cellidentifier->push_back( cell_id.get_compact() );
-           m_g4hit_sampling->push_back( layer );
-           m_g4hit_samplingfraction->push_back( tilesampfrac );
-          }
-         }
+      //could there be more subhits??
+      for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)
+      {
+        m_g4hit_energy->push_back( (*i_hit).energy(tilesubhit_i) );
+        m_g4hit_time->push_back(   (*i_hit).time(tilesubhit_i)   );
+        m_g4hit_identifier->push_back( pmt_id.get_compact() );
+        m_g4hit_cellidentifier->push_back( cell_id.get_compact() );
+        m_g4hit_sampling->push_back( layer );
+        m_g4hit_samplingfraction->push_back( tilesampfrac );
+      }
+    }
   }
   ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from TileHitVec");
  }
@@ -1343,10 +1248,8 @@ StatusCode ISF_HitAnalysis::execute()
   ATH_MSG_DEBUG("CaloHitAna begin!");
 
   //cells
-  for (unsigned int cell_i = 0; cell_i < m_cell_identifier->size(); cell_i++)
-  {
-    if (cells.find((*m_cell_identifier)[cell_i]) == cells.end()) //doesn't exist
-    {
+  for (unsigned int cell_i = 0; cell_i < m_cell_identifier->size(); cell_i++){
+    if (cells.find((*m_cell_identifier)[cell_i]) == cells.end()) { //doesn't exist
       one_cell.cell_identifier = (*m_cell_identifier)[cell_i];
       one_cell.sampling = (*m_cell_sampling)[cell_i];
       one_cell.energy = (*m_cell_energy)[cell_i];
@@ -1379,25 +1282,19 @@ StatusCode ISF_HitAnalysis::execute()
         one_g4hit.cell_identifier = (*m_g4hit_cellidentifier)[g4hit_i];
         one_g4hit.sampling = (*m_g4hit_sampling)[g4hit_i];
         one_g4hit.hit_time = (*m_g4hit_time)[g4hit_i];
-        //one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i];
         //scale the hit energy with the sampling fraction
         if (one_g4hit.sampling >= 12 && one_g4hit.sampling <= 20)
         { //tile
-          //std::cout <<"Tile: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           if ((*m_g4hit_samplingfraction)[g4hit_i])
           {
             one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] * (*m_g4hit_samplingfraction)[g4hit_i];
-            //std::cout <<"TileE: "<<one_g4hit.hit_energy<<std::endl;
           }
           else one_g4hit.hit_energy = 0.;
         }
         else
         {
-          //std::cout <<"LAr: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] / (*m_g4hit_samplingfraction)[g4hit_i];
         }
-        //one_g4hit.hit_sampfrac = (*m_g4hit_samplingfraction)[g4hit_i];
-        //new g4hit -> insert vector with 1 element
         g4hits.insert(std::pair<Long64_t, std::vector<FCS_g4hit> >(one_g4hit.cell_identifier, std::vector<FCS_g4hit>(1, one_g4hit)));
       }
       else
@@ -1409,20 +1306,16 @@ StatusCode ISF_HitAnalysis::execute()
         one_g4hit.hit_time = (*m_g4hit_time)[g4hit_i];
         if (one_g4hit.sampling >= 12 && one_g4hit.sampling <= 20)
         { //tile
-          //std::cout <<"Tile2: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           if ((*m_g4hit_samplingfraction)[g4hit_i])
           {
             one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] * (*m_g4hit_samplingfraction)[g4hit_i];
-            //std::cout <<"TileE2: "<<one_g4hit.hit_energy<<std::endl;
           }
           else one_g4hit.hit_energy = 0.;
         }
         else
         {
-          //std::cout <<"LAr2: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] / (*m_g4hit_samplingfraction)[g4hit_i];
         }
-        //one_g4hit.hit_sampfrac = (*m_g4hit_samplingfraction)[g4hit_i];
         g4hits[(*m_g4hit_cellidentifier)[g4hit_i]].push_back(one_g4hit);
       }
     }
@@ -1433,8 +1326,7 @@ StatusCode ISF_HitAnalysis::execute()
   {
     if ((*m_hit_sampling)[hit_i] >= 0 && (*m_hit_sampling)[hit_i] <= 25 && (*m_hit_time)[hit_i] > m_TimingCut)
     {
-      // if (m_Debug > 1)
-        ATH_MSG_DEBUG("Ignoring FCS hit, time too large: " << hit_i << " time: " << (*m_hit_time)[hit_i]);
+      ATH_MSG_DEBUG("Ignoring FCS hit, time too large: " << hit_i << " time: " << (*m_hit_time)[hit_i]);
       continue;
     }
     if (hits.find((*m_hit_cellidentifier)[hit_i]) == hits.end())
@@ -1517,7 +1409,6 @@ StatusCode ISF_HitAnalysis::execute()
     std::map<Long64_t, std::vector<FCS_g4hit> >::iterator it3 = g4hits.find(it->first);
     if (it3 != g4hits.end())
     {
-      //std::cout <<"G4 hits found in this cell"<<std::endl;
       one_matchedcell.g4hit = it3->second;
       g4hits.erase(it3);
     }
@@ -1526,13 +1417,9 @@ StatusCode ISF_HitAnalysis::execute()
       //no g4hit found for this cell
       one_matchedcell.g4hit.clear();//important!
     }
-    //std::cout <<"Erase cell"<<std::endl;
     cells.erase(it++);
-    //std::cout <<"Insert matched object"<<std::endl;
     //push_back matched cell for event jentry
     m_oneeventcells->push_back(one_matchedcell);
-    //std::cout <<"Go next"<<std::endl;
-
   }
 
   //ok, cells should be empty, what about hits and g4hits?
@@ -1672,9 +1559,6 @@ StatusCode ISF_HitAnalysis::execute()
   m_final_cell_energy->at(MAX_LAYER)  = m_total_cell_e;
   m_final_hit_energy->at(MAX_LAYER)   = m_total_hit_e;
   m_final_g4hit_energy->at(MAX_LAYER) = m_total_g4hit_e;
-
-
-
 
  //Fill the tree and finish
  if (m_tree) m_tree->Fill();
