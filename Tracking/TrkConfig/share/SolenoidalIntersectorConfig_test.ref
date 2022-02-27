@@ -1,1 +1,1 @@
-private tools: SolenoidalIntersector('SolenoidalIntersector', SolenoidParameterizationKey='SolenoidParametrization')
+private tools: SolenoidalIntersector('SolenoidalIntersector', SolenoidParameterizationKey=DataHandle('SolenoidParametrization','R','Trk::SolenoidParametrization',True))

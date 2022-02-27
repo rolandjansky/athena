@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from functools import lru_cache
 from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqOR, seqAND, isSequence
 from AthenaCommon.Logging import logging
@@ -61,21 +61,21 @@ def traverse(acc, startCollectionName, functor):
     # assemble all HLT decision DF algorithms in dictionary keyed by the output that they provide
     for alg in acc.getEventAlgos(): # TODO improve CA implementation to obtain all algorithms when no specific sequence is required
         if isHypoAlg(alg):
-                outputs[alg.HypoOutputDecisions] = alg
+                outputs[str(alg.HypoOutputDecisions)] = alg
         if isComboHypoAlg(alg):
             for d in alg.HypoOutputDecisions:
-                outputs[d] = alg
+                outputs[str(d)] = alg
         if isInputMakerBase(alg):
-            outputs[alg.InputMakerOutputDecisions] = alg
+            outputs[str(alg.InputMakerOutputDecisions)] = alg
         if isFilterAlg(alg):
             for d in alg.Output:
-                outputs[d] = alg
+                outputs[str(d)] = alg
 
     # for a given collection and algorithm returns list of inputs that lead to it
     # all implementations except for ComboHypo and Filter are trivial
     def __jumpToInputs(outputName, alg):
         if isHypoAlg(alg):
-            return [alg.HypoInputDecisions]
+            return [alg.HypoInputDecisions.Path]
         if isInputMakerBase(alg):
             return alg.InputMakerInputDecisions
         if isFilterAlg(alg):
@@ -280,7 +280,7 @@ def generateDecisionTree(flags, chains):
         """
 
         def __nameAndOutput(h):
-            return (h.name, h.HypoOutputDecisions) if h else None
+            return (h.name, h.HypoOutputDecisions.Path) if h else None
 
         output = None
         for currentCounter in range(stepCounter, -1, -1):
@@ -296,6 +296,7 @@ def generateDecisionTree(flags, chains):
                     output[index] = el
             if all(output):
                 return output
+
         return output
 
 
@@ -548,8 +549,8 @@ if __name__ == "__main__":
     colls = []
     def hypoInOut(outCol, alg):
         if isHypoAlg(alg):
-            colls.append(alg.HypoInputDecisions)
-            colls.append(alg.HypoOutputDecisions)
+            colls.append(alg.HypoInputDecisions.Path)
+            colls.append(alg.HypoOutputDecisions.Path)
 
     traverse(acc,  "CHa2_O", hypoInOut) # start from ComboHypo  output
     log.info(colls)

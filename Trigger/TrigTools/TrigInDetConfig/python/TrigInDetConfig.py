@@ -711,7 +711,7 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
                                                                     ('SpacePointCache', 'PixelSpacePointCache'),
                                                                     ('SpacePointCache', 'SctSpacePointCache'),
                                                                     ('xAOD::EventInfo', 'EventInfo'),
-                                                                    ('TrigRoiDescriptorCollection', roisKey),
+                                                                    ('TrigRoiDescriptorCollection', str(roisKey)),
                                                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
     if flags.Input.isMC:
         verifier.DataObjects += [( 'PixelRDO_Container' , 'StoreGateSvc+PixelRDOs' ),
