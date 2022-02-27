@@ -72,14 +72,14 @@ def badEtaPhi_forAllMaskPatterns(inputs):
                 rv_IBL = rv[m].Clone()
                 rv_IBL.SetName('badFE_EtaPhi_IBL_new')
             elif sec == 'BLayer':
-                rv_BL = rv[m].Clone()
-                rv_BL.SetName('badFE_EtaPhi_BLayer_new')
+                rv_BLayer = rv[m].Clone()
+                rv_BLayer.SetName('badFE_EtaPhi_BLayer_new')
             elif sec == 'Layer1':
-                rv_L1 = rv[m].Clone()
-                rv_L1.SetName('badFE_EtaPhi_Layer1_new')
+                rv_Layer1 = rv[m].Clone()
+                rv_Layer1.SetName('badFE_EtaPhi_Layer1_new')
             elif sec == 'Layer2':
-                rv_L2 = rv[m].Clone()
-                rv_L2.SetName('badFE_EtaPhi_Layer2_new')
+                rv_Layer2 = rv[m].Clone()
+                rv_Layer2.SetName('badFE_EtaPhi_Layer2_new')
  
         for m in range(0, 15):
             rv1.append(ROOT.TH2F('defectPlot', 'badFEOverlaps', 500, -3.0, 3.0, 500, -math.pi, math.pi))
@@ -90,52 +90,52 @@ def badEtaPhi_forAllMaskPatterns(inputs):
             for ybin in range(rv[0].GetNbinsY()):
                 phi = rv[0].GetYaxis().GetBinCenter(ybin+1)
                 entIBL = rv_IBL.GetBinContent(xbin+1, ybin+1)
-                entBL = rv_BL.GetBinContent(xbin+1, ybin+1)
-                entL1 = rv_L1.GetBinContent(xbin+1, ybin+1)
-                entL2 = rv_L2.GetBinContent(xbin+1, ybin+1)
-                if entIBL >= 1 and entBL >= 1 and entL1 >= 1 and entL2 >= 1: # IBL, B-Layer, Layer1, Layer2
+                entBLayer = rv_BLayer.GetBinContent(xbin+1, ybin+1)
+                entLayer1 = rv_Layer1.GetBinContent(xbin+1, ybin+1)
+                entLayer2 = rv_Layer2.GetBinContent(xbin+1, ybin+1)
+                if entIBL >= 1 and entBLayer >= 1 and entLayer1 >= 1 and entLayer2 >= 1: # IBL, B-Layer, Layer1, Layer2
                     rv1[0].SetTitle('badFE_EtaPhi_IBL_BLayer_Layer1_Layer2')
                     rv1[0].Fill(eta, phi) 
-                elif entIBL >= 1 and entBL >= 1 and entL1 >= 1: # IBL, B-Layer, Layer1
+                elif entIBL >= 1 and entBLayer >= 1 and entLayer1 >= 1: # IBL, B-Layer, Layer1
                     rv1[1].SetTitle('badFE_EtaPhi_IBL_BLayer_Layer1')
                     rv1[1].Fill(eta, phi) 
-                elif entIBL >= 1 and entBL >= 1 and entL2 >= 1: # IBL, B-Layer, Layer2
+                elif entIBL >= 1 and entBLayer >= 1 and entLayer2 >= 1: # IBL, B-Layer, Layer2
                     rv1[2].SetTitle('badFE_EtaPhi_IBL_BLayer_Layer2')
                     rv1[2].Fill(eta, phi) 
-                elif entIBL >= 1 and entL1 >= 1 and entL2 >= 1: # IBL, Layer2, Layer2
+                elif entIBL >= 1 and entLayer1 >= 1 and entLayer2 >= 1: # IBL, Layer2, Layer2
                     rv1[3].SetTitle('badFE_EtaPhi_IBL_Layer1_Layer2')
                     rv1[3].Fill(eta, phi) 
-                elif entBL >= 1 and entL1 >= 1 and entL2 >= 1: # B-Layer, Layer2, Layer2
+                elif entBLayer >= 1 and entLayer1 >= 1 and entLayer2 >= 1: # B-Layer, Layer2, Layer2
                     rv1[4].SetTitle('badFE_EtaPhi_BLayer_Layer1_Layer2')
                     rv1[4].Fill(eta, phi) 
-                elif entIBL >= 1 and entBL >= 1: # IBL, B-Layer
+                elif entIBL >= 1 and entBLayer >= 1: # IBL, B-Layer
                     rv1[5].SetTitle('badFE_EtaPhi_IBL_BLayer')
                     rv1[5].Fill(eta, phi) 
-                elif entIBL >= 1 and entL1 >= 1: # IBL, Layer1
+                elif entIBL >= 1 and entLayer1 >= 1: # IBL, Layer1
                     rv1[6].SetTitle('badFE_EtaPhi_IBL_BLayer')
                     rv1[6].Fill(eta, phi) 
-                elif entIBL >= 1 and entL2 >= 1: # IBL, Layer2
+                elif entIBL >= 1 and entLayer2 >= 1: # IBL, Layer2
                     rv1[7].SetTitle('badFE_EtaPhi_IBL_BLayer')
                     rv1[7].Fill(eta, phi) 
-                elif entBL >= 1 and entL1 >= 1: # B-Layer, Layer1
+                elif entBLayer >= 1 and entLayer1 >= 1: # B-Layer, Layer1
                     rv1[8].SetTitle('badFE_EtaPhi_BLayer_Layer1')
                     rv1[8].Fill(eta, phi) 
-                elif entBL >= 1 and entL2 >= 1: # B-Layer, Layer2
+                elif entBLayer >= 1 and entLayer2 >= 1: # B-Layer, Layer2
                     rv1[9].SetTitle('badFE_EtaPhi_BLayer_Layer2')
                     rv1[9].Fill(eta, phi) 
-                elif entL1 >= 1 and entL2 >= 1: # Layer1, Layer2
+                elif entLayer1 >= 1 and entLayer2 >= 1: # Layer1, Layer2
                     rv1[10].SetTitle('badFE_EtaPhi_Layer1_Layer2')
                     rv1[10].Fill(eta, phi) 
                 elif entIBL >= 1: # IBL
                     rv1[11].SetTitle('badFE_EtaPhi_onlyIBL')
                     rv1[11].Fill(eta, phi) 
-                elif entBL >= 1: # B-Layer
+                elif entBLayer >= 1: # B-Layer
                     rv1[12].SetTitle('badFE_EtaPhi_onlyBLayer')
                     rv1[12].Fill(eta, phi) 
-                elif entL1 >= 1: # Layer1
+                elif entLayer1 >= 1: # Layer1
                     rv1[13].SetTitle('badFE_EtaPhi_onlyLayer1')
                     rv1[13].Fill(eta, phi) 
-                elif entL2 >= 1: # Layer2
+                elif entLayer2 >= 1: # Layer2
                     rv1[14].SetTitle('badFE_EtaPhi_onlyLayer2')
                     rv1[14].Fill(eta, phi) 
 
