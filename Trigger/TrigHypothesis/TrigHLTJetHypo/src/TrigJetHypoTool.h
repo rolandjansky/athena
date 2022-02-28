@@ -85,7 +85,8 @@ public:
   
   
   mutable std::atomic<size_t> m_id = 0;
-  
+
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};  
 
   StatusCode
   checkPassingJets(const xAODJetCollector&,
