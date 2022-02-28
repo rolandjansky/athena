@@ -108,12 +108,12 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum(const VecAccumulator2DMap& acc
     auto pm = Monitored::Collection(accumulator.m_prof2Dname + "_pm", accumulator.m_pm.at(layer));
     auto val = Monitored::Collection(accumulator.m_prof2Dname + "_val", accumulator.m_val.at(layer));
     auto em = Monitored::Collection(accumulator.m_prof2Dname + "_em", accumulator.m_em.at(layer));
-    fill(pixLayersLabel[layer], pm, em, val);
+    fill(pixBaseLayersLabel[layer], pm, em, val);
   }
 }
 
 ///
-/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
+/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL","IBL2D","IBL3D"]
 ///
 void PixelAthMonitoringBase::fill1DProfLumiLayers(const std::string& prof1Dname, int lumiblock, float* values,
                                                   int nlayers) const {
@@ -136,7 +136,7 @@ void PixelAthMonitoringBase::fill1DProfLumiLayers(const std::string& prof1Dname,
 //////////////////////////////////////////////
 
 ///
-/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
+/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL2D","IBL3D"]
 ///
 void PixelAthMonitoringBase::fill2DProfLumiLayers(const std::string& prof2Dname, int lumiblock,
                                                   float(*values)[PixLayers::COUNT], const int* nCategories) const {
@@ -294,6 +294,24 @@ bool PixelAthMonitoringBase::isIBL2D(int hashID) const {
     { 
       int module = (hashID-156) % 20;
       if (module>3 && module<16)
+	{ 
+	  result = true;
+	}
+    }
+  return result;
+}
+
+//////////////////////////////////////////////
+
+///
+/// helper function to check if module is IBL 3D based on pixel hash ID
+///
+bool PixelAthMonitoringBase::isIBL3D(int hashID) const {
+  bool result(false);
+  if ( hashID>=156 && hashID<=435 ) // IBL
+    { 
+      int module = (hashID-156) % 20;
+      if (module<4 || module>15)
 	{ 
 	  result = true;
 	}
