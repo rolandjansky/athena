@@ -88,16 +88,10 @@ struct ExResult
   const Identifier         gasgap_id;
   const Trk::PropDirection direction;
   
-  int               localTrackPosValid          {-1};
   bool              localTrackPosInBounds       {false};
   bool              localTrackPosInBoundsTight  {false};
-  float             localTrackPosY  {-1.0e6};
-  float             localTrackPosZ  {-1.0e6};
-  float             globalTrackPosX {-1.0e6};
-  float             globalTrackPosY {-1.0e6};
-  float             globalTrackPosZ {-1.0e6};
-
-  float             minTrackReadoutDR   {10.0};
+  Amg::Vector3D     localPos;
+  Amg::Vector3D     globalPos;
   float             minTrackGasGapDEta  {10.0};
   float             minTrackGasGapDPhi  {10.0};
   float             minTrackGasGapDR    {10.0};
@@ -113,6 +107,7 @@ struct GasGapData
 			       const unsigned                   _gasgap);
   
   void computeTrackDistanceToGasGap(ExResult &result, const xAOD::TrackParticle &track) const;
+  void computeTrackDistanceToGasGap(ExResult &result,  const Trk::TrackParameters *trackParam) const;
 
   const MuonGM::RpcReadoutElement *readoutEl;
   
@@ -128,8 +123,8 @@ struct GasGapData
   int           doubletPhi;
   unsigned      gasgap;      
   
-  unsigned      nstrip_eta      {0};
-  unsigned      nstrip_phi      {0};
+  unsigned      NetaStrips      {0};
+  unsigned      NphiStrips      {0};
   double        minStripEta     { 10.0};
   double        maxStripEta     {-10.0};
   double        minStripPhi     { 10.0};
@@ -139,15 +134,6 @@ struct GasGapData
 
   std::pair<std::shared_ptr<RpcPanel>, std::shared_ptr<RpcPanel>> RpcPanel_eta_phi;
 
-};
-
-//================================================================================================
-struct ExSummary
-{
-  ExSummary ()= default;
-
-  unsigned nGasGapInBounds{0};
-  unsigned nGasGapInBoundsTight{0};
 };
 
 #endif

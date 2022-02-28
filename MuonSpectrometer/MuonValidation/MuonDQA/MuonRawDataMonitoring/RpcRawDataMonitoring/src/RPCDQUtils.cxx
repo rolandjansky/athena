@@ -264,76 +264,42 @@ GasGapData::GasGapData(const Muon::IMuonIdHelperSvc    &idHelperSvc,
     gapid_str = idHelperSvc.toString(gapid) + " - INVALID ID";
   }
 
-  //
+  NetaStrips = readoutEl->NetaStrips();
+  NphiStrips = readoutEl->NphiStrips();
+
   // Determine gas gap span in eta
-  //
-  for(int etaStrip = 1; etaStrip <= readoutEl->NetaStrips(); ++etaStrip) {
-    bool valid = false;
-    const Identifier stripId = rpcIdHelper.channelID( stationName,
-						                                          stationEta,
-						                                          stationPhi,
-						                                          doubletR,
-						                                          doubletZ,
-						                                          doubletPhi,
-						                                          gasgap,
-						                                          false,
-						                                          etaStrip,
-						                                          true,
-						                                          &valid);
-    
-    if(!(valid && readoutEl->containsId(stripId))) {
-      continue;
-    }
+  const Amg::Vector3D glbPos_etaStrip_1st  = readoutEl->stripPos(doubletR, doubletZ, doubletPhi, gasgap, false, 1);
+  double eta_etaStrip_1st  = glbPos_etaStrip_1st.eta();
 
-    nstrip_eta++;
+  const Amg::Vector3D glbPos_etaStrip_last = readoutEl->stripPos(doubletR, doubletZ, doubletPhi, gasgap, false, NetaStrips);
+  double eta_etaStrip_last = glbPos_etaStrip_last.eta();
 
-    const Amg::Vector3D glbStripPos = readoutEl->stripPos(doubletR, doubletZ, doubletPhi, gasgap, false, etaStrip);
-
-    if(nstrip_eta == 1) {
-      minStripEta = glbStripPos.eta();
-      maxStripEta = glbStripPos.eta();      
-    }
-    else {
-      minStripEta = std::min<double>(minStripEta, glbStripPos.eta());
-      maxStripEta = std::max<double>(maxStripEta, glbStripPos.eta());      
-    }
+  if (eta_etaStrip_1st < eta_etaStrip_last) {
+    minStripEta = eta_etaStrip_1st;
+    maxStripEta = eta_etaStrip_last;
+  }
+  else {
+    minStripEta = eta_etaStrip_last;
+    maxStripEta = eta_etaStrip_1st;
   }
   
   //
   // Determine gas gap span in phi
   //
-  for(int phiStrip = 1; phiStrip <= readoutEl->NphiStrips(); ++phiStrip) {
-    bool valid = false;
-    const Identifier stripId = rpcIdHelper.channelID( stationName,
-						                                          stationEta,
-						                                          stationPhi,
-						                                          doubletR,
-						                                          doubletZ,
-						                                          doubletPhi,
-						                                          gasgap,
-						                                          true,
-						                                          phiStrip,
-						                                          true,
-						                                          &valid);
-    
-    if(!(valid && readoutEl->containsId(stripId))) {
-      continue;
-    }
+  const Amg::Vector3D glbPos_phiStrip_1st  = readoutEl->stripPos(doubletR, doubletZ, doubletPhi, gasgap, true, 1);
+  double phi_phiStrip_1st  = glbPos_phiStrip_1st.phi();
 
-    nstrip_phi++;
-    
-    const Amg::Vector3D glbStripPos = readoutEl->stripPos(doubletR, doubletZ, doubletPhi, gasgap, true, phiStrip);
-    
-    if(nstrip_phi == 1) {
-      minStripPhi = glbStripPos.phi();
-      maxStripPhi = glbStripPos.phi();      
-    }
-    else {
-      minStripPhi = std::min<double>(minStripPhi, glbStripPos.phi());
-      maxStripPhi = std::max<double>(maxStripPhi, glbStripPos.phi());      
-    }
+  const Amg::Vector3D glbPos_phiStrip_last = readoutEl->stripPos(doubletR, doubletZ, doubletPhi, gasgap, true, NphiStrips);
+  double phi_phiStrip_last = glbPos_phiStrip_last.phi();
+
+  if (phi_phiStrip_1st < phi_phiStrip_last) {
+    minStripPhi = phi_phiStrip_1st;
+    maxStripPhi = phi_phiStrip_last;
   }
-
+  else {
+    minStripPhi = phi_phiStrip_last;
+    maxStripPhi = phi_phiStrip_1st;
+  }
 }
 
 //========================================================================================================
@@ -348,8 +314,6 @@ void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const xAOD::Trac
   const double deta1 = std::fabs(minStripEta - track.eta());
   const double deta2 = std::fabs(maxStripEta - track.eta());
 
-  // const double dphi1 = std::fabs(TVector2::Phi_mpi_pi(minStripPhi - track.phi()));
-  // const double dphi2 = std::fabs(TVector2::Phi_mpi_pi(maxStripPhi - track.phi()));
   const double dphi1 = std::fabs(xAOD::P4Helpers::deltaPhi(minStripPhi, track.phi()));
   const double dphi2 = std::fabs(xAOD::P4Helpers::deltaPhi(maxStripPhi, track.phi()));
 
@@ -367,12 +331,36 @@ void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const xAOD::Trac
   //
   result.minTrackGasGapDR = std::sqrt(result.minTrackGasGapDEta*result.minTrackGasGapDEta + 
 				                              result.minTrackGasGapDPhi*result.minTrackGasGapDPhi);
-
-  //
-  // Compute min DR to the center of ReadoutElement to which this gas gap belongs
-  //
-  const double dphir = TVector2::Phi_mpi_pi(readoutEl->REcenter().phi() - track.phi());
-  const double detar =                      readoutEl->REcenter().eta() - track.eta();
-
-  result.minTrackReadoutDR = std::sqrt(detar*detar + dphir*dphir);
 }
+
+//========================================================================================================
+void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const Trk::TrackParameters *trackParam) const
+{
+  /*
+    This function:  
+    - computes minum DR distance between track and RpcReadoutElement
+    - do this before expensive call to extrapolator
+   */
+
+  const double deta1 = std::fabs(minStripEta - trackParam->position().eta());
+  const double deta2 = std::fabs(maxStripEta - trackParam->position().eta());
+
+  const double dphi1 = std::fabs(xAOD::P4Helpers::deltaPhi(minStripPhi, trackParam->position().phi()));
+  const double dphi2 = std::fabs(xAOD::P4Helpers::deltaPhi(maxStripPhi, trackParam->position().phi()));
+
+  result.minTrackGasGapDEta = std::min<double>(deta1, deta2);
+  result.minTrackGasGapDPhi = std::min<double>(dphi1, dphi2);
+
+  //
+  // Now check if trackParam->position() position is between min and max - if true, set distance to zero
+  //
+  if(minStripEta <= trackParam->position().eta() && trackParam->position().eta() <= maxStripEta) { result.minTrackGasGapDEta = 0.0; }
+  if(minStripPhi <= trackParam->position().phi() && trackParam->position().phi() <= maxStripPhi) { result.minTrackGasGapDPhi = 0.0; }
+
+  //
+  // Compute min DR to this gas gap
+  //
+  result.minTrackGasGapDR = std::sqrt(result.minTrackGasGapDEta*result.minTrackGasGapDEta + 
+				                              result.minTrackGasGapDPhi*result.minTrackGasGapDPhi);
+}
+
