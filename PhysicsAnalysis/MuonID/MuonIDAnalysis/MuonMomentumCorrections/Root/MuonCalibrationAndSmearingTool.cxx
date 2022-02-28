@@ -544,7 +544,6 @@ namespace CP {
       return 0.0;
     }
     double p2=corrM->GetBinContent(binEta,binPhi);
-    
     if(m_currentParameters->SagittaBias == MCAST::SystVariation::Up || m_currentParameters->SagittaDataStat == MCAST::SystVariation::Up)
     {
       p2 = 0.5*p2;
@@ -585,7 +584,6 @@ namespace CP {
     if((m_currentParameters->SagittaEtaSlice == MCAST::SystVariation::Up) && lv.Eta() < 0) p2 = 0;
     if((m_currentParameters->SagittaEtaSlice == MCAST::SystVariation::Down) && lv.Eta() > 0) p2 = 0;
 
-    
     return p2;
   }
 
@@ -939,7 +937,13 @@ namespace CP {
     // In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect.
     if(m_doSagittaMCDistortion && isMC)
     {
-      itersCB =0; itersID =0;  itersME=0;
+      if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 0) itersCB = 0;
+      if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(1) > 0) itersID = 0;
+      if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 0) itersME = 0;
+      if(SystCase == MCAST::SagittaSysType::DATASTAT && m_SagittaIterations.at(0) > 0) itersCB = m_SagittaIterations.at(0) + 1;
+      if(SystCase == MCAST::SagittaSysType::DATASTAT && m_SagittaIterations.at(1) > 0) itersID = m_SagittaIterations.at(1) + 1;
+      if(SystCase == MCAST::SagittaSysType::DATASTAT && m_SagittaIterations.at(2) > 0) itersME = m_SagittaIterations.at(2) + 1;
+
     }
     ATH_MSG_VERBOSE("applySagittaBiasCorrectionAuto: itersCB: "<<itersCB<<" itersID: "<<itersID<<" itersME: "<<itersME);
 
@@ -1028,7 +1032,8 @@ namespace CP {
       double origPt   = muonInfo.ptcb; // Back up cuz the code will modify the MuonInfo.ptcb var
       double ptCB     = muonInfo.ptcb;
       double ptWeight = muonInfo.ptcb;
-      double ptWeight_unCorr = muonInfo.ptcb;
+      double ptCB_unCorr     = muonInfo.ptcb;
+      double ptWeight_unCorr = muonInfo.uncorrected_ptcb;
       
       // Special case for CB track with missing ID and MS links
       if(muonInfo.ptcb != 0 && muonInfo.ptid == 0 && muonInfo.ptms == 0)
@@ -1082,51 +1087,41 @@ namespace CP {
       }
 
 
-      ATH_MSG_VERBOSE("Doing the WEIGHT combination to have the value for later");
+      ATH_MSG_VERBOSE("------------------------------- Doing the WEIGHT combination to have the value for later");
       if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, 1000, false, isMC, muonInfo,SystCase) == CP::CorrectionCode::Ok)
       {
         ptWeight_unCorr          = muonInfo.ptcb;
-        muonInfo.ptcb = origPt;
+        muonInfo.ptcb = origPt;        
+        muonInfo.ptid = origPtid;
+        muonInfo.ptms = origPtms;
         
-        // only over write if we are doing rho sys, for dataset and bias we want this to change
-        if(isRhoSystematic)
-        {
-          muonInfo.ptid = origPtid;
-          muonInfo.ptms = origPtms;
-        }
       }
       else  return CP::CorrectionCode::Error;
 
 
 
-      ATH_MSG_VERBOSE("Applying CB sagitta correction");
+      ATH_MSG_VERBOSE("---------------------------------- Applying CB sagitta correction");
 
       if(applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, itersCB, false, isMC, muonInfo,SystCase) == CP::CorrectionCode::Ok)
       {
         ptCB          = muonInfo.ptcb;
         muonInfo.ptcb = origPt;
-        
-        // only over write if we are doing rho sys, for dataset and bias we want this to change
-        if(isRhoSystematic)
-        {
-          muonInfo.ptid = origPtid;
-          muonInfo.ptms = origPtms;
-        }
+        muonInfo.ptid = origPtid;
+        muonInfo.ptms = origPtms;
       }
       else  return CP::CorrectionCode::Error;
 
 
-      ATH_MSG_VERBOSE("Applying Weighted sagitta correction");
+      ATH_MSG_VERBOSE("----------------------------------- Applying Weighted sagitta correction");
 
       if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, itersCB, false, isMC, muonInfo,SystCase) == CP::CorrectionCode::Ok)
       {
         ptWeight      = muonInfo.ptcb;
         muonInfo.ptcb = origPt;
-        // only over write if we are doing rho sys, for dataset and bias we want this to change
         if(isRhoSystematic)
         {
           muonInfo.ptid = origPtid;
-          muonInfo.ptms = origPtms; 
+          muonInfo.ptms = origPtms;
         }
       }
       else  return CP::CorrectionCode::Error;
@@ -1157,16 +1152,29 @@ namespace CP {
       else if((SystCase == MCAST::SagittaSysType::DATASTAT))
       {
         double nom_ptcb = nom_rho*ptCB + (1-nom_rho)*ptWeight;
-        double org_ptcb = nom_rho*origPt + (1-nom_rho)*ptWeight_unCorr;
+        double org_ptcb = nom_rho*ptCB_unCorr + (1-nom_rho)*ptWeight_unCorr;
 
         muonInfo.ptcb = origPt * nom_ptcb/org_ptcb; 
 
         ATH_MSG_VERBOSE("corrected ptCB: "<<ptCB<<" corrected ptWeight: "<<ptWeight);
-        ATH_MSG_VERBOSE("uncorrected ptCB: "<<origPt<<" uncorrected ptWeight: "<<ptWeight_unCorr);
+        ATH_MSG_VERBOSE("uncorrected ptCB: "<<ptCB_unCorr<<" uncorrected ptWeight: "<<ptWeight_unCorr);
         ATH_MSG_VERBOSE("combined corrected pt: "<<nom_ptcb<<" combined uncorrected pt: "<<org_ptcb);
         ATH_MSG_VERBOSE("origPt: "<<origPt<<" corrected pt: "<<muonInfo.ptcb);
+      }
+      else if((SystCase == MCAST::SagittaSysType::BIAS) && m_doSagittaMCDistortion && isMC)
+      {
+        double nom_ptcb = nom_rho*ptCB + (1-nom_rho)*ptWeight;
+        double org_ptcb = nom_rho*muonInfo.uncorrected_ptcb + (1-nom_rho)*ptWeight_unCorr;
 
+        muonInfo.ptcb = origPt * nom_ptcb/org_ptcb; 
 
+        muonInfo.ptid = origPtid * muonInfo.ptid/muonInfo.uncorrected_ptid; 
+        muonInfo.ptms = origPtms * muonInfo.ptms/muonInfo.uncorrected_ptms; 
+
+        ATH_MSG_VERBOSE("corrected ptCB: "<<ptCB<<" corrected ptWeight: "<<ptWeight);
+        ATH_MSG_VERBOSE("uncorrected ptCB: "<<ptCB_unCorr<<" uncorrected ptWeight: "<<ptWeight_unCorr);
+        ATH_MSG_VERBOSE("combined corrected pt: "<<nom_ptcb<<" combined uncorrected pt: "<<org_ptcb);
+        ATH_MSG_VERBOSE("origPt: "<<origPt<<" corrected pt: "<<muonInfo.ptcb);
       }
       else 
       {
