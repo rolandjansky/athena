@@ -35,7 +35,9 @@ StatusCode SUSYObjDef_xAOD::GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowA
     ATH_MSG_ERROR("SUSYTools was not initialized!!");
     return StatusCode::FAILURE;
   }
-  
+  //Even in case of null pointer containers, we build TruthTau container 
+    if(m_tauDoTTM && !isData()) m_tauTruthMatch->retrieveTruthTaus(); 
+
   const xAOD::TauJetContainer* taus(0);
   if (copy==NULL) { // empty container provided
     if (containerToBeCopied != nullptr) {
@@ -188,6 +190,12 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
   return sf;
 }
 
+void SUSYObjDef_xAOD::RetrieveTruthTauContainer(){
+  //Build the TruthTaus contaner, or retrieve one if already exists
+  m_tauTruthMatch->retrieveTruthTaus(); 
+
+}
+  
 bool SUSYObjDef_xAOD::GetTauTriggerMatch(const xAOD::TauJet& tau, const std::string& trigExpr){
   bool match = false;
 
