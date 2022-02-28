@@ -56,6 +56,12 @@ atlas_add_citest( RecoRun2Data_DAODPHYSLite
    PROPERTIES REQUIRED_FILES ../RecoRun2Data/run_q442/myAOD.pool.root
    DEPENDS RecoRun2Data )
 
+atlas_add_citest( RecoRun2MC
+   SCRIPT RunWorkflowTests_Run2.py --CI -r -w MCReco -e '--maxEvents 25' --threads 0 --no-output-checks )
+
+atlas_add_citest( RecoRun2MC_CAConfig
+   SCRIPT RunWorkflowTests_Run2.py --CI -r -w MCReco -e '--CA --maxEvents 5' --no-output-checks )
+
 atlas_add_citest( RecoRun3MC
    SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25' --no-output-checks )
 
@@ -101,6 +107,8 @@ atlas_add_citest( Trigger_athenaHLT_v1Dev
 atlas_add_citest( Trigger_athenaHLT_v1PhysP1
    SCRIPT test_trigP1_v1PhysP1_build.py )
 
+
+
 # TODO: We stop here for now (migration ongoing...)
 return()
 
@@ -116,15 +124,3 @@ atlas_add_citest( q221_Run3DQ
    SCRIPT Run3DQTestingDriver.py 'Input.Files=["../q221/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
    PROPERTIES REQUIRED_FILES ../q221/myAOD.pool.root
    DEPENDS q221 )
-
-#################################################################################
-# Digitization/Simulation
-#################################################################################
-atlas_add_citest( MuonDigiReco_digi
-   SCRIPT Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v2.root --imf False --outputRDOFile OUT_RDO.root --conditionsTag OFLCOND-MC16-SDR-RUN3-02 )
-
-atlas_add_citest( MuonDigiReco_reco
-   SCRIPT Reco_tf.py --inputRDOFile ../MuonDigiReco_digi/OUT_RDO.root --autoConfiguration everything --imf False --outputESDFile OUT_ESD.root
-   PROPERTIES REQUIRED_FILES ../MuonDigiReco_digi/OUT_RDO.root
-   DEPENDS MuonDigiReco_digi
-   POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/checkMuonDigiReco.sh )
