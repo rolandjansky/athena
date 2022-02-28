@@ -686,7 +686,7 @@ def triggerIDCCacheCreatorsCfg(flags, seqName = None):
     acc.merge( MuonPrdCacheCfg(flags), sequenceName = seqName )
 
     from TrigInDetConfig.TrigInDetConfig import InDetIDCCacheCreatorCfg
-    acc.merge( InDetIDCCacheCreatorCfg(), sequenceName = seqName )
+    acc.merge( InDetIDCCacheCreatorCfg(flags), sequenceName = seqName )
 
     return acc
 
