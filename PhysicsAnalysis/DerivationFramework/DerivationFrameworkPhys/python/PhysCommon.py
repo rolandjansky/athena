@@ -106,5 +106,5 @@ addDiTauLowPt(Seq=DerivationFrameworkJob)
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
-FtagJetCollections(['AntiKt4EMPFlowJets', 'AntiKtVR30Rmax4Rmin02TrackJets'],DerivationFrameworkJob)
+FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],DerivationFrameworkJob)
 
