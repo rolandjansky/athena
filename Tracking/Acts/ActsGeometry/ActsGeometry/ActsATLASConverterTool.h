@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSATLASCONVERTERTOOL_H
@@ -11,7 +11,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
-#include "TrkParameters/TrackParameters.h"
+#include "TrkParameters/TrackParameters.h" //typedef, cannot fwd declare
+
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsATLASConverterTool.h"
@@ -77,7 +78,7 @@ public:
   /// Create ATLAS TrackParameter from Acts one.
   /// Take care of unit conversion between the two.  
   virtual
-  const Trk::TrackParameters*
+  std::unique_ptr<const Trk::TrackParameters>
   ActsTrackParameterToATLAS(const Acts::BoundTrackParameters &actsParameter, const Acts::GeometryContext& gctx) const override;
 
   virtual
