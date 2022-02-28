@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 import ast
@@ -321,7 +321,7 @@ def _compareComponent(compRef, compChk, prefix, args, component, color):
                     if refVal != chkVal:
                         print(f"{prefix} : {color.first} {refVal} {color.reset} vs {color.second} {chkVal} {color.reset} {color.difference}<< at index {i} {color.reset}")
                         _compareComponent(
-                            refVal, chkVal, "\t" + prefix + ">> ", args, ""
+                            refVal, chkVal, "\t" + prefix + ">> ", args, "", color
                         )
 
 
