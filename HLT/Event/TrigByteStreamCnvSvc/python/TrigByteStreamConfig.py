@@ -18,7 +18,7 @@ def getTrigByteStreamInputSvc(name='ByteStreamInputSvc'):
                                 xbins=100, xmin=0, xmax=100)
     svc.MonTool.defineHistogram('L1Result_SubDets', path='EXPERT', type='TH1F',
                                 title='Source of ROBs in L1 result passed to HLT;;Total number of ROBs',
-                                xbins=1, xmin=0, xmax=1)
+                                xbins=4, xmin=0, xmax=4)
     svc.MonTool.defineHistogram('TIME_getNext', path='EXPERT', type='TH1F',
                                 title='Time of DataCollector::getNext() calls;Time [ms];Calls',
                                 xbins=400, xmin=0, xmax=200)
@@ -41,10 +41,10 @@ def getTrigByteStreamCnvSvc(name='ByteStreamCnvSvc'):
                                 xbins=400, xmin=0, xmax=200, opt='kCanRebin')
     svc.MonTool.defineHistogram('StreamTags', path='EXPERT', type='TH1F',
                                 title='Stream Tags produced by HLT;;Events',
-                                xbins=1, xmin=0, xmax=1)
+                                xbins=10, xmin=0, xmax=10)
     svc.MonTool.defineHistogram('StreamTagCorrA,StreamTagCorrB;StreamTagsCorr', path='EXPERT', type='TH2F',
                                 title='Stream Tags (produced by HLT) correlation',
-                                xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+                                xbins=10, xmin=0, xmax=10, ybins=10, ymin=0, ymax=10)
     svc.MonTool.defineHistogram('StreamTagsNum', path='EXPERT', type='TH1F',
                                 title='Number of Stream Tags produced by HLT;Number of Stream Tags;Events',
                                 xbins=20, xmin=0, xmax=20)
@@ -62,22 +62,22 @@ def getTrigByteStreamCnvSvc(name='ByteStreamCnvSvc'):
                                 cutmask="StreamTagIsPeb")
     svc.MonTool.defineHistogram('StreamTagsPebSubDetsFromRobList', path='EXPERT', type='TH1F',
                                 title='SubDetectors in PEB stream tags ROB list;;Entries',
-                                xbins=1, xmin=0, xmax=1)
+                                xbins=20, xmin=0, xmax=20)
     svc.MonTool.defineHistogram('StreamTagsPebSubDetsFromSubDetList', path='EXPERT', type='TH1F',
                                 title='SubDetectors in PEB stream tags SubDetector list;;Entries',
-                                xbins=1, xmin=0, xmax=1)
+                                xbins=20, xmin=0, xmax=20)
     svc.MonTool.defineHistogram('ResultSizeTotal', path='EXPERT', type='TH1F',
                                 title='HLT result total size (sum of all modules);Size [kB];Events',
-                                xbins=200, xmin=0, xmax=2000)
+                                xbins=200, xmin=0, xmax=2000, opt='kCanRebin')
     svc.MonTool.defineHistogram('ResultSizeFullEvFrag', path='EXPERT', type='TH1F',
                                 title='HLT output FullEventFragment size;Size [kB];Events',
-                                xbins=200, xmin=0, xmax=2000)
+                                xbins=200, xmin=0, xmax=2000, opt='kCanRebin')
     svc.MonTool.defineHistogram('ResultModuleID,ResultModuleSize;ResultSizeByModule', path='EXPERT', type='TH2F',
                                 title='HLT result size by module;Module ID;Size [kB]',
-                                xbins=10, xmin=0, xmax=10, ybins=200, ymin=0, ymax=2000)
+                                xbins=10, xmin=0, xmax=10, ybins=400, ymin=0, ymax=4000)
     svc.MonTool.defineHistogram('StreamTags,ResultSizeStream;ResultSizeByStream', path='EXPERT', type='TH2F',
                                 title='HLT result size by stream;;Size [kB]',
-                                xbins=1, xmin=0, xmax=1, ybins=200, ymin=0, ymax=2000)
+                                xbins=10, xmin=0, xmax=10, ybins=400, ymin=0, ymax=4000)
     svc.MonTool.defineHistogram('OnlineErrorCode', path='EXPERT', type='TH1F',
                                 title='Online error codes;;Events',
                                 xbins=1, xmin=0, xmax=1)
