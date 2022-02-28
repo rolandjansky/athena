@@ -284,6 +284,7 @@ def PixelOverlayDigitizationToolCfg(flags, name="PixelOverlayDigitizationTool", 
     kwargs.setdefault("RDOCollName", flags.Overlay.SigPrefix + "PixelRDOs")
     kwargs.setdefault("SDOCollName", flags.Overlay.SigPrefix + "PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("PileUpMergeSvc", '')
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
 
