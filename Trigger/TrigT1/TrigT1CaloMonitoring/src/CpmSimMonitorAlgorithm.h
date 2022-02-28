@@ -48,6 +48,9 @@ class CpmSimMonitorAlgorithm : public AthMonitorAlgorithm {
 
   StringProperty m_packageName{this,"PackageName","CpmSimMonitor","group name for histograming"};
 
+  // Error vector StoreGate key
+  StringProperty m_errorLocation{this,"ErrorLocation","L1CaloCPMMismatchVector","ErrorVector"};
+
   Gaudi::Property<int> m_crates{this,"s_crates", 4,  "Number of CPM crates"};
   Gaudi::Property<int> m_modules{this,"s_modules", 14, "Number of modules per crate (modules numbered 1-14)"};
   Gaudi::Property<int> m_maxSlices{this,"s_maxSlices", 5,  "Maximum number of slices"};
