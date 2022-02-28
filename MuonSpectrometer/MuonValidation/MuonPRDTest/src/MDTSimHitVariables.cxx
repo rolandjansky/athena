@@ -29,8 +29,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
   MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(m_MdtIdHelper->tubeMax());
 
   if(!mdtContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
-  for( auto it : *mdtContainer ) {
-    const MDTSimHit hit = it;
+  for( const MDTSimHit& hit : *mdtContainer ) {
 
     HitID hitid = hit.MDTid();
 
@@ -70,7 +69,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     
     m_MDT_globalTime.push_back(hit.globalTime());
 
-    const Amg::Vector3D localPosition = hit.localPosition();
+    const Amg::Vector3D& localPosition = hit.localPosition();
     m_MDT_hitLocalPositionX.push_back(localPosition.x());
     m_MDT_hitLocalPositionY.push_back(localPosition.y());
     m_MDT_hitLocalPositionZ.push_back(localPosition.z());

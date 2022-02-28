@@ -454,7 +454,7 @@ CaloD3PDClass::CaloD3PDClass(TTree *tree) : fChain(0)
       f->GetObject("caloD3PD",tree);
 
    }
-   Init(tree);
+   CaloD3PDClass::Init(tree);
 }
 
 CaloD3PDClass::~CaloD3PDClass()

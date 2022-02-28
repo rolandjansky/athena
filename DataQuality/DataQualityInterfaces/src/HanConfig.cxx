@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -26,30 +26,33 @@
 #include <TLine.h>
 #include <TROOT.h>
 #include <TEfficiency.h>
+#include <TPython.h>
 
+#include "DataQualityInterfaces/CompositeAlgorithm.h"
+#include "DataQualityInterfaces/ConditionsSingleton.h"
+#include "DataQualityInterfaces/DatabaseConfig.h"
+#include "DataQualityInterfaces/HanAlgorithmConfig.h"
+#include "DataQualityInterfaces/HanConfigAlgLimit.h"
+#include "DataQualityInterfaces/HanConfigAlgPar.h"
+#include "DataQualityInterfaces/HanConfigAssessor.h"
+#include "DataQualityInterfaces/HanConfigGroup.h"
+#include "DataQualityInterfaces/HanConfigMetadata.h"
+#include "DataQualityInterfaces/HanOutput.h"
+#include "DataQualityInterfaces/HanUtils.h"
+#include "DataQualityInterfaces/MiniConfig.h"
+#include "DataQualityInterfaces/HanInputRootFile.h"
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
 #include "dqm_core/ParameterConfig.h"
 #include "dqm_core/Region.h"
 #include "dqm_core/RegionConfig.h"
-#include "DataQualityInterfaces/HanAlgorithmConfig.h"
-#include "DataQualityInterfaces/HanConfigAssessor.h"
-#include "DataQualityInterfaces/HanConfigGroup.h"
-#include "DataQualityInterfaces/HanConfigAlgPar.h"
-#include "DataQualityInterfaces/HanConfigAlgLimit.h"
-#include "DataQualityInterfaces/HanConfigMetadata.h"
-#include "DataQualityInterfaces/CompositeAlgorithm.h"
-#include "DataQualityInterfaces/HanOutput.h"
-#include "DataQualityInterfaces/MiniConfig.h"
-#include "DataQualityInterfaces/HanUtils.h"
-#include "DataQualityInterfaces/DatabaseConfig.h"
-#include <boost/regex.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/pointer_cast.hpp>
-#include "DataQualityInterfaces/ConditionsSingleton.h"
+#include <boost/regex.hpp>
+#include <utility>
 
 ClassImp(dqi::HanConfig)
 
@@ -96,7 +99,7 @@ AssembleAndSave( std::string infileName, std::string outfileName, std::string co
   RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
 
-  DatabaseConfig databaseConfig(connectionString, runNumber);
+  DatabaseConfig databaseConfig(std::move(connectionString), runNumber);
   RefWriter refwriter(databaseConfig, bulk);
   refconfig.SendWriter( refwriter );
   databaseConfig.Disconnect();
@@ -157,7 +160,7 @@ AssembleAndSave( std::string infileName, std::string outfileName, std::string co
 
 void
 HanConfig::
-BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output )
+BuildMonitors( std::string configName, HanInputRootFile& input, HanOutput& output )
 {
   bool isInitialized = Initialize( configName );
   if( !isInitialized ) {
@@ -171,12 +174,21 @@ BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output
 
 boost::shared_ptr<dqm_core::Region>
 HanConfig::
-BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::Output& output )
+BuildMonitorsNewRoot( std::string configName, HanInputRootFile& input, dqm_core::Output& output )
 {
   bool isInitialized = Initialize( configName );
   if( !isInitialized ) {
     return boost::shared_ptr<dqm_core::Region>();
   }
+
+  TDirectory* topdir = const_cast<TDirectory*>(input.getBasedir());
+  TPython::Bind(m_top_level, "top_level");
+  TPython::Bind(topdir, "path");
+  TPython::Exec("from DataQualityInterfaces.han import FixRegion");
+  TPython::Exec("import logging; logging.basicConfig(level='INFO')");
+  HanConfigGroup* new_top_level = TPython::Eval("FixRegion(top_level, path)");
+  delete m_top_level;
+  m_top_level = new_top_level;
 
   std::string algName( m_top_level->GetAlgName() );
   std::string algLibName( m_top_level->GetAlgLibName() );
@@ -262,7 +274,7 @@ GetReference( std::string& groupName, std::string& name )
 }
 
 std::string
-SplitReference(std::string refPath, std::string refName )
+SplitReference(std::string refPath, const std::string& refName )
 {
   // this will never be run in a multithread environment
   static std::unordered_set<std::string> badPaths;
@@ -281,7 +293,7 @@ SplitReference(std::string refPath, std::string refName )
   //Try to open each file in the list
   for(std::size_t i=0; i<refFileList.size(); i++){
     std::string fileName=refFileList.at(i)+refName;
-    size_t first = fileName.find_first_not_of(" ");
+    size_t first = fileName.find_first_not_of(' ');
     fileName.erase(0, first);
     if (badPaths.find(fileName) != badPaths.end()) continue;
     if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
@@ -448,8 +460,8 @@ GetROOTFile( std::string& fname ) const
   }
 }
 
-float AttribToFloat(const MiniConfigTreeNode* node, const std::string attrib,
-		    const std::string warningString, bool local=false)
+float AttribToFloat(const MiniConfigTreeNode* node, const std::string& attrib,
+		    const std::string& warningString, bool local=false)
 {
   std::istringstream valstream;
   if (local) {
@@ -470,7 +482,7 @@ float AttribToFloat(const MiniConfigTreeNode* node, const std::string attrib,
 void
 HanConfig::AssessmentVisitorBase::
 GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
-                           std::string assessorName ) const
+                           const std::string& assessorName ) const
 {
   // bool hasName(false);
   std::set<std::string> algAtt;
@@ -809,14 +821,14 @@ Visit( const MiniConfigTreeNode* node ) const
 
     std::string strNodeName(histNode->GetName());
     std::string strHistName, strFullHistName;
-    std::string::size_type atsign = strNodeName.find("@");
+    std::string::size_type atsign = strNodeName.find('@');
     if (atsign == std::string::npos) {
       strHistName = strNodeName;
       strFullHistName = histNode->GetPathName();
     } else {
       strHistName = strNodeName.substr(0, atsign);
       strFullHistName = histNode->GetPathName();
-      strFullHistName = strFullHistName.substr(0, strFullHistName.find("@"));
+      strFullHistName = strFullHistName.substr(0, strFullHistName.find('@'));
     }
 
     if( strHistName == "all_in_dir" )
@@ -888,7 +900,7 @@ Visit( const MiniConfigTreeNode* node ) const
 
     std::string strNodeName(histNode->GetName());
     std::string strHistName, strFullHistName, extension;
-    std::string::size_type atsign = strNodeName.find("@");
+    std::string::size_type atsign = strNodeName.find('@');
     if (atsign == std::string::npos) {
       strHistName = strNodeName;
       strFullHistName = histNode->GetPathName();
@@ -897,7 +909,7 @@ Visit( const MiniConfigTreeNode* node ) const
       strHistName = strNodeName.substr(0, atsign);
       extension = strNodeName.substr(atsign, std::string::npos);
       strFullHistName = histNode->GetPathName();
-      strFullHistName = strFullHistName.substr(0, strFullHistName.find("@"));
+      strFullHistName = strFullHistName.substr(0, strFullHistName.find('@'));
     }
 
     if( strHistName == "all_in_dir" ) {
@@ -1106,7 +1118,7 @@ Visit( const MiniConfigTreeNode* node ) const
         std::string::size_type pos = subAlgs.find(',');
         for(int size=subAlgs.size(), sizeOld=-8;
     	    size != sizeOld;
-    	    subAlgs.erase(0, pos+1), pos = subAlgs.find(","),sizeOld=size, size=subAlgs.size()) {
+    	    subAlgs.erase(0, pos+1), pos = subAlgs.find(','),sizeOld=size, size=subAlgs.size()) {
             //std::cout << "  --> adding component algorithm: " <<  subAlgs.substr(0,pos) << std::endl;
             compAlg->AddAlg( subAlgs.substr(0,pos));
           }
@@ -1116,7 +1128,7 @@ Visit( const MiniConfigTreeNode* node ) const
         std::string::size_type pos = libs.find(',');
         for(int size=libs.size(), sizeOld=-8;
     	    size != sizeOld;
-    	    libs.erase(0, pos+1), pos = libs.find(","),sizeOld=size, size=libs.size()) {
+    	    libs.erase(0, pos+1), pos = libs.find(','),sizeOld=size, size=libs.size()) {
             //std::cout << "  --> using library: " <<  libs.substr(0,pos) << std::endl;
             compAlg->AddLib( libs.substr(0,pos));
           }
@@ -1174,7 +1186,7 @@ Visit( const MiniConfigTreeNode* node ) const
 
 bool
 HanConfig::
-Initialize( std::string configName )
+Initialize( const std::string& configName )
 {
   if( m_config == 0 || m_top_level == 0 ) {
 
@@ -1253,7 +1265,7 @@ Initialize( std::string configName )
 
 TDirectory*
 HanConfig::
-ChangeInputDir( TDirectory* dir, std::string path )
+ChangeInputDir( TDirectory* dir, const std::string& path )
 {
   if( dir == 0 )
     return 0;
@@ -1285,7 +1297,7 @@ ChangeInputDir( TDirectory* dir, std::string path )
 
 TDirectory*
 HanConfig::
-ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
+ChangeOutputDir( TFile* file, const std::string& path, DirMap_t& directories )
 {
 	if( file == 0 )
 		return 0;
@@ -1303,7 +1315,7 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir;
+      TDirectory* dir = nullptr;
       if (!parDir->FindKey(dirName.c_str())) {
 	dir = parDir->mkdir( dirName.c_str() );
       }

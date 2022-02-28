@@ -39,7 +39,8 @@ namespace NSWL1 {
       m_trigger_diamond_iU          = new std::vector<int>();
       m_trigger_diamond_iV          = new std::vector<int>();
       m_trigger_diamond_age         = new std::vector<double>();
-      m_trigger_diamond_Xavg        = new std::vector<double>();
+      m_trigger_diamond_mx          = new std::vector<double>();
+      m_trigger_diamond_my          = new std::vector<double>();
       m_trigger_diamond_Uavg        = new std::vector<double>();
       m_trigger_diamond_Vavg        = new std::vector<double>();
       m_trigger_diamond_mxl         = new std::vector<double>();
@@ -48,6 +49,9 @@ namespace NSWL1 {
       m_trigger_diamond_dtheta      = new std::vector<double>();
       m_trigger_diamond_phi         = new std::vector<double>();
       m_trigger_diamond_phiShf      = new std::vector<double>();
+      m_trigger_diamond_TP_phi_id   = new std::vector<uint8_t>();
+      m_trigger_diamond_TP_R_id     = new std::vector<uint8_t>();
+      m_trigger_diamond_TP_dTheta_id = new std::vector<uint8_t>();
 
       m_trigger_RZslopes     = new std::vector<double>();
       m_trigger_fitThe       = new std::vector<double>();
@@ -136,57 +140,6 @@ namespace NSWL1 {
       m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
       m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
 
-      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
-      //m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
-
-
-
-      m_NSWMM_trackId  = new std::vector<int>;
-      m_NSWMM_truthEl  = new std::vector<int>;
-      m_NSWMM_globalTime = new std::vector<double>;
-      m_NSWMM_hitGlobalPositionX = new std::vector<double>;
-      m_NSWMM_hitGlobalPositionY = new std::vector<double>;
-      m_NSWMM_hitGlobalPositionZ = new std::vector<double>;
-      m_NSWMM_hitGlobalPositionR = new std::vector<double>;
-      m_NSWMM_hitGlobalPositionP = new std::vector<double>;
-      m_NSWMM_hitGlobalDirectionX = new std::vector<double>;
-      m_NSWMM_hitGlobalDirectionY = new std::vector<double>;
-      m_NSWMM_hitGlobalDirectionZ = new std::vector<double>;
-
-
-      m_NSWMM_detector_globalPositionX = new std::vector<double>;
-      m_NSWMM_detector_globalPositionY = new std::vector<double>;
-      m_NSWMM_detector_globalPositionZ = new std::vector<double>;
-      m_NSWMM_detector_globalPositionR = new std::vector<double>;
-      m_NSWMM_detector_globalPositionP = new std::vector<double>;
-
-      m_NSWMM_hitToDsurfacePositionX = new std::vector<double>;
-      m_NSWMM_hitToDsurfacePositionY = new std::vector<double>;
-      m_NSWMM_hitToDsurfacePositionZ = new std::vector<double>;
-
-      m_NSWMM_hitToRsurfacePositionX = new std::vector<double>;
-      m_NSWMM_hitToRsurfacePositionY = new std::vector<double>;
-      m_NSWMM_hitToRsurfacePositionZ = new std::vector<double>;
-
-      m_NSWMM_particleEncoding = new std::vector<int>;
-      m_NSWMM_kineticEnergy = new std::vector<double>;
-      m_NSWMM_depositEnergy = new std::vector<double>;
-
-
-      m_NSWMM_sim_stationName = new std::vector<std::string>;
-      m_NSWMM_sim_stationEta  = new std::vector<int>;
-      m_NSWMM_sim_stationPhi  = new std::vector<int>;
-      m_NSWMM_sim_multilayer  = new std::vector<int>;
-      m_NSWMM_sim_layer       = new std::vector<int>;
-      m_NSWMM_sim_side        = new std::vector<int>;
-
-      m_NSWMM_off_stationName = new std::vector<std::string>;
-      m_NSWMM_off_stationEta  = new std::vector<int>;
-      m_NSWMM_off_stationPhi  = new std::vector<int>;
-      m_NSWMM_off_multiplet   = new std::vector<int>;
-      m_NSWMM_off_gas_gap     = new std::vector<int>;
-      m_NSWMM_off_channel     = new std::vector<int>;
-
       if (m_tree) {
         std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
@@ -205,7 +158,8 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_trigger_diamond_iU",n).Data(), &m_trigger_diamond_iU);
         m_tree->Branch(TString::Format("%s_trigger_diamond_iV",n).Data(), &m_trigger_diamond_iV);
         m_tree->Branch(TString::Format("%s_trigger_diamond_age",n).Data(), &m_trigger_diamond_age);
-        m_tree->Branch(TString::Format("%s_trigger_diamond_Xavg",n).Data(), &m_trigger_diamond_Xavg);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_mx",n).Data(), &m_trigger_diamond_mx);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_my",n).Data(), &m_trigger_diamond_my);
         m_tree->Branch(TString::Format("%s_trigger_diamond_Uavg",n).Data(), &m_trigger_diamond_Uavg);
         m_tree->Branch(TString::Format("%s_trigger_diamond_Vavg",n).Data(), &m_trigger_diamond_Vavg);
         m_tree->Branch(TString::Format("%s_trigger_diamond_mxl",n).Data(), &m_trigger_diamond_mxl);
@@ -214,6 +168,9 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_trigger_diamond_dtheta",n).Data(), &m_trigger_diamond_dtheta);
         m_tree->Branch(TString::Format("%s_trigger_diamond_phi",n).Data(), &m_trigger_diamond_phi);
         m_tree->Branch(TString::Format("%s_trigger_diamond_phiShf",n).Data(), &m_trigger_diamond_phiShf);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_TP_phi_id",n).Data(), &m_trigger_diamond_TP_phi_id);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_TP_R_id",n).Data(), &m_trigger_diamond_TP_R_id);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_TP_dTheta_id",n).Data(), &m_trigger_diamond_TP_dTheta_id);
 
         m_tree->Branch(TString::Format("%s_trigger_RZslopes",n).Data(),&m_trigger_RZslopes);
         m_tree->Branch(TString::Format("%s_trigger_fitThe",n).Data(),&m_trigger_fitThe);
@@ -301,55 +258,6 @@ namespace NSWL1 {
         m_tree->Branch("Digits_MM_truth_globalPosX", &m_NSWMM_dig_truth_globalPosX);
         m_tree->Branch("Digits_MM_truth_globalPosY", &m_NSWMM_dig_truth_globalPosY);
         m_tree->Branch("Digits_MM_truth_globalPosZ", &m_NSWMM_dig_truth_globalPosZ);
-
-        m_tree->Branch("Hits_MM_trackId", &m_NSWMM_trackId);
-        m_tree->Branch("Hits_MM_truthEl", &m_NSWMM_truthEl);
-        m_tree->Branch("Hits_MM_globalTime", &m_NSWMM_globalTime);
-        m_tree->Branch("Hits_MM_hitGlobalPositionX", &m_NSWMM_hitGlobalPositionX);
-        m_tree->Branch("Hits_MM_hitGlobalPositionY", &m_NSWMM_hitGlobalPositionY);
-        m_tree->Branch("Hits_MM_hitGlobalPositionZ", &m_NSWMM_hitGlobalPositionZ);
-        m_tree->Branch("Hits_MM_hitGlobalPositionR", &m_NSWMM_hitGlobalPositionR);
-        m_tree->Branch("Hits_MM_hitGlobalPositionP", &m_NSWMM_hitGlobalPositionP);
-        m_tree->Branch("Hits_MM_hitGlobalDirectionX", &m_NSWMM_hitGlobalDirectionX);
-        m_tree->Branch("Hits_MM_hitGlobalDirectionY", &m_NSWMM_hitGlobalDirectionY);
-        m_tree->Branch("Hits_MM_hitGlobalDirectionZ", &m_NSWMM_hitGlobalDirectionZ);
-
-        m_tree->Branch("Hits_MM_detector_globalPositionX", &m_NSWMM_detector_globalPositionX);
-        m_tree->Branch("Hits_MM_detector_globalPositionY", &m_NSWMM_detector_globalPositionY);
-        m_tree->Branch("Hits_MM_detector_globalPositionZ", &m_NSWMM_detector_globalPositionZ);
-        m_tree->Branch("Hits_MM_detector_globalPositionR", &m_NSWMM_detector_globalPositionR);
-        m_tree->Branch("Hits_MM_detector_globalPositionP", &m_NSWMM_detector_globalPositionP);
-
-        m_tree->Branch("Hits_MM_hitToDsurfacePositionX", &m_NSWMM_hitToDsurfacePositionX);
-        m_tree->Branch("Hits_MM_hitToDsurfacePositionY", &m_NSWMM_hitToDsurfacePositionY);
-        m_tree->Branch("Hits_MM_hitToDsurfacePositionZ", &m_NSWMM_hitToDsurfacePositionZ);
-
-        m_tree->Branch("Hits_MM_hitToRsurfacePositionX", &m_NSWMM_hitToRsurfacePositionX);
-        m_tree->Branch("Hits_MM_hitToRsurfacePositionY", &m_NSWMM_hitToRsurfacePositionY);
-        m_tree->Branch("Hits_MM_hitToRsurfacePositionZ", &m_NSWMM_hitToRsurfacePositionZ);
-
-
-        m_tree->Branch("Hits_MM_particleEncoding", &m_NSWMM_particleEncoding);
-        m_tree->Branch("Hits_MM_kineticEnergy", &m_NSWMM_kineticEnergy);
-        m_tree->Branch("Hits_MM_depositEnergy", &m_NSWMM_depositEnergy);
-
-
-        m_tree->Branch("Hits_MM_sim_stationName", &m_NSWMM_sim_stationName);
-        m_tree->Branch("Hits_MM_sim_stationEta", &m_NSWMM_sim_stationEta);
-        m_tree->Branch("Hits_MM_sim_stationPhi", &m_NSWMM_sim_stationPhi);
-        m_tree->Branch("Hits_MM_sim_multilayer", &m_NSWMM_sim_multilayer);
-        m_tree->Branch("Hits_MM_sim_layer", &m_NSWMM_sim_layer);
-        m_tree->Branch("Hits_MM_sim_side", &m_NSWMM_sim_side);
-
-        m_tree->Branch("Hits_MM_off_stationName", &m_NSWMM_off_stationName);
-        m_tree->Branch("Hits_MM_off_stationEta", &m_NSWMM_off_stationEta);
-        m_tree->Branch("Hits_MM_off_stationPhi", &m_NSWMM_off_stationPhi);
-        m_tree->Branch("Hits_MM_off_multiplet", &m_NSWMM_off_multiplet);
-        m_tree->Branch("Hits_MM_off_gas_gap", &m_NSWMM_off_gas_gap);
-        m_tree->Branch("Hits_MM_off_channel", &m_NSWMM_off_channel);
-
-
-
       } else {
         return StatusCode::FAILURE;
       }
@@ -375,7 +283,8 @@ namespace NSWL1 {
       m_trigger_diamond_iU->clear();
       m_trigger_diamond_iV->clear();
       m_trigger_diamond_age->clear();
-      m_trigger_diamond_Xavg->clear();
+      m_trigger_diamond_mx->clear();
+      m_trigger_diamond_my->clear();
       m_trigger_diamond_Uavg->clear();
       m_trigger_diamond_Vavg->clear();
       m_trigger_diamond_mxl->clear();
@@ -384,6 +293,9 @@ namespace NSWL1 {
       m_trigger_diamond_dtheta->clear();
       m_trigger_diamond_phi->clear();
       m_trigger_diamond_phiShf->clear();
+      m_trigger_diamond_TP_phi_id->clear();
+      m_trigger_diamond_TP_R_id->clear();
+      m_trigger_diamond_TP_dTheta_id->clear();
 
       m_trigger_RZslopes->clear();
       m_trigger_fitThe->clear();
@@ -481,55 +393,6 @@ namespace NSWL1 {
       m_NSWMM_dig_truth_globalPosX->clear();
       m_NSWMM_dig_truth_globalPosY->clear();
       m_NSWMM_dig_truth_globalPosZ->clear();
-
-
-      m_NSWMM_trackId->clear();
-      m_NSWMM_truthEl->clear();
-      m_NSWMM_globalTime->clear();
-      m_NSWMM_hitGlobalPositionX->clear();
-      m_NSWMM_hitGlobalPositionY->clear();
-      m_NSWMM_hitGlobalPositionZ->clear();
-      m_NSWMM_hitGlobalPositionR->clear();
-      m_NSWMM_hitGlobalPositionP->clear();
-      m_NSWMM_hitGlobalDirectionX->clear();
-      m_NSWMM_hitGlobalDirectionY->clear();
-      m_NSWMM_hitGlobalDirectionZ->clear();
-
-
-      m_NSWMM_detector_globalPositionX->clear();
-      m_NSWMM_detector_globalPositionY->clear();
-      m_NSWMM_detector_globalPositionZ->clear();
-      m_NSWMM_detector_globalPositionR->clear();
-      m_NSWMM_detector_globalPositionP->clear();
-
-      m_NSWMM_hitToDsurfacePositionX->clear();
-      m_NSWMM_hitToDsurfacePositionY->clear();
-      m_NSWMM_hitToDsurfacePositionZ->clear();
-
-      m_NSWMM_hitToRsurfacePositionX->clear();
-      m_NSWMM_hitToRsurfacePositionY->clear();
-      m_NSWMM_hitToRsurfacePositionZ->clear();
-
-
-      m_NSWMM_particleEncoding->clear();
-      m_NSWMM_kineticEnergy->clear();
-      m_NSWMM_depositEnergy->clear();
-
-
-      m_NSWMM_sim_stationName->clear();
-      m_NSWMM_sim_stationEta->clear();
-      m_NSWMM_sim_stationPhi->clear();
-      m_NSWMM_sim_multilayer->clear();
-      m_NSWMM_sim_layer->clear();
-      m_NSWMM_sim_side->clear();
-
-      m_NSWMM_off_stationName->clear();
-      m_NSWMM_off_stationEta->clear();
-      m_NSWMM_off_stationPhi->clear();
-      m_NSWMM_off_multiplet->clear();
-      m_NSWMM_off_gas_gap->clear();
-      m_NSWMM_off_channel->clear();
-
     }
     void MMTriggerTool::fillNtuple(const MMLoadVariables& loadedVariables){
 
@@ -561,44 +424,5 @@ namespace NSWL1 {
       *m_NSWMM_dig_truth_globalPosX = loadedVariables.histVars.NSWMM_dig_truth_globalPosX;
       *m_NSWMM_dig_truth_globalPosY = loadedVariables.histVars.NSWMM_dig_truth_globalPosY;
       *m_NSWMM_dig_truth_globalPosZ = loadedVariables.histVars.NSWMM_dig_truth_globalPosZ;
-
-
-      *m_NSWMM_trackId  = loadedVariables.histVars.NSWMM_trackId;
-      *m_NSWMM_truthEl  = loadedVariables.histVars.NSWMM_truthEl;
-      *m_NSWMM_globalTime = loadedVariables.histVars.NSWMM_globalTime;
-      *m_NSWMM_hitGlobalPositionX = loadedVariables.histVars.NSWMM_hitGlobalPositionX;
-      *m_NSWMM_hitGlobalPositionY = loadedVariables.histVars.NSWMM_hitGlobalPositionY;
-      *m_NSWMM_hitGlobalPositionZ = loadedVariables.histVars.NSWMM_hitGlobalPositionZ;
-      *m_NSWMM_hitGlobalPositionR = loadedVariables.histVars.NSWMM_hitGlobalPositionR;
-      *m_NSWMM_hitGlobalPositionP = loadedVariables.histVars.NSWMM_hitGlobalPositionP;
-      *m_NSWMM_hitGlobalDirectionX = loadedVariables.histVars.NSWMM_hitGlobalDirectionX;
-      *m_NSWMM_hitGlobalDirectionY = loadedVariables.histVars.NSWMM_hitGlobalDirectionY;
-      *m_NSWMM_hitGlobalDirectionZ = loadedVariables.histVars.NSWMM_hitGlobalDirectionZ;
-      *m_NSWMM_detector_globalPositionX = loadedVariables.histVars.NSWMM_detector_globalPositionX;
-      *m_NSWMM_detector_globalPositionY = loadedVariables.histVars.NSWMM_detector_globalPositionY;
-      *m_NSWMM_detector_globalPositionZ = loadedVariables.histVars.NSWMM_detector_globalPositionZ;
-      *m_NSWMM_detector_globalPositionR = loadedVariables.histVars.NSWMM_detector_globalPositionR;
-      *m_NSWMM_detector_globalPositionP = loadedVariables.histVars.NSWMM_detector_globalPositionP;
-      *m_NSWMM_hitToDsurfacePositionX = loadedVariables.histVars.NSWMM_hitToDsurfacePositionX;
-      *m_NSWMM_hitToDsurfacePositionY = loadedVariables.histVars.NSWMM_hitToDsurfacePositionY;
-      *m_NSWMM_hitToDsurfacePositionZ = loadedVariables.histVars.NSWMM_hitToDsurfacePositionZ;
-      *m_NSWMM_hitToRsurfacePositionX = loadedVariables.histVars.NSWMM_hitToRsurfacePositionX;
-      *m_NSWMM_hitToRsurfacePositionY = loadedVariables.histVars.NSWMM_hitToRsurfacePositionY;
-      *m_NSWMM_hitToRsurfacePositionZ = loadedVariables.histVars.NSWMM_hitToRsurfacePositionZ;
-      *m_NSWMM_particleEncoding = loadedVariables.histVars.NSWMM_particleEncoding;
-      *m_NSWMM_kineticEnergy = loadedVariables.histVars.NSWMM_kineticEnergy;
-      *m_NSWMM_depositEnergy = loadedVariables.histVars.NSWMM_depositEnergy;
-      *m_NSWMM_sim_stationEta  = loadedVariables.histVars.NSWMM_sim_stationEta;
-      *m_NSWMM_sim_stationPhi  = loadedVariables.histVars.NSWMM_sim_stationPhi;
-      *m_NSWMM_sim_multilayer  = loadedVariables.histVars.NSWMM_sim_multilayer;
-      *m_NSWMM_sim_layer       = loadedVariables.histVars.NSWMM_sim_layer;
-      *m_NSWMM_sim_side        = loadedVariables.histVars.NSWMM_sim_side;
-      *m_NSWMM_off_stationEta  = loadedVariables.histVars.NSWMM_off_stationEta;
-      *m_NSWMM_off_stationPhi  = loadedVariables.histVars.NSWMM_off_stationPhi;
-      *m_NSWMM_off_multiplet   = loadedVariables.histVars.NSWMM_off_multiplet;
-      *m_NSWMM_off_gas_gap     = loadedVariables.histVars.NSWMM_off_gas_gap;
-      *m_NSWMM_off_channel     = loadedVariables.histVars.NSWMM_off_channel;
     }
-
-
 }//end namespace

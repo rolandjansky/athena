@@ -37,3 +37,23 @@ Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?
 Output: [ 'TRT/{region}/hHitOnTrackVsAll{element}' ]
 Function: TRTMonitoringRun3.TRTPostProcessing.hHitOnTrackVsAll
 Description: TRTHITONTRACKVSALL
+---
+Input:  [ 'TRT/(?P<region>Barrel)/Stack(?P<id>\d+)(?P<side>A|C)/hEfficiencyS' ]
+Output: [ 'TRT/Efficiency/hEfficiencyBarrel{side}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hEfficiency
+Description: TRTBARRELEFFICIENCY
+---
+Input:  [ 'TRT/(?P<region>Endcap)(?P<side>A|C)/Sector(?P<id>\d+)/hEfficiencyS' ]
+Output: [ 'TRT/Efficiency/hEfficiencyEndCap{side}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hEfficiency
+Description: TRTENDCAPSEFFICIENCY
+---
+Input:  [ 'TRT/(?P<region>Barrel)/Stack(?P<id>\d+)(?P<side>A|C)/hEfficiencyS' ]
+Output: [ 'TRT/Efficiency/hEfficiencyIntegralBarrel{side}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hEfficiencyIntegral
+Description: TRTBARRELEFFICIENCYINTEGRAL
+---
+Input:  [ 'TRT/(?P<region>Endcap)(?P<side>A|C)/Sector(?P<id>\d+)/hEfficiencyS' ]
+Output: [ 'TRT/Efficiency/hEfficiencyIntegralEndCap{side}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hEfficiencyIntegral
+Description: TRTENDCAPSEFFICIENCYINTEGRAL

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/TRT_ID.h"
@@ -28,8 +28,8 @@ namespace InDet
 //________________________________________________________________________
 TRTTrkAlignDBTool::TRTTrkAlignDBTool(const std::string & type, const std::string & name, const IInterface * parent)
    : AthAlgTool(type,name,parent)
-   , m_trtHelper(0)
-   , m_pixHelper(0)
+   , m_trtHelper(nullptr)
+   , m_pixHelper(nullptr)
    , m_outputAlignFile("OutputTRTAlignment.txt")
    , m_outputStrawAlignFile("OutputTRTStrawAlignment.txt")
    , m_oldAlignFile("OldTRTAlignment.txt")
@@ -58,7 +58,7 @@ TRTTrkAlignDBTool::TRTTrkAlignDBTool(const std::string & type, const std::string
    declareProperty("TRTGeometryManager",   m_trtGeoManager,     "Tool for handling the TRT alignment geometry");
    declareProperty("UpdateConstants",      m_updateConstants,   "Whether or no to update the alignment constants");
 
-   m_logStream = 0;
+   m_logStream = nullptr;
 }
 
 //________________________________________________________________________

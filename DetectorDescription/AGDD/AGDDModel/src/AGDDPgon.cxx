@@ -11,7 +11,7 @@ void AGDDPgon::CreateSolid (const AGDDBuilder& builder)
 	builder.CreatePgon(this);
 }
 
-void AGDDPgon::CreateVolume (const AGDDBuilder& builder)
+void AGDDPgon::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

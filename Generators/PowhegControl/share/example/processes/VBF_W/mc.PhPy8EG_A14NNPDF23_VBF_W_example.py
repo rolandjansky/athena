@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # This is an example joboption to generate events with Powheg
@@ -28,3 +28,8 @@ PowhegConfig.generate()
 #--------------------------------------------------------------
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
 include("Pythia8_i/Pythia8_Powheg_Main31.py")
+
+genSeq.Pythia8.Commands += ['Powheg:NFinal = 3']
+genSeq.Pythia8.Commands += ['SpaceShower:dipoleRecoil = on']
+
+

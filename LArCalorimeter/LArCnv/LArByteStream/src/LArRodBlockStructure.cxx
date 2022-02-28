@@ -91,13 +91,13 @@ int   LArRodBlockStructure::getNextRawData(int&, std::vector<short>&, uint32_t&)
  return 0;
 }
 
-int   LArRodBlockStructure::getNextAccumulatedCalibDigit(int&, std::vector < uint32_t >&, std::vector < uint32_t >& , uint32_t&, uint32_t&)
+int   LArRodBlockStructure::getNextAccumulatedCalibDigit(int&, std::vector < uint64_t >&, std::vector < uint64_t >& , uint32_t&, uint32_t&)
 {
  std::cout << "ERROR: Function getNextAccumulatedCalibDigit not implemented in this instance of LArRodBlockStructure!\n";
  return 0;
 }
 
-int   LArRodBlockStructure::getNextAccumulatedDigit(int&, std::vector<uint32_t>&, std::vector < uint32_t >& , uint32_t&)
+int   LArRodBlockStructure::getNextAccumulatedDigit(int&, std::vector<uint64_t>&, std::vector < uint64_t >& , uint32_t&)
 {
  std::cout << "ERROR: Function getNextAccumulatedDigit not implemented in this instance of LArRodBlockStructure!\n";
  return 0;

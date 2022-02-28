@@ -83,6 +83,9 @@ public:
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;
 
+  // Needed to prevent ambiguities with c++20.
+  bool operator==(const ConeBounds& bo) const;
+
   /**Virtual constructor */
   virtual ConeBounds* clone() const override;
 
@@ -151,7 +154,7 @@ private:
   TDD_real_t m_cosAlpha;
 
   /** Helper function for angle parameter initialization */
-  virtual void initCache() override;
+  virtual void initCache() override final;
 
   /** Helpers for inside() functions */
   inline double minPhi() const

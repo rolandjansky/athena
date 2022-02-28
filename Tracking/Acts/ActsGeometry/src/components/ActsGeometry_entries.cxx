@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsGeometry/ActsGeantFollowerHelper.h"
-#include "ActsGeometry/ActsGeantFollowerTool.h"
 #include "ActsGeometry/ActsATLASConverterTool.h"
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
@@ -51,8 +49,5 @@ DECLARE_COMPONENT( ActsTrackingGeometryTool )
 DECLARE_COMPONENT( ActsPropStepRootWriterSvc )
 DECLARE_COMPONENT( ActsAlignmentCondAlg )
 DECLARE_COMPONENT( ActsCaloTrackingVolumeBuilder )
-
-DECLARE_COMPONENT( ActsGeantFollowerTool )
-DECLARE_COMPONENT( ActsGeantFollowerHelper )
 
 DECLARE_COMPONENT( ActsATLASConverterTool )

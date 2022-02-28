@@ -4,7 +4,7 @@
 
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 
-bool chambersCosmicSetup(std::string f_hardware_name, int f_cosmicstation)
+bool chambersCosmicSetup(const std::string& f_hardware_name, int f_cosmicstation)
 {
   bool pass=false;
   	

@@ -16,10 +16,13 @@
 #ifndef SITRACKEREVENT_SICHARGE_H
 #define SITRACKEREVENT_SICHARGE_H
 
+#include "InDetSimEvent/SiTrackDistance.h"
+
 #include <iostream>
 
 // Member classes
 #include "GeneratorObjects/HepMcParticleLink.h"
+
 
 class SiCharge {
 
@@ -44,6 +47,12 @@ public:
 
   SiCharge(const double& charge,const double& time,
 	   const Process& processType);
+
+  SiCharge(const double& charge,
+           const double& time,
+           const Process& processType,
+           const HepMcParticleLink& PL,
+           const SiTrackDistance& trackDistance);
 
   // Destructor:
   ~SiCharge();
@@ -70,6 +79,9 @@ public:
   // Particle Link of the particle generating the charge
   const HepMcParticleLink& particleLink() const;
 
+  // Get the SiTrackDistance parameters
+  const SiTrackDistance& trackDistance() const;
+
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
   ///////////////////////////////////////////////////////////////////
@@ -94,6 +106,7 @@ private:
   Process m_processType; // type of process which produced this charge
   //  int m_trackNumber; // track number in case of track process
   HepMcParticleLink m_partLink; //Replace the track number with a PL
+  SiTrackDistance m_trackDistance;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -125,6 +138,11 @@ inline int SiCharge::trackBarcode() const
 inline const HepMcParticleLink& SiCharge::particleLink() const 
 {
   return m_partLink;
+}
+
+inline const SiTrackDistance& SiCharge::trackDistance() const
+{
+  return m_trackDistance;
 }
 
 ///////////////////////////////////////////////////////////////////

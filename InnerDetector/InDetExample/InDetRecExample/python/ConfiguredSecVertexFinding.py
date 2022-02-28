@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -159,7 +159,6 @@ class ConfiguredSecVertexFinding:
             VertexPointEstimator=InDetSecVtxPointEstimator,
             PostSelector=InDetSecVtxPostSelector,
             SingleTrackConversionTool=InDetSingleTrackSecVtx,
-            Extrapolator=Extrapolator,
             TrackParticleCollection=TrackParticles,
             RemoveTrtTracks=VertexCuts.Finder_RemoveTrtTracks(),
             IsConversion=VertexCuts.Finder_IsConversion(),

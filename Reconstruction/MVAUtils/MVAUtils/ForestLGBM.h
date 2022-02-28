@@ -42,7 +42,7 @@ namespace MVAUtils
     class ForestLGBMSimple final : public ForestLGBMBase<NodeLGBMSimple>
     {
     public:
-        ForestLGBMSimple(TTree* tree);
+        explicit ForestLGBMSimple(TTree* tree);
         ForestLGBMSimple() = default;
         ForestLGBMSimple (const ForestLGBMSimple&) = default;
         ForestLGBMSimple& operator=(const ForestLGBMSimple&) = default;
@@ -61,7 +61,7 @@ namespace MVAUtils
     class ForestLGBM final : public ForestLGBMBase<NodeLGBM>
     {
     public:
-        ForestLGBM(TTree* tree);
+        explicit ForestLGBM(TTree* tree);
         ForestLGBM() = default;
         ForestLGBM (const ForestLGBM&) = default;
         ForestLGBM& operator=(const ForestLGBM&) = default;

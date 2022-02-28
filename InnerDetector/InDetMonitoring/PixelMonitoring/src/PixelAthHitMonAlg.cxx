@@ -132,13 +132,11 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   const int nChannels_mod[PixLayers::COUNT] = {
     46080, 46080, 46080, 46080, 46080, 26880
   };
-  float nGoodChannels_total = 0.;
   float nGoodChannels_layer[PixLayers::COUNT];
   float nActiveChannels_layer[PixLayers::COUNT];
   for (int i = 0; i < PixLayers::COUNT; i++) {
     nGoodChannels_layer[i] = 1.0 * nChannels_mod[i] * nGood_layer[i];
     nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * nActive_layer[i];
-    nGoodChannels_total += nGoodChannels_layer[i];
   }
 
   //*******************************************************************************

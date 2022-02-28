@@ -19,7 +19,7 @@ atlas_add_library( AtlasCLHEP_RandomGenerators
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${DSFMT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${DSFMT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${DSFMT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils )
 
 atlas_add_component( AtlasCLHEP_RandomGenerators_test
                      src/components/*.cxx

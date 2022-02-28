@@ -19,11 +19,6 @@ try:
 except Exception:
     printfunc ("WARNING could not load DQMonFlags")
     
-try:
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-except Exception:
-    printfunc ("WARNING could not load TriggerFlags")
-
 #      from InDetRecExample.InDetJobProperties import InDetFlags
 try:
     from LArConditionsCommon.LArCondFlags import larCondFlags
@@ -83,12 +78,6 @@ try:
     from tauRec.tauRecFlags import jobproperties
 except Exception:
     printfunc ("WARNING could not load tauRecFlags")
-
-try:
-    from egammaRec.egammaRecFlags import jobproperties
-except Exception:
-    printfunc ("WARNING could not load egammaRecFlags")
-
 
 try:
     from JetRec.JetRecFlags import jetFlags

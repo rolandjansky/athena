@@ -22,4 +22,5 @@ atlas_add_dictionary( TrigT1ResultDict
 # Tests in the package:
 atlas_add_test( TrigT1Result_test
                 SOURCES test/type_trait_tests.cxx
-                LINK_LIBRARIES TrigT1Result )
+                LINK_LIBRARIES TrigT1Result
+                POST_EXEC_SCRIPT nopost.sh )

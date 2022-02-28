@@ -1,20 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from past.builtins import basestring
 import GaudiConfig2.semantics
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray, PublicToolHandle, ServiceHandle
+from GaudiKernel.DataHandle import DataHandle
 import re
-import collections
 import copy
 
-# collections.Sequence is deprecated as of python 3.3.
-# As of 3.9, need to get it from collections.abc.
-# But that doesn't exist in py2.
-try:
-    from collections import abc
-    Sequence = abc.Sequence
-except ImportError:
-    Sequence = collections.Sequence
+from collections import abc
+Sequence = abc.Sequence
 
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
@@ -48,14 +41,35 @@ class MapMergeNoReplaceSemantics(GaudiConfig2.semantics.MappingSemantics):
             a[k] = b[k]
         return a
 
-class VarHandleSematics(GaudiConfig2.semantics.StringSemantics):
+
+class VarHandleKeySemantics(GaudiConfig2.semantics.PropertySemantics):
     '''
-    Treat VarHandleKeys like strings
+    Semantics for all data handle keys (Read, Write, Decor, Cond).
     '''
-    __handled_types__ = ("SG::VarHandleKey",)
-    def __init__(self,cpp_type,name=None):
-        super(VarHandleSematics,self).__init__(cpp_type, name)
-        pass
+    __handled_types__ = (re.compile(r"SG::.*HandleKey<.*>$"),)
+
+    def __init__(self, cpp_type, name=None):
+        super().__init__(cpp_type, name)
+        # Deduce actual handle type
+        self._type = next(GaudiConfig2.semantics.extract_template_args(cpp_type))
+        self._isCond = 'CondHandle' in cpp_type
+
+        if cpp_type.startswith("SG::Read"):
+            self._mode = "R"
+        elif cpp_type.startswith("SG::Write"):
+            self._mode = "W"
+        else:
+            raise TypeError(f"C++ type {cpp_type} not supported")
+
+    def store(self, value):
+        if isinstance(value, DataHandle):
+            v = value.Path
+        elif isinstance(value, str):
+            v = value
+        else:
+            raise TypeError(f"cannot assign {value!r} ({type(value)}) to {self.name}"
+                            ", expected string or DataHandle")
+        return DataHandle(v, self._mode, self._type, self._isCond)
 
 
 class VarHandleArraySematics(GaudiConfig2.semantics.PropertySemantics):
@@ -146,8 +160,8 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
             elif isinstance(v,(PublicToolHandle,ServiceHandle)):
                 newValue.append("{}/{}".format(v.getType(),v.getName()))
 
-            elif isinstance(v,basestring):
-                #Check if componet is known ...
+            elif isinstance(v,str):
+                #Check if component is known ...
                 newValue.append(v)
                 pass
             else:
@@ -218,7 +232,7 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
 
 
 GaudiConfig2.semantics.SEMANTICS.append(AppendListSemantics)
-GaudiConfig2.semantics.SEMANTICS.append(VarHandleSematics)
+GaudiConfig2.semantics.SEMANTICS.append(VarHandleKeySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(VarHandleArraySematics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)
@@ -226,19 +240,3 @@ GaudiConfig2.semantics.SEMANTICS.append(PublicHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(MapMergeNoReplaceSemantics)
-
-
-#For some obscure reason, _ListHelper object never compare equal. Therefore PropertySemantics merge() method fails
-def _sequencemerge(instance,a,b):
-    if a.data != b.data:
-        raise ValueError('cannot merge sequence of values %r and %r' % (a, b))
-    else:
-        return a
-    
-from GaudiConfig2.semantics import SequenceSemantics
-SequenceSemantics.merge = _sequencemerge
-del _sequencemerge
-
-
-
-

@@ -27,6 +27,7 @@
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaR.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaRCosmic.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 #include "TrigInDetAnalysisExample/SigAnalysis.h"
 #include "TrigInDetAnalysisExample/TrackEfficiency.h"
@@ -176,9 +177,6 @@ protected:
   bool         m_containTracks;
 
   bool         m_legacy;
-
-  //  Gaudi::Property<std::string> m_sliceTagArse{this, "SliceTag", "TIDAMonTool/"};
-
 
 };
 

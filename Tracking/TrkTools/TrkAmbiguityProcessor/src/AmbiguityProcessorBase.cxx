@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmbiguityProcessorBase.h"
-#include "TrackScoringTool.h"
 #include "AmbiguityProcessorUtility.h"
 
 #include "GaudiKernel/ToolVisitor.h"
@@ -13,8 +12,7 @@ namespace Trk {
   AmbiguityProcessorBase::AmbiguityProcessorBase(const std::string& t, const std::string& n, const IInterface*  p ):
     AthAlgTool(t,n,p), 
     m_etaBounds{0.8, 1.6, 2.5, 4.0}, 
-    m_stat(m_etaBounds),
-    m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"){
+    m_stat(m_etaBounds){
       declareProperty("ObserverTool", m_observerTool, "track observer tool");
 }
   //

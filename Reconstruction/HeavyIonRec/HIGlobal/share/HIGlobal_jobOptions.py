@@ -14,7 +14,7 @@ theAlg=HIEventShapeMaker()
 theAlg.ReadExistingKey=shape_key
 theAlg.OutputContainerKey=shape_key
 theAlg.HIEventShapeFillerTool=HIEventShapeFillerTool()
-theAlg.OrderOfFlowHarmonics=jobproperties.HIGlobalFlags.NumFlowHarmonics()
+#theAlg.OrderOfFlowHarmonics=jobproperties.HIGlobalFlags.NumFlowHarmonics() # commented while we migrate to new JO
 
 #Import the map tool
 from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool

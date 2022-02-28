@@ -11,7 +11,7 @@ void AGDDPcon::CreateSolid (const AGDDBuilder& builder)
 	builder.CreatePcon(this);
 }
 
-void AGDDPcon::CreateVolume (const AGDDBuilder& builder)
+void AGDDPcon::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

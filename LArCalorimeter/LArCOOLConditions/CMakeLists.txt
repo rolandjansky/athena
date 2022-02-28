@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArCOOLConditions )
@@ -11,7 +11,7 @@ atlas_add_library( LArCOOLConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArCOOLConditions
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel LArIdentifier LArElecCalib
+                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel LArIdentifier LArElecCalib AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolUtilities StoreGateLib )
 
 atlas_add_dictionary( LArCOOLConditionsDict

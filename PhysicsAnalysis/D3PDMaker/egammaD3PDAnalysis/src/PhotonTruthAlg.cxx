@@ -65,13 +65,11 @@ StatusCode PhotonTruthAlg::execute()
   DECOR(bool,  truth_isBrem);
 #undef DECOR
 
-  IMCTruthClassifier::Cache cache;
-
   CHECK( m_photonGetter->reset (m_allowMissing) );
   while (const xAOD::Photon* g =
          m_photonGetter->next<xAOD::Photon>())
   {
-    const xAOD::TruthParticle* p = m_truthTool->toTruthParticle (*g, cache);
+    const xAOD::TruthParticle* p = m_truthTool->toTruthParticle (*g);
 
     truth_isConv(*g) = m_truthTool->getMCConv (p,
                                                truth_Rconv(*g),

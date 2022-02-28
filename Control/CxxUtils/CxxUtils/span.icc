@@ -1,0 +1,392 @@
+/*
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file CxxUtils/span.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2022
+ * @brief Simplified version of the C++20 std::span.
+ */
+
+
+namespace CxxUtils {
+
+
+/*
+ * @brief Default constructor.
+ * Makes an empty span.
+ */
+template <class T>
+inline
+span<T>::span()
+  : m_ptr(nullptr),
+    m_size(0)
+{
+}
+
+
+/**
+  * @brief Constructor from start and length.
+  * @param ptr Start of the span.
+  * @param sz Length of the span.
+  */
+template <class T>
+inline
+span<T>::span (T* ptr, size_type sz)
+  : m_ptr(ptr),
+    m_size(sz)
+{
+}
+
+
+/**
+  * @brief Constructor from start and end.
+  * @param beg Start of the span.
+  * @param end One past the end of the span.
+  */
+template <class T>
+inline
+span<T>::span (T* beg, T* end)
+  : m_ptr(beg),
+    m_size (end-beg)
+{
+}
+
+
+/**
+  * @brief Return the size of the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::size_type
+span<T>::size() const noexcept
+{
+  return m_size;
+}
+
+
+/**
+  * @brief Return the size of contents of the span, in bytes.
+  */
+template <class T>
+inline
+constexpr typename span<T>::size_type
+span<T>::size_bytes() const noexcept
+{
+  return m_size * sizeof(element_type);
+}
+
+  
+/**
+  * @brief Test if the span is empty.
+  */
+template <class T>
+inline
+constexpr bool
+span<T>::empty() const noexcept
+{
+  return m_size == 0;
+}
+
+
+/**
+  * @brief Return a reference to the first element in the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::reference
+span<T>::front() noexcept
+{
+  assert (m_ptr != nullptr);
+  return *m_ptr;
+}
+
+   
+/**
+  * @brief Return a reference to the first element in the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_reference
+span<T>::front() const noexcept
+{
+  assert (m_ptr != nullptr);
+  return *m_ptr;
+}
+
+  
+/**
+  * @brief Return a reference to the last element in the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::reference
+span<T>::back() noexcept
+{
+  assert (m_ptr != nullptr);
+  return *(m_ptr + m_size-1);
+}
+
+  
+/**
+  * @brief Return a reference to the last element in the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_reference
+span<T>::back() const noexcept
+{
+  assert (m_ptr != nullptr);
+  return *(m_ptr + m_size-1);
+}
+
+  
+/**
+  * @brief Return a reference to the i-th element in the span.
+  * @param i Index of the element to return.
+  */
+template <class T>
+inline
+constexpr typename span<T>::reference
+span<T>::operator[] (size_type i) noexcept
+{
+  assert (i < m_size);
+  return m_ptr[i];
+}
+
+  
+/**
+  * @brief Return a reference to the i-th element in the span.
+  * @param i Index of the element to return.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_reference
+span<T>::operator[] (size_type i) const noexcept
+{
+  assert (i < m_size);
+  return m_ptr[i];
+}
+
+
+/**
+  * @brief Return a pointer to the start of the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::pointer
+span<T>::data() noexcept
+{
+  return m_ptr;
+}
+
+  
+/**
+  * @brief Return a pointer to the start of the span.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_pointer
+span<T>::data() const noexcept
+{
+  return m_ptr;
+}
+
+
+/**
+  * @brief Return a begin iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::iterator
+span<T>::begin() noexcept
+{
+  return m_ptr;
+}
+
+  
+/**
+  * @brief Return a begin iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_iterator
+span<T>::begin() const noexcept
+{
+  return m_ptr;
+} 
+
+
+/**
+  * @brief Return an end iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::iterator
+span<T>::end() noexcept
+{
+  return m_ptr + m_size;
+}
+
+  
+/**
+  * @brief Return an end iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_iterator
+span<T>::end() const noexcept
+{
+  return m_ptr + m_size;
+}
+
+
+/**
+  * @brief Return a begin reverse iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::reverse_iterator
+span<T>::rbegin() noexcept
+{
+  return reverse_iterator (end());
+}
+
+  
+/**
+  * @brief Return a begin reverse iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_reverse_iterator
+span<T>::rbegin() const noexcept
+{
+  return const_reverse_iterator (end());
+}
+
+
+/**
+  * @brief Return an end reverse iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::reverse_iterator
+span<T>::rend() noexcept
+{
+  return reverse_iterator (begin());
+}
+
+
+/**
+  * @brief Return an end reverse iterator.
+  */
+template <class T>
+inline
+constexpr typename span<T>::const_reverse_iterator
+span<T>::rend() const noexcept
+{
+  return const_reverse_iterator (begin());
+}
+
+
+/**
+  * @brief Return a subspan from the start.
+  * @param n Number of elements in the subspan.
+  */
+template <class T>
+inline
+constexpr span<T>
+span<T>::first (size_type n) noexcept
+{
+  assert (n <= size());
+  return span (m_ptr, n);
+}
+
+  
+/**
+  * @brief Return a subspan from the start.
+  * @param n Number of elements in the subspan.
+  */
+template <class T>
+inline
+constexpr span<const T>
+span<T>::first (size_type n) const noexcept
+{
+  assert (n <= size());
+  return span<const T> (m_ptr, n);
+}
+
+
+/**
+  * @brief Return a subspan from the end.
+  * @param n Number of elements in the subspan.
+  */
+template <class T>
+inline
+constexpr span<T>
+span<T>::last (size_type n) noexcept
+{
+  assert (n <= size());
+  return span (m_ptr + (size() - n), n);
+}
+
+  
+/**
+  * @brief Return a subspan from the end.
+  * @param n Number of elements in the subspan.
+  */
+template <class T>
+inline
+constexpr span<const T>
+span<T>::last (size_type n) const noexcept
+{
+  assert (n <= size());
+  return span<const T> (m_ptr + (size() - n), n);
+}
+
+
+/**
+  * @brief Return a subspan.
+  * @param offs Starting element of the subspan.
+  * @param n Number of elements in the subspan.
+  *          If defaulted, take all remaining elements.
+  */
+template <class T>
+inline
+constexpr span<T>
+span<T>::subspan (size_type offs, size_type n /*= dynamic_extent*/) noexcept
+{
+  assert (offs <= size());
+  if (n == dynamic_extent)
+    n = size() - offs;
+  else {
+    assert (n <= size());
+    assert (offs + n <= size());
+  }
+  return span (m_ptr + offs, n);
+}
+
+
+/**
+  * @brief Return a subspan.
+  * @param offs Starting element of the subspan.
+  * @param n Number of elements in the subspan.
+  *          If defaulted, take all remaining elements.
+  */
+template <class T>
+inline
+constexpr span<const T>
+span<T>::subspan (size_type offs, size_type n /*= dynamic_extent*/) const noexcept
+{
+  assert (offs <= size());
+  if (n == dynamic_extent)
+    n = size() - offs;
+  else {
+    assert (n <= size());
+    assert (offs + n <= size());
+  }
+  return span<const T> (m_ptr + offs, n);
+}
+
+
+} // namespace CxxUtils

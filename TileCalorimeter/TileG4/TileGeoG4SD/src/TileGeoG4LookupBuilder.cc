@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -95,8 +95,13 @@ void TileGeoG4LookupBuilder::BuildLookup(bool is_tb) {
 }
 
 TileGeoG4Section* TileGeoG4LookupBuilder::GetSection(TileDddbManager::TileSections key) const {
-  if (m_sectionMap && m_sectionMap->find(key) != m_sectionMap->end()) return m_sectionMap->operator[](key);
-  else return 0;
+  if (m_sectionMap) {
+    auto it = std::as_const(*m_sectionMap).find(key);
+    if (it != std::as_const(*m_sectionMap).end()) {
+      return it->second;
+    }
+  }
+  return 0;
 }
 
 void TileGeoG4LookupBuilder::ResetCells(TileHitVector* tileHitsCollection) {

@@ -160,7 +160,7 @@ namespace Trk{
  }//end of vertex position chi2
 
 
- float KalmanVertexUpdator::trackParametersChi2(const Amg::Vector3D & new_position, const LinearizedTrack * trk,const AmgSymMatrix(5) & trkParametersWeight) const{
+ float KalmanVertexUpdator::trackParametersChi2(const Amg::Vector3D & new_position, const LinearizedTrack * trk,const AmgSymMatrix(5) & trkParametersWeight) {
 
    // track information
      const AmgMatrix(5,3)& A = trk->positionJacobian();
@@ -185,7 +185,7 @@ namespace Trk{
      return paramDifference.transpose() * ( trkParametersWeight * paramDifference );;
 
  }
- float KalmanVertexUpdator::vertexPositionChi2(const xAOD::Vertex& old_vtx, const Amg::Vector3D & new_position) const{
+ float KalmanVertexUpdator::vertexPositionChi2(const xAOD::Vertex& old_vtx, const Amg::Vector3D & new_position) {
      AmgSymMatrix(3)  old_wrt_weight = old_vtx.covariancePosition().inverse();
      Amg::Vector3D posDifference = new_position - old_vtx.position();
      return posDifference.transpose()*(old_wrt_weight*posDifference);

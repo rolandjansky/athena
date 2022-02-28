@@ -59,12 +59,11 @@ StatusCode MooSegmentFinderAlg::execute(const EventContext& ctx) const {
     m_segmentFinder->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
 
     if (output.patternCombinations) {
-        if (patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess()) {
+        if (patHandle.record(std::move(output.patternCombinations)).isSuccess()) {
             ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
         } else {
             ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
         }
-        output.patternCombinations = nullptr;
     } else {
         if (patHandle.record(std::make_unique<MuonPatternCombinationCollection>()).isSuccess()) {
             ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
@@ -95,7 +94,7 @@ StatusCode MooSegmentFinderAlg::execute(const EventContext& ctx) const {
             rpcTruthColl = rpcTruth.cptr();
         }
         SG::ReadHandle<Muon::MdtPrepDataContainer> mdth(m_keyMdt, ctx);
-        m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : 0, m_doRPCClust ? &rpcCols : 0, tgcTruthColl,
+        m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : nullptr, m_doRPCClust ? &rpcCols : nullptr, tgcTruthColl,
                                               rpcTruthColl, segHandle.ptr());
     }
 

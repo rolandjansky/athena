@@ -6,6 +6,9 @@
 #include "TrigJetTLAHypoAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+#include "xAODBase/IParticleHelpers.h" //for getOriginalObjectLink
 
 
 using namespace TrigCompositeUtils;
@@ -21,8 +24,8 @@ TrigJetTLAHypoAlg::TrigJetTLAHypoAlg( const std::string& name,
 
 StatusCode TrigJetTLAHypoAlg::initialize() {
   CHECK( m_hypoTools.retrieve() );
-
   CHECK( m_TLAjetsKey.initialize() );
+  if (m_attach_btag) CHECK(m_btag_record_tool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -31,87 +34,87 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
 
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
-  // get the HLT decision container for the previous decisions (one per jet in the original collection)
-
-  ATH_MSG_DEBUG("Retrieving HLT decision \"" << decisionInput().key() << "\"");
-  auto previousDecisionsHandle = SG::makeHandle(decisionInput(), context );
-  ATH_CHECK(previousDecisionsHandle.isValid());
-  const DecisionContainer* prevDecisions = previousDecisionsHandle.get();
-
-  // read in the TLA jets collection, and obtain a bare pointer to it
-
-  ATH_MSG_DEBUG("Retrieving jets from the TLA container  \"" << m_TLAjetsKey << "\""); 
-  auto TLAJetsHandle = SG::makeHandle(m_TLAjetsKey, context );
-  ATH_CHECK(TLAJetsHandle.isValid());
-  const JetContainer* TLAjets = TLAJetsHandle.get();
+  // create handles for TLA Jets
+  SG::WriteHandle<JetContainer> h_TLAJets = SG::makeHandle(m_TLAjetsKey, context);
+  //make the output jet container
+  ATH_CHECK(h_TLAJets.record(std::make_unique<xAOD::JetContainer>(),
+                              std::make_unique<xAOD::JetAuxContainer>()));
 
 
-  //this is to check that we don't have TLA jet containers without any previous associated decision
-  bool atLeastOneDecision = false;
+  // retrieving previous decisions
+  auto previousDecisionHandle = SG::makeHandle(decisionInput(), context);
+  ATH_CHECK(previousDecisionHandle.isValid());
+  ATH_MSG_DEBUG("Running with " << previousDecisionHandle->size() << " previous decisions");
+ 
 
   //container for output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context);
   DecisionContainer* outputDecisions = outputHandle.ptr();
 
-  //information to pass to hypoTool: jet pointer and decision
-  std::vector<std::pair<const xAOD::Jet*,Decision*>> jetHypoInputs;
+  int nDecision = 0;
+  int nSavedJets = 0; 
+  for (const auto previousDecision : *previousDecisionHandle)
+  {
+    // get jets from the decision
+      const xAOD::Jet *jetPrev = nullptr;
+      auto prevJets = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
+      ATH_MSG_DEBUG("This decision has " << prevJets.size() << " jets");
 
-  //since the two aren't necessarily index-parallel, we need to match the previous decisions to the new jets
-  //loop on the TLA container jets
-  for (const xAOD::Jet* TLAjet : *TLAjets) {
+       //copy all jets into the new TLA collection
+      for (auto jet : prevJets)
+      {
+          auto prevJetLink = jet.link;
+          ATH_CHECK(prevJetLink.isValid());
+          jetPrev = *prevJetLink;
 
-    bool associatedWithPreviousStep = false;
-    const Decision* previousDecision = nullptr;
-    for (const Decision* testDecision : *prevDecisions) {
+          // create new decision object for all previous decisions
+          // linking new decision with previous one
+          auto newDecision = newDecisionIn( outputDecisions, hypoAlgNodeName() );
+          TrigCompositeUtils::linkToPrevious( newDecision, previousDecision, context );
 
-      //deltaR-match the jet attached from the previous decision 
+          // Now we ensure not saving jet copies but still linking a TLA jet to each decision
+          ElementLink<xAOD::IParticleContainer>::ElementConstPointer original_jet_link = getOriginalObjectLink(*(jetPrev));
+          bool duplicate_found(false);
+          for (unsigned idx_tla_jet = 0; idx_tla_jet!=h_TLAJets->size(); idx_tla_jet++){
+              const xAOD::Jet* tla_jet = h_TLAJets->at(idx_tla_jet);
+              if (*original_jet_link == *getOriginalObjectLink(*tla_jet)) {
+                ATH_MSG_DEBUG("Jet already found! Adding to decision but not to TLA jet container...");
+                newDecision->setObjectLink(featureString(), ElementLink<xAOD::JetContainer>(*h_TLAJets, idx_tla_jet, context)); 
+                duplicate_found = true;
+              } 
+          }
+          if (duplicate_found) continue;
+          
+          xAOD::Jet *copiedJet = new xAOD::Jet();            
+          h_TLAJets->push_back(copiedJet);
+          *copiedJet = *jetPrev;
+          nSavedJets++;
 
-      TrigCompositeUtils::LinkInfo< xAOD::JetContainer > myFeature = TrigCompositeUtils::findLink< xAOD::JetContainer >( testDecision, TrigCompositeUtils::featureString());
-      ATH_CHECK( myFeature.isValid() );
-      const xAOD::Jet* testJet = *(myFeature.link);
+          ATH_MSG_DEBUG("Copied jet with pT: " << copiedJet->pt() << " and eta "<<copiedJet->eta()<<" from decision " << nDecision);
 
-      //check the deltaR between this jet and the TLA jet we're testing
-      //use a tight (?) deltaR = 0.1 matching as they should be the same jet 
-      if ( testJet->p4().DeltaR(TLAjet->p4()) < 0.1 ) {
-        //if they match, set the bools to True 
-        previousDecision = testDecision;
-        associatedWithPreviousStep = true;
-        atLeastOneDecision = true;
+          // link TLA jets to decision
+          newDecision->setObjectLink(featureString(), ElementLink<xAOD::JetContainer>(*h_TLAJets, h_TLAJets->size() - 1, context)); 
+          
 
-        //prepare the necessary information to the HypoTool:
-        // - the new decision
-        Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, hypoAlgNodeName(), context);
-        // - the ElementLink to the TLA-jet
-        ElementLink<xAOD::JetContainer> jetLink = ElementLink<xAOD::JetContainer>(*TLAjets, TLAjet->index());
-        ATH_CHECK( jetLink.isValid() );   
-        // - associate the two
-        newDecision->setObjectLink<xAOD::JetContainer>(featureString(), jetLink);
-        // - put in the vector that will eventually be handed off to the HypoTool
-        jetHypoInputs.push_back( std::make_pair(TLAjet, newDecision) );
+      }
+    nDecision++;
+  }
 
-      } // end check on whether this TLA-jet corresponds to this decision-jet
-
-      //if the jet has found a decision, move onto the next jet
-      if (associatedWithPreviousStep) break;
-
-    }//end loop on decisions
-
-  }//end loop on TLA jets
-
-  // check that this jet collection has a previous decision (at least one has to have it, otherwise trigger navigation doesn't work)
-  if (!atLeastOneDecision) {
-
-    ATH_MSG_ERROR("Unable to associate a previous decision to any jet in the vector of TLA jets.\
-    The chain seeding the TLA selector should have at least one jet contributing to the decision that fulfills the requirements of the TLA jets saved in the stream.\
-    If this is not the case, please contact the developers.");
-    return StatusCode::FAILURE;
-
-  }//end if on at least one decision in this jet collection
+  ATH_MSG_DEBUG("Saved "<<nSavedJets<<" TLA jets from "<<nDecision<<" input decisions.");
+  
+  if(m_attach_btag){
+      ATH_MSG_DEBUG("Attaching any available b-tag information to TLA  jets.");
+      const DecisionContainer* previousDecisions = previousDecisionHandle.get();
+      // ** Calling record_btag() on this tool will create a new TLA HLT Btagging container 
+      //    which will be filled with copies of BTagging elements attached to the previous decision
+      //    and linked to matching jets in h_TLAJets. **
+      CHECK(m_btag_record_tool->record_btag(previousDecisions, *h_TLAJets, context));
+  }
 
   for (const auto& tool: m_hypoTools) {
 
     ATH_MSG_DEBUG("Now computing decision for " << tool->name());
-    CHECK(tool->decide(jetHypoInputs));
+    CHECK(tool->decide(outputDecisions));
 
   }//end loop on hypoTools
 

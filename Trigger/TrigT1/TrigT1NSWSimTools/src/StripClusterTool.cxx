@@ -1,34 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/StripClusterTool.h"
-
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "TrigT1NSWSimTools/StripOfflineData.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonDigitContainer/sTgcDigitContainer.h"
-#include "MuonDigitContainer/sTgcDigit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
-#include "TTree.h"
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
 
 namespace NSWL1 {
 
     StripClusterTool::StripClusterTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
       m_detManager(nullptr),
       m_tree(nullptr),
       m_clusters()
@@ -52,14 +32,13 @@ namespace NSWL1 {
       sprintf(ntuple_name,"%sTree",algo_name.c_str());
       m_tree = 0;
       ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
-    }
-    ATH_CHECK(this->book_branches());
+      ATH_CHECK(this->book_branches());
+    } else this->clear_ntuple_variables();
+
     // retrieve the Incident Service
     ATH_CHECK(m_incidentSvc.retrieve());
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-    // retrieve the Random Service
-    ATH_CHECK(m_rndmSvc.retrieve());
     // retrieve the MuonDetectormanager
     ATH_CHECK(detStore()->retrieve( m_detManager ));
     ATH_CHECK(m_idHelperSvc.retrieve());
@@ -145,6 +124,9 @@ namespace NSWL1 {
     }
 
     void StripClusterTool::clear_ntuple_variables() {
+      m_clusters.clear();
+      if ( m_tree==0 ) return;
+
       //clear the ntuple variables
       m_cl_n = 0;
       m_cl_charge->clear();
@@ -174,12 +156,11 @@ namespace NSWL1 {
       m_cl_layer->clear();
       m_cl_bandId->clear();
       m_cl_phiId->clear();
-      m_clusters.clear();
     }
-void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters) {
+
+  void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters) {
 
     ATH_MSG_DEBUG("M_Clusters recieved " << m_clusters.size());
-
 
     bool first_strip=true;
     const MuonSimDataCollection* sdo_container = 0;
@@ -187,7 +168,6 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
     if ( !sc.isSuccess() ) {
       ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
     }
-    int n_clus=0;
     for(unsigned int cl_i=0; cl_i < m_clusters.size();cl_i++){
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
       float x_pos=0;
@@ -197,7 +177,6 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       float x_lpos=0;
       float y_lpos=0;
       float z_lpos=0;
-
 
       int charge=0;
       int n_strip=0;
@@ -210,60 +189,64 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       float locx=-999999;
       float locy=-999999;
       if (this_cl->size()==0){
-        ATH_MSG_DEBUG("Zero size cluster!!");
-  	    continue;
+        ATH_MSG_INFO("Zero size cluster!!");
+        continue;
       }
 
       for(unsigned int s_i=0; s_i < this_cl->size();s_i++){
-     	  n_strip++;
-  	    ATH_MSG_DEBUG("Start strip" << n_strip);
-	      if(sdo_container && first_strip){ // Save truth deposits associated with cluster should be the same on for the whole strip, so take the first one need to work on this logic
+        n_strip++;
+        ATH_MSG_DEBUG("Start strip" << n_strip);
+        if(sdo_container && first_strip){ // Save truth deposits associated with cluster should be the same on for the whole strip, so take the first one need to work on this logic
           first_strip=false;
-  	      Identifier Id = this_cl->at(s_i)->Identity();
-	        const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
-	        const MuonSimData strip_sdo = (sdo_container->find(Id))->second;
-	        std::vector<MuonSimData::Deposit> deposits;
-	        strip_sdo.deposits(deposits);
-	        //retrieve the info of the first associated hit, i.e. the fastest in time
-          if (deposits.size()!=1)ATH_MSG_WARNING("Multiple cluster hits for strip!");
+          Identifier Id = this_cl->at(s_i)->Identity();
+          const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
+          auto it = sdo_container->find(Id);
+          if(it == sdo_container->end()) continue;
+          const MuonSimData strip_sdo = it->second;
+          std::vector<MuonSimData::Deposit> deposits;
+          strip_sdo.deposits(deposits);
+          //retrieve the info of the first associated hit, i.e. the fastest in time
+          if (deposits.size()!=1) ATH_MSG_WARNING("Multiple cluster hits for strip!");
           if (deposits.size()==0){
-            ATH_MSG_WARNING("Empty hit here"); 
+            ATH_MSG_WARNING("Empty hit here");
             continue;
           }
-        
+
           int    truth_barcode   = deposits[0].first.barcode();
           double truth_localPosX = deposits[0].second.firstEntry();
           double truth_localPosY = deposits[0].second.secondEntry();
-	        Amg::Vector3D hit_gpos(0.,0.,0.);
-	        Amg::Vector2D lpos(truth_localPosX,truth_localPosY);
+          Amg::Vector3D hit_gpos(0.,0.,0.);
+          Amg::Vector2D lpos(truth_localPosX,truth_localPosY);
           rdoEl->surface(Id).localToGlobal(lpos, hit_gpos,hit_gpos);
-	        double truth_globalPosX = hit_gpos.x();
+          double truth_globalPosX = hit_gpos.x();
           double truth_globalPosY = hit_gpos.y();
           double truth_globalPosZ = hit_gpos.z();
-	        float  truth_energy    = strip_sdo.word();
+          float  truth_energy    = strip_sdo.word();
 
-          if(fabs(locx-lpos.x())>.001 || fabs(locy - lpos.y())>.001){
-      	    ATH_MSG_DEBUG("OLD locx " << locx <<" new locx "<<lpos.x() <<" b " << int(locx!=lpos.x()));
-      	    ATH_MSG_DEBUG("OLD locy " << locy <<" new locy "<<lpos.y() << " b " << int(locy!=lpos.y()));
-      	    ATH_MSG_DEBUG("Cluster hit, truth barcode=" << truth_barcode);
-      	    ATH_MSG_DEBUG("Cluster hit, truth globalPosX="   << truth_globalPosX
-      			  << ", truth globalPosY="   << truth_globalPosY
-      			  << ", truth globalPosZ="   << truth_globalPosZ
-      			  << ", truth enegy deposit ="   << truth_energy << std::endl);
-      	    ATH_MSG_DEBUG("Cluster hit, truth localPosX="   << lpos.x()
-      			  << ", truth localPosY="   <<  lpos.y()
-      			  << ", truth enegy deposit ="   << truth_energy << std::endl);
+          if(std::fabs(locx-lpos.x())>.001 || std::fabs(locy - lpos.y())>.001){
+            ATH_MSG_DEBUG("OLD locx " << locx <<" new locx "<<lpos.x() <<" b " << int(locx!=lpos.x()));
+            ATH_MSG_DEBUG("OLD locy " << locy <<" new locy "<<lpos.y() << " b " << int(locy!=lpos.y()));
+            ATH_MSG_DEBUG("Cluster hit, truth barcode=" << truth_barcode);
+            ATH_MSG_DEBUG("Cluster hit, truth globalPosX="   << truth_globalPosX
+              << ", truth globalPosY="   << truth_globalPosY
+              << ", truth globalPosZ="   << truth_globalPosZ
+              << ", truth enegy deposit ="   << truth_energy << std::endl);
+            ATH_MSG_DEBUG("Cluster hit, truth localPosX="   << lpos.x()
+              << ", truth localPosY="   <<  lpos.y()
+              << ", truth enegy deposit ="   << truth_energy << std::endl);
 
-	          m_cl_truth_x->push_back( hit_gpos.x() );
-      	    m_cl_truth_y->push_back( hit_gpos.y() );
-      	    m_cl_truth_z->push_back( hit_gpos.z() );
+            if (m_doNtuple) {
+              m_cl_truth_x->push_back( hit_gpos.x() );
+              m_cl_truth_y->push_back( hit_gpos.y() );
+              m_cl_truth_z->push_back( hit_gpos.z() );
 
-      	    m_cl_truth_lx->push_back( lpos.x() );
-      	    m_cl_truth_ly->push_back( lpos.y() );
-      	    m_cl_truth_lz->push_back( 0 );
-      	    m_cl_truth_E->push_back( truth_energy );
-      	  }
-	      }
+              m_cl_truth_lx->push_back( lpos.x() );
+              m_cl_truth_ly->push_back( lpos.y() );
+              m_cl_truth_lz->push_back( 0 );
+              m_cl_truth_E->push_back( truth_energy );
+            }
+          }
+        }
 
         float s_charge=this_cl->at(s_i)->strip_charge_6bit();
         charge+=s_charge;
@@ -273,7 +256,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
         x_lpos+=(this_cl->at(s_i)->locX())*s_charge;
         y_lpos+=(this_cl->at(s_i)->locY())*s_charge;
-        z_lpos+=(this_cl->at(s_i)->locZ()) *s_charge;
+        z_lpos+=(this_cl->at(s_i)->locZ())*s_charge;
 
 
         ATH_MSG_DEBUG("Cluster ------------------------------------------" );
@@ -289,71 +272,70 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
       }//end of this_cl loop
       if (charge != 0){
-      	x_pos=x_pos/charge;
-      	y_pos=y_pos/charge;
-      	z_pos=z_pos/charge;
-      	x_lpos=x_lpos/charge;
+        x_pos=x_pos/charge;
+        y_pos=y_pos/charge;
+        z_pos=z_pos/charge;
+        x_lpos=x_lpos/charge;
         y_lpos=y_lpos/charge;
         z_lpos=z_lpos/charge;
       }
-      n_clus++;
-      m_cl_x->push_back(x_pos);
-      m_cl_y->push_back(y_pos);
-      m_cl_z->push_back(z_pos);
+      if (m_doNtuple) {
+        m_cl_x->push_back(x_pos);
+        m_cl_y->push_back(y_pos);
+        m_cl_z->push_back(z_pos);
 
-      m_cl_lx->push_back(x_lpos);
-      m_cl_ly->push_back(y_lpos);
-      m_cl_lz->push_back(z_lpos);
-      m_cl_charge->push_back(charge);
-      m_cl_size->push_back(n_strip);
+        m_cl_lx->push_back(x_lpos);
+        m_cl_ly->push_back(y_lpos);
+        m_cl_lz->push_back(z_lpos);
+        m_cl_charge->push_back(charge);
+        m_cl_size->push_back(n_strip);
 
-      m_cl_side->push_back(m_clusters.at(cl_i)->at(0)->sideId() );
-      m_cl_isSmall->push_back(m_clusters.at(cl_i)->at(0)->isSmall() );
-      m_cl_wedge->push_back(m_clusters.at(cl_i)->at(0)->wedge());
-      m_cl_sector->push_back(m_clusters.at(cl_i)->at(0)->sectorId());
-      m_cl_module->push_back(m_clusters.at(cl_i)->at(0)->moduleId() );
-      m_cl_layer->push_back(m_clusters.at(cl_i)->at(0)->layer());
-      m_cl_bandId->push_back(m_clusters.at(cl_i)->at(0)->bandId());
-      m_cl_phiId->push_back(m_clusters.at(cl_i)->at(0)->phiId());
+        m_cl_side->push_back(m_clusters.at(cl_i)->at(0)->sideId() );
+        m_cl_isSmall->push_back(m_clusters.at(cl_i)->at(0)->isSmall() );
+        m_cl_wedge->push_back(m_clusters.at(cl_i)->at(0)->wedge());
+        m_cl_sector->push_back(m_clusters.at(cl_i)->at(0)->sectorId());
+        m_cl_module->push_back(m_clusters.at(cl_i)->at(0)->moduleId() );
+        m_cl_layer->push_back(m_clusters.at(cl_i)->at(0)->layer());
+        m_cl_bandId->push_back(m_clusters.at(cl_i)->at(0)->bandId());
+        m_cl_phiId->push_back(m_clusters.at(cl_i)->at(0)->phiId());
+      }
       ATH_MSG_DEBUG("Cluster dump with X:" << x_pos << " Y: " << y_pos << " Z: " << z_pos << " cluster charge: " << charge);
       ATH_MSG_DEBUG("Cluster dump with lX:" << x_lpos << " lY: " << y_lpos << " lZ: " << z_lpos << " cluster charge: " << charge);
 
       auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
                m_clusters.at(cl_i)->at(0)->bandId(),
-               m_clusters.at(cl_i)->at(0)->trig_BCID(),  
-               m_clusters.at(cl_i)->at(0)->sideId(),                                       
+               m_clusters.at(cl_i)->at(0)->trig_BCID(),
+               m_clusters.at(cl_i)->at(0)->sideId(),
                m_clusters.at(cl_i)->at(0)->phiId(),
-						   m_clusters.at(cl_i)->at(0)->isSmall(),
-						   m_clusters.at(cl_i)->at(0)->moduleId(),
-						   m_clusters.at(cl_i)->at(0)->sectorId(),
-						   m_clusters.at(cl_i)->at(0)->wedge(),
-						   m_clusters.at(cl_i)->at(0)->layer(),
-						   n_strip,
-						   charge,
-						   x_pos,
-						   y_pos,
-						   z_pos
-                        );
+               m_clusters.at(cl_i)->at(0)->isSmall(),
+               m_clusters.at(cl_i)->at(0)->moduleId(),
+               m_clusters.at(cl_i)->at(0)->sectorId(),
+               m_clusters.at(cl_i)->at(0)->wedge(),
+               m_clusters.at(cl_i)->at(0)->layer(),
+               n_strip,
+               charge,
+               x_pos,
+               y_pos,
+               z_pos);
       clusters.push_back(std::move(stripClOfflData));
-     
     }//of m_clusters loop
-
+    if (m_doNtuple) m_cl_n = clusters.size();
     ATH_MSG_DEBUG("Finished Fill");
   }
 
 
   StatusCode StripClusterTool::cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips, std::vector< std::unique_ptr<StripClusterData> >& clusters){
-      
+
       if(strips.size()==0){
             ATH_MSG_WARNING("Received 0 strip hits... Skip event");
             return StatusCode::SUCCESS;
       }
-      
+
       //S.I sort strip w.r.t channelId in ascending order
       std::sort(strips.begin(),strips.end(),
                 [](const auto& s1,const auto& s2){return s1->channelId()<s2->channelId();}
       );
-            
+
       /*S.I remove duplicate strip channels ...
        The rightmost way is to define an == operator for stripdata// not sure if we need to include charge+time and such though
        Im sure somehow we get duplicated strip channels. Need to check if all the other aspects like charge, time, etc are exactly the same for those ...
@@ -361,78 +343,72 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       auto pos = std::unique(strips.begin(), strips.end(),
                              [](const auto& s1, const auto& s2){
                                  return s1->channelId()==s2->channelId() && s1->channelId()==s2->channelId();
-                             }
-      );
-      
-      strips.resize(std::distance(strips.begin(), pos)); 
+                             });
+
+      strips.resize(std::distance(strips.begin(), pos));
       auto hit=strips.begin();
-      
+
       auto cr_cluster=std::make_shared< std::vector<std::unique_ptr<StripData>> >();
-      
+
       StripData* prev_hit=nullptr;
       int first_ch=(*hit)->channelId();//channel id of the first strip
       ATH_MSG_DEBUG("Cluster Hits :" << (*hit)->channelId() << " " << m_idHelperSvc->stgcIdHelper().gasGap( (*hit)->Identity())
-		    << "   " <<   (*hit)->moduleId() << "   " << (*hit)->sectorId() << "   " <<(*hit)->wedge()
-		    << "  "<< (*hit)->sideId()  );
+        << "   " <<   (*hit)->moduleId() << "   " << (*hit)->sectorId() << "   " <<(*hit)->wedge()
+        << "  "<< (*hit)->sideId()  );
       hit++;//S.I is this ncessary ?
 
       for(auto & this_hit : strips){
-	      if(!(this_hit)->readStrip() )continue;
-          if( ((this_hit)->bandId()==-1 || this_hit->phiId()==-1) ){
-	       ATH_MSG_WARNING("Read Strip without BandId :" << (this_hit)->channelId() << " " << m_idHelperSvc->stgcIdHelper().gasGap( (this_hit)->Identity())
-		      << "   " <<   (this_hit)->moduleId() << "   " << (this_hit)->sectorId() << "   " <<(this_hit)->wedge()
-		      << "  "<< (this_hit)->sideId()   );
-	       continue;
-          }
+        if(!(this_hit)->readStrip() ) continue;
+        if( ((this_hit)->bandId()==-1 || this_hit->phiId()==-1) ){
+          ATH_MSG_WARNING("Read Strip without BandId :" << (this_hit)->channelId() << " " << m_idHelperSvc->stgcIdHelper().gasGap( (this_hit)->Identity())
+            << "   " <<   (this_hit)->moduleId() << "   " << (this_hit)->sectorId() << "   " <<(this_hit)->wedge()
+            << "  "<< (this_hit)->sideId()   );
+          continue;
+        }
 
-	     bool sameMod=false;
-	     if (!prev_hit){//for the first time...
-           prev_hit=this_hit.get();
-           cr_cluster->push_back(std::move(this_hit));
-	       continue;
-	     }
-         else{ //executed when we are in the second strip and so on...
-             static auto MatchHits=[](const auto& a1,const auto& a2){
-                if( a1->sideId() != a2->sideId()  ||
-                    a1->sectorId() !=a2->sectorId() ||
-                    a1->isSmall() !=a2->isSmall() ||
-                    a1->moduleId() !=a2->moduleId() || 
-                    a1->wedge() !=a2->wedge()  || 
-                    a1->layer() !=a2->layer()
-                ) return false;
-                
-                return true;
-             };     
-             sameMod=MatchHits(this_hit,prev_hit);
-         }
-         prev_hit=this_hit.get();
-         int this_chid=(this_hit)->channelId();
-         if ( (this_hit->channelId()<first_ch) && sameMod ) {
-             ATH_MSG_ERROR("Hits Ordered incorrectly!!!" );
-             return StatusCode::FAILURE;
-         }
-	     if ((this_hit)->channelId()==first_ch && sameMod){
-	       ATH_MSG_FATAL("Hits entered twice !!! ChannelId: " << (this_hit)->channelId() );
-           return StatusCode::FAILURE;
-         }
-         
-	     if ((this_hit)->channelId()==first_ch+1 && sameMod){
-	       cr_cluster->push_back(std::move(this_hit));
-	     }
+        bool sameMod=false;
+        if (!prev_hit){//for the first time...
+          prev_hit=this_hit.get();
+          cr_cluster->push_back(std::move(this_hit));
+          continue;
+        }
+        else{ //executed when we are in the second strip and so on...
+          static auto MatchHits=[](const auto& a1,const auto& a2){
+            if( a1->sideId() != a2->sideId() ||
+                a1->sectorId() !=a2->sectorId() ||
+                a1->isSmall() !=a2->isSmall() ||
+                a1->moduleId() !=a2->moduleId() ||
+                a1->wedge() !=a2->wedge() ||
+                a1->layer() !=a2->layer()
+            ) return false;
+            return true;
+          };
+          sameMod=MatchHits(this_hit,prev_hit);
+        }
+        prev_hit=this_hit.get();
+        int this_chid=(this_hit)->channelId();
+        if ( (this_hit->channelId()<first_ch) && sameMod ) {
+          ATH_MSG_ERROR("Hits Ordered incorrectly!!!" );
+          return StatusCode::FAILURE;
+        }
+        if ((this_hit)->channelId()==first_ch && sameMod){
+          ATH_MSG_FATAL("Hits entered twice !!! ChannelId: " << (this_hit)->channelId() );
+          return StatusCode::FAILURE;
+        }
 
-	     else{
-	        m_clusters.push_back(std::move(cr_cluster));//put the current cluster into the clusters buffer
+        if ((this_hit)->channelId()==first_ch+1 && sameMod) cr_cluster->push_back(std::move(this_hit));
+        else {
+          m_clusters.push_back(std::move(cr_cluster));//put the current cluster into the clusters buffer
           cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>();//create a new empty cluster and assign this hit as the first hit
           cr_cluster->push_back(std::move(this_hit));
-	     }
-	     first_ch=this_chid;
+       }
+       first_ch=this_chid;
       }
-      if(cr_cluster->size() != 0)m_clusters.push_back(std::move(cr_cluster));//don't forget the last cluster in the loop
+
+      if(cr_cluster->size() != 0) m_clusters.push_back(std::move(cr_cluster));//don't forget the last cluster in the loop
       // No sector implemented yet!!!
       ATH_MSG_DEBUG("Found :" << m_clusters.size() << " M_Clusters ");
       fill_strip_validation_id(clusters);
       return StatusCode::SUCCESS;
   }
-  
 }
-

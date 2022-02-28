@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOSYSD3PDMAKER_CALOCALIBHITFILLERTOOL_H
@@ -8,8 +8,9 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-class CaloDetDescrManager; 
 class CaloDmDescrManager;
 class Identifier;
 class LArEM_ID; 
@@ -60,11 +61,11 @@ public:
 
 
   /// Standard Gaudi initialize method.
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /// Book variables for this block.
-  virtual StatusCode book();
+  virtual StatusCode book() override;
 
   /**
    * @brief Fill one block --- type-safe version.
@@ -74,7 +75,7 @@ public:
    * is responsible for arranging that all the pointers for booked variables
    * are set appropriately upon entry.
    */
-  virtual StatusCode fill (const CaloCalibrationHit& p);
+  virtual StatusCode fill (const CaloCalibrationHit& p) override;
 
 private:
 
@@ -96,8 +97,12 @@ private:
   unsigned int*   m_etatow ;
   unsigned int*   m_phimod ;
 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
   // idHelper 
-  const CaloDetDescrManager* m_ddm;
   const CaloDmDescrManager* m_dm_ddm;
   const LArEM_ID* m_emid;
   const LArFCAL_ID* m_fcalid;

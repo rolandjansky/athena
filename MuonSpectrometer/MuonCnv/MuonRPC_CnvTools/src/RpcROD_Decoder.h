@@ -108,8 +108,8 @@ namespace Muon
                                                 const int nFooter) const;
     
     //====LBTAG==== Added 02112008 for buffer format check
-    int m_printerror;
-    mutable std::atomic_int m_RPCcheckfail[13];
+    int m_printerror = 0;
+    mutable std::atomic_int m_RPCcheckfail[13]{};
     IntegerProperty m_maxprinterror;
     
     //====LBTAG==== Added 02112008 for buffer format check

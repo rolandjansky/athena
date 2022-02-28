@@ -12,6 +12,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print(isSimulation)
+from InDetRecExample import TrackingCommon
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -64,6 +65,8 @@ BPHY13_Reco_mumu = DerivationFramework__Reco_Vertex(
     VertexSearchTool             = BPHY13JpsiFinder,
     OutputVtxContainerName = "BPHY13OniaCandidates",
     PVContainerName        = "PrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY13_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName     = "SHOULDNOTBEUSED",
 #    RefPVContainerName     = "BPHY13RefittedPrimaryVertices",
 #    RefitPV                = True,
@@ -123,6 +126,8 @@ BPHY13FourTrackSelectAndWrite = DerivationFramework__Reco_Vertex(
     Jpsi2PlusTrackName       = BPHY13Plus2Tracks,
     OutputVtxContainerName   = "BPHY13FourTrack",
     PVContainerName          = "PrimaryVertices",
+    V0Tools                  = TrackingCommon.getV0Tools(),
+    PVRefitter               = BPHY13_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName       = "BPHY13RefittedPrimaryVertices",
     RefitPV                  = True,
     MaxPVrefit               = 10000,
@@ -136,6 +141,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 
 BPHY13_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY13_Select_FourTrack",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     HypothesisName             = "FourTracks",
     InputVtxContainerName      = "BPHY13FourTrack",
     TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
@@ -181,6 +187,7 @@ BPHY13_Revertex_2mu            = DerivationFramework__ReVertex(
     RefitPV                    = True,
     RefPVContainerName         = "BPHY13RefittedPrimaryVertices", # use existing refitted PVs
     UseMassConstraint          = True,
+    V0Tools                    = TrackingCommon.getV0Tools(),
     VertexMass                 = 3096.916,
     MassInputParticles         = [105.658, 105.658],
     TrkVertexFitterTool	       = BPHY13VertexFit,
@@ -194,6 +201,7 @@ BPHY13_Select_TwoMuon          = DerivationFramework__Select_onia2mumu(
     HypothesisName             = "TwoMuons",
     InputVtxContainerName      = "BPHY13TwoMuon",
     TrkMasses                  = [105.658, 105.658],
+    V0Tools                    = TrackingCommon.getV0Tools(),
     VtxMassHypo                = 3096.916,
     MassMin                    = 2000.,
     MassMax                    = 3600.,
@@ -207,6 +215,7 @@ BPHY13_Revertex_2trk           = DerivationFramework__ReVertex(
     InputVtxContainerName      = "BPHY13FourTrack",
     TrackIndices               = [ 2, 3 ],
     RefitPV                    = True,
+    V0Tools                    = TrackingCommon.getV0Tools(),
     RefPVContainerName         = "BPHY13RefittedPrimaryVertices", # use existing refitted PVs
     UseMassConstraint          = True,
     VertexMass                 = 3096.916,
@@ -222,6 +231,7 @@ BPHY13_Select_TwoTrack         = DerivationFramework__Select_onia2mumu(
     HypothesisName             = "TwoTracks",
     InputVtxContainerName      = "BPHY13TwoTrack",
     TrkMasses                  = [105.658, 105.658],
+    V0Tools                    = TrackingCommon.getV0Tools(),
     VtxMassHypo                = 3096.916,
     MassMin                    = 2000.,
     MassMax                    = 3600.,
@@ -236,6 +246,7 @@ BPHY13_Revertex_2muHi          = DerivationFramework__ReVertex(
     InputVtxContainerName      = "BPHY13FourTrack",
     TrackIndices               = [ 0, 1 ],
     RefitPV                    = True,
+    V0Tools                    = TrackingCommon.getV0Tools(),
     RefPVContainerName         = "BPHY13RefittedPrimaryVertices", # use existing refitted PVs
     UseMassConstraint          = True,
     VertexMass                 = 9460.30,
@@ -250,6 +261,7 @@ BPHY13_Select_TwoMuonHi        = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY13_Select_TwoMuonHi",
     HypothesisName             = "TwoMuonsHi",
     InputVtxContainerName      = "BPHY13TwoMuonHi",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658],
     VtxMassHypo                = 9460.30,
     MassMin                    = 8500.,
@@ -264,6 +276,7 @@ BPHY13_Revertex_2trkHi         = DerivationFramework__ReVertex(
     InputVtxContainerName      = "BPHY13FourTrack",
     TrackIndices               = [ 2, 3 ],
     RefitPV                    = True,
+    V0Tools                    = TrackingCommon.getV0Tools(),
     RefPVContainerName         = "BPHY13RefittedPrimaryVertices", # use existing refitted PVs
     UseMassConstraint          = True,
     VertexMass                 = 9460.30,
@@ -277,6 +290,7 @@ print(BPHY13_Revertex_2trkHi)
 BPHY13_Select_TwoTrackHi       = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY13_Select_TwoTrackHi",
     HypothesisName             = "TwoTracksHi",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     InputVtxContainerName      = "BPHY13TwoTrackHi",
     TrkMasses                  = [105.658, 105.658],
     VtxMassHypo                = 9460.30,
@@ -293,6 +307,7 @@ BPHY13_Revertex_2muMed         = DerivationFramework__ReVertex(
     InputVtxContainerName      = "BPHY13FourTrack",
     TrackIndices               = [ 0, 1 ],
     RefitPV                    = True,
+    V0Tools                    = TrackingCommon.getV0Tools(),
     RefPVContainerName         = "BPHY13RefittedPrimaryVertices", # use existing refitted PVs
     UseMassConstraint          = True,
     VertexMass                 = 3686.10,
@@ -307,6 +322,7 @@ BPHY13_Select_TwoMuonMed       = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY13_Select_TwoMuonMed",
     HypothesisName             = "TwoMuonsMed",
     InputVtxContainerName      = "BPHY13TwoMuonMed",
+    V0Tools                     = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658],
     VtxMassHypo                = 3686.10,
     MassMin                    = 3300.0,
@@ -321,6 +337,7 @@ BPHY13_Revertex_2trkMed        = DerivationFramework__ReVertex(
     InputVtxContainerName      = "BPHY13FourTrack",
     TrackIndices               = [ 2, 3 ],
     RefitPV                    = True,
+    V0Tools                    = TrackingCommon.getV0Tools(),
     RefPVContainerName         = "BPHY13RefittedPrimaryVertices", # use existing refitted PVs
     UseMassConstraint          = True,
     VertexMass                 = 3686.10,
@@ -335,6 +352,7 @@ BPHY13_Select_TwoTrackMed      = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY13_Select_TwoTrackMed",
     HypothesisName             = "TwoTracksMed",
     InputVtxContainerName      = "BPHY13TwoTrackMed",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658],
     VtxMassHypo                = 3686.10,
     MassMin                    = 3300.,
@@ -398,13 +416,6 @@ streamName = derivationFlags.WriteDAOD_BPHY13Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY13Stream )
 BPHY13Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY13Stream.AcceptAlgs(["BPHY13Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="BPHY13ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
 # Slimming 

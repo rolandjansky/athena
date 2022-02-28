@@ -34,34 +34,34 @@ public:
 private:
 ///////////////////////////////////
 
-   void DumpASZT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpISZT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpALMN( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpALIN( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWDED( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpASMP( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpATLN( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpACUT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpATYP( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
+   void DumpASZT( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpISZT( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpALMN( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpALIN( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWDED( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpASMP( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpATLN( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpACUT( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpATYP( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
+   void DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd , int& Kwarn, int& Kchck );
 
-   void DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd ,int& Kwarn, int& Kchck );
+   void DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd ,int& Kwarn, int& Kchck );
 
-   void DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd ,int& Kwarn, int& Kchck );
+   void DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc , const std::string& TagAdd ,int& Kwarn, int& Kchck );
 
 
    int m_SwitchOff     ; //!< Control execution

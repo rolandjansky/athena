@@ -153,7 +153,7 @@ namespace Muon {
         }
 
         /** @brief performance match and return result */
-        virtual SegmentMatchResult matchResult(const MuonSegment& seg1, const MuonSegment& seg2) const = 0;
+        virtual SegmentMatchResult matchResult(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const = 0;
 
         /** @brief calculate the position along a tube direction of the first segment
             that results in the smallest position residual in the precision plane of the second segment given

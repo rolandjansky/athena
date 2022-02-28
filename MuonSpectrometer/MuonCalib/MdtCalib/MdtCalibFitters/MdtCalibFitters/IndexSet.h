@@ -48,7 +48,7 @@ namespace MuonCalib {
         // default initiailization method; the number of indices is set to 0
         void init(const unsigned int& r_nb_indices);
         // initialization method; the number of indices is set to r_nb_indices
-        void init(const unsigned int& r_nb_indices, const std::vector<int> r_index);
+        void init(const unsigned int& r_nb_indices, const std::vector<int>& r_index);
         // initialization method; the number of indices is set to
         // r_nb_indices, the vector r_index contains the indices
 

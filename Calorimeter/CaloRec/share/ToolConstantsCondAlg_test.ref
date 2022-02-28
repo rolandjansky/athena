@@ -35,7 +35,7 @@ CondInputLoader                                      INFO created CondCont<CondA
 ApplicationMgr                                       INFO Application Manager Started successfully
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 284500    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #0, run #284500 0 events processed so far  <<<===
-IOVDbFolder                                          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARCellCorrOflDeadOTX-000-00 for folder /LAR/CellCorrOfl/deadOTX
+IOVDbFolder                                          INFO HVS tag OFLCOND-MC16-SDR-RUN2-09 resolved to LARCellCorrOflDeadOTX-000-00 for folder /LAR/CellCorrOfl/deadOTX
 dumper1                                              INFO dumper.energyCalibrationTypes = [0, 0, 0, -1]
 dumper.energyCalibrations = [2, 0.9959, 0.07493, -0.1599, 2, 2, 0.9962, 0.04997, -0.1839, 2, 2, 0.9984, 0.0143, -0.9648, 2]
 dumper.etaCalibrationSizes = [14, 14, 13, 0]

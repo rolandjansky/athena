@@ -4,31 +4,13 @@
 # BUT using the new runIII jet config
 
 
-from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4EMTopo, AntiKt4Truth
-from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
-from JetRecConfig.JetRecConfig import getJetDefAlgs
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
+from JetRecConfig.JetRecConfig import getJetDefAlgs, reOrderAlgs
 
 from JetRecConfig.StandardJetConstits import stdConstitDic
 
-from JetCalibTools.JetCalibToolsConfig import pflowcontexts, topocontexts
-
-def reOrderAlgs(algs):
-    """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
-    This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
-    """
-    evtDensityAlgs = [ (i,alg) for (i,alg) in enumerate(algs) if alg.getType() == 'EventDensityAthAlg' ]
-    pjAlgs = [ (i,alg) for (i,alg) in enumerate(algs) if alg.getType() == 'PseudoJetAlgorithm' ]
-    pairsToswap = []
-    for i,edalg in evtDensityAlgs:
-        edInput = edalg.EventDensityTool.InputContainer
-        for j,pjalg in pjAlgs:
-            if j<i: continue 
-            if edInput == str(pjalg.OutputContainer):
-                pairsToswap.append( (i,j) )
-    for (i,j) in pairsToswap:
-        algs[i], algs[j] = algs[j], algs[i]
-    return algs
 
 ##
 # Temporary hack : JetConstituentModSequence for EMPFlow seems to be scheduled
@@ -39,7 +21,7 @@ stdConstitDic.EMPFlow.inputname = stdConstitDic.EMPFlow.containername
 
 
 # the Standard list of jets to run :
-jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow  , AntiKt4LCTopo, AntiKt4Truth , AntiKt10LCTopo]
+jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo_noVR]
 
 # we'll remember the EventDensity collections we create.
 evtDensities = []

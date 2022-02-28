@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SGComps )
@@ -32,4 +32,5 @@ atlas_add_test( SGFolder_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( AddressRemappingConfig_test
-   SCRIPT test/AddressRemappingConfig_test.py )
+   SCRIPT test/AddressRemappingConfig_test.py
+   LOG_SELECT_PATTERN "^AddressRemappingSvc" )

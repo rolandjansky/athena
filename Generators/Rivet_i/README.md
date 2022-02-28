@@ -290,6 +290,11 @@ The routine will have familiar `init()`, `analyze()` and `finalize()` methods.
 Check out the [Rivet wiki](https://gitlab.com/hepcedar/rivet/-/blob/master/doc/tutorials) 
 for more information.
 
+Note: To enable the Rivet commands for merging and plotting to work with your new local routine,
+you will have to set an enviroment variable as e.g.:
+```
+export RIVET_ANALYSIS_PATH=$PWD
+```
 
 ## How to compile
 
@@ -571,4 +576,17 @@ yodascale -c '.* 10x' file.yoda
 ````
 
 will create a `file-scaled.yoda`, where every histogram will be scaled by a factor of 10.
+
+### "Can I run over (D)AOD files?"
+
+Yes! AODs and TRUTH1 DAOD can be read in and passed onto Rivet (Unfortunately TRUTH3 DAOD cannot, because the full truth record is not 
+retained for TRUTH3).  For AOD files specifically, some of the events may be missing beam protons, causing Rivet to complain about a beam 
+mismatch. If you encounter this problem, you can ask Rivet_i to add some dummy protons to the reconstructed GenEvent by setting the 
+following flag in the JobOptions:
+```
+rivet.AddMissingBeamParticles = True 
+```
+
+this will inject the necessary protons in the targeted events (those missing beam protons) with the appropriate centre of mass energy.
+
 

@@ -23,7 +23,7 @@ TGCCablingDbTool::TGCCablingDbTool(const std::string& type,
 				   const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_DataLocation ("keyTGC"),
-    m_ASD2PP_DIFF_12(0)
+    m_ASD2PP_DIFF_12(nullptr)
 {
   declareInterface<ITGCCablingDbTool>(this);
   
@@ -40,7 +40,7 @@ StatusCode TGCCablingDbTool::updateAddress(StoreID::type /*storeID*/,
                                            SG::TransientAddress* tad,
                                            const EventContext& /*ctx*/) {
   CLID clid = tad->clID();
-  std::string key = tad->name();
+  const std::string& key = tad->name();
   // Need to add the CLID comparison 
   if(/* ==clid && */m_DataLocation==key) {
     ATH_MSG_DEBUG("updateAddress OK, clid = " << clid << " key = " << key);
@@ -55,7 +55,7 @@ StatusCode TGCCablingDbTool::initialize() {
   ATH_MSG_INFO("initialize");
   
   // Get interface to IOVSvc
-  m_IOVSvc = 0;
+  m_IOVSvc = nullptr;
   StatusCode sc = service("IOVSvc", m_IOVSvc, true);
   if(sc.isFailure() || !m_IOVSvc) {
     ATH_MSG_FATAL("Unable to get the IOVSvc");
@@ -77,7 +77,7 @@ StatusCode TGCCablingDbTool::finalize() {
 
   // Database is deleted if exists
   delete m_ASD2PP_DIFF_12; 
-  m_ASD2PP_DIFF_12 = 0;
+  m_ASD2PP_DIFF_12 = nullptr;
 
   return StatusCode::SUCCESS;
 }
@@ -91,7 +91,7 @@ std::vector<std::string>* TGCCablingDbTool::giveASD2PP_DIFF_12() {
 
   // If no database found, null pointer is returned. 
   if(!m_ASD2PP_DIFF_12) {
-    return 0;
+    return nullptr;
   }
 
   // Copy the database
@@ -155,7 +155,7 @@ StatusCode TGCCablingDbTool::loadASD2PP_DIFF_12(IOVSVC_CALLBACK_ARGS_P(/*I*/, /*
     // string_ASD2PP_DIFF_12 has multiple newlines and will be separated into multiple lines (strings)
     unsigned int length = string_ASD2PP_DIFF_12.length();
     while(length>0) {
-      unsigned int newLine = string_ASD2PP_DIFF_12.find("\n");
+      unsigned int newLine = string_ASD2PP_DIFF_12.find('\n');
       if(length>newLine) {
 	m_ASD2PP_DIFF_12->push_back(string_ASD2PP_DIFF_12.substr(0, newLine));
 	string_ASD2PP_DIFF_12.erase(0, newLine+1); 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackSummaryHelperTool.h"
@@ -122,8 +122,8 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&
         ATH_MSG_DEBUG("TrackSummary already has detailed muon track summary, not adding a new one");
         return;
     }
-
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
     const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
     if (MuonDetMgr == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -378,7 +378,8 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent(Trk::MuonTrackSummary::
 
     if (m_idHelperSvc->issTgc(chamberHitSummary.chamberId()) || m_idHelperSvc->isMM(chamberHitSummary.chamberId())) { return; }
 
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
     const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
     if (!MuonDetMgr) {
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -424,6 +425,7 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent(Trk::MuonTrackSummary::
 
 void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary,
                                                          const Trk::TrackParameters& pars) const {
+    const EventContext& ctx =  Gaudi::Hive::currentContext();
     bool isStraightLine = false;
     if (pars.parameters().rows() < 5) {  // no momentum parameter given
         isStraightLine = true;
@@ -441,7 +443,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
             }
         }
     }
-    const Trk::IExtrapolator* extrapolator = 0;
+    const Trk::IExtrapolator* extrapolator = nullptr;
     if (!isStraightLine && !m_extrapolator.empty()) {
         extrapolator = &*(m_extrapolator);
     } else if (isStraightLine && !m_slExtrapolator.empty()) {
@@ -480,11 +482,14 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
 
         const Trk::Surface& surf = mdtPrd.detectorElement()->surface(id);
 
-        const Trk::TrackParameters* exPars = 0;
+        const Trk::TrackParameters* exPars = nullptr;
         if (pars.associatedSurface() == surf) {
             exPars = &pars;
         } else {
-            exPars = extrapolator->extrapolateDirectly(pars, surf, Trk::anyDirection, false, Trk::muon);
+            exPars = extrapolator->extrapolateDirectly(ctx, 
+                                                       pars, 
+                                                       surf, 
+                                                       Trk::anyDirection, false, Trk::muon).release();
             if (!exPars) {
                 if (isStraightLine) {
                     ATH_MSG_DEBUG(" Straight line propagation to prd " << m_idHelperSvc->toString(id) << " failed");
@@ -543,7 +548,8 @@ bool Muon::MuonTrackSummaryHelperTool::isFirstProjection(const Identifier& id) c
 }
 
 const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdCollection(const Identifier& chId) const {
-    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey);
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey, ctx);
 
     if (!mdtPrdContainer.isValid()) {
         ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_mdtKey);

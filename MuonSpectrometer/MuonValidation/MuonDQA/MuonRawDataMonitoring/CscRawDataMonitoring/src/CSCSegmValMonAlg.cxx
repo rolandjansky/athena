@@ -230,11 +230,11 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
             std::string clus_stat = Muon::toString(status);
             bool clus_status = ( (int(status)==Muon::CscStatusUnspoiled) || (int(status)==Muon::CscStatusSplitUnspoiled) || (int(status)==Muon::CscStatusSimple)) ? true : false;
             bool clus_stat_eff = ( (int(status) >= 0 && int(status) < 8 ) || (int(status) > 8 && int(status) < 18) ) ? true : false;
-
+            
             // get cluster 
             const Muon::CscPrepData* theClus = clust_rot->prepRawData();
             float clus_qsum = 0, clus_time = -1.;
-
+            unsigned int clus_noStrips=0;
             if(theClus){
               clus_qsum  = theClus->charge() * clus_kiloele;
               clus_time = theClus->time();
@@ -246,11 +246,11 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
                 if(clus_stationEta == 1) phi_clus_count[0][0]++;
                 else phi_clus_count[1][0]++;
               }
+              // get no. of strips per cluster
+              clus_noStrips = theClus->rdoList().size();
             }
 
-            // get no. of strips per cluster
-            unsigned int clus_noStrips = theClus->rdoList().size();
-
+          
             //need at least three strips in an eta-cluster
             bool clus_eta_status = clus_status && ( clus_noStrips > 2 ) && (clus_measuresPhi == 0);
             bool clus_eta_eff = clus_stat_eff && ( clus_noStrips > 2 ) && (clus_measuresPhi == 0);

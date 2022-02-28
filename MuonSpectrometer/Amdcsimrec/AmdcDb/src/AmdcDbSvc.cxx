@@ -18,7 +18,7 @@ IRDBRecordset_ptr AmdcDbSvc::getRecordset(const std::string& NameOfTheSet) const
   return it!=m_mapOfIRDBRecordset.end()?it->second:m_emptyRecordset;
 }
 
-void AmdcDbSvc::addIRDBRecordset(std::string NameOfTheSet
+void AmdcDbSvc::addIRDBRecordset(const std::string& NameOfTheSet
 				 , IRDBRecordset* pIRDBRecordset)
 {
   m_mapOfIRDBRecordset.emplace(NameOfTheSet,IRDBRecordset_ptr(pIRDBRecordset));

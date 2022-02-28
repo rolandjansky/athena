@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopConfiguration/ConfigurationSettings.h"
 
@@ -60,6 +60,8 @@ namespace top {
     registerParameter("ElectronIDLoose",
                       "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH", "MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("Electrond0Sig", "Electron d0 significance cut for object selection. Default 5", "5.");
+    registerParameter("Electrondeltaz0", "Electron delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
     registerParameter("ElectronEfficiencySystematicModel",
@@ -109,6 +111,8 @@ namespace top {
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("Muond0Sig", "Muon d0 significance cut for object selection. Default 3", "3.");
+    registerParameter("Muondeltaz0", "Muon delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("MuonQuality",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
@@ -292,35 +296,23 @@ namespace top {
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauEtaRegions",
-					            "Eta regions used for both tight and loose taus."
-					            "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
-					            "[0., 1.37, 1.52, 2.5]");
-    registerParameter("TauJetIDWP",
-                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
-                      "Default RNNMedium.",
-                      "RNNMedium");
-    registerParameter("TauJetIDWPLoose",
-                      "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default RNNLoose.",
-                      "RNNLoose");
-    registerParameter("TauEleBDTWP",
-                      "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
-                      "Default Loose.",
-                      "Loose");
-    registerParameter("TauEleBDTWPLoose",
-                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
-                      "Default Loose.",
-                      "Loose");
-    registerParameter("TauMuOLR",
-                      "Apply tau-electron overlap removal (True/False)."
-                      "Default True",
-                      "True",
-                      {"True","False"});
-    registerParameter("TauMuOLRLoose",
-                      "Apply loose tau-electron overlap removal (True/False)."
-                      "Default True",
-                      "True",
-                      {"True", "False"});
+	  "Eta regions used for both tight and loose taus."
+	  "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
+	  "[0., 1.37, 1.52, 2.5]");
+
+    registerParameter("TauJetIDWP", "Tau jet ID WP.", "RNNMedium",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+    registerParameter("TauJetIDWPLoose", "Loose Tau jet ID WP.", "RNNLoose",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+
+    registerParameter("TauEleIDWP", "Tau electron ID WP.", "RNNLoose",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+    registerParameter("TauEleIDWPLoose", "Loose Tau electron ID WP.", "RNNLoose",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+
+    registerParameter("TauMuOLR", "Apply tau-electron overlap removal.", "True", {"True","False"});
+    registerParameter("TauMuOLRLoose", "Apply loose tau-electron overlap removal.", "True", {"True", "False"});
+
     registerParameter("TauJetConfigFile",
                       "Config file to configure tau selection. "
                       "If anything other than 'Default'"
@@ -336,12 +328,6 @@ namespace top {
     registerParameter("ApplyTauMVATES",
                       "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
                       "True");
-    registerParameter("TauSFDoRNNID",
-                      "Save SF for RNN tau ID True/False",
-                      "True");
-    registerParameter("TauSFDoBDTID",
-                      "Save SF for BDT tau ID True/False",
-                      "False");
 
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 

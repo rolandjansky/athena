@@ -44,7 +44,7 @@ if args.localgeo:
   ConfigFlags.GeoModel.useLocalGeometry = True
   
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
-detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip']
+detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip', 'HGTD']
 detectors.append('Bpipe')  # always run with beam pipe
 setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
@@ -52,7 +52,6 @@ ConfigFlags.GeoModel.AtlasVersion = args.geometrytag
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.TrackingGeometry.MaterialSource = "COOL"
-ConfigFlags.Beam.Type =''
 
 ConfigFlags.Detector.GeometryCalo  = False
 ConfigFlags.Detector.GeometryMuon  = False
@@ -80,8 +79,8 @@ if args.verboseStoreGate:
 log.debug('Dumping of ConfigFlags now.')
 ConfigFlags.dump()
 
-from TrkDetDescrAlgs.TrkDetDescrAlgsConfig import ITkMaterialValidationCfg
-cfg.merge(ITkMaterialValidationCfg(ConfigFlags))
+from TrkDetDescrAlgs.TrkDetDescrAlgsConfig import MaterialValidationCfg
+cfg.merge(MaterialValidationCfg(ConfigFlags))
   
 cfg.printConfig(withDetails = True, summariseProps = True)
 

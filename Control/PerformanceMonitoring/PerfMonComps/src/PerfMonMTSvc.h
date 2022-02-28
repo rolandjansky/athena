@@ -138,6 +138,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   Gaudi::Property<std::string> m_checkPointType{
       this, "checkPointType", "Arithmetic",
       "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)."};
+  /// Lower limit (in number of events) for the memory fit
+  Gaudi::Property<uint64_t> m_memFitLowerLimit{
+      this, "memFitLowerLimit", 25,
+      "Lower limit (in number of events) for the memory fit."};
   /// Frequency of event level monitoring
   Gaudi::Property<uint64_t> m_checkPointFactor{
       this, "checkPointFactor", 50,

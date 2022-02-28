@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DriftCircleContainerCnv.h"
@@ -35,7 +35,7 @@ StatusCode TRT_DriftCircleContainerCnv::initialize() {
    }
    
    // get DetectorStore service
-   StoreGateSvc *detStore(0);
+   StoreGateSvc *detStore(nullptr);
    if (service("DetectorStore", detStore).isFailure()) {
      ATH_MSG_FATAL("DetectorStore service not found !");
      return StatusCode::FAILURE;
@@ -44,7 +44,7 @@ StatusCode TRT_DriftCircleContainerCnv::initialize() {
    }
    
    // Get the trt helper from the detector store
-   const TRT_ID* idhelper(0);
+   const TRT_ID* idhelper(nullptr);
    if (detStore->retrieve(idhelper, "TRT_ID").isFailure()) {
      ATH_MSG_FATAL("Could not get TRT_ID helper !");
      return StatusCode::FAILURE;
@@ -70,7 +70,7 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv::createTransient() 
   static const pool::Guid   p1_guid("42B48D79-AF4E-4D45-AAA9-A2BA5A033534"); // with TRT_DriftCircle_tlp1
   static const pool::Guid   p2_guid("36195EDE-941C-424B-81A1-E04C867C35D8"); // with TRT_DriftCircle_p2
   ATH_MSG_DEBUG("createTransient(): main converter");
-  InDet::TRT_DriftCircleContainer* p_collection(0);
+  InDet::TRT_DriftCircleContainer* p_collection(nullptr);
   if( compareClassGuid(p2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");  
     std::unique_ptr< InDet::TRT_DriftCircleContainer_p2 >   col_vect( poolReadObject< InDet::TRT_DriftCircleContainer_p2 >() );

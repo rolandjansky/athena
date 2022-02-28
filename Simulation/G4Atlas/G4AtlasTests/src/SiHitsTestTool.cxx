@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiHitsTestTool.h"
@@ -89,8 +89,6 @@ StatusCode SiHitsTestTool::initialize()
 
 StatusCode SiHitsTestTool::processEvent() {
 
-  double etot=0.;
-
   const DataHandle<SiHitCollection> p_collection;
   if (evtStore()->retrieve(p_collection,m_collection).isSuccess())  {
     for (SiHitConstIterator i_hit = p_collection->begin(); 
@@ -104,7 +102,6 @@ StatusCode SiHitsTestTool::processEvent() {
       m_indetBarrel->Fill(u.x(),u.y());
       m_indetLongView->Fill(u.z(),u.perp());
 
-      etot+=i_hit->energyLoss();
       m_hits_time->Fill(i_hit->meanTime(),i_hit->energyLoss());
       m_hits_edep->Fill(i_hit->energyLoss());
       m_hits_log_edep->Fill( log(i_hit->energyLoss()) );

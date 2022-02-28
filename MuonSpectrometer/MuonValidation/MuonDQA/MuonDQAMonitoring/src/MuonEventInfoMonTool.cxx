@@ -30,8 +30,8 @@ namespace MuonDQA {
   // ********************************************************************* 
 
   MuonEventInfoMonTool::MuonEventInfoMonTool( const std::string & type, const std::string & name, const IInterface* parent )
-    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL),
-      m_hTriggerType(NULL)
+    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(nullptr),
+      m_hTriggerType(nullptr)
   {
     /*---------------------------------------------------------*/ 
     declareProperty("LastEvent",     m_lastEvent=0);
@@ -156,7 +156,7 @@ namespace MuonDQA {
     MuonDQAeventInfo.setOffset( eventInfo->event_ID()->time_stamp()/(24*3600));
 
     // protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
-    if(eventInfo->trigger_info() != NULL) {
+    if(eventInfo->trigger_info() != nullptr) {
       MuonDQAeventInfo.setTrigType(eventInfo->trigger_info()->level1TriggerType());
     }
     else {
@@ -178,7 +178,7 @@ namespace MuonDQA {
     //uint m_l1Trig = 0;
    
     // protection against simulated cosmics
-    if(trig != NULL) {
+    if(trig != nullptr) {
       //bitset<8> m_l1Trig = trig->level1TriggerType();
       uint l1Trig = (uint) ( trig->level1TriggerType() );
       m_hTriggerType->Fill(l1Trig);

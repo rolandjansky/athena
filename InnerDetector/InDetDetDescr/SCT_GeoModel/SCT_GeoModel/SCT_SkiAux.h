@@ -60,11 +60,11 @@ private:
  
   // Basic/derived  parameters
   double m_innerRadius;
-  double m_outerRadius;
-  double m_length;
+  double m_outerRadius = 0.0;
+  double m_length = 0.0;
   double m_bracketPhiOffset;
   double m_powerTapePhiOffset;
-  double m_sectorStartAngle;
+  double m_sectorStartAngle = 0.0;
   double m_sectorAngle;
  
   // Child detector elements

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTTriggerType.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigConfL1Data/DiffStruct.h"
 #include "TrigConfL1Data/HelperFunctions.h"
 
@@ -43,7 +43,7 @@ HLTChain::HLTChain( const string& chain_name,
                     const string& level,
                     const string& lower_chain_name,
                     int lower_chain_counter,
-                    const vector<HLTSignature*>& signatureList ) :
+                    vector<HLTSignature*>&& signatureList ) :
    TrigConfData(chain_name),
    m_chain_counter      ( chain_counter),
    m_chain_version      ( chain_version),
@@ -51,7 +51,7 @@ HLTChain::HLTChain( const string& chain_name,
    m_lower_chain_name   ( lower_chain_name ),
    m_lower_chain_counter( lower_chain_counter ),
    m_EB_after_step      (-1 ),
-   m_HLTSignatureList   ( signatureList )
+   m_HLTSignatureList   ( std::move(signatureList) )
 {
    setName(chain_name);
    setVersion(chain_version);
@@ -88,9 +88,8 @@ HLTChain::HLTChain( const HLTChain& o ) :
    for(HLTStreamTag* tt : o.m_streams)
       m_streams.push_back(new HLTStreamTag(*tt));
 
-   typedef boost::unordered_map<std::string, HLTStreamTag*>::value_type value_type;
-   for(value_type strstream : o.m_streams_map)
-      m_streams_map.insert(value_type(strstream.first, new HLTStreamTag(*strstream.second) ) );
+   for(const auto& strstream : o.m_streams_map)
+      m_streams_map.emplace(strstream.first, new HLTStreamTag(*strstream.second) ) ;
 }
 
 
@@ -158,7 +157,7 @@ TrigConf::HLTChain::set_signatureList(const vector<HLTSignature*>& sigList ) {
 
 unsigned int
 HLTChain::lastStep() const {
-   if(m_HLTSignatureList.size()==0) 
+   if(m_HLTSignatureList.empty()) 
       return 0;
    return m_HLTSignatureList[m_HLTSignatureList.size()-1]->step();
 }
@@ -252,7 +251,7 @@ TrigConf::HLTChain::clearStreams() {
 
 std::pair<bool, float>
 TrigConf::HLTChain::stream_prescale(const std::string& streamName) const { 
-   boost::unordered_map<std::string, HLTStreamTag*>::const_iterator i = m_streams_map.find(streamName);
+   std::unordered_map<std::string, HLTStreamTag*>::const_iterator i = m_streams_map.find(streamName);
    bool found = (i!=m_streams_map.cend());
    float ps = found ? i->second->prescale() : 0;
    return std::make_pair(found,ps);

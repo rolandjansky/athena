@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* file contains the implementation for the AthenaSharedMemoryTool class.
@@ -17,6 +17,7 @@
 
 const std::size_t maxTokenLength = 512;
 
+namespace {
 struct ShareEventHeader {
    enum ProcessStatus { CLEARED, FILLED, LOCKED, UNLOCKED, PARTIAL, SHARED, UNKNOWN };
    ProcessStatus evtProcessStatus;
@@ -28,6 +29,7 @@ struct ShareEventHeader {
    unsigned int evtCoreStatusFlag;
    char token[maxTokenLength];
 };
+} // anonymous namespace
 
 //___________________________________________________________________________
 AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,

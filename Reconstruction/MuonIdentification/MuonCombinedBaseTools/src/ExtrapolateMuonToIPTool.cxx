@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtrapolateMuonToIPTool.h"
@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "TrkParameters/TrackParameters.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 ExtrapolateMuonToIPTool::ExtrapolateMuonToIPTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p) {
     declareInterface<Muon::IMuonTrackExtrapolationTool>(this);
@@ -62,8 +61,12 @@ std::unique_ptr<TrackCollection> ExtrapolateMuonToIPTool::extrapolate(const Trac
     return extrapolateTracks;
 }
 
-std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const EventContext& ctx) const {
-    const Trk::TrackInfo& trackInfo = track.info();
+std::unique_ptr<Trk::Track>
+ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
+                                     const EventContext& ctx) const
+{
+
+  const Trk::TrackInfo& trackInfo = track.info();
     auto particleType = trackInfo.trackProperties(Trk::TrackInfo::StraightTrack) ? Trk::nonInteracting : Trk::muon;
     const Trk::TrackParameters* closestPars = findMeasuredParametersClosestToIP(track);
     ATH_MSG_DEBUG("Extrapolating track " << m_printer->print(track) << " type " << particleType << std::endl
@@ -104,7 +107,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
     if (!ipPars) {
         // if extrapolation failed go in other direction
         propDir = (propDir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-        ipPars.reset(m_extrapolator->extrapolate(*closestPars, perigeeSurface, propDir, false, particleType));
+        ipPars = m_extrapolator->extrapolate(ctx,*closestPars, perigeeSurface, propDir, false, particleType);
 
         if (propDir == Trk::alongMomentum) {
             ATH_MSG_DEBUG(" retrying opposite momentum extrapolating "
@@ -140,9 +143,9 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
 
     // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
     const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
-    auto trackStateOnSurfaces = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
     unsigned int newSize = oldTSOT->size() + 1;
-    trackStateOnSurfaces->reserve(newSize);
+    trackStateOnSurfaces.reserve(newSize);
 
     Amg::Vector3D perDir = ipPerigee->momentum().unit();
 
@@ -159,27 +162,24 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces->push_back(trackStateOnSurfaces->allocate(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
+                trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
             }
         }
 
         // copy remainging TSOS
-        // We only support containers containing exactly TSOS.
-        if (strcmp (typeid(*tsit).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-        trackStateOnSurfaces->push_back(trackStateOnSurfaces->allocate (*tsit));
+        trackStateOnSurfaces.push_back(tsit->clone());
     }
 
     if (ipPerigee) {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Perigee);
-        trackStateOnSurfaces->push_back(trackStateOnSurfaces->allocate(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
+        trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
     }
     ATH_MSG_DEBUG(" creating new track ");
 
     Trk::TrackInfo info(track.info().trackFitter(), track.info().particleHypothesis());
     info.setPatternRecognitionInfo(Trk::TrackInfo::MuidStandAlone);
     // create new track
-    trackStateOnSurfaces->elt_allocator().protect();
     std::unique_ptr<Trk::Track> extrapolateTrack = std::make_unique<Trk::Track>(
       info,
       std::move(trackStateOnSurfaces),
@@ -227,7 +227,7 @@ std::unique_ptr<const Trk::Perigee> ExtrapolateMuonToIPTool::createPerigee(const
     std::unique_ptr<const Trk::Perigee> perigee;
     if (m_muonExtrapolator.empty()) { return perigee; }
     Trk::PerigeeSurface persurf(pars.position());
-    const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(ctx, pars, persurf);
+    const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(ctx, pars, persurf).release();
     const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
     if (!pp) {
         ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");

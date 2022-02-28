@@ -95,6 +95,11 @@ namespace LVL1MUCTPIPHASE1
       
       L1TopoLUTKey key = {side, subsystem, sectorID, roi};
       L1TopoCoordinates value = {eta, phi, eta_min, eta_max, phi_min, phi_max, eta_index, phi_index};
+      //crude crude patch by Patrick Czodrowski for the inverse eta coordinates https://its.cern.ch/jira/browse/ATR-24376                                                                                                                                                                                    
+      if ( (side == 0 && eta > 0) || (side == 1 && eta < 0) ) {
+	value = {-eta, phi, -eta_min, -eta_max, phi_min, phi_max, eta_index, phi_index};
+      }
+
       if (m_encoding.find(key) != m_encoding.end())
       {
 	m_errors.push_back("Duplicate key found in L1TopoLUT: "+key.info());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -526,7 +526,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClus
   float max_pt = 0.;
   for (const auto cl: *clusters) {
     if (cl == omitCluster) continue;
-    double deltaR = std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
+    double deltaR = std::sqrt(std::pow(std::abs(cl->phi() - omitCluster->phi()),2) + std::pow(std::abs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
     if (cl->pt() > max_pt) {
@@ -538,7 +538,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClus
 }
 
 const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonContainer* /*photons*/, const xAOD::ElectronContainer* electrons, const xAOD::CaloCluster* omitCluster) const {
-  const xAOD::CaloCluster* leading_emcluster = 0;
+  const xAOD::CaloCluster* leading_emcluster = nullptr;
   bool LHSel;
   float max_pt = 0.;
   for (const auto em: *electrons) {
@@ -562,13 +562,13 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
 }
 
 const xAOD::TrackParticle* IDPerfMonWenu::electronTrackMatch(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta, double dPhi) const {
-  const xAOD::TrackParticle* matched_track = 0;
+  const xAOD::TrackParticle* matched_track = nullptr;
   double min_dR = 1.0e+20;
   for (const auto track: *tracks) {
     double deta = cluster->eta()-track->eta();
     double dphi = cluster->phi()-track->phi();
     double dr = std::sqrt(deta*deta + dphi*dphi);
-    if (dr < min_dR && std::fabs(deta) < dEta && std::fabs(dphi) < dPhi) {
+    if (dr < min_dR && std::abs(deta) < dEta && std::abs(dphi) < dPhi) {
       min_dR = dr;
       matched_track = track;
     }
@@ -577,22 +577,22 @@ const xAOD::TrackParticle* IDPerfMonWenu::electronTrackMatch(const xAOD::TrackPa
 }
 
 double IDPerfMonWenu::electronTrackMatchEta(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta) const {
-  const xAOD::TrackParticle* matched_track = 0;
+  const xAOD::TrackParticle* matched_track = nullptr;
   double min_dEta = 1.0e+20;
   for (const auto track: *tracks) {
-    double deta = std::fabs(cluster->eta()-track->eta());
+    double deta = std::abs(cluster->eta()-track->eta());
     if (deta < min_dEta && deta < dEta) {
       min_dEta = deta;
       matched_track = track;
     }
   }
   double dPhi = 1.0e+20;
-  if (matched_track != 0) dPhi = signedDeltaPhi(cluster->phi(),matched_track->phi());
+  if (matched_track != nullptr) dPhi = signedDeltaPhi(cluster->phi(),matched_track->phi());
   return dPhi;
 }
 
 double IDPerfMonWenu::electronTrackMatchPhi(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dPhi) const {
-  const xAOD::TrackParticle* matched_track = 0;
+  const xAOD::TrackParticle* matched_track = nullptr;
   double min_dPhi = 1.0e+20;
   for (const auto track : *tracks) {
     double dphi = std::abs(signedDeltaPhi(cluster->phi(),track->phi()));
@@ -602,7 +602,7 @@ double IDPerfMonWenu::electronTrackMatchPhi(const xAOD::TrackParticleContainer* 
     }
   }
   double dEta = 1.0e+20;
-  if (matched_track != 0) dEta = cluster->eta()-matched_track->eta();
+  if (matched_track != nullptr) dEta = cluster->eta()-matched_track->eta();
   return dEta;
 
 }
@@ -613,7 +613,7 @@ int IDPerfMonWenu::isWenu(const xAOD::CaloCluster* em, const xAOD::CaloCluster* 
   if(met/Gaudi::Units::GeV > 20.) --selected; // was at 0 for some reason?
   if(!m_rejectSecondCluster) return selected;
   // else check 2nd EM cluster veto
-  if(em2 != 0){
+  if(em2 != nullptr){
     if(em2->pt()/Gaudi::Units::GeV > 25.){
       ATH_MSG_DEBUG("Event rejected due to second EM cluster w/ pT > 25 GeV");
       selected++;
@@ -623,7 +623,7 @@ int IDPerfMonWenu::isWenu(const xAOD::CaloCluster* em, const xAOD::CaloCluster* 
 }
 
 double IDPerfMonWenu::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloCluster* EM2) const {
-  if (EM1 == 0 || EM2 == 0) return -99.;
+  if (EM1 == nullptr || EM2 == nullptr) return -99.;
   double invmass = 0.;
   if (EM1->pt() != 0 && EM2->pt() != 0.) {
     TLorentzVector particle1;
@@ -636,7 +636,7 @@ double IDPerfMonWenu::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloClus
 }
 
 double IDPerfMonWenu::InvMass(const xAOD::TrackParticle* trk1, const xAOD::TrackParticle* trk2) const {
-  if (trk1 == 0 || trk2 == 0) return -99.;
+  if (trk1 == nullptr || trk2 == nullptr) return -99.;
   double invmass = 0.;
   if (trk1->pt() != 0 && trk2->pt() != 0.) {
     TLorentzVector particle1;
@@ -649,7 +649,7 @@ double IDPerfMonWenu::InvMass(const xAOD::TrackParticle* trk1, const xAOD::Track
 }
 
 double IDPerfMonWenu::TransMass(const xAOD::CaloCluster* EM, const xAOD::MissingET* met) const {
-  if (EM == 0 || met == 0) return -99.;
+  if (EM == nullptr || met == nullptr) return -99.;
   double transmass = 0.;
   float dphi = signedDeltaPhi(EM->phi(),met->phi());
   transmass = std::sqrt(2.*EM->et()*met->met()*(1.-std::cos(dphi)));
@@ -658,7 +658,7 @@ double IDPerfMonWenu::TransMass(const xAOD::CaloCluster* EM, const xAOD::Missing
 }
 
 double IDPerfMonWenu::TransMass(const xAOD::TrackParticle* track, const xAOD::MissingET* met) const {
-  if (track == 0 || met == 0) return -99.;
+  if (track == nullptr || met == nullptr) return -99.;
   double transmass = 0.;
   float dphi = signedDeltaPhi(track->phi(),met->phi());
   transmass = std::sqrt(2.*(track->p4().Et()/Gaudi::Units::GeV)*(met->met()/Gaudi::Units::GeV)*(1.-std::cos(dphi)));
@@ -667,10 +667,10 @@ double IDPerfMonWenu::TransMass(const xAOD::TrackParticle* track, const xAOD::Mi
 
 double IDPerfMonWenu::deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track) const {
   double dr =-999.;
-  if (cluster == 0 || track == 0) return dr;
+  if (cluster == nullptr || track == nullptr) return dr;
   double deta = cluster->eta()-track->eta();
   double dphi = cluster->phi()-track->phi();
-  if(std::fabs(dphi) > M_PI) dphi = 2.*M_PI-std::fabs(dphi);
+  if(std::abs(dphi) > M_PI) dphi = 2.*M_PI-std::abs(dphi);
   dr = std::sqrt(deta*deta + dphi*dphi);
   return dr;
 
@@ -689,7 +689,7 @@ double IDPerfMonWenu::signedDeltaPhi(double phi1, double phi2) const {
 
 int IDPerfMonWenu::etaRegion(double eta) {
   int region = -99;
-  if (std::fabs(eta) <= 1.) region = barrel;
+  if (std::abs(eta) <= 1.) region = barrel;
   else if (eta > 1.) region = eca; // eca
   else if (eta < -1.) region = ecc; // ecc
   return region;
@@ -708,26 +708,26 @@ void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const
     // match in eta and phi separately and make dEta and dPhi plots
     if (dEta < 1.0e+20) {
       m_Wenu_deta[region]->Fill(dEta);
-      if (std::fabs(dEta < 0.05)) { // calculate mean only for those in matching window
+      if (std::abs(dEta) < 0.05) { // calculate mean only for those in matching window
         m_Wenu_deta_vs_eta[region]->Fill(cluster->eta(),dEta);
         m_Wenu_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
-        m_Wenu_absdeta_vs_eta[region]->Fill(cluster->eta(),std::fabs(dEta));
-        m_Wenu_absdeta_vs_phi[region]->Fill(cluster->phi(),std::fabs(dEta));
+        m_Wenu_absdeta_vs_eta[region]->Fill(cluster->eta(),std::abs(dEta));
+        m_Wenu_absdeta_vs_phi[region]->Fill(cluster->phi(),std::abs(dEta));
       }
     }
     if (dPhi < 1.0e+20) {
       m_Wenu_dphi[region]->Fill(dPhi);
-      if (std::fabs(dPhi < 0.1)) { // calculate mean only for those in matching window
+      if (std::abs(dPhi) < 0.1) { // calculate mean only for those in matching window
         m_Wenu_dphi_vs_eta[region]->Fill(cluster->eta(),dPhi);
         m_Wenu_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
-        m_Wenu_absdphi_vs_eta[region]->Fill(cluster->eta(),std::fabs(dPhi));
-        m_Wenu_absdphi_vs_phi[region]->Fill(cluster->phi(),std::fabs(dPhi));
+        m_Wenu_absdphi_vs_eta[region]->Fill(cluster->eta(),std::abs(dPhi));
+        m_Wenu_absdphi_vs_phi[region]->Fill(cluster->phi(),std::abs(dPhi));
       }
     }
 
   } // end inclusive only
 
-  if (track == 0) return;
+  if (track == nullptr) return;
   // TRACK-MATCHED
   float eoverp = 0.;
   float track_p = track->pt()*std::cosh(track->eta());

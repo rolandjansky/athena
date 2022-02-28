@@ -28,7 +28,6 @@
 
 #include <TString.h>
 
-#include "xAODBTagging/ftagfloat_t.h"
 
 class TTrainedNetwork;
 class TH1;
@@ -61,9 +60,9 @@ class IJetFitterTagInfo;
 				    const std::string & jetauthor,
 				    const std::string& inputbasename,
 				    const std::string& outputbasename,
-				    ftagfloat_t jetpT,
-				    ftagfloat_t jeteta,
-				    ftagfloat_t IP3dlike=-5000) const override;
+				    float jetpT,
+				    float jeteta,
+				    float IP3dlike=-5000) const override;
     
   private:
 

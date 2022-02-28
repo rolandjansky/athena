@@ -52,12 +52,15 @@ namespace LVL1 {
     /** Clear and resize Identifier value vector */
     void clear_scIDs();
 
-    /** Add to ET of a specified cell in MeV */
+    /** Add ET in MeV, layer refers to EM or HAD (Tile) */
     void addET(float et, int layer);
 
-    /** Add to ET of a specified cell */
-    void recordMD_ET(float et);
+    /** Add to ET  */
+    // void recordMD_ET(float et);
 
+    /** Get unique ID of tower */
+    int getID() const;
+    
     /** Get coordinates of tower */
     int iEta() const;
     int iPhi() const;
@@ -83,7 +86,7 @@ namespace LVL1 {
     /** Get ET in MeV from HAD calo FLOAT VERSION */
     int getET_HAD_float() const;
 
-    void setET(float et, int layer);
+    void setET();
 
     /** Set supercell position ID **/
     void setSCID(Identifier ID);
@@ -108,7 +111,7 @@ namespace LVL1 {
 
     int m_tower_id;
     int m_posneg = 0;
-    int m_noisecut = 0; //noisecut currently not used by gFEX, leave it here in case we need it
+    int m_noisecut = -100000; //noisecut currently not used by gFEX, leave it here in case we need it (default value is < of minimum negative energy received by gFEX)
 
   };
 

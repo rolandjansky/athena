@@ -6,12 +6,22 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 from collections import OrderedDict as odict
-from functools import lru_cache
+from functools import cache
 import json
 
 log = logging.getLogger('TrigConfigSvcCfg')
 
-@lru_cache(maxsize=None)
+# To avoid accidental overrwrite of the L1 JSON menu, only allow one L1 menu generation.
+# Either via JSON conversion from Run-1&2 or native Run-3 (see ATR-24531).
+def l1menu_generated():
+    try:
+        return l1menu_generated._hasRun
+    except AttributeError:
+        l1menu_generated._hasRun = True
+        return False
+
+
+@cache
 def getTrigConfFromCool(runNumber, lumiBlock):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil 
     db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP200')
@@ -47,10 +57,14 @@ def getTrigConfFromCool(runNumber, lumiBlock):
     return d
 
 
-@lru_cache(maxsize=None)
+@cache
 def createJsonMenuFiles(run, lb):
     """Retrieve Run-2 trigger configuration from the DB and save as Run3 .JSON files"""
     import subprocess
+
+    if l1menu_generated():
+        log.error("L1 menu has already been generated")
+        return None
 
     log.info("Configuring Run-1&2 to Run-3 configuration metadata conversion")
     triggerDBKeys = getTrigConfFromCool(run, lb)
@@ -109,8 +123,8 @@ def getHLTPrescaleFolderName():
 
 def _doMenuConversion(flags):
     """Do JSON menu conversion for Run-1&2 data"""
-    return ('_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files and
-            flags.Trigger.EDMVersion in [1,2] and not flags.Input.isMC)
+    return flags.Input.Files and flags.Trigger.EDMVersion in [1, 2] and not flags.Input.isMC
+
 
 def _getMenuFileName(flags):
     """Return base name for menu files"""
@@ -132,6 +146,12 @@ def getHLTMenuFileName( flags ):
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
+# HLT Monitoring set json file name
+def getHLTMonitoringFileName( flags ):
+    hltMonitoringFileName = 'HLTMonitoring'+_getMenuFileName(flags)+'.json'
+    hltMonitoringFileName = hltMonitoringFileName.replace("_newJO","")
+    return hltMonitoringFileName
+
 # L1 Prescales set json file name
 def getL1PrescalesSetFileName( flags ):
     return 'L1PrescalesSet'+_getMenuFileName(flags)+'.json'
@@ -139,10 +159,6 @@ def getL1PrescalesSetFileName( flags ):
 # HLT Prescales set json file name
 def getHLTPrescalesSetFileName( flags ):
     return 'HLTPrescalesSet'+_getMenuFileName(flags)+'.json'
-
-# HLT Monitoring set json file name
-def getHLTMonitoringFileName( flags ):
-    return 'HLTMonitoring'+_getMenuFileName(flags)+'.json'
 
 # L1 Bunchgroups set json file name
 def getBunchGroupSetFileName( flags ):
@@ -176,6 +192,10 @@ def createL1PrescalesFileFromMenu( flags ):
 
 # L1 menu generation
 def generateL1Menu( flags ):
+    if l1menu_generated():
+        log.error("L1 menu has already been generated")
+        return
+
     log.info("Generating L1 menu %s", flags.Trigger.triggerMenuSetup)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
     l1cfg = L1MenuConfig(menuName = flags.Trigger.triggerMenuSetup)
@@ -200,19 +220,16 @@ def L1ConfigSvcCfg( flags ):
             dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             l1ConfigSvc.SMK = dbKeys['SMK']
-            l1ConfigSvc.BGSK = dbKeys['BGSK']
 
         l1ConfigSvc.InputType = "FILE"
         l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
-        l1ConfigSvc.JsonFileNameBGS  = getBunchGroupSetFileName(flags)
-        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', JsonFileName=%s and JsonFileNameBGS=%s", l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS )
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', JsonFileName=%s", l1ConfigSvc.JsonFileName )
     elif cfg["SOURCE"] == "DB":
         l1ConfigSvc.InputType = "DB"
         l1ConfigSvc.JsonFileName = ""
         l1ConfigSvc.TriggerDB = cfg["DBCONN"]
         l1ConfigSvc.SMK = cfg["SMK"]
-        l1ConfigSvc.BGSK = cfg["BGSK"]
-        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d, and BGSK %d", cfg['SMK'], cfg['BGSK'] )
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d", cfg['SMK'] )
 
     acc.addService( l1ConfigSvc, create=True )
     return acc
@@ -235,7 +252,9 @@ def HLTConfigSvcCfg( flags ):
 
         hltConfigSvc.InputType = "FILE"
         hltConfigSvc.JsonFileName = getHLTMenuFileName( flags )
-        log.info( "Configured HLTConfigSvc with InputType='FILE' and JsonFileName=%s", hltConfigSvc.JsonFileName )
+        hltConfigSvc.MonitoringJsonFileName = getHLTMonitoringFileName( flags )
+        log.info( "Configured HLTConfigSvc with InputType='FILE', JsonFileName=%s and MonitoringJsonFileName=%s",
+          hltConfigSvc.JsonFileName, hltConfigSvc.MonitoringJsonFileName )
     elif cfg["SOURCE"] == "DB":
         hltConfigSvc.InputType = "DB"
         hltConfigSvc.JsonFileName = ""
@@ -250,6 +269,7 @@ def TrigConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     acc.merge( L1ConfigSvcCfg( flags ) )
+    acc.merge( BunchGroupCondAlgCfg( flags ) )
     acc.merge( HLTConfigSvcCfg( flags ) )
     return acc
 
@@ -283,6 +303,33 @@ def L1PrescaleCondAlgCfg( flags ):
         raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["SOURCE"])
     acc.addCondAlgo(l1PrescaleCondAlg)
     return acc
+
+def BunchGroupCondAlgCfg( flags ):
+    log.info("Setting up BunchGroupCondAlg")
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    TrigConf__BunchGroupCondAlg = CompFactory.getComp("TrigConf::BunchGroupCondAlg")
+    bunchGroupCondAlg = TrigConf__BunchGroupCondAlg("TrigConf__BunchGroupCondAlg")
+
+    tc = getTrigConfigFromFlag( flags )
+    bunchGroupCondAlg.Source = tc["SOURCE"]
+    if tc["SOURCE"] == "COOL":
+        bunchGroupCondAlg.TriggerDB = tc["DBCONN"]
+    elif tc["SOURCE"] == "DB":
+        bunchGroupCondAlg.TriggerDB = tc["DBCONN"]
+        bunchGroupCondAlg.BGSK    = tc["BGSK"]
+    elif tc["SOURCE"] == "FILE":
+        bunchGroupCondAlg.Filename = getBunchGroupSetFileName( flags )
+        if _doMenuConversion(flags):
+            # Save the menu in JSON format
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
+                                         lb = flags.Input.LumiBlockNumber[0])
+            bunchGroupCondAlg.BGSK = dbKeys['BGSK']
+    else:
+        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["SOURCE"])
+    acc.addCondAlgo(bunchGroupCondAlg)
+    return acc
+
 
 def HLTPrescaleCondAlgCfg( flags ):
     log.info("Setting up HLTPrescaleCondAlg")
@@ -321,13 +368,20 @@ if __name__ == "__main__":
 
     class Tests(unittest.TestCase):
 
+        def setUp(self):
+            # Allow multiple L1 menu generations for these tests
+            l1menu_generated._hasRun = False
+
         def test_currentMenu(self):
             from AthenaConfiguration.AllConfigFlags import _createCfgFlags
             ConfigFlags = _createCfgFlags()
             ConfigFlags.Trigger.EDMVersion = 3
+            from AthenaConfiguration.TestDefaults import defaultTestFiles
+            ConfigFlags.Input.Files = defaultTestFiles.RAW
             ConfigFlags.lock()
             TrigConfigSvcCfg( ConfigFlags )
             L1PrescaleCondAlgCfg( ConfigFlags )
+            BunchGroupCondAlgCfg( ConfigFlags )
             HLTPrescaleCondAlgCfg( ConfigFlags )
 
         def test_legacyMenu(self):
@@ -338,6 +392,7 @@ if __name__ == "__main__":
             ConfigFlags.lock()
             TrigConfigSvcCfg( ConfigFlags )
             L1PrescaleCondAlgCfg( ConfigFlags )
+            BunchGroupCondAlgCfg( ConfigFlags )
             HLTPrescaleCondAlgCfg( ConfigFlags )
 
         def test_jsonConverter(self):

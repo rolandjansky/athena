@@ -9,7 +9,7 @@
 CounterGlobal::CounterGlobal(const std::string& name, const MonitorBase* parent) 
   : CounterBase(name, parent)
 {
-  regHistogram("AlgTime_perCall", "Algorithm CPU Time/Call;Time [ms];Events", VariableType::kPerCall);
+  regHistogram("AlgTime_perCall", "Algorithm CPU Time/Call;Time [ms];Events", VariableType::kPerCall, kLog, 0.01, 100000);
   regHistogram("AlgTime_perEvent", "Algorithm CPU Time/Event;Time [ms];Events", VariableType::kPerEvent);
   regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 4999.5, 500);
   regHistogram("SteeringTime_perEvent", "Steering Time/Event;Time [ms];Events", VariableType::kPerEvent);

@@ -11,7 +11,7 @@ from AthenaCommon.SystemOfUnits import GeV
 def createTrigEgammaFastElectronHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #rom TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
+  #rom TriggerMenuMT.HLT.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlg
   theFastElectronHypo = TrigEgammaFastElectronHypoAlg(name)
   theFastElectronHypo.Electrons = sequenceOut
@@ -207,7 +207,7 @@ def TrigEgammaFastElectronHypoToolFromName( name, conf, tool=None ):
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastElectronHypoToolFromDict( decodedDict, tool=tool )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetVKalVxInJetTool )
@@ -9,10 +9,15 @@ find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Hist MathCore Tree RIO  )
 
 # Component(s) in the package:
-atlas_add_component( InDetVKalVxInJetTool 
-                     src/*.cxx  src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AnalysisUtilsLib AthenaBaseComps CxxUtils GaudiKernel GeoPrimitives InDetRecToolInterfaces MVAUtils PathResolver TrkNeutralParameters TrkParticleBase TrkToolInterfaces TrkTrackSummary TrkVKalVrtFitterLib TrkVertexFitterInterfaces VxSecVertex VxVertex xAODTracking xAODTruth )
+atlas_add_library( InDetVKalVxInJetToolLib
+                   src/*.cxx  src/components/*.cxx
+                   PUBLIC_HEADERS InDetVKalVxInJetTool
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AnalysisUtilsLib AthenaBaseComps BeamPipeGeoModelLib PixelReadoutGeometryLib CxxUtils GeoPrimitives InDetRecToolInterfaces MVAUtils PathResolver TrkNeutralParameters TrkToolInterfaces TrkVKalVrtFitterLib VxSecVertex xAODTracking xAODTruth xAODEventInfo)
+
+atlas_add_component( InDetVKalVxInJetTool
+                     src/*.cxx src/components/*.cxx
+                     LINK_LIBRARIES InDetVKalVxInJetToolLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

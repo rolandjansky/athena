@@ -11,7 +11,7 @@ __author__ = "Sebastien Binet"
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
 import re
-from functools import cache
+from functools import cache, reduce
 from math import isnan
 from numbers import Real
 from os import environ
@@ -74,6 +74,10 @@ def _is_exit_early():
                   action='store_true',
                   default=False,
                   help="""To order trees according to event numbers""")
+@acmdlib.argument('--exact-branches',
+                  action='store_true',
+                  default=False,
+                  help="""Only allow exact list of branches present""")
 @acmdlib.argument('--mode',
                   choices=g_ALLOWED_MODES,
                   default='detailed',
@@ -139,6 +143,7 @@ def main(args):
     msg.info('mode:                 %s', args.mode)
     msg.info('error mode:           %s', args.error_mode)
     msg.info('order trees:          %s', args.order_trees)
+    msg.info('exact branches:       %s', args.exact_branches)
 
     import PyUtils.Helpers as H
     with H.ShutUp() :
@@ -165,34 +170,39 @@ def main(args):
         dict_in = {}
         nevts = tree.GetEntriesFast()
 
+        eiDict = {'eventNumber':['EventInfoAux.',
+                                 'Bkg_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v3_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v2_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v1_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v3_Bkg_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v1_Bkg_EventInfoAux.'],
+                  'm_event_ID.m_event_number':['McEventInfo',
+                                               'ByteStreamEventInfo',
+                                               'EventInfo_p4_McEventInfo',
+                                               'EventInfo_p4_ByteStreamEventInfo']}
+
+        @cache
+        def find_attrs():
+            """Find the relevant attributes for reading the event number"""
+            for ii, jj in eiDict.items():
+                for kk in jj:
+                    if hasattr(tree, kk):
+                        return kk, ii
+            else:
+                return None, None
+
         for idx in range(0, nevts):
             if idx % 100 == 0:
                 msg.debug('Read {} events from the input so far'.format(idx))
             tree.GetEntry(idx)
-            if hasattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.'):
-                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.'):
-                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
-                event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'EventInfoAux.'):
-                event_info = getattr(tree,'EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'EventInfo_p4_McEventInfo'):
-                event_info = getattr(tree,'EventInfo_p4_McEventInfo')
-                event_number = event_info.m_event_ID.m_event_number
-            elif hasattr(tree,'EventInfo_p4_ByteStreamEventInfo'):
-                event_info = getattr(tree,'EventInfo_p4_ByteStreamEventInfo')
-                event_number = event_info.m_event_ID.m_event_number
-            elif hasattr(tree,'ByteStreamEventInfo'):
-                event_info = getattr(tree,'ByteStreamEventInfo')
-                event_number = event_info.m_event_ID.m_event_number
-            else:
+            attr1, attr2 = find_attrs()
+            if attr1 is None or attr2 is None:
                 msg.error('Cannot read event info, will bail out.')
+                msg.error(f"Tried attributes {attr1} and {attr2}")
                 break
+            event_number = reduce(getattr, [attr1] + attr2.split('.'), tree)
             msg.debug('Idx : EvtNum {:10d} : {}'.format(idx,event_number))
             dict_in[idx] = event_number
 
@@ -226,14 +236,28 @@ def main(args):
 
         old_leaves = infos['old']['leaves'] - infos['new']['leaves']
         if old_leaves:
-            msg.warning('the following variables exist only in the old file !')
-            for l in old_leaves:
-                msg.warning(' - [%s]', l)
+            old_leaves_list = list(old_leaves)
+            old_leaves_list.sort()
+            if args.exact_branches:
+                msg.error('the following variables exist only in the old file !')
+                for l in old_leaves_list:
+                    msg.error(' - [%s]', l)
+            else:
+                msg.warning('the following variables exist only in the old file !')
+                for l in old_leaves_list:
+                    msg.warning(' - [%s]', l)
         new_leaves = infos['new']['leaves'] - infos['old']['leaves']
         if new_leaves:
-            msg.warning('the following variables exist only in the new file !')
-            for l in new_leaves:
-                msg.warning(' - [%s]', l)
+            new_leaves_list = list(new_leaves)
+            new_leaves_list.sort()
+            if args.exact_branches:
+                msg.error('the following variables exist only in the new file !')
+                for l in new_leaves_list:
+                    msg.error(' - [%s]', l)
+            else:
+                msg.warning('the following variables exist only in the new file !')
+                for l in new_leaves_list:
+                    msg.warning(' - [%s]', l)
 
         # need to remove trailing dots as they confuse reach_next()
         skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
@@ -268,6 +292,8 @@ def main(args):
         msg.info('comparing [%s] leaves over entries...', len(infos['old']['leaves'] & infos['new']['leaves']))
         n_good = 0
         n_bad = 0
+        if args.exact_branches:
+            n_bad += len(old_leaves) + len(new_leaves)
         import collections
         summary = collections.defaultdict(int)
 

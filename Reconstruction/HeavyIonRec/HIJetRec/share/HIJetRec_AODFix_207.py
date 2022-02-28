@@ -32,7 +32,6 @@ from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
 
 ESAlg_W=HIEventShapeMaker("ESAlg_W")
 ESAlg_W.OutputContainerKey="EventShapeWeighted"
-ESAlg_W.UseCaloCell=False
 ESAlg_W.InputTowerKey="HIClusters"
 
 ###the following is a workaround

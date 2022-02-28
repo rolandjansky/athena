@@ -52,7 +52,8 @@ namespace HLT { namespace MET {
     m_baseInitialised = true;
     m_componentNames = componentNames;
     CHECK( m_metContainerKey.initialize() );
-    CHECK( m_monTool.retrieve() );
+    if (!m_monTool.empty())
+      CHECK( m_monTool.retrieve() );
     return StatusCode::SUCCESS;
   }
 

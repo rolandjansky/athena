@@ -33,7 +33,6 @@
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
-#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 #include "PileupReweighting/PileupReweightingTool.h"
 
@@ -133,14 +132,10 @@ int main( int argc, char* argv[] )
   TauSelTool->setOutFile( fOutputFile.get() );
   // CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
   CHECK(TauSelTool->setProperty("MuonOLR", true ));
-  CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTMEDIUM) ));
+  CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDRNNMEDIUM) ));
   CHECK(TauSelTool->setProperty("PtMin", 20. ));
-  // CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
-  // CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP|CutJetIDWP) ));
   CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutJetIDWP) ));
-  CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
-  CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
   CHECK(TauSelTool->initialize());
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
@@ -222,14 +217,6 @@ int main( int argc, char* argv[] )
   T3MT.msg().setLevel( MSG::INFO );
   CHECK(T3MT.initialize());
 
-  // ===========================================================================
-  // TauOverlappingElectronLLHDecorator
-  // ===========================================================================
-#ifndef XAOD_STANDALONE
-  TauAnalysisTools::TauOverlappingElectronLLHDecorator TOELLHDecorator( "TauOverlappingElectronLLHDecorator");
-  TOELLHDecorator.msg().setLevel( MSG::INFO );
-  CHECK(TOELLHDecorator.initialize());
-#endif
   // Loop over the events:
   for( Long64_t iEntry = 0; iEntry < iEntries; ++iEntry )
   {
@@ -263,9 +250,6 @@ int main( int argc, char* argv[] )
     // Print tau properties, using the tools:
     for ( auto xTau : *xTauShallowContainer.first )
     {
-      // decorate tau with electron llh score
-      // CHECK(TOELLHDecorator.decorate(*xTau));
-
       // perform truth matching
       auto xTruthTau = T2MT.getTruth(*xTau);
       // if (xTau->pt() < 25*1000) continue;

@@ -29,18 +29,15 @@ LVL1::eFEXtauAlgo::~eFEXtauAlgo()
 
 StatusCode LVL1::eFEXtauAlgo::initialize()
 {
-
+  ATH_CHECK(m_eTowerContainerKey.initialize());
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode LVL1::eFEXtauAlgo::safetyTest(){
 
-  // This is to test that it will also work in the other functions, as we cal this object from SG in every function but don't want them all to have to return StatusCodes, and i'm not sure how to make this a private member instead
-  ATH_CHECK(m_eFEXtauAlgo_eTowerContainerKey.initialize());
-  SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
-  if(!jk_eFEXtauAlgo_eTowerContainer.isValid()){
-    ATH_MSG_FATAL("LVL1::eFEXtauAlgo::safetyTest() Could not retrieve jk_eFEXtauAlgo_eTowerContainer " << m_eFEXtauAlgo_eTowerContainerKey.key() );
+  SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
+  if(!eTowerContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve eTowerContainer " << m_eTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -63,7 +60,7 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
   unsigned int et = getEt();
   tob->setEt(et);
   tob->setBitwiseEt(getBitwiseEt());
-  tob->setIso(getRealIso());
+  tob->setIso(getRealRCore());
   tob->setSeedUnD(getUnD());
   return tob;
 }
@@ -72,13 +69,13 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
 void LVL1::eFEXtauAlgo::buildLayers()
 {
 
-  SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
+  SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
 
   for(unsigned int ieta = 0; ieta < 3; ieta++)
   {
     for(unsigned int iphi = 0; iphi < 3; iphi++)
     {
-	  const LVL1::eTower * tmpTower = jk_eFEXtauAlgo_eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
+	  const LVL1::eTower * tmpTower = eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
 	  m_twrcells[ieta][iphi] = tmpTower->getTotalET();
 	  m_em0cells[ieta][iphi] = tmpTower->getLayerTotalET(0);
 	  m_em3cells[ieta][iphi] = tmpTower->getLayerTotalET(3);
@@ -117,9 +114,17 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
       }
       
       // Cells to the up and right must have strictly lesser ET
-      if (((beta == 0) && (bphi == 0)) || ((beta == 1) && (bphi == 0)) || ((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)))
+      if (((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)) || ((beta == 2) && (bphi == 2)) || ((beta == 1) && (bphi == 2)))
       {
         if (centralET <= m_twrcells[beta][bphi])
+        {
+          out = false;
+        }
+      }
+      // Cells down and to the left must have lesser or equal ET. If strictly lesser would create zero TOB if two adjacent cells had equal energy
+      else if (((beta == 0) && (bphi == 0)) || ((beta == 0) && (bphi == 1)) || ((beta == 0) && (bphi == 2)) || ((beta == 1) && (bphi == 0)))
+      { 
+        if (centralET < m_twrcells[beta][bphi])
         {
           out = false;
         }
@@ -185,35 +190,54 @@ unsigned int LVL1::eFEXtauAlgo::getEt()
   return out;
 }
 
-void LVL1::eFEXtauAlgo::getRCore(std::vector<unsigned int> & rCoreVec)
+unsigned int LVL1::eFEXtauAlgo::rCoreCore()
 {
   if (m_cellsSet == false){
-    ATH_MSG_DEBUG("Layers not built, cannot calculate isolation.");
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rCore core value");
   }
+     
+  unsigned int out = 0;
 
-  unsigned int core = 0;  
+  out += m_em2cells[m_seed][1];
+  out += m_em2cells[m_seed + 1][1];
+  out += m_em2cells[m_seed - 1][1];
+  out += m_em2cells[m_seed][m_offPhi];
+  out += m_em2cells[m_seed + 1][m_offPhi];
+  out += m_em2cells[m_seed - 1][m_offPhi];
 
-  core += m_em2cells[m_seed][1];
-  core += m_em2cells[m_seed + 1][1];
-  core += m_em2cells[m_seed - 1][1];
-  core += m_em2cells[m_seed][m_offPhi];
-  core += m_em2cells[m_seed + 1][m_offPhi];
-  core += m_em2cells[m_seed - 1][m_offPhi];
+  return out;
 
-  unsigned int env = 0;
+}
 
-  env += m_em2cells[m_seed + 2][1];
-  env += m_em2cells[m_seed - 2][1];
-  env += m_em2cells[m_seed + 3][1];
-  env += m_em2cells[m_seed - 3][1];
-  env += m_em2cells[m_seed + 4][1];
-  env += m_em2cells[m_seed - 4][1];
-  env += m_em2cells[m_seed + 2][m_offPhi];
-  env += m_em2cells[m_seed - 2][m_offPhi];
-  env += m_em2cells[m_seed + 3][m_offPhi];
-  env += m_em2cells[m_seed - 3][m_offPhi];
-  env += m_em2cells[m_seed + 4][m_offPhi];
-  env += m_em2cells[m_seed - 4][m_offPhi];
+unsigned int LVL1::eFEXtauAlgo::rCoreEnv()
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rCore environment value");
+  }
+     
+  unsigned int out = 0;
+
+  out += m_em2cells[m_seed + 2][1];
+  out += m_em2cells[m_seed - 2][1];
+  out += m_em2cells[m_seed + 3][1];
+  out += m_em2cells[m_seed - 3][1];
+  out += m_em2cells[m_seed + 4][1];
+  out += m_em2cells[m_seed - 4][1];
+  out += m_em2cells[m_seed + 2][m_offPhi];
+  out += m_em2cells[m_seed - 2][m_offPhi];
+  out += m_em2cells[m_seed + 3][m_offPhi];
+  out += m_em2cells[m_seed - 3][m_offPhi];
+  out += m_em2cells[m_seed + 4][m_offPhi];
+  out += m_em2cells[m_seed - 4][m_offPhi];
+
+  return out;
+
+}
+
+void LVL1::eFEXtauAlgo::getRCore(std::vector<unsigned int> & rCoreVec)
+{
+  unsigned int core = rCoreCore();
+  unsigned int env = rCoreEnv();
 
   rCoreVec.push_back(core);
   rCoreVec.push_back(env);
@@ -221,41 +245,91 @@ void LVL1::eFEXtauAlgo::getRCore(std::vector<unsigned int> & rCoreVec)
 }
 
 // Calculate float isolation variable
-float LVL1::eFEXtauAlgo::getRealIso()
+float LVL1::eFEXtauAlgo::getRealRCore()
 {
-  if (m_cellsSet == false){
-    ATH_MSG_DEBUG("Layers not built, cannot accurately calculate isolation.");
-  }
+  unsigned int core = rCoreCore();
+  unsigned int env = rCoreEnv();
 
-  unsigned int isoInner = 0;
+  unsigned int num = core;
+  unsigned int denom = core + env;
 
-  isoInner += m_em2cells[m_seed][1];
-  isoInner += m_em2cells[m_seed + 1][1];
-  isoInner += m_em2cells[m_seed - 1][1];
-  isoInner += m_em2cells[m_seed][m_offPhi];
-  isoInner += m_em2cells[m_seed + 1][m_offPhi];
-  isoInner += m_em2cells[m_seed - 1][m_offPhi];
-
-  unsigned int isoOuter = isoInner;
-
-  isoOuter += m_em2cells[m_seed + 2][1];
-  isoOuter += m_em2cells[m_seed - 2][1];
-  isoOuter += m_em2cells[m_seed + 3][1];
-  isoOuter += m_em2cells[m_seed - 3][1];
-  isoOuter += m_em2cells[m_seed + 4][1];
-  isoOuter += m_em2cells[m_seed - 4][1];
-  isoOuter += m_em2cells[m_seed + 2][m_offPhi];
-  isoOuter += m_em2cells[m_seed - 2][m_offPhi];
-  isoOuter += m_em2cells[m_seed + 3][m_offPhi];
-  isoOuter += m_em2cells[m_seed - 3][m_offPhi];
-  isoOuter += m_em2cells[m_seed + 4][m_offPhi];
-  isoOuter += m_em2cells[m_seed - 4][m_offPhi];
-
-  float out = isoOuter ? (float)isoInner / (float)isoOuter : 0;
+  float out = denom ? (float)num / (float)denom : 0;
 
   return out;
 }
 
+unsigned int LVL1::eFEXtauAlgo::rHadCore()
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rHad core value");
+  }
+     
+  unsigned int out = 0;
+
+  out += m_hadcells[0][1];
+  out += m_hadcells[1][1];
+  out += m_hadcells[2][1];
+  out += m_hadcells[0][m_offPhi];
+  out += m_hadcells[1][m_offPhi];
+  out += m_hadcells[2][m_offPhi];
+
+  return out;
+
+}
+
+unsigned int LVL1::eFEXtauAlgo::rHadEnv()
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rHad environment value");
+  }
+     
+  unsigned int out = 0;
+
+  out += m_em2cells[m_seed][1];
+  out += m_em2cells[m_seed - 1][1];
+  out += m_em2cells[m_seed + 1][1];
+  out += m_em2cells[m_seed - 2][1];
+  out += m_em2cells[m_seed + 2][1];
+  out += m_em2cells[m_seed][m_offPhi];
+  out += m_em2cells[m_seed - 1][m_offPhi];
+  out += m_em2cells[m_seed + 1][m_offPhi];
+  out += m_em2cells[m_seed - 2][m_offPhi];
+  out += m_em2cells[m_seed + 2][m_offPhi];
+  out += m_em1cells[m_seed][1];
+  out += m_em1cells[m_seed - 1][1];
+  out += m_em1cells[m_seed + 1][1];
+  out += m_em1cells[m_seed][m_offPhi];
+  out += m_em1cells[m_seed - 1][m_offPhi];
+  out += m_em1cells[m_seed + 1][m_offPhi];
+
+  return out;
+
+}
+
+// Calculate the hadronic fraction isolation variable
+void LVL1::eFEXtauAlgo::getRHad(std::vector<unsigned int> & rHadVec)
+{
+  unsigned int core = rHadCore();
+  unsigned int env = rHadEnv();
+
+  rHadVec.push_back(core);
+  rHadVec.push_back(env);
+
+}
+
+float LVL1::eFEXtauAlgo::getRealRHad()
+{
+  unsigned int core = rHadCore();
+  unsigned int env = rHadEnv();
+
+  unsigned int num = core;
+  unsigned int denom = core + env;
+
+  float out = denom ? (float)num / (float)denom : 0;
+
+  return out;
+
+}
 // Set the off phi value used to calculate ET and isolation
 void LVL1::eFEXtauAlgo::setUnDAndOffPhi()
 {
@@ -268,7 +342,7 @@ void LVL1::eFEXtauAlgo::setUnDAndOffPhi()
   upwardEt += m_em1cells[m_seed][2];
   
   unsigned int downwardEt = 0;
-  downwardEt += m_em2cells[m_seed][0]; 
+  downwardEt += m_em2cells[m_seed][0];
   downwardEt += m_em1cells[m_seed][0];
 
   if (downwardEt > upwardEt)

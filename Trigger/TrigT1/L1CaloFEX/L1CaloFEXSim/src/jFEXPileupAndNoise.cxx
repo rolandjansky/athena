@@ -34,15 +34,16 @@ LVL1::jFEXPileupAndNoise::~jFEXPileupAndNoise() {
 
 StatusCode LVL1::jFEXPileupAndNoise::initialize() {
     
-    ATH_CHECK(m_jFEXPileupAndNoise_jTowerContainerKey.initialize());
+    ATH_CHECK(m_jTowerContainerKey.initialize());
     return StatusCode::SUCCESS;
 }
 
 //calls container for TT
 StatusCode LVL1::jFEXPileupAndNoise::safetyTest() {
     
+    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jTowerContainerKey);
     if(! m_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve  m_jTowerContainer " << m_jFEXPileupAndNoise_jTowerContainerKey.key());
+        ATH_MSG_FATAL("Could not retrieve jTowerContainer " << m_jTowerContainerKey.key());
         return StatusCode::FAILURE;
     }
 
@@ -50,7 +51,7 @@ StatusCode LVL1::jFEXPileupAndNoise::safetyTest() {
 }
 
 StatusCode LVL1::jFEXPileupAndNoise::reset() {
-    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jFEXPileupAndNoise_jTowerContainerKey);
+
     m_is_FWD=0;
     m_apply_pileup2jets=0; 
     m_apply_pileup2met=0;

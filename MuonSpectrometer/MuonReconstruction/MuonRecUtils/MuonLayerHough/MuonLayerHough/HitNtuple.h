@@ -8,7 +8,8 @@
 #include <map>
 #include <vector>
 
-#include "MuonLayerHough/Hit.h"
+#include "MuonLayerHough/MuonLayerHough.h"
+#include "MuonLayerHough/MuonPhiLayerHough.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 
 class TTree;
@@ -29,8 +30,7 @@ namespace MuonHough {
     };
     bool operator<(const DataIndex& index1, const DataIndex& index2);
 
-    typedef std::vector<Hit*> HitList;
-    typedef std::map<DataIndex, HitList> SectorData;
+    typedef std::map<DataIndex, HitVec> SectorData;
 
     struct EventData {
         std::map<int, SectorData> sectors;
@@ -39,17 +39,6 @@ namespace MuonHough {
         static void dump(const std::map<int, SectorData>& data);
         void reset() { reset(sectors); }
         void reset(std::map<int, SectorData>& region) {
-            std::map<int, SectorData>::iterator it = region.begin();
-            std::map<int, SectorData>::iterator it_end = region.end();
-            for (; it != it_end; ++it) {
-                SectorData::iterator sit = it->second.begin();
-                SectorData::iterator sit_end = it->second.end();
-                for (; sit != sit_end; ++sit) {
-                    HitList::iterator hit = sit->second.begin();
-                    HitList::iterator hit_end = sit->second.end();
-                    for (; hit != hit_end; ++hit) delete *hit;
-                }
-            }
             region.clear();
         }
         void sort();
@@ -66,10 +55,10 @@ namespace MuonHough {
         void fill(MuonDebugInfo& muon);
 
         void fill(const Hit& hit);
-        void fill(const std::vector<Hit*>& hits);
+        void fill(const HitVec& hits);
 
         void fill(const PhiHit& hit);
-        void fill(const std::vector<PhiHit*>& hits);
+        void fill(const PhiHitVec& hits);
 
         void fill(int sTgcPadAssociated, int sTgcPadNotAssociated);
 

@@ -12,7 +12,7 @@
 
 #include "TrigMuonEFHypoTool.h"
 #include "xAODMuon/MuonContainer.h"
-
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class TrigMuonTLAHypoAlg : public HypoBase {
 
@@ -29,9 +29,13 @@ class TrigMuonTLAHypoAlg : public HypoBase {
 
     
     SG::WriteHandleKey< xAOD::MuonContainer > m_TLAMuonsKey {
-      this, "TLAMuons", "Muons", "TLA Muon container key"
+      this, "TLAOutputName", "Muons", "TLA Muon container key"
     };
+
+    ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
 };
 
 #endif
+
+

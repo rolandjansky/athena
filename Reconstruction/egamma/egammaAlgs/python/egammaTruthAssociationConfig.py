@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from MCTruthClassifier.MCTruthClassifierConfig import (
     MCTruthClassifierCaloTruthMatchCfg)
@@ -9,9 +9,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
+def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation',
+                              sequenceName = None,
+                              **kwargs):
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
 
     if "MCTruthClassifier" not in kwargs:
         kwargs["MCTruthClassifier"] = acc.popToolsAndMerge(
@@ -57,7 +60,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.lock()
     acc = MainServicesCfg(flags)
     mlog = logging.getLogger("egammaTruthAssociationConfigTest")

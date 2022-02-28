@@ -28,7 +28,7 @@ LArBadChannelDecoder::readASCII( const std::string& fname,
   m_log << MSG::INFO << "Parsed " << parsed.size() << " lines from file " << fname << endmsg;
 
   for (std::vector<ParsedLine>::const_iterator i=parsed.begin();
-       i != parsed.end(); i++) {
+       i != parsed.end(); ++i) {
     HWIdentifier hwid = constructChannelId( i->first, coolChan, m_log);
     if (hwid.is_valid()) {
       std::pair<bool,LArBadChannel> badCh = constructStatus( i->second, m_log);
@@ -56,7 +56,7 @@ LArBadChannelDecoder::readFebASCII( const std::string& fname) const
   typedef std::pair<std::vector<int>, std::vector<ParseType> > ParsedLine;
   std::vector<ParsedLine> parsed = parser.parseFile<ParseType>();
   for (std::vector<ParsedLine>::const_iterator i=parsed.begin();
-       i != parsed.end(); i++) {
+       i != parsed.end(); ++i) {
     std::vector<HWIdentifier> hwid = constructFebId( i->first, m_log);
     if (!hwid.empty()) {
       // BEFORE: result.insert( result.end(), hwid.begin(), hwid.end());

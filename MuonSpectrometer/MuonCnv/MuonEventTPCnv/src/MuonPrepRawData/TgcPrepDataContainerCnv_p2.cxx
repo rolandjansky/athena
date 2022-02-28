@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/TgcPrepData.h"
@@ -7,10 +7,9 @@
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepData_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataCnv_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataContainerCnv_p2.h"
-
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -52,16 +51,19 @@ StatusCode Muon::TgcPrepDataContainerCnv_p2::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the  ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
+    if (m_eventCnvTool.retrieve().isFailure()) {
         log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
-        return sc;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
-
+const MuonGM::TgcReadoutElement* Muon::TgcPrepDataContainerCnv_p2::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::TgcReadoutElement*>(cnv_tool->getDetectorElement(id));
+}
 void Muon::TgcPrepDataContainerCnv_p2::transToPers(const Muon::TgcPrepDataContainer* transCont,  Muon::TgcPrepDataContainer_p2* persCont, MsgStream &log) 
 {
 
@@ -93,17 +95,16 @@ void Muon::TgcPrepDataContainerCnv_p2::transToPers(const Muon::TgcPrepDataContai
     TgcPrepDataCnv_p2  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int pcollIndex; // index to the persistent collection we're filling
+    unsigned int pcollIndex = 0; // index to the persistent collection we're filling
     unsigned int pcollBegin = 0; // index to start of persistent collection we're filling, in long list of persistent PRDs
     unsigned int pcollEnd = 0; // index to end 
-    unsigned int idHashLast = 0; // Used to calculate deltaHashId.
     int numColl = transCont->numberOfCollections();
     persCont->m_collections.resize(numColl);
     
     if (log.level() <= MSG::DEBUG) 
         log << MSG::DEBUG<< " Preparing " << persCont->m_collections.size() << "Collections" <<endmsg;
   //  std::cout<<"Preparing " << persCont->m_collections.size() << "Collections" << std::endl;
-    for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {
+    for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll)  {
         // Add in new collection
       if (log.level() <= MSG::DEBUG) 
           log << MSG::DEBUG<<"New collection"<<endmsg;
@@ -114,10 +115,8 @@ void Muon::TgcPrepDataContainerCnv_p2::transToPers(const Muon::TgcPrepDataContai
         pcollEnd   += collection.size();
         
         pcollection.m_hashId = collection.identifyHash(); 
-        idHashLast += pcollection.m_hashId;
         pcollection.m_id = collection.identify().get_identifier32().get_compact();
         pcollection.m_size = collection.size();
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
 
         // Add in channels
         persCont->m_prds.resize(pcollEnd); // FIXME! isn't this potentially a bit slow? Do a resize and a copy for each loop? EJWM.
@@ -145,11 +144,11 @@ void Muon::TgcPrepDataContainerCnv_p2::transToPers(const Muon::TgcPrepDataContai
               lastPRDIdHash = chan->collectionHash();
               log << MSG::DEBUG<<"Collection hash = "<<lastPRDIdHash<<endmsg;
               if (chan->collectionHash()!= collection.identifyHash() ) log << MSG::WARNING << "Collection's idHash does not match PRD collection hash!"<<endmsg;
-              if (chan->detectorElement() !=m_muonDetMgr->getTgcReadoutElement(chan->identify())) 
+              if (chan->detectorElement() !=getReadOutElement(chan->identify())) 
                 log << MSG::WARNING << "Getting de from identity didn't work!"<<endmsg;
               else 
                 log << MSG::DEBUG<<"Getting de from identity did work "<<endmsg;
-              if (chan->detectorElement() !=m_muonDetMgr->getTgcReadoutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
+              if (chan->detectorElement() !=getReadOutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
               log << MSG::DEBUG<<"Finished loop"<<endmsg;
             }
         }
@@ -190,8 +189,6 @@ void  Muon::TgcPrepDataContainerCnv_p2::persToTrans(const Muon::TgcPrepDataConta
         // Identifier collId = m_TgcId->parentID(firstChanId);
         coll->setIdentifier(Identifier(pcoll.m_id)); 
 
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
-        
         // FIXME - really would like to remove Identifier from collection, but cannot as there is :
         // a) no way (apparently - find it hard to believe) to go from collection IdHash to collection Identifer.
         
@@ -211,7 +208,7 @@ void  Muon::TgcPrepDataContainerCnv_p2::persToTrans(const Muon::TgcPrepDataConta
             if (result&&log.level() <= MSG::WARNING) 
               log << MSG::WARNING<< " Muon::TgcPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endmsg;
             const MuonGM::TgcReadoutElement* detEl =
-              m_muonDetMgr->getTgcReadoutElement(clusId);
+              getReadOutElement(clusId);
 
             auto chan = std::make_unique<TgcPrepData>
               (chanCnv.createTgcPrepData (pchan,

@@ -267,8 +267,11 @@ struct LayerSetupCond
       // ID container                                                            
       std::string                                    m_exitVolume;                //!< the final ID container             
       
-      // remove HGTD volume from ID tracking geometry
+      // Make room for HGTD (3420 mm < |z| < 3545 mm) within the ID tracking geometry volume
+      // This will be filled by the dedicated HGTD Tracking Geometry Builder 
+      // and volumes will be glued when the combined tracking geometry is built
       bool                                           m_removeHGTD;
+      float                                          m_zMinHGTD;
   };
 
   inline void StagedTrackingGeometryBuilderCond::checkForInsert(std::vector<double>& radii, double radius) const {

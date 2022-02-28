@@ -395,7 +395,9 @@ namespace Trk {
 
 inline const TrackingGeometry* TimedExtrapolator::trackingGeometry() const 
  { 
-   if (m_navigator) return m_navigator->trackingGeometry();
+   if (m_navigator) {
+     return m_navigator->trackingGeometry(Gaudi::Hive::currentContext());
+   }
    return nullptr;
  }
 
@@ -404,9 +406,12 @@ inline const IPropagator* TimedExtrapolator::subPropagator(const Trk::TrackingVo
 {
   const IPropagator* currentPropagator = (tvol.geometrySignature() < m_subPropagators.size()) ?
     m_subPropagators[tvol.geometrySignature()] : nullptr;
-  if (!currentPropagator)
-      msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endmsg;
-  return currentPropagator;         
+  if (!currentPropagator) {
+    msg(MSG::ERROR)
+      << "[!] Configuration problem: no Propagator found for volumeSignature: "
+      << tvol.geometrySignature() << endmsg;
+  }
+  return currentPropagator;
 }
 
                                        

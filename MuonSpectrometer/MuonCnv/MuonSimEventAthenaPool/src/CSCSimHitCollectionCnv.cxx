@@ -40,7 +40,7 @@ CSCSimHitCollection* CSCSimHitCollectionCnv::createTransient() {
     static pool::Guid   p2_guid("7E5A120C-E64F-4519-A24B-B485A58724BF");
     static pool::Guid   p3_guid("6BFFE81C-C99E-43D9-B06F-1A998C3B3E40");
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    CSCSimHitCollection* p_collection(0);
+    CSCSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {
       if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
       // poolReadObject< CSCSimHitCollection_PERS >( m_TPConverter );

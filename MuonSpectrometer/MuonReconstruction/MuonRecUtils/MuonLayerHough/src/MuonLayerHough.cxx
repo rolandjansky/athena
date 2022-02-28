@@ -15,19 +15,25 @@
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 namespace {
     // Avoid floating point exceptions arising from cases of x = 0 or x = PI
     // by extending the inverse tan function towards a large number
     // Avoid FPEs occuring in clang 10 , e.g.,
     // FPEAuditor  2   1 WARNING FPE OVERFLOW in [Execute] of [MuGirlStauAlg] on event 257948896 0 0
     // by large number
-    float invtan(const float x) { return x == 0 || x == M_PI ? 1.e12 : 1. / std::tan(x); }
+    /// Use the relation cot(x) = tan(pi/2 -x )
+    float cot(const float x) {
+        const float arg = M_PI_2 - x;
+        // Tan becomes singular at -pi/2 and pi/2
+        if (std::abs(arg - M_PI_2) <= FLT_EPSILON || std::abs(arg + M_PI_2) <= FLT_EPSILON) return 1.e8;
+        return std::tan(arg);
+    }   
 }  // namespace
 namespace MuonHough {
 
     MuonLayerHough::MuonLayerHough(const RegionDescriptor& descriptor) :
-        max(0), maxhist(-1), maxbin(-1), m_debug(false), m_descriptor(descriptor) {
+         m_descriptor(descriptor) {
         // calculate the number of bins
         m_nbins = (m_descriptor.yMaxRange - m_descriptor.yMinRange) / m_descriptor.yBinSize;  // the same for all the cycles
         m_binsize = (m_descriptor.yMaxRange - m_descriptor.yMinRange) / m_nbins;
@@ -52,9 +58,9 @@ namespace MuonHough {
             float dtheta = m_descriptor.thetaStep;
             float dthetaOffset = 2 * m_descriptor.thetaStep * (ci - (cycles - 1) / 2.);
             float theta = std::atan2(x, y);
-            float zref = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset) + y;
-            float z0 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset + dtheta) + y;
-            float z1 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset - dtheta) + y;
+            float zref = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset) + y;
+            float z0 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset + dtheta) + y;
+            float z1 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset - dtheta) + y;
 
             float zmin = z0 < z1 ? z0 : z1;
             float zmax = z0 < z1 ? z1 : z0;
@@ -91,7 +97,7 @@ namespace MuonHough {
         }
     }
 
-    void MuonLayerHough::fillLayer(const std::vector<Hit*>& hits, bool subtract) {
+    void MuonLayerHough::fillLayer(const HitVec& hits, bool subtract) {
         if (hits.empty()) return;
 
         // outer loop over cycles
@@ -104,20 +110,17 @@ namespace MuonHough {
             int prevbinmin = 10000;
             int prevbinmax = -1;
             // inner loop over hits
-            std::vector<Hit*>::const_iterator it = hits.begin();
-            std::vector<Hit*>::const_iterator it_end = hits.end();
+            HitVec::const_iterator it = hits.begin();
+            HitVec::const_iterator it_end = hits.end();
             for (; it != it_end; ++it) {
                 float x = (*it)->x;
                 float y1 = (*it)->ymin;
                 float y2 = (*it)->ymax;
                 std::pair<int, int> minMax = range((*it)->x, (*it)->ymin, (*it)->ymax, ci);
-                int binmin = minMax.first;
-                int binmax = minMax.second;
-                if (binmin >= m_nbins) continue;
-                if (binmax < 0) continue;
-
-                if (binmin < 0) binmin = 0;
-                if (binmax >= m_nbins) binmax = m_nbins - 1;
+                int binmin = std::max(minMax.first,0);
+                int binmax = std::min(minMax.second, m_nbins - 1);
+                if (binmin >= m_nbins || binmax < 0) continue;
+                
                 if (m_debug) {
                     std::cout << " filling hit " << x << " refpos " << m_descriptor.referencePosition << " ymin " << y1 << " ymax " << y2
                               << " layer " << (*it)->layer << " binmin " << binmin << " max " << binmax;
@@ -193,7 +196,7 @@ namespace MuonHough {
         }
     }
 
-    void MuonLayerHough::fillLayer2(const std::vector<Hit*>& hits, bool subtract) {
+    void MuonLayerHough::fillLayer2(const HitVec& hits, bool subtract) {
         if (hits.empty()) return;
 
         std::vector<int> layerCounts(m_nbins, 0);
@@ -205,8 +208,8 @@ namespace MuonHough {
             int prevlayer = hits.front()->layer;
 
             // inner loop over hits
-            std::vector<Hit*>::const_iterator it = hits.begin();
-            std::vector<Hit*>::const_iterator it_end = hits.end();
+            HitVec::const_iterator it = hits.begin();
+            HitVec::const_iterator it_end = hits.end();
             for (; it != it_end; ++it) {
                 // if we get to the next layer process the current one and fill the Hough space
                 if (prevlayer != (*it)->layer) {
@@ -360,11 +363,11 @@ namespace MuonHough {
         return true;
     }
 
-    void MuonLayerHough::associateHitsToMaximum(MuonLayerHough::Maximum& maximum, const std::vector<Hit*>& hits) const {
+    void MuonLayerHough::associateHitsToMaximum(MuonLayerHough::Maximum& maximum, const HitVec& hits) const {
         if (maximum.bintheta == -1 || maximum.binposmax == -1 || maximum.binposmin == -1) return;
         // loop over hits and find those that are compatible with the maximum
-        std::vector<Hit*>::const_iterator it = hits.begin();
-        std::vector<Hit*>::const_iterator it_end = hits.end();
+        HitVec::const_iterator it = hits.begin();
+        HitVec::const_iterator it_end = hits.end();
         for (; it != it_end; ++it) {
             // calculate the bins associated with the hit and check whether any of they are part of the maximum
             std::pair<int, int> minMax = range((*it)->x, (*it)->ymin, (*it)->ymax, maximum.bintheta);
@@ -394,9 +397,9 @@ namespace MuonHough {
             float dtheta = m_descriptor.thetaStep;
             float dthetaOffset = 2 * m_descriptor.thetaStep * (relbin);  // if bintheta = cycles, this is the same as dtheta * (cycles + 1 )
             float theta = std::atan2(x, y);
-            float z0 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset + dtheta) +
+            float z0 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset + dtheta) +
                        y;  // move the angle by a step, recalculate the new y value
-            float z1 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset - dtheta) + y;
+            float z1 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset - dtheta) + y;
 
             float zmin = z0 < z1 ? z0 : z1;
             float zmax = z0 < z1 ? z1 : z0;
@@ -488,22 +491,29 @@ namespace MuonHough {
         float dthetaOffset = 2 * dtheta * (bintheta - (cycles - 1) / 2.);
 
         float theta1 = std::atan2(x, y1) - dthetaOffset;
-        float z01 = dx * invtan(theta1 + dtheta) + y1;
-        float z11 = dx * invtan(theta1 - dtheta) + y1;
+        float z01 = dx * cot(theta1 + dtheta) + y1;
+        float z11 = dx * cot(theta1 - dtheta) + y1;
         float zmin1 = std::min(z01, z11);
         float zmax1 = std::max(z01, z11);
 
         float theta2 = std::atan2(x, y2) - dthetaOffset;
-        float z02 = dx * invtan(theta2 + dtheta) + y2;
-        float z12 = dx * invtan(theta2 - dtheta) + y2;
+        float z02 = dx * cot(theta2 + dtheta) + y2;
+        float z12 = dx * cot(theta2 - dtheta) + y2;
         float zmin2 = std::min(z02, z12);
         float zmax2 = std::max(z02, z12);
 
-        float zmin = std::min(zmin1, zmin2);
-        float zmax = std::max(zmax1, zmax2);
-
-        return std::make_pair<int, int>(std::floor((zmin - m_descriptor.yMinRange) * m_invbinsize),
-                                        std::floor((zmax - m_descriptor.yMinRange) * m_invbinsize));  // convert the output to bins
+        const float zmin = std::min(zmin1, zmin2);
+        const float zmax = std::max(zmax1, zmax2);
+        
+        /// The z values shall be some where inside the cavern. Given that the out wheel is at 22m, this is a 
+        /// very rough estimate to crimp the z value and to hopefully avoid spooky FPEs
+        constexpr float cavern_size = 100.*Gaudi::Units::meter;     
+        const float flt_lower_bin = std::max(-cavern_size, (zmin - m_descriptor.yMinRange) * m_invbinsize);
+        const float flt_upper_bin = std::min(cavern_size,  (zmax - m_descriptor.yMinRange) * m_invbinsize);
+        const int lower_bin = std::floor(flt_lower_bin);
+        const int upper_bin = std::floor(flt_upper_bin);
+       
+        return std::make_pair(lower_bin, upper_bin);  // convert the output to bins
     }
 
     float extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex, bool doparabolic) {
@@ -522,8 +532,8 @@ namespace MuonHough {
         } else {  // do parabolic
             float expected = 0;
             float extrapolated_diff = 9999;
-            float tan_theta_ref = std::tan(theta_ref);
-            float invtan_theta_ref = 1. * invtan(theta_ref);
+            const float tan_theta_ref = std::tan(theta_ref);
+            const float invtan_theta_ref = 1. / tan_theta_ref;
             float r_start = ref.hough->m_descriptor.chIndex % 2 > 0
                                 ? 4900.
                                 : 5200.;  // start of barrel B field; values could be further optimized; 5500.:6500.

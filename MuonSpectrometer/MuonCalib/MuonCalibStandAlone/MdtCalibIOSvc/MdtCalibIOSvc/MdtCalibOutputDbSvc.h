@@ -128,6 +128,6 @@ private:
 
     // postprocess t0
     MuonCalib::MdtTubeFitContainer *postprocess_t0s(MuonCalib::MdtTubeFitContainer *new_t0, const MuonCalib::NtupleStationId &id);
-    void create_default_resolution(std::shared_ptr<const MuonCalib::IRtRelation> rt);
+    void create_default_resolution(const std::shared_ptr<const MuonCalib::IRtRelation>& rt);
 };
 #endif

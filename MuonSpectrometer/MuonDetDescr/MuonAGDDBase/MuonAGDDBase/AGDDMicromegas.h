@@ -21,7 +21,7 @@ public:
                    AGDDVolumeStore& vs,
                    AGDDSectionStore& ss);
 
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 
 private:

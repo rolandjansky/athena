@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  CaloTowerStoreTestAlg.cxx
@@ -12,7 +12,6 @@
 
 #include "CaloTowerStoreTestAlg.h"
 #include "CaloUtils/CaloTowerStore.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <iostream>
 #include <cmath>
 #include <cassert>
@@ -27,6 +26,12 @@ CaloTowerStoreTestAlg::CaloTowerStoreTestAlg (const std::string& name,
 {
 }
 
+
+StatusCode CaloTowerStoreTestAlg::initialize()
+{
+  ATH_CHECK(m_caloMgrKey.initialize());
+  return StatusCode::SUCCESS;
+}
 
 void
 CaloTowerStoreTestAlg::iterate_full (const CaloTowerStore& store,
@@ -75,15 +80,11 @@ CaloTowerStoreTestAlg::dump_tows (const test_tows_t& t)
 }
 
 void
-CaloTowerStoreTestAlg::test_subseg_iter (const CaloTowerStore& store1,
+CaloTowerStoreTestAlg::test_subseg_iter (const CaloDetDescrManager* caloDDM,
+					 const CaloTowerStore& store1,
                                          const std::vector<CaloCell_ID::SUBCALO>& calos,
                                          const CaloTowerSeg::SubSeg& subseg)
 {
-  // Cannot do this in initialize: see ATLASRECTS-5012
-  const CaloDetDescrManager* caloDDM = nullptr;
-  StatusCode sc = detStore()->retrieve( caloDDM, "CaloMgr" );
-  if ( !sc.isSuccess() ) std::abort();
-
   CaloTowerSeg seg = subseg.segmentation();
   CaloTowerStore store2;
   if (!store2.buildLookUp (*caloDDM, seg, calos)) {
@@ -107,9 +108,10 @@ void CaloTowerStoreTestAlg::test1()
   std::cout << "test1\n";
 
   // Cannot do this in initialize: see ATLASRECTS-5012
-  const CaloDetDescrManager* caloDDM = nullptr;
-  StatusCode sc = detStore()->retrieve( caloDDM, "CaloMgr" );
-  if ( !sc.isSuccess() ) std::abort();
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  if(!caloMgrHandle.isValid()) std::abort();
+
+  const CaloDetDescrManager* caloDDM = *caloMgrHandle;
 
   CaloTowerSeg seg (50, 64, -2.5, 2.5);
   std::vector<CaloCell_ID::SUBCALO> calos;
@@ -122,10 +124,10 @@ void CaloTowerStoreTestAlg::test1()
   }
 
   CaloTowerSeg::SubSeg subseg1 = seg.subseg (0.7, 0.3, -0.2, 0.4);
-  test_subseg_iter (store, calos, subseg1);
+  test_subseg_iter (caloDDM, store, calos, subseg1);
 
   CaloTowerSeg::SubSeg subseg2 = seg.subseg (0.7, 0.3, 3.1, 0.4);
-  test_subseg_iter (store, calos, subseg2);
+  test_subseg_iter (caloDDM, store, calos, subseg2);
 }
 
 

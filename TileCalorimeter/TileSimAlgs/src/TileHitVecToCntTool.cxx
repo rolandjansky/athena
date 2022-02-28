@@ -403,6 +403,11 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
       m_tileID->get_hash(hit_id, hit_idhash, &pmt_context);
     }
 
+    if (hit_idhash >= m_allHits.size()) {
+      // Seems to be E4pr or MBTS hit in minimum bias while geometry is used without them => skipping
+      continue;
+    }
+
     double ener = cinp->energy();
     double time = cinp->time() + SubEvtTimOffset;
 
@@ -786,7 +791,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
   rngWrapper->setSeed( name(), ctx );
   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
 
-  if(!m_onlyUseContainerName && m_rndmEvtOverlay) {
+  if(!m_onlyUseContainerName) {
     auto hitVectorHandles = m_hitVectorKeys.makeHandles(ctx);
     for (auto & inputHits : hitVectorHandles) {
       if (!inputHits.isValid()) {
@@ -965,13 +970,7 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
       pHit->scale(scaleFactor);
 
       if(m_doDigiTruth){
-        double ehit_DigiHSTruth = 0.0;
         TileHit *pHit_DigiHSTruth = (*hitItr_DigiHSTruth);
-        int hitsize_DigiHSTruth = pHit_DigiHSTruth->size();
-        for (int i = 0; i < hitsize_DigiHSTruth; ++i) {
-          double thit = pHit_DigiHSTruth->time(i);
-          if (fabs(thit) < m_photoStatisticsWindow) ehit_DigiHSTruth += pHit_DigiHSTruth->energy(i);
-        }
         pHit_DigiHSTruth->scale(scaleFactor);
 
         ++hitItr_DigiHSTruth;

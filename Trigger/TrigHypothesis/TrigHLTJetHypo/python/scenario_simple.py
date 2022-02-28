@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTJetHypo.RepeatedConditionParams import RepeatedConditionParams
 from TrigHLTJetHypo.FilterParams import FilterParams
@@ -6,7 +6,7 @@ from TrigHLTJetHypo.HelperConfigToolParams import HelperConfigToolParams
 from TrigHLTJetHypo.ConditionDefaults import defaults
 from TrigHLTJetHypo.make_treevec import make_treevec
 
-from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import (
+from TriggerMenuMT.HLT.Menu.SignatureDicts import (
     JetChainParts_Default,)
 
 from AthenaCommon.Logging import logging
@@ -19,7 +19,8 @@ from copy import deepcopy
 
 # make a list of all possible cut items for the simple scenario
 
-all_elemental_keys = ('etaRange', 'jvt', 'smc', 'threshold', 'momCuts')
+all_elemental_keys = ('etaRange', 'jvt', 'smc',
+                      'threshold', 'momCuts', 'bdips')
 
 # Extract moment cuts
 def _cuts_from_momCuts(momCuts):
@@ -70,6 +71,31 @@ def get_condition_args_from_chainpart(cp):
             values = v.split(key)
             assert values[1] == '','jvt condition takes only one argument, two were given' # protection when an upper (not supported) cut is requested
             lo   = values[0]
+            vals = defaults(key, lo=lo)
+            condargs.append((key, deepcopy(vals)))
+
+        if k == 'bdips':
+            key = 'bdips'
+            values = v.split(key)
+            assert values[1] == '','bdips condition takes only one argument, two were given' # protection when an upper (not supported) cut is requested
+            
+            #This dictionary maps the bdips efficiency into the WP cut to be applied to the DIPS output
+            dips_WPs = {
+                        '':   float('-inf'),
+                        '95': -1.731994002736359,
+                        '90': -0.5111526620960589,
+                        '85': 0.5901913309320711,
+                        '80': 1.505938656334434,
+                        '77': 1.9828350518005688,
+                        '75': 2.2824893859376605,
+                        '60': 4.120197367785793,
+                        '50': 5.148538896594884,
+                        '40': 6.157567616238604,
+                        }
+
+            assert (values[0] in dips_WPs.keys()),f"The efficiency of the specified dips cut \'{v}\' can not be found in the WP dictionary. Please add or remove the WP from the dips WP dictionary."
+
+            lo   = dips_WPs[values[0]]
             vals = defaults(key, lo=lo)
             condargs.append((key, deepcopy(vals)))
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.h
@@ -37,8 +37,8 @@ class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTo
  public:
 	TRTTrackHoleSearchTool(const std::string& type, const std::string& name, const IInterface* parent);
 
-	virtual StatusCode initialize() override;
-	virtual StatusCode finalize() override;
+	StatusCode initialize();
+	StatusCode finalize();
 
 	/** Input : track, partHyp
 	    Output: Changes in information
@@ -47,28 +47,25 @@ class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTo
 	    If problems occur, the information counters are reset to -1 flagging them as not set.
 	    The parthyp argument is relevant for the extrapolation steps in the hole search.
 	*/
-        virtual
 	void countHoles(const Trk::Track& track, 
 	                std::vector<int>& information ,
-	                const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+	                const Trk::ParticleHypothesis partHyp = Trk::pion) const;
     
 	/** Input : track, parthyp
 	    Return: A DataVector containing pointers to TrackStateOnSurfaces which each represent an identified hole on the track.
 	    The parthyp argument is relevant for the extrapolation steps in the hole search.
 	    Attention: This is a factory, ownership of the return vector is passed to the calling method.
 	*/
-        virtual Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
-        getHolesOnTrack(const Trk::Track& track, 
-                        const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+	const DataVector<const Trk::TrackStateOnSurface>* getHolesOnTrack(const Trk::Track& track, 
+	                                                                  const Trk::ParticleHypothesis partHyp = Trk::pion) const;
     
 	/** Input : track, parthyp
 	    Return: A pointer to a new Trk::Track which containes the information of the input track plus the tsos of the identified holes
 	    The parthyp argument is relevant for the extrapolation steps in the hole search.
 	    Attention: This is a factory, ownership of the return track is passed to the calling method.
 	*/
-        virtual
 	const Trk::Track* getTrackWithHoles(const Trk::Track& track, 
-	                                    const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+	                                    const Trk::ParticleHypothesis partHyp = Trk::pion) const;
         
     
 	/** Input : track, parthyp
@@ -76,9 +73,8 @@ class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTo
 	    The parthyp argument is relevant for the extrapolation steps in the hole search.
 	    Attention: This is a factory, ownership of the return track is passed to the calling method.
 	*/
-        virtual
 	const Trk::Track* getTrackWithHolesAndOutliers(const Trk::Track& track, 
-	                                               const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+	                                               const Trk::ParticleHypothesis partHyp = Trk::pion) const;
     
           
  private:
@@ -108,7 +104,7 @@ class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTo
 	//----------------------------------
 	int extrapolateBetweenHits(const Trk::TrackParameters* start_parameters,
 	                           const Trk::Surface& end_surf,
-                                   Trk::TrackStateOnSurfaceProtContainer& holes,
+	                           DataVector<const Trk::TrackStateOnSurface>* holes,
 	                           const Trk::ParticleHypothesis partHyp = Trk::pion) const;
 
 	void dump_bad_straw_log() const;
@@ -119,8 +115,9 @@ class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTo
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator
 		find_last_hit_before_trt(const DataVector<const Trk::TrackStateOnSurface>& track_states) const;
 
-	const Trk::Track* addHolesToTrack(const Trk::Track& track,
-                                          Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr holes) const;
+	const Trk::Track* addHolesToTrack(
+	                                  const Trk::Track& track,
+	                                  const DataVector<const Trk::TrackStateOnSurface>* holes) const;
 };
 
 #endif // TRT_TrackHoleSearch_TRTTrackHoleSearchTool_h

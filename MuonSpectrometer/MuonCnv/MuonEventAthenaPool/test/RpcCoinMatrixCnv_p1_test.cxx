@@ -46,7 +46,7 @@ void compare (const RpcCoinMatrix& p1,
 
 void testit (const RpcCoinMatrix& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   RpcCoinMatrixCnv_p1 cnv;
   RpcCoinMatrix_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

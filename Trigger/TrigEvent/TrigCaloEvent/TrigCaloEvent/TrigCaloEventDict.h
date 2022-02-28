@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOEVENT_H
@@ -62,21 +62,22 @@ void dummy_function_for_TrigCaloEvent_which_forces_dictionaries_generation ( /*
   DataVector<TrigRNNOutput> ii = i;
   DataVector<TrigRNNOutputContainer> jj = j;
 
-  std::vector<const TrigEMClusterContainer *> ccc; ccc.size();
-  std::vector<const TrigCaloClusterContainer *> ccc1; ccc1.size();
-  std::vector<const TrigTauClusterContainer *> ddd; ddd.size(); 
-  std::vector<const TrigTauClusterDetailsContainer *> ddd2; ddd2.size();
-  std::vector<const TrigT2JetContainer *> eee; eee.size();
-  std::vector<const TrigT2MbtsBitsContainer *> hhh; hhh.size();
-  std::vector<const TrigT2ZdcSignalsContainer *> ooo; ooo.size();
-  std::vector<const RingerRings *> fff; fff.size();
-  std::vector<const RingerRingsContainer *> ggg; ggg.size();
-  std::vector<const TrigRNNOutput *> iii; iii.size();
-  std::vector<const TrigRNNOutputContainer *> jjj; jjj.size();
-  std::vector<const TrigCaloCluster*> kkk1; kkk1.size();
-  std::vector<const TrigEMCluster*> kkk; kkk.size();
-  std::vector<const TrigTauCluster*> lll; lll.size();
-  std::vector<const TrigTauClusterDetails*> mmm; mmm.size();
-  std::vector<const TrigT2Jet*> nnn; nnn.size();
 }
+
+template class std::vector<const TrigEMClusterContainer *>;
+template class std::vector<const TrigCaloClusterContainer *>;
+template class std::vector<const TrigTauClusterContainer *>;
+template class std::vector<const TrigTauClusterDetailsContainer *>;
+template class std::vector<const TrigT2JetContainer *>;
+template class std::vector<const TrigT2MbtsBitsContainer *>;
+template class std::vector<const TrigT2ZdcSignalsContainer *>;
+template class std::vector<const RingerRings *>;
+template class std::vector<const RingerRingsContainer *>;
+template class std::vector<const TrigRNNOutput *>;
+template class std::vector<const TrigRNNOutputContainer *>;
+template class std::vector<const TrigCaloCluster*>;
+template class std::vector<const TrigEMCluster*>;
+template class std::vector<const TrigTauCluster*>;
+template class std::vector<const TrigTauClusterDetails*>;
+template class std::vector<const TrigT2Jet*>;
 #endif

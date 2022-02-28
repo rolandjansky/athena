@@ -1,18 +1,7 @@
-Py:Athena            INFO using release [WorkDir-22.0.7] [x86_64-centos7-gcc8-opt] [22-LAr-NoiseFix/7203dc425b] -- built on [2019-10-19T1201]
 --- LArOFCCondAlg 1
-Py:LArOFCCondAlgCfg    INFO  entering LArOFCCondAlgCfg
-Py:LArOFCCondAlgCfg    INFO  no pileup optimization
-Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
-Py:MetaReader        INFO Current mode used: peeker
-Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
-Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
-Py:LArAutoCorrTotalCondAlgCfg    INFO Nsamples 5
-Py:LArAutoCorrTotalCondAlgCfg    INFO firstSample 0
-Py:LArAutoCorrTotalCondAlgCfg    INFO DeltaBunch 1 
-Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal 
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias')]
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'], ['LArShape32MC', '/LAR/ElecCalibMC/Shape'], ['LArNoiseMC', '/LAR/ElecCalibMC/Noise'], ['LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'], ['LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'], ['LArfSamplMC', '/LAR/ElecCalibMC/fSampl'], ['LArMinBiasMC', '/LAR/ElecCalibMC/MinBias']]
 Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
@@ -43,14 +32,9 @@ Py:ComponentAccumulator    INFO      * firstSample: 0
 Py:ComponentAccumulator    INFO      * isMC: True
 Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
 --- LArAutoCorrTotalCondAlg
-Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
-Py:LArAutoCorrTotalCondAlgCfg    INFO Nsamples 32
-Py:LArAutoCorrTotalCondAlgCfg    INFO firstSample 0
-Py:LArAutoCorrTotalCondAlgCfg    INFO DeltaBunch 1 
-Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal 
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias')]
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'], ['LArShape32MC', '/LAR/ElecCalibMC/Shape'], ['LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'], ['LArNoiseMC', '/LAR/ElecCalibMC/Noise'], ['LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'], ['LArfSamplMC', '/LAR/ElecCalibMC/fSampl'], ['LArMinBiasMC', '/LAR/ElecCalibMC/MinBias']]
 Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
@@ -75,3 +59,13 @@ Py:ComponentAccumulator    INFO      * Nminbias: 0.0
 Py:ComponentAccumulator    INFO      * Nsamples: 32
 Py:ComponentAccumulator    INFO      * deltaBunch: 1
 Py:ComponentAccumulator    INFO      * firstSample: 0
+--- LArRoIMapCondAlg
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/LAR/Identifier/FebRodMap'], ['AthenaAttributeList', '/LAR/Identifier/OnOffIdMap']]
+Py:ComponentAccumulator    INFO  \__ LArFebRodMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/FebRodMap
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArRoIMapCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * TriggerTowerSvc: CaloTriggerTowerService/CaloTriggerTowerService

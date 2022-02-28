@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -11,7 +11,7 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "CxxUtils/crc64.h"
 
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigNavigation/TrigEDMSizes.h"
@@ -375,7 +375,7 @@ HLTNavDetails::IHolder* NavigationCore::prepareOneHolder(CLID clid, const std::s
 
 void NavigationCore::prepare() {
   if ( msgLvl(MSG::VERBOSE) ) {
-    for ( const auto [clid, holder] : HLT::TypeMaps::holders() ) {
+    for ( const auto& [clid, holder] : HLT::TypeMaps::holders() ) {
       ATH_MSG_VERBOSE("NavigationCore::prepare Compile time known types : " << *holder);
     }
   }

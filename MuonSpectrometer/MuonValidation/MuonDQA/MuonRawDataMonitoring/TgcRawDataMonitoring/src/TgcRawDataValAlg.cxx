@@ -80,7 +80,7 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
     }
     else
       for(int ac=0;ac<2;ac++){
-        m_tgcwirestripcoinlowstat[ac] = 0;
+        m_tgcwirestripcoinlowstat[ac] = nullptr;
       }
   }
      

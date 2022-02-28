@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,\
@@ -58,9 +58,7 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
         elif not onlyComponentsOnly:
             propstr = str(propval)
         if propstr:
-            msg.info( " "*nestLevel +"    * %s: %s %s", propname,
-                                                        propstr,
-                                                        "set" if c.is_property_set(propname) else "default")
+            msg.info( " "*nestLevel +"    * %s: %s", propname, propstr)
     return
 
 
@@ -97,6 +95,7 @@ class ComponentAccumulator(object):
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._servicesToCreate=[]
+        self._auditors=[]                #List of auditors
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service
 
@@ -167,7 +166,7 @@ class ComponentAccumulator(object):
     def printCondAlgs(self, summariseProps=False, onlyComponents=[], printDefaults=False, printComponentsOnly=False):
         self._msg.info( "Condition Algorithms" )
         for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
-            self._msg.info( " \\__ %s (cond alg) %s", c.name, self._componentsContext.get(c.name,""))
+            self._msg.info( " \\__ %s (cond alg)%s", c.name, self._componentsContext.get(c.name,""))
             if summariseProps and flag:
                 printProperties(self._msg, c, 1, printDefaults, printComponentsOnly)
         return
@@ -178,9 +177,11 @@ class ComponentAccumulator(object):
     # in the list with a trailing `-', then only the name of the component
     # will be printed, not its properties.
     def printConfig(self, withDetails=False, summariseProps=False,
-                    onlyComponents = [], printDefaults=False, printComponentsOnly=False):
-        self._msg.info( "Event Inputs" )
-        self._msg.info( "Event Algorithm Sequences" )
+                    onlyComponents = [], printDefaults=False, printComponentsOnly=False, prefix=None):
+        msg = logging.getLogger(prefix) if prefix else self._msg
+
+        msg.info( "Event Inputs" )
+        msg.info( "Event Algorithm Sequences" )
 
         def printSeqAndAlgs(seq, nestLevel = 0,
                             onlyComponents = []):
@@ -189,11 +190,11 @@ class ComponentAccumulator(object):
                     return seq._properties[name]
                 return seq._descriptors[name].default
             if withDetails:
-                self._msg.info( "%s\\__ %s (seq: %s %s)", " "*nestLevel, seq.name,
+                msg.info( "%s\\__ %s (seq: %s %s)", " "*nestLevel, seq.name,
                                 "SEQ" if __prop("Sequential") else "PAR",
                                 "OR" if __prop("ModeOR") else "AND" + self._componentsContext.get(seq.name, "") )
             else:
-                self._msg.info( "%s\\__ %s", " "*nestLevel, seq.name)
+                msg.info( "%s\\__ %s", " "*nestLevel, seq.name)
 
             nestLevel += 3
             for (c, flag) in filterComponents(seq.Members, onlyComponents):
@@ -201,41 +202,45 @@ class ComponentAccumulator(object):
                     printSeqAndAlgs(c, nestLevel, onlyComponents = onlyComponents )
                 else:
                     if withDetails:
-                        self._msg.info( "%s\\__ %s (alg) %s", " "*nestLevel, c.getFullJobOptName(), self._componentsContext.get(c.name, ""))
+                        msg.info( "%s\\__ %s (alg) %s", " "*nestLevel, c.getFullJobOptName(), self._componentsContext.get(c.name, ""))
                     else:
-                        self._msg.info( "%s\\__ %s", " "*nestLevel, c.name )
+                        msg.info( "%s\\__ %s", " "*nestLevel, c.name )
                     if summariseProps and flag:
-                        printProperties(self._msg, c, nestLevel, printDefaults, printComponentsOnly)
+                        printProperties(msg, c, nestLevel, printDefaults, printComponentsOnly)
 
 
         for n,s in enumerate(self._allSequences):
-            self._msg.info( "Top sequence %d", n )
+            msg.info( "Top sequence %d", n )
             printSeqAndAlgs(s, onlyComponents = onlyComponents)
 
         self.printCondAlgs (summariseProps = summariseProps,
                             onlyComponents = onlyComponents)
-        self._msg.info( "Services" )
-        self._msg.info( [ s[0].name + (" (created) " if s[0].name in self._servicesToCreate else "")
+        msg.info( "Services" )
+        msg.info( [ s[0].name + (" (created) " if s[0].name in self._servicesToCreate else "")
                               for s in filterComponents (self._services, onlyComponents) ] )
-        self._msg.info( "Public Tools" )
-        self._msg.info( "[" )
+        msg.info( "Public Tools" )
+        msg.info( "[" )
         for (t, flag) in filterComponents (self._publicTools, onlyComponents):
-            self._msg.info( "  %s,", t.getFullJobOptName() + self._componentsContext.get(t.name,""))
+            msg.info( "  %s,", t.getFullJobOptName() + self._componentsContext.get(t.name,""))
             # Not nested, for now
             if summariseProps and flag:
-                printProperties(self._msg, t, printDefaults, printComponentsOnly)
-        self._msg.info( "]" )
-        self._msg.info( "Private Tools")
-        self._msg.info( "[" )
+                printProperties(msg, t, printDefaults, printComponentsOnly)
+        msg.info( "]" )
+        msg.info( "Private Tools")
+        msg.info( "[" )
         if self._privateTools:
             for tool in self._privateTools if isinstance(self._privateTools, collections.abc.Sequence) else [self._privateTools]:
-                self._msg.info( "  %s,", tool.getFullJobOptName() + self._componentsContext.get(tool.name,""))
+                msg.info( "  %s,", tool.getFullJobOptName() + self._componentsContext.get(tool.name,""))
                 if summariseProps:
-                    printProperties(self._msg, tool, printDefaults, printComponentsOnly)
-        self._msg.info( "]" )
-        self._msg.info( "theApp properties" )
+                    printProperties(msg, tool, printDefaults, printComponentsOnly)
+        msg.info( "]" )
+        if self._auditors:
+            msg.info( "Auditors" )
+            msg.info( [ a[0].name for a in filterComponents(self._auditors, onlyComponents) ] )
+
+        msg.info( "theApp properties" )
         for k, v in self._theAppProps.items():
-            self._msg.info("  %s : %s", k, v)
+            msg.info("  %s : %s", k, v)
 
     def getIO(self):
         """
@@ -274,12 +279,8 @@ class ComponentAccumulator(object):
             return io
 
         ret = []
-        import itertools
-        for c in itertools.chain(self._publicTools,
-                                self._privateTools if self._privateTools else [],
-                                self._algorithms.values(),
-                                self._conditionsAlgs):
-            ret.extend(__getHandles(c))
+        for comp in self._allComponents():
+            ret.extend(__getHandles(comp))
         return ret
 
 
@@ -305,7 +306,6 @@ class ComponentAccumulator(object):
                 raise ConfigurationError("Missing sequence {} to add new sequence to".format(parentName))
 
         parent.Members.append(newseq)
-        checkSequenceConsistency(self._sequence)
         if "trackSequence" in ComponentAccumulator.debugMode:
             self._componentsContext[newseq] = shortCallStack()
         return newseq
@@ -339,12 +339,13 @@ class ComponentAccumulator(object):
 
         return
 
-    def popPrivateTools(self):
+    def popPrivateTools(self, quiet=False):
         """Get the (list of) private AlgTools from this ComponentAccumulator.
-        The CA will not keep any reference to the AlgTool.
+        The CA will not keep any reference to the AlgTool. Throw an exception if
+        no tools are available unless quiet=True.
         """
         tool=self._privateTools
-        if tool is None:
+        if not quiet and tool is None:
             raise ConfigurationError("Private tool(s) requested, but none are present")
         self._privateTools=None
         return tool
@@ -474,6 +475,22 @@ class ComponentAccumulator(object):
                 self._servicesToCreate.append(sname)
         if "trackService" in  ComponentAccumulator.debugMode:
             self._componentsContext[newSvc.name] = shortCallStack()
+        return
+
+    def addAuditor(self, auditor):
+        """Add Auditor to ComponentAccumulator.
+        This function will also create the required AuditorSvc."""
+        if not isinstance(auditor,GaudiConfig2._configurables.Configurable) and not isinstance(auditor,AthenaPython.Configurables.CfgPyAud):
+            raise TypeError("Attempt to add wrong type: {} as auditor".format(type( auditor ).__name__))
+
+        if auditor.__component_type__ != "Auditor":
+            raise TypeError("Attempt to add wrong type: {} as auditor".format(auditor.__component_type__))
+
+        context = createContextForDeduplication("Merging with existing auditors", auditor.name, self._componentsContext) # noqa : F841
+
+        deduplicate(auditor, self._auditors)  #may raise on conflict
+        self.addService(CompFactory.AuditorSvc(Auditors=[auditor.getFullJobOptName()]))
+        self._lastAddedComponent = auditor.name
         return
 
     def addPublicTool(self,newTool,primary=False):
@@ -660,7 +677,6 @@ class ComponentAccumulator(object):
                 self._allSequences.append( otherSeq )
                 mergeSequences( self._allSequences[-1], otherSeq )
 
-        checkSequenceConsistency(self._sequence)
 
 
 
@@ -706,9 +722,29 @@ class ComponentAccumulator(object):
         """
         self._wasMerged=True
 
+    def _allComponents(self):
+        """ returns iterable over all components """
+        import itertools
+        return itertools.chain(self._publicTools,
+                               self._privateTools if self._privateTools else [],
+                               self._algorithms.values(),
+                               self._conditionsAlgs)
 
-    def store(self,outfile):
+
+    def store(self,outfile, withDefaultHandles=False):
+        """
+        Saves CA in pickle form
+
+        when withDefaultHandles is True, also the handles that are not set are saved
+        """
+
+        checkSequenceConsistency(self._sequence)
+        
         self.wasMerged()
+        if withDefaultHandles:
+            from AthenaConfiguration.Utils import loadDefaultComps, exposeHandles
+            loadDefaultComps(self._allComponents())
+            exposeHandles(self._allComponents())
         import pickle
         pickle.dump(self,outfile)
         return
@@ -854,6 +890,9 @@ class ComponentAccumulator(object):
             pt.name = "ToolSvc." + pt.name
             getCompsToBeAdded(pt)
 
+        for aud in self._auditors:
+            getCompsToBeAdded(aud)
+
         return appPropsToSet, mspPropsToSet, bshPropsToSet
 
     def run(self,maxEvents=None,OutputLevel=INFO):
@@ -864,6 +903,8 @@ class ComponentAccumulator(object):
         from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 
+        checkSequenceConsistency(self._sequence)
+        
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 
@@ -1145,8 +1186,13 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                 indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
-                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
-                    pvalue=pvalue.data
+                if isinstance(pvalue, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper)):
+                    pvalue = pvalue.data
+                if isinstance(pvalue, list):
+                    pvalue = [item.data
+                              if isinstance(item, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper))
+                              else item
+                              for item in pvalue]
 
                 if pname not in alreadySetProperties:
                     _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )

@@ -81,6 +81,11 @@ void sTGCSimHitCollectionCnv_p2::persToTrans(const Muon::sTGCSimHitCollection_p2
     HepMcParticleLink link;
     hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);
 
-    transCont->Emplace(persCont->m_sTGCId[i], persCont->m_globalTime[i], position, persCont->m_particleEncoding[i], direction, persCont->m_depositEnergy[i], link);
+    // The _p2 class doesn't have kinetic energy and pre-step position.
+    // So, set kinectic energy to -1 and pre-step position to (0,0,0).
+    Amg::Vector3D preposition(0., 0., 0.);
+
+    transCont->Emplace(persCont->m_sTGCId[i], persCont->m_globalTime[i], position, persCont->m_particleEncoding[i], 
+                       direction, persCont->m_depositEnergy[i], link, -1.0, preposition);
   }
 }

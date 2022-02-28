@@ -23,7 +23,7 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib egammaUtils PATCoreAcceptLib
    xAODRootAccess xAODTracking
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks xAODMetaData egammaLayerRecalibTool
-   egammaMVACalibAnalysisLib PathResolver ${extra_libs} )
+   PathResolver ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonFourMomentumCorrection
@@ -67,7 +67,15 @@ endif()
 
 # Test(s) in the package:
 if( XAOD_STANDALONE )
-   atlas_add_test( ut_maintest SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_maintest.py )
+   atlas_add_test( ut_maintest
+                   SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_maintest.py
+                   POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ut_factorytest
+                   SCRIPT test/ut_egamma_factorytest.py
+                   POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ut_resolutiontest
+                   SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_resolutiontest.py
+                   POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 

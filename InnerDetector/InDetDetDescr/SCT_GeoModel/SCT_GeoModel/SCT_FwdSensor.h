@@ -85,40 +85,40 @@ private:
   virtual const GeoLogVol * preBuild();
   void makeDesign(); 
 
-  int m_ringType;
+  int m_ringType{};
 
-  double m_thickness;     // Thickness of sensor
-  double m_outerRadius;   // Outer radius of physical sensor
-  double m_innerRadius;   // Outer radius of physical sensor
-  double m_innerWidth;    // Width of sensor at inner radius
-  double m_outerWidth;    // Width of sensor at outer radius
+  double m_thickness = 0.0;     // Thickness of sensor
+  double m_outerRadius = 0.0;   // Outer radius of physical sensor
+  double m_innerRadius = 0.0;   // Outer radius of physical sensor
+  double m_innerWidth = 0.0;    // Width of sensor at inner radius
+  double m_outerWidth = 0.0;    // Width of sensor at outer radius
 
 
-  double m_outerWidthN; // Outer physical width of near sensor.
-  double m_innerWidthN; // Inner width
-  double m_lengthN;     // Length (radially).
-  double m_thicknessN;
-  double m_radiusN;
-  double m_activeHalfLengthNear; // Active half length
+  double m_outerWidthN = 0.0; // Outer physical width of near sensor.
+  double m_innerWidthN = 0.0; // Inner width
+  double m_lengthN = 0.0;     // Length (radially).
+  double m_thicknessN = 0.0;
+  double m_radiusN = 0.0;
+  double m_activeHalfLengthNear = 0.0; // Active half length
 	  
-  double m_outerWidthF; // Outer physical width of Far sensor.
-  double m_innerWidthF; // Inner width
-  double m_lengthF;     // Length (radially).
-  double m_thicknessF;
-  double m_radiusF;
-  double m_activeHalfLengthFar; // Active half length
+  double m_outerWidthF = 0.0; // Outer physical width of Far sensor.
+  double m_innerWidthF = 0.0; // Inner width
+  double m_lengthF = 0.0;     // Length (radially).
+  double m_thicknessF = 0.0;
+  double m_radiusF = 0.0;
+  double m_activeHalfLengthFar = 0.0; // Active half length
   
-  double m_sensorRadius; // Physics center (of double wafer)
+  double m_sensorRadius = 0.0; // Physics center (of double wafer)
 
-  double m_sensorOffset; // Offset of det element center.
+  double m_sensorOffset = 0.0; // Offset of det element center.
                          // Differs from  m_sensorRadius for truncated middle detector
 
-  const GeoMaterial * m_materialSensor;
-  const GeoMaterial * m_materialGlass;
+  const GeoMaterial * m_materialSensor = nullptr;
+  const GeoMaterial * m_materialGlass = nullptr;
 
-  GeoPhysVol * m_inactive;
+  GeoPhysVol * m_inactive = nullptr;
   
-  InDetDD::SiDetectorDesign * m_design;
+  const InDetDD::SiDetectorDesign * m_design = nullptr;
 
   mutable std::atomic_bool m_noElementWarning;
 };

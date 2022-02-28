@@ -95,32 +95,31 @@ StatusCode SharedEvtQueueConsumer::initialize()
       return StatusCode::FAILURE;
     }
   }
-  else {
-    if(serviceLocator()->service(m_evtSelName,m_evtSelSeek).isFailure() || m_evtSelSeek==0) {
-      ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
-      return StatusCode::FAILURE;
-    }
+  else if(m_evtSelector) {
+    ATH_CHECK(serviceLocator()->service(m_evtSelName,m_evtSelSeek));
   }
 
-  ATH_CHECK( evtSelector()->createContext (m_evtContext) );
+  if(m_evtSelector) {
+    ATH_CHECK( m_evtSelector->createContext (m_evtContext) );
 
-  StatusCode sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-  if(sc.isFailure() || m_evtShare==0) {
-    if(m_useSharedReader) {
-      ATH_MSG_ERROR("Error retrieving IEventShare");
-      return StatusCode::FAILURE;
+    StatusCode sc = serviceLocator()->service(m_evtSelName,m_evtShare);
+    if(sc.isFailure() || m_evtShare==0) {
+      if(m_useSharedReader) {
+	ATH_MSG_ERROR("Error retrieving IEventShare");
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_INFO("Could not retrieve IEventShare");
     }
-    ATH_MSG_INFO("Could not retrieve IEventShare");
-  }
 
-  //FIXME: AthenaPool dependent for now
-  IConversionSvc* cnvSvc = 0;
-  sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
-  m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
-  if(sc.isFailure() || m_dataShare==0) {
-    if(m_useSharedWriter) {
-      ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc " << cnvSvc);
-      return StatusCode::FAILURE;
+    //FIXME: AthenaPool dependent for now
+    IConversionSvc* cnvSvc{nullptr};
+    sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+    m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+    if(sc.isFailure() || m_dataShare==0) {
+      if(m_useSharedWriter) {
+	ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc " << cnvSvc);
+	return StatusCode::FAILURE;
+      }
     }
   }
 
@@ -171,7 +170,7 @@ StatusCode SharedEvtQueueConsumer::finalize()
   } // if(getpid()==m_masterPid)
 
   if (m_evtContext) {
-    ATH_CHECK( evtSelector()->releaseContext (m_evtContext) );
+    ATH_CHECK( m_evtSelector->releaseContext (m_evtContext) );
     m_evtContext = nullptr;
   }
 
@@ -309,7 +308,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   if(m_isPileup) {
     for(IService* ptrSvc : serviceLocator()->getServices()) {
       IEvtSelector* evtsel = dynamic_cast<IEvtSelector*>(ptrSvc);
-      if(evtsel && (evtsel != evtSelector())) {
+      if(evtsel && (evtsel != m_evtSelector)) {
 	if(m_nEventsBeforeFork>0) {
 	  IEvtSelectorSeek* evtselseek = dynamic_cast<IEvtSelectorSeek*>(evtsel);
 	  if(evtselseek) {
@@ -427,37 +426,38 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   }
 
   // _______________ Get the value of SkipEvent ________________________
-  IProperty* propertyServer = dynamic_cast<IProperty*>(evtSelector());
-  if(!propertyServer) {
-    ATH_MSG_ERROR("Unable to cast event selector to IProperty");
-    return outwork;
-  }
-  else {
-    std::string propertyName("SkipEvents");
-    IntegerProperty skipEventsProp(propertyName,m_nSkipEvents);
-    if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
-      ATH_MSG_INFO("Event Selector does not have SkipEvents property");
+  if(m_evtSelector) {
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+    if(!propertyServer) {
+      ATH_MSG_ERROR("Unable to cast event selector to IProperty");
+      return outwork;
     }
     else {
-      m_nSkipEvents = skipEventsProp.value();
+      std::string propertyName("SkipEvents");
+      IntegerProperty skipEventsProp(propertyName,m_nSkipEvents);
+      if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
+	ATH_MSG_INFO("Event Selector does not have SkipEvents property");
+      }
+      else {
+	m_nSkipEvents = skipEventsProp.value();
+      }
     }
-  }
 
 
-  // ________________________ Event selector restart ________________________
-  IService* evtSelSvc = dynamic_cast<IService*>(evtSelector());
-  if(!evtSelSvc) {
-    ATH_MSG_ERROR("Failed to dyncast event selector to IService");
-    return outwork;
-  }
-  if(!evtSelSvc->start().isSuccess()) {
-    ATH_MSG_ERROR("Failed to restart the event selector");
-    return outwork;
+    // ________________________ Event selector restart ________________________
+    IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
+    if(!evtSelSvc) {
+      ATH_MSG_ERROR("Failed to dyncast event selector to IService");
+      return outwork;
+    }
+    if(!evtSelSvc->start().isSuccess()) {
+      ATH_MSG_ERROR("Failed to restart the event selector");
+      return outwork;
+    } 
+    else {
+      ATH_MSG_DEBUG("Successfully restarted the event selector");
+    }
   } 
-  else {
-    ATH_MSG_DEBUG("Successfully restarted the event selector");
-  }
-
   // For PileUp jobs >>>>
   // Main event selector: advance it if we either forked after N events, or skipEvents!=0
   // Background event selectors: restart, and advance if we forked after N events
@@ -637,7 +637,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 	  ATH_MSG_INFO("Share of " << evtnum << " succeeded");
 	}
       }
-      else {
+      else if(m_evtSelector) {
 	m_chronoStatSvc->chronoStart("AthenaMP_seek");
         if (m_evtSeek) {
           sc=m_evtSeek->seek(evtnum);
@@ -680,7 +680,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       ATH_MSG_ERROR("Could not finalize the Run");
       all_ok=false;
     }
-    else if(!m_useSharedReader) {
+    else if(!m_useSharedReader && m_evtSelector) {
       StatusCode sc;
       if (m_evtSeek) {
         sc = m_evtSeek->seek(evtnumAndChunk+m_nSkipEvents);

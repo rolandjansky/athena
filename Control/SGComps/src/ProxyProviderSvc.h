@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ProxyProviderSvc.h
@@ -68,7 +68,7 @@ public:
 
   ///IAddressProvider manager functionality
   ///add a provider to the set of known ones. PROVIDER IS OWNED BY THE CLIENT
-  virtual void addProvider(IAddressProvider* aProvider) override;
+  virtual void addProvider(IAddressProvider* aProvider) override final;
 
   /// Service boilerplate
   //@{

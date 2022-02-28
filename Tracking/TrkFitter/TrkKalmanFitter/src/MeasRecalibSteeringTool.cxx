@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #include "TrkEventUtils/RoT_Extractor.h"
 #include "TrkEventUtils/MeasurementTypeID.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 using namespace Trk;
 using namespace Trk::TrackState;
@@ -26,24 +25,11 @@ Trk::MeasRecalibSteeringTool::MeasRecalibSteeringTool(const std::string& t,
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_rotCreator("Trk::RIO_OnTrackCreator/InDetRefitRotCreator"),
-  m_broadPixelClusterCreator("InDet::PixelClusterOnTrackTool/InDetBroadPixelClusterOnTrackTool"),
-  m_broadSctClusterCreator("InDet::SCT_ClusterOnTrackTool/InDetBroadSCT_ClusterOnTrackTool"),
-  m_trtDriftCircleCreator("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
-  m_trtTubeHitCreator("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_StrawTubeOnTrackTool"),
   m_haveInDetTools(true),
-  //m_haveMuonTools(false),
   m_idHelper(nullptr),
   m_mbHelper(nullptr)
 {
   declareInterface<IMeasurementRecalibrator>(this);
-
-  //  template for property decalration
-  declareProperty("CommonRotCreator",             m_rotCreator);
-  declareProperty("BroadPixelClusterOnTrackTool", m_broadPixelClusterCreator);
-  declareProperty("BroadSCT_ClusterOnTrackTool",  m_broadSctClusterCreator);
-  declareProperty("TRT_DriftCircleOnTrackTool",   m_trtDriftCircleCreator);
-  declareProperty("TRT_StrawTubeOnTrackTool",     m_trtTubeHitCreator);
 }
 
 //================ Destructor =================================================

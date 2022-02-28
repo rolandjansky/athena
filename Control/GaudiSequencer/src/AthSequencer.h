@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.h
@@ -15,13 +15,12 @@
 // Include files
 #include "AthenaBaseComps/AthCommonDataStore.h"
 #include "AthenaBaseComps/AthCommonMsg.h"
-#include "AthenaBaseComps/IDynamicDataConsumer.h"
 
 #include "Gaudi/Property.h"
 #include "Gaudi/Sequence.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
-#include <setjmp.h>
-#include <signal.h>
 
 /**
  ** ClassName: AthSequencer
@@ -166,85 +165,46 @@ protected:
   /**
    ** Remove the specified algorithm from the sequencer
    **/
-
   StatusCode remove( const std::string& algname, std::vector<Gaudi::Algorithm*>* theAlgs );
 
 private:
-
-  /******************************
-   ** Private Function Members **
-   ******************************/
-
-  /**
-   ** Private Copy constructor: NO COPY ALLOWED
-   **/
-  AthSequencer( const AthSequencer& a );
-
-  /**
-   ** Private asignment operator: NO ASSIGNMENT ALLOWED
-   **/
-  AthSequencer& operator=( const AthSequencer& rhs );
-
   /// Run one algorithm.
-  /// Broken out to avoid warnings related to longjmp.
-  StatusCode executeAlgorithm (Gaudi::Algorithm* theAlgorithm,
-                               const EventContext& ctx,
-                               volatile bool& all_good,
-                               volatile bool& caughtfpe) const;
+  StatusCode executeAlgorithm (Gaudi::Algorithm* theAlgorithm, const EventContext& ctx) const;
 
   /**************************
    ** Private Data Members **
    **************************/
   
-  /// Member names (of the form '<cppType>/<instanceName>')
   Gaudi::Property<std::vector<std::string>> m_names{this, "Members",{},
-      "Algorithm names (of the form '<cppType>/<instanceName>')","SubAlgorithm"};
+    "Algorithm names (of the form '<cppType>/<instanceName>')","SubAlgorithm"};
 
-  // Atomic sequencer (don't unroll in MT)
-  Gaudi::Property<bool> m_atomic;
+  Gaudi::Property<bool> m_modeOR{this, "ModeOR", false,
+    "Use OR logic instead of AND"};
 
-  // Invert logic of Sequence
-  Gaudi::Property<bool> m_modeOR;
-  // Ignore filterPassed() decisions of member algs
-  Gaudi::Property<bool> m_ignoreFilter;
-  /// Stop on filter failure Override flag (normally stop if alg filter fails)
-  Gaudi::Property<bool> m_stopOverride;
-  /// a "Concurrent" or "Sequential" sequence. "Sequential" enforces
-  /// strict ordering in MT. "Concurrent" allows scheduler re-ordering 
-  /// for data flow (default)
-  Gaudi::Property<bool> m_sequential;
-  
-  /// set optional algorithm / sequence time outs
-  double m_timeout;
-  int m_timeoutMilliseconds;
-  
-private:
-  bool m_continueEventloopOnFPE;
-  
-  /*********************************************/
-  /* global variables needed to handle signals */
-  /*********************************************/
-  
-  static sigjmp_buf s_fpe_landing_zone;                /* jmp point for SIGFPE handler */
-  static siginfo_t s_fpe_info;                     /* state storage for SIGFPE handler */
-  static struct sigaction s_oldHandler;
-  
-  static void fpe_trap_enable();
-  static void fpe_callback(int, siginfo_t*, void*);
-  static bool prepareCatchAndEnableFPE();
-  void cleanupAfterFPE(siginfo_t*) const;
-  static void uninstallFPESignalHandler();
-  
-  static const size_t s_maxArraySize = 50;
-  
-  static void *s_array[s_maxArraySize];
-  static size_t s_curArraySize;
-  
-  static int m_FPEexcepts;
-  static bool m_installedSignalHandler;
-  std::vector<std::string> m_undeclaredOutputData;
-  unsigned int m_maxPass = 100;
-  bool m_runPostInitialize = false;
+  Gaudi::Property<bool> m_ignoreFilter{this, "IgnoreFilterPassed", false,
+    "Always continue sequence ignoring filterPassed of member algorithms"};
+
+  Gaudi::Property<bool> m_stopOverride{this, "StopOverride", false,
+    "Continue even if algorithm filter fails"};
+
+  Gaudi::Property<bool> m_sequential{this, "Sequential", false,
+    "Concurrent or (strict) Sequential ordering of algorithms"};
+
+  Gaudi::Property<double> m_timeout{this, "TimeOut", 0,
+    "Abort job after one algorithm or sequence reaches the time out. Timeout given in Nanoseconds "
+    "(official ATLAS units), despite its millisecond resolution"};
+
+  Gaudi::Property<std::vector<std::string>> m_undeclaredOutputData{this, "ExtraDataForDynamicConsumers", {},
+    "Pass these extra output data IDs, which are not declared by any of the algorithms or tools, to dynamic data consumers."};
+
+  Gaudi::Property<bool> m_runPostInitialize{this, "ProcessDynamicDataDependencies", false,
+     "Run the post initialization step, to dynamically create and gather extra data dependencies. "
+     "Should be enabled for the top most sequence."};
+
+  ServiceHandle<IClassIDSvc> m_clidSvc;
+
+  unsigned int m_timeoutMilliseconds{0};  //!< timeout converted to ms
+  const unsigned int m_maxPass{100};      //<! maximum number of iterations to process dynamic data dependencies
 };
 
 #endif //GAUDISEQUENCER_ATHSEQUENCER_H

@@ -411,9 +411,8 @@ except:
 
 include ("Digitization/Digitization.py")
 
-if hasattr(runArgs,"AMITag"):
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 #==========================================================
 # Use ZLIB for compression of all temporary outputs

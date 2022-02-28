@@ -108,7 +108,7 @@ class  ConfiguredNewTrackingSiPattern:
 
            ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
             
-         if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
+         if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
             
@@ -243,7 +243,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                              useSCT                = DetFlags.haveRIO.SCT_on() if not is_dbm else False,
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
-         if NewTrackingCuts.mode() == "Offline": 
+         if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              track_finder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
          if is_dbm :
             track_finder.MagneticFieldMode     = "NoField"
@@ -256,7 +256,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          ToolSvc += track_finder
 
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "DBM"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS" or NewTrackingCuts.mode() == "DBM"
          from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
          InDetSiTrackMaker = SiTrackMaker(name                      = 'InDetSiTrackMaker'+NewTrackingCuts.extension(),
                                           useSCT                    = NewTrackingCuts.useSCT(),
@@ -324,6 +324,7 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doStoreTrackSeeds():
               from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
               InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool(name = "InDet_SeedToTrackConversion",
+                                                                             Extrapolator = TrackingCommon.getInDetExtrapolator(),
                                                                              OutputName = InDetKeys.SiSPSeedSegments()+NewTrackingCuts.extension())
               InDetSiTrackMaker.SeedToTrackConversion = InDet_SeedToTrackConversion
               InDetSiTrackMaker.SeedSegmentsWrite = True
@@ -375,7 +376,7 @@ class  ConfiguredNewTrackingSiPattern:
 
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-          if NewTrackingCuts.mode() == "Offline": 
+          if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              InDetSiSPSeededTrackFinder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
@@ -500,7 +501,7 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # --- load Ambiguity Processor
          #
-         useBremMode = NewTrackingCuts.mode() == "Offline"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS"
 
          # @TODO is the cluster split probability container needed here ?
          ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
@@ -587,8 +588,6 @@ class  ConfiguredNewTrackingSiPattern:
               InDetAmbiguityScoreProcessor.sharedProbCut2            = prob2
               if NewTrackingCuts.extension() == "":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = ""
-              elif NewTrackingCuts.extension() == "Disappearing":
-                 InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap()
               InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
 
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":

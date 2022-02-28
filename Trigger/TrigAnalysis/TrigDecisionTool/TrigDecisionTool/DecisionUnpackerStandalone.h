@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
@@ -15,15 +15,12 @@
 // Local include(s):
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
 
 #include "AsgDataHandles/ReadHandleKey.h"
-
-#include <memory>
 
 // Forward declaration(s):
 namespace HLT {
@@ -46,7 +43,7 @@ namespace Trig {
   public:
     /// Constructor with arguments
     DecisionUnpackerStandalone(SG::ReadHandleKey<xAOD::TrigDecision>*,
-				SG::ReadHandleKey<xAOD::TrigNavigation>* navikey);
+                               SG::ReadHandleKey<xAOD::TrigNavigation>* navikey);
     /// Destructor
     virtual ~DecisionUnpackerStandalone();
 
@@ -55,43 +52,40 @@ namespace Trig {
 
     /// Function unpacking the payload of the trigger decision
     virtual StatusCode
-    unpackDecision( std::unordered_map< std::string, const LVL1CTP::Lvl1Item* >& itemsByName,
+    unpackDecision( const EventContext& ctx,
+                    std::unordered_map< std::string, const LVL1CTP::Lvl1Item* >& itemsByName,
                     std::map< CTPID, LVL1CTP::Lvl1Item >& itemsCache,
                     std::unordered_map< std::string, const HLT::Chain* >& l2chainsByName,
                     std::map< CHAIN_COUNTER, HLT::Chain >& l2chainsCache,
                     std::unordered_map< std::string, const HLT::Chain* >& efchainsByName,
                     std::map< CHAIN_COUNTER, HLT::Chain >& efchainsCache,
                     char& bgCode,
-                    bool unpackHLT );
+                    bool unpackHLT ) const override;
     /// Function unpacking the payload of the trigger navigation
-
-    virtual StatusCode unpackNavigation( HLT::TrigNavStructure* nav );
-
-    /// @name Functions checking/changing the state of the object
-    /// @{
-    
-    virtual bool assert_handle();
-    virtual void validate_handle();
-    virtual void invalidate_handle();
-
-    /// @}
+    virtual StatusCode unpackNavigation( const EventContext& ctx,
+                                         HLT::TrigNavStructure* nav ) const override;
 
   private:
     /// Function unpacking the decision of the LVL1 items
-    StatusCode unpackItems( std::map< CTPID, LVL1CTP::Lvl1Item >& itemsCache,
-			    std::unordered_map< std::string,
-			    const LVL1CTP::Lvl1Item*>& itemsByName );
+    StatusCode unpackItems( const xAOD::TrigDecision& trigDec,
+                            std::map< CTPID, LVL1CTP::Lvl1Item >& itemsCache,
+                            std::unordered_map< std::string,
+                            const LVL1CTP::Lvl1Item*>& itemsByName ) const;
+
     /// Function unpacking the decision of the HLT chains
     StatusCode unpackChains( std::map< unsigned, HLT::Chain >& cache,
-			     const std::vector< uint32_t >& raw,
-			     const std::vector< uint32_t >& passedThrough,
-			     const std::vector< uint32_t >& prescaled,
-			     const std::vector< uint32_t >& resurrected,
-			     std::unordered_map< std::string,
-			     const HLT::Chain* >& output );
+                             const std::vector< uint32_t >& raw,
+                             const std::vector< uint32_t >& passedThrough,
+                             const std::vector< uint32_t >& prescaled,
+                             const std::vector< uint32_t >& resurrected,
+                             std::unordered_map< std::string,
+                             const HLT::Chain* >& output ) const;
 
-    /// Helper object for retrieving the event information
-    std::unique_ptr<DecisionObjectHandleStandalone> m_handle;
+    /// Key of the trigger decision object in the event
+    SG::ReadHandleKey<xAOD::TrigDecision>* m_deckey{nullptr};
+    /// Key of the trigger navigation object in the event
+    SG::ReadHandleKey<xAOD::TrigNavigation>* m_navikey{nullptr};
+
   }; // class DecisionUnpackerStandalone
 
 } // namespace Trig

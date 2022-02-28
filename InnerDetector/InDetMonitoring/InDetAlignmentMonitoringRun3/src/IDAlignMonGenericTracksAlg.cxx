@@ -119,6 +119,7 @@ StatusCode IDAlignMonGenericTracksAlg::initialize()
   
   ATH_CHECK(m_VxPrimContainerName.initialize(not m_VxPrimContainerName.key().empty()));
   ATH_CHECK(m_tracksName.initialize());
+  ATH_CHECK(m_tracksKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -134,7 +135,6 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
   float xv=-999;
   float yv=-999;
   float zv=-999;
-  int nHits=0;
   int nTracks=0;
   int ngTracks=0;
   
@@ -414,8 +414,6 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
     int nhsct= nhsctB +nhsctECA + nhsctECC;
     int nhtrt= nhtrtB +nhtrtECA + nhtrtECC;
     int nhits= nhpix+ nhsct+ nhtrt;
-
-    nHits += nhits;
 
     auto nhits_per_track_m = Monitored::Scalar<float>( "m_nhits_per_track", nhits );
     fill(genericTrackGroup, nhits_per_track_m);

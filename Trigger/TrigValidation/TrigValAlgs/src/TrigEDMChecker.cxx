@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -15,7 +15,7 @@
 #include "xAODTrigger/TrigPassBits.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
 #include "TrigNavStructure/TriggerElement.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "AthContainers/debug.h"
 #include "xAODJet/JetContainer.h"
@@ -3713,7 +3713,7 @@ StatusCode TrigEDMChecker::dumpTauJetContainer() {
   int ntag=1;
   std::string TauContainerTags[]={"HLT_TrigTauRecMerged"};
   for (int itag=0; itag < ntag; itag++) {
-    const TauJetContainer* TauJetcont;
+    const TauJetContainer* TauJetcont = nullptr;
     sCode=evtStore()->retrieve(TauJetcont , TauContainerTags[itag]);
     if( sCode.isFailure() ){
       ATH_MSG_INFO("Failed to retrieve TauJetContainer  with key " << TauContainerTags[itag]);
@@ -4279,7 +4279,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       // Output my ID in the graph. 
       const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
       const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
-      ElementLinkVector<DecisionContainer> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
+      std::vector<ElementLink<DecisionContainer>> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
       const bool isHypoAlgNode = tc->name() == "H";
       const std::vector<DecisionID>& decisions = tc->decisions();
       const uint32_t selfKey = selfEL.key();
@@ -4295,7 +4295,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
         }
         // Check my seeds
         if (!doDump and isHypoAlgNode and not m_excludeFailedHypoNodes) {
-          for (const ElementLink<DecisionContainer> s : seedELs) {
+          for (const ElementLink<DecisionContainer>& s : seedELs) {
             const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
             for (DecisionID id : seedDecisions) {
               if (chainIDs.count(id) == 1) {

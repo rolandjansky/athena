@@ -7,6 +7,7 @@
 #   include "../RecTrackParticleContainerCnvTool.h"
 #   include "../TrackParticleCnvAlg.h"
 #   include "../VertexCnvAlg.h"
+#   include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #endif // NOT XAOD_ANALYSIS
 #include "../TrackParticleCompressorTool.h"
 

@@ -223,7 +223,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jEM ptMinToTopo");
       }
       float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
       unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
@@ -231,7 +231,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jEM ptMinxTOB");
       }
    private:
       /** Update the internal members */
@@ -315,7 +315,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jTAU ptMinToTopo");
       }
       float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
       unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
@@ -323,7 +323,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jTAU ptMinxTOB");
       }
    private:
       /** Update the internal members */
@@ -379,7 +379,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jJ ptMinToTopo");
       }
       float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
       unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
@@ -387,7 +387,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jJ ptMinxTOB");
       }
    private:
       /** Update the internal members */
@@ -413,7 +413,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jLJ ptMinToTopo");
       }
       float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
       unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
@@ -421,7 +421,7 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jLJ ptMinxTOB");
       }
    private:
       /** Update the internal members */
@@ -441,21 +441,19 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_gJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_gJ"; }
-      float ptMinToTopo(const std::string& fpga) const { return ptMinToTopoMeV(fpga)/ 1000.0; }
-      unsigned int ptMinToTopoCounts(const std::string& fpga) const { return energyInCounts(ptMinToTopoMeV(fpga), resolutionMeV()); }
-      unsigned int ptMinToTopoMeV(const std::string& fpga) const {
-          if(fpga=="A") return m_ptMinToTopoMeVA;
-          if(fpga=="B") return m_ptMinToTopoMeVB;
-          if(fpga=="C") return m_ptMinToTopoMeVC;
-          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised");
+      float ptMinToTopo(const unsigned int eta_range) const { return ptMinToTopoMeV(eta_range)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const unsigned int eta_range) const { return energyInCounts(ptMinToTopoMeV(eta_range), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const unsigned int eta_range) const {
+          if(eta_range==1) return m_ptMinToTopoMeV1;
+          if(eta_range==2) return m_ptMinToTopoMeV2;
+          throw std::runtime_error("L1ThrExtraInfo: Eta range " + std::to_string(eta_range) + " not valid for gJ ptMinToTopo");
       }
    private:
       /** Update the internal members */
       void load();
       /** gJ specific data */
-      unsigned int m_ptMinToTopoMeVA{0};
-      unsigned int m_ptMinToTopoMeVB{0};
-      unsigned int m_ptMinToTopoMeVC{0};
+      unsigned int m_ptMinToTopoMeV1{0};
+      unsigned int m_ptMinToTopoMeV2{0};
    };
 
    class L1ThrExtraInfo_gLJ final : public L1ThrExtraInfoBase {
@@ -464,21 +462,50 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_gLJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_gLJ"; }
-      float ptMinToTopo(const std::string& fpga) const { return ptMinToTopoMeV(fpga)/ 1000.0; }
-      unsigned int ptMinToTopoCounts(const std::string& fpga) const { return energyInCounts(ptMinToTopoMeV(fpga), resolutionMeV()); }
-      unsigned int ptMinToTopoMeV(const std::string& fpga) const {
-          if(fpga=="A") return m_ptMinToTopoMeVA;
-          if(fpga=="B") return m_ptMinToTopoMeVB;
-          if(fpga=="C") return m_ptMinToTopoMeVC;
-          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised");
+      float ptMinToTopo(const unsigned int eta_range) const { return ptMinToTopoMeV(eta_range)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const unsigned int eta_range) const { return energyInCounts(ptMinToTopoMeV(eta_range), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const unsigned int eta_range) const {
+          if(eta_range==1) return m_ptMinToTopoMeV1;
+          if(eta_range==2) return m_ptMinToTopoMeV2;
+          throw std::runtime_error("L1ThrExtraInfo: Eta range " + std::to_string(eta_range) + " not valid for gLJ ptMinToTopo");
+      }
+      float seedThr(const char fpga) const { return seedThrMeV(fpga)/ 1000.0; }
+      unsigned int seedThrCounts(const char fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
+      unsigned int seedThrMeV(const char fpga) const {
+          if(fpga=='A') return m_seedThrMeVA;
+          if(fpga=='B') return m_seedThrMeVB;
+          if(fpga=='C') return m_seedThrMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gLJ seedThr");
+      }
+      float rhoTowerMin(const char fpga) const { return rhoTowerMinMeV(fpga)/ 1000.0; }
+      int rhoTowerMinMeV(const char fpga) const {
+          if(fpga=='A') return m_rhoTowerMinMeVA;
+          if(fpga=='B') return m_rhoTowerMinMeVB;
+          if(fpga=='C') return m_rhoTowerMinMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gLJ rhoTowerMin");
+      }
+      float rhoTowerMax(const char fpga) const { return rhoTowerMaxMeV(fpga)/ 1000.0; }
+      int rhoTowerMaxMeV(const char fpga) const {
+          if(fpga=='A') return m_rhoTowerMaxMeVA;
+          if(fpga=='B') return m_rhoTowerMaxMeVB;
+          if(fpga=='C') return m_rhoTowerMaxMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gLJ rhoTowerMax");
       }
    private:
       /** Update the internal members */
       void load();
       /** gLJ specific data */
-      unsigned int m_ptMinToTopoMeVA{0};
-      unsigned int m_ptMinToTopoMeVB{0};
-      unsigned int m_ptMinToTopoMeVC{0};
+      unsigned int m_ptMinToTopoMeV1{0};
+      unsigned int m_ptMinToTopoMeV2{0};
+      unsigned int m_seedThrMeVA{0};
+      unsigned int m_seedThrMeVB{0};
+      unsigned int m_seedThrMeVC{0};
+      int m_rhoTowerMaxMeVA{0};
+      int m_rhoTowerMaxMeVB{0};
+      int m_rhoTowerMaxMeVC{0};
+      int m_rhoTowerMinMeVA{0};
+      int m_rhoTowerMinMeVB{0};
+      int m_rhoTowerMinMeVC{0};
    };
 
    class L1ThrExtraInfo_jXE final : public L1ThrExtraInfoBase {
@@ -503,13 +530,13 @@ namespace TrigConf {
           if(module=="1C" || module=="1A") return m_etaBoundary1_fw;
           if(module=="2C" || module=="2A") return m_etaBoundary2_fw;
           if(module=="3C" || module=="3A") return m_etaBoundary3_fw; 
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised"); 
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jTE etaBoundary_fw"); 
       }
       unsigned int etaBoundary(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_etaBoundary1;
           if(module=="2C" || module=="2A") return m_etaBoundary2;
           if(module=="3C" || module=="3A") return m_etaBoundary3;
-          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised for jTE etaBoundary");
       }
    private:
       /** Update the internal members */
@@ -529,10 +556,57 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_gXE() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_gXE"; }
+      float seedThr(const char fpga) const { return seedThrMeV(fpga)/ 1000.0; }
+      unsigned int seedThrCounts(const char fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
+      unsigned int seedThrMeV(const char fpga) const {
+          if(fpga=='A') return m_seedThrMeVA;
+          if(fpga=='B') return m_seedThrMeVB;
+          if(fpga=='C') return m_seedThrMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gXE seedThr");
+      }
+      unsigned int XERHO_param(const char fpga, const bool sigmapos) const {
+          if(fpga=='A' && sigmapos==true) return m_XERHO_sigmaPosA;
+          if(fpga=='B' && sigmapos==true) return m_XERHO_sigmaPosB;
+          if(fpga=='C' && sigmapos==true) return m_XERHO_sigmaPosC;
+          if(fpga=='A' && sigmapos==false) return m_XERHO_sigmaNegA;
+          if(fpga=='B' && sigmapos==false) return m_XERHO_sigmaNegB;
+          if(fpga=='C' && sigmapos==false) return m_XERHO_sigmaNegC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: ") + fpga + " and " + (sigmapos ? "pos" : "neg") + " not recongnised for gXE XERHO_param");
+      }
+      unsigned int JWOJ_param(const char fpga, const char param) const {
+          if(fpga=='A' && param=='a') return m_XEJWOJ_a_A;
+          if(fpga=='B' && param=='a') return m_XEJWOJ_a_B;
+          if(fpga=='C' && param=='a') return m_XEJWOJ_a_C;
+          if(fpga=='A' && param=='b') return m_XEJWOJ_b_A;
+          if(fpga=='B' && param=='b') return m_XEJWOJ_b_B;
+          if(fpga=='C' && param=='b') return m_XEJWOJ_b_C;
+          if(fpga=='A' && param=='c') return m_XEJWOJ_c_A;
+          if(fpga=='B' && param=='c') return m_XEJWOJ_c_B;
+          if(fpga=='C' && param=='c') return m_XEJWOJ_c_C;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: ") + fpga + " and " + param  + " not recongnised for gXE JWOJ_param");
+      }
    private:
       /** Update the internal members */
       void load();
       /** gXE specific data */
+      unsigned int m_XERHO_sigmaPosA{0};
+      unsigned int m_XERHO_sigmaPosB{0};
+      unsigned int m_XERHO_sigmaPosC{0};
+      unsigned int m_XERHO_sigmaNegA{0};
+      unsigned int m_XERHO_sigmaNegB{0};
+      unsigned int m_XERHO_sigmaNegC{0};
+      unsigned int m_seedThrMeVA{0};
+      unsigned int m_seedThrMeVB{0};
+      unsigned int m_seedThrMeVC{0};
+      unsigned int m_XEJWOJ_a_A{0};
+      unsigned int m_XEJWOJ_a_B{0};
+      unsigned int m_XEJWOJ_a_C{0};
+      unsigned int m_XEJWOJ_b_A{0};
+      unsigned int m_XEJWOJ_b_B{0};
+      unsigned int m_XEJWOJ_b_C{0};
+      unsigned int m_XEJWOJ_c_A{0};
+      unsigned int m_XEJWOJ_c_B{0};
+      unsigned int m_XEJWOJ_c_C{0};
    };
 
    class L1ThrExtraInfo_gTE final : public L1ThrExtraInfoBase {
@@ -555,6 +629,9 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_MU"; }
       unsigned int rpcIdxForPt(unsigned int pt) const;
       unsigned int tgcIdxForPt(unsigned int pt) const;
+      unsigned int ptForRpcIdx(unsigned int idx) const;
+      unsigned int ptForTgcIdx(unsigned int idx) const;
+      unsigned int tgcIdxForRpcIdx(unsigned int rpcIdx) const; // this maps the rpc idx to the tgc idx for the same pt value
       std::vector<unsigned int> knownRpcPtValues() const;
       std::vector<unsigned int> knownTgcPtValues() const;
       std::vector<std::string> exclusionListNames() const;

@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
@@ -43,6 +43,12 @@ class opt:
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
+    enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
+    enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
+    enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
+    enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
+    enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -71,6 +77,7 @@ class opt:
 
 ################################################################################
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -143,7 +150,7 @@ if len(athenaCommonFlags.FilesInput())>0:
         if globalflags.DataSource=='data':
             opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
         else:
-            opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
     TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
     TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
@@ -151,7 +158,7 @@ else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Input.Collections = []
+    ConfigFlags.Input.Files = []
     TriggerJobOpts.Modifiers._run_number = globals().get('_run_number')  # set by athenaHLT
     TriggerJobOpts.Modifiers._lb_number = globals().get('_lb_number')  # set by athenaHLT
     if '_run_number' in globals():
@@ -159,11 +166,12 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
+from AthenaConfiguration.Enums import BeamType, Format
+ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
 from RecExConfig.ObjKeyStore import objKeyStore
-if ConfigFlags.Input.Format == 'POOL':
+if ConfigFlags.Input.Format is Format.POOL:
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
 
@@ -177,8 +185,8 @@ globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTa
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
-ConfigFlags.Beam.Type = jobproperties.Beam.beamType = 'collisions'
-jobproperties.Beam.bunchSpacing = 25
+jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
@@ -199,7 +207,7 @@ if 'doL1Sim' not in globals():
 
 # Set default enableL1CaloPhase1 option to True if running L1Sim on data or MC with SuperCells (ATR-23703)
 if 'enableL1CaloPhase1' not in globals():
-    if ConfigFlags.Input.Format == 'BS':
+    if ConfigFlags.Input.Format is Format.BS:
         opt.enableL1CaloPhase1 = opt.doL1Sim
         log.info('Setting default enableL1CaloPhase1=%s because ConfigFlags.Input.Format=%s and doL1Sim=%s',
                  opt.enableL1CaloPhase1, ConfigFlags.Input.Format, opt.doL1Sim)
@@ -215,7 +223,7 @@ if 'enableL1MuonPhase1' not in globals():
     opt.enableL1MuonPhase1 = opt.doL1Sim
     log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
 
-if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
+if ConfigFlags.Input.Format is Format.BS or opt.doL1Sim:
     ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
 
 # Translate a few other flags
@@ -224,6 +232,13 @@ ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
+
+ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
+ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
+ConfigFlags.Trigger.L1MuonSim.doMMTrigger = opt.enableL1NSWMMTrigger
+ConfigFlags.Trigger.L1MuonSim.doPadTrigger = opt.enableL1NSWPadTrigger
+ConfigFlags.Trigger.L1MuonSim.doStripTrigger = opt.enableL1NSWStripTrigger
+ConfigFlags.Trigger.L1MuonSim.doBIS78 = opt.enableL1RPCBIS78
 
 ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID
@@ -240,6 +255,7 @@ setModifiers = ['noLArCalibFolders',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
                 'useOracle',
+                'BunchSpacing25ns',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -247,7 +263,6 @@ if ConfigFlags.Input.isMC:  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
-                     'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'useOnlineLumi',
                      #for running with real data
@@ -319,7 +334,7 @@ topSequence += hltTop
 #-------------------------------------------------------------
 
 from AthenaCommon.DetFlags import DetFlags
-if not ConfigFlags.Input.Format == 'BS':
+if ConfigFlags.Input.Format is not Format.BS:
     DetFlags.detdescr.all_setOn()
     #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
     #    DetFlags.detdescr.ALFA_setOff()
@@ -342,8 +357,6 @@ if ConfigFlags.Trigger.doCalo:
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
-    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
-    setMinimalCaloSetup()
 else:
     DetFlags.Calo_setOff()
 
@@ -362,7 +375,7 @@ rec.doTruth = False
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.preSetup()
+    mod.preSetup(ConfigFlags)
 
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
@@ -389,6 +402,11 @@ if opt.strictDependencies:
 # Always enable magnetic field
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
+# But don't make the job think it is doing any sim+digi
+DetFlags.simulate.all_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
+
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
@@ -414,12 +432,16 @@ from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 if ConfigFlags.Trigger.doCalo:
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
+    CAtoGlobalWrapper(trigCaloDataAccessSvcCfg, ConfigFlags)
     if ConfigFlags.Trigger.doTransientByteStream:
         from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
+
 if ConfigFlags.Trigger.doMuon:
-    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
+    CAtoGlobalWrapper(MuonCablingConfigCfg, ConfigFlags)
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
@@ -432,7 +454,7 @@ log = logging.getLogger('runHLT_standalone.py')
 # ----------------------------------------------------------------
 print("ConfigFlags.Input.Format", ConfigFlags.Input.Format)
 print("ConfigFlags.Trigger.Online.isPartition", ConfigFlags.Trigger.Online.isPartition)
-if ConfigFlags.Input.Format == 'POOL':
+if ConfigFlags.Input.Format is Format.POOL:
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
@@ -440,7 +462,7 @@ if ConfigFlags.Input.Format == 'POOL':
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
-elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isPartition:
+elif ConfigFlags.Input.Format is Format.BS and not ConfigFlags.Trigger.Online.isPartition:
     # Set up ByteStream reading services
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
@@ -459,7 +481,7 @@ CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 # Event Info setup
 # ---------------------------------------------------------------
 # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
-if ConfigFlags.Input.Format == 'POOL':
+if ConfigFlags.Input.Format is Format.POOL:
     if objKeyStore.isInInput("xAOD::EventInfo"):
         topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     else:
@@ -472,23 +494,23 @@ else:
 # ---------------------------------------------------------------
 # Add LumiBlockMuWriter creating xAOD::EventInfo decorations for pileup values
 # ---------------------------------------------------------------
-from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
-LumiBlockMuWriterDefault(sequence=hltBeginSeq)
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+CAtoGlobalWrapper(LumiBlockMuWriterCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Level 1 simulation
 # ---------------------------------------------------------------
 if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
-    #from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
-    #CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+    CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Add HLTSeeding providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
-    if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
+    if ConfigFlags.Input.Format is Format.BS or opt.doL1Sim:
         from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
         CAtoGlobalWrapper(HLTSeedingCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
@@ -500,18 +522,26 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    def chainsToGenerate(signame, chain):
-        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
-                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
+    # Define as functor, to retain knowledge of the select/disableChains lists
+    class ChainsToGenerate(object):
+        def __init__(self,opt):
+            self.enabledSignatures  = opt.enabledSignatures
+            self.disabledSignatures = opt.disabledSignatures
+            self.selectChains       = opt.selectChains
+            self.disableChains      = opt.disableChains
+        def __call__(self, signame, chain):
+            return ((signame in self.enabledSignatures and signame not in self.disabledSignatures) and
+                (not self.selectChains or chain in self.selectChains) and chain not in self.disableChains)
 
+    chainsToGenerate = ChainsToGenerate(opt)
     menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
-    menu.generateMT()
+    menu.generateMT(ConfigFlags)
     # Note this will also create the requested HLTPrescale JSON
     # - the default file (with all prescales set to 1) is not really needed.
     # - If no file is provided all chains are either enabled or disabled,
@@ -519,6 +549,8 @@ if not opt.createHLTMenuExternally:
 
 
     if opt.endJobAfterGenerate:
+        from AthenaCommon.AlgSequence import dumpSequence
+        dumpSequence( topSequence )
         import sys
         sys.exit(0)
 
@@ -532,7 +564,6 @@ CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 # ---------------------------------------------------------------
 if hasattr(topSequence,"SGInputLoader"):
     topSequence.SGInputLoader.Load += [
-        ('TrigConf::L1BunchGroupSet','DetectorStore+L1BunchGroup'),
         ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
         ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 
@@ -641,10 +672,15 @@ if ConfigFlags.Input.isMC:
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.postSetup()
+    mod.postSetup(ConfigFlags)
 
 #-------------------------------------------------------------
 # Print top sequence
 #-------------------------------------------------------------
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
+
+#-------------------------------------------------------------
+# Print caching statistics
+#-------------------------------------------------------------
+AccumulatorDecorator.printStats()

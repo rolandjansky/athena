@@ -20,7 +20,7 @@ namespace MuonHough {
             SectorData::iterator sit = it->second.begin();
             SectorData::iterator sit_end = it->second.end();
             for (; sit != sit_end; ++sit) {
-                HitList& list = sit->second;
+                HitVec& list = sit->second;
                 std::stable_sort(list.begin(), list.end(), SortHitsPerLayer());
             }
         }
@@ -303,11 +303,11 @@ namespace MuonHough {
         pndebug = 0;
     }
 
-    void HitNtuple::fill(const std::vector<Hit*>& hits) {
+    void HitNtuple::fill(const HitVec& hits) {
         for (unsigned int i = 0; i < hits.size(); ++i) { fill(*hits[i]); }
     }
 
-    void HitNtuple::fill(const std::vector<PhiHit*>& hits) {
+    void HitNtuple::fill(const PhiHitVec& hits) {
         for (unsigned int i = 0; i < hits.size(); ++i) { fill(*hits[i]); }
     }
 
@@ -344,12 +344,12 @@ namespace MuonHough {
                 debug->ph2 = ph2[i];
                 debug->rot = rot[i];
             }
-            Hit* hit = new Hit(lay[i], x[i], ymin[i], ymax[i], w[i], debug);
+            std::shared_ptr<Hit> hit = std::make_shared<Hit>(lay[i], x[i], ymin[i], ymax[i], w[i], debug);
 
             DataIndex index(sector[i], static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(region[i]),
                             static_cast<Muon::MuonStationIndex::LayerIndex>(layer[i]), type[i]);
-            HitList& hitList = event.sectors[sector[i]][index];
-            hitList.push_back(hit);
+            HitVec& HitVec = event.sectors[sector[i]][index];
+            HitVec.push_back(hit);
         }
 
         for (int i = 0; i < nmuons; ++i) {

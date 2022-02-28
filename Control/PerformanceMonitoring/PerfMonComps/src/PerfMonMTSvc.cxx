@@ -258,9 +258,16 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
   compLevelDataMap[currentState]->addPointStart(meas, doMem);
 
   // Debug
-  ATH_MSG_DEBUG("Start Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
-                " thread index " << ithread << " component " << compName << " step " << stepName);
-  ATH_MSG_DEBUG("Start CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
+  ATH_MSG_DEBUG("Start Audit - Component " << compName       << " , "
+                               "Step "     << stepName       << " , "
+                               "Event "    << ctx.evt()      << " , "
+                               "Slot "     << ctx.slot()     << " , "
+                               "Context "  << ctx.valid()    << " , "
+                               "Thread "   << ithread        << " , "
+                               "Cpu "      << meas.cpu_time  << " ms, "
+                               "Wall "     << meas.wall_time << " ms, "
+                               "Vmem "     << meas.vmem      << " kb, "
+                               "Malloc "   << meas.malloc    << " kb");
 }
 
 /*
@@ -293,15 +300,28 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   }
 
   // Debug
-  ATH_MSG_DEBUG("Stop Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
-                " thread index " << ithread << " component " << compName << " step " << stepName);
-  ATH_MSG_DEBUG("Stop CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
-  ATH_MSG_DEBUG("  >> Start CPU " << compLevelDataMap[currentState]->m_tmp_cpu << " VMem "
-                                 << compLevelDataMap[currentState]->m_tmp_vmem << " Malloc "
-                                 << compLevelDataMap[currentState]->m_tmp_malloc);
-  ATH_MSG_DEBUG("  >> CSum CPU  " << compLevelDataMap[currentState]->m_delta_cpu << " VMem "
-                                 << compLevelDataMap[currentState]->m_delta_vmem << " Malloc "
-                                 << compLevelDataMap[currentState]->m_delta_malloc);
+  ATH_MSG_DEBUG("Stop Audit - Component " << compName       << " , "
+                              "Step "     << stepName       << " , "
+                              "Event "    << ctx.evt()      << " , "
+                              "Slot "     << ctx.slot()     << " , "
+                              "Context "  << ctx.valid()    << " , "
+                              "Thread "   << ithread        << " , "
+                              "Cpu ("     << compLevelDataMap[currentState]->m_tmp_cpu << ":"
+                                          << meas.cpu_time  << ":"
+                                          << (meas.cpu_time - compLevelDataMap[currentState]->m_tmp_cpu) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_cpu << ") ms, "
+                              "Wall ("    << compLevelDataMap[currentState]->m_tmp_wall << ":"
+                                          << meas.wall_time << ":"
+                                          << (meas.wall_time - compLevelDataMap[currentState]->m_tmp_wall) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_wall << ") ms, "
+                              "Vmem ("    << compLevelDataMap[currentState]->m_tmp_vmem << ":"
+                                          << meas.vmem << ":"
+                                          << (meas.vmem - compLevelDataMap[currentState]->m_tmp_vmem) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_vmem << ") kb, "
+                              "Malloc ("  << compLevelDataMap[currentState]->m_tmp_malloc << ":"
+                                          << meas.malloc    << ":"
+                                          << (meas.malloc - compLevelDataMap[currentState]->m_tmp_malloc) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_malloc << ") kb");
 }
 
 /*
@@ -509,7 +529,7 @@ void PerfMonMTSvc::report2Log_EventLevel() {
     }
     m_eventLoopMsgCounter++;
     // Add to leak estimate
-    if (it.first >= 25) {
+    if (it.first >= m_memFitLowerLimit) {
       m_fit_vmem.addPoint(it.first, it.second.mem_stats.at("vmem"));
       m_fit_pss.addPoint(it.first, it.second.mem_stats.at("pss"));
     }
@@ -562,7 +582,7 @@ void PerfMonMTSvc::report2Log_Summary() {
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Pss: " % scaleMem(m_fit_pss.slope()));
     ATH_MSG_INFO("  >> Estimated using the last " << m_fit_vmem.nPoints()
                                                   << " measurements from the Event Level Monitoring");
-    ATH_MSG_INFO("  >> Events prior to the first 25 are omitted...");
+    ATH_MSG_INFO("  >> Events prior to the first " << m_memFitLowerLimit.toString() << " are omitted...");
   }
 
   ATH_MSG_INFO("=======================================================================================");

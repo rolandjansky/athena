@@ -1,61 +1,83 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaMVACalibTool, egammaMVASvc=CompFactory.getComps("egammaMVACalibTool","egammaMVASvc",)
 from xAODEgamma.xAODEgammaParameters import xAOD
 
 
-def egammaMVASvcCfg(flags, name="egammaMVASvc"):
+def egammaMVAToolCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.egammaMVACalibTool(**kwargs))
+    return acc
+
+
+def egammaMVASvcCfg(flags, name="egammaMVASvc", **kwargs):
 
     mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
     acc = ComponentAccumulator()
 
     if flags.Egamma.Calib.MVAVersion is not None:
         folder = flags.Egamma.Calib.MVAVersion
-        mlog.debug('MVA version: %s', folder)
+        mlog.info('egamma MVA calib version: %s', folder)
     else:
         raise KeyError("Egamma.Calib.MVAVersion is not set")
 
-    electronMVATool = egammaMVACalibTool(name="electronMVATool",
-                                         ParticleType=xAOD.EgammaParameters.electron,
-                                         folder=folder)
-    unconvertedPhotonMVATool = egammaMVACalibTool(name="unconvertedPhotonMVATool",
-                                                  ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
-                                                  folder=folder)
-    convertedPhotonMVATool = egammaMVACalibTool(name="convertedPhotonMVATool",
-                                                ParticleType=xAOD.EgammaParameters.convertedPhoton,
-                                                folder=folder)
+    if "ElectronTool" not in kwargs:
+        kwargs["ElectronTool"] = acc.popToolsAndMerge(
+            egammaMVAToolCfg(
+                flags,
+                name="electronMVATool",
+                ParticleType=xAOD.EgammaParameters.electron,
+                folder=folder)
+        )
 
-    egMVASvc = egammaMVASvc(name=name,
-                            ElectronTool=electronMVATool,
-                            UnconvertedPhotonTool=unconvertedPhotonMVATool,
-                            ConvertedPhotonTool=convertedPhotonMVATool)
+    if "UnconvertedPhotonTool" not in kwargs:
+        kwargs["UnconvertedPhotonTool"] = acc.popToolsAndMerge(
+            egammaMVAToolCfg(
+                flags,
+                name="unconvertedPhotonMVATool",
+                ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
+                folder=folder)
+        )
 
-    acc.addService(egMVASvc, primary=True)
+    if "ConvertedPhotonTool" not in kwargs:
+        kwargs["ConvertedPhotonTool"] = acc.popToolsAndMerge(
+            egammaMVAToolCfg(
+                flags,
+                name="convertedPhotonMVATool",
+                ParticleType=xAOD.EgammaParameters.convertedPhoton,
+                folder=folder)
+        )
+
+    acc.addService(
+        CompFactory.egammaMVASvc(
+            name=name,
+            **kwargs), primary=True)
     return acc
 
 
 if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-    log.setLevel(DEBUG)
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myRDO.pool.root"]
+    Configurable.configurableRun3Behavior = True
+
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     cfg = ComponentAccumulator()
+    mlog = logging.getLogger("egammaMVASvcConfigTest")
+    mlog.info("Configuring egammaMVASvc :")
+    printProperties(mlog, cfg.getPrimaryAndMerge(
+        egammaMVASvcCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
     cfg.printConfig()
-    acc = egammaMVASvcCfg(ConfigFlags)
-    cfg.merge(acc)
 
     f = open("egmvatools.pkl", "wb")
     cfg.store(f)

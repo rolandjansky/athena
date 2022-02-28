@@ -59,7 +59,9 @@ then
                --conditionsTag OFLCOND-RUN12-SDR-31  \
                --inputRDOFile ${rdoFile} \
                --outputAODFile ${aodFile} \
-               --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doNewTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" \
+               --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doNewTracking.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" \
+               --steering 'doRDO_TRIG' \
+               --athenaopts "all:--threads=1" \
                --imf False
      rc2=$?
      if [ ${rc2} -eq 0 ]

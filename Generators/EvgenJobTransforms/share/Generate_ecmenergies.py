@@ -37,8 +37,11 @@ elif 'Herwigpp' in evgenConfig.generators:
 #elif 'Herwig7' in evgenConfig.generators:
 #    genSeq.Herwig7.Commands.append("set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy %s" % eCM)
 elif 'Sherpa' in evgenConfig.generators:
-    genSeq.Sherpa_i.Parameters.append("BEAM_ENERGY_1=%s" % eBeam)
-    genSeq.Sherpa_i.Parameters.append("BEAM_ENERGY_2=%s" % eBeam)
+    if os.environ["SHERPAVER"].startswith('3.'):
+        genSeq.Sherpa_i.BaseFragment = genSeq.Sherpa_i.BaseFragment.replace("$(EBEAMSETBYATHENA)", "%s" % eBeam)
+    else:
+        genSeq.Sherpa_i.Parameters.append("BEAM_ENERGY_1=%s" % eBeam)
+        genSeq.Sherpa_i.Parameters.append("BEAM_ENERGY_2=%s" % eBeam)
 elif 'Epos' in evgenConfig.generators:
     genSeq.Epos.BeamMomentum = -eBeam
     genSeq.Epos.TargetMomentum = eBeam

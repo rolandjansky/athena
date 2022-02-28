@@ -14,7 +14,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print(isSimulation)
-
+from InDetRecExample import TrackingCommon
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -78,6 +78,8 @@ BPHY15JpsiSelectAndWrite = DerivationFramework__Reco_Vertex(
     name                   = "BPHY15JpsiSelectAndWrite",
     VertexSearchTool             = BPHY15JpsiFinder,
     OutputVtxContainerName = "BPHY15JpsiCandidates",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY15_VertexTools.PrimaryVertexRefitter,
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
     DoVertexType           = 1)
@@ -92,6 +94,7 @@ BPHY15_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Jpsi2mumu",
     HypothesisName        = "Jpsi",
     InputVtxContainerName = "BPHY15JpsiCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     VtxMassHypo           = 3096.900,
     MassMin               = 2600.0,
     MassMax               = 3600.0,
@@ -147,10 +150,12 @@ print(BPHY15BcJpsipi)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY15BcJpsipiSelectAndWrite = DerivationFramework__Reco_Vertex(
     name                   = "BPHY15BcJpsipiSelectAndWrite",
-    Jpsi1PlusTrackName     = BPHY15BcJpsipi,
+    VertexSearchTool     = BPHY15BcJpsipi,
+    V0Tools              = TrackingCommon.getV0Tools(),
+    PVRefitter           = BPHY15_VertexTools.PrimaryVertexRefitter,
     OutputVtxContainerName = "BPHY15BcJpsipiCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "BPHY15RefittedPrimaryVertices",
+    RefPVContainerName     = "BPHY15RefittedPrimaryVertices1",
     RefitPV                = True,
     MaxPVrefit		   = 1000)
 
@@ -163,6 +168,7 @@ BPHY15_Select_Bc2Jpsipi = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Bc2Jpsipi",
     HypothesisName        = "Bc",
     InputVtxContainerName = "BPHY15BcJpsipiCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [105.658, 105.658, 139.571],
     VtxMassHypo           = 6274.9,
     MassMin               = 5600.0,
@@ -205,7 +211,9 @@ print(BPHY15JpsipiFinder)
 ## b/ setup the combined augmentation/skimming tool for J/psi pi+
 BPHY15JpsipiSelectAndWrite = DerivationFramework__Reco_Vertex(
     name                   = "BPHY15JpsipiSelectAndWrite",
-    Jpsi1PlusTrackName     = BPHY15JpsipiFinder,
+    VertexSearchTool     = BPHY15JpsipiFinder,
+    PVRefitter             = BPHY15_VertexTools.PrimaryVertexRefitter,
+    V0Tools                = TrackingCommon.getV0Tools(),
     OutputVtxContainerName = "BPHY15JpsipiCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
@@ -220,6 +228,7 @@ print(BPHY15JpsipiSelectAndWrite)
 BPHY15_Select_Jpsipi = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Jpsipi",
     HypothesisName        = "Jpsipi",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [105.658, 105.658, 139.571],
     InputVtxContainerName = "BPHY15JpsipiCandidates",
     VtxMassHypo           = 3396.900,
@@ -271,6 +280,8 @@ BPHY15DiTrkSelectAndWrite = DerivationFramework__Reco_Vertex(
     VertexSearchTool             = BPHY15DiTrkFinder,
     OutputVtxContainerName = "BPHY15DiTrkCandidates",
     PVContainerName        = "PrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY15_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName     = "SHOULDNOTBEUSED",
     CheckCollections       = True,
     CheckVertexContainers  = ['BPHY15JpsiCandidates'],
@@ -285,6 +296,7 @@ BPHY15_Select_D0 = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_D0",
     HypothesisName        = "D0",
     InputVtxContainerName = "BPHY15DiTrkCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [139.571, 493.677],
     VtxMassHypo           = 1864.83,
     MassMin               = 1864.83-170,
@@ -301,6 +313,7 @@ BPHY15_Select_D0b = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_D0b",
     HypothesisName        = "D0b",
     InputVtxContainerName = "BPHY15DiTrkCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [493.677, 139.571],
     VtxMassHypo           = 1864.83,
     MassMin               = 1864.83-170,
@@ -359,7 +372,9 @@ print(BPHY15Dh3Finder)
 BPHY15Dh3SelectAndWrite = DerivationFramework__Reco_Vertex(
     name                   = "BPHY15Dh3SelectAndWrite",
     OutputLevel            = INFO,
-    Jpsi1PlusTrackName     = BPHY15Dh3Finder,
+    VertexSearchTool       = BPHY15Dh3Finder,
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY15_VertexTools.PrimaryVertexRefitter,
     OutputVtxContainerName = "BPHY15Dh3Candidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
@@ -374,6 +389,7 @@ print(BPHY15Dh3SelectAndWrite)
 BPHY15_Select_Ds = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Ds",
     HypothesisName        = "Ds",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [493.677, 493.677, 139.571],
     InputVtxContainerName = "BPHY15Dh3Candidates",
     VtxMassHypo           = 1968.28,
@@ -391,6 +407,7 @@ print(BPHY15_Select_Ds)
 BPHY15_Select_Dp = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Dp",
     HypothesisName        = "Dp",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [139.571, 493.677, 139.571],
     InputVtxContainerName = "BPHY15Dh3Candidates",
     VtxMassHypo           = 1869.59,
@@ -408,6 +425,7 @@ print(BPHY15_Select_Dp)
 BPHY15_Select_Dm = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Dm",
     HypothesisName        = "Dm",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [493.677, 139.571, 139.571],
     InputVtxContainerName = "BPHY15Dh3Candidates",
     VtxMassHypo           = 1869.59,
@@ -442,6 +460,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY15JpsiDs = DerivationFramework__JpsiPlusDsCascade(
     name                     = "BPHY15JpsiDs",
     HypothesisName           = "Bc",
+    V0Tools                  = TrackingCommon.getV0Tools(),
     TrkVertexFitterTool      = BcJpsiDxVertexFit,
     DxHypothesis             = 431,
     ApplyDxMassConstraint    = True,
@@ -454,7 +473,7 @@ BPHY15JpsiDs = DerivationFramework__JpsiPlusDsCascade(
     MassUpperCut             = 6274.90 + 600.,
     Chi2Cut 	             = 10,
     RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
+    RefPVContainerName       = "BPHY15RefittedPrimaryVertices2",
     JpsiVertices             = "BPHY15JpsiCandidates",
     CascadeVertexCollections = ["BcJpsiDsCascadeSV2", "BcJpsiDsCascadeSV1"],
     DxVertices               = "BPHY15Dh3Candidates")
@@ -467,6 +486,7 @@ print(BPHY15JpsiDs)
 BPHY15JpsiDp = DerivationFramework__JpsiPlusDsCascade(
     name                     = "BPHY15JpsiDp",
     HypothesisName           = "Bc",
+    V0Tools                  = TrackingCommon.getV0Tools(),
     TrkVertexFitterTool      = BcJpsiDxVertexFit,
     DxHypothesis             = 411,
     ApplyDxMassConstraint    = True,
@@ -479,7 +499,7 @@ BPHY15JpsiDp = DerivationFramework__JpsiPlusDsCascade(
     MassUpperCut             = 6274.90 + 600.,
     Chi2Cut 	             = 10,
     RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
+    RefPVContainerName       = "BPHY15RefittedPrimaryVertices3",
     JpsiVertices             = "BPHY15JpsiCandidates",
     CascadeVertexCollections = ["BcJpsiDpCascadeSV2", "BcJpsiDpCascadeSV1"],
     DxVertices               = "BPHY15Dh3Candidates")
@@ -508,6 +528,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY15JpsiDpst = DerivationFramework__JpsiPlusDpstCascade(
     name                     = "BPHY15JpsiDpst",
     HypothesisName           = "Bc",
+    V0Tools                  = TrackingCommon.getV0Tools(),
     TrkVertexFitterTool      = BcJpsiDstVertexFit,
     DxHypothesis             = 421,
     ApplyD0MassConstraint    = True,
@@ -524,7 +545,7 @@ BPHY15JpsiDpst = DerivationFramework__JpsiPlusDpstCascade(
     MassUpperCut             = 6274.90 + 600.,
     Chi2Cut 	             = 10,
     RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
+    RefPVContainerName       = "BPHY15RefittedPrimaryVertices4",
     JpsipiVertices           = "BPHY15JpsipiCandidates",
     CascadeVertexCollections = ["BcJpsiDpstCascadeSV2", "BcJpsiDpstCascadeSV1"],
     D0Vertices               = "BPHY15DiTrkCandidates")
@@ -584,6 +605,8 @@ BPHY15K0SelectAndWrite = DerivationFramework__Reco_Vertex(
     OutputVtxContainerName = "BPHY15K0Candidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY15_VertexTools.PrimaryVertexRefitter,
     CheckCollections       = True,
     CheckVertexContainers  = ['BPHY15JpsipiCandidates','BPHY15DiTrkCandidates','BcJpsiDpstCascadeSV1'],
     DoVertexType           = 1)
@@ -597,6 +620,7 @@ BPHY15_Select_K0 = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_K0",
     HypothesisName        = "K0",
     InputVtxContainerName = "BPHY15K0Candidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [139.571, 139.571],
     VtxMassHypo           = 497.672,
     MassMin               = 400,
@@ -629,6 +653,7 @@ BPHY15JpsiDps1 = DerivationFramework__JpsiPlusDs1Cascade(
     name                     = "BPHY15JpsiDps1",
     HypothesisName           = "Bc",
     TrkVertexFitterTool      = BcJpsiDs1VertexFit,
+    V0Tools                  = TrackingCommon.getV0Tools(),
     DxHypothesis             = 421,
     ApplyD0MassConstraint    = True,
     ApplyK0MassConstraint    = True,
@@ -647,7 +672,7 @@ BPHY15JpsiDps1 = DerivationFramework__JpsiPlusDs1Cascade(
     MassUpperCut             = 6274.90 + 600.,
     Chi2Cut 	             = 10,
     RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
+    RefPVContainerName       = "BPHY15RefittedPrimaryVertices5",
     JpsipiVertices           = "BPHY15JpsipiCandidates",
     CascadeVertexCollections = ["BcJpsiDps1CascadeSV3", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV1"],
     K0Vertices               = "BPHY15K0Candidates",
@@ -767,14 +792,6 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY15Stream )
 BPHY15Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY15Stream.AcceptAlgs(["BPHY15Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-
-BPHY15ThinningSvc = createThinningSvc( svcName="BPHY15ThinningSvc", outStreams=[evtStream] )
-svcMgr += BPHY15ThinningSvc
 
 #====================================================================
 # Slimming 
@@ -792,8 +809,9 @@ BPHY15SlimmingHelper.IncludeBPhysTriggerContent = TRUE
 
 ## primary vertices
 AllVariables  += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY15RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY15RefittedPrimaryVerticesAux."]
+for x in range(1,6):
+   StaticContent += ["xAOD::VertexContainer#BPHY15RefittedPrimaryVertices%s"   %     str(x)]
+   StaticContent += ["xAOD::VertexAuxContainer#BPHY15RefittedPrimaryVertices%sAux." % str(x)]
 
 ## ID track particles
 AllVariables += ["InDetTrackParticles"]

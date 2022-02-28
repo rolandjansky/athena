@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArMphysOverMcalSC.h"
@@ -7,15 +7,18 @@
 
 //const float LArMphysOverMcalSC::m_errorcode=ILArMphysOverMcal::ERRORCODE;
 
-LArMphysOverMcalSC::LArMphysOverMcalSC() {}
+LArMphysOverMcalSC::LArMphysOverMcalSC()
+  : LArCondSuperCellBase ("LArMphysOverMcalSC")
+{}
 
 LArMphysOverMcalSC::~LArMphysOverMcalSC() {}
 
 
-LArMphysOverMcalSC::LArMphysOverMcalSC(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArMphysOverMcalSC");
-  if (sc.isFailure()) return;
-  readBlob(attrList,"MphysOverMcal",*m_log);
+LArMphysOverMcalSC::LArMphysOverMcalSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArMphysOverMcalSC")
+{
+  if (initializeBase().isFailure()) return;
+  readBlob(attrList,"MphysOverMcal",msg());
 
   return;
 }

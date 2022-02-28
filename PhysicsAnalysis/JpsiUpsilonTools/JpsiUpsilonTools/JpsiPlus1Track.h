@@ -51,7 +51,7 @@ namespace Analysis {
       
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) const override;
+        virtual StatusCode performSearch(const EventContext& ctx , xAOD::VertexContainer&) const override;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer*, const xAOD::TrackParticleContainer*) const;
         //-------------------------------------------------------------------------------------
         

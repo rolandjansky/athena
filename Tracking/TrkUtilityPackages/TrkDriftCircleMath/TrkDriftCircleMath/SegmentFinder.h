@@ -72,9 +72,9 @@ namespace TrkDriftCircleMath {
         void debugLevel(int debugLevel) { m_debugLevel = debugLevel; }
 
     protected:
-        DCVec selectSeeds(const DCVec& dcs, int maxSerie) const;
-        std::pair<DCVec, DCVec> splitInMulitlayers(const DCVec& dcs) const;
-        DCVec removeDCOnSegments(const DCVec& dcs, const SegVec& segs) const;
+        static DCVec selectSeeds(const DCVec& dcs, int maxSerie) ;
+        static std::pair<DCVec, DCVec> splitInMulitlayers(const DCVec& dcs) ;
+        static DCVec removeDCOnSegments(const DCVec& dcs, const SegVec& segs) ;
 
         unsigned int emptyCrossedTubes(const Line& line, const DCVec& closeEmptyTubes) const;
         DCVec emptyNeighbours(const DCVec& dcs) const;
@@ -92,7 +92,7 @@ namespace TrkDriftCircleMath {
         void associateClusters(Segment& seg, const CLVec& cls) const;
 
         void crossedTubes(Segment& seg) const;
-        void updateMatch(Segment& seg, MatchDCWithLine& matchWithLine) const;
+        static void updateMatch(Segment& seg, MatchDCWithLine& matchWithLine) ;
 
         bool goodHitRatio(Segment& seg) const;
 

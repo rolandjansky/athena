@@ -27,10 +27,6 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-
 PtmissAndOrLeptonFilter::PtmissAndOrLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
 {
@@ -126,10 +122,6 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
         sumPyLost += py;
       }
     } // end loop on all particles in the event (pitr)
-
-    // Retrieve event info
-    const EventInfo* eventInfo;
-    CHECK(evtStore()->retrieve(eventInfo));
   } // end loop on events
 
   pxsum = sumPxInvis + sumPxLost;

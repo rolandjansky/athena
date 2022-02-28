@@ -25,4 +25,4 @@ atlas_add_executable( makeInactiveModuleList
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
 
-atlas_install_runtime ( share/HashVSdcsID.dat share/table_Run2.txt share/PixelMapping_Run2.dat share/PixelModuleFeMask_create_db.py)
+atlas_install_runtime ( share/HashVSdcsID.dat share/table_Run2.txt share/PixelMapping_Run2.dat )

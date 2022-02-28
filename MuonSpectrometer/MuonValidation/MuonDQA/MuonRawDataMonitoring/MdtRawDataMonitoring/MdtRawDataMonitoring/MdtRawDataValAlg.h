@@ -170,12 +170,12 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   ToolHandleArray<IDQFilterTool> m_DQFilterTools;
   bool m_atlas_ready;
-  int m_lumiblock;
-  int m_eventNum; 
-  int m_firstEvent;
-  uint32_t m_time;
-  uint32_t m_firstTime;
-  int m_numberOfEvents;
+  int m_lumiblock = 0;
+  int m_eventNum = 0; 
+  int m_firstEvent = 0;
+  uint32_t m_time = 0U;
+  uint32_t m_firstTime = 0U;
+  int m_numberOfEvents = 0;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
 
@@ -220,43 +220,43 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   int m_StationEta;
   int m_StationPhi;
 
-  int m_trigtype;
+  int m_trigtype = 0;
   bool m_trig_BARREL;
   bool m_trig_ENDCAP;
   //Define configurable adccut and TGC/RPC keys
   float m_ADCCut;
   float m_ADCCut_Bkgrd;
-  float m_curTime;
+  float m_curTime = 0.0F;
     
   //From Old BS
   TH2* m_overalltdcadcLumi; // all chambers tdc vs adc superimposed
-  TH2* m_overalltdcadcPRLumi[4]; // all chambers tdc vs adc superimposed
+  TH2* m_overalltdcadcPRLumi[4]{}; // all chambers tdc vs adc superimposed
   TH1* m_overalltdccutLumi; // all chambers tdc superimposed with adc cut
   TH1* m_overalltdccut_segm_Lumi; // all chambers tdc superimposed with adc cut
   TH1* m_overalladc_segm_Lumi; // all chambers adc on segm
   TH1* m_overalladc_Lumi; // all chambers adc
-  TH1* m_overalltdccut_segm_PR_Lumi[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* m_overalltdccutPRLumi[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* m_overalladc_segm_PR_Lumi[4]; // all chambers adc superimposed per region
-  TH1* m_overalladcPRLumi[4]; // all chambers adc superimposed per region
-  TH1* m_overalladccutPRLumi[4]; // all chambers adc superimposed per region with adc noise cut
-  TH1* m_overalltdccutPRLumi_RPCtrig[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* m_overalltdccutPRLumi_TGCtrig[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalltdccut_segm_PR_Lumi[4]{}; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalltdccutPRLumi[4]{}; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalladc_segm_PR_Lumi[4]{}; // all chambers adc superimposed per region
+  TH1* m_overalladcPRLumi[4]{}; // all chambers adc superimposed per region
+  TH1* m_overalladccutPRLumi[4]{}; // all chambers adc superimposed per region with adc noise cut
+  TH1* m_overalltdccutPRLumi_RPCtrig[4]{}; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalltdccutPRLumi_TGCtrig[4]{}; // all chambers tdc superimposed with adc cut per region
   
   
   TH2* m_overalltdcadcHighOcc; // all chambers tdc vs adc superimposed, events with > m_HighOccThreshold hits
   TH1* m_overalltdcHighOcc; // all chambers tdc superimposed, events with > m_HighOccThreshold hits
   TH1* m_overalltdcHighOcc_ADCCut; // all chambers tdc (with ADC>80) superimposed, events with > m_HighOccThreshold hits
   TH1* m_overalladc_HighOcc; // all chambers adc superimposed, events with > m_HighOccThreshold hits
-  TH2* m_overalltdcadcPR_HighOcc[4]; // all chambers tdc vs adc superimposed
-  TH1* m_overalltdcPR_HighOcc[4]; // all chambers tdc superimposed per region
-  TH1* m_overalltdcPR_HighOcc_ADCCut[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* m_overalladcPR_HighOcc[4]; // all chambers tdc superimposed with adc cut per region
+  TH2* m_overalltdcadcPR_HighOcc[4]{}; // all chambers tdc vs adc superimposed
+  TH1* m_overalltdcPR_HighOcc[4]{}; // all chambers tdc superimposed per region
+  TH1* m_overalltdcPR_HighOcc_ADCCut[4]{}; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalladcPR_HighOcc[4]{}; // all chambers tdc superimposed with adc cut per region
 
   TH2* m_overall_mdt_DRvsDT;
   TH2* m_overall_mdt_DRvsSegD;
-  TH2* m_overallPR_mdt_DRvsDT[4];
-  TH2* m_overallPR_mdt_DRvsSegD[4];
+  TH2* m_overallPR_mdt_DRvsDT[4]{};
+  TH2* m_overallPR_mdt_DRvsSegD[4]{};
   TH2* m_MdtNHitsvsRpcNHits;  
   
 
@@ -272,26 +272,26 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH1* m_nummdtchamberswithHighOcc; // Number of MDT chambers with > 1% occupancy
 
   TH1* m_mdtchamberstat;
-  TH1* m_mdtchamberstatphislice[16];
-  TH1* m_mdtChamberHits[4][4][16];
-  TH2* m_mdtxydet[3];
-  TH2* m_mdtrzdet[3]; 
-  TH2* m_mdthitspermultilayerLumi[4][4];
-  TH2* m_mdteffpermultilayer[4][4];
-  TH2* m_mdthitsperchamber_InnerMiddleOuterLumi[2];
-  TH2* m_mdthitsperchamber_InnerMiddleOuter_HighOcc[2];
-  TH2* m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[2];
-  TH2* m_mdteffperchamber_InnerMiddleOuter[4];
-  TH2* m_mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
-  TH2* m_mdtoccvslb[4][3];
-  TH2* m_mdtoccvslb_by_crate[4][4];
-  TH2* m_mdtoccvslb_ontrack_by_crate[4][4];
-  TH2* m_mdtoccvslb_summaryPerSector;
+  TH1* m_mdtchamberstatphislice[16]{};
+  TH1* m_mdtChamberHits[4][4][16]{};
+  TH2* m_mdtxydet[3]{};
+  TH2* m_mdtrzdet[3]{}; 
+  TH2* m_mdthitspermultilayerLumi[4][4]{};
+  TH2* m_mdteffpermultilayer[4][4]{};
+  TH2* m_mdthitsperchamber_InnerMiddleOuterLumi[2]{};
+  TH2* m_mdthitsperchamber_InnerMiddleOuter_HighOcc[2]{};
+  TH2* m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[2]{};
+  TH2* m_mdteffperchamber_InnerMiddleOuter[4]{};
+  TH2* m_mdthitsperML_byLayer[3]{};//These are alternative Global hit coverage plots
+  TH2* m_mdtoccvslb[4][3]{};
+  TH2* m_mdtoccvslb_by_crate[4][4]{};
+  TH2* m_mdtoccvslb_ontrack_by_crate[4][4]{};
+  TH2* m_mdtoccvslb_summaryPerSector = nullptr;
 
   /////End from old BS
 
   ///////////For t0 calculations//////////
-  TH1* m_mdttdccut_sector[4][4][16]; ////  [endcap/barrel A/C][layer][sector]
+  TH1* m_mdttdccut_sector[4][4][16]{}; ////  [endcap/barrel A/C][layer][sector]
 
   //Chamber by Chamber Plots
   std::vector< MDTChamber* >* m_hist_hash_list;

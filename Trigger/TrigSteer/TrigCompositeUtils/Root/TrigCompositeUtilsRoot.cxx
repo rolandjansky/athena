@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
@@ -10,6 +10,7 @@
 #include "AthContainers/AuxElement.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <unordered_map>
 #include <regex>
@@ -153,7 +154,7 @@ namespace TrigCompositeUtils {
     return d->hasObjectCollectionLinks( seedString() );
   }
 
-  const ElementLinkVector<DecisionContainer> getLinkToPrevious( const Decision* d ) {
+  const std::vector<ElementLink<DecisionContainer>> getLinkToPrevious( const Decision* d ) {
     return d->objectCollectionLinks<DecisionContainer>( seedString() );
   }
 
@@ -209,7 +210,7 @@ namespace TrigCompositeUtils {
     if ( filter( start ) ) return start;
 
     if ( hasLinkToPrevious(start) ) {
-      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
+      const std::vector<ElementLink<DecisionContainer>> seeds = getLinkToPrevious(start);
       for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
@@ -236,7 +237,7 @@ namespace TrigCompositeUtils {
     return nullptr;
   }
 
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore,
+  std::vector<const Decision*> getRejectedDecisionNodes(const asg::EventStoreType* eventStore,
     const std::string& summaryCollectionKey,
     const DecisionIDContainer& ids,
     const std::set<std::string>& keysToIgnore) {
@@ -286,7 +287,7 @@ namespace TrigCompositeUtils {
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
-      if ( key.find("HLTNav_") != 0 ) {
+      if ( ! boost::starts_with (key, "HLTNav_") ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
       }
       if (keysToIgnore.count(key) == 1) {
@@ -301,7 +302,7 @@ namespace TrigCompositeUtils {
           // TODO add logic for ComboHypo where this is expected
           continue; // Only want Decision objects created by HypoAlgs
         }
-        const ElementLinkVector<DecisionContainer> mySeeds = d->objectCollectionLinks<DecisionContainer>(seedString());
+        const std::vector<ElementLink<DecisionContainer>> mySeeds = d->objectCollectionLinks<DecisionContainer>(seedString());
         if (mySeeds.size() == 0) {
           continue;
         }
@@ -756,7 +757,7 @@ namespace TrigCompositeUtils {
     std::string ret; 
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
-      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
+      const std::vector<ElementLink<DecisionContainer>> seeds = getLinkToPrevious(tc);
       for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }

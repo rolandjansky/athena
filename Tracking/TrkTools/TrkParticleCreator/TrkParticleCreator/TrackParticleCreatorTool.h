@@ -193,10 +193,14 @@ private:
   ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{
     this,
     "MuonSummaryTool",
-    "Muon::MuonHitSummaryTool/MuonHitSummaryTool"
+    ""
   };
 
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{
+    this,
+    "IBLParameterSvc",
+    "IBLParameterSvc"
+  };
 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
     this,
@@ -224,8 +228,6 @@ private:
   static const SG::AuxElement::Accessor<uint8_t> s_trtdEdxUsedHitsDecoration;
 
   bool m_doIBL;
-  bool m_useTrackSummaryTool;
-  bool m_useMuonSummaryTool;
   ///< if the track contains a summary, the shared, expected hit, and PID
   ///< information will be recomputed. The summary of the track is not updated.
   bool m_computeAdditionalInfo;
@@ -249,7 +251,6 @@ private:
   bool m_checkConversion;
   int m_minSiHits;
   double m_minPt;
-  bool m_doITk;
 };
 
 } // end of namespace Trk

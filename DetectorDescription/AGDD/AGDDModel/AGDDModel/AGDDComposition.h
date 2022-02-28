@@ -17,7 +17,7 @@ public:
                         AGDDSectionStore& ss)
           : AGDDVolume(s,vs,ss) {}
 	virtual ~AGDDComposition() {}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 private:
 };
 

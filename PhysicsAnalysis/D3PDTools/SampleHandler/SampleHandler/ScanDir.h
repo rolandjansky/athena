@@ -122,6 +122,16 @@ namespace SH
   public:
     ScanDir& fileRegex (const std::string& val_fileRegex);
 
+    /// \brief the pattern for directories to be visited
+    /// \sa directoryPatternRegex
+  public:
+    ScanDir& directoryPattern (const std::string& val_directoryPattern);
+
+    /// \brief the regular expression for directories to be visited
+    /// \sa directoryPattern
+  public:
+    ScanDir& directoryRegex (const std::string& val_directoryRegex);
+
     /// \brief the pattern for samples to be accepted
   public:
     ScanDir& samplePattern (const std::string& val_samplePattern);
@@ -174,6 +184,11 @@ namespace SH
     ///   regular expression
   private:
     boost::regex m_filePattern;
+
+    /// \brief the value set by \ref directoryPattern, converted to a
+    ///   regular expression
+  private:
+    boost::regex m_directoryPattern;
 
     /// \brief the value set by \ref samplePattern, converted to a
     ///   regular expression

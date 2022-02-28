@@ -1,131 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
-from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
-
-class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
-    __slots__ = []
-    def __init__(self, name = "TrigDecMaker"):
-        super( TrigDecisionMaker, self ).__init__( name )
-
-
-class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
-    __slots__ = []
-    def __init__(self, name = "TrigDecMakerMT"):
-        super( TrigDecisionMakerMT, self ).__init__( name )
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        # Schedule also the prescale conditions algs
-        from AthenaCommon.Configurable import Configurable
-        Configurable.configurableRun3Behavior += 1
-        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
-        from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-        acc = ComponentAccumulator()
-        acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
-        acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
-        appendCAtoAthena( acc )
-        Configurable.configurableRun3Behavior -= 1
-
-# Following not yet ported to the AthenaMT / Run 3 alg
-
-class TrigDecisionStream ( object) :
-    def __init__ ( self, streamName = "Stream1", fileName = "HLT.root",
-                   catalog = "xmlcatalog_file:Catalog1.xml",
-                   store = None) :
-        import AthenaPoolCnvSvc.WriteAthenaPool  # noqa: F401
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.PoolSvc.WriteCatalog = catalog
-
-        # revert later from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
-        # revert later self.stream = createOutputStream( streamName )
-
-        from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-        self.stream = AthenaPoolOutputStream( streamName )
-
-        self.stream.OutputFile = fileName
-
-        if store is not None :
-            self.stream.Store = store
-        else :
-            from StoreGate.StoreGateConf import StoreGateSvc
-            self.stream.Store = StoreGateSvc( "StoreGateSvc" )
-
-        TrigDecisionStream.setItemList(self.stream)
-
-    def setItemList(stream) :
-        stream.ItemList += [ "TrigDec::TrigDecision#TrigDecision" ]
-    setItemList = staticmethod(setItemList)
-
-    def stream(self) :
-        return self.stream
-
-class TrigConditionStream ( object) :
-    def __init__ ( self, streamName = "Stream2", fileName = "HLT.root",
-                   catalog = "xmlcatalog_file:Catalog1.xml",
-                   store = None ) :
-
-        import AthenaPoolCnvSvc.WriteAthenaPool  # noqa: F401
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from PoolSvc.PoolSvcConf import PoolSvc
-        svcMgr += PoolSvc()
-        svcMgr.PoolSvc.WriteCatalog = catalog
-
-        from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputConditionStream
-        self.stream = AthenaPoolOutputConditionStream( streamName )
-
-        from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-        self.stream = AthenaPoolOutputStream( streamName )
-
-        self.stream.OutputFile = fileName
-
-        if store is not None :
-            self.stream.Store = store
-        else :
-            from StoreGate.StoreGateConf import StoreGateSvc
-            self.stream.Store = StoreGateSvc( "DetectorStore" )
-
-        TrigConditionStream.setItemList(self.stream)
-
-    def setItemList(stream) :
-        pass
-    setItemList = staticmethod(setItemList)
-
-    def stream(self) :
-        return self.stream
-
-
-class WriteTrigDecisionToFile ( object ) :
-    def __init__ ( self, fileName = "TrigDec.root",
-                   catalog = "xmlcatalog_file:Catalog1.xml" ) :
-
-        from AthenaCommon.AlgSequence import AlgSequence
-        TopAlg = AlgSequence()
-
-        self.TrigDecMaker    = TrigDecisionMaker('TrigDecMaker')
-
-        TopAlg += self.TrigDecMaker
-
-        from StoreGate.StoreGateConf import StoreGateSvc
-        sgStore = StoreGateSvc("StoreGateSvc")
-
-        self.TrigDecStream  = TrigDecisionStream ("Stream1", fileName, catalog, sgStore)
-
-
-class WriteTrigDecisionToStream ( object ) :
-    def __init__ ( self, decStream, condStream ) :
-
-        from AthenaCommon.AlgSequence import AlgSequence
-        TopAlg = AlgSequence()
-
-        self.TrigDecMaker    = TrigDecisionMaker('TrigDecMaker')
-
-        TopAlg += self.TrigDecMaker
-
-        decStream.setItemList(decStream)
-        condStream.setItemList(condStream)
-
-        self.TrigDecStream  = decStream
-        self.TrigCondStream = condStream
 
 
 class WritexAODTrigDecision ( object ) :
@@ -168,7 +45,7 @@ class WriteTrigDecision ( object ) :
         from AthenaCommon.AlgSequence import AlgSequence
         TopAlg = AlgSequence()
 
-        self.TrigDecMaker    = TrigDecisionMaker('TrigDecMaker')
+        self.TrigDecMaker    = CompFactory.TrigDecisionMaker('TrigDecMaker')
 
         TopAlg += self.TrigDecMaker
 
@@ -187,15 +64,58 @@ class WriteTrigDecision ( object ) :
         itemList += [ "TrigDec::TrigDecision#*" ]
 
 
+def Run1Run2DecisionMakerCfg(flags):
+    """Configures HLTNavigation(tool) -> xAODNavigation and TrigDec::TrigDecision -> xAOD::TrigDecision """
+    acc = ComponentAccumulator()
+    doL1=True
+    doL2=True
+    doEF=True
+    doHLT=True
+
+    if 'HLT' not in flags.Trigger.availableRecoMetadata:
+        doL2=False
+        doEF=False
+        doHLT=False
+        
+    if 'L1' not in flags.Trigger.availableRecoMetadata:
+        doL1=False
+
+    if flags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
+        doHLT = False
+    else:
+        doL2 = False
+        doEF = False
+
+    decMaker = CompFactory.TrigDec.TrigDecisionMaker( 'TrigDecMaker', 
+                                                      doL1 = doL1,
+                                                      doL2 = doL2,
+                                                      doEF = doEF,
+                                                      doHLT = doHLT)
+    acc.addEventAlgo(decMaker)
 
 
+    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+    acc.merge(TrigDecisionToolCfg(flags))
 
-class ReadTrigDecisionFromFile ( object ) :
-    def __init__ ( self, fileName = "TrigDec.root",
-                   catalog = "xmlcatalog_file:Catalog1.xml" ) :
+    from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
+    cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool('TrigDecisionCnvTool', 
+                                                        TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )
 
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
+    decCnv = CompFactory.xAODMaker.TrigDecisionCnvAlg(CnvTool = cnvTool)    
 
-        svcMgr.EventSelector.InputCollections = [ fileName ]
-        svcMgr.PoolSvc.ReadCatalog = [ catalog ]
+    acc.addEventAlgo(decCnv)
+
+    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg', 
+                                                                 doL2 = doL2 and not doEF, 
+                                                                 doEF = doEF,
+                                                                 doHLT = doHLT))
+    return acc
+
+def Run3DecisionMakerCfg(flags):
+    acc = ComponentAccumulator()
+    tdm = CompFactory.TrigDec.TrigDecisionMakerMT()
+    if not flags.Trigger.readBS:
+        # Construct trigger bits from HLTNav_summary instead of reading from BS
+        tdm.BitsMakerTool = CompFactory.TriggerBitsMakerTool()
+    acc.addEventAlgo( tdm )
+    return acc

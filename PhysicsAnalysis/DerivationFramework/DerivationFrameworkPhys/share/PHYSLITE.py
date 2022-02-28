@@ -167,6 +167,31 @@ if (inputIsDAODPHYS == False):
   ToolSvc += PHYSLITEDiTauLowPtTPThinningTool
   thinningTools.append(PHYSLITEDiTauLowPtTPThinningTool)
 
+# keep calo clusters around electrons
+  from DerivationFrameworkCalo.DerivationFrameworkCaloConf import (
+      DerivationFramework__CaloClusterThinning)
+  PHYSLITEElectronCaloClusterThinningTool = DerivationFramework__CaloClusterThinning(
+    name="PHYSLITEElectronCaloClusterThinningTool",
+    StreamName=streamName,
+    SGKey="AnalysisElectrons",
+    CaloClCollectionSGKey="egammaClusters",
+    ConeSize=-1.0)
+  ToolSvc += PHYSLITEElectronCaloClusterThinningTool
+  print(PHYSLITEElectronCaloClusterThinningTool)
+  thinningTools.append(PHYSLITEElectronCaloClusterThinningTool)
+
+# keep calo clusters around photons
+  PHYSLITEPhotonCaloClusterThinningTool = DerivationFramework__CaloClusterThinning(
+    name="PHYSLITEPhotonCaloClusterThinningTool",
+    StreamName=streamName,
+    SGKey="AnalysisPhotons",
+    CaloClCollectionSGKey="egammaClusters",
+    ConeSize=-1.0)
+  ToolSvc += PHYSLITEPhotonCaloClusterThinningTool
+  print(PHYSLITEPhotonCaloClusterThinningTool)
+  thinningTools.append(PHYSLITEPhotonCaloClusterThinningTool)
+
+
 #==============================================================================
 # Analysis-level variables 
 #==============================================================================
@@ -186,7 +211,8 @@ if DerivationFrameworkIsMonteCarlo:
 # Create a pile-up analysis sequence
 from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
 pileupSequence = makePileupAnalysisSequence( dataType )
-pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+pileupSequence.configure( inputName = {}, outputName = {} )
+print( pileupSequence ) # For debugging
 SeqPHYSLITE += pileupSequence
 
 # Include, and then set up the electron analysis sequence:
@@ -200,7 +226,7 @@ SeqPHYSLITE += electronSequence
 
 # Include, and then set up the photon analysis sequence:                                       
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, recomputeIsEM=True )
+photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, shallowViewOutput = False, recomputeIsEM=False )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons' )
 print( photonSequence ) # For debugging
@@ -252,12 +278,12 @@ scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 # Create trigger matching decorations
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 PHYSLITEtrigmatching_helper_notau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolNoTau',
-        OutputContainerPrefix = "Analysis",
+        OutputContainerPrefix = "AnalysisTrigMatch_",
         trigger_list = PhysCommonTrigger.trigger_names_notau, add_to_df_job=False,
         InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
 PHYSLITEtrigmatching_helper_tau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolTau',
-        OutputContainerPrefix = "Analysis",
+        OutputContainerPrefix = "AnalysisTrigMatch_",
         trigger_list = PhysCommonTrigger.trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
         InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
@@ -335,10 +361,11 @@ PHYSLITESlimmingHelper.SmartCollections = [
 
 PHYSLITESlimmingHelper.ExtraVariables = [ 
   "AnalysisElectrons.trackParticleLinks.pt.eta.phi.m.charge.author.DFCommonElectronsLHVeryLoose.DFCommonElectronsLHLoose.DFCommonElectronsLHLooseBL.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsLHVeryLooseIsEMValue.DFCommonElectronsLHLooseIsEMValue.DFCommonElectronsLHLooseBLIsEMValue.DFCommonElectronsLHMediumIsEMValue.DFCommonElectronsLHTightIsEMValue.DFCommonElectronsECIDS.DFCommonElectronsECIDSResult.ptvarcone20.ptvarcone40.topoetcone20.topoetcone20ptCorrection.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.caloClusterLinks.ambiguityLink.truthParticleLink.truthOrigin.truthType.truthPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink.firstEgMotherPdgId.ambiguityType.OQ",
-  "AnalysisPhotons.pt.eta.phi.m.author.OQ.DFCommonPhotonsIsEMLoose.DFCommonPhotonsIsEMTight.DFCommonPhotonsIsEMTightIsEMValue.DFCommonPhotonsIsEMTightPtIncl.DFCommonPhotonsIsEMTightPtInclIsEMValue.DFCommonPhotonsCleaning.DFCommonPhotonsCleaningNoTime.ptcone20.topoetcone20.topoetcone40.topoetcone20ptCorrection.topoetcone40ptCorrection.caloClusterLinks.vertexLinks.ambiguityLink.truthParticleLink.truthOrigin.truthType",
-  "GSFTrackParticles.chiSquared.phi.d0.theta.qOverP.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.z0.vz.charge.vertexLink",
+  "AnalysisPhotons.pt.eta.phi.m.author.OQ.DFCommonPhotonsIsEMLoose.DFCommonPhotonsIsEMTight.DFCommonPhotonsIsEMTightIsEMValue.DFCommonPhotonsCleaning.DFCommonPhotonsCleaningNoTime.ptcone20.topoetcone20.topoetcone40.topoetcone20ptCorrection.topoetcone40ptCorrection.caloClusterLinks.vertexLinks.ambiguityLink.truthParticleLink.truthOrigin.truthType",
+  "GSFTrackParticles.chiSquared.phi.d0.theta.qOverP.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.z0.vz.charge.vertexLink.numberOfPixelHits.numberOfSCTHits",
+  "GSFConversionVertices.trackParticleLinks.x.y.z.px.py.pz.pt1.pt2.neutralParticleLinks.minRfirstHit",
   "egammaClusters.calE.calEta.calPhi.e_sampl.eta_sampl.ETACALOFRAME.PHICALOFRAME.ETA2CALOFRAME.PHI2CALOFRAME.constituentClusterLinks",
-  "AnalysisMuons.pt.eta.phi.truthType.truthOrigin.author.muonType.quality.inDetTrackParticleLink.muonSpectrometerTrackParticleLink.combinedTrackParticleLink.InnerDetectorPt.MuonSpectrometerPt.DFCommonGoodMuon.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.truthParticleLink.charge.extrapolatedMuonSpectrometerTrackParticleLink.allAuthors.ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.numberOfPrecisionLayers.combinedTrackOutBoundsPrecisionHits.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.numberOfGoodPrecisionLayers.innerSmallHits.innerLargeHits.middleSmallHits.middleLargeHits.outerSmallHits.outerLargeHits.extendedSmallHits.extendedLargeHits.extendedSmallHoles.isSmallGoodSectors.cscUnspoiledEtaHits.EnergyLoss.energyLossType.momentumBalanceSignificance.scatteringCurvatureSignificance.scatteringNeighbourSignificance",
+  "AnalysisMuons.pt.eta.phi.truthType.truthOrigin.author.muonType.quality.inDetTrackParticleLink.muonSpectrometerTrackParticleLink.combinedTrackParticleLink.InnerDetectorPt.MuonSpectrometerPt.DFCommonGoodMuon.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.truthParticleLink.charge.extrapolatedMuonSpectrometerTrackParticleLink.allAuthors.ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.numberOfPrecisionLayers.combinedTrackOutBoundsPrecisionHits.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.numberOfGoodPrecisionLayers.innerSmallHits.innerLargeHits.middleSmallHits.middleLargeHits.outerSmallHits.outerLargeHits.extendedSmallHits.extendedLargeHits.extendedSmallHoles.isSmallGoodSectors.cscUnspoiledEtaHits.EnergyLoss.energyLossType.momentumBalanceSignificance.scatteringCurvatureSignificance.scatteringNeighbourSignificance.CaloMuonIDTag",
   "CombinedMuonTrackParticles.qOverP.d0.z0.vz.phi.theta.truthOrigin.truthType.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles.numberOfSCTDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfTRTHits.numberOfTRTOutliers.chiSquared.numberDoF",
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.vertexLink.theta.qOverP.truthParticleLink",

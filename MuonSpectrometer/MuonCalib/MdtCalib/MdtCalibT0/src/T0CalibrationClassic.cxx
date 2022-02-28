@@ -61,7 +61,7 @@ namespace MuonCalib {
     }
 
     bool T0CalibrationClassic::handleSegment(MuonCalibSegment &seg) {
-        for (MuonCalibSegment::MdtHitPtr hit : seg.mdtHOT()) {
+        for (const MuonCalibSegment::MdtHitPtr& hit : seg.mdtHOT()) {
             float distanceToRO = hit->distanceToReadout();
 
             bool ROside = distanceToRO < 130000.;  // this means that there is no selection along the tube

@@ -9,15 +9,10 @@
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
 #include "MuonHoughPatternEvent/MuonHoughTransformer.h"
 
-MuonHoughTransformSteering::MuonHoughTransformSteering(MuonHoughTransformer* houghtransformer) {
-    m_houghtransformer = houghtransformer;
-    m_maximum_residu_mm = 1.;
-}
+MuonHoughTransformSteering::MuonHoughTransformSteering(std::unique_ptr<MuonHoughTransformer>& houghtransformer) :
+    m_houghtransformer{std::move(houghtransformer)} {}
 
-MuonHoughTransformSteering::~MuonHoughTransformSteering() {
-    delete m_houghtransformer;
-    m_houghtransformer = nullptr;
-}
+MuonHoughTransformSteering::~MuonHoughTransformSteering() = default;
 
 MuonHoughPatternCollection MuonHoughTransformSteering::constructHoughPatterns(const MuonHoughHitContainer* event, double residu_mm,
                                                                               double residu_grad, int max_patterns, bool which_segment,
@@ -34,8 +29,7 @@ MuonHoughPatternCollection MuonHoughTransformSteering::constructHoughPatterns(co
             int sector = maxima[maximum_number].first;
             MuonHoughPattern* houghpattern =
                 constructHoughPattern(event, binnumber, residu_mm, residu_grad, sector, which_segment, printlevel);
-
-            houghpatterns.push_back(houghpattern);
+            houghpatterns.emplace_back(houghpattern);
         } else {
             if (printlevel >= 4 || log.level() <= MSG::VERBOSE) {
                 log << MSG::VERBOSE << "binnumber == -1 (no max found), max patterns = " << maximum_number << endmsg;

@@ -57,21 +57,21 @@ private:
   void getParameters();
   virtual const GeoLogVol * preBuild();
 
-  double m_thickness;
-  double m_width;
-  double m_length;
+  double m_thickness = 0.0;
+  double m_width = 0.0;
+  double m_length = 0.0;
 
-  double m_hybridOffsetX;
-  double m_hybridOffsetZ;
-  double m_safety;
+  double m_hybridOffsetX = 0.0;
+  double m_hybridOffsetZ = 0.0;
+  double m_safety = 0.0;
 
   std::unique_ptr<SCT_Hybrid> m_hybrid;
   std::unique_ptr<SCT_Pigtail> m_pigtail;
   std::unique_ptr<SCT_Sensor> m_sensor;
 
-  GeoTransform * m_hybridPos;
-  GeoTransform * m_pigtailPos;
-  GeoTransform * m_sensorPos;
+  GeoTransform * m_hybridPos = nullptr;
+  GeoTransform * m_pigtailPos = nullptr;
+  GeoTransform * m_sensorPos = nullptr;
   std::unique_ptr<GeoTrf::Vector3D> m_env1RefPointVector;
   std::unique_ptr<GeoTrf::Vector3D> m_env2RefPointVector;
 

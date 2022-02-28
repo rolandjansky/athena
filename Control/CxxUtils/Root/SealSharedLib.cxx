@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -287,7 +287,7 @@ SharedLibrary::load (const std::string &name)
 /** Iterate and provide information about all currently loaded
     shared libraries.  */
 void
-SharedLibrary::loaded (const InfoHandler &handler)
+SharedLibrary::loaded (InfoHandler &handler)
 {
     // Dynamic linker characteristics:
     //   AIX, Windows, SVR4 (DG/UX, DRS/NX, DYNIX/ptx, Linux, SINIX,

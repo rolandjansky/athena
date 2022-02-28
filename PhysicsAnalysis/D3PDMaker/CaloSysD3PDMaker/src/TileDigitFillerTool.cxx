@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -34,7 +34,7 @@ namespace D3PD{
       m_section = 0;
       m_side = 0;
       m_tower = 0;
-      book().ignore(); // Avoid coverity warnings
+      TileDigitFillerTool::book().ignore(); // Avoid coverity warnings
     }
 
 

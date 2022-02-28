@@ -8,7 +8,7 @@
 
 using namespace MuonAlign;
 
-AlignmentTranslationDeviation::AlignmentTranslationDeviation(Amg::Vector3D u, double sigma,
+AlignmentTranslationDeviation::AlignmentTranslationDeviation(const Amg::Vector3D& u, double sigma,
                                                              const std::vector<const Trk::RIO_OnTrack*>& hits) :
     m_u(u.unit()), m_sigma(sigma) {
     m_hits = hits;

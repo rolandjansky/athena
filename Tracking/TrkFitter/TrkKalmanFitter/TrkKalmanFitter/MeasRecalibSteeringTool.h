@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkFitterInterfaces/IMeasurementRecalibrator.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 namespace Trk 
 {
@@ -20,7 +21,6 @@ namespace Trk
   class MeasurementBase;
   class RIO_OnTrack;
   class MeasurementTypeID;
-  class IRIO_OnTrackCreator;
 
   /** @class MeasRecalibSteeringTool
       @brief tool to repeat the calibration PrepRawData to RIO_OnTrack on an
@@ -59,13 +59,17 @@ namespace Trk
     private:
       
       // tool handles for a whole zoo of ROT creators
-      ToolHandle< IRIO_OnTrackCreator >   m_rotCreator;
-      ToolHandle< IRIO_OnTrackCreator >   m_broadPixelClusterCreator;
-      ToolHandle< IRIO_OnTrackCreator >   m_broadSctClusterCreator;
-      ToolHandle< IRIO_OnTrackCreator >   m_trtDriftCircleCreator;
-      ToolHandle< IRIO_OnTrackCreator >   m_trtTubeHitCreator;
+      ToolHandle< IRIO_OnTrackCreator >   m_rotCreator
+	{this, "CommonRotCreator", "Trk::RIO_OnTrackCreator/InDetRefitRotCreator"};
+      ToolHandle< IRIO_OnTrackCreator >   m_broadPixelClusterCreator
+	{this, "BroadPixelClusterOnTrackTool", "InDet::PixelClusterOnTrackTool/InDetBroadPixelClusterOnTrackTool"};
+      ToolHandle< IRIO_OnTrackCreator >   m_broadSctClusterCreator
+	{this, "BroadSCT_ClusterOnTrackTool", "InDet::SCT_ClusterOnTrackTool/InDetBroadSCT_ClusterOnTrackTool"};
+      ToolHandle< IRIO_OnTrackCreator >   m_trtDriftCircleCreator
+	{this, "TRT_DriftCircleOnTrackTool", "InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"};
+      ToolHandle< IRIO_OnTrackCreator >   m_trtTubeHitCreator
+	{this, "TRT_StrawTubeOnTrackTool", "InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_StrawTubeOnTrackTool"};
       bool                                m_haveInDetTools;
-      //bool                                m_haveMuonTools;
 
       //! Helper to detect type of sub-detector
       const AtlasDetectorID*            m_idHelper;

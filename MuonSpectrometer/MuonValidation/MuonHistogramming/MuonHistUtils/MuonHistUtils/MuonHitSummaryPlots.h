@@ -16,7 +16,7 @@ namespace Muon{
   
 class MuonHitSummaryPlots:public PlotBase {
  public:
-  MuonHitSummaryPlots(PlotBase* pParent, std::string sDir);  
+  MuonHitSummaryPlots(PlotBase* pParent, const std::string& sDir);  
   void fill(const xAOD::Muon& muon, float weight=1.0);
   void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
   void fillPlot(Trk::HitTypePlots& hitPlots, xAOD::MuonSummaryType info, const xAOD::Muon& muon, float weight=1.0);

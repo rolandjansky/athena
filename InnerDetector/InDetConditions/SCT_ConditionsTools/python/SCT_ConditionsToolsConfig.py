@@ -52,6 +52,8 @@ def SCT_ConditionsSummaryToolCfg(flags, name="InDetSCT_ConditionsSummaryTool", *
 
     if withFlaggedCondTool:
         ConditionsTools += [ acc.popToolsAndMerge(SCT_FlaggedConditionToolCfg(flags)) ]
+    else:
+        name += "WithoutFlagged"
 
     # Load bytestream errors tool (use default instance without "InDet")
     if not flags.Input.isMC :

@@ -17,8 +17,8 @@ class TGCWireTripletSB: public TGCSlaveBoard
   static constexpr int s_NumberOfWireTripletSBData = 3;
 
  public:
-  TGCWireTripletSB(const TGCWireTripletSB& right);
-  TGCWireTripletSB& operator=(const TGCWireTripletSB& right);
+  TGCWireTripletSB(const TGCWireTripletSB& right) = delete;
+  TGCWireTripletSB& operator = (const TGCWireTripletSB& right);
 
   TGCWireTripletSB();
   virtual ~TGCWireTripletSB(){};

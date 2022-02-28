@@ -146,7 +146,7 @@ class LArSCL1Maker : public AthReentrantAlgorithm
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArSCL1Maker", ""};
   ServiceHandle<IAthRNGSvc> m_atRndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};
   Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""};
-  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true, "Use MC16-style random number seeding"};
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false, "Use MC16-style random number seeding"};
 
 
   /** Alorithm property: use trigger time or not*/
@@ -185,6 +185,8 @@ class LArSCL1Maker : public AthReentrantAlgorithm
 
   /** hit map */
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
+  /** Background Digit Overlay, default key is Bkg_LArDigitSCL2 */
+  SG::ReadHandleKey<LArDigitContainer> m_bkgDigitsKey{ this, "BkgDigitKey", ""};
   /** output Lar Digits SC container */
   SG::WriteHandleKey<LArDigitContainer> m_sLArDigitsContainerKey {this, "SCL1ContainerName","LArDigitSCL1","Output LArDigit container"};
 

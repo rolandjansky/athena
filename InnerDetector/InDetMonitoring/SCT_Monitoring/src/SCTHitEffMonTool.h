@@ -167,10 +167,10 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   BooleanProperty m_vetoBadChips{this, "VetoBadChips", true};
   BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};
 
-  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
-  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMapFirstBCID;
-  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
-  std::array < std::array < TProfile*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
+  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap{};
+  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMapFirstBCID{};
+  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap{};
+  std::array < std::array < TProfile*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock{};
 
   TProfile* m_Eff_Total{nullptr};
   TProfile* m_Eff_TotalBCID{nullptr};

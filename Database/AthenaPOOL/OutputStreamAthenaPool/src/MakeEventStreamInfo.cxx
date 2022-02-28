@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MakeEventStreamInfo.cxx
@@ -22,14 +22,8 @@
 //___________________________________________________________________________
 MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
 	const std::string& name,
-	const IInterface* parent) : base_class(type, name, parent),
-		m_metaDataSvc("MetaDataSvc", name),
-                m_eventStore("StoreGateSvc", name)
+	const IInterface* parent) : base_class(type, name, parent)
 {
-   // Declare the properties
-   declareProperty("Key", m_key = "");
-   declareProperty("EventInfoKey", m_eventInfoKey = "EventInfo");
-   declareProperty("OldEventInfoKey", m_oEventInfoKey = "McEventInfo");
 }
 //___________________________________________________________________________
 MakeEventStreamInfo::~MakeEventStreamInfo() {
@@ -45,6 +39,16 @@ StatusCode MakeEventStreamInfo::initialize() {
    if (!m_eventStore.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Could not find EventStore");
       return(StatusCode::FAILURE);
+   }
+
+   // Autoconfigure data header key
+   if (m_dataHeaderKey.empty()){
+      const IAlgorithm* parentAlg = dynamic_cast<const IAlgorithm*>(this->parent());
+      if (parentAlg == nullptr) {
+         ATH_MSG_ERROR("Unable to get parent Algorithm");
+         return(StatusCode::FAILURE);
+      }
+      m_dataHeaderKey.setValue(parentAlg->name());
    }
 
    return(StatusCode::SUCCESS);
@@ -69,13 +73,7 @@ StatusCode MakeEventStreamInfo::preStream() {
 }
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::postExecute() {
-   const IAlgorithm* parentAlg = dynamic_cast<const IAlgorithm*>(this->parent());
-   if (parentAlg == nullptr) {
-      ATH_MSG_ERROR("Unable to get parent Algorithm");
-      return(StatusCode::FAILURE);
-   }
-
-   SG::ReadHandle<DataHeader> dataHeader(parentAlg->name());
+   SG::ReadHandle<DataHeader> dataHeader(m_dataHeaderKey);
    if (!dataHeader.isValid()) {
       return(StatusCode::SUCCESS);
    }
@@ -113,9 +111,8 @@ StatusCode MakeEventStreamInfo::postExecute() {
    pEventStream->insertProcessingTag(dataHeader->getProcessTag());
    pEventStream->insertLumiBlockNumber( lumiN );
    pEventStream->insertRunNumber( runN );
-   for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(), iterEnd = dataHeader->end();
-		   iter != iterEnd; iter++) {
-      pEventStream->insertItemList(iter->getPrimaryClassID(), iter->getKey());
+   for (const DataHeaderElement& dhe : *dataHeader) {
+      pEventStream->insertItemList(dhe.getPrimaryClassID(), dhe.getKey());
    }
    pEventStream->insertEventType( evtype );
    return(StatusCode::SUCCESS);

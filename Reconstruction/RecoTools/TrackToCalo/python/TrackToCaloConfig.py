@@ -12,8 +12,7 @@ def ParticleCaloExtensionToolCfg(flags, **kwargs):
     acc=ComponentAccumulator()
 
     if "Extrapolator" not in kwargs:
-        extrapAcc = AtlasExtrapolatorCfg(flags)
-        kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
+        kwargs["Extrapolator"] = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
 
     caloExtensionTool = CompFactory.Trk.ParticleCaloExtensionTool(**kwargs)
 

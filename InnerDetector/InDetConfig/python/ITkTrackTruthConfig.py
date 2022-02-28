@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 # -------------------------------------------------------------------------
@@ -27,15 +27,10 @@ def ITkDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',**k
 def ITkTruthMatchToolCfg(flags, name='ITkTruthMatchTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.ITk.truthMatchStrategy == 'TruthMatchRatio':
-        ITkTruthMatchTool = CompFactory.Trk.TruthMatchRatio
-    elif flags.ITk.truthMatchStrategy == 'TruthMatchTanimoto':
-        ITkTruthMatchTool = CompFactory.Trk.TruthMatchTanimoto
-
     kwargs.setdefault("WeightPixel", 10.)
     kwargs.setdefault("WeightSCT", 5.)
 
-    ITkTruthMatchSimilarityTool = ITkTruthMatchTool(name = name, **kwargs)
+    ITkTruthMatchSimilarityTool = CompFactory.Trk.TruthMatchRatio(name = name, **kwargs)
     acc.setPrivateTools(ITkTruthMatchSimilarityTool)
     return acc
 
@@ -43,7 +38,6 @@ def ITkTrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='
     acc = ComponentAccumulator()
 
     ITkTruthMatchSimilarityTool = acc.popToolsAndMerge(ITkTruthMatchToolCfg(flags))
-    acc.addPublicTool(ITkTruthMatchSimilarityTool)
 
     kwargs.setdefault("DetailedTrackTruthName", DetailedTruth)
     kwargs.setdefault("OutputName", TracksTruth)
@@ -80,7 +74,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryITkStrip = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 

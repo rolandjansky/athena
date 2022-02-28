@@ -20,6 +20,7 @@
 // DEBUG only
 #include <iostream>
 #include <fstream>
+#include <iterator>//for distance between iterators
 using namespace std;
 
 LArBadChannelTimingAlg::LArBadChannelTimingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -65,7 +66,7 @@ StatusCode LArBadChannelTimingAlg::execute()
 
 void LArBadChannelTimingAlg::timeOnlineAccess() 
 {
-  long factor = ~(1<<31); 
+  unsigned long factor = ~(1ul<<31); 
   factor = factor / m_onlineID->channelHashMax() + 1; 
   ATH_MSG_INFO( "online random scaling factor " << factor );
 
@@ -80,7 +81,7 @@ void LArBadChannelTimingAlg::timeOnlineAccess()
   {
     Chrono chrono( chronoSvc() , "OnlineBadChan" );
     for (int i =0; i<testsPerEvent(); i++) {
-      long rnd = random() / factor; // int arythmetic for speed to get a rnd channel hash
+      unsigned long rnd = random() / factor; // int arythmetic for speed to get a rnd channel hash
       HWIdentifier hid( m_hwarray.at(rnd));
       if ( m_reallyCheck) {
 	if (!bcCont->status(hid).good()) nbad++;
@@ -119,7 +120,7 @@ void LArBadChannelTimingAlg::timeOfflineAccess()
   // get reference to vector of all LArEM IDs (skip HEC & FCAL for now)
   const std::vector<Identifier>& allIDs = m_emID->channel_ids();
 
-  long factor = ~(1<<31); 
+  unsigned long factor = ~(1ul<<31); 
   factor = factor / allIDs.size() + 1; 
   ATH_MSG_INFO( "connected offline IDs " << allIDs.size() << " offline random scaling factor " << factor );
   SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
@@ -134,7 +135,7 @@ void LArBadChannelTimingAlg::timeOfflineAccess()
   {
     Chrono chrono( chronoSvc() , "OfflineBadChan" );
     for (int i =0; i<testsPerEvent(); i++) {
-      long rnd = random() / factor; // int arythmetic for speed to get a rnd channel hash
+      unsigned long rnd = random() / factor; // int arythmetic for speed to get a rnd channel hash
       Identifier id( allIDs.at(rnd));
       if ( m_reallyCheck) {
 	if (!bcCont->offlineStatus(id).good()) nbad++;
@@ -150,13 +151,14 @@ void LArBadChannelTimingAlg::timeOfflineAccess()
 
 void LArBadChannelTimingAlg::timeFEBAccess() 
 {
-  std::vector<HWIdentifier> febVec( m_onlineID->feb_end() - m_onlineID->feb_end());
+  std::vector<HWIdentifier> febVec;
+  febVec.reserve( std::distance(m_onlineID->feb_begin(),m_onlineID->feb_end()));
   for (std::vector<HWIdentifier>::const_iterator feb = m_onlineID->feb_begin(); 
        feb != m_onlineID->feb_end(); ++feb) {
     febVec.push_back(*feb);
   }
 
-  long factor = ~(1<<31); 
+  unsigned long factor = ~(1ul<<31); 
   factor = factor / febVec.size() + 1; 
 
   SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
@@ -170,7 +172,7 @@ void LArBadChannelTimingAlg::timeFEBAccess()
   {
     Chrono chrono( chronoSvc() , "BadChanByFEB" );
     for (int i =0; i<testsPerEvent(); i++) {
-      long rnd = random(); // all 31 bits random
+      unsigned long rnd = random(); // all 31 bits random
       int rndFEB = rnd / factor; // int arythmetic for speed to get a rnd channel hash
 
       if ( m_reallyCheck) {

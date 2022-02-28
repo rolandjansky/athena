@@ -57,7 +57,7 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4HadronPhysicsFTFP_BERT_ATL_noDiffraction.hh"
+#include "G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction.hh"
 
 #include "G4WarnPLStatus.hh"
 
@@ -87,7 +87,7 @@ template<class T> TFTFP_BERT_ATL_noDiffraction<T>::TFTFP_BERT_ATL_noDiffraction(
   this->RegisterPhysics( new G4HadronElasticPhysics(ver) );
 
    // Hadron Physics
-  this->RegisterPhysics( new G4HadronPhysicsFTFP_BERT_ATL_noDiffraction(ver) );
+  this->RegisterPhysics( new G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction(ver) );
 
   // Stopping Physics
   this->RegisterPhysics( new G4StoppingPhysics(ver) );

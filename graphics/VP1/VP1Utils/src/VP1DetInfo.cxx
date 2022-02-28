@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,6 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-#include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -59,7 +58,6 @@ public:
   static const InDetDD::PixelDetectorManager * m_pixelDetMgr;
   static const InDetDD::SCT_DetectorManager * m_sctDetMgr;
   static const InDetDD::TRT_DetectorManager * m_trtDetMgr;
-  //  static const InDetDD::InDetServMatManager * m_inDetServMatDetMgr;
   static const MuonGM::MuonDetectorManager * m_muonDetMgr;
   static const TileDetDescrManager * m_tileDetMgr;
   static const EMBDetectorManager * m_embDetMgr;
@@ -67,11 +65,7 @@ public:
   static const EMECDetectorManager * m_emecDetMgr;
   static const LArDetectorManager * m_larDetMgr;
   static const FCALDetectorManager * m_fcalDetMgr;
-  static const CaloTTDescrManager * m_calottDetMgr;
   static const CaloIdManager * m_caloIdMgr;
-  //  static const LUCID_DetectorManager * m_lucidDetMgr;
-  //  static const BeamPipeDetectorManager * m_beamPipeDetMgr;
-  //  static const CavernInfraDetectorManager * m_cavernInfraDetMgr;
 
   static const AtlasDetectorID * m_atlasIDHelper;
   static const CscIdHelper * m_cscIDHelper;
@@ -91,7 +85,6 @@ const char VP1DetInfo::Imp::m_badInitFlag = ' ';
 const InDetDD::PixelDetectorManager * VP1DetInfo::Imp::m_pixelDetMgr = 0;
 const InDetDD::SCT_DetectorManager * VP1DetInfo::Imp::m_sctDetMgr = 0;
 const InDetDD::TRT_DetectorManager * VP1DetInfo::Imp::m_trtDetMgr = 0;
-//const InDetDD::InDetServMatManager * VP1DetInfo::Imp::m_inDetServMatDetMgr = 0;
 const MuonGM::MuonDetectorManager * VP1DetInfo::Imp::m_muonDetMgr = 0;
 const TileDetDescrManager * VP1DetInfo::Imp::m_tileDetMgr = 0;
 const EMBDetectorManager * VP1DetInfo::Imp::m_embDetMgr = 0;
@@ -99,11 +92,7 @@ const HECDetectorManager * VP1DetInfo::Imp::m_hecDetMgr = 0;
 const EMECDetectorManager * VP1DetInfo::Imp::m_emecDetMgr = 0;
 const LArDetectorManager * VP1DetInfo::Imp::m_larDetMgr = 0;
 const FCALDetectorManager * VP1DetInfo::Imp::m_fcalDetMgr = 0;
-const CaloTTDescrManager * VP1DetInfo::Imp::m_calottDetMgr = 0;
 const CaloIdManager * VP1DetInfo::Imp::m_caloIdMgr = 0;
-//const LUCID_DetectorManager * VP1DetInfo::Imp::m_lucidDetMgr = 0;
-//const BeamPipeDetectorManager * VP1DetInfo::Imp::m_beamPipeDetMgr = 0;
-//const CavernInfraDetectorManager * VP1DetInfo::Imp::m_cavernInfraDetMgr = 0;
 
 const AtlasDetectorID * VP1DetInfo::Imp::m_atlasIDHelper = 0;
 const CscIdHelper * VP1DetInfo::Imp::m_cscIDHelper = 0;
@@ -157,7 +146,6 @@ const T * VP1DetInfo::Imp::cachedRetrieve(const T*& cachedPtr, const char* prefe
 const InDetDD::PixelDetectorManager * VP1DetInfo::pixelDetMgr() { return Imp::cachedRetrieve(Imp::m_pixelDetMgr,"Pixel",VP1JobConfigInfo::hasPixelGeometry()); }
 const InDetDD::SCT_DetectorManager * VP1DetInfo::sctDetMgr() { return Imp::cachedRetrieve(Imp::m_sctDetMgr,"SCT",VP1JobConfigInfo::hasSCTGeometry()); }
 const InDetDD::TRT_DetectorManager * VP1DetInfo::trtDetMgr() { return Imp::cachedRetrieve(Imp::m_trtDetMgr,"TRT",VP1JobConfigInfo::hasTRTGeometry()); }
-//const InDetDD::InDetServMatManager * VP1DetInfo::inDetServMatDetMgr() { return Imp::cachedRetrieve(Imp::m_inDetServMatDetMgr,"InDetServMat",VP1JobConfigInfo::hasInDetServiceMaterialGeometry()); }
 const MuonGM::MuonDetectorManager * VP1DetInfo::muonDetMgr() { return Imp::cachedRetrieve(Imp::m_muonDetMgr,"Muon",VP1JobConfigInfo::hasMuonGeometry()); }
 const TileDetDescrManager * VP1DetInfo::tileDetMgr() { return Imp::cachedRetrieve(Imp::m_tileDetMgr,"Tile",VP1JobConfigInfo::hasTileGeometry()); }
 const EMBDetectorManager * VP1DetInfo::embDetMgr() { return Imp::cachedRetrieve(Imp::m_embDetMgr,"LArEMB",VP1JobConfigInfo::hasLArGeometry()); }
@@ -165,12 +153,8 @@ const HECDetectorManager * VP1DetInfo::hecDetMgr() { return Imp::cachedRetrieve(
 const EMECDetectorManager * VP1DetInfo::emecDetMgr() { return Imp::cachedRetrieve(Imp::m_emecDetMgr,"LArEMEC",VP1JobConfigInfo::hasLArGeometry()); }
 const LArDetectorManager * VP1DetInfo::larDetMgr() { return Imp::cachedRetrieve(Imp::m_larDetMgr,"LArMgr",VP1JobConfigInfo::hasLArGeometry()); }
 const FCALDetectorManager * VP1DetInfo::fcalDetMgr() { return Imp::cachedRetrieve(Imp::m_fcalDetMgr,"LArFCAL",VP1JobConfigInfo::hasLArGeometry()); }
-const CaloTTDescrManager * VP1DetInfo::calottDetMgr() { return Imp::cachedRetrieve(Imp::m_calottDetMgr,"CaloTTMgr",VP1JobConfigInfo::hasLArGeometry()&&VP1JobConfigInfo::hasTileGeometry()); }
 const CaloIdManager * VP1DetInfo::caloIDMgr() { return Imp::cachedRetrieve(Imp::m_caloIdMgr,"CaloIdManager",VP1JobConfigInfo::hasLArGeometry()&&VP1JobConfigInfo::hasTileGeometry()); }
 
-//const LUCID_DetectorManager * VP1DetInfo::lucidDetMgr() { return Imp::cachedRetrieve(Imp::m_lucidDetMgr,"LUCID",VP1JobConfigInfo::hasLUCIDGeometry()); }//Fixme: Get correct key!
-//const BeamPipeDetectorManager * VP1DetInfo::beamPipeDetMgr() { return Imp::cachedRetrieve(Imp::m_beamPipeDetMgr,"BeamPipe",VP1JobConfigInfo::hasBeamPipeGeometry()); }
-//const CavernInfraDetectorManager * VP1DetInfo::cavernInfraDetMgr() { return Imp::cachedRetrieve(Imp::m_cavernInfraDetMgr,"CavernInfra",VP1JobConfigInfo::hasCavernInfraGeometry()); }//Fixme: Get correct key!
 const AtlasDetectorID * VP1DetInfo::atlasIDHelper() { return Imp::cachedRetrieve(Imp::m_atlasIDHelper,"AtlasID",true); }
 const CscIdHelper * VP1DetInfo::cscIDHelper() { return Imp::cachedRetrieve(Imp::m_cscIDHelper,"CSCIDHELPER",VP1JobConfigInfo::hasMuonGeometry()); }
 const RpcIdHelper * VP1DetInfo::rpcIDHelper() { return Imp::cachedRetrieve(Imp::m_rpcIDHelper,"RPCIDHELPER",VP1JobConfigInfo::hasMuonGeometry()); }

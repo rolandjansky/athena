@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Instantiate the EGamma LRT reconstruction.
@@ -7,7 +7,7 @@ __doc__ = """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTrackTools.egammaTrackToolsConfig import (
-    EMExtrapolationToolsLRTCommonCacheCfg, EMExtrapolationToolsLRTCacheCfg)
+    EMExtrapolationToolsCfg)
 
 
 def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
@@ -21,35 +21,25 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
     if flags.Egamma.doTracking:
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
-        emextLRTCommonCache = acc.popToolsAndMerge(
-            EMExtrapolationToolsLRTCommonCacheCfg(flags))
+        emextLRT = acc.popToolsAndMerge(
+            EMExtrapolationToolsCfg(flags))
         acc.merge(egammaSelectedTrackCopyCfg(
             flags,
-            name="egammaSelectedLRTTrackCopy",
+            name="LRTegammaSelectedTrackCopy",
             TrackParticleContainerName="InDetLargeD0TrackParticles",
             OutputTrkPartContainerName="LRTegammaSelectedTrackParticles",
-            ExtrapolationToolCommonCache=emextLRTCommonCache)
+            ExtrapolationTool=emextLRT)
         )
 
         from egammaAlgs.EMBremCollectionBuilderConfig import (
             EMBremCollectionBuilderCfg)
         acc.merge(EMBremCollectionBuilderCfg(
             flags,
-            name='EMLRTBremCollectionBuilder',
+            name='LRTEMBremCollectionBuilder',
             TrackParticleContainerName='InDetLargeD0TrackParticles',
             SelectedTrackParticleContainerName='LRTegammaSelectedTrackParticles',
             OutputTrkPartContainerName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles,
             OutputTrackContainerName='LRT'+flags.Egamma.Keys.Output.GSFTracks)
-        )
-
-        from egammaAlgs.EMGSFCaloExtensionBuilderConfig import (
-            EMGSFCaloExtensionBuilderCfg)
-        acc.merge(EMGSFCaloExtensionBuilderCfg(
-            flags,
-            name='EMGSFLRTCaloExtensionBuilder',
-            GSFPerigeeCache='LRTGSFPerigeeCaloExtension',
-            GSFLastCache='LRTGSFLastCaloExtension',
-            GFFTrkPartContainerName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles)
         )
 
     # Add calo seeded central algorithms
@@ -58,13 +48,13 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             egammaRecBuilderCfg)
         from egammaTools.EMTrackMatchBuilderConfig import (
             EMTrackMatchBuilderCfg)
-        emextLRTCache = acc.popToolsAndMerge(
-            EMExtrapolationToolsLRTCacheCfg(flags))
+        emextLRT = acc.popToolsAndMerge(
+            EMExtrapolationToolsCfg(flags))
         lrtemtrackmatch = acc.popToolsAndMerge(EMTrackMatchBuilderCfg(
             flags,
             name='LRTEMTrackMatchBuilder',
             TrackParticlesName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles,
-            ExtrapolationTool=emextLRTCache)
+            ExtrapolationTool=emextLRT)
         )
         acc.merge(egammaRecBuilderCfg(
             flags,
@@ -137,7 +127,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.Output.doWriteESD = True  # To test the ESD parts
     flags.Output.doWriteAOD = True  # To test the AOD parts
     flags.lock()

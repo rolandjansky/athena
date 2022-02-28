@@ -133,6 +133,8 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "CSCRDO")
     else:
         kwargs.setdefault("OutputObjectName", "CSCRDO")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     # tool and container algorithm
     CscDigitToCscRDOTool = CompFactory.CscDigitToCscRDOTool
     tool = CscDigitToCscRDOTool("CscDigitToCscRDOTool", **kwargs)

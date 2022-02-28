@@ -513,7 +513,7 @@ void RtCalibrationCurved::setInput(const IMdtCalibrationOutput *rt_input) {
     ////////////////////////////////////////////
     // CHECK IF THE OUTPUT CLASS IS SUPPORTED //
     ////////////////////////////////////////////
-    if (input == 0) {
+    if (input == nullptr) {
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationCurved::setInput - Calibration input class not supported.", __FILE__, __LINE__));
     }
@@ -889,7 +889,7 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstre
 
     // write out the reconstructed track //
     // a straight line is drawn by default //
-    if (curved_segment == 0) {
+    if (curved_segment == nullptr) {
         MTStraightLine aux_track(segment->position(), segment->direction(), null, null);
         outfile << "SET PLCI 4\n"
                 << "LINE " << aux_track.a_x2() * (z_min - 30.0) + aux_track.b_x2() << " " << z_min - 30.0 << " "
@@ -897,7 +897,7 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstre
     }
 
     // a curved segment is drawn on demand //
-    if (curved_segment != 0) {
+    if (curved_segment != nullptr) {
         double step_size((60.0 + z_max - z_min) / 50.0);
         for (double aux_z = z_min; aux_z <= z_max; aux_z = aux_z + step_size) {
             outfile << "SET PLCI 4\n"
@@ -942,7 +942,7 @@ std::shared_ptr<RtRelationLookUp> RtCalibrationCurved::performParabolicExtrapola
     if (min) {
         add_fit_point.clear();
         if (m_fix_min) { add_fit_point.push_back(SamplePoint(m_rt_new->tLower(), 0.0, 1.0)); }
-        if (m_fix_max && rt_high != 0) {
+        if (m_fix_max && rt_high != nullptr) {
             rt_low =
                 std::make_shared<RtRelationLookUp>(rt_extrapolator.getRtWithParabolicExtrapolation(*rt_high, 1.0, 3.0, 0.0, add_fit_point));
         } else {

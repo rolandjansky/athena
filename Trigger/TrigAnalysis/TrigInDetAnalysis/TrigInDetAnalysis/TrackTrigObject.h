@@ -76,7 +76,9 @@ inline std::ostream& operator<<( std::ostream& s, const TrackTrigObject& t ) {
     << "\tpt="   << t.pt()*0.001 << " GeV"
     << " ] \t(";
   
-  for ( size_t i=0 ; i<t.children().size() ; i++ ) s << "  0x" << std::hex << t.children()[i] << std::dec;
+  std::string n = "";
+  if ( t.children().size()>3 ) n = "\n\t"; 
+  for ( size_t i=0 ; i<t.children().size() ; i++ ) s << n << "  0x" << std::hex << t.children()[i] << std::dec;
   s << "  )" ;
 
   return s;

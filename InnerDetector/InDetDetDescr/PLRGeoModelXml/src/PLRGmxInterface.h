@@ -28,9 +28,9 @@ public:
                   SiCommonItems *commonItems,
                   WaferTree *moduleTree);
 
-  virtual void addSensorType(std::string clas,
-                             std::string typeName,
-                             std::map<std::string, std::string> parameters) override final;
+  virtual void addSensorType(const std::string& clas,
+                             const std::string& typeName,
+                             const std::map<std::string, std::string>& parameters) override final;
 
 private:
   void makePLRModule(const std::string& typeName,

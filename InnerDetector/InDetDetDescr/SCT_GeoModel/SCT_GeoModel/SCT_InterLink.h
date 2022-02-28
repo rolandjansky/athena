@@ -39,27 +39,27 @@ private:
 
   // Following are for interlink
   std::string m_materialName;
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_length;
-  double m_dPhi;
-  double m_phiPos;
-  int m_nRepeat;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_length = 0.0;
+  double m_dPhi = 0.0;
+  double m_phiPos = 0.0;
+  int m_nRepeat = 0;
 
   // Following are for FSI flange
-  bool m_includeFSIFlange;
-  double m_innerRadiusFSIFlange;
-  double m_outerRadiusFSIFlange;
+  bool m_includeFSIFlange = false;
+  double m_innerRadiusFSIFlange = 0.0;
+  double m_outerRadiusFSIFlange = 0.0;
   std::string m_materialNameFSIFlange;
 
   // Following are for B6 bearing
   std::string m_materialNameBearing;
-  double m_innerRadiusBearing;
-  double m_outerRadiusBearing;
-  double m_lengthBearing;
-  double m_dPhiBearing;
-  double m_phiPosBearing;
-  int m_nRepeatBearing;
+  double m_innerRadiusBearing = 0.0;
+  double m_outerRadiusBearing = 0.0;
+  double m_lengthBearing = 0.0;
+  double m_dPhiBearing = 0.0;
+  double m_phiPosBearing = 0.0;
+  int m_nRepeatBearing = 0;
 
   const GeoTube* m_interLinkShape;
   const GeoLogVol* m_interLinkLog;

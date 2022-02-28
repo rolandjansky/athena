@@ -54,7 +54,7 @@ private:
    //
    float      deltaR(float, float, float, float) const;
    int        getSPLayer(int, float) const;
-   StatusCode findSPSeeds( const xAOD::TrigCompositeContainer*, std::vector<float>&, std::vector<float>& ) const;
+   StatusCode findSPSeeds(const EventContext&, const xAOD::TrigCompositeContainer*, std::vector<float>&, std::vector<float>&) const;
    StatusCode findJetSeeds(const xAOD::JetContainer*, const float, const float, std::vector<float>&, std::vector<float>&, std::vector<float>&) const;
    StatusCode calculateBDT(const EventContext&, const xAOD::TrigCompositeContainer*, const xAOD::TrigCompositeContainer*,
 			   const std::vector<float>&, const std::vector<float>&, const std::vector<float>&,

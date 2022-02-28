@@ -98,13 +98,13 @@ namespace Muon {
 
     ////////////////////////////////////////////////////////
     const MuonClusterOnTrack* CscClusterOnTrackCreator::createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP) const {
-        MuonClusterOnTrack* MClT = 0;
+        MuonClusterOnTrack* MClT = nullptr;
 
         // check whether PrepRawData has detector element, if not there print warning
         const Trk::TrkDetElementBase* EL = RIO.detectorElement();
         if (!EL) {
             ATH_MSG_WARNING("RIO does not have associated detectorElement!, cannot produce ROT");
-            return 0;
+            return nullptr;
         }
 
         // MuClusterOnTrack production
@@ -155,7 +155,7 @@ namespace Muon {
             const RpcPrepData* MClus = dynamic_cast<const RpcPrepData*>(&RIO);
             if (!MClus) {
                 ATH_MSG_WARNING("RIO not of type RpcPrepData, cannot create ROT");
-                return 0;
+                return nullptr;
             }
             MClT = new RpcClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
 
@@ -164,7 +164,7 @@ namespace Muon {
             const TgcPrepData* MClus = dynamic_cast<const TgcPrepData*>(&RIO);
             if (!MClus) {
                 ATH_MSG_WARNING("RIO not of type TgcPrepData, cannot create ROT");
-                return 0;
+                return nullptr;
             }
 
             // calculation of 2D error matrix for TGC phi strips
@@ -206,7 +206,7 @@ namespace Muon {
             const CscPrepData* MClus = dynamic_cast<const CscPrepData*>(&RIO);
             if (!MClus) {
                 ATH_MSG_WARNING("RIO not of type CscPrepData, cannot create ROT");
-                return 0;
+                return nullptr;
             }
 
             // current not changing CscClusterStatus but passing status of RIO
@@ -222,10 +222,10 @@ namespace Muon {
                                                                           const Amg::Vector3D& GD) const {
         if (!(m_doCsc && m_idHelperSvc->isCsc(RIO.identify()))) {
             ATH_MSG_WARNING("CscClusterOnTrackCreator::createRIO_OnTrack is called by the other muon tech");
-            return 0;
+            return nullptr;
         }
 
-        MuonClusterOnTrack* MClT = 0;
+        MuonClusterOnTrack* MClT = nullptr;
         // check whether PrepRawData has detector element, if not there print warning
         const Trk::TrkDetElementBase* EL = RIO.detectorElement();
         if (!EL) {

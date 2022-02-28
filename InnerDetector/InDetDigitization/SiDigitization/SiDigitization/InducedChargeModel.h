@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIDIGITIZATION_INDUCEDCHARGEDMODEL_H
@@ -13,7 +13,6 @@
 //-----------------------------------------------
 
 // Athena
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
@@ -69,12 +68,12 @@ class InducedChargeModel {
                                const EFieldModel model,
                                const ToolHandle<ISiliconConditionsTool> siConditionsTool,
                                CLHEP::HepRandomEngine* rndmEngine,
-                               const EventContext& ctx) {
-      m_VD = vdepl; // full depletion voltage [Volt] negative for type-P
-      m_VB = vbias; // applied bias voltage [Volt]
-      m_element = element;
-      m_magneticField = magneticField;
-
+                               const EventContext& ctx) :
+      m_VD (vdepl), // full depletion voltage [Volt] negative for type-P
+      m_VB (vbias), // applied bias voltage [Volt]
+      m_element (element),
+      m_magneticField (magneticField)
+    {
       //------------ find delepletion deph for model=0 and 1 -------------
       m_depletion_depth = bulk_depth;
       // for type N (before type inversion)
@@ -98,7 +97,7 @@ class InducedChargeModel {
                  const float vbias,
                  const InDetDD::SolidStateDetectorElementBase* element,
                  const AtlasFieldCacheCondObj* fieldCondObj,
-                 const ToolHandle<ISiliconConditionsTool> siConditionsTool,
+                 const ToolHandle<ISiliconConditionsTool>& siConditionsTool,
                  CLHEP::HepRandomEngine* rndmEngine,
                  const EventContext& ctx) const;
 
@@ -109,19 +108,19 @@ class InducedChargeModel {
                  const double x0, const double y0,
                  double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                  const IdentifierHash hashId,
-                 const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                 const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                  const EventContext& ctx) const;
   void holeTransport(const SCT_InducedChargeModelData& data,
                      const double x0, const double y0,
                      double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                      const IdentifierHash hashId,
-                     const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                     const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                      const EventContext& ctx) const;
   void electronTransport(const SCT_InducedChargeModelData& data,
                          const double x0, const double y0,
                          double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                          const IdentifierHash hashId,
-                         const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                         const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                          const EventContext& ctx) const;
 
  private:
@@ -132,7 +131,7 @@ class InducedChargeModel {
                 const bool isElectron,
                 const double x, const double y, double& vx, double& vy, double& D,
                 const IdentifierHash hashId,
-                const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                 const EventContext& ctx) const;
   double induced(const SCT_InducedChargeModelData& data,
                  const int istrip, const double x, const double y) const;

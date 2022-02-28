@@ -37,11 +37,15 @@ namespace LVL1 {
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
 
-
-virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atwr, gTowersCentral Btwr,
-                              gTowersForward CNtwr, gTowersForward CPtwr, int pucA, int pucB, int seedThreshold, int jetThreshold,
-                              std::array<uint32_t, 7> & ATOB1_dat, std::array<uint32_t, 7> & ATOB2_dat,
-                              std::array<uint32_t, 7> & BTOB1_dat, std::array<uint32_t, 7> & BTOB2_dat) override;
+    virtual void pileUpCalculation(gTowersCentral &twrs, int rhoThreshold_Max, int rhoThreshold_Min, int inputScale,  int &PUCp) override;
+    
+    virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atwr, gTowersCentral Btwr, 
+                                                                  gTowersForward CNtwr, gTowersForward CPtwr, 
+                                                                  int pucA, int pucB, int gLJ_seedThrA, int gLJ_seedThrB, 
+                                                                  int gJ_ptMinToTopoCounts1, int gJ_ptMinToTopoCounts2, 
+                                                                  int jetThreshold, int gLJ_ptMinToTopoCounts1, int gLJ_ptMinToTopoCounts2,
+                                                                  std::array<uint32_t, 7> & ATOB1_dat, std::array<uint32_t, 7> & ATOB2_dat,
+                                                                  std::array<uint32_t, 7> & BTOB1_dat, std::array<uint32_t, 7> & BTOB2_dat) override;
 
   private:
 
@@ -59,17 +63,20 @@ virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atw
                            std::array<int, FEXAlgoSpaceDefs::ABCrows> jetOutL, std::array<int, FEXAlgoSpaceDefs::ABCrows> etaIndL,
                            std::array<int, FEXAlgoSpaceDefs::ABCrows> jetOutR, std::array<int, FEXAlgoSpaceDefs::ABCrows> etaIndR );
 
-    virtual void gBlockMax2(gTowersCentral gBlkSum, int BjetColumn, std::array<int, 3> & gBlockV, std::array<int, 3> & gBlockEta, std::array<int, 3> & gBlockPhi);
+    virtual void gBlockMax2(gTowersCentral gBlkSum, int BjetColumn, int localColumn, std::array<int, 3> & gBlockV, std::array<int, 3> & gBlockEta, std::array<int, 3> & gBlockPhi);
 
     virtual void gBlockMax192(gTowersJetEngine gBlkSum, std::array<int, 3> & gBlockVp, std::array<int, 3> & gBlockEtap, std::array<int, 3> & gBlockPhip, int index);
 
-    virtual void addRemoteRin(gTowersCentral jets, gTowersPartialSums & partial);
+    virtual void addRemoteRin(gTowersCentral &jets, const gTowersPartialSums &partial);
 
-    virtual void addRemoteLin(gTowersCentral jets, gTowersPartialSums & partial);
+    virtual void addRemoteLin(gTowersCentral &jets, const gTowersPartialSums &partial);
 
-    virtual void pileUpCorrectionAB(gTowersCentral jets, int puc);
 
-    virtual void gBlockVetoAB(gTowersCentral twrs, gTowersCentral & blocks, int seed_threshold) ;
+    virtual void pileUpCorrectionAB(gTowersCentral &jets, int puc);
+
+    virtual void gJetVetoAB( gTowersCentral &twrs ,int jet_threshold );
+
+    virtual void gBlockVetoAB(gTowersCentral &twrs, gTowersCentral blocks, int seed_threshold) ;
 
     virtual void jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedThreshold,
                            std::array<int, 32> &jetOutL, std::array<int, 32> &etaIndL,
@@ -83,7 +90,7 @@ virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atw
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBphi );
 
     SG::ReadHandleKey<LVL1::gTowerContainer> m_gFEXJetAlgo_gTowerContainerKey {this, "MyGTowers", "gTowerContainer", "Input container for gTowers"};
-
+    
   };
 
 } // end of namespace

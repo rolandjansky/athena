@@ -10,4 +10,7 @@ namespace FlavorTagDiscriminants {
     detail::JetTag_t(name, svcloc)
   {
   }
+  StatusCode JetTagDecoratorAlg::initialize() {
+    return initializeInternal();
+  }
 }

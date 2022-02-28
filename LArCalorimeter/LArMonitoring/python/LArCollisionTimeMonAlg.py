@@ -113,6 +113,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
                                   title='Events with 20 ns < abs(<t_{C}> - <t_{A}>) < 30ns as a function of LB;Luminosity Block Number;Number of events per LB',
                                   type='TH1F',
                                   path=larColTime_hist_path,
+                                  opt='kAlwaysCreate',
                                   weight='weight',
                                   xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
     

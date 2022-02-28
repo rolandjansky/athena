@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include <cmath>
+#include <array>
 #include <iostream>
 
 namespace Trk {

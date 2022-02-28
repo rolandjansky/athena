@@ -68,6 +68,7 @@ namespace MuonGM {
         inline void hasMM(bool value);
         inline void setABLinesAsciiSideA(const std::string &);
         inline void setABLinesAsciiSideC(const std::string &);
+        inline void setMMAsBuiltJsonPath(const std::string &);
 
       private:
 
@@ -96,7 +97,7 @@ namespace MuonGM {
         int m_caching{0};
         int m_cacheFillingFlag{0};
         int m_mdtDeformationFlag{0};
-        int m_mdtAsBuiltParaFlag;
+        int m_mdtAsBuiltParaFlag = 0;
         bool m_dumpMemoryBreakDown{false};
         int m_enableFineClashFixing{0};
         bool m_hasCSC{true};
@@ -105,6 +106,7 @@ namespace MuonGM {
 
         std::string m_NSWABLinesSideA{};
         std::string m_NSWABLinesSideC{};
+        std::string m_MMAsBuiltJsonPath{};
 
         std::vector<std::string> m_selectedStations;
         std::vector<int> m_selectedStEta;
@@ -156,7 +158,7 @@ namespace MuonGM {
     void MuonDetectorFactory001::hasMM(bool value) { m_hasMM = value; }
     void MuonDetectorFactory001::setABLinesAsciiSideA(const std::string &str) { m_NSWABLinesSideA = str; }
     void MuonDetectorFactory001::setABLinesAsciiSideC(const std::string &str) { m_NSWABLinesSideC = str; }
-
+    void MuonDetectorFactory001::setMMAsBuiltJsonPath(const std::string &str) { m_MMAsBuiltJsonPath = str; }
 } // namespace MuonGM
 
 #endif

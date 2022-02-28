@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // @file AddTRTMomConstr.cxx
@@ -161,7 +161,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
   float theta = mesp->parameters()[Trk::theta] ;
   float pt = 0. ;
   if( theta != 0 ){
-    float ptInv = std::fabs( mesp->parameters()[Trk::qOverP] ) / std::sin( theta ) ;
+    float ptInv = std::abs( mesp->parameters()[Trk::qOverP] ) / std::sin( theta ) ;
     if( ptInv != 0 ) {
       pt = 1./ptInv ;
       if( m_selPtMin > 0 && pt < m_selPtMin ) rc = false ;
@@ -189,7 +189,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
     rc = false ;
   }
   // different treatment for TRT in transition region
-  bool isInTransitionRegion = std::fabs(eta) > m_selEtaCrackMin && std::fabs(eta) < m_selEtaCrackMax ;
+  bool isInTransitionRegion = std::abs(eta) > m_selEtaCrackMin && std::abs(eta) < m_selEtaCrackMax ;
   if( isInTransitionRegion ) {
     if( int(summary->get(Trk::numberOfTRTHits)) < m_selNHitTRTMinCrack ) {
       ++m_nRejectTRT ;
@@ -219,7 +219,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
 const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Track* track ) {
   ATH_MSG_VERBOSE ("Inside findouterscthit: " << track->trackStateOnSurfaces()->size());
   double rmax=0. ;
-  const Trk::TrackStateOnSurface* rc=0 ;
+  const Trk::TrackStateOnSurface* rc=nullptr ;
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     if( !tsos->type(Trk::TrackStateOnSurface::Outlier) &&
         tsos->measurementOnTrack() &&
@@ -230,7 +230,7 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Tra
         ATH_MSG_VERBOSE ( "Found SCT_ClusterOnTrack");
         const Amg::Vector3D& pos = sctclus->globalPosition() ;
         double r = std::sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
-        if(rc==0 || r>rmax) {
+        if(rc==nullptr || r>rmax) {
           rc = tsos ;
           rmax = r ;
         }
@@ -255,7 +255,7 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findinnertrthit( const Trk::Tra
         ATH_MSG_VERBOSE ( "Found TRT_DriftCircleOnTrack" );
         const Amg::Vector3D& pos = trthit->globalPosition() ;
         double r = sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
-        if(rc==0 || r<rmin) {
+        if(rc==nullptr || r<rmin) {
           rc = tsos ;
           rmin = r ;
         }
@@ -390,17 +390,15 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
    ATH_MSG_VERBOSE ("==========================================");
   
   // fit TRT part of the track with PseudoMeas on z_0, theta
-  Trk::Track* trkTRT=m_trackFitter->fit( setTRTPM
-                                       , *perTrk
-                                       , true
-                                       , Trk::pion
-                                       //, Trk::muon
-                                       //, Trk::nonInteracting
-                                       ) ;
-  if( !trkTRT ) {
-    ATH_MSG_DEBUG( "TRTMomConstr() : Fit of TRT part of the track failed! " ) ;
-    return nullptr ;
-  }
+   Trk::Track* trkTRT = (m_trackFitter->fit(
+     Gaudi::Hive::currentContext(), setTRTPM, *perTrk, true, Trk::pion
+     //, Trk::muon
+     //, Trk::nonInteracting
+   )).release();
+   if (!trkTRT) {
+     ATH_MSG_DEBUG("TRTMomConstr() : Fit of TRT part of the track failed! ");
+     return nullptr;
+   }
   const Trk::Perigee* perTRT = trkTRT->perigeeParameters();
   ATH_MSG_DEBUG( "TRTMomConstr() : perTRT " << *perTRT) ;
   // the theta value after TRT+PM fit can be different from the initial one by < o(10e-4). Correct q/p optionally
@@ -418,14 +416,13 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   Trk::MeasurementSet setSiPM = addPM( setSi, pmFromTRT ) ;
 
   // fit Si part of the track with PM from TRT
-  Trk::Track* fittedTrack=m_trackFitter->fit( setSiPM
-                                            , *perTrk
-                                            , true
-                                            , Trk::pion
-                                            //, Trk::muon
-                                            //, Trk::nonInteracting
-                                            ) ;
-  if( !fittedTrack ) {
+  Trk::Track* fittedTrack =
+    m_trackFitter
+      ->fit(Gaudi::Hive::currentContext(), setSiPM, *perTrk, true, Trk::pion
+            //, Trk::muon
+            //, Trk::nonInteracting
+            ).release();
+  if (!fittedTrack) {
     ATH_MSG_DEBUG( "TRTMomConstr() : Si+TRT-p_T Track fit failed !" ) ;
   } else {
     const Trk::Perigee* perSi = fittedTrack->perigeeParameters();

@@ -7,7 +7,7 @@
 
 namespace Muon{
   
-MuonHitSummaryPlots::MuonHitSummaryPlots(PlotBase* pParent, std::string sDir):
+MuonHitSummaryPlots::MuonHitSummaryPlots(PlotBase* pParent, const std::string& sDir):
 PlotBase(pParent, sDir),
 
 m_oMSHitPlots(this, ""),

@@ -54,7 +54,7 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
 
   // have the NSWCommonDecoder take care of the decoding
   Muon::nsw::NSWCommonDecoder common_decoder(robFrag);  
-  const std::vector<Muon::nsw::NSWElink *>   elinks = common_decoder.get_elinks();  
+  const std::vector<Muon::nsw::NSWElink *>&   elinks = common_decoder.get_elinks();  
   ATH_MSG_DEBUG("Retrieved "<<elinks.size()<<" elinks");
   if (!elinks.size()) return StatusCode::SUCCESS;
 

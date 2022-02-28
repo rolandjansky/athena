@@ -17,7 +17,7 @@
 #include "TopEvent/SystematicEventContainer.h"
 #include "TopEvent/SystematicEventAuxContainer.h"
 
-#include "TopEvent/RCJetMC15.h"
+#include "TopEvent/RCJet.h"
 #include "TopEvent/TopEventMaker.h"
 
 // EDM include(s).

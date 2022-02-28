@@ -127,10 +127,10 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     if(m_inputType==xAOD::Type::FlowElement){
       xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
       if(fe->signalType() & xAOD::FlowElement::PFlow){
-        if(m_ignoreChargedPFOs) accept = !fe->isCharged();
+        if(m_ignoreChargedPFOs) accept &= !fe->isCharged();
       }
       else
-        accept = !fe->isCharged();
+        accept &= !fe->isCharged();
     }
     if(accept) {
       particles.push_back( fastjet::PseudoJet(part->p4()) );
@@ -164,6 +164,14 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
       accept &= (tcc->taste()!= 0);
+    }
+    if(m_inputType==xAOD::Type::FlowElement){
+      xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
+      if(fe->signalType() & xAOD::FlowElement::PFlow){
+        if(m_ignoreChargedPFOs) accept &= !fe->isCharged();
+      }
+      else
+        accept &= !fe->isCharged();
     }
 
     float newPt(0.);

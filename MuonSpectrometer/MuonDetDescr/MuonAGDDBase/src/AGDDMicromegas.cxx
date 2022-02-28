@@ -50,7 +50,7 @@ void AGDDMicromegas::CreateSolid (const AGDDBuilder& /*builder*/)
 
 }
 
-void AGDDMicromegas::CreateVolume (const AGDDBuilder& builder)
+void AGDDMicromegas::CreateVolume (AGDDBuilder& builder)
 {
 //    std::cout<<"this is AGDDMicromegas::CreateVolume()"<<std::endl;
 	

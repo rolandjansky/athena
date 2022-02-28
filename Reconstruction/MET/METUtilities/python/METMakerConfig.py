@@ -34,7 +34,6 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
                                                                        SelectionCuts = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack | SelectionCuts.CutJetIDWP),
                                                                        PtMin = 20.0,
                                                                        JetIDWP = TauAnalysisTools.JETIDRNNMEDIUM,
-                                                                       EleOLR = True,
                                                                        NTracks = (1, 3),
                                                                        AbsCharge = 1,
                                                                        AbsEtaRegion = (0.0, 1.37, 1.52, 2.5))

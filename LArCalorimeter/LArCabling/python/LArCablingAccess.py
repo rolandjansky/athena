@@ -93,16 +93,20 @@ def LArCalibIdMappingSC():
     return
 
 def LArLATOMEMappingSC():
-    condSequence = AthSequencer("AthCondSeq")
     folder="/LAR/Identifier/LatomeMapping"
+    condSequence = AthSequencer("AthCondSeq")
     if hasattr(condSequence,"LArLATOMEMappingAlg") and condSequence.LArLATOMEMappingAlg.ReadKey==folder:
         return #Already there....
 
     if conddb.isMC:
         dbname="LAR_OFL"
-        return # no latome mapping in MC
+        folder=""
+        from AthenaCommon.Logging import logging
+        mlog = logging.getLogger( 'LArCablingAccess' )
+        mlog.warning("There is no LATOME mapping in the MC jobs yet")
     else:
         dbname="LAR_ONL"
-    conddb.addFolder(dbname,folder,className="CondAttrListCollection")
-    condSequence+=LArLATOMEMappingAlg("LArLATOMEMappingAlg",ReadKey=folder, WriteKey="LArLATOMEMap")
+    conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    condSequence+=LArLATOMEMappingAlg("LArLATOMEMappingAlgSC",ReadKey=folder, WriteKey="LArLATOMEMap")
+
     return

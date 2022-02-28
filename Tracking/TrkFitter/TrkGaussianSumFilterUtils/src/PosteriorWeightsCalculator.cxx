@@ -46,7 +46,7 @@ calculateWeight_T(
   // compute determinant of residual
   const double det = R.determinant();
   if (det == 0) {
-    return std::pair<double, double>(0, 0);
+    return {0, 0};
   }
   // Compute Chi2
   return std::pair<double, double>(
@@ -78,10 +78,10 @@ calculateWeight_1D(
   // and measurement. Therefore add covariances
   const double R = measCov + (*predictedCov)(mk, mk);
   if (R == 0) {
-    return std::pair<double, double>(0, 0);
+    return {0, 0};
   }
   // Compute Chi2
-  return std::pair<double, double>(R, r * r / R);
+  return {R, r * r / R};
 }
 
 std::pair<double, double>
@@ -100,11 +100,10 @@ calculateWeight_2D_3(
   // compute determinant of residual
   const double det = R.determinant();
   if (det == 0) {
-    return std::pair<double, double>(0, 0);
+    return {0, 0};
   }
   // Compute Chi2
-  return std::pair<double, double>(
-    det, 0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
+  return { det, 0.5 * ((r.transpose() * R.inverse() * r)(0, 0)) };
 }
 
 struct componentsCache

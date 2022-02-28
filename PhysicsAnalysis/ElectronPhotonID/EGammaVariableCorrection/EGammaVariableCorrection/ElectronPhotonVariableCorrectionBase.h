@@ -23,13 +23,13 @@
 
 //Root includes
 #include "TF1.h"
-#include "TRandom.h"
 
 // forward declarations
 class TObject;
 class TGraph;
 class TH2;
 class TEnv;
+class TRandom3;
 
 // ===========================================================================
 // Class ElectronPhotonVariableCorrectionBase
@@ -141,8 +141,8 @@ private:
     std::string m_correctionVariable;
     //! @brief Whether to apply normal correction or smearing correction
     bool m_doGaussianSmearing = false;
-    //! @brief TRandom3 for setting seed of random smearing correction
-    mutable TRandom m_random;
+    //! @brief thread-safe TRandom3 for setting seed of random smearing correction
+    mutable boost::thread_specific_ptr<TRandom3> m_TRandom_tls;
     //! @brief Values of discontinuities in the variable which should not be corrected
     std::vector<float> m_uncorrectedDiscontinuities;
     //! @brief Function to use for the variable correction, TF1 style
@@ -232,14 +232,14 @@ private:
      */
     const StatusCode getObjectFromRootFile(TEnv& env, const int parameter_number, const TString& filePathKey, const TString& nameKey, std::unique_ptr<TObject>& return_object);
 
-    /** @brief Get the actual parameters entering the correction TF1 for the current e/y object to be corrected
-     * @param properties The vector where the values of the correction TF1 parameters will be saved in
+    /** @brief Set the actual parameters of the TF1 function used for the current e/y object to be corrected
      * @param pt The pT of the current e/y object to be corrected
      * @param eta The eta of the current e/y object to be corrected
+     * @param phi The phi of the current e/y object to be corrected
      * @details As every electron/photon has different values of pT/eta, the correction function must be adapted accordingly for every e/y. The according values of
      * each of the correction function parameters are updated with this function.
      */
-    const StatusCode getCorrectionParameters(std::vector<float>& properties, const float pt, const float eta, const float phi) const;
+    const StatusCode setCorrectionParameters(const float pt, const float eta, const float phi) const;
 
     /** @brief Get the correction function parameter value if its type is eta- or pT-binned
      * @param return_parameter_value The respective correction function parameter value is saved in this parameter
@@ -321,16 +321,12 @@ private:
     /** @brief Actual application of the correction to the variable
      * @param return_corrected_variable The corrected variable value is saved in this parameter
      * @param original_variable The original value of the corrected variable
-     * @param properties The vector containing the correction TF1 parameters so the correction TF1 can be set for the respective e/y object
+     * @param rndSeed A random seed determined from pT, eta and phi, in case a Gaussian smearing is used.
      */
-    const StatusCode correct(float& return_corrected_variable, const float original_variable, std::vector<float>& properties) const;
+    void correct(float& return_corrected_variable, const float original_variable, unsigned int rndSeed = 0) const;
 
-    /** @brief Set the seed of the TRandom object m_random
-     * @param pt The pT value of the Egamma object
-     * @param eta The eta value of the Egamma object
-     * @param phi The phi value of the Egamma object
-     */
-    StatusCode setRandomSeed(const float pt, const float eta, const float phi) const;
+    //! @brief Getting thread safe random number generator (and resetting its seed)
+    TRandom3* getTLSRandomGen(unsigned int seed) const;
 
 }; //end class ElectronPhotonVariableCorrectionBase
 

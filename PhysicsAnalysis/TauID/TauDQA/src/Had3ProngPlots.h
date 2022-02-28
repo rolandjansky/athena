@@ -12,7 +12,7 @@ namespace Tau{
 
 class Had3ProngPlots: public PlotBase {
   public:
-    Had3ProngPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
+    Had3ProngPlots(PlotBase *pParent, const std::string& sDir, const std::string& sTauJetContainerName);
     virtual ~Had3ProngPlots();
 
     void fill(const xAOD::TauJet& tau, float weight);

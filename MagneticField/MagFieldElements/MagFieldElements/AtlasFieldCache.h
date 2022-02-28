@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,6 +31,12 @@ namespace MagField {
  *  @brief Local cache for magnetic field (based on
  * MagFieldServices/AtlasFieldSvcTLS.h)
  *
+ *  We keep track of the
+ *  - magnetic field map
+ *  - solenoid/toroid scales from the currents
+ *  - The current zone
+ *  - The current/cached cell in the zone.
+ *
  *  @author R.D.Schaffer -at- cern.ch
  */
 class AtlasFieldCache
@@ -38,7 +44,7 @@ class AtlasFieldCache
 public:
   AtlasFieldCache() = default;
   /** constructor to setup with field scale
-   * and magnetic field service for
+   * and magnetic field map for
    * first access to field */
   AtlasFieldCache(double solFieldScale,
                   double torFieldScale,
@@ -63,7 +69,7 @@ public:
    * works only inside the solenoid.
    * Otherwise call getField above.
    * xyz[3] is in mm, bxyz[3] is in kT
-   * if deriv[9] is given, field 
+   * if deriv[9] is given, field
    * derivatives are returned in kT/mm
    * */
   void getFieldZR(const double* ATH_RESTRICT xyz,
@@ -83,31 +89,40 @@ private:
   /// fill Z-R cache for solenoid */
   bool fillFieldCacheZR(double z, double r);
 
-  /// Full 3d field
-  BFieldCache m_cache3d;
-
-  /// Fast 2d field
-  BFieldCacheZR m_cacheZR;
-
   /// magnetic field scales from currents
   double m_solScale{ 1 };
   double m_torScale{ 1 };
   double m_scaleToUse{ 1 };
 
-  /// handle to the magnetic field service - not owner
+  // Solenoid zone ID number - needed to set solScale.
+  // Assumes only one Solenoid zone.
+  int m_solZoneId{ -1 };
+
+  /// handle to the magnetic field map - not owned
   const AtlasFieldMap* m_fieldMap{ nullptr };
+
+  /// A zone of the full 3d field.
+  /// This can be solenoid or one of the
+  /// toroid etc zones
+  /// Owned by AtlasFieldMap
+  const BFieldZone* m_zone3d{ nullptr };
+
+  /// Full 3d field cell/cache
+  /// This will be a cell inside
+  /// a 3d field zone
+  BFieldCache m_cache3d;
 
   /// Pointer to the conductors in the current field zone (to compute
   /// Biot-Savart component) Owned by AtlasFieldMap.
   const std::vector<BFieldCond>* m_cond{ nullptr };
 
-  // fast 2d map (made of one zone)
+  /// fast 2d map made of one zone
+  /// assuming phi/roatational symmetry
   /// Owned by AtlasFieldMap.
   const BFieldMeshZR* m_meshZR{ nullptr };
 
-  // Solenoid zone ID number - needed to set solScale. Assumes only one Solenoid
-  // zone!
-  int m_solZoneId{ -1 };
+  /// Fast 2d field cell/cache
+  BFieldCacheZR m_cacheZR;
 };
 
 } // namespace MagField

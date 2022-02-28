@@ -3,6 +3,7 @@
 */
 
 #include <sstream>
+#include <utility>
 
 #include "CscCalibMonToolBase.h"
 
@@ -12,7 +13,7 @@ CscCalibMonToolBase::CscCalibMonToolBase(const std::string & type, const std::st
     m_maxChamId(0),
     m_numBad(0), 
     m_expectedChamberLayer(2),
-    m_detailedHashIds(NULL),
+    m_detailedHashIds(nullptr),
     m_onlyExpectPrecisionHashIds(false),
     m_hashName("hash_overview"), 
     m_hashTitle(""), 
@@ -32,8 +33,8 @@ CscCalibMonToolBase::CscCalibMonToolBase(const std::string & type, const std::st
     m_laySummHistTitle(""), 
     m_histCol(kAzure +1),
     m_histColAlert(kRed),
-    m_monGroupVec(NULL),
-    m_statDbColl(NULL)
+    m_monGroupVec(nullptr),
+    m_statDbColl(nullptr)
 {
    
     declareProperty("MakeAllChanHashOverviewHists",m_makeHashHists=true);  //Histograms showing a parameter for allchannels
@@ -173,7 +174,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   bool allGood = true;
 
 
-  std::string nameStart =  dataTypeName ;
+  std::string nameStart =  std::move(dataTypeName) ;
   if(categoryName != "" )
     nameStart += "_" + categoryName;
 
@@ -183,7 +184,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   ATH_MSG_DEBUG( "In bookHistCollection for " << nameStart << " series."  );
 
   if(!((toSkip>>6) &0x1)){
-    histCollection->cscSpec.resize(2,NULL);
+    histCollection->cscSpec.resize(2,nullptr);
     for(int measuresPhi =0; measuresPhi <=1; measuresPhi++) {
       std::string name = "h_" + nameStart+ "_" + (measuresPhi ? "phi" : "eta") + "_spectrum" ;
       std::string title = titleStart +" " + (measuresPhi ? "Phi Strips" : "Eta Strips") + " spectrum";
@@ -444,7 +445,7 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
   std::string orientationTitle = "Precision Direction";
 
   int numHists = 32 * ( (ignoreY) ? 4 : 8);
-  histVector.resize(numHists,NULL); 
+  histVector.resize(numHists,nullptr); 
 
   ATH_MSG_DEBUG( "Allocated space for " << numHists << " histograms" );
 
@@ -570,7 +571,7 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
   std::string orientationTitle = "Precision Direction";
 
   int numHists = (ignoreY) ? 32 : 64; //32 chambers, 2 orientations
-  histVector.resize(numHists,NULL);
+  histVector.resize(numHists,nullptr);
 
   std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
   std::vector<Identifier>::const_iterator chamItr = ids.begin();
@@ -879,7 +880,7 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
     std::set<int>::const_iterator chanEnd = missingChannels.end();
     for(;chanItr != chanEnd; chanItr++)
     {
-      if(procParameterInput->missingChans != NULL)
+      if(procParameterInput->missingChans != nullptr)
       {
         //If we haven't already noticed that this channel is missing, 
         //increment missing bad bin in badHist.
@@ -902,14 +903,14 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
 
   //Determine what histograms we'll make:
   bool doSpec         = true; //(histCollection->cscSpec != NULL);
-  bool doHash         = (histCollection->hashHist != NULL         && m_makeHashHists);
-  bool doAllChan1d    = (histCollection->allChan1dHistX != NULL  && histCollection->allChan1dHistY != NULL   && m_makeAllChan1dHists);
-  bool doAllChan2d    = (histCollection->allChan2dHist != NULL    && m_makeAllChan2dHists);
-  bool doLayChan      = (histCollection->layHistVect != NULL      && m_makeLayHists);
-  bool doLaySummary   = (histCollection->laySummVect != NULL      && m_makeLaySummHists);
-  bool doChamAvg      = (histCollection->chamProf != NULL         && m_makeChamProfs);
-  bool doChamChan     = (histCollection->chamSummVect != NULL     && m_makeChamHists);
-  bool doChamSummary  = (histCollection->chamSummVect != NULL     && m_makeChamSummHists);
+  bool doHash         = (histCollection->hashHist != nullptr         && m_makeHashHists);
+  bool doAllChan1d    = (histCollection->allChan1dHistX != nullptr  && histCollection->allChan1dHistY != nullptr   && m_makeAllChan1dHists);
+  bool doAllChan2d    = (histCollection->allChan2dHist != nullptr    && m_makeAllChan2dHists);
+  bool doLayChan      = (histCollection->layHistVect != nullptr      && m_makeLayHists);
+  bool doLaySummary   = (histCollection->laySummVect != nullptr      && m_makeLaySummHists);
+  bool doChamAvg      = (histCollection->chamProf != nullptr         && m_makeChamProfs);
+  bool doChamChan     = (histCollection->chamSummVect != nullptr     && m_makeChamHists);
+  bool doChamSummary  = (histCollection->chamSummVect != nullptr     && m_makeChamSummHists);
   bool doErrors       = (histCollection->errors.size() != 0);    //Changed to a vector, so this
   //                                                                is best way to check at moment
 
@@ -1195,7 +1196,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
 
 
 //Produces a full path for a histogram to be placed.
-std::string CscCalibMonToolBase::getFullPath(std::string geoPath, std::string histTypeDir, std::string parTypeDir)
+std::string CscCalibMonToolBase::getFullPath(const std::string& geoPath, const std::string& histTypeDir, const std::string& parTypeDir)
 {
   std::stringstream ss; 
 

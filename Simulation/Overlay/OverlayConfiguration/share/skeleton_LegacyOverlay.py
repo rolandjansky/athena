@@ -71,6 +71,7 @@ if hasattr(overlayArgs, 'maxEvents'):
     athenaCommonFlags.EvtMax.set_Value_and_Lock(overlayArgs.maxEvents)
 
 if hasattr(overlayArgs, 'inputHITSFile'):
+    if not overlayFlags.isDataOverlay(): athenaCommonFlags.FilesInput.set_Value_and_Lock(overlayArgs.inputHITSFile)
     athenaCommonFlags.PoolHitsInput.set_Value_and_Lock(overlayArgs.inputHITSFile)
 else:
     raise RuntimeError('No input HITS file defined')
@@ -277,10 +278,9 @@ if not overlayFlags.isDataOverlay():
     ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
         overlayFlags.extraTagInfoPairs.get_Value())
 
-if hasattr(overlayArgs, 'AMITag'):
-    if overlayArgs.AMITag != 'NONE':
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
-            {'AMITag': overlayArgs.AMITag})
+# Set AMITag in /TagInfo
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=overlayArgs)
 
 # ================================================================
 logOverlay.info('\nOverlay: OutputStream = \n' + str(outStream))  # noqa F821

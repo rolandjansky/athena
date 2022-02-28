@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODForwardAthenaPool )
@@ -18,8 +18,12 @@ atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
    xAODForward/AFPSiHitsClusterAuxContainer.h
    xAODForward/AFPTrackContainer.h
    xAODForward/AFPTrackAuxContainer.h
+   xAODForward/AFPToFTrackContainer.h
+   xAODForward/AFPToFTrackAuxContainer.h
    xAODForward/AFPProtonContainer.h
    xAODForward/AFPProtonAuxContainer.h
+   xAODForward/AFPVertexContainer.h
+   xAODForward/AFPVertexAuxContainer.h
    xAODForward/ZdcModuleContainer.h
    xAODForward/ZdcModuleAuxContainer.h
    xAODForward/MBTSModuleContainer.h
@@ -32,7 +36,9 @@ atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
    xAOD::AFPToFHitContainer xAOD::AFPToFHitAuxContainer
    xAOD::AFPSiHitsClusterContainer xAOD::AFPSiHitsClusterAuxContainer
    xAOD::AFPTrackContainer xAOD::AFPTrackAuxContainer
+   xAOD::AFPToFTrackContainer xAOD::AFPToFTrackAuxContainer
    xAOD::AFPProtonContainer xAOD::AFPProtonAuxContainer
+   xAOD::AFPVertexContainer xAOD::AFPVertexAuxContainer
    xAOD::ZdcModuleContainer xAOD::ZdcModuleAuxContainer
    xAOD::MBTSModuleContainer xAOD::MBTSModuleAuxContainer
    xAOD::ForwardEventInfoContainer xAOD::ForwardEventInfoAuxContainer

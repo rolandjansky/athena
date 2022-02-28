@@ -45,7 +45,7 @@ namespace MuonCalib {
 
     private:
         std::list<TH2F *> m_residuals[2];
-        TH2F *m_current_residuals[2];
+        TH2F *m_current_residuals[2]{};
         std::list<TProfile *> m_res_prov[2];
         std::list<TProfile *> m_res_prov_diff;
         TDirectory *m_control_histogram_dir;
@@ -53,7 +53,7 @@ namespace MuonCalib {
 
     inline MultilayerRtDifference_Histograms::MultilayerRtDifference_Histograms(TDirectory *control_histogram_dir) :
         m_control_histogram_dir(control_histogram_dir) {
-        for (int i = 0; i < 2; i++) { m_current_residuals[i] = NULL; }
+        for (int i = 0; i < 2; i++) { m_current_residuals[i] = nullptr; }
     }
 
     // copy constructor to keep Coverity happy
@@ -107,7 +107,7 @@ namespace MuonCalib {
                 if (m_control_histogram_dir)
                     prevdir->cd();
                 else
-                    m_current_residuals[i]->SetDirectory(0);
+                    m_current_residuals[i]->SetDirectory(nullptr);
                 m_residuals[i].push_back(m_current_residuals[i]);
             }
         }
@@ -122,25 +122,25 @@ namespace MuonCalib {
         for (unsigned int i = 0; i < 2; i++) {
             if (m_current_residuals[i] && m_current_residuals[i]->GetEntries() >= min_number_of_entries) {
                 prof[i] = m_current_residuals[i]->ProfileX();
-                if (!m_control_histogram_dir) { prof[i]->SetDirectory(0); }
+                if (!m_control_histogram_dir) { prof[i]->SetDirectory(nullptr); }
             } else {
-                prof[i] = NULL;
+                prof[i] = nullptr;
                 ok = false;
             }
             m_res_prov[i].push_back(prof[i]);
-            m_current_residuals[i] = NULL;
+            m_current_residuals[i] = nullptr;
         }
         if (!ok) {
             prev->cd();
-            m_res_prov_diff.push_back(NULL);
-            return NULL;
+            m_res_prov_diff.push_back(nullptr);
+            return nullptr;
         }
         std::ostringstream nm;
         nm << "res_prov_diff_step" << m_res_prov_diff.size();
         TProfile *prov_diff = new TProfile(nm.str().c_str(), "", 15, 0., 15.);
         prov_diff->Add(prof[0], prof[1], 1., -1);
         m_res_prov_diff.push_back(prov_diff);
-        if (!m_control_histogram_dir) { prov_diff->SetDirectory(0); }
+        if (!m_control_histogram_dir) { prov_diff->SetDirectory(nullptr); }
         return prov_diff;
     }
 

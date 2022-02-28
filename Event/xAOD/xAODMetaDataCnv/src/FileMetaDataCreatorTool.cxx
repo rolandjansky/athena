@@ -120,9 +120,6 @@ StatusCode
       // Lock the tool while working with FileMetaData
       std::lock_guard lock(m_toolMutex);
 
-      // Return if object has already been filled
-      if (m_filledEvent) return StatusCode::SUCCESS;
-
       // Fill information from TagInfo and Simulation Parameters
       if (!updateFromNonEvent().isSuccess())
         ATH_MSG_DEBUG("Failed to fill FileMetaData with non-event info");
@@ -133,7 +130,7 @@ StatusCode
         return StatusCode::SUCCESS;
       }
 
-      {  // get MC channel number/ proccess ID
+      {  // MC channel, run and/or lumi block numbers
         const xAOD::EventInfo* eventInfo = nullptr;
         StatusCode sc = StatusCode::FAILURE;
 
@@ -143,6 +140,11 @@ StatusCode
           sc = m_eventStore->retrieve(eventInfo, "Mc" + m_eventInfoKey);
 
         if (eventInfo && sc.isSuccess()) {
+          addUniqueValue("runNumbers", eventInfo->runNumber());
+          addUniqueValue("lumiBlocks", eventInfo->lumiBlock());
+          // Return if object has already been filled
+          if (m_filledEvent) return StatusCode::SUCCESS;
+
           try {
             ATH_MSG_DEBUG("Retrieved " << m_eventInfoKey);
 
@@ -158,10 +160,15 @@ StatusCode
             ATH_MSG_DEBUG("Failed to set " << xAOD::FileMetaData::mcProcID);
           }
         } else {
-          ATH_MSG_DEBUG("Failed to retrieve " << m_eventInfoKey << " => cannot set "
-                        << xAOD::FileMetaData::mcProcID);
+          ATH_MSG_DEBUG(
+            "Failed to retrieve " << m_eventInfoKey << " => cannot set "
+            << xAOD::FileMetaData::mcProcID
+            << ", runNumbers, or lumiBlockNumbers");
         }
       }
+
+      // Return if object has already been filled
+      if (m_filledEvent) return StatusCode::SUCCESS;
 
       {  // get dataType
         const DataHeader* dataHeader = nullptr;
@@ -187,7 +194,6 @@ StatusCode
           ATH_MSG_DEBUG("Failed to set " << xAOD::FileMetaData::dataType);
         }
       }
-
       m_filledEvent = true;
 
       return StatusCode::SUCCESS;
@@ -318,5 +324,30 @@ void
         ATH_MSG_DEBUG("Failed to set " << key);
       }
     }
+
+void FileMetaDataCreatorTool::addUniqueValue(
+  std::string type, uint32_t value) {
+  try {
+    std::vector<uint32_t> list;
+    if (m_info->value(type, list)) {
+      ATH_MSG_DEBUG("retrieved existing list of " << type);
+    } else {
+      ATH_MSG_DEBUG("adding new list for " << type);
+    }
+    // we want a sorted list of unique values (without using std::set)
+    std::sort(list.begin(), list.end());
+    auto it = std::lower_bound(list.begin(), list.end(), value);
+    if (it == list.end() || (*it) != value) {
+      list.insert(it, value);
+      ATH_MSG_DEBUG("added " << value << " to list of " << type);
+    }
+    if (!m_info->setValue(type, list)) {
+      ATH_MSG_DEBUG("error updating list for " + type);
+    }
+  } catch (std::exception& e) {
+    // Processing generated events not data
+    ATH_MSG_WARNING(e.what());
+  }
+}
 
 }  // namespace xAODMaker

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/EventHandler.h"
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -72,7 +73,7 @@ namespace MuonCalib {
     void EventHandler::setEvent(std::shared_ptr<const MuonCalibEvent_E> event) {
         // reset previous event and set new event
         clear();
-        m_event = event;
+        m_event = std::move(event);
 
         // create extended tracks
         createExtendedTracks();
@@ -330,7 +331,7 @@ namespace MuonCalib {
             if (m_debug) extendedTrack->dump();
         }
     }
-    std::shared_ptr<MuonCalibTrack_E> EventHandler::transform_to_trk(const TruthPtr truth_part,
+    std::shared_ptr<MuonCalibTrack_E> EventHandler::transform_to_trk(const TruthPtr& truth_part,
                                                                      const std::map<int, std::set<TruthMdtPtr>>& mdt_hits,
                                                                      const std::map<int, std::set<TruthCscPtr>>& csc_hits,
                                                                      const std::map<int, std::set<TruthRpcPtr>>& rpc_hits,
@@ -344,11 +345,12 @@ namespace MuonCalib {
         build_pars.theta = truth_part->momentum().theta();
         build_pars.author = std::abs(truth_part->PDGCode());
         build_pars.qOverP = (1. - 2. * (truth_part->PDGCode() < 0)) / (truth_part->momentum().mag());
+        build_pars.cov.setZero();
         std::shared_ptr<MuonCalibTrack_E> track_ptr = std::make_shared<MuonCalibTrack_E>(build_pars);
 
         std::map<int, std::set<TruthMdtPtr>>::const_iterator mdt_itr = mdt_hits.find(barcode);
         if (mdt_itr != mdt_hits.end()) {
-            for (TruthMdtPtr mdt_hit : mdt_itr->second) {
+            for (const TruthMdtPtr& mdt_hit : mdt_itr->second) {
                 MuonCalibHit_E::definePars hit_pars{};
                 hit_pars.driftRadius = mdt_hit->driftRadius();
                 hit_pars.pos = Amg::Vector3D(0., mdt_hit->positionAlongTube(), 0.);
@@ -357,7 +359,7 @@ namespace MuonCalib {
         }
         std::map<int, std::set<TruthCscPtr>>::const_iterator csc_itr = csc_hits.find(barcode);
         if (csc_itr != csc_hits.end()) {
-            for (TruthCscPtr csc_hit : csc_itr->second) {
+            for (const TruthCscPtr& csc_hit : csc_itr->second) {
                 MuonCalibHit_E::definePars hit_pars{};
                 hit_pars.driftRadius = csc_hit->time();
                 track_ptr->addHit(std::make_shared<MuonCalibHit_E>(csc_hit->identify(), hit_pars));
@@ -366,7 +368,7 @@ namespace MuonCalib {
 
         std::map<int, std::set<TruthRpcPtr>>::const_iterator rpc_itr = rpc_hits.find(barcode);
         if (rpc_itr != rpc_hits.end()) {
-            for (TruthRpcPtr rpc_hit : rpc_itr->second) {
+            for (const TruthRpcPtr& rpc_hit : rpc_itr->second) {
                 MuonCalibHit_E::definePars hit_pars{};
                 hit_pars.driftRadius = rpc_hit->time();
                 track_ptr->addHit(std::make_shared<MuonCalibHit_E>(rpc_hit->identify(), hit_pars));
@@ -374,7 +376,7 @@ namespace MuonCalib {
         }
         std::map<int, std::set<TruthTgcPtr>>::const_iterator tgc_itr = tgc_hits.find(barcode);
         if (tgc_itr != tgc_hits.end()) {
-            for (TruthTgcPtr tgc_hit : tgc_itr->second) {
+            for (const TruthTgcPtr& tgc_hit : tgc_itr->second) {
                 MuonCalibHit_E::definePars hit_pars{};
                 hit_pars.driftRadius = tgc_hit->time();
                 track_ptr->addHit(std::make_shared<MuonCalibHit_E>(tgc_hit->identify(), hit_pars));
@@ -410,12 +412,12 @@ namespace MuonCalib {
                 if (assoc_quality != other.assoc_quality) return assoc_quality > other.assoc_quality;
                 return seg->chi2() < other.seg->chi2();
             };
-            segmentMatchQual(ExtendedSegmentPtr _ptr, int score) : seg{_ptr}, assoc_quality{score} {}
+            segmentMatchQual(ExtendedSegmentPtr _ptr, int score) : seg{std::move(_ptr)}, assoc_quality{score} {}
         };
 
-        for (ExtendedTrackPtr trk : tracks) {
+        for (const ExtendedTrackPtr& trk : tracks) {
             std::vector<segmentMatchQual> segmentTrackMatch;
-            for (ExtendedSegmentPtr seg : segments) {
+            for (const ExtendedSegmentPtr& seg : segments) {
                 int match = associateSegmentWithTrack(*seg, *trk);
                 if (match > 200) { segmentTrackMatch.emplace_back(seg, match); }
             }

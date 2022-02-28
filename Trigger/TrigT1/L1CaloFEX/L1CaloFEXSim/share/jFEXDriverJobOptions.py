@@ -36,10 +36,15 @@ include("RecExCond/AllDet_detDescr.py")
 
 # menu with default configuration for testing
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
-ConfigFlags.lock() 
-CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
+flags.Input.Files = athenaCommonFlags.FilesInput()
+flags.Trigger.triggerConfig = "FILE"
+flags.lock()
+CAtoGlobalWrapper(L1ConfigSvcCfg,flags)
+
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+generateL1Menu(flags)
 
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile_jfex.root' OPT='RECREATE'"]

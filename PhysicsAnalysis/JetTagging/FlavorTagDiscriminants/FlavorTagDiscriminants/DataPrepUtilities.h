@@ -10,7 +10,6 @@
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/AssociationEnums.h"
 #include "FlavorTagDiscriminants/FTagDataDependencyNames.h"
-#include "xAODBTagging/ftagfloat_t.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -199,50 +198,10 @@ namespace FlavorTagDiscriminants {
           return {m_name, seq};
         }
     };
-  } // end internal namespace
 
 
-  // ____________________________________________________________________
-  // High level adapter stuff
-  //
-  // We define a few structures to map variable names to type, default
-  // value, etc. These are only used by the high level interface.
-  //
-  typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
-  typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
-  typedef std::vector<std::pair<std::regex, SortOrder> > SortRegexes;
-  typedef std::vector<std::pair<std::regex, TrackSelection> > TrkSelRegexes;
-
-  // Function to map the regular expressions + the list of inputs to a
-  // list of variable configurations.
-  std::vector<FTagInputConfig> get_input_config(
-    const std::vector<std::string>& variable_names,
-    const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes);
-
-  // Since the names of the inputs are stored in the NN config, we
-  // also allow some user-configured remapping. Items in replaced_vars
-  // are removed as they are used.
-  void remap_inputs(std::vector<lwt::Input>& nn,
-                    std::map<std::string, std::string>& replaced_vars,
-                    std::map<std::string, double>& defaults);
-
-  // Function to map the regex + list of inputs to variable config,
-  // this time for sequence inputs.
-  std::vector<FTagTrackSequenceConfig> get_track_input_config(
-    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
-    const TypeRegexes& type_regexes,
-    const SortRegexes& sort_regexes,
-    const TrkSelRegexes& select_regexes);
-
-  // replace strings for flip taggers
-  void rewriteFlipConfig(lwt::GraphConfig&, const StringRegexes&);
-  void flipSequenceSigns(lwt::GraphConfig&, const std::regex&);
-
-
-  //
-  // Filler functions
-  namespace internal {
+    // Filler functions
+    //
     // factory functions to produce callable objects that build inputs
     namespace get {
       VarFromBTag varFromBTag(const std::string& name,
@@ -256,9 +215,7 @@ namespace FlavorTagDiscriminants {
       std::pair<TrackSequenceFilter,std::set<std::string>> flipFilter(
         const FTagOptions&);
     }
-  }
 
-  namespace internal {
 
     typedef SG::AuxElement::Decorator<float> OutputSetter;
     typedef std::vector<std::pair<std::string, OutputSetter > > OutNode;
@@ -276,8 +233,11 @@ namespace FlavorTagDiscriminants {
   }
 
 
+  // higher level configuration functions
   namespace dataprep {
 
+    // Get the configuration structures based on the lwtnn NN
+    // structure.
     std::tuple<
       std::vector<FTagInputConfig>,
       std::vector<FTagTrackSequenceConfig>,
@@ -287,6 +247,7 @@ namespace FlavorTagDiscriminants {
       std::map<std::string, std::string> remap_scalar,
       TrackLinkType track_link_type);
 
+    // return the scalar getter functions for NNs
     std::tuple<
       std::vector<internal::VarFromBTag>,
       std::vector<internal::VarFromJet>,
@@ -294,13 +255,15 @@ namespace FlavorTagDiscriminants {
     createBvarGetters(
       const std::vector<FTagInputConfig>& inputs);
 
+    // return the track getter functions for the NNs
     std::tuple<
       std::vector<internal::TrackSequenceBuilder>,
       FTagDataDependencyNames>
     createTrackGetters(
       const std::vector<FTagTrackSequenceConfig>& track_sequences,
-      const FTagOptions& options, const std::string& jetLinkName);
+      const FTagOptions& options);
 
+    // return the decorators for the NNs
     std::tuple<
       std::map<std::string, internal::OutNode>,
       FTagDataDependencyNames>

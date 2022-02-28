@@ -33,8 +33,14 @@ Interface definition for eFEXtauAlgo
     
     virtual bool isCentralTowerSeed() = 0;
     virtual eFEXtauTOB* getTauTOB() = 0;
+    virtual unsigned int rCoreCore() = 0;
+    virtual unsigned int rCoreEnv() = 0;
     virtual void getRCore(std::vector<unsigned int> & rCoreVec) = 0;
-    virtual float getRealIso() = 0;
+    virtual float getRealRCore() = 0;
+    virtual unsigned int rHadCore() = 0;
+    virtual unsigned int rHadEnv() = 0;
+    virtual void getRHad(std::vector<unsigned int> & rHadVec) = 0;
+    virtual float getRealRHad() = 0;
     virtual unsigned int getEt() = 0;
     virtual unsigned int getBitwiseEt() = 0;
     virtual bool getUnD() = 0;

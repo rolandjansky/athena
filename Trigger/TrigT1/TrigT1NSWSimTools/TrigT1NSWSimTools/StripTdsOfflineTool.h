@@ -19,13 +19,8 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
 class sTgcDigit;
 class TTree;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -91,8 +86,6 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
     // hidden variables
@@ -101,9 +94,6 @@ namespace NSWL1 {
     thread_local static int     m_strip_cache_eventNumber;                        //!< event number associated to the current STRIP cache
     thread_local static cStatus m_strip_cache_status;                             //!< status of the current cache
     BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink
-
-    // properties: container and service names
-    StringProperty   m_rndmEngineName;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis

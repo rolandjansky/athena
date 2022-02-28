@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkEventPrimitives/FitQuality.h"
@@ -107,7 +107,7 @@ namespace InDet {
   void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack* alignTrack) {
     ATH_MSG_DEBUG("In dumpTrack()");
     Trk::AlignTrack::AlignTrackType type = alignTrack->type();
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // if hope to dump all the tracks, should set:
     // m_storeNormalRefittedOnly = false, m_storeConstrainedOnly=false
     if ((m_storeNormalRefittedOnly && (type != Trk::AlignTrack::NormalRefitted)) ||
@@ -162,7 +162,7 @@ namespace InDet {
     m_original_theta = invalidParameterValue;
     m_original_qoverp = invalidParameterValue;
     m_original_pt =invalidParameterValue;
-                                                                                               m_original_eta = -999.;
+    m_original_eta = -999.;
     m_original_chi2 = invalidChiSq;
     m_original_chi2prob = invalidChiSq;
     m_original_ndof = invalidDegreesOfFreedom;
@@ -298,7 +298,7 @@ namespace InDet {
 
       const Trk::PerigeeSurface persf(refPoint);
       const Trk::Perigee* originalPerigeeAtRef =
-        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*originalTrack, persf));
+        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *originalTrack, persf).release());
       if (!originalPerigeeAtRef) {
         const Trk::Perigee* originalTrackPerigee = originalTrack->perigeeParameters();
         if (originalTrackPerigee && ((originalTrackPerigee->associatedSurface())) == persf) {
@@ -317,7 +317,7 @@ namespace InDet {
       }
 
       const Trk::Perigee* PerigeeAtRef =
-        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*alignTrack, persf));
+        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *alignTrack, persf).release());
       if (!PerigeeAtRef) {
         const Trk::Perigee* alignTrackPerigee = alignTrack->perigeeParameters();
         if (alignTrackPerigee && ((alignTrackPerigee->associatedSurface())) == persf) {
@@ -384,7 +384,7 @@ namespace InDet {
     const Trk::Perigee* startPerigee = alignTrack->perigeeParameters();
     const Trk::Perigee* measPer = startPerigee;
 
-    if (measPer == 0) {
+    if (measPer == nullptr) {
       ATH_MSG_DEBUG("No measured perigee parameters assigned to the track");
       return false;
     }
@@ -398,7 +398,7 @@ namespace InDet {
       TrackTruthCollection::const_iterator found = TruthMap->find(tracklink2);
       if ((found != TruthMap->end()) && (found->second.probability() > m_matchProbability)) {
         TrackTruth trtruth = found->second;
-        HepMcParticleLink HMPL = trtruth.particleLink();
+        const HepMcParticleLink& HMPL = trtruth.particleLink();
 
         if (HMPL.isValid()) {
 #ifdef HEPMC3
@@ -429,7 +429,7 @@ namespace InDet {
                   m_truth_prod_z = genparptr->production_vertex()->position().z();
 
                   delete  generatedTrackPerigee;
-                  m_truth_pt = 1. / std::fabs(m_truth_qoverpt);
+                  m_truth_pt = 1. / std::abs(m_truth_qoverpt);
                   m_truth_charge = 1;
                   if (m_truth_qoverpt < 0) m_truth_charge = -1;
                   if (m_truth_phi0 < 0) m_truth_phi0 += 2 * M_PI;

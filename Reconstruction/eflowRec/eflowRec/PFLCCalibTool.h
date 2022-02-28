@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PFLCCALIBTOOL_H
@@ -35,7 +35,7 @@ class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
 
   void apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster);
   void applyLocal(ToolHandle<CaloClusterProcessor>& calibTool, eflowRecCluster *cluster);
-  void applyLocalWeight(eflowRecCluster* theEFRecCluster, const CaloDetDescrManager& calo_dd_man);
+  static void applyLocalWeight(eflowRecCluster* theEFRecCluster, const CaloDetDescrManager& calo_dd_man);
 
   /** Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
   ToolHandle<IPFClusterCollectionTool> m_clusterCollectionTool{this,"eflowRecClusterCollectionTool","eflowRecClusterCollectionTool","Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters"};

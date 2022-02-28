@@ -6,8 +6,8 @@
 
 namespace Tau{
 
-Had1ProngPlots::Had1ProngPlots(PlotBase* pParent, std::string sDir,
-			       std::string sTauJetContainerName):
+Had1ProngPlots::Had1ProngPlots(PlotBase* pParent, const std::string& sDir,
+			       const std::string& sTauJetContainerName):
    PlotBase(pParent, sDir),
    m_oGeneralTauPlots(this, "", sTauJetContainerName),
    m_tauNWideTracks(nullptr),

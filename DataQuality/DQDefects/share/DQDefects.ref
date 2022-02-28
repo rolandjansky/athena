@@ -5,9 +5,13 @@ DQDefects.tests.test_defect_creation ... ok
 Testing virtual defects involving inversion ... ok
 DQDefects.tests.test_defect_insertion_retrieval ... ok
 DQDefects.tests.test_defect_insertion_retrieval_unicode ... ok
+Check that we raise an error if the defect name is not ASCII ... ok
 DQDefects.tests.test_defect_empty_retrieval ... ok
 DQDefects.tests.test_virtual_defect_creation ... ok
+Check that the defect name list is updated when a defect is created ... ok
+Check that the virtual defect name list is updated when a defect is created ... ok
 DQDefects.tests.test_virtual_defect_creation_unicode ... ok
+Check that we raise an error if the virtual defect name is not ASCII ... ok
 DQDefects.tests.test_nonpresent ... ok
 Testing many virtual channels with sparsely placed IoVs ... ok
 Testing virtual defect basics ... ok
@@ -29,8 +33,9 @@ DQDefects.tests.test_reject_duplicate_names ... ok
 Check that the intolerable defect listing function works ... ok
 Checking that listing a tag works even if the tag is empty ... ok
 Test that defects are inserted correctly into non-contiguous ranges ... ok
+Test that return types are appropriate ... ok
 
 ----------------------------------------------------------------------
-Ran 31 tests in 26.579s
+Ran 36 tests in 26.579s
 
 OK

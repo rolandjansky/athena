@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
 // BFieldVector.h
-//
 // Magnetic field value stored in the map.
-// It may be either short (toroid) or double (solenoid).
+// We allow short (usual case)  double (special case)
 //
 // Masahiro Morii, Harvard University
 //
@@ -22,6 +21,10 @@ template<class T>
 class BFieldVector
 {
 public:
+  static_assert(
+    (std::is_same<T, short>::value || std::is_same<T, double>::value),
+    "Type for the BField Vector must be one of short or double");
+
   // Default
   BFieldVector() = default;
   BFieldVector(const BFieldVector&) = default;

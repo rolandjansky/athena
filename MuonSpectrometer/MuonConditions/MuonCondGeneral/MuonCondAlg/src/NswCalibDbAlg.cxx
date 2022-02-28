@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/NswCalibDbAlg.h"
@@ -112,7 +112,7 @@ NswCalibDbAlg::loadDataCalibStgc(const EventContext& ctx) const {
 
 // loadThresholdData
 StatusCode
-NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) const {
+NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readKey) const {
 
 	// set up write handle
 	SG::WriteCondHandle<NswCalibDbThresholdData> writeHandle{m_writeKey_vmm, ctx};
@@ -127,7 +127,7 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) con
 	// set up read handle
 	SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
 	const CondAttrListCollection* readCdo{*readHandle}; 
-	if(readCdo==0){
+	if(readCdo==nullptr){
 	  ATH_MSG_ERROR("Null pointer to the read conditions object");
 	  return StatusCode::FAILURE; 
 	} 
@@ -168,12 +168,12 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) con
 		unsigned int nChns = 0; 
 		for(unsigned int iEvt=0; iEvt<tree->GetEntries(); ++iEvt){
 			tree->GetEntry(iEvt);
-			Identifier* channelId = nullptr;
+			Identifier channelId;
 			if(!buildChannelId(channelId, elinkId, vmm, channel)){
 				ATH_MSG_WARNING("Could not find valid channelId for elink "<<elinkId);
 				continue;
 			}
-			writeCdo->setData(channelId, threshold);
+			writeCdo->setData(&channelId, threshold);
         	++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
@@ -197,7 +197,7 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) con
 
 // loadTimeChargeData
 StatusCode
-NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, readKey_t readKey, const std::string type) const {
+NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& readKey, const std::string& type) const {
 
 	// set up write handle
 	SG::WriteCondHandle<NswCalibDbTimeChargeData> writeHandle{m_writeKey_tdopdo, ctx};
@@ -212,7 +212,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, readKey_t readKey, co
 	// set up read handle
 	SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
 	const CondAttrListCollection* readCdo{*readHandle}; 
-	if(readCdo==0){
+	if(readCdo==nullptr){
 	  ATH_MSG_ERROR("Null pointer to the read conditions object");
 	  return StatusCode::FAILURE; 
 	} 
@@ -263,12 +263,12 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, readKey_t readKey, co
 		unsigned int nChns = 0; 
 		for(unsigned int iEvt=0; iEvt<tree->GetEntries(); ++iEvt){
 			tree->GetEntry(iEvt);
-			Identifier* channelId = nullptr;
+			Identifier channelId;
 			if(!buildChannelId(channelId, elinkId, vmm, channel)){
 				ATH_MSG_WARNING("Could not find valid channelId for elink "<<elinkId);
 				continue;
 			}
-			writeCdo->setData(type, channelId, slope, slopeError, intercept, interceptError);
+			writeCdo->setData(type, &channelId, slope, slopeError, intercept, interceptError);
         	++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
@@ -291,7 +291,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, readKey_t readKey, co
 
 // buildChannelId
 bool
-NswCalibDbAlg::buildChannelId(Identifier*& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const {
+NswCalibDbAlg::buildChannelId(Identifier& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const {
 
 	// build NSWOfflineHelper
 	Muon::nsw::NSWResourceId* resId = new Muon::nsw::NSWResourceId((uint32_t) elinkId);
@@ -328,7 +328,7 @@ NswCalibDbAlg::buildChannelId(Identifier*& channelId, unsigned int elinkId, unsi
 			ATH_MSG_WARNING("Could not extract valid channelId for MM elink "<<elinkId);
 			return false;
 		}
-		channelId = &chnlId;
+		channelId = chnlId;
 	}
 	// sTGC
 	else{
@@ -337,7 +337,7 @@ NswCalibDbAlg::buildChannelId(Identifier*& channelId, unsigned int elinkId, unsi
 			ATH_MSG_WARNING("Could not extract valid channelId for STGC elink "<<elinkId);
 			return false;
 		}
-		channelId = &chnlId;
+		channelId = chnlId;
 	}
 
 	return true;

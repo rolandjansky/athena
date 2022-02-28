@@ -174,10 +174,10 @@ VP1TabWidget::VP1TabWidget( QWidget *parent,  Qt::WindowFlags flags )
   connect(tabBar(), SIGNAL(initiateDrag( int )), SLOT(initiateDrag( int )));
   connect(tabBar(), SIGNAL(testCanDecode(const QDragMoveEvent *, bool & )), SIGNAL(testCanDecode(const QDragMoveEvent *, bool & )));
   connect(tabBar(), SIGNAL(receivedDropEvent( int, QDropEvent * )), SLOT(receivedDropEvent( int, QDropEvent * )));
-  connect(tabBar(), SIGNAL(moveTab( int, int )), SLOT(moveTab( int, int )));
+  connect(tabBar(), SIGNAL(VP1TabWidget::moveTab( int, int )), SLOT(VP1TabWidget::moveTab( int, int )));
   connect(tabBar(), SIGNAL(closeRequest( int )), SLOT(closeRequest( int )));
 #ifndef QT_NO_WHEELEVENT
-  connect(tabBar(), SIGNAL(wheelDelta( int )), SLOT(wheelDelta( int )));
+  connect(tabBar(), SIGNAL(VP1TabWidget::wheelDelta( int )), SLOT(VP1TabWidget::wheelDelta( int )));
 #endif
 }
 

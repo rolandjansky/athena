@@ -5,15 +5,16 @@
 #ifndef EGAMMATOOLS_EMCLUSTERTOOL_H
 #define EGAMMATOOLS_EMCLUSTERTOOL_H
 
+#include "egammaInterfaces/IEMClusterTool.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "egammaInterfaces/IEMClusterTool.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 
-#include "StoreGate/WriteHandleKey.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/EgammaEnums.h"
@@ -33,7 +34,7 @@ class CaloClusterCellLink;
    @author C. Anastopoulos
 */
 
-class EMClusterTool
+class EMClusterTool final
   : public AthAlgTool
   , virtual public IEMClusterTool
 {
@@ -61,9 +62,6 @@ private:
   void setNewCluster(const EventContext& ctx,
                      xAOD::Egamma* eg,
                      xAOD::CaloClusterContainer* outputClusterContainer) const;
-  /** @brief creation of new super cluster based on existing one */
-  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster,
-                                         xAOD::Egamma* eg) const;
 
   /** @brief Key of the output cluster container **/
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClusterContainerKey{

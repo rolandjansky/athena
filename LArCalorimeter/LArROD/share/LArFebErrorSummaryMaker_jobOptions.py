@@ -1,7 +1,7 @@
 from LArROD.LArRODConf import LArFebErrorSummaryMaker
 febSummaryMaker =LArFebErrorSummaryMaker()
 from RecExConfig.RecFlags import rec
-if int(rec.projectName()[4:6]) > 20:
+if (not rec.projectName()[4:6].isdigit()) or int(rec.projectName()[4:6]) > 20:
    febSummaryMaker.MaskFebScacStatus = [0x38680000, 0x38720000]
    febSummaryMaker.MaskFebEvtId      = [0x38680000]
 else:

@@ -252,7 +252,7 @@ float SCT_DetailedSurfaceChargesGenerator::SurfaceDriftTime(float ysurf) const {
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from SCT_Digitization AthAlgorithm
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const {
+void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) {
   ATH_MSG_VERBOSE("SCT_DetailedSurfaceChargesGenerator::process starts");
   const float p_eventTime{phit.eventTime()};
   const unsigned short p_eventId{phit.eventId()};
@@ -263,7 +263,7 @@ void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* eleme
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from both AthAlgorithm and PileUpTool
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const {
+void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element, const SiHit& phit, ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) {
   const SCT_ModuleSideDesign* p_design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (p_design==nullptr) {
     ATH_MSG_ERROR("SCT_DetailedSurfaceChargesGenerator::process can not get " << p_design);
@@ -684,7 +684,7 @@ bool SCT_DetailedSurfaceChargesGenerator::electron(double x_e, double y_e, doubl
 //---------------------------------------------------------------
 //      parameters for hole transport
 //---------------------------------------------------------------
-bool SCT_DetailedSurfaceChargesGenerator::hole(double x_h, double y_h, double& vx_h, double& vy_h, double& D_h) const {
+bool SCT_DetailedSurfaceChargesGenerator::hole(double x_h, double y_h, double& vx_h, double& vy_h, double& D_h) {
   double Ex, Ey;
   EField(x_h, y_h, Ex, Ey); // [V/cm]
 
@@ -834,7 +834,7 @@ double SCT_DetailedSurfaceChargesGenerator::mud_h(double E) const {
 //---------------------------------------------------------------------
 //  holeTransport
 //---------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) {
   // transport holes in the bulk 
   // T. Kondo, 2010.9.9
   // External parameters to be specified

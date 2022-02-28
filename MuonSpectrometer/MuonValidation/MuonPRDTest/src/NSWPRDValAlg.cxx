@@ -363,7 +363,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
   // Prepare Muon only check
   std::vector<int>* TruthParticle_Pdg;
   if ( m_doNSWMatchingMuon ) { 
-    TruthParticle_Pdg = 0;
+    TruthParticle_Pdg = nullptr;
     m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); 
   }
 
@@ -445,7 +445,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
 
 // This function couples the branch of the NSW validation Ntuple with the EDM object. 
 // In case the brach does not exist, or is completely empty, the object will remain empty and the code will skip the matching entirly, giving a ATH_WARNING in the process
-StatusCode NSWPRDValAlg::setDataAdress (EDM_object &oData, TString branch_name) {
+StatusCode NSWPRDValAlg::setDataAdress (EDM_object &oData, const TString& branch_name) {
   bool setBranch = false;
   if (!(branch_name.Contains(oData.getName()) && branch_name.Contains(oData.getDetector()))) { return StatusCode::SUCCESS; }
   // For sim hits select the offline identifiers, rather than the sim identifiers

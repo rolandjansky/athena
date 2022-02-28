@@ -1,7 +1,7 @@
 // -*- C++ -*-
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOREADOUTCONFIG_H
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #define TRIGT1CALOCALIBCONDITIONS_L1CALOREADOUTCONFIG_H
 
@@ -122,7 +122,7 @@ public:
 
 private:
   unsigned int m_channelId = 0;
-  std::string m_description = 0;
+  std::string m_description;
   unsigned int m_baselinePointer = 0;
   unsigned int m_numFadcSlices = 0;
   unsigned int m_l1aFadcSlice = 0;
@@ -163,9 +163,9 @@ private:
   unsigned int m_bcOffsetJemSum = 0;
   int m_bcOffsetCmx = 0;
   int m_bcOffsetTopo = 0;
-  std::string m_formatTypePpm = 0;
-  std::string m_formatTypeCpJep = 0;
-  std::string m_formatTypeTopo = 0;
+  std::string m_formatTypePpm;
+  std::string m_formatTypeCpJep;
+  std::string m_formatTypeTopo;
   unsigned int m_compressionThresholdPpm = 0;
   unsigned int m_compressionThresholdCpJep = 0;
   unsigned int m_compressionThresholdTopo = 0;

@@ -12,7 +12,7 @@ void AGDDGvxy::CreateSolid (const AGDDBuilder& builder)
 }
 
 
-void AGDDGvxy::CreateVolume (const AGDDBuilder& builder)
+void AGDDGvxy::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

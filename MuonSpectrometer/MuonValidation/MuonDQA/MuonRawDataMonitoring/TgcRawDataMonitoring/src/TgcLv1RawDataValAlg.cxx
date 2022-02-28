@@ -52,110 +52,110 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
   declareProperty("UseExpressStream",m_useExpressStream=false);
   // initialize the histos
   for(int ac=0;ac<2;ac++){
-	  m_tgclv1lpttiming[ac] = 0;
-	  m_tgclv1lpttimingptcut[ac] = 0;
-	  m_tgclv1lpttimingmap[ac] = 0;
-	  m_tgclv1lptcurrentfractionmap[ac] = 0;
-	  m_tgclv1lpttimingmapptcut[ac] = 0;
-	  m_tgclv1lptcurrentfractionmapptcut[ac] = 0;
-	  m_tgclv1slvslpttiming[ac] = 0;
-	  m_tgclv1slvslpttimingptcut[ac] = 0;
-	  m_tgclv1_SL_trigger_timing_ES[ac] = 0;
-	  m_tgclv1_SL_trigger_timing_num_ES[ac] = 0;
-	  m_tgclv1_SL_trigger_timing_denom_ES[ac] = 0;
-	  m_tgclv1_LPT_trigger_timing_ES[ac] = 0;
-	  m_tgclv1_LPT_trigger_timing_num_ES[ac] = 0;
-	  m_tgclv1_LPT_trigger_timing_denom_ES[ac] = 0;
-	  m_tgclv1_SL_trigger_timing_ES_GM[ac] = 0;
-	  m_tgclv1_LPT_trigger_timing_ES_GM[ac] = 0;
-	  m_tgclv1_plateau_eff_counting_ES[ac] = 0;
-	  m_tgclv1_plateau_eff_counting_num_ES[ac] = 0;
-	  m_tgclv1_plateau_eff_counting_denom_ES[ac] = 0;
-	  m_tgclv1_plateau_eff_counting_ES_GM[ac] = 0;
-	  m_tgclv1summaryofsltiming[ac] = 0;
-	  m_tgclv1summaryoflpttiming[ac] = 0;
+	  m_tgclv1lpttiming[ac] = nullptr;
+	  m_tgclv1lpttimingptcut[ac] = nullptr;
+	  m_tgclv1lpttimingmap[ac] = nullptr;
+	  m_tgclv1lptcurrentfractionmap[ac] = nullptr;
+	  m_tgclv1lpttimingmapptcut[ac] = nullptr;
+	  m_tgclv1lptcurrentfractionmapptcut[ac] = nullptr;
+	  m_tgclv1slvslpttiming[ac] = nullptr;
+	  m_tgclv1slvslpttimingptcut[ac] = nullptr;
+	  m_tgclv1_SL_trigger_timing_ES[ac] = nullptr;
+	  m_tgclv1_SL_trigger_timing_num_ES[ac] = nullptr;
+	  m_tgclv1_SL_trigger_timing_denom_ES[ac] = nullptr;
+	  m_tgclv1_LPT_trigger_timing_ES[ac] = nullptr;
+	  m_tgclv1_LPT_trigger_timing_num_ES[ac] = nullptr;
+	  m_tgclv1_LPT_trigger_timing_denom_ES[ac] = nullptr;
+	  m_tgclv1_SL_trigger_timing_ES_GM[ac] = nullptr;
+	  m_tgclv1_LPT_trigger_timing_ES_GM[ac] = nullptr;
+	  m_tgclv1_plateau_eff_counting_ES[ac] = nullptr;
+	  m_tgclv1_plateau_eff_counting_num_ES[ac] = nullptr;
+	  m_tgclv1_plateau_eff_counting_denom_ES[ac] = nullptr;
+	  m_tgclv1_plateau_eff_counting_ES_GM[ac] = nullptr;
+	  m_tgclv1summaryofsltiming[ac] = nullptr;
+	  m_tgclv1summaryoflpttiming[ac] = nullptr;
 	  
-	  m_tgclv1slchamberlowstat[ac] = 0;
-	  m_tgclv1sltimingptcutlowstat[ac] = 0;
+	  m_tgclv1slchamberlowstat[ac] = nullptr;
+	  m_tgclv1sltimingptcutlowstat[ac] = nullptr;
 
-	  m_tgclv1sltiming[ac] = 0;
-	  m_tgclv1sltimingptcut[ac] = 0;
-	  m_tgclv1sltimingmap[ac] = 0;
-	  m_tgclv1slcurrentfractionmap[ac] = 0;
-	  m_tgclv1sltimingmapptcut[ac] = 0;
-	  m_tgclv1slcurrentfractionmapptcut[ac] = 0;
+	  m_tgclv1sltiming[ac] = nullptr;
+	  m_tgclv1sltimingptcut[ac] = nullptr;
+	  m_tgclv1sltimingmap[ac] = nullptr;
+	  m_tgclv1slcurrentfractionmap[ac] = nullptr;
+	  m_tgclv1sltimingmapptcut[ac] = nullptr;
+	  m_tgclv1slcurrentfractionmapptcut[ac] = nullptr;
 
 	  for(int isec=0; isec<12; isec++){
-	    m_tgclv1sltimingsector[ac][isec] = 0;
-	    m_tgclv1sltimingptcutsector[ac][isec] = 0;
-	    m_tgclv1lpttimingsector[ac][isec] = 0;
-	    m_tgclv1lpttimingptcutsector[ac][isec] = 0;
-	    m_tgclv1slvslpttimingsector[ac][isec] = 0;
-	    m_tgclv1slvslpttimingptcutsector[ac][isec] = 0;
+	    m_tgclv1sltimingsector[ac][isec] = nullptr;
+	    m_tgclv1sltimingptcutsector[ac][isec] = nullptr;
+	    m_tgclv1lpttimingsector[ac][isec] = nullptr;
+	    m_tgclv1lpttimingptcutsector[ac][isec] = nullptr;
+	    m_tgclv1slvslpttimingsector[ac][isec] = nullptr;
+	    m_tgclv1slvslpttimingptcutsector[ac][isec] = nullptr;
 	    for(int itrig=0; itrig<4; itrig++){
-		m_tgclv1sltimingsectortrg[ac][isec][itrig] = 0;
-		m_tgclv1sltimingptcutsectortrg[ac][isec][itrig] = 0;
-		m_tgclv1lpttimingsectortrg[ac][isec][itrig] = 0;
-		m_tgclv1lpttimingptcutsectortrg[ac][isec][itrig] = 0;
-		m_tgclv1slvslpttimingsectortrg[ac][isec][itrig] = 0;
-		m_tgclv1slvslpttimingptcutsectortrg[ac][isec][itrig] = 0;
+		m_tgclv1sltimingsectortrg[ac][isec][itrig] = nullptr;
+		m_tgclv1sltimingptcutsectortrg[ac][isec][itrig] = nullptr;
+		m_tgclv1lpttimingsectortrg[ac][isec][itrig] = nullptr;
+		m_tgclv1lpttimingptcutsectortrg[ac][isec][itrig] = nullptr;
+		m_tgclv1slvslpttimingsectortrg[ac][isec][itrig] = nullptr;
+		m_tgclv1slvslpttimingptcutsectortrg[ac][isec][itrig] = nullptr;
 	    }
 	  }
 	  for(int itrig=0; itrig<4; itrig++){
-	    m_tgclv1sltimingtrg[ac][itrig] = 0;
-	    m_tgclv1sltimingptcuttrg[ac][itrig] = 0;
-	    m_tgclv1lpttimingtrg[ac][itrig] = 0;
-	    m_tgclv1lpttimingptcuttrg[ac][itrig] = 0;
+	    m_tgclv1sltimingtrg[ac][itrig] = nullptr;
+	    m_tgclv1sltimingptcuttrg[ac][itrig] = nullptr;
+	    m_tgclv1lpttimingtrg[ac][itrig] = nullptr;
+	    m_tgclv1lpttimingptcuttrg[ac][itrig] = nullptr;
 	  }
 	  for(int im=0; im<2; im++){
-	    m_tgclv1sltimingtrack[ac][im] = 0;
-	    m_tgclv1sltimingptcuttrack[ac][im] = 0;
-	    m_tgclv1lpttimingtrack[ac][im] = 0;
-	    m_tgclv1lpttimingptcuttrack[ac][im] = 0;
+	    m_tgclv1sltimingtrack[ac][im] = nullptr;
+	    m_tgclv1sltimingptcuttrack[ac][im] = nullptr;
+	    m_tgclv1lpttimingtrack[ac][im] = nullptr;
+	    m_tgclv1lpttimingptcuttrack[ac][im] = nullptr;
 	  }
 
 	  for(int ipt=0; ipt<6; ipt++){
-	    m_tgclv1turnon_ES[ac][ipt] = 0;
-	    m_tgclv1turnontg_ES[ac][ipt] = 0;
-	    m_tgclv1turnonnum_ES[ac][ipt] = 0;
-	    m_tgclv1turnondenom_ES[ac][ipt] = 0;
+	    m_tgclv1turnon_ES[ac][ipt] = nullptr;
+	    m_tgclv1turnontg_ES[ac][ipt] = nullptr;
+	    m_tgclv1turnonnum_ES[ac][ipt] = nullptr;
+	    m_tgclv1turnondenom_ES[ac][ipt] = nullptr;
 
-	    m_tgclv1sltimingpt[ac][ipt] = 0;
-	    m_tgclv1lpttimingpt[ac][ipt] = 0;
+	    m_tgclv1sltimingpt[ac][ipt] = nullptr;
+	    m_tgclv1lpttimingpt[ac][ipt] = nullptr;
 	    for(int itrig=0; itrig<4; itrig++){
-		m_tgclv1sltimingpttrg[ac][ipt][itrig] = 0;
-		m_tgclv1lpttimingpttrg[ac][ipt][itrig] = 0;
+		m_tgclv1sltimingpttrg[ac][ipt][itrig] = nullptr;
+		m_tgclv1lpttimingpttrg[ac][ipt][itrig] = nullptr;
 	    }
 	    for(int im=0; im<2; im++)
-		m_tgclv1deltar[ac][ipt][im] = 0;
+		m_tgclv1deltar[ac][ipt][im] = nullptr;
 	    for(int icharge=0; icharge<3; icharge++){
 	       for(int imuid=0; imuid<2; imuid++){
-		  m_tgclv1turnon[ac][ipt][icharge][imuid] = 0;
-		  m_tgclv1turnontg[ac][ipt][icharge][imuid] = 0;
-		  m_tgclv1turnonnum[ac][ipt][icharge][imuid] = 0;
-		  m_tgclv1turnondenom[ac][ipt][icharge][imuid] = 0;
-		  m_tgclv1effetavsphidenom[ac][ipt][icharge][imuid] = 0;
+		  m_tgclv1turnon[ac][ipt][icharge][imuid] = nullptr;
+		  m_tgclv1turnontg[ac][ipt][icharge][imuid] = nullptr;
+		  m_tgclv1turnonnum[ac][ipt][icharge][imuid] = nullptr;
+		  m_tgclv1turnondenom[ac][ipt][icharge][imuid] = nullptr;
+		  m_tgclv1effetavsphidenom[ac][ipt][icharge][imuid] = nullptr;
 	          for(int ipcn=0; ipcn<3; ipcn++){
-		     m_tgclv1effetavsphi[ac][ipt][icharge][imuid][ipcn] = 0;
-		     m_tgclv1effetavsphinum[ac][ipt][icharge][imuid][ipcn] = 0;
+		     m_tgclv1effetavsphi[ac][ipt][icharge][imuid][ipcn] = nullptr;
+		     m_tgclv1effetavsphinum[ac][ipt][icharge][imuid][ipcn] = nullptr;
 		  }
 	       }
 	    }
 	  }
           for(int mod=0;mod<9;mod++)
             for(int pt=0;pt<6;pt++){
-              m_tgclv1cw[ac][mod][pt] = 0;
+              m_tgclv1cw[ac][mod][pt] = nullptr;
               for(int m=0;m<2;m++){
-                m_tgclv1cwoffline[ac][mod][pt][m] = 0;
-                m_tgclv1cwrejectedoffline[ac][mod][pt][m] = 0;
+                m_tgclv1cwoffline[ac][mod][pt][m] = nullptr;
+                m_tgclv1cwrejectedoffline[ac][mod][pt][m] = nullptr;
               }
             }
 
 	
   }
   for(int ich=0; ich<6; ich++){
-	  m_tgclv1summaryofsltimingperchambertype[ich] = 0;
-	  m_tgclv1summaryoflpttimingperchambertype[ich] = 0;
+	  m_tgclv1summaryofsltimingperchambertype[ich] = nullptr;
+	  m_tgclv1summaryoflpttimingperchambertype[ich] = nullptr;
   }
 
 } 
@@ -201,8 +201,8 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
     }
     else{
       for(int ac=0;ac<2;ac++){
-        m_tgclv1slchamberlowstat[ac] = 0;
-        m_tgclv1sltimingptcutlowstat[ac] = 0;
+        m_tgclv1slchamberlowstat[ac] = nullptr;
+        m_tgclv1sltimingptcutlowstat[ac] = nullptr;
       }
     }
   }// newLowStatInterval
@@ -234,10 +234,10 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
       for(int ac=0;ac<2;ac++)
         for(int mod=0;mod<9;mod++)
           for(int pt=0;pt<6;pt++){
-            m_tgclv1cw[ac][mod][pt] = 0;
+            m_tgclv1cw[ac][mod][pt] = nullptr;
             for(int m=0;m<m_nMuonAlgorithms;m++){
-              m_tgclv1cwoffline[ac][mod][pt][m] = 0;
-              m_tgclv1cwrejectedoffline[ac][mod][pt][m] = 0;
+              m_tgclv1cwoffline[ac][mod][pt][m] = nullptr;
+              m_tgclv1cwrejectedoffline[ac][mod][pt][m] = nullptr;
             }
           }
 

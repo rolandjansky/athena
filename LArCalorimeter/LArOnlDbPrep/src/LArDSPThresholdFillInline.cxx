@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDSPThresholdFillInline.h"
@@ -81,7 +81,7 @@ StatusCode LArDSPThresholdFillInline::initialize() {
   else if (m_mode.compare("group")==0) {
     m_workmode=GROUP;
     ATH_MSG_INFO ( "Will used cell groups defined in jobO " << name() << ".CellGroup for DSP thresholds" );
-    const CaloCell_ID* caloCellID;
+    const CaloCell_ID* caloCellID = nullptr;
     ATH_CHECK( detStore()->retrieve(caloCellID,"CaloCell_ID") );
 
     if (m_thrPerCell.setDefinition(caloCellID,m_cellGroupStr,msg())==false)

@@ -55,33 +55,36 @@ public:
   }
 
   /**
-   * Abstract cache class to allow passing information to/between calls.
+   * Cache class to allow passing information to/between calls.
    * This can be particular useful in Athena MT
    * re-entrant algorithms
    */
   class ICache
   {
   public:
-    /* we can make this concrete
-     * if we do not need a Dummy
-     * Material Effects updator
-     */
-    enum MaterialCacheType
-    {
-      MaterialEffects = 0,
-      DummyMaterialEffects = 1
-    };
-    virtual MaterialCacheType type() const = 0;
-    virtual ~ICache() = default;
-
-  protected:
-    ICache() = default;
+    ICache()
+      : validationLayer{ nullptr }
+      , validationSteps{ 0 }
+      , validationPhi{ 0. }
+      , validationEta{ 0. }
+      , accumulatedElossSigma{ 0. }
+    {}
+    ~ICache() = default;
+    //!< layer in the current validation step
+    const Trk::Layer* validationLayer{ nullptr };
+    int validationSteps{ 0 };   //!< number of validation steps
+    double validationPhi{ 0. }; //!< theta
+    double validationEta{ 0. }; //!< eta
+    //!< Sigma of the eloss accumulated so far in the extrapolation. Used in
+    //!< Landau mode
+    double accumulatedElossSigma{ 0. };
   };
+
   /**
    * Creates an instance of the cache to be used.
    * by the client.
    */
-  virtual std::unique_ptr<ICache> getCache() const = 0;
+  virtual ICache getCache() const { return {}; }
 
   /** Updator interface (full update for a layer):
     The parameters are given as a pointer owned by the caller.

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MVAUtils )
@@ -34,4 +34,4 @@ atlas_install_scripts( util/convertLGBMToRootTree.py
 
 atlas_add_test( ut_test_MVAUtils.py
                 SCRIPT test/ut_test_MVAUtils.py TestMVAUtilsBasic
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )

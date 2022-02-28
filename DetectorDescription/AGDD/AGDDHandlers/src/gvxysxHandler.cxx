@@ -38,7 +38,7 @@ void gvxysxHandler::ElementHandle(AGDDController& c,
 		std::vector<double> yvalues=getAttributeAsVector(c, t, "Y");
 		
 		// check we have a consistent set of points
-		if(xvalues.size() != yvalues.size()) throw;
+		if(xvalues.size() != yvalues.size()) std::abort();
 		int nPoints=xvalues.size();
 	
 		TwoPoint* v=new TwoPoint[2*nPoints];

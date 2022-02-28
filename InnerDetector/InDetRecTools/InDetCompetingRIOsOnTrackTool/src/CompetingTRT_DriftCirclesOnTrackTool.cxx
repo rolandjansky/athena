@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,11 +23,6 @@
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetCompetingRIOsOnTrack/CompetingTRT_DriftCirclesOnTrack.h"
 
-// interfaces
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IWeightCalculator.h"
-
 //
 #include <cmath>
 
@@ -39,18 +34,12 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::CompetingTRT_DriftCirclesOnTrackToo
     const std::string& ty,
     const std::string& na,
     const IInterface* pa ) :
-        AthAlgTool(ty,na,pa),
-        m_TRT_ROTCreator("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
-        m_weightCalculator("Trk::DAF_SimpleWeightCalculator/DAF_WeightCalculator"),
-        m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+        AthAlgTool(ty,na,pa)
 {
     declareInterface<ICompetingTRT_DriftCirclesOnTrackCreator>(this);
     declareInterface<ICompetingRIOsOnTrackTool>(this);
-    declareProperty("ToolForTRT_DriftCircleOnTrackCreation",m_TRT_ROTCreator,           "TRT_DriftCircleOnTrackCreator needed for the creation of CompetingPixelClustersOnTrack");
-    declareProperty("ToolForWeightCalculation",             m_weightCalculator,         "Tool for weight (assignment probability) calculation");
     declareProperty("WeightCutValueBarrel",                 m_jo_BarrelCutValue=6.66,    "lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
     declareProperty("WeightCutValueEndCap",                 m_jo_EndCapCutValue=6.66,    "lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
-    declareProperty("Extrapolator",                         m_extrapolator,             "Extrapolator tool");
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -109,6 +98,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     const Trk::TrackParameters& trkPar,
     const Trk::IWeightCalculator::AnnealingFactor beta ) const {
 
+    const EventContext& ctx =  Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("********* in createCompetingROT() ********** ");
     // get trkPar error in localZ for locZ cut
     double trkParErrorLocZ = 2.;
@@ -192,10 +182,11 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                     // first create trkParameter on the Surface of the RIO
                     // extrapolate to RIO surface
                     ATH_MSG_VERBOSE("Try to propagate TrackParameters to RIO surface");
-                    newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), *RIOsurfacePointer,
-                                                                           Trk::anyDirection, // propagate in any direction
-                                                                           false, //do noBoundaryCheck!
-                                                                           Trk::noHypothesis); // without material interaction
+                    newTrackParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                                             (trkParWithoutError ? *trkParWithoutError : trkPar), *RIOsurfacePointer,
+                                                                             Trk::anyDirection, // propagate in any direction
+                                                                             false, //do noBoundaryCheck!
+                                                                             Trk::noHypothesis).release(); // without material interaction
                     if (!newTrackParameters){
                         ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
                         delete ROTvector;
@@ -480,6 +471,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     //const bool recreateROTs=false
 ) const {
 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     //   TODO:  if recreateROTs==true call standard createCompROT method
 
     ATH_MSG_DEBUG("********* in updateCompetingROT() **********");
@@ -551,11 +543,12 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             ATH_MSG_VERBOSE("Try to propagate TrackParameters to ROT surface");
             ATH_MSG_VERBOSE("Try to propagate TrackParameters to RIO surface");
             delete newTrackParameters;
-            newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), *ROTsurfacePointer,
+            newTrackParameters = m_extrapolator->extrapolateDirectly(ctx,
+                                                                    (trkParWithoutError ? *trkParWithoutError : trkPar), *ROTsurfacePointer,
                                                                     Trk::anyDirection, // propagate in any direction
                                                                     //Trk::alongMomentum, // propagate in any direction
                                                                     false, //do noBoundaryCheck!
-                                                                    Trk::noHypothesis); // without material interaction
+                                                                    Trk::noHypothesis).release(); // without material interaction
             if (!newTrackParameters){
                 ATH_MSG_ERROR("TrackParameters could not be propagated to RIO_OnTrack surface");
                 delete assgnProbVector;

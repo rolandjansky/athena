@@ -88,6 +88,8 @@ else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")
       elif InDetFlags.doDVRetracking():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("R3LargeD0")
+      elif InDetFlags.doBLS():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("BLS")
       else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
     InDetNewTrackingCuts.printInfo()

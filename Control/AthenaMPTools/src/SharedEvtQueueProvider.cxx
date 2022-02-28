@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedEvtQueueProvider.h"
@@ -227,18 +227,19 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
   }
 
   // ________________________ Event selector restart ________________________
-  IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
-  if(!evtSelSvc) {
-    ATH_MSG_ERROR( "Failed to dyncast event selector to IService" );
-    return outwork;
+  if(m_evtSelector) {
+    IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
+    if(!evtSelSvc) {
+      ATH_MSG_ERROR( "Failed to dyncast event selector to IService" );
+      return outwork;
+    }
+    if(!evtSelSvc->start().isSuccess()) {
+      ATH_MSG_ERROR( "Failed to restart the event selector" );
+      return outwork;
+    } else {
+      ATH_MSG_DEBUG( "Successfully restarted the event selector" );
+    }
   }
-  if(!evtSelSvc->start().isSuccess()) {
-    ATH_MSG_ERROR( "Failed to restart the event selector" );
-    return outwork;
-  } else {
-    ATH_MSG_DEBUG( "Successfully restarted the event selector" );
-  }
-
   // ________________________ chdir ________________________
   if(chdir(counter_rundir.string().c_str())==-1) {
     ATH_MSG_ERROR( "Failed to chdir to " << counter_rundir.string() );
@@ -256,38 +257,41 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
 
   bool all_ok(true);
 
-  // Get SkipEvents property of the event selector
   int skipEvents(0);
-  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
-  if(propertyServer==0) {
-    ATH_MSG_ERROR( "Unable to cast event selector to IProperty" );
-    all_ok=false;
-  }
-  else {
-    std::string propertyName("SkipEvents");
-    IntegerProperty skipEventsProp(propertyName,skipEvents);
-    if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
-      ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
-    }
-    else {
-      skipEvents = skipEventsProp.value();
-    }
-  }
+  IEvtSelector::Context* evtContext(nullptr);
 
-  IEvtSelector::Context* evtContext(0);
-  if(all_ok) {
-    StatusCode sc = m_evtSelector->createContext(evtContext);
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("Failed to create the event selector context");
+  // Get SkipEvents property of the event selector
+  if(m_evtSelector) {
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+    if(propertyServer==0) {
+      ATH_MSG_ERROR( "Unable to cast event selector to IProperty" );
       all_ok=false;
     }
     else {
-      // advance to nEventsBeforeFork
-      for(int i(0); i<m_nEventsBeforeFork;++i) {
-	if(!m_evtSelector->next(*evtContext).isSuccess()) {
-	  ATH_MSG_ERROR("Unexpected error: EventsBeforeFork>EventsInInputFiles");
-	  all_ok=false;
-	  break;
+      std::string propertyName("SkipEvents");
+      IntegerProperty skipEventsProp(propertyName,skipEvents);
+      if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
+	ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
+      }
+      else {
+	skipEvents = skipEventsProp.value();
+      }
+    }
+
+    if(all_ok) {
+      StatusCode sc = m_evtSelector->createContext(evtContext);
+      if(sc.isFailure()) {
+	ATH_MSG_ERROR("Failed to create the event selector context");
+	all_ok=false;
+      }
+      else {
+	// advance to nEventsBeforeFork
+	for(int i(0); i<m_nEventsBeforeFork;++i) {
+	  if(!m_evtSelector->next(*evtContext).isSuccess()) {
+	    ATH_MSG_ERROR("Unexpected error: EventsBeforeFork>EventsInInputFiles");
+	    all_ok=false;
+	    break;
+	  }
 	}
       }
     }
@@ -301,7 +305,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
       ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart+1);
       
       // Loop through all remaining events 
-      while(m_evtSelector->next(*evtContext).isSuccess()) {
+      while(!m_evtSelector || m_evtSelector->next(*evtContext).isSuccess()) {
 	m_nPositionInChunk++;
 	m_nEvtCounted++;
 	ATH_MSG_VERBOSE("Events Counted " << m_nEvtCounted << ", Position in Chunk " << m_nPositionInChunk);

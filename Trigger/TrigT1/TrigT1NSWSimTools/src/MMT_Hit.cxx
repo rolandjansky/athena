@@ -5,12 +5,13 @@
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-    
+#include <cmath>
+
 MMT_Hit::MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorManager* detManager) : AthMessaging(Athena::getMessageSvc(), "MMT_Hit") {
   m_sector = wedge;
 
   std::string module(1, wedge);
-  module += (TMath::Abs(entry.station_eta) == 1) ? "M1" : "M2";
+  module += (std::abs(entry.station_eta) == 1) ? "M1" : "M2";
   m_module = module;
 
   m_station_name = "MM";
@@ -138,7 +139,7 @@ void MMT_Hit::updateHitProperties(std::shared_ptr<MMT_Parameters> par) {
 
   MMDetectorHelper aHelper;
   char side = (globalPos.z() > 0.) ? 'A' : 'C';
-  MMDetectorDescription* mm = aHelper.Get_MMDetector(this->getSector(), TMath::Abs(this->getStationEta()), this->getStationPhi(), this->getMultiplet(), side);
+  MMDetectorDescription* mm = aHelper.Get_MMDetector(this->getSector(), std::abs(this->getStationEta()), this->getStationPhi(), this->getMultiplet(), side);
   MMReadoutParameters roP   = mm->GetReadoutParameters();
 
   double R = roP.distanceFromZAxis + this->getChannel()*roP.stripPitch - roP.stripPitch/2.;
@@ -153,7 +154,7 @@ void MMT_Hit::updateHitProperties(std::shared_ptr<MMT_Parameters> par) {
                 " ----- Z: " << this->getZ() << ", Plane: " << this->getPlane() << ", eta " << this->getStationEta() << " -- BC: " << this->getBC() <<
                 " RZslope: " << this->getRZSlope());
 
-  int eta = TMath::Abs(this->getStationEta())-1;
+  int eta = std::abs(this->getStationEta())-1;
   double base = par->ybases[this->getPlane()][eta];
   double Y = base + this->getChannel()*roP.stripPitch - roP.stripPitch/2.;
   m_Y = Y;

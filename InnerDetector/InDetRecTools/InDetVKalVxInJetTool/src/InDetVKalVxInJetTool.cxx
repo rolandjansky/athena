@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
+#include "InDetVKalVxInJetTool/InDetMaterialVeto.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
@@ -33,7 +34,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_cutPixelHits(1),
     m_cutSiHits(7),
     m_cutBLayHits(0),
-    m_cutSharedHits(1),
+    m_cutSharedHits(1000), // Dummy configurable cut
     m_cutPt(700.),
     m_cutZVrt(15.),
     m_cutA0(5.),
@@ -46,7 +47,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_a0TrkErrorCut(1.0),
     m_zTrkErrorCut(5.0),
     m_cutBVrtScore(0.015),
-    m_Vrt2TrMassLimit(4000.),
+    m_vrt2TrMassLimit(4000.),
+    m_useWrongRadErrorCut(true),
     m_fillHist(false),
     m_existIBL(true),
     m_RobustFit(1),
@@ -72,7 +74,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_vertexMergeCut(3.),
     m_trackDetachCut(6.),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-    m_trackClassificator("InDet::InDetTrkInJetType",this)
+    m_trackClassificator("InDet::InDetTrkInJetType",this),
+    m_useITkMaterialRejection(false),
+    m_beamPipeMgr(nullptr),
+    m_pixelManager(nullptr)
    {
 //
 // Declare additional interface
@@ -98,11 +103,12 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("A0TrkErrorCut",  m_a0TrkErrorCut, "Track A0 error cut" );
     declareProperty("ZTrkErrorCut",   m_zTrkErrorCut,  "Track Z impact error cut" );
     declareProperty("CutBVrtScore",   m_cutBVrtScore,  "B vertex selection cut on 2track vertex score (probability-like) based on track classification" );
-    declareProperty("Vrt2TrMassLimit",m_Vrt2TrMassLimit,  "Maximal allowed mass for 2-track vertices" );
+    declareProperty("Vrt2TrMassLimit",m_vrt2TrMassLimit,  "Maximal allowed mass for 2-track vertices" );
 
     declareProperty("Sel2VrtChi2Cut",    m_sel2VrtChi2Cut, "Cut on Chi2 of 2-track vertex for initial selection"  );
     declareProperty("Sel2VrtSigCut",     m_sel2VrtSigCut,  "Cut on significance of 3D distance between initial 2-track vertex and PV"  );
 
+    declareProperty("UseWrongRadErrorCut",   m_useWrongRadErrorCut," Temporary option for checks" );
     declareProperty("FillHist",   m_fillHist, "Fill technical histograms"  );
     declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
 
@@ -135,9 +141,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("VertexFitterTool",  m_fitterSvc);
     declareProperty("TrackClassTool",  m_trackClassificator);
-//    declareProperty("MaterialMap", m_materialMap);
-//    declareProperty("TrkVKalVrtFitter", m_fitSvc);
-//
+
+    declareProperty("useITkMaterialRejection", m_useITkMaterialRejection, "Reject vertices from hadronic interactions in detector material using ITk layout");
+
     m_iflag=0;
     m_massPi  = 139.5702 ;
     m_massP   = 938.272  ;
@@ -165,7 +171,16 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
         ATH_MSG_DEBUG(" Graph allocation failure! "<< ba.what());
         return StatusCode::SUCCESS;
      }
- 
+
+     m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
+     if (m_useEtaDependentCuts){
+       ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+       ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Individual inclusive track selections from config not used");
+     }
+     else{
+       ATH_MSG_INFO("Using individual inclusive track selections from config");
+     }
+
      if (m_fitterSvc.retrieve().isFailure()) {
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
         return StatusCode::SUCCESS;
@@ -177,14 +192,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
         return StatusCode::SUCCESS;
      }
-     //if (m_materialMap.retrieve().isFailure()) {
-     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find InDetMaterialRejTool."
-     //                                      << "Use radial rejection"<< endmsg;
-     //} else {
-     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endmsg;
-     //}
 
-//------------------------------------------
+     ATH_CHECK( m_eventInfoKey.initialize() );
+     //------------------------------------------
      if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
 //------------------------------------------
 // Chose whether IBL is installed
@@ -200,9 +210,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        if( m_rLayer1  ==0.)  m_rLayer1  =90.0;
        if( m_rLayer2  ==0.)  m_rLayer2  =122.5;
      }       
-       
-//
-//
+
      ITHistSvc*     hist_root=nullptr;
      if(m_fillHist){
 
@@ -311,7 +319,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        if( sc.isFailure() ) {     // Check of StatusCode
           ATH_MSG_INFO("BTagVrtSec Histogram registration failure!!!");
        }
-       m_w_1 = 1.;
 //-------------------------------------------------------
        m_curTup=new DevTuple();
        m_tuple = new TTree("Tracks","Tracks");
@@ -320,6 +327,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        else              TreeDir="/file1/stat/SVrtInJet"+m_instanceName+"/";
        sc = hist_root->regTree(TreeDir,m_tuple);
        if (sc.isSuccess()) {
+          m_tuple->Branch("ewgt",        &m_curTup->ewgt,      "ewgt/F");
           m_tuple->Branch("ptjet",       &m_curTup->ptjet,     "ptjet/F");
           m_tuple->Branch("etajet",      &m_curTup->etajet,    "etajet/F");
           m_tuple->Branch("phijet",      &m_curTup->phijet,    "phijet/F");
@@ -351,6 +359,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
           m_tuple->Branch("VrtSig3D",    &m_curTup->VrtSig3D,  "VrtSig3D[nvrt]/F");
           m_tuple->Branch("VrtSig2D",    &m_curTup->VrtSig2D,  "VrtSig2D[nvrt]/F");
           m_tuple->Branch("VrtDR",       &m_curTup->VrtDR,     "VrtDR[nvrt]/F");
+          m_tuple->Branch("VrtdRtt",     &m_curTup->VrtdRtt,   "VrtdRtt[nvrt]/F");
           m_tuple->Branch("VrtErrR",     &m_curTup->VrtErrR,   "VrtErrR[nvrt]/F");
           m_tuple->Branch("itrk",        &m_curTup->itrk,      "itrk[nvrt]/I");
           m_tuple->Branch("jtrk",        &m_curTup->jtrk,      "jtrk[nvrt]/I");
@@ -363,6 +372,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
           //-----
           m_tuple->Branch("nNVrt",       &m_curTup->nNVrt,      "nNVrt/I");
           m_tuple->Branch("NVrtDist2D",  &m_curTup->NVrtDist2D, "NVrtDist2D[nNVrt]/F");
+          m_tuple->Branch("NVrtSig3D",   &m_curTup->NVrtSig3D,  "NVrtSig3D[nNVrt]/F");
           m_tuple->Branch("NVrtNT",      &m_curTup->NVrtNT,     "NVrtNT[nNVrt]/I");
           m_tuple->Branch("NVrtTrkI",    &m_curTup->NVrtTrkI,   "NVrttrkI[nNVrt]/I");
           m_tuple->Branch("NVrtM",       &m_curTup->NVrtM,      "NVrtM[nNVrt]/F");
@@ -387,6 +397,17 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
      if(m_RobustFit>7)m_RobustFit=7;
      if(m_RobustFit<0)m_RobustFit=0;
+
+     if(m_useITkMaterialRejection){
+
+       ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
+       ATH_CHECK(detStore()->retrieve(m_pixelManager, "ITkPixel"));
+
+       InDetMaterialVeto matVeto(m_beamPipeMgr, m_pixelManager);
+
+       m_ITkPixMaterialMap = matVeto.ITkPixMaterialMap();
+
+     }
 
      return StatusCode::SUCCESS;
 
@@ -421,7 +442,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     double EnergyJet  =   0.;
     int N2trVertices  =   0 ;
     int NBigImpTrk    =   0 ;
-    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; m_curTup->NTHF=0; m_curTup->nNVrt=0;}
+
+    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; m_curTup->NTHF=0; m_curTup->nNVrt=0; m_curTup->TotM=0.; m_curTup->ewgt=1.;}
 
     int pseudoVrt = 0;
 
@@ -446,7 +468,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        else if(m_fillHist){ m_pr_effVrt->Fill((float)nRefPVTrk,0.);
 	                    m_pr_effVrtEta->Fill( jetDir.Eta(),0.);}
     }
-    if(Results.size()<7) {//vector is accessed at index 6 below
+    if(Results.size()<7) {
        listVrtSec.clear();
     }else{
        SecVtxMass =      Results[0];

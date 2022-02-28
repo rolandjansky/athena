@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_LocRec/ALFA_MDMultiple.h"
@@ -75,9 +75,7 @@ ALFA_MDMultiple::ALFA_MDMultiple(const ALFA_MDMultiple &obj)
 
 	for (int iLayer=0; iLayer<ALFALAYERSCNT*ALFAPLATESCNT; iLayer++)
 	{
-		m_iFibSel[iLayer] = NULL;
-		m_iFibSel[iLayer] = new std::vector<Int_t>();
-		std::copy(obj.m_iFibSel[iLayer]->begin(), obj.m_iFibSel[iLayer]->end(), m_iFibSel[iLayer]->begin());
+		m_iFibSel[iLayer] = new std::vector<Int_t>(*obj.m_iFibSel[iLayer]);
 	}
 
 	m_iTrackMatch[0] = NULL;
@@ -238,7 +236,7 @@ StatusCode ALFA_MDMultiple::Execute(const std::list<MDHIT> &ListMDHits)
 		Int_t iCntSort=0;
 		Int_t iMaxSum=0;
 		std::vector<Int_t> MaxTrackID;
-		Int_t iTmpMaxTrackID;
+		Int_t iTmpMaxTrackID = -1;
 
 //		std::cout << "b_p.size = " << b_p.size() << std::endl;
 		while (iCntSort<(Int_t)b_p.size())

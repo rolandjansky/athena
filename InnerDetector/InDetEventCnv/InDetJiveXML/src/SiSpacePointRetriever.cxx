@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/SiSpacePointRetriever.h"
@@ -55,7 +55,7 @@ namespace JiveXML
     unsigned int getTruthBarcodes( const Identifier idFirst, const Identifier idSecond, const PRD_MultiTruthCollection* truthColl, DataVect& barcodes) {
       
       //Make life easier
-      typedef PRD_MultiTruthCollection::const_iterator  PRDTruthIter;
+      using PRDTruthIter = PRD_MultiTruthCollection::const_iterator;
 
 
       /**
@@ -133,16 +133,16 @@ namespace JiveXML
     /**
      * Now make a list of SpacePoint - PRDTruth collection pairs to run over
      */
-    typedef std::pair< const SpacePointContainer*, const PRD_MultiTruthCollection* > SpacePointTruthPair;
+    using SpacePointTruthPair = std::pair<const SpacePointContainer *, const PRD_MultiTruthCollection *>;
     std::vector<SpacePointTruthPair> SpacePointTruthPairList;
 
     //Add Pixel if there is a collection
     if (PixelSPContainer.isValid())
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(PixelSPContainer.cptr(),PixelPRDTruthColl.cptr()));
+      SpacePointTruthPairList.emplace_back(PixelSPContainer.cptr(),PixelPRDTruthColl.cptr());
     
     //Add SCT if there is a collection
     if (SCTSPContainer.isValid())
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(SCTSPContainer.cptr(),SCTPRDTruthColl.cptr()));
+      SpacePointTruthPairList.emplace_back(SCTSPContainer.cptr(),SCTPRDTruthColl.cptr());
     
     /**
      * Found out how much space we will need
@@ -218,7 +218,7 @@ namespace JiveXML
 
           //Stop here if there is no truth
           const PRD_MultiTruthCollection* PRDTruthColl = (*SpacePointTruthPairItr).second;
-          if ( PRDTruthColl == NULL ) continue ;
+          if ( PRDTruthColl == nullptr ) continue ;
 
           // Finally get barcodes of associated truth particles
           numBarcodes.push_back(SiSpacePointRetrieverHelpers::getTruthBarcodes(idFirst, idSecond, PRDTruthColl, barcodes));

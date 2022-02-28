@@ -1,56 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the EMPIDBuilder
-from ElectronPhotonSelectorTools.LikelihoodEnums import LikeEnum
 from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 from AthenaCommon.Logging import logging
-
 # import base class
 from egammaTools.egammaToolsConf import EMPIDBuilder
-
-
-class EMPIDBuilderElectronBase (EMPIDBuilder):
-    __slots__ = ()
-
-    def __init__(self, name="EMPIDBuilderElectronBase"):
-        EMPIDBuilder.__init__(self, name)
-        mlog = logging.getLogger(name+'::__init__')
-        mlog.debug("entering")
-
-        # Cut based
-        from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors \
-            import ConfiguredAsgElectronIsEMSelector
-
-        LooseElectronSelector = ConfiguredAsgElectronIsEMSelector(
-            "LooseElectronSelector", egammaPID.ElectronIDLoosePP)
-        MediumElectronSelector = ConfiguredAsgElectronIsEMSelector(
-            "MediumElectronSelector", egammaPID.ElectronIDMediumPP)
-        TightElectronSelector = ConfiguredAsgElectronIsEMSelector(
-            "TightElectronSelector", egammaPID.ElectronIDTightPP)
-
-        # Likelihood
-        from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools \
-            import ConfiguredAsgElectronLikelihoodTool
-        LooseLHSelector = ConfiguredAsgElectronLikelihoodTool(
-            "LooseLHSelector", LikeEnum.Loose)
-        LooseLHSelector.primaryVertexContainer = "PrimaryVertices"
-        MediumLHSelector = ConfiguredAsgElectronLikelihoodTool(
-            "MediumLHSelector", LikeEnum.Medium)
-        MediumLHSelector.primaryVertexContainer = "PrimaryVertices"
-        TightLHSelector = ConfiguredAsgElectronLikelihoodTool(
-            "TightLHSelector", LikeEnum.Tight)
-        TightLHSelector.primaryVertexContainer = "PrimaryVertices"
-
-        self.electronIsEMselectors = [
-            LooseElectronSelector,
-            MediumElectronSelector,
-            TightElectronSelector]
-
-        self.electronIsEMselectorResultNames = ["Loose", "Medium", "Tight"]
-        self.electronLHselectors = [
-            LooseLHSelector, MediumLHSelector, TightLHSelector]
-        self.electronLHselectorResultNames = ["LHLoose", "LHMedium", "LHTight"]
-        self.LuminosityTool = None
 
 
 class EMPIDBuilderPhotonBase (EMPIDBuilder):

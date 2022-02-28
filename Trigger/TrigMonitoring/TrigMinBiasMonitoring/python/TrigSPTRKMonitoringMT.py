@@ -65,10 +65,12 @@ def TrigSPTRK(configFlags, highGranularity=False):
             mbEffGroup.defineHistogram( "onlTrkEta", title="Online tracks eta;#eta", xbins=50, xmin=-2.5, xmax=2.5)
             mbEffGroup.defineHistogram( "onlTrkPhi", title="Online tracks phi;#phi", xbins=64, xmin=-math.pi, xmax=math.pi)
             mbEffGroup.defineHistogram( "onlTrkHits", title="Online hits per track;number of hits", xbins=15, xmin=-0.5, xmax=15-0.5)
+            mbEffGroup.defineHistogram( "onlTrkZ0", title="Online track Z0;number of hits", xbins=40, xmin=-200, xmax=200)
+            mbEffGroup.defineHistogram( "onlTrkD0", title="Online track D0;number of hits", xbins=40, xmin=-20, xmax=20)
 
             mbEffGroup.defineHistogram( "trkD0", cutmask="trkMask", title="Offline selected tracks D0;d_{0} [mm]", xbins=40, xmin=-20, xmax=20)
             mbEffGroup.defineHistogram( "trkZ0", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-20, xmax=20)
-            mbEffGroup.defineHistogram( "trkZ0;trackZdWideRange", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
+            mbEffGroup.defineHistogram( "trkZ0;trackZ0WideRange", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
 
         mbSpGroup = monConfig.addGroup(
             alg,

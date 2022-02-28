@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -194,26 +194,34 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 
    double theta = initialPerigee.parameters()[Trk::theta];
 
-
+   const EventContext& ctx = Gaudi::Hive::currentContext();
    for (int refSurface = 0 ; surfaceTripleIter != surfaceTripleIterEnd; ++surfaceTripleIter, ++negRefIter, ++posRefIter ){
        // decide which reference surface to take
        refSurface = theta < (*posRefIter) ? 2 : 1;
        refSurface = theta > (*negRefIter) ? 0 : 1;
 
        const Trk::Surface* destinationSurface = (*surfaceTripleIter)[refSurface];
-       
-       auto destParameters = m_useExtrapolator ?
-	 m_extrapolator->extrapolate(initialPerigee,
-				     *destinationSurface, 
-				     propagationDirection,
-				     false,
-				     (Trk::ParticleHypothesis)m_particleType) :
-	 m_propagator->propagate(initialPerigee,
-				 *destinationSurface, 
-				 propagationDirection,
-				 false,
-				 *m_magFieldProperties,
-				 (Trk::ParticleHypothesis)m_particleType).release();
+
+       const auto* destParameters =
+         m_useExtrapolator
+           ? m_extrapolator->extrapolate(
+               ctx,
+               initialPerigee,
+               *destinationSurface,
+               propagationDirection,
+               false,
+               (Trk::ParticleHypothesis)m_particleType).release()
+           :
+
+           m_propagator
+             ->propagate(ctx,
+                         initialPerigee,
+                         *destinationSurface,
+                         propagationDirection,
+                         false,
+                         *m_magFieldProperties,
+                         (Trk::ParticleHypothesis)m_particleType)
+             .release();
 
        if (destParameters) {
            // global position parameter

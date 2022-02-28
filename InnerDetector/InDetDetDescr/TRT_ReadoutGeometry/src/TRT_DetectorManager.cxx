@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
@@ -69,8 +69,6 @@ namespace InDetDD {
         }
         m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=nullptr;
         m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=nullptr;
-
-        m_conditions = std::make_unique<InDetDD::TRT_Conditions>();
     }
 
 
@@ -622,7 +620,7 @@ namespace InDetDD {
 
       // Loop trough all barrel elements and pass container.
 
-            m_conditions->setDxContainer(container);
+            this->setDxContainer(container);
 
             for (TRT_DetElementCollection::const_iterator element_iter = getDetectorElementBegin();
             element_iter != getDetectorElementEnd();
@@ -645,7 +643,7 @@ namespace InDetDD {
 
     const TRT_Conditions* TRT_DetectorManager::conditions() const
     {
-      return m_conditions.get();
+      return this;
     }
 
   // New global alignment filders

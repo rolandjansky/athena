@@ -75,11 +75,18 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
 #              if hasattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName()):
 #                  InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName())
 #          else:
+
           if not TrkDetFlags.InDetStagedGeometryBuilder():
-              from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilderCond import ConfiguredInDetTrackingGeometryBuilderCond as IDGeometryBuilder
+              from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilderCond import(
+                  ConfiguredInDetTrackingGeometryBuilderCond as IDGeometryBuilder)
           else:
-              from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilderCond import ConfiguredStagedTrackingGeometryBuilderCond as IDGeometryBuilder
-          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder'+nameSuffix,nameSuffix=nameSuffix)
+              from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilderCond import (
+                  ConfiguredStagedTrackingGeometryBuilderCond as IDGeometryBuilder)
+          from AthenaCommon.BeamFlags import jobproperties
+          InDetTrackingGeometryBuilder = IDGeometryBuilder(
+              name='InDetTrackingGeometryBuilder'+nameSuffix,
+              nameSuffix=nameSuffix,
+              buildTrtStrawLayers=(jobproperties.Beam.beamType == "cosmics"))
 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
@@ -145,10 +152,10 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
               prependList.extend(appendList)
               cond_seq._Configurable__children = prependList
               
-          MuonManagerKey  = ['MuonDetectorManager']     if DetFlags.Muon_on()  else []
-          TRT_DetEltKey   = ["TRT_DetElementContainer"] if DetFlags.TRT_on()   else []
-          SCTAlignStore   = ["SCTAlignmentStore"]       if DetFlags.SCT_on()   else []
-          PixelAlignStore = ["PixelAlignmentStore"]     if DetFlags.pixel_on() else []
+          MuonManagerKey  = "MuonDetectorManager"     if DetFlags.Muon_on()  else ""
+          TRT_DetEltKey   = "TRT_DetElementContainer" if DetFlags.TRT_on()   else ""
+          SCTAlignStore   = "SCTAlignmentStore"       if DetFlags.SCT_on()   else ""
+          PixelAlignStore = "PixelAlignmentStore"     if DetFlags.pixel_on() else ""
 
           modifyCondAlg('SCT_DetectorElementCondAlg', MuonManagerKey      = MuonManagerKey,
                                                       TRT_DetEltContKey   = TRT_DetEltKey,

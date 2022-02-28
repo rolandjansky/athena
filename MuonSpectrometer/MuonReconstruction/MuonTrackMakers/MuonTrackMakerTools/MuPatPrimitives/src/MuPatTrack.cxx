@@ -82,7 +82,7 @@ namespace Muon {
 #endif
         // now update links between tracks and segments
         updateSegments(true);
-        m_excludedSegments.push_back(0);
+        m_excludedSegments.push_back(nullptr);
         m_excludedSegments.clear();
         if (seedSeg)
             m_seedSeg = seedSeg;
@@ -106,7 +106,7 @@ namespace Muon {
 #endif
         // now update links between tracks and segments
         updateSegments(true);
-        m_excludedSegments.push_back(0);
+        m_excludedSegments.push_back(nullptr);
         m_excludedSegments.clear();
     }
 
@@ -127,7 +127,7 @@ namespace Muon {
 #endif
         // now update links between tracks and segments
         updateSegments(true);
-        m_excludedSegments.push_back(0);
+        m_excludedSegments.push_back(nullptr);
         m_excludedSegments.clear();
         if (seedSeg)
             m_seedSeg = seedSeg;

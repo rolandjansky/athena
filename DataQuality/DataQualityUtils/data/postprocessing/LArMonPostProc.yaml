@@ -145,4 +145,8 @@ Output: [ 'LAr/NoiseCorrelation/FCal{side}/NoiseCorr_FCal{side}ft{ftid}slot{slot
 Function: LArMonitoring.LArMonTransforms.computeCorrelations
 Description: NoiseCorrelationMon_FCal
 
-
+---
+Input: [ 'LAr/PedMonGroupNewAlg/(?P<part>EMB|EMEC|HEC|FCal)/nbOfFebBlocks_(?P=part)(?P<side>A|C)' ]
+Output: [ 'LAr/MeanFeb' ]
+Function: LArMonitoring.LArMonTransforms.Mean
+Description: LAr_NbOfFebvsPartition_Mean

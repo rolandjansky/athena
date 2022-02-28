@@ -5,7 +5,7 @@
 #    updates for aMC@NLO by Josh McFayden <mcfayden@cern.ch>
 #  Attempts to remove path-dependence of MadGraph
 
-import os,time,subprocess,shutil,glob,re,stat
+import os,time,subprocess,shutil,glob,re
 from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('MadGraphUtils')
 
@@ -20,7 +20,7 @@ MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 MADGRAPH_COMMAND_STACK = []
-from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short,is_version_or_newer
+from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short,is_version_or_newer
 from MadGraphControl.MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
 
@@ -389,16 +389,13 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
     # Check if process is NLO or LO
     isNLO=is_NLO_run(process_dir=process_dir)
 
-    # use f2py2 if f2py not available
+    # if f2py not available
     if get_reweight_card(process_dir=process_dir) is not None:
         from distutils.spawn import find_executable
-        if find_executable('f2py2') is not None:
-            mglog.info('found f2py2, will update configuration')
-            modify_config_card(process_dir=process_dir,settings={'f2py_compiler':'f2py2','f2py_compiler_py2':'f2py2'})
-        elif find_executable('f2py') is not None:
+        if find_executable('f2py') is not None:
             mglog.info('Found f2py, will use it for reweighting')
         else:
-            raise RuntimeError('Could not find f2py or f2py2, needed for reweighting')
+            raise RuntimeError('Could not find f2py, needed for reweighting')
         check_reweight_card(process_dir)
 
     if grid_pack:
@@ -636,10 +633,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     ls_dir(currdir)
     ls_dir(MADGRAPH_GRIDPACK_LOCATION)
 
-    if not isNLO:
-        # hack script to add reweighting and systematics, if required
-        hack_gridpack_script()
-
     # Update the run card according to consistency checks
     run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
@@ -660,19 +653,38 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             mglog.info('Turning off systematics for now, running standalone later')
             modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'systematics_program':'none'},skipBaseFragment=True)
 
-
+    global MADGRAPH_COMMAND_STACK
     if not isNLO:
         ### LO RUN ###
-        if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',os.R_OK):
-            mglog.error('/bin/run.sh not found at '+MADGRAPH_GRIDPACK_LOCATION)
-            raise RuntimeError('Could not find run.sh executable')
+        if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun',os.R_OK):
+            mglog.error('/bin/gridrun not found at '+MADGRAPH_GRIDPACK_LOCATION)
+            raise RuntimeError('Could not find gridrun executable')
         else:
-            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh, starting generation.')
-
+            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun, starting generation.')
         generate_prep(MADGRAPH_GRIDPACK_LOCATION)
-        generate = stack_subprocess([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        granularity=1
+        mglog.info("Now generating {} events with random seed {} and granularity {}".format(int(nevents),int(random_seed),granularity))
+        # not sure whether this is needed but it is done in the old "run.sh" script
+        new_ld_path=":".join([os.environ['LD_LIBRARY_PATH'],os.getcwd()+'/'+MADGRAPH_GRIDPACK_LOCATION+'/madevent/lib',os.getcwd()+'/'+MADGRAPH_GRIDPACK_LOCATION+'/HELAS/lib'])
+        os.environ['LD_LIBRARY_PATH']=new_ld_path
+        MADGRAPH_COMMAND_STACK+=["export LD_LIBRARY_PATH="+":".join(['${LD_LIBRARY_PATH}',new_ld_path])]
+        generate = stack_subprocess([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun',str(int(nevents)),str(int(random_seed)),str(granularity)],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)        
         (out,err) = generate.communicate()
         error_check(err)
+        gp_events=MADGRAPH_GRIDPACK_LOCATION+"/Events/GridRun_{}/unweighted_events.lhe.gz".format(int(random_seed))
+        if not os.path.exists(gp_events):
+            mglog.error('Error in gp generation, did not find events at '+gp_events)
+
+        # add reweighting, which is not run automatically from LO GPs
+        reweight_card=get_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
+        if reweight_card is not None:
+            pythonpath_backup=os.environ['PYTHONPATH']
+            # workaround as madevent crashes when path to mg in PYTHONPATH
+            os.environ['PYTHONPATH']=':'.join([p for p in pythonpath_backup.split(':') if 'madgraph5amc' not in p])
+            add_reweighting('GridRun_{}'.format(int(random_seed)))
+            os.environ['PYTHONPATH']=pythonpath_backup
+
+        shutil.move(gp_events,'events.lhe.gz')
 
     else:
         ### NLO RUN ###
@@ -682,7 +694,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events, starting generation.')
 
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
-        global MADGRAPH_COMMAND_STACK
         if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name, os.F_OK):
             mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+' directory from gridpack generation')
             MADGRAPH_COMMAND_STACK += ['rm -rf '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name]
@@ -975,7 +986,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
     mglog.info('lhapdf-config --datadir:      '+str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
     mglog.info('lhapdf-config --pdfsets-path: '+str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
 
-    modify_config_card(process_dir=process_dir,settings={'lhapdf':lhapdfconfig})
+    modify_config_card(process_dir=process_dir,settings={'lhapdf':lhapdfconfig,'lhapdf_py3':lhapdfconfig})
 
     mglog.info('Creating links for LHAPDF')
     if os.path.islink(process_dir+'/lib/PDFsets'):
@@ -2069,7 +2080,7 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
         #do special case of DECAY block
         if blockName=="DECAY":
-           if theParam.splitlines()[0].split()[0]=="DECAY":
+           if theParam.splitlines()[0].split()[0].upper()=="DECAY":
                #specifying the full decay block
                for newline in theParam.splitlines():
                     newcard.write(newline+'\n')
@@ -2429,78 +2440,17 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
 
     mglog.info('Finished checking run card - All OK!')
 
-
-def hack_gridpack_script():
-    reweight_card = get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION)
-
-    need_to_add_rwgt=reweight_card is not None
-
-    run_card_dict=getDictFromCard(get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION),lowercase=True)
-
-    systematics_program=None
-    if settingIsTrue(run_card_dict['use_syst']):
-        systematics_program='systematics'
-        if checkSettingExists('systematics_program',run_card_dict):
-            if checkSetting('systematics_program','systematics',run_card_dict):
-                systematics_program='systematics'
-            if checkSetting('systematics_program','syscalc',run_card_dict):
-                systematics_program='syscalc'
-            if checkSetting('systematics_program','none',run_card_dict):
-                systematics_program=None
-    need_to_add_syst=systematics_program is not None
-
-    systematics_arguments=''
-    if checkSettingExists('systematics_arguments',run_card_dict):
-        sys_dict=MadGraphControl.MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
-        for s in sys_dict:
-            systematics_arguments+=' --'+s+'='+sys_dict[s]
-
-    # add systematics calculation and reweighting to run.sh
-    runscript=MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh'
-    oldscript = open(runscript,'r')
-    newscript = open(runscript+'.tmp','w')
-    # in older MG versions the gridpack is run with the command below
-    gridrun_line_old='./bin/gridrun $num_events $seed'
-    syst_line_old=''
-    reweight_line_old='./bin/madevent reweight '+MADGRAPH_RUN_NAME+' -f\n'
-    # in new versions it is run like this
-    gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
-    syst_line_new=''
-    reweight_line_new='${DIR}/bin/madevent reweight '+MADGRAPH_RUN_NAME+' -f\n'
-
-    for line in oldscript:
-        if (need_to_add_rwgt or need_to_add_syst) and gridrun_line_old in line:
-            newscript.write(line)
-            # run systematics
-            if need_to_add_syst:
-                newscript.write(syst_line_old)
-                need_to_add_syst=False
-            # reweight
-            if need_to_add_rwgt:
-                newscript.write(reweight_line_old)
-                need_to_add_rwgt=False
-        elif (need_to_add_rwgt or need_to_add_syst) and gridrun_line_new in line:
-            newscript.write(line)
-            # run systematics
-            if need_to_add_syst:
-                newscript.write(syst_line_new)
-                need_to_add_syst=False
-            # reweight
-            if need_to_add_rwgt:
-                newscript.write(reweight_line_new)
-                need_to_add_rwgt=False
-        else:
-            newscript.write(line)
-    oldscript.close()
-    newscript.close()
-    mglog.info('created '+runscript+'.tmp')
-
-    if reweight_card and need_to_add_rwgt:
-        raise RuntimeError('Could not add reweighting to gridpack script: '+runscript+' maybe line to generate events changed')
-    shutil.move(runscript+'.tmp',runscript)
-    st = os.stat(runscript)
-    os.chmod(runscript, st.st_mode | stat.S_IEXEC)
-
+def add_reweighting(run_name,reweight_card=None,process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    mglog.info('Running reweighting module on existing events')
+    if reweight_card is not None:
+        mglog.info('Copying new reweight card from '+reweight_card)
+        shutil.move(reweight_card,process_dir+'/Cards/reweight_card.dat')
+    reweight_cmd='{}/bin/madevent reweight {} -f'.format(process_dir,run_name)
+    global MADGRAPH_CATCH_ERRORS
+    reweight = stack_subprocess([python]+reweight_cmd.split(),stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = reweight.communicate()
+    error_check(err)
+    mglog.info('Finished reweighting')
 
 def check_reset_proc_number(opts):
     if 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:

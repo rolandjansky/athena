@@ -32,7 +32,7 @@ class ISiSurfaceChargesInserter
 {
  public:
   virtual ~ISiSurfaceChargesInserter() {}
-  virtual void operator() (const SiSurfaceCharge& scharge) const = 0;
+  virtual void operator() (const SiSurfaceCharge& scharge) = 0;
 };
 
 static const InterfaceID IID_ISurfaceChargesGenerator("ISurfaceChargesGenerator",1,0);
@@ -52,9 +52,9 @@ class ISurfaceChargesGenerator : virtual public IAlgTool {
 
   virtual void process(const InDetDD::SiDetectorElement* ele,
                        const TimedHitPtr<SiHit>& phit,
-                       const ISiSurfaceChargesInserter& inserter,
+                       ISiSurfaceChargesInserter& inserter,
                        CLHEP::HepRandomEngine * rndmEngine,
-                       const EventContext& ctx) const =0;
+                       const EventContext& ctx) =0;
   /*
   //We may need an alternative method like this, if calls to 
   //SCT_ModuleSideDesign::getMother() prove costly

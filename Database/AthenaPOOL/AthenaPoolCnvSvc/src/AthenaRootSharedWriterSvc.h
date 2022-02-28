@@ -40,7 +40,7 @@ public:
    virtual StatusCode finalize() override;
    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
-   virtual StatusCode share(int numClients = 0) override;
+   virtual StatusCode share(int numClients = 0, bool motherClient = false) override;
 
 private:
    ServiceHandle<IConversionSvc> m_cnvSvc{this,"AthenaPoolCnvSvc","AthenaPoolCnvSvc"};

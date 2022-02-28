@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PyKernel/PyReverseProxy.h"
 
-std::map<std::string, PyReverseProxy *> PyReverseProxy::m_proxyMap
-= std::map<std::string, PyReverseProxy *>();
+std::unordered_map<std::string, PyReverseProxy *> PyReverseProxy::s_proxyMap;

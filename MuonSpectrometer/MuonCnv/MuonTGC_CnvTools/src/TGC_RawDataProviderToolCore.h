@@ -53,7 +53,7 @@ namespace Muon {
       /** RDO container key */
       SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{ this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
 
-      unsigned int 	m_maxhashtoUse;	//MT
+      unsigned int 	m_maxhashtoUse = 0U;	//MT
 
       /** ID converter */
       TGC_Hid2RESrcID                     m_hid2re;

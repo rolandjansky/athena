@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -113,7 +113,6 @@ Trig::TrigDecisionTool::initialize() {
    }
 
    long int pri=-1; //ensure happens *after* TrigConfxAOD tool ... use -1 priority
-   incSvc->addListener( this, "TrigConf", pri );
    incSvc->removeListener( this, "BeginEvent");  //beginEvent is added by AsgMetadataTool already! ...DONT ADD IT AGAIN ... especially at priority 100!
    incSvc->addListener( this, "BeginEvent", pri );
    //do the same adjustment for the BeginInputFile incident, just to be safe 
@@ -190,14 +189,9 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #endif // End Full Athena only
 #endif // End AthAnalysis or Full Athena
 
-  //invalidate handle so that we read a new decision object
-  if(cgm()->unpacker()){
-    ATH_MSG_VERBOSE("beginEvent: invalidating unpacker() handle");
-    cgm()->unpacker()->invalidate_handle();
-  } else {
-    ATH_MSG_VERBOSE("No cgm()->unpacker() yet (first event?)");
-  }
-
+  // inform the CGM that we are on a new event
+  ATH_MSG_VERBOSE("beginEvent: invalidating CacheGlobalMemory");
+  cgmPtr->reset_decision();
 
 #ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   if(m_configSvc.empty()) {
@@ -304,16 +298,7 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration
    ATH_MSG_DEBUG("got  incident type:" << inc.type()  << " source: " << inc.source() );
    
-   if ( inc.type()=="TrigConf") {
-      if(m_configSvc.isSet()) {
-         ATH_MSG_INFO("updating config via config svc");
-         configurationUpdate( &m_configSvc->chains(), m_configSvc->ctpConfig());
-         setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
-      } else {
-         ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");
-      }
-   }
-   else if (inc.type() == IncidentType::BeginEvent) {
+   if (inc.type() == IncidentType::BeginEvent) {
       ATH_MSG_VERBOSE("Obtained IncidentType::BeginEvent via Trig::TrigDecisionTool::handle");
       if (beginEvent().isFailure()) {
          throw std::runtime_error("In Trig::TrigDecisionTool::handle beginEvent() returned StatusCode::FAILURE");

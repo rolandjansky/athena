@@ -20,10 +20,16 @@ def makeOverlapSequence (dataType) :
     sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+    
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:
@@ -179,18 +185,23 @@ def makeGeneratorAlgorithmsSequence (dataType) :
     sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
     sysService.sigmaRecommended = 1
 
-    # Include, and then set up the pileup analysis sequence (to make a copy):
+    # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the generator analysis sequence:
     from AsgAnalysisAlgorithms.GeneratorAnalysisSequence import \
         makeGeneratorAnalysisSequence
     generatorSequence = makeGeneratorAnalysisSequence( dataType, saveCutBookkeepers=True, runNumber=284500, cutBookkeepersSystematics=True )
-    generatorSequence.configure( inputName = 'EventInfo_%SYS%', outputName = {} )
     algSeq += generatorSequence
 
     # Set up an ntuple to check the job with:
@@ -200,9 +211,74 @@ def makeGeneratorAlgorithmsSequence (dataType) :
     ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
     ntupleMaker.TreeName = 'events'
     ntupleMaker.Branches = [
-        'EventInfo_NOSYS.runNumber   -> runNumber',
-        'EventInfo_NOSYS.eventNumber -> eventNumber',
-        'EventInfo_NOSYS.generatorWeight_%SYS% -> generatorWeight_%SYS%',
+        'EventInfo.runNumber   -> runNumber',
+        'EventInfo.eventNumber -> eventNumber',
+        'EventInfo.generatorWeight_%SYS% -> generatorWeight_%SYS%',
+    ]
+    algSeq += ntupleMaker
+    treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+    treeFiller.TreeName = 'events'
+    algSeq += treeFiller
+
+    return algSeq
+
+def pileupConfigFiles(dataType):
+    """Return the PRW config files and lumicalc files for tests"""
+    if dataType == "data":
+        prwfiles = []
+        lumicalcfiles = []
+    else:
+        lumicalcfiles = [
+            # These need to be updated for release 22 data
+            # "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
+            # "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
+        ]
+        if dataType == "mc":
+            prwfiles = [
+                # These need to be updated for release 22 data and not
+                # be taken from cvmfs
+                #"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"
+            ]
+        else:
+            # We don't have a PRW file that works properly for the AFII file so we don't apply it in
+            # this case
+            prwfiles = []
+    return prwfiles, lumicalcfiles
+
+def makePileupSequence () :
+    # NB: test only run for MC
+
+    algSeq = AlgSequence()
+
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
+
+    # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles("mc")
+
+    from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+        makePileupAnalysisSequence
+    pileupSequence = makePileupAnalysisSequence(
+        "mc",
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
+    algSeq += pileupSequence
+
+
+    # Set up an ntuple to check the job with:
+    treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+    treeMaker.TreeName = 'events'
+    algSeq += treeMaker
+    ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
+    ntupleMaker.TreeName = 'events'
+    ntupleMaker.Branches = [
+        'EventInfo.runNumber   -> runNumber',
+        'EventInfo.eventNumber -> eventNumber',
+        # we currently don't have any pileup calib files for this test
+        # 'EventInfo.PileupWeight_%SYS% -> pileupWeight_%SYS%',
     ]
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )

@@ -2,14 +2,21 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//
-// BFieldZone.h
-//
-// A "zone" inside the toroid field map
-//
-// Masahiro Morii, Harvard University
-//
-//
+/**
+ *
+ * @class BFieldZone.h
+ *
+ * @brief
+ * A "zone" inside the field map
+ * Expands BFieldMesh<short>
+ * adding an id
+ * and a vector of current conductors.
+ *
+ * @author Masahiro Morii, Harvard University
+ *
+ * @author RD Schaffer , Christos Anastopoulos (Athena MT)
+ */
+
 #ifndef BFIELDZONE_H
 #define BFIELDZONE_H
 
@@ -30,15 +37,12 @@ public:
              double phimin,
              double phimax,
              double scale);
-  // add elements to vectors
+  /** @brief add elements to the current conductors vector*/
   void appendCond(const BFieldCond& cond);
-  // compute Biot-Savart magnetic field and add to B[3]
+  /** @brief compute Biot-Savart magnetic field and add to B[3]*/
   void addBiotSavart(const double* ATH_RESTRICT xyz,
                      double* ATH_RESTRICT B,
                      double* ATH_RESTRICT deriv = nullptr) const;
-  // scale B field by a multiplicative factor: RDS 2019/09 - no longer used.
-  // Scaling is done in cachec
-  void scaleField(double factor);
   // accessors
   int id() const;
   unsigned ncond() const;

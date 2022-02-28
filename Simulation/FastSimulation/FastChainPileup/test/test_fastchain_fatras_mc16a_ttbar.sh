@@ -65,7 +65,8 @@ then
                --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-16' \
                --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
                --outputAODFile ${aodFile} \
-               --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)' \
+               --steering 'doRDO_TRIG' \
+               --athenaopts "all:--threads=1" \
                --imf False
      rc2=$?
      if [ ${rc2} -eq 0 ]

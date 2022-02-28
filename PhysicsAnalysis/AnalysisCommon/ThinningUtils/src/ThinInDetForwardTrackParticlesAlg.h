@@ -64,9 +64,9 @@ private:
     unsigned long m_nEventsProcessed;
     unsigned long m_nTracksProcessed;
     unsigned long m_nTracksThinned;
-    unsigned long m_nMuons;
-    unsigned long m_nSiFwdMuons;
-    unsigned long m_nSiFwdAssoc;
+    unsigned long m_nMuons = 0UL;
+    unsigned long m_nSiFwdMuons = 0UL;
+    unsigned long m_nSiFwdAssoc = 0UL;
 };
 
 

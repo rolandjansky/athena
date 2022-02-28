@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EMECConstruction
@@ -45,7 +45,10 @@
 // 18-Sep-2006 V.N  Get materials from LarMaterialManager
 // May-June 2009 AMS Get most part of geometry constants from LArWheelCalculator
 //                   General code cleanup
-
+// Feb 2022 JFB Since the appearance of the GeoUnidentifiedShape, the LArCustomShape
+//              class is deprecated. We therefore decouple this package from 
+//              GeoSpecialShapes, computing a few constants here which were previously
+//              taken from the calculator.  
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -74,12 +77,10 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "GeoSpecialShapes/LArCustomShape.h"
-#include "GeoSpecialShapes/LArWheelCalculator.h"
-
 #include "LArGeoEndcap/EMECConstruction.h"
 #include "LArGeoEndcap/EMECSupportConstruction.h"
 #include "GeoModelKernel/GeoUnidentifiedShape.h"
+
 
 LArGeo::EMECConstruction::EMECConstruction(bool is_tb, bool has_inner, bool has_outer)
     : m_fullGeo(true), m_isTB(is_tb), m_hasInnerWheel(has_inner), m_hasOuterWheel(has_outer),
@@ -291,7 +292,64 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
         DB_EmecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry", "EmecGeometry-00");
     }
     double zWheelRefPoint = (*DB_EmecGeometry)[0]->getDouble("Z0")*Gaudi::Units::cm;
+    double dMechFocaltoWRP=(*DB_EmecGeometry)[0]->getDouble("Z1")*Gaudi::Units::cm;
     double LArTotalThickness = (*DB_EmecGeometry)[0]->getDouble("ETOT") *Gaudi::Units::cm;
+    double halfGapBetweenWheels = (*DB_EmecGeometry)[0]->getDouble("DCRACK")*Gaudi::Units::cm;
+    double rOuterCutoff = (*DB_EmecGeometry)[0]->getDouble("RLIMIT")*Gaudi::Units::cm;
+
+    IRDBRecordset_ptr DB_EMECmn =
+      pAccessSvc->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
+    if(DB_EMECmn->size() == 0)
+      DB_EMECmn = pAccessSvc->getRecordsetPtr("EmecMagicNumbers","EMECMagicNumbers-00");
+    double reftoactive = (*DB_EMECmn)[0]->getDouble("REFTOACTIVE") *Gaudi::Units::mm;
+    double activelength = (*DB_EMECmn)[0]->getDouble("ACTIVELENGTH") *Gaudi::Units::mm;
+    double straightstartsection = (*DB_EMECmn)[0]->getDouble("STRAIGHTSTARTSECTION")*Gaudi::Units::mm;
+    double wheelThickness=activelength+2*straightstartsection;
+    double dWRPtoFrontFace = reftoactive;
+    double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
+    double zWheelBackFace  = zWheelFrontFace+wheelThickness;
+    IRDBRecordset_ptr DB_EMECwp=
+      pAccessSvc->getRecordsetPtr("EmecWheelParameters", larVersionKey.tag(),larVersionKey.node());
+    if (DB_EMECwp->size()==0) 
+      DB_EMECwp=pAccessSvc->getRecordsetPtr("EmecWheelParameters", "EmecWheelParameters","EmecWheelParameters-00");
+    int numberOfHalfWavesInner=2*(*DB_EMECwp)[0]->getInt("NACC")+2;
+    int numberOfHalfWavesOuter=2*(*DB_EMECwp)[1]->getInt("NACC")+3;// one extra for outer wheel
+    double eta_hi = (*DB_EMECwp)[0]->getDouble("ETAINT");
+    double eta_mid = (*DB_EMECwp)[0]->getDouble("ETAEXT");
+    double eta_low = (*DB_EMECwp)[1]->getDouble("ETAEXT");
+
+    // NEW BLURB 
+    double zMid[2];
+    double rMin[2][3];
+    double rMax[2][3];
+    {
+      double tanThetaMid   = 2. * std::exp(-eta_mid) / (1. - std::exp(-2.*eta_mid));
+      double tanThetaOuter = 2. * std::exp(-eta_low) / (1. - std::exp(-2.*eta_low));
+      double tanThetaInner = 2. * std::exp(-eta_hi ) / (1. - std::exp(-2.*eta_hi ));
+      double inv_tanThetaOuter = (1. - std::exp(-2.*eta_low)) / (2. * std::exp(-eta_low));
+      
+      // Inner Wheel Outer Radius
+      rMax[0][0] = zWheelFrontFace * tanThetaMid - halfGapBetweenWheels;
+      rMax[0][1] = zWheelBackFace  * tanThetaMid - halfGapBetweenWheels;
+      // Outer Wheel Outer Radius
+      rMax[1][0] = zWheelFrontFace * tanThetaOuter;
+      rMax[1][1] = rOuterCutoff;
+      rMax[1][2] = rOuterCutoff;
+      
+      // Note that there is a 3mm gap between the outer surface of the
+      // inner wheel and the inner surface of the outer wheel.
+      
+      // Inner Wheel Inner Radius
+      rMin[0][0] = zWheelFrontFace * tanThetaInner;
+      rMin[0][1] = zWheelBackFace  * tanThetaInner;
+      zMid[0] = 0;
+      
+      // Outer Wheel Inner Radius
+      rMin[1][0] = zWheelFrontFace * tanThetaMid + halfGapBetweenWheels;
+      rMin[1][1] = rOuterCutoff * inv_tanThetaOuter * tanThetaMid + halfGapBetweenWheels;
+      rMin[1][2] = zWheelBackFace  * tanThetaMid + halfGapBetweenWheels;
+      zMid[1] = rOuterCutoff * inv_tanThetaOuter - zWheelFrontFace;
+    }
 
     const GeoLogVol* emecMotherLogical =
         new GeoLogVol(emecMotherName, emecMotherShape, LAr);
@@ -303,26 +361,27 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
         std::string innerName = baseName + "::Inner";
         std::string LArName = innerName + (m_isTB? "Module": "Wheel");
 
-        std::vector<LArCustomShape *> absorbers;
-        std::vector<LArCustomShape *> electrodes;
+        std::vector<std::string> absorbers;
+        std::vector<std::string> electrodes;
 
         if(m_innerWheelVariant == "Cone"){
             innerName += "Cone";
-            absorbers.push_back(new LArCustomShape(innerName + "::Absorber"));
-            electrodes.push_back(new LArCustomShape(innerName + "::Electrode"));
+            absorbers.push_back(innerName + "::Absorber");
+            electrodes.push_back(innerName + "::Electrode");
         } else if(m_innerWheelVariant == "Slices"){
             innerName += "Slice";
-            int slice = 0;
+            char slice = 0; // To silence warnings use character datatype, limited between -128 and 127, sufficient.
             do {
                 char buf[4];
                 snprintf(buf, 4, "%02d", slice);
-                LArCustomShape *a = new LArCustomShape(innerName + buf + "::Absorber");
-                LArCustomShape *e = new LArCustomShape(innerName + buf + "::Electrode");
+
+		std::string a = innerName + buf + "::Absorber";
+		std::string e = innerName + buf + "::Electrode";
                 absorbers.push_back(a);
                 electrodes.push_back(e);
                 slice ++;
             } while(
-                absorbers.front()->calculator()->GetNumberOfHalfWaves() + 2 > slice
+                numberOfHalfWavesInner > slice
              && slice < 100 // slice number limited by two digits
             );
             if(slice >= 100){
@@ -332,34 +391,26 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
             innerName += "s";
         } else { // it is a Polycone
             innerName += (m_isTB? "Module": "Wheel");
-            absorbers.push_back(new LArCustomShape(innerName + "::Absorber"));
-            electrodes.push_back(new LArCustomShape(innerName + "::Electrode"));
+            absorbers.push_back(innerName + "::Absorber");
+            electrodes.push_back(innerName + "::Electrode");
         }
         (*msg) << MSG::INFO << "activating " << innerName << endmsg;
         (*msg) << MSG::DEBUG << absorbers.size() << " absorber, "
                              << electrodes.size() << " electrode shapes created"
                              << endmsg;
 
-        const LArWheelCalculator *lwc = absorbers.front()->calculator();
 
-        double rMinInner[3];
-        double rMaxInner[3]; // Allocate 3 elts to avoid coverity warning.
-        lwc->GetWheelInnerRadius(rMinInner);
-        lwc->GetWheelOuterRadius(rMaxInner);
-        double zBack = lwc->GetWheelThickness();
-        zWheelRefPoint = lwc->GetWheelRefPoint();
-        double zWheelFrontFace = zWheelRefPoint + lwc->GetdWRPtoFrontFace();
-
+        double zBack = wheelThickness;
         GeoPcon* innerShape = new GeoPcon(phiPosition - phiSize, 2.*phiSize);
-        innerShape->addPlane(0.*Gaudi::Units::mm, rMinInner[0], rMaxInner[0]);
-        innerShape->addPlane(zBack              , rMinInner[1], rMaxInner[1]);
+        innerShape->addPlane(0.*Gaudi::Units::mm, rMin[0][0], rMax[0][0]);
+        innerShape->addPlane(zBack              , rMin[0][1], rMax[0][1]);
 
         GeoLogVol*  innerLogical  = new GeoLogVol (LArName,innerShape, LAr);
         GeoFullPhysVol* fullPV = new GeoFullPhysVol(innerLogical);
 
         emecMotherPhysical->add(new GeoIdentifierTag(1));
         emecMotherPhysical->add(refSystemTransform);
-        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zWheelFrontFace)));
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zWheelRefPoint+dWRPtoFrontFace)));
         emecMotherPhysical->add(fullPV);
 
         StoredPhysVol *sPhysVol = new StoredPhysVol(fullPV);
@@ -378,28 +429,28 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
         std::string outerName = baseName + "::Outer";
         const std::string LArName = outerName + (m_isTB? "Module": "Wheel");
 
-        std::vector<LArCustomShape *> absorbers;
-        std::vector<LArCustomShape *> electrodes;
+        std::vector<std::string> absorbers;
+        std::vector<std::string> electrodes;
 
         if(m_outerWheelVariant == "Cone"){
-            absorbers.push_back(new LArCustomShape(outerName + "FrontCone::Absorber"));
-            absorbers.push_back(new LArCustomShape(outerName + "BackCone::Absorber"));
-            electrodes.push_back(new LArCustomShape(outerName + "FrontCone::Electrode"));
-            electrodes.push_back(new LArCustomShape(outerName + "BackCone::Electrode"));
+            absorbers.push_back(outerName + "FrontCone::Absorber");
+            absorbers.push_back(outerName + "BackCone::Absorber");
+            electrodes.push_back(outerName + "FrontCone::Electrode");
+            electrodes.push_back(outerName + "BackCone::Electrode");
             outerName += "Cones";
         } else if(m_outerWheelVariant == "Slices"){
             outerName += "Slice";
-            int slice = 0;
+            char slice = 0; // To silence warnings use character datatype, limited between -128 and 127, sufficient.
             do {
                 char buf[4];
                 snprintf(buf, 4, "%02d", slice);
-                LArCustomShape *a = new LArCustomShape(outerName + buf + "::Absorber");
-                LArCustomShape *e = new LArCustomShape(outerName + buf + "::Electrode");
+		std::string a = outerName + buf + "::Absorber";
+		std::string e = outerName + buf + "::Electrode";
                 absorbers.push_back(a);
                 electrodes.push_back(e);
                 slice ++;
             } while( // outer wheel has an extra slice
-                absorbers.front()->calculator()->GetNumberOfHalfWaves() + 3 > slice
+                numberOfHalfWavesOuter > slice
              && slice < 100 // slice number limited by two digits
             );
             if(slice >= 100){
@@ -409,35 +460,26 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
             outerName += "s";
         } else { // it is Polycone
             outerName += (m_isTB? "Module": "Wheel");
-            absorbers.push_back(new LArCustomShape(outerName + "::Absorber"));
-            electrodes.push_back(new LArCustomShape(outerName + "::Electrode"));
+            absorbers.push_back(outerName + "::Absorber");
+            electrodes.push_back(outerName + "::Electrode");
         }
         (*msg) << MSG::INFO << "activating " << outerName << endmsg;
         (*msg) << MSG::DEBUG << absorbers.size() << " absorber, "
                              << electrodes.size() << " electrode shapes created"
                              << endmsg;
 
-        const LArWheelCalculator *lwc = absorbers.back()->calculator();
-
-        double rMinOuter[3];
-        double rMaxOuter[3];
-        double zMid = lwc->GetWheelInnerRadius(rMinOuter);
-        lwc->GetWheelOuterRadius(rMaxOuter);
-        double zBack = lwc->GetWheelThickness();
-        zWheelRefPoint = lwc->GetWheelRefPoint();
-        double zWheelFrontFace = zWheelRefPoint + lwc->GetdWRPtoFrontFace();
-
+        double zBack = wheelThickness;
         GeoPcon *outerShape = new GeoPcon(phiPosition - phiSize, 2.*phiSize);
-        outerShape->addPlane(0.*Gaudi::Units::mm, rMinOuter[0], rMaxOuter[0]);
-        outerShape->addPlane(zMid               , rMinOuter[1], rMaxOuter[1]);
-        outerShape->addPlane(zBack              , rMinOuter[2], rMaxOuter[2]);
+        outerShape->addPlane(0.*Gaudi::Units::mm, rMin[1][0], rMax[1][0]);
+        outerShape->addPlane(zMid[1]            , rMin[1][1], rMax[1][1]);
+        outerShape->addPlane(zBack              , rMin[1][2], rMax[1][2]);
 
         GeoLogVol *outerLogical = new GeoLogVol(LArName, outerShape, LAr);
         GeoFullPhysVol *fullPV = new GeoFullPhysVol(outerLogical);
 
         emecMotherPhysical->add(new GeoIdentifierTag(1));
         emecMotherPhysical->add(refSystemTransform);
-        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zWheelFrontFace)));
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zWheelRefPoint+dWRPtoFrontFace)));
         emecMotherPhysical->add(fullPV);
 
         StoredPhysVol *sPhysVol = new StoredPhysVol(fullPV);
@@ -477,10 +519,6 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
         if(DMpcons->size() == 0){
             DMpcons = pAccessSvc->getRecordsetPtr("EmecDMPCons", "EmecDMPCons-00");
         }
-        IRDBRecordset_ptr DB_EMECmn =
-            pAccessSvc->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
-        if(DB_EMECmn->size() == 0)
-            DB_EMECmn = pAccessSvc->getRecordsetPtr("EmecMagicNumbers","EMECMagigNumbers-00");
 
         double front_shift = 0.*Gaudi::Units::mm;
         double back_shift = 0.*Gaudi::Units::mm;
@@ -499,7 +537,6 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
                     else continue;
                 }
             }
-            double reftoactive = (*DB_EMECmn)[0]->getDouble("REFTOACTIVE")*Gaudi::Units::mm;
             front_shift += reftoactive;
             back_shift += LArTotalThickness - reftoactive;
         }
@@ -574,63 +611,48 @@ void LArGeo::EMECConstruction::setFullGeo(bool flag)
 // Place the custom accordion volumes into the liquid argon
 void LArGeo::EMECConstruction::place_custom_solids(
     GeoFullPhysVol *fullPV,
-    std::vector<LArCustomShape *> &absorbers,
-    std::vector<LArCustomShape *> &electrodes,
+    std::vector<std::string> &absorbers,
+    std::vector<std::string> &electrodes,
     int multilayered_absorbers,
     const GeoMaterial *Absorber, const GeoMaterial *Electrode,
     const GeoMaterial *Glue, const GeoMaterial *Lead
 )
 {
 
-  // This lambda function creates a proxy for the LArCustomShape:
-  auto toUnidentified = [] (const LArCustomShape *inputShape)
-    {
-      std::string name= inputShape->name();
-      return new GeoUnidentifiedShape("LArCustomShape",name);
-    };  
-
-  
-  for(auto shape: absorbers){
-    GeoLogVol* log_volume = new GeoLogVol(shape->name(), toUnidentified(shape), Absorber);
+  for(auto name: absorbers){
+    GeoLogVol* log_volume = new GeoLogVol(name, new GeoUnidentifiedShape("LArCustomShape", name) , Absorber);
     GeoPhysVol* phys_volume = new GeoPhysVol(log_volume);
     fullPV->add(new GeoIdentifierTag(1));
     fullPV->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
     fullPV->add(phys_volume);
     if(multilayered_absorbers > 0){
       GeoPhysVol* glue_phys = phys_volume;
-      std::string lead_name = shape->name();
+      std::string lead_name = name;
       size_t repl = lead_name.find("Absorber");
       if(std::string::npos != repl) lead_name.replace(repl, 8, "Lead");
       else throw std::runtime_error(lead_name + ": cannot find 'Absorber'");
       if(multilayered_absorbers != 2){
-	std::string glue_name = shape->name();
+	std::string glue_name = name;
 	glue_name.replace(repl, 8, "Glue");
-	LArCustomShape* glue_shape = new LArCustomShape(glue_name);
-	GeoLogVol* glue_log = new GeoLogVol(glue_name, toUnidentified(glue_shape), Glue);
+	GeoLogVol* glue_log = new GeoLogVol(glue_name, new GeoUnidentifiedShape("LArCustomShape",glue_name), Glue);
 	glue_phys = new GeoPhysVol(glue_log);
 	phys_volume->add(new GeoIdentifierTag(1));
 	phys_volume->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
 	phys_volume->add(glue_phys);
-	glue_shape->ref(); glue_shape->unref();
       }
-      LArCustomShape* lead_shape = new LArCustomShape(lead_name);
-      GeoLogVol *lead_log = new GeoLogVol(lead_name, toUnidentified(lead_shape), Lead);
+      GeoLogVol *lead_log = new GeoLogVol(lead_name, new GeoUnidentifiedShape("LArCustomShape",lead_name), Lead);
       GeoPhysVol *lead_phys  = new GeoPhysVol(lead_log);
       glue_phys->add(new GeoIdentifierTag(1));
       glue_phys->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
       glue_phys->add(lead_phys);
-      lead_shape->ref(); lead_shape->unref();
     }
-    shape->ref(); shape->unref();
-    
   }
 
-    for(auto shape: electrodes){
-      GeoLogVol* log_volume = new GeoLogVol(shape->name(), toUnidentified(shape), Electrode);
+    for(auto name: electrodes){
+      GeoLogVol* log_volume = new GeoLogVol(name, new GeoUnidentifiedShape("LArCustomShape",name), Electrode);
       GeoPhysVol* phys_volume = new GeoPhysVol(log_volume);
       fullPV->add(new GeoIdentifierTag(1));
       fullPV->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
       fullPV->add(phys_volume);
-      shape->ref(); shape->unref();
     }
 }

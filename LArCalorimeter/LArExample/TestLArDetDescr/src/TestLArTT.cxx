@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-20211 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -20,32 +20,27 @@
 // Constructor 
 // -------------------------------------------------------------
 TestLArTT::TestLArTT(const std::string& name, 
-				   ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_tt_man(nullptr)
-{}
-
-// DESTRUCTOR:
-TestLArTT::~TestLArTT()
-{  }
+		     ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
+{
+}
 
 // INITIALIZE:
 StatusCode TestLArTT::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_tt_man, "CaloTTMgr") );
-  ATH_MSG_DEBUG ( " Found the CaloTTDescrManager" );
-  return StatusCode::SUCCESS;
-}
-
-// FINALIZE:
-StatusCode TestLArTT::finalize()
-{
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 // EXECUTE:
 StatusCode TestLArTT::execute()
-{  
+{
+  if(!m_tt_man.isValid()) {
+    const CaloTTDescrManager* ttMan{nullptr};
+    ATH_CHECK(detStore()->retrieve(ttMan));
+    m_tt_man.set(ttMan);
+  }
+
   print_reg();
   
   return StatusCode::SUCCESS;
@@ -56,11 +51,9 @@ TestLArTT::print_reg()
 {
   ATH_MSG_INFO ( "Executing TestLArTT" );
 
-  std::vector<CaloTTDescriptor*>::const_iterator
-    first = m_tt_man->calo_descriptors_begin();
-
-  std::vector<CaloTTDescriptor*>::const_iterator
-    last = m_tt_man->calo_descriptors_end();
+  const CaloTTDescrManager* ttMan = *m_tt_man.ptr();
+  std::vector<CaloTTDescriptor*>::const_iterator first = ttMan->calo_descriptors_begin();
+  std::vector<CaloTTDescriptor*>::const_iterator last  = ttMan->calo_descriptors_end();
 
   int i=0;
   for (; first != last; ++first) {

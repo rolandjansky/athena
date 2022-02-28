@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_InterLink.h"
@@ -35,7 +35,7 @@ SCT_InterLink::SCT_InterLink(const std::string & name,
     m_FSIFlange(nullptr)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_InterLink::build();
 }
 
 SCT_InterLink::~SCT_InterLink() {

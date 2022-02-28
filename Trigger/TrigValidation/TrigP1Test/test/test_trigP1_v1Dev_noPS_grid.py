@@ -29,7 +29,7 @@ ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
 ex.max_events = 500
-ex.args = '-c "setMenu=\'LS2_v1\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=True;"'  
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

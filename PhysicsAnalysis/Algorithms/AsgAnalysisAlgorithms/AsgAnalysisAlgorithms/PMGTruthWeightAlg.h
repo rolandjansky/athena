@@ -8,12 +8,12 @@
 #ifndef ASG_ANALYSIS_ALGORITHMS__PMG_TRUTH_WEIGHT_ALG_H
 #define ASG_ANALYSIS_ALGORITHMS__PMG_TRUTH_WEIGHT_ALG_H
 
-#include <xAODEventInfo/EventInfo.h>
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PMGAnalysisInterfaces/IPMGTruthWeightTool.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <xAODEventInfo/EventInfo.h>
 
 namespace CP
 {

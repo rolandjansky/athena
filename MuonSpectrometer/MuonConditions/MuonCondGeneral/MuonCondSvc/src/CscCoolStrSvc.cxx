@@ -28,7 +28,7 @@ namespace MuonCalib {
     p_detstore(nullptr),
     m_maxChamberHash(32), //retrieved later from cscIdHelper
     m_maxChanHash(61440), //retrieved later from cscIdHelper
-    m_dbCache(0),
+    m_dbCache(nullptr),
     m_rmsCondData(nullptr),
     m_slopeCondData(nullptr),
     m_noiseCondData(nullptr),
@@ -68,7 +68,7 @@ namespace MuonCalib {
 
   //-------------------------------------------------------------------
   CscCoolStrSvc::~CscCoolStrSvc() {
-    if(m_dbCache != 0) m_dbCache->clear();
+    if(m_dbCache != nullptr) m_dbCache->clear();
     delete m_dbCache;
   }
 
@@ -98,14 +98,14 @@ namespace MuonCalib {
     m_moduleContext = m_idHelperSvc->cscIdHelper().module_context();
     m_channelContext = m_idHelperSvc->cscIdHelper().channel_context();
 
-    m_rmsCondData = 0;
-    m_slopeCondData = 0;
-    m_noiseCondData = 0;
-    m_f001CondData = 0;
-    m_pedestalCondData = 0;
-    m_t0PhaseCondData = 0;
-    m_t0BaseCondData = 0;
-    m_statusCondData = 0;
+    m_rmsCondData = nullptr;
+    m_slopeCondData = nullptr;
+    m_noiseCondData = nullptr;
+    m_f001CondData = nullptr;
+    m_pedestalCondData = nullptr;
+    m_t0PhaseCondData = nullptr;
+    m_t0BaseCondData = nullptr;
+    m_statusCondData = nullptr;
 
 
     //prepare layer hash array
@@ -271,7 +271,7 @@ namespace MuonCalib {
       }
 
       //Need to store this as the proper data type.  
-      CscCondDataCollectionBase * coll = NULL;
+      CscCondDataCollectionBase * coll = nullptr;
 
 
       //Now determine data type.

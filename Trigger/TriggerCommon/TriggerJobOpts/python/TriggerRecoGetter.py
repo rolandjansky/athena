@@ -24,8 +24,8 @@ class TriggerRecoGetter(Configured):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         tdtAcc = None
         with ConfigurableRun3Behavior():
-            from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-            tdtAcc = getTrigDecisionTool(ConfigFlags)
+            from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+            tdtAcc = TrigDecisionToolCfg(ConfigFlags)
 
         from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
         appendCAtoAthena(tdtAcc)

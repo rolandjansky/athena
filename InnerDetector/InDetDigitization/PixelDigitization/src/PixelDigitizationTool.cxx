@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDigitizationTool.h"
@@ -66,7 +66,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_CHECK(prepareEvent(ctx, 0));
 
   // Get the container(s)
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
     SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey, ctx);
@@ -171,7 +171,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
     ///////////////////////////////////////////////////////////
     for (TimedHitCollection<SiHit>::const_iterator phit = firstHit; phit != lastHit; ++phit) {
       //skip hits which are more than 10us away
-      if (fabs((*phit)->meanTime()) < 10000.0 * CLHEP::ns) {
+      if (std::abs((*phit)->meanTime()) < 10000.0 * CLHEP::ns) {
         ATH_MSG_DEBUG("HASH = " <<
           m_detID->wafer_hash(m_detID->wafer_id((*phit)->getBarrelEndcap(), (*phit)->getLayerDisk(),
                                                 (*phit)->getPhiModule(), (*phit)->getEtaModule())));

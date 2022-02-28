@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: CaloRec/python/ToolWithConstants_test.py
 # Author: scott snyder
@@ -20,6 +20,7 @@ import ROOT
 
 class TestAlg (Alg):
     def initialize (self):
+        ROOT.errorcheck.ReportMessage.hideFunctionNames(True)
         toolh = ROOT.ToolHandle(ROOT.CaloUtils.ToolWithConstantsTestTool)
         self.tool1 = toolh ('CaloUtils::ToolWithConstantsTestTool/tool1')
         if not self.tool1.retrieve():
@@ -87,12 +88,14 @@ def testCfg (configFlags):
     return result
 
 
+ROOT.errorcheck.ReportMessage.hideFunctionNames (True)
+
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-ConfigFlags.Input.Files = defaultTestFiles.RDO
+ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
 ConfigFlags.Input.TimeStamp = 1000
 
 ConfigFlags.lock()

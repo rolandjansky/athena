@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -238,8 +238,8 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond
                                                                         enclosedInnerSectorHalflength);
     Amg::Transform3D* idTr = new Amg::Transform3D(Trk::s_idTransform);
     // dummy objects
-    const Trk::LayerArray* dummyLayers = nullptr;
-    const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+    Trk::LayerArray* dummyLayers = nullptr;
+    Trk::TrackingVolumeArray* dummyVolumes = nullptr;
     
     innerVol = new Trk::TrackingVolume(idTr, idBounds, *materialProperties,
                                        dummyLayers, dummyVolumes,

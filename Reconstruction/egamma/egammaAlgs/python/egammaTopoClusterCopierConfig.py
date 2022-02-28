@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Instantiate egammaTopoClusterCopier with default configuration"
 
@@ -28,6 +28,14 @@ def egammaTopoClusterCopierCfg(
     egcopierAlg = CompFactory.egammaTopoClusterCopier(name, **kwargs)
 
     acc.addEventAlgo(egcopierAlg)
+
+    # To use within standard config
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+        for el in acc._allSequences:
+            el.name = "TopAlg"
+
     return acc
 
 
@@ -38,7 +46,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.lock()
     acc = MainServicesCfg(flags)
     mlog = logging.getLogger("egammaTopoClusterCopierConfigTest")

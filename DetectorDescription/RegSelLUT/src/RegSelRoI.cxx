@@ -42,12 +42,18 @@ RegSelRoI::RegSelRoI(double zMin,   double zMax,
   m_aMin = 1/m_invaMin;
   m_aMax = 1/m_invaMax;
 
+  // just check explicitly, in case either range individually 
+  // is set to pi
+  if ( m_phiMin==float(-M_PI) ) m_phiMin=-M_PI;
+  if ( m_phiMax==float( M_PI) ) m_phiMax= M_PI;
+
   // AAARGH!!!! Check that the roi is in the correct range 
   double deltaphi = m_phiMax-m_phiMin;
 
   if ( m_phiMax<m_phiMin ) deltaphi+=M_2PI;
 
-  if ( std::fabs(deltaphi-M_2PI)>1e-10 ) { 
+  /// prefer std::fabs here since want manifest double precision
+  if ( std::fabs(deltaphi-M_2PI)>1e-6 ) { 
     if ( m_phiMin> M_PI ) m_phiMin -= M_2PI;
     if ( m_phiMin<-M_PI ) m_phiMin += M_2PI;
     
@@ -55,6 +61,8 @@ RegSelRoI::RegSelRoI(double zMin,   double zMax,
     if ( m_phiMax<-M_PI ) m_phiMax += M_2PI;
   }
   else { 
+    /// shouldn't be needed now if the float(M_PI) tests 
+    /// work but leave for more guaranteed robustness 
     m_phiMin = -M_PI;
     m_phiMax =  M_PI;
   }  

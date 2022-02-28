@@ -35,7 +35,7 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport(InDetDD::PixelDetecto
     m_transform(GeoTrf::Transform3D::Identity())
 {
   m_bVerbose = (m_gmt_mgr->msgLvl(MSG::DEBUG));
-  m_physVol = Build();
+  m_physVol = GeoPixelDetailedStaveSupport::Build();
 
 }
 
@@ -906,8 +906,6 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   if(m_bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"FLEX PP0 srv : "<<  m_endblockSrvLength<<" +  "<<doglegFlexLength<<endmsg;
 
 
-  double serviceZMidPoint=MechanicalStaveLength*0.5-MechanicalStaveEndBlockLength*.5;
-  serviceZMidPoint+=(m_endblockLength+m_endblockSrvLength)*0.5;
 
   // -----------  End block : Carbon Foam
   // ------------------------------------------------------------------------------------------------------------

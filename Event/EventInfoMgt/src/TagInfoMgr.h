@@ -191,7 +191,7 @@ private:
     ServiceHandle<IIOVDbSvc>       m_iovDbSvc { this, "IOVDbSvc", "IOVDbSvc" };
 
     /// Access to iov meta data tool
-    ToolHandle<IIOVDbMetaDataTool> m_metaDataTool { this, "IOVDbMetaDataTool", "IOVDbMetaDataTool" };
+    PublicToolHandle<IIOVDbMetaDataTool> m_metaDataTool { this, "IOVDbMetaDataTool", "IOVDbMetaDataTool" };
 
     /// Flag to identify the first BeginRun incident
     bool                           m_isFirstBeginRun { true };

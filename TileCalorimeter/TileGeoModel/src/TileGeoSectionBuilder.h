@@ -62,7 +62,7 @@ class TileGeoSectionBuilder
                    double                   delta_phi,
                    int                      ModuleNcp = 0,
                    double                   zlen_itc2 = 0.,
-		   bool                     neg = false);
+           bool                     neg = false);
 
   /** Girder parameters are the following:
       @param mother     Pointer to mother volume
@@ -86,7 +86,7 @@ class TileGeoSectionBuilder
       @param corrected_dz  dZ correction
   */
   void fillFinger(GeoPhysVol*&             mother,
-		  int                      sec_number,
+          int                      sec_number,
                   double                   tile_rmax,
                   double                   tilb_rmax,
                   double                   delta_phi_not_used,
@@ -119,10 +119,10 @@ class TileGeoSectionBuilder
       @param zshift      Shift in Z direction [mm]
   */
   void fillDescriptor(TileDetDescriptor*&   descriptor,
-		      unsigned int          detector,
-		      int                   side,
-		      bool                  testbeam,
-		      bool                  addPlates,
+              unsigned int          detector,
+              int                   side,
+              bool                  testbeam,
+              bool                  addPlates,
                       unsigned int          nphi,
                       float                 zshift); // in mm
 
@@ -134,10 +134,10 @@ class TileGeoSectionBuilder
       @param zShiftNeg  Negative shift in Z direction [mm]
   */
   void computeCellDim(TileDetDescrManager*& manager,
-		      int                   detector,
+                      int                   detector,
                       bool                  addPlates,
                       float                 zShiftPos, // in mm
-                      float                 zShiftNeg);// in mm
+                      float                 zShiftNeg); // in mm
 
   /** Calculator of Z pozition given sample in region (detector):
       @param zshift   Z shift
@@ -159,12 +159,12 @@ class TileGeoSectionBuilder
       @param neta    Eta number
   */
   void calculateEta(int detector,
-		    int side,
-		    int sample,
-		    float& etamin,
-		    float& etamax,
-		    float& deta,
-		    unsigned int& neta);
+            int side,
+            int sample,
+            float& etamin,
+            float& etamax,
+            float& deta,
+            unsigned int& neta);
  
   /** Function for checking empty volumes:
       @param VolumeName  The volume name

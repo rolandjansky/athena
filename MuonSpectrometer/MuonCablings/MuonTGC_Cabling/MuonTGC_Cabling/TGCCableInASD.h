@@ -20,7 +20,7 @@ class TGCCableInASD : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableInASD(std::string filename);
+  TGCCableInASD(const std::string& filename);
   
   virtual ~TGCCableInASD(void);
 
@@ -33,7 +33,7 @@ private:
 				     bool orChannel=false) const;
   virtual TGCChannelId* getChannelOut(const TGCChannelId* asdin,
 				      bool orChannel=false) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType]{};
 
 };
   

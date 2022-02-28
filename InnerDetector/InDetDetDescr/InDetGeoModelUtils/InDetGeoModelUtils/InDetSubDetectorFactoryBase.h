@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_SubDetectorFactoryBase_H
@@ -39,9 +39,9 @@ public:
 
   StoreGateSvc * detStore() {return m_athenaComps->detStore();}
 
-  const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
+  const IGeoDbTagSvc * geoDbTagSvc() const {return std::as_const(*m_athenaComps).geoDbTagSvc();}
 
-  IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
+  IRDBAccessSvc * rdbAccessSvc() {return m_athenaComps->rdbAccessSvc();}
   
   const IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
 

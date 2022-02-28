@@ -32,19 +32,36 @@ def getIDTrackSelectionTool(trkOpt, **userProps):
         idtracksel.TrackSummaryTool = ""
     return idtracksel
 
-def getTrackSelAlg(trkOpt="default", ):
+def getTrackSelAlg(trkOpt="default", trackSelOpt=False):
     from JetRecConfig.StandardJetContext import jetContextDic
     trkProperties = jetContextDic[trkOpt]
 
-    # Get a InDetTrackSelectionTool, OVERWRITING the CutLevel :
-    idtracksel = getIDTrackSelectionTool(trkOpt, CutLevel=trkProperties['GhostTrackCutLevel'])
+    trkSelAlg = None
 
-    return  CompFactory.JetTrackSelectionAlg( "trackselalg",
-                                              TrackSelector = idtracksel,
-                                              InputContainer = trkProperties["Tracks"],
-                                              OutputContainer = trkProperties["JetTracks"],
-                                             )
-    
+    if not trackSelOpt:
+        # Get a InDetTrackSelectionTool, OVERWRITING the CutLevel for e.g. ghosts:
+        idtracksel = getIDTrackSelectionTool(trkOpt, CutLevel=trkProperties['GhostTrackCutLevel'])
+
+        trkSelAlg = CompFactory.JetTrackSelectionAlg( "trackselalg",
+                                                      TrackSelector = idtracksel,
+                                                      InputContainer = trkProperties["Tracks"],
+                                                      OutputContainer = trkProperties["JetTracks"],                              
+                                                    )
+                                                    
+        
+    else:
+        # Track-jet selection criteria
+        idtracksel = getIDTrackSelectionTool(trkOpt, CutLevel=trkProperties['trackSelOptions']['CutLevel'])
+
+        trkSelAlg = CompFactory.JetTrackSelectionAlg( "trackseljetalg",
+                                                      TrackSelector = idtracksel,
+                                                      InputContainer = trkProperties["Tracks"],
+                                                      OutputContainer = trkProperties["JetTracksQualityCuts"],
+                                                      DecorDeps = ["TTVA_AMVFWeights_forReco", "TTVA_AMVFVertices_forReco"] # Hardcoded for now... we might want to have this context-dependent ??
+                                                    )
+
+    return trkSelAlg
+
 def getTrackSelTool(trkOpt=""):
     # this tool is still used by trk moment tools.
     # it should be deprecated in favor of simply the InDet tool
@@ -106,3 +123,13 @@ def getTrackUsedInFitTool(trkOpt=""):
         Decorator = IDUsedInFitTrkDecoTool
     )
     return JetUsedInFitTrkDecoTool
+
+def getPFlowSelAlg():
+    # PFlow objects matched to electrons/muons filtering algorithm 
+    return  CompFactory.JetPFlowSelectionAlg( "pflowselalg",
+                                              electronID = "LHMedium",
+                                              ChargedPFlowInputContainer  = "JetETMissChargedParticleFlowObjects",
+                                              NeutralPFlowInputContainer  = "JetETMissNeutralParticleFlowObjects",
+                                              ChargedPFlowOutputContainer = "GlobalPFlowChargedParticleFlowObjects",
+                                              NeutralPFlowOutputContainer = "GlobalPFlowNeutralParticleFlowObjects"
+                                             )

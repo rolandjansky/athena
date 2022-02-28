@@ -25,27 +25,28 @@ atlas_add_library( LArG4Code
 
 atlas_add_dictionary( LArG4CodeEnums
                       LArG4Code/LArG4EnumDefs.h
-                      LArG4Code/selectionEnums.xml
-                      INCLUDE_DIRS  ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel LArG4Code )
+                      LArG4Code/selectionEnums.xml )
 
 atlas_add_test( LArG4CalibSD_gtest
                 SOURCES test/LArG4CalibSD_gtest.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 DEFINITIONS ${CLHEP_DEFINITIONS}
-                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth )
+                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( LArG4SimpleSD_gtest
                 SOURCES test/LArG4SimpleSD_gtest.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 DEFINITIONS ${CLHEP_DEFINITIONS}
-                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth )
+                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( SDWrapper_gtest
                 SOURCES test/SDWrapper_gtest.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 DEFINITIONS ${CLHEP_DEFINITIONS}
-                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth )
+                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_install_joboptions( share/optionForTest.txt )
 

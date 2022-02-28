@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ##
 #
@@ -1449,7 +1449,10 @@ def dump_Surface (info, f):
     fprint (f, '\n          tf')
     dump_AmgMatrix (info.transform().matrix(), f, thresh=1e-8)
 #    fprint (f, '\n          de', info.associatedDetectorElement())
-    fprint (f, '\n          ly', tonone (info.associatedLayer()))
+    layer = tonone (info.associatedLayer())
+    if layer:
+        layer = typename (info.associatedLayer().__class__)
+    fprint (f, '\n          ly', layer)
     fprint (f, '\n          bd', typename(bd_class))
     fprint (f, '\n          id',
             info.associatedDetectorElementIdentifier().getString())

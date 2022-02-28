@@ -11,23 +11,3 @@ def TrigLRTHypoToolFromDict( chainDict ):
     tool = CompFactory.FastTrackFinderLRTHypoTool(name)
 
     return tool
-
-
-def TrigLRTHypoToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-
-    decodedDict = dictFromChainName(conf)
-
-    return TrigLRTHypoToolFromDict( decodedDict )
-
-
-
-if __name__ == "__main__":
-    tool = TrigLRTHypoToolFromDict("HLT_unconvtrk50_isohpttrack_imedium_L1XE50", "HLT_unconvtrk50_isohpttrack_imedium_L1XE50")
-    assert tool, "Not configured simple tool"
-
-
-    log.info("ALL OK")

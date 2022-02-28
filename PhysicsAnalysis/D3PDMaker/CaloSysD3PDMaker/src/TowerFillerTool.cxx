@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -19,9 +19,8 @@ TowerFillerTool::TowerFillerTool(const std::string& type,
         const IInterface* parent): BlockFillerTool<CaloTower>(type,name,parent)
 {
   m_SaveConstituents = false;
-  book().ignore();
   declareProperty("SaveNCellConstituents",m_SaveConstituents=true);
-  book().ignore();
+  TowerFillerTool::book().ignore();
 }
 
 

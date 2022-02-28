@@ -79,7 +79,7 @@ private:
     InDetPhysValMonitoringTool();
     // Private utility methods
     void fillTrackCutFlow(const asg::AcceptData& accept);
-    void fillCutFlow(const asg::AcceptData& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
+    static void fillCutFlow(const asg::AcceptData& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
     // Get truth particles into a vector, possibly using the pileup from the event
     const std::vector<const xAOD::TruthParticle *> getTruthParticles() const;
     std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>> getTruthVertices() const;
@@ -188,7 +188,7 @@ private:
     mutable std::mutex  m_mutex;
     mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;
-    int m_truthCounter;
+    int m_truthCounter = 0;
 
     std::vector<std::string> m_trackCutflowNames;
     std::vector<int> m_trackCutflow;

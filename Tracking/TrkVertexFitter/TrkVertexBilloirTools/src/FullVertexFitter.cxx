@@ -7,7 +7,6 @@
  ***************************************************************************/
 #include "TrkVertexBilloirTools/FullVertexFitter.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h" 
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -90,14 +89,6 @@ namespace Trk
 {
 	StatusCode FullVertexFitter::initialize()
 	{
-		if ( m_extrapolator.retrieve().isFailure() )
-		{
-			msg(MSG::FATAL)<< "Failed to retrieve tool " << m_extrapolator << endmsg;
-			return StatusCode::FAILURE;
-		}
-		
-		
-			msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
 		
 
 		if ( m_linFactory.retrieve().isFailure() )
@@ -115,13 +106,11 @@ namespace Trk
 
 	FullVertexFitter::FullVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : base_class ( t,n,p ),
 														  m_maxIterations ( 5 ),
-														  m_maxDchi2PerNdf ( 0.000001 ),
-														  m_extrapolator ( "Trk::Extrapolator" )
+														  m_maxDchi2PerNdf ( 0.000001 )
 
 	{
 		declareProperty ( "MaxIterations",        m_maxIterations );
 		declareProperty ( "MaxChi2PerNdf",        m_maxDchi2PerNdf );
-		declareProperty ( "Extrapolator",         m_extrapolator );
 		declareProperty ( "LinearizedTrackFactory", m_linFactory );
 		declareInterface<IVertexFitter> ( this );
 	}

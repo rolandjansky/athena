@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -180,7 +180,7 @@ StatusCode AthenaPoolTestDataReader::execute()
     //bool readMatrix = false;
     bool readMatrix = true;
     if (readMatrix) {
-        const AthenaPoolTestMatrix* matrix;
+        const AthenaPoolTestMatrix* matrix = nullptr;
         for ( int i = 0; i < 3; ++i ) {
             std::stringstream stream;
             stream << "AthenaPoolTestMatrix_" << i;

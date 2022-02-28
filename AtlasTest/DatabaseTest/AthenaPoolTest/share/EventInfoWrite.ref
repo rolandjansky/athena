@@ -1,8 +1,6 @@
 TagInfoMgr          DEBUG initialize()
 TagInfoMgr          DEBUG ExtraTagValuePairs 
-TagInfoMgr.IOVD...  DEBUG in initialize()
-TagInfoMgr.IOVD...  DEBUG initialize(): need to modify folders
-TagInfoMgr          DEBUG Adding private ToolHandle tool TagInfoMgr.IOVDbMetaDataTool (IOVDbMetaDataTool)
+TagInfoMgr          DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataTool (IOVDbMetaDataTool)
 TagInfoMgr          DEBUG matched ITagInfoMgr
 TagInfoMgr          DEBUG addTag - adding name/value pairs: IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Align
@@ -81,14 +79,6 @@ TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr.IOVD...  DEBUG begin registerFolder 
-TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
-TagInfoMgr.IOVD...  DEBUG No IOVMetaDataContainer in MetaDataStore for folder /TagInfo. Created a new instance
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
-TagInfoMgr.IOVD...  DEBUG begin addPayload 
-TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Added new payload for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG {[1,0] - [2,0]} iov size 0
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG handle: TagInfo successfully processed by IOVDbSvc to register callback
 TagInfoMgr          DEBUG updateAddress
@@ -306,13 +296,6 @@ TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr.IOVD...  DEBUG begin registerFolder 
-TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
-TagInfoMgr.IOVD...  DEBUG begin addPayload 
-TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,1:85] 

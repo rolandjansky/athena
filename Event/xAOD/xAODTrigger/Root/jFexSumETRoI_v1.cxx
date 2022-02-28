@@ -14,94 +14,92 @@
 
 namespace xAOD {
 
-  const float jFexSumETRoI_v1::s_tobEtScale = 200.;
-  const float jFexSumETRoI_v1::s_tobIsoScale = 200.;
-  const float jFexSumETRoI_v1::s_towerEtaWidth = 0.1;
-  const float jFexSumETRoI_v1::s_towerPhiWidth = 0.1;
-  const float jFexSumETRoI_v1::s_minEta = -2.5;
+    jFexSumETRoI_v1::jFexSumETRoI_v1()
+        : SG::AuxElement() {
+    }
+    void jFexSumETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution) {
 
-   jFexSumETRoI_v1::jFexSumETRoI_v1()
-     : SG::AuxElement() {
-   }
-   void jFexSumETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t word0) {
- 
-     setWord0( word0 );
-     setjFexNumber( jFexNumber );
-     setfpgaNumber( fpgaNumber );     
-     setEt_upper(getEt_upper());
-     setSat_upper(getSat_upper());
-     setEt_lower(getEt_lower());
-     setSat_lower(getSat_lower());
-  
-   //include in future when xTOB in jFEX has been implemented.
+        setTobWord     ( tobWord           );
+        setjFexNumber  ( jFexNumber        );
+        setfpgaNumber  ( fpgaNumber        );
+        setTobEt_lower ( unpackEt_lower()  );
+        setTobEt_upper ( unpackEt_upper()  );
+        setTobSat_lower( unpackSat_lower() );
+        setTobSat_upper( unpackSat_upper() );
+        setResolution  ( resolution        );
+        
+        //include in future when xTOB in jFEX has been implemented.
 
-   // If the object is a TOB then the isTOB should be true.
-   // For xTOB default is false, but should be set if a matching TOB is found 
-   // if (type() == TOB) setIsTOB(1);
-   // else               setIsTOB(0);
+        // If the object is a TOB then the isTOB should be true.
+        // For xTOB default is false, but should be set if a matching TOB is found
+        // if (type() == TOB) setIsTOB(1);
+        // else               setIsTOB(0);
 
-      return;
-   }
+        return;
+    }
 
-   //----------------
-   /// Raw data words
-   //----------------
+    //----------------
+    /// Raw data words
+    //----------------
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint32_t, word0, setWord0)
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t, jFexNumber, setjFexNumber)
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t, fpgaNumber, setfpgaNumber)
-   /// Only calculable externally
- 
-   /// Extracted from data words, stored for convenience
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint32_t, tobWord   , setTobWord   )
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t , jFexNumber, setjFexNumber)
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t , fpgaNumber, setfpgaNumber)
+    /// Only calculable externally
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint16_t, Et_upper, setEt_upper)
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t, Sat_upper, setSat_upper)
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint16_t, Et_lower, setEt_lower)
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t, Sat_lower, setSat_lower)
-
-     //-----------------
-   /// Methods to decode data from the TOB/RoI and return to the user
-   //-----------------
-
-  //include in future when xTOB in jFEX has been implemented.
+    /// Extracted from data words, stored for convenience
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint16_t, tobEt_lower , setTobEt_lower )
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint16_t, tobEt_upper , setTobEt_upper )
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t , tobSat_lower, setTobSat_lower)
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t , tobSat_upper, setTobSat_upper)
    
-   /// TOB or xTOB?
-   //jFexSumETRoI_v1::ObjectType jFexSumETRoI_v1::type() const {
-   //if (Word1() == 0) return TOB;
-   //else              return xTOB;
-   //}
+   ///Setting the jFEX ET resolution
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, int  , tobEtScale, setResolution)    
+    
 
-   //Hardware coordinate elements  
-   
-    uint32_t jFexSumETRoI_v1::gettob() const {
-        return word0();
+    //-----------------
+    /// Methods to decode data from the TOB/RoI and return to the user
+    //-----------------
+
+    //include in future when xTOB in jFEX has been implemented.
+
+    /// TOB or xTOB?
+    //jFexSumETRoI_v1::ObjectType jFexSumETRoI_v1::type() const {
+    //if (Word1() == 0) return TOB;
+    //else              return xTOB;
+    //}
+
+    //Raw ET_lower on TOB scale (200 MeV/count)
+    uint16_t jFexSumETRoI_v1::unpackEt_lower() const {
+        return (tobWord() >> s_Et_lowerBit) & s_Et_lowerMask;
     }
     
-    unsigned int jFexSumETRoI_v1::getjFexNumber() const {
-        return jFexNumber();
+    //Raw ET_upper on TOB scale (200 MeV/count)
+    uint16_t jFexSumETRoI_v1::unpackEt_upper() const {
+        return (tobWord() >> s_Et_upperBit) & s_Et_upperMask;
     }
 
-    unsigned int jFexSumETRoI_v1::getfpgaNumber() const {
-        return fpgaNumber();
+    //Return sat Et_lower flag
+    uint8_t jFexSumETRoI_v1::unpackSat_lower() const {
+        return (tobWord() >> s_Sat_lowerBit) & s_Sat_lowerMask;
     }
-   
-   //Raw ET on TOB scale (200 MeV/count)
-    unsigned int jFexSumETRoI_v1::getEt_upper() const{
-     return (word0() >> s_Et_upperBit) & s_Et_upperMask;
+    //Return sat Et_upper flag
+    uint8_t jFexSumETRoI_v1::unpackSat_upper() const {
+        return (tobWord() >> s_Sat_upperBit) & s_Sat_upperMask;
     }
-   unsigned int jFexSumETRoI_v1::getEt_lower() const{
-     return (word0() >> s_Et_lowerBit) & s_Et_lowerMask;
-   }
 
-   //Return sat upper flag
-   unsigned int jFexSumETRoI_v1::getSat_upper() const{
-     return (word0() >> s_Sat_upperBit) & s_Sat_upperMask;
-   }
+    /// Methods that require combining results or applying scales
 
-   //Return sat lower flag
-   unsigned int jFexSumETRoI_v1::getSat_lower() const{
-     return (word0() >> s_Sat_lowerBit) & s_Sat_lowerMask;
-   }
+    /// Et_lower in 1 MeV scale
+    int jFexSumETRoI_v1::Et_lower() const {
+        return tobEt_lower()*tobEtScale();
+    }
+
+    /// Et_upper in 1 MeV scale
+    int jFexSumETRoI_v1::Et_upper() const {
+        return tobEt_upper()*tobEtScale();
+    }
+
 
 } // namespace xAOD
 

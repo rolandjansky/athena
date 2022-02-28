@@ -50,24 +50,24 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   // initialize class members
    
   for(int ac=0; ac<2; ac++){
-	m_mvt_cutspassed[ac] = 0;
+	m_mvt_cutspassed[ac] = nullptr;
 	for(int jMDT=0; jMDT<4; jMDT++){
-		m_mdt_segmmap[ac][jMDT] = 0;
+		m_mdt_segmmap[ac][jMDT] = nullptr;
 		for(int sMDT=0; sMDT<4; sMDT++){
-			m_mdt_segmposdirsag[ac][jMDT][sMDT] = 0;
+			m_mdt_segmposdirsag[ac][jMDT][sMDT] = nullptr;
 			for(int iREPT=0; iREPT<4; iREPT++){
-				m_mdt_segmmatchsag[ac][jMDT][sMDT][iREPT] = 0;
-				m_mdt_trackdirdirsag[ac][jMDT][sMDT][iREPT] = 0;
-				m_mdt_trackchecksag[ac][jMDT][sMDT][iREPT][0] = 0;
-				m_mdt_trackchecksag[ac][jMDT][sMDT][iREPT][1] = 0;
+				m_mdt_segmmatchsag[ac][jMDT][sMDT][iREPT] = nullptr;
+				m_mdt_trackdirdirsag[ac][jMDT][sMDT][iREPT] = nullptr;
+				m_mdt_trackchecksag[ac][jMDT][sMDT][iREPT][0] = nullptr;
+				m_mdt_trackchecksag[ac][jMDT][sMDT][iREPT][1] = nullptr;
 			}
 		}
 	}
 	for(int WS=0; WS<2; WS++){
 		for(int EffNDE=0; EffNDE<4; EffNDE++){
-			m_eff_stationmapbase[ac][WS][EffNDE] = 0;
-			m_eff_stationmapmid[ac][WS][EffNDE] = 0;
-			m_eff_stationmap[ac][WS][EffNDE] = 0;
+			m_eff_stationmapbase[ac][WS][EffNDE] = nullptr;
+			m_eff_stationmapmid[ac][WS][EffNDE] = nullptr;
+			m_eff_stationmap[ac][WS][EffNDE] = nullptr;
 		}
 	}
   }
@@ -78,13 +78,13 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
       for(int f=0;f<2;f++)// FE
         for(int k=0;k<2;k++)// WireStrip
           for(int x=0;x<4;x++){
-            m_mvt_extrprdsag[i][jTGC][f][k][x]=0;
-            m_mvt_extrprdsag2[i][jTGC][f][k][x]=0;
+            m_mvt_extrprdsag[i][jTGC][f][k][x]=nullptr;
+            m_mvt_extrprdsag2[i][jTGC][f][k][x]=nullptr;
           }
   for(int k=0;k<2;k++)
     for(int i=0;i<2;i++)
       for(int x=0;x<4;x++){
-        m_tgc_prdcompsag[i][k][x]=0;
+        m_tgc_prdcompsag[i][k][x]=nullptr;
       }
 
 }

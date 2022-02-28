@@ -13,6 +13,7 @@
 + DetectorDescription/GeoPrimitives
 #
 # Utility packages
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Calorimeter/CaloGeoHelpers
 + Control/AthToolSupport/.*

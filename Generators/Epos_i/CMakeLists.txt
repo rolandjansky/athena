@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+# Minimum CMake requirement for the package.
+cmake_minimum_required( VERSION 3.21 )
+
 # Declare the package name:
 atlas_subdir( Epos_i )
 
@@ -18,7 +21,7 @@ atlas_add_library( Epos_iLib
                    src/Rangen.F
                    PUBLIC_HEADERS Epos_i
                    INCLUDE_DIRS ${CRMC_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${CRMC_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CRMC_LIBRARIES} GeneratorModulesLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib AthenaKernel GaudiKernel TruthUtils )
@@ -34,6 +37,7 @@ atlas_install_runtime( share/file/epos_crmc.param )
 # Install files from Crmc.
 foreach( _file "epos.initl" "epos.iniev" "epos.inirj" "epos.inirj.lhc"
                "epos.inics" "epos.inics.lhc" "epos.inidi" )
+   unset( _datFile )
    find_file( _datFile "${_file}"
       PATHS "${CRMC_LCGROOT}"
       PATH_SUFFIXES "tabs" "share/crmc"

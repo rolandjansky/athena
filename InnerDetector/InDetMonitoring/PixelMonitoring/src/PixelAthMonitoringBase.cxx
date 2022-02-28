@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "PixelAthMonitoringBase.h"
@@ -285,6 +285,22 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
   return layer;
 }
 
+///
+/// helper function to check if module is IBL planar based on pixel hash ID
+///
+bool PixelAthMonitoringBase::isIBL2D(int hashID) const {
+  bool result(false);
+  if ( hashID>=156 && hashID<=435 ) // IBL
+    { 
+      int module = (hashID-156) % 20;
+      if (module>3 && module<16)
+	{ 
+	  result = true;
+	}
+    }
+  return result;
+}
+
 //////////////////////////////////////////////
 
 ///
@@ -382,6 +398,61 @@ bool PixelAthMonitoringBase::isClusterOnTrack(Identifier id, std::vector<std::pa
     cosalpha = (*it).second;
   }
   return onTrack;
+}
+
+//////////////////////////////////////////////
+
+///
+/// get IBL FE indices (module index and FE number) from track eta and phi
+///
+
+std::pair<int, int> PixelAthMonitoringBase::getIBLFEIdxsfromTrackEtaPhi(float eta, float phi) const {
+  float abseta = std::abs(eta);
+  int eta_idx(0);
+  int iFE(0);
+
+  for (unsigned int i = 0; i < iblFEetaEdges.size(); ++i) {
+    if (abseta < iblFEetaEdges[i]) {
+      if (i<12)
+	{
+	  eta_idx = i/2+1;
+	  iFE = i%2;
+	}
+      else
+	{
+	  eta_idx = i-5;
+	  iFE=0;
+	}
+      break;
+    }
+  }
+
+  if (eta_idx == 0) return std::make_pair(-1,-1);
+
+  if (eta<0) {
+    if (eta_idx<7) { // swap FE (0,1) indices
+      iFE-=1;
+      iFE=std::abs(iFE);
+    }
+    // adjust index for negative-eta side
+    eta_idx-=1;
+    eta_idx*=-1;
+  }
+
+  int phi_idx(0), phi_idxUp(0);
+  auto phiLoEdge = std::upper_bound(iblFEphiLoEdges.begin(), iblFEphiLoEdges.end(), phi);
+  if (phiLoEdge == iblFEphiLoEdges.end()) phi_idx=0;
+  else phi_idx = std::distance(iblFEphiLoEdges.begin(), phiLoEdge);
+  auto phiUpEdge = std::upper_bound(iblFEphiUpEdges.begin(), iblFEphiUpEdges.end(), phi);
+  if (phiUpEdge == iblFEphiUpEdges.end()) phi_idxUp=0;
+  else phi_idxUp = std::distance(iblFEphiUpEdges.begin(), phiUpEdge);
+  if (phi_idx!=phi_idxUp) return std::make_pair(-1,-1); // suppress overlaps
+
+  if (phi>=0.0865 && phi<2.7793) phi_idx-=7;
+  else phi_idx+=7;
+
+  int indexModule = phi_idx*20 + eta_idx + 145;
+  return std::make_pair(indexModule, iFE);
 }
 
 //////////////////////////////////////////////

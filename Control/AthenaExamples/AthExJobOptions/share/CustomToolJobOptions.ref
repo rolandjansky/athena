@@ -10,7 +10,6 @@ Py:ConfigurableDb    INFO Read module info for 5132 configurables from 5 genConf
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 {'OutputLevel': '<no value>', 'Enable': '<no value>', 'ErrorMax': '<no value>', 'ErrorCounter': '<no value>', 'AuditAlgorithms': '<no value>', 'AuditInitialize': '<no value>', 'AuditReinitialize': '<no value>', 'AuditExecute': '<no value>', 'AuditFinalize': '<no value>', 'ExtraInputs': [], 'ExtraOutputs': [], 'AuditRestart': '<no value>', 'AuditStart': '<no value>', 'AuditStop': '<no value>', 'Timeline': '<no value>', 'MonitorService': '<no value>', 'RegisterForContextService': '<no value>', 'Cardinality': '<no value>', 'NeededResources': [], 'Blocking': '<no value>', 'FilterCircularDependencies': '<no value>', 'EvtStore': ServiceHandle('StoreGateSvc'), 'DetStore': ServiceHandle('StoreGateSvc/DetectorStore'), 'InputKey': '<no value>', 'OutputKey': '<no value>', 'RndmFactor': '<no value>', 'TheTool': <ToolUsingTool/YourTopAlg.ToolUsingTool at 0x7ff78c378750>, 'ThePublicTool': PublicToolHandle('ConcreteTool'), 'PrivateToolList': PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']), 'PublicToolList': PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']), 'TheSvc': ServiceHandle('ConcreteSvc'), 'EmptyPrivateTool': PrivateToolHandle(''), 'EmptyPublicTool': PublicToolHandle('')}
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
-|-Atomic                         = False
 |-AuditAlgorithms                = False
 |-AuditExecute                   = False
 |-AuditFinalize                  = False
@@ -21,7 +20,6 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 |-AuditStop                      = False
 |-Blocking                       = False
 |-Cardinality                    = 0
-|-ContinueEventloopOnFPE         = False
 |-DetStore                       = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                         = True
 |-ErrorCounter                   = 0

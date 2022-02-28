@@ -23,7 +23,7 @@ class GenericMuonSimHit {
   // Destructor:
   virtual ~GenericMuonSimHit();
    GenericMuonSimHit(HitID id, double time, double pretime, const Amg::Vector3D& position, const Amg::Vector3D& local_position, const Amg::Vector3D& preposition, const Amg::Vector3D& local_preposition, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const double StepLength, const int trackNumber);
-      GenericMuonSimHit(HitID id, double time, double pretime, const Amg::Vector3D& position, const Amg::Vector3D& local_position, const Amg::Vector3D& preposition, const Amg::Vector3D& local_preposition, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const double StepLength, const HepMcParticleLink hmpl);
+      GenericMuonSimHit(HitID id, double time, double pretime, const Amg::Vector3D& position, const Amg::Vector3D& local_position, const Amg::Vector3D& preposition, const Amg::Vector3D& local_preposition, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const double StepLength, const HepMcParticleLink& hmpl);
  
   //
   // member functions

@@ -169,7 +169,8 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
     *m_npadHits = npadHits;
     *m_npseudoHits = npseudoHits;
 
-    const Trk::TrackParameters* exPars = m_slPropagator->propagate(*pars,meas.associatedSurface(),Trk::anyDirection,false,*m_magFieldProperties).release();
+    const Trk::TrackParameters* exPars = m_slPropagator->propagate(Gaudi::Hive::currentContext(),
+      *pars,meas.associatedSurface(),Trk::anyDirection,false,*m_magFieldProperties).release();
     if( !exPars && meas.associatedSurface().isOnSurface(pars->position()) ){
       exPars = pars->clone();
     }

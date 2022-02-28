@@ -146,10 +146,11 @@ namespace Muon {
                                                                    "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
         ToolHandle<IMuonTrackSegmentMatchingTool> m_trackSegmentMatchingTool{this, "TrackSegmentMatchingTool",
                                                                              "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
+       
         ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{
-            this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool", "hit-based hole search"};
+            this, "ChamberHoleRecoveryTool", "", "hit-based hole search"};
         ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};
-        ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
+        ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", ""};
         ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBSLFitter"};
         ToolHandle<IMuonHitSummaryTool> m_hitSummaryTool{this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
         ToolHandle<IRegSelTool> m_regsel_mdt{this, "MDTRegionSelector", "RegSelTool/RegSelTool_MDT"};
@@ -158,7 +159,7 @@ namespace Muon {
         ToolHandle<IRegSelTool> m_regsel_tgc{this, "TGCRegionSelector", "RegSelTool/RegSelTool_TGC"};
         ToolHandle<IRegSelTool> m_regsel_stgc{this, "STGCRegionSelector", "RegSelTool/RegSelTool_STGC"};
         ToolHandle<IRegSelTool> m_regsel_mm{this, "MMRegionSelector", "RegSelTool/RegSelTool_MM"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
         SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
@@ -168,6 +169,10 @@ namespace Muon {
         Gaudi::Property<bool> m_excludeEES{this, "ExcludeEES", true};
         Gaudi::Property<bool> m_onlyEO{this, "OnlyEO", false};
         Gaudi::Property<bool> m_useFitterOutlierLogic{this, "UseFitterOutlierLogic", true};
+
+        Gaudi::Property<bool> m_recoverMM{this, "RecoverMM", true, "Pick up dropped micromega chambers"};
+        Gaudi::Property<bool> m_recoverSTGC{this, "RecoverSTGC", true, "Pick up dropped sTGC chambers" };
+
     };
 }  // namespace Muon
 

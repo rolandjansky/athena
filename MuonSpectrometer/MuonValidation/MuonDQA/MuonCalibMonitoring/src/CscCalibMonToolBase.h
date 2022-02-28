@@ -356,7 +356,7 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           the hist type dir (spectrum of values, per-channel values, etc), and the parTypeDir (pedestal, etc).
           This provides a centralized, consistent way of generating the paths
          */
-        std::string getFullPath(std::string geoPath, std::string histTypeDir, std::string parTypeDir);
+        std::string getFullPath(const std::string& geoPath, const std::string& histTypeDir, const std::string& parTypeDir);
 
 };
 

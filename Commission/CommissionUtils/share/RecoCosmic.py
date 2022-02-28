@@ -52,7 +52,7 @@ CaloTopoClusterMaker.TopoCluster.CalorimeterNames=[ "TILE" ]
 # slim cells 
 theApp.TopAlg +=["CaloClusterCellSlimmer/slimmer"]
 slimmer = Algorithm("slimmer")
-slimmer.ClusterContainerNames = ["EMTopoCluster","CaloTopoCluster"]
+slimmer.ClusterContainerNames = ["EMTopoCluster","CaloTopoClusters"]
 slimmer.CellContainerName = "ClusterOnly" 
 
 

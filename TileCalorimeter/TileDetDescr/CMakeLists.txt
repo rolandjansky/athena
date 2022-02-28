@@ -11,6 +11,6 @@ atlas_add_library( TileDetDescr
                    src/Tile*.cxx
                    PUBLIC_HEADERS TileDetDescr
                    INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} CaloIdentifier AthenaKernel Identifier CaloDetDescrLib RDBAccessSvcLib
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} CaloIdentifier AthenaKernel Identifier CaloDetDescrLib RDBAccessSvcLib AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr GaudiKernel TileIdentifier )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Sensor.h"
@@ -32,7 +32,7 @@ SCT_Sensor::SCT_Sensor(const std::string & name,
     m_noElementWarning{true}
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_Sensor::preBuild();
 }
 
 
@@ -116,8 +116,7 @@ SCT_Sensor::makeDesign()
                                             xPhiStripPatternCenter,
                                             totalDeadLength,
                                             readoutSide);
-  m_design = design.get();
-  m_detectorManager->addDesign(std::move(design));
+  m_design = m_detectorManager->addDesign(std::move(design));
 
   //
   // Flags to signal if axis can be swapped.

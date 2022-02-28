@@ -12,7 +12,7 @@ namespace MuonGM {
 
     DBReader::DBReader(StoreGateSvc * /*pDetStore*/) :
       m_SCdbaccess (StatusCode::SUCCESS),
-      m_mgr(0),
+      m_mgr(nullptr),
       m_msgSvc (Athena::getMessageSvc())
     {
     }

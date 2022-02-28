@@ -2,12 +2,14 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "NewCorePlots.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 namespace Tau{
 
-  NewCorePlots::NewCorePlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+  NewCorePlots::NewCorePlots(PlotBase* pParent, const std::string& sDir, std::string sTauJetContainerName):
     PlotBase(pParent, sDir),
     m_ipZ0SinThetaSigLeadTrk(nullptr),
     m_etOverPtLeadTrk(nullptr),
@@ -37,7 +39,7 @@ namespace Tau{
     m_innerTrkAvgDist(nullptr),
     m_ptRatioEflowApprox(nullptr),
     m_mEflowApprox(nullptr),
-    m_sTauJetContainerName(sTauJetContainerName)
+    m_sTauJetContainerName(std::move(sTauJetContainerName))
   {	
   }
 	
@@ -323,7 +325,7 @@ namespace Tau{
     }
 
     double moment;
-    for(auto vertexedCluster : clusters) {
+    for(const auto& vertexedCluster : clusters) {
       m_cluster_logEt->Fill(std::log10(vertexedCluster.p4().Et()), weight);
       m_cluster_eta->Fill(vertexedCluster.eta(), weight);
       m_cluster_phi->Fill(vertexedCluster.phi(), weight);

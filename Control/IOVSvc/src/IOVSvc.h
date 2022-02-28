@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVSVC_H
@@ -50,7 +50,7 @@ namespace SG {
   class DataProxy;
 }
 
-class ATLAS_CHECK_THREAD_SAFETY IOVSvc: public extends<AthService, IIOVSvc>
+class IOVSvc: public extends<AthService, IIOVSvc>
 {
 public:
 

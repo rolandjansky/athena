@@ -447,7 +447,10 @@ DataProxy* DataStore::proxy_exact(sgkey_t sgkey) const
 DataProxy* DataStore::proxy_exact(const CLID& id,
                                   const std::string& key) const
 {
-  return proxy_exact (m_pool.stringToKey (key, id));
+  // Suppress warning here about calling to a nonconst method
+  // of m_pool.  Ok since all callers here must own the store lock.
+  IProxyDict& pool_nc ATLAS_THREAD_SAFE = m_pool;
+  return proxy_exact (pool_nc.stringToKey (key, id));
 }
 
 

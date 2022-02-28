@@ -21,9 +21,9 @@
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
-
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "TTree.h"
 #include "TVector3.h"
@@ -56,8 +56,6 @@ namespace NSWL1 {
     PadTdsOfflineTool::PadTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
         AthAlgTool(type,name,parent),
         m_incidentSvc("IncidentSvc",name),
-        m_rndmSvc("AtRndmGenSvc",name),
-        m_rndmEngine(0),
         m_detManager(0),
         m_pad_cache_runNumber(-1),
         m_pad_cache_eventNumber(-1),
@@ -127,13 +125,6 @@ namespace NSWL1 {
 
         // retrieve the Random Service
         ATH_CHECK( m_rndmSvc.retrieve() );
-
-        // retrieve the random engine
-        m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-        if (m_rndmEngine==0) {
-            ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
-            return StatusCode::FAILURE;
-        }
 
         ATH_CHECK(detStore()->retrieve(m_detManager));
         ATH_CHECK(m_idHelperSvc.retrieve());
@@ -339,7 +330,9 @@ namespace NSWL1 {
     }
     //------------------------------------------------------------------------------
     double PadTdsOfflineTool::computeTimeJitter() const {
-        return CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitter);
+      ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_rndmEngineName);
+      CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(Gaudi::Hive::currentContext());
+      return CLHEP::RandGauss::shoot(engine, 0, m_timeJitter);
     }
     //------------------------------------------------------------------------------
     void PadTdsOfflineTool::simulateDeadTime(std::vector<PadHits>& h) const {

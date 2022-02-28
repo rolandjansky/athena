@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -145,15 +145,12 @@ void TileHit::print() const
 
 TileHit::operator std::string() const
 {
-    const int MAX_BUF = 1024;
-    char buf[MAX_BUF];
-    std::ostringstream text(buf);
+    std::ostringstream text;
 
     text << whoami();
     text << " Id = " + s_cabling->getTileID()->to_string(m_pmt_id,-1); // pmt_id => -1 level from adc_id
     print_to_stream(m_energy, " ener =", text);
     print_to_stream(m_time,   " time =", text);
-    text << '\0';
     return text.str();
 }
 

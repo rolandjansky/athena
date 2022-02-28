@@ -437,7 +437,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
       // Get segm
       const Muon::MuonSegment *segm=dynamic_cast<const Muon::MuonSegment*>(*s);
 
-      if (segm == 0) {
+      if (segm == nullptr) {
 	ATH_MSG_ERROR( "no pointer to segm!!!" );
 	continue;
       }
@@ -580,22 +580,22 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	    // get cluster
 	    const Muon::CscPrepData* theClus = clust_rot->prepRawData();
 	    float clus_qsum = 0, clus_time = -1.;
-	    
+	    unsigned int clus_noStrips=0;
 	    if(theClus) {
 	      clus_qsum = theClus->charge() * clus_kiloele;
 	      clus_time = theClus->time();
 
 	      if(clus_measuresPhi == 0) { 
-		if(clus_stationEta == 1) eta_clus_count[0][0]++;
-		else eta_clus_count[1][0]++;
+		      if(clus_stationEta == 1) eta_clus_count[0][0]++;
+		      else eta_clus_count[1][0]++;
 	      } else {
-		if(clus_stationEta == 1) phi_clus_count[0][0]++;
-		else phi_clus_count[1][0]++;
+		      if(clus_stationEta == 1) phi_clus_count[0][0]++;
+		      else phi_clus_count[1][0]++;
 	      }
+	      // get no. of strips per cluster
+	      clus_noStrips = theClus->rdoList().size();
 	    }
 	    
-	    // get no. of strips per cluster
-	    unsigned int clus_noStrips = theClus->rdoList().size();
 	    
 	    // need at least three strips in an eta-cluster
 	    bool clus_eta_status = clus_status && ( clus_noStrips > 2 ) && (clus_measuresPhi == 0);
@@ -746,7 +746,7 @@ bool CSCSegmValAlg::evtSelTriggersPassed() {
   if(!m_doEvtSel) return true;
   std::vector<std::string>::const_iterator
     it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
-  for ( ; it != itE; it++ ) {
+  for ( ; it != itE; ++it ) {
     if (m_trigDec->isPassed(*it, TrigDefs::eventAccepted)) {
       return true;
     }

@@ -1,21 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArShapeFlat.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
 
-LArShapeFlat::LArShapeFlat()   {}
+LArShapeFlat::LArShapeFlat()
+  : LArCondFlatBase("LArShapeFlat")
+{}
 
 LArShapeFlat::~LArShapeFlat() {}
 
 
-LArShapeFlat::LArShapeFlat(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArShapeFlat");
-  if (sc.isFailure()) return;
+LArShapeFlat::LArShapeFlat(const CondAttrListCollection* attrList)
+  : LArCondFlatBase("LAruA2MeVFlat")
+{
+  if (initializeBase().isFailure()) return;
 
-  readBlob(attrList,*m_log);
+  readBlob(attrList,msg());
 }
 
 

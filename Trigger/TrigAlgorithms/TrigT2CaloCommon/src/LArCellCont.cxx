@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,6 +12,7 @@
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <iostream>
 
 LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_BCIDcache(false)
@@ -20,7 +21,10 @@ LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEv
 StatusCode
 LArCellCont::initialize( const LArRoIMap& roiMap,
                          const LArOnOffIdMapping& onOffMap,
-                         const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) {
+                         const LArMCSym& mcsym, 
+                         const LArFebRodMapping& febrod, 
+                         const LArBadChannelCont& badchannel, 
+                         const CaloDetDescrManager& man) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -28,21 +32,21 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
 
  StatusCode sc;
  ISvcLocator* svcLoc = Gaudi::svcLocator( );
- IToolSvc* toolSvc;
+ IToolSvc* toolSvc = nullptr;
  sc = svcLoc->service( "ToolSvc",toolSvc);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve ToolSvc" << std::endl;
    return StatusCode::FAILURE;
 }
  
- StoreGateSvc* detStore;
+ StoreGateSvc* detStore = nullptr;
  sc=svcLoc->service("DetectorStore",detStore);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve DetectorStore" << std::endl;
    return StatusCode::FAILURE;
  }
 
- const LArOnlineID* onlineId;
+ const LArOnlineID* onlineId = nullptr;
  sc=detStore->retrieve(onlineId,"LArOnlineID");
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve LArOnlineID" << std::endl;
@@ -77,7 +81,7 @@ std::vector<const CaloCellCorrection*> LArCellCorrTools;
      
 MakeLArCellFromRaw makeCell;
 makeCell.setThreshold(-100);
-makeCell.initialize( roiMap, onOffMap, &LArCellCorrTools, 0 ); 
+makeCell.initialize( roiMap, onOffMap, man, &LArCellCorrTools, 0 ); 
 
 
 //sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);

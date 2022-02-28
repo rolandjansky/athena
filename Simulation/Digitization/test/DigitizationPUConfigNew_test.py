@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ComponentAccumulator PileUp (PU) Digitization configuration test
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from AthenaCommon.Logging import log
@@ -18,7 +18,7 @@ Configurable.configurableRun3Behavior = True
 
 ConfigFlags.Exec.MaxEvents = 4
 
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Output.RDOFileName = "mc16d_ttbar.CA.RDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-25-02"
 
@@ -55,12 +55,12 @@ ConfigFlags.Digitization.PU.NumberOfLowPtMinBias = 80.290021063135
 # TODO: temporary
 ConfigFlags.Digitization.TruthOutput = True
 
-cols = generateBackgroundInputCollections(ConfigFlags, defaultTestFiles.HITS_MINBIAS_HIGH,
-                       ConfigFlags.Digitization.PU.NumberOfHighPtMinBias, True)
+cols = generateBackgroundInputCollections(ConfigFlags, defaultTestFiles.HITS_RUN2_MINBIAS_HIGH,
+                                          ConfigFlags.Digitization.PU.NumberOfHighPtMinBias, True)
 ConfigFlags.Digitization.PU.HighPtMinBiasInputCols = cols
 
-cols = generateBackgroundInputCollections(ConfigFlags, defaultTestFiles.HITS_MINBIAS_LOW,
-                       ConfigFlags.Digitization.PU.NumberOfLowPtMinBias, True)
+cols = generateBackgroundInputCollections(ConfigFlags, defaultTestFiles.HITS_RUN2_MINBIAS_LOW,
+                                          ConfigFlags.Digitization.PU.NumberOfLowPtMinBias, True)
 ConfigFlags.Digitization.PU.LowPtMinBiasInputCols = cols
 
 setupPileUpFlags(ConfigFlags, 'RunDependentSimData.BunchTrains_MC20_2017', 'RunDependentSimData.PileUpProfile_run300000_MC20d')

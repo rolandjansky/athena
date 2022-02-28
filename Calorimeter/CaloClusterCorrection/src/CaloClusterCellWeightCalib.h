@@ -176,7 +176,7 @@ protected:
 	     CALCULATOR& calc,std::string& conf,MsgStream& report);
 
   /*! @brief Helper for non-case sensitive string comparison */
-  bool cmpNoCase(const std::string& a,const std::string& b);
+  static bool cmpNoCase(const std::string& a,const std::string& b);
 };
 
 /*! @class CaloClusterCellWeightCalib

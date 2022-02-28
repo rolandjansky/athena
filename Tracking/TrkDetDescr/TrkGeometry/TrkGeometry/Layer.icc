@@ -1,10 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
 
 inline const SurfaceArray *Layer::surfaceArray() const {
+  return m_surfaceArray;
+}
+
+inline SurfaceArray *Layer::surfaceArray(){
   return m_surfaceArray;
 }
 

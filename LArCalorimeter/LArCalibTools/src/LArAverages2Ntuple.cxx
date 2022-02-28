@@ -12,7 +12,6 @@ LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSv
   declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_Nsamples=50);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
-  declareProperty("isSC",m_isSC=false);
   m_ipass=0;
 }
 
@@ -73,7 +72,7 @@ StatusCode LArAverages2Ntuple::execute()
     }
 
    unsigned cellCounter=0;
-   for (;it!=it_e;it++) {   
+   for (;it!=it_e;++it) {   
      // Add protection - Modif from JF. Marchand
      if ( !(*it) ) continue;
 
@@ -96,8 +95,9 @@ StatusCode LArAverages2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
    
-     const std::vector<uint32_t>& sampleSum = (*it)->sampleSum();
-     const std::vector<uint32_t>& sampleSum2 = (*it)->sample2Sum();
+  
+     const std::vector<uint64_t>& sampleSum = (*it)->sampleSum();
+     const std::vector<uint64_t>& sampleSum2 = (*it)->sample2Sum();
      const std::vector<float>& mean = (*it)->mean();
      const std::vector<float>& RMSv = (*it)->RMS();
 

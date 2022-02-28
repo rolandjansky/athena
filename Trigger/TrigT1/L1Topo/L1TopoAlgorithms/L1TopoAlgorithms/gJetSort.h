@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  gJetSort.h
 //  TopoCore
@@ -9,7 +9,7 @@
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/JetTOB.h"
+#include "L1TopoEvent/gJetTOB.h"
 
 #include <iostream>
 #include <vector>
@@ -31,13 +31,7 @@ namespace TCS {
       parType_t      m_numberOfJets = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
-      parType_t      m_jsize = { 0 };   
-      parType_t      m_doEtaCut = { 0 };
-    
-   protected:
-    
-      JetTOB::JetSize m_jetsize;
-    
+
    };
 
 } // end of namespace TCS

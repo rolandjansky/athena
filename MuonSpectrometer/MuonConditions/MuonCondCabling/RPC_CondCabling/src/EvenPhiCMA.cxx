@@ -10,6 +10,7 @@
 #include "RPC_CondCabling/SectorLogicSetup.h"
 
 #include <fstream>
+#include <stdexcept>
 
 using namespace RPC_CondCabling;
 
@@ -167,9 +168,8 @@ bool EvenPhiCMA::cable_CMA_channels(void) {
         for (int w = lowPt_start_ch(); w <= lowPt_stop_ch(); ++w) {
             WORlink::iterator found = m_lowPt_WORs.find(w);
             WiredOR* wor = (*found).second;
-            std::vector<int> multiplicity(wor->give_max_phi_strips());
-            multiplicity.clear();
-
+            std::vector<int> multiplicity(wor->give_max_phi_strips(),0);
+            
             for (int i = 0; i < wor->RPCacquired(); ++i) {
                 const RPCchamber* rpc = wor->connected_rpc(i);
 
@@ -284,8 +284,8 @@ bool EvenPhiCMA::cable_CMA_channels(void) {
         for (int w = highPt_start_ch(); w <= highPt_stop_ch(); ++w) {
             WORlink::iterator found = m_highPt_WORs.find(w);
             WiredOR* wor = (*found).second;
-            std::vector<int> multiplicity(wor->give_max_phi_strips());
-            multiplicity.clear();
+            std::vector<int> multiplicity(wor->give_max_phi_strips(),0);
+            
 
             for (int i = 0; i < wor->RPCacquired(); ++i) {
                 const RPCchamber* rpc = wor->connected_rpc(i);

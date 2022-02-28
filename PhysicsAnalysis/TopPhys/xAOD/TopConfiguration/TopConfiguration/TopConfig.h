@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -739,6 +739,18 @@ namespace top {
       }
     }
 
+    inline virtual void electrond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_electron_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void electrondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_electron_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void electronIsolation(const std::string& iso) {
       if (!m_configFixed) {
         m_electronIsolation = iso;
@@ -793,6 +805,8 @@ namespace top {
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
     inline virtual float electronPtcut()       const {return m_electronPtcut;}
+    inline virtual float electrond0Sigcut()    const {return m_electron_d0SigCut;}
+    inline virtual float electrondeltaz0cut()  const {return m_electron_delta_z0;}
     inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
     inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
     inline virtual const std::vector<std::string>& electronIsolationWPs() const {return m_electronIsolationWPs;}
@@ -899,6 +913,18 @@ namespace top {
       }
     }
 
+    inline virtual void muond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_muon_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void muondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_muon_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void muonEtacut(const float eta) {
       if (!m_configFixed) {
         m_muonEtacut = eta;
@@ -979,6 +1005,8 @@ namespace top {
 
     inline virtual float muonPtcut() const {return m_muonPtcut;}
     inline virtual float muonEtacut() const {return m_muonEtacut;}
+    inline virtual float muond0Sigcut()    const {return m_muon_d0SigCut;}
+    inline virtual float muondeltaz0cut()  const {return m_muon_delta_z0;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
     inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
@@ -1451,12 +1479,12 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.jetIDWP = s;
     }
 
-    inline virtual void tauEleBDTWP(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration.eleBDTWP = s;
+    inline virtual void tauEleIDWP(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration.eleIDWP = s;
     }
 
-    inline virtual void tauEleBDTWPLoose(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration_loose.eleBDTWP = s;
+    inline virtual void tauEleIDWPLoose(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration_loose.eleIDWP = s;
     }
 
     inline virtual void tauMuOLR(bool do_tau_ele_olr) {
@@ -1465,14 +1493,6 @@ namespace top {
 
     inline virtual void tauMuOLRLoose(bool do_tau_ele_olr) {
       if (!m_configFixed) m_tau_configuration_loose.muOLR = do_tau_ele_olr;
-    }
-
-    inline virtual void tauSFDoRNNID(bool do_tau_rnn_id) {
-      if (!m_configFixed) m_tau_configuration.doRNNID = do_tau_rnn_id;
-    }
-
-    inline virtual void tauSFDoBDTID(bool do_tau_bdt_id) {
-      if (!m_configFixed) m_tau_configuration.doBDTID = do_tau_bdt_id;
     }
 
     inline virtual void tauJetConfigFile(const std::string& s) {
@@ -1508,12 +1528,12 @@ namespace top {
       return m_tau_configuration_loose.jetIDWP;
     }
 
-    inline const std::string& tauEleBDTWP() const {
-      return m_tau_configuration.eleBDTWP;
+    inline const std::string& tauEleIDWP() const {
+      return m_tau_configuration.eleIDWP;
     }
 
-    inline const std::string& tauEleBDTWPLoose() const {
-      return m_tau_configuration_loose.eleBDTWP;
+    inline const std::string& tauEleIDWPLoose() const {
+      return m_tau_configuration_loose.eleIDWP;
     }
 
     inline virtual bool tauMuOLR() {
@@ -1543,14 +1563,6 @@ namespace top {
     // Applying new tau energy calibration
     inline bool applyTauMVATES() {
       return true;
-    }
-
-    inline bool tauSFDoRNNID() const {
-      return m_tau_configuration.doRNNID;
-    }
-
-    inline bool tauSFDoBDTID() const {
-      return m_tau_configuration.doBDTID;
     }
 
     // photon getters
@@ -2375,15 +2387,12 @@ namespace top {
       // filename to load tau configuration from.
       // If this is an empty string then take the 'default'
       std::string fileName = "Default";
-      // The jetIDWP in CamelCase
-      // see
-      // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst
-      // for supported WPs
+      // The jetIDWP
+      // Usefull reference: PhysicsAnalysis/TauID/TauAnalysisTools/TauAnalysisTools/Enums.h
       std::string jetIDWP = "RNNMedium";
       bool doRNNID = true;
-      bool doBDTID = false;
-      // the electron BDTWP
-      std::string eleBDTWP = "Medium";
+      // the electron ID WP (currently there's only eleRNN ID)
+      std::string eleIDWP = "RNNMedium";
       bool substructureSF = false;
       // Whether to perform muon overlap removal
       bool muOLR = true;

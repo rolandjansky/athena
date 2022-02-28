@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -10,7 +10,7 @@
 
 #include "CxxUtils/checker_macros.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "TF1.h"
 #include "TCanvas.h"
@@ -64,7 +64,7 @@ StatusCode DiMuMon::initialize(){
   ATH_CHECK( m_muonCollection.initialize() );
 
   if (m_regions.empty()) {
-    m_regions.push_back("All");
+    m_regions.emplace_back("All");
   }
   // m_variables[] = {"eta","etaAll","etaPos","etaNeg","phi","phiAll","phiPos","phiNeg","pt","ptAll","ptPos","ptNeg","etaDiff","etaSumm","phiDiff","phiSumm","crtDiff"};
   m_varLabels["eta"] = "Dimuon #eta";
@@ -281,7 +281,7 @@ StatusCode DiMuMon::fillHistograms()
     m_stat->Fill("MuPtOK",1);
 
     double idTrkEta = idTrk->eta();
-    if (fabs(idTrkEta)>2.5) continue;
+    if (std::abs(idTrkEta)>2.5) continue;
     m_stat->Fill("eta<2.5",1);
 
     goodMuons.push_back(muon);
@@ -334,7 +334,7 @@ StatusCode DiMuMon::fillHistograms()
 
 	m_varValues["crtDiff"] = getCrtDiff(idPos,idNeg);
 	m_varValues["etaDiff"] = etaPos - etaNeg;
-	double phiDiff = fabs(phiPos - phiNeg);
+	double phiDiff = std::abs(phiPos - phiNeg);
 	if (phiDiff>Gaudi::Units::pi) phiDiff = 2*(Gaudi::Units::pi) - phiDiff;
 	m_varValues["phiDiff"] = phiDiff;
 	m_varValues["etaSumm"] = etaPos + etaNeg;
@@ -342,7 +342,7 @@ StatusCode DiMuMon::fillHistograms()
 
 	//determine which region muons are in
 	std::string region = "";
-	if ((fabs(etaPos)<1.05 || fabs(etaPos)==1.05) && (fabs(etaNeg)<1.05 || fabs(etaNeg)==1.05)) region="BB";
+	if ((std::abs(etaPos)<1.05 || std::abs(etaPos)==1.05) && (std::abs(etaNeg)<1.05 || std::abs(etaNeg)==1.05)) region="BB";
 	else if ((etaPos>1.05 && etaPos<2.5) && (etaNeg>1.05 && etaNeg<2.5)) region="EAEA";
 	else if ((etaPos<-1.05 && etaPos>-2.5) && (etaNeg<-1.05 && etaNeg>-2.5)) region="ECEC";
 
@@ -361,7 +361,7 @@ StatusCode DiMuMon::fillHistograms()
 
 	//fill 2D histos
 	//first, retrieve the overlap of the width and mean variable lists which by construction is the list of vars in the 2D histos map
-	std::map<std::string, TH2F*>* allVars = 0;
+	std::map<std::string, TH2F*>* allVars = nullptr;
 	if (fillAll){
 	  allVars = &m_2DinvmassVSx["All"];
 	} else {  //fillReg=true
@@ -523,7 +523,7 @@ void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
 	//fit Z peak with a convolution of BreitWigner and Crystal Ball fns, fit by Louise, implementation by Jike taken from IDPerfMon
 	RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
 	RooRealVar  m("mass", "dimuon invariant mass", 91.2, 71., 111., "GeV");
-	RooDataHist *data = 0;
+	RooDataHist *data = nullptr;
 	data = new RooDataHist("data", "data", m, htemp);
 	RooRealVar bwm0("bw_#mu",   "bw_#mu",   91.2, 85.2, 97.2) ;
 	RooRealVar bwsg("bw_#sigma","bw_#sigma", 2.4952) ;
@@ -608,7 +608,7 @@ bool DiMuMon::trackQuality(const xAOD::TrackParticle *idTrk){
   int nTRTout = idTrk->summaryValue( dummy, xAOD::numberOfTRTOutliers )? dummy :-1;
   int nTRThits = idTrk->summaryValue( dummy, xAOD::numberOfTRTHits )? dummy :-1;
   int n = nTRTout + nTRThits;
-  if (fabs(idTrk->eta())<1.9){
+  if (std::abs(idTrk->eta())<1.9){
     if (n>5 && nTRTout<(0.9*n)) countPass+=1;
   } else {
     if (n>5){
@@ -663,7 +663,7 @@ double DiMuMon::getCrtDiff(const xAOD::TrackParticle* id1, const xAOD::TrackPart
   double qoverpt1=id1->charge()/id1->pt();
   double qoverpt2=id2->charge()/id2->pt();
   double asym;
-  asym=fabs(qoverpt1)-fabs(qoverpt2);
+  asym=std::abs(qoverpt1)-std::abs(qoverpt2);
   return asym*1000;
 }
 

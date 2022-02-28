@@ -22,7 +22,6 @@
 namespace Muon {
 
   MuonEDMHelperSvc::MuonEDMHelperSvc(const std::string& name, ISvcLocator* svc) : base_class(name, svc) {}
-
   StatusCode MuonEDMHelperSvc::initialize() {
     ATH_CHECK(AthService::initialize());
     ATH_CHECK(m_idHelperSvc.retrieve());
@@ -35,13 +34,12 @@ namespace Muon {
     const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(&meas);
     if( crot ) {
       if( crot->containedROTs().empty() ){
-
-	ATH_MSG_WARNING(" CompetingMuonClustersOnTrack without contained ROTs ");
-	return Identifier();
+	      ATH_MSG_WARNING(" CompetingMuonClustersOnTrack without contained ROTs ");
+	      return Identifier();
       }
       if( !crot->containedROTs().front() ) {
-	ATH_MSG_WARNING(" CompetingMuonClustersOnTrack contains a ROT pointer that is zero ");
-	return Identifier();
+      	ATH_MSG_WARNING(" CompetingMuonClustersOnTrack contains a ROT pointer that is zero ");
+	      return Identifier();
       }
       return crot->containedROTs().front()->identify();
     }
@@ -51,12 +49,10 @@ namespace Muon {
 
   Identifier MuonEDMHelperSvc::chamberId( const MuonSegment& seg ) const {
     Identifier chid;
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit = seg.containedMeasurements().begin();
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg.containedMeasurements().end();
-    for( ;mit!=mit_end;++mit ){
+    for(const Trk::MeasurementBase* meas : seg.containedMeasurements()){
 
       // get Identifier
-      Identifier id = getIdentifier(**mit);
+      Identifier id = getIdentifier(*meas);
       if( !id.is_valid() ) continue;
 
       // create chamber ID
@@ -67,7 +63,7 @@ namespace Muon {
     }
 
     if( !chid.is_valid() ){
-      ATH_MSG_WARNING("Got segment without valide identifiers");
+      ATH_MSG_WARNING("Got segment without valid identifiers");
     }
 
     return chid;
@@ -78,23 +74,18 @@ namespace Muon {
     std::set<Identifier> chIds;
     Identifier chid;
     Identifier chidTrig;
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit = seg.containedMeasurements().begin();
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg.containedMeasurements().end();
-    for( ;mit!=mit_end;++mit ){
+    for(const Trk::MeasurementBase* meas : seg.containedMeasurements()){
 
       // get Identifier
-      Identifier id = getIdentifier(**mit);
+      Identifier id = getIdentifier(*meas);
       if( !id.is_valid() ) continue;
 
       // create chamber ID
       chid = m_idHelperSvc->chamberId(id);
 
       // stop at first none trigger hit
-      if( !m_idHelperSvc->isTrigger(id) ){
-	chIds.insert(chid);
-      }else{
-	chidTrig = chid;
-      }
+      if( !m_idHelperSvc->isTrigger(id) ) chIds.insert(chid);
+      else chidTrig = chid;      
     }
     if( chIds.empty() ) {
       chIds.insert(chidTrig);
@@ -130,7 +121,7 @@ namespace Muon {
     // we need a none zero momentum
     if( momentum == 0. ) {
       ATH_MSG_WARNING(" cannot create parameters with zero momentum ");
-      return 0;
+      return nullptr;
     }
     double locx = seg.localParameters().contains(Trk::locX) ? seg.localParameters()[Trk::locX] : 0.;
     double locy = seg.localParameters().contains(Trk::locY) ? seg.localParameters()[Trk::locY] : 0.;
@@ -155,30 +146,19 @@ namespace Muon {
 
     double reducedChi2 = fq->chiSquared()/fq->numberDoF();
     // reject fit if larger than cut
-    if( reducedChi2 > chi2Cut ) {
-      return false;
-    }
-    return true;
+    return reducedChi2 <= chi2Cut;
   }
 
   bool MuonEDMHelperSvc::isSLTrack( const Trk::Track& track ) const {
-
     // use track info if set properly
     if( track.info().trackProperties(Trk::TrackInfo::StraightTrack) ) return true;
 
     // else try using error matrix
     const Trk::Perigee* pp = track.perigeeParameters();
-    if( pp ){
-      if( pp->covariance() ){
-	// sum covariance terms of momentum, use it to determine whether fit was SL fit
-	double momCov = 0.;
-	for( int i=0;i<4;++i ) momCov += fabs( (*pp->covariance())(4,i) );
-	for( int i=0;i<4;++i ) momCov += fabs( (*pp->covariance())(i,4) );
-	if( momCov < 1e-10 ) {
-	  return true;
-	}
-      }
-    }
-    return false;
+    if (!pp || !pp->covariance()) return false;   
+	  /// sum covariance terms of momentum, use it to determine whether fit was SL fit
+	  double momCov = 0.;
+	  for( int i=0;i<4;++i ) momCov += std::abs( (*pp->covariance())(4,i) );
+    return momCov < 1.e-10;
   }
 } //end of namespace

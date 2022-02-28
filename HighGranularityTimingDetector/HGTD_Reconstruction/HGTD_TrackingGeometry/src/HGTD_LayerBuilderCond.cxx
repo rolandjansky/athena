@@ -1,6 +1,6 @@
  
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,8 +18,6 @@
 // Trk inlcude
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
-#include "TrkDetDescrUtils/BinnedArray2D.h"
-#include "TrkDetDescrUtils/BinnedArray1D.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/BinnedLayerMaterial.h"
@@ -244,9 +242,10 @@ HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
       ATH_MSG_DEBUG(bin << ") BinUtilityPhi --> " << *BinUtilityY );
     }
     
-    // prepare the binned array, it can be with one to several rings            
-    Trk::BinnedArray<Trk::Surface>* currentBinnedArray = new Trk::BinnedArray1D1D<Trk::Surface>(discSurfaces[discCounter], BinUtilityR, subBinUtilitiesPhi);
-    
+    // prepare the binned array, it can be with one to several rings
+    Trk::BinnedArray<const Trk::Surface>* currentBinnedArray =
+      new Trk::BinnedArray1D1D<const Trk::Surface>(discSurfaces[discCounter], BinUtilityR, subBinUtilitiesPhi);
+
     ATH_MSG_DEBUG( "... done!" ); 
     
     int discSurfacesNum = (discSurfaces[discCounter]).size();
@@ -261,7 +260,7 @@ HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
       std::map< const Trk::Surface*,Amg::Vector3D > uniqueSurfaceMap;
       std::map< const Trk::Surface*,Amg::Vector3D >::iterator usmIter = uniqueSurfaceMap.end();
       // check the registered surfaces in the binned array
-      const std::vector<const Trk::Surface*>& arraySurfaces = currentBinnedArray->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Surface const * const> arraySurfaces = currentBinnedArray->arrayObjects();
       size_t dsumCheckSurfaces = 0;
       double lastPhi = 0.;
       for (const auto & asurfIter : arraySurfaces){
@@ -307,7 +306,7 @@ HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
                                                      olDescriptor);
     
     // register the layer to the surfaces
-    const std::vector<const Trk::Surface*>& layerSurfaces = currentBinnedArray->arrayObjects();
+    Trk::BinnedArraySpan<Trk::Surface const * const> layerSurfaces = currentBinnedArray->arrayObjects();
     registerSurfacesToLayer(layerSurfaces,*activeLayer);
     discLayers->push_back(activeLayer);
     // increase the disc counter by one
@@ -338,7 +337,7 @@ const Trk::BinnedLayerMaterial HGTD_LayerBuilderCond::discLayerMaterial(double r
   return Trk::BinnedLayerMaterial(layerBinUtilityR);  
 }     
 
-void HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
+void HGTD_LayerBuilderCond::registerSurfacesToLayer(Trk::BinnedArraySpan<Trk::Surface const * const>& layerSurfaces, const Trk::Layer& lay) const
 {
    if (!m_setLayerAssociation) return;    
    // register the surfaces to the layer
@@ -349,8 +348,7 @@ void HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk:
        Trk::ILayerBuilderCond::associateLayer(lay, const_cast<Trk::Surface&>(*surfaces));
      }
    }
-   return;
-}
+   }
 
 void HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
                                                 std::vector<float>& rBins, float& maxRadius,
@@ -448,5 +446,4 @@ void HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPos
     }  
   }
     
-  return;
-}
+  }

@@ -57,6 +57,13 @@ TFCSEnergyAndHitGAN::~TFCSEnergyAndHitGAN()
   }
 }
 
+bool TFCSEnergyAndHitGAN::is_match_calosample(int calosample) const 
+{
+  if(get_Binning().find(calosample)==get_Binning().cend()) return false;
+  if(get_Binning().at(calosample).GetNbinsX()==1) return false;
+  return true;
+}
+
 unsigned int TFCSEnergyAndHitGAN::get_nr_of_init(unsigned int bin) const
 {
   if(bin>=m_bin_ninit.size()) return 0;
@@ -242,8 +249,46 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
 
   const Binning& binsInLayers = m_Binning;
   ATH_MSG_VERBOSE("Get binning");
-   
+
   int vox = 0; 
+  for (auto element : binsInLayers){
+    int layer = element.first;
+
+    TH2D* h = &element.second;
+    int xBinNum = h->GetNbinsX();
+    //If only one bin in r means layer is empty, no value should be added
+    if (xBinNum == 1) {
+        ATH_MSG_VERBOSE(" Layer "<< layer
+         << " has only one bin in r, this means is it not used, skipping (this is needed to keep correct syncronisation of voxel and layers)");
+        //delete h;
+        continue;
+    }
+
+    ATH_MSG_VERBOSE(" Getting energy for Layer "<< layer);
+
+    int yBinNum = h->GetNbinsY();
+
+    // First fill energies
+    for (int iy = 1; iy <= yBinNum; ++iy){
+      for (int ix = 1; ix <= xBinNum; ++ix){
+        double energyInVoxel  = outputs["out_" + std::to_string(vox)];
+        ATH_MSG_VERBOSE(" Vox "<< vox
+        << " energy " << energyInVoxel
+        << " binx " << ix
+        << " biny " << iy);
+
+        if (energyInVoxel == 0){
+          vox++;
+          continue;
+        }
+
+        simulstate.add_E(layer,Einit*energyInVoxel);
+        vox++;
+      }
+    }
+  }
+
+  vox = 0;
   for (auto element : binsInLayers){
     int layer = element.first;
     simulstate.setAuxInfo<int>("GANlayer"_FCShash,layer);
@@ -302,20 +347,21 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     int nHitsR;
 
     int yBinNum = h->GetNbinsY();
+
+    // Now create hits
     for (int iy = 1; iy <= yBinNum; ++iy){
       for (int ix = 1; ix <= xBinNum; ++ix){
+
         double energyInVoxel  = outputs["out_" + std::to_string(vox)];
         ATH_MSG_VERBOSE(" Vox "<< vox
-        << " energy " << energyInVoxel 
-        << " binx " << ix 
+        << " energy " << energyInVoxel
+        << " binx " << ix
         << " biny " << iy);
 
         if (energyInVoxel == 0){
           vox++;
           continue;
         }
-        
-        simulstate.add_E(layer,Einit*energyInVoxel);
         
         TAxis* x = (TAxis*)h->GetXaxis();
         nHitsR = x->GetBinUpEdge(ix) - x->GetBinLowEdge(ix);
@@ -480,8 +526,8 @@ void TFCSEnergyAndHitGAN::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
 
   if(longprint) {
-    ATH_MSG_INFO(optprint<<"  "<<"Graph="<<m_graph<<"; json input"<<m_input<<"; free mem="<<GANfreemem()<<"; latent space="<<m_GANLatentSize<<"; Binning size="<<m_Binning.size());
-    for(auto& l : m_Binning) if(l.second.GetNbinsX()>1) {
+    ATH_MSG_INFO(optprint<<"  "<<"Graph="<<m_graph<<"; json input="<<m_input<<"; free mem="<<GANfreemem()<<"; latent space="<<m_GANLatentSize<<"; Binning size="<<m_Binning.size());
+    for(auto& l : m_Binning) if(is_match_calosample(l.first)) {
       ATH_MSG_INFO(optprint<<"    "<<"layer="<<l.first<<" nR="<<l.second.GetNbinsX()<<" nalpha="<<l.second.GetNbinsY());
     }
   }  
@@ -578,7 +624,7 @@ void TFCSEnergyAndHitGAN::unit_test(TFCSSimulationState* simulstate,const TFCSTr
   int etaMin=20;
   int etaMax = etaMin + 5;
   GAN.initializeNetwork(pid,etaMin,"/eos/atlas/atlascerngroupdisk/proj-simul/VoxalisationOutputs/nominal/GAN_michele_normE_MaxE/input_for_service_new");
-  for(int i=0;i<24;++i) {
+  for(int i=0;i<24;++i) if(GAN.is_match_calosample(i)) {
     TFCSCenterPositionCalculation* c=new TFCSCenterPositionCalculation(Form("center%d",i),Form("center layer %d",i));
     c->set_calosample(i);
     c->setExtrapWeight(0.5);

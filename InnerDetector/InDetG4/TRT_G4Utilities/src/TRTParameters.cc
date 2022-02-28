@@ -44,7 +44,7 @@ TRTParameters::~TRTParameters()
 
   // Called by TRTParameters
 
-void TRTParameters::ReadInputFile(std::string fileName)
+void TRTParameters::ReadInputFile(const std::string& fileName)
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile" << endmsg;
 
@@ -169,7 +169,7 @@ void TRTParameters::PrintListOfParameters() const
 
   // Called on demand
 
-int TRTParameters::GetInteger(std::string parameterName) const
+int TRTParameters::GetInteger(const std::string& parameterName) const
 {
   int numberOfItems = m_multimapOfParameters.count(parameterName);
 
@@ -201,7 +201,7 @@ int TRTParameters::GetInteger(std::string parameterName) const
 
   // Called on demand
 
-double TRTParameters::GetDouble(std::string parameterName) const
+double TRTParameters::GetDouble(const std::string& parameterName) const
 {
   int numberOfItems = m_multimapOfParameters.count(parameterName);
 
@@ -233,7 +233,7 @@ double TRTParameters::GetDouble(std::string parameterName) const
 
   // Called on demand
 
-void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
+void TRTParameters::GetIntegerArray(const std::string& arrayName, int arraySize,
                                     int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -267,7 +267,7 @@ void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
 
   // Called on demand
 
-void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
+void TRTParameters::GetDoubleArray(const std::string& arrayName, int arraySize,
                                    double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -301,7 +301,7 @@ void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
 
   // Called on demand
 
-void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
+void TRTParameters::GetPartOfIntegerArray(const std::string& arrayName,
                                           int numberOfDemandedElements, int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -336,7 +336,7 @@ void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
 
   // Called on demand
 
-void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
+void TRTParameters::GetPartOfDoubleArray(const std::string& arrayName,
                                          int numberOfDemandedElements, double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
@@ -371,7 +371,7 @@ void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
 
   // Called on demand
 
-int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
+int TRTParameters::GetElementOfIntegerArray(const std::string& arrayName,
                                             int elementIndex) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);

@@ -217,9 +217,9 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 if SuperCells:
    #SC conditiona folders are not set-up yet in LArConditionsCommon_comm_jobOptions.py, should go there at some point
    conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Pedestals/Pedestal<key>LArPedestal</key>",
-                          "LARElecCalibOflSCPedestalsPedestal-UPD3-01",
+                          "LARElecCalibOflSCPedestalsPedestal-UPD3-00",
                           className="LArPedestalComplete")
-   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea", "LARElecCalibOflSCRampsRampLinea-UPD3-01", className="LArRampComplete")
+   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea", "LARElecCalibOflSCRampsRampLinea-UPD3-00", className="LArRampComplete")
    conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/MphysOverMcal/RTM", "LARElecCalibOflSCMphysOverMcalRTM-UPD3-00", className="LArMphysOverMcalComplete")
   
    
@@ -261,7 +261,7 @@ if not SuperCells:
    conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00")
 else:
    conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>",className='LArAutoCorrComplete')
-   conddb.addOverride("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr","LARElecCalibOflSCAutoCorrsAutoCorr-UPD3-01")
+   conddb.addOverride("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr","LARElecCalibOflSCAutoCorrsAutoCorr-UPD3-00")
 
 from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg 
 theAutoCorrTotalCondAlg=LArAutoCorrTotalCondAlg()
@@ -270,6 +270,7 @@ theAutoCorrTotalCondAlg.isMC = False
 theAutoCorrTotalCondAlg.LArAutoCorrObjKey = "LArAutoCorrRef"
 theAutoCorrTotalCondAlg.LArAutoCorrTotalObjKey = KeyOutputAC
 theAutoCorrTotalCondAlg.isSuperCell = SuperCells
+theAutoCorrTotalCondAlg.Nminbias = NColl
 if SuperCells:
    theAutoCorrTotalCondAlg.LArADC2MeVObjKey = "LArADC2MeVSC"
    theAutoCorrTotalCondAlg.LArOnOffIdMappingObjKey = "LArOnOffIdMapSC"

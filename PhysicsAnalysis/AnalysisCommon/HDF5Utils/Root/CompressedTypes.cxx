@@ -5,7 +5,7 @@
 #include "HDF5Utils/CompressedTypes.h"
 
 namespace {
-  H5::DataType halfPrecisionFloat() {
+  H5::DataType halfPrecisionFloat(int ebias = 15) {
     // start with native float
     H5::FloatType type(H5Tcopy(H5::PredType::NATIVE_FLOAT.getId()));
 
@@ -15,7 +15,7 @@ namespace {
     //
     type.setFields(15, 10, 5, 0, 10);
     type.setSize(2);
-    type.setEbias(15);
+    type.setEbias(ebias);
     return type;
   }
 }
@@ -29,6 +29,7 @@ namespace H5Utils {
       switch (comp) {
       case Compression::STANDARD: return H5Traits<float>::type;
       case Compression::HALF_PRECISION: return halfPrecisionFloat();
+      case Compression::HALF_PRECISION_LARGE: return halfPrecisionFloat(5);
       default: throw std::logic_error("unknown float compression");
       }
     }

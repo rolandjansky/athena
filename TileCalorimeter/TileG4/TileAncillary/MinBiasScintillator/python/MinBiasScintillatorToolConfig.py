@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 
@@ -18,7 +19,7 @@ def MinBiasScintillatorSDCfg(ConfigFlags, name="MinBiasScintillatorSD", **kwargs
     kwargs.setdefault("LogicalVolumeNames", ["LArMgr::MBTS1", "LArMgr::MBTS2"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.ReadTR:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.ReadTR:
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
 

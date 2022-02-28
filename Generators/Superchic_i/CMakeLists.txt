@@ -8,7 +8,6 @@ atlas_subdir( Superchic_i )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC COMPONENTS HepMC HepMCfio )
 find_package( Apfel )
 find_package( Lhapdf )
 find_package( Superchic )

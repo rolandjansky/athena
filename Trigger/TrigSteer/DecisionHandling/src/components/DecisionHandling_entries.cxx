@@ -16,6 +16,7 @@
 #include "../ViewCreatorCentredOnIParticleROITool.h"
 #include "../ViewCreatorCentredOnClusterROITool.h"
 #include "../ViewCreatorCentredOnJetWithPVConstraintROITool.h"
+#include "../ViewCreatorJetSuperROITool.h"
 #include "../ITestHypoTool.h"
 #include "../TestHypoAlg.h"
 #include "../TestHypoTool.h"
@@ -46,6 +47,5 @@ DECLARE_COMPONENT( ViewCreatorFetchFromViewROITool )
 DECLARE_COMPONENT( ViewCreatorCentredOnIParticleROITool )
 DECLARE_COMPONENT( ViewCreatorCentredOnClusterROITool )
 DECLARE_COMPONENT( ViewCreatorCentredOnJetWithPVConstraintROITool )
-
-
+DECLARE_COMPONENT( ViewCreatorJetSuperROITool )
 

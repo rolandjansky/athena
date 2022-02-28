@@ -1,8 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
+inline bool ConeBounds::operator==(const ConeBounds& bo) const
+{
+  return *this == static_cast<const SurfaceBounds& >(bo);
+}
+
 inline ConeBounds*
 ConeBounds::clone() const
 {

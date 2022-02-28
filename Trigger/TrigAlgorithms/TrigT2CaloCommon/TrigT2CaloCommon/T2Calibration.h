@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -47,7 +47,7 @@ public:
 	* @return calibration constant to be multiplied by cluster
 	*	Energy.
 	*/
-	virtual double Calib( const double ClusterEta, const double EnergyCluster);
+	virtual double Calib( const double ClusterEta, const double EnergyCluster) const;
 private:
 	double m_factor;
 	/** limits of the calibrated region (normally [0,2.5] */
@@ -60,7 +60,7 @@ private:
 };
 
 inline double T2Calibration::Calib ( const double ClusterEta,
-		const double /*EnergyCluster*/){
+		const double /*EnergyCluster*/) const {
 	// If no calibration was defined in jobOption,
 	// this should return 1.0 imediately
 	if ( m_dimension.size() == 0 ) return 1.0;

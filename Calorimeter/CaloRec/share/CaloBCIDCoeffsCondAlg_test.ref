@@ -21,9 +21,7 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-Warning : label hadronic not found
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
-Warning : label hadronic not found
 test1
 ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 CaloBCIDCoeffsC...   INFO recorded new CaloBCIDCoeffs with range {[10,t:0,l:20] - [10,l:75]}

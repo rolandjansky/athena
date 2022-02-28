@@ -49,7 +49,7 @@ if DetFlags.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
         if (globalflags.DataSource()=='geant4'):
-            from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
+            from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC
             condSeq += PixelConfigCondAlg_MC()
 
         elif (globalflags.DataSource=='data'):
@@ -73,8 +73,14 @@ if DetFlags.pixel_on():
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
-            alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                     CablingMapFileName=IdMappingDat)
+            # Data overlay: hard-scatter MC digitization + pileup data configuration
+            if (globalflags.isOverlay()):
+                from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC
+                alg = PixelConfigCondAlg_MC()
+                alg.CablingMapFileName=IdMappingDat
+            else: 
+                alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                         CablingMapFileName=IdMappingDat)
 
             if jobproperties.Beam.beamType() == 'cosmics':
                 alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
@@ -125,9 +131,13 @@ if DetFlags.pixel_on():
     #####################
     # Calibration Setup #
     #####################
+    from Digitization.DigitizationFlags import digitizationFlags
     if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+        if athenaCommonFlags.isOnline():
+            conddb.addOverride("/PIXEL/Onl/ChargeCalibration", "ChargeCalibration-20211220")
+            
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
@@ -142,20 +152,15 @@ if DetFlags.pixel_on():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
 
-        if not conddb.folderRequested("/PIXEL/PixReco"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
-
         if not conddb.folderRequested("/Indet/PixelDist"):
             conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        if athenaCommonFlags.isOnline():
-          PixelOfflineCalibCondAlg.InputSource = 1
-        else :
-          PixelOfflineCalibCondAlg.InputSource = 2
-
+        PixelOfflineCalibCondAlg.InputSource = 2
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat")
+        
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
@@ -423,8 +428,7 @@ if DetFlags.haveRIO.TRT_on():
     if InDetFlags.doTRTPIDNN():
         if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
             conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
-        # FIXME: force tag until the folder is included in global tag
-        conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+        # FIXME: need to force an override for the online DB until this folder has been added to the latest tag
         conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
     #

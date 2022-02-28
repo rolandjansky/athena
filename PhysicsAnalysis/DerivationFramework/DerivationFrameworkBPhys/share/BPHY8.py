@@ -1072,7 +1072,7 @@ for BPHY8_name in list(BPHY8_FinderTools.keys()):
 # and augmentation tools as e.g. the Jpsimumu container ist needed for
 # ????
 #
-
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
     import DerivationFramework__Reco_Vertex
 BPHY8_RecoTools = OrderedDict()
@@ -1088,6 +1088,8 @@ for BPHY8_reco in BPHY8_recoList:
             RefitPV                = True,
             Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
+            V0Tools                = TrackingCommon.getV0Tools(),
+            PVRefitter             = BPHY8_VertexTools.PrimaryVertexRefitter,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
 # b) for BJpsiK
@@ -1101,6 +1103,8 @@ for BPHY8_reco in BPHY8_recoList:
             RefitPV                = True,
             Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
+            V0Tools                = TrackingCommon.getV0Tools(),
+            PVRefitter             = BPHY8_VertexTools.PrimaryVertexRefitter,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
 # c) for BsJpsiPhi
@@ -1115,6 +1119,8 @@ for BPHY8_reco in BPHY8_recoList:
             Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
+            V0Tools                = TrackingCommon.getV0Tools(),
+            PVRefitter             = BPHY8_VertexTools.PrimaryVertexRefitter,
             DoVertexType           = BPHY8cf.doVertexType)
         
 ToolSvc += list(BPHY8_RecoTools.values())
@@ -1135,6 +1141,7 @@ if "Bsmumu" in BPHY8cf.doChannels:
     BPHY8_MuMassTools["Bsmumu"] = DerivationFramework__BPhysAddMuonBasedInvMass(
         name                       = "BPHY8_MuMass_Bsmumu",
         BranchPrefix               = "Bsmumu",
+        TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
         OutputLevel                = WARNING,
         AdjustToMuonKinematics     = BPHY8cf.adjustMucalcKinematics,
         VertexContainerName        = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -1149,6 +1156,7 @@ if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi", "BJpsiPi"]]:
     BPHY8_MuMassTools["Jpsimumu"] = DerivationFramework__BPhysAddMuonBasedInvMass(
         name                       = "BPHY8_MuMass_Jpsimumu",
         BranchPrefix               = "Jpsimumu",
+        TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
         OutputLevel                = WARNING,
         AdjustToMuonKinematics     = BPHY8cf.adjustMucalcKinematics,
         VertexContainerName        = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -1164,6 +1172,7 @@ if "BJpsiK" in BPHY8cf.doChannels:
     BPHY8_MuMassTools["BJpsiK"] = DerivationFramework__BPhysAddMuonBasedInvMass(
         name                       = "BPHY8_MuMass_BJpsiK",
         BranchPrefix               = "BJpsiK",
+        TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
         OutputLevel                = WARNING,
         AdjustToMuonKinematics     = BPHY8cf.adjustMucalcKinematics,
         VertexContainerName        = BPHY8cf.DerivationName+"BJpsiKCandidates",
@@ -1179,6 +1188,7 @@ if "BsJpsiPhi" in BPHY8cf.doChannels:
     BPHY8_MuMassTools["BsJpsiPhi"] = DerivationFramework__BPhysAddMuonBasedInvMass(
         name                       = "BPHY8_MuMass_BsJpsiPhi",
         BranchPrefix               = "BsJpsiPhi",
+        TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
         OutputLevel                = WARNING,
         AdjustToMuonKinematics     = BPHY8cf.adjustMucalcKinematics,
         VertexContainerName        = BPHY8cf.DerivationName+"BsJpsiPhiCandidates",
@@ -1194,6 +1204,7 @@ if "BJpsiPi" in BPHY8cf.doChannels:
     BPHY8_MuMassTools["BJpsiPi"] = DerivationFramework__BPhysAddMuonBasedInvMass(
         name                       = "BPHY8_MuMass_BJpsiPi",
         BranchPrefix               = "BJpsiPi",
+        TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
         OutputLevel                = WARNING,
         AdjustToMuonKinematics     = BPHY8cf.adjustMucalcKinematics,
         VertexContainerName        = BPHY8cf.DerivationName+"BJpsiPiCandidates",
@@ -1209,6 +1220,7 @@ if "Bhh" in BPHY8cf.doChannels:
     BPHY8_MuMassTools["Bhh"] = DerivationFramework__BPhysAddMuonBasedInvMass(
         name                       = "BPHY8_MuMass_Bhh",
         BranchPrefix               = "Bhh",
+        TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
         OutputLevel                = WARNING,
         AdjustToMuonKinematics     = BPHY8cf.adjustMucalcKinematics,
         VertexContainerName        = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -1228,6 +1240,7 @@ if BPHY8cf.addMucalcMassForDebug:
         BPHY8_MuMassTools["Bsmumu2"] = DerivationFramework__BPhysAddMuonBasedInvMass(
             name                       = "BPHY8_MuMass_Bsmumu2",
             BranchPrefix               = "Bsmumu2",
+            TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
             OutputLevel                = WARNING,
             AdjustToMuonKinematics     = False,
             VertexContainerName        = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -1242,6 +1255,7 @@ if BPHY8cf.addMucalcMassForDebug:
         BPHY8_MuMassTools["Jpsimumu2"] = DerivationFramework__BPhysAddMuonBasedInvMass(
             name                       = "BPHY8_MuMass_Jpsimumu2",
             BranchPrefix               = "Jpsimumu2",
+            TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
             OutputLevel                = WARNING,
             AdjustToMuonKinematics     = False,
             VertexContainerName        = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -1257,6 +1271,7 @@ if BPHY8cf.addMucalcMassForDebug:
         BPHY8_MuMassTools["BJpsiK2"] = DerivationFramework__BPhysAddMuonBasedInvMass(
             name                       = "BPHY8_MuMass_BJpsiK2",
             BranchPrefix               = "BJpsiK2",
+            TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
             OutputLevel                = WARNING,
             AdjustToMuonKinematics     = False,
             VertexContainerName        = BPHY8cf.DerivationName+"BJpsiKCandidates",
@@ -1272,6 +1287,7 @@ if BPHY8cf.addMucalcMassForDebug:
         BPHY8_MuMassTools["BsJpsiPhi2"] = DerivationFramework__BPhysAddMuonBasedInvMass(
             name                       = "BPHY8_MuMass_BsJpsiPhi2",
             BranchPrefix               = "BsJpsiPhi2",
+            TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
             OutputLevel                = WARNING,
             AdjustToMuonKinematics     = False,
             VertexContainerName        = BPHY8cf.DerivationName+"BsJpsiPhiCandidates",
@@ -1287,6 +1303,7 @@ if BPHY8cf.addMucalcMassForDebug:
         BPHY8_MuMassTools["BJpsiPi2"] = DerivationFramework__BPhysAddMuonBasedInvMass(
             name                       = "BPHY8_MuMass_BJpsiPi2",
             BranchPrefix               = "BJpsiPi2",
+            TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
             OutputLevel                = WARNING,
             AdjustToMuonKinematics     = False,
             VertexContainerName        = BPHY8cf.DerivationName+"BJpsiPiCandidates",
@@ -1302,6 +1319,7 @@ if BPHY8cf.addMucalcMassForDebug:
         BPHY8_MuMassTools["Bhh2"] = DerivationFramework__BPhysAddMuonBasedInvMass(
             name                       = "BPHY8_MuMass_Bhh2",
             BranchPrefix               = "Bhh2",
+            TrackToVertexTool          = TrackingCommon.getInDetTrackToVertexTool(),
             OutputLevel                = WARNING,
             AdjustToMuonKinematics     = False,
             VertexContainerName        = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -1853,16 +1871,6 @@ BPHY8_fileName    = buildFileName( derivationFlags.WriteDAOD_BPHY8Stream )
 BPHY8Stream = MSMgr.NewPoolRootStream(BPHY8_streamName, BPHY8_fileName )
 BPHY8Stream.AcceptAlgs(["BPHY8Kernel"])
 #
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-##
-## NOTE: We use the ThinningHelper which already instantiates a ThinningSvc
-##
-## from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-## BPHY8_augStream = MSMgr.GetStream( BPHY8_streamName )
-## BPHY8_evtStream = BPHY8_augStream.GetEventStream()
-## svcMgr += createThinningSvc(svcName=BPHY8cf.DerivationName+"ThinningSvc",
-##           outStreams=[BPHY8_evtStream] )
 
 # Additional metadata output
 BPHY8Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %

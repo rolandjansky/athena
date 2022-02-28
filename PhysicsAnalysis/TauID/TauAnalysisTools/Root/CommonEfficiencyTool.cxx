@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -11,8 +11,12 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 // ROOT include(s)
+#include "TF1.h"
+#include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
+#include "TROOT.h"
+#include "TClass.h"
 
 using namespace TauAnalysisTools;
 
@@ -68,7 +72,7 @@ using namespace TauAnalysisTools;
 CommonEfficiencyTool::CommonEfficiencyTool(const std::string& sName)
   : asg::AsgTool( sName )
   , m_mSF(nullptr)
-  , m_sSystematicSet(0)
+  , m_sSystematicSet(nullptr)
   , m_fX(&finalTauPt)
   , m_fY(&finalTauEta)
   , m_sSFHistName("sf")
@@ -84,11 +88,8 @@ CommonEfficiencyTool::CommonEfficiencyTool(const std::string& sName)
   declareProperty( "WP",                  m_sWP                  = "" );
   declareProperty( "UseHighPtUncert",     m_bUseHighPtUncert     = false );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
-  declareProperty( "UseInclusiveEta",     m_bUseInclusiveEta     = false );
-  declareProperty( "IDLevel",             m_iIDLevel             = (int)JETIDBDTTIGHT );
-  declareProperty( "EVLevel",             m_iEVLevel             = (int)ELEIDBDTLOOSE );
-  declareProperty( "OLRLevel",            m_iOLRLevel            = (int)TAUELEOLR );
-  declareProperty( "ContSysType",         m_iContSysType         = (int)TOTAL );
+  declareProperty( "JetIDLevel",          m_iJetIDLevel          = (int)JETIDNONE );
+  declareProperty( "EleIDLevel",          m_iEleIDLevel          = (int)ELEIDNONE );
   declareProperty( "SplitMu",             m_bSplitMu             = false );
   declareProperty( "SplitMCCampaign",     m_bSplitMCCampaign     = false );
   declareProperty( "MCCampaign",          m_sMCCampaign          = "");
@@ -138,7 +139,7 @@ StatusCode CommonEfficiencyTool::initialize()
 
   generateSystematicSets();
 
-  if (m_sWP.length()>0)
+  if (!m_sWP.empty())
     m_sSFHistName = "sf_"+m_sWP;
 
   // load empty systematic variation by default
@@ -157,6 +158,7 @@ StatusCode CommonEfficiencyTool::initialize()
 CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor, unsigned int iRunNumber, unsigned int iMu)
 {
+  // FIXME: remove this once R22 SF files are derived (they will all be parametrised vs MVA pt)
   // save calo based TES if not available
   if (not m_bPtTauEtaCalibIsAvailableIsChecked)
   {
@@ -171,7 +173,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     xTau.auxdecor<float>("mTauEtaCalib") = xTau.m();
   }
 
-  // check which true state is requestet
+  // check which true state is requested
   if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
@@ -192,7 +194,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     int iDecayMode = -1;
     xTau.panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, iDecayMode);
     sMode = ConvertDecayModeToString(iDecayMode);
-    if (sMode == "")
+    if (sMode.empty())
     {
       ATH_MSG_WARNING("Found tau with unknown decay mode. Skip efficiency correction.");
       return CP::CorrectionCode::OutOfValidityRange;
@@ -219,7 +221,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     return tmpCorrectionCode;
 
   // skip further process if systematic set is empty
-  if (m_sSystematicSet->size() == 0)
+  if (m_sSystematicSet->empty())
     return CP::CorrectionCode::Ok;
 
   // get uncertainties summed in quadrature
@@ -283,6 +285,7 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
 {
   double dSf = 0.;
 
+  // FIXME: remove this once R22 SF files are derived (they will all be parametrised vs MVA pt)
   // save calo based TES if not available
   if (not m_bPtTauEtaCalibIsAvailableIsChecked)
   {
@@ -303,14 +306,14 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
     m_bSFIsAvailableChecked = true;
     if (m_bSFIsAvailable)
     {
-      ATH_MSG_DEBUG(m_sVarName << " decoration is available on first tau processed, switched of applyEfficiencyScaleFactor for further taus.");
+      ATH_MSG_DEBUG(m_sVarName << " decoration is available on first tau processed, switched off applyEfficiencyScaleFactor for further taus.");
       ATH_MSG_DEBUG("If an application of efficiency scale factors needs to be redone, please pass a shallow copy of the original tau.");
     }
   }
   if (m_bSFIsAvailable)
     return CP::CorrectionCode::Ok;
 
-  // retreive scale factor
+  // retrieve scale factor
   CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, dSf, iRunNumber, iMu);
   // adding scale factor to tau as decoration
   xTau.auxdecor<double>(m_sVarName) = dSf;
@@ -325,7 +328,7 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
 bool CommonEfficiencyTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
   CP::SystematicSet sys = affectingSystematics();
-  return sys.find (systematic) != sys.end ();
+  return sys.find(systematic) != sys.end();
 }
 
 /*
@@ -414,7 +417,7 @@ StatusCode CommonEfficiencyTool::applySystematicVariation ( const CP::Systematic
   fProngness==1, i.e. for 0, 2, 3, 4, 5...
  */
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
+std::string CommonEfficiencyTool::ConvertProngToString(const int fProngness) const
 {
   std::string prong = "";
   if (fProngness == 0)
@@ -428,7 +431,7 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
   "_lowMu" for everything below
 */
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
+std::string CommonEfficiencyTool::ConvertMuToString(const int iMu) const
 {
   if (iMu > 35 )
     return "_highMu";
@@ -441,15 +444,17 @@ std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
   If not, use random run number to determine MC campaign 
 */
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
+std::string CommonEfficiencyTool::GetMcCampaignString(const int iRunNumber) const
 {
   if (m_sMCCampaign == "MC16a" || m_sMCCampaign == "MC16d")
     return std::string("_")+m_sMCCampaign;
+  // FIXME?
   else if (m_sMCCampaign == "MC16e")
     return "_MC16d"; // MC16e recommendations not available yet, use MC16d instead
   else if (m_sMCCampaign != "")
     ATH_MSG_WARNING("unsupported mc campaign: " << m_sMCCampaign);
 
+  // FIXME?
   if (iRunNumber > 324320 )
     return "_MC16d";
 
@@ -460,7 +465,7 @@ std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
   decay mode converter
 */
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::ConvertDecayModeToString(const int& iDecayMode)
+std::string CommonEfficiencyTool::ConvertDecayModeToString(const int iDecayMode) const
 {
   switch(iDecayMode)
   {
@@ -489,7 +494,7 @@ std::string CommonEfficiencyTool::ConvertDecayModeToString(const int& iDecayMode
   top)
 */
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(TFile& fFile)
+void CommonEfficiencyTool::ReadInputs(const TFile& fFile)
 {
   m_mSF->clear();
 
@@ -628,7 +633,6 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
 //______________________________________________________________________________
 void CommonEfficiencyTool::generateSystematicSets()
 {
-
   // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_EFF_RECO_"
   std::vector<std::string> vSplitInputFilePath = {};
   split(m_sInputFileName,'_',vSplitInputFilePath);
@@ -644,8 +648,8 @@ void CommonEfficiencyTool::generateSystematicSets()
   else if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
   else if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
   else if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
-  if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
-  else if (sEfficiencyType=="ELEBDT") m_bNoMultiprong = true;
+  // FIXME: likely not applicable for RNN eVeto, as we have a 3p eVeto, but we still need this to be measurable in T&P
+  //if (sEfficiencyType=="ELERNN") m_bNoMultiprong = true;
 
   for (auto mSF : *m_mSF)
   {

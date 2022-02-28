@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_CoolingEnd.h"
@@ -27,7 +27,7 @@ SCT_CoolingEnd::SCT_CoolingEnd(const std::string & name, int iLayer,
     m_length(length)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_CoolingEnd::build();
 }
 
 

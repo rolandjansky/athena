@@ -27,7 +27,7 @@ Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --physicsList 'FTFP_BERT' \
     --truthStrategy 'MC15aPlus' \
     --simulator 'FullG4' \
-    --postInclude 'default:RecJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' \
+    --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' \
     --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
     --DataRunNumber '222525' \
     --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' \
@@ -76,7 +76,8 @@ then
         --conditionsTag OFLCOND-RUN12-SDR-31 \
         --inputRDOFile ${rdoFile} \
         --outputAODFile ${aodFile} \
-        --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False)" \
+        --steering 'doRDO_TRIG' \
+        --athenaopts "all:--threads=1" \
         --imf False
     rc1=$?
     if [ ${rc1} -eq 0 ]

@@ -8,17 +8,15 @@
 #include <cassert>
 #include <iostream>
 
-#include "GaudiKernel/PhysicalConstants.h"
-
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "./LArWheelCalculator_Impl/IDistanceCalculator.h"
 #include "./LArWheelCalculator_Impl/IFanCalculator.h"
-
+#include "GeoModelKernel/Units.h"
 #ifdef HARDDEBUG
 #include<stdio.h>
 #endif
 
-using namespace Gaudi::Units;
+using namespace GeoModelKernelUnits;
 
 void LArWheelCalculator::parameterized_sin(const double r, double &sin_a, double &cos_a) const
 {

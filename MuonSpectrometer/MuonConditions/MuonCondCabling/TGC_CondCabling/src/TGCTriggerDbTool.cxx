@@ -25,7 +25,7 @@ StatusCode TGCTriggerDbTool::updateAddress(StoreID::type /*storeID*/,
                                            SG::TransientAddress* tad,
                                            const EventContext& /*ctx*/) {
   CLID clid = tad->clID();
-  std::string key = tad->name();
+  const std::string& key = tad->name();
   // Need to add the CLID comparison 
   if(/* ==clid && */m_DataLocation==key) {
     ATH_MSG_DEBUG("updateAddress OK, clid = " << clid << " key = " << key);
@@ -114,7 +114,7 @@ StatusCode TGCTriggerDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
     m_active[ii].clear();
     
     bool found = false;
-    for(std::string key: keys) {
+    for(const std::string& key: keys) {
       ATH_MSG_INFO("loadParameters " << key << " I=" << I << " ");
       if (key == m_folders[ii]) {
         found = true;

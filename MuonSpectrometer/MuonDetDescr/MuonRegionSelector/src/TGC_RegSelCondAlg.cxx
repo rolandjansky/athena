@@ -119,7 +119,7 @@ std::unique_ptr<RegSelSiLUT> TGC_RegSelCondAlg::createTable( const EventContext&
     int layerid = exp_id[1]+1;
 
     const MuonGM::TgcReadoutElement* tgc = manager->getTgcReadoutElement(Id);
-    if (tgc == NULL)  {
+    if (tgc == nullptr)  {
       continue;
     }
             

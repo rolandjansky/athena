@@ -4,19 +4,13 @@
 
 #include "MuonHistUtils/MuonResolutionPlots.h"
 #include "xAODTracking/TrackingPrimitives.h"
-
+#include "FourMomUtils/xAODP4Helpers.h"
+using namespace xAOD::P4Helpers;
 namespace Muon{
 
-MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, std::string sType, bool doBinnedResolutionPlots):
+MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, const std::string& sDir, const std::string& sType, bool doBinnedResolutionPlots):
   PlotBase(pParent, sDir),
-  m_oResolutionPlots(this, "", sType),
-  Res_pT_vs_lowpT(NULL),
-  Res_pT_vs_highpT(NULL),
-  Res_pT_vs_pT(NULL),
-  Res_pT_vs_eta(NULL),
-  Res_pT_vs_phi(NULL),
-  Res_eta_vs_pT(NULL),
-  Res_phi_vs_pT(NULL),
+  m_oResolutionPlots(this, "", sType), 
   m_sType(sType),
   m_doBinnedResolutionPlots(doBinnedResolutionPlots)
 {
@@ -66,7 +60,7 @@ MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, st
     Res_pT_vs_phi->Fill(phi,respt,weight);
 
     Res_eta_vs_pT->Fill(pt, muPrimaryTrk.eta()-eta,weight);
-    Res_phi_vs_pT->Fill(pt, muPrimaryTrk.phi()-phi, weight);
+    Res_phi_vs_pT->Fill(pt, deltaPhi(muPrimaryTrk.phi(),phi), weight);
   }
 }
 

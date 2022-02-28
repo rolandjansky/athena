@@ -185,7 +185,7 @@ namespace MuonHough {
             std::vector<MuonLayerHough::Maximum> plotMaximum_roi;
             std::vector<MuonLayerHough::Maximum> plotMaximum_roi_truth;
             for (SectorData::const_iterator sit = it->second.begin(); sit != it->second.end();
-                 ++sit) {                                                                  // looping the dataindex--first, hitlist--second
+                 ++sit) {                                                                  // looping the dataindex--first, HitVec--second
                 Muon::MuonStationIndex::DetectorRegionIndex region = sit->first.region();  // EndcapA, Barrel, EndcapC,
                 Muon::MuonStationIndex::LayerIndex layer = sit->first.layer();             // Inner, Middle, Outer, Extended, BarrelExtended
 
@@ -203,9 +203,9 @@ namespace MuonHough {
                 // start to looping over layers for this sector
                 for (int iLayer = 0; iLayer < getMaxLayers(region, sit->first.sector());
                      iLayer++) {             // Inner, Middle, Outer, Extended, BarrelExtended
-                    std::vector<Hit*> hits;  // list of hits: hitlist--second
-                    std::vector<Hit*> hitsTruth;
-                    for (HitList::const_iterator hit = sit->second.begin(); hit != sit->second.end();
+                    HitVec hits;  // list of hits: HitVec--second
+                    HitVec hitsTruth;
+                    for (HitVec::const_iterator hit = sit->second.begin(); hit != sit->second.end();
                          ++hit) {                                            // start looping the hits in the layer
                         if ((*hit)->debugInfo()->layer != iLayer) continue;  // keeping only hits in this layer
                         hits.push_back(*hit);
@@ -403,7 +403,7 @@ namespace MuonHough {
             // only consider the selected region
             if (it->first.region() != region) continue;
             // loop over hits
-            for (HitList::const_iterator hit_it = it->second.begin(); hit_it != it->second.end(); ++hit_it) {
+            for (HitVec::const_iterator hit_it = it->second.begin(); hit_it != it->second.end(); ++hit_it) {
                 Hit& hit = **hit_it;
                 HitDebugInfo* debug = hit.debugInfo();
                 if (!debug) continue;

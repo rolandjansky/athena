@@ -61,6 +61,7 @@ namespace Trk {
        tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
        TrkMatControl tmpMat;
+       tmpMat.trkSavedLocalVertex.setZero();
        tmpMat.trkRefGlobPos=Amg::Vector3D( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
        tmpMat.extrapolationType=2;                   // Perigee point strategy
        tmpMat.TrkPnt=mPer;
@@ -157,6 +158,7 @@ namespace Trk {
        tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
        TrkMatControl tmpMat;
+       tmpMat.trkSavedLocalVertex.setZero();
        tmpMat.trkRefGlobPos=Amg::Vector3D( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
        tmpMat.extrapolationType=2;                   // Perigee point strategy
        tmpMat.TrkPnt=nullptr;           //No reference point for neutral particle for the moment
@@ -225,7 +227,7 @@ namespace Trk {
 
 //----------------------------------------------------------------------------------------------------------
 
-  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk)  const
+  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk)  
   {
        const Perigee* mPer = nullptr;
        if(i_ntrk->surfaceType()==Trk::SurfaceType::Perigee && i_ntrk->covariance()!= nullptr ) {

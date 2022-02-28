@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -148,7 +148,8 @@ const CaloDetDescriptor* make_dd (CaloTester& tester)
 }
 
 
-CaloCell* make_cell (const CaloDetDescriptor* descr,
+CaloCell* make_cell (CaloTester& tester,
+		     const CaloDetDescriptor* descr,
                      float energy, float eta, float phi)
 {
   int ieta = static_cast<int> (eta * (1./deta));
@@ -163,12 +164,13 @@ CaloCell* make_cell (const CaloDetDescriptor* descr,
   dde->set_cylindric ((double)eta, (double)phi, (double)1000);
   dde->set_cylindric_raw (eta, phi, 1000);
   dde->set_cylindric_size (deta, dphi, 1);
-  const_cast<CaloDetDescrManager*> (CaloDetDescrManager::instance())->add(dde);
+  tester.mgr().add(dde);
   return new CaloCell (dde, energy, 0, 0, CaloGain::LARHIGHGAIN);
 }
 
 
-void make_cells (CaloCellContainer* cont,
+void make_cells (CaloTester& tester,
+		 CaloCellContainer* cont,
                  const CaloDetDescriptor* descr,
                  const Testcell* cells,
                  double eta0,
@@ -177,7 +179,8 @@ void make_cells (CaloCellContainer* cont,
   for (; cells->energy != 0; ++cells) {
     double phi = static_cast<float> (cells->iphi) * dphi + phi0;
     double eta = static_cast<float> (cells->ieta) * deta + eta0;
-    cont->push_back (make_cell (descr,
+    cont->push_back (make_cell (tester,
+				descr,
                                 cells->energy,
                                 static_cast<float> (eta),
                                 static_cast<float> (CaloPhiRange::fix (phi))));
@@ -189,12 +192,14 @@ const CaloCellContainer* fill_cells (CaloTester& tester)
 {
   const CaloDetDescriptor* descr = make_dd (tester);
   CaloCellContainer* cells = new CaloCellContainer;
-  make_cells (cells,
+  make_cells (tester,
+	      cells,
               descr,
               clust1,
               clust1_eta0,
               clust1_phi0);
-  make_cells (cells,
+  make_cells (tester,
+	      cells,
               descr,
               clust2,
               clust2_eta0,
@@ -203,11 +208,11 @@ const CaloCellContainer* fill_cells (CaloTester& tester)
 }
 
 
-void test1 (const CaloCellContainer* cells)
+void test1 (const CaloCellContainer* cells,
+	    const CaloDetDescrManager* mgr)
 {
   
   CaloLayerCalculator calc;
-  const CaloDetDescrManager* mgr=CaloDetDescrManager::instance();
   assert( calc.fill (*mgr,cells, clust1_eta0, clust1_phi0,
                      5*deta, 5*dphi, CaloSampling::EMB2) );
   clust1_check (calc);
@@ -248,11 +253,10 @@ int main()
   assert ( svcLoc->service("StoreGateSvc", sg).isSuccess() );
 
   CaloTester tester;
-  assert ( tester.record_mgr() );
   const CaloCellContainer* cells = fill_cells (tester);
   assert (sg->record (cells, "cells").isSuccess());
 
-  test1(cells);
+  test1(cells,&tester.mgr());
   return 0;
 }
 

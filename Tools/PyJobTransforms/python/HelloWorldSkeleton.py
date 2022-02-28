@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
@@ -9,15 +9,17 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 
 def fromRunArgs(runArgs):
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags    
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     processPreInclude(runArgs, ConfigFlags)
     processPreExec(runArgs, ConfigFlags)
 
+    if '_ATHENA_GENERIC_INPUTFILE_NAME_' in ConfigFlags.Input.Files:
+        ConfigFlags.Input.Files = []
     ConfigFlags.lock()
-    
+
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(HelloWorldCfg())
 

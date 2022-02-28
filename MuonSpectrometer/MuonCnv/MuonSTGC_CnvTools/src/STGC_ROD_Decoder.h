@@ -26,7 +26,7 @@ class STGC_ROD_Decoder : virtual public ISTGC_ROD_Decoder, public AthAlgTool
     virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&, const std::vector<IdentifierHash>&, STGC_RawDataContainer&) const override;
 
   protected:
-    const sTgcIdHelper* m_stgcIdHelper;
+    const sTgcIdHelper* m_stgcIdHelper = nullptr;
 };
 
 } // end of namespace

@@ -289,12 +289,17 @@ def vertexMonitoringTool_builder( signature, config ) :
 
 
 
+
+
 #------------------------------------------------------------------------------------------------------------------
 #                         BUILDERS FOR ADAPTIVE MULTI VERTEX TOOL
 #------------------------------------------------------------------------------------------------------------------
 
 # create the actual vertex finder tool ...
 def adaptiveMultiVertexFinderTool_builder( signature, config ) : 
+
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger("InDetVtx")
 
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -332,36 +337,65 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
     singleTrackVertices = config.addSingleTrackVertices 
     tracksMaxZinterval  = config.TracksMaxZinterval 
     
-    acts = False
+
+    ##################################################################################    
+
+    acts = config.actsVertex
 
     if acts is False:
+
+        log.info( "ID Trigger: using standard vertex" ) 
+
         vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
                                                                     SeedFinder        = seedFinder,
                                                                     VertexFitterTool  = vertexFitterTool,
                                                                     TrackSelector     = trackSelectorTool,
                                                                     useBeamConstraint = True,
-                                                                    TracksMaxZinterval = tracksMaxZinterval,
+                                                                    m_useSeedConstraint = False,  # default parameter is True sop use ACTS default value
+                                                                    TracksMaxZinterval  = tracksMaxZinterval,
                                                                     addSingleTrackVertices = singleTrackVertices,
-                                                                    selectiontype     = 0, # what is this?
+                                                                    selectiontype     = 0, # what is this? - ACTS equivalent ? 
                                                                     do3dSplitting     = doVtx3DFinding )
-    # not yet     
-    # else:
-    #     from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+    else:
         
-    #     actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
+        log.info( "ID Trigger: using Acts vertex" ) 
         
-    #     actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
-    #     actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
-        
-    #     vertexFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
-    #                                                          TrackSelector      = trackSelectorTool,
-    #                                                          useBeamConstraint  = True,
-    #                                                          tracksMaxZinterval = 3,#mm 
-    #                                                          do3dSplitting      = doVtx3DFinding, 
-    #                                                          TrackingGeometryTool = actsTrackingGeometryTool,
-    #                                                          ExtrapolationTool  = actsExtrapolationTool )
-         
+        # Don't actually need to check whether the ActsGeometry has been configured, because it is 
+        # included at the top level once the module is loaded, but we add the explicit check and the 
+        # possibility to create it for  the impossible case that it is not there to avoid getting the python
+        # warning that we have included a function that is not then used.
 
+        # it would perhaps be better is the acts geometry were instead configured in some function that could
+        # be called by any tool that actually needed it to be configured, then we would avoid this python error 
+        # without unecessary python code 
+
+        from ActsGeometry.ActsTrackingGeometryTool import ConfiguredActsTrackingGeometry
+        
+        if not hasattr(ToolSvc, "ActsTrackingGeometryTool"):
+            log.info( "ID Trigger: creating new acts geometry" )
+            actsTrackingGeometryTool = ConfiguredActsTrackingGeometry(name = "ActsTrackingGeometryTool")            
+            ToolSvc += actsTrackingGeometryTool
+   
+        # add it to the ServiceManager
+        actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
+
+        import AthenaCommon.CfgMgr as CfgMgr
+    
+        actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
+        actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
+        
+        from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+
+        vertexFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
+                                                             TrackSelector      = trackSelectorTool,
+                                                             useBeamConstraint  = True,
+                                                             useSeedConstraint  = False, # use explicit ACTS default parameter
+                                                             tracksMaxZinterval = tracksMaxZinterval,
+                                                             do3dSplitting      = doVtx3DFinding, 
+                                                             addSingleTrackVertices = singleTrackVertices,
+                                                             TrackingGeometryTool = actsTrackingGeometryTool,
+                                                             ExtrapolationTool  = actsExtrapolationTool )
+                
     ToolSvc += vertexFinderTool
    
     return vertexFinderTool

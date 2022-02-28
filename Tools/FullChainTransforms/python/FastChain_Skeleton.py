@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
@@ -21,6 +21,7 @@ def fromRunArgs(runArgs):
 
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from G4AtlasApps.SimEnums import SimulationFlavour
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     # Autoconfigure enabled subdetectors
@@ -41,7 +42,7 @@ def fromRunArgs(runArgs):
         detectors = detectors+['FwdRegion']
 
     if hasattr(runArgs, 'simulator'):
-        ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
+        ConfigFlags.Sim.ISF.Simulator = SimulationFlavour(runArgs.simulator)
 
     if hasattr(runArgs, 'inputEVNTFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
@@ -59,18 +60,13 @@ def fromRunArgs(runArgs):
     else:
         raise RuntimeError('No outputRDOFile defined')
 
-    if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]  # is it updating?
-        ConfigFlags.Input.OverrideRunNumber = True
-        ConfigFlags.Input.LumiBlockNumber = [1]  # dummy value
-
     if hasattr(runArgs, 'conditionsTag'):
         ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
 
-    if hasattr(runArgs, 'truthStrategy'):
-        ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
-
     # Setup common simulation flags
+    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    simulationRunArgsToFlags(runArgs, ConfigFlags)
+
     from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags
     defaultSimulationFlags(ConfigFlags, detectors)
 

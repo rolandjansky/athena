@@ -9,7 +9,7 @@
 #include <vector>
 #include <iostream>
 
-std::string convertChamberName(int, int, int, std::string); 
+std::string convertChamberName(int, int, int, const std::string&); 
 
 //std::vector<int> convertChamberName(std::string HarwareChamberName , std::string HarwareChamberType , std::string ChamberType);
 

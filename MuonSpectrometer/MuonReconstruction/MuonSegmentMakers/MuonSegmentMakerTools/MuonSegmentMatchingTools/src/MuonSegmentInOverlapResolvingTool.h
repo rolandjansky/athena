@@ -50,7 +50,7 @@ class MuonSegmentInOverlapResolvingTool : virtual public IMuonSegmentInOverlapRe
     StatusCode initialize();
 
     /** @brief performance match and return result */
-    SegmentMatchResult matchResult(const MuonSegment& seg1, const MuonSegment& seg2) const;
+    SegmentMatchResult matchResult(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const;
 
     /** @brief calculate the position along a tube direction of the first segment
         that results in the smallest position residual in the precision plane of the second segment given
@@ -74,7 +74,7 @@ class MuonSegmentInOverlapResolvingTool : virtual public IMuonSegmentInOverlapRe
 
   private:
     /** compare phi hits with segment parameters, return average pull of the phi hits */
-    double checkPhiHitConsistency(const Muon::MuonSegment& segment, SegmentPhiMatchResult& phiMatchResult,
+    double checkPhiHitConsistency(const EventContext& ctx, const Muon::MuonSegment& segment, SegmentPhiMatchResult& phiMatchResult,
                                   SegmentPositionMatchResult& matchResult) const;
 
     Amg::Vector3D estimateSegmentDirection(const MuonSegment& seg1, const MuonSegment& seg2, double& phi,
@@ -92,7 +92,7 @@ class MuonSegmentInOverlapResolvingTool : virtual public IMuonSegmentInOverlapRe
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };  //!< EDM Helper tool
 
-    ToolHandle<MuonEDMPrinterTool> m_printer{
+    PublicToolHandle<MuonEDMPrinterTool> m_printer{
         this,
         "Printer",
         "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

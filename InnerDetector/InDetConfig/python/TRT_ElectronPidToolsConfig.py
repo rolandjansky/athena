@@ -47,6 +47,10 @@ def TRT_dEdxToolCfg(flags, name="TRT_dEdxTool", **kwargs):
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTToTCondAlgCfg
     acc = TRTToTCondAlgCfg(flags)
 
+    if not flags.Input.isMC:
+        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+        acc.merge(LumiBlockMuWriterCfg(flags))
+
     kwargs.setdefault("TRT_dEdx_isData", not flags.Input.isMC)
     kwargs.setdefault("TRT_LocalOccupancyTool", acc.popToolsAndMerge(TRT_LocalOccupancyCfg(flags)))
     
@@ -55,8 +59,9 @@ def TRT_dEdxToolCfg(flags, name="TRT_dEdxTool", **kwargs):
 
 
 def TRT_ElectronPidToolCfg(flags, name="TRT_ElectronPidTool", **kwargs):
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTHTCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTHTCondAlgCfg, TRTPIDNNCondAlgCfg
     acc = TRTHTCondAlgCfg(flags)
+    acc.merge(TRTPIDNNCondAlgCfg(flags))
 
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
     StrawStatusTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
@@ -66,7 +71,7 @@ def TRT_ElectronPidToolCfg(flags, name="TRT_ElectronPidTool", **kwargs):
     kwargs.setdefault("TRT_LocalOccupancyTool", acc.popToolsAndMerge(TRT_LocalOccupancyCfg(flags)))
     kwargs.setdefault("TRT_ToT_dEdx_Tool", acc.popToolsAndMerge(TRT_dEdxToolCfg(flags)))
 
-    kwargs.setdefault("CalculateNNPid", False) # TODO fixme once the flag is there: flags.InDet.doTRTPIDNN
+    kwargs.setdefault("CalculateNNPid", True)
 
     acc.setPrivateTools(CompFactory.InDet.TRT_ElectronPidToolRun2(name, **kwargs))
     return acc

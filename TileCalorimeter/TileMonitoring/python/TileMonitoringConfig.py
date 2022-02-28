@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -52,7 +52,11 @@ def TileMonitoringCfg(flags):
             from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitoringConfig
             acc.merge( TileTMDBRawChannelMonitoringConfig(flags, FillRawChannelHistograms = False, FillEfficiencyHistograms = True) )
 
-        if flags.Beam.Type in ('cosmics', 'singlebeam'):
+        from AthenaConfiguration.Enums import BeamType
+        if flags.Beam.Type in [BeamType.Cosmics, BeamType.SingleBeam]:
+            from TileCosmicAlgs.TileMuonFitterConfig import TileMuonFitterCfg
+            acc.merge(TileMuonFitterCfg(flags))
+
             from TileMonitoring.TileMuonFitMonitorAlgorithm import TileMuonFitMonitoringConfig
             acc.merge( TileMuonFitMonitoringConfig(flags) )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternFinderTool.h"
@@ -24,6 +24,7 @@
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/TangentToCircles.h"
 #include "TrkSurfaces/Surface.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 using namespace TrkDriftCircleMath;
 
@@ -33,15 +34,21 @@ namespace Muon {
         AthAlgTool(t, n, p), m_weight_csc_on_segment(2.) {
         declareInterface<IMuonHoughPatternFinderTool>(this);
     }
-
+    MuonHoughPatternFinderTool::~MuonHoughPatternFinderTool() = default;
     StatusCode MuonHoughPatternFinderTool::initialize() {
-        if (m_use_histos == true) {
-            m_file = new TFile("Hough_histos.root", "RECREATE");
-            m_weighthistogram = new TH1F("weighthisto", "weighthisto", 100, -0.5, 2);
-            m_weighthistogrammdt = new TH1F("weighthistomdt", "weighthistomdt", 100, -0.3, 2.2);
-            m_weighthistogramrpc = new TH1F("weighthistorpc", "weighthistorpc", 100, -0.3, 2.2);
-            m_weighthistogramcsc = new TH1F("weighthistocsc", "weighthistocsc", 100, -0.3, 2.2);
-            m_weighthistogramtgc = new TH1F("weighthistotgc", "weighthistotgc", 100, -0.3, 2.2);
+        if (m_use_histos) {
+            if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+              ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+              return StatusCode::FAILURE;
+            }
+
+            m_h = std::make_unique<Hists>();
+            m_h->m_file = std::make_unique<TFile>("Hough_histos.root", "RECREATE");
+            m_h->m_weighthistogram = std::make_unique<TH1F>("weighthisto", "weighthisto", 100, -0.5, 2);
+            m_h->m_weighthistogrammdt = std::make_unique<TH1F>("weighthistomdt", "weighthistomdt", 100, -0.3, 2.2);
+            m_h->m_weighthistogramrpc = std::make_unique<TH1F>("weighthistorpc", "weighthistorpc", 100, -0.3, 2.2);
+            m_h->m_weighthistogramcsc = std::make_unique<TH1F>("weighthistocsc", "weighthistocsc", 100, -0.3, 2.2);
+            m_h->m_weighthistogramtgc = std::make_unique<TH1F>("weighthistotgc", "weighthistotgc", 100, -0.3, 2.2);
         }
 
         ATH_MSG_VERBOSE("MuonHoughPatternFinderTool::Initializing");
@@ -67,6 +74,24 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
+    template <class T> std::vector<const T*> MuonHoughPatternFinderTool::stdVec(const MuonPrepDataContainer<T>* cont) const {
+        std::vector<const T*> vec;
+        if (cont) {
+            vec.reserve(cont->size());
+            for (const auto& ele : *cont) { vec.push_back(ele); }
+        }
+        return vec;
+    }
+    std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> MuonHoughPatternFinderTool::find(
+        const MdtPrepDataContainer* mdtCont, const CscPrepDataContainer* cscCont, const TgcPrepDataContainer* tgcCont,
+        const RpcPrepDataContainer* rpcCont, const sTgcPrepDataContainer* stgcCont, const MMPrepDataContainer* mmCont,
+        const EventContext& ctx) const {
+        if (stgcCont || mmCont) {
+            ATH_MSG_FATAL("NSW is not yet implemented in this tool");
+            return std::make_pair(std::make_unique<MuonPatternCombinationCollection>(), std::make_unique<HoughDataPerSectorVec>());
+        }
+        return find(stdVec(mdtCont), stdVec(cscCont), stdVec(tgcCont), stdVec(rpcCont), nullptr, ctx);
+    }
     std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec>>
     MuonHoughPatternFinderTool::find(const std::vector<const MdtPrepDataCollection*>& mdtCols,
                                      const std::vector<const CscPrepDataCollection*>& cscCols,
@@ -87,8 +112,8 @@ namespace Muon {
             std::make_unique<std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>>();
 
         // read event_data:
-        const MuonHoughHitContainer* hitcontainer = getAllHits(mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis, rpcmdtstationmap,
-                                                               tgcmdtstationmap, phietahitassociation.get());
+        std::unique_ptr<MuonHoughHitContainer> hitcontainer{
+            getAllHits(mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis, rpcmdtstationmap, tgcmdtstationmap, *phietahitassociation)};
         // analyse data
         std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
         if (hitcontainer) {
@@ -96,9 +121,6 @@ namespace Muon {
         } else {
             ATH_MSG_INFO(" No hit container created! ");
         }
-        // clear hit container
-        delete hitcontainer;
-        hitcontainer = nullptr;
 
         // ensure we always output a collection
         if (!patCombiCol) {
@@ -107,7 +129,7 @@ namespace Muon {
         }
 
         // summary
-        if (m_summary == true || this->msgLvl(MSG::DEBUG)) {
+        if (m_summary || msgLvl(MSG::DEBUG)) {
             if (patCombiCol->empty())
                 ATH_MSG_DEBUG(" summarizing output: Combined pattern combination empty");
             else
@@ -129,13 +151,17 @@ namespace Muon {
     }
 
     StatusCode MuonHoughPatternFinderTool::finalize() {
-        if (m_use_histos == true) {
-            m_file->Write();
-            m_file->Close();
-            ATH_MSG_DEBUG("MuonHoughPatternFinderTool:: delete rootfile");
-            delete m_file;
-            m_file = nullptr;
-            ATH_MSG_DEBUG("MuonHoughPatternFinderTool::delete Histogram: ");
+        if (m_use_histos) {
+            auto save_histo = [this](std::unique_ptr<TH1>& h_ptr) {
+                if (!h_ptr) return;
+                m_h->m_file->WriteObject(h_ptr.get(), h_ptr->GetName());
+                h_ptr.reset();
+            };
+            save_histo(m_h->m_weighthistogram);
+            save_histo(m_h->m_weighthistogrammdt);
+            save_histo(m_h->m_weighthistogramrpc);
+            save_histo(m_h->m_weighthistogramcsc);
+            save_histo(m_h->m_weighthistogramtgc);
         }
         ATH_MSG_VERBOSE("finalize()");
 
@@ -152,12 +178,12 @@ namespace Muon {
         MuonHoughPatternContainerShip houghpattern = m_muonHoughPatternTool->emptyHoughPattern();
         //  pass through hitcontainer (better still: preprawdata and only after make
         //  internal hitcontainer)
-        m_muonHoughPatternTool->makePatterns(&hitcontainer, houghpattern);
+        m_muonHoughPatternTool->makePatterns(hitcontainer, houghpattern);
 
-        MuonPrdPatternCollection* phipatterns = m_muonHoughPatternTool->getPhiMuonPatterns(houghpattern);
-        MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns(houghpattern);
+        std::unique_ptr<MuonPrdPatternCollection> phipatterns{m_muonHoughPatternTool->getPhiMuonPatterns(houghpattern)};
+        std::unique_ptr<MuonPrdPatternCollection> etapatterns{m_muonHoughPatternTool->getEtaMuonPatterns(houghpattern)};
 
-        if (m_summary == true || this->msgLvl(MSG::DEBUG)) {
+        if (m_summary || msgLvl(MSG::DEBUG)) {
             if (phipatterns->empty())
                 ATH_MSG_DEBUG(" summarizing input: Phi pattern combination empty");
             else
@@ -171,19 +197,20 @@ namespace Muon {
         ATH_MSG_DEBUG("writePatterns");
         ATH_MSG_DEBUG("size: phi: " << phipatterns->size() << " eta: " << etapatterns->size());
 
-        MuonPrdPatternCollection* combinedpatterns = nullptr;
+        std::unique_ptr<MuonPrdPatternCollection> combinedpatterns;
         MuonPatternCombinationCollection* patterncombinations = nullptr;
 
         // make + write muonpatterncombinations
         if (!etapatterns->empty()) {
-            combinedpatterns = m_muonCombinePatternTool->combineEtaPhiPatterns(phipatterns, etapatterns, phietahitassociation);
+            combinedpatterns.reset(
+                m_muonCombinePatternTool->combineEtaPhiPatterns(phipatterns.get(), etapatterns.get(), phietahitassociation));
         }
 
         if (combinedpatterns) {
-            patterncombinations = m_muonCombinePatternTool->makePatternCombinations(combinedpatterns);
+            patterncombinations = m_muonCombinePatternTool->makePatternCombinations(combinedpatterns.get());
         } else {
             ATH_MSG_DEBUG("No combined patterns, creating dummy.");
-            combinedpatterns = new MuonPrdPatternCollection();
+            combinedpatterns = std::make_unique<MuonPrdPatternCollection>();
         }
 
         record(phipatterns, m_CosmicPhiPatternsKey, ctx);
@@ -191,31 +218,27 @@ namespace Muon {
         record(combinedpatterns, m_COMBINED_PATTERNSKey, ctx);
 
         /** empty and clear the houghpattern vectors */
-        m_muonHoughPatternTool->reset(houghpattern);
+        houghpattern.clear();
         return patterncombinations;
     }
 
-    const MuonHoughHitContainer* MuonHoughPatternFinderTool::getAllHits(
+    std::unique_ptr<MuonHoughHitContainer> MuonHoughPatternFinderTool::getAllHits(
         const std::vector<const MdtPrepDataCollection*>& mdtCols, const std::vector<const CscPrepDataCollection*>& cscCols,
         const std::vector<const TgcPrepDataCollection*>& tgcCols, const std::vector<const RpcPrepDataCollection*>& rpcCols,
         const MuonSegmentCombinationCollection* cscSegmentCombis, std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
         std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap,
-        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const {
+        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const {
         ATH_MSG_VERBOSE("getAllHits()");
 
-        MuonHoughHitContainer* hitcontainer = new MuonHoughHitContainer;
+        std::unique_ptr<MuonHoughHitContainer> hitcontainer = std::make_unique<MuonHoughHitContainer>();
         // reserve space for 5000 hits (arbitrary), this should gain some cpu/memory
         // for background, but will lose for lower occupancy. If anyone knows a way to
         // predict the number of muon hits, I'd like to hear it.
         hitcontainer->reserve(5000);
 
-        bool use_csc_segments = cscSegmentCombis != nullptr;
+        const bool use_csc_segments = (cscSegmentCombis != nullptr);
 
-        if (use_csc_segments && m_use_csc == true) {
-            // m_csc_segments = cscSegmentCombis;
-            MuonSegmentCombinationCollection::const_iterator msc = cscSegmentCombis->begin();
-            MuonSegmentCombinationCollection::const_iterator msc_end = cscSegmentCombis->end();
-
+        if (use_csc_segments && m_use_csc) {
             std::set<Identifier> csc_set;  // set to make sure every csc hit is only
                                            // passed to hitcontainer once
             std::pair<std::set<Identifier>::iterator, bool> csc_pair;
@@ -234,24 +257,22 @@ namespace Muon {
             layer_ids.reserve(400);
 
             // two loops needed as number of hits per layer needs to be known
-
-            for (; msc != msc_end; ++msc) {
-                ATH_MSG_VERBOSE("CSC combo segments loop, segmentcombo " << (*msc));
-                for (unsigned int ss = 0; ss < (*msc)->numberOfStations(); ss++) {
-                    Muon::MuonSegmentCombination::SegmentVec* segmentsInCombo = (*msc)->stationSegments(ss);
-
-                    Muon::MuonSegmentCombination::SegmentVec::iterator ms = segmentsInCombo->begin();
-                    Muon::MuonSegmentCombination::SegmentVec::iterator ms_end = segmentsInCombo->end();
-
-                    for (; ms != ms_end; ++ms) {
-                        ATH_MSG_VERBOSE("CSC segments loop, segment: " << (*ms).get());
+            for (const Muon::MuonSegmentCombination* msc : *cscSegmentCombis) {
+                ATH_MSG_VERBOSE("CSC combo segments loop, segmentcombo " << msc);
+                for (unsigned int ss = 0; ss < msc->numberOfStations(); ++ss) {
+                    for (const std::unique_ptr<MuonSegment>& ms : *msc->stationSegments(ss)) {
+                        if (!ms) {
+                            ATH_MSG_DEBUG("Segment has been already skimmed");
+                            continue;
+                        }
+                        ATH_MSG_VERBOSE("CSC segments loop, segment: " << ms.get());
                         std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess> phi_set;
                         std::vector<const Trk::PrepRawData*> eta_vector;
                         std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>::iterator, bool> phi_pair;
 
-                        int nRoTs = (*ms)->numberOfContainedROTs();
+                        int nRoTs = ms->numberOfContainedROTs();
                         for (int i = 0; i < nRoTs; ++i) {
-                            const Muon::CscClusterOnTrack* cscOnSeg = dynamic_cast<const Muon::CscClusterOnTrack*>((*ms)->rioOnTrack(i));
+                            const Muon::CscClusterOnTrack* cscOnSeg = dynamic_cast<const Muon::CscClusterOnTrack*>(ms->rioOnTrack(i));
                             if (!cscOnSeg) {
                                 ATH_MSG_INFO("Dynamic cast to CscClusterOnTrack failed!");
                                 continue;
@@ -291,8 +312,7 @@ namespace Muon {
                         // add hit association from segment to map:
                         if (!phi_set.empty()) {
                             ATH_MSG_VERBOSE("Number of Phi Csc hits in segment: " << phi_set.size());
-                            std::vector<const Trk::PrepRawData*>::iterator vec_it = eta_vector.begin();
-                            for (; vec_it != eta_vector.end(); ++vec_it) { phietahitassociation->insert(std::make_pair(*vec_it, phi_set)); }
+                            for (const Trk::PrepRawData* prd : eta_vector) { phietahitassociation.insert(std::make_pair(prd, phi_set)); }
                         }
                     }
                 }
@@ -301,11 +321,7 @@ namespace Muon {
             for (unsigned int i = 0; i < csc_rots.size(); i++) {
                 const Muon::CscPrepData* prd = csc_prds[i];
 
-                const Amg::Vector3D globalpos = csc_rots[i]->globalPosition();
-                double hitx = globalpos.x();
-                double hity = globalpos.y();
-                double hitz = globalpos.z();
-
+                const Amg::Vector3D& globalpos = csc_rots[i]->globalPosition();
                 bool channel_type = m_idHelperSvc->cscIdHelper().measuresPhi(csc_rots[i]->identify());
 
                 double weight = 0.;
@@ -315,74 +331,58 @@ namespace Muon {
                 }
 
                 ATH_MSG_DEBUG(m_printer->print(*prd) << " weight " << weight);
-                MuonHoughHit* hit = new MuonHoughHit(hitx, hity, hitz, channel_type, MuonHough::CSC, 1., weight, prd);
+                MuonHoughHit* hit = new MuonHoughHit(globalpos, channel_type, MuonHough::CSC, 1., weight, prd);
 
                 hitcontainer->addHit(hit);
-                if (m_use_histos == true) {
-                    m_weighthistogram->Fill(weight);
-                    m_weighthistogramcsc->Fill(weight);
+                if (m_use_histos) {
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(weight);
+                  h.m_weighthistogramcsc->Fill(weight);
                 }
             }
         }  // use_csc_segments
         // taken and modified from
         // DetectorDescription/GeoModel/HitDisplay/src/HitDisplaySystem.cxx
 
-        if (m_use_rpc == true) {
-            std::vector<const RpcPrepDataCollection*>::const_iterator it = rpcCols.begin();
-            std::vector<const RpcPrepDataCollection*>::const_iterator it_end = rpcCols.end();
-            for (; it != it_end; ++it) {
-                Muon::RpcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-                Muon::RpcPrepDataCollection::const_iterator cit_end = (*it)->end();
-                addRpcCollection(cit_begin, cit_end, hitcontainer, rpcmdtstationmap, phietahitassociation);
+        if (m_use_rpc) {
+            for (const RpcPrepDataCollection* rpc_coll : rpcCols) {
+                addRpcCollection(rpc_coll, *hitcontainer, rpcmdtstationmap, phietahitassociation);
             }
         }
 
-        if (m_use_tgc == true) {
-            std::vector<const TgcPrepDataCollection*>::const_iterator it = tgcCols.begin();
-            std::vector<const TgcPrepDataCollection*>::const_iterator it_end = tgcCols.end();
-            for (; it != it_end; ++it) {
-                Muon::TgcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-                Muon::TgcPrepDataCollection::const_iterator cit_end = (*it)->end();
-                addTgcCollection(cit_begin, cit_end, hitcontainer, tgcmdtstationmap, phietahitassociation);
+        if (m_use_tgc) {
+            for (const TgcPrepDataCollection* tgc_coll : tgcCols) {
+                addTgcCollection(tgc_coll, *hitcontainer, tgcmdtstationmap, phietahitassociation);
             }
         }
 
-        if (m_use_mdt == true) {
-            std::vector<const MdtPrepDataCollection*>::const_iterator it = mdtCols.begin();
-            std::vector<const MdtPrepDataCollection*>::const_iterator it_end = mdtCols.end();
-            for (; it != it_end; ++it) {
-                Muon::MdtPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-                Muon::MdtPrepDataCollection::const_iterator cit_end = (*it)->end();
-                addMdtCollection(cit_begin, cit_end, hitcontainer, rpcmdtstationmap, tgcmdtstationmap);
+        if (m_use_mdt) {
+            for (const MdtPrepDataCollection* prep_coll : mdtCols) {
+                addMdtCollection(prep_coll, *hitcontainer, rpcmdtstationmap, tgcmdtstationmap);
             }
         }
 
-        if (m_use_csc == true && !use_csc_segments) {
-            std::vector<const CscPrepDataCollection*>::const_iterator it = cscCols.begin();
-            std::vector<const CscPrepDataCollection*>::const_iterator it_end = cscCols.end();
-            for (; it != it_end; ++it) {
-                Muon::CscPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-                Muon::CscPrepDataCollection::const_iterator cit_end = (*it)->end();
-                addCscCollection(cit_begin, cit_end, hitcontainer, phietahitassociation);
+        if (m_use_csc && !use_csc_segments) {
+            for (const CscPrepDataCollection* csc_coll : cscCols) { addCscCollection(csc_coll, *hitcontainer, phietahitassociation); }
+        }
+
+        if (msgLevel(MSG::VERBOSE)) {
+            ATH_MSG_VERBOSE("MuonHoughPatternFinderTool::getAllHits() saving " << hitcontainer->size() << " converted hits");
+            for (unsigned int i = 0; i < hitcontainer->size(); i++) {
+                ATH_MSG_VERBOSE(" hit " << hitcontainer->getHit(i)->getWhichDetector() << " (" << hitcontainer->getHit(i)->getHitx() << ","
+                                        << hitcontainer->getHit(i)->getHity() << "," << hitcontainer->getHit(i)->getHitz() << ") "
+                                        << " weight: " << hitcontainer->getHit(i)->getWeight()
+                                        << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
             }
         }
 
-        ATH_MSG_VERBOSE("MuonHoughPatternFinderTool::getAllHits() saving " << hitcontainer->size() << " converted hits");
-
-        for (unsigned int i = 0; i < hitcontainer->size(); i++) {
-            ATH_MSG_VERBOSE(" hit " << hitcontainer->getHit(i)->getWhichDetector() << " (" << hitcontainer->getHit(i)->getHitx() << ","
-                                    << hitcontainer->getHit(i)->getHity() << "," << hitcontainer->getHit(i)->getHitz() << ") "
-                                    << " weight: " << hitcontainer->getHit(i)->getWeight()
-                                    << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
-        }
-
-        ATH_MSG_VERBOSE("MuonHoughPatternFinderTool::getAllHits() saving " << phietahitassociation->size() << "associated hits ");
+        ATH_MSG_VERBOSE("MuonHoughPatternFinderTool::getAllHits() saving " << phietahitassociation.size() << "associated hits ");
         return hitcontainer;
 
     }  // getAllHits
 
-    void MuonHoughPatternFinderTool::record(MuonPrdPatternCollection* patCol, const SG::WriteHandleKey<MuonPrdPatternCollection>& key,
-                                            const EventContext& ctx) const {
+    void MuonHoughPatternFinderTool::record(std::unique_ptr<MuonPrdPatternCollection>& patCol,
+                                            const SG::WriteHandleKey<MuonPrdPatternCollection>& key, const EventContext& ctx) const {
         if (!patCol) {
             ATH_MSG_WARNING("Zero pointer, could not save patterns!!! ");
             return;
@@ -391,12 +391,11 @@ namespace Muon {
         // check whether we are writing patterns to storegate, if not delete pattern
         if (!m_recordAllOutput) {
             ATH_MSG_DEBUG("Deleted patterns: " << patCol->size() << "  at " << key.key());
-
             // since patCol Datavector, it owns (by defaults its elements)
-            delete patCol;
+
         } else {
             SG::WriteHandle<MuonPrdPatternCollection> handle(key, ctx);
-            StatusCode sc = handle.record(std::unique_ptr<MuonPrdPatternCollection>(patCol));
+            StatusCode sc = handle.record(std::move(patCol));
             if (sc.isFailure()) {
                 ATH_MSG_WARNING("Could not save patterns at " << key.key());
             } else {
@@ -404,19 +403,15 @@ namespace Muon {
             }
         }
     }
-
-    bool MuonHoughPatternFinderTool::cut() { return 1 != 0; }
-
     void MuonHoughPatternFinderTool::addRpcCollection(
-        Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end,
-        MuonHoughHitContainer* hitcontainer, std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
-        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const {
-        if (cit_begin == cit_end) return;
-        Muon::RpcPrepDataCollection::const_iterator cit = cit_begin;
+        const RpcPrepDataCollection* rpc_coll, MuonHoughHitContainer& hitcontainer,
+        std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
+        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const {
+        if (rpc_coll->size() == 0) return;
         std::map<int, int> number_of_hits_per_layer;
         std::set<int> layers;  // different layer definition between the two!!
 
-        int size_begin = hitcontainer->size();
+        int size_begin = hitcontainer.size();
 
         if (m_hit_reweights)  // reweight  hits, according to Peter's new algorithm
         {
@@ -424,8 +419,7 @@ namespace Muon {
                                        2);  // filled strips, to determine whether it was no noise rpc hit
                                             // (confirmation of ((neighbouring) layer))
 
-            for (; cit != cit_end; ++cit) {
-                const Muon::RpcPrepData* prd = *cit;
+            for (const Muon::RpcPrepData* prd : *rpc_coll) {
                 const bool channel_type = m_idHelperSvc->rpcIdHelper().measuresPhi(prd->identify());
                 const Identifier id = prd->identify();
                 int strip = m_idHelperSvc->rpcIdHelper().strip(id);  // strip between 1 and 99!!
@@ -434,9 +428,7 @@ namespace Muon {
                 strips[strip + 1] += 0.5;
                 strips[strip - 1] += 0.5;
             }
-            cit = cit_begin;
-            for (; cit != cit_end; ++cit) {
-                const Muon::RpcPrepData* prd = *cit;
+            for (const Muon::RpcPrepData* prd : *rpc_coll) {
                 Identifier id = prd->identify();
                 const bool channel_type = m_idHelperSvc->rpcIdHelper().measuresPhi(prd->identify());
                 int strip = m_idHelperSvc->rpcIdHelper().strip(id);  // strip between 1 and 99!!
@@ -468,17 +460,9 @@ namespace Muon {
         std::map<const Identifier, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>::iterator gg_it;
         std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>::iterator, bool> gg_insert;
 
-        cit = cit_begin;
-
-        for (; cit != cit_end; ++cit) {
-            const Muon::RpcPrepData* prd = *cit;
-
-            const Amg::Vector3D globalpos = prd->globalPosition();
+        for (const Muon::RpcPrepData* prd : *rpc_coll) {
+            const Amg::Vector3D& globalpos = prd->globalPosition();
             const Identifier id = prd->identify();
-            const double hitx = globalpos.x();
-            const double hity = globalpos.y();
-            const double hitz = globalpos.z();
-
             const bool channel_type = m_idHelperSvc->rpcIdHelper().measuresPhi(id);
 
             // gasgapmap
@@ -488,9 +472,7 @@ namespace Muon {
                 const Identifier gasGapId = m_idHelperSvc->gasGapId(id);
                 gg_it = gasgapphimap.find(gasGapId);
                 if (gg_it == gasgapphimap.end()) {  // gasgapid not yet in map
-                    std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess> hitset;
-                    hitset.insert(prd);
-                    gasgapphimap.insert(std::make_pair(gasGapId, hitset));
+                    gasgapphimap[gasGapId] = {prd};
                 } else {  // gasgapid already in set
                     gg_insert = (*gg_it).second.insert(prd);
                     if (!gg_insert.second) { ATH_MSG_DEBUG("WARNING::RPC hit already in set? "); }
@@ -526,55 +508,51 @@ namespace Muon {
                     }
                 }
             }
-            MuonHoughHit* hit = new MuonHoughHit(hitx, hity, hitz, channel_type, MuonHough::RPC, prob, weight, prd);
-            hitcontainer->addHit(hit);
+            MuonHoughHit* hit = new MuonHoughHit(globalpos, channel_type, MuonHough::RPC, prob, weight, prd);
+            hitcontainer.addHit(hit);
             ATH_MSG_DEBUG(m_printer->print(*prd) << " NEW weight " << weight);
 
-            if (m_use_histos == true) {
-                m_weighthistogram->Fill(weight);
-                m_weighthistogramrpc->Fill(weight);
+            if (m_use_histos) {
+              Hists& h = getHists();
+              h.m_weighthistogram->Fill(weight);
+              h.m_weighthistogramrpc->Fill(weight);
             }
         }
 
-        int size_end = hitcontainer->size();
+        int size_end = hitcontainer.size();
 
-        updateRpcMdtStationMap((*cit_begin)->identify(), size_begin, size_end, rpcmdtstationmap);
+        updateRpcMdtStationMap((*rpc_coll->begin())->identify(), size_begin, size_end, rpcmdtstationmap);
 
         // extract preprawdata from gasgapmap // might not be fastest way (filling
         // immidiately saves this second loop)
 
-        cit = cit_begin;
-
-        for (; cit != cit_end; ++cit) {
-            const Muon::RpcPrepData* prd = *cit;
+        for (const Muon::RpcPrepData* prd : *rpc_coll) {
             const Identifier id = prd->identify();
             if (!m_idHelperSvc->rpcIdHelper().measuresPhi(id)) {  // eta hit
 
                 const Identifier gasGapId = m_idHelperSvc->gasGapId(id);
 
                 gg_it = gasgapphimap.find(gasGapId);
-                if (gg_it != gasgapphimap.end()) { phietahitassociation->insert(std::make_pair(prd, (*gg_it).second)); }
+                if (gg_it != gasgapphimap.end()) { phietahitassociation.insert(std::make_pair(prd, (*gg_it).second)); }
             }
         }
     }
 
     void MuonHoughPatternFinderTool::addTgcCollection(
-        Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end,
-        MuonHoughHitContainer* hitcontainer, std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap,
-        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const {
-        if (cit_begin == cit_end) return;
-        Muon::TgcPrepDataCollection::const_iterator cit = cit_begin;
+        const Muon::TgcPrepDataCollection* tgc_coll, MuonHoughHitContainer& hitcontainer,
+        std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap,
+        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const {
+        if (tgc_coll->size() == 0) return;
         std::map<int, int> number_of_hits_per_layer;
         std::set<int> layers;  // different layer definition between the two!!
 
-        int size_begin = hitcontainer->size();
+        int size_begin = hitcontainer.size();
 
         if (m_hit_reweights) {
             std::vector<double> channels(2 * m_idHelperSvc->tgcIdHelper().channelMax() +
                                          2);  // filled strips, to determine whether it was no noise rpc hit
                                               // (confirmation of ((neighbouring) layer))
-            for (; cit != cit_end; ++cit) {
-                const Muon::TgcPrepData* prd = *cit;
+            for (const Muon::TgcPrepData* prd : *tgc_coll) {
                 Identifier id = prd->identify();
                 bool channel_type = m_idHelperSvc->tgcIdHelper().isStrip(id);  // like measuresPhi()
                 int channel = m_idHelperSvc->tgcIdHelper().channel(id);        // between 1 and 135!
@@ -583,9 +561,7 @@ namespace Muon {
                 channels[channel + 1] += 0.55;
                 channels[channel - 1] += 0.55;
             }
-            cit = cit_begin;
-            for (; cit != cit_end; ++cit) {
-                const Muon::TgcPrepData* prd = *cit;
+            for (const Muon::TgcPrepData* prd : *tgc_coll) {
                 const Identifier id = prd->identify();
                 const bool channel_type = m_idHelperSvc->tgcIdHelper().isStrip(id);  // like measuresPhi()
                 int channel = m_idHelperSvc->tgcIdHelper().channel(id);              // between 1 and 135!
@@ -611,32 +587,24 @@ namespace Muon {
         std::map<const Identifier, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>::iterator gg_it;
         std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>::iterator, bool> gg_insert;
 
-        cit = cit_begin;
-        for (; cit != cit_end; ++cit) {
-            const Muon::TgcPrepData* prd = *cit;
-            Amg::Vector3D globalpos = prd->globalPosition();
+        for (const Muon::TgcPrepData* prd : *tgc_coll) {
+            const Amg::Vector3D& globalpos = prd->globalPosition();
             Identifier id = prd->identify();
-            double hitx = globalpos.x();
-            double hity = globalpos.y();
-            double hitz = globalpos.z();
-
             bool channel_type = m_idHelperSvc->tgcIdHelper().isStrip(id);  // like measuresPhi()
 
-            int big_number = 250000;
+            constexpr double big_number = 250000;
 
-            if (std::isnan(hitx) || std::abs(hitx) > big_number || std::abs(hity) > big_number ||
-                std::abs(hitz) > big_number)  // to avoid crashing with TGC hits
+            if (std::isnan(globalpos[Amg::x]) || std::abs(globalpos[Amg::y]) > big_number || std::abs(globalpos[Amg::y]) > big_number ||
+                std::abs(globalpos[Amg::z]) > big_number)  // to avoid crashing with TGC hits
             {
-                ATH_MSG_WARNING("TGC hit not physical: hitx: " << hitx << " hity: " << hity << " hitz: " << hitz);
+                ATH_MSG_WARNING("TGC hit not physical: hitx: " << globalpos);
             } else {
                 if (channel_type)  // phi hit
                 {
                     const Identifier gasGapId = m_idHelperSvc->gasGapId(id);
                     gg_it = gasgapphimap.find(gasGapId);
                     if (gg_it == gasgapphimap.end()) {  // gasgapid not yet in map
-                        std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess> hitset;
-                        hitset.insert(prd);
-                        gasgapphimap.insert(std::make_pair(gasGapId, hitset));
+                        gasgapphimap[gasGapId] = {prd};
                     } else {  // gasgapid already in set
                         gg_insert = (*gg_it).second.insert(prd);
                         if (!gg_insert.second) { ATH_MSG_DEBUG("WARNING::TGC hit already in set? "); }
@@ -644,7 +612,7 @@ namespace Muon {
                 }
                 double weight = 1.;
                 double prob = 1.;
-                if (m_hit_reweights == true) {
+                if (m_hit_reweights) {
                     if (layers.size() <= 1) {
                         weight = 0.;
                         prob = 0.;
@@ -662,49 +630,45 @@ namespace Muon {
                         }
                     }
                 }
-                MuonHoughHit* hit = new MuonHoughHit(hitx, hity, hitz, channel_type, MuonHough::TGC, prob, weight,
+                MuonHoughHit* hit = new MuonHoughHit(globalpos, channel_type, MuonHough::TGC, prob, weight,
                                                      prd);  // getPrd
-                hitcontainer->addHit(hit);
+                hitcontainer.addHit(hit);
                 ATH_MSG_DEBUG(m_printer->print(*prd) << " NEW weight " << weight);
-                if (m_use_histos == true) {
-                    m_weighthistogram->Fill(weight);
-                    m_weighthistogramtgc->Fill(weight);
+                if (m_use_histos) {
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(weight);
+                  h.m_weighthistogramtgc->Fill(weight);
                 }
             }
         }
 
-        int size_end = hitcontainer->size();
-        updateTgcMdtStationMap((*cit_begin)->identify(), size_begin, size_end, tgcmdtstationmap);
+        int size_end = hitcontainer.size();
+        updateTgcMdtStationMap((*tgc_coll->begin())->identify(), size_begin, size_end, tgcmdtstationmap);
 
         // extract preprawdata from gasgapmap // might not be fastest way (filling
         // immidiately saves this second loop)
 
-        cit = cit_begin;
-
-        for (; cit != cit_end; ++cit) {
-            const Muon::TgcPrepData* prd = *cit;
+        for (const Muon::TgcPrepData* prd : *tgc_coll) {
             const Identifier id = prd->identify();
             if (!static_cast<bool>(m_idHelperSvc->tgcIdHelper().isStrip(id))) {  // eta hit
-
                 const Identifier gasGapId = m_idHelperSvc->gasGapId(id);
-
                 gg_it = gasgapphimap.find(gasGapId);
-                if (gg_it != gasgapphimap.end()) { phietahitassociation->insert(std::make_pair(prd, (*gg_it).second)); }
+                if (gg_it != gasgapphimap.end()) { phietahitassociation.insert(std::make_pair(prd, (*gg_it).second)); }
             }
         }
     }
 
-    void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin,
-                                                      Muon::MdtPrepDataCollection::const_iterator cit_end,
-                                                      MuonHoughHitContainer* hitcontainer,
+    void MuonHoughPatternFinderTool::addMdtCollection(const MdtPrepDataCollection* mdt_coll, MuonHoughHitContainer& hitcontainer,
                                                       std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
                                                       std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap) const {
-        if (cit_begin == cit_end) return;
+        const int size = mdt_coll->size();
+        if (!size) return;
 
-        const int size = std::distance(cit_begin, cit_end);
-
-        if (m_showerskip == true) {
-            const Muon::MdtPrepData* mdt = (*cit_begin);
+        auto new_mdt_hit = [](const Muon::MdtPrepData* mdt_hit, double prob, double weight) {
+            return new MuonHoughHit(mdt_hit->globalPosition(), false /*measures_phi*/, MuonHough::MDT, prob, weight, mdt_hit);  // getPrd
+        };
+        if (m_showerskip) {
+            const Muon::MdtPrepData* mdt = (*mdt_coll->begin());
             const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement();
             unsigned int channels = 2 * detEl->getNLayers() * detEl->getNtubesperlayer();  // Factor 2 for number of multilayers, should
                                                                                            // be changed when only 1 detector element per
@@ -722,24 +686,12 @@ namespace Muon {
                 ATH_MSG_DEBUG("Chamber skipped! Too high occupancy (>" << m_showerskipperc << "%): " << occupancy
                                                                        << " association to pattern still possible");
 
-                Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;
-                for (; cit != cit_end; ++cit)  // first
-                {
-                    const Muon::MdtPrepData* mdt = (*cit);
+                for (const MdtPrepData* mdt_hit : *mdt_coll) {
+                    if (m_mdt_tdc_cut && mdt_hit->status() != Muon::MdtStatusDriftTime) continue;
 
-                    if (m_mdt_tdc_cut == true && mdt->status() != Muon::MdtStatusDriftTime) continue;
-
-                    if ((m_mdt_adc_cut == true && (mdt->adc() > m_mdt_adc_min)) || m_mdt_adc_cut == false) {
-                        Identifier id = mdt->identify();
-                        const Trk::Surface& surface = mdt->detectorElement()->surface(id);
-                        const Amg::Vector3D& globalpos = surface.center();
-                        double hitx = globalpos.x();
-                        double hity = globalpos.y();
-                        double hitz = globalpos.z();
-
-                        MuonHoughHit* hit = new MuonHoughHit(hitx, hity, hitz, false, MuonHough::MDT, 0., 0., mdt);  // getPrd
-                        ATH_MSG_DEBUG(m_printer->print(*mdt));
-                        hitcontainer->addHit(hit);
+                    if ((m_mdt_adc_cut && (mdt_hit->adc() > m_mdt_adc_min)) || !m_mdt_adc_cut) {
+                        ATH_MSG_DEBUG(m_printer->print(*mdt_hit));
+                        hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
                     }
                 }
                 return;
@@ -750,9 +702,6 @@ namespace Muon {
         std::map<int, int> number_of_hots_per_layer;  // number of trigger confirmed or hits on segment
                                                       // within layer (key)
 
-        std::vector<double> hitx;
-        std::vector<double> hity;
-        std::vector<double> hitz;
         std::vector<double> radius;
         std::vector<double> errradius;
         std::vector<double> weights;
@@ -769,9 +718,6 @@ namespace Muon {
         std::vector<int> layers;
         std::vector<const Muon::MdtPrepData*> prd;
 
-        hitx.reserve(size);
-        hity.reserve(size);
-        hitz.reserve(size);
         radius.reserve(size);
         errradius.reserve(size);
         weights.reserve(size);
@@ -789,22 +735,15 @@ namespace Muon {
 
         std::vector<double> tubecount(m_idHelperSvc->mdtIdHelper().tubeMax() + 2);
 
-        Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;
-        for (; cit != cit_end; ++cit)  // first
+        for (const Muon::MdtPrepData* mdt : *mdt_coll)  // first
         {
-            const Muon::MdtPrepData* mdt = (*cit);
+            if (m_mdt_tdc_cut && mdt->status() != Muon::MdtStatusDriftTime) continue;
 
-            if (m_mdt_tdc_cut == true && mdt->status() != Muon::MdtStatusDriftTime) continue;
-
-            if ((m_mdt_adc_cut == true && (mdt->adc() > m_mdt_adc_min)) || m_mdt_adc_cut == false) {
+            if ((m_mdt_adc_cut && (mdt->adc() > m_mdt_adc_min)) || !m_mdt_adc_cut) {
                 Identifier id = mdt->identify();
 
                 prd.push_back(mdt);
-                const Trk::Surface& surface = mdt->detectorElement()->surface(id);
-                const Amg::Vector3D& globalpos = surface.center();
-                hitx.push_back(globalpos.x());
-                hity.push_back(globalpos.y());
-                hitz.push_back(globalpos.z());
+
                 radius.push_back(mdt->localPosition()[0]);
                 errradius.push_back(Amg::error(mdt->localCovariance(), 0));
                 weights.push_back(1.);
@@ -837,31 +776,28 @@ namespace Muon {
 
         const unsigned int prdsize = prd.size();
 
-        if (prdsize == 0) return;
+        if (!prdsize) return;
 
-        if (false == m_hit_reweights) {
-            for (unsigned int i = 0; i < prdsize; i++) {
-                MuonHoughHit* hit = new MuonHoughHit(hitx[i], hity[i], hitz[i], false, MuonHough::MDT, 1., 1.,
-                                                     prd[i]);  // getPrd
-                ATH_MSG_DEBUG(m_printer->print(*prd[i]));
-                hitcontainer->addHit(hit);
+        if (!m_hit_reweights) {
+            for (const Muon::MdtPrepData* mdt_hit : prd) {
+                ATH_MSG_DEBUG(m_printer->print(*mdt_hit));
+                hitcontainer.addHit(new_mdt_hit(mdt_hit, 1., 1.));
             }
             return;
         }
 
         double tubem = *(std::max_element(tubecount.begin(), tubecount.end()));
 
-        if (tubem < 2.01)  // allweights 0
-        {
+        // allweights 0
+        if (tubem < 2.01) {
             ATH_MSG_VERBOSE(" TOO SMALL tubem : " << tubem);
-            for (unsigned int i = 0; i < prdsize; i++) {
-                MuonHoughHit* hit = new MuonHoughHit(hitx[i], hity[i], hitz[i], false, MuonHough::MDT, 0., 0.,
-                                                     prd[i]);  // getPrd
-                ATH_MSG_DEBUG(m_printer->print(*prd[i]) << " weight " << 0 << " adc: " << prd[i]->adc());
-                hitcontainer->addHit(hit);
-                if (m_use_histos == true) {
-                    m_weighthistogram->Fill(0);
-                    m_weighthistogrammdt->Fill(0);
+            for (const Muon::MdtPrepData* mdt_hit : prd) {
+                ATH_MSG_DEBUG(m_printer->print(*mdt_hit) << " weight " << 0 << " adc: " << mdt_hit->adc());
+                hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
+                if (m_use_histos) {
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(0);
+                  h.m_weighthistogrammdt->Fill(0);
                 }
 
             }  // collection
@@ -877,29 +813,24 @@ namespace Muon {
             if (tubecount[tubes[i]] <= 1) prob[i] = 0;
         }  // end hit loop i
 
-        int ml1 = 0;
-        int ml2 = 0;
-
-        std::map<int, int>::iterator map_it = number_of_hits_per_layer.begin();
-        for (; map_it != number_of_hits_per_layer.end(); ++map_it) {
-            if ((*map_it).first >= m_idHelperSvc->mdtIdHelper().tubeLayerMax()) {
-                ml1++;
-            } else {
-                ml2++;
-            }
+        int ml1{0}, ml2{0};
+        for (const auto& map_it : number_of_hits_per_layer) {
+            /// Avoid unneccary branching here
+            const bool count_1 = map_it.first >= m_idHelperSvc->mdtIdHelper().tubeLayerMax();
+            ml1 += count_1;
+            ml2 += !count_1;
         }
 
-        if (ml1 + ml2 < 2.01)  // allweights = 0
-        {
+        // allweights = 0
+        if (ml1 + ml2 < 2.01) {
             ATH_MSG_VERBOSE(" TOO SMALL ml1 + ml2 : " << ml1 << " ml2 " << ml2);
-            for (unsigned int i = 0; i < prdsize; i++) {
-                MuonHoughHit* hit = new MuonHoughHit(hitx[i], hity[i], hitz[i], false, MuonHough::MDT, 0., 0.,
-                                                     prd[i]);  // getPrd
-                ATH_MSG_DEBUG(m_printer->print(*prd[i]) << " weight " << 0);
-                hitcontainer->addHit(hit);
-                if (m_use_histos == true) {
-                    m_weighthistogram->Fill(0);
-                    m_weighthistogrammdt->Fill(0);
+            for (const Muon::MdtPrepData* mdt_hit : prd) {
+                ATH_MSG_DEBUG(m_printer->print(*mdt_hit) << " weight " << 0);
+                hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
+                if (m_use_histos) {
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(0);
+                  h.m_weighthistogrammdt->Fill(0);
                 }
             }  // collection
             return;
@@ -909,15 +840,15 @@ namespace Muon {
 
         DCVec dcs;
         dcs.reserve(prdsize);
-        for (unsigned int i = 0; i < prdsize; i++) {
+
+        for (unsigned int i = 0; i < prdsize; ++i) {
             if (prob[i] < 0.01) continue;
-            double global_radius = std::hypot(hitx[i], hity[i]);  // global radius
-            const TrkDriftCircleMath::LocVec2D lpos(global_radius,
-                                                    hitz[i]);  // global coordinates
             // create identifier
             TrkDriftCircleMath::MdtId mdtid(barrel, multilayer[i] - 1, tubelayer[i] - 1, tubes[i] - 1);
             // create new DriftCircircleMath::DriftCircle::DriftState
-            TrkDriftCircleMath::DriftCircle dc(lpos, radius[i], errradius[i], TrkDriftCircleMath::DriftCircle::InTime, mdtid, i);
+            const Amg::Vector3D& globalpos = prd[i]->globalPosition();
+            TrkDriftCircleMath::DriftCircle dc(TrkDriftCircleMath::LocVec2D(globalpos.perp(), globalpos.z()), radius[i], errradius[i],
+                                               TrkDriftCircleMath::DriftCircle::InTime, mdtid, i);
             dcs.emplace_back(std::move(dc));
         }
 
@@ -930,7 +861,7 @@ namespace Muon {
 
             if (ml1 + ml2 >= 2.1) {
                 int removed_hits = 0;  // keeps track of number of removed hits
-                for (unsigned int i = 0; i < sel.size(); i++) {
+                for (unsigned int i = 0; i < sel.size(); ++i) {
                     if (sel[i] != 0) {
                         unsigned int j = (unsigned int)dcs[i - removed_hits].index();  // index of position in prd vec
                         onsegment[j] = 1;
@@ -940,7 +871,7 @@ namespace Muon {
 
                         // remove hit from dcs container for next iteration!!
                         dcs.erase(dcs.begin() + i - removed_hits);
-                        removed_hits++;
+                        ++removed_hits;
                     }
                 }
             } else {
@@ -963,23 +894,24 @@ namespace Muon {
             for (unsigned int i = 0; i < stationhits.size(); i++) {
                 // rpc hit loop
                 for (int j = stationhits[i].first; j < stationhits[i].second; j++) {
-                    const MuonHoughHit* rpchit = hitcontainer->getHit(j);
+                    const MuonHoughHit* rpchit = hitcontainer.getHit(j);
                     if (rpchit->getWeight() < 0.01) continue;
 
-                    const double rpcx = hitcontainer->getHitx(j);
-                    const double rpcy = hitcontainer->getHity(j);
-                    const double rpcz = hitcontainer->getHitz(j);
-                    const double rpc_radius = std::sqrt(rpcx * rpcx + rpcy * rpcy);
+                    const double rpcx = hitcontainer.getHitx(j);
+                    const double rpcy = hitcontainer.getHity(j);
+                    const double rpcz = hitcontainer.getHitz(j);
+                    const double rpc_radius = std::hypot(rpcx, rpcy);
                     const double rpc_rz_ratio = rpc_radius / rpcz;
                     const double rpc_inv_rz_ratio = 1. / rpc_rz_ratio;
 
                     for (unsigned int k = 0; k < prdsize; k++) {
                         // Mdt hit loop
                         double dis = 0.;
+                        const Amg::Vector3D& globalpos = prd[k]->globalPosition();
                         if (barrel) {
-                            dis = hitz[k] - std::sqrt(hitx[k] * hitx[k] + hity[k] * hity[k]) * rpc_inv_rz_ratio;
+                            dis = globalpos[Amg::AxisDefs::z] - globalpos.perp() * rpc_inv_rz_ratio;
                         } else {  // can that happen?
-                            dis = std::sqrt(hitx[k] * hitx[k] + hity[k] * hity[k]) - rpc_rz_ratio * hitz[k];
+                            dis = globalpos.perp() - rpc_rz_ratio * globalpos[Amg::AxisDefs::z];
                         }
 
                         if (weight_trigger[k] < 0.1) { weight_trigger[k] = 1.; }
@@ -1004,20 +936,20 @@ namespace Muon {
             for (unsigned int i = 0; i < stationhits.size(); i++) {
                 // tgc hit loop
                 for (int j = stationhits[i].first; j < stationhits[i].second; j++) {
-                    const MuonHoughHit* tgchit = hitcontainer->getHit(j);
+                    const MuonHoughHit* tgchit = hitcontainer.getHit(j);
                     if (tgchit) {
                         if (tgchit->getWeight() < 0.01) continue;
 
-                        const double tgcx = hitcontainer->getHitx(j);
-                        const double tgcy = hitcontainer->getHity(j);
-                        const double tgcz = hitcontainer->getHitz(j);
-                        const double tgc_rz_ratio = std::sqrt(tgcx * tgcx + tgcy * tgcy) / tgcz;
+                        const double tgcx = tgchit->getHitx();
+                        const double tgcy = tgchit->getHity();
+                        const double tgcz = tgchit->getHitz();
+                        const double tgc_rz_ratio = std::hypot(tgcx, tgcy) / tgcz;
 
                         for (unsigned int k = 0; k < prdsize; k++) {
                             // Mdt hit loop
                             if (weight_trigger[k] < 0.1) weight_trigger[k] = 3.;
-                            double dis =
-                                std::sqrt(hitx[k] * hitx[k] + hity[k] * hity[k]) - tgc_rz_ratio * hitz[k];  // only endcap extrapolation
+                            const Amg::Vector3D& globalpos = prd[k]->globalPosition();
+                            double dis = globalpos.perp() - tgc_rz_ratio * globalpos[Amg::AxisDefs::z];  // only endcap extrapolation
                             if (std::abs(dis) < 250.) {
                                 double wnew = 3.5 + (250. - std::abs(dis)) / 251.;
                                 if (wnew > weight_trigger[k]) weight_trigger[k] = wnew;
@@ -1052,7 +984,7 @@ namespace Muon {
             }  // throw away hits that are not significant
 
             // correct for several number of hits in layer:
-            map_it = number_of_hits_per_layer.find(layers[i]);
+            std::map<int, int>::const_iterator map_it = number_of_hits_per_layer.find(layers[i]);
             if (map_it != number_of_hits_per_layer.end()) {
                 int layerhits = (*map_it).second;
                 double layer_weight = 1. / (0.25 * layerhits + 0.75 * std::sqrt(layerhits));
@@ -1102,34 +1034,30 @@ namespace Muon {
         // and finally add hits to container:
 
         for (unsigned int i = 0; i < prdsize; i++) {
-            MuonHoughHit* hit = new MuonHoughHit(hitx[i], hity[i], hitz[i], false, MuonHough::MDT, prob[i], weights[i],
-                                                 prd[i]);  // getPrd
             ATH_MSG_DEBUG(m_printer->print(*prd[i]) << " trigger weight " << weight_trigger[i] << " on segment " << onsegment[i] << " psi "
                                                     << psi[i] << " prob " << prob[i] << " weight " << weights[i]);
-            hitcontainer->addHit(hit);
-            if (m_use_histos == true) {
-                m_weighthistogram->Fill(weights[i]);
-                m_weighthistogrammdt->Fill(weights[i]);
+            hitcontainer.addHit(new_mdt_hit(prd[i], prob[i], weights[i]));
+            if (m_use_histos) {
+                Hists& h = getHists();
+                h.m_weighthistogram->Fill(weights[i]);
+                h.m_weighthistogrammdt->Fill(weights[i]);
             }
 
         }  // collection
     }
 
     void MuonHoughPatternFinderTool::addCscCollection(
-        Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end,
-        MuonHoughHitContainer* hitcontainer,
-        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const {
-        if (cit_begin == cit_end) return;
+        const Muon::CscPrepDataCollection* csc_coll, MuonHoughHitContainer& hitcontainer,
+        std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const {
+        /// For the moment deactivate the CSCs to reconcile the CI
+        if (true || csc_coll->size() == 0) return;
         std::map<int, int> number_of_hits_per_layer;
         if (m_hit_reweights)  // reweight  hits, according to Niels' and Peters new
                               // algorithm
         {
-            Muon::CscPrepDataCollection::const_iterator cit = cit_begin;
-            for (; cit != cit_end; ++cit) {
-                const Muon::CscPrepData* prd = (*cit);
+            for (const Muon::CscPrepData* prd : *csc_coll) {
                 Identifier id = prd->identify();
-
-                bool channel_type = m_idHelperSvc->cscIdHelper().measuresPhi(prd->identify());
+                const bool channel_type = m_idHelperSvc->cscIdHelper().measuresPhi(prd->identify());
 
                 const int chamber_layer = m_idHelperSvc->cscIdHelper().chamberLayer(id);
                 const int chamber_layer_max = m_idHelperSvc->cscIdHelper().chamberLayerMax(id);
@@ -1149,15 +1077,9 @@ namespace Muon {
         std::map<const Identifier, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>::iterator gg_it;
         std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>::iterator, bool> gg_insert;
 
-        Muon::CscPrepDataCollection::const_iterator cit = cit_begin;
-        for (; cit != cit_end; ++cit) {
-            const Muon::CscPrepData* prd = *cit;
-            Amg::Vector3D globalpos = prd->globalPosition();
+        for (const Muon::CscPrepData* prd : *csc_coll) {
+            const Amg::Vector3D& globalpos = prd->globalPosition();
             Identifier id = prd->identify();
-            double hitx = globalpos.x();
-            double hity = globalpos.y();
-            double hitz = globalpos.z();
-
             bool channel_type = m_idHelperSvc->cscIdHelper().measuresPhi(id);
 
             if (channel_type)  // phi hit
@@ -1165,9 +1087,7 @@ namespace Muon {
                 const Identifier gasGapId = m_idHelperSvc->gasGapId(id);
                 gg_it = gasgapphimap.find(gasGapId);
                 if (gg_it == gasgapphimap.end()) {  // gasgapid not yet in map
-                    std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess> hitset;
-                    hitset.insert(prd);
-                    gasgapphimap.insert(std::make_pair(gasGapId, hitset));
+                    gasgapphimap[gasGapId] = {prd};
                 } else {  // gasgapid already in set
                     gg_insert = (*gg_it).second.insert(prd);
                     if (!gg_insert.second) { ATH_MSG_DEBUG("WARNING::CSC hit already in set? "); }
@@ -1187,29 +1107,26 @@ namespace Muon {
                 ATH_MSG_DEBUG("CSC weight: " << weight);
             }
 
-            MuonHoughHit* hit = new MuonHoughHit(hitx, hity, hitz, channel_type, MuonHough::CSC, 1., weight,
+            MuonHoughHit* hit = new MuonHoughHit(globalpos, channel_type, MuonHough::CSC, 1., weight,
                                                  prd);  // getPrd
-            hitcontainer->addHit(hit);
+            hitcontainer.addHit(hit);
             ATH_MSG_DEBUG(m_printer->print(*prd) << " weight " << weight);
-            if (m_use_histos == true) {
-                m_weighthistogram->Fill(weight);
-                m_weighthistogramcsc->Fill(weight);
+            if (m_use_histos) {
+                Hists& h = getHists();
+                h.m_weighthistogram->Fill(weight);
+                h.m_weighthistogramcsc->Fill(weight);
             }
         }
         // extract preprawdata from gasgapmap // might not be fastest way (filling
         // immidiately saves this second loop)
 
-        cit = cit_begin;
-
-        for (; cit != cit_end; ++cit) {
-            const Muon::CscPrepData* prd = *cit;
+        for (const Muon::CscPrepData* prd : *csc_coll) {
             const Identifier id = prd->identify();
             if (!m_idHelperSvc->cscIdHelper().measuresPhi(id)) {  // eta hit
 
                 const Identifier gasGapId = m_idHelperSvc->gasGapId(id);
-
                 gg_it = gasgapphimap.find(gasGapId);
-                if (gg_it != gasgapphimap.end()) { phietahitassociation->insert(std::make_pair(prd, (*gg_it).second)); }
+                if (gg_it != gasgapphimap.end()) { phietahitassociation.insert(std::make_pair(prd, (*gg_it).second)); }
             }
         }
     }
@@ -1587,4 +1504,15 @@ namespace Muon {
             }
         }
     }
+
+
+    MuonHoughPatternFinderTool::Hists&
+    MuonHoughPatternFinderTool::getHists() const
+    {
+      // We earlier checked that no more than one thread is being used.
+      Hists* h ATLAS_THREAD_SAFE = m_h.get();
+      return *h;
+    }
+
+
 }  // namespace Muon

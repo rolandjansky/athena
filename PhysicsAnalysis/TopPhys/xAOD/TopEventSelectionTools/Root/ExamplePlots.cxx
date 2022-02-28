@@ -190,14 +190,10 @@ namespace top {
       m_hists.hist("mu_eta")->Fill(muPtr->eta(), eventWeight);
       m_hists.hist("mu_phi")->Fill(muPtr->phi(), eventWeight);
 
-      //protection from derivation framework removing tracks
-      const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
-      if (mutrack != nullptr) {
-        m_hists.hist("mu_charge")->Fill(mutrack->charge(), eventWeight);
-        if (m_config->isMC()) {
-          static SG::AuxElement::Accessor<int> acc_mctt("truthType");
-          if (acc_mctt.isAvailable(*mutrack)) m_hists.hist("mu_true_type")->Fill(acc_mctt(*mutrack), eventWeight);
-        }
+      m_hists.hist("mu_charge")->Fill(muPtr->charge(), eventWeight);
+      if (m_config->isMC()) {
+        static SG::AuxElement::Accessor<int> acc_mctt("truthType");
+        if (acc_mctt.isAvailable(*muPtr)) m_hists.hist("mu_true_type")->Fill(acc_mctt(*muPtr), eventWeight);
       }
     }
 

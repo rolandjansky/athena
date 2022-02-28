@@ -154,6 +154,11 @@ class MenuItem(object):
 
     def markLegacy(self,legacyThresholdsSet):
         self.legacy = bool ( legacyThresholdsSet.intersection(self.logic.thresholdNames()) )
+        if self.legacy:
+           for thr in self.logic.thresholdNames():
+               if any(substring in thr for substring in ['e','c','j','g']) or thr[:4]=='TOPO': 
+                   log.error('item %s defined with a mix of legacy and phase1 thresholds: %s', self.name, ','.join(self.logic.thresholdNames()))
+                   raise Exception("Please fix")
 
     def binary_trigger_type(self, width=8):
         """Turns integer triggertype in a binary string of given width"""

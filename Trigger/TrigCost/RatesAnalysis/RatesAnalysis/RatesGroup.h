@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESTGROUP_H
@@ -32,12 +32,12 @@ class RatesGroup : public RatesHistoBase {
   /**
    * @brief Construct new RatesGroup to enumerate the combined union (OR) and intersection (AND) rate of a set of trigger at L1 or the HLT
    * @param name Name of the group
-   * @param log Reference to message service
+   * @param msgSvc Reference to message service
    * @param prescale Prescale to apply to the whole group
    * @param doHistograms Flag to mint histograms or not
    * @param doExtrapolation Flag to switch on or off extrapolation within the group
    */
-  RatesGroup(const std::string& name, const MsgStream& log, const bool doHistograms = true, const bool doExtrapolation = true);
+  RatesGroup(const std::string& name, IMessageSvc* msgSvc, const bool doHistograms = true, const bool doExtrapolation = true);
 
   virtual ~RatesGroup();
 

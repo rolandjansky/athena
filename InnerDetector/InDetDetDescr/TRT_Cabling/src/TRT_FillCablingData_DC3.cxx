@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -27,7 +27,7 @@
  *      o 330000 is  2 is EC A
  *      o 340000 is -2 is EC C
  *
- * The m_identfier* and m_collID vectors are indexed by ROB source ID - 1.
+ * The m_identifier* and m_collID vectors are indexed by ROB source ID - 1.
  * The magic mapping between ROB source IDs and phi sector indices is in 
  * getRobID() and in fillCollID().  Everything else should just fall 
  * through and gets the Right Answer.
@@ -35,7 +35,7 @@
 
 #undef ENDCAP_DEFINED
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <iostream>
 #include "TRT_FillCablingData_DC3.h"
@@ -58,7 +58,7 @@ static const InterfaceID IID_ITRT_FillCablingData_DC3
   // Constructor
 TRT_FillCablingData_DC3::TRT_FillCablingData_DC3( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-    m_TRTHelper(0), 
+    m_TRTHelper(nullptr), 
     m_PartialDetector(false)
 {
   declareInterface< TRT_FillCablingData_DC3 >( this );  
@@ -216,7 +216,7 @@ void TRT_FillCablingData_DC3::defineTables()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -265,7 +265,7 @@ void TRT_FillCablingData_DC3::defineTables()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -325,7 +325,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -393,7 +393,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -457,7 +457,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -525,7 +525,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -595,7 +595,7 @@ void TRT_FillCablingData_DC3::defineTables()
         {
 	   uint32_t SourceId;
 
-	   string::size_type loc = thisLine.find( "#" );
+	   string::size_type loc = thisLine.find( '#' );
 	   if ( loc != string::npos )
            {
 	      thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -661,8 +661,8 @@ void TRT_FillCablingData_DC3::defineTables()
 
 	 if ( strawNumber < 0 )
 	 {
-	    m_cabling->set_identfierForAllStraws( rodId, ii, NULLstrawID );
-	    m_cabling->set_identfierHashForAllStraws( rodId, ii, NULLhashId );
+	    m_cabling->set_identifierForAllStraws( rodId, ii, NULLstrawID );
+	    m_cabling->set_identifierHashForAllStraws( rodId, ii, NULLhashId );
 	    continue;
 	 }
 
@@ -712,7 +712,7 @@ void TRT_FillCablingData_DC3::defineTables()
 // 	      << strawLayerId << " " << strawInLayerId << " " << std::hex 
 // 	      << strawID << std::dec << endl;
 
-	 m_cabling->set_identfierForAllStraws( rodId, ii, strawID );
+	 m_cabling->set_identifierForAllStraws( rodId, ii, strawID );
 
 
 	 Identifier Lid = m_TRTHelper->layer_id( SubDet, Phi, moduleId, strawLayerId );
@@ -731,7 +731,7 @@ void TRT_FillCablingData_DC3::defineTables()
 	 }  
 
 
-	 m_cabling->set_identfierHashForAllStraws( rodId, ii, hashId );
+	 m_cabling->set_identifierHashForAllStraws( rodId, ii, hashId );
 
        }
 
@@ -918,7 +918,7 @@ void TRT_FillCablingData_DC3::defineTables()
 					     strawInLayerId );
 
 
-	    m_cabling->set_identfierForAllStraws( rodId, BufferLocation,
+	    m_cabling->set_identifierForAllStraws( rodId, BufferLocation,
 						  strawID );
 
 
@@ -944,7 +944,7 @@ void TRT_FillCablingData_DC3::defineTables()
 	    }
 
 
-	    m_cabling->set_identfierHashForAllStraws( rodId,
+	    m_cabling->set_identifierHashForAllStraws( rodId,
 						      BufferLocation,
 						      hashId );
 	 } // loop over bufferOffsets
@@ -1183,7 +1183,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1229,7 +1229,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1489,7 +1489,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
         {
 	   uint32_t SourceId;
 
-	   string::size_type loc = thisLine.find( "#" );
+	   string::size_type loc = thisLine.find( '#' );
 	   if ( loc != string::npos )
            {
 	      thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1555,8 +1555,8 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
 
 	 if ( strawNumber < 0 )
 	 {
-	    m_cabling->set_identfierForAllStraws( rodId, ii, NULLstrawID );
-	    m_cabling->set_identfierHashForAllStraws( rodId, ii, NULLhashId );
+	    m_cabling->set_identifierForAllStraws( rodId, ii, NULLstrawID );
+	    m_cabling->set_identifierHashForAllStraws( rodId, ii, NULLhashId );
 	    continue;
 	 }
 
@@ -1606,7 +1606,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
 // 	      << strawLayerId << " " << strawInLayerId << " " << std::hex 
 // 	      << strawID << std::dec << endl;
 
-	 m_cabling->set_identfierForAllStraws( rodId, ii, strawID );
+	 m_cabling->set_identifierForAllStraws( rodId, ii, strawID );
 
 
 	 Identifier Lid = m_TRTHelper->layer_id( SubDet, Phi, moduleId, strawLayerId );
@@ -1625,7 +1625,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
 	 }  
 
 
-	 m_cabling->set_identfierHashForAllStraws( rodId, ii, hashId );
+	 m_cabling->set_identifierHashForAllStraws( rodId, ii, hashId );
 
        }
 
@@ -1697,7 +1697,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
 					     strawInLayerId );
 
 
-	    m_cabling->set_identfierForAllStraws( rodId, BufferLocation,
+	    m_cabling->set_identifierForAllStraws( rodId, BufferLocation,
 						  strawID );
 
 
@@ -1723,9 +1723,9 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
 	    }
 
 
-	    m_cabling->set_identfierHashForAllStraws( rodId,
-						      BufferLocation,
-						      hashId );
+	    m_cabling->set_identifierHashForAllStraws( rodId,
+                                                       BufferLocation,
+                                                       hashId );
 	 } // loop over bufferOffsets
        }   // loop over inner, outer Z RODs
      }   // Endcap
@@ -1984,7 +1984,7 @@ std::vector<IdentifierHash> & ids)
  * Input : Straw ID
  * Output: list of ROB Source IDs
  */
-std::vector<uint32_t> TRT_FillCablingData_DC3::getRobID(Identifier id) 
+std::vector<uint32_t> TRT_FillCablingData_DC3::getRobID(Identifier id)  const
 {
   std::vector<uint32_t> v;
   uint32_t Source=0;

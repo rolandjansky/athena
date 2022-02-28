@@ -188,11 +188,11 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   }//no GM
   else
     for(int pcnt=0;pcnt<4;pcnt++){
-      m_tgclv1numberoflptwire[pcnt] = 0;
-      m_tgclv1numberoflptstrip[pcnt] = 0;
-      m_tgclv1numberofhptwire[pcnt] = 0;
-      m_tgclv1numberofhptstrip[pcnt] = 0;
-      m_tgclv1numberofsl[pcnt] = 0;
+      m_tgclv1numberoflptwire[pcnt] = nullptr;
+      m_tgclv1numberoflptstrip[pcnt] = nullptr;
+      m_tgclv1numberofhptwire[pcnt] = nullptr;
+      m_tgclv1numberofhptstrip[pcnt] = nullptr;
+      m_tgclv1numberofsl[pcnt] = nullptr;
     }
 
   ///////////////////////////////////////////////////////////////////////////

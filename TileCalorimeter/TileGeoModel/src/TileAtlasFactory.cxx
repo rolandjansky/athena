@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileAtlasFactory.h"
@@ -45,6 +45,8 @@
 #include <cmath>
 #include <string>
 
+#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
+
 using namespace GeoGenfun;
 using namespace GeoXF;
 
@@ -53,7 +55,7 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    TileDetDescrManager *manager,
                                    const TileSwitches & switches,
                                    MsgStream *log,
-				   bool fullGeo)
+				                   bool fullGeo)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log) 
@@ -151,8 +153,6 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   //unsigned int ienv_size = 6;
 
   // set default finger length
-  double PosEnvThickness  =0;
-  double NegEnvThickness  =0;
   double BFingerLength    =0;
   double BFingerLengthNeg =0;
   double BFingerLengthPos =0;
@@ -267,14 +267,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   BFingerRmin = dbManager->TILBrmax()*Gaudi::Units::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
   EFingerRmin = dbManager->TILBrmax()*Gaudi::Units::cm;
-  
-  /** calculation PosEnvThickness enlarge mother volume by extra distance between barrel and positive ext.barrel */
-  dbManager->SetCurrentEnvByType(3);
-  PosEnvThickness += dbManager->GetEnvDZ()*dbManager->GetEnvSide();
 
-  /** enlarge mother volume by extra distance between barrel and negative ext.barrel */
+  // ??? Is this needed?
   dbManager->SetCurrentEnvByType(2);
-  NegEnvThickness += dbManager->GetEnvDZ()*dbManager->GetEnvSide();
 
 
   //
@@ -520,8 +515,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	      - (dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()) 
 		 -  dbManager->TILBdzmast()))/(2.*(2.*dbManager->TILBnperiod() - 1));
 
+    // TODO: apparently, the value set with the call below is not used: it seems m_barrelPeriodThickness is recomputed inside the GeoSectionBuilder's code; so, the call below is probably useless...
     sectionBuilder->setBarrelPeriodThickness(2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac() + 2.*dzGlue)*Gaudi::Units::cm);
-    sectionBuilder->setBarrelGlue(dzGlue*Gaudi::Units::cm);
+    sectionBuilder->setBarrelGlue(dzGlue*Gaudi::Units::cm); // TODO: it's probably the same, here...
 
     // Ext barrel part
     dbManager->SetCurrentSectionByNumber(2);
@@ -529,6 +525,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
 	      - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
 
+    // TODO: apparently, the value set with the call below is not used: it seems m_extendedPeriodThickness is recomputed inside the GeoSectionBuilder's code; so, the call below is probably useless...
     sectionBuilder->setExtendedPeriodThickness(2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac() + 2.*dzGlue)*Gaudi::Units::cm);
   }
 
@@ -744,6 +741,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   }
 
   int NumberOfEnv = dbManager->GetNumberOfEnv();
+  MLOG(DEBUG) << "NumberOfEnv: " << NumberOfEnv << endmsg;
 
   for(int EnvCounter = 0; EnvCounter < NumberOfEnv ; ++EnvCounter)
   { // Loop over Envelopes
@@ -2973,11 +2971,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
      //
      // creating Descriptiors and CaloDetDescrElements 
      // 
+     (*m_log) << MSG::DEBUG << "Creating descriptors for " << dbManager->GetNumberOfEnv() << " envelopes..." << endmsg;
 
      int nModulesInSection[6] = {0,0,0,0,0,0};
      double zShiftInSection[6] = {0.0,0.0,0.0,0.0,0.0,0.0,};
-
-     // int NumberOfEnv = dbManager->GetNumberOfEnv();
 
 
      for(int EnvCounter = 0; EnvCounter < dbManager->GetNumberOfEnv(); ++EnvCounter){ //Loop over Envelopes
@@ -3009,15 +3006,22 @@ void TileAtlasFactory::create(GeoPhysVol *world)
    unsigned int dete[6] = {TILE_REGION_CENTRAL,TILE_REGION_CENTRAL,TILE_REGION_EXTENDED,TILE_REGION_EXTENDED,
                            TILE_REGION_GAP,TILE_REGION_GAP};
    int side[6] = {0,1,0,1,0,1};
-   
+  
+
+   (*m_log) << MSG::DEBUG << "Loop over Tile detector regions, and call computeCellDim() when needed..." << endmsg; 
    for (int ii=0; ii<6; ++ii) {
+     
+     (*m_log) << MSG::DEBUG << "ii: " << ii << ", region: " << dete[ii] << endmsg; 
+     
      if (ii%2 == 0) {
+        (*m_log) << MSG::DEBUG << "ii: " << ii << ", region: " << dete[ii] << " --> calling computeCellDim()..." << endmsg; 
         sectionBuilder->computeCellDim(m_detectorManager, dete[ii],
                                        m_switches.addPlatesToCell,
                                        zShiftInSection[ii+1], // zShiftPos
                                        zShiftInSection[ii]);  // zShiftNeg
      }
      
+     (*m_log) << MSG::DEBUG << "calling fillDescriptor()..." << endmsg; 
      TileDetDescriptor* descriptor = new TileDetDescriptor();
      sectionBuilder->fillDescriptor(descriptor, dete[ii], side[ii],
                                     m_switches.testBeam,        // set to false - ATLAS geometry
@@ -3025,6 +3029,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                     nModulesInSection[ii],   // 0-64 modules
                                     zShiftInSection[ii]);    // Z-shift
      
+     (*m_log) << MSG::DEBUG << "Get an Identifier for the region and add it to the detectorManager..." << endmsg; 
      Identifier idRegion = tileID->region_id(ii);
      descriptor->set(idRegion);
      m_detectorManager->add(descriptor); 

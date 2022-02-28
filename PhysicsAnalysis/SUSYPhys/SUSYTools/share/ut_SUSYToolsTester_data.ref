@@ -28,7 +28,7 @@ Package.SUSYToolsTester  INFO    GRL tool retrieve & initialized...
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /data/CERN/BGF/STr22_TauTools/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /SomeLocalPath/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -264,7 +264,7 @@ Info in <CP::TPileupReweighting::UsePeriodConfig>: Using MC16 Period configurati
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xb6e3630
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xd410c60
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
@@ -715,7 +715,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-31T0524/AnalysisBase/22.2.50/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-01-05T0524/AnalysisBase/22.2.56/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -840,16 +840,16 @@ ToolSvc.MuonTriggerSca...INFO    AllowZeroSF = 1
 ToolSvc.MuonTriggerSca...INFO    experimental = 0
 ToolSvc.MuonTriggerSca...INFO    useRel27 = 0
 ToolSvc.MuonTriggerSca...INFO    MuonTriggerScaleFactors::initialize
-ToolSvc.EleSelLikeliho...INFO    initialize : WP 15 0
 ToolSvc.EleSelLikeliho...INFO    operating point : TightLHElectron
-ToolSvc.EleSelLikeliho...INFO    initialize : WP 17 0
+ToolSvc.EleSelLikeliho...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf
 ToolSvc.EleSelLikeliho...INFO    operating point : LooseBLLHElectron
-ToolSvc.PhotonSelIsEM_...INFO    initialize : WP 11 0
+ToolSvc.EleSelLikeliho...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf
+ToolSvc.PhotonSelIsEM_...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/20180825/PhotonIsEMTightSelectorCutDefs.conf
 ToolSvc.PhotonSelIsEM_...INFO    operating point : Tight
-ToolSvc.PhotonSelIsEMB...INFO    initialize : WP 11 0
+ToolSvc.PhotonSelIsEMB...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/20180825/PhotonIsEMTightSelectorCutDefs.conf
 ToolSvc.PhotonSelIsEMB...INFO    operating point : Tight
-Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
-Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
+SUSYObjDef_xAOD          INFO    Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
+SUSYObjDef_xAOD          INFO    Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_iso_TightLLHFCLoose) Your electron Iso WP: FCLoose is no longer supported. This will almost certainly cause a crash now.
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_isoHigPt_TightLLHFCHighPtCaloOnly) Your electron high-pt Iso WP: FCHighPtCaloOnly is no longer supported. This will almost certainly cause a crash now.
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_singleLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
@@ -866,43 +866,6 @@ ToolSvc.ElectronPhoton...INFO    No config file set! Using default shift values 
 Info in <FudgeMCTool>: Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root
 ToolSvc.EgammaCalibrat...INFO    Initialization
 GainUncertainty          INFO    opening file /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonFourMomentumCorrection/v14/gain_uncertainty_specialRun.root
-egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    117 readers created
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 eta bin(s) -- ( 0 < abs(el_cl_eta) < 2.5
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 energy bin(s) -- ( 0  < (el_rawcl_Es1 + el_rawcl_Es2 + el_rawcl_Es3)/cosh(el_cl_eta) < 50000GeV
-egammaMVACalib           INFO    Number of variables:10
-EgammaMVATool            INFO    Using layer correction
-EgammaMVATool            INFO    10 variables for electrons
-MVATreeElectron          INFO    creating tree for 10 variables: el_cl_E,el_cl_E_TileGap3,el_cl_eta,el_cl_etaCalo,el_cl_phi,el_cl_phiCalo,el_rawcl_Es0,el_rawcl_Es1,el_rawcl_Es2,el_rawcl_Es3
-egammaMVACalib           INFO    Variable that defines particleType not set. Using default formula: ph_Rconv > 0. && ph_Rconv < 800.
-egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    234 readers created
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 eta bin(s) -- ( 0 < abs(ph_cl_eta) < 2.5
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 energy bin(s) -- ( 0  < (ph_rawcl_Es1 + ph_rawcl_Es2 + ph_rawcl_Es3)/cosh(ph_cl_eta) < 50000GeV
-egammaMVACalib           INFO    Number of variables:14
-EgammaMVATool            INFO    configuration does not contain list of variables, try to guess:
-EgammaMVATool            INFO    18 variables for photons
-EgammaMVATool            INFO      ph_Rconv
-EgammaMVATool            INFO      ph_cl_E
-EgammaMVATool            INFO      ph_cl_E_TileGap3
-EgammaMVATool            INFO      ph_cl_eta
-EgammaMVATool            INFO      ph_cl_etaCalo
-EgammaMVATool            INFO      ph_cl_phi
-EgammaMVATool            INFO      ph_cl_phiCalo
-EgammaMVATool            INFO      ph_convtrk1nPixHits
-EgammaMVATool            INFO      ph_convtrk1nSCTHits
-EgammaMVATool            INFO      ph_convtrk2nPixHits
-EgammaMVATool            INFO      ph_convtrk2nSCTHits
-EgammaMVATool            INFO      ph_pt1conv
-EgammaMVATool            INFO      ph_pt2conv
-EgammaMVATool            INFO      ph_ptconv
-EgammaMVATool            INFO      ph_rawcl_Es0
-EgammaMVATool            INFO      ph_rawcl_Es1
-EgammaMVATool            INFO      ph_rawcl_Es2
-EgammaMVATool            INFO      ph_rawcl_Es3
-MVATreePhoton            INFO    creating tree for 18 variables: ph_Rconv,ph_cl_E,ph_cl_E_TileGap3,ph_cl_eta,ph_cl_etaCalo,ph_cl_phi,ph_cl_phiCalo,ph_convtrk1nPixHits,ph_convtrk1nSCTHits,ph_convtrk2nPixHits,ph_convtrk2nSCTHits,ph_pt1conv,ph_pt2conv,ph_ptconv,ph_rawcl_Es0,ph_rawcl_Es1,ph_rawcl_Es2,ph_rawcl_Es3
 egammaLayerRecalibTool   INFO    using scale es2017_21.0_v0
 egammaLayerRecalibTool   INFO    using scale run2_alt_with_layer2_r21_v0
 egammaLayerRecalibTool   INFO    using scale layer2_alt_run2_r21_v0
@@ -925,11 +888,11 @@ ToolSvc.EgammaCalibrat...INFO    use uA2MeV correction 2015 1/2 week = 2
 ToolSvc.TauSelectionTo...INFO    Initializing TauSelectionTool
 ToolSvc.TauSelectionTo...INFO    Initializing TauSelectionTool
 ToolSvc.TauEffTool_MediumINFO    Initializing TauEfficiencyCorrectionsTool
+ToolSvc.TauEffTool_MediumWARNING Scale factors for RNN eVeto are not available yet
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
 ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/Reco_TrueHadTau_2019-summer.root
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
 ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/RNNID_TrueHadTau_2019-summer.root
-SUSYObjDef_xAOD          INFO    'TauMVACalibration' is the default procedure in R21
 ToolSvc.TauSmearingTool  INFO    Initializing TauSmearingTool
 ToolSvc.TauSmearingToo...INFO    Initializing CommonSmearingTool
 ToolSvc.TauSmearingToo...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/Smearing/TES_TrueHadTau_2019-summer.root
@@ -963,11 +926,8 @@ CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging20
 ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
-ToolSvc.METSystTool      INFO    PWD: /data/CERN/BGF/STr22_TauTools/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
-ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/BGF/STr22_TauTools/build/x86_64-centos7-gcc8-opt/data:/data/CERN/BGF/STr22_TauTools/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-31T0524/AnalysisBase/22.2.50/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-31T0524/AnalysisBase/22.2.50/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-31T0524/AnalysisBaseExternals/22.2.50/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-31T0524/AnalysisBaseExternals/22.2.50/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
 ToolSvc.METSystTool      INFO    Configuring from file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    Will read histograms from : METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
-ToolSvc.METSystTool      INFO    Systpath :/
 ToolSvc.METSystTool      INFO    Extracted histogram path : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
 ToolSvc.METSystTool      INFO    AffectingSystematics are:
 ToolSvc.METSystTool      INFO    MET_SoftTrk_ResoCorr
@@ -1016,44 +976,6 @@ ToolSvc.METSigAutoConf...INFO    Not correcting data, only using systematic unce
 ToolSvc.METSigAutoConf...INFO    Using only statistical combination of sagitta bias ID and sagitta bias MS with rho 0
 ToolSvc.METSigAutoConf...INFO    Initialization
 GainUncertainty          INFO    opening file /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonFourMomentumCorrection/v14/gain_uncertainty_specialRun.root
-Package.AsgTools.ToolS...WARNING asg::ToolStore::put: Tool with name "EgammaMVATool" already registered
-egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    117 readers created
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 eta bin(s) -- ( 0 < abs(el_cl_eta) < 2.5
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 energy bin(s) -- ( 0  < (el_rawcl_Es1 + el_rawcl_Es2 + el_rawcl_Es3)/cosh(el_cl_eta) < 50000GeV
-egammaMVACalib           INFO    Number of variables:10
-EgammaMVATool            INFO    Using layer correction
-EgammaMVATool            INFO    10 variables for electrons
-MVATreeElectron          INFO    creating tree for 10 variables: el_cl_E,el_cl_E_TileGap3,el_cl_eta,el_cl_etaCalo,el_cl_phi,el_cl_phiCalo,el_rawcl_Es0,el_rawcl_Es1,el_rawcl_Es2,el_rawcl_Es3
-egammaMVACalib           INFO    Variable that defines particleType not set. Using default formula: ph_Rconv > 0. && ph_Rconv < 800.
-egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
-egammaMVACalib           INFO    234 readers created
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 eta bin(s) -- ( 0 < abs(ph_cl_eta) < 2.5
-egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 energy bin(s) -- ( 0  < (ph_rawcl_Es1 + ph_rawcl_Es2 + ph_rawcl_Es3)/cosh(ph_cl_eta) < 50000GeV
-egammaMVACalib           INFO    Number of variables:14
-EgammaMVATool            INFO    configuration does not contain list of variables, try to guess:
-EgammaMVATool            INFO    18 variables for photons
-EgammaMVATool            INFO      ph_Rconv
-EgammaMVATool            INFO      ph_cl_E
-EgammaMVATool            INFO      ph_cl_E_TileGap3
-EgammaMVATool            INFO      ph_cl_eta
-EgammaMVATool            INFO      ph_cl_etaCalo
-EgammaMVATool            INFO      ph_cl_phi
-EgammaMVATool            INFO      ph_cl_phiCalo
-EgammaMVATool            INFO      ph_convtrk1nPixHits
-EgammaMVATool            INFO      ph_convtrk1nSCTHits
-EgammaMVATool            INFO      ph_convtrk2nPixHits
-EgammaMVATool            INFO      ph_convtrk2nSCTHits
-EgammaMVATool            INFO      ph_pt1conv
-EgammaMVATool            INFO      ph_pt2conv
-EgammaMVATool            INFO      ph_ptconv
-EgammaMVATool            INFO      ph_rawcl_Es0
-EgammaMVATool            INFO      ph_rawcl_Es1
-EgammaMVATool            INFO      ph_rawcl_Es2
-EgammaMVATool            INFO      ph_rawcl_Es3
-MVATreePhoton            INFO    creating tree for 18 variables: ph_Rconv,ph_cl_E,ph_cl_E_TileGap3,ph_cl_eta,ph_cl_etaCalo,ph_cl_phi,ph_cl_phiCalo,ph_convtrk1nPixHits,ph_convtrk1nSCTHits,ph_convtrk2nPixHits,ph_convtrk2nSCTHits,ph_pt1conv,ph_pt2conv,ph_ptconv,ph_rawcl_Es0,ph_rawcl_Es1,ph_rawcl_Es2,ph_rawcl_Es3
 egammaLayerRecalibTool   INFO    using scale es2017_21.0_v0
 egammaLayerRecalibTool   INFO    using scale run2_alt_with_layer2_r21_v0
 egammaLayerRecalibTool   INFO    using scale layer2_alt_run2_r21_v0
@@ -1073,7 +995,7 @@ ToolSvc.METSigAutoConf...INFO    ep combination = 0
 ToolSvc.METSigAutoConf...INFO    use MVA calibration = 2
 ToolSvc.METSigAutoConf...INFO    use temperature correction 2015 = 2
 ToolSvc.METSigAutoConf...INFO    use uA2MeV correction 2015 1/2 week = 2
-ToolSvc.METSigAutoConf...INFO    Using calibration file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/tauRecTools/R22_preprod/CombinedTES_R22_Round2.5.root
+ToolSvc.METSigAutoConf...INFO    Using calibration file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/tauRecTools/R22_preprod/CombinedTES_R22_Round2.5_v2.root
 ToolSvc.xAODConfigTool   INFO    Initialising...
 ToolSvc.TrigDecisionTool INFO    Initializing Trig::TrigDecisionTool (standalone version even for athena)
 ToolSvc.TrigDecisionTool INFO    Initialized TDT
@@ -1170,19 +1092,19 @@ Info in <SUSYToolsTester>: ===>>>  done processing event #836130511, run #358031
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836035578run #358031 499 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #836035578, run #358031 500 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 188.040000 / 216.489044 ms
-  First event           - 240.000000 / 12795.678139 ms
-  Excluding first event - 187.935872 / 191.280248 ms
+  Entire loop           - 258.860000 / 258.863062 ms
+  First event           - 380.000000 / 383.266926 ms
+  Excluding first event - 258.617234 / 258.613756 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 499, mu: 499
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 499, mu: 499
 Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 499, mu: 499
 Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 499, mu: 499
 Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 494, mu: 494
-Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 52, mu: 70
-Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 42, mu: 48
-Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 41, mu: 46
-Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 41, mu: 45
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 52, mu: 71
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 42, mu: 49
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 41, mu: 47
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 41, mu: 46
 Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 1, mu: 1
 ToolSvc.TrigDecisionTool INFO    Finalized
 		CalibrationDataInterfaceROOT object out-of-bounds summary:

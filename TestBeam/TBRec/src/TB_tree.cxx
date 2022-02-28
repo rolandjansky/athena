@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TB_tree.h"
@@ -799,7 +799,7 @@ TB_tree::TB_tree(TTree *tree)
       tree = (TTree*)gDirectory->Get("tree");
 
    }
-   Init(tree);
+   TB_tree::Init(tree);
 }
 
 TB_tree::~TB_tree()
@@ -1684,11 +1684,10 @@ void TB_tree::Loop()
 
    Long64_t nentries = fChain->GetEntriesFast();
 
-   Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+      fChain->GetEntry(jentry);
       // if (Cut(ientry) < 0) continue;
    }
 }
@@ -1700,14 +1699,13 @@ int TB_tree::Loop(int evtToFind)
 
    Long64_t nentries = fChain->GetEntriesFast();
 
-   Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+      fChain->GetEntry(jentry);
 
-			if(Event == evtToFind)
-				return int(jentry);
+      if(Event == evtToFind)
+        return int(jentry);
    }
-	 return -1;
+   return -1;
 }

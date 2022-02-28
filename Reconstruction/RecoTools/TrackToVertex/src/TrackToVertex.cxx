@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 // GaudiKernel
 #include "GaudiKernel/IIncidentSvc.h"
 // Trk
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
@@ -26,15 +25,7 @@ const Amg::Vector3D Reco::TrackToVertex::s_origin(0.,0.,0.);
 
 // constructor
 Reco::TrackToVertex::TrackToVertex(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"}
-{
-   declareInterface<ITrackToVertex>(this);
-   declareProperty("ForceBeamSpotZero", m_ForceBeamSpotZero);
-}
-
-// destructor
-Reco::TrackToVertex::~TrackToVertex()
+  base_class(t,n,p)
 {
 }
 
@@ -111,7 +102,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const xAOD::TrackPartic
     return (trackparPerigee.clone());
   } else {
     const Trk::TrackParameters* extrapResult =
-      m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
+      m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),trackparPerigee, persf).release();
     if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
       vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
     }
@@ -136,7 +127,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticl
        return(trackparPerigee->clone());
      } else {
        const Trk::TrackParameters* extrapResult =
-         m_extrapolator->extrapolateDirectly(*trackparPerigee, persf);
+         m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),*trackparPerigee, persf).release();
        if (extrapResult &&
            extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
          vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
@@ -160,7 +151,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Trk::Track& track
   Trk::PerigeeSurface persf(gp);
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
-    m_extrapolator->extrapolate(track, persf);
+    m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),track, persf).release();
   if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
@@ -221,7 +212,7 @@ Reco::TrackToVertex::perigeeAtBeamline(
 
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
-    m_extrapolator->extrapolate(ctx,track, persf);
+    m_extrapolator->extrapolate(ctx,track, persf).release();
   if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
@@ -236,7 +227,7 @@ Reco::TrackToVertex::perigeeAtBeamline(
         if (!trk_params) {
           continue;
         }
-        extrapResult = m_extrapolator->extrapolate(ctx,*trk_params, persf);
+        extrapResult = m_extrapolator->extrapolate(ctx,*trk_params, persf).release();
         if (extrapResult &&
             extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
           vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
@@ -292,7 +283,7 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
        ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given vertex, a copy is returned.");
        return(trackparPerigee.clone());
   } else
-      vertexPerigee = m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
+      vertexPerigee = m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),trackparPerigee, persf).release();
   if (!vertexPerigee){
      ATH_MSG_DEBUG("Extrapolation to Beam Line failed, a NULL pointer is returned.");
   }
@@ -303,13 +294,13 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
 const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const Trk::Track& trk,
                                 const Trk::StraightLineSurface* beamline) const
 {
-  return m_extrapolator->extrapolate(trk, *beamline);
+  return m_extrapolator->extrapolate(Gaudi::Hive::currentContext(), trk, *beamline).release();
 }
 
 const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const Trk::TrackParameters& tpars,
                                 const Trk::StraightLineSurface* beamline) const
 {
-  return m_extrapolator->extrapolate(tpars, *beamline);
+  return m_extrapolator->extrapolate(Gaudi::Hive::currentContext(), tpars, *beamline).release();
 }
 
 

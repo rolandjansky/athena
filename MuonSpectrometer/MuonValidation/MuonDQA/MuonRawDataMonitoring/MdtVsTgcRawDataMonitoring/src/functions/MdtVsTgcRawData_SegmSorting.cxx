@@ -36,7 +36,7 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegm
     if(!(*mdtseg_itr)->muonSegment().isValid())continue;
     // Get segm
     const Muon::MuonSegment* segm = dynamic_cast<const Muon::MuonSegment*>(*(*mdtseg_itr)->muonSegment());
-    if (segm == 0) {
+    if (segm == nullptr) {
       ATH_MSG_ERROR( "no pointer to segm!!!" );
       break;
     }

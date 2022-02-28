@@ -36,7 +36,7 @@ StatusCode
 TGCcablingServerSvc::giveCabling(const ITGCcablingSvc*& cabling) const {
     ATH_MSG_DEBUG ( "requesting instance of TGCcabling" );
     
-    cabling = 0;
+    cabling = nullptr;
     
     if(m_atlas) {
         ATH_CHECK( service( "MuonTGC_CablingSvc",cabling,true) );

@@ -25,7 +25,7 @@
         "source": "data",
         "format": "BS",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data_test.00386211.physics_Main.daq.RAW._lb0003._SFO-5._0001.data"
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data21_900GeV.00405514.physics_L1Calo.merge.RAW._lb0365._SFO-ALL._0001.1"
         ]
     },
     "data_dbg_stream": {
@@ -149,7 +149,7 @@
         "source": "mc",
         "format": "RDO",
         "paths": [
-                "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_NSW_r20210728.root"
+                "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_NSW_231121.root"
         ]
     },
     "pileup_low": {

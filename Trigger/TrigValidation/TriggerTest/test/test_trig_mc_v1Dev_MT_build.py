@@ -16,7 +16,7 @@ ex.input = 'ttbar'
 ex.threads = 2
 ex.concurrent_events = 2
 precommand = ''.join([
-  "setMenu='LS2_v1_TriggerValidation_prescale';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
+  "setMenu='Dev_pp_run3_v1_TriggerValidation_prescale';",  
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
 ])

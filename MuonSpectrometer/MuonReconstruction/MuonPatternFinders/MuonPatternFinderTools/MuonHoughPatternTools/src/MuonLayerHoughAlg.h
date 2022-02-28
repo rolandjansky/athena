@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONLAYERHOUGHALG_H
@@ -7,8 +7,9 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonHoughPatternTools/MuonLayerHoughTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
+#include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
 
 class MuonLayerHoughAlg : public AthReentrantAlgorithm {
 public:
@@ -18,7 +19,6 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    virtual StatusCode finalize() override;
 
 private:
     template <class T> const T* GetObject(const SG::ReadHandleKey<T>& key, const EventContext& ctx) const;
@@ -31,10 +31,10 @@ private:
     SG::ReadHandleKey<Muon::MMPrepDataContainer> m_keyMM{this, "MMPrepDataContainer", "MM_Measurements"};
 
     SG::WriteHandleKey<MuonPatternCombinationCollection> m_combis{this, "MuonPatternCombinationCollection", "MuonLayerHoughCombis"};
-    SG::WriteHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey{
-        this, "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
+    SG::WriteHandleKey<Muon::HoughDataPerSectorVec> m_houghDataPerSectorVecKey{this, "Key_MuonLayerHoughToolHoughDataPerSectorVec",
+                                                                               "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-    ToolHandle<Muon::MuonLayerHoughTool> m_layerTool{this, "MuonLayerScanTool", "Muon::MuonLayerHoughTool/MuonLayerHoughTool"};
+    ToolHandle<Muon::IMuonHoughPatternFinderTool> m_layerTool{this, "MuonLayerScanTool", "Muon::MuonLayerHoughTool/MuonLayerHoughTool"};
     Gaudi::Property<bool> m_printSummary{this, "PrintSummary", false};
 };
 

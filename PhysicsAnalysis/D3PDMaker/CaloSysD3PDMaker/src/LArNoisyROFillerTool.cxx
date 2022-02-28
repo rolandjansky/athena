@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,7 @@ LArNoisyROFillerTool::LArNoisyROFillerTool(const std::string& type,
   declareProperty("SaveFEBID",m_SaveFEBIDs = true);
   declareProperty("SavePAID",m_SavePAIDs = true);
 
-  book().ignore(); // Avoid coverity warnings
+  LArNoisyROFillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 

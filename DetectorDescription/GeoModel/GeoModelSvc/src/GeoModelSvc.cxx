@@ -614,12 +614,9 @@ StatusCode GeoModelSvc::fillTagInfo() const
 
 const IGeoModelTool* GeoModelSvc::getTool(std::string toolName) const
 {
-  ToolHandleArray< IGeoModelTool >::const_iterator itPriv = m_detectorTools.begin();
-
-  for(; itPriv!=m_detectorTools.end(); itPriv++) {
-    const IGeoModelTool* theTool = &(**itPriv);
-    if(theTool->name().find(toolName)!=std::string::npos)
-      return theTool;
+  for (const ToolHandle<IGeoModelTool>& tool : m_detectorTools) {
+    if(tool->name().find(toolName)!=std::string::npos)
+      return tool.get();
   }
 
   return 0;
@@ -630,37 +627,34 @@ StatusCode GeoModelSvc::clear()
   ATH_MSG_DEBUG("In clear()"); 
 
   // Call clear() for all tools
-  ToolHandleArray< IGeoModelTool >::iterator itPriv = m_detectorTools.begin();
-  for(; itPriv!=m_detectorTools.end(); itPriv++) {
-    IGeoModelTool* theTool = &(**itPriv);
-    if(theTool->clear().isFailure()) {
-      ATH_MSG_ERROR("clear() failed for the tool: " << theTool->name());
+  for (ToolHandle<IGeoModelTool>& tool : m_detectorTools) {
+    if(tool->clear().isFailure()) {
+      ATH_MSG_ERROR("clear() failed for the tool: " << tool->name());
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_DEBUG(theTool->name() << " tool released");
+      ATH_MSG_DEBUG(tool->name() << " tool released");
     }
   }
 
   // Delete GeoModelExperiment - cascade delete of the entire GeoModel tree
-  std::vector<std::string>::const_iterator it;
   std::vector<std::string> sgkeysExp;
   m_detStore->keys<GeoModelExperiment>(sgkeysExp);
-  for(it=sgkeysExp.begin(); it!=sgkeysExp.end(); it++) {
-    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<GeoModelExperiment>::ID(),*it);
+  for (const std::string& key : sgkeysExp) {
+    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<GeoModelExperiment>::ID(),key);
     if(proxy) {
       proxy->reset();
-      ATH_MSG_DEBUG(*it << " GeoModel experiment released");
+      ATH_MSG_DEBUG(key << " GeoModel experiment released");
     }
   }
 
   // Release stored material manager
   std::vector<std::string> sgkeysMat;
   m_detStore->keys<StoredMaterialManager>(sgkeysMat);
-  for(it=sgkeysMat.begin(); it!=sgkeysMat.end(); it++) {
-    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<StoredMaterialManager>::ID(),*it);
+  for (const std::string& key : sgkeysMat) {
+    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<StoredMaterialManager>::ID(),key);
     if(proxy) {
       proxy->reset();
-      ATH_MSG_DEBUG(*it << " material manager released");
+      ATH_MSG_DEBUG(key << " material manager released");
     }
   }
 

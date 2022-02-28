@@ -27,7 +27,7 @@ GeoPixelTMT::GeoPixelTMT(InDetDD::PixelDetectorManager* ddmgr,
   GeoPixelStaveSupport(ddmgr, mgr),
   m_transform(GeoTrf::Transform3D::Identity())
 {
-  m_physVol = Build();
+  m_physVol = GeoPixelTMT::Build();
   m_physVol->ref();
 }
 

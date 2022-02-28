@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdDiscSupport.h"
@@ -22,7 +22,7 @@ SCT_FwdDiscSupport::SCT_FwdDiscSupport(const std::string & name, int iWheel,
     m_iWheel(iWheel)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdDiscSupport::build();
 }
 
 

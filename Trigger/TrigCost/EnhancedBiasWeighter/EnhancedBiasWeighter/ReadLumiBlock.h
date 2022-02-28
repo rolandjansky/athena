@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_ReadLumiBlock_H
@@ -10,6 +10,7 @@
 //
 
 // COOL
+#include "CoolApplication/Application.h"
 #include "CoolKernel/DatabaseId.h"
 #include "CoolKernel/Exception.h"
 #include "CoolKernel/IDatabaseSvc.h"
@@ -24,7 +25,7 @@
 /**
  * @brief Helper class to read in lumi block length info from COOL for a run
  */
-class ReadLumiBlock {
+class ReadLumiBlock : public cool::Application {
 public:
 
   /**
@@ -48,8 +49,6 @@ public:
   
 private:
   
-  cool::IDatabaseSvc& databaseService(); //!< Get reference to static database service 
-
   bool dbIsOpen(); //!< Check if DB connection is open
   void closeDb(MsgStream& msg); //!< Close DB connection
   bool openDb(bool readOnly, MsgStream& msg); //!< Open a DB connection

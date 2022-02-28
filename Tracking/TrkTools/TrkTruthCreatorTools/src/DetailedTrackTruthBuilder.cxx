@@ -33,7 +33,7 @@ namespace {
 
   template<class Map>  void printMap(const Map& m) {
     std::cout<<"printMap(): [";
-    for(typename Map::const_iterator i=m.begin(); i!=m.end(); i++) {
+    for(typename Map::const_iterator i=m.begin(); i!=m.end(); ++i) {
       std::cout<<"("<<i->first<<","<<i->second<<"), ";
     }
     std::cout<<"]"<<std::endl;
@@ -44,9 +44,9 @@ namespace {
   };
 
   SubDetPRDs& operator+=(SubDetPRDs& a, const SubDetPRDs& b)  {
-    for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; i++) {
+    for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; ++i) {
       const std::set<Identifier>& bset = b.subDetHits[i];
-      for(std::set<Identifier>::const_iterator pb=bset.begin(); pb!=bset.end(); pb++) {
+      for(std::set<Identifier>::const_iterator pb=bset.begin(); pb!=bset.end(); ++pb) {
 	a.subDetHits[i].insert(*pb);
       }
     }
@@ -55,7 +55,7 @@ namespace {
 
   SubDetHitStatistics makeSubDetHitStatistics(const SubDetPRDs& prds) {
     SubDetHitStatistics res;
-    for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; i++) {
+    for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; ++i) {
       res[SubDetHitStatistics::SubDetType(i)] = prds.subDetHits[i].size();
     }
     return res;
@@ -118,7 +118,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
   std::vector<const PRD_MultiTruthCollection*> orderedPRD_Truth(SubDetHitStatistics::NUM_SUBDETECTORS);
   PRD_InverseTruth inverseTruth;
 
-  for(std::vector<const PRD_MultiTruthCollection*>::const_iterator i = prdTruth.begin(); i!=prdTruth.end(); i++) {
+  for(std::vector<const PRD_MultiTruthCollection*>::const_iterator i = prdTruth.begin(); i!=prdTruth.end(); ++i) {
     if(*i) {
       if (!(*i)->empty()) {
 	SubDetHitStatistics::SubDetType subdet = findSubDetType((*i)->begin()->first) ;
@@ -142,7 +142,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
   //----------------------------------------------------------------
   // Find associated truth for each track
 
-  for(unsigned itrack=0; itrack<tracks.size(); itrack++) {
+  for(unsigned itrack=0; itrack<tracks.size(); ++itrack) {
     ElementLink<DataVector<Trk::Track> > ptrack(tracks, itrack);
     addTrack(output, ptrack, orderedPRD_Truth, inverseTruth);
   }
@@ -153,7 +153,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 		" Entries with TruthTrajectories of more then one particle shown at the DEBUG level.\n"
 		" Use VERBOSE level for complete dump.");
 
-  for(DetailedTrackTruthCollection::const_iterator i=output->begin(); i!=output->end(); i++) {
+  for(DetailedTrackTruthCollection::const_iterator i=output->begin(); i!=output->end(); ++i) {
     bool interesting = (i->second.trajectory().size() > 1);
 
     msg(interesting  ? MSG::DEBUG : MSG::VERBOSE)
@@ -275,7 +275,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	    
 	    int n=0;
 	    // Loop over particles contributing to this cluster
-	    for(iprdt i = range.first; i!= range.second; i++) {
+	    for(iprdt i = range.first; i!= range.second; ++i) {
 	      
 	      
 	      const HepMC::GenParticle* pa = (*i).second.cptr(); if(!pa) { continue; }
@@ -307,7 +307,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   
   if(msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE)<<"PRD truth particles = ";
-    for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); i++) {
+    for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); ++i) {
       msg(MSG::VERBOSE)<<i->first<<",";
     }
     msg(MSG::VERBOSE)<<endmsg;
@@ -318,7 +318,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   // Build truth trajectories for the track
 
   std::set<HepMcParticleLink> seeds;
-  for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); i++) {
+  for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); ++i) {
     if(i->first.isValid()) {
       seeds.insert(i->first);
     } 
@@ -344,7 +344,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   }
   
   // Grow sprouts from the seeds
-  typedef std::map<HepMcParticleLink, Sprout> SproutMap;
+  using SproutMap = std::map<HepMcParticleLink, Sprout>;
   SproutMap sprouts;
   while(!seeds.empty()) {
     HepMcParticleLink link = *seeds.begin();
@@ -419,7 +419,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     // FIXME: what is the current average size?
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
-    for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
+    for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ++ppart) {
       traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink(HepMC::barcode(*ppart), proxy)));
     }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentMatchingTool.h"
@@ -23,6 +23,7 @@ namespace Muon {
     }
 
     bool MuonLayerSegmentMatchingTool::match(const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         if (msgLvl(MSG::VERBOSE)) {
             const Trk::TrackParameters* pars = intersection.trackParameters.get();
             msg(MSG::VERBOSE) << " startPars: phi " << pars->position().phi() << " r " << pars->position().perp() << " z "
@@ -34,7 +35,7 @@ namespace Muon {
         }
 
         std::unique_ptr<const Trk::TrackParameters> exPars(
-            m_extrapolator->extrapolate(*intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
+            m_extrapolator->extrapolate(ctx,*intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
         if (!exPars) {
             ATH_MSG_VERBOSE(" extrapolation failed ");
             return false;

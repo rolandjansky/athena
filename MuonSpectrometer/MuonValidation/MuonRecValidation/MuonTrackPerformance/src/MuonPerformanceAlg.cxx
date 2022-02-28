@@ -558,7 +558,7 @@ StatusCode MuonPerformanceAlg::execute() {
 
     return StatusCode::SUCCESS;
 }
-void MuonPerformanceAlg::print(std::string txt, const xAOD::TruthParticle* muon) {
+void MuonPerformanceAlg::print(const std::string& txt, const xAOD::TruthParticle* muon) {
     // Truth: r  4251 z   3147 theta 0.91843 phi -0.781 q*p(GeV)  1.081e+02 pt(Gev) 8.589e+01
     // barcode 1489 mother 23 production vertex: r  1.06363 z -102.414
     int q = 1;
@@ -569,7 +569,7 @@ void MuonPerformanceAlg::print(std::string txt, const xAOD::TruthParticle* muon)
                       << muon->phi() << " q*p (GeV) " << q * p / 1000. << " pt (GeV) " << muon->pt() / 1000. << " precisionLayers "
                       << static_cast<int>(muon->auxdata<uint8_t>("nprecLayers")));
 }
-void MuonPerformanceAlg::print(std::string txt, const xAOD::Muon* muon) {
+void MuonPerformanceAlg::print(const std::string& txt, const xAOD::Muon* muon) {
     int nprec = 0;
     uint8_t nPrecision = 0;
     if (muon->primaryTrackParticleLink().isValid()) {

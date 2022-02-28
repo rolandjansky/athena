@@ -49,7 +49,7 @@ from JetCalibTools import JetCalibToolsConfig
 stdJetModifiers.update(
     Calib = JetModifier("JetCalibrationTool","jetcalib_jetcoll_calibseq",
                         createfn=JetCalibToolsConfig.getJetCalibToolFromString,
-                        prereqs=JetCalibToolsConfig.getJetCalibToolPrereqs)
+                        prereqs=lambda mod,jetdef : JetCalibToolsConfig.getJetCalibToolPrereqs(mod,jetdef)+["input:PrimaryVertices"])
 )
 
 # TBD:
@@ -96,7 +96,7 @@ stdJetModifiers.update(
 
     JVF =             JetModifier("JetVertexFractionTool", "jvf",
                                    createfn=JetMomentToolsConfig.getJVFTool,
-                                   prereqs = ["mod:TrackMoments"] ,JetContainer = _jetname),
+                                   prereqs = ["mod:TrackMoments", "input:PrimaryVertices"] ,JetContainer = _jetname),
     JVT =             JetModifier("JetVertexTaggerTool", "jvt",
                                    createfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ],JetContainer = _jetname),
@@ -133,7 +133,16 @@ stdJetModifiers.update(
                                    createfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,
                                    prereqs=["ghost:BHadronsFinal",
                                             "ghost:CHadronsFinal",
-                                            "ghost:TausFinal"])
+                                            "ghost:TausFinal"]
+                                   ),
+
+
+    JetGhostLabel =    JetModifier("ParticleJetGhostLabelTool","jetghostlabeler",
+                                   createfn=ParticleJetToolsConfig.getJetGhostLabelTool,
+                                   prereqs=["ghost:BHadronsFinal",
+                                            "ghost:CHadronsFinal",
+                                            "ghost:TausFinal"]
+                                   )
 )
 
 

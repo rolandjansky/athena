@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
@@ -22,7 +22,7 @@ namespace MuonGM {
     class MMReadoutElement final : public MuonClusterReadoutElement {
     public:
         /** constructor */
-        MMReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
+        MMReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
 
         /** destructor */
         ~MMReadoutElement();
@@ -74,10 +74,22 @@ namespace MuonGM {
             If one of the identifiers is outside the valid range, the function will return false */
         virtual bool spacePointPosition(const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos) const override final;
 
+	/** space point position (global) for a given pair of stereo MM identifier */
+	virtual bool spacePointPosition(const Identifier& id1, const Identifier& id2, Amg::Vector3D gpos_id1, Amg::Vector3D gpos_id2, Amg::Vector3D& gpos) const;
+
         /** space point position for a pair of phi and eta local positions and a layer identifier
             The LocalPosition is expressed in the reference frame of the phi projection.
         */
         void spacePointPosition(const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos) const;
+
+        /** space point position indended to correct the position of 1D clusters
+            locXpos:  position along the radial (precision) direction in the layer ref. frame (e.g. cluster position).
+            locYseed: position along the transverse (phi) direction (e.g. track-segment seed).
+            in the case of nominal geometry, locXpos is corrected only for stereo strips by locYseed*tan(sAngle).
+            if as-built conditions are enabled locXpos is corrected also for as-built conditions
+            the output pos is a 3D vector, since we have 3D as-built deformations 
+        */
+        void spacePointPosition(const Identifier& layerId, double locXpos, double locYseed, Amg::Vector3D& pos) const;
 
         /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only
          */
@@ -201,6 +213,7 @@ namespace MuonGM {
     }
 
     inline int MMReadoutElement::stripNumber(const Amg::Vector2D& pos, const Identifier& id) const {
+        // returns the position of the strip at pos, assuming the nominal geometry (no as-built conditions)
         const MuonChannelDesign* design = getDesign(id);
         if (!design) return -1;
         return design->channelNumber(pos);
@@ -292,9 +305,115 @@ namespace MuonGM {
         return true;
     }
 
+    inline bool MMReadoutElement::spacePointPosition( const Identifier& id1, const Identifier& id2, Amg::Vector3D gpos_id1, Amg::Vector3D gpos_id2, Amg::Vector3D& gpos ) const {
+      
+      int multilay1 = manager()->mmIdHelper()->multilayer(id1);
+      int multilay2 = manager()->mmIdHelper()->multilayer(id2);
+      int lay1 = manager()->mmIdHelper()->gasGap(id1);
+      int lay2 = manager()->mmIdHelper()->gasGap(id2);
+
+      //check to use only layer on the same multiplet, not the same layer and at least one stereo
+      if ( (multilay1 != multilay2 || lay1 == lay2) || !( manager()->mmIdHelper()->isStereo(id1) || manager()->mmIdHelper()->isStereo(id2) ) ) return false;
+
+      double angles = std::abs(getDesign(id1)->sAngle); //stereo angle
+      double tan_angles = std::tan(angles);
+      double phi = gpos_id1.phi(); //phi of the MM sector
+
+      //parameters used to calculate the phi
+      double A = ( gpos_id1.x() - gpos_id2.x() ) / ( gpos_id1.x() + gpos_id2.x() );
+      double B = ( gpos_id1.z() - gpos_id2.z() ) / ( gpos_id1.z() + gpos_id2.z() );
+      //tan(phi/2)
+      double tan_phi2 = ( tan_angles - std::sqrt(tan_angles*tan_angles - B*B + A*A) ) / (A+B);
+
+      //ad hoc change for the sector at PI/2
+      if ( std::abs( std::abs(phi) ) - M_PI_2 < 0.01) {
+	A = ( gpos_id1.y() - gpos_id2.y() ) / ( gpos_id1.y() + gpos_id2.y() );
+	tan_phi2 = ( A - std::sqrt(A*A - B*B + tan_angles*tan_angles ) ) / (B-tan_angles);
+      }
+
+      double dphi = 0; //dphi = angle wrt the center of the sector 
+      if (manager()->mmIdHelper()->stationEta(id1) > 0) dphi = -2*std::atan(tan_phi2);
+      else dphi = 2*std::atan(tan_phi2);
+
+      //ad hoc change for the sector at PI/2
+      if ( std::abs( std::abs(phi) ) - M_PI_2 < 0.01) {
+	if (dphi*phi < 0) dphi += phi;
+	else dphi -= phi;
+      }
+
+      const double tan_phi_plus_dphi = std::tan(phi+dphi);
+      const double tan_phi_minus_angles = std::tan(phi-angles);
+
+      //global positions
+      gpos[0] = (gpos_id1.y() + gpos_id1.x()/tan_phi_minus_angles)/(tan_phi_plus_dphi + 1./tan_phi_minus_angles);
+      gpos[1] = gpos[0]*tan_phi_plus_dphi;
+      gpos[2] = gpos_id1.z();
+
+      //check if the stereo-superpoint is on the surface
+      Amg::Vector2D lpos;
+      const Trk::PlaneSurface& surf1 = surface(id1);
+      surf1.globalToLocal(gpos,gpos,lpos);
+      if( !surf1.insideBounds(lpos) ) return false;
+
+      return true;
+    }
+
     inline void MMReadoutElement::spacePointPosition(const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos) const {
         pos[0] = phiPos.x();
         pos[1] = etaPos.x();
+    }
+
+    inline void MMReadoutElement::spacePointPosition(const Identifier& layerId, double locXpos, double locYseed, Amg::Vector3D& pos) const {
+
+        // locXpos:  position along the precision direction in the layer reference frame (e.g. a cluster position).
+        // locYseed: position along the transverse direction (e.g. a track-segment seed).
+        // stereo strips:  locXpos is corrected by locYseed*tan(sAngle).
+        // eta and stereo: locXpos is also corrected for as-built conditions (3D) if they are active
+
+        const MuonChannelDesign* design = getDesign(layerId);
+        if (!design) return;
+
+// Since MuonNswAsBuilt is not included in AthSimulation
+#ifndef SIMULATIONBASE
+        const NswAsBuilt::StripCalculator* sc = manager()->getMMAsBuiltCalculator();
+        if (sc) {
+            // case as-built conditions are enabled
+
+            // nearest strip to locXpos
+            Amg::Vector2D lpos(locXpos, 0.);
+            int istrip = stripNumber(lpos, layerId);          
+
+            // setup the strip calculator
+            NswAsBuilt::stripIdentifier_t strip_id;
+            strip_id.quadruplet = { (largeSector() ? NswAsBuilt::quadrupletIdentifier_t::MML : NswAsBuilt::quadrupletIdentifier_t::MMS), getStationEta(), getStationPhi(), m_ml };
+            strip_id.ilayer     = manager()->mmIdHelper()->gasGap(layerId);
+            strip_id.istrip     = istrip;
+
+            // length of the eta strip with index "istrip", even for the case ofstereo strips, 
+            // since NswAsBuilt handles the conversion to stereo as an internal transformation 
+            // (formula copied from MuonChannelDesign.h)
+            double ylength = design->inputLength + ((design->maxYSize - design->minYSize)*(istrip - design->nMissedBottomEta + 0.5)*design->inputPitch / design->xSize);
+            double sx      = design->distanceToChannel(lpos, istrip)/design->inputPitch; // in [-0.5, 0.5]
+            double sy      = 2*locYseed/ylength; // in [-1, 1]
+
+            // get the position coordinates, in the multilayer frame, from NswAsBuilt.
+            // 2.75mm correction along the layer normal, since NswAsBuilt places the layer 
+            // on the readout strips, whereas Athena places it at the middle of the drift gap
+            NswAsBuilt::StripCalculator::position_t calcPos = sc->getPositionAlongStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, strip_id, sy, sx);
+            pos     = calcPos.pos;
+            pos[0] += strip_id.ilayer%2 ? -2.75 : 2.75;
+
+            // transform from multilayer to layer frame of reference
+            auto LayerToMultilayer = m_Xlg[strip_id.ilayer - 1] * Amg::Translation3D(0., 0., m_offset) * Amg::AngleAxis3D(-90. * CLHEP::deg, Amg::Vector3D(0., 1., 0.));
+            pos = LayerToMultilayer.inverse()*pos;
+            return;                    
+        }
+#endif 
+
+        // nominal case; just correct x for the stereo angle
+        pos[0] = locXpos + locYseed*tan(design->sAngle);
+        pos[1] = locYseed;
+        pos[2] = 0.;
     }
 
 }  // namespace MuonGM

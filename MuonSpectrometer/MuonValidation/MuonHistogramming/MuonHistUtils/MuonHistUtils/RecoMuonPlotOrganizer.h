@@ -26,25 +26,24 @@ namespace Muon
   
   class RecoMuonPlotOrganizer:public PlotBase {
   public:
-    RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots=0);
-    ~RecoMuonPlotOrganizer();
-    
-    std::vector<PlotBase*> m_allPlots;
+    RecoMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, std::vector<int> selPlots = {});
+    ~RecoMuonPlotOrganizer();    
+   
     std::vector<int> m_selPlots;  
     
     void fill(const xAOD::Muon& mu, float weight=1.0);
     
     // Reco only information
-    Muon::IDHitSummaryPlots         *m_oIDHitPlots;
-    Trk::ParamPlots                 *m_oTrkParamPlots;
-    Trk::ImpactPlots                *m_oImpactPlots;
-    Muon::MuonParamPlots            *m_oMuonParamPlots;
-    Muon::RecoInfoPlots             *m_oMuRecoInfoPlots;
-    Muon::MomentumPullPlots         *m_oMomentumPullPlots;
-    Muon::MuonHitSummaryPlots       *m_oMuonHitSummaryPlots;
-    Muon::MuonIsolationPlots        *m_oMuonIsolationPlots;
-    Muon::ChargeDepParamPlots       *m_oChargeParamPlotsLowPt;
-    Muon::ChargeDepParamPlots       *m_oChargeParamPlotsHighPt;
+    std::unique_ptr<Muon::IDHitSummaryPlots>         m_oIDHitPlots{};
+    std::unique_ptr<Trk::ParamPlots>                 m_oTrkParamPlots{};
+    std::unique_ptr<Trk::ImpactPlots>                m_oImpactPlots{};
+    std::unique_ptr<Muon::MuonParamPlots>            m_oMuonParamPlots{};
+    std::unique_ptr<Muon::RecoInfoPlots>             m_oMuRecoInfoPlots{};
+    std::unique_ptr<Muon::MomentumPullPlots>         m_oMomentumPullPlots{};
+    std::unique_ptr<Muon::MuonHitSummaryPlots>       m_oMuonHitSummaryPlots{};
+    std::unique_ptr<Muon::MuonIsolationPlots>        m_oMuonIsolationPlots{};
+    std::unique_ptr<Muon::ChargeDepParamPlots>       m_oChargeParamPlotsLowPt{};
+    std::unique_ptr<Muon::ChargeDepParamPlots>       m_oChargeParamPlotsHighPt{};
   
   };
  

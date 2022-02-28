@@ -39,9 +39,9 @@ namespace top {
 
   StatusCode TopEventMaker::initialize() {
     if (m_config->useRCJets() == true) {
-      m_rc = std::unique_ptr<RCJetMC15> (new RCJetMC15("RCJetMC15"));
-      top::check(m_rc->setProperty("config", m_config), "Failed to set config property of RCJetMC15");
-      top::check(m_rc->initialize(), "Failed to initialize RCJetMC15");
+      m_rc = std::unique_ptr<RCJet> (new RCJet("RCJet"));
+      top::check(m_rc->setProperty("config", m_config), "Failed to set config property of RCJet");
+      top::check(m_rc->initialize(), "Failed to initialize RCJet");
     }
 
     if (m_config->useVarRCJets() == true) {
@@ -52,15 +52,15 @@ namespace top {
         for (auto& mass_scale : m_VarRCJetMassScale) {
           std::replace(rho.begin(), rho.end(), '.', '_');
           std::string name = rho + mass_scale;
-          m_VarRC[name] = std::unique_ptr<RCJetMC15> (new RCJetMC15("VarRCJetMC15_" + name));
-          top::check(m_VarRC[name]->setProperty("config", m_config), "Failed to set config property of VarRCJetMC15");
-          top::check(m_VarRC[name]->setProperty("VarRCjets", true), "Failed to set VarRCjets property of VarRCJetMC15");
+          m_VarRC[name] = std::unique_ptr<RCJet> (new RCJet("VarRCJet_" + name));
+          top::check(m_VarRC[name]->setProperty("config", m_config), "Failed to set config property of VarRCJet");
+          top::check(m_VarRC[name]->setProperty("VarRCjets", true), "Failed to set VarRCjets property of VarRCJet");
           top::check(m_VarRC[name]->setProperty("VarRCjets_rho",
-                                                rho), "Failed to set VarRCjets rho property of VarRCJetMC15");
+                                                rho), "Failed to set VarRCjets rho property of VarRCJet");
           top::check(m_VarRC[name]->setProperty("VarRCjets_mass_scale",
                                                 mass_scale),
-                     "Failed to set VarRCjets mass scale property of VarRCJetMC15");
-          top::check(m_VarRC[name]->initialize(), "Failed to initialize VarRCJetMC15");
+                     "Failed to set VarRCjets mass scale property of VarRCJet");
+          top::check(m_VarRC[name]->initialize(), "Failed to initialize VarRCJet");
         } // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
       } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
     }
@@ -443,7 +443,7 @@ namespace top {
 
     // Reclustered jets
     if (m_config->useRCJets()) {
-      top::check(m_rc->execute(event), "Failed to execute RCJetMC15 container");
+      top::check(m_rc->execute(event), "Failed to execute RCJet container");
       std::string rcJetContainerName = m_rc->rcjetContainerName(event.m_hashValue, event.m_isLoose);
       const xAOD::JetContainer* rc_jets(nullptr);
       top::check(evtStore()->retrieve(rc_jets, rcJetContainerName), "Failed to retrieve RC JetContainer");
@@ -461,7 +461,7 @@ namespace top {
         for (auto& mass_scale : m_VarRCJetMassScale) {
           std::replace(rho.begin(), rho.end(), '.', '_');
           std::string name = rho + mass_scale;
-          top::check(m_VarRC[name]->execute(event), "Failed to execute RCJetMC15 container");
+          top::check(m_VarRC[name]->execute(event), "Failed to execute RCJet container");
 
           // Get the name of the container of re-clustered jets in TStore
           std::string varRCJetContainerName = m_VarRC[name]->rcjetContainerName(event.m_hashValue, event.m_isLoose);

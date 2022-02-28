@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterContainerCnv_p1.h"
@@ -40,8 +40,8 @@ void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterCont
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef InDet::SCT_ClusterContainer TRANS;
-    typedef ITPConverterFor<Trk::PrepRawData> CONV;
+    using TRANS = InDet::SCT_ClusterContainer;
+    using CONV = ITPConverterFor<Trk::PrepRawData>;
 
     SCT_ClusterCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
@@ -103,7 +103,7 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
     InDet::SCT_ClusterCollection* coll = nullptr;
 
     SCT_ClusterCnv_p1  chanCnv;
-    typedef ITPConverterFor<Trk::PrepRawData> CONV;
+    using CONV = ITPConverterFor<Trk::PrepRawData>;
 
 //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {

@@ -137,8 +137,8 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
 {
   int trackNumber(0);
 
-  typedef std::tuple<int, int, int, float, float, float, float, int, int, int> SingleResult_t;
-  typedef std::vector<SingleResult_t> TrackResult_t;
+  using SingleResult_t = std::tuple<int, int, int, float, float, float, float, int, int, int>;
+  using TrackResult_t = std::vector<SingleResult_t>;
   const float invalidFloat(-1);
   // const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
   const float invalidRes(invalidFloat), invalidPull(invalidFloat);
@@ -174,7 +174,7 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
       }
       ATH_MSG_DEBUG("Num. track states in track " << ++trackNumber << ": " << allTrackStates.size());
 
-      for (const auto thisTrackState: allTrackStates) {
+      for (const auto *const thisTrackState: allTrackStates) {
         // Copy logic from InDetRttPerformance to get hits/outliers/holes
         // Variable specifying measurement type filled
         SingleResult_t thisResult(invalidResult);

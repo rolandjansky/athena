@@ -264,7 +264,7 @@ StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
+StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), ctx );

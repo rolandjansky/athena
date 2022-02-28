@@ -23,6 +23,6 @@ GetLCC.OutputFileName = outFileNameLCC
 #    'log10(<rho_cell (MeV/mm^3)>)-log10(E_clus (MeV))': ('log10(<rho_cell (MeV/mm^3)>)-log10(E_clus (MeV))',-9.0,-4.0,20),
 #    'log10(lambda_clus (mm))': ('log10(lambda_clus (mm))',0.0,4.0,20)}
 #
-GetLCC.ClusterCollectionName = "CaloTopoCluster"
+GetLCC.ClusterCollectionName = "CaloTopoClusters"
 
 topSequence += GetLCC

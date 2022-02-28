@@ -7,7 +7,6 @@
 
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
-#include "L1TopoSimulation/IReadTopoEDM.h"
 
 #include "PeriodicScaler.h"
 #include "TrigConfBase/MsgStream.h"
@@ -52,9 +51,8 @@ namespace LVL1 {
       StatusCode retrieveHardwareDecision();
 
    private:
-      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, std::string name, unsigned int clock, uint32_t word);
-      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, std::string name, unsigned int clock, uint64_t word);
-      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, std::string name, unsigned int clock, std::bitset<128> word);
+      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, const std::string &name, unsigned int clock, uint32_t word);
+      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, const std::string &name, unsigned int clock, uint64_t word);
 
       std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering
       std::unique_ptr<LVL1::PeriodicScaler> m_scaler {nullptr}; //! prescale decision tool
@@ -69,7 +67,6 @@ namespace LVL1 {
       ToolHandle<IInputTOBConverter> m_jetInputProvider    { this, "JetInputProvider",    "LVL1::JetInputProvider/JetInputProvider",       "Tool to fill the Jet TOBs of the topo input event"           };
       ToolHandle<IInputTOBConverter> m_energyInputProvider { this, "EnergyInputProvider", "LVL1::EnergyInputProvider/EnergyInputProvider", "Tool to fill the energy and MET TOBs of the topo input event"};
       ToolHandle<IInputTOBConverter> m_muonInputProvider   { this, "MuonInputProvider",   "LVL1::MuonInputProvider/MuonInputProvider",     "Tool to fill the muon TOBs of the topo input event"          };
-      ToolHandle<IReadTopoEDM> m_topoEDM   { this, "TopoEDMReader",   "LVL1::TopoEDM/TopoEDM", "Tool to read EDM"          };
 
       // outputs
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { this, "TopoCTPLocation", LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP"}; ///< SG key of decision bits for CTP

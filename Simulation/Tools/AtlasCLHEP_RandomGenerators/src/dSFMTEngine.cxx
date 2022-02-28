@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/defs.h"
@@ -7,6 +7,7 @@
 #include "AtlasCLHEP_RandomGenerators/dSFMTEngine.h"
 #include "CLHEP/Random/engineIDulong.h"
 #include "boost/io/ios_state.hpp"
+#include "CxxUtils/checker_macros.h"
 #include <string.h>
 #include <sstream>
 #include <cmath>	// for ldexp()
@@ -14,6 +15,23 @@
 
 extern "C" {
 #include "dSFMT.h"
+}
+
+// Let the thread-safety checker know that dsfmt functions are ok.
+namespace {
+int wrap_init_gen_rand ATLAS_NOT_THREAD_SAFE (dsfmt_t* dsfmt, long seed)
+{
+  dsfmt_init_gen_rand (dsfmt, seed);
+  return 0;
+}
+int wrap_init_by_array ATLAS_NOT_THREAD_SAFE (dsfmt_t* dsfmt,
+                                              const uint32_t* seeds,
+                                              int key_length)
+{
+  uint32_t* seeds_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*> (seeds);
+  dsfmt_init_by_array (dsfmt, seeds_nc, key_length);
+  return 0;
+}
 }
 
 using namespace std;
@@ -24,41 +42,40 @@ static const int MarkerLen = 64; // Enough room to hold a begin or end marker.
 
 std::string dSFMTEngine::name() const {return "dSFMTEngine";}
 
-int dSFMTEngine::numEngines = 0;
-int dSFMTEngine::maxIndex = 215;
+std::atomic<int> dSFMTEngine::numEngines = 0;
 
 const unsigned int VECTOR_STATE_SIZE = 2 + (DSFMT_N + 1)*4;
 
 dSFMTEngine::dSFMTEngine():m_dsfmt(0) 
 {
   init_dsfmt();
-  
-  int cycle = abs(int(numEngines/maxIndex));
-  int curIndex = abs(int(numEngines%maxIndex));
+
+  int engineNum = numEngines++;
+  int cycle = abs(int(engineNum/maxIndex));
+  int curIndex = abs(int(engineNum%maxIndex));
   long mask = ((cycle & 0x007fffff) << 8);
   long seedlist[2];
   HepRandom::getTheTableSeeds( seedlist, curIndex );
   seedlist[0] = (seedlist[0])^mask;
   seedlist[1] = 0;
-  setSeeds( seedlist, numEngines );
-  ++numEngines;
-  for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
+  setSeeds( seedlist, engineNum );
+  for( int i=0; i < 2000; ++i ) dSFMTEngine::flat();      // Warm up just a bit
 }
 
 dSFMTEngine::dSFMTEngine(long seed):m_dsfmt(0)  
 {
   init_dsfmt();
   
-  setSeed( seed , 0);
-  for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
+  dSFMTEngine::setSeed( seed , 0);
+  for( int i=0; i < 2000; ++i ) dSFMTEngine::flat();      // Warm up just a bit
 }
 
 dSFMTEngine::dSFMTEngine(const long * seeds):m_dsfmt(0) 
 {
   init_dsfmt();
   
-  setSeeds( seeds, 0 );
-  for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
+  dSFMTEngine::setSeeds( seeds, 0 );
+  for( int i=0; i < 2000; ++i ) dSFMTEngine::flat();      // Warm up just a bit
 }
 
 void dSFMTEngine::init_dsfmt()
@@ -96,7 +113,8 @@ dSFMTEngine & dSFMTEngine::operator=( const dSFMTEngine & p ) {
 }
 
 double dSFMTEngine::flat() {
-  return dsfmt_genrand_close_open(m_dsfmt);
+  double ret ATLAS_THREAD_SAFE = dsfmt_genrand_close_open(m_dsfmt);
+  return ret;
 }
 
 void dSFMTEngine::flatArray( const int size, double *vect ) {
@@ -105,7 +123,7 @@ void dSFMTEngine::flatArray( const int size, double *vect ) {
 
 void dSFMTEngine::setSeed(long seed, int) {
   //std::cout<<"dSFMTEngine::setSeed seed="<<seed<<endl;
-  dsfmt_init_gen_rand(m_dsfmt,seed);
+  int dum ATLAS_THREAD_SAFE [[maybe_unused]] = wrap_init_gen_rand(m_dsfmt,seed);
 }
 
 void dSFMTEngine::setSeeds(const uint32_t *seeds, int) {
@@ -113,11 +131,11 @@ void dSFMTEngine::setSeeds(const uint32_t *seeds, int) {
   if (*seeds) {
     int i = 0;
     const int numBuff=DSFMT_N;
-    while (seeds[i] && i < numBuff) {
+    while (i < numBuff && seeds[i]) {
       //cout<<"  seed "<<i<<" = "<<seeds[i]<<endl;
       ++i;
     }
-    dsfmt_init_by_array(m_dsfmt,(uint32_t*)seeds,i);
+    int dum ATLAS_THREAD_SAFE [[maybe_unused]] = wrap_init_by_array(m_dsfmt,seeds,i);
   } else {
     setSeed(1234567);
   }
@@ -129,12 +147,12 @@ void dSFMTEngine::setSeeds(const long *seeds, int) {
     int i = 0;
     const int numBuff=DSFMT_N;
     uint32_t buf[numBuff];
-    while (seeds[i] && i < numBuff) {
+    while (i < numBuff && seeds[i]) {
       buf[i]=seeds[i];
       //cout<<"  seed "<<i<<" = "<<buf[i]<<endl;
       ++i;
     }
-    dsfmt_init_by_array(m_dsfmt,buf,i);
+    int dum ATLAS_THREAD_SAFE [[maybe_unused]] = wrap_init_by_array(m_dsfmt,buf,i);
   } else {
     setSeed(1234567);
   }

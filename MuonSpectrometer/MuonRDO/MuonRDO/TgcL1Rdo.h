@@ -231,29 +231,29 @@ private:
     // Returns offset, MAX_N_SROD
     static std::pair<int, int> initOnlineId();
 
-    uint16_t m_version; // starting August 2006 version = 300. Before that, version = 0
+    uint16_t m_version  = 0U; // starting August 2006 version = 300. Before that, version = 0
 
     /** ID of this instance*/
-    uint16_t m_id;
+    uint16_t m_id = 0U;
 
     /** OFFLINE hash of this collection*/
     IdentifierHash m_idHash; 
     
     // online IDs
-    uint16_t m_subDetectorId;
-    uint16_t m_srodId;
+    uint16_t m_subDetectorId  = 0U;
+    uint16_t m_srodId  = 0U;
 
     // Trigger Type
-    uint16_t m_triggerType;
+    uint16_t m_triggerType  = 0U;
 
     // BCID and L1ID on ROD
-    uint16_t m_bcId;
-    uint16_t m_l1Id;
+    uint16_t m_bcId ;
+    uint16_t m_l1Id ;
 
-    struct Errors      m_errors;
-    struct SRodStatus   m_srodStatus;
-    struct LocalStatus m_localStatus;
-    uint32_t m_orbit;
+    struct Errors      m_errors{};
+    struct SRodStatus   m_srodStatus{};
+    struct LocalStatus m_localStatus{};
+    uint32_t m_orbit  = 0U;
 };
 
 /**Overload of << operator for std::ostream for debug output*/

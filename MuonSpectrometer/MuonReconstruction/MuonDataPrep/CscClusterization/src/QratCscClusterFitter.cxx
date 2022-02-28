@@ -396,13 +396,11 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
     // Find the peak strip and check the shape.
     unsigned int istrip_peak = 0;  // strip number within cluster
     // Loop over strips excluding the edges.
-    double charge_clu = sfits[0].charge + sfits[nstrip - 1].charge;
     for (unsigned int istrip = 1; istrip < nstrip - 1; ++istrip) {
         StripFit sfit = sfits[istrip];
         float qthis = sfit.charge;
         float qlast = sfits[istrip - 1].charge;
         float qnext = sfits[istrip + 1].charge;
-        charge_clu += qthis;
         // Peak if the adjacent strips have less charge.
         bool ispeak = qthis > qlast && qthis > qnext;
         // Special case: next strip has the same charge.

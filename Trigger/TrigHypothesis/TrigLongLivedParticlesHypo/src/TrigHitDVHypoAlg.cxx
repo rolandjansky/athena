@@ -178,7 +178,7 @@ StatusCode TrigHitDVHypoAlg::execute( const EventContext& context ) const
    // find seeds based on SP frac itself
    std::vector<float> spSeeds_eta;
    std::vector<float> spSeeds_phi;
-   ATH_CHECK( findSPSeeds(hitDVSPsContainer, spSeeds_eta, spSeeds_phi) );
+   ATH_CHECK( findSPSeeds(context,hitDVSPsContainer, spSeeds_eta, spSeeds_phi) );
    mon_n_spseeds = spSeeds_eta.size();
 
    // output EDM object
@@ -657,7 +657,7 @@ StatusCode TrigHitDVHypoAlg::findJetSeeds(const xAOD::JetContainer* jetsContaine
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
-StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* spsContainer,
+StatusCode TrigHitDVHypoAlg::findSPSeeds( const EventContext& ctx, const xAOD::TrigCompositeContainer* spsContainer,
 					  std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
 {
    seeds_eta.clear();
@@ -671,17 +671,20 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* sp
    const float PHI_MIN   = -4.0; 
    const float PHI_MAX   =  4.0;
 
-   std::string hname;
+   char hname[64];
 
-   hname = "ly6_h2_nsp";
-   std::unique_ptr<TH2F> ly6_h2_nsp = std::make_unique<TH2F>(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   hname = "ly7_h2_nsp";
-   std::unique_ptr<TH2F> ly7_h2_nsp = std::make_unique<TH2F>(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   unsigned int slotnr    = ctx.slot();
+   unsigned int subSlotnr = ctx.subSlot();
 
-   hname = "ly6_h2_nsp_notrk";
-   std::unique_ptr<TH2F> ly6_h2_nsp_notrk = std::make_unique<TH2F>(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   hname = "ly7_h2_nsp_notrk";
-   std::unique_ptr<TH2F> ly7_h2_nsp_notrk = std::make_unique<TH2F>(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   sprintf(hname,"hitdv_s%i_ss%i_ly6_h2_nsp",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly6_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   sprintf(hname,"hitdv_s%i_ss%i_ly7_h2_nsp",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly7_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+ 
+   sprintf(hname,"hitdv_s%i_ss%i_ly6_h2_nsp_notrk",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly6_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   sprintf(hname,"hitdv_s%i_ss%i_ly7_h2_nsp_notrk",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly7_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
    for ( auto spData : *spsContainer ) {
       int sp_layer = (int)spData->getDetail<int16_t>("hitDVSP_layer");

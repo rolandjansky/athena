@@ -32,18 +32,19 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 
+// tools:
+#include "TrkExInterfaces/IPropagator.h"
+#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
+#include "InDetCompetingRIOsOnTrackTool/ICompetingTRT_DriftCirclesOnTrackCreator.h"
+
 class MsgStream;
 class TRT_ID;
 
 namespace Trk {
     class Surface;
-    //class MagneticFieldProperties;
-    class IPropagator;
 }
 
 namespace InDet {
-    class ITRT_DetElementsRoadMaker;
-    class ICompetingTRT_DriftCirclesOnTrackCreator;
 
 /**
 @class TRT_TrackExtensionTool_DAF
@@ -141,12 +142,24 @@ protected:
     ///////////////////////////////////////////
     // the different tools and their jobOptions
     ///////////////////////////////////////////
-    ToolHandle< InDet::ICompetingTRT_DriftCirclesOnTrackCreator >   m_compROTcreator;       //!< the instance of the CompetingTRT_DriftCirclesOnTrackCreator tool
+    ToolHandle< InDet::ICompetingTRT_DriftCirclesOnTrackCreator >   m_compROTcreator
+      {this,
+       "CompetingDriftCircleTool",
+       "InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool",
+       "Tool for the creation of CompetingTRT_DriftCirclesOnTrack"};       //!< the instance of the CompetingTRT_DriftCirclesOnTrackCreator tool
     double                                                          m_jo_annealingFactor;    //!< jobOption: The annealing factor used for Trk::CompetingRIOsOnTrack creation
 
-    ToolHandle< InDet::ITRT_DetElementsRoadMaker >                  m_roadtool;             //!<  instance of the TRT road maker tool
+    ToolHandle< InDet::ITRT_DetElementsRoadMaker >                  m_roadtool
+      {this,
+       "RoadTool",
+       "InDet::TRT_DetElementsRoadMaker_xk/TRT_DetElementsRoadMaker",
+       "TRT Road Tool for the search of Detector Elements"};             //!<  instance of the TRT road maker tool
 
-    ToolHandle< Trk::IPropagator >                                  m_propagator;           //!<  the Propagator tool
+    PublicToolHandle< Trk::IPropagator >                                  m_propagator
+      {this,
+       "PropagatorTool",
+       "Trk::RungeKuttaPropagator/Propagator",
+       "Propagator tool"};           //!<  the Propagator tool
 
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj>                   m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 

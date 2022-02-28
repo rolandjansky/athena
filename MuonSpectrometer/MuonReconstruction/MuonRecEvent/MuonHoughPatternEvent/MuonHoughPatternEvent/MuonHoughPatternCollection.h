@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHPATTERNCOLLECTION_H
@@ -10,10 +10,8 @@
 /**
 This typedef represents a collection and container of MuonHoughPattern objects.
 */
-typedef std::vector<MuonHoughPattern*> MuonHoughPatternCollection;
-
-typedef std::vector<MuonHoughPatternCollection> MuonHoughPatternContainer;
-
-typedef std::vector<MuonHoughPatternContainer> MuonHoughPatternContainerShip;
+using MuonHoughPatternCollection = std::vector<std::unique_ptr<MuonHoughPattern>>;
+using MuonHoughPatternContainer = std::vector<MuonHoughPatternCollection>;
+using MuonHoughPatternContainerShip = std::vector<MuonHoughPatternContainer>;
 
 #endif  // MUONHOUGHPATTERNEVENT_MUONHOUGHPATTERNCOLLECTION_H

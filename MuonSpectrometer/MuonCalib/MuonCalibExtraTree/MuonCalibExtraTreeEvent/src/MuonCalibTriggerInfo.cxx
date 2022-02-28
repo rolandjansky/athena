@@ -47,7 +47,7 @@ namespace MuonCalib {
         return false;
     }
 
-    void MuonCalibTriggerTypeHelper::addEntry(MuonCalibTriggerType type, int bit, std::string name) {
+    void MuonCalibTriggerTypeHelper::addEntry(MuonCalibTriggerType type, int bit, const std::string& name) {
         if (!validType(type)) {
             MsgStream log(Athena::getMessageSvc(), "MuonCalibTriggerTypeHelper");
             log << MSG::WARNING << "MuonCalibTriggerTypeHelper::addEntry -> invalid trigger type" << endmsg;
@@ -58,7 +58,7 @@ namespace MuonCalib {
         m_typeToBitAndStringMapping[type] = std::make_pair(bits, name);
     }
 
-    void MuonCalibTriggerTypeHelper::addEntry(MuonCalibTriggerType type, std::vector<int>& bits, std::string name) {
+    void MuonCalibTriggerTypeHelper::addEntry(MuonCalibTriggerType type, std::vector<int>& bits, const std::string& name) {
         if (!validType(type)) {
             MsgStream log(Athena::getMessageSvc(), "MuonCalibTriggerTypeHelper");
             log << MSG::WARNING << "MuonCalibTriggerTypeHelper::addEntry -> invalid trigger type" << endmsg;

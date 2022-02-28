@@ -85,9 +85,14 @@ namespace Rec {
                         vec.push_back((*measIter));
                     }
                     ATH_MSG_DEBUG("Refitting ID-part of track, meast vector of size " << vec.size());
-                    refittedTrack = m_fitter->fit(vec, *(track.perigeeParameters()), false, Trk::muon);
+                    refittedTrack = m_fitter->fit(Gaudi::Hive::currentContext(),
+                                                  vec,
+                                                  *(track.perigeeParameters()),
+                                                  false,
+                                                  Trk::muon).release();
                 } else {
-                    refittedTrack = m_fitter->fit(track, false, Trk::muon);
+                  refittedTrack = m_fitter->fit(
+                    Gaudi::Hive::currentContext(), track, false, Trk::muon).release();
                 }
                 fullTrack = refittedTrack;
             }

@@ -36,7 +36,7 @@ parser.add_argument("--skipEvents",default=0, type=int,
 parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-24-00-00", type=str,
                     help="The geometry tag to use")
 parser.add_argument("--inputevntfile",
-                    default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/pgun_2M_10GeV_geantinos_Eta6_v2_EVNT.root",
+                    default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/EVNT/mc15_14TeV.singlegeantino_E10GeV_etaFlatnp0_6.5M.evgen.EVNT.pool.root",
                     help="The input EVNT file to use")
 parser.add_argument("--outputhitsfile",default="myHITS.pool.root", type=str,
                     help="The output HITS filename")
@@ -70,7 +70,7 @@ ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Exec.SkipEvents = args.skipEvents
 
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
-detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip']
+detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip', 'HGTD']
 detectors.append('Bpipe')  # always run with beam pipe
 setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
   
@@ -97,6 +97,18 @@ acc.merge(PoolWriteCfg(ConfigFlags))
 # add BeamEffectsAlg
 from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
 acc.merge(BeamEffectsAlgCfg(ConfigFlags))
+
+beamcond = acc.getCondAlgo("BeamSpotCondAlg")
+
+beamcond.useDB=False
+beamcond.posX=0.0
+beamcond.posY=0.0
+beamcond.posZ=0.0
+beamcond.sigmaX=0.0
+beamcond.sigmaY=0.0
+beamcond.sigmaZ=0.0
+beamcond.tiltX=0.0
+beamcond.tiltY=0.0
 
 kwargs = {}
 

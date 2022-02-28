@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVGENPRODTOOLS_HEPMCWEIGHTSVC_H
@@ -58,11 +58,10 @@ private:
 
    std::map<std::string, std::size_t> m_currentWeightNames;
 
-   ToolHandle<IIOVDbMetaDataTool> m_metaDataTool;
+   PublicToolHandle<IIOVDbMetaDataTool> m_metaDataTool{this, "IOVDbMetaDataTool", "IOVDbMetaDataTool"};
+   Gaudi::Property<bool> m_enabled{this, "Enable", true,"If false, will return failure on loadWeights"};
 
-   bool m_weightNamesLoaded=false;
-   bool m_enabled=true;
-
+   bool m_weightNamesLoaded{false};
 };
 
 #endif

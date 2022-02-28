@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfValidation
 #
@@ -732,7 +732,7 @@ def returnIntegrityOfFile(file, functionName):
 ## @brief perform standard file validation
 #  @ detail This method performs standard file validation in either serial or
 #  @ parallel and updates file integrity metadata.
-def performStandardFileValidation(dictionary, io, parallelMode = False):
+def performStandardFileValidation(dictionary, io, parallelMode = False, multithreadedMode=False):
     if parallelMode is False:
         msg.info('Starting legacy (serial) file validation')
         for (key, arg) in dictionary.items():
@@ -750,6 +750,8 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
     
                 if io == "output":
                     msg.info('{0}: Testing corruption...'.format(fname))
+                    if multithreadedMode:
+                        os.environ['TRF_MULTITHREADED_VALIDATION']='TRUE'
                     if arg.getSingleMetadata(fname, 'integrity') is True:
                         msg.info('Corruption test passed.')
                     elif arg.getSingleMetadata(fname, 'integrity') is False:
@@ -914,10 +916,10 @@ class eventMatch(object):
         self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_TR": "filter", "DAOD_TRUTH*" : "match"}
         self._eventCountConf['EVNT_TR'] = {'HITS': simEventEff}
         self._eventCountConf['HITS'] = {'RDO':"match", 'HITS_RSM': simEventEff, "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter", "DAOD_TRUTH*" : "match"}
-        self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD*': "filter", 'AOD':"match", 'DAOD*':"filter"}
-        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match", 'AOD':"match", 'DAOD*':"filter"}
-        self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
-        self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
+        self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD*': "filter", 'AOD':"match", 'DAOD*':"filter", "DAOD_PHYS":"match", "DAOD_PHYSLITE":"match"}
+        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match", 'AOD':"match", 'DAOD*':"filter", "DAOD_PHYS":"match", "DAOD_PHYSLITE":"match"}
+        self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter", "DAOD_PHYS":"match", "DAOD_PHYSLITE":"match"}
+        self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter", "DAOD_PHYS":"match", "DAOD_PHYSLITE":"match"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}
         self._eventCountConf['DAOD_*'] = {'DAOD_*_MRG' : "match"}
         self._eventCountConf['TAG'] = {'TAG_MRG': "match"}

@@ -45,22 +45,13 @@ namespace MuonCombined {
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
         ATH_CHECK(m_segmentSelector.retrieve());
-        if (!m_caloExtensionTool.empty()) ATH_CHECK(m_caloExtensionTool.retrieve());
-
+     
         ATH_MSG_INFO("Initializing MuonSegmentTagTool");
 
         ATH_MSG_DEBUG("Initialisation started                     ");
         ATH_MSG_DEBUG("================================           ");
         ATH_MSG_DEBUG("=Proprieties are                           ");
-        ATH_MSG_DEBUG("= CutTheta                                 " << m_CutTheta);
-        ATH_MSG_DEBUG("= CutPhi                                   " << m_CutPhi);
-        ATH_MSG_DEBUG("= HitInfoFor2ndCoord                       " << m_HitInfoFor2ndCoord);
-        ATH_MSG_DEBUG("================================           ");
-
-        if (0 != m_HitInfoFor2ndCoord && 1 != m_HitInfoFor2ndCoord) {
-            ATH_MSG_FATAL("HitInfoFor2ndCoord=" << m_HitInfoFor2ndCoord << " : Unacceptable value. MuTagIMO will not run.");
-            return StatusCode::FAILURE;
-        }
+        ATH_MSG_DEBUG("================================           ");        
         return StatusCode::SUCCESS;
     }
 
@@ -188,9 +179,7 @@ namespace MuonCombined {
 
         std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoSelected;
         for (const MuonCombined::InDetCandidate* idTP : inDetCandidates) {
-            // ensure that the id trackparticle has a track
-            if (!idTP->indetTrackParticle().track()) continue;
-
+            // ensure that the id trackparticle has a track           
             // Ignore if this is a siAssociated disk (and property set).
             if (m_ignoreSiAssocated && idTP->isSiliconAssociated()) continue;
 
@@ -238,7 +227,7 @@ namespace MuonCombined {
                 const double EtaID = id_mom.eta();
                 for (const Muon::MuonSegment* itSeg : FilteredSegmentCollection) {
                     const Amg::Vector3D& pos = itSeg->globalPosition();
-                    const double thetaSeg = std::atan2(pos.perp(), pos.z());
+                    const double thetaSeg = pos.theta();
                     const double dPhi = qID * pos.deltaPhi(id_mom) - qID / pID;
                     const double dTheta = thetaSeg - id_mom.theta();
                     if (std::abs(dPhi) < 0.6 && qID * dTheta < 0.2 && qID * dTheta > -0.6) {
@@ -276,15 +265,13 @@ namespace MuonCombined {
             }
 
             std::vector<MuonCombined::MuonSegmentInfo> segmentsInfo;
-            int multiply(1);
-            if (m_doBidirectional) multiply = 2;
+            const int multiply = 1 + m_doBidirectional;
             std::vector<std::string> didExtrapolate(12 * multiply, "o");
             std::vector<std::string> segStation(FilteredSegmentCollection.size(), "XXX");
             std::vector<std::vector<std::string>> trkToSegment(12 * multiply, segStation);
 
             unsigned int extrapolation_counter(0);
-            int numberOfExtrapolations = 1;
-            if (m_doBidirectional) numberOfExtrapolations = 2;
+            const int numberOfExtrapolations = 1 + m_doBidirectional;
             std::array<std::unique_ptr<const Trk::TrackParameters>, 2> trackAtMSEntrance;
 
             for (int i_extrapolations = 0; i_extrapolations < numberOfExtrapolations; ++i_extrapolations) {
@@ -294,10 +281,7 @@ namespace MuonCombined {
                 if (i_extrapolations == 1) direction = Trk::oppositeMomentum;
 
                 // in case of along momentum extrapolation, use pre-existing extrapolation if available
-                std::unique_ptr<Trk::CaloExtension> extension;
-                if (!m_caloExtensionTool.empty()) {
-                  extension = m_caloExtensionTool->caloExtension(ctx, idTP->indetTrackParticle());
-                }
+                const Trk::CaloExtension* extension = idTP->getCaloExtension();
                 if (direction == Trk::alongMomentum) {
                     if (extension && extension->muonEntryLayerIntersection()) {
                         const Trk::TrackParameters& pars = *extension->muonEntryLayerIntersection();
@@ -610,7 +594,7 @@ namespace MuonCombined {
                 ATH_MSG_DEBUG("number of accepted tracks " << m_naccepted << " segmentsInfo size " << segmentsInfo.size());
 
                 std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoSolved =
-                    m_MuTagAmbiguitySolverTool->selectBestMuTaggedSegments(segmentsInfo);
+                    m_MuTagAmbiguitySolverTool->selectBestMuTaggedSegments(ctx, segmentsInfo);
                 segmentsInfoSelected.reserve(segmentsInfoSolved.size());
                 for (const auto& x : segmentsInfoSolved) segmentsInfoSelected.push_back(x);
                 ATH_MSG_DEBUG("segmentsInfoSelected size " << segmentsInfoSelected.size());
@@ -619,20 +603,21 @@ namespace MuonCombined {
         }  // end loop over tracks
 
         ATH_MSG_DEBUG("segmentsInfoSelected size after track loop " << segmentsInfoSelected.size());
-        std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoFinal = m_MuTagAmbiguitySolverTool->solveAmbiguities(segmentsInfoSelected);
+        std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoFinal = m_MuTagAmbiguitySolverTool->solveAmbiguities(ctx, segmentsInfoSelected);
         ATH_MSG_DEBUG("segmentsInfoFinal size " << segmentsInfoFinal.size());
 
-        for (unsigned int ns1 = 0; ns1 < segmentsInfoFinal.size(); ns1++) {
-            if (ns1 == 0)
-                ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].track));
-            else if (segmentsInfoFinal[ns1].track != segmentsInfoFinal[ns1 - 1].track)
-                ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].track));
-            ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].segment));
+        if (msgLevel(MSG::DEBUG)) {
+            for (unsigned int ns1 = 0; ns1 < segmentsInfoFinal.size(); ++ns1) {
+                if (ns1 == 0)
+                    ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].track));
+                else if (segmentsInfoFinal[ns1].track != segmentsInfoFinal[ns1 - 1].track)
+                    ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].track));
+                ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].segment));
+            }
         }
-
+        
         for (const InDetCandidate* idTP : inDetCandidates) {
             const Trk::Track* track = idTP->indetTrackParticle().track();
-            if (!track) continue;
             matchedSegment = false;
             std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoTag;
             segmentsInfoTag.reserve(segmentsInfoFinal.size());

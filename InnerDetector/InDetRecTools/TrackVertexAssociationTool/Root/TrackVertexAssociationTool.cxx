@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Includes from this package
@@ -37,7 +37,7 @@ namespace {
   // Return the AMVF fit weight for track assuming a given vertex as well as the largest weight seen by the track //
   // ------------------------------------------------------------------------------------------------------------ //
 
-  typedef std::pair<float, float> FitWeight; // (fit weight for a given vertex, max fit weight)
+  using FitWeight = std::pair<float, float>; // (fit weight for a given vertex, max fit weight)
 
   FitWeight fitWeight(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) {
 
@@ -328,7 +328,7 @@ StatusCode TrackVertexAssociationTool::initialize()
 
   // Initialize our EventInfo container and decoration reads
   ATH_CHECK(m_eventInfo.initialize());
-  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
+  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + "." + m_hardScatterDeco);
   ATH_CHECK(m_hardScatterDecoKey.initialize());
   m_vtxDecoAcc = std::make_unique<AMVFVerticesAcc>(m_vtxDecoKey.key());
   m_vtxDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_vtxDecoKey.key());

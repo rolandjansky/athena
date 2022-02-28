@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -30,10 +30,10 @@ class _modifier:
         log.warning('using modifier: %s', self.name())
         log.warning(self.__doc__)
 
-    def preSetup(self):
+    def preSetup(self, flags):
         pass #default is no action
 
-    def postSetup(self):
+    def postSetup(self, flags):
         pass #default is no action
 
 
@@ -45,9 +45,10 @@ class BunchSpacing25ns(_modifier):
     """
     ID (and other settings) related to 25ns bunch spacing
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from AthenaCommon.BeamFlags import jobproperties
-        jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+        jobproperties.Beam.bunchSpacing = 25
+        flags.Beam.BunchSpacing = 25
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         InDetTrigFlags.InDet25nsec.set_Value_and_Lock(True)
 
@@ -55,9 +56,10 @@ class BunchSpacing50ns(_modifier):
     """
     ID (and other settings) related to 50ns bunch spacing
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from AthenaCommon.BeamFlags import jobproperties
-        jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)
+        jobproperties.Beam.bunchSpacing = 50
+        flags.Beam.BunchSpacing = 50
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         InDetTrigFlags.InDet25nsec.set_Value_and_Lock(False)
 
@@ -65,7 +67,7 @@ class noLArCalibFolders(_modifier):
     """
     We should not use LAr electronics calibration data
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from LArConditionsCommon.LArCondFlags import larCondFlags
         larCondFlags.LoadElecCalib=False
 
@@ -73,54 +75,17 @@ class reducedLArCalibFolders(_modifier):
     """
     Load minimum amount of LAr electronics calibration data to run on transparent data
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from LArConditionsCommon.LArCondFlags import larCondFlags
         larCondFlags.SingleVersion=True
         larCondFlags.OFCShapeFolder=""
-
-
-class useHLTMuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
-            from MuonRecExample import MuonAlignConfig  # noqa: F401
-            #temporary hack to workaround DB problem - should not be needed any more
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MDT/BARREL')!=-1:
-                    f+='<key>/MUONALIGN/MDT/BARREL</key>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-            svcMgr.AmdcsimrecAthenaSvc.AlignmentSource=2
-
-
-class useRecentHLTMuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
-            from MuonRecExample import MuonAlignConfig  # noqa: F401
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MUONALIGN')!=-1 and f.find('TGC')==-1:
-                    f+='<forceTimestamp> 1384749388 </forceTimestamp>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-
 
 class ForceMuonDataType(_modifier):
     """
     Hardcode muon data to be of type of atlas
       this determines which cabling service to use
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
         muonByteStreamFlags.RpcDataType = 'atlas'
         muonByteStreamFlags.MdtDataType = 'atlas'
@@ -131,7 +96,7 @@ class useNewRPCCabling(_modifier):
     """
     Switch to new RPC cabling code
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from MuonCnvExample.MuonCnvFlags import muonCnvFlags
         if hasattr(muonCnvFlags,'RpcCablingMode'):
             muonCnvFlags.RpcCablingMode.set_Value_and_Lock('new')
@@ -140,7 +105,7 @@ class MdtCalibFromDB(_modifier):
     """
     setup MDT calibration from DB instead of ascii
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from IOVDbSvc.CondDB import conddb
@@ -160,7 +125,7 @@ class MdtCalibFixedTag(_modifier):
     Force use of specific MDT calibration tag
     THIS IS ONLY MEANT FOR NIGHTLY TEST WITH MC
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from IOVDbSvc.CondDB import conddb
         conddb.blockFolder("/MDT/T0")
         conddb.blockFolder("/MDT/RT")
@@ -171,7 +136,7 @@ class SolenoidOff(_modifier):
     """
     Turn solenoid field OFF
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         condSeq.AtlasFieldMapCondAlg.MapSoleCurrent = 0
@@ -180,7 +145,7 @@ class ToroidsOff(_modifier):
     """
     Turn toroid fields OFF
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         condSeq.AtlasFieldMapCondAlg.MapToroCurrent = 0
@@ -189,7 +154,7 @@ class BFieldFromDCS(_modifier):
     """
     Read B-field currents from DCS (also works for MC)
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from IOVDbSvc.CondDB import conddb
         conddb._SetAcc("DCS_OFL","COOLOFL_DCS")
         conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA",className="CondAttrListCollection")
@@ -206,7 +171,7 @@ class BFieldAutoConfig(_modifier):
     """
     Read field currents from configuration ptree (athenaHLT)
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         if hasattr(svcMgr,'HltEventLoopMgr'):
             svcMgr.HltEventLoopMgr.setMagFieldFromPtree = True
 
@@ -214,7 +179,7 @@ class useOracle(_modifier):
     """
     Disable the use of SQLite for COOL and geometry
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         if hasattr(svcMgr,'DBReplicaSvc'):
             svcMgr.DBReplicaSvc.UseCOOLSQLite = False
             svcMgr.DBReplicaSvc.UseCOOLFrontier = True
@@ -225,17 +190,16 @@ class noPileupNoise(_modifier):
     """
     Disable pileup noise correction
     """
-    def preSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    def preSetup(self, flags):
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
-        ConfigFlags.Trigger.calo.doOffsetCorrection = False
+        flags.Trigger.calo.doOffsetCorrection = False
 
 class usePileupNoiseMu8(_modifier):
     """
     Enable pileup noise correction for fixed luminosity point (mu=8)
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45)
 
@@ -243,7 +207,7 @@ class usePileupNoiseMu20(_modifier):
     """
     Enable pileup noise correction for fixed luminosity point (mu=20)
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*20/8)
 
@@ -251,7 +215,7 @@ class usePileupNoiseMu30(_modifier):
     """
     Enable pileup noise correction for fixed luminosity point (mu=30)
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
 
@@ -260,7 +224,7 @@ class forcePileupNoise(_modifier):
     """
     Use noise correction from run with pileup noise filled in for the online database
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from IOVDbSvc.CondDB import conddb
         conddb.addMarkup("/CALO/Noise/CellNoise","<forceRunNumber>178540</forceRunNumber>")
 
@@ -269,7 +233,7 @@ class forceTileRODMap(_modifier):
     """
     Configure Tile ROD map based on run-number (ATR-16290)
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
            from TileByteStream.TileByteStreamConf import TileROD_Decoder
            svcMgr.ToolSvc+=TileROD_Decoder()
@@ -295,7 +259,7 @@ class useOnlineLumi(_modifier):
     """
     Use online LuminosityTool
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
         LuminosityCondAlgOnlineDefault()
 
@@ -304,7 +268,7 @@ class forceConditions(_modifier):
     """
     Force all conditions (except prescales) to match run from input file
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         # Do not override these folders:
         ignore = ['/TRIGGER/HLT/PrescaleKey']   # see ATR-22143
 
@@ -344,7 +308,7 @@ class forceAFPLinkNum(_modifier):
     """
     force AFP link number translator to use Run2 setup
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon.AlgSequence import AthSequencer
         from AthenaCommon.CFElements import findAlgorithm
         AFPRecoSeq = AthSequencer("AFPRecoSeq")
@@ -366,24 +330,23 @@ class rewriteLVL1(_modifier):
     # Example:
     # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
 
-    def preSetup(self):
+    def preSetup(self, flags):
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
         L1ByteStreamEncodersRecExSetup()
 
-    def postSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if not ConfigFlags.Output.doWriteBS:
-            log.warning('rewriteLVL1 is True but ConfigFlags.Output.doWriteBS is False')
-        if not ConfigFlags.Trigger.writeBS:
-            log.warning('rewriteLVL1 is True but ConfigFlags.Trigger.writeBS is False')
+    def postSetup(self, flags):
+        if not flags.Output.doWriteBS:
+            log.warning('rewriteLVL1 is True but flags.Output.doWriteBS is False')
+        if not flags.Trigger.writeBS:
+            log.warning('rewriteLVL1 is True but flags.Trigger.writeBS is False')
 
-        if ConfigFlags.Trigger.Online.isPartition:
+        if flags.Trigger.Online.isPartition:
             # online
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.RewriteLVL1 = True
-            if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
+            if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1:
                 svcMgr.HltEventLoopMgr.L1TriggerResultRHKey = 'L1TriggerResult'
-            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
+            if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
                 svcMgr.HltEventLoopMgr.RoIBResultRHKey = 'RoIBResult'
         else:
             # offline
@@ -391,10 +354,10 @@ class rewriteLVL1(_modifier):
             from AthenaCommon.CFElements import findAlgorithm
             seq = AthSequencer('AthOutSeq')
             streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
-            if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
+            if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1:
                 streamBS.ExtraInputs += [ ('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult') ]
                 streamBS.ItemList += [ 'xAOD::TrigCompositeContainer#L1TriggerResult' ]
-            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
+            if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
                 streamBS.ExtraInputs += [ ('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult') ]
                 streamBS.ItemList += [ 'ROIB::RoIBResult#RoIBResult' ]
 
@@ -403,9 +366,8 @@ class DisableMdtT0Fit(_modifier):
     """
     Disable MDT T0 re-fit and use constants from COOL instead
     """
-    def preSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.doMuon:
+    def preSetup(self, flags):
+        if flags.Trigger.doMuon:
             from MuonRecExample.MuonRecFlags import muonRecFlags
             muonRecFlags.doSegmentT0Fit.set_Value_and_Lock(False)
 
@@ -418,18 +380,18 @@ class doCosmics(_modifier):
     """
     set beamType flag to cosmics data taking
     """
-    def preSetup(self):
+    def preSetup(self, flags):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
-       from AthenaConfiguration.AllConfigFlags import ConfigFlags
-       ConfigFlags.Beam.Type = 'cosmics'
+       from AthenaConfiguration.Enums import BeamType
+       flags.Beam.Type = BeamType.Cosmics
 
 
 class enableALFAMon(_modifier):
     """
     turn on ALFA monitoring in the HLT
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon.Include import include, IncludeError
         try:
             include("TrigOnlineMonitor/TrigALFAROBMonitor.py")
@@ -441,7 +403,7 @@ class nameAuditors(_modifier):
     """
     Turn on name auditor
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon import CfgMgr
         theApp.AuditAlgorithms = True
         theApp.AuditServices = True
@@ -452,7 +414,7 @@ class chronoAuditor(_modifier):
     """
     Turn on ChronoAuditor
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon import CfgMgr
         theApp.AuditAlgorithms = True
         theApp.AuditServices = True
@@ -466,7 +428,7 @@ class fpeAuditor(_modifier):
     """
     Turn on FPEAuditor
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon import CfgMgr
         theApp.AuditAlgorithms = True
         theApp.AuditServices = True
@@ -478,7 +440,7 @@ class athMemAuditor(_modifier):
     """
     Turn on AthMemoryAuditor
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         from AthenaCommon import CfgMgr
         theApp.AuditAlgorithms = True
         theApp.AuditServices = True
@@ -491,7 +453,7 @@ class perfmon(_modifier):
     """
     Enable PerfMon
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from PerfMonComps.PerfMonFlags import jobproperties
         jobproperties.PerfMonFlags.doMonitoring = True
         jobproperties.PerfMonFlags.doPersistencyMonitoring = False
@@ -500,8 +462,7 @@ class enableSchedulerMon(_modifier):
     """
     Enable SchedulerMonSvc
     """
-    def preSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    def preSetup(self, flags):
         if not flags.Trigger.Online.isPartition:
             log.debug('SchedulerMonSvc currently only works with athenaHLT / online partition. Skipping setup.')
             return
@@ -510,8 +471,7 @@ class enableSchedulerMon(_modifier):
         from TrigSteerMonitor.TrigSteerMonitorConfig import SchedulerMonSvcCfg
         CAtoGlobalWrapper(SchedulerMonSvcCfg, flags)
     
-    def postSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    def postSetup(self, flags):
         if flags.Trigger.Online.isPartition:
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.MonitorScheduler = True
@@ -520,7 +480,7 @@ class enableFPE(_modifier):
     """
     Turn on floating point exceptions
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         theApp.CreateSvc += ["FPEControlSvc"]
 
 
@@ -528,9 +488,8 @@ class doValidation(_modifier):
     """
     Enable validation mode (e.g. extra histograms)
     """
-    def preSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.doValidationMonitoring = True
+    def preSetup(self, flags):
+        flags.Trigger.doValidationMonitoring = True
 
 class autoConditionsTag(_modifier):
     """
@@ -538,7 +497,7 @@ class autoConditionsTag(_modifier):
     require RecExConfig.RecFlags.triggerStream to be set elsewhere
     Please do not use this - for trigger reprocessing only!!!
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
 
@@ -546,8 +505,7 @@ class enableCostMonitoring(_modifier):
     """
     Enable Cost Monitoring for online
     """
-    def preSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    def preSetup(self, flags):
         flags.Trigger.CostMonitoring.doCostMonitoring = True
 
 class forceCostMonitoring(_modifier):
@@ -555,8 +513,7 @@ class forceCostMonitoring(_modifier):
     Enable Cost Monitoring and produce the monitoring collections in each event
     without requiring the HLT cost monitoring chain to be present and active.
     """
-    def preSetup(self):
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    def preSetup(self, flags):
         flags.Trigger.CostMonitoring.doCostMonitoring = True
         flags.Trigger.CostMonitoring.monitorAllEvents = True
 
@@ -565,7 +522,7 @@ class BeamspotFromSqlite(_modifier):
     """
     Read beamspot from sqlite file (./beampos.db)
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         folders = []
         for f in svcMgr.IOVDbSvc.Folders:
             if f.find('/Indet/Onl/Beampos')!=-1:
@@ -578,7 +535,7 @@ class LumiFromSqlite(_modifier):
     """
     Read beamspot from sqlite file (./lumi.db)
     """
-    def postSetup(self):
+    def postSetup(self, flags):
         folders = []
         for f in svcMgr.IOVDbSvc.Folders:
             if f.find('/TRIGGER/LUMI/HLTPrefLumi')!=-1:
@@ -592,7 +549,7 @@ class useDynamicAlignFolders(_modifier):
     """
     enable the new (2016-) alignment scheme
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
         InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
@@ -602,8 +559,7 @@ class doRuntimeNaviVal(_modifier):
     Checks the validity of each Decision Object produced by a HypoAlg, including all of its
     parents all the way back to the HLT Seeding. Potentially CPU expensive.
     """
-    def preSetup(self):
+    def preSetup(self, flags):
         log.info("Enabling Runtime Trigger Navigation Validation")
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.doRuntimeNaviVal = True
+        flags.Trigger.doRuntimeNaviVal = True
 

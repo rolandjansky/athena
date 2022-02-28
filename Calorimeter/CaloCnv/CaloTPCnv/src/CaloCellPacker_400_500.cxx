@@ -22,6 +22,9 @@
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 //============================================================================
 // Common methods.
@@ -955,10 +958,22 @@ void CaloCellPacker_400_500::unpack
   // We need the detector description.
   const CaloDetDescrManager_Base *ddmgr = nullptr;
   if (is_SC){
-    ddmgr = CaloSuperCellDetDescrManager::instance();
-  }else
-  {
-    ddmgr = CaloDetDescrManager::instance();
+    SG::ReadCondHandleKey<CaloSuperCellDetDescrManager> caloSuperCellMgrKey {"CaloSuperCellDetDescrManager"};
+    StatusCode sc = caloSuperCellMgrKey.initialize();
+    if(sc.isFailure()) {
+      throw std::runtime_error("Failed to initialize ReadCondHandleKey for CaloSuperCellDetDescrManager");
+    }
+    SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{caloSuperCellMgrKey};
+    ddmgr = *caloSuperCellMgrHandle;
+  }
+  else {
+    SG::ReadCondHandleKey<CaloDetDescrManager> caloMgrKey {"CaloDetDescrManager"};
+    StatusCode sc = caloMgrKey.initialize();
+    if(sc.isFailure()) {
+      throw std::runtime_error("Failed to initialize ReadCondHandleKey for CaloDetDescrManager");
+    }
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{caloMgrKey};
+    ddmgr = *caloMgrHandle;
   }
   const CaloCell_Base_ID *calo_id = ddmgr->getCaloCell_ID();
 

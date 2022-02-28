@@ -160,6 +160,7 @@ def getInDetRttTruthSelectionTool(**kwargs):
         # @TODO change name ? name = 'InDetRttTruthSelectionTool',
         requireStatus1=True,
         requireCharged=True,
+        requireSiHit=0,
         maxBarcode=(
             200*1000 if kwargs.pop("OnlyDressPrimaryTracks", True) else 2**31-1),
         maxProdVertRadius=300.,

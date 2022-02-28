@@ -180,10 +180,8 @@ bool MuonHoughHisto2D::checkIfMaximumAlreadyUsed(int binnumber) const {
     return check;
 }
 
-bool MuonHoughHisto2D::checkIfMaximum(int binnumber, double& maximum, int& maxbin, bool which_segment, int printlevel) const {
+bool MuonHoughHisto2D::checkIfMaximum(int binnumber, double& maximum, int& maxbin, bool /*which_segment*/, int /*printlevel*/) const {
     bool check = false;
-    printlevel += 0;
-    which_segment += 0;
 
     double content_bin_area = content_Bin_Area(binnumber);  // now no area anymore == getBinContent
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,7 +57,7 @@ public:
 
     bool		operator== (const Callback1 &x) const;
     /**/		operator bool (void) const;
-    void		operator() (T1) const;
+    void		operator() (T1);
 
 private:
     Callback1Rep<T1>	*m_rep;
@@ -128,7 +128,7 @@ Callback1<T1>::operator bool (void) const
 
 template <class T1>
 inline void
-Callback1<T1>::operator() (T1 a) const
+Callback1<T1>::operator() (T1 a)
 { m_rep->call (a); }
 
 template <class T1, class T2>
@@ -181,7 +181,7 @@ public:
 
     static SharedLibrary *	self (void);
     static SharedLibrary *	load (const std::string &name);
-    static void			loaded (const InfoHandler &handler);
+    static void			loaded (InfoHandler &handler);
 
     void			release (void);
     void			abandon (void);

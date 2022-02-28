@@ -1,6 +1,7 @@
 #
 # Packages to build as part of the AthDataQuality project.
 #
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Control/CxxUtils
 + DataQuality/DQDefects

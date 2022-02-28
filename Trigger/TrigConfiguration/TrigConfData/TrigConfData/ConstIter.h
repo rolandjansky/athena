@@ -64,12 +64,12 @@ namespace TrigConf {
       {}
 
       /** @brief Comparison operator */
-      bool operator==(const ConstIter &i) {
+      bool operator==(const ConstIter &i) const {
          return &i.m_buf == &m_buf && i.m_offset == m_offset;
       }
 
       /** Not-equal operator */
-      bool operator!=(const ConstIter &i) {
+      bool operator!=(const ConstIter &i) const {
          return !(*this == i);
       }
 

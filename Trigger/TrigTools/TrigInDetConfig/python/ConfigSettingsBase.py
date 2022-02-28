@@ -52,11 +52,13 @@ class _ConfigSettingsBase() :
       self._doRecord            = True
       self._vertex              = None
       self._adaptiveVertex      = False
+      self._actsVertex          = False
       self._addSingleTrackVertices = False
       self._TracksMaxZinterval  = 1 #mm
       self._minNSiHits_vtx      = None
       self._vertex_jet          = None
       self._adaptiveVertex_jet  = False
+      self._actsVertex_jet      = False
       self._dodEdxTrk           = False 
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
@@ -75,6 +77,7 @@ class _ConfigSettingsBase() :
       self._useSCTPT          = None
       self._doEmCaloSeedPT    = None
       self._minTRTonTrkPT     = None
+      self._useSiSPSeededTrackFinder = False
 
       if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
          self.override()
@@ -295,6 +298,14 @@ class _ConfigSettingsBase() :
        return self._adaptiveVertex_jet
 
    @property
+   def actsVertex(self):
+       return self._actsVertex
+
+   @property
+   def actsVertex_jet(self):
+       return self._actsVertex_jet
+
+   @property
    def addSingleTrackVertices(self):
        return self._addSingleTrackVertices
 
@@ -375,6 +386,10 @@ class _ConfigSettingsBase() :
    def useBeamSpotForRoiZwidth(self):
       return self._useBeamSpotForRoiZwidth 
 
+   @property
+   def useSiSPSeededTrackFinder(self):
+      return self._useSiSPSeededTrackFinder
+
    def printout(self):
       from AthenaCommon.Logging import logging
       log = logging.getLogger("InDetTrigConfig: ")
@@ -425,4 +440,4 @@ class _ConfigSettingsBase() :
       log.info( "   doEmCaloSeed          : {}".format( self._doEmCaloSeedPT ) )
       log.info( "   minTRTonTrk           : {}".format( self._minTRTonTrkPT ) )
       log.info( "   BeamSpotForRoiZwidth  : {}".format( self._useBeamSpotForRoiZwidth ) )
-
+      log.info( "   useSiSPSeededTrackFinder : {}".format( self._useSiSPSeededTrackFinder ) )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolFolder.cxx
@@ -584,6 +584,6 @@ void CoraCoolFolder::setPrefetchAll(bool prefetchAll) {
   m_coolfolder->setPrefetchAll(prefetchAll);
 }
 
-coral::ITable* CoraCoolFolder::table() const { 
+coral::ITable* CoraCoolFolder::table() { 
   return &(m_proxy->nominalSchema().tableHandle(m_tablename));
 }

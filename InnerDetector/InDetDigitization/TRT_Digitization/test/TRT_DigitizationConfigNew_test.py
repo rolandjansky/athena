@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on TRT_DigitizationConfigNew.py
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from AthenaCommon.Logging import log
@@ -17,7 +17,7 @@ from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationHSCfg
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1

@@ -7,7 +7,7 @@
 # art-athena-mt: 8
 
 export ATHENA_CORE_NUMBER=4
-timeout 43200 Reco_tf.py \
+timeout 64800 Reco_tf.py \
   --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0114._SFO-5._0003.data \
   --outputAODFile=myAOD.pool.root \
   --outputHISTFile=myHIST.root \
@@ -18,7 +18,14 @@ timeout 43200 Reco_tf.py \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
   --autoConfiguration='everything' \
-  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-08' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
+  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
-echo "art-result: $? Reco_tf_data18_mp"
+rc1=$?
+echo "art-result: ${rc1} Reco_tf_data18_mp"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"

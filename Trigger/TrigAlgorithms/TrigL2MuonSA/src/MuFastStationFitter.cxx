@@ -43,7 +43,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
    ATH_CHECK( m_ptFromAlphaBeta.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
 
-   ATH_CHECK( m_nswStationFitter.retrieve() );
+   ATH_CHECK( m_nswStationFitter.retrieve(DisableTool{m_nswStationFitter.empty()}) );
 
    return StatusCode::SUCCESS;
 }
@@ -136,7 +136,8 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const TrigRo
 
     ATH_CHECK( superPointFitter(itTrack) );
 
-    ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack) );
+    if(!m_nswStationFitter.empty())
+      ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack) );
   }
   //
   return StatusCode::SUCCESS;
@@ -176,7 +177,8 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescr
     double aw = muonRoad.aw[3][0];
     if(exInnerA !=0 ) updateInnSP(itTrack, exInnerA, aw,bw);
 
-    ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack) );
+    if(!m_nswStationFitter.empty())
+      ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack) );
 
   }
   //
@@ -544,7 +546,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
     sumN[i_st] = 0.;
   }
 
-  for ( int i_hit=0; i_hit<(int)mdtSegment->size(); i_hit++){
+  for (unsigned int i_hit=0; i_hit<mdtSegment->size(); i_hit++){
     //unsigned int i_station =mdtSegment->at(i_hit).Chamber;
 
     if (mdtSegment->at(i_hit).isOutlier>1) continue;
@@ -585,7 +587,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
     }
   }
 
-  for ( int i_hit=0; i_hit<(int)mdtSegment->size(); i_hit++) {
+  for (unsigned int i_hit=0; i_hit<mdtSegment->size(); i_hit++) {
 
     unsigned int i_layer =mdtSegment->at(i_hit).Layer;
     if (mdtSegment->at(i_hit).isOutlier>1) continue;
@@ -658,7 +660,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
     int total_cp = 0;
     findLayerCombination(Ly_1st, real_layer, pr,Ly_flg, total_cp);
 
-    for (int i=0;i<(int)Ly_flg.size(); i++) {
+    for (unsigned int i=0;i<Ly_flg.size(); i++) {
 
       std::vector<std::vector<int> >tID;
       tID.clear();
@@ -675,7 +677,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
         }
       }
 
-      for (int j=0; j<(int)Ly_flg[i].size(); j++) {
+      for (unsigned int j=0; j<Ly_flg[i].size(); j++) {
 
         int i_layer = Ly_flg[i][j];
         std::vector<int> tid;
@@ -725,8 +727,8 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
         tIndex.push_back(tindex);
       }
 
-      for (int ti=0; ti<(int)tID.size();ti++) {
-        for (int tj=0; tj<(int)tID[ti].size();tj++) {
+      for (unsigned int ti=0; ti<tID.size();ti++) {
+        for (unsigned int tj=0; tj<tID[ti].size();tj++) {
           tube_ID[ti][tj]   = tID[ti][tj];
           tubeindex[ti][tj] = tIndex[ti][tj];
         }
@@ -752,7 +754,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
         }
 
         if (sumid==1) {
-          for (int tt=0;tt<(int)isg.size(); tt++) {
+          for (unsigned int tt=0;tt<isg.size(); tt++) {
             int tindex = tubeindex[tt][isg[tt]];
             hitarray.push_back(tindex);
           }
@@ -780,7 +782,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 
           int fd=0;
 
-          for (int j=0; j<(int)hitarray.size(); j++) {
+          for (unsigned int j=0; j<hitarray.size(); j++) {
 
             if (hitarray[j]==hit_index) {
               fd=1;
@@ -905,7 +907,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
     t_rm.clear();
     t_phim.clear();
 
-    for (int ir=0; ir<(int)Line_Chi2.size(); ir++) chi_map.insert(std::make_pair(Line_Chi2.at(ir), ir));
+    for (unsigned int ir=0; ir<Line_Chi2.size(); ir++) chi_map.insert(std::make_pair(Line_Chi2.at(ir), ir));
 
     for (std::multimap<float, int>::iterator jt = chi_map.begin(); jt != chi_map.end(); ++jt) {
       t_A.push_back(Line_A.at(jt->second));
@@ -1898,7 +1900,7 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
   t_B.clear();
   t_chi2.clear();
 
-  for (int ir=0; ir<(int)st_chi2.size(); ir++) chi_map.insert(std::make_pair(st_chi2.at(ir), ir));
+  for (unsigned int ir=0; ir<st_chi2.size(); ir++) chi_map.insert(std::make_pair(st_chi2.at(ir), ir));
 
   for (std::multimap<float, int>::iterator jt = chi_map.begin(); jt != chi_map.end(); ++jt) {
     t_A.push_back(st_A.at(jt->second));

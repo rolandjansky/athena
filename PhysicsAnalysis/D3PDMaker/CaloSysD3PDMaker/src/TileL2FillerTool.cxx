@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -25,7 +25,7 @@ TileL2FillerTool::TileL2FillerTool(const string& type,
 {
   m_saveL2 = true;
   m_saveMuROD = true;
-  book().ignore(); // Avoid coverity warnings
+  TileL2FillerTool::book().ignore(); // Avoid coverity warnings
 
   declareProperty("SaveL2Details",    m_saveL2 = true);
   declareProperty("SaveMuRODDetails",    m_saveMuROD = false);

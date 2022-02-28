@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # skeleton.EVGENtoRDO.py
 # skeleton file for running simulation+digi in one job for FastChain
 # currently using full simulation and digi, will swap in fast components later
@@ -186,6 +186,15 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
@@ -219,13 +228,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     if hasattr(runArgs, "outputEVNT_TRFile") and\
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -829,6 +831,16 @@ from ISF_Example.ISF_Input import ISF_Input
 
 topSequence += CfgGetter.getAlgorithm("BeamEffectsAlg")
 
+# Note - here we should check whether xAOD::EventInfo is already
+# present in the EVNT file as is done in DigitizationReadMetadata ( 'LegacyEventInfo' in digitizationFlags.experimentalDigi())
+from Digitization.DigitizationFlags import digitizationFlags
+if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSequence += xAODMaker__EventInfoCnvAlg()
+    # Decorate zero pile-up
+    from PileUpComps.PileUpCompsConf import NoPileUpMuWriter
+    topSequence += NoPileUpMuWriter()
+
 #--------------------------------------------------------------
 # ISF kernel configuration
 #--------------------------------------------------------------
@@ -913,10 +925,9 @@ if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
 
     ###############Back to MyCustomSkeleton######################
 
-## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag":runArgs.AMITag})
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
 patch_mc_channel_numberMetadata()
@@ -1056,6 +1067,12 @@ if digitizationFlags.RunAndLumiOverrideList.statusOn:
     include("Digitization/LumiBlockOverrides.py")
     if digitizationFlags.dataRunNumber.statusOn:
         fast_chain_log.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
+    # Hack to set the three values of EventSelector
+    if simFlags.RunNumber.statusOn:
+        ServiceMgr.EventSelector.FirstLB = 1
+        from RunDependentSimComps.RunDMCFlags import runDMCFlags
+        ServiceMgr.EventSelector.InitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(simFlags.RunNumber())
+        ServiceMgr.EventSelector.RunNumber = simFlags.RunNumber()
 else:
     include("Digitization/RunNumberOverride.py")
 
@@ -1079,9 +1096,8 @@ if DetFlags.pileup.any_on():
     fast_chain_log.info(" -----> Luminosity = %s cm^-2 s^-1", jobproperties.Beam.estimatedLuminosity())
     fast_chain_log.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
 
-# in any case we need the PileUpMergeSvc for the digitize algos
-if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
-    ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
+    if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
+        ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
 
 
 #--------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -52,7 +52,6 @@ Pythia8B_i::Pythia8B_i
     declareProperty("pT0timesMPI", m_pt0timesMPI=1.0);
     declareProperty("numberAlphaS", m_numberAlphaS=3.0);
     declareProperty("useSameAlphaSasMPI", m_sameAlphaSAsMPI=false);
-    declareProperty("MaxFailures", m_maxFailures = 10); // consecutive failures limit
 
     m_totalBQuark = 0;
     m_totalBBarQuark = 0;
@@ -71,8 +70,11 @@ Pythia8B_i::Pythia8B_i
     for (std::vector<int>::iterator iit=m_bcodes.begin(); iit!=m_bcodes.end(); ++iit) {
         m_speciesCount[*iit] = 0;
     }
-    
-    
+#ifdef HEPMC3
+    m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+    std::vector<std::string> names = {"Default"};
+    m_runinfo->set_weight_names(names);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +107,7 @@ StatusCode Pythia8B_i::genInitialize() {
     // Sets the built-in UserHook called SuppressLowPT
     // FOR ONIA USE ONLY
     ATH_MSG_INFO("genInitialize() from Pythia8B_i");
+
     bool canSetHook=true;
     StatusCode returnCode = StatusCode::SUCCESS;
     if (m_doSuppressSmallPT) {
@@ -116,9 +119,11 @@ StatusCode Pythia8B_i::genInitialize() {
        returnCode=StatusCode::FAILURE;
        ATH_MSG_ERROR(" *** Unable to initialise PythiaB !! ***");
     }
-   
+
+    if(m_userString == "NONE") m_userString.clear();
+    // Call the base class genInitialize()
     if (! Pythia8_i::genInitialize().isSuccess() ) returnCode=StatusCode::FAILURE;
-    
+   
     return returnCode;
 }
 
@@ -176,7 +181,6 @@ StatusCode Pythia8B_i::callGenerator(){
     int iEvent(0);
     while (iEvent < 1) { // keep going until an event is accepted
         
-        ++m_totalPythiaCalls;
         ATH_MSG_DEBUG("Throwing the dice....");
 //        if (!Pythia8_i::m_pythia->next()) continue;
         if ( !Pythia8_i::m_pythia->next() ) {
@@ -195,6 +199,9 @@ StatusCode Pythia8B_i::callGenerator(){
                 continue;
             }
         }
+        // Reset failure counter and increment event counter after a successful event
+        m_failureCount = 0;
+        ++m_totalPythiaCalls;
 
         // Find b(c)/antib(c) quarks and enforce cuts as required
         int nbBeforeSelection(0);
@@ -331,10 +338,10 @@ StatusCode Pythia8B_i::callGenerator(){
             // Does the events contain a signal decay as required by the user
             if (signalSelect) {
                 if (!cleanUndecayed(*eventItr,m_bcodes)) continue;
-                if (signalSelect) {if (!signalAccept(*eventItr,m_sigCodes,m_sigPtCuts,m_sigEtaCuts,m_nSignalRequired)) continue;}
+                if (signalSelect) {if (!signalAccept(*eventItr,m_sigCodes,m_nSignalRequired)) continue;}
             }
             // User-defined selections if any
-            if (m_userString!="NONE") {
+            if (!m_userString.empty()) {
                 if (!userSelection(*eventItr,m_userString,m_userVar)) continue;
             }
             finalEvents.push_back(*eventItr);
@@ -387,11 +394,11 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
         HepMC::set_random_states(evt,m_seeds);
     
     // set the event weight
-    evt->weights().push_back(m_pythia->info.weight());
 #ifdef HEPMC3
-// units correction
-      evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+    if (!evt->run_info()) evt->set_run_info(m_runinfo);
+    evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
 #endif
+    evt->weights().push_back(m_pythia->info.weight());
 
 //uncomment to list HepMC events
 //#ifdef HEPMC3
@@ -456,7 +463,7 @@ StatusCode Pythia8B_i::genFinalize(){
     std::cout <<   "Invariant mass of trigger leptons > " << m_invMass << std::endl;
     if (m_oppCharges) std::cout << "Trigger leptons required to have opposite charges" << std::endl;
     if (m_sigCodes.size() > 0) printSignalSelections(m_sigCodes,m_sigPtCuts,m_sigEtaCuts,m_nSignalRequired);
-    if (m_userString!="NONE") std::cout << "User selection: " << m_userString << std::endl;
+    if (!m_userString.empty()) std::cout << "User selection: " << m_userString << std::endl;
     
     if (m_speciesCount.size()>0) {
         std::cout <<"\nSpecies\tCount\n"<< std::endl;
@@ -611,7 +618,7 @@ bool Pythia8B_i::pairProperties(Pythia8::Event &theEvent, const std::vector<int>
 ///////////////////////////////////////////////////////////////////////////////
 // Iteratively descends through a decay chain, recording all particles it comes
 // across
-void Pythia8B_i::descendThroughDecay(Pythia8::Event &theEvent, std::vector<Pythia8::Particle> &list, int i) {
+void Pythia8B_i::descendThroughDecay(Pythia8::Event &theEvent, std::vector<Pythia8::Particle> &list, int i) const {
     
     list.push_back(theEvent[i]);
     std::vector<int> childrenIndices = theEvent.daughterList(i);
@@ -626,7 +633,7 @@ void Pythia8B_i::descendThroughDecay(Pythia8::Event &theEvent, std::vector<Pythi
 
 ///////////////////////////////////////////////////////////////////////////////
 // Given a vector of Pythia8 particles, returns their PDG codes
-std::vector<int> Pythia8B_i::getCodes(const std::vector<Pythia8::Particle> &theParticles) {
+std::vector<int> Pythia8B_i::getCodes(const std::vector<Pythia8::Particle> &theParticles) const {
     
     std::vector<int> codes;
     codes.reserve(theParticles.size());
@@ -640,7 +647,7 @@ std::vector<int> Pythia8B_i::getCodes(const std::vector<Pythia8::Particle> &theP
 ///////////////////////////////////////////////////////////////////////////////
 // Compares two vectors of integers (any order) and if they are the same, returns
 // true
-bool Pythia8B_i::compare(std::vector<int> vect1, std::vector<int> vect2) {
+bool Pythia8B_i::compare(std::vector<int> vect1, std::vector<int> vect2) const {
     
     if (vect1.size()!=vect2.size()) return false;
     
@@ -659,13 +666,24 @@ bool Pythia8B_i::compare(std::vector<int> vect1, std::vector<int> vect2) {
 // Checks a vector of particles against a vector of pt and eta cuts and if all
 // particles do not pass the cuts, returns false
 // Last argument controls whether the cut is on pt or eta
-bool Pythia8B_i::passesCuts(const std::vector<Pythia8::Particle> &theParticles,const std::vector<double> &cuts, const std::string& cutType) {
+bool Pythia8B_i::passesPTCuts(const std::vector<Pythia8::Particle> &theParticles) const {
     
     bool pass(true);
     unsigned int i(0);
     for (auto pItr=theParticles.cbegin(); pItr!=theParticles.cend(); ++pItr,++i) {
-        if (cutType=="PT") {if ((*pItr).pT() < cuts[i]) pass = false;}
-        if (cutType=="ETA") {if (std::abs((*pItr).eta()) > cuts[i]) pass = false;}
+        if ((*pItr).pT() < m_sigPtCuts[i]) pass = false;
+        if (!pass) break;
+    }
+    return pass;
+    
+}
+
+bool Pythia8B_i::passesEtaCuts(const std::vector<Pythia8::Particle> &theParticles) const {
+    
+    bool pass(true);
+    unsigned int i(0);
+    for (auto pItr=theParticles.cbegin(); pItr!=theParticles.cend(); ++pItr,++i) {
+        if (std::abs((*pItr).eta()) > m_sigEtaCuts[i]) pass = false;
         if (!pass) break;
     }
     
@@ -677,14 +695,12 @@ bool Pythia8B_i::passesCuts(const std::vector<Pythia8::Particle> &theParticles,c
 // Given an event, checks whether it contains a decay process as defined by the
 // user and if so whether the final states pass user-defined cuts
 bool Pythia8B_i::signalAccept(Pythia8::Event &theEvent, const std::vector<int> &requiredDecay,
-                              const std::vector<double>& signalPtCuts,
-                              const std::vector<double>& signalEtaCuts,
-			      unsigned int nRequired) {
+                              unsigned int nRequired) const {
     
     bool acceptEvent(false);
     std::vector<int> parentsIndices;
     for (int i = 0; i<theEvent.size(); ++i) {
-        Pythia8::Particle theParticle = theEvent[i];
+        const Pythia8::Particle &theParticle = theEvent[i];
         int id = theParticle.id();
         if (id==requiredDecay[0]) parentsIndices.push_back(i);
     }
@@ -707,15 +723,15 @@ bool Pythia8B_i::signalAccept(Pythia8::Event &theEvent, const std::vector<int> &
         }
         ATH_MSG_DEBUG("Event contains required signal decay chain");
         
-        if (decayMembers.size()==signalPtCuts.size()) {
-            if (!passesCuts(decayMembers,signalPtCuts,"PT")) {
+        if (decayMembers.size()==m_sigPtCuts.size()) {
+           if (!passesPTCuts(decayMembers)) {
                 ATH_MSG_DEBUG("Signal event REJECTED as signal chain does not pass pt cuts");
                 continue;
             }
         }
         
-        if (decayMembers.size()==signalEtaCuts.size()) {
-            if (!passesCuts(decayMembers,signalEtaCuts,"ETA")) {
+        if (decayMembers.size()==m_sigEtaCuts.size()) {
+           if (!passesEtaCuts(decayMembers)) {
                 ATH_MSG_DEBUG("Signal event REJECTED as signal chain does not pass eta cuts");
                 continue;
             }
@@ -745,7 +761,7 @@ bool Pythia8B_i::signalAccept(Pythia8::Event &theEvent, const std::vector<int> &
 ///////////////////////////////////////////////////////////////////////////////
 //// Prints out signal cuts for display at the end of the job
 
-void Pythia8B_i::printSignalSelections(const std::vector<int> &signalProcess,const  std::vector<double> &ptCuts, const std::vector<double> &etaCuts, unsigned int nRequired ) {
+void Pythia8B_i::printSignalSelections(const std::vector<int> &signalProcess,const  std::vector<double> &ptCuts, const std::vector<double> &etaCuts, unsigned int nRequired ) const {
         std::cout << "Signal PDG codes required: ";
         for (unsigned int k=0; k<m_sigCodes.size(); ++k) std::cout << signalProcess[k] << " ";
         if (signalProcess.size()==ptCuts.size()) {

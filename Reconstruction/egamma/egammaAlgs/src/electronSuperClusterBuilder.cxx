@@ -24,11 +24,9 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(
   const std::string& name,
   ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
-{
-  // Additional Window we search in
-  m_maxDelPhi = m_maxDelPhiCells * s_cellPhiSize * 0.5;
-  m_maxDelEta = m_maxDelEtaCells * s_cellEtaSize * 0.5;
-}
+  , m_maxDelEta(m_maxDelEtaCells * s_cellEtaSize * 0.5)
+  , m_maxDelPhi(m_maxDelPhiCells * s_cellPhiSize * 0.5)
+{}
 
 StatusCode
 electronSuperClusterBuilder::initialize()
@@ -66,7 +64,8 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
-  // Have to register cluster container in order to properly get cluster links.
+  // Have to register cluster container in order to properly get cluster
+  // links.
   SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(
     m_outputElectronSuperClustersKey, ctx);
 
@@ -79,16 +78,18 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     m_electronSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
-  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
+  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
-    precorrClustersH.emplace (m_precorrClustersKey, ctx);
-    ATH_CHECK( precorrClustersH->record
-               (std::make_unique<xAOD::CaloClusterContainer>(),
-                std::make_unique<xAOD::CaloClusterAuxContainer>()) );
+    precorrClustersH.emplace(m_precorrClustersKey, ctx);
+    ATH_CHECK(precorrClustersH->record(
+      std::make_unique<xAOD::CaloClusterContainer>(),
+      std::make_unique<xAOD::CaloClusterAuxContainer>()));
   }
 
   // The calo Det Descr manager
-  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
   ATH_CHECK(caloDetDescrMgrHandle.isValid());
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
@@ -97,8 +98,8 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
   std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    
-    if (isUsed[i]){
+
+    if (isUsed[i]) {
       continue;
     }
     const auto* egRec = (*egammaRecs)[i];
@@ -153,24 +154,20 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
 
     ATH_MSG_DEBUG("Total clusters " << accumulatedClusters.size());
 
-    // Create the new cluster: take the full list of cluster and add their cells
-    // together
-    std::unique_ptr<xAOD::CaloCluster> newCluster =
+    // Create the new cluster: take the full list of cluster and add their
+    // cells together
+    bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
                        xAOD::EgammaParameters::electron,
+                       outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
-
-    if (!newCluster) {
-      ATH_MSG_DEBUG("Creating a new cluster failed");
+    if (!clusterAdded) {
       // Revert status of constituent clusters.
       isUsed.swap(isUsedRevert);
       continue;
     }
-
-    // Push back the new cluster into the output container.
-    outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(

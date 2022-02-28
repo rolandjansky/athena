@@ -5,9 +5,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTagToolConfig import BTagToolCfg
 from BTagging.BTagLightSecVertexingConfig import BTagLightSecVtxToolCfg
 
-# import the JetBTaggingAlg configurable
-Analysis__JetBTaggingAlg = CompFactory.Analysis.JetBTaggingAlg
-
 
 def JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, PrimaryVertexCollectionName, TaggerList, SecVertexers, Tracks, Muons, SetupScheme="", TimeStamp = "", **options):
     acc = ComponentAccumulator()
@@ -26,6 +23,10 @@ def JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, PrimaryVer
     options['JetCalibrationName'] = JetCollection.replace('Track', 'PV0Track')
     options['BTagSVCollectionName'] = BTaggingCollection + 'SecVtx'
     options['BTagJFVtxCollectionName'] = BTaggingCollection + 'JFVtx'
+    
+    if ConfigFlags.BTagging.RunFlipTaggers is True:
+        options['BTagSVFlipCollectionName'] = BTaggingCollection + 'SecVtxFlip'
+        options['BTagJFVtxFlipCollectionName'] = BTaggingCollection + 'JFVtxFlip'
 
     options['BTaggingLinkName'] = options['JetCollectionName'] + '.btaggingLink'+TimeStamp
     if TimeStamp: BTaggingCollection += '_'+TimeStamp
@@ -34,6 +35,6 @@ def JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, PrimaryVer
     options['name'] = (options['BTaggingCollectionName'] + "_" + options['JetCollectionName'] + ConfigFlags.BTagging.GeneralToolSuffix).lower()
 
     # -- create main BTagging algorithm
-    acc.addEventAlgo(Analysis__JetBTaggingAlg(**options))
+    acc.addEventAlgo(CompFactory.Analysis.JetBTaggingAlg(**options))
 
     return acc

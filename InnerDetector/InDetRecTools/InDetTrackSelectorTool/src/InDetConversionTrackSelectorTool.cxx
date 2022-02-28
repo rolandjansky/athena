@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetConversionTrackSelectorTool.h"
@@ -137,7 +137,7 @@ namespace InDet
                                  perigeeSurface,
                                  Trk::anyDirection,
                                  true,
-                                 track.info().particleHypothesis());
+                                 track.info().particleHypothesis()).release();
    perigee = extrapolatedParameters
                ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters)
                : nullptr;
@@ -257,7 +257,7 @@ namespace InDet
    }
    const Trk::TrackParameters* extrapolatedParameters =
      m_extrapolator->extrapolate(
-       ctx, *firstmeaspar, perigeeSurface, Trk::anyDirection, true, Trk::pion);
+       ctx, *firstmeaspar, perigeeSurface, Trk::anyDirection, true, Trk::pion).release();
    perigee = extrapolatedParameters
                ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters)
                : nullptr;
@@ -367,7 +367,7 @@ namespace InDet
     Trk::PerigeeSurface perigeeSurface(getPosOrBeamSpot(ctx, vertex));
     const Trk::TrackParameters* extrapolatedParameters =
       m_extrapolator->extrapolate(
-        ctx, perigee, perigeeSurface, Trk::anyDirection, false, Trk::pion);
+        ctx, perigee, perigeeSurface, Trk::anyDirection, false, Trk::pion).release();
     if (extrapolatedParameters == nullptr) {
       ATH_MSG_WARNING("Extrapolation to the vertex failed: " << perigeeSurface
                                                              << "\n"

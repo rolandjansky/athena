@@ -26,17 +26,18 @@ namespace Muon
       virtual ~TgcPrepDataReplicationTool3BCtoAllBC()=default;
 
       virtual StatusCode initialize() override;
-      virtual StatusCode replicate() const override;
-      StatusCode convert3BCtoAllBC() const;
-
+      virtual StatusCode replicate(const EventContext& ctx) const override;
+ 
       
     private:
+      StatusCode convert3BCtoAllBC(const EventContext& ctx) const;
+
       enum {BC_PREVIOUS=0, BC_CURRENT, BC_NEXT, BC_ALL, BC_NUM};
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-      SG::ReadHandleKeyArray<TgcPrepDataContainer> m_3BCKeys;
-      SG::WriteHandleKey<TgcPrepDataContainer> m_AllBCKey;
+      SG::ReadHandleKeyArray<TgcPrepDataContainer> m_3BCKeys{this, "BC3Keys", {"dummy", "dummy", "dummy"}};
+      SG::WriteHandleKey<TgcPrepDataContainer> m_AllBCKey{this, "AllBCKey", "TGC_MeasurementsAllBCs"};
    }; 
 } // end of namespace
 

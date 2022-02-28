@@ -37,7 +37,7 @@ namespace MuonGM {
 
     void MuonStation::setNominalAmdbLRSToGlobal(HepGeom::Transform3D xf) {
         if (!m_amdbl_to_global)
-            m_amdbl_to_global = std::make_unique<HepGeom::Transform3D>(std::move(xf));
+            m_amdbl_to_global = std::make_unique<HepGeom::Transform3D>(xf);
         else
             *m_amdbl_to_global = xf;
 #ifndef NDEBUG
@@ -134,7 +134,7 @@ namespace MuonGM {
 
     void MuonStation::setDeltaAmdbLRS(HepGeom::Transform3D xf) {
         if (!m_delta_amdb_frame)
-            m_delta_amdb_frame = std::make_unique<HepGeom::Transform3D>(std::move(xf));
+            m_delta_amdb_frame = std::make_unique<HepGeom::Transform3D>(xf);
         else
             *m_delta_amdb_frame = xf;
 

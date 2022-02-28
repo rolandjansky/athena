@@ -1,13 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.JetFitterMode3dTo1dFinderConfig import JetFitterMode3dTo1dFinderCfg
 
-# import the InDetDetailedTrackSelectorTool configurable
-InDet__JetFitterV0FinderTool=CompFactory.InDet.JetFitterV0FinderTool
 
 def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterV0FinderTool tool and returns it. 
@@ -50,7 +49,7 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
     if useBTagFlagsDefaults:
         inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags,'InDetJFUtils'+suffix))
         jetFitterMode3dTo1dFinder = acc.popToolsAndMerge(JetFitterMode3dTo1dFinderCfg('JFMode3dTo1dFinder'+suffix))
-        defaults = { 'revertFromPositiveToNegativeTags' : False ,
+        defaults = { 'revertFromPositiveToNegativeTags' : True if (suffix=="FLIP_SIGN") else False,
                      'cutTwoTrkVtxVtxProbForBFirstSelectCriteriumA' : 0.05 ,
                      'cutTwoTrkVtxVtxProbForBFirstSelectCriteriumB' : 0.034 ,
                      'cutCompatibilityPrimaryVertexSingleTrackForBFirstSelection' : 1e-1 ,
@@ -78,12 +77,14 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
                      'cutIPZ0SingleTrackForBSecondSelection' : 3. ,
                      'cutPtSingleTrackForBSecondSelection' : 750,
                      'InDetJetFitterUtils' : inDetJetFitterUtils,
-                     'Mode3dFinder' : jetFitterMode3dTo1dFinder }
+                     'Mode3dFinder' : jetFitterMode3dTo1dFinder,
+                     'useITkMaterialRejection' : flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] }
         for option in defaults:
             options.setdefault(option, defaults[option])
 
+
     options['name'] = name
-    acc.setPrivateTools( InDet__JetFitterV0FinderTool(**options) )
+    acc.setPrivateTools(CompFactory.InDet.JetFitterV0FinderTool(**options))
     return acc
 
 

@@ -29,7 +29,7 @@ atlas_add_test  ( CoraCoolDatabaseSvcFactory_test
                   test/CoraCoolDatabaseSvcFactory_test.cxx 
                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
-                  POST_EXEC_SCRIPT ""
+                  POST_EXEC_SCRIPT nopost.sh
                   )
                   
 atlas_add_test  ( CoraCoolDatabaseSvc_test
@@ -37,7 +37,7 @@ atlas_add_test  ( CoraCoolDatabaseSvc_test
                   test/CoraCoolDatabaseSvc_test.cxx 
                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
-                  POST_EXEC_SCRIPT ""
+                  POST_EXEC_SCRIPT nopost.sh
                   )                
 
 atlas_add_test  ( CoraCoolDatabase_test
@@ -45,7 +45,7 @@ atlas_add_test  ( CoraCoolDatabase_test
                   test/CoraCoolDatabase_test.cxx 
                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
-                  POST_EXEC_SCRIPT ""
+                  POST_EXEC_SCRIPT nopost.sh
                   )     
                   
 atlas_add_test  ( CoraCoolFolder_test
@@ -53,7 +53,7 @@ atlas_add_test  ( CoraCoolFolder_test
                   test/CoraCoolFolder_test.cxx 
                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
-                  POST_EXEC_SCRIPT ""
+                  POST_EXEC_SCRIPT nopost.sh
                   )   
                   
 atlas_add_test  ( CoraCoolObjectIter_test
@@ -61,6 +61,6 @@ atlas_add_test  ( CoraCoolObjectIter_test
                   test/CoraCoolObjectIter_test.cxx 
                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
-                  POST_EXEC_SCRIPT ""
+                  POST_EXEC_SCRIPT nopost.sh
                   )     
                       

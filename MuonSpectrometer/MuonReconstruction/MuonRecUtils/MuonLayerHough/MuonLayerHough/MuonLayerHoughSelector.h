@@ -11,7 +11,7 @@ namespace MuonHough {
     class MuonLayerHoughSelector {
     public:
         /** Default constructor */
-        MuonLayerHoughSelector() {}
+        MuonLayerHoughSelector() = default;
         MuonLayerHoughSelector(std::vector<std::pair<int, float>> cutValues);
 
         /** Destructor */

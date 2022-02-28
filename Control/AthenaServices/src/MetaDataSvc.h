@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_METADATASVC_H
@@ -43,7 +43,7 @@ template <class TYPE> class SvcFactory;
 /** @class MetaDataSvc
  *  @brief This class provides the interface to the LCG POOL persistency software.
  **/
-class ATLAS_CHECK_THREAD_SAFETY MetaDataSvc : public ::AthService,
+class MetaDataSvc : public ::AthService,
 	virtual public IAddressProvider,
 	virtual public IIncidentListener,
         virtual public IMetaDataSvc,

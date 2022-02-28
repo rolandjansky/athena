@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <utility>
 #include <map>
-#include <sstream>
 #include <cstdlib>
 
 #include <dqm_core/AlgorithmManager.h>

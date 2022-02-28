@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Tool to measure the intrinsic single hit efficiency in the SCT
@@ -114,21 +114,21 @@ namespace {// anonymous namespace for functions at file scope
 //cppcheck-suppress uninitMemberVar
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent) {
-  m_Eff_summaryHisto.fill(0);
-  m_Eff_summaryHistoFirstBCID.fill(0);
-  m_Eff_LumiBlockHisto.fill(0);
+  m_Eff_summaryHisto.fill(nullptr);
+  m_Eff_summaryHistoFirstBCID.fill(nullptr);
+  m_Eff_LumiBlockHisto.fill(nullptr);
   // assume zero inefficiency
   for (unsigned int i{0}; i < m_ineffMap.size(); ++i) {
-    m_ineffMap[i].fill(0);
+    m_ineffMap[i].fill(nullptr);
   }
   for (unsigned int i{0}; i < m_effMap.size(); ++i) {
-    m_effMap[i].fill(0);
+    m_effMap[i].fill(nullptr);
   }
   for (unsigned int i{0}; i < m_effMapFirstBCID.size(); ++i) {
-    m_effMapFirstBCID[i].fill(0);
+    m_effMapFirstBCID[i].fill(nullptr);
   }
   for (unsigned int i{0}; i < m_effLumiBlock.size(); ++i) {
-    m_effLumiBlock[i].fill(0);
+    m_effLumiBlock[i].fill(nullptr);
   }
 }
 
@@ -548,7 +548,7 @@ SCTHitEffMonTool::fillHistograms() {
                                     "track cut: inside-out only")) {
       continue;
     }
-    if (pthisTrack->perigeeParameters() == 0) {
+    if (pthisTrack->perigeeParameters() == nullptr) {
       continue;
     }
     const Trk::Perigee* perigee{pthisTrack->perigeeParameters()};

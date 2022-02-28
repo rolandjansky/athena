@@ -10,6 +10,9 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2MuonSAConfig')
 
 theStationFitter     = MuonSA.TrigL2MuonSA__MuFastStationFitter(PtFromAlphaBeta = MuonSA.TrigL2MuonSA__PtFromAlphaBeta())
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasSTGC() and not MuonGeometryFlags.hasMM():
+    theStationFitter.NswStationFitter=""
 
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
 trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
@@ -21,7 +24,6 @@ theDataPreparator.TGCDataPreparator  = MuonSA.TrigL2MuonSA__TgcDataPreparator()
 theDataPreparator.RpcRoadDefiner     = MuonSA.TrigL2MuonSA__RpcRoadDefiner()
 theDataPreparator.TgcRoadDefiner     = MuonSA.TrigL2MuonSA__TgcRoadDefiner()
 
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if MuonGeometryFlags.hasSTGC():
     theDataPreparator.STGCDataPreparator = MuonSA.TrigL2MuonSA__StgcDataPreparator()
 else:

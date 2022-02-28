@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/src/AuxVectorData.cxx
@@ -380,8 +380,11 @@ void* AuxVectorData::getDecorationOol (SG::auxid_t auxid) const
   // Fetch the pointer from the store, or raise an exception if we don't
   // have a non-const store.
   void* ptr = 0;
-  if (m_store)
-    ptr = m_store->getDecoration (auxid, this->size_v(), this->capacity_v());
+  if (m_store) {
+    // Avoid warning about calling non-const function.  OK here.
+    IAuxStore* store ATLAS_THREAD_SAFE = m_store;
+    ptr = store->getDecoration (auxid, this->size_v(), this->capacity_v());
+  }
   else if (getConstStore()) {
     // The whole point of decorations is to allow adding information to
     // something that's otherwise const.  So we have the const_cast here.
@@ -515,6 +518,9 @@ void AuxVectorData::Cache::store (SG::auxid_t auxid, void* ptr)
     std::fill (newcache + m_cache_len, newcache + newlen,
                static_cast<void*>(0));
 
+    // The above writes must be visible before we update the cache pointers.
+    AthContainers_detail::fence_seq_cst();
+
     // Store so that other threads can see it.
     // The stores to m_cache must happen before the store to m_cache_len;
     // we use a fence to ensure this.
@@ -559,7 +565,9 @@ bool AuxVectorData::clearDecorations() const
 {
   bool ret = false;
   if (m_store) {
-    ret = m_store->clearDecorations();
+    // Avoid warning about calling non-const function.  OK here.
+    IAuxStore* store ATLAS_THREAD_SAFE = m_store;
+    ret = store->clearDecorations();
     m_cache.clear();
     m_constCache.clear();
     m_decorCache.clear();

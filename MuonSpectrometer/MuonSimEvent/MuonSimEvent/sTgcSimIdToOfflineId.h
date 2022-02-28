@@ -41,9 +41,12 @@ inline int sTgcSimIdToOfflineId::convert (const Identifier & id) const
 	bool isSmall(m_idHelper->isSmall(id));
 	int phi=2*m_idHelper->stationPhi(id) - static_cast<int>(!isSmall);
 	int ml=m_idHelper->multilayer(id);
+  std::string quadType = "P"; // is either "P"=Pivot or "C"=Confirm
+  if (isSmall && (ml == 1)) quadType = "C";
+  if (!isSmall && (ml == 2)) quadType = "C";
 	int ly=m_idHelper->gasGap(id);
 	std::ostringstream stationName;
-	stationName<<"T"<<stationEta<<(isSmall ? "S" : "L")<<ml;
+	stationName << "Q" << (isSmall ? "S" : "L") << stationEta << quadType;
 	return m_simIdHelper->BuildsTgcHitId(stationName.str(), phi, stationEta, ml, ly, side);
 	}
 

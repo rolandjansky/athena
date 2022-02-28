@@ -164,7 +164,7 @@ Rec::CaloCellCollector::collectCells(
   cells.reserve(100);
   CaloCellList myList(caloMgr, &cellContainer);
   // Save sampling midpoints in map
-  typedef std::tuple<float, float, float> SampData;
+  using SampData = std::tuple<float, float, float>;
   using SampDataPair = std::pair<CaloSample, SampData>;
   std::map<CaloSample, SampData> sampleEtaPhiMap;
   float etot = 0;

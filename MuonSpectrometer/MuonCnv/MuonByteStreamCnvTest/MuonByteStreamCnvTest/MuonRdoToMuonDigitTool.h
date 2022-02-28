@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOMUONDIGITTOOL_H
@@ -106,7 +106,6 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
  private:
 
   // store gate transactions
-  ServiceHandle<ActiveStoreSvc> m_acSvc{this,"ActiveStoreSvc","ActiveStoreSvc"};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this,"cscCalibTool","CscCalibTool"};
   ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtRdoDecoderTool{this,"mdtRdoDecoderTool","Muon::MdtRDO_Decoder"};
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this,"cscRdoDecoderTool","Muon::CscRDO_Decoder"};

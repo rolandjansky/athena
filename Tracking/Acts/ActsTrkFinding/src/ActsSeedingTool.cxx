@@ -26,19 +26,63 @@ namespace ActsTrk {
     ATH_MSG_INFO( "Initializing " << name() << "..." );
     
     ATH_MSG_INFO( "Properties Summary:" );
-    ATH_MSG_INFO( "   " << m_rMax );
+    ATH_MSG_INFO( "   " << m_zBinNeighborsTop );
+    ATH_MSG_INFO( "   " << m_zBinNeighborsBottom );
+
+    ATH_MSG_INFO( " * Used by SeedfinderConfig:");
+    ATH_MSG_INFO( "   " << m_minPt );
+    ATH_MSG_INFO( "   " << m_cotThetaMax );
     ATH_MSG_INFO( "   " << m_deltaRMin );
     ATH_MSG_INFO( "   " << m_deltaRMax );
+    ATH_MSG_INFO( "   " << m_impactMax );
+    ATH_MSG_INFO( "   " << m_sigmaScattering );    
+    ATH_MSG_INFO( "   " <<  m_maxPtScattering );
+    ATH_MSG_INFO( "   " << m_maxSeedsPerSpM );
     ATH_MSG_INFO( "   " << m_collisionRegionMin );
     ATH_MSG_INFO( "   " << m_collisionRegionMax );
+    ATH_MSG_INFO( "   " <<  m_phiMin );
+    ATH_MSG_INFO( "   " <<  m_phiMax );
     ATH_MSG_INFO( "   " << m_zMin );
     ATH_MSG_INFO( "   " << m_zMax );
-    ATH_MSG_INFO( "   " << m_maxSeedsPerSpM );
-    ATH_MSG_INFO( "   " << m_cotThetaMax );
-    ATH_MSG_INFO( "   " << m_sigmaScattering );
+    ATH_MSG_INFO( "   " << m_rMax );
+    ATH_MSG_INFO( "   " <<  m_rMin );
     ATH_MSG_INFO( "   " << m_radLengthPerSeed );
+    ATH_MSG_INFO( "   " <<  m_zAlign );
+    ATH_MSG_INFO( "   " <<  m_rAlign );
+    ATH_MSG_INFO( "   " <<  m_sigmaError );
+
+    ATH_MSG_INFO( " * Used by SeedFilterConfig:");
+    ATH_MSG_INFO( "   " << m_deltaInvHelixDiameter );
+    ATH_MSG_INFO( "   " << m_impactWeightFactor);
+    ATH_MSG_INFO( "   " << m_compatSeedWeight);
+    ATH_MSG_INFO( "   " << m_deltaRMin );
+    ATH_MSG_INFO( "   " << m_maxSeedsPerSpM );
+    ATH_MSG_INFO( "   " << m_compatSeedLimit);
+
+    ATH_MSG_INFO( " *  Used by SpacePointGridConfig" );
     ATH_MSG_INFO( "   " << m_minPt );
+    ATH_MSG_INFO( "   " << m_rMax );
+    ATH_MSG_INFO( "   " << m_zMax );
+    ATH_MSG_INFO( "   " << m_zMin );
+    ATH_MSG_INFO( "   " << m_deltaRMax );
+    ATH_MSG_INFO( "   " << m_cotThetaMax );
     ATH_MSG_INFO( "   " << m_impactMax );
+    ATH_MSG_INFO( "   " << m_numPhiNeighbors );
+    ATH_MSG_INFO( "   " << m_zBinEdges );
+
+    if (m_zBinEdges.size() - 1 != 
+	m_zBinNeighborsTop.size() and
+	not m_zBinNeighborsTop.empty()) {
+      ATH_MSG_ERROR("Inconsistent config zBinNeighborsTop");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_zBinEdges.size() - 1 !=
+	m_zBinNeighborsBottom.size() and
+	not m_zBinNeighborsBottom.empty()) {
+      ATH_MSG_ERROR("Inconsistent config zBinNeighborsBottom");
+      return StatusCode::FAILURE;
+    }
     
     return StatusCode::SUCCESS;
   }
@@ -56,7 +100,7 @@ namespace ActsTrk {
 		   spContainer.end(),
 		   beamSpotData,
 		   magFieldContext );
-    
+
     // Store seeds
     seedContainer.reserve(groupSeeds.size());
     for (unsigned int i(0);i<groupSeeds.size();i++) {
@@ -108,11 +152,11 @@ namespace ActsTrk {
       Acts::Vector2 covariance(sp.varianceR(), sp.varianceZ());
       return std::make_pair(position, covariance);
     };
-    
+
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > bottomBinFinder =
-      std::make_shared< Acts::BinFinder< external_spacepoint_t > >();
+      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsBottom, m_numPhiNeighbors);
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > topBinFinder =
-      std::make_shared< Acts::BinFinder< external_spacepoint_t > >();
+      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsTop, m_numPhiNeighbors);
     
     std::unique_ptr< Acts::SpacePointGrid< external_spacepoint_t > > grid = 
       Acts::SpacePointGridCreator::createGrid< external_spacepoint_t >(gridCfg);
@@ -121,9 +165,8 @@ namespace ActsTrk {
     
     Acts::Seedfinder< external_spacepoint_t > finder(finderCfg);
     
-    
     static thread_local typename decltype(finder)::State state;
-    
+
     auto group = spacePointsGrouping.begin();
     auto groupEnd = spacePointsGrouping.end();
     for (; group != groupEnd; ++group) {
@@ -145,38 +188,58 @@ namespace ActsTrk {
     // These values will not be changed during execution
     // B Field will be updated for each event (gridCfg.bFieldInZ)
     Acts::SpacePointGridConfig gridCfg;
+    gridCfg.bFieldInZ = bField[2];
     gridCfg.minPt = m_minPt;
     gridCfg.rMax = m_rMax;
     gridCfg.zMax = m_zMax;
     gridCfg.zMin = m_zMin;
     gridCfg.deltaRMax = m_deltaRMax;
     gridCfg.cotThetaMax = m_cotThetaMax;
-    gridCfg.bFieldInZ = bField[2];
+    gridCfg.impactMax = m_impactMax;
+    gridCfg.numPhiNeighbors = m_numPhiNeighbors;
+    gridCfg.zBinEdges = m_zBinEdges;
 
     // Configuration for Acts::Seedfinder
     // These values will not be changed during execution
     // B Field and Beam Spot position will be updated for each event (finderCfg.bFieldInZ and finderCfg.beamPos)
     Acts::SeedFilterConfig filterCfg;
+    filterCfg.deltaInvHelixDiameter = m_deltaInvHelixDiameter;
+    filterCfg.impactWeightFactor = m_impactWeightFactor;
+    filterCfg.compatSeedWeight = m_compatSeedWeight;
     filterCfg.deltaRMin = m_deltaRMin;
     filterCfg.maxSeedsPerSpM = m_maxSeedsPerSpM;
+    filterCfg.compatSeedLimit = m_compatSeedLimit;
 
     Acts::SeedfinderConfig< external_spacepoint_t > finderCfg;
     finderCfg.seedFilter = std::make_unique<Acts::SeedFilter< external_spacepoint_t > >(Acts::SeedFilter< external_spacepoint_t >(filterCfg));
-    finderCfg.rMax = m_rMax;
+    finderCfg.minPt = m_minPt;
+    finderCfg.cotThetaMax = m_cotThetaMax;
     finderCfg.deltaRMin = m_deltaRMin;
     finderCfg.deltaRMax = m_deltaRMax;
+    finderCfg.impactMax = m_impactMax;
+    finderCfg.sigmaScattering = m_sigmaScattering;
+    finderCfg.maxPtScattering = m_maxPtScattering;
+    finderCfg.maxSeedsPerSpM = m_maxSeedsPerSpM;
     finderCfg.collisionRegionMin = m_collisionRegionMin;
     finderCfg.collisionRegionMax = m_collisionRegionMax;
+    finderCfg.phiMin = m_phiMin;
+    finderCfg.phiMax = m_phiMax;
     finderCfg.zMin = m_zMin;
     finderCfg.zMax = m_zMax;
-    finderCfg.maxSeedsPerSpM = m_maxSeedsPerSpM;
-    finderCfg.cotThetaMax = m_cotThetaMax;
-    finderCfg.sigmaScattering = m_sigmaScattering;
-    finderCfg.radLengthPerSeed = m_radLengthPerSeed;
-    finderCfg.minPt = m_minPt;
-    finderCfg.impactMax = m_impactMax;
-    finderCfg.beamPos = beamPos;
+    finderCfg.rMax = m_rMax;
+    finderCfg.rMin = m_rMin;
     finderCfg.bFieldInZ = bField[2];
+    finderCfg.beamPos = beamPos;
+    finderCfg.radLengthPerSeed = m_radLengthPerSeed;
+    finderCfg.zAlign = m_zAlign;
+    finderCfg.rAlign = m_rAlign;
+    finderCfg.sigmaError = m_sigmaError;
+
+    finderCfg.highland = 3.6 * std::sqrt(m_radLengthPerSeed) * (1 + 0.038 * std::log(m_radLengthPerSeed));
+    finderCfg.maxScatteringAngle2 = std::pow( finderCfg.highland / finderCfg.minPt, 2);
+    finderCfg.pTPerHelixRadius = 300. * finderCfg.bFieldInZ;
+    finderCfg.minHelixDiameter2 = std::pow(finderCfg.minPt * 2 / finderCfg.pTPerHelixRadius, 2);
+    finderCfg.pT2perRadius = std::pow(finderCfg.highland / finderCfg.pTPerHelixRadius, 2);
 
     return std::make_pair( gridCfg,finderCfg );
   }  

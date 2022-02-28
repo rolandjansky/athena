@@ -31,40 +31,40 @@ class TRTParametersOfWheelsA
     void DefineParameters();
     void PrintParameters(MsgStream& msg) const;
 
-    int m_numberOfWheelsA;
-    double m_distanceBetweenWheelsA;
-    double* m_positionsOfWheelsA;
+    int m_numberOfWheelsA = 0;
+    double m_distanceBetweenWheelsA = 0.0;
+    double* m_positionsOfWheelsA = nullptr;
 
-    double m_innerRadiusOfWheelA;
-    double m_outerRadiusOfWheelA;
-    double m_lengthOfWheelA;
+    double m_innerRadiusOfWheelA = 0.0;
+    double m_outerRadiusOfWheelA = 0.0;
+    double m_lengthOfWheelA = 0.0;
 
-    double m_innerRadiusOfInnerSupportA;
-    double m_outerRadiusOfInnerSupportA;
-    double m_lengthOfInnerSupportA;
+    double m_innerRadiusOfInnerSupportA = 0.0;
+    double m_outerRadiusOfInnerSupportA = 0.0;
+    double m_lengthOfInnerSupportA = 0.0;
 
-    double m_innerRadiusOfOuterSupportA;
-    double m_outerRadiusOfOuterSupportA;
-    double m_lengthOfOuterSupportA;
+    double m_innerRadiusOfOuterSupportA = 0.0;
+    double m_outerRadiusOfOuterSupportA = 0.0;
+    double m_lengthOfOuterSupportA = 0.0;
 
-    int m_numberOfStrawPlanesA;
-    int m_numberOfStrawsInPlaneA;
-    double* m_positionsOfStrawPlanesA;
-    double* m_rotationAnglesOfStrawPlanesA;
+    int m_numberOfStrawPlanesA = 0;
+    int m_numberOfStrawsInPlaneA = 0;
+    double* m_positionsOfStrawPlanesA = nullptr;
+    double* m_rotationAnglesOfStrawPlanesA = nullptr;
 
-    int m_numberOfMainRadiatorsA;
-    double* m_positionsOfMainRadiatorsA;
+    int m_numberOfMainRadiatorsA = 0;
+    double* m_positionsOfMainRadiatorsA = nullptr;
 
-    double m_innerRadiusOfMainRadiatorA;
-    double m_outerRadiusOfMainRadiatorA;
-    double m_lengthOfMainRadiatorA;
+    double m_innerRadiusOfMainRadiatorA = 0.0;
+    double m_outerRadiusOfMainRadiatorA = 0.0;
+    double m_lengthOfMainRadiatorA = 0.0;
 
-    int m_numberOfThinRadiatorsA;
-    double* m_positionsOfThinRadiatorsA;
+    int m_numberOfThinRadiatorsA = 0;
+    double* m_positionsOfThinRadiatorsA = nullptr;
 
-    double m_innerRadiusOfThinRadiatorA;
-    double m_outerRadiusOfThinRadiatorA;
-    double m_lengthOfThinRadiatorA;
+    double m_innerRadiusOfThinRadiatorA = 0.0;
+    double m_outerRadiusOfThinRadiatorA = 0.0;
+    double m_lengthOfThinRadiatorA = 0.0;
 
     const TRTParameters* m_pParameters;
   

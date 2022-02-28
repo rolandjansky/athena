@@ -62,9 +62,9 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const Identifi
 }
 
 MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const IdentifierHash &chamberHash, const IdentifierHash &mlHash ) const {
-  const MuonCalib::MdtRtRelation         *rt   = 0;
-  const MuonCalib::MdtTubeCalibContainer *tube = 0;
-  const MuonCalib::MdtCorFuncSet         *cor  = 0;
+  const MuonCalib::MdtRtRelation         *rt   = nullptr;
+  const MuonCalib::MdtTubeCalibContainer *tube = nullptr;
+  const MuonCalib::MdtCorFuncSet         *cor  = nullptr;
   
   IdentifierHash tubeHash = chamberHash;
   IdentifierHash rtHash;
@@ -114,19 +114,19 @@ const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbTool::getTubeCalibContai
 const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbTool::getTubeCalibContainer( const IdentifierHash &hash ) const {
   if ( !hash.is_valid() ) {
     ATH_MSG_WARNING( "cannot get tube, invalid hash"  );
-    return 0;
+    return nullptr;
   }
   SG::ReadCondHandle<MdtTubeCalibContainerCollection> readHandleTube{ m_readKeyTube };
   const MdtTubeCalibContainerCollection* readCdoTube{*readHandleTube};
   if ( readCdoTube==nullptr ) {
     ATH_MSG_ERROR("readCdoTube==nullptr");
-    return 0;
+    return nullptr;
   }
   if ( hash < readCdoTube->size() ) {
     return (*readCdoTube)[ hash ];
   }
   ATH_MSG_WARNING( "cannot get tube, region hash out of range"  );
-  return 0;
+  return nullptr;
 }
 
 const MuonCalib::MdtRtRelation* MdtCalibrationDbTool::getRtCalibration( const Identifier &idt ) const {
@@ -146,20 +146,20 @@ const MuonCalib::MdtRtRelation* MdtCalibrationDbTool::getRtCalibration( const Id
 const MuonCalib::MdtRtRelation* MdtCalibrationDbTool::getRtCalibration( const IdentifierHash &hash ) const {
   if ( !hash.is_valid() ) {
     ATH_MSG_WARNING( "cannot get rt, invalid hash"  );
-    return 0;
+    return nullptr;
   }
   SG::ReadCondHandle<MdtRtRelationCollection> readHandleRt{ m_readKeyRt };
   const MdtRtRelationCollection* readCdoRt{*readHandleRt};
   if ( readCdoRt==nullptr ) {
     ATH_MSG_ERROR("readCdoRt==nullptr");
-    return 0;
+    return nullptr;
   }
   // Get the RT using the hash as an index
   if( hash < readCdoRt->size() ) {
     return (*readCdoRt)[ hash ];
   }
   ATH_MSG_WARNING( "cannot get RT, region hash out of range"  );
-  return 0;
+  return nullptr;
 }
 
 const MuonCalib::MdtCorFuncSet* MdtCalibrationDbTool::getCorFunctions( const Identifier &idt ) const {
@@ -179,29 +179,29 @@ const MuonCalib::MdtCorFuncSet* MdtCalibrationDbTool::getCorFunctions( const Ide
 const MuonCalib::MdtCorFuncSet* MdtCalibrationDbTool::getCorFunctions( const IdentifierHash &hash ) const {
   if ( !hash.is_valid() ){
     ATH_MSG_WARNING( "cannot get cor, invalid hash"  );
-    return 0;
+    return nullptr;
   }
   //in this case the loadRt() was intended to keep m_corData nullptr and getCorFunctions() returned 0 here so
   if( !m_createSlewingFunction && !m_createWireSagFunction && !m_create_b_field_function ){
-    return 0;
+    return nullptr;
   }
   SG::ReadCondHandle<MdtCorFuncSetCollection> readHandleCor{ m_readKeyCor };
   const MdtCorFuncSetCollection* readCdoCor{*readHandleCor};
   if ( readCdoCor==nullptr ) {
     ATH_MSG_ERROR("readCdoCor==nullptr");
-    return 0;
+    return nullptr;
   }
   if( hash < readCdoCor->size() ) {
     return (*readCdoCor)[ hash ];
   }
   ATH_MSG_WARNING( "cannot get cor, region hash out of range"  );
-  return 0;
+  return nullptr;
 }
 
 void MdtCalibrationDbTool::initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet,
                                                   const MuonCalib::MdtRtRelation *rt_rel) {
-  if (rt_rel==NULL) {
-    funcSet->setBField(NULL);
+  if (rt_rel==nullptr) {
+    funcSet->setBField(nullptr);
     return;
   }
   ATH_MSG_VERBOSE( "initialize_B_correction..." );

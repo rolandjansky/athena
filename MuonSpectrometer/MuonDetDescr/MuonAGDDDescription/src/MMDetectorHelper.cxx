@@ -19,7 +19,7 @@ MMDetectorHelper::MMDetectorHelper()
         IAGDDtoGeoSvc::LockedController c = m_svc->getController();
 	detectorList vl= c->GetDetectorStore().GetDetectorList();
 	
-	for ( auto vl_iter: vl)
+	for ( const auto& vl_iter: vl)
 	{
 		MMDetectorDescription* st=dynamic_cast<MMDetectorDescription*>(vl_iter.second);
 		if (st) {
@@ -32,7 +32,7 @@ MMDetectorHelper::MMDetectorHelper()
 
 MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int iphi,int layer,char side)
 {
-	MMDetectorDescription* mm=0;
+	MMDetectorDescription* mm=nullptr;
 	
         IAGDDtoGeoSvc::LockedController c = m_svc->getController();
         AGDDPositionerStore& ps = c->GetPositionerStore();
@@ -67,8 +67,8 @@ MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int i
 
 AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int ieta,int iphi,int layer,char side)
 {
-	MMDetectorDescription* mm=0;
-	AGDDDetectorPositioner* dp=0;
+	MMDetectorDescription* mm=nullptr;
+	AGDDDetectorPositioner* dp=nullptr;
 	
         IAGDDtoGeoSvc::LockedController c = m_svc->getController();
         AGDDPositionerStore& ps = c->GetPositionerStore();

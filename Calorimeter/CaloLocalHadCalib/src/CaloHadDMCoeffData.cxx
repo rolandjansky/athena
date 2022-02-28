@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -79,7 +79,7 @@ CaloHadDMCoeffData::CaloHadDMCoeffData(TTree *tree) :
     //std::cout << "CaloHadDMCoeffData::CaloHadDMCoeffData() -> Error. No pointer to the tree!" << std::endl;
     return;
   }
-  Init(tree);
+  CaloHadDMCoeffData::Init(tree);
 }
 
 

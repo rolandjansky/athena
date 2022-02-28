@@ -4,7 +4,7 @@
 
 #include "TauValidationPlots.h"
 
-TauValidationPlots::TauValidationPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+TauValidationPlots::TauValidationPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTauJetContainerName):
   PlotBase(pParent, sDir),
   // Plots with the "primitive" tau selection
   m_oGeneralTauAllProngsPlots(this, "NoCuts/Matched/", sTauJetContainerName),

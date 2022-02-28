@@ -34,7 +34,7 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
 
   HLT::Identifier m_decisionId;
 
-  Gaudi::Property<int>  m_numTrackMin{ this, "numTrackMin", -999, "Minimum number of tracks" };
+  Gaudi::Property<int>  m_numTrackMin{ this, "numTrackMin", 0, "Minimum number of tracks" };
   Gaudi::Property<int>  m_numTrackMax{ this, "numTrackMax", 5, "Maximum number of tracks" };
   Gaudi::Property<float>  m_numWideTrackMax{ this, "numTrackWideTrackMax",999, "Maximum number of wide tracks" };
 

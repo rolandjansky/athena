@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
@@ -87,7 +87,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers
       if (keyPixelCluster == keyPreviousPixelCluster) uintvector.push_back(gangedPixelCluster->getHashAndIndex().hashAndIndex());
       else if (keyPixelCluster != keyPreviousPixelCluster)
 	{
-	  persObj->m_ambiguityMap.push_back(std::pair<unsigned int, std::vector<unsigned int> >(keyPreviousPixelCluster->getHashAndIndex().hashAndIndex(), uintvector));
+	  persObj->m_ambiguityMap.emplace_back(keyPreviousPixelCluster->getHashAndIndex().hashAndIndex(), uintvector);
 	  uintvector.clear();
 	  uintvector.push_back(gangedPixelCluster->getHashAndIndex().hashAndIndex());
 	}
@@ -99,7 +99,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers
       //               << "\tGangedPixel: " << gangedPixelCluster->getHashAndIndex().hashAndIndex() << "\t" << gangedPixelCluster->localPosition()[Trk::x] << std::endl;
     }
     // pushback the last one!
-    persObj->m_ambiguityMap.push_back(std::pair<unsigned int, std::vector<unsigned int> >(keyPixelCluster->getHashAndIndex().hashAndIndex(), uintvector));
+    persObj->m_ambiguityMap.emplace_back(keyPixelCluster->getHashAndIndex().hashAndIndex(), uintvector);
   }
 }
 

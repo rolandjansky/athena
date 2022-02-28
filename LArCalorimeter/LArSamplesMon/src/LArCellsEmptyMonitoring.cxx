@@ -121,7 +121,6 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
   int lbmin=0;
   int lbmax=0;
   int runNumber=0;
-  double EventEnergySum=0.;
   double MeanEventEnergy_max = -999;
   double MeanEventEnergy_min = 999;
 
@@ -307,7 +306,6 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
 	
 	// count the number of events processed per cell
 	EventCount++;
-	EventEnergySum+=(data->energy()*GeV);	
 
       } // end of E>10sigma
 
@@ -393,7 +391,6 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
     if(h1_qlb)      delete h1_qlb;
     qcount = 0.;
     EventCount = 0.;
-    EventEnergySum = 0.;
   } // end of cell loop
   
   int nbad = m_nexpected-nskipped;

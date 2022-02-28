@@ -15,7 +15,7 @@ class RpcSDOVariables : public ValAlgVariables
 {
  public:
   RpcSDOVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MuonIdHelper* idhelper,
-                  TTree* tree, std::string containername, MSG::Level msglvl) :
+                  TTree* tree, const std::string & containername, MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_rpcIdHelper(nullptr),
     m_rpc_nsdo(0), 
@@ -47,13 +47,13 @@ class RpcSDOVariables : public ValAlgVariables
   StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
 
  private:
-  const RpcIdHelper* m_rpcIdHelper;
+  const RpcIdHelper* m_rpcIdHelper{};
 
   void setHelper(const MuonIdHelper* idhelper){
     m_rpcIdHelper = dynamic_cast<const RpcIdHelper*>(idhelper);
     if(!m_rpcIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to RpcIdHelper failed");
-       throw;
+       throw std::runtime_error("Casting error in RpcSDOVariables::setHelper");
     }
   }
 

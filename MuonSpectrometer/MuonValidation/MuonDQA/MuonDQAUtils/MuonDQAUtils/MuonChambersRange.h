@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 
-bool selectChambersRange(std::string, std::string, int, int, int, int, std::string); 
+bool selectChambersRange(const std::string&, const std::string&, int, int, int, int, const std::string&); 
 
 
 #endif

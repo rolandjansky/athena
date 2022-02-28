@@ -30,7 +30,6 @@
 #include "RooCBShape.h"
 #include "RooFFTConvPdf.h"
 #include "RooGlobalFunc.h"
-#include "RooPlot.h"
 
 namespace dqutils {
 

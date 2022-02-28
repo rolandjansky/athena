@@ -763,8 +763,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
     InDetVxFitterTool = Trk__FullVertexFitter(name                    = "InDetFullVertexFitterTool",
-                                              LinearizedTrackFactory  = TrackingCommon.getInDetFullLinearizedTrackFactory(),
-                                              Extrapolator            = TrackingCommon.getInDetExtrapolator())
+                                              LinearizedTrackFactory  = TrackingCommon.getInDetFullLinearizedTrackFactory())
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding':
     #

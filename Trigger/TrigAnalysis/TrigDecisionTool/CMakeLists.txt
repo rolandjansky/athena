@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDecisionTool )
@@ -17,10 +17,10 @@ if( XAOD_STANDALONE )
       PUBLIC_HEADERS TrigDecisionTool
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODBase xAODTrigger
+      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils xAODBase xAODTrigger
       TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
       TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib
-      TrigCompositeUtilsLib
+      TrigCompositeUtilsLib TrigConfHLTUtilsLib
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent  )
 else()
    if( XAOD_ANALYSIS )
@@ -29,10 +29,10 @@ else()
          PUBLIC_HEADERS TrigDecisionTool
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
+         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
          TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
-         TrigConfInterfaces TrigDecisionInterface
+         TrigConfInterfaces TrigDecisionInterface TrigConfHLTUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AsgDataHandlesLib
          TrigSteeringEvent AthenaKernel )
    else()
@@ -41,12 +41,12 @@ else()
          PUBLIC_HEADERS TrigDecisionTool
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
+         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils EventInfo xAODBase
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
          TrigRoiConversionLib TrigCompositeUtilsLib TrigConfInterfaces
-         TrigDecisionInterface AsgDataHandlesLib
+         TrigDecisionInterface AsgDataHandlesLib TrigConfHLTUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYTHON} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()
@@ -68,6 +68,17 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
       AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent
       TrigDecisionToolLib
       POST_EXEC_SCRIPT nopost.sh )
+endif()
+
+if (NOT XAOD_ANALYSIS )
+   atlas_add_test( Run2TrigDecisionToolOnRAW_test 
+      SCRIPT python -m TrigDecisionTool.TrigDecisionToolConfig --RAWRUN2
+      LOG_SELECT_PATTERN "UnitTest")
+
+      # AOD test
+   atlas_add_test( Run2TrigDecisionToolOnAOD_test
+      SCRIPT python -m TrigDecisionTool.TrigDecisionToolConfig
+      LOG_SELECT_PATTERN "UnitTest")
 endif()
 
 # Install files from the package:

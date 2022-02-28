@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVSTRUCTURE_TYPEDHOLDER_H
@@ -15,22 +15,15 @@
 
 #include "AthContainers/OwnershipPolicy.h"
 
-#ifdef XAOD_STANDALONE //guarded b/c athena includes its own
-#include "xAODCore/ClassID_traits.h"
+#ifdef XAOD_STANDALONE
+#include "xAODCore/ClassID_traits.h"  //guarded b/c athena includes its own
+#include "AsgTools/SgTEvent.h"
+#else
+#include "StoreGate/StoreGateSvc.h"
 #endif
 
-#ifdef XAOD_STANDALONE
-#include "AsgTools/SgTEvent.h"
-typedef asg::SgTEvent* EventPtr;
-#endif //XAOD_STANDALONE
-
-#ifndef XAOD_STANDALONE
-#include "StoreGate/StoreGateSvc.h"
-typedef StoreGateSvc* EventPtr;
-#endif //XAOD_STANDALONE
-
 #include "AsgMessaging/AsgMessaging.h"
-
+#include "AsgTools/EventStoreType.h"
 
 //forward declarations
 class TrigRoiDescriptor;
@@ -70,7 +63,7 @@ namespace HLT{
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
      **/
 
-    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName()) 
+    TypedHolder(const BaseHolder& baseholder, const asg::EventStoreType* store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName())
       : TypelessHolder(baseholder.typeClid(),baseholder.label(),baseholder.subTypeIndex()), 
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store),
@@ -83,7 +76,7 @@ namespace HLT{
     /**
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
      **/
-    TypedHolder(const TypelessHolder& typeless, EventPtr store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName()) 
+    TypedHolder(const TypelessHolder& typeless, const asg::EventStoreType* store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName())
       : TypelessHolder(typeless),
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store),
@@ -176,7 +169,7 @@ namespace HLT{
     }
     
     TypedHolder(){;}
-    EventPtr m_store = nullptr;
+    const asg::EventStoreType* m_store = nullptr;
     const CONTAINER* m_cont = nullptr;
     std::string m_key;
   };    

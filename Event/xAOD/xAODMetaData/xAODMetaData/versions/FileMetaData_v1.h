@@ -10,6 +10,8 @@
 
 // System include(s):
 #include <iosfwd>
+#include <string>
+#include <vector>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
@@ -103,6 +105,12 @@ namespace xAOD {
       bool setValue( MetaDataType type, bool val );
       /// Set a generic bool value on the object
       bool setValue( const std::string& type, bool val );
+
+      /// Get a generic list value out of the object
+      bool value(const std::string& type, std::vector< uint32_t >& val) const;
+
+      /// Set a generic list value on the object
+      bool setValue(const std::string& type, const std::vector< uint32_t >& val);
 
    }; // class FileMetaData_v1
 

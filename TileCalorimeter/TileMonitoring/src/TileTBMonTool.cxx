@@ -296,7 +296,7 @@ void TileTBMonTool::fillHitMap(int side, int section, int module, int tower, int
         m_tileTBHitMapEBC02->Fill(x, y, energy);
       }
 
-      if (sample != TileID::SAMP_A && tower > 8) { // A & D4
+      if (sample != TileID::SAMP_A && tower > 8 && tower < 16) { // A & D4
         
         if (tower != 9) y = yEB[index * 2 - 1]; // C10
         else y = yEB[index * 2 + 1]; // D & B

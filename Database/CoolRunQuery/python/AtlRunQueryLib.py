@@ -218,7 +218,7 @@ class AtlRunQuery:
                 from CoolRunQuery.utils.AtlRunQueryUtils import timeStringToSecondsUTC,secondsToTimeStringUTC,get_run_range2,GetTimeRanges
                 timelist = ','.join(self.cmdlineOptions.timelist)
                 timeranges,timerangesHR = GetTimeRanges(timelist, intRepFnc=timeStringToSecondsUTC, maxval=time())
-                timerangesAsString = [ map(secondsToTimeStringUTC, tr) for tr in timeranges]
+                timerangesAsString = [ list(map(secondsToTimeStringUTC, tr)) for tr in timeranges ]
                 runranges = [ ( "%s-%s" % get_run_range2(tr[0],tr[1]) ) for tr in timerangesAsString]
                 runlist = [','.join(runranges)]
 
