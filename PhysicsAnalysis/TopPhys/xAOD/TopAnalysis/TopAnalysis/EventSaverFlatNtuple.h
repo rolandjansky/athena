@@ -841,6 +841,10 @@ namespace top {
     std::vector<std::vector<float> > m_rcjetsub_phi;
     std::vector<std::vector<float> > m_rcjetsub_e;
     std::vector<std::vector<float> > m_rcjetsub_mv2c10;
+
+    std::unordered_map<std::string, std::vector<std::vector<char> > >  m_rcjetsub_isbtagged;//one vector per jet per WP
+    std::unordered_map<std::string, std::vector<std::vector<int> > >   m_rcjetsub_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
+
     // maps containing rc jet substructure variables
     std::map<std::string,std::vector<float>> m_rcjetJSSVariables;
     std::map<std::string,std::map<std::string,std::vector<float>>> m_VarRCjetJSSVariables;
@@ -1488,7 +1492,9 @@ namespace top {
     
     const std::map<std::string,std::vector<float>>& rcjetJSSVariables() const {return m_rcjetJSSVariables;}
     const std::map<std::string,std::map<std::string,std::vector<float>>>& VarRCjetJSSVariables() const {return m_VarRCjetJSSVariables;}
-    
+
+    const std::unordered_map<std::string, std::vector<std::vector<char>> >& rcjetsub_isbtagged() const {return m_rcjetsub_isbtagged;} //one vector, per rcjet,subjet,WP
+    const std::unordered_map<std::string, std::vector<std::vector<int>> >& rcjetsub_tagWeightBin() const {return m_rcjetsub_tagWeightBin;}//one vector, per rcjet,subjet,tag-weight bin
 
     //met
     const float& met_met() const {return m_met_met;}
