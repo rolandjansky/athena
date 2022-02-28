@@ -81,14 +81,14 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
   ATH_MSG_DEBUG( "Setting up the regex map..." );
   std::map<std::string,std::string> streams;
-  streams.insert(std::make_pair("AllChains", "HLT_.*"));
-  streams.insert(std::make_pair("Electrons", "HLT_e[0-9]+.*"));
-  streams.insert(std::make_pair("Gamma",     "HLT_g[0-9]+.*"));
-  streams.insert(std::make_pair("Muons",     "HLT_[0-9]*mu[0-9]+.*"));
-  streams.insert(std::make_pair("MissingET", "HLT_(t|x)e[0-9]+.*")); 
-  streams.insert(std::make_pair("Taus",      "HLT_(tau[0-9]*|trk.*Tau).*"));
-  streams.insert(std::make_pair("Jets",      "HLT_(FJ|j)[0-9]+.*"));
-  streams.insert(std::make_pair("MinBias",   "HLT_mb.*"));
+  streams.insert(std::make_pair("HLT_AllChains", "HLT_.*"));
+  streams.insert(std::make_pair("HLT_Electrons", "HLT_[0-9]*e[0-9]+.*"));
+  streams.insert(std::make_pair("HLT_Gamma",     "HLT_[0-9]*g[0-9]+.*"));
+  streams.insert(std::make_pair("HLT_Muons",     "HLT_[0-9]*mu[0-9]+.*"));
+  streams.insert(std::make_pair("HLT_MissingET", "HLT_(t|x)e[0-9]+.*")); 
+  streams.insert(std::make_pair("HLT_Taus",      "HLT_(tau[0-9]*|trk.*Tau).*"));
+  streams.insert(std::make_pair("HLT_Jets",      "HLT_[0-9]*j[0-9]+.*"));
+  streams.insert(std::make_pair("HLT_MinBias",   "HLT_mb.*"));
 
 		 
   //// Set the values of the monitored variables for the event		
@@ -98,8 +98,8 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
   for (strItr=streams.begin();strItr!=streams.end(); ++strItr){     
     std::string signaturename = strItr->first;
     std::string thisregex = strItr->second;
-    std::string histname_raw = "HLT_"+signaturename+"RAW";
-    std::string histname_ps = "HLT_"+signaturename+"PS";
+    std::string histname_raw = signaturename+"RAW";
+    std::string histname_ps = signaturename+"PS";
     auto HLT_RAW = Monitored::Scalar<std::string>(histname_raw);
     auto HLT_PS  = Monitored::Scalar<std::string>(histname_ps);
     ATH_MSG_DEBUG( "Filling HLT" << signaturename << " and RoI information for " << thisregex );
@@ -138,7 +138,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 	    if( li.isValid() ) {
 	      auto phi = Monitored::Scalar("phi",0.0);
 	      auto eta = Monitored::Scalar("eta",0.0);
-	      if(signaturename=="AllChains") {
+	      if(signaturename=="HLT_AllChains") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolAll, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
@@ -148,7 +148,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 	      }
 
 	      //Check signatures
-	      if(signaturename=="Electrons") {
+	      if(signaturename=="HLT_Electrons") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolEle, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
@@ -156,7 +156,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 		phi = roi->phi();
 		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
 	      }
-	      else if(signaturename=="Gamma") {
+	      else if(signaturename=="HLT_Gamma") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolGam, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
@@ -164,7 +164,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 		phi = roi->phi();
 		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
 	      }
-	      else if(signaturename=="Muons") {
+	      else if(signaturename=="HLT_Muons") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolMuo, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
@@ -172,7 +172,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 		phi = roi->phi();
 		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
 	      }
-	      else if(signaturename=="MissingET") {
+	      else if(signaturename=="HLT_MissingET") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolMET, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
@@ -180,7 +180,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 		phi = roi->phi();
 		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
 	      }
-	      else if(signaturename=="Taus") {
+	      else if(signaturename=="HLT_Taus") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolTau, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
@@ -188,7 +188,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 		phi = roi->phi();
 		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
 	      }
-	      else if(signaturename=="Jets") {
+	      else if(signaturename=="HLT_Jets") {
 		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
 		auto HLT_RoIs = Monitored::Group(toolJet, eta, phi);
 		const TrigRoiDescriptor* roi = *(li.link).cptr();
