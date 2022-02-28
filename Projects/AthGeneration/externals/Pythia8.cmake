@@ -3,6 +3,6 @@
 #
 
 message( INFO "Setting Pythia8 env. variables from AthGeneration" )
-set( PYTHIA8_LCGVERSION 245p3.lhcb7 )
+set( PYTHIA8_LCGVERSION 306 )
 set( PYTHIA8_LCGROOT
    ${LCG_RELEASE_DIR}/MCGenerators/pythia8/${PYTHIA8_LCGVERSION}/${LCG_PLATFORM} )
