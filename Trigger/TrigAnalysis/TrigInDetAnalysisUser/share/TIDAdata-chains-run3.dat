@@ -86,7 +86,7 @@ testChains = {
 
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
-    "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
+    "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
 
 
 
