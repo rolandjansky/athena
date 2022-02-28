@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -14,9 +14,6 @@ NumStavesL0   = 22
 NumStavesL1   = 38
 NumStavesL2   = 52
 
-NumModulesIBL   = 32
-NumModulesIBL2D = 12
-NumModulesIBL3D = 8
 NumModulesBarrel= 13
 NumModulesDisk  = 48
 NumPP0sEC       = 24
@@ -24,7 +21,8 @@ NumPP0sEC       = 24
 btxt     = ";eta index of module"
 sbtxt    = ";shifted eta index of module"
 ditxt    = ";disk number"
-layers   = ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
+layers   = ["ECA","ECC","BLayer","Layer1","Layer2","IBL2D","IBL3D"]
+baselayers=["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
 xbinsl   = [    3,    3,  13,  13,  13,   32]
 xminsl   = [ -0.5, -0.5,-6.5,-6.5,-6.5,-16.5]
 ybinsl   = [   48,   48,  22,  38,  52,   14]
@@ -34,23 +32,23 @@ xbinsfel = [   24,   24, 104, 104, 104,   32]
 xminsfel = [ -0.5, -0.5, -52, -52, -52,-16.5]
 ybinsfel = [   96,   96,  44,  76, 104,   14]
 
-totcuts  = [   15,   15,  15,  15,  15,    4]
+totcuts  = [   15,   15,  15,  15,  15,    4,    4]
 xbinsem  = [    3,    3,  13,  13,  13,   20]
 xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10]
 xbinstotz= [    3,    3,  13,  13,  13,   20]
 xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5]
-ztotbinsy= [   20,   20,  20,  20,  20,   20]
-ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5]
-errbbinsy= [   17,   17,  17,  17,  17,   27]
-errbminsy= [    0,    0,   0,   0,   0,    0]
-errbbsizy= [    1,    1,   1,   1,   1,    1]
-errtbinsy= [    7,    7,   7,   7,   7,    7]
+ztotbinsy= [   20,   20,  20,  20,  20,   20,   20]
+ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5, -0.5]
+errbbinsy= [   17,   17,  17,  17,  17,   27,   27]
+errbminsy= [    0,    0,   0,   0,   0,    0,    0]
+errbbsizy= [    1,    1,   1,   1,   1,    1,    1]
+errtbinsy= [    7,    7,   7,   7,   7,    7,    7]
 
 pp0layers= ["ECA","ECC","BLayer","Layer1","Layer2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
 
 fei3layers= ["ECA","ECC","BLayer","Layer1","Layer2"]
-fei4layers= ["IBL"]
+fei4layers= ["IBL2D","IBL3D"]
 
 lumitext  = ";lumi block"
 lumibinsx = 3000
@@ -271,9 +269,9 @@ def getLayerGroup(helper, alg, layer):
     return layergroups[alg][layer]
 
 
-def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=layers):
+def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=baselayers):
     '''
-    This function configures 2D (Profile) histograms (or maps) for Pixel layers.
+    This function configures 2D (Profile) histograms (or maps) for Pixel base (i.e. w/o split in 2D/3D in IBL) layers.
 
     Arguments:
          helper     -- AthMonitorCfgHelper(Old) instance
@@ -286,12 +284,12 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
          opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
          histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
-         onlylayers -- sublist of layers 
+         onlylayers -- sublist of Pixel layers
     '''
-    assert(set(onlylayers).issubset(layers))
+    assert(set(onlylayers).issubset(baselayers))
     if histname is None:
         histname = name
-    for i, layer in enumerate(layers):
+    for i, layer in enumerate(baselayers):
         if layer not in onlylayers: 
             continue
         fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
@@ -313,9 +311,9 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
                                     duration=lifecycle,
                                     opt=opt, xlabels=LabelX[i], ylabels=LabelY[i])
 
-def define2DProfPerFEHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=layers):
+def define2DProfPerFEHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=baselayers):
     '''
-    This function configures 2D (Profile) histograms (or maps) for Pixel layers per FE.
+    This function configures 2D (Profile) histograms (or maps) for Pixel base (i.e. w/o split in 2D/3D in IBL) layers per FE.
 
     Arguments:
          helper     -- AthMonitorCfgHelper(Old) instance
@@ -328,12 +326,12 @@ def define2DProfPerFEHist(helper, alg, name, title, path, type='TProfile2D', doW
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
          opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
          histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
-         onlylayers -- sublist of layers 
+         onlylayers -- sublist of Pixel layers
     '''
-    assert(set(onlylayers).issubset(layers))
+    assert(set(onlylayers).issubset(baselayers))
     if histname is None:
         histname = name
-    for i, layer in enumerate(layers):
+    for i, layer in enumerate(baselayers):
         if layer not in onlylayers: 
             continue
         fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
@@ -418,17 +416,17 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
         if layer not in onlylayers: 
             continue
         fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
-        layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
         fullvarstring += ';' + histname + '_{0}'.format(layer)
+        layerGroup = getLayerGroup(helper, alg, layer)
         layerGroup.defineHistogram(fullvarstring, 
                                     type=type, path=path, title=fulltitle,
                                     xbins=xbins, xmin=-0.5, xmax=-0.5+xbins, opt=opt)
 
 def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, opt='', type='TH2F', histname=None, onlylayers=layers):
     '''
-    This function configures 2D histograms vs lumi for Pixel layers.
+    This function configures 2D histograms vs lumi for Pixel base (i.e. w/o split in 2D/3D in IBL) layers.
 
     Arguments:
          helper  -- AthMonitorCfgHelper(Old) instance
@@ -441,7 +439,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
          opt     -- history depth of a histogram e.g. 'kLBNHistoryDepth=10' or 'kLive=100'
          type    -- Type of histogram (TH2I, TH2F, TProfile2D)
          histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)
-         onlylayers -- sublist of layers
+         onlylayers -- sublist of Pixel layers
     '''
     assert(set(onlylayers).issubset(layers))
     if histname is None:
