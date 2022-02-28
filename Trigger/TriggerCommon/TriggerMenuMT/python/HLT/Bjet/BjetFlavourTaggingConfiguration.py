@@ -120,12 +120,12 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     # Now we have to add an algorithm that tags the jets with dips
     # The input and output remapping is handled via a map in DL2.
     #
-    # The file above adds dipsLoose20210517_p*, we'll call them
+    # The file above adds fastDIPSnoPV20220211_p*, we'll call them
     # dips_p* on the jet.
-    nnFile = 'BTagging/20210517/dipsLoose/antikt4empflow/network.json'
+    nnFile = 'BTagging/20220211trig/fastDips/antikt4empflow/network.json'
     variableRemapping = {
         'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
-        **{f'dipsLoose20210517_p{x}': f'fastDips_p{x}' for x in 'cub'},
+        **{f'fastDIPSnoPV20220211_p{x}': f'fastDips_p{x}' for x in 'cub'},
         'btagIp_': trackIpPrefix,
     }
     # not all the keys that the NN requests are declaired. This will

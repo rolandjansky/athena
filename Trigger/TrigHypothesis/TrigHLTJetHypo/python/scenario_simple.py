@@ -81,17 +81,15 @@ def get_condition_args_from_chainpart(cp):
             
             #This dictionary maps the bdips efficiency into the WP cut to be applied to the DIPS output
             dips_WPs = {
-                        '':   float('-inf'),
-                        '95': -1.731994002736359,
-                        '90': -0.5111526620960589,
-                        '85': 0.5901913309320711,
-                        '80': 1.505938656334434,
-                        '77': 1.9828350518005688,
-                        '75': 2.2824893859376605,
-                        '60': 4.120197367785793,
-                        '50': 5.148538896594884,
-                        '40': 6.157567616238604,
-                        }
+                '':   float('-inf'),
+                '95': -1.6495,
+                '90': -0.8703,
+                '85': -0.0295,
+                '80': 0.7470,
+                '77': 1.1540,
+                '75': 1.4086,
+                '60': 3.0447,
+            }
 
             assert (values[0] in dips_WPs.keys()),f"The efficiency of the specified dips cut \'{v}\' can not be found in the WP dictionary. Please add or remove the WP from the dips WP dictionary."
 
