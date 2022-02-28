@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trk
@@ -163,7 +163,7 @@ ActsATLASConverterTool::ATLASTrackParameterToActs(const Trk::TrackParameters *at
   return Acts::BoundTrackParameters(actsSurface, params, atlasParameter->charge(), cov);
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<const Trk::TrackParameters>
 ActsATLASConverterTool::ActsTrackParameterToATLAS(const Acts::BoundTrackParameters &actsParameter, const Acts::GeometryContext& gctx) const {
 
   using namespace Acts::UnitLiterals;
@@ -186,83 +186,78 @@ ActsATLASConverterTool::ActsTrackParameterToATLAS(const Acts::BoundTrackParamete
 
     case Acts::Surface::SurfaceType::Cone : {
       const Trk::ConeSurface &coneSurface = dynamic_cast<const Trk::ConeSurface &>(ActsSurfaceToATLAS(actsSurface));
-      const Trk::AtaCone * cone = new Trk::AtaCone(actsParameter.get<Acts::eBoundLoc0>(),
+      return std::make_unique<const Trk::AtaCone>(actsParameter.get<Acts::eBoundLoc0>(),
                                                    actsParameter.get<Acts::eBoundLoc1>(),
                                                    actsParameter.get<Acts::eBoundPhi>(),
                                                    actsParameter.get<Acts::eBoundTheta>(),
                                                    actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                    coneSurface,
                                                    cov);
-      return cone;
+      
       break;
     }
     case Acts::Surface::SurfaceType::Cylinder : {
       const Trk::CylinderSurface &cylSurface = dynamic_cast<const Trk::CylinderSurface &>(ActsSurfaceToATLAS(actsSurface));
-      const Trk::AtaCylinder * cyl = new Trk::AtaCylinder(actsParameter.get<Acts::eBoundLoc0>(),
+      return std::make_unique<const Trk::AtaCylinder>(actsParameter.get<Acts::eBoundLoc0>(),
                                                           actsParameter.get<Acts::eBoundLoc1>(),
                                                           actsParameter.get<Acts::eBoundPhi>(),
                                                           actsParameter.get<Acts::eBoundTheta>(),
                                                           actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                           cylSurface,
                                                           cov);
-      return cyl;
       break;
     } 
     case Acts::Surface::SurfaceType::Disc : {
       const Trk::DiscSurface &discSurface = dynamic_cast<const Trk::DiscSurface &>(ActsSurfaceToATLAS(actsSurface));
-      const Trk::AtaDisc * disc = new Trk::AtaDisc(actsParameter.get<Acts::eBoundLoc0>(),
+      return std::make_unique<const Trk::AtaDisc>(actsParameter.get<Acts::eBoundLoc0>(),
                                                    actsParameter.get<Acts::eBoundLoc1>(),
                                                    actsParameter.get<Acts::eBoundPhi>(),
                                                    actsParameter.get<Acts::eBoundTheta>(),
                                                    actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                    discSurface,
                                                    cov);
-      return disc;
       break;
     } 
     case Acts::Surface::SurfaceType::Perigee : {
       const Trk::PerigeeSurface perSurface(actsSurface.center(gctx));
-      const Trk::Perigee * per = new Trk::Perigee(actsParameter.get<Acts::eBoundLoc0>(),
+      return std::make_unique<const Trk::Perigee>(actsParameter.get<Acts::eBoundLoc0>(),
                                                   actsParameter.get<Acts::eBoundLoc1>(),
                                                   actsParameter.get<Acts::eBoundPhi>(),
                                                   actsParameter.get<Acts::eBoundTheta>(),
                                                   actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                   perSurface,
                                                   cov);
-      return per;
+
       break;
     } 
     case Acts::Surface::SurfaceType::Plane : {
       const Trk::PlaneSurface &plaSurface = dynamic_cast<const Trk::PlaneSurface &>(ActsSurfaceToATLAS(actsSurface));
-      const Trk::AtaPlane * plan = new Trk::AtaPlane(actsParameter.get<Acts::eBoundLoc0>(),
+      return std::make_unique<const Trk::AtaPlane>(actsParameter.get<Acts::eBoundLoc0>(),
                                                      actsParameter.get<Acts::eBoundLoc1>(),
                                                      actsParameter.get<Acts::eBoundPhi>(),
                                                      actsParameter.get<Acts::eBoundTheta>(),
                                                      actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                      plaSurface,
                                                      cov);
-      return plan;
       break;
     } 
     case Acts::Surface::SurfaceType::Straw : {
       const Trk::StraightLineSurface &lineSurface = dynamic_cast<const Trk::StraightLineSurface &>(ActsSurfaceToATLAS(actsSurface));
-      const Trk::AtaStraightLine * line = new Trk::AtaStraightLine(actsParameter.get<Acts::eBoundLoc0>(),
+      return std::make_unique<const Trk::AtaStraightLine>(actsParameter.get<Acts::eBoundLoc0>(),
                                                                    actsParameter.get<Acts::eBoundLoc1>(),
                                                                    actsParameter.get<Acts::eBoundPhi>(),
                                                                    actsParameter.get<Acts::eBoundTheta>(),
                                                                    actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                                    lineSurface,
                                                                    cov);
-      return line;
       break;
     }
     case Acts::Surface::SurfaceType::Curvilinear : {
-      const Trk::CurvilinearParameters * curv = new Trk::CurvilinearParameters(actsParameter.position(gctx),
+      return std::make_unique< Trk::CurvilinearParameters>(actsParameter.position(gctx),
                                                                                actsParameter.get<Acts::eBoundPhi>(),
                                                                                actsParameter.get<Acts::eBoundTheta>(),
                                                                                actsParameter.get<Acts::eBoundQOverP>()*1_MeV,
                                                                                cov);
-      return curv;                                                                               
       break;
     }  
     case Acts::Surface::SurfaceType::Other : {
