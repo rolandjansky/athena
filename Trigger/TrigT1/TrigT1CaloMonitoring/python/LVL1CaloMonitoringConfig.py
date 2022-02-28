@@ -16,8 +16,9 @@ def LVL1CaloMonitoringConfig(flags):
     result = ComponentAccumulator()
 
     # If we're not putting trigger objects in event store, can't monitor them
-    if not flags.DQ.triggerDataAvailable:
-        return result
+    if not flags.Trigger.Online.isPartition:
+        if not flags.DQ.triggerDataAvailable:
+            return result
 
     isData = not flags.Input.isMC
 
