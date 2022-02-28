@@ -29,12 +29,14 @@ def LVL1CaloMonitoringConfig(flags):
         from TrigT1CaloMonitoring.CpmSimMonitorAlgorithm import CpmSimMonitoringConfig
         from TrigT1CaloMonitoring.PprMonitorAlgorithm import PprMonitoringConfig
         from TrigT1CaloMonitoring.JepJemMonitorAlgorithm import JepJemMonitoringConfig
+        from TrigT1CaloMonitoring.OverviewMonitorAlgorithm import OverviewMonitoringConfig
 
 
         result.merge(CpmMonitoringConfig(flags))
         result.merge(CpmSimMonitoringConfig(flags))
         result.merge(PprMonitoringConfig(flags))
         result.merge(JepJemMonitoringConfig(flags))
+        result.merge(OverviewMonitoringConfig(flags))
 
         # For online running on bytestream data 
         if flags.Input.Format is Format.BS and flags.Trigger.Online.isPartition:
