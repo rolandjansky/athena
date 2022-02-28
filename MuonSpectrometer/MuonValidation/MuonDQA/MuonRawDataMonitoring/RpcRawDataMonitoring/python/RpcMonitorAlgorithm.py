@@ -230,12 +230,6 @@ def RpcMonitoringConfig(inputFlags):
                             path=trackPath,
                             xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
-                            type='TH2F',
-                            title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
-
     myGroup_track.defineHistogram('isOutTime_prd,panelInd_prd;OuttimeHitFraction_PRDHit', 
                             title='Outtime Hit Fraction of PRD Hit;Panel Index;Outtime Hit Fraction',
                             type='TEfficiency',
