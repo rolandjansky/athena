@@ -70,7 +70,8 @@ def isLRT(name):
 #Returns relevant track collection name
 def getIDTracks(name=''):
   if isCosmic():
-      return recordable("HLT_IDTrack_Cosmic_IDTrig") #IDTrig as we are already retrieving PT collection
+      if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF")
+      else:           return recordable("HLT_IDTrack_Cosmic_IDTrig") #IDTrig as we are already retrieving PT collection
   else:
       ### TODO This should be probably set in the IDTrigConfig, ATR-22755
       if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF") 
@@ -758,7 +759,13 @@ def muEFCBRecoSequence( RoIs, name ):
     trackParticles = PTTrackParticles[-1]
   #In case of cosmic Precision Tracking has been already called before hence no need to call here just retrieve the correct collection of tracks
   elif isCosmic():
-    trackParticles = getIDTracks() 
+    if 'LRT' in name:
+      PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+      PTSeq = parOR("precisionTrackingInMuonsLRT", PTAlgs  )
+      muEFCBRecoSequence += PTSeq
+      trackParticles = PTTrackParticles[-1]
+    else:
+      trackParticles = getIDTracks()
   else:
     PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
     PTSeq = parOR("precisionTrackingInMuons", PTAlgs  )
