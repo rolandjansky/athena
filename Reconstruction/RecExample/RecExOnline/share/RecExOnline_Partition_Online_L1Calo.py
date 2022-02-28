@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## Job options for Running the L1Calo Athena Online Monitoring
 ## A few notes:
@@ -29,25 +29,26 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.AllowIgnoreConfigError = False # This will force Athena to crash in case of errors (for debugging)
 athenaCommonFlags.BSRDOInput.set_Value_and_Lock([]) # Fix from ATLASDQ-853 (June 2021)
 
+# New config flags (Feb. 2022)  
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 # Fix for ID monitoring errors (ATLASDQ-853; Sept. 2021)
-from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-NewConfigFlags=getNewConfigFlags()
-ID = NewConfigFlags.DQ.Steering.InDet
+ID = ConfigFlags.DQ.Steering.InDet
 ID.doGlobalMon=False
 ID.doAlignMon=False
 
 # Enable L1Topo monitoring (Oct. 2021 pilot beams)
-NewConfigFlags.DQ.Steering.doLVL1InterfacesMon=True
+ConfigFlags.DQ.Steering.doLVL1InterfacesMon=True
 
 ## ------------------------------------------- set online defaults for new config flags
 # Fix for autoconfig problem ATR-22872 (April 2021)
 from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
-NewConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
-autoConfigOnlineRecoFlags(NewConfigFlags, partitionName)
+ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
+autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
 
 # Fix for unavailable LBLB info (ATR-23464)
-NewConfigFlags.DQ.enableLumiAccess = False
-NewConfigFlags.DQ.Environment = "online"
+ConfigFlags.DQ.enableLumiAccess = False
+ConfigFlags.DQ.Environment = "online"
 
 # Fix for missing output file ATR-22872 (May 2021)
 from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -57,7 +58,11 @@ DQMonFlags.doHLTMon.set_Value_and_Lock(False)
 DQMonFlags.monManFileKey.set_Value_and_Lock('') # Set top-level path 
 DQMonFlags.histogramFile.set_Value_and_Lock('monitoring.root')
 
-# To get rid of rogue DQT, PFO, and TopoCluster monitoring plots (ATLASDQ-888)
+# Don't use the trigger decision tool (ATR-24589, Nov. 2021)
+DQMonFlags.useTrigger.set_Value_and_Lock(False)
+ConfigFlags.DQ.triggerDataAvailable = True # KW test Nov. 22, doesn't work
+
+# To get rid of rogue DQT, PFO, and TopoCluster monitoring plots
 DQMonFlags.doJetInputsMon=False
 DQMonFlags.doDataFlowMon=False
 
@@ -193,7 +198,7 @@ doAllReco   = False
 
 #doCommissioning = False
 
-doTrigger = False
+doTrigger = False  
 
 ################
 ## -- flags set in: RecExOnline_monitoring.py (from RecExOnline_jobOptions.py)
@@ -232,6 +237,14 @@ recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
 
+# Don't forget to lock the config flags
+ConfigFlags.lock() #KW test Feb. 22 
+ConfigFlags.dump()
+
+# Fix for beamspot conditions bug, Feb. 2022 (ATR-25008)
+from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+CAtoGlobalWrapper(BeamSpotCondAlgCfg, ConfigFlags)
 
 
 printfunc (' ')
@@ -470,10 +483,4 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
    #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
 
 
-#M6
-#rec.doTau=False;
-#rec.doEgamma=False;
-#rec.doJetMissingETTag=False;
-#from CaloRec.CaloCellFlags import jobproperties
-#jobproperties.CaloCellFlags.doLArHVCorr=False
-#jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);  
+
