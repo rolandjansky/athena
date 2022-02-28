@@ -479,7 +479,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_weight_oldTriggerSF, "weight_oldTriggerSF");
 
         // nominal b-tagging SFs
-        for (auto& tagWP : m_config->bTagWP_available()) {
+        for (const auto& tagWP : m_config->bTagWP_available()) {
           // skip uncalibrated though available WPs
           if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(),
                         tagWP) == m_config->bTagWP_calibrated().end()) continue;
@@ -517,7 +517,7 @@ namespace top {
           }
         }
         if (m_config->useTrackJets()) {
-          for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+          for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
             // skip uncalibrated though available WPs
             if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(),
                           tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
@@ -888,7 +888,7 @@ namespace top {
         if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName ||
             m_config->dumpBtagSystsInSystTrees()) {
           // b-tagging SFs: eigenvectors and named systematics
-          for (auto& tagWP : m_config->bTagWP_available()) {
+          for (const auto& tagWP : m_config->bTagWP_available()) {
             // skip uncalibrated though available WPs
             if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(),
                           tagWP) == m_config->bTagWP_calibrated().end()) continue;
@@ -916,7 +916,7 @@ namespace top {
             }
           }
           if (m_config->useTrackJets()) {
-            for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+            for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
               // skip uncalibrated though available WPs
               if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(),
                             tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
@@ -1186,7 +1186,7 @@ namespace top {
         }
 
 
-        for (auto& tagWP : m_config->bTagWP_available()) {
+        for (const auto& tagWP : m_config->bTagWP_available()) {
           if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP], "jet_isbtagged_" + shortBtagWP(
               tagWP));
           else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP], "jet_tagWeightBin_" + tagWP);
@@ -1310,7 +1310,7 @@ namespace top {
         if (m_config->bTagAlgo_MV2c10_used_trkJet()) {
           systematicTree->makeOutputVariable(m_tjet_mv2c10, "tjet_mv2c10");
         }
-        for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+        for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
           if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP], "tjet_isbtagged_" + shortBtagWP(tagWP));
           else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP], "tjet_tagWeightBin_" + tagWP);
         }
@@ -1354,6 +1354,10 @@ namespace top {
         systematicTree->makeOutputVariable(m_rcjetsub_e, "rcjetsub_e");
         if (m_config->bTagAlgo_MV2c10_used()) {
           systematicTree->makeOutputVariable(m_rcjetsub_mv2c10, "rcjetsub_mv2c10");
+        }
+        for (const auto& tagWP : m_config->bTagWP_available()) {
+          if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_rcjetsub_isbtagged[tagWP], "rcjetsub_isbtagged_" + shortBtagWP(tagWP));
+          else systematicTree->makeOutputVariable(m_rcjetsub_tagWeightBin[tagWP], "rcjetsub_tagWeightBin_" + tagWP);
         }
 	//Adding rc jet substructure variables into systematic trees
 	if(m_config->useRCJetSubstructure()) {
@@ -2052,12 +2056,12 @@ namespace top {
       if (m_config->useGlobalTriggerConfiguration()) m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
       m_weight_oldTriggerSF = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::nominal);
 
-      for (auto& tagWP : m_config->bTagWP_available()) {
+      for (const auto& tagWP : m_config->bTagWP_available()) {
         if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
         m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
       }
       if (m_config->useTrackJets()) {
-        for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+        for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
           if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
           m_weight_trackjet_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP, true);
         }
@@ -2289,7 +2293,7 @@ namespace top {
 
       // for b-tagging SFs, can also have systematic-shifted in systematics trees
       if (event.m_hashValue == m_config->nominalHashValue() || m_config->dumpBtagSystsInSystTrees()) {
-        for (auto& tagWP : m_config->bTagWP_available()) {
+        for (const auto& tagWP : m_config->bTagWP_available()) {
           // skip uncalibrated though available WPs
           if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
           m_sfRetriever->btagSF_eigen_vars(event, top::topSFSyst::BTAG_SF_EIGEN_B,
@@ -2307,7 +2311,7 @@ namespace top {
           }
         }
         if (m_config->useTrackJets()) {
-          for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+          for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
             // skip uncalibrated though available WPs
             if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
             m_sfRetriever->btagSF_eigen_vars(event, top::topSFSyst::BTAG_SF_EIGEN_B,
@@ -2972,7 +2976,7 @@ namespace top {
         m_jet_isTrueHS.resize(event.m_jets.size()-n_jet_electrons);
         m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size()-n_jet_electrons);
       }
-      for (auto& tagWP : m_config->bTagWP_available()) {
+      for (const auto& tagWP : m_config->bTagWP_available()) {
 
         if (tagWP.find("Continuous") == std::string::npos) {
           m_jet_isbtagged[tagWP].resize(event.m_jets.size()-n_jet_electrons);
@@ -3087,7 +3091,7 @@ namespace top {
 	}
 
 
-        for (auto& tagWP : m_config->bTagWP_available()) {
+        for (const auto& tagWP : m_config->bTagWP_available()) {
           if (tagWP.find("Continuous") == std::string::npos) {
             m_jet_isbtagged[tagWP][i] = false;
             if (jetPtr->isAvailable<char>("isbtagged_" + tagWP)) m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_" + tagWP);
@@ -3506,7 +3510,7 @@ namespace top {
         m_tjet_DLx_pc[algo].resize(event.m_trackJets.size());
         m_tjet_DLx_pu[algo].resize(event.m_trackJets.size());
       }
-      for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+      for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
         if (tagWP.find("Continuous") == std::string::npos) {
           m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
         } else m_tjet_tagWeightBin[tagWP].resize(event.m_trackJets.size());
@@ -3540,7 +3544,7 @@ namespace top {
           m_tjet_mv2c10[i] = mvx;
         }
 
-        for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
+        for (const auto& tagWP : m_config->bTagWP_available_trkJet()) {
           if (tagWP.find("Continuous") == std::string::npos) {
             m_tjet_isbtagged[tagWP][i] = false;
             if (jetPtr->isAvailable<char>("isbtagged_" + tagWP)) m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_" + tagWP);
@@ -3625,7 +3629,11 @@ namespace top {
       if (m_config->bTagAlgo_MV2c10_used()) {
         m_rcjetsub_mv2c10.clear();
       }
-      
+      for (const auto& tagWP : m_config->bTagWP_available()) {
+        if (tagWP.find("Continuous") == std::string::npos) {
+          m_rcjetsub_isbtagged[tagWP].clear();
+        } else m_rcjetsub_tagWeightBin[tagWP].clear();
+      }
       for (auto& var : m_rcjetJSSVariables) {
 	var.second.clear();
 	var.second.resize(sizeOfRCjets, -999.);
@@ -3643,6 +3651,11 @@ namespace top {
       m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
       if (m_config->bTagAlgo_MV2c10_used()) {
         m_rcjetsub_mv2c10.resize(sizeOfRCjets, std::vector<float>());
+      }
+      for (const auto& tagWP : m_config->bTagWP_available()) {
+       if (tagWP.find("Continuous") == std::string::npos) {
+          m_rcjetsub_isbtagged[tagWP].resize(sizeOfRCjets, std::vector<char>());
+       } else m_rcjetsub_tagWeightBin[tagWP].resize(sizeOfRCjets, std::vector<int>());
       }
 
       unsigned int i = 0;
@@ -3670,6 +3683,11 @@ namespace top {
         if (m_config->bTagAlgo_MV2c10_used()) {
           m_rcjetsub_mv2c10[i].clear();
         }
+	for (const auto& tagWP : m_config->bTagWP_available()) {
+	  if (tagWP.find("Continuous") == std::string::npos) {
+	    m_rcjetsub_isbtagged[tagWP][i].clear();
+	  } else m_rcjetsub_tagWeightBin[tagWP][i].clear();
+	}
 
         const xAOD::Jet* subjet(nullptr);
         const xAOD::BTagging* btag(nullptr);
@@ -3688,6 +3706,16 @@ namespace top {
             }
             m_rcjetsub_mv2c10[i].push_back(mvx10);
           }
+
+	  for (const auto& tagWP : m_config->bTagWP_available()) {
+	    if (tagWP.find("Continuous") == std::string::npos) {
+	      if (subjet->isAvailable<char>("isbtagged_" + tagWP)) m_rcjetsub_isbtagged[tagWP][i].push_back(subjet->auxdataConst<char>("isbtagged_" + tagWP));
+	      else m_rcjetsub_isbtagged[tagWP][i].push_back(false);
+	    } else {
+	      if (subjet->isAvailable<int>("tagWeightBin_" + tagWP)) m_rcjetsub_tagWeightBin[tagWP][i].push_back(subjet->auxdataConst<int>("tagWeightBin_" + tagWP));
+	      else m_rcjetsub_tagWeightBin[tagWP][i].push_back(-2); // AT default value
+	    }
+	  }
 
           m_rcjetsub_pt[i].push_back(subjet->pt());
           m_rcjetsub_eta[i].push_back(subjet->eta());
