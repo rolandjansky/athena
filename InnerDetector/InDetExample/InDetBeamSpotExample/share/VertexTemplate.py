@@ -134,16 +134,8 @@ topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBea
                                                  EventRange     = jobConfig['EventRange'])
 
 
-
-if jobConfig['UseFilledBCIDsOnly']:
-# Bunch crossing tool to allow selecting on non-empty BCIDs
-     from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-     bunchCrossingTool =  BunchCrossingTool("LHC")
-     #bunchCrossingTool.FilledBunchNames=[] 
-
-     # This tool is throwing tons of warnings for no good reason, make it quieter.
-     bunchCrossingTool.OutputLevel=ERROR
-     topSequence.InDetBeamSpotFinder.BCTool = bunchCrossingTool
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output+=[ "INDETBEAMSPOTFINDER DATAFILE='%s' OPT='RECREATE'" % jobConfig['histfile'] ]
@@ -162,4 +154,5 @@ print(topSequence)
 from AthenaCommon.AlgSequence import dumpMasterSequence
 dumpMasterSequence()
 
-
+#New conditions required for Run 2 data
+include("PixelConditionsAlgorithms/postInclude.UsePixelModuleLevelMask.py")
