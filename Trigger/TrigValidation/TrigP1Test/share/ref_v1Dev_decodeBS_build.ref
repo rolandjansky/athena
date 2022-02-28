@@ -3562,17 +3562,21 @@ HLT_j80_pf_ftf_bdl1d60_xe60_cell_L12J50_XE40:
 HLT_j80_pf_ftf_bdl1r60_xe60_cell_L12J50_XE40:
   eventCount: 0
 HLT_j80_roiftf_77bdips_preselj20_L1J20:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 16
+    1: 1
   stepFeatures:
     0: 16
+    1: 1
 HLT_j80_roiftf_95bdips_preselj20_L1J20:
-  eventCount: 0
+  eventCount: 2
   stepCounts:
     0: 16
+    1: 2
   stepFeatures:
     0: 16
+    1: 2
 HLT_j80_roiftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
