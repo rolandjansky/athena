@@ -79,6 +79,11 @@ atlas_add_citest( TriggerCosmic
 atlas_add_citest( TriggerDataCAConfig
    SCRIPT test_trig_data_newJO_build.py )
 
+atlas_add_citest( Trigger_athenaHLT_v1Dev
+   SCRIPT test_trigP1_v1Dev_decodeBS_build.py )
+
+atlas_add_citest( Trigger_athenaHLT_v1PhysP1
+   SCRIPT test_trigP1_v1PhysP1_build.py )
 
 # TODO: We stop here for now (migration ongoing...)
 return()
@@ -133,12 +138,3 @@ atlas_add_citest( MuonDigiReco_reco
    PROPERTIES REQUIRED_FILES ../MuonDigiReco_digi/OUT_RDO.root
    DEPENDS MuonDigiReco_digi
    POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/checkMuonDigiReco.sh )
-
-#################################################################################
-# Trigger
-#################################################################################
-atlas_add_citest( Trigger_athenaHLT_decodeBS
-   SCRIPT test_trigP1_v1Dev_decodeBS_build.py )
-
-atlas_add_citest( Trigger_athenaHLT_data
-   SCRIPT test_trigP1_v1PhysP1_build.py )
