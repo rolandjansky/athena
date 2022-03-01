@@ -23,7 +23,8 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
   ATH_CHECK( m_offlineElectronKey.initialize() );
   ATH_CHECK( m_offlineMuonKey.initialize() );
   ATH_CHECK( m_legacyl1TauRoIKey.initialize() );
-  ATH_CHECK( m_phase1l1TauRoIKey.initialize() );
+  ATH_CHECK( m_phase1l1eTauRoIKey.initialize() );
+  ATH_CHECK( m_phase1l1cTauRoIKey.initialize() );
   ATH_CHECK( m_hltTauJetKey.initialize() );
   ATH_CHECK( m_hltTauJetCaloMVAOnlyKey.initialize() );
   ATH_CHECK( m_hltSeedJetKey.initialize());
@@ -398,13 +399,13 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
       }
     }
 
-  
+ 
     if(trigL1Item.find("L1eTAU") != std::string::npos){
 
-      SG::ReadHandle<xAOD::eFexTauRoIContainer> eFexTauRoIs(m_phase1l1TauRoIKey, ctx);
+      SG::ReadHandle<xAOD::eFexTauRoIContainer> eFexTauRoIs(m_phase1l1eTauRoIKey, ctx);
       if(!eFexTauRoIs.isValid())
       {
-          ATH_MSG_WARNING("Failed to retrieve offline eFexTauRoI ");
+          ATH_MSG_WARNING("Failed to retrieve eFexTauRoI for L1eTAU ");
           return;
       }
 
@@ -414,9 +415,22 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
               phase1L1rois.push_back(eFexTauRoI);
           }
       }
-     
-    }
-    else{
+    } else if (trigL1Item.find("L1cTAU") != std::string::npos){
+
+      SG::ReadHandle<xAOD::eFexTauRoIContainer> eFexTauRoIs(m_phase1l1cTauRoIKey, ctx);
+      if(!eFexTauRoIs.isValid())
+      {
+          ATH_MSG_WARNING("Failed to retrieve eFexTauRoI for L1cTAU ");
+          return;
+      }
+
+      for(const auto *eFexTauRoI : *eFexTauRoIs){
+
+          if( eFexTauRoI->et()/1e3 > L1thr){
+              phase1L1rois.push_back(eFexTauRoI);
+          }
+      }
+    } else{
     
       SG::ReadHandle<xAOD::EmTauRoIContainer> EmTauRoIs(m_legacyl1TauRoIKey, ctx);
       if(!EmTauRoIs.isValid())
@@ -610,7 +624,7 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , cons
   
        L1_match = false;
 
-       if(trigL1Item.find("L1eTAU") != std::string::npos){
+       if(trigL1Item.find("L1eTAU") != std::string::npos || trigL1Item.find("L1cTAU") != std::string::npos){
           for( const auto *L1roi : phase1L1rois){
              L1_match = phase1L1Matching(offline_tau, L1roi, 0.3 );
              if( L1_match ){
@@ -638,7 +652,7 @@ void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::v
     
    auto monGroup = getGroup(monGroupName);
 
-   if(trigL1Item.find("L1eTAU") != std::string::npos){
+   if(trigL1Item.find("L1eTAU") != std::string::npos || trigL1Item.find("L1cTAU") != std::string::npos){
 
        auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->et()/1e3;});
        auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->eta();});
@@ -1064,17 +1078,19 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
     } 
     else if (names[3].find("L1eTAU") !=std::string::npos){
       l1thr = std::stof(names[3].substr(6,names[3].length()));
+    } else if (names[3].find("L1cTAU") !=std::string::npos){
+      l1thr = std::stof(names[3].substr(6,names[3].length()));
     }
    
   } 
-  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos )  {
+  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos )  {
     type=names[3];
     l1item =names[4];
 
     if(names[4].find("L1TAU") !=std::string::npos){
       l1thr = std::stof(names[4].substr(5,names[4].length())); 
     }
-    else if(names[4].find("L1eTAU") !=std::string::npos){
+    else if(names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos){
       l1thr = std::stof(names[4].substr(6,names[4].length()));
     }
   }else l1thr = -1.; //This applies to T&P chains
