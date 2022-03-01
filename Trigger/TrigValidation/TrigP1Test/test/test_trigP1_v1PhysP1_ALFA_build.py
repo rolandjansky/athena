@@ -12,7 +12,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_ALFACalib'
 precommand = ''.join([
-  "setMenu='PhysicsP1_pp_run3_v1';",
+  "setMenu='PhysicsP1_pp_lowMu_run3_v1';",
   "doL1Sim=True;",
   "selectChains=['HLT_mb_alfaperf_L1RD0_FILLED','HLT_mb_alfaperf_L1RD0_EMPTY'];",
 ])
