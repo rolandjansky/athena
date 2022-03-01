@@ -39,6 +39,22 @@ atlas_add_citest( SimulationRun4FullSim
 #################################################################################
 # Standard reconstruction workflows
 #################################################################################
+atlas_add_citest( RecoRun2Data
+   SCRIPT RunWorkflowTests_Run2.py --CI -r -w DataReco -e '--maxEvents 500' --threads 8 --no-output-checks
+   PROPERTIES PROCESSORS 8 )
+
+atlas_add_citest( RecoRun2Data_CAConfig
+   SCRIPT RunWorkflowTests_Run2.py --CI -r -w DataReco -e '--CA --maxEvents 5' --no-output-checks )
+
+atlas_add_citest( RecoRun2Data_DAODPHYS
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DAODPhys.sh PHYS ../RecoRun2Data/run_q442/myAOD.pool.root
+   PROPERTIES REQUIRED_FILES ../RecoRun2Data/run_q442/myAOD.pool.root
+   DEPENDS RecoRun2Data )
+
+atlas_add_citest( RecoRun2Data_DAODPHYSLite
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DAODPhys.sh PHYSLITE ../RecoRun2Data/run_q442/myAOD.pool.root
+   PROPERTIES REQUIRED_FILES ../RecoRun2Data/run_q442/myAOD.pool.root
+   DEPENDS RecoRun2Data )
 
 atlas_add_citest( RecoRun3MC
    SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25' --no-output-checks )
@@ -88,32 +104,6 @@ atlas_add_citest( Trigger_athenaHLT_v1PhysP1
 # TODO: We stop here for now (migration ongoing...)
 return()
 
-
-#################################################################################
-# Reconstruction
-#################################################################################
-atlas_add_citest( q431
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/q431.sh
-   ENVIRONMENT ATHENA_CORE_NUMBER=8
-   PROPERTIES PROCESSORS 8
-   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/checkReco.sh master_q431_AOD_digest_500events.ref master_q431_AOD_content_500events.ref" )
-
-atlas_add_citest( q431_DAODPHYS
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DAODPhys.sh PHYS ../q431/myAOD.pool.root
-   PROPERTIES REQUIRED_FILES ../q431/myAOD.pool.root
-   DEPENDS q431 )
-
-atlas_add_citest( q431_DAODPHYSLite
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DAODPhys.sh PHYSLITE ../q431/myAOD.pool.root
-   PROPERTIES REQUIRED_FILES ../q431/myAOD.pool.root
-   DEPENDS q431 )
-
-atlas_add_citest( q221
-   SCRIPT Reco_tf.py --AMI q221 --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root
-   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/checkReco.sh master_q221_AOD_digest.ref master_q221_AOD_content.ref" )
-
-atlas_add_citest( q440
-   SCRIPT Reco_tf.py --AMI q440 --maxEvents=5 --athenaopts='RDOtoRDOTrigger:--threads=1' )
 
 #################################################################################
 # DQ
