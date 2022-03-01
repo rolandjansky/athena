@@ -75,6 +75,19 @@ atlas_add_citest( RecoRun4MC
 
 
 #################################################################################
+# Data Quality
+#################################################################################
+
+atlas_add_citest( DataQuality_r21ESD
+   SCRIPT Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root"]' DQ.Steering.doHLTMon=False --threads=1 )
+
+atlas_add_citest( DataQuality_Run3MC
+   SCRIPT Run3DQTestingDriver.py 'Input.Files=["../RecoRun3MC/run_q445/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
+   PROPERTIES REQUIRED_FILES ../RecoRun3MC/run_q445/myAOD.pool.root
+   DEPENDS RecoRun3MC )
+
+
+#################################################################################
 # Special reconstruction
 #################################################################################
 
@@ -106,21 +119,3 @@ atlas_add_citest( Trigger_athenaHLT_v1Dev
 
 atlas_add_citest( Trigger_athenaHLT_v1PhysP1
    SCRIPT test_trigP1_v1PhysP1_build.py )
-
-
-
-# TODO: We stop here for now (migration ongoing...)
-return()
-
-
-#################################################################################
-# DQ
-#################################################################################
-atlas_add_citest( Run3DQr21ESD
-   SCRIPT Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root"]' DQ.Steering.doHLTMon=False --threads=1 )
-
-atlas_add_citest( q221_Run3DQ
-   PRE_EXEC_SCRIPT "cp ../q221/HLTMonitoring*.json ."
-   SCRIPT Run3DQTestingDriver.py 'Input.Files=["../q221/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
-   PROPERTIES REQUIRED_FILES ../q221/myAOD.pool.root
-   DEPENDS q221 )
