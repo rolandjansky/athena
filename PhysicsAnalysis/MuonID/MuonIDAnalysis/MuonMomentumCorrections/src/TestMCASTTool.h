@@ -10,56 +10,54 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include "PATInterfaces/SystematicsUtil.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "PATInterfaces/SystematicsUtil.h"
 #include "TrackInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Root include(s)
-#include "TTree.h"
 #include "TFile.h"
+#include "TTree.h"
 
 namespace CP {
 
-  class TestMCASTTool : public AthAlgorithm {
-  
-  public:
-    //::: Regular Algorithm constructor
-    TestMCASTTool( const std::string& name, ISvcLocator* svcLoc );
-    //::: Function initialising the algorithm
-    virtual StatusCode initialize();
-    //::: Function executing the algorithm
-    virtual StatusCode execute();
-    //::: Function finalizing the algoritm
-    virtual StatusCode finalize();
-  
-  private:
-    //::: Name of the output file
-    std::string m_Output;
-    //::: StoreGate key for the muon container to investigate
-    std::string m_sgKey;
-    //::: Connection to the smearing tool
-    ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_MCaSTool;
-    //::: Connection to the selection tool
-    ToolHandle< CP::IMuonSelectionTool > m_MSTTool;
-  
-    std::vector<std::string> m_sysNames;
-    std::vector< CP::SystematicSet > m_sysList;
+    class TestMCASTTool : public AthAlgorithm {
+    public:
+        //::: Regular Algorithm constructor
+        TestMCASTTool(const std::string& name, ISvcLocator* svcLoc);
+        //::: Function initialising the algorithm
+        virtual StatusCode initialize();
+        //::: Function executing the algorithm
+        virtual StatusCode execute();
+        //::: Function finalizing the algoritm
+        virtual StatusCode finalize();
 
-    TFile* m_DebugFile;
-    TTree* m_DebugTree;
-    ULong64_t m_EventNumber;
-    int m_Muon_Author, m_Muon_Type;
-    int m_SelCategoryRaw, m_SelCategory;
-    std::unique_ptr<MMCTest::TrackInfo> m_Combined;
-    std::unique_ptr<MMCTest::TrackInfo> m_InnerDet;
-    std::unique_ptr<MMCTest::TrackInfo> m_MSExtr;
-    std::unique_ptr<MMCTest::TrackInfo> m_MSOnlyExtr;
-  
-  
-  }; // class TestMCASTTool
+    private:
+        //::: Name of the output file
+        std::string m_Output;
+        //::: StoreGate key for the muon container to investigate
+        std::string m_sgKey;
+        //::: Connection to the smearing tool
+        ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_MCaSTool;
+        //::: Connection to the selection tool
+        ToolHandle<CP::IMuonSelectionTool> m_MSTTool;
 
-} // namespace CP
+        std::vector<std::string> m_sysNames;
+        std::vector<CP::SystematicSet> m_sysList;
 
-#endif // MCAST_TOOLTESTER_H
+        TFile* m_DebugFile;
+        TTree* m_DebugTree;
+        ULong64_t m_EventNumber;
+        int m_Muon_Author, m_Muon_Type;
+        int m_SelCategoryRaw, m_SelCategory;
+        std::unique_ptr<MMCTest::TrackInfo> m_Combined;
+        std::unique_ptr<MMCTest::TrackInfo> m_InnerDet;
+        std::unique_ptr<MMCTest::TrackInfo> m_MSExtr;
+        std::unique_ptr<MMCTest::TrackInfo> m_MSOnlyExtr;
+
+    };  // class TestMCASTTool
+
+}  // namespace CP
+
+#endif  // MCAST_TOOLTESTER_H

@@ -6,41 +6,40 @@
 
 #ifndef CALIBRATEDMUONSPROVIDER
 #define CALIBRATEDMUONSPROVIDER
-//author: will buttinger
+// author: will buttinger
 
 // Gaudi/Athena include(s):
+#include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
-#include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
 
 namespace CP {
 
-   /// decorates a muon collection with efficiency and scale factor
+    /// decorates a muon collection with efficiency and scale factor
 
-   class CalibratedMuonsProvider : public AthAlgorithm {
+    class CalibratedMuonsProvider : public AthAlgorithm {
+    public:
+        /// Regular Algorithm constructor
+        CalibratedMuonsProvider(const std::string& name, ISvcLocator* svcLoc);
 
-   public:
-      /// Regular Algorithm constructor
-       CalibratedMuonsProvider( const std::string& name, ISvcLocator* svcLoc );
+        /// Function initialising the algorithm
+        virtual StatusCode initialize();
+        /// Function executing the algorithm
+        virtual StatusCode execute();
 
-      /// Function initialising the algorithm
-      virtual StatusCode initialize();
-      /// Function executing the algorithm
-      virtual StatusCode execute();
+    private:
+        /// muon container
+        std::string m_inputKey, m_outputKey;
 
-   private:
-      /// muon container
-      std::string m_inputKey,m_outputKey;
+        /// Scale factor tool
+        ToolHandle<IMuonCalibrationAndSmearingTool> m_tool;
+        ToolHandle<IPileupReweightingTool> m_prwTool;
+        bool m_useRndNumber;
 
-      /// Scale factor tool
-      ToolHandle <IMuonCalibrationAndSmearingTool > m_tool;
-      ToolHandle <IPileupReweightingTool> m_prwTool;
-      bool m_useRndNumber;
+    };  // class
 
-   }; // class 
+}  // namespace CP
 
-} // namespace CP
-
-#endif //
+#endif  //
