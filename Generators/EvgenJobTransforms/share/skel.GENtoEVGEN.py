@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -569,6 +569,29 @@ def checkBlackList(relFlavour,cache,generatorName) :
                 isError=relFlavour+","+cache+" is blacklisted for " + badGens
                 return isError
     return isError
+
+def checkPurpleList(relFlavour,cache,generatorName) :
+    isError = None
+    with open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common/PurpleList_generators.txt') as bfile:
+        for line in bfile.readlines():
+            if not line.strip():
+                continue
+            # Purple-listed release flavours
+            purpleRelFlav=line.split(',')[0].strip()
+            # Purple-listed caches
+            purpleCache=line.split(',')[1].strip()
+            # Purple-listed generators
+            purpleGens=line.split(',')[2].strip()
+            # Purple-listed process
+            purpleProcess=line.split(',')[3].strip()
+
+            used_gens = ','.join(generatorName)
+            #Match Generator and release type e.g. AtlasProduction, MCProd
+            if relFlavour==purpleRelFlav and cache==purpleCache and re.search(purpleGens,used_gens) is not None:
+                isError=relFlavour+","+cache+" is blacklisted for " + purpleGens + " if it uses " + purpleProcess
+                return isError
+    return isError
+
 ## Announce start of JO checkingrelease nimber checking
 evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
 rel = os.popen("echo $AtlasVersion").read()
@@ -577,7 +600,11 @@ errorBL = checkBlackList("AthGeneration",rel,gennames)
 if (errorBL): 
    raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)  
 #    evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
-
+errorPL = checkPurpleList("AthGeneration",rel,gennames)
+if (errorPL):
+   evgenLog.warning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+   evgenLog.warning("!!! WARNING  !!! "+ errorPL )
+   evgenLog.warning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 ##==============================================================
 ## Handling of a post-include/exec args at the end of standard configuration
