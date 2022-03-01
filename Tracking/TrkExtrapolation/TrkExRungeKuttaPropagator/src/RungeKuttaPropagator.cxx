@@ -431,64 +431,105 @@ Trk::RungeKuttaPropagator::propagate
   //----------------------------------
 
   cache.m_newfield = true;
+  /// If the extrapolation surpassed the last boundary it can super duper rarely happen that the propgator is trapped. 
+  /// The propagator then goes the same step back and forth. The flip number limit is kind of a hack to release 
+  /// the propagator from the limbo. The conditions are that the last_st & the current step have to be of the same size
+  /// but different sign. If tis happens a few times the loop is aborted. The chosen number here is at the same level
+  /// of arbitrariness as the rarity that this branch of the code will be chosen
+  constexpr unsigned int max_back_forth_flips {100};
+  unsigned int flips{0};
+  int last_surface{-1};
+  while (fabs(W) < Wmax)
+  {
 
-  while (fabs(W) < Wmax) {
+    std::pair<double, int> SN;
+    double S = 0;
 
-    std::pair<double,int> SN;
-    double                 S = 0;
-
-    if(cache.m_mcondition) {
+    if (cache.m_mcondition)
+    {
 
       //----------------------------------Niels van Eldik patch
-      if (reverted_P && std::abs(St - last_St) <= DBL_EPSILON &&  InS==last_InS /*&& condition_fulfiled*/) {
-          // inputs are not changed will get same result.
-          break;
+      if (reverted_P && std::abs(St - last_St) <= DBL_EPSILON && InS == last_InS /*&& condition_fulfiled*/)
+      {
+        // inputs are not changed will get same result.
+        break;
       }
-      last_St  =  St;
+      last_St = St;
       last_InS = InS;
       //----------------------------------
 
-      if(!cache.m_needgradient) S = rungeKuttaStep            (cache,useJac,St,Pn,InS);
-      else                S = rungeKuttaStepWithGradient(cache,St,Pn,InS);
+      if (!cache.m_needgradient)
+        S = rungeKuttaStep(cache, useJac, St, Pn, InS);
+      else
+        S = rungeKuttaStepWithGradient(cache, St, Pn, InS);
     }
-    else  {
+    else
+    {
 
       //----------------------------------Niels van Eldik patch
-      if (reverted_P && std::abs(St- last_St) <= DBL_EPSILON /*&& !condition_fulfiled*/) {
-          // inputs are not changed will get same result.
-          break;
+      if (reverted_P && std::abs(St - last_St) <= DBL_EPSILON /*&& !condition_fulfiled*/)
+      {
+        // inputs are not changed will get same result.
+        break;
       }
-      last_St  =  St;
+      last_St = St;
       last_InS = InS;
       //----------------------------------
 
-      S = straightLineStep(useJac,St,Pn);
+      S = straightLineStep(useJac, St, Pn);
     }
     //----------------------------------Niels van Eldik patch
-    reverted_P=false;
+    reverted_P = false;
     //----------------------------------
 
-    bool next {false}; 
-    SN=Trk::RungeKuttaUtils::stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next);
-    if(next) {for(int i=0; i!=45; ++i) Po[i]=Pn[i]; W+=S; Nveto=-1; }
-    else     {for(int i=0; i!=45; ++i) Pn[i]=Po[i]; reverted_P=true; cache.m_newfield= true;}
+    bool next{false};
+    SN = Trk::RungeKuttaUtils::stepEstimator(DS, DN, Po, Pn, W, m_straightStep, Nveto, next);
+    if (next)
+    {
+      for (int i = 0; i != 45; ++i)
+        Po[i] = Pn[i];
+      W += S;
+      Nveto = -1;
+    }
+    else
+    {
+      for (int i = 0; i != 45; ++i)
+        Pn[i] = Po[i];
+      reverted_P = true;
+      cache.m_newfield = true;
+    }
 
-    if (fabs(S)+1. < fabs(St)) Sl=S;
-    InS ? St = 2.*S : St = S;
+    if (fabs(S) + 1. < fabs(St))
+      Sl = S;
+    InS ? St = 2. *S : St = S;
 
-    if(SN.second >= 0) {
-
+    if (SN.second >= 0)
+    {
+     
+     /// Update the number of flips. Reset the counter if the last surface is not the same as the current one 
+     /// and then check that the step size & the last step size are the same but of different sign
+     flips +=  last_surface == SN.second? std::abs(last_St + SN.first) < 1.e-6 : -flips;
+     last_surface = SN.second;
+      
       double Sa = fabs(SN.first);
+      if (Sa > m_straightStep)
+      {
+        if (fabs(St) > Sa)
+          St = SN.first;
+      }
+      else
+      {
+        Path = W + SN.first;
+        if (auto To{crossPoint(Tp, DS, Sol, Pn, SN)}; To)
+          return To;
+        Nveto = SN.second;
+        St = Sl;
+      }
+    }
+    else if (std::abs(S) < DBL_EPSILON)
+      return nullptr;
 
-      if(Sa > m_straightStep) {
-	if(fabs(St) > Sa) St = SN.first;
-      }
-      else                                {
-	Path = W+SN.first;
-	if(auto To {crossPoint(Tp,DS,Sol,Pn,SN)};To) return To;
-	Nveto = SN.second; St = Sl;
-      }
-    } else if (std::abs(S)< DBL_EPSILON) return nullptr;
+    if (flips > max_back_forth_flips) return nullptr;  
   }
   return nullptr;
 }
