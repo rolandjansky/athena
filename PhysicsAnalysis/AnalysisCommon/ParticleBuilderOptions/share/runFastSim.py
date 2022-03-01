@@ -7,7 +7,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 # load relevant libraries
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 #theApp.ExtSvc += [ "AtRndmGenSvc" ]
 

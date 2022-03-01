@@ -62,7 +62,7 @@ svcMgr.EventSelector.FirstEvent  = 1
 #User random number seeds - re-written if use B job submition script
 # Note that EvtGen uses the PYTHIA random seed
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr.AtRndmGenSvc.Seeds = ["PYTHIA 5489899 989240512", "PYTHIA_INIT 820021 2347532", "EVTGEN 4789899 821000366" ]
 # svcMgr.AtRndmGenSvc.ReadFromFile = true;

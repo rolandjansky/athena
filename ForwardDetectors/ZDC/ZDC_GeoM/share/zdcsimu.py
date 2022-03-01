@@ -14,7 +14,7 @@ DetFlags.ZDC_setOn()
 DetFlags.simulate.Truth_setOn()
 
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 
 

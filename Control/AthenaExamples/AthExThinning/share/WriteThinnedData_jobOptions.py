@@ -35,7 +35,7 @@ svcMgr.EventSelector.InputCollections = INPUT
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 
 if 'ALGMODE' not in dir():
