@@ -100,7 +100,7 @@ class TrigTauMonAlgBuilder:
         l1seed = ''
         splits = self.chain().split("_")
         for split in splits:
-            if split.startswith('L1TAU') or split.startswith('L1eTAU'):
+            if split.startswith('L1TAU') or split.startswith('L1eTAU') or split.startswith('L1cTAU'):
                 l1seed = split
         return l1seed
 
