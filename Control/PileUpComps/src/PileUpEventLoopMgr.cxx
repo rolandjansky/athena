@@ -377,7 +377,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     }  //loop over xings
 
     // Calculate/copy pile-up hash
-    xAOD::EventInfo::PileUpMixtureID pileUpMixtureID;
     PileUpHashHelper pileUpHashHelper;
 
     pileUpHashHelper.addToHashSource(pOverEvent);
