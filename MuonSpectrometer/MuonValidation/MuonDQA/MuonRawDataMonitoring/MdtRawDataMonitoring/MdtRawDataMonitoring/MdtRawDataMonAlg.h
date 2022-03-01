@@ -46,6 +46,7 @@
 #include <fstream> 
 #include <cstdlib>
 #include <iostream>
+#include <atomic>
 
 namespace Muon {
   class MdtPrepData;
@@ -206,12 +207,12 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   Gaudi::Property<bool> m_do_mdtchamberstatphislice{this,"do_mdtchamberstatphislice",true};
   Gaudi::Property<bool> m_do_run3Geometry{this,"do_Run3Geometry",false};
   Gaudi::Property<size_t> m_HighOccThreshold{this,"nHits_NoiseThreshold",16000};
-
+  Gaudi::Property<size_t> m_adcScale{this,"ADCScale",1};
 
   bool   m_BMGpresent;
   int    m_BMGid;
   std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
-
+  mutable std::atomic<int>  m_firstEvent;
 };
     
 #endif
