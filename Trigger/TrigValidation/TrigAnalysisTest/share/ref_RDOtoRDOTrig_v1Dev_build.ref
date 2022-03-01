@@ -415,6 +415,14 @@ HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1jLJ140:
     0: 6
     1: 7
     2: 1
+HLT_2j120_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J50:
+  eventCount: 0
+HLT_2j120_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_jJ90:
+  eventCount: 0
+HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J75:
+  eventCount: 0
+HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_jJ125:
+  eventCount: 0
 HLT_2j20_0eta240_roiftf_2j20_0eta240_85bdips_roiftf_presel4c20_L14J15p0ETA25:
   eventCount: 6
   stepCounts:
