@@ -348,7 +348,7 @@ namespace Muon {
         m_ntuple.segmentBlock.track.fill(getIndex(intersection));
 
         // extrapolate and create an intersection @ the segment surface.
-        std::shared_ptr<const Trk::TrackParameters> exPars(
+        std::shared_ptr<Trk::TrackParameters> exPars(
             m_extrapolator->extrapolate(ctx, *intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
         if (!exPars) {
             ATH_MSG_VERBOSE(" extrapolation failed ");
@@ -362,7 +362,7 @@ namespace Muon {
         }
 
         // cast to AtaPlane so we can get the segment info
-        const Trk::AtaPlane* ataPlane = dynamic_cast<const Trk::AtaPlane*>(exPars.get());
+        std::shared_ptr<Trk::AtaPlane> ataPlane = std::dynamic_pointer_cast<Trk::AtaPlane>(exPars);
         if (!ataPlane) {
             ATH_MSG_WARNING(" dynamic_cast<> failed ");
             m_ntuple.segmentBlock.quality->push_back(-2);
@@ -371,7 +371,7 @@ namespace Muon {
             m_ntuple.segmentBlock.combinedYZ.fill(0., 1., 0., 1., -1);
             return false;
         }
-        MuonCombined::MuonSegmentInfo segmentInfo = m_matchingTool->muTagSegmentInfo(nullptr, &segment, ataPlane);
+        MuonCombined::MuonSegmentInfo segmentInfo = m_matchingTool->muTagSegmentInfo(ctx, nullptr, segment, ataPlane);
         m_ntuple.segmentBlock.quality->push_back(segmentInfo.quality);
         m_ntuple.segmentBlock.xresiduals.fillResPull(segmentInfo.resX, segmentInfo.pullX, segmentInfo.segErrorX, segmentInfo.exErrorX, 1);
         m_ntuple.segmentBlock.yresiduals.fillResPull(segmentInfo.resY, segmentInfo.pullY, segmentInfo.segErrorY, segmentInfo.exErrorY, 1);
