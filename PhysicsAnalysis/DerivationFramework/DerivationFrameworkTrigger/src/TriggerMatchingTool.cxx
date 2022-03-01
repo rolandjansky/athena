@@ -20,6 +20,16 @@ namespace {
     using dec_t = SG::AuxElement::Decorator<T>;
   template <typename T>
     using vecLink_t = std::vector<ElementLink<T>>;
+
+  std::vector<const xAOD::IParticle *> filterUnique(const std::vector<const xAOD::IParticle *> &vec)
+  {
+    std::vector<const xAOD::IParticle *> out;
+    out.reserve(vec.size());
+    for (const xAOD::IParticle * part : vec)
+      if (part != nullptr && std::find(out.begin(), out.end(), part) == out.end())
+        out.push_back(part);
+    return out;
+  }
 } //> end anonymous namespace
 
 namespace DerivationFramework {
@@ -145,8 +155,8 @@ namespace DerivationFramework {
         // Get all possible combinations of offline objects that could match to
         // this particular online combination.
         auto theseOfflineCombinations = 
-          TriggerMatchingUtils::getAllDistinctCombinations<const xAOD::IParticle*>(
-              matchCandidates);
+          TriggerMatchingUtils::getAllCombinations<const xAOD::IParticle*>(
+              matchCandidates, false);
         if (msgLvl(MSG::VERBOSE) ) {
           // Spit out some verbose information
           ATH_MSG_VERBOSE(
@@ -164,7 +174,12 @@ namespace DerivationFramework {
         // inserting into a sorted vector that ensures that we only output
         // unique combinations
         for (const particleVec_t& vec : theseOfflineCombinations)
-          TriggerMatchingUtils::insertIntoSortedVector(offlineCombinations, vec);
+        {
+          // Remove any duplicated elements and any nullptrs that were entered as dummies
+          particleVec_t filtered = filterUnique(vec);
+          if (filtered.size() > 0)
+            TriggerMatchingUtils::insertIntoSortedVector(offlineCombinations, filtered);
+        }
       } //> end loop over combinations
 
 
@@ -236,6 +251,12 @@ namespace DerivationFramework {
           if (matchParticles(part, cand) )
             candidates.push_back(cand);
       }
+      // This is a bit evil, but in order to allow creating combinations in which not all legs are
+      // matched if there is no match for a particle we still need an entry in that vector. We
+      // insert a nullptr to symbolise this dummy match. Note that we will remove this before it
+      // is returned as a match so we will never pass this nullptr out of the main method
+      if (candidates.size() == 0)
+          candidates.push_back(nullptr);
       cacheItr = cache.emplace(
           std::make_pair(part, std::move(candidates) ) ).first;
     }

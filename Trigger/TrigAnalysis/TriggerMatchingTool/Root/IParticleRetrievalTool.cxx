@@ -128,7 +128,7 @@ namespace Trig {
   {
     ATH_MSG_DEBUG( "Processing TE " << Trig::getTEName(*te) );
     // Keep track of whether or not we found a particle here.
-    const xAOD::IParticle* part = nullptr;
+    std::vector<const xAOD::IParticle *> particles;
     for (const auto& feature : te->getFeatureAccessHelpers() ) {
       xAOD::Type::ObjectType type;
       if (!CLIDToObjectType(type, feature.getCLID() ) )
@@ -175,7 +175,7 @@ namespace Trig {
               return StatusCode::FAILURE;
             }
           }
-          ATH_CHECK( retrieveFeatureParticle(part, egFeature, sourceTE, navFailure) );
+          ATH_CHECK( retrieveFeatureParticle(particles, egFeature, sourceTE, navFailure) );
           if (navFailure)
             return StatusCode::SUCCESS;
           // If it's a calo-cluster like TE then stop here, otherwise we'll
@@ -190,7 +190,7 @@ namespace Trig {
       }
       // If we found a particle from another feature access helper then this is
       // a problem. Our assumption is that there is only one particle per leg!
-      if (part) {
+      if (particles.size()) {
         std::string message = "TE" + Trig::getTEName(*te) + "has multiple " +
           "'final' particles attached to it! This breaks this tool's asumptions!";
         navFailure = true;
@@ -203,15 +203,16 @@ namespace Trig {
           return StatusCode::FAILURE;
         }
       }
-      ATH_CHECK( retrieveFeatureParticle(part, feature, te, navFailure) );
+      ATH_CHECK( retrieveFeatureParticle(particles, feature, te, navFailure) );
       if (navFailure)
         return StatusCode::SUCCESS;
     } //> end loop over features
 
     // If we found a particle then we can stop going through this branch of the
     // tree
-    if (part) {
-      combination.push_back(part);
+    if (particles.size())
+    {
+      combination.insert(combination.end(), particles.begin(), particles.end());
       return StatusCode::SUCCESS;
     }
 
@@ -240,7 +241,7 @@ namespace Trig {
   }
 
   StatusCode IParticleRetrievalTool::retrieveFeatureParticle(
-      const xAOD::IParticle*& particle,
+      std::vector<const xAOD::IParticle *>& particles,
       const HLT::TriggerElement::FeatureAccessHelper& feature,
       const HLT::TriggerElement* te,
       bool& navFailure) const
@@ -307,45 +308,29 @@ namespace Trig {
         return StatusCode::FAILURE;
       }
     }
-    std::vector<const xAOD::IParticle*> particleFeatures;
-    particleFeatures.reserve(idx.objectsEnd() - idx.objectsBegin() );
+    particles.reserve(idx.objectsEnd() - idx.objectsBegin() );
     auto begin = cont->begin();
     auto end = cont->begin();
     std::advance(begin, idx.objectsBegin() );
     std::advance(end, idx.objectsEnd() );
-    particleFeatures.insert(particleFeatures.end(), begin, end);
-
-    // Make sure the answer is what we expect
-    std::ostringstream os;
-    switch (particleFeatures.size() ) {
-      case 0:
-        os << "No particles retrieved from feature "
-            << navigation->label(feature.getCLID(), feature.getIndex().subTypeIndex() )
-            << " from TE " << Trig::getTEName(*te);
-        navFailure = true;
-        if (m_warnOnNavigationFailure) {
-          ATH_MSG_WARNING(os.str() );
-          return StatusCode::SUCCESS;
-        }
-        else {
-          ATH_MSG_ERROR(os.str() );
-          return StatusCode::FAILURE;
-        }
-      case 1:
-        // Set the output.
-        particle = particleFeatures.at(0);
-        break;
-      default:
-        // Some TEs can end up reporting multiple outputs within the same RoI.
-        // AFAIK this only happens within EGamma TEs but I don't know that for
-        // sure. In any case this shouldn't matter too much for the matching
-        // given that they will be nearby each other. Just return the highest pT
-        // object.
-        particle = *(std::max_element(
-              particleFeatures.begin(), particleFeatures.end(),
-              [] (const xAOD::IParticle* lhs, const xAOD::IParticle* rhs)
-              { return lhs->pt() < rhs->pt(); }) );
+    particles.insert(particles.end(), begin, end);
+    if (particles.size() == 0)
+    {
+      std::ostringstream os;
+      os << "No particles retrieved from feature "
+          << navigation->label(feature.getCLID(), feature.getIndex().subTypeIndex() )
+          << " from TE " << Trig::getTEName(*te);
+      navFailure = true;
+      if (m_warnOnNavigationFailure) {
+        ATH_MSG_WARNING(os.str() );
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_ERROR(os.str() );
+        return StatusCode::FAILURE;
+      }
     }
+    ATH_MSG_VERBOSE("Retrieved " << particles.size() << " particles");
     return StatusCode::SUCCESS;
   }
 
