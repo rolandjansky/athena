@@ -390,10 +390,8 @@ StatusCode L1CaloL1TopoMonitorAlgorithm::fillHistograms( const EventContext& ctx
 
 
   // look in both directions for CMX and Topo TOBs (mis)matches
-  int tests=0;
   bool mismatch=false;
   for (int t=0; t<TOB_TYPES; ++t) { 
-    tests+=topoKeys[t].size();
     // create set of mismatches
     set_symmetric_difference(cmxKeys[t].begin(),cmxKeys[t].end(),
 			     topoKeys[t].begin(),topoKeys[t].end(),
