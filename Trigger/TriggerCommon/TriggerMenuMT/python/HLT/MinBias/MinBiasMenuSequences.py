@@ -39,6 +39,7 @@ def TrackCountHypoToolGen(chainDict):
     hypo = TrackCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
         hypo.minNtrks = int(chainDict["chainParts"][0]["hypoTrkInfo"].strip("trk"))
+        hypo.minPt = 200*Units.MeV
     if "mb_sptrk" in chainDict["chainName"]:
         hypo.minPt = 100*Units.MeV
         hypo.maxZ0 = 401*Units.millimeter
