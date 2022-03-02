@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 
 from .Helpers import warnings_count
-from .Inputs import references_CVMFS_path, references_EOS_path
+from .Inputs import references_CVMFS_path
 from .References import references_map
 from .Test import TestSetup, WorkflowCheck, WorkflowTest, WorkflowType
 
@@ -107,27 +107,20 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         reference_path: Path = test.reference_path
         diff_rules_file: Path = self.setup.diff_rules_path
 
-        # Read references from EOS/CVMFS
+        # Read references from CVMFS
         if self.setup.validation_only:
-            # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/version/.
-            # This should work both in standalone and CI
-            # Use EOS if mounted, otherwise CVMFS
+            # Resolve the subfolder first. Results are stored like: main_folder/branch/test/version/.
             reference_revision = references_map[f"{test.ID}"]
-            eos_path = Path(references_EOS_path)
-            reference_path = eos_path / self.setup.release_ID / test.ID / reference_revision
-            diff_rules_file = eos_path / self.setup.release_ID / test.ID
-            if reference_path.exists():
-                self.logger.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
-            else:
-                self.logger.info("EOS is not mounted, going to read the reference files from CVMFS")
-                cvmfs_path = Path(references_CVMFS_path)
-                reference_path = cvmfs_path / self.setup.release_ID / test.ID / reference_revision
-                diff_rules_file = cvmfs_path / self.setup.release_ID / test.ID
-
-        diff_rules_file /= f"{self.format}_diff-exclusion-list.txt"
+            cvmfs_path = Path(references_CVMFS_path)
+            reference_path = cvmfs_path / self.setup.release_ID / test.ID / reference_revision
+            diff_rules_file = cvmfs_path / self.setup.release_ID / test.ID
+            if not reference_path.exists():
+                self.logger.error("CVMFS reference location does not exist!")
+                return False
 
         self.logger.info(f"Reading the reference file from location {reference_path}")
 
+        diff_rules_file /= f"{self.format}_diff-exclusion-list.txt"
         if diff_rules_file.exists():
             self.logger.info(f"Reading the diff rules file from location {diff_rules_file}")
             exclusion_list = []
