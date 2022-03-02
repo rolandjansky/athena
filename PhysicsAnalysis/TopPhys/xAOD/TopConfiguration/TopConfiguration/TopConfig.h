@@ -1077,6 +1077,12 @@ namespace top {
         m_muonUseMVALowPt = UseMVALowPt;
       }
     }
+    
+    void muonUseLowPt(const bool& UseLowPt) {
+      if (!m_configFixed) {
+        m_muonUseLowPt = UseLowPt;
+      }
+    }
 
     void muonUse2stationMuonsHighPt(const bool& Use2stationMuonsHighPt) {
       if (!m_configFixed) {
@@ -1087,6 +1093,12 @@ namespace top {
     void muonUseMVALowPtLoose(const bool& UseMVALowPtLoose) {
       if (!m_configFixed) {
         m_muonUseMVALowPtLoose = UseMVALowPtLoose;
+      }
+    }
+    
+    void muonUseLowPtLoose(const bool& UseLowPtLoose) {
+      if (!m_configFixed) {
+        m_muonUseLowPtLoose = UseLowPtLoose;
       }
     }
 
@@ -1145,8 +1157,10 @@ namespace top {
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
     inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
+    inline virtual bool muonUseLowPt() const {return m_muonUseLowPt;}
     inline virtual bool muonUse2stationMuonsHighPt() const {return m_muonUse2stationMuonsHighPt;}
     inline virtual bool muonUseMVALowPtLoose() const {return m_muonUseMVALowPtLoose;}
+    inline virtual bool muonUseLowPtLoose() const {return m_muonUseLowPtLoose;}
     inline virtual bool muonUse2stationMuonsHighPtLoose() const {return m_muonUse2stationMuonsHighPtLoose;}
     inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
@@ -1208,6 +1222,11 @@ namespace top {
         m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
       }
     }
+    void softmuonUseLowPt(const bool UseLowPtSoftMuon) {
+      if (!m_configFixed) {
+        m_softmuonUseLowPt = UseLowPtSoftMuon;
+      }
+    }
 
     inline virtual void softmuonDRJetcut(const float DRJet) {
       if (!m_configFixed) {
@@ -1243,6 +1262,7 @@ namespace top {
     inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
     inline virtual bool softmuonUseMVALowPt() const {return m_softmuonUseMVALowPt;}
+    inline virtual bool softmuonUseLowPt() const {return m_softmuonUseLowPt;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
     inline virtual bool softmuonDRJetcutUseRapidity() const {return m_softmuonDRJetcutUseRapidity;}
     inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
@@ -2559,9 +2579,11 @@ namespace top {
     float m_muonEtacut; // muon object selection (abs) eta cut
     std::string m_muonQuality; // muon quality used in object selection
     bool m_muonUseMVALowPt; //to turn on MVA for low-pT muons
+    bool m_muonUseLowPt; //helper variable to check if we're using the lowPt WP
     bool m_muonUse2stationMuonsHighPt; //to allow muon reco with 2-station
     std::string m_muonQualityLoose; // loose muon quality used in object selection
     bool m_muonUseMVALowPtLoose; //to turn on MVA for low-pT muons (loose tree)
+    bool m_muonUseLowPtLoose; //helper variable to check if we're using the lowPt WP
     bool m_muonUse2stationMuonsHighPtLoose; //to allow muon reco with 2-station (loose tree)
     std::string m_muonIsolation;
     std::string m_muonIsolationLoose;
@@ -2583,6 +2605,7 @@ namespace top {
     float m_softmuonEtacut; // soft muon object selection (abs) eta cut
     std::string m_softmuonQuality; // soft muon quality used in object selection
     bool m_softmuonUseMVALowPt; //to turn on MVA for low-pT muons
+    bool m_softmuonUseLowPt; //helper variable to check if we're using the lowPt WP
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
     bool m_softmuonDRJetcutUseRapidity; // true -> use rapidity for DR(jet,mu) matching; false -> use pseudorapidity
     bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
