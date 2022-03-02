@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IIOVSVC_H
@@ -129,6 +129,10 @@ public:
 				  const std::string &tag) = 0;
   //@}
 
+
+  /// Drop the associated object from the db and trigger reload
+  virtual StatusCode dropObjectFromDB(const CLID& clid, const std::string& key,
+                                      const std::string& storeName) = 0;
 
   /// pre-load transient Addresses
   virtual StatusCode preLoadTAD( const SG::TransientAddress *,
