@@ -97,7 +97,14 @@ def TrigBjetMonConfig(inputFlags):
         bjet_triglist += hltmonList.monitoring_mujet
         log.info (" ==> bjet_triglist:  %s", bjet_triglist)
 
-
+    # Check if BeamType is 'collosions'
+    from AthenaCommon.BeamFlags import jobproperties
+    BeamTypeFlag = jobproperties.Beam.beamType() 
+    CollisionRun = BeamTypeFlag == 'collisions'
+    if CollisionRun:
+        log.info (" ==> BeamType is collision: %s", BeamTypeFlag)
+    else:
+        log.info (" ==> BeamType is not collision: %s", BeamTypeFlag)
 
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
