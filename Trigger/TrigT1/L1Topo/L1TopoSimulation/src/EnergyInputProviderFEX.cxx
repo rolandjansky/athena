@@ -39,12 +39,7 @@ EnergyInputProviderFEX::initialize() {
   incidentSvc->addListener(this,"BeginRun", 100);
   incidentSvc.release().ignore();
   
-  auto is_jMet_EDMvalid = m_jMet_EDMKey.initialize();
-  
-  //Temporarily check EDM status by hand to avoid the crash!                                                                                                 
-  if (is_jMet_EDMvalid != StatusCode::SUCCESS) {
-    ATH_MSG_WARNING("No EDM found for jFEX Met..");
-  }
+  ATH_CHECK(m_jMet_EDMKey.initialize(SG::AllowEmpty));
 
   return StatusCode::SUCCESS;
 }
@@ -83,12 +78,12 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
-  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!                                                                                                  
-  if(!jMet_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_jMet_EDMKey.key() << ". No jFEX MET input for L1Topo");
-     return StatusCode::SUCCESS;
+  if (m_jMet_EDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex MET input disabled, skip filling");
+    return StatusCode::SUCCESS;
   }
+  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
+  ATH_CHECK(jMet_EDM.isValid());
 
   // The jFEX MET container has 12 elements, 2 TOBs per jFEX module, so a total of 12. 
   // According to the documentation https://gitlab.cern.ch/l1calo-run3-simulation/documentation/Run3L1CaloOfflineSWReqs/-/blob/master/l1caloreqs.pdf
