@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -40,7 +40,6 @@ using std::string;
 PileUpMergeSvc::PileUpMergeSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc), 
     p_overStore("StoreGateSvc", "StoreGateSvc"),
-    p_activeStore("ActiveStoreSvc", "ActiveStoreSvc"),
     m_intervals(this),
     m_pITriggerTime(""),
     m_returnTimedData(true),
@@ -102,15 +101,7 @@ PileUpMergeSvc::initialize()    {
           << endmsg;
       return StatusCode::FAILURE;
   }
-  // set up the active store service:
-  if ( !(p_activeStore.retrieve()).isSuccess() ) 
-  {
-      msg() << MSG::FATAL 
-	  << "Could not locate ActiveStoreSvc"
-          << endmsg;
-      return StatusCode::FAILURE;
-  }
-  if (!m_pITriggerTime.empty() && !(m_pITriggerTime.retrieve()).isSuccess() ) 
+  if (!m_pITriggerTime.empty() && !(m_pITriggerTime.retrieve()).isSuccess() )
   {
       msg() << MSG::FATAL 
 	  << "Could not locate ITriggerTime tool"
@@ -137,15 +128,8 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
    if( xAODEventInfo ) {
       ATH_MSG_DEBUG("Found xAOD::EventInfo");
       ATH_MSG_DEBUG(" EventInfo has " <<   xAODEventInfo->subEvents().size() << " subevents" );
-      if( xAODEventInfo->evtStore() == nullptr ) {
-         // SG is 0 only when the xAODEventInfo is first read
-         const_cast<xAOD::EventInfo*>(xAODEventInfo)->setEvtStore( sg );
-         // the loop below serves 2 purposes: to recreate subevent links cache
-         // and set SG pointer in subevents 
-         for( auto& subev : xAODEventInfo->subEvents() ) {
-            const_cast<xAOD::EventInfo*>( subev.ptr() )->setEvtStore( sg );
-         }
-      }
+      // recreate subevent links cache
+      xAODEventInfo->subEvents();
    } else {
       // Don't allow more than one thread per slot through here.
       // Otherwise, we can get errors with multiple threads trying
@@ -179,21 +163,20 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
             std::vector< xAOD::EventInfo::SubEvent > subEvents;
 
             // A map translating between the AOD and xAOD pileup event types:
-            static std::map< PileUpEventInfo::SubEvent::pileup_type,
-               xAOD::EventInfo::PileUpType > pileupTypeMap;
-            if( ! pileupTypeMap.size() ) {
+            static const std::map< PileUpEventInfo::SubEvent::pileup_type,
+               xAOD::EventInfo::PileUpType > pileupTypeMap = {
 #define DECLARE_SE_TYPE( TYPE )                                         \
-               pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
+              { PileUpTimeEventIndex::TYPE, xAOD::EventInfo::TYPE },
 
-               DECLARE_SE_TYPE( Unknown );
-               DECLARE_SE_TYPE( Signal );
-               DECLARE_SE_TYPE( MinimumBias );
-               DECLARE_SE_TYPE( Cavern );
-               DECLARE_SE_TYPE( HaloGas );
-               DECLARE_SE_TYPE( ZeroBias );
+               DECLARE_SE_TYPE( Unknown )
+               DECLARE_SE_TYPE( Signal )
+               DECLARE_SE_TYPE( MinimumBias )
+               DECLARE_SE_TYPE( Cavern )
+               DECLARE_SE_TYPE( HaloGas )
+               DECLARE_SE_TYPE( ZeroBias )
 
 #undef DECLARE_SE_TYPE
-            }
+            };
 
             // A convenience type declaration:
             typedef ElementLink< xAOD::EventInfoContainer > EiLink;

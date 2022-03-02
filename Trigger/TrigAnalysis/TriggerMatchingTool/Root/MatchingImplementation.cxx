@@ -5,6 +5,7 @@
 #include "TriggerMatchingTool/MatchingImplementation.h"
 #include "TriggerMatchingTool/MatchingTool.h"
 #include "MinimalSumAssociation.h"
+#include <utility>
 
 namespace Trig {
 
@@ -13,7 +14,7 @@ MatchingImplementation::MatchingImplementation(MatchingTool& mt, double threshol
 }
 
 const Trig::TrigDecisionTool* MatchingImplementation::tdt() const {
-  return m_tool.m_trigDecTool.operator->();
+  return std::as_const(m_tool).m_trigDecTool.operator->();
 }
 
   bool MatchingImplementation::assocIsMatched(IAssociationStrategy::index_assignment_t association, const std::vector<std::vector<double> >& matrix, double threshold) const {

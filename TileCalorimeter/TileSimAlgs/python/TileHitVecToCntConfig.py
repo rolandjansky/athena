@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured private Tile hit vector to container tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -62,32 +62,31 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
         kwargs.setdefault('TileHitContainer_DigiHSTruth', '')
 
     if 'RndmSvc' not in kwargs:
-        from RngComps.RandomServices import RNG
-        acc.merge( RNG(flags.Random.Engine) )
-        kwargs['RndmSvc'] = acc.getService('AthRNGSvc')
+        from RngComps.RandomServices import AthRNGSvcCfg
+        kwargs['RndmSvc'] = acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name
 
     if kwargs['RndmEvtOverlay']:
         kwargs.setdefault('PileUp', False)
     else:
         kwargs.setdefault('PileUp', flags.Digitization.PileUp)
 
-    if kwargs['PileUp']:
-        PileUpMergeSvc=CompFactory.PileUpMergeSvc
-        acc.addService( PileUpMergeSvc() )
-
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault('TriggerTimeTool', CosmicTriggerTimeTool())
         kwargs.setdefault('HitTimeFlag', 2)
         kwargs.setdefault('UseTriggerTime', True)
 
-    if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
-        kwargs.setdefault("FirstXing", getTileFirstXing() )
-        kwargs.setdefault("LastXing",  getTileLastXing() )
-    elif flags.Digitization.PileUp:
-        rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
-        acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
+            kwargs.setdefault("FirstXing", getTileFirstXing() )
+            kwargs.setdefault("LastXing",  getTileLastXing() )
+        else:
+            intervals += [acc.popToolsAndMerge(TileRangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     TileHitVecToCntTool=CompFactory.TileHitVecToCntTool
     acc.setPrivateTools(TileHitVecToCntTool(**kwargs))
 
@@ -163,7 +162,7 @@ if __name__ == "__main__":
     # Test setup
     log.setLevel(DEBUG)
 
-    ConfigFlags.Input.Files = defaultTestFiles.HITS
+    ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.PileUp = False

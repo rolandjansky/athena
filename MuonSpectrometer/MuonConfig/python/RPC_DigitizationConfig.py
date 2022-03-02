@@ -78,6 +78,8 @@ def RPC_DigitizationToolCommonCfg(flags, name="RpcDigitizationTool", **kwargs):
     kwargs.setdefault("FracClusterSize2_C",   [0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986, 0.259986])
     kwargs.setdefault("FracClusterSizeTail_C",[0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035, 0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035,  0.13035 ])
     kwargs.setdefault("MeanClusterSizeTail_C",[0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598, 0.548598])
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     RpcDigitizationTool = CompFactory.RpcDigitizationTool
     acc.setPrivateTools(RpcDigitizationTool(name, **kwargs))
     return acc
@@ -86,8 +88,14 @@ def RPC_DigitizationToolCommonCfg(flags, name="RpcDigitizationTool", **kwargs):
 def RPC_DigitizationToolCfg(flags, name="RpcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(RPC_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(RPC_RangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
@@ -103,6 +111,7 @@ def RPC_OverlayDigitizationToolCfg(flags, name="Rpc_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "RPC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "RPC_SDO")
+    kwargs.setdefault("PileUpMergeSvc", '')
     return RPC_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 

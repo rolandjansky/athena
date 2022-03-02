@@ -1,3 +1,4 @@
+/// emacs: this is -*- c++ -*-
 /**
  **     @file    TagNProbe.h
  **
@@ -31,7 +32,7 @@
 #include "TrigInDetAnalysis/Track.h" 
 #include "TrigInDetAnalysis/TIDDirectory.h" 
 #include "TrigInDetAnalysis/Efficiency.h" 
-#include "TrigInDetAnalysis/TIDARoiDescriptor.h" 
+#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
 
 class TagNProbe {
@@ -90,11 +91,31 @@ public:
     m_chain_tnp = chain_tnp;
   }
 
+  template<typename T> 
+  void Fill( T* h, T* h1, int i ) { 
+    /// don't need to check both these, we can just call this as many times as we like, 
+    /// could pass in the vector even so that  
+    // we leave the old code in, but commented, since we are still developing, so once 
+    // we know everything is working we can delete all the older code
+    //    if ( m_masses[i].size() == m_masses_obj[i].size() && m_masses[i].size() > 0 ) {
+
+    /// don't understand this - why is this method filling lots of masses 
+    /// from an vector of masses from 0 up to the input index ?
+    /// isn't this index just the index of the roi ? Why the loop ?
+    for ( size_t im=0 ; im<m_masses[i].size() ; im++ ) { 
+      h->Fill( m_masses[i].at(im) );
+    }
+    for ( size_t im=0 ; im<m_masses_obj[i].size() ; im++ ) { 
+      h1->Fill( m_masses_obj[i].at(im) );
+    }
+  } 
+
 
   /// probe searching method
 
   bool FindProbes();
 
+  void FindTIDAChains( std::vector<TIDA::Chain>& chains ) ;
 
   /// getter methods
 
@@ -107,6 +128,24 @@ public:
   std::vector<double> GetInvMasses_obj( unsigned int probe_index=0 ) { return m_masses_obj[ probe_index ]; }
 
   std::vector<TIDA::Roi*> GetRois( TIDA::Chain * chain, std::vector<TIDA::Chain>& chains );
+
+  std::vector<TIDA::Roi*> GetRois( std::vector<TIDA::Chain>& chains );
+
+  void tag( const std::string& chainName ) { m_tagChainName = chainName ; }
+
+  const std::string& tag() { return m_tagChainName ; }
+
+  void probe( const std::string& chainName ) { m_probeChainName = chainName ; }
+
+  const std::string& probe() { return m_probeChainName ; }
+
+  TIDA::Chain* GetTIDAProbe() { return m_chain_tnp ; } 
+
+  TIDA::Chain* GetTIDATag() { return m_chain ; }
+
+  TH1D* GetMinvHisto() { return m_hMinv ; }
+
+  TH1D* GetMinvObjHisto() { return m_hMinv_obj ; }
 
 
   /// utility methods
@@ -121,7 +160,11 @@ public:
 
   void BookMinvHisto( std::string chain_name );
 
+  void BookMinvHisto();
+
   void FillMinvHisto( std::string chain_name, unsigned int probe_index );
+
+  void FillMinvHisto( unsigned int probe_index );
 
   void WriteMinvHisto( TDirectory* foutdir );
 
@@ -147,6 +190,9 @@ private:
   TIDA::Chain * m_chain;
   TIDA::Chain * m_chain_tnp;
 
+  std::string m_probeChainName ;
+  std::string m_tagChainName ;
+
   std::vector<TIDA::Roi*> m_probes;
   std::vector< std::vector<double> > m_masses;
   std::vector< std::vector<double> > m_masses_obj;
@@ -160,7 +206,6 @@ private:
 
   TrigObjectMatcher* m_tom;
 
-
   /// supporting variables for utility methods
 
   std::map<std::string,std::string> m_tnp_map;
@@ -168,6 +213,9 @@ private:
 
   std::map<std::string,TH1D*> m_hMinv_map;
   std::map<std::string,TH1D*> m_hMinv_obj_map;
+
+  TH1D* m_hMinv ;
+  TH1D* m_hMinv_obj ;
 
 };
 

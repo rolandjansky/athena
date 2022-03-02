@@ -88,16 +88,22 @@ namespace Muon {
     /** @brief Dumps information about the PRD*/
     virtual std::ostream& dump( std::ostream& stream) const override;
     
-    /** @brief Returns the detector element, assoicated with the PRD of this class*/
+    /** @brief Returns the detector element, associated with the PRD of this class*/
     virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const override = 0;
 
+    virtual void setOffsetNormal(double off);
+    
   protected:
     /** cache global position, the global position has to be calculated in the inheriting classes */
     CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     
     /** The position along the strip - used to calculate the GlobalPosition*/
-    double                                          m_positionAlongStrip;
+    double m_positionAlongStrip;
     
+    /** An offset along the normal to the surface (e.g. due to deformations)
+        used to calculate the GlobalPosition*/
+    double m_offsetNormal{0.};
+
   private:
     friend class  ::MuonClusterOnTrackCnv_p1;
 
@@ -118,7 +124,11 @@ namespace Muon {
   inline IdentifierHash MuonClusterOnTrack::idDE() const { 
       return IdentifierHash(); 
   } 
-  
+
+  inline void MuonClusterOnTrack::setOffsetNormal(double off) { 
+      m_offsetNormal = off;
+      if (m_globalPosition) m_globalPosition.release().reset(); // force recalculation of the global position
+  } 
 } // end of namespace
 
 #endif // MUONRIOONTRACK_MUONCLUSTERONTRACK_H

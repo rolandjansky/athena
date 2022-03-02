@@ -32,10 +32,10 @@ ciRefFileMap = {
                 'overlay-d1498-21.0'   : 'v2',
                 'overlay-d1498-22.0'   : 'v38',
                 'overlay-d1592-22.0'   : 'v14',
-                'overlay-d1726-22.0'   : 'v3',
+                'overlay-d1726-22.0'   : 'v6',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v4',
-                'dataoverlay-d1590-22.0' : 'v16',
+                'dataoverlay-d1590-22.0' : 'v21',
                 'dataoverlay-hits-22.0'  : 'v1',
                }
 

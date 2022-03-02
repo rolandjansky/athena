@@ -25,7 +25,7 @@ public:
 	double Radius() const {return m_radius;}
 	void Radius(double d) {m_radius=d;}
 	GeoTrf::Vector3D GetPoint(int i) const {return m_points[i];}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:
 	double m_radius;

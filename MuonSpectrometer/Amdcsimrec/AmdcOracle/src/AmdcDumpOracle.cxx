@@ -374,7 +374,7 @@ StatusCode AmdcDumpOracle::DoIt()
 
 }
 
-void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ASZT";
 
@@ -403,7 +403,7 @@ void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -415,7 +415,7 @@ void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -442,7 +442,7 @@ void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpISZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpISZT( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ISZT";
 
@@ -471,7 +471,7 @@ void AmdcDumpOracle::DumpISZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -483,7 +483,7 @@ void AmdcDumpOracle::DumpISZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -511,7 +511,7 @@ void AmdcDumpOracle::DumpISZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){\
+void AmdcDumpOracle::DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){\
 
   std::string NameOfTheSet = "APTP";
 
@@ -540,7 +540,7 @@ void AmdcDumpOracle::DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -552,7 +552,7 @@ void AmdcDumpOracle::DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -584,7 +584,7 @@ void AmdcDumpOracle::DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpALMN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpALMN( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ALMN";
 
@@ -613,7 +613,7 @@ void AmdcDumpOracle::DumpALMN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -625,7 +625,7 @@ void AmdcDumpOracle::DumpALMN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -651,7 +651,7 @@ void AmdcDumpOracle::DumpALMN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpALIN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpALIN( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ALIN";
 
@@ -683,12 +683,12 @@ void AmdcDumpOracle::DumpALIN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end() && itFromAmdc<pIRDBRecordsetFromAmdc->end(); ++itFromRDB,++itFromAmdc){
 
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
     const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-    if (pAmdcDbRecordFromAmdc == 0){
+    if (pAmdcDbRecordFromAmdc == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -704,7 +704,7 @@ void AmdcDumpOracle::DumpALIN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WMDT";
 
@@ -733,7 +733,7 @@ void AmdcDumpOracle::DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -745,7 +745,7 @@ void AmdcDumpOracle::DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -769,7 +769,7 @@ void AmdcDumpOracle::DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WSPA";
 
@@ -798,7 +798,7 @@ void AmdcDumpOracle::DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -810,7 +810,7 @@ void AmdcDumpOracle::DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -834,7 +834,7 @@ void AmdcDumpOracle::DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WSUP";
 
@@ -863,7 +863,7 @@ void AmdcDumpOracle::DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -875,7 +875,7 @@ void AmdcDumpOracle::DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -899,7 +899,7 @@ void AmdcDumpOracle::DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WCHV";
 
@@ -928,7 +928,7 @@ void AmdcDumpOracle::DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -940,7 +940,7 @@ void AmdcDumpOracle::DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -964,7 +964,7 @@ void AmdcDumpOracle::DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WCMI";
 
@@ -993,7 +993,7 @@ void AmdcDumpOracle::DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1005,7 +1005,7 @@ void AmdcDumpOracle::DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1029,7 +1029,7 @@ void AmdcDumpOracle::DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WCRO";
 
@@ -1058,7 +1058,7 @@ void AmdcDumpOracle::DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1070,7 +1070,7 @@ void AmdcDumpOracle::DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1094,7 +1094,7 @@ void AmdcDumpOracle::DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WLBI";
 
@@ -1123,7 +1123,7 @@ void AmdcDumpOracle::DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1135,7 +1135,7 @@ void AmdcDumpOracle::DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1159,7 +1159,7 @@ void AmdcDumpOracle::DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWDED( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWDED( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WDED";
 
@@ -1188,7 +1188,7 @@ void AmdcDumpOracle::DumpWDED( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1200,7 +1200,7 @@ void AmdcDumpOracle::DumpWDED( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1224,7 +1224,7 @@ void AmdcDumpOracle::DumpWDED( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpASMP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpASMP( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ASMP";
 
@@ -1253,7 +1253,7 @@ void AmdcDumpOracle::DumpASMP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1265,7 +1265,7 @@ void AmdcDumpOracle::DumpASMP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1290,7 +1290,7 @@ void AmdcDumpOracle::DumpASMP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "DBAM";
 
@@ -1319,7 +1319,7 @@ void AmdcDumpOracle::DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1331,7 +1331,7 @@ void AmdcDumpOracle::DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1353,7 +1353,7 @@ void AmdcDumpOracle::DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WCSC";
 
@@ -1382,7 +1382,7 @@ void AmdcDumpOracle::DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1394,7 +1394,7 @@ void AmdcDumpOracle::DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1418,7 +1418,7 @@ void AmdcDumpOracle::DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpATLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpATLN( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ATLN";
 
@@ -1447,7 +1447,7 @@ void AmdcDumpOracle::DumpATLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1459,7 +1459,7 @@ void AmdcDumpOracle::DumpATLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1484,7 +1484,7 @@ void AmdcDumpOracle::DumpATLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "GGLN";
 
@@ -1513,7 +1513,7 @@ void AmdcDumpOracle::DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1525,7 +1525,7 @@ void AmdcDumpOracle::DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1549,7 +1549,7 @@ void AmdcDumpOracle::DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WTGC";
 
@@ -1578,7 +1578,7 @@ void AmdcDumpOracle::DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1590,7 +1590,7 @@ void AmdcDumpOracle::DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1614,7 +1614,7 @@ void AmdcDumpOracle::DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "AWLN";
 
@@ -1643,7 +1643,7 @@ void AmdcDumpOracle::DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1655,7 +1655,7 @@ void AmdcDumpOracle::DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1679,7 +1679,7 @@ void AmdcDumpOracle::DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "WRPC";
 
@@ -1708,7 +1708,7 @@ void AmdcDumpOracle::DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1720,7 +1720,7 @@ void AmdcDumpOracle::DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
      
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1742,7 +1742,7 @@ void AmdcDumpOracle::DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpACUT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpACUT( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ACUT";
 
@@ -1774,12 +1774,12 @@ void AmdcDumpOracle::DumpACUT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end() && itFromAmdc<pIRDBRecordsetFromAmdc->end(); ++itFromRDB,++itFromAmdc){
 
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
     const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-    if (pAmdcDbRecordFromAmdc == 0){
+    if (pAmdcDbRecordFromAmdc == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1794,7 +1794,7 @@ void AmdcDumpOracle::DumpACUT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpATYP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpATYP( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ATYP";
 
@@ -1823,7 +1823,7 @@ void AmdcDumpOracle::DumpATYP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1835,7 +1835,7 @@ void AmdcDumpOracle::DumpATYP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1859,7 +1859,7 @@ void AmdcDumpOracle::DumpATYP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "AMDC";
 
@@ -1888,7 +1888,7 @@ void AmdcDumpOracle::DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1900,7 +1900,7 @@ void AmdcDumpOracle::DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1922,7 +1922,7 @@ void AmdcDumpOracle::DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   
 }
 
-void AmdcDumpOracle::DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "HwSwIdMapping";
 
@@ -1951,7 +1951,7 @@ void AmdcDumpOracle::DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc, std::stri
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -1963,7 +1963,7 @@ void AmdcDumpOracle::DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc, std::stri
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 
@@ -1987,7 +1987,7 @@ void AmdcDumpOracle::DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc, std::stri
   
 }
 
-void AmdcDumpOracle::DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
+void AmdcDumpOracle::DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc, const std::string& TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "XtomoData";
 
@@ -2016,7 +2016,7 @@ void AmdcDumpOracle::DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc, std::string T
   std::vector<IRDBRecord*>::const_iterator itFromRDB = pIRDBRecordsetFromRDB->begin();
   for ( ; itFromRDB<pIRDBRecordsetFromRDB->end(); ++itFromRDB){
     const AmdcDbRecord* pAmdcDbRecordFromRDB = dynamic_cast<const AmdcDbRecord*>((*itFromRDB));
-    if (pAmdcDbRecordFromRDB == 0){
+    if (pAmdcDbRecordFromRDB == nullptr){
       OutFile << "No way to cast pAmdcDbRecordFromRDB for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -2028,7 +2028,7 @@ void AmdcDumpOracle::DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc, std::string T
       Ifound = 1;
 
       const AmdcDbRecord* pAmdcDbRecordFromAmdc = dynamic_cast<const AmdcDbRecord*>((*itFromAmdc));
-      if (pAmdcDbRecordFromAmdc == 0){
+      if (pAmdcDbRecordFromAmdc == nullptr){
         OutFile << "No way to cast pAmdcDbRecordFromAmdc for " << NameOfTheSet << std::endl;
         return;
       } 

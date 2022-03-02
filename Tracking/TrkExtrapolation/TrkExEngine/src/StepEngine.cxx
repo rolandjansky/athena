@@ -128,7 +128,11 @@ Trk::ExtrapolationCode Trk::StepEngine::extrapolate(ExCellCharged& ecCharged,
     // cache the last lead parameters, useful in case a navigation error occured
     //ecCharged.lastLeadParameters = ecCharged.leadParameters;
 
-    Trk::ExtrapolationCode eCode = m_propagator->propagate(ecCharged,m_targetSurfaces,solutions);
+    Trk::ExtrapolationCode eCode = m_propagator->propagate(
+      Gaudi::Hive::currentContext(),
+      ecCharged,
+      m_targetSurfaces,
+      solutions);
 
     // enforced debugging
     if (eCode==Trk::ExtrapolationCode::FailureNavigation && m_debugAndFix) {
@@ -299,8 +303,7 @@ void Trk::StepEngine::evaluateDistance(Trk::TargetSurface& tt, const Amg::Vector
        }
     }
 
-    return;
-}  
+    }  
 
 // handle extrapolation step
 Trk::ExtrapolationCode Trk::StepEngine::handleIntersection(ExCellCharged& ecCharged, 

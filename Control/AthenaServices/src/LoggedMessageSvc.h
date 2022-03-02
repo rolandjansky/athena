@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_LOGGEDMESSAGESVC_H
@@ -34,7 +34,7 @@ class ISvcLocator;
 //
 // Author:      Charles Leggett
 //
-class ATLAS_CHECK_THREAD_SAFETY LoggedMessageSvc :
+class LoggedMessageSvc :
   public extends<AthService, ILoggedMessageSvc, IInactiveMessageCounter> {
 
 public:

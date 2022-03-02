@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests for EventInfo overlay
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
@@ -22,7 +22,7 @@ parser = CommonTestArgumentParser("EventInfoOverlay_test.py")
 args = parser.parse_args()
 
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG
+ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG_RUN2
 ConfigFlags.Input.SecondaryFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/TestCase_xAODEventInfo.root"]
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.Overlay.DataOverlay = False

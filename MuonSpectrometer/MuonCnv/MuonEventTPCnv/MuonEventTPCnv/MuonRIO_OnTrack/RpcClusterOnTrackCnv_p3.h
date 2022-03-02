@@ -31,8 +31,7 @@ class RpcClusterOnTrackCnv_p3
                                             Muon::RpcClusterOnTrack_p3 >
 {
 public:
-    RpcClusterOnTrackCnv_p3() : m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), 
-                                    m_localParCnv(0), m_errorMxCnv(0) {}
+    RpcClusterOnTrackCnv_p3() = default;
 
     void persToTrans( const Muon :: RpcClusterOnTrack_p3 *persObj,
         Muon :: RpcClusterOnTrack    *transObj,
@@ -43,9 +42,9 @@ public:
 
 protected:
     ElementLinkCnv_p3< ElementLinkToIDC_RPC_Container > m_elCnv;   
-    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool ; 
-    LocalParametersCnv_p1     *               m_localParCnv;
-    ErrorMatrixCnv_p1         *               m_errorMxCnv;  
+    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool{"Trk::EventCnvSuperTool/EventCnvSuperTool"}; 
+    LocalParametersCnv_p1     *               m_localParCnv{nullptr};
+    ErrorMatrixCnv_p1         *               m_errorMxCnv{nullptr};  
 };
 
 #endif // RPC_CLUSTER_ON_TRACK_CNV_p2_H

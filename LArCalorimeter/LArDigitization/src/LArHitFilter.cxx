@@ -14,31 +14,17 @@
 #include "Identifier/IdentifierHash.h"
 #include "LArDigitization/LArHitEMap.h"
 #include "CaloIdentifier/CaloIdManager.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 LArHitFilter::LArHitFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
   , m_larem_id(nullptr)
   , m_larhec_id(nullptr)
   , m_larfcal_id(nullptr)
   , m_SubDetectors("LAr_All")
-  , m_inputEMBHits("StoreGateSvc+LArHitEMBOLD")
-  , m_outputEMBHits("StoreGateSvc+LArHitEMB")
-  , m_inputEMECHits("StoreGateSvc+LArHitEMECOLD")
-  , m_outputEMECHits("StoreGateSvc+LArHitEMEC")
-  , m_inputHECHits("StoreGateSvc+LArHitHECOLD")
-  , m_outputHECHits("StoreGateSvc+LArHitHEC")
-  , m_inputFCALHits("StoreGateSvc+LArHitFCALOLD")
-  , m_outputFCALHits("StoreGateSvc+LArHitFCAL")
 {
   declareProperty("SubDetectors"   ,m_SubDetectors,"subdetector selection");
-  declareProperty("EMBHitsInput"   , m_inputEMBHits);
-  declareProperty("EMBHitsOutput"  , m_outputEMBHits);
-  declareProperty("EMECHitsInput"  , m_inputEMECHits);
-  declareProperty("EMECHitsOutput" , m_outputEMECHits);
-  declareProperty("HECHitsInput"   , m_inputHECHits);
-  declareProperty("HECHitsOutput"  , m_outputHECHits);
-  declareProperty("FCALHitsInput"  , m_inputFCALHits);
-  declareProperty("FCALHitsOutput" , m_outputFCALHits);
 
   m_ecut[0][0]=0.05;
   m_ecut[0][1]=0.2;
@@ -143,125 +129,119 @@ StatusCode LArHitFilter::initialize()
 
 
   //retrieve ID helpers
-  const CaloIdManager* caloIdMgr = nullptr;
-  StatusCode sc = detStore()->retrieve(caloIdMgr);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectoreStore");
-    return StatusCode::FAILURE;
-  }
+  const CaloIdManager* caloIdMgr{};
+  ATH_CHECK(detStore()->retrieve(caloIdMgr));
   m_larem_id   = caloIdMgr->getEM_ID();
   m_larhec_id  = caloIdMgr->getHEC_ID();
   m_larfcal_id  = caloIdMgr->getFCAL_ID();
 
+  ATH_CHECK(m_inputEMBHitsKey.initialize());
+  ATH_CHECK(m_outputEMBHitsKey.initialize());
+  ATH_CHECK(m_inputEMECHitsKey.initialize());
+  ATH_CHECK(m_outputEMECHitsKey.initialize());
+  ATH_CHECK(m_inputHECHitsKey.initialize());
+  ATH_CHECK(m_outputHECHitsKey.initialize());
+  ATH_CHECK(m_inputFCALHitsKey.initialize());
+  ATH_CHECK(m_outputFCALHitsKey.initialize());
 
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode LArHitFilter::execute()
+StatusCode LArHitFilter::execute(const EventContext& ctx) const
 {
   unsigned int nhit_tot=0;
   unsigned int nhit_out=0;
 
-  if(m_SubDetFlag[LArHitEMap::EMBARREL_INDEX])
-    {
-      /// Filter EMB LArHitContainer
-      if(!m_inputEMBHits.isValid())
-        {
-          ATH_MSG_ERROR( "Could not find EMB LArHitsContainer");
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_DEBUG( "Found EMB LArHitsContainer");
-      if (!m_outputEMBHits.isValid()) m_outputEMBHits = std::make_unique<LArHitContainer>();
-      ATH_CHECK(this->filterContainer(m_inputEMBHits,m_outputEMBHits,0));
-      nhit_tot+= m_inputEMBHits->size();
-      nhit_out+= m_outputEMBHits->size();
+  if(m_SubDetFlag[LArHitEMap::EMBARREL_INDEX]) {
+    /// Filter EMB LArHitContainer
+    SG::ReadHandle<LArHitContainer> inputEMBHits = SG::makeHandle(m_inputEMBHitsKey, ctx);
+    if(!inputEMBHits.isValid()) {
+      ATH_MSG_ERROR( "Could not find EMB LArHitsContainer");
+      return StatusCode::FAILURE;
     }
-  if(m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX])
-    {
-      /// Filter EMEC LArHitContainer
-      if(!m_inputEMECHits.isValid())
-        {
-          ATH_MSG_ERROR( "Could not find EMEC LArHitsContainer");
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_DEBUG( "Found EMEC LArHitsContainer");
-      if (!m_outputEMECHits.isValid()) m_outputEMECHits = std::make_unique<LArHitContainer>();
-      ATH_CHECK(this->filterContainer(m_inputEMECHits,m_outputEMECHits,1));
-      nhit_tot+= m_inputEMECHits->size();
-      nhit_out+= m_outputEMECHits->size();
+    ATH_MSG_DEBUG( "Found EMB LArHitsContainer");
+    SG::WriteHandle<LArHitContainer> outputEMBHits = SG::makeHandle(m_outputEMBHitsKey, ctx);
+    ATH_CHECK(outputEMBHits.record(std::make_unique<LArHitContainer>()));
+    ATH_CHECK(this->filterContainer(inputEMBHits,outputEMBHits,0));
+    nhit_tot += inputEMBHits->size();
+    nhit_out += outputEMBHits->size();
+  }
+  if(m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX]) {
+    /// Filter EMEC LArHitContainer
+    SG::ReadHandle<LArHitContainer> inputEMECHits = SG::makeHandle(m_inputEMECHitsKey, ctx);
+    if(!inputEMECHits.isValid()) {
+      ATH_MSG_ERROR( "Could not find EMEC LArHitsContainer");
+      return StatusCode::FAILURE;
     }
-  if(m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX])
-    {
-      /// Filter HEC LArHitContainer
-      if(!m_inputHECHits.isValid())
-        {
-          ATH_MSG_ERROR( "Could not find HEC LArHitsContainer");
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_DEBUG( "Found HEC LArHitsContainer");
-      if (!m_outputHECHits.isValid()) m_outputHECHits = std::make_unique<LArHitContainer>();
-      ATH_CHECK(this->filterContainer(m_inputHECHits,m_outputHECHits,1));
-      nhit_tot+= m_inputHECHits->size();
-      nhit_out+= m_outputHECHits->size();
+    ATH_MSG_DEBUG( "Found EMEC LArHitsContainer");
+    SG::WriteHandle<LArHitContainer> outputEMECHits = SG::makeHandle(m_outputEMECHitsKey, ctx);
+    ATH_CHECK(outputEMECHits.record(std::make_unique<LArHitContainer>()));
+    ATH_CHECK(this->filterContainer(inputEMECHits,outputEMECHits,1));
+    nhit_tot += inputEMECHits->size();
+    nhit_out += outputEMECHits->size();
+  }
+  if(m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX]) {
+    /// Filter HEC LArHitContainer
+    SG::ReadHandle<LArHitContainer> inputHECHits = SG::makeHandle(m_inputHECHitsKey, ctx);
+    if(!inputHECHits.isValid()) {
+      ATH_MSG_ERROR( "Could not find HEC LArHitsContainer");
+      return StatusCode::FAILURE;
     }
-  if(m_SubDetFlag[LArHitEMap::FORWARD_INDEX])
-    {
-      /// Filter FCAL LArHitContainer
-      if(!m_inputFCALHits.isValid())
-        {
-          ATH_MSG_ERROR( "Could not find FCAL LArHitsContainer");
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_DEBUG( "Found FCAL LArHitsContainer");
-      if (!m_outputFCALHits.isValid()) m_outputFCALHits = std::make_unique<LArHitContainer>();
-      ATH_CHECK(this->filterContainer(m_inputFCALHits,m_outputFCALHits,1));
-      nhit_tot+= m_inputFCALHits->size();
-      nhit_out+= m_outputFCALHits->size();
+    ATH_MSG_DEBUG( "Found HEC LArHitsContainer");
+    SG::WriteHandle<LArHitContainer> outputHECHits = SG::makeHandle(m_outputHECHitsKey, ctx);
+    ATH_CHECK(outputHECHits.record(std::make_unique<LArHitContainer>()));
+    ATH_CHECK(this->filterContainer(inputHECHits,outputHECHits,1));
+    nhit_tot += inputHECHits->size();
+    nhit_out += outputHECHits->size();
+  }
+  if(m_SubDetFlag[LArHitEMap::FORWARD_INDEX]) {
+    /// Filter FCAL LArHitContainer
+    SG::ReadHandle<LArHitContainer> inputFCALHits = SG::makeHandle(m_inputFCALHitsKey, ctx);
+    if(!inputFCALHits.isValid()) {
+      ATH_MSG_ERROR( "Could not find FCAL LArHitsContainer");
+      return StatusCode::FAILURE;
     }
+    ATH_MSG_DEBUG( "Found FCAL LArHitsContainer");
+    SG::WriteHandle<LArHitContainer> outputFCALHits = SG::makeHandle(m_outputFCALHitsKey, ctx);
+    ATH_CHECK(outputFCALHits.record(std::make_unique<LArHitContainer>()));
+    ATH_CHECK(this->filterContainer(inputFCALHits,outputFCALHits,1));
+    nhit_tot += inputFCALHits->size();
+    nhit_out += outputFCALHits->size();
+  }
   ATH_MSG_INFO(" total number of hits found "  << nhit_tot << " " << nhit_out);
 
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode LArHitFilter::filterContainer(SG::ReadHandle<LArHitContainer>& inputContainer, SG::WriteHandle<LArHitContainer>& outputContainer, int ical)
+StatusCode LArHitFilter::filterContainer(SG::ReadHandle<LArHitContainer>& inputContainer, SG::WriteHandle<LArHitContainer>& outputContainer, int ical) const
 {
-  // Loop over cells in this LArHitContainer
-  LArHitContainer::const_iterator f_cell=inputContainer->begin();
-  LArHitContainer::const_iterator l_cell=inputContainer->end();
-
   const unsigned int guess_size = inputContainer->size()/2 + 1;
   std::vector<LArHit*> tmphit;
   tmphit.reserve(guess_size);
   unsigned int nhit_out(0);
-  while (f_cell != l_cell) {
-    double energy = (*f_cell)->energy();
-    //nhit_tot++;
+  // Loop over cells in this LArHitContainer
+  for (const LArHit* f_cell : *inputContainer) {
+    double energy = f_cell->energy();
     int ilayer=0;
-    Identifier cellId = (*f_cell)->cellID();
+    Identifier cellId = f_cell->cellID();
     if (ical==0 || ical==1) ilayer = m_larem_id->sampling(cellId);
     if (ical==2 ) ilayer = m_larhec_id->sampling(cellId);
     if (ical==3 ) ilayer = m_larfcal_id->module(cellId);
     if (energy>m_ecut[ical][ilayer]) {
       nhit_out++;
-      double time = (*f_cell)->time();
+      double time = f_cell->time();
       LArHit* newhit = new LArHit(cellId,energy,time);
       newhit->finalize();
       tmphit.push_back(newhit);
     }
-    ++f_cell;
   }              //  loop over  hits
 
   outputContainer->Clear();
   outputContainer->reserve(nhit_out);
-
-  f_cell=tmphit.begin();
-  l_cell=tmphit.end();
-  while (f_cell != l_cell) {
-    LArHit* hit = (*f_cell);
+  for (LArHit* hit : tmphit) {
     outputContainer->push_back(hit);
-    ++f_cell;
   }
   ATH_MSG_DEBUG("  -- > size after filtering " << outputContainer->size());
   return StatusCode::SUCCESS;

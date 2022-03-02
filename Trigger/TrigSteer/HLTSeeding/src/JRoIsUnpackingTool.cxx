@@ -45,14 +45,6 @@ StatusCode JRoIsUnpackingTool::unpack(const EventContext& ctx,
   std::optional<ThrVecRef> jetThresholds;
   ATH_CHECK(getL1Thresholds(*l1Menu, "JET", jetThresholds));
 
-  // This hltSeedingNodeName() denotes an initial node with no parents
-  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
-  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
-  auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( initialRoIString() );
-  CHECK( roiEL.isValid() );
-  ATH_MSG_DEBUG("Linked new Decision to the FS roI");
-  ATH_MSG_DEBUG("Now get jet L1 thresholds from RoIB");
-
   // RoIBResult contains vector of jet fragments
   for ( const auto & jetFragment : roib.jetEnergyResult() ) {
     for ( const auto & roi : jetFragment.roIVec() ) {
@@ -65,20 +57,22 @@ StatusCode JRoIsUnpackingTool::unpack(const EventContext& ctx,
       recRoIs->push_back( std::make_unique<LVL1::RecJetRoI>(roIWord, l1Menu.cptr()) );
       const LVL1::RecJetRoI* recRoI = recRoIs->back();
 
-      // TODO: decide if we need this collection at all here, now keep filling of it commented out
-      /*
-      decision->setObjectLink( initialRecRoIString(),
-                               ElementLink<DataVector<LVL1::RecJetRoI>>(m_recRoIsKey.key(), recRoIs->size()-1) );
       trigRoIs->push_back( std::make_unique<TrigRoiDescriptor>(
         roIWord, 0u ,0u,
         recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
         recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth) );
-      */
+
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );
+
+      // The hltSeedingNodeName denotes an initial node with no parents
+      Decision* decision = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
+
+      std::vector<unsigned> passedThresholdIDs;
 
       for (const auto& th : jetThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
         if ( recRoI->passedThreshold(th->mapping()) ) {
+          passedThresholdIDs.push_back( HLT::Identifier( th->name() ) );
           ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
           addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
           ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){
@@ -87,10 +81,14 @@ StatusCode JRoIsUnpackingTool::unpack(const EventContext& ctx,
             return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
         }
       }
+
+      decision->setDetail( "thresholds", passedThresholdIDs );
+      decision->setObjectLink( initialRoIString(),
+                               ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1) );
+      decision->setObjectLink( initialRecRoIString(),
+                               ElementLink<DataVector<LVL1::RecJetRoI>>(m_recRoIsKey.key(), recRoIs->size()-1) );
     }
   }
-
-  TrigCompositeUtils::uniqueDecisionIDs( decision);
 
   if ( msgLvl(MSG::DEBUG) ) {
     for ( auto roi: *trigRoIs ) {
@@ -106,8 +104,7 @@ StatusCode JRoIsUnpackingTool::unpack(const EventContext& ctx,
     Monitored::Group( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
-  ATH_MSG_DEBUG( "Number of decision IDs associated with FS RoI: "
-                 <<  TrigCompositeUtils::decisionIDs( decision ).size() );
+  ATH_MSG_DEBUG( "Unpacked " << trigRoIs->size() << " RoIs" );
 
   return StatusCode::SUCCESS;
 }

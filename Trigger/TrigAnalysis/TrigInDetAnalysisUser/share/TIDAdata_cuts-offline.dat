@@ -18,13 +18,16 @@ eta    = 2.5;
    a0=3.;
 #endif
 
-#if defined(FSLRT)
+#if defined(FSLRT) || defined(LRT)
    a0min=2.;
 #endif
 
 #if defined(COSMIC)
    npix=-1;
    nsct=1; 
+#elif defined(LRT) || defined(FSLRT)
+   npix=-1;
+   nsct= 2;
 #else 
    npix   = 1;
    nsct   = 2;

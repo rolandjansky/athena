@@ -1,7 +1,8 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
@@ -62,7 +63,7 @@ def RpcRDODecodeCfg(flags, name="RpcRdoToRpcPrepData", **kwargs):
         acc.merge(RpcCondDbAlgCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.RpcRdoToPrepDataToolMT(name="RpcRdoToRpcPrepDataTool",
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.RpcRdoToPrepDataToolMT(name="RpcPrepDataProviderTool",
                                                                               ReadKey="RpcCondDbData" if not flags.Common.isOnline else "",
                                                                               RpcPrdContainerCacheKey=MuonPrdCacheNames.RpcCache if flags.Muon.MuonTrigger else "",
                                                                               RpcCoinDataContainerCacheKey=MuonPrdCacheNames.RpcCoinCache if flags.Muon.MuonTrigger else ""))
@@ -94,7 +95,7 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
     acc.merge(TGCCablingConfigCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.TgcRdoToPrepDataToolMT(name="TgcRdoToTgcPrepDataTool"))
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.TgcRdoToPrepDataToolMT(name="TgcPrepDataProviderTool"))
 
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
@@ -162,8 +163,9 @@ def MdtRDODecodeCfg(flags, name="MdtRdoToMdtPrepData", **kwargs):
     acc.merge(MDTCablingConfigCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.MdtRdoToPrepDataToolMT(name="MdtRdoToMdtPrepDataTool",
-                                                                              CalibrationTool=acc.popToolsAndMerge(MdtCalibrationToolCfg(flags))))
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.MdtRdoToPrepDataToolMT(name="MdtPrepDataProviderTool",
+                                                                              UseTwin=True,
+                                                                              CalibrationTool=acc.popToolsAndMerge(MdtCalibrationToolCfg(flags, TimeWindowSetting = 2))))
 
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
@@ -196,7 +198,7 @@ def CscRDODecodeCfg(flags, name="CscRdoToCscPrepData", **kwargs):
 
     # Get the RDO -> PRD tool
     # TODO: setup dependencies properly
-    kwargs.setdefault("CscRdoToCscPrepDataTool", CompFactory.Muon.CscRdoToCscPrepDataToolMT(name="CscRdoToCscPrepDataTool"))
+    kwargs.setdefault("CscRdoToCscPrepDataTool", CompFactory.Muon.CscRdoToCscPrepDataToolMT(name="CscPrepDataProviderTool"))
 
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
@@ -215,15 +217,35 @@ def CscRDODecodeCfg(flags, name="CscRdoToCscPrepData", **kwargs):
 
 def CscClusterBuildCfg(flags, name="CscThresholdClusterBuilder"):
     acc = ComponentAccumulator()
+    from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+    from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg, QratCscClusterFitterCfg, CscAlignmentTool
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
 
     # Get cluster creator tool
+
+    acc = MuonIdHelperSvcCfg(flags) 
+    MuonIdHelperSvc = acc.getService("MuonIdHelperSvc")
+    CalibCscStripFitter = acc.getPrimaryAndMerge( CalibCscStripFitterCfg(flags) )
+    QratCscClusterFitter = acc.getPrimaryAndMerge( QratCscClusterFitterCfg(flags) )
+    SimpleCscClusterFitter = CompFactory.SimpleCscClusterFitter(CscAlignmentTool = CscAlignmentTool(flags) )
+    CscSplitClusterFitter = CompFactory.CscSplitClusterFitter(  precision_fitter = QratCscClusterFitter, 
+                                                                default_fitter = SimpleCscClusterFitter )
+    CscCalibTool        = acc.getPrimaryAndMerge( CscCalibToolCfg(flags) )
     CscThresholdClusterBuilderTool=CompFactory.CscThresholdClusterBuilderTool
-    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" )
+    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" , 
+                                                           MuonIdHelperSvc = MuonIdHelperSvc,
+                                                           strip_fitter = CalibCscStripFitter,
+                                                           precision_fitter = QratCscClusterFitter,
+                                                           default_fitter = SimpleCscClusterFitter,
+                                                           split_fitter = CscSplitClusterFitter,
+                                                           cscCalibTool = CscCalibTool)
 
     #CSC cluster building
     CscThresholdClusterBuilder=CompFactory.CscThresholdClusterBuilder
     CscClusterBuilder = CscThresholdClusterBuilder(name            = name,
-                                                   cluster_builder = CscClusterBuilderTool )
+                                                   cluster_builder = CscClusterBuilderTool,
+                                                   MuonIdHelperSvc = MuonIdHelperSvc
+                                                    )
     acc.addEventAlgo(CscClusterBuilder)
 
     return acc
@@ -295,7 +317,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
         cfg.merge( MuonCacheCfg(ConfigFlags) )
 
-    if ConfigFlags.Input.Format == 'BS':
+    if ConfigFlags.Input.Format is Format.BS:
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         cfg.merge( MuonByteStreamDecodersCfg( ConfigFlags) )
 

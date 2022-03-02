@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //==================================================================================
 //
@@ -59,7 +59,7 @@ void ElectronSelector::Init()
   IToolSvc* toolSvc;
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
   
-  if ( sc.isFailure() || toolSvc == 0 ) {
+  if ( sc.isFailure() || toolSvc == nullptr ) {
     (*m_msgStream) << MSG::ERROR << "  * ElectronSelector::Init * Unable to retrieve ToolSvc " << endmsg;
     return;
   }
@@ -106,7 +106,7 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   (*m_msgStream) << MSG::DEBUG << " --ElectronSelector::PrepareElectronList -- START  -- " << endmsg;
   Clear(); // clear current list records
 
-  typedef xAOD::ElectronContainer::const_iterator electron_iterator;
+  using electron_iterator = xAOD::ElectronContainer::const_iterator;
   electron_iterator iter    = pxElecContainer->begin();
   electron_iterator iterEnd = pxElecContainer->end();
   
@@ -189,7 +189,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 		   << endmsg;
   }
 
-  if (electronisgood && (fabs(cluster->eta())> m_etaCut || fabs(theTrackParticle->eta())> m_etaCut) ) { // cut in eta for the cluster and the track 
+  if (electronisgood && (std::abs(cluster->eta())> m_etaCut || std::abs(theTrackParticle->eta())> m_etaCut) ) { // cut in eta for the cluster and the track 
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << "   -- electron fails eta cut  -- cluster_eta= " << cluster->eta() << endmsg;
   }
@@ -337,9 +337,9 @@ bool ElectronSelector::RetrieveVertices ()
 				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->y()
 				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->z()
 				     << ") " << std::endl;
-	    float delta_x = fabs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->x() );
-	    float delta_y = fabs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->y() );
-	    float delta_z = fabs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z() );
+	    float delta_x = std::abs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->x() );
+	    float delta_y = std::abs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->y() );
+	    float delta_z = std::abs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z() );
 
 	    if (delta_x < m_deltaXYcut && delta_y < m_deltaXYcut && delta_z < m_deltaZcut) {
 	      nverticesfound++;

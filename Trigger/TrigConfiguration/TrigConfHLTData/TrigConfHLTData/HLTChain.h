@@ -13,10 +13,9 @@
 #include <iosfwd>
 #include <fstream>
 #include <vector>
-#include <map>
 #include <set>
 
-#include "boost/unordered_map.hpp"
+#include <unordered_map>
 
 namespace TrigConf {
    class HLTChain;
@@ -57,7 +56,7 @@ namespace TrigConf {
                 const std::string& level,
                 const std::string& lower_chain_name,
                 int lower_chain_counter,
-                const std::vector<HLTSignature*>& signatureList );
+                std::vector<HLTSignature*>&& signatureList );
 
       /**@brief copy constructor
        *
@@ -185,7 +184,7 @@ namespace TrigConf {
       std::set<std::string>                              m_groups;
       std::vector<HLTStreamTag*>                         m_streams_orig;
       std::vector<HLTStreamTag*>                         m_streams;
-      boost::unordered_map<std::string, HLTStreamTag*>   m_streams_map;
+      std::unordered_map<std::string, HLTStreamTag*>   m_streams_map;
 
       friend std::ostream & operator<<(std::ostream &, const HLTChain &);
 

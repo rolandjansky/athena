@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run 4 digitization of a ttbar sample without pile-up
 # art-type: grid
@@ -24,6 +24,6 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc Digi_tf.py"
+echo "art-result: $rc digiCA"
 
 exit $status

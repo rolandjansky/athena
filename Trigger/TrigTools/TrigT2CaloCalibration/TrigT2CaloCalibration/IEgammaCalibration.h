@@ -22,7 +22,7 @@ class IEgammaCalibration : virtual public IAlgTool{
 		this interface. In some cases, the tool needs
 		more than the cluster to perform the calibration.
 		This can be passed via the void pointer */
-	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* par=NULL) = 0;
+	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* par=NULL) const = 0;
 		
 };
 

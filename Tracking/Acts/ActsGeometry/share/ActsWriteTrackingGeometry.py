@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Write the tracking geometry as a obj and json files.
@@ -52,7 +52,6 @@ if "__main__" == __name__:
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True
-  ConfigFlags.Beam.Type = ''
   ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
   ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
   ConfigFlags.Detector.GeometryBpipe = True
@@ -62,6 +61,7 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryCalo  = True
   ConfigFlags.Detector.GeometryMuon  = False
   ConfigFlags.Detector.GeometryTRT   = True
+  ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors = True
 
   ConfigFlags.Concurrency.NumThreads = 1
   ConfigFlags.Concurrency.NumConcurrentEvents = 1
@@ -82,6 +82,18 @@ if "__main__" == __name__:
                                      OutputLevel=VERBOSE)
 
   cfg.merge(alg)
+
+  tgSvc = cfg.getService("ActsTrackingGeometrySvc")
+
+  # Service will have removed TRT and Calo
+  # We want them enabled for testing
+  tgSvc.BuildSubDetectors += [
+    "TRT",
+    "Calo"
+  ]
+  # needed to construct the calo geometry in ACTS
+  tgSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
+
 
   cfg.printConfig()
 

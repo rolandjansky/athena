@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalAccess/SchemaException.h"
@@ -47,24 +47,23 @@ int main(int, char **)
     // Read all tables in the source schema
     std::set<std::string> tablesInSchemaSrc = proxySrc->nominalSchema().listTables();
 
-    std::set<std::string>::const_iterator itTableNamesSrc = tablesInSchemaSrc.begin();
-    for(; itTableNamesSrc != tablesInSchemaSrc.end(); itTableNamesSrc++) {
-      std::cout << " ... ... working on: " << *itTableNamesSrc << " ... ";
+    for (const std::string& tableName : tablesInSchemaSrc) {
+      std::cout << " ... ... working on: " << tableName << " ... ";
       std::flush(std::cout);
 
       // Perform cleanup on destination side if necessary
-      proxyTarg->nominalSchema().dropIfExistsTable(*itTableNamesSrc);
+      proxyTarg->nominalSchema().dropIfExistsTable(tableName);
 
       // Obtain table descriptions
-      const coral::ITableDescription& tableDescrSrc =  proxySrc->nominalSchema().tableHandle(*itTableNamesSrc).description();
+      const coral::ITableDescription& tableDescrSrc =  proxySrc->nominalSchema().tableHandle(tableName).description();
       coral::TableDescription tableDescrTarg("TableDescriptionTarg");
       
       // Prepare query for data copying
-      coral::IQuery *queryTableSrc = proxySrc->nominalSchema().tableHandle(*itTableNamesSrc).newQuery();
+      coral::IQuery *queryTableSrc = proxySrc->nominalSchema().tableHandle(tableName).newQuery();
       queryTableSrc->setMemoryCacheSize(1);
       
       // Set new table name
-      tableDescrTarg.setName(*itTableNamesSrc);
+      tableDescrTarg.setName(tableName);
       
       // Create columns:
       int numberOfColumnsSrc = tableDescrSrc.numberOfColumns();
@@ -82,7 +81,7 @@ int main(int, char **)
       proxyTarg->nominalSchema().createTable(tableDescrTarg);
       
       // Prepare data editor for the destination table
-      coral::ITableDataEditor& editorTarg = proxyTarg->nominalSchema().tableHandle(*itTableNamesSrc).dataEditor();
+      coral::ITableDataEditor& editorTarg = proxyTarg->nominalSchema().tableHandle(tableName).dataEditor();
 
       // Execute data selection query
       coral::ICursor& cursorTableSrc = queryTableSrc->execute();

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile pulse for muon receiver algorithm"""
 
@@ -31,9 +31,8 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     acc.merge(TileCablingSvcCfg(flags))
 
     if 'RndmSvc' not in kwargs:
-        from RngComps.RandomServices import RNG
-        acc.merge( RNG(flags.Random.Engine) )
-        kwargs['RndmSvc'] = acc.getService('AthRNGSvc')
+        from RngComps.RandomServices import AthRNGSvcCfg
+        kwargs['RndmSvc'] = acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name
 
     if 'TileCondToolNoiseSample' not in kwargs:
         from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
@@ -139,7 +138,7 @@ if __name__ == "__main__":
     # Test setup
     log.setLevel(DEBUG)
 
-    ConfigFlags.Input.Files = defaultTestFiles.HITS
+    ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.PileUp = False

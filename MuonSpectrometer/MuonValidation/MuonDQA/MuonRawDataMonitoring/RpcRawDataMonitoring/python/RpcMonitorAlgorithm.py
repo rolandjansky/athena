@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -230,12 +230,6 @@ def RpcMonitoringConfig(inputFlags):
                             path=trackPath,
                             xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
-                            type='TH2F',
-                            title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
-
     myGroup_track.defineHistogram('isOutTime_prd,panelInd_prd;OuttimeHitFraction_PRDHit', 
                             title='Outtime Hit Fraction of PRD Hit;Panel Index;Outtime Hit Fraction',
                             type='TEfficiency',
@@ -399,10 +393,6 @@ if __name__=="__main__":
         print ("file input.txt does not exist")
         print ("WIll use files: \n", file_list)
 
-
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    # ConfigFlags.Input.Files = defaultTestFiles.ESD
-
     ConfigFlags.Input.Files = file_list
 
     ConfigFlags.Output.HISTFileName = 'RPCMonitoringOutput.root'
@@ -427,10 +417,8 @@ if __name__=="__main__":
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
-    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
     if ConfigFlags.DQ.Steering.Muon.doTrackMon:
         # do not run in RAW->ESD

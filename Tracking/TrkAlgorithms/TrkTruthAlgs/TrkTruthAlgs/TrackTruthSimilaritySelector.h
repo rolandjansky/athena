@@ -23,11 +23,11 @@ public:
   virtual StatusCode finalize() override;
   
 private:
-  // DetailedTrackTruthCollection input name
-  SG::ReadHandle<DetailedTrackTruthCollection> m_detailed; //std::string m_detailedTrackTruthName;
+  // DetailedTrackTruthCollection input
+  SG::ReadHandleKey<DetailedTrackTruthCollection> m_detailed{this, "DetailedTrackTruthName", "", ""};
   
-  // TrackTruthCollection output name
-  SG::WriteHandle<TrackTruthCollection> m_out; //std::string m_outputName;
+  // TrackTruthCollection output
+  SG::WriteHandleKey<TrackTruthCollection> m_out{this, "OutputName", "", ""};
 
   // Match quality tool
   ToolHandle<Trk::IDetailedTrackTruthSimilarity> m_matchTool

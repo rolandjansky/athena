@@ -82,12 +82,12 @@ void DBline::GetLine(std::istream& input) {
 
 template <class type> void DBline::GetValue(type& value) {
     if (!m_extraction || m_fail) return;
-    const size_t start = m_data.find_first_not_of(" ", m_pos);
+    const size_t start = m_data.find_first_not_of(' ', m_pos);
     if (start == std::string::npos) {
         BadExtraction();
         return;
     }
-    size_t stop = m_data.find_first_of(" ", start + 1);
+    size_t stop = m_data.find_first_of(' ', start + 1);
     if (stop == std::string::npos) stop = m_data.size();
 
     if constexpr(std::is_unsigned_v<type>) {
@@ -103,12 +103,12 @@ template <class type> void DBline::GetValue(type& value) {
 
 void DBline::GetValue(std::string& value) {
     if (!m_extraction || m_fail) return;
-    const size_t start = m_data.find_first_not_of(" ", m_pos);
+    const size_t start = m_data.find_first_not_of(' ', m_pos);
     if (start == std::string::npos) {
         BadExtraction();
         return;
     }
-    size_t stop = m_data.find_first_of(" ", start + 1);
+    size_t stop = m_data.find_first_of(' ', start + 1);
     if (stop == std::string::npos) stop = m_data.size();
 
     value = m_data.substr(start, stop - start);
@@ -158,7 +158,7 @@ void DBline::connect(std::ifstream& file) {
     if ((&file) != m_file) {
         m_line = 0;
         m_fail = 0;
-        m_stream = 0;
+        m_stream = nullptr;
         m_file = &file;
     }
 }
@@ -167,7 +167,7 @@ void DBline::connect(std::istream& stream) {
     if ((&stream) != m_stream) {
         m_line = 0;
         m_fail = 0;
-        m_file = 0;
+        m_file = nullptr;
         m_stream = &stream;
     }
 }

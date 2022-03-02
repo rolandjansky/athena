@@ -127,9 +127,9 @@ def SCTErrMonAlgConfig(inputFlags):
     for errCate in range(sctMon.N_ERRCATEGORY):
         for region in range(sctMon.N_REGIONS):
             for layer in range(sctMon.N_ENDCAPSx2):
-                myMonGroup.defineHistogram(varname = "eta, phi, hasError_"+sctMon.CategoryErrorsNames[errCate]+"_"+sctMon.subDetNameShort[region].Data()+"_"+str(layer/2)+"_"+str(layer%2)+";SCT_NumberOf"+sctMon.CategoryErrorsNames[errCate]+sctMon.subDetNameShort[region].Data()+"_"+str(layer/2)+"_"+str(layer%2),
+                myMonGroup.defineHistogram(varname = "eta, phi, hasError_"+sctMon.CategoryErrorsNames[errCate]+"_"+sctMon.subDetNameShort[region].Data()+"_"+str(layer//2)+"_"+str(layer%2)+";SCT_NumberOf"+sctMon.CategoryErrorsNames[errCate]+sctMon.subDetNameShort[region].Data()+"_"+str(layer//2)+"_"+str(layer%2),
                                            type = "TProfile2D",
-                                           title = "Num of "+sctMon.CategoryErrorsNames[errCate]+" per "+sctMon.layerName[region].Data()+str(layer/2)+"_"+str(layer%2),
+                                           title = "Num of "+sctMon.CategoryErrorsNames[errCate]+" per "+sctMon.layerName[region].Data()+str(layer//2)+"_"+str(layer%2),
                                            path = "SCT"+sctMon.subDetNameShort[region].Data()+"/errors/"+sctMon.CategoryErrorsNames[errCate],
                                            xbins = sctMon.N_ETA_BINS if region==sctMon.BARREL_INDEX else sctMon.N_ETA_BINS_EC,
                                            xmin = (sctMon.FIRST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_ETA_BIN_EC)-0.5,
@@ -192,7 +192,7 @@ def SCTErrMonAlgConfig(inputFlags):
     xlabels = [SCT_ByteStreamErrors.ErrorTypeDescription[i] for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES)]
     for reg in range(sctMon.N_REGIONS):
         nLayers = sctMon.n_layers[reg]*2
-        ylabels = [str(i/2)+"_"+str(i%2) for i in range(nLayers)]
+        ylabels = [str(i//2)+"_"+str(i%2) for i in range(nLayers)]
         myMonGroup.defineHistogram(varname = "errorType, layerSide, errorFraction;RateErrorsPerLumi",
                                    cutmask = "is"+sctMon.subDetNameShort[reg].Data(),
                                    type = "TProfile2D",

@@ -50,9 +50,9 @@ namespace Muon {
         std::string m_detdescr;
         ServiceHandle<CSCcablingSvc> m_cabling{this, "CSCcablingSvc", "CSCcablingSvc", "CSC cabling service handle"};
         ToolHandle<ICscCalibTool> m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool handle"};
-        double m_timeOffset;
-        double m_samplingTime;
-        double m_signalWidth;
+        double m_timeOffset = 0.0;
+        double m_samplingTime = 0.0;
+        double m_signalWidth = 0.0;
     };
 }  // namespace Muon
 

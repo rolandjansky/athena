@@ -77,17 +77,11 @@ def SchedulerMonSvcCfg(flags, name='SchedulerMonSvc'):
 
 def getTrigErrorMonTool(name='TrigErrorMonTool'):
     errorMonTool = CompFactory.TrigErrorMonTool(name)
-    errorMonTool.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
     errorMonTool.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
 
     errorMonTool.MonTool.defineHistogram(
         'ErrorAlgName,ErrorCode', path='EXPERT', type='TH2I',
         title='Error StatusCodes per algorithm;Algorithm name;StatusCode',
-        xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
-
-    errorMonTool.MonTool.defineHistogram(
-        'ErrorChainName,ErrorCode', path='EXPERT', type='TH2I',
-        title='Error StatusCodes per chain;Chain name;StatusCode',
         xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
 
     return errorMonTool

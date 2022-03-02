@@ -72,7 +72,7 @@ std::string XMLHandler::getAttributeAsString(AGDDController& /*c*/,
 {
 	bool isPresent;
 	std::string temp=getAttribute(t, name,isPresent);
-	if (!isPresent) throw;
+	if (!isPresent) std::abort();
 	return temp;
 }
 double XMLHandler::getAttributeAsDouble(AGDDController& c,
@@ -82,7 +82,7 @@ double XMLHandler::getAttributeAsDouble(AGDDController& c,
         double res=0.;
         bool isPresent;
         std::string temp=getAttribute(t, name,isPresent);
-	if (!isPresent) throw;
+	if (!isPresent) std::abort();
         res=c.Evaluator().Eval(temp.c_str());
         return res;
 }
@@ -93,7 +93,7 @@ int XMLHandler::getAttributeAsInt(AGDDController& c,
         int res=0;
         bool isPresent;
         std::string temp=getAttribute(t, name,isPresent);
-	if (!isPresent) throw;
+	if (!isPresent) std::abort();
         res=c.Evaluator().Eval(temp.c_str());
         return res;
 }
@@ -104,7 +104,7 @@ std::vector<double> XMLHandler::getAttributeAsVector(AGDDController& c,
 	bool isPresent;
         std::vector<double> vect;
         std::string temp=getAttribute(t, name,isPresent);
-        if (!isPresent) throw;
+        if (!isPresent) std::abort();
         std::vector<std::string> v=c.Evaluator().tokenize(";",temp);
         for (unsigned int i=0;i<v.size();i++)
         {
@@ -120,7 +120,7 @@ std::vector<int> XMLHandler::getAttributeAsIntVector(AGDDController& c,
         bool isPresent;
         std::vector<int> vect;
         std::string temp=getAttribute(t, name,isPresent);
-        if (!isPresent) throw;
+        if (!isPresent) std::abort();
         std::vector<std::string> v=c.Evaluator().tokenize(";",temp);
         for (unsigned int i=0;i<v.size();i++)
         {

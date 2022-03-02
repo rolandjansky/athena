@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFXAOD_XAODMENUWRITERMT_H
@@ -24,9 +24,11 @@ extern "C" {
 
 // Trigger include(s):
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTMonitoring.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/HLTPrescalesSet.h"
 #include "TrigConfData/L1PrescalesSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 
 // EDM include(s):
 #include "xAODTrigger/TriggerMenuJsonContainer.h"
@@ -68,6 +70,9 @@ namespace TrigConf {
       SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey {this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
         "HLT Menu key"};
 
+      SG::ReadHandleKey<TrigConf::HLTMonitoring> m_HLTMonitoringKey {this, "HLTMonitoringMenu", "DetectorStore+HLTMonitoringMenu",
+        "HLT Monitoring key"};
+
       SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey {this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
         "L1 Menu key"};
 
@@ -77,8 +82,14 @@ namespace TrigConf {
       SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_L1PrescaleSetInputKey{this, "L1Prescales", "L1Prescales", 
         "L1 prescales set condition handle"};
 
+      SG::ReadCondHandleKey<TrigConf::L1BunchGroupSet> m_bgInputKey{this, "L1BunchGroup", "L1BunchGroup", 
+        "L1BunchGroupSet condition handl"};
+
       Gaudi::Property< std::string > m_metaNameJSON_hlt {this, "JSONMetaObjectNameHLT", "TriggerMenuJson_HLT",
         "StoreGate key for the xAOD::TriggerMenuJson HLT configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_hltmonitoring {this, "JSONMetaObjectNameHLTMonitoring", "TriggerMenuJson_HLTMonitoring",
+        "StoreGate key for the xAOD::TriggerMenuJson HLT Monitoring configuration object"};
 
       Gaudi::Property< std::string > m_metaNameJSON_l1 {this, "JSONMetaObjectNameL1", "TriggerMenuJson_L1",
         "StoreGate key for the xAOD::TriggerMenuJson L1 configuration object"};
@@ -89,10 +100,8 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_metaNameJSON_l1ps {this, "JSONMetaObjectNameL1PS", "TriggerMenuJson_L1PS",
         "StoreGate key for the xAOD::TriggerMenuJson L1 prescales configuration object"};
 
-      // TODO
-      // Gaudi::Property< std::string > m_metaNameJSON_bg {this, "JSONMetaObjectNameBunchgroup", "TriggerMenuJson_BG",
-      //   "StoreGate key for the xAOD::TriggerMenuJson BunchGroup configuration object"};
-
+      Gaudi::Property< std::string > m_metaNameJSON_bg {this, "JSONMetaObjectNameBunchgroup", "TriggerMenuJson_BG",
+        "StoreGate key for the xAOD::TriggerMenuJson BunchGroup configuration object"};
 
       ServiceHandle< StoreGateSvc > m_metaStore {this, "MetaDataStore", "MetaDataStore",
         "The MetaDataStore"};
@@ -105,16 +114,17 @@ namespace TrigConf {
 
       //  The configuration objects that we are writing
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hlt ATLAS_THREAD_SAFE;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hltmonitoring ATLAS_THREAD_SAFE;
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1 ATLAS_THREAD_SAFE;
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hltps ATLAS_THREAD_SAFE;
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1ps ATLAS_THREAD_SAFE;
-      // mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_bg ATLAS_THREAD_SAFE;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_bg ATLAS_THREAD_SAFE;
 
       /// Trigger configuration keys that are already converted
       mutable std::set< uint32_t > m_converted_smk ATLAS_THREAD_SAFE;
       mutable std::set< uint32_t > m_converted_hltpsk ATLAS_THREAD_SAFE;
       mutable std::set< uint32_t > m_converted_l1psk ATLAS_THREAD_SAFE;
-      // mutable std::set< uint32_t > m_converted_bg ATLAS_THREAD_SAFE;
+      mutable std::set< uint32_t > m_converted_bg ATLAS_THREAD_SAFE;
 
       /// The mutex to prevent us from writing more than one configuration at a time
       mutable std::mutex m_mutex;

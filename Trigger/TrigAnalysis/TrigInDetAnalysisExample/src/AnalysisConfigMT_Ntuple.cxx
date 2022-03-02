@@ -3,7 +3,7 @@
  **
  **     @author  mark sutton
  **
- **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include "TrigInDetAnalysisExample/AnalysisConfigMT_Ntuple.h"
@@ -17,6 +17,7 @@
 #include "TrigInDetAnalysisUtils/Filter_etaPT.h"
 #include "TrigInDetAnalysisUtils/Filter_RoiSelector.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
+#include "TrigInDetAnalysisUtils/TIDAVertexBuilder.h"
 
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysisUtils/TIDARoiDescriptorBuilder.h"
@@ -142,13 +143,12 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	TrackFilter*        truthFilter = &filter_etaPT;
 
-	//tau filtering done separately to include mothers
-	if ( m_TruthPdgId!=0 && m_TruthPdgId!=15 ) truthFilter = &filter_pdgIdpTeta;
-
-	TrigTrackSelector selectorTruth( truthFilter, m_fiducial_radius ); 
+	TrigTrackSelector selectorTruth( truthFilter, m_fiducial_radius, m_TruthPdgId, m_parentTruthPdgId); 
 
 	TrigTrackSelector selectorRef( &filter_etaPT ); 
 	TrigTrackSelector selectorTest( &filter ); 
+
+	TIDAVertexBuilder vertexBuilder;
 
 	if ( xbeam!=0 || ybeam!=0 ) { 
 	  selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
@@ -287,8 +287,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	m_provider->msg(MSG::DEBUG) << "MC Truth flag " << m_mcTruth << endmsg; 
 	const TrigInDetTrackTruthMap* truthMap = 0;
-	bool foundTruth = false;
-	if ( m_mcTruth && m_TruthPdgId!=15) { 
+
+	if ( m_mcTruth) { 
 		m_provider->msg(MSG::DEBUG) << "getting Truth" << endmsg; 
 		if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
 			m_hasTruthMap = false;
@@ -299,153 +299,27 @@ void AnalysisConfigMT_Ntuple::loop() {
 		if (m_provider->evtStore()->contains<TruthParticleContainer>("INav4MomTruthEvent")) {
 			//ESD
 			selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<TruthParticleContainer>("SpclMC")) {
 			/// AOD
 			selectTracks<TruthParticleContainer>( &selectorTruth, "SpclMC");
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<TruthParticleContainer>("")) {
 			/// anything else?
 			selectTracks<TruthParticleContainer>( &selectorTruth, "");
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("TruthParticles")) {
 			/// anything else?
 		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "TruthParticles" );
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("")) {
 			/// anything else?
 		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "" );
-			foundTruth = true;
 		}
 		else { 
 			m_provider->msg(MSG::WARNING) << "Truth not found - none whatsoever!" << endmsg; 
 		}
 	}
-
-
-	/// No lovely truth particle collections, so will need to 
-	/// navigate through the egregious McTruthCollection, looking 
-	/// at the GenParticles on each GenVertex in the collection
-	/// lovely...
-
-	if ( m_mcTruth && !foundTruth ) { 
-
-		m_provider->msg(MSG::DEBUG) << "getting Truth" << endmsg; 
-
-		/// selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
-
-		const DataHandle<McEventCollection> mcevent;
-
-		/// now as a check go through the GenEvent collection
-
-		std::string collectionNames[4] = { "GEN_AOD", "TruthEvent", "", "G4Truth" };
-
-		std::string collectionName = "";
-
-		bool foundcollection = false;
-
-		for ( int ik=0 ; ik<4 ; ik++ ) { 
-
-			m_provider->msg(MSG::DEBUG) << "Try McEventCollection: " << collectionNames[ik] << endmsg;
-
-			if (!m_provider->evtStore()->contains<McEventCollection>(collectionNames[ik]) ) { 
-				m_provider->msg(MSG::DEBUG) << "No McEventCollection: " << collectionNames[ik] << endmsg;
-				continue;
-			}
-
-			m_provider->msg(MSG::DEBUG) << "evtStore()->retrieve( mcevent, " << collectionNames[ik] << " )" << endmsg;  
-
-			if ( m_provider->evtStore()->retrieve( mcevent, collectionNames[ik] ).isFailure() ) {     
-				m_provider->msg(MSG::DEBUG) << "Failed to get McEventCollection: " << collectionNames[ik] << endmsg;
-			}
-			else { 
-				// found this collectionName
-				collectionName = collectionNames[ik];
-				m_provider->msg(MSG::DEBUG) << "Found McEventCollection: " << collectionName << endmsg;
-				foundcollection = true;
-				break;
-			}
-		}
-
-		// not found any collection
-		if ( !foundcollection ) { 
-
-			m_provider->msg(MSG::WARNING) << "No MC Truth Collections of any sort, whatsoever!!!" << endmsg;
-
-			//    m_tree->Fill();
-
-			//    return StatusCode::FAILURE;
-
-			return;
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////
-		/// This is a nasty hack  to find the truth collections 
-		/// why, why, why, why, why oh why, is it sooooo 
-		/// difficult to navigate through this nonsense  
-		/// it's not at all tidy, and should be rewritten, 
-		/// but probably never will be
-
-		m_provider->msg(MSG::DEBUG) << "Found McEventCollection: " << collectionName << "\tNevents " << mcevent->size() << endmsg;
-
-		/// count the number of interactions of each sort
-		/// this is actually *very stupid*, there are a *lot*
-		/// of "processes" with *no* particles in them for some 
-		/// reason, whoever programed this f**cked up structure 
-		/// that needs this sort of fannying around to navigate 
-
-		McEventCollection::const_iterator evitr(mcevent->begin());
-		McEventCollection::const_iterator evend(mcevent->end());
-
-		unsigned ie = 0; /// count of "events" - or interactions
-		unsigned ip = 0; /// count of particles
-		
-		unsigned ie_ip = 0; /// count of "events with some particles"
-		
-		while ( evitr!=evend ) { 
-		  
-		  int _ip = 0; /// count of particles in this interaction 
-		  
-		  int pid = HepMC::signal_process_id((*evitr));
-		  
-		  if ( pid!=0  ) { /// hooray! actually found a sensible event
-		    for(auto  pitr: **evitr) { 
-		      if ( (m_TruthPdgId==15 && fromParent(m_TruthPdgId, pitr)!=0) || m_TruthPdgId!=15 ) {			
-			/// select the ones of interest 
-			selectorTruth.selectTrack( pitr );
-		      }
-		      ++_ip;
-		    }
-		  }
-		  
-		  ++ie;
-		  ++evitr;
-		  
-		  if ( _ip>0 ) {
-		    /// if there were some particles in this interaction ...
-		    //	m_provider->msg(MSG::INFO) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
-		    ++ie_ip;  
-		    ip += _ip;
-		  }
-		}
-		
-		m_provider->msg(MSG::DEBUG) << "Found " << ip << " TruthParticles (GenParticles) in " << ie_ip << " GenEvents out of " << ie << endmsg;
-		
-		m_provider->msg(MSG::DEBUG) << "selected " << selectorTruth.size() << " TruthParticles (GenParticles)" << endmsg;
-
-		////////////////////////////////////////////////////////////////////////////////////////
-
-		if ( !(ip>0) ) {    
-			m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
-			return; /// need to be careful here, if not requiring truth *only* should not return
-		}
-
-	}
-
 
 
 	// clear the ntuple TIDA::Event class
@@ -473,12 +347,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// get the offline vertices into our structure
 	
 	std::vector<TIDA::Vertex> vertices;
-
-	// store offline vertex track ids along with vertices                                                                                                                                      
-
-    std::vector<TrackTrigObject> offVertexTracks;
-
-	//	std::vector<TIDA::Vertex> vertices;
 	
 	m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
 
@@ -492,45 +360,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  
 	  m_provider->msg(MSG::DEBUG) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
 
-	  xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
-
-	  for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
-
-	    /// useful debug information - leave in 
-	    //	    std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() << "\tvtxtype " << (*vtxitr)->vertexType() << "\tntrax " << (*vtxitr)->nTrackParticles() << std::endl; 
-
-	    if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
-			vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-					(*vtxitr)->y(),
-					(*vtxitr)->z(),
-					/// variances                                                                                          
-					(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-					(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-					(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-					(*vtxitr)->nTrackParticles(),
-					/// quality                                                                                            
-					(*vtxitr)->chiSquared(),
-					(*vtxitr)->numberDoF() ) );
-
-
-			// get tracks associated to vertex
-			const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tracks = (*vtxitr)->trackParticleLinks();
-
-			// convert from xAOD into TIDA::Track
-			TrigTrackSelector selector( &filter_etaPT ); // not sure about the filter, copied line 147
-			selector.selectTracks( tracks );
-			const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
-
-			// Store ids of tracks belonging to vertex in TrackTrigObject
-			TrackTrigObject vertexTracks = TrackTrigObject();
-			for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
-				vertexTracks.addChild( (*trkitr)->id() );
-			}
-			offVertexTracks.push_back( vertexTracks );
-
-        }
-
-	  }
+	  vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks() );
 	}
 
 
@@ -559,7 +389,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	}
 #endif	
 
-	/// offline object counters 
+	/// offline object counters 		//   std::vector<TrackTrigObject> tidaVertexTracks;
 
 	int Noff  = 0;
 	int Nmu   = 0;
@@ -573,7 +403,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_event->addChain( "Vertex" );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addVertices( vertices );
-	  m_event->back().back().addObjects( offVertexTracks );
 	}	 
 
 
@@ -607,9 +436,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  /// keep this printout here, but commented for usefull debug purposes ...
 	  //	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endmsg;
 
-	  /// get the chain, collection and TE names and track index 
-
-	  std::string chainname      = m_chainNames[ichain].head();
+	  /// get the chain, collection and TE names and track index
+  	  std::string chainname      = m_chainNames[ichain].head();
 	  std::string collectionname = m_chainNames[ichain].tail();
 	  std::string vtx_name       = m_chainNames[ichain].vtx();
 
@@ -619,8 +447,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	  chainname = collectionname;
 	  if ( vtx_name!="" ) chainname += ":" + vtx_name; 
-
-	  /// useful debug information - leave this here
+  
+      // useful debug information - leave this here
 
 	  //	  const std::string& index          = m_chainNames[ichain].extra();
 	  //	  const std::string& element        = m_chainNames[ichain].element();
@@ -677,40 +505,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 	            
 	      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
 					  << "\t" << vtx_name << endmsg;
-	            
-	      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin(); 
-	            
-	      for (  ; vtxitr!=xaodVtxCollection->end()  ;  vtxitr++ ) {
-		
-		/// leave this code commented so that we have a record of the change - as soon as we can 
-		/// fix the missing track multiplicity from the vertex this will need to go back  
-		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
 
-		// useful debug comment, left for debugging purposes ...
-		//		std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() 
-		//			  << "\tvtxtype " << (*vtxitr)->vertexType() 
-		//			  << "\tntrax "   << (*vtxitr)->nTrackParticles() 
-		//			  << "\tz "       << (*vtxitr)->z() << std::endl; 
-
-		if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
-		  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-							(*vtxitr)->y(),
-							(*vtxitr)->z(),
-							/// variances
-							(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-							(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-							(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-							(*vtxitr)->nTrackParticles(),
-							/// quality
-							(*vtxitr)->chiSquared(),
-							(*vtxitr)->numberDoF() ) );
+		  tidavertices = vertexBuilder.select( xaodVtxCollection );  
 		}
-	      }
-	            
-	    }
-	        
-	  }
 
+	  }
 
 
 	  if ( found ) { 
@@ -876,7 +675,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	  if ( Ntau_ > 0 ) { 
 	    /// only add a tau collection if there are actually the 
-	    /// relevant taus
+	    /// relevant tausCH
+
 	    std::string tchain = std::string("Taus");
 	    if (   m_tauType[itau] != "" ) tchain += "_" + m_tauType[itau];
 	    if ( m_tauProngs[itau] != "" ) tchain += "_" + m_tauProngs[itau];
@@ -1071,10 +871,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  /// fetch vertices if available ...
 		  
 		  std::vector<TIDA::Vertex> tidavertices;	
-
-		  // store trigger vertex track ids along with vertices                                                                                                                                      
-
-		  std::vector<TrackTrigObject> tidaVertexTracks;
 		  
 		  if ( vtx_name!="" ) { 
 		    
@@ -1092,49 +888,12 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      
 		      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first) 
 						 << "\t" << vtx_name << endmsg;
+
+			  tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorTest.tracks() );
 		      
-		      xAOD::VertexContainer::const_iterator vtxitr = vtx_itrpair.first; 
-		      
-		for (  ; vtxitr!=vtx_itrpair.second  ;  vtxitr++ ) {
-			
-			/// leave this code commented so that we have a record of the change - as soon as we can 
-			/// fix the missing track multiplicity from the vertex this will need to go back  
-			//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
-			if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
-			  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-								(*vtxitr)->y(),
-								(*vtxitr)->z(),
-								/// variances
-								(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-								(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-								(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-								(*vtxitr)->nTrackParticles(),
-								/// quality
-								(*vtxitr)->chiSquared(),
-								(*vtxitr)->numberDoF() ) );
-
-
-				// get tracks associated to vertex
-				const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tracks = (*vtxitr)->trackParticleLinks();
-
-				// covert from xAOD into TIDA::Track
-				TrigTrackSelector selector( &filter ); // not sure about the filter, copied line 148
-				selector.selectTracks( tracks );
-				const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
-
-				// Store ids of tracks belonging to vertex in TrackTrigObject
-				TrackTrigObject vertexTracks = TrackTrigObject();
-				for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
-					vertexTracks.addChild( (*trkitr)->id() );
-				}
-				tidaVertexTracks.push_back( vertexTracks );
-
 			}
-		}
-		      
-	}
 		    
-}
+		  }
 
 #if 0 
 		  //// not yet ready to get the jet yet - this can come once everything else is working 
@@ -1164,8 +923,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  chain.addRoi( *roi_tmp );
 		  chain.back().addTracks(testTracks);
 		  chain.back().addVertices(tidavertices);
-		  chain.back().addObjects(tidaVertexTracks);
-		  
+
 #if 0
 		  /// jets can't be added yet
 		  if ( chainName.find("HLT_j")!=std::string::npos ) chain.back().addObjects( jets );

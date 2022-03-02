@@ -25,6 +25,7 @@ class CaloDetDescrElement ;
 
 class LArRoIMap;
 class LArOnOffIdMapping;
+class CaloDetDescrManager;
 
 class MakeLArCellFromRaw
 {
@@ -57,6 +58,7 @@ public:
   */ 
   void initialize ( const LArRoIMap& roiMap,
                     const LArOnOffIdMapping& onOffMap,
+                    const CaloDetDescrManager& man,
        const std::vector<const CaloCellCorrection*>*  pCorr, unsigned int poolMaxSize =190000);
 
   /** access by Identifier 

@@ -16,14 +16,15 @@ jetContextDic = ldict(
     #**********************************
     # The default set of common jet options :
     default = ldict(
-        Tracks =           "InDetTrackParticles",
-        JetTracks =        "JetSelectedTracks",
-        Vertices =         "PrimaryVertices",
-        TVA =              "JetTrackVtxAssoc",
-        GhostTracks =      "PseudoJetGhostTrack",
-        GhostTracksLabel = "GhostTrack",
+        Tracks =               "InDetTrackParticles",
+        JetTracks =            "JetSelectedTracks", #used for e.g. ghost tracks (no track quality criteria applied)
+        JetTracksQualityCuts = "JetSelectedTracks_trackSelOpt", #used for track-jets (trackSelOpt quality criteria applied)
+        Vertices =             "PrimaryVertices",
+        TVA =                  "JetTrackVtxAssoc",
+        GhostTracks =          "PseudoJetGhostTrack",
+        GhostTracksLabel =     "GhostTrack",
 
-        GhostTrackCutLevel = 'NoCut', # The track selection level for ghost-associated tracks. This is different from the cutlevel we apply when performing actual calculations such as JVT or tack moments.
+        GhostTrackCutLevel =   'NoCut', # The track selection level for ghost-associated tracks. This is different from the cutlevel we apply when performing actual calculations such as JVT or tack moments.
 
         # options passed to InDet::InDetTrackSelectionTool.
         #   Note : these are the standard options used for track calculations. Tracks selected for ghost-associaton have CutLevel=NoCut by default : see ghostTrackCutLevel above
@@ -34,7 +35,7 @@ jetContextDic = ldict(
     #**********************************
     # This is not a jet context, but the list of keys related to track.
     # We store it here since it is a related central place. Used in trigger config.  
-    trackKeys = ["Tracks", "Vertices", "TVA", "GhostTracks", "GhostTracksLabel", "JetTracks"],
+    trackKeys = ["Tracks", "Vertices", "TVA", "GhostTracks", "GhostTracksLabel", "JetTracks", "JetTracksQualityCuts"],
 )
 
 jetContextDic[""] = jetContextDic["default"]
@@ -60,5 +61,5 @@ def inputsFromContext(inputKey):
     
     """
     def getPrereqs(jetdef):
-        return ["input:"+jetContextDic[jetdef.context][inputKey] ]
+        return "input:"+jetContextDic[jetdef.context][inputKey] 
     return getPrereqs

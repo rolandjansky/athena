@@ -48,8 +48,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
         
-        from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
-        TrackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalTrackMonAlg.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
@@ -60,7 +60,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         ########### here ends InDetGlobalTrackMonAlg ###########
 
 
-    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw') and flags.DQ.DataType == 'collisions':
+    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw') and (flags.InDet.Tracking.doLargeD0 or flags.InDet.Tracking.doR3LargeD0 or flags.InDet.Tracking.doLowPtLargeD0):
         ########### here begins InDetGlobalLRTMonAlg ###########
         kwargsInDetGlobalLRTMonAlg = { 
             'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
@@ -78,9 +78,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
 
         inDetGlobalLRTMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalLRTMonAlg_TrackSelectionTool')
         inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalLRTMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 5000
+        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 1000
         
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
         InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))

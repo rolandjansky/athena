@@ -7,7 +7,7 @@
 #include "EventContainers/SelectAllObject.h"
 
 Muon::MM_RawDataContainer::MM_RawDataContainer()
-: IdentifiableContainer<MM_RawDataCollection>(0) 
+: IdentifiableContainer<MM_RawDataCollection>(nullptr) 
 {
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigCompositeUtils_TrigCompositeUtils_h
@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandleKey.h"
@@ -187,7 +186,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief returns links to previous decision object 'seed'
    **/
-  const ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
+  const std::vector<ElementLink<DecisionContainer>> getLinkToPrevious(const Decision*);
 
   /**
    * @brief copy all links from src to dest TC objects
@@ -291,7 +290,7 @@ namespace TrigCompositeUtils {
    * @param[in] keysToIgnore Set of SG keys of containers which should not be explored by getRejectedDecisionNodes.
    * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, 
+  std::vector<const Decision*> getRejectedDecisionNodes(const asg::EventStoreType* eventStore,
     const std::string& summaryCollectionKey,
     const DecisionIDContainer& ids = {},
     const std::set<std::string>& keysToIgnore = std::set<std::string>());
@@ -376,7 +375,7 @@ namespace TrigCompositeUtils {
    * @param[in,out] vector Mutable vector of ElementLinks on which to filter.
    **/
   template<class CONTAINER>
-  void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector);
+  void filterLinkVectorByContainerKey(const std::string& containerSGKey, std::vector<ElementLink<CONTAINER>>& vector);
 
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
@@ -389,7 +388,7 @@ namespace TrigCompositeUtils {
   template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > recursiveGetFeaturesOfType( 
     const NavGraph& navGraph, 
-    const std::string containerSGKey = "",
+    const std::string& containerSGKey = "",
     const bool lastFeatureOfType = true,
     const std::string& navElementLinkKey = featureString(),
     const DecisionIDContainer chainIDs = DecisionIDContainer());
@@ -406,7 +405,7 @@ namespace TrigCompositeUtils {
     std::vector< LinkInfo<CONTAINER> >& features, 
     std::set<const NavGraphNode*>& fullyExploredFrom,
     const NavGraphNode* navGraphNode, 
-    const std::string containerSGKey,
+    const std::string& containerSGKey,
     const bool lastFeatureOfType,
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs);

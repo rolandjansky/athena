@@ -26,12 +26,12 @@ public:
 
  protected:
 
-  TH2 *m_sTgc_TransverseView_TS11_posZ = nullptr;
-  TH2 *m_sTgc_TransverseView_TS21_posZ = nullptr;
-  TH2 *m_sTgc_TransverseView_TS31_posZ = nullptr;
-  TH2 *m_sTgc_TransverseView_TL11_posZ = nullptr;
-  TH2 *m_sTgc_TransverseView_TL21_posZ = nullptr;
-  TH2 *m_sTgc_TransverseView_TL31_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_QS1C_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_QS2C_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_QS3C_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_QL1P_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_QL2P_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_QL3P_posZ = nullptr;
   TH2 *m_sTgc_rZview_positiveZ = nullptr;
 
 private:

@@ -1,5 +1,5 @@
 // /*
-//   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+//   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 // */
 
 #include "ActsKalmanFitter.h"
@@ -10,6 +10,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "GaudiKernel/EventContext.h"
 
 // ACTS
 #include "Acts/Definitions/TrackParametrization.hpp"
@@ -28,35 +29,16 @@
 
 
 // PACKAGE
+#include "ActsGeometry/ATLASSourceLink.h"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "ActsGeometry/ActsATLASConverterTool.h"
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsInterop/Logger.h"
 
 // STL
-#include <memory>
 #include <vector>
-#include <fstream>
-#include <string>
 
-namespace {
-
-template <typename track_fitter_t>
-struct TrackFitterFunctionImpl {
-  track_fitter_t trackFitter;
-
-  TrackFitterFunctionImpl(track_fitter_t&& f) : trackFitter(std::move(f)) {}
-
-  ActsKalmanFitter::TrackFitterResult operator()(
-      const std::vector<ATLASSourceLink>& sourceLinks,
-      const Acts::BoundTrackParameters& initialParameters,
-      const ActsKalmanFitter::TrackFitterOptions& options)
-      const {
-    return trackFitter.fit(sourceLinks, initialParameters, options);
-  };
-};
-
-}  // namespace
 
 
 ActsKalmanFitter::ActsKalmanFitter(const std::string& t,const std::string& n,
@@ -92,7 +74,27 @@ StatusCode ActsKalmanFitter::initialize() {
   ATH_CHECK(m_ATLASConverterTool.retrieve());
   ATH_CHECK(m_trkSummaryTool.retrieve());
 
-  m_fit = makeTrackFitterFunction(m_trackingGeometryTool->trackingGeometry());
+  auto field = std::make_shared<ATLASMagneticFieldWrapper>();
+  Acts::EigenStepper<> stepper(field);
+  Acts::Navigator navigator( Acts::Navigator::Config{ m_trackingGeometryTool->trackingGeometry() } );     
+  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(std::move(stepper), std::move(navigator));
+
+  m_fitter = std::make_unique<Fitter>(std::move(propagator));
+
+
+  m_kfExtensions.updater.connect<&ActsKalmanFitter::gainMatrixUpdate>();
+  m_kfExtensions.smoother.connect<&ActsKalmanFitter::gainMatrixSmoother>();
+  m_kfExtensions.calibrator.connect<&ATLASSourceLinkCalibrator::calibrate>();
+
+  m_outlierFinder.StateChiSquaredPerNumberDoFCut = m_option_outlierChi2Cut;
+  m_kfExtensions.outlierFinder.connect<&ATLASOutlierFinder::operator()>(&m_outlierFinder);
+
+  m_reverseFilteringLogic.momentumMax = m_option_ReverseFilteringPt;
+  m_kfExtensions.reverseFilteringLogic.connect<&ReverseFilteringLogic::operator()>(&m_reverseFilteringLogic);
+
+
+
+
   m_logger = makeActsAthenaLogger(this, "Acts Kalman Refit");
   return StatusCode::SUCCESS;
 }
@@ -140,9 +142,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
+  Acts::KalmanFitterOptions
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
+                m_kfExtensions,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
   std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(inputTrack);
@@ -167,7 +169,8 @@ ActsKalmanFitter::fit(const EventContext& ctx,
                                                        scaledCov);
 
   // Perform the fit
-  auto result = m_fit(trackSourceLinks, scaledInitialParams, kfOptions);
+  auto result = m_fitter->fit(trackSourceLinks.begin(), 
+      trackSourceLinks.end(), scaledInitialParams, kfOptions);
   if (result.ok()) {
     track = makeTrack(ctx, tgContext, result);
   }
@@ -203,9 +206,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
+  Acts::KalmanFitterOptions
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
+                m_kfExtensions,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
@@ -223,7 +226,8 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   const auto& initialParams = m_ATLASConverterTool->ATLASTrackParameterToActs(&estimatedStartParameters); 
 
   // Perform the fit
-  auto result = m_fit(trackSourceLinks, initialParams, kfOptions);
+  auto result = m_fitter->fit(trackSourceLinks.begin(), 
+      trackSourceLinks.end(), initialParams, kfOptions);
   if (result.ok()) {
     track = makeTrack(ctx, tgContext, result);
   }
@@ -289,15 +293,14 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
+  Acts::KalmanFitterOptions
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
+                m_kfExtensions,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
   std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(inputTrack);
   const auto& initialParams = m_ATLASConverterTool->ATLASTrackParameterToActs(inputTrack.perigeeParameters());
-  trackSourceLinks.resize(trackSourceLinks.size() + addMeasColl.size());
   for (auto it = addMeasColl.begin(); it != addMeasColl.end(); ++it)
   {
     trackSourceLinks.push_back(m_ATLASConverterTool->ATLASMeasurementToSourceLink(*it));
@@ -309,7 +312,8 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   }
 
   // Perform the fit
-  auto result = m_fit(trackSourceLinks, initialParams, kfOptions);
+  auto result = m_fitter->fit(trackSourceLinks.begin(), 
+      trackSourceLinks.end(), initialParams, kfOptions);
   if (result.ok()) {
     track = makeTrack(ctx, tgContext, result);
   }
@@ -375,9 +379,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
+  Acts::KalmanFitterOptions
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
+                m_kfExtensions,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
@@ -405,7 +409,8 @@ ActsKalmanFitter::fit(const EventContext& ctx,
                                                        scaledCov);
 
   // Perform the fit
-  auto result = m_fit(trackSourceLinks, scaledInitialParams, kfOptions);
+  auto result = m_fitter->fit(trackSourceLinks.begin(), 
+      trackSourceLinks.end(), scaledInitialParams, kfOptions);
   if (result.ok()) {
     track = makeTrack(ctx, tgContext, result);
   }
@@ -436,7 +441,7 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
           const auto* detElem = dynamic_cast<const InDetDD::SiDetectorElement*>(actsElement->upstreamDetectorElement());
           // We need to determine the type of state 
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-          const Trk::TrackParameters *parm;
+          std::unique_ptr<const Trk::TrackParameters> parm;
 
           // State is a hole (no associated measurement), use predicted parameters      
           if (flag[Acts::TrackStateFlag::HoleFlag] == true){         
@@ -462,8 +467,8 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
               }
             typePattern.set(Trk::TrackStateOnSurface::Hole);
           }
-          // The state was tagged as an outlier, use filtered parameters
-          else if (flag[Acts::TrackStateFlag::OutlierFlag] == true){
+          // The state was tagged as an outlier or was missed in the reverse filtering, use filtered parameters
+          else if (flag[Acts::TrackStateFlag::OutlierFlag] == true || ( fitOutput.reversed && std::find(fitOutput.passedAgainSurfaces.begin(), fitOutput.passedAgainSurfaces.end(), state.referenceSurface().getSharedPtr().get()) == fitOutput.passedAgainSurfaces.end())){
             const Acts::BoundTrackParameters actsParam(state.referenceSurface().getSharedPtr(),
                                                        state.filtered(),
                                                        state.filteredCovariance());
@@ -480,13 +485,14 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
             parm = m_ATLASConverterTool->ActsTrackParameterToATLAS(actsParam, tgContext);
             typePattern.set(Trk::TrackStateOnSurface::Measurement);                                           
           }
-          const Trk::MeasurementBase *measState = nullptr;
+          std::unique_ptr<const Trk::MeasurementBase> measState;
           if (state.hasUncalibrated()){
-            measState = state.uncalibrated().atlasHit().clone();
+            const auto& sl = static_cast<const ATLASSourceLink&>(state.uncalibrated());
+            measState = sl.atlasHit().uniqueClone();
           }
           double nDoF = state.calibratedSize();
-          const Trk::FitQualityOnSurface *quality = new Trk::FitQualityOnSurface(state.chi2(), nDoF);
-          const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(measState, parm, quality, nullptr, typePattern);
+          auto quality =std::make_unique<const Trk::FitQualityOnSurface>(state.chi2(), nDoF);
+          const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(std::move(measState), std::move(parm), std::move(quality), nullptr, typePattern);
           // If a state was succesfully created add it to the trajectory 
           if (perState) {
             finalTrajectory.insert(finalTrajectory.begin(), perState);
@@ -498,10 +504,10 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
 
     // Convert the perigee state and add it to the trajectory
     const Acts::BoundTrackParameters actsPer = fitOutput.fittedParameters.value();
-    const Trk::TrackParameters *per = m_ATLASConverterTool->ActsTrackParameterToATLAS(actsPer, tgContext);
+    std::unique_ptr<const Trk::TrackParameters> per = m_ATLASConverterTool->ActsTrackParameterToATLAS(actsPer, tgContext);
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
+    const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(nullptr, std::move(per), nullptr, nullptr, typePattern);
     if (perState) finalTrajectory.insert(finalTrajectory.begin(), perState);
 
     // Create the track using the states
@@ -525,30 +531,15 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
   return newtrack;
 }
 
-ActsKalmanFitter::TrackFitterFunction
-ActsKalmanFitter::makeTrackFitterFunction(
-    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry) {
-  using Updater = Acts::GainMatrixUpdater;
-  using Smoother = Acts::GainMatrixSmoother;
-
-  // unpack the magnetic field variant and instantiate the corresponding fitter.
-  return std::visit(
-      [trackingGeometry]() -> TrackFitterFunction {
-        // each entry in the variant is already a shared_ptr
-        // need ::element_type to get the real magnetic field type
-        using Stepper = Acts::EigenStepper<>;
-        using Navigator = Acts::Navigator;
-        using Propagator = Acts::Propagator<Stepper, Navigator>;
-        using Fitter = Acts::KalmanFitter<Propagator, Updater, Smoother>;
-
-        // construct all components for the fitter
-        auto field = std::make_shared<ATLASMagneticFieldWrapper>();;
-        Stepper stepper(field);
-        Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );     
-        Propagator propagator(std::move(stepper), std::move(navigator));
-        Fitter trackFitter(std::move(propagator));
-
-        // build the fitter functions. owns the fitter object.
-        return TrackFitterFunctionImpl<Fitter>(std::move(trackFitter));
-      });
+Acts::Result<void> ActsKalmanFitter::gainMatrixUpdate(const Acts::GeometryContext& gctx,
+    Acts::MultiTrajectory::TrackStateProxy trackState, Acts::NavigationDirection direction, Acts::LoggerWrapper logger) {
+  Acts::GainMatrixUpdater updater;
+  return updater(gctx, trackState, direction, logger);
 }
+
+Acts::Result<void> ActsKalmanFitter::gainMatrixSmoother(const Acts::GeometryContext& gctx,
+    Acts::MultiTrajectory& trajectory, size_t entryIndex, Acts::LoggerWrapper logger) {
+  Acts::GainMatrixSmoother smoother;
+  return smoother(gctx, trajectory, entryIndex, logger);
+}
+

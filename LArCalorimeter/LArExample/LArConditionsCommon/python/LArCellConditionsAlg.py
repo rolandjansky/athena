@@ -18,7 +18,6 @@ import AthenaPython.PyAthena as PyAthena
 import ROOT
 
 from ROOT import HWIdentifier, Identifier, IdentifierHash, LArBadChannel, LArBadChanBitPacking
-from ROOT import CaloDetDescrManager
 
 from ctypes import c_uint
 import time
@@ -91,13 +90,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
         self.noid=Identifier()
 
-        if self.includeLocation:
-            try:
-                self.caloDDM = CaloDetDescrManager.instance()
-            except Exception:
-                print("Failed to retrieve CaloDDM")
-                return StatusCode.Failure
-
+    
 
         self.larPedestal=None
         self.larMphysOverMcal=None
@@ -198,7 +191,15 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 import traceback
                 traceback.print_exc()
                 self.larDSPThr=None   
-            
+
+        
+        if self.includeLocation:
+            try:
+                condCont=self._condStore.retrieve("CondCont<CaloDetDescrManager>","CaloDetDescrManager")
+                self.caloDDM = condCont.find(eid)
+            except Exception:
+                print("Failed to retrieve CaloDDM")
+                return StatusCode.Failure            
 
         if self.nEvts==0:
             self.nEvts+=1

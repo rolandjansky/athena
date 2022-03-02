@@ -59,11 +59,25 @@ def L1TopoSimulationCfg(flags):
     muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = True)
 
     emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
+    jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
+    energyProvider = CompFactory.LVL1.EnergyInputProviderFEX("EnergyInputProviderFEX")
+    if not flags.Trigger.enableL1CaloPhase1:
+        emtauProvider.eFexEMRoIKey = ""
+        emtauProvider.eFexTauRoIKey = ""
+        jetProvider.jFexSRJetRoIKey = ""
+        jetProvider.jFexLRJetRoIKey = ""
+        jetProvider.jFexTauRoIKey = ""
+        energyProvider.jFexMETRoIKey = ""
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,
                                                     EMTAUInputProvider = emtauProvider,
-                                                    IsLegacyTopo = False)
+                                                    JetInputProvider = jetProvider,
+                                                    EnergyInputProvider = energyProvider,
+                                                    IsLegacyTopo = False,
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump 
+                                                    #UseBitwise = True
+                                                    )
     acc.addEventAlgo(topoSimAlg)
     return acc
 
@@ -82,7 +96,7 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         topoSimSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
         # Need further test from inputs.
         topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
-        # Need further test from inputs.
+        # Need further test from inputs. Reverting back to Run 2 MET 
         topoSimSeq.EnergyInputProvider = 'LVL1::EnergyInputProviderFEX/EnergyInputProviderFEX'
 
     # Muon inputs only for phase-1 Topo

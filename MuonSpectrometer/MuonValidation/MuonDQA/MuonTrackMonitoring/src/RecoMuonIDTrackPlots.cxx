@@ -4,7 +4,7 @@
 
 #include "MuonTrackMonitoring/RecoMuonIDTrackPlots.h"
 
-RecoMuonIDTrackPlots::RecoMuonIDTrackPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+RecoMuonIDTrackPlots::RecoMuonIDTrackPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 m_oAllPlots(this, "/", "Reco Muon"),
 m_oImpactPlots(this, "/"),
 m_oTrkRecoInfoPlots(this, "/"),
@@ -26,7 +26,7 @@ void RecoMuonIDTrackPlots::initializePlots(){
 //get's the corresponding link and fill it
 void RecoMuonIDTrackPlots::fill(const xAOD::Muon& mu, int component){
   if (component == 2 ){
-    ElementLink<xAOD::TrackParticleContainer> Mu_idtrack = mu.inDetTrackParticleLink();
+    const ElementLink<xAOD::TrackParticleContainer>& Mu_idtrack = mu.inDetTrackParticleLink();
     if(Mu_idtrack.isValid()){
       const xAOD::TrackParticle* trk = *Mu_idtrack;
       fill(*trk);

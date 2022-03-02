@@ -35,6 +35,9 @@ StatusCode CpmSimMonitorAlgorithm::initialize() {
   ATH_CHECK(m_cmxCpTobLocation.initialize());
   ATH_CHECK(m_cmxCpHitsLocation.initialize());
 
+  ATH_CHECK( m_L1MenuKey.initialize() );
+  renounce(m_L1MenuKey); // Detector Store data - hide this Data Dependency from the MT Scheduler
+
   // retrieve any tools if needed
   ATH_CHECK(m_cpCmxTool.retrieve());
   ATH_CHECK(m_cpmTool.retrieve());
@@ -45,6 +48,8 @@ StatusCode CpmSimMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("m_modules"<<m_modules ); 
   ATH_MSG_DEBUG("m_maxSlices"<<m_maxSlices );
   ATH_MSG_DEBUG("m_cmxs"<<m_cmxs ); 
+
+
   
   return AthMonitorAlgorithm::initialize();
 }
@@ -55,6 +60,11 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   ATH_MSG_DEBUG("CpmSimMonitorAlgorithm::fillHistograms");
 
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
+
+  // to deal with trigger menu
+  if (not m_configSvc.empty()) {
+    ATH_CHECK(m_configSvc.retrieve());
+  }
     
   //Retrieve Trigger Towers from SG
   SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowerTES(m_triggerTowerLocation, ctx);
@@ -135,15 +145,16 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   // Compare RoIs simulated from CPM Towers with CPM RoIs from data
 
+
   std::unique_ptr<xAOD::CPMTobRoIContainer> cpmRoiSIM = std::make_unique<xAOD::CPMTobRoIContainer>();
   std::unique_ptr<xAOD::CPMTobRoIAuxContainer> cpmRoiSIMAux = std::make_unique<xAOD::CPMTobRoIAuxContainer>();
 
   cpmRoiSIM.get()->setStore(cpmRoiSIMAux.get());
   if (mismatchCoreEm || mismatchCoreHad || mismatchOverlapEm ||
       mismatchOverlapHad) {
-    simulate(&cpMap, &ovMap, cpmRoiSIM.get());
+    simulate(&cpMap, &ovMap, cpmRoiSIM.get(), ctx);
   } else {
-    simulate(&cpMap, cpmRoiSIM.get());
+    simulate(&cpMap, cpmRoiSIM.get(), ctx);
   }
 
   CpmTobRoiMap crSimMap;
@@ -170,7 +181,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   std::unique_ptr<xAOD::CMXCPHitsContainer> cmxLocalSIM = std::make_unique<xAOD::CMXCPHitsContainer>();
   std::unique_ptr<xAOD::CMXCPHitsAuxContainer> cmxLocalSIMAux = std::make_unique<xAOD::CMXCPHitsAuxContainer>();
   cmxLocalSIM.get()->setStore(cmxLocalSIMAux.get());
-  simulate(cmxCpTobTESptr, cmxLocalSIM.get(), xAOD::CMXCPHits::LOCAL);
+  simulate(cmxCpTobTESptr, cmxLocalSIM.get(), xAOD::CMXCPHits::LOCAL,ctx);
 
   CmxCpHitsMap cmxLocalSimMap;
   ATH_CHECK(setupMap(cmxLocalSIM.get(), cmxLocalSimMap));
@@ -182,6 +193,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   compare(cmMap, cmMap, errorsCMX, xAOD::CMXCPHits::REMOTE_0);
 
   // Compare Total sums simulated from Remote sums with Total sums from data
+
 
   std::unique_ptr<xAOD::CMXCPHitsContainer> cmxTotalSIM = std::make_unique<xAOD::CMXCPHitsContainer>();
   std::unique_ptr<xAOD::CMXCPHitsAuxContainer> cmxTotalSIMAux = std::make_unique<xAOD::CMXCPHitsAuxContainer>();
@@ -200,7 +212,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   std::unique_ptr<xAOD::CMXCPHitsContainer> cmxTopoSIM = std::make_unique<xAOD::CMXCPHitsContainer>();
   std::unique_ptr<xAOD::CMXCPHitsAuxContainer> cmxTopoSIMAux = std::make_unique<xAOD::CMXCPHitsAuxContainer>();
   cmxTopoSIM.get()->setStore(cmxTopoSIMAux.get());
-  simulate(cmxCpTobTESptr, cmxTopoSIM.get(), xAOD::CMXCPHits::TOPO_CHECKSUM);
+  simulate(cmxCpTobTESptr, cmxTopoSIM.get(), xAOD::CMXCPHits::TOPO_CHECKSUM, ctx);
 
   CmxCpHitsMap cmxTopoSimMap;
   ATH_CHECK(setupMap(cmxTopoSIM.get(), cmxTopoSimMap));
@@ -214,27 +226,14 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   Monitored::Scalar<int> cpmError_SimNeData = Monitored::Scalar<int>("cpmError_SimNeData", 0);
   Monitored::Scalar<int> cpmErrorSummary = Monitored::Scalar<int>("cpmErrorSummary", 0);
   // event numbers
-  Monitored::Scalar<int> em_tt_x = Monitored::Scalar<int>("em_tt_x", 0);
   Monitored::Scalar<int> em_tt_y = Monitored::Scalar<int>("em_tt_y", 0);
-  Monitored::Scalar<int> em_tt_w = Monitored::Scalar<int>("em_tt_w", 0);
-  Monitored::Scalar<int> had_tt_x = Monitored::Scalar<int>("had_tt_x", 0);
   Monitored::Scalar<int> had_tt_y = Monitored::Scalar<int>("had_tt_y", 0);
-  Monitored::Scalar<int> had_tt_w = Monitored::Scalar<int>("had_tt_w", 0);
-  Monitored::Scalar<int> em_roi_x = Monitored::Scalar<int>("em_roi_x", 0);
   Monitored::Scalar<int> em_roi_y = Monitored::Scalar<int>("em_roi_y", 0);
-  Monitored::Scalar<int> em_roi_w = Monitored::Scalar<int>("em_roi_w", 0);  
-  Monitored::Scalar<int> tau_roi_x = Monitored::Scalar<int>("tau_roi_x", 0);
   Monitored::Scalar<int> tau_roi_y = Monitored::Scalar<int>("tau_roi_y", 0);
-  Monitored::Scalar<int> tau_roi_w = Monitored::Scalar<int>("tau_roi_w", 0);
-  Monitored::Scalar<int> cmx_tob_left_x = Monitored::Scalar<int>("cmx_tob_left_x", 0);
   Monitored::Scalar<int> cmx_tob_left_y = Monitored::Scalar<int>("cmx_tob_left_y", 0);
-  Monitored::Scalar<int> cmx_tob_left_w = Monitored::Scalar<int>("cmx_tob_left_w", 0);
-  Monitored::Scalar<int> cmx_tob_right_x = Monitored::Scalar<int>("cmx_tob_right_x", 0);
   Monitored::Scalar<int> cmx_tob_right_y = Monitored::Scalar<int>("cmx_tob_right_y", 0);
-  Monitored::Scalar<int> cmx_tob_right_w = Monitored::Scalar<int>("cmx_tob_right_w", 0);
-  Monitored::Scalar<int> cmx_thresh_x = Monitored::Scalar<int>("cmx_thresh_x", 0);
   Monitored::Scalar<int> cmx_thresh_y = Monitored::Scalar<int>("cmx_thresh_y", 0);
-  Monitored::Scalar<int> cmx_thresh_w = Monitored::Scalar<int>("cmx_thresh_w", 0);
+
 
   //
   ErrorVector crateErr(m_crates);
@@ -258,35 +257,29 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
         crateErr[loc / m_modules] |= (1 << err);	
 	if (err<7) {
 	  if (err==0) {
-	    em_tt_w=eventNumber;
+	    auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
 	    em_tt_y=loc;
-	    em_roi_x=errCounter[err][loc];
-	    fill(m_packageName,em_tt_x,em_tt_y,em_tt_w);
+	    fill(m_packageName,em_tt_evtstr,em_tt_y);
 	  } else if (err==1) {
-	    had_tt_w=eventNumber;
+	    auto had_tt_evtstr = Monitored::Scalar<std::string>("had_tt_evtstr", std::to_string(eventNumber));
 	    had_tt_y=loc;
-	    had_tt_x=errCounter[err][loc];
-	    fill(m_packageName,had_tt_x,had_tt_y,had_tt_w);
+	    fill(m_packageName,had_tt_evtstr,had_tt_y);
 	  } else if (err==2) {
-	    em_roi_w=eventNumber;
+	    auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
 	    em_roi_y=loc;
-	    em_roi_x=errCounter[err][loc];
-	    fill(m_packageName,em_roi_x,em_roi_y,em_roi_w);
+	    fill(m_packageName,em_roi_evtstr,em_roi_y);
 	  } else if (err==3) {
-	    tau_roi_w=eventNumber;
+	    auto tau_roi_evtstr = Monitored::Scalar<std::string>("tau_roi_evtstr", std::to_string(eventNumber));
 	    tau_roi_y=loc;
-	    tau_roi_x=errCounter[err][loc];
-	    fill(m_packageName,tau_roi_x,tau_roi_y,tau_roi_w);
+	    fill(m_packageName,tau_roi_evtstr,tau_roi_y);
 	  } else if (err==4) {
-	    cmx_tob_left_w=eventNumber;
+	    auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
 	    cmx_tob_left_y=loc;
-	    cmx_tob_left_x=errCounter[err][loc];
-	    fill(m_packageName,cmx_tob_left_x,cmx_tob_left_y,cmx_tob_left_w);
+	    fill(m_packageName,cmx_tob_left_evtstr,cmx_tob_left_y);
 	  } else if (err==5) {
-	    cmx_tob_right_w=eventNumber;
+	    auto cmx_tob_right_evtstr = Monitored::Scalar<std::string>("cmx_tob_right_evtstr", std::to_string(eventNumber));
 	    cmx_tob_right_y=loc;
-	    cmx_tob_right_x=errCounter[err][loc];
-	    fill(m_packageName,cmx_tob_right_x,cmx_tob_right_y,cmx_tob_right_w);
+	    fill(m_packageName,cmx_tob_right_evtstr,cmx_tob_right_y);
 	  }
 	  errCounter[err][loc]+=1;
 	}
@@ -310,10 +303,9 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
           else if (err == TopoMismatch) {
             offset = 16;
 	  }
-	  cmx_thresh_w=eventNumber;
+	  auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
 	  cmx_thresh_y=loc+offset;
-	  cmx_thresh_x=errCounter[6][loc+offset];
-	  fill(m_packageName,cmx_thresh_x,cmx_thresh_y,cmx_thresh_w);
+	  fill(m_packageName,cmx_thresh_evtstr,cmx_thresh_y);
 	  errCounter[6][loc+offset]+=1;
         }
       }
@@ -325,6 +317,15 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
 
   } // summary bind
+
+  //
+  // Save error vector for global summary
+  ErrorVector *save = new ErrorVector(crateErr);
+  StatusCode sc = evtStore()->record(save, m_errorLocation);
+  if (sc != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Error recording CPM mismatch vector in TES");
+    return sc;
+  }
 
   
   fill(m_packageName,variables);
@@ -1596,8 +1597,7 @@ void CpmSimMonitorAlgorithm::compare(const CmxCpHitsMap &cmxSimMap,
         if (!hd0 && !hd1 && !hs0 && !hs1)
           continue;
 
-        //TH1F_LW *hist = 0;
-	int loc_fill = loc +=8;
+	int loc_fill = loc + 8;
         if (hs0 == hd0 && hs1 == hd1) {
           errors[loc] |= bit;
 	  cmx_sum_loc_SimEqData=loc_fill;
@@ -1616,8 +1616,8 @@ void CpmSimMonitorAlgorithm::compare(const CmxCpHitsMap &cmxSimMap,
 	  }
         }
 	// this is the loc used for filling
-        loc += 8;
-	// and for the rest
+        loc = loc_fill;
+	// and to be used for the rest of the filling
         loc /= 2;
         const int nThresh = 8;
         const int thrLen = 3;
@@ -1825,7 +1825,7 @@ StatusCode CpmSimMonitorAlgorithm::setupMap(const xAOD::CMXCPHitsContainer *coll
 // Simulate CPM RoIs from CPM Towers
 
 void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
-				      xAOD::CPMTobRoIContainer *rois) const {
+				      xAOD::CPMTobRoIContainer *rois, const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Simulate CPM TOB RoIs from CPM Towers");
 
@@ -1836,7 +1836,7 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
   std::unique_ptr<xAOD::CPMTowerAuxContainer> tempCollAux = std::make_unique<xAOD::CPMTowerAuxContainer>();
 
   tempColl.get()->setStore(tempCollAux.get());
-  for (const auto iter : *towers) {
+  for (const auto& iter : *towers) {
     CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl.get());
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrate(coord);
@@ -1845,7 +1845,7 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
     crateMaps[crate].insert(std::make_pair(iter.first, tt));
   }
   // If overlap data not present take from core data
-  for (const auto iter : ((m_overlapPresent) ? *towersOv : *towers)) {
+  for (const auto& iter : ((m_overlapPresent) ? *towersOv : *towers)) {
     CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl.get());
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrateOverlap(coord);
@@ -1853,11 +1853,12 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
       continue;
     crateMaps[crate].insert(std::make_pair(iter.first, tt));
   }
+  
   for (int crate = 0; crate < m_crates; ++crate) {
     xAOD::CPMTobRoIContainer *roiTemp =
         new xAOD::CPMTobRoIContainer(SG::VIEW_ELEMENTS);
 
-    m_cpmTool->findCPMTobRoIs(towers, roiTemp, 1);
+    m_cpmTool->findCPMTobRoIs(getL1Menu(ctx), towers, roiTemp, 1);
 
     xAOD::CPMTobRoIContainer::iterator roiIter = roiTemp->begin();
     xAOD::CPMTobRoIContainer::iterator roiIterE = roiTemp->end();
@@ -1873,11 +1874,11 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
 // Simulate CPM RoIs from CPM Towers quick version
 
 void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers,
-				      xAOD::CPMTobRoIContainer *rois) const {
+				      xAOD::CPMTobRoIContainer *rois, const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Simulate CPM TOB RoIs from CPM Towers");
   
-  m_cpmTool->findCPMTobRoIs(towers, rois, 1);
+  m_cpmTool->findCPMTobRoIs(getL1Menu(ctx), towers, rois, 1);
 }
 
 // Simulate CMX-CP TOBs from CPM RoIs
@@ -1894,15 +1895,18 @@ void CpmSimMonitorAlgorithm::simulate(const xAOD::CPMTobRoIContainer *rois,
 
 void CpmSimMonitorAlgorithm::simulate(const xAOD::CMXCPTobContainer *tobs,
 				      xAOD::CMXCPHitsContainer *hits, 
-				      int selection) const {
+				      int selection,
+				      const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Simulate CMX Hit sums from CMX TOBs");
 
+
   if (selection == xAOD::CMXCPHits::LOCAL) {
-    m_cpCmxTool->formCMXCPHitsCrate(tobs, hits);
+    m_cpCmxTool->formCMXCPHitsCrate(getL1Menu(ctx), tobs, hits);
   } else if (selection == xAOD::CMXCPHits::TOPO_CHECKSUM) {
     m_cpCmxTool->formCMXCPHitsTopo(tobs, hits);
   }
+
 }
 
 // Simulate CMX Total Hit sums from Remote/Local
@@ -1984,3 +1988,20 @@ bool CpmSimMonitorAlgorithm::limitedRoiSet(int crate, SG::ReadHandle<xAOD::RODHe
   }
   return (((limitedRoi >> crate) & 0x1) == 1);
 }
+
+
+
+const TrigConf::L1Menu* CpmSimMonitorAlgorithm::getL1Menu(const EventContext& ctx) const {
+  const TrigConf::L1Menu* menu = nullptr;
+  if (detStore()->contains<TrigConf::L1Menu>(m_L1MenuKey.key())) {
+    SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey, ctx );
+    if( l1MenuHandle.isValid() ){
+      menu=l1MenuHandle.cptr();
+    }
+  } else {
+    menu = &(m_configSvc->l1Menu(ctx)); 
+  }
+
+  return menu;
+}
+

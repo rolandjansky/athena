@@ -153,8 +153,7 @@ namespace Trk {
       m_derivatives->push_back(*derivIt);
     }
 
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void AlignVertex::fitVertex()
@@ -229,9 +228,7 @@ namespace Trk {
     (*m_covariance)=invcov;                       // this one is unconstrained!
 
     m_type = Refitted;
-
-    return;
-  }
+ }
   //________________________________________________________________________
   void AlignVertex::dump(MsgStream& msg) 
   {

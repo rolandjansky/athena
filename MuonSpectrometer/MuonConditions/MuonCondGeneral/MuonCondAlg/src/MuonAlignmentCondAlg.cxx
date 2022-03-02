@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MuonAlignmentCondAlg.h"
@@ -335,7 +335,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
     // =======================
     EventIDRange rangeALinesTemp;
     EventIDRange rangeBLinesTemp;
-    const CondAttrListCollection* readCdo;
+    const CondAttrListCollection* readCdo = nullptr;
     if (folderName.find("/MUONALIGN/MDT/BARREL") != std::string::npos) {
         SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readMdtBarrelKey};
         readCdo = *readHandle;
@@ -532,7 +532,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
                 eg = line["eg"];
                 ep = line["ep"];
                 en = line["en"];
-                ChamberHwName = line["hwElement"];
+                ChamberHwName = static_cast<std::string>(line["hwElement"]);
                 thisRowHasBLine = true;
             }
 
@@ -571,6 +571,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
                 ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
             } else if (stationType.substr(0, 1) == "C") {
                 // csc case
+  	        if(!m_doCSC) continue; //skip if geometry doesn't include CSCs
                 id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
                 ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
             } else if (stationType.substr(0, 3) == "BML" && abs(jzz) == 7) {

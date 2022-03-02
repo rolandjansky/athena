@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -8,7 +8,6 @@
 #include "AthAllocators/ArenaHeader.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
 
 #include "Gaudi/Interfaces/IOptionsSvc.h"
@@ -21,6 +20,7 @@ using namespace std;
 
 namespace {
     thread_local HiveEventSlot* currentHiveEventSlot = nullptr;
+    thread_local StoreGateSvc* currentStoreGate = nullptr;
 }
 
 /// Standard Constructor
@@ -29,7 +29,6 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   m_defaultStore(0),
   m_pPPSHandle("ProxyProviderSvc", name),
   m_incSvc("IncidentSvc", name),
-  m_activeStoreSvc("ActiveStoreSvc", name),
   m_storeID (StoreID::findStoreID(name)),
   m_algContextSvc ("AlgContextSvc", name)
 {
@@ -57,13 +56,29 @@ StoreGateSvc::setDefaultStore(SGImplSvc* pStore) {
   if (m_defaultStore) m_defaultStore->addRef();  
 }
 
-
 void 
 StoreGateSvc::setSlot(SG::HiveEventSlot* pSlot) { 
   currentHiveEventSlot=pSlot;
   if ( 0 != currentHiveEventSlot) {
     currentHiveEventSlot->pEvtStore->makeCurrent();
   }
+}
+
+StoreGateSvc *StoreGateSvc::currentStoreGate() {
+  if (!::currentStoreGate) {
+    // this is a static function so we don't have many conveniences
+    ISvcLocator *svcLocator = Gaudi::svcLocator();
+    StoreGateSvc *sg = nullptr;
+    if (!svcLocator->service("StoreGateSvc/StoreGateSvc", sg, false)
+             .isSuccess()) {
+      throw GaudiException(
+          "Could not get \"StoreGateSvc\" to initialize currentStoreGate",
+          "StoreGateSvc", StatusCode::FAILURE);
+    }
+    sg->makeCurrent();
+    return sg;
+  }
+  return ::currentStoreGate;
 }
 
 SG::HiveEventSlot*
@@ -99,7 +114,7 @@ StoreGateSvc::setConst(const void* pObject) {
 
 /// DEPRECATED, use version taking ref to vector
 std::vector<std::string> //FIXME inefficient. Should take ref to vector
-StoreGateSvc::keys(const CLID& id, bool allKeys){
+StoreGateSvc::keys(const CLID& id, bool allKeys) const {
   std::vector<std::string> nullV;
   _SGXCALL( keys, (id, allKeys), nullV );
 }
@@ -372,7 +387,7 @@ StoreGateSvc::setStoreID(StoreID::type id)
 
 void
 StoreGateSvc::keys(const CLID& id, std::vector<std::string>& vkeys, 
-                   bool includeAlias, bool onlyValid) 
+                   bool includeAlias, bool onlyValid) const
 { 
   _SGVOIDCALL(keys,(id, vkeys, includeAlias, onlyValid));
 } 
@@ -447,8 +462,7 @@ StoreGateSvc::clearProxyPayload(SG::DataProxy* proxy) {
 
 StatusCode 
 StoreGateSvc::loadEventProxies() {
-  CHECK( m_activeStoreSvc.retrieve() );
-  m_activeStoreSvc->setStore(this);
+  this->makeCurrent();
   _SGXCALL(loadEventProxies, (), StatusCode::FAILURE);
 }
 
@@ -498,12 +512,11 @@ StatusCode StoreGateSvc::queryInterface(const InterfaceID& riid, void** ppvInter
   return StatusCode::SUCCESS;
 }
 
-
-/// The current store is becoming the active store.  Switch the
-/// allocation arena, if needed.
-// Only intended to be called by ActiveStoreSvc.
-void StoreGateSvc::makeCurrent()
-{
+/// The current store is becoming the active store.  Make this the current
+/// StoreGate, switch the allocation arena, and call
+/// sg::currenteventstore::setstore
+void StoreGateSvc::makeCurrent() {
+  ::currentStoreGate = this;
   _SGVOIDCALL (makeCurrent, ());
 }
 

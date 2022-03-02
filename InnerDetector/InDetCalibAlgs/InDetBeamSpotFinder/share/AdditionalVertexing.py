@@ -104,8 +104,7 @@ def GeneralVertexer(system='Combined', setup=None,tracksName=None, suffix=""):
         print "JW no InDetVxFitterToolFullFinder"
         from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
         InDetVxFitterToolFullFinder = Trk__FullVertexFitter(name                   = "InDetVxFitterToolFullFinder",
-                                                            LinearizedTrackFactory = InDetLinFactory,
-                                                            Extrapolator           = InDetExtrapolator)
+                                                            LinearizedTrackFactory = InDetLinFactory)
         ToolSvc += InDetVxFitterToolFullFinder
         if (InDetFlags.doPrintConfigurables()):
             print      InDetVxFitterToolFullFinder

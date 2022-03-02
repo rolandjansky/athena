@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCond2NtupleBase.h"
@@ -12,10 +12,18 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
-LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL),  
-  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),m_caloId(NULL),
-  m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
+LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_initialized(false)
+  , m_nt(nullptr)
+  , m_detStore(nullptr)
+  , m_emId(nullptr)
+  , m_hecId(nullptr)
+  , m_fcalId(nullptr)
+  , m_onlineId(nullptr)
+  , m_caloId(nullptr)
+  , m_FEBTempTool("LArFEBTempTool")
+  , m_isSC(false)
 {
   declareProperty("AddBadChannelInfo",m_addBC=true);
   declareProperty("AddFEBTempInfo",m_addFEBTemp=false);
@@ -71,6 +79,8 @@ StatusCode LArCond2NtupleBase::initialize() {
   ATH_CHECK(detStore()->retrieve(calo_id_manager,"CaloIdManager"));
 
   StatusCode sc;
+  ATH_CHECK(m_caloSuperCellMgrKey.initialize(m_realgeom && m_isSC));
+  ATH_CHECK(m_caloMgrKey.initialize(m_realgeom && !m_isSC));
   if ( m_isSC ){
     const LArOnline_SuperCellID* ll;
     sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
@@ -82,17 +92,6 @@ StatusCode LArCond2NtupleBase::initialize() {
       ATH_MSG_DEBUG("Found the LArOnlineID helper");
     }
     m_caloId = calo_id_manager->getCaloCell_SuperCell_ID();
-    if(m_realgeom) {
-      const CaloSuperCellDetDescrManager* cddm=nullptr;
-      sc = detStore()->retrieve(cddm);
-      if ((!cddm) || sc.isFailure()) {
-         ATH_MSG_ERROR( "Could not get CaloSuperCellDetDescrManager !" );
-         return StatusCode::FAILURE;
-      } else {
-         m_dd_man = (const CaloDetDescrManager_Base*) cddm;
-         ATH_MSG_DEBUG("Found the CaloSuperCellDetDescrManager !" << m_dd_man);
-      }
-    }
   } else { // m_isSC
     const LArOnlineID* ll;
     sc = detStore()->retrieve(ll, "LArOnlineID");
@@ -104,17 +103,6 @@ StatusCode LArCond2NtupleBase::initialize() {
       ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
     m_caloId = calo_id_manager->getCaloCell_ID();
-    if(m_realgeom) {
-      const CaloDetDescrManager* cddm=nullptr;
-      sc = detStore()->retrieve(cddm);
-      if ((!cddm) || sc.isFailure()) {
-         ATH_MSG_ERROR( "Could not get CaloDetDescrManager !" );
-         return StatusCode::FAILURE;
-      } else {
-         m_dd_man = (const CaloDetDescrManager_Base*) cddm;
-         ATH_MSG_DEBUG("Found the CaloDetDescrManager !" << m_dd_man );
-      }
-    }
   } // end of m_isSC if
 
   m_emId=m_caloId->em_idHelper();
@@ -146,14 +134,10 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   ATH_CHECK( m_BCKey.initialize() );
   /// do we need both of them at some point when data has both SC and cells?
-  if(m_isSC){
-    ATH_CHECK( m_cablingSCKey.initialize() );
-    ATH_CHECK( m_calibMapSCKey.initialize() );
-  }
-  else{
-    ATH_CHECK( m_cablingKey.initialize() );
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }
+  ATH_CHECK( m_cablingSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_calibMapSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_cablingKey.initialize(!m_isSC) );
+  ATH_CHECK( m_calibMapKey.initialize(!m_isSC) );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
@@ -378,7 +362,18 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  }
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
-
+ 
+  const CaloDetDescrManager_Base* dd_man = nullptr;
+ if (m_realgeom) {
+   if(m_isSC) {
+     SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
+     dd_man = *caloSuperCellMgrHandle;
+   }
+   else {
+     SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+     dd_man = *caloMgrHandle;
+   }
+ }
  try {
    if (cabling->isOnlineConnected(hwid)) {
      Identifier id=cabling->cnvToIdentifier(hwid);
@@ -386,8 +381,8 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
        m_oflChanId = id.get_identifier32().get_compact();
        if (m_addHash) m_oflHash=m_caloId->calo_cell_hash(id);
 
-       if (m_realgeom) {
-          const CaloDetDescrElement *elem = m_dd_man->get_element(id);
+       if (dd_man) {
+          const CaloDetDescrElement *elem = dd_man->get_element(id);
           if(!elem) {
              ATH_MSG_WARNING("Do not have CDDE for "<<id.getString());
           } else {

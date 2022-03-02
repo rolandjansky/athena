@@ -69,8 +69,7 @@ public:
    * @return The matching @c TruthParticle, or null.
    */
   const xAOD::TruthParticle*
-  toTruthParticle (const xAOD::Photon& g,
-                   IMCTruthClassifier::Cache& cache) const;
+  toTruthParticle (const xAOD::Photon& g) const;
 
 
   /**

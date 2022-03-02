@@ -38,7 +38,7 @@ namespace Muon {
     private:
         /**\todo make this const, once createSummary method is const*/
         ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool{this, "SumHelpTool", "Trk::TrackSummaryTool"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "helper to nicely print out tracks"};
 
         /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/

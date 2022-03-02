@@ -25,10 +25,8 @@ HLTCaloCellSumMaker::HLTCaloCellSumMaker(const std::string & name, ISvcLocator* 
 }
 
 StatusCode HLTCaloCellSumMaker::initialize() {
-	if ( m_roiMode )
-        ATH_CHECK( m_cellContainerKey.initialize() );
-	else
-        ATH_CHECK( m_cellContainerVKey.initialize() );
+        ATH_CHECK( m_cellContainerKey.initialize( m_roiMode ) );
+        ATH_CHECK( m_cellContainerVKey.initialize( !m_roiMode ) );
         return StatusCode::SUCCESS;
 }
 

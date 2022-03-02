@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -64,7 +64,7 @@ namespace D3PD {
   {
     CHECK( m_extrapolator.retrieve() );
     CHECK( m_caloSurfaceBuilder.retrieve() );
-    
+    CHECK(m_caloMgrKey.initialize());   
     return StatusCode::SUCCESS;
   }
   
@@ -137,6 +137,10 @@ namespace D3PD {
   egammaTraversedMaterialFillerTool::fill (const xAOD::Egamma& eg,
                                            const Trk::TrackParameters& parameters)
   {
+
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     if (parameters.pT() < m_minPt)
     {
       ATH_MSG_DEBUG("Momentum too low");
@@ -159,7 +163,7 @@ namespace D3PD {
     
     // create a surface at the entrance of the sample (0 is the offset)
     std::unique_ptr<Trk::Surface> surface
-      (m_caloSurfaceBuilder->CreateUserSurface(sample, 0., cl->eta()));
+      (m_caloSurfaceBuilder->CreateUserSurface(sample, 0., cl->eta(), caloDDMgr));
     if (!surface)
     {
       ATH_MSG_DEBUG("Could not create surface at entrance of sample " << sample);
@@ -169,11 +173,13 @@ namespace D3PD {
     // Extrapolate to surface
     typedef std::vector<const Trk::TrackStateOnSurface*> tsos_vec_t;
     std::unique_ptr<const tsos_vec_t> v
-      (m_extrapolator->extrapolateM (parameters,
-                                     *surface,
-                                     Trk::alongMomentum,
-                                     true,
-                                     Trk::muon));
+      (m_extrapolator->extrapolateM (
+          Gaudi::Hive::currentContext(),
+          parameters,
+          *surface,
+          Trk::alongMomentum,
+          true,
+          Trk::muon));
     if (!v)
     {
       ATH_MSG_DEBUG("Extrapolation failed");

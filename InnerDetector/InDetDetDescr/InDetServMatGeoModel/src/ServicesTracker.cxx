@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ServicesTracker.h"
@@ -83,7 +83,7 @@ void ServicesTracker::finaliseServices()
 
   std::map<const ServicesLayer*, ServiceMaterial> layerMaterial; // cache the layer services
 
-  typedef  std::vector<ServiceVolume*>::iterator VolumeIter;
+  using VolumeIter = std::vector<ServiceVolume *>::iterator;
   for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); ++iv) {
     std::vector<ServiceMaterial> result; // = (**iv).materials(); // preserve already present mat. (EOS)
     if ((**iv).isEOS()) addEosMaterial(**iv, result);

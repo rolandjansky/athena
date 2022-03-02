@@ -351,9 +351,10 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
                                                                     VertexFitterTool  = vertexFitterTool,
                                                                     TrackSelector     = trackSelectorTool,
                                                                     useBeamConstraint = True,
-                                                                    TracksMaxZinterval = tracksMaxZinterval,
+                                                                    m_useSeedConstraint = False,  # default parameter is True sop use ACTS default value
+                                                                    TracksMaxZinterval  = tracksMaxZinterval,
                                                                     addSingleTrackVertices = singleTrackVertices,
-                                                                    selectiontype     = 0, # what is this?
+                                                                    selectiontype     = 0, # what is this? - ACTS equivalent ? 
                                                                     do3dSplitting     = doVtx3DFinding )
     else:
         
@@ -386,10 +387,12 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
         from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
 
         vertexFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
-                                                             TrackSelector     = trackSelectorTool,
-                                                             useBeamConstraint = True,
-                                                             tracksMaxZinterval = 3,#mm 
+                                                             TrackSelector      = trackSelectorTool,
+                                                             useBeamConstraint  = True,
+                                                             useSeedConstraint  = False, # use explicit ACTS default parameter
+                                                             tracksMaxZinterval = tracksMaxZinterval,
                                                              do3dSplitting      = doVtx3DFinding, 
+                                                             addSingleTrackVertices = singleTrackVertices,
                                                              TrackingGeometryTool = actsTrackingGeometryTool,
                                                              ExtrapolationTool  = actsExtrapolationTool )
                 

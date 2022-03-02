@@ -33,7 +33,7 @@
 
 //******************************
 constexpr unsigned int DIM{5};
-typedef Trk::Charged T;
+using T = Trk::Charged;
 //******************************
 
 //truly minimal Surface to use below

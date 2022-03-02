@@ -296,14 +296,14 @@ namespace Muon {
         /** calculate error scaling factor */
         double errorScaleFactor(const Identifier& id, double curvature, bool hasPhiMeasurements) const;
 
-        std::vector<Identifier> calculateHoles(Identifier chid, Amg::Vector3D gpos, Amg::Vector3D gdir, bool hasMeasuredCoordinate,
+        std::vector<Identifier> calculateHoles(Identifier chid, const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, bool hasMeasuredCoordinate,
                                                std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec,
                                                std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
 
         TrkDriftCircleMath::DCVec createDCVec(const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale,
                                               std::set<Identifier>& chamberSet, double& phimin, double& phimax,
-                                              TrkDriftCircleMath::DCStatistics& dcStatistics, Amg::Transform3D gToStation,
-                                              Amg::Transform3D amdbToGlobal) const;
+                                              TrkDriftCircleMath::DCStatistics& dcStatistics, const Amg::Transform3D& gToStation,
+                                              const Amg::Transform3D& amdbToGlobal) const;
         ClusterVecPair create1DClusters(const std::vector<const MuonClusterOnTrack*>& clusters) const;
         ClusterVecPair create2DClusters(const std::vector<const MuonClusterOnTrack*>& clusters) const;
 
@@ -314,23 +314,23 @@ namespace Muon {
         Cluster2D createRpcSpacePoint(const Identifier& gasGapId, const MuonClusterOnTrack* etaHit,
                                       const std::vector<const MuonClusterOnTrack*>& phiHits) const;
         Cluster2D createTgcSpacePoint(const Identifier& gasGapId, const MuonClusterOnTrack* etaHit, const MuonClusterOnTrack* phiHit) const;
-        TrkDriftCircleMath::CLVec createClusterVec(const Identifier& chid, ClusterVec& spVec, Amg::Transform3D gToStation) const;
+        TrkDriftCircleMath::CLVec createClusterVec(const Identifier& chid, ClusterVec& spVec, const Amg::Transform3D& gToStation) const;
 
         std::vector<std::unique_ptr<const Trk::MeasurementBase> > associateMDTsToSegment(
             const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-            TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal,
+            TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, const Amg::Transform3D& gToStation, const Amg::Transform3D& amdbToGlobal,
             std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec,
             std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
         std::pair<std::pair<int, int>, bool> associateClustersToSegment(
-            const TrkDriftCircleMath::Segment& segment, const Identifier& chid, Amg::Transform3D gToStation, ClusterVecPair& spVecs,
+            const TrkDriftCircleMath::Segment& segment, const Identifier& chid, const Amg::Transform3D& gToStation, ClusterVecPair& spVecs,
             double phimin, double phimax, std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
         DataVector<const Trk::MeasurementBase>* createROTVec(
             std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
 
         double distanceToSegment(const TrkDriftCircleMath::Segment& segment, const Amg::Vector3D& hitPos,
-                                 Amg::Transform3D gToStation) const;
+                                 const Amg::Transform3D& gToStation) const;
         std::pair<double, double> residualAndPullWithSegment(const TrkDriftCircleMath::Segment& segment, const Cluster2D& spacePoint,
-                                                             Amg::Transform3D gToStation) const;
+                                                             const Amg::Transform3D& gToStation) const;
 
         TrkDriftCircleMath::MdtChamberGeometry createChamberGeometry(const Identifier& chid, const Amg::Transform3D& gToStation) const;
 
@@ -412,7 +412,7 @@ namespace Muon {
             "MuonCompetingClustersCreator",
             "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator",
         };  //<! competing clusters rio ontrack creator
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "EDMPrinter",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

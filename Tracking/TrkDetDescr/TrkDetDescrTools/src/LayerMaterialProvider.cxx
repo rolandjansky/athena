@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ ATLAS_NOT_THREAD_SAFE(const Trk::TrackingVolume& tvol,
   const Trk::LayerArray* layerArray = tvol.confinedLayers();
   if (layerArray) {
       // display output
-      const std::vector<const Trk::Layer*>& layers = layerArray->arrayObjects(); 
+      Trk::BinnedArraySpan<Trk::Layer const * const> layers = layerArray->arrayObjects(); 
       ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << layers.size() << " confined layers." ); 
       for ( const auto & layIter : layers ){
           if (!layIter)
@@ -156,11 +156,11 @@ ATLAS_NOT_THREAD_SAFE(const Trk::TrackingVolume& tvol,
    } 
 
    // Process the contained TrackingVolumes (recursively) if they exist
-   const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+   const Trk::BinnedArray<const Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
    // register the next round
    if (confinedVolumes) {
-       const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
-       std::vector<const Trk::TrackingVolume*>::const_iterator volumesIter = volumes.begin();
+       Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes->arrayObjects();
+       Trk::BinnedArraySpan<Trk::TrackingVolume const * const>::const_iterator volumesIter = volumes.begin();
        for (; volumesIter != volumes.end(); ++volumesIter){
            if (!(*volumesIter))
               ATH_MSG_WARNING("Zero-pointer found in VolumeArray - indicates problem !");

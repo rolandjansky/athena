@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_TRIGGEREDMSERIALISERTOOL_H
 #define TRIGOUTPUTHANDLING_TRIGGEREDMSERIALISERTOOL_H
@@ -55,7 +55,8 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     "formatted like for AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. For xAOD classes the typedef type should be "
     "used and the _vN version number is automatically detected. For old T/P classes the persistent version has to be "
     "given. Module IDs following the semicolon are the HLT result ROB module IDs to which the collection should be "
-    "written. ID=0 is the main result, other IDs are used for data scouting."
+    "written. ID=0 is the main result, other IDs are used for data scouting.",
+    "OrderedSet<std::string>"
   };
   Gaudi::Property<bool> m_saveDynamic {
     this, "SaveDynamic", true, "If false skips serialising of dynamic variables. Use for test purpose only."

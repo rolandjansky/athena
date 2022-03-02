@@ -109,4 +109,36 @@ root -b -q HEC_SF_analysis/init.C 'HEC_SF_analysis/store_eta.C("'$G4version'","'
 
 # FCal sampling fractions
 
+## Configuring and running the simulation
+
+The Geant4 simulation is configured in the `LarFCalSamplingFraction_G4Atlas_jobOptions.py` job options file in the `share` directory.
+The sampling fractions are computed separately for each of the FCal1, FCal2 and FCal3 modules by modifying the `module` variable at the top of the job options file. 
+Electrons are generated directly in front of the face of the specified module at the given coordinates, pseudorapidity and energy.
+These parameters can be modified by changing the corresponding `ParticleGun` settings in the `params` variable in the job options.
+See the [ParticleGunForAtlas](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ParticleGunForAtlas) TWiki for more details on this tool.
+
+After configuring the simulation, compile and run it with
+
+```console
+mkdir build
+cd build
+asetup Athena,<version>
+cmake <path/to/source>
+make
+athena share/LarFCalSamplingFraction_G4Atlas_jobOptions.py
+```
+
+The results of the simulations are saved to an output ntuple file named `LArFCalSamplingFraction.<module>.<el_energy>GeV.aan.root`, where `<module>` is the FCal module name and `<el_energy>` is the energy of the incident electrons in GeV.
+
+## Computing the sampling fractions
+
+The `LarFCalSamplingFraction_analysis.py` script is provided in the `share` directory to compute the FCal sampling fractions from the ntuple files produced in the previous step.
+Run it with
+
+```console
+./share/LarFCalSamplingFraction_analysis.py LArFCalSamplingFraction.<module>.<el_energy>GeV.aan.root
+```
+
+The sampling fractions are saved to a text file, which can be specified using the `-o` option when running the above script.
+
 # Tile sampline fractions

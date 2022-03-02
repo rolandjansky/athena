@@ -40,7 +40,7 @@ namespace MVAUtils
      **/
     explicit BDT(TTree *tree);//ctor TTree
    
-    BDT(std::unique_ptr<IForest> forest): 
+    explicit BDT(std::unique_ptr<IForest> forest): 
       m_forest(std::move(forest)){
       }
 

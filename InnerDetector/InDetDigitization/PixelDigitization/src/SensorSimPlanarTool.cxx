@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SensorSimPlanarTool.h"
@@ -7,6 +7,7 @@
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetSimEvent/SiHit.h"
+#include "InDetSimEvent/SiTrackDistance.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesTool/SiliconProperties.h"
@@ -231,6 +232,13 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash(), ctx);
 
+  // Prepare values that are needed for radiation damage corrections later
+  const HepGeom::Point3D<double>& startPosition = phit->localStartPosition(); 
+  const HepGeom::Point3D<double>& endPosition   = phit->localEndPosition(); 
+  const float zPosDiff = endPosition.Z - startPosition.Z;
+  const float tanTheta = (zPosDiff != 0.) ? (endPosition.Y - startPosition.Y) / zPosDiff : (endPosition.Y - startPosition.Y) * 9999.;
+  const float tanPhi   = (zPosDiff != 0.) ? (endPosition.X - startPosition.X) / zPosDiff : (endPosition.X - startPosition.X) * 9999.;
+
   int etaCells = p_design.columns();
   int phiCells = p_design.rows();
 
@@ -265,7 +273,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const double halfEtaPitch = 0.5*Module.etaPitch();
   const double halfPhiPitch = 0.5*Module.phiPitch();
 
-  if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
+  if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel() && !m_doRadDamageTemplate) {
     SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
 
     std::pair<double, double> trappingTimes;
@@ -494,7 +502,74 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     });
 
   } 
-  else { //If no radDamage, run original
+  else if (m_doRadDamage && m_doRadDamageTemplate && !(Module.isDBM()) && Module.isBarrel()){ // will run radiation damage but with the template method
+    for (size_t i = 0; i < trfHitRecord.size(); i++) {
+      std::pair<double, double> const& iHitRecord = trfHitRecord[i];
+
+      double eta_i = eta_0;
+      double phi_i = phi_0;
+      double depth_i = depth_0;
+      if (iTotalLength) {
+        eta_i += 1.0 * iHitRecord.first / iTotalLength * dEta;
+        phi_i += 1.0 * iHitRecord.first / iTotalLength * dPhi;
+        depth_i += 1.0 * iHitRecord.first / iTotalLength * dDepth;
+      }
+
+      // Distance between charge and readout side.  p_design->readoutSide() is
+      // +1 if readout side is in +ve depth axis direction and visa-versa.
+      double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
+      if (dist_electrode < 0) {
+        dist_electrode = 0;
+      }
+
+      // nonTrapping probability
+      double nontrappingProbability = 1.0;
+      if (Module.isDBM()) {
+        nontrappingProbability = exp(-dist_electrode / collectionDist);
+      }
+
+      for (int j = 0; j < ncharges; j++) {
+        // amount of energy to be converted into charges at current step
+        double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
+        // diffusion sigma
+        double rdif = this->m_diffusionConstant * std::sqrt(dist_electrode * coLorentz / 0.3);
+
+        // position at the surface
+        double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+        double phi_drifted = phi_i + dist_electrode * tanLorentz + rdif * phiRand;
+        double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+        double eta_drifted = eta_i + rdif * etaRand;
+
+        // Slim Edge for IBL planar sensors:
+        if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
+          applyIBLSlimEdges(energy_per_step, eta_drifted);
+        }
+
+        // Get the charge position in Reconstruction local coordinates.
+        const SiLocalPosition& chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
+
+        // The parametrization of the sensor efficiency (if needed)
+        double ed = 0;
+        if (Module.isDBM()) {
+          ed = energy_per_step * eleholePairEnergy * nontrappingProbability * smearScale;
+        } else {
+          ed = energy_per_step * eleholePairEnergy;
+        }
+
+        // prepare SiTrackDistance object needed
+        const SiTrackDistance trackDistance(tanTheta, tanPhi, startPosition.Z);
+        //The following lines are adapted from SiDigitization's Inserter class
+        const SiSurfaceCharge scharge(chargePos, SiCharge(ed, pHitTime, SiCharge::track, particleLink, trackDistance));
+
+        const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
+
+        if (diode.isValid()) {
+          const SiCharge& charge = scharge.charge();
+          chargedDiodes.add(diode, charge);
+        }
+      }//end cycle for charge
+    }//trfHitRecord.size()
+  } else { // run without radiation damage
     for (size_t i = 0; i < trfHitRecord.size(); i++) {
       std::pair<double, double> const& iHitRecord = trfHitRecord[i];
 
@@ -558,8 +633,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           chargedDiodes.add(diode, charge);
         }
       }//end cycle for charge
-    }//trfHitRecord.size()
-  } //else: no radDamage, run original
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

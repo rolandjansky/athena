@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/MarsHaloGenerator.h"
@@ -15,8 +15,8 @@
 
 MarsHaloGenerator::MarsHaloGenerator(const HepPDT::ParticleDataTable* particleTable,
 				     CLHEP::HepRandomEngine* engine, 
-				     std::string inputFile,
-				     std::vector<std::string> generatorSettings):
+				     const std::string& inputFile,
+				     const std::vector<std::string>& generatorSettings):
   BeamHaloGenerator(particleTable, engine, inputFile, generatorSettings) {
 }
 

@@ -1,16 +1,15 @@
+#!/usr/bin/env python
 """
 This job options file will run an example extrapolation using the
 Acts tracking geometry and the Acts extrapolation toolchain.
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 # start from scratch with component accumulator
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg, ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsExtrapolationAlgCfg
 
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable
@@ -23,7 +22,6 @@ if "__main__" == __name__:
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True
-  ConfigFlags.Beam.Type = ''
   ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
   ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
   ConfigFlags.Detector.GeometryBpipe = True
@@ -33,7 +31,8 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryCalo  = True
   ConfigFlags.Detector.GeometryMuon  = False
   ConfigFlags.Detector.GeometryTRT   = True
-  ConfigFlags.TrackingGeometry.MaterialSource = "None"
+  ConfigFlags.Acts.TrackingGeometry.MaterialSource = "None"
+  ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors = True
 
   ConfigFlags.Concurrency.NumThreads = 10
   ConfigFlags.Concurrency.NumConcurrentEvents = 10
@@ -45,11 +44,6 @@ if "__main__" == __name__:
 
   from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
   cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
-
-  alignCondAlgCfg = ActsAlignmentCondAlgCfg(ConfigFlags)
-
-  cfg.merge(alignCondAlgCfg)
-
 
 
   alg = ActsExtrapolationAlgCfg(ConfigFlags,

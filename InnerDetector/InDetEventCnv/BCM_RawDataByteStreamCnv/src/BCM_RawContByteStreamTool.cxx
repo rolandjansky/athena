@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 
 #include "BCM_RawDataByteStreamCnv/BCM_RodEncoder.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <map>
 
 ////////////////////////
@@ -79,7 +79,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont) const
     const BCM_RDO_Collection* coll = (*it_coll);
 
     // get OfflineId (channel number) and RODID
-    if (coll != NULL) {
+    if (coll != nullptr) {
       unsigned int offlineId = coll->getChannel();
       uint32_t rodId = getSourceID(offlineId);
       if ( offlineId >= 16 ) {

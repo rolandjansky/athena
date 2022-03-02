@@ -10,7 +10,7 @@ def LArReadCellsCfg(flags):
     #setup Calo reco
     from CaloRec.CaloRecoConfig import CaloRecoCfg
     result.merge(CaloRecoCfg(flags))
-    result.getEventAlgo("LArRawChannelBuilder").StoreTiming=True
+    result.getEventAlgo("LArRawChannelBuilder").TimingContainerKey="LArOFIterResult"
     
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     result.merge(BunchCrossingCondAlgCfg(flags))

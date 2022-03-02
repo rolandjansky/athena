@@ -564,12 +564,6 @@ private:
 	int m_nHitsperLB_E[2]{};
 	int m_nHLHitsperLB_E[2]{};
 
-	/*
-	  ToolHandle<Trk::IPropagator> m_propagatorTool;
-	  Trk::IPropagator *m_propagator;
-	  ToolHandle<Trk::IExtrapolator> m_extrapolatorTool;
-	  Trk::IExtrapolator *m_extrapolator;
-	*/ //obsolete
 	float m_maxDistToStraw;
 	float m_DistToStraw;
 	bool m_trt_only_trks;

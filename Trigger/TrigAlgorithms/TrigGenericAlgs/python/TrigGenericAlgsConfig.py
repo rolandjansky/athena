@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -24,3 +24,6 @@ def TimeBurnerHypoToolGen(chainDict):
 
 def EndOfEventROIConfirmerAlgCfg(name):
     return CompFactory.EndOfEventROIConfirmerAlg(name)
+
+def EndOfEventPrescaleCheckAlgCfg(name, chainName):
+    return CompFactory.EndOfEventPrescaleCheckAlg(name, ChainName=chainName)

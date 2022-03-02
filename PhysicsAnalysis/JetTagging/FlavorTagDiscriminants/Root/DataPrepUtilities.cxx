@@ -8,18 +8,59 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "xAODBTagging/BTaggingUtilities.h"
 
 namespace {
-  const std::string jetLinkName = "jetLink";
-}
 
-namespace {
   // define a regex literal operator
   std::regex operator "" _r(const char* c, size_t /* length */) {
     return std::regex(c);
   }
-}
 
-// functions that are used internally
-namespace {
+  using FlavorTagDiscriminants::EDMType;
+  using FlavorTagDiscriminants::SortOrder;
+  using FlavorTagDiscriminants::TrackSelection;
+  using FlavorTagDiscriminants::FTagTrackSequenceConfig;
+  using FlavorTagDiscriminants::FTagInputConfig;
+  using FlavorTagDiscriminants::FTagTrackInputConfig;
+  // ____________________________________________________________________
+  // High level adapter stuff
+  //
+  // We define a few structures to map variable names to type, default
+  // value, etc. These are only used by the high level interface.
+  //
+  typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
+  typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
+  typedef std::vector<std::pair<std::regex, SortOrder> > SortRegexes;
+  typedef std::vector<std::pair<std::regex, TrackSelection> > TrkSelRegexes;
+
+  // Function to map the regular expressions + the list of inputs to a
+  // list of variable configurations.
+  std::vector<FTagInputConfig> get_input_config(
+    const std::vector<std::string>& variable_names,
+    const TypeRegexes& type_regexes,
+    const StringRegexes& default_flag_regexes);
+
+  // Since the names of the inputs are stored in the NN config, we
+  // also allow some user-configured remapping. Items in replaced_vars
+  // are removed as they are used.
+  void remap_inputs(std::vector<lwt::Input>& nn,
+                    std::map<std::string, std::string>& replaced_vars,
+                    std::map<std::string, double>& defaults);
+
+  // Function to map the regex + list of inputs to variable config,
+  // this time for sequence inputs.
+  std::vector<FTagTrackSequenceConfig> get_track_input_config(
+    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
+    const TypeRegexes& type_regexes,
+    const SortRegexes& sort_regexes,
+    const TrkSelRegexes& select_regexes);
+
+  // replace strings for flip taggers
+  void rewriteFlipConfig(lwt::GraphConfig&, const StringRegexes&);
+  void flipSequenceSigns(lwt::GraphConfig&, const std::regex&);
+
+  //_______________________________________________________________________
+  // Implementation of the above functions
+  //
+
   template <typename T>
   T match_first(const std::vector<std::pair<std::regex, T> >& regexes,
                 const std::string var_name,
@@ -33,7 +74,139 @@ namespace {
       "no regex match found for input variable '" + var_name + "' in "
       + context);
   }
+
+
+  // functions to rewrite input names
+  std::string sub_first(const StringRegexes& res,
+                        const std::string var_name) {
+    for (const auto& pair: res) {
+      const std::regex& re = pair.first;
+      const std::string& fmt = pair.second;
+      std::string new_name = std::regex_replace(
+        var_name, re, fmt, std::regex_constants::format_no_copy);
+      if (new_name.size() > 0) {
+        return new_name;
+      }
+    }
+    throw std::logic_error(
+      "no regex match found for variable '" + var_name + "' while building "
+      "negative tag b-btagger");
+  }
+
+  std::vector<FTagInputConfig> get_input_config(
+    const std::vector<std::string>& variable_names,
+    const TypeRegexes& type_regexes,
+    const StringRegexes& default_flag_regexes)
+  {
+    std::vector<FTagInputConfig> inputs;
+    for (const auto& var: variable_names) {
+      FTagInputConfig input;
+      input.name = var;
+      input.type = match_first(type_regexes, var, "type matching");
+      input.default_flag = match_first(default_flag_regexes, var,
+                                       "default matching");
+
+      inputs.push_back(input);
+    }
+    return inputs;
+  }
+
+
+  // do some input variable magic in case someone asked
+  void remap_inputs(std::vector<lwt::Input>& nn,
+                    std::map<std::string, std::string>& replaced_vars,
+                    std::map<std::string, double>& defaults) {
+    // keep track of the new default values, and which values they
+    // were moved from
+    std::map<std::string, double> new_defaults;
+    std::set<std::string> moved_defaults;
+    for (lwt::Input& input: nn) {
+      std::string nn_name = input.name;
+      auto replacement_itr = replaced_vars.find(nn_name);
+      if (replacement_itr != replaced_vars.end()) {
+        std::string new_name = replacement_itr->second;
+        input.name = new_name;
+        if (defaults.count(nn_name)) {
+          new_defaults[new_name] = defaults.at(nn_name);
+          moved_defaults.insert(nn_name);
+        }
+        replaced_vars.erase(replacement_itr);
+      }
+    }
+    for (const auto& new_default: new_defaults) {
+      defaults[new_default.first] = new_default.second;
+      // if something was a new default we don't want to delete it
+      // below.
+      moved_defaults.erase(new_default.first);
+    }
+    // delete anything that was moved but wasn't assigned to
+    for (const auto& moved: moved_defaults) {
+      defaults.erase(moved);
+    }
+  }
+
+
+  std::vector<FTagTrackSequenceConfig> get_track_input_config(
+    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
+    const TypeRegexes& type_regexes,
+    const SortRegexes& sort_regexes,
+    const TrkSelRegexes& select_regexes) {
+    std::vector<FTagTrackSequenceConfig> nodes;
+    for (const auto& name_node: names) {
+      FTagTrackSequenceConfig node;
+      node.name = name_node.first;
+      node.order = match_first(sort_regexes, name_node.first,
+                               "track order matching");
+      node.selection = match_first(select_regexes, name_node.first,
+                                   "track selection matching");
+      for (const auto& varname: name_node.second) {
+        FTagTrackInputConfig input;
+        input.name = varname;
+        input.type = match_first(type_regexes, varname,
+                                 "track type matching");
+        node.inputs.push_back(input);
+      }
+      nodes.push_back(node);
+    }
+    return nodes;
+  }
+
+
+  void rewriteFlipConfig(lwt::GraphConfig& config,
+                         const StringRegexes& res){
+    for (auto& node: config.inputs) {
+      for (auto& var: node.variables) {
+        var.name = sub_first(res, var.name);
+      }
+      std::map<std::string, double> new_defaults;
+      for (auto& pair: node.defaults) {
+        new_defaults[sub_first(res, pair.first)] = pair.second;
+      }
+      node.defaults = new_defaults;
+    }
+    std::map<std::string, lwt::OutputNodeConfig> new_outputs;
+    for (auto& pair: config.outputs) {
+      new_outputs[sub_first(res, pair.first)] = pair.second;
+    }
+    config.outputs = new_outputs;
+  }
+
+  void flipSequenceSigns(lwt::GraphConfig& config,
+                         const std::regex& re) {
+    for (auto& node: config.input_sequences) {
+      for (auto& var: node.variables) {
+        if (std::regex_match(var.name, re)) {
+          var.offset *= -1.0;
+          var.scale *= -1.0;
+        }
+      }
+    }
+  }
+
 }
+
+// __________________________________________________________________________
+// Start of functions that are used outside this file
 
 
 namespace FlavorTagDiscriminants {
@@ -111,6 +284,14 @@ namespace FlavorTagDiscriminants {
       return only_tracks;
     }
 
+    // constructor
+    internal::TrackSequenceBuilder::TrackSequenceBuilder(
+      SortOrder sort,
+      TrackSelection selection,
+      const FTagOptions& options):
+      tracksFromJet(sort, selection, options),
+      flipFilter(internal::get::flipFilter(options).first){
+    }
 
     // ______________________________________________________________________
     // Internal utility functions
@@ -351,137 +532,23 @@ namespace FlavorTagDiscriminants {
     } // end of get namespace
   } // end of internal namespace
 
-  //********************************//
-  // previously in DL2HighLevelTool //
-  //********************************//
+
 
   // ______________________________________________________________________
   // High level configuration functions
   //
-  std::vector<FTagInputConfig> get_input_config(
-    const std::vector<std::string>& variable_names,
-    const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes)
-  {
-    std::vector<FTagInputConfig> inputs;
-    for (const auto& var: variable_names) {
-      FTagInputConfig input;
-      input.name = var;
-      input.type = match_first(type_regexes, var, "type matching");
-      input.default_flag = match_first(default_flag_regexes, var,
-                                       "default matching");
-
-      inputs.push_back(input);
-    }
-    return inputs;
-  }
-  // do some input variable magic in case someone asked
-  void remap_inputs(std::vector<lwt::Input>& nn,
-                    std::map<std::string, std::string>& replaced_vars,
-                    std::map<std::string, double>& defaults) {
-    // keep track of the new default values, and which values they
-    // were moved from
-    std::map<std::string, double> new_defaults;
-    std::set<std::string> moved_defaults;
-    for (lwt::Input& input: nn) {
-      std::string nn_name = input.name;
-      auto replacement_itr = replaced_vars.find(nn_name);
-      if (replacement_itr != replaced_vars.end()) {
-        std::string new_name = replacement_itr->second;
-        input.name = new_name;
-        if (defaults.count(nn_name)) {
-          new_defaults[new_name] = defaults.at(nn_name);
-          moved_defaults.insert(nn_name);
-        }
-        replaced_vars.erase(replacement_itr);
-      }
-    }
-    for (const auto& new_default: new_defaults) {
-      defaults[new_default.first] = new_default.second;
-      // if something was a new default we don't want to delete it
-      // below.
-      moved_defaults.erase(new_default.first);
-    }
-    // delete anything that was moved but wasn't assigned to
-    for (const auto& moved: moved_defaults) {
-      defaults.erase(moved);
-    }
-  }
-  std::vector<FTagTrackSequenceConfig> get_track_input_config(
-    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
-    const TypeRegexes& type_regexes,
-    const SortRegexes& sort_regexes,
-    const TrkSelRegexes& select_regexes) {
-    std::vector<FTagTrackSequenceConfig> nodes;
-    for (const auto& name_node: names) {
-      FTagTrackSequenceConfig node;
-      node.name = name_node.first;
-      node.order = match_first(sort_regexes, name_node.first,
-                               "track order matching");
-      node.selection = match_first(select_regexes, name_node.first,
-                                   "track selection matching");
-      for (const auto& varname: name_node.second) {
-        FTagTrackInputConfig input;
-        input.name = varname;
-        input.type = match_first(type_regexes, varname,
-                                 "track type matching");
-        node.inputs.push_back(input);
-      }
-      nodes.push_back(node);
-    }
-    return nodes;
-  }
-
-  // functions to rewrite input names
-  std::string sub_first(const StringRegexes& res,
-                        const std::string var_name) {
-    for (const auto& pair: res) {
-      const std::regex& re = pair.first;
-      const std::string& fmt = pair.second;
-      std::string new_name = std::regex_replace(
-        var_name, re, fmt, std::regex_constants::format_no_copy);
-      if (new_name.size() > 0) {
-        return new_name;
-      }
-    }
-    throw std::logic_error(
-      "no regex match found for variable '" + var_name + "' while building "
-      "negative tag b-btagger");
-  }
-  void rewriteFlipConfig(lwt::GraphConfig& config,
-                         const StringRegexes& res){
-    for (auto& node: config.inputs) {
-      for (auto& var: node.variables) {
-        var.name = sub_first(res, var.name);
-      }
-      std::map<std::string, double> new_defaults;
-      for (auto& pair: node.defaults) {
-        new_defaults[sub_first(res, pair.first)] = pair.second;
-      }
-      node.defaults = new_defaults;
-    }
-    std::map<std::string, lwt::OutputNodeConfig> new_outputs;
-    for (auto& pair: config.outputs) {
-      new_outputs[sub_first(res, pair.first)] = pair.second;
-    }
-    config.outputs = new_outputs;
-  }
-
-  void flipSequenceSigns(lwt::GraphConfig& config,
-                         const std::regex& re) {
-    for (auto& node: config.input_sequences) {
-      for (auto& var: node.variables) {
-        if (std::regex_match(var.name, re)) {
-          var.offset *= -1.0;
-          var.scale *= -1.0;
-        }
-      }
-    }
-  }
-
+  // Most of the NN code should be a relatively thin wrapper on these
+  // functions.
 
   namespace dataprep {
 
+
+    // Translate string config to config objects
+    //
+    // This parses the saved NN configuration structure and translates
+    // informaton encoded as strings into structures and enums to be
+    // consumed by the code that actually constructs the NN.
+    //
     std::tuple<
       std::vector<FTagInputConfig>,
       std::vector<FTagTrackSequenceConfig>,
@@ -492,16 +559,13 @@ namespace FlavorTagDiscriminants {
       TrackLinkType track_link_type
     ){
 
-
-      // __________________________________________________________________
       // we rewrite the inputs if we're using flip taggers
-      //
 
       StringRegexes flip_converters {
         {"(IP[23]D)_(.*)"_r, "$1Neg_$2"},
-        {"rnnip_(.*)"_r, "rnnipflip_$1"},
+        {"(rnnip|dips[^_]*)_(.*)"_r, "$1flip_$2"},
         {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
-        {"rnnip"_r, "rnnipflip"},
+        {"(rnnip|dips[^_]*)"_r, "$1flip"},
         {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
         {"pt|abs_eta"_r, "$&"},
         {"softMuon.*|smt.*"_r, "$&"}
@@ -516,9 +580,7 @@ namespace FlavorTagDiscriminants {
         flipSequenceSigns(config, flip_sequences);
       }
 
-      // __________________________________________________________________
       // build the standard inputs
-      //
 
       // type and default value-finding regexes are hardcoded for now
       TypeRegexes type_regexes = {
@@ -576,9 +638,8 @@ namespace FlavorTagDiscriminants {
         input_names, type_regexes, default_flag_regexes);
       }
 
-      // ___________________________________________________________________
       // build the track inputs
-      //
+
       std::vector<std::pair<std::string, std::vector<std::string> > > trk_names;
       for (const auto& node: config.input_sequences) {
         std::vector<std::string> names;
@@ -596,7 +657,7 @@ namespace FlavorTagDiscriminants {
         {"(log_)?(ptfrac|dr|pt).*"_r, EDMType::CUSTOM_GETTER},
         {"(deta|dphi)"_r, EDMType::CUSTOM_GETTER},
         {"phi|theta|qOverP"_r, EDMType::FLOAT},
-        {"(phi|theta|qOverp)Uncertainty"_r, EDMType::CUSTOM_GETTER}
+        {"(phi|theta|qOverP)Uncertainty"_r, EDMType::CUSTOM_GETTER}
       };
       // We have a number of special naming conventions to sort and
       // filter tracks. The track nodes should be named according to
@@ -631,8 +692,13 @@ namespace FlavorTagDiscriminants {
       options.remap_scalar = remap_scalar;
       options.track_link_type = track_link_type;
       return std::make_tuple(input_config, trk_config, options);
-    } // getGetterConfig
+    } // end of getGetterConfig
 
+
+    // Translate configuration to getter functions
+    //
+    // This focuses on the scalar inputs, i.e. the inputs for DL1d,
+    // the code for the track inputs is below.
     std::tuple<
       std::vector<internal::VarFromBTag>,
       std::vector<internal::VarFromJet>,
@@ -662,12 +728,16 @@ namespace FlavorTagDiscriminants {
     }
 
 
+    // Translate configuration to track getters
+    //
+    // This focuses on the track inputs, i.e. the inputs for dips, the
+    // code for the track inputs is above.
     std::tuple<
       std::vector<internal::TrackSequenceBuilder>,
       FTagDataDependencyNames>
     createTrackGetters(
       const std::vector<FTagTrackSequenceConfig>& track_sequences,
-      const FTagOptions& options, const std::string& jetLinkName)
+      const FTagOptions& options)
     {
       FTagDataDependencyNames deps;
       std::vector<internal::TrackSequenceBuilder> trackSequenceBuilders;
@@ -689,7 +759,6 @@ namespace FlavorTagDiscriminants {
         }
         trackSequenceBuilders.push_back(track_getter);
         deps.trackInputs.merge(track_data_deps);
-        deps.bTagInputs.insert(jetLinkName);
         deps.bTagInputs.insert(options.track_link_name);
       }
 
@@ -697,6 +766,10 @@ namespace FlavorTagDiscriminants {
     }
 
 
+    // Translate configuration to setter functions
+    //
+    // This returns the "decorators" that we use to save outputs to
+    // the EDM.
     std::tuple<
       std::map<std::string, internal::OutNode>,
       FTagDataDependencyNames>
@@ -738,17 +811,6 @@ namespace FlavorTagDiscriminants {
       return std::make_tuple(decorators, deps);
     }
   } // end of datapre namespace
-
-  namespace internal {
-    // constructor
-    internal::TrackSequenceBuilder::TrackSequenceBuilder(
-      SortOrder sort,
-      TrackSelection selection,
-      const FTagOptions& options):
-      tracksFromJet(sort, selection, options),
-      flipFilter(internal::get::flipFilter(options).first){
-    }
-  } // end of internal namespace
 
 } // end of FlavorTagDiscriminants namespace
 

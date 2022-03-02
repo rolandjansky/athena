@@ -11,7 +11,7 @@ static const InterfaceID IID_IAthenaSharedWriterSvc( "IAthenaSharedWriterSvc", 1
 
 class IAthenaSharedWriterSvc : virtual public ::IService {
 public:
-   virtual StatusCode share(int numClients = 0) = 0;
+   virtual StatusCode share(int numClients = 0, bool motherClient = false) = 0;
 
    /// Gaudi boilerplate
    static const InterfaceID& interfaceID() { return IID_IAthenaSharedWriterSvc; }

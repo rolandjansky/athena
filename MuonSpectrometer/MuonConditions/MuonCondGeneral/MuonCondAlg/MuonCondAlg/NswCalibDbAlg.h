@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_NSWCALIBDBALG_H
@@ -48,10 +48,10 @@ private:
 	StatusCode loadDataCalibMm  (const EventContext& ctx) const;
 	StatusCode loadDataCalibStgc(const EventContext& ctx) const;
 
-	StatusCode loadTimeChargeData(const EventContext&, readKey_t, const std::string) const;
-	StatusCode loadThresholdData (const EventContext&, readKey_t                   ) const;
+	StatusCode loadTimeChargeData(const EventContext&, const readKey_t&, const std::string&) const;
+	StatusCode loadThresholdData (const EventContext&, const readKey_t&                   ) const;
 
-	bool buildChannelId(Identifier*& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const;
+	bool buildChannelId(Identifier& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const;
     
     Gaudi::Property<bool> m_isOnline{this, "isOnline", false, "This algo is being used online"};
     Gaudi::Property<bool> m_isData  {this, "isData"  , true , "Processing data"};

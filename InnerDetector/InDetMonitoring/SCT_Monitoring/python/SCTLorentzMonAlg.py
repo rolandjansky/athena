@@ -46,8 +46,8 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # myMonAlg.RandomHist = True
 
     # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
-    from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
-    myMonAlg.TrackSummaryTool = result.getPrimaryAndMerge(TrackSummaryToolCfg(inputFlags))
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    myMonAlg.TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
     ConfigFlags.Detector.GeometryCalo = False
-    ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.Detector.GeometryMuon = True
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

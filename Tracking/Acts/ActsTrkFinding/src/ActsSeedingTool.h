@@ -30,6 +30,7 @@
 #include "Acts/Seeding/Seedfinder.hpp"
 #include "Acts/Seeding/Seed.hpp"
 
+#include <math.h>
 
 namespace ActsTrk {
   
@@ -79,21 +80,69 @@ namespace ActsTrk {
     // *********************************************************************
     // *********************************************************************
   private:
-
     // Properties
-    Gaudi::Property< float > m_rMax {this,"rMax",200. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_deltaRMin {this,"deltaRMin",1. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_deltaRMax {this,"deltaRMax",60. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_collisionRegionMin {this,"collisionRegionMin",-250. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_collisionRegionMax {this,"collisionRegionMax",250. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_zMin {this,"zMin",-2000. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_zMax {this,"zMax",2000. * Acts::UnitConstants::mm,""};
-    Gaudi::Property< float > m_maxSeedsPerSpM {this,"maxSeedsPerSpM",1,""};
-    Gaudi::Property< float > m_cotThetaMax {this,"cotThetaMax",7.40627,""}; // 2.7 eta
-    Gaudi::Property< float > m_sigmaScattering {this,"sigmaScattering",5,""};
-    Gaudi::Property< float > m_radLengthPerSeed {this,"radLengthPerSeed",0.5,""};
-    Gaudi::Property< float > m_minPt {this,"minPt",500. * Acts::UnitConstants::MeV,""};
-    Gaudi::Property< float > m_impactMax {this,"impactMax",3. * Acts::UnitConstants::mm,""};
+    Gaudi::Property< std::vector<std::pair<int, int>> > m_zBinNeighborsTop{this, "zBinNeighborsTop", {}, ""};
+    Gaudi::Property< std::vector<std::pair<int, int>> > m_zBinNeighborsBottom{this, "zBinNeighborsBottom", {}, ""};
+
+    // Used by SeedfinderConfig
+    Gaudi::Property< float > m_minPt {this,"minPt",500. * Acts::UnitConstants::MeV,
+	"lower cutoff for seeds"}; // Also used by SpacePointGridConfig
+    Gaudi::Property< float > m_cotThetaMax {this,"cotThetaMax",7.40627,
+	"cot of maximum theta angle"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_deltaRMin {this,"deltaRMin",5. * Acts::UnitConstants::mm,
+	"minimum distance in r between two measurements within one seed"}; // Also used by SeedFilterConfig
+    Gaudi::Property< float > m_deltaRMax {this,"deltaRMax",60. * Acts::UnitConstants::mm,
+	"maximum distance in r between two measurements within one seed"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_impactMax {this,"impactMax",3. * Acts::UnitConstants::mm,
+	"maximum impact parameter"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_sigmaScattering {this,"sigmaScattering",5,
+	"how many sigmas of scattering angle should be considered"};    
+    Gaudi::Property< float > m_maxPtScattering {this,"maxPtScattering",10 * Acts::UnitConstants::mm,
+	"Upper pt limit for scattering calculation"};
+    Gaudi::Property< float > m_maxSeedsPerSpM {this,"maxSeedsPerSpM",5,
+	"In dense environments many seeds may be found per middle space point. Only seeds with the highest weight will be kept if this limit is reached."}; // Also used by SeedFilterConfig
+    Gaudi::Property< float > m_collisionRegionMin {this,"collisionRegionMin",-250. * Acts::UnitConstants::mm,
+	"limiting location of collision region in z"};
+    Gaudi::Property< float > m_collisionRegionMax {this,"collisionRegionMax",250. * Acts::UnitConstants::mm,
+	"limiting location of collision region in z"};
+    Gaudi::Property< float > m_phiMin {this,"phiMin",-M_PI,
+	"limiting location of collision region in z"};
+    Gaudi::Property< float > m_phiMax {this,"phiMax",M_PI,
+	"limiting location of collision region in z"};
+    Gaudi::Property< float > m_zMin {this,"zMin",-2000. * Acts::UnitConstants::mm,
+	"limiting location of measurements"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_zMax {this,"zMax",2000. * Acts::UnitConstants::mm,
+	"limiting location of measurements"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_rMax {this,"rMax",200. * Acts::UnitConstants::mm,
+	"limiting location of measurements"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_rMin {this,"rMin",33 * Acts::UnitConstants::mm,
+	"limiting location of measurements"}; 
+    Gaudi::Property< float > m_radLengthPerSeed {this,"radLengthPerSeed",0.5,
+	"average radiation lengths of material on the length of a seed. used for scattering"};
+    Gaudi::Property< float > m_zAlign {this,"zAlign",0 * Acts::UnitConstants::mm,
+	"alignment uncertainties, used for uncertainties in the non-measurement-plane of the modules which otherwise would be 0."
+	"will be added to spacepoint measurement uncertainties (and therefore also multiplied by sigmaError)"};
+    Gaudi::Property< float > m_rAlign {this,"rAlign",0 * Acts::UnitConstants::mm,
+	"alignment uncertainties, used for uncertainties in the non-measurement-plane of the modules which otherwise would be 0."
+	"will be added to spacepoint measurement uncertainties (and therefore also multiplied by sigmaError)"};
+    Gaudi::Property< float > m_sigmaError {this,"sigmaError",5,
+      "used for measurement (+alignment) uncertainties. Find seeds within 5sigma error ellipse"};    
+
+    // Used by SeedFilterConfig
+    Gaudi::Property< float > m_deltaInvHelixDiameter {this,"deltaInvHelixDiameter", 0.00003 * 1. / Acts::UnitConstants::mm, 
+	"the allowed delta between two inverted seed radii for them to be considered compatible."};
+    Gaudi::Property< float > m_impactWeightFactor {this,"impactWeightFactor",1.,
+	"the impact parameters (d0) is multiplied by this factor and subtracted from weight"};
+    Gaudi::Property< float > m_compatSeedWeight {this,"compatSeedWeight",200.,
+	"seed weight increased by this value if a compatible seed has been found"};  
+    Gaudi::Property< std::size_t > m_compatSeedLimit {this,"compatSeedLimit",2,
+	"how often do you want to increase the weight of a seed for finding a compatible seed"};
+
+    // Used by SpacePointGridConfig
+    Gaudi::Property< int > m_numPhiNeighbors {this, "numPhiNeighbors", 1, 
+	"sets of consecutive phi bins in the seed making step"};
+    Gaudi::Property< std::vector<float> > m_zBinEdges {this, "zBinEdges", {} , 
+	"enable non equidistant binning in z"}; 
   };
   
 } // namespace

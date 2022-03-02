@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
@@ -54,7 +54,7 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
   const IProxyDict* proxy = Atlas::getExtendedEventContext(ctx).proxy();
-  const HepMcParticleLink * lastLink=NULL;
+  const HepMcParticleLink * lastLink=nullptr;
   int lastId = -1;
   double lastT = 0.0*CLHEP::ns;
   unsigned int idx = 0;
@@ -104,7 +104,7 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
     const HepGeom::Point3D<double> hitStart(trtHit->GetPreStepX(), trtHit->GetPreStepY(), trtHit->GetPreStepZ()); // mm
 
     const double meanTime = trtHit->GetGlobalTime(); // ns  // Time of flight from the I.P. to the center of the hit.
-    const double dTLast = fabs(meanTime - lastT);      // |d(meantime)| between the previous hit and the current one.
+    const double dTLast = std::abs(meanTime - lastT);      // |d(meantime)| between the previous hit and the current one.
     const double dRLast = lastEnd.distance(hitStart);  // Distance between end of previous hit and start of current one;
     // this is zero if the hit is a continuation of the same particle in the same straw.
 

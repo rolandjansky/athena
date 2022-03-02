@@ -11,7 +11,7 @@ void AGDDUnion::CreateSolid (const AGDDBuilder& builder)
 	builder.CreateUnion(this);
 }
 
-void AGDDUnion::CreateVolume (const AGDDBuilder& builder)
+void AGDDUnion::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

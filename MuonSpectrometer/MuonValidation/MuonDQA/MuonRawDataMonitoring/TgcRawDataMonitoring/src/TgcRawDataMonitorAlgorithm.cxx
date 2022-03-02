@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
@@ -1025,7 +1025,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
     for(const auto& item : m_thrMonList){
       std::vector<bool> passed;
-      for(const auto& mymuon : mymuons){
+      passed.reserve(mymuons.size());
+for(const auto& mymuon : mymuons){
 	passed.push_back( mymuon.matchedL1Items.find(item) != mymuon.matchedL1Items.end() );
       }
       auto muon_passed_l1item = Monitored::Collection(Form("muon_passed_l1item_%s",item.Data()),passed);
@@ -1699,7 +1700,7 @@ bool TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::TrackParticle *trackPar
 ///////////////////////////////////////////////////////////////
 std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapolateToTGC(const Trk::TrackStateOnSurface *tsos, const Amg::Vector3D &pos, Amg::Vector2D &distance) const {
     const Trk::TrackParameters *track = tsos->trackParameters();
-    if (!track || dynamic_cast<const Trk::AtaStraightLine*>(track) == 0) {
+    if (!track || dynamic_cast<const Trk::AtaStraightLine*>(track) == nullptr) {
         return nullptr;
     }
     double targetZ = pos.z();
@@ -1714,7 +1715,9 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
     distance[0] = trackZ;
     distance[1] = std::abs(trackZ - targetZ);
     const bool boundaryCheck = true;
-    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*track, *disc, Trk::anyDirection, boundaryCheck, Trk::muon));
+    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *track, *disc, Trk::anyDirection, boundaryCheck, Trk::muon));
     if (!param) {
         return nullptr;
     }
@@ -1727,7 +1730,7 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
 ///////////////////////////////////////////////////////////////
 std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapolateToRPC(const Trk::TrackStateOnSurface *tsos, const Amg::Vector3D &pos, Amg::Vector2D &distance) const {
     const Trk::TrackParameters *track = tsos->trackParameters();
-    if (!track || dynamic_cast<const Trk::AtaStraightLine*>(track) == 0) {
+    if (!track || dynamic_cast<const Trk::AtaStraightLine*>(track) == nullptr) {
         return nullptr;
     }
     double radius = pos.perp();
@@ -1742,7 +1745,9 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
     distance[0] = trackRadius;
     distance[1] = trackRadius - radius;
     const bool boundaryCheck = true;
-    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*track, *cylinder, Trk::anyDirection, boundaryCheck, Trk::muon));
+    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *track, *cylinder, Trk::anyDirection, boundaryCheck, Trk::muon));
 
     if (!param) {
         return nullptr;

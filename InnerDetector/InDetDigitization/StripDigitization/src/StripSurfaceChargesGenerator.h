@@ -82,12 +82,12 @@ class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesG
   /** create a list of surface charges from a hit */
   virtual void process(const InDetDD::SiDetectorElement* element, 
 		       const TimedHitPtr<SiHit>& phit, 
-		       const ISiSurfaceChargesInserter& inserter, 
+		       ISiSurfaceChargesInserter& inserter, 
 		       CLHEP::HepRandomEngine * rndmEngine, 
-		       const EventContext& ctx) const override;
+		       const EventContext& ctx) override;
   void processSiHit(const InDetDD::SiDetectorElement* element, 
 		    const SiHit& phit, 
-		    const ISiSurfaceChargesInserter& inserter, 
+		    ISiSurfaceChargesInserter& inserter, 
 		    float eventTime, unsigned short eventID, 
 		    CLHEP::HepRandomEngine * rndmEngine, 
 		    const EventContext& ctx) const;

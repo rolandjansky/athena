@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase(Trk::Track const* track) con
     aT0=avgT0->get();
   }
 
-  TRTCond::RtRelation const* rtr = 0;
+  TRTCond::RtRelation const* rtr = nullptr;
   double timeresidualsum = 0;
   size_t ntrthits = 0;
   for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces()) {
@@ -93,7 +93,7 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase(Trk::Track const* track) con
     Trk::TrackParameters const* tparp = (state->trackParameters());
     if (!tparp) continue;
     double trkdistance = tparp->parameters()[Trk::driftRadius];
-    double trkdrifttime = rtr->drifttime(fabs(trkdistance));
+    double trkdrifttime = rtr->drifttime(std::abs(trkdistance));
 
     double timeresidual = rawdrifttime - t0 + aT0 - trkdrifttime;
     ATH_MSG_DEBUG("trkdistance=" << trkdistance
@@ -101,7 +101,7 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase(Trk::Track const* track) con
                                  << "  timeresidual=" << timeresidual
                                  << " rawdrifttime=" << rawdrifttime);
 
-    if (timeresidual < 2000 && std::fabs(trkdistance) < 2.8) {
+    if (timeresidual < 2000 && std::abs(trkdistance) < 2.8) {
       timeresidualsum += timeresidual;
       ++ntrthits;
     }
@@ -121,7 +121,7 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase(Trk::Segment const* segment)
   double sum_tr = 0.;
   double sum_goodhits = 0.;
 
-  TRTCond::RtRelation const* rtr = 0;
+  TRTCond::RtRelation const* rtr = nullptr;
   int nhits = segment->numberOfMeasurementBases();
   for (int i = 0; i < nhits; ++i) {
     Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(segment->measurement(i));

@@ -1,11 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: fpcompare.h,v 1.4 2009-04-07 04:26:22 ssnyder Exp $
-
 /**
  * @file CxxUtils/fpcompare.h
  * @author scott snyder
@@ -249,7 +246,6 @@ namespace fpcompare_fn {
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct equal
-  : public std::binary_function<double, double, bool>
 {
   bool
   operator()(double a, double b) const
@@ -261,7 +257,6 @@ struct equal
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct equalf
-  : public std::binary_function<float, float, bool>
 {
   bool
   operator()(float a, float b) const
@@ -273,7 +268,6 @@ struct equalf
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct greater
-  : public std::binary_function<double, double, bool>
 {
   bool
   operator()(double a, double b) const
@@ -285,7 +279,6 @@ struct greater
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct greaterf
-  : public std::binary_function<float, float, bool>
 {
   bool
   operator()(float a, float b) const
@@ -297,7 +290,6 @@ struct greaterf
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct less
-  : public std::binary_function<double, double, bool>
 {
   bool
   operator()(double a, double b) const
@@ -309,7 +301,6 @@ struct less
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct lessf
-  : public std::binary_function<float, float, bool>
 {
   bool
   operator()(float a, float b) const
@@ -321,7 +312,6 @@ struct lessf
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct greater_equal
-  : public std::binary_function<double, double, bool>
 {
   bool
   operator()(double a, double b) const
@@ -333,7 +323,6 @@ struct greater_equal
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct greater_equalf
-  : public std::binary_function<float, float, bool>
 {
   bool
   operator()(float a, float b) const
@@ -345,7 +334,6 @@ struct greater_equalf
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct less_equal
-  : public std::binary_function<double, double, bool>
 {
   bool
   operator()(double a, double b) const
@@ -357,7 +345,6 @@ struct less_equal
  * @brief Compare two FP numbers, working around x87 precision issues.
  */
 struct less_equalf
-  : public std::binary_function<float, float, bool>
 {
   bool
   operator()(float a, float b) const

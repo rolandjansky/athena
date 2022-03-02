@@ -58,7 +58,7 @@ void compare (const CscRawDataCollection& p1,
 
 void testit (const CscRawDataCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CscRawDataCollectionCnv_p1 cnv;
   CscRawDataCollection_p1 pers;
   //cnv.transToPers (&trans1, &pers, log);

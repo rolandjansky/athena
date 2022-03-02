@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // HLTSeeding includes
 #include "EMRoIsUnpackingTool.h"
@@ -69,7 +69,7 @@ StatusCode EMRoIsUnpackingTool::unpack(const EventContext& ctx,
       Decision* decisionMain = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
       Decision* decisionProbe = TrigCompositeUtils::newDecisionIn( decisionOutputProbe.ptr(), hltSeedingNodeName() );
 
-      std::vector<unsigned> passedThresholdIDs;
+      std::vector<TrigCompositeUtils::DecisionID> passedThresholdIDs;
 
       for (const auto& th : emThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );

@@ -4,7 +4,6 @@
 
 // Will pass if there are the specified number of photons with pT and eta in the specified range
 #include "GeneratorFilters/xAODPhotonFilter.h"
-#include "EventInfo/EventStreamInfo.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,7 +53,7 @@
 
 namespace {
 
-  const char* horizLine = "-------------------------------------------------------------------------------------\n";
+  const char* const horizLine = "-------------------------------------------------------------------------------------\n";
 
    void ExitOnInt( int sig, siginfo_t*, void* ) {
       if ( sig == SIGINT ) {
@@ -85,12 +85,12 @@ namespace CoreDumpSvcHandler
   CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
   std::ostream* ostr(&std::cout);     ///< stream for printing
 
-  std::ostream& log() { return *ostr; }  ///< convenience method for logging
+  std::ostream& log ATLAS_NOT_THREAD_SAFE () { return *ostr; }  ///< convenience method for logging
 
   /**
    * Signal handler for the CoreDumpSvc
    */
-  void action( int sig, siginfo_t *info, void* extra )
+  void action ATLAS_NOT_THREAD_SAFE ( int sig, siginfo_t *info, void* extra )
   {
     // Careful: don't do anything here that might allocate memory.
 
@@ -214,7 +214,7 @@ namespace CoreDumpSvcHandler
 //================================================================================
 // C'tor, D'tor, Property handler
 //================================================================================
-CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
+CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   base_class( name, pSvcLocator )
 {
   // Set us as the current instance
@@ -354,7 +354,7 @@ void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& n
 //----------------------------------------------------------------------
 // Print all core dump records
 //----------------------------------------------------------------------
-void CoreDumpSvc::print()
+void CoreDumpSvc::print ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() << ".");
   CoreDumpSvcHandler::log() << dump() << std::flush;
@@ -366,11 +366,12 @@ void CoreDumpSvc::print()
 std::string CoreDumpSvc::dump() const
 {
   std::ostringstream os;
+  char buf[26];
   const time_t now = time(nullptr);
   
   os << "-------------------------------------------------------------------------------------" << "\n";
   os << "Core dump from " << name() << " on " << System::hostName()
-     << " at " << ctime(&now) /*<< "\n"*/; // ctime adds "\n"
+     << " at " << ctime_r(&now, buf) /*<< "\n"*/; // ctime adds "\n"
   os << "\n";
 
   // Print additional information if available
@@ -556,7 +557,7 @@ void CoreDumpSvc::handle(const Incident& incident)
 //----------------------------------------------------------------------
 // Install signal handler
 //----------------------------------------------------------------------
-StatusCode CoreDumpSvc::installSignalHandler()
+StatusCode CoreDumpSvc::installSignalHandler ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_MSG_DEBUG ("Installing signal handler");
   std::ostringstream oss;
@@ -594,7 +595,7 @@ StatusCode CoreDumpSvc::installSignalHandler()
 //----------------------------------------------------------------------
 // Uninstall signal handler
 //----------------------------------------------------------------------
-StatusCode CoreDumpSvc::uninstallSignalHandler()
+StatusCode CoreDumpSvc::uninstallSignalHandler ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_MSG_DEBUG ("Uninstalling signal handler");
 

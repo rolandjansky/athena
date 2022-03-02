@@ -1,4 +1,6 @@
 #include "TopPartons/PartonHistoryUtils.h"
+#include "TopPartons/PartonHistory.h"
+#include <array>
 
 namespace top {
 namespace PartonHistoryUtils {
@@ -179,6 +181,17 @@ namespace PartonHistoryUtils {
         return false;
       }
     }
+  }
+  
+  void 
+  decorateWithMPtPhi(xAOD::PartonHistory* pHistory, const std::string & prefix, const TLorentzVector & vec ){
+    constexpr size_t nItems=3;
+    const std::array<std::string, nItems> suffix{"_m", "_pt", "_phi"};
+    const std::array<double, nItems> values{vec.M(), vec.Pt(), vec.Phi()};
+    for(size_t i(0);i<nItems;++i){
+      pHistory->auxdecor< float >(prefix+suffix[i]) = values[i];
+    }
+    return;
   }
 }
 }

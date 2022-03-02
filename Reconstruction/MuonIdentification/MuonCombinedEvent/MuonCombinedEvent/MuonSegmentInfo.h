@@ -24,161 +24,150 @@ namespace MuonCombined {
 
     struct MuonSegmentInfo {
 
-    MuonSegmentInfo() : track(0), segment(0), trackAtSegment(0),
-      dtheta(-9999.), dphi(-9999.), dthetaPos(-9999.), dphiPos(-9999.),
-      resX(-9999.), exErrorX(-9999.), segErrorX(-9999.), pullX(-9999.), 
-      resY(-9999.), exErrorY(-9999.), segErrorY(-9999.), pullY(-9999.), 
-      exCovYTheta(-9999.), exCovYZY(-9999.), dangleXZ(-9999.), 
-      exErrorXZ(-9999.), segErrorXZ(-9999.), pullXZ(-9999.), dangleYZ(-9999.),
-      exErrorYZ(-9999.), segErrorYZ(-9999.), pullYZ(-9999.), resCY(-9999.),
-      pullCY(-9999.), chi2Y(-9999.), hasPhi(-1), quality(-1), stationLayer(-1),
-      nholes(-1), nsegments(-1), singleML(-1), maximumResidualAlongTube(-9999.),
-      pullChamber(-9999.), maximumResidualPhi(-9999.), maximumPullPhi(-9999.),
-      minimumResidualPhi(-9999.), minimumPullPhi(-9999.), t0(-9999.),
-      RLocY(-9999.), RAYZ(-9999.), selected(-1) {}
+    MuonSegmentInfo() = default;
       /**pointer to the track object*/
-      const Trk::Track* track;
+      const Trk::Track* track{nullptr};
 
       /** pointer to the muon object*/
-      const Muon::MuonSegment* segment;
+      const Muon::MuonSegment* segment{nullptr};
 
       /** track extrapolated to the segment */
-      const Trk::TrackParameters* trackAtSegment;
+      std::shared_ptr<const Trk::TrackParameters> trackAtSegment{nullptr};
 
       /** element link to xAOD segment */
       ElementLink<xAOD::MuonSegmentContainer> link;
 
       /** global theta direction track - segment in bending plane */
-      double dtheta;
+      double dtheta{-9999.};
 
       /** global phi direction track - segment in bending plane */
-      double dphi;
+      double dphi{-9999.};
 
       /** global theta position track - segment in bending plane */
-      double dthetaPos;
+      double dthetaPos{-9999.};
 
       /** global phi position track - segment in bending plane */
-      double dphiPos;
+      double dphiPos{-9999.};
 
       /** residual track - segment in Local coordinate non-bending plane */
-      double resX;
+      double resX{-9999.};
 
       /** error from extrapolation on residual in non-bending plane */
-      double exErrorX;
+      double exErrorX{-9999.};
 
       /** error from segment on residual in non-bending plane */
-      double segErrorX;
+      double segErrorX{-9999.};
 
       /** pull on residual in non-bending plane */
-      double pullX;
+      double pullX{-9999.};
 
       /** residual track - segment in Local coordinate in bending plane */
-      double resY;
+      double resY{-9999.};
 
       /** error from extrapolation on residual in bending plane */
-      double exErrorY;
+      double exErrorY{-9999.};
   
       /** error from segment on residual in bending plane */
-      double segErrorY;
+      double segErrorY{-9999.};
 
       /** pull on residual in bending plane */
-      double pullY;
+      double pullY{-9999.};
 
       /** covariance  loc Y theta from track in bending plane */
-      double exCovYTheta;
+      double exCovYTheta{-9999.};
 
       /** covariance  loc Y angleYZ from track in bending plane */
-      double exCovYZY;
+      double exCovYZY{-9999.};
 
       /** angular residual in the Local coordinate non-bending plane */
-      double dangleXZ;
+      double dangleXZ{-9999.};
 
      /** error from extrapolation on angle in non-bending plane */
-      double exErrorXZ;
+      double exErrorXZ{-9999.};
 
       /** error from segment on angle in non-bending plane */
-      double segErrorXZ;
+      double segErrorXZ{-9999.};
 
       /** pull on angle in non-bending plane */
-      double pullXZ;
+      double pullXZ{-9999.};
 
       /** angular residual in the Local coordinate bending plane */
-      double dangleYZ;
+      double dangleYZ{-9999.};
 
      /** error from extrapolation on angle in bending plane */
-      double exErrorYZ;
+      double exErrorYZ{-9999.};
 
       /** error from segment on angle in bending plane */
-      double segErrorYZ;
+      double segErrorYZ{-9999.};
 
       /** pull on angle in bending plane */
-      double pullYZ;
+      double pullYZ{-9999.};
 
       /** residual on combined local position Y and angle YZ  */
-      double resCY;
+      double resCY{-9999.};
 
       /** pull on combined local position Y and angle YZ  */
-      double pullCY;
+      double pullCY{-9999.};
 
       /** chi2 in the Y position and YZ angle bending and precision plane */
-      double chi2Y;
+      double chi2Y{-9999.};
 
      /** Expect phi hits in EI or EM or BM or BO */
-      int hasPhi;
+      int hasPhi{-1};
 
       /** hit count summary */
       //Muon::IMuonSegmentHitSummaryTool::HitCounts hitCounts;
 
       /** segment quality */
-      int quality;
+      int quality{-1};
 
       /** station layer */
-      int stationLayer;
+      int stationLayer{-1};
 
       /** number of holes */
-      int nholes;
+      int nholes{-1};
 
       /** number of segments in track */
-      int nsegments;
+      int nsegments{-1};
 
       /** 1 if single ML */
-      int singleML;
+      int singleML{-1};
 
       /** maximum residual with tube endplugs (positive means outside of the tube */
-      double maximumResidualAlongTube;
+      double maximumResidualAlongTube{-99999.};
 
       /** pullChamber =  maximumResidualAlongTube / extrapolationError  < 5 means within chamber at 5.s.d from edges */
 
-      double pullChamber;
+      double pullChamber{-99999.};
 
       /** maximum residual with the phi hits on the segment */
-      double maximumResidualPhi;
+      double maximumResidualPhi{-99999.};
 
       /** maximum pull with the phi hits on the segment */
-      double maximumPullPhi;
+      double maximumPullPhi{-99999.};
 
       /** minimum residual with the phi hits on the segment */
-      double minimumResidualPhi;
+      double minimumResidualPhi{-99999.};
 
       /** minimum pull with the phi hits on the segment */
-      double minimumPullPhi;
+      double minimumPullPhi{-99999.};
 
       /** fitted t0 */
-      double t0;
+      double t0{-99999.};
 
      /** RLocY parametrized rejection as a function of locY
  *          parameter is used for selecting best segment */
 
-      double RLocY;
+      double RLocY{-99999.};
 
     /** RAYZ parametrized rejection as a function of Angle YZ
  *          parameter is/could be used for selecting best segment */
 
-      double RAYZ;
+      double RAYZ{-99999.};
 
     /** selected == 1 if the segment accepted for MuonTagIMO */
 
-      int selected;
+      int selected{-1};
 
   };     
                  

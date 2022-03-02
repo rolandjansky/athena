@@ -1,6 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef TAURECTOOLS_TAURECTOOLSDICT_H
 #define TAURECTOOLS_TAURECTOOLSDICT_H
@@ -15,7 +14,6 @@
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/TauTrackRNNClassifier.h"
-#include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/TauCombinedTES.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -40,26 +40,26 @@ class LumiBlockCollectionConverter {
 
   LumiBlockCollection* GetLumiBlockCollection(const Root::TGoodRunsList& grl, std::map<TString,TString>& metadata, TString& version) ;
   LumiBlockCollection* GetLumiBlockCollection(const Root::TGoodRunsList& grl) const;
-  LumiBlockCollection* GetLumiBlockCollection(const char* xmlfile) const;
-  LumiBlockCollection* GetLumiBlockCollectionFromString( const TString& xmlstring ) const;
+  LumiBlockCollection* GetLumiBlockCollection(const char* xmlfile);
+  LumiBlockCollection* GetLumiBlockCollectionFromString( const TString& xmlstring );
 
-  void CreateXMLFile(const Root::TGoodRunsList& grl, const TString& xmlfilename="", const TString& prefix="" ) const;
-  void CreateXMLFile(const Root::TGRLCollection& grlcollection, const char* xmlfilename) const;
+  void CreateXMLFile(const Root::TGoodRunsList& grl, const TString& xmlfilename="", const TString& prefix="" );
+  void CreateXMLFile(const Root::TGRLCollection& grlcollection, const char* xmlfilename);
   void CreateXMLFile(const LumiBlockCollection& lbc, const grlmetadatamap& metadata = grlmetadatamap(), const char* version="", 
-                     const TString& xmlfilename="", const TString& prefix="" ) const;
-  void CreateXMLFiles(const Root::TGRLCollection& grlcollection, const char* prefix) const;
+                     const TString& xmlfilename="", const TString& prefix="" );
+  void CreateXMLFiles(const Root::TGRLCollection& grlcollection, const char* prefix);
 
-  const TString GetXMLString(const Root::TGoodRunsList& grl) const;
-  const TString GetXMLString(const Root::TGRLCollection& grlcollection) const;
-  const TString GetXMLString(const LumiBlockCollection& lbc, const grlmetadatamap& metadata = grlmetadatamap(), const char* version="" ) const;
-  const std::vector<TString> GetXMLStrings(const Root::TGRLCollection& grlcollection) const;
+  const TString GetXMLString(const Root::TGoodRunsList& grl);
+  const TString GetXMLString(const Root::TGRLCollection& grlcollection);
+  const TString GetXMLString(const LumiBlockCollection& lbc, const grlmetadatamap& metadata = grlmetadatamap(), const char* version="" );
+  const std::vector<TString> GetXMLStrings(const Root::TGRLCollection& grlcollection);
 
   Root::TGoodRunsList* GetGRLObject( const LumiBlockCollection& lbc, const grlmetadatamap& metadata = grlmetadatamap(), const char* version="" ) const;
-  Root::TGoodRunsList* GetGRLObject( const char* xmlfile ) const;
-  Root::TGoodRunsList* GetGRLObjectFromString( const TString& xmlstring ) const;
+  Root::TGoodRunsList* GetGRLObject( const char* xmlfile );
+  Root::TGoodRunsList* GetGRLObjectFromString( const TString& xmlstring );
 
-  Root::TGRLCollection* GetGRLCollection( const char* xmlfile ) const;
-  Root::TGRLCollection* GetGRLCollectionFromString( const TString& xmlstring ) const;
+  Root::TGRLCollection* GetGRLCollection( const char* xmlfile );
+  Root::TGRLCollection* GetGRLCollectionFromString( const TString& xmlstring );
 
   const TString GetSuggestedName( const LumiBlockCollection& lbc ) const ;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -27,8 +27,7 @@ static const int maxFiredChannels =  4096;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadRpcRDO::ReadRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
-  m_activeStore("ActiveStoreSvc", name)
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr)
 {
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);
@@ -38,7 +37,6 @@ ReadRpcRDO::ReadRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode ReadRpcRDO::initialize()
 {
-  ATH_CHECK( m_activeStore.retrieve() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;
 
@@ -73,8 +71,9 @@ StatusCode ReadRpcRDO::execute() {
 
   ATH_MSG_DEBUG( "in execute()"  );
 
-  const RpcPadContainer* RpcRDO = nullptr; 
-  ATH_CHECK( (*m_activeStore)->retrieve( RpcRDO, "RPCPAD" ) );
+  SG::ReadHandle<RpcPadContainer> hndl("RPCPAD");
+  const RpcPadContainer* RpcRDO = hndl.get();
+  ATH_CHECK( RpcRDO != nullptr );
 
   ATH_MSG_DEBUG("****** RpcRDO->size() : " << RpcRDO->size() );
 

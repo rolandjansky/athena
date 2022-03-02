@@ -3,13 +3,13 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
-from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-from TriggerJobOpts.TriggerConfig import triggerPOOLOutputCfg
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerRecoConfig')
-
 
 
 def TriggerRecoCfg(flags):
@@ -30,32 +30,122 @@ def TriggerRecoCfg(flags):
     acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
     acc.merge( L1ConfigSvcCfg(flags) )
     acc.merge( HLTConfigSvcCfg(flags) )
+    acc.merge( BunchGroupCondAlgCfg( flags ) )
     acc.merge( L1PrescaleCondAlgCfg(flags) )
     acc.merge( HLTPrescaleCondAlgCfg(flags) )
 
-    if flags.Trigger.EDMVersion == 3:
+    if flags.Trigger.EDMVersion >= 3:
         acc.merge(Run3TriggerBSUnpackingCfg(flags))
-        acc.merge(triggerPOOLOutputCfg(flags))
-        tdm = CompFactory.TrigDec.TrigDecisionMakerMT()
-        acc.addEventAlgo( tdm )
-    elif flags.Trigger.EDMVersion == 2 or flags.Trigger.EDMVersion == 1:
+        from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
+        acc.merge(Run3DecisionMakerCfg(flags))
+        if flags.Trigger.doNavigationSlimming:
+            from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTCfg
+            acc.merge(TrigNavSlimmingMTCfg(flags))
+    elif flags.Trigger.EDMVersion in [1, 2]:
+        if flags.Trigger.EDMVersion == 1:
+            acc.merge(Run1xAODConversionCfg(flags))
         acc.merge( Run1Run2BSExtractionCfg(flags) )
-        # from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
-        # xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags) #TODO missing muon cabling etc. i.e. not self contained config, can not test locally
-        # acc.merge( xRoIBResultAcc )
-        # acc.merge (Run1Run2DecisionMakerCfg(flags) ) #TODO needs properly setup TDT
+        from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+        xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags)
+        acc.merge( xRoIBResultAcc )
+        from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
+        acc.merge (Run1Run2DecisionMakerCfg(flags) )
+        menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
+        menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool("KeyWriterToolOffline")
+        acc.addEventAlgo( menuwriter )
+        if flags.Trigger.doNavigationSlimming:
+            acc.merge(Run2Run1NavigationSlimingCfg(flags))
+
     else:
         raise RuntimeError("Invalid EDMVersion=%s " % flags.Trigger.EDMVersion)
-    if flags.Trigger.EDMVersion == 1:
-        pass # TODO add R1 to xAOD conversion
-
-
-    menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
-    menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool()
-    acc.addEventAlgo( menuwriter )
+    if flags.Output.doWriteESD  or flags.Output.doWriteAOD:
+        acc.merge(TriggerEDMCfg(flags))
 
     return acc
 
+
+def TriggerEDMCfg(flags):
+    """Configures which trigger collections are recorded"""
+    acc = ComponentAccumulator()
+    # standard collections & metadata
+    # TODO consider unifying with TriggerConfig.triggerPOOLOutputCfg - there the assumption is that Run3 
+    # metadata
+    menuMetadata = ["xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*",]
+    if flags.Trigger.EDMVersion in [1,2]:
+        menuMetadata += ['xAOD::TriggerMenuAuxContainer#*', 'xAOD::TriggerMenuContainer#*',]
+
+    # EDM
+    def _asList(edm):
+        return [ f"{type}#{name}" for type, names in edm.items() for name in names ]
+    _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
+    _TriggerAODList = getTriggerEDMList(flags.Trigger.AODEDMSet,  flags.Trigger.EDMVersion)
+    log.debug("ESD EDM list: %s", _TriggerESDList)
+    log.debug("AOD EDM list: %s", _TriggerAODList)
+    
+    # Highlight what is in AOD list but not in ESD list, as this can cause
+    # the "different number of entries in branch" problem, when it is in the
+    # AOD list but the empty container per event is not created
+    # Just compares keys of dicts, which are the class names, not their string keys in StoreGate
+    not_in = [ element for element in  _TriggerAODList if element not in _TriggerESDList ]
+    if (len(not_in)>0):
+        log.warning("In AOD list but not in ESD list: ")
+        log.warning(not_in)
+    else:
+        log.info("AOD list is subset of ESD list - good.")
+
+    # there is internal gating  in addTo* if AOD or ESD do not need to be written out
+    acc.merge(addToESD(flags, _asList(_TriggerESDList), MetadataItemList = menuMetadata))
+    acc.merge(addToAOD(flags, _asList(_TriggerAODList), MetadataItemList = menuMetadata))
+    
+    log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", flags.Trigger.AODEDMSet, flags.Trigger.EDMVersion)
+    # navigation for Run 3
+    if flags.Trigger.EDMVersion == 3 and not flags.Trigger.doOnlineNavigationCompactification and not flags.Trigger.doNavigationSlimming:
+        nav = ['xAOD::TrigCompositeContainer#HLTNav*', 'xAOD::TrigCompositeAuxContainer#HLTNav*',]
+        acc.merge(addToAOD(flags, nav))
+        acc.merge(addToESD(flags, nav))
+    # extra jet keys
+    jetSpecials = ["JetKeyDescriptor#JetKeyMap", "JetMomentMap#TrigJetRecMomentMap",]
+    acc.merge(addToESD(flags, jetSpecials))
+    acc.merge(addToAOD(flags, jetSpecials))
+
+    # RoIs
+    if flags.Output.doWriteAOD and flags.Trigger.EDMVersion == 2:
+        roiWriter = CompFactory.RoiWriter( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput"),]) 
+        acc.addEventAlgo(roiWriter)
+
+        from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
+        acc.merge(addToAOD(flags, TriggerRoiList))
+
+    return acc
+
+def Run2Run1NavigationSlimingCfg(flags):
+    """Configures legacy Run1/2 navigation slimming"""
+    acc = ComponentAccumulator()
+    def _flatten(edm):
+        return list(y.split('-')[0] for x in edm.values() for y in x)
+    from TrigNavTools.TrigNavToolsConfig import TrigNavigationThinningSvcCfg
+    
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+
+    if flags.Output.doWriteAOD:
+        _TriggerAODList = getTriggerEDMList(flags.Trigger.AODEDMSet,  flags.Trigger.EDMVersion)
+        thinningSvc = acc.getPrimaryAndMerge(TrigNavigationThinningSvcCfg(flags, 
+                                                                          {'name' : 'HLTNav_StreamAOD',
+                                                                           'mode' : 'cleanup_noreload', 
+                                                                           'result' : 'HLTResult_HLT',
+                                                                           'features' : _flatten(_TriggerAODList)}))
+        acc.merge(OutputStreamCfg(flags, "AOD", trigNavThinningSvc = thinningSvc))
+
+    if flags.Output.doWriteESD:
+        _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
+        thinningSvc = acc.getPrimaryAndMerge(TrigNavigationThinningSvcCfg(flags, 
+                                                                          {'name' : 'HLTNav_StreamESD',
+                                                                           'mode' : 'cleanup_noreload', 
+                                                                           'result' : 'HLTResult_HLT',
+                                                                           'features' : _flatten(_TriggerESDList)}))
+        acc.merge(OutputStreamCfg(flags, "ESD", trigNavThinningSvc = thinningSvc))
+
+    return acc
 
 
 def Run1Run2BSExtractionCfg( flags ):
@@ -121,6 +211,58 @@ def Run1Run2BSExtractionCfg( flags ):
 
     return acc
 
+def Run1xAODConversionCfg(flags):
+    """Convert Run 1 EDM collections to xAOD classes"""
+    acc = ComponentAccumulator()
+
+    log.info("Will configure Run 1 trigger EDM to xAOD conversion")
+    from TrigEDMConfig.TriggerEDM import getPreregistrationList
+    from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
+
+    # define list of HLT xAOD containers to be written to the output root file
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    edm = getTriggerEDMList(flags.Trigger.ESDEDMSet, 2 )
+
+
+    navTool = CompFactory.HLT.Navigation("Navigation", 
+                                         ClassesToPreregister = getPreregistrationList(flags.Trigger.EDMVersion) )
+    
+    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,TrackParticleCreatorToolCfg,RecTrackParticleContainerCnvToolCfg
+    partCreatorTool = acc.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, 
+                                                                          #name="InDetxAODParticleCreatorTool"
+                                                                          )
+                                             )
+    trackCollCnvTool = acc.popToolsAndMerge(TrackCollectionCnvToolCfg(flags,
+                                                                      name="TrackCollectionCnvTool",
+                                                                      TrackParticleCreator= partCreatorTool
+                                                                      )
+                                            )
+
+    recPartCnvTool = acc.popToolsAndMerge(RecTrackParticleContainerCnvToolCfg(flags,
+                                                                              name="RecParticleCnv",
+                                                                              TrackParticleCreator=partCreatorTool
+                                                                              )
+                                          )
+    
+    bstoxaodTool = CompFactory.TrigBStoxAODTool("BStoxAOD", 
+                                                ContainersToConvert = getL2Run1BSList() + getEFRun1BSList(), 
+                                                NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList(),
+                                                TrackCollectionCnvTool = trackCollCnvTool,
+                                                TrackParticleContainerCnvTool = recPartCnvTool
+                                                )
+
+    xaodConverter = CompFactory.TrigHLTtoxAODConversion( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] if flags.Trigger.readBS else [],
+                                                         Navigation = navTool,
+                                                         BStoxAOD = bstoxaodTool,
+                                                         HLTResultKey="HLTResult_EF")
+
+    acc.addEventAlgo(xaodConverter)
+
+    acc.merge(addToESD(flags, edm))
+    acc.merge(addToAOD(flags, edm))
+
+    return acc
+
 def Run3TriggerBSUnpackingCfg(flags):
     """Configures conversions BS -> HLTResultMT -> Collections """
     acc = ComponentAccumulator()
@@ -135,88 +277,30 @@ def Run3TriggerBSUnpackingCfg(flags):
     log.debug("Configured HLT result BS decoding sequence")
     return acc
 
-def Run1Run2DecisionMakerCfg(flags):
-    """Configures HLTNavigation(tool) -> xAODNavigation and TrigDec::TrigDecision -> xAOD::TrigDecision """
-    acc = ComponentAccumulator()
-    doL1=True
-    doL2=True
-    doEF=True
-    doHLT=True
 
-    if 'HLT' not in flags.Trigger.availableRecoMetadata:
-        doL2=False
-        doEF=False
-        doHLT=False
-    if 'L1' not in flags.Trigger.availableRecoMetadata:
-        doL1=False
+if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
-    if flags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
-        doHLT = False
-        doL2 = False
-    else:
-        doL2 = False
-        doEF = False
+    flags.fillFromArgs()
 
-    decMaker = CompFactory.TrigDec.TrigDecisionMaker( "TrigDecMaker", 
-                                                      doL1 = doL1,
-                                                      doL2 = doL2,
-                                                      doEF = doEF,
-                                                      doHLT = doHLT,
-                                                      ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")], 
-                                                      ExtraOutputs = [("TrigDecionMakerOutput", "StoreGateSvc+TrigDecionMakerOutput")] )
-    acc.addEventAlgo(decMaker)
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    flags.Input.Files = defaultTestFiles.RAW # need to update this depending on EDMversion
+    flags.Exec.MaxEvents=5
+    log.info('Checking setup for EDMVersion %d', flags.Trigger.EDMVersion)
 
-    # TODO this needs cleaning, public navigation, used by TDT should not need the preregistration list
-    from TrigEDMConfig.TriggerEDM import EDMLibraries, getPreregistrationList
-    publicNaviagtion = CompFactory.HLT.Navigation( "Navigation", 
-                                                   Dlls = EDMLibraries,
-                                                   ClassesToPreregister = getPreregistrationList(flags.Trigger.EDMVersion)
-                                                   )
-    acc.addPublicTool(publicNaviagtion)
-    publicTDT = CompFactory.Trig.TrigDecisionTool( "TrigDecisionTool", UseAODDecision=True )
-    acc.addPublicTool( publicTDT )
+    flags.lock()
 
-    from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
-    cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool(TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )
-
-    decCnv = CompFactory.xAODMaker.TrigDecisionCnvAlg( xAODKey = "xAODTrigDecision",
-                                                         CnvTool = cnvTool)    
-
-    acc.addEventAlgo(decCnv)
-
-    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg', 
-                                                                 doL2 = doL2, 
-                                                                 doEF = doEF,
-                                                                 doHLT = doHLT,
-                                                                 ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput"), 
-                                                                                ("TrigDecionMakerOutput", "StoreGateSvc+TrigDecionMakerOutput")] ))
-    return acc
-
-
-if __name__ == "__main__":
-
-    def test( v ):
-        from AthenaConfiguration.TestDefaults import defaultTestFiles
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-        from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-
-        log.info("Checking setup for EDMVersion %d", v)
-        flags.Input.Files = defaultTestFiles.RAW # need to update this depending on version
-        flags.Trigger.EDMVersion = v
-        flags.Exec.MaxEvents=5
-        flags.lock()
-        acc = MainServicesCfg(flags)
-        acc.merge( TriggerRecoCfg(flags) )
-        acc.printConfig(withDetails=True)
-        with open("TriggerReco.pkl", "wb") as file:
-            acc.store(file)
-        sc = acc.run()
-        if sc.isFailure():
-            import sys
-            sys.exit(-1)
-
-    #test(1) TODO need to figure out how to either clone or unlock the flags
-    test(2)
-    # test(3)
-    # TODO consider running over data
+    acc = MainServicesCfg(flags)
+    acc.merge( TriggerRecoCfg(flags) )
+    acc.printConfig(withDetails=True)
+    with open("TriggerReco.pkl", "wb") as file:
+        acc.store(file)
+    # TODO decide if we want to run actually
+    # sc = acc.run()
+    # if sc.isFailure():
+    #     import sys
+    #     sys.exit(-1)
 

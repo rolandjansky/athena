@@ -55,8 +55,11 @@ namespace xAOD {
 
     //uint64_t id() const;
     //void setId(uint64_t iid);
-    uint32_t id() const;
-    void setId(uint32_t );
+
+    //uint32_t id() const; // changed october 29, 2021 to avoid conflict with TruthVertex_v1
+    //void setId(uint32_t );
+    int id() const;
+    void setId(int );
     int side() const;
     void setSide(int );
     int zdcModule() const;

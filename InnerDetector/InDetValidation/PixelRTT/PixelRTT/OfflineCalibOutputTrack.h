@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OfflineCalibOutputTrack_h
@@ -30,12 +30,12 @@ class ATLAS_NOT_THREAD_SAFE OfflineCalibOutputTrack: public PixelNtupleTracks { 
 public :
 	// Modified stuff
 	OfflineCalibOutputTrack(std::string input,
-				std::string output,
+				const std::string& output,
 				std::string collection = "Validation/CombinedInDetTracks");
 	virtual ~OfflineCalibOutputTrack();
 	void Iterate(long maxentries);
-	void ReadHistoFile(std::string input);
-	void Analyse(std::string output, std::string reference = "");
+	void ReadHistoFile(const std::string& input);
+	void Analyse(const std::string& output, const std::string& reference = "");
 
 
 private:

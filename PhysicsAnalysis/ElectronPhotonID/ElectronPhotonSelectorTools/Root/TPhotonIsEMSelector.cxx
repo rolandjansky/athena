@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  TPhotonIsEMSelector.cxx
@@ -270,7 +270,7 @@ StatusCode Root::TPhotonIsEMSelector::initialize() {
   return sc;
 }
 
-asg::AcceptData Root::TPhotonIsEMSelector::fillAccept(unsigned int isEM) {
+asg::AcceptData Root::TPhotonIsEMSelector::fillAccept(unsigned int isEM) const {
   asg::AcceptData acceptData(&m_acceptInfo);
   for (int i = 0; i < 32; i++) {
     const unsigned int mask = (0x1 << i) & m_isEMMask;
@@ -484,39 +484,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   // fraction of energy reconstructed in the 3rd sampling
   float f3,
   unsigned int iflag) const {
-  int ibine = 0;
-  // loop on ET range
-  for (unsigned int ibe = 1; ibe <= m_cutBinEnergy_photonsNonConverted.size(); ibe++) {
-    if (ibe < m_cutBinEnergy_photonsNonConverted.size()) {
-      if (et >= m_cutBinEnergy_photonsNonConverted[ibe - 1] &&
-          et < m_cutBinEnergy_photonsNonConverted[ibe]) {
-        ibine = ibe;
-      }
-    } else if (ibe == m_cutBinEnergy_photonsNonConverted.size()) {
-      if (et >= m_cutBinEnergy_photonsNonConverted[ibe - 1]) {
-        ibine = ibe;
-      }
-    }
-  }
-
-  int ibinEta = -1;
-  // loop on eta range
-  for (unsigned int ibin = 0; ibin < m_cutBinEta_photonsNonConverted.size(); ibin++) {
-    if (ibin == 0) {
-      if (eta2 < m_cutBinEta_photonsNonConverted[0]) {
-        ibinEta = 0;
-      }
-    } else {
-      if (eta2 >= m_cutBinEta_photonsNonConverted[ibin - 1] &&
-          eta2 < m_cutBinEta_photonsNonConverted[ibin]) {
-        ibinEta = ibin;
-      }
-    }
-  }
-
-  // check the bin number
-  const int ibin_combined = ibine * m_cutBinEta_photonsNonConverted.size() + ibinEta;
-
   //
   // second sampling cuts
   //
@@ -524,11 +491,48 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
     ATH_MSG_WARNING("e277 needs to  be set ");
   }
   if (!m_e277_photonsNonConverted.empty() && e277 >= m_e277_photonsNonConverted[0]) {
-    if (ibinEta == -1) {
+   int ibine = 0;
+    // loop on ET range
+    for (unsigned int ibe = 1; ibe <= m_cutBinEnergy_photonsNonConverted.size();
+         ibe++) {
+      if (ibe < m_cutBinEnergy_photonsNonConverted.size()) {
+        if (et >= m_cutBinEnergy_photonsNonConverted[ibe - 1] &&
+            et < m_cutBinEnergy_photonsNonConverted[ibe]) {
+          ibine = ibe;
+        }
+      } else if (ibe == m_cutBinEnergy_photonsNonConverted.size()) {
+        if (et >= m_cutBinEnergy_photonsNonConverted[ibe - 1]) {
+          ibine = ibe;
+        }
+      }
+    }
+
+    int ibinEta = -1;
+    // loop on eta range
+    for (unsigned int ibin = 0; ibin < m_cutBinEta_photonsNonConverted.size();
+         ibin++) {
+      if (ibin == 0) {
+        if (eta2 < m_cutBinEta_photonsNonConverted[0]) {
+          ibinEta = 0;
+        }
+      } else {
+        if (eta2 >= m_cutBinEta_photonsNonConverted[ibin - 1] &&
+            eta2 < m_cutBinEta_photonsNonConverted[ibin]) {
+          ibinEta = ibin;
+        }
+      }
+    }
+    
+    //Negative ibinEta means we are ouside the range
+    //e.g abs(eta) > 2.47 or so
+    if (ibinEta < 0) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
     }
 
+    // check the bin number
+    const int ibin_combined = ibine * m_cutBinEta_photonsNonConverted.size() + ibinEta;
+    
     // hadronic leakage
     if (checkVar(m_cutHadLeakage_photonsNonConverted, 23)) {
       if (eta2 < 0.8) {
@@ -608,9 +612,10 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
         }
       }
     }
-
-    // check the bin number
-    if (ibinEtaStrips == -1) {
+    
+    //Negative ibinEta means we are ouside the range
+    //e.g abs(eta) > 2.47 or so
+    if (ibinEtaStrips < 0) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
     }
@@ -728,10 +733,15 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
       }
     }
   }
+  //Negative ibinEta means we are ouside the range
+  //e.g abs(eta) > 2.47 or so
+  if (ibinEta < 0) {
+    iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
+    return iflag;
+  }
 
   // check the bin number
   const int ibin_combined = ibine * m_cutBinEta_photonsConverted.size() + ibinEta;
-
   //
   // second sampling cuts
   //
@@ -739,11 +749,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
     ATH_MSG_WARNING("e277 needs to  be set ");
   }
   if (!m_e277_photonsConverted.empty() && e277 >= m_e277_photonsConverted[0]) {
-
-    if (ibinEta == -1) {
-      iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
-      return iflag;
-    }
 
     // hadronic leakage
     if (checkVar(m_cutHadLeakage_photonsConverted, 13)) {

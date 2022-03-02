@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -8,6 +8,9 @@
 //
 // includes
 //
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include <PATInterfaces/SystematicSet.h>
 
@@ -70,11 +73,11 @@ struct SystematicSetFilterTest : testing::Test
   SystematicSet full_set;
 
   SystematicSetFilterTest ()
+    : continuous_variation ("CONTINUOUS_VARIATION", 1),
+      continuous_ensemble ("CONTINUOUS_ENSEMBLE", SystematicVariation::CONTINUOUS),
+      toy_variation (SystematicVariation::makeToyVariation ("TOY_VARIATION", 1, 2)),
+      toy_ensemble (SystematicVariation::makeToyEnsemble ("TOY_ENSEMBLE"))
   {
-    continuous_variation = SystematicVariation ("CONTINUOUS_VARIATION", 1);
-    continuous_ensemble = SystematicVariation ("CONTINUOUS_ENSEMBLE", SystematicVariation::CONTINUOUS);
-    toy_variation = SystematicVariation::makeToyVariation ("TOY_VARIATION", 1, 2);
-    toy_ensemble = SystematicVariation::makeToyEnsemble ("TOY_ENSEMBLE");
     full_set.insert (continuous_variation);
     full_set.insert (continuous_ensemble);
     full_set.insert (toy_variation);

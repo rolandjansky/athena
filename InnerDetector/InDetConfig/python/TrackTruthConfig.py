@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+
 # -------------------------------------------------------------------------
 #
 # ------- fragment to handle track truth association
@@ -21,7 +23,7 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
     if (not flags.Detector.EnableSCT):
         kwargs.setdefault("TruthNameSCT", "")
     # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
-    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type == 'cosmics' and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
+    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type is BeamType.Cosmics and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
         kwargs.setdefault("TruthNameTRT", "")
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
@@ -30,16 +32,11 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
 def InDetTruthMatchToolCfg(flags, name='InDetTruthMatchTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.truthMatchStrategy == 'TruthMatchRatio':
-        InDetTruthMatchTool = CompFactory.Trk.TruthMatchRatio
-    elif flags.InDet.truthMatchStrategy == 'TruthMatchTanimoto':
-        InDetTruthMatchTool = CompFactory.Trk.TruthMatchTanimoto
-
     kwargs.setdefault("WeightPixel", 10.)
     kwargs.setdefault("WeightSCT", 5.)
     kwargs.setdefault("WeightTRT", 1.)
 
-    InDetTruthMatchSimilarityTool = InDetTruthMatchTool(name = name, **kwargs)
+    InDetTruthMatchSimilarityTool = CompFactory.Trk.TruthMatchRatio(name = name, **kwargs)
     acc.setPrivateTools(InDetTruthMatchSimilarityTool)
     return acc
 
@@ -55,7 +52,7 @@ def TrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='Sel
     acc.addEventAlgo(CompFactory.TrackTruthSimilaritySelector(name = TracksTruth+name, **kwargs))
     return acc
 
-def  InDetTrackTruthCfg(flags, Tracks = None, DetailedTruth = None, TracksTruth = None):
+def InDetTrackTruthCfg(flags, Tracks="CombinedInDetTracks", DetailedTruth="CombinedInDetTracksDetailedTruth", TracksTruth="CombinedInDetTracksTruthCollection"):
     acc = ComponentAccumulator()
     #
     # --- Enable the detailed track truth
@@ -83,11 +80,10 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT   = True
 
-    ConfigFlags.InDet.doPixelClusterSplitting = True
-    ConfigFlags.InDet.useHolesFromPattern =  False
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 
@@ -97,20 +93,12 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    ####################### Aditional Configurations #########################
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-
     ################## SiliconPreProcessing Configurations ###################
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
     #################### TRTPreProcessing Configurations #####################
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+    top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
     
     #//// TrackingSiPatternConfig configurations from Temporary location /////
     ################# SiSPSeededTrackFinder Configurations ###################

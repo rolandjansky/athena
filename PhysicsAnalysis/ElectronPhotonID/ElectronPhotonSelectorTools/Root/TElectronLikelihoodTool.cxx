@@ -350,10 +350,10 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
                                                  TFile* pdfFile,
                                                  unsigned int varIndex)
 {
-  for (unsigned int s_or_b = 0; s_or_b < 2; s_or_b++) {
-    for (unsigned int ip = 0; ip < IP_BINS; ip++) {
-      for (unsigned int et = 0; et < s_fnEtBinsHist; et++) {
-        for (unsigned int eta = 0; eta < s_fnEtaBins; eta++) {
+  for (unsigned int s_or_b = 0; s_or_b < 2; ++s_or_b) {
+    for (unsigned int ip = 0; ip < IP_BINS; ++ip) {
+      for (unsigned int et = 0; et < s_fnEtBinsHist; ++et) {
+        for (unsigned int eta = 0; eta < s_fnEtaBins; ++eta) {
 
           std::string sig_bkg = (s_or_b == 0) ? "sig" : "bkg";
           // Because eta bins in the root file don't match up exactly with cut
@@ -406,12 +406,6 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
             ATH_MSG_INFO("Warning: skipping variable "
                          << vstr << " because the folder does not exist.");
             return 1;
-          }
-
-          // We only need to load PDFs
-          // up to a certain ET value (40 GeV)
-          if (et > s_fnEtBinsHist - 1) {
-            continue;
           }
 
           // If the 0th et bin (4-7 GeV) histogram does not exist in the root
@@ -1164,22 +1158,35 @@ Root::TElectronLikelihoodTool::InterpolateCuts(
   double et,
   double eta) const
 {
-  int etbinLH = getLikelihoodEtDiscBin(et, true);
-  int etabin = getLikelihoodEtaBin(eta);
+
+
+  //get the value of the cut 
+  unsigned int etbinLH = getLikelihoodEtDiscBin(et, true);
+  unsigned int etabin = getLikelihoodEtaBin(eta);
   unsigned int ibin_combinedLH = etbinLH * s_fnEtaBins + etabin;
   double cut = cuts.at(ibin_combinedLH);
-  if (!cuts_4gev.empty() && et < 7000.) {
-    cut = cuts_4gev.at(etabin);
+
+  //Special low pt cuts
+  if (!cuts_4gev.empty()) {
+    if (et < 7000.) {
+      cut = cuts_4gev.at(etabin);
+    }
+    // Below 6 GeV we do not interpolate
+    if (et < 6000) {
+      return cut;
+    }
+  } else {// No special low Et cuts
+    // and below 8500 we do not interpolate
+    if (et < 8500.) {
+      return cut;
+    }
   }
-  if (et > 47500.) {
+  // We interpolate until 47500 (last bin)
+  // size of array is s_fnDiscEtBins
+  if (et > 47500. || !(etbinLH < s_fnDiscEtBins)) {
     return cut;
-  } // interpolation stops here.
-  if (cuts_4gev.empty() && et < 8500.) {
-    return cut;
-  } // stops here
-  if (!cuts_4gev.empty() && et < 6000.) {
-    return cut;
-  } // stops here
+  }
+  // Interpolate
   double bin_width = 5000.;
   if (7000. < et && et < 10000.) {
     bin_width = 3000.;
@@ -1188,9 +1195,9 @@ Root::TElectronLikelihoodTool::InterpolateCuts(
     bin_width = 2000.;
   }
   const double GeV = 1000;
-  const double eTBins[9] = { 8.5 * GeV,  12.5 * GeV, 17.5 * GeV,
-                             22.5 * GeV, 27.5 * GeV, 32.5 * GeV,
-                             37.5 * GeV, 42.5 * GeV, 47.5 * GeV };
+  const double eTBins[s_fnDiscEtBins] = { 8.5 * GeV,  12.5 * GeV, 17.5 * GeV,
+                                          22.5 * GeV, 27.5 * GeV, 32.5 * GeV,
+                                          37.5 * GeV, 42.5 * GeV, 47.5 * GeV };
   double bin_center = eTBins[etbinLH];
   if (et > bin_center) {
     double cut_next = cut;
@@ -1200,7 +1207,7 @@ Root::TElectronLikelihoodTool::InterpolateCuts(
   }
   // or else if et < bin_center :
   double cut_before = cut;
-  if (etbinLH - 1 >= 0) {
+  if (etbinLH >= 1) {
     cut_before = cuts.at((etbinLH - 1) * s_fnEtaBins + etabin);
   } else if (etbinLH == 0 && !cuts_4gev.empty()) {
     cut_before = cuts_4gev.at(etabin);
@@ -1252,8 +1259,10 @@ Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,
     bin_width = 2000.;
   }
   const double GeV = 1000;
-  const double eTHistBins[7] = { 6. * GeV,   8.5 * GeV,  12.5 * GeV, 17.5 * GeV,
-                                 22.5 * GeV, 32.5 * GeV, 42.5 * GeV };
+  const double eTHistBins[s_fnEtBinsHist] = { 6. * GeV,   8.5 * GeV,
+                                              12.5 * GeV, 17.5 * GeV,
+                                              22.5 * GeV, 32.5 * GeV,
+                                              42.5 * GeV };
   double bin_center = eTHistBins[etbin];
   if (etbin == 4 && et >= 27500.) {
     bin_center = 27500.; // special: interpolate starting from 27.5 here

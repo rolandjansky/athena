@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TauProcessorAlg.h"
@@ -39,7 +39,11 @@ StatusCode TauProcessorAlg::initialize() {
   ATH_CHECK( m_tauShotClusLinkContainer.initialize() );
   ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
   ATH_CHECK( m_tauPi0CellOutputContainer.initialize(SG::AllowEmpty) );
-  
+
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+  ATH_CHECK(m_trtDetEleContKey.initialize());
+
   if(!m_tauPi0CellOutputContainer.empty()) {
     ATH_CHECK( detStore()->retrieve(m_cellID) );
     ATH_CHECK( m_cellMakerTool.retrieve() );
@@ -48,7 +52,7 @@ StatusCode TauProcessorAlg::initialize() {
   //-------------------------------------------------------------------------
   // No tools allocated!
   //-------------------------------------------------------------------------
-  if (m_tools.size() == 0) {
+  if (m_tools.empty()) {
     ATH_MSG_ERROR("no tools given!");
     return StatusCode::FAILURE;
   }
@@ -152,7 +156,7 @@ StatusCode TauProcessorAlg::execute(const EventContext& ctx) const {
       else if ( tool->type() == "TauTrackFinder") {
 	sc = tool->executeTrackFinder(*pTau, *pTauTrackCont);
       }
-      else if ( tool->type() == "tauRecTools::TauTrackClassifier" || tool->type() == "tauRecTools::TauTrackRNNClassifier" ) {
+      else if ( tool->type() == "tauRecTools::TauTrackRNNClassifier" ) {
 	sc = tool->executeTrackClassifier(*pTau, *pTauTrackCont);
 
 	// skip candidate if it has too many classifiedCharged tracks, if skimming is required

@@ -86,21 +86,21 @@ namespace Muon {
             @param coll a reference to a MuonSegmentCollection
             @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
         */
-        TrackCollection* find(const MuonSegmentCollection& coll) const override;
+        TrackCollection* find(const EventContext& ctx, const MuonSegmentCollection& coll) const override;
 
     private:
         TrackCollection* selectTracks(std::vector<std::unique_ptr<MuPatTrack>>& candidates, bool takeOwnership = true) const;
 
         /** actual find method */
-        TrackCollection* findTracks(SegColVec& chamberSegments, SegColVec& stationSegments, GarbageContainer& trash_bin) const;
-        bool extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
+        TrackCollection* findTracks(const EventContext& ctx, SegColVec& chamberSegments, SegColVec& stationSegments, GarbageContainer& trash_bin) const;
+        bool extractSegments(const EventContext& ctx, const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
                              ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const;
 
         StatusCode decodeStrategyVector(const std::vector<std::string>& strategy);
         std::unique_ptr<const MuonTrackSteeringStrategy> decodeStrategy(const std::string& strategy) const;
         bool decodeList(const std::string& input, std::vector<std::string>& list) const;
 
-        std::vector<std::unique_ptr<MuPatTrack>> extendWithLayer(MuPatTrack& candidate, const SegColVec& segcol, unsigned int nextlayer,
+        std::vector<std::unique_ptr<MuPatTrack>> extendWithLayer(const EventContext& ctx, MuPatTrack& candidate, const SegColVec& segcol, unsigned int nextlayer,
                                                                  const unsigned int endlayer, GarbageContainer& trash_bin,
                                                                  int cutLevel = 0) const;
         /** @brief Find tracks starting from a good segment
@@ -108,11 +108,11 @@ namespace Muon {
             @param strat the current track finding strategy
             @param layer the current layer for the seed
         */
-        std::vector<std::unique_ptr<MuPatTrack>> findTrackFromSeed(MuPatSegment& seedSeg, const MuonTrackSteeringStrategy& strat,
+        std::vector<std::unique_ptr<MuPatTrack>> findTrackFromSeed(const EventContext& ctx, MuPatSegment& seedSeg, const MuonTrackSteeringStrategy& strat,
                                                                    const unsigned int layer, const SegColVec& segs,
                                                                    GarbageContainer& trash_bin) const;
 
-        void refineTracks(std::vector<std::unique_ptr<MuPatTrack>>& candidates, GarbageContainer& trash_bin) const;
+        void refineTracks(const EventContext& ctx, std::vector<std::unique_ptr<MuPatTrack>>& candidates, GarbageContainer& trash_bin) const;
 
         /** @brief Resolve ambiguities among tracks for a single strategy
                    This allows a strategy-specific ambiguity solving (with some options per strategy)
@@ -121,13 +121,13 @@ namespace Muon {
         */
         void solveAmbiguities(std::vector<std::unique_ptr<MuPatTrack>>& tracks, const MuonTrackSteeringStrategy* strat = nullptr) const;
 
-        void combineOverlapSegments(std::vector<MuPatSegment*>& ch1, std::vector<MuPatSegment*>& ch2, SegColVec& stationSegments,
+        void combineOverlapSegments(const EventContext& ctx, std::vector<MuPatSegment*>& ch1, std::vector<MuPatSegment*>& ch2, SegColVec& stationSegments,
                                     StSet& stationsWithSegments, GarbageContainer& trash_bin) const;
 
     private:
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<MuPatCandidateTool> m_candidateTool{this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
         ToolHandle<IMuonTrackBuilder> m_trackBTool{this, "TrackBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
         ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool{this, "AmbiguityTool",
@@ -148,7 +148,7 @@ namespace Muon {
         std::vector<std::unique_ptr<const MuonTrackSteeringStrategy>> m_strategies;
         std::vector<std::string> m_stringStrategies;
 
-        int m_segQCut[3]{};  //!< Required segment quality for seed, 2nd, and other segments
+        std::array<int, 3> m_segQCut{};  //!< Required segment quality for seed, 2nd, and other segments
         bool m_outputSingleStationTracks;
         bool m_combinedSLOverlaps;
         bool m_doSummary;

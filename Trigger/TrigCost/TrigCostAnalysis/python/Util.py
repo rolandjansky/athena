@@ -10,47 +10,12 @@
 
 import ROOT
 from math import fabs
+from TrigCostAnalysis.CostMetadataUtil import createOverflowSummary
 from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def saveMetadata(inputFile, userDetails):
-    import json
-
-    metatree = inputFile.Get("metadata")
-    if metatree is None:
-        return None
-
-    metatree.GetEntry(0)
-    metadata = []
-
-    metadata.append({'runNumber' : metatree.runNumber})
-    metadata.append({'AtlasProject' : str(metatree.AtlasProject)})
-    metadata.append({'AtlasVersion' : str(metatree.AtlasVersion)})
-
-    metadata.append({'ChainMonitor' : metatree.ChainMonitor})
-    metadata.append({'AlgorithmMonitor' : metatree.AlgorithmMonitor})
-    metadata.append({'AlgorithmClassMonitor' : metatree.AlgorithmClassMonitor})
-    metadata.append({'ROSMonitor' : metatree.ROSMonitor})
-    metadata.append({'GlobalsMonitor' : metatree.GlobalsMonitor})
-    metadata.append({'ThreadMonitor' : metatree.ThreadMonitor})
-
-    metadata.append({'AdditionalHashMap' : str(metatree.AdditionalHashMap)})
-    metadata.append({'DoEBWeighting' : metatree.DoEBWeighting})
-    metadata.append({'BaseEventWeight' : metatree.BaseEventWeight})
-
-    metadata.append({'HLTMenu' : json.loads(str(metatree.HLTMenu))})
-
-    metadata.append({'Details' : userDetails})
-
-    with open('metadata.json', 'w') as outMetaFile:
-        metafile = {}
-        metafile['text'] = 'metadata'
-        metafile['children'] = metadata
-        json.dump(obj=metafile, fp=outMetaFile, indent=2, sort_keys=True)
-
-
-def exploreTree(inputFile, dumpSummary=False):
+def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowThreshold=0.1):
     ''' @brief Explore ROOT Tree to find tables with histograms to be saved in csv
 
     Per each found directory TableConstructor object is created.
@@ -71,7 +36,7 @@ def exploreTree(inputFile, dumpSummary=False):
     @param[in] inputFile ROOT.TFile object with histograms
     '''
 
-
+    processingWarnings = []
     for key in inputFile.GetListOfKeys():
         walltime = getWalltime(inputFile, key.GetName())
         obj = key.ReadObj()
@@ -85,7 +50,7 @@ def exploreTree(inputFile, dumpSummary=False):
             try:
                 className = table.GetName() + "_TableConstructor"
                 exec("from TrigCostAnalysis." + className + " import " + className)
-                t = eval(className + "(tableObj)")
+                t = eval(className + "(tableObj, underflowThreshold, overflowThreshold)")
 
                 if table.GetName() == "Chain_HLT" or table.GetName() == "Chain_Algorithm_HLT":
                     t.totalTime = getAlgorithmTotalTime(inputFile, obj.GetName())
@@ -103,9 +68,16 @@ def exploreTree(inputFile, dumpSummary=False):
                 t.normalizeColumns(walltime)
                 t.saveToFile(fileName)
 
+                processingWarnings += t.getWarningMsgs()
+
             except (NameError, ImportError):
                 log.warning("Class {0} not defined - directory {1} will not be processed"
                             .format(table.GetName()+"_TableConstructor", table.GetName()))
+
+    # add smmary of most overflown histograms
+    summary = createOverflowSummary(processingWarnings)
+    summary["Summary"] += ["Underflow threshold: {0}".format(underflowThreshold), "Overflow threshold: {0}".format(overflowThreshold)]
+    return processingWarnings + [summary]
 
 
 def getWalltime(inputFile, rootName):
@@ -138,12 +110,13 @@ def getAlgorithmTotalTime(inputFile, rootName):
     '''
 
     totalTime = 0
-    alg = inputFile.Get(rootName).Get("Global_HLT").Get("All")
-    hist = alg.Get(rootName + "_Global_HLT_All_AlgTime_perEvent")
+    alg = inputFile.Get(rootName).Get("Global_HLT").Get("Total")
+    hist = alg.Get(rootName + "_Global_HLT_Total_AlgTime_perEvent")
     for i in range(1, hist.GetXaxis().GetNbins()):
         totalTime += hist.GetBinContent(i) * hist.GetXaxis().GetBinCenterLog(i)
 
     return totalTime * 1e-3
+
 
 def convert(entry):
     ''' @brief Save entry number in scientific notation'''

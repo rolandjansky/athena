@@ -23,7 +23,7 @@ class MockGenericMonitoringTool : public GenericMonitoringTool {
       return mock_runNumber ? mock_runNumber() : 0;
     }
 
-    const ServiceHandle<ITHistSvc>& histogramService() override {
+    const ServiceHandle<ITHistSvc>& histogramService() const override {
       m_serviceHandle.retrieve().ignore();
       
       return m_serviceHandle;

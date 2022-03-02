@@ -1,4 +1,11 @@
 --- data
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1'
+Py:MetaReader        INFO Current mode used: lite
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Py:AutoConfigFlags    INFO Looking into the file in 'peeker' mode as the configuration requires more details: IOVDbGlobalTag 
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Py:Athena            INFO using release [WorkDir-22.0.50] [x86_64-centos7-gcc11-opt] [master-athreadalg/196242cfbfa] -- built on [2021-12-16T2011]
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
 Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'], ['DetCondKeyTrans', '/LAR/Align'], ['CaloRec::CaloCellPositionShift', '/LAR/LArCellPositionShift'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBA1'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBA2'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBA3'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBA4'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBC1'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBC2'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBC3'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMBC4'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMECA1'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMECA2'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMECA3'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMECC1'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMECC2'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/EMECC3'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/FCALA'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/FCALC'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/HECA'], ['CondAttrListCollection', '/LAR/Configuration/FEBConfig/Physics/HECC'], ['CondAttrListCollection', '/LAR/ElecCalibFlat/Ramp'], ['CondAttrListCollection', '/LAR/ElecCalibFlat/DAC2uA'], ['CondAttrListCollection', '/LAR/ElecCalibFlat/uA2MeV'], ['CondAttrListCollection', '/LAR/ElecCalibFlat/MphysOverMcal'], ['CondAttrListCollection', '/LAR/ElecCalibFlat/HVScaleCorr']]
@@ -26,7 +33,12 @@ Py:ComponentAccumulator    INFO      * ReadKey: /LAR/ElecCalibFlat/HVScaleCorr
 Py:ComponentAccumulator    INFO      * WriteKey: LArHVScaleCorr
 Py:ComponentAccumulator    INFO  \__ LArADC2MeVCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * LArADC2MeVKey: LArADC2MeV
+IOVDbSvc: ['<db>COOLONL_LAR/CONDBR2</db> /LAR/Identifier/OnOffIdMap', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Align', '<db>COOLONL_LAR/CONDBR2</db> /LAR/LArCellPositionShift', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBA1', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBA2', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBA3', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBA4', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBC1', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBC2', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBC3', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMBC4', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMECA1', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMECA2', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMECA3', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMECC1', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMECC2', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/EMECC3', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/FCALA', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/FCALC', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/HECA', '<db>COOLONL_LAR/CONDBR2</db> /LAR/Configuration/FEBConfig/Physics/HECC', '/LAR/ElecCalibFlat/Ramp<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/DAC2uA<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/uA2MeV<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/MphysOverMcal<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/HVScaleCorr<db>COOLONL_LAR/CONDBR2</db>']
 --- mc
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root'
+Py:MetaReader        INFO Current mode used: lite
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root']
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
 Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'], ['DetCondKeyTrans', '/LAR/Align'], ['CaloRec::CaloCellPositionShift', '/LAR/LArCellPositionShift'], ['LArRampMC', '/LAR/ElecCalibMC/Ramp'], ['LArDAC2uAMC', '/LAR/ElecCalibMC/DAC2uA'], ['LAruA2MeVMC', '/LAR/ElecCalibMC/uA2MeV'], ['LArMphysOverMcalMC', '/LAR/ElecCalibMC/MphysOverMcal'], ['LArHVScaleCorrComplete', '/LAR/ElecCalibMC/HVScaleCorr']]
@@ -34,6 +46,35 @@ Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
 Py:ComponentAccumulator    INFO  \__ LArAlignCondAlg (cond alg)
 Py:ComponentAccumulator    INFO  \__ CaloAlignCondAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ CaloSuperCellAlignCondAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_AllCalo (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/AllCalo
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_HLT_CaloCellContainer_TrigCaloCellLoF (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/HLT_CaloCellContainer_TrigCaloCellLoF
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_HLT_CaloCellContainer_TrigCaloCellMaker_eGamma (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/HLT_CaloCellContainer_TrigCaloCellMaker_eGamma
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_HLT_CaloCellContainer_TrigCaloCellMaker_tau (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/HLT_CaloCellContainer_TrigCaloCellMaker_tau
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_HLT_CaloCellContainer_TrigT2CaloEgammaCells (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/HLT_CaloCellContainer_TrigT2CaloEgammaCells
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_HLT_CaloCellContainer_TrigT2CaloTauCells (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/HLT_CaloCellContainer_TrigT2CaloTauCells
+Py:ComponentAccumulator    INFO  \__ AthReadAlg_TauCommonPi0Cells (cond alg)
+Py:ComponentAccumulator    INFO      * Aliases: []
+Py:ComponentAccumulator    INFO      * ExtraInputs: [('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'), ('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager')]
+Py:ComponentAccumulator    INFO      * Key: CaloCellContainer/TauCommonPi0Cells
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
 Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArRampMC, LArRampSym> (cond alg)
@@ -56,3 +97,4 @@ Py:ComponentAccumulator    INFO      * LArMphysOverMcalKey: LArMphysOverMcalSym
 Py:ComponentAccumulator    INFO      * LArRampKey: LArRampSym
 Py:ComponentAccumulator    INFO      * LAruA2MeVKey: LAruA2MeVSym
 Py:ComponentAccumulator    INFO      * UseFEBGainTresholds: False
+IOVDbSvc: ['<db>COOLOFL_LAR/OFLP200</db> /LAR/Identifier/OnOffIdMap<tag>LARIdentifierOnOffIdMap-012</tag>', '<db>COOLOFL_LAR/OFLP200</db> /LAR/Align', '<db>COOLOFL_LAR/OFLP200</db> /LAR/LArCellPositionShift', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/Ramp', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/DAC2uA', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/uA2MeV', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/MphysOverMcal', '<db>COOLOFL_LAR/OFLP200</db> /LAR/ElecCalibMC/HVScaleCorr']

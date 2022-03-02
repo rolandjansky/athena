@@ -21,29 +21,32 @@ the EM calorimeter) and the edge (all the other cells) of the cluster.
 */
 
 #include "egammaInterfaces/IegammaOQFlagsBuilder.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "CaloInterface/ICaloAffectedTool.h"
-#include "egammaBaseTool.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloUtils/CaloCellList.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "Identifier/HWIdentifier.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
+
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 
-class IToolSvc;
 class CaloCellContainer;
 class HWIdentifier;
 class LArEM_ID;
 class CaloCell_ID;
 
-class egammaOQFlagsBuilder
+class egammaOQFlagsBuilder final
   : public AthAlgTool
   , virtual public IegammaOQFlagsBuilder
 {
@@ -94,13 +97,6 @@ private:
     "AllCalo",
     "Names of container which contain cells"
   };
-
-  // IToolSvc* m_toolSvc;
-  bool isCore(const Identifier Id,
-              const std::vector<IdentifierHash>& neighbourList) const;
-
-  std::vector<IdentifierHash> findNeighbours(
-    const Identifier cellCentrId) const;
 
   Gaudi::Property<double> m_QCellCut{ this, "QCellCut", 4000. };
   Gaudi::Property<double> m_QCellHECCut{ this, "QCellHECCut", 60000. };

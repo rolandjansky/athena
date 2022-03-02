@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCANDIDATETRACKBUILDER_H
@@ -15,7 +15,6 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 namespace Muon {
@@ -60,7 +59,7 @@ namespace Muon {
                     } else if (m_idHelperSvc->rpcIdHelper().doubletZ(id1) != m_idHelperSvc->rpcIdHelper().doubletZ(id2)) {
                         return m_idHelperSvc->rpcIdHelper().doubletZ(id1) < m_idHelperSvc->rpcIdHelper().doubletZ(id2);
                     } else if (m_idHelperSvc->rpcIdHelper().doubletPhi(id1) != m_idHelperSvc->rpcIdHelper().doubletPhi(id2)) {
-		        return m_idHelperSvc->rpcIdHelper().doubletPhi(id1) < m_idHelperSvc->rpcIdHelper().doubletPhi(id2);
+                        return m_idHelperSvc->rpcIdHelper().doubletPhi(id1) < m_idHelperSvc->rpcIdHelper().doubletPhi(id2);
                     } else
                         return mst1->globalPosition().perp() < mst2->globalPosition().perp();
                 }
@@ -82,12 +81,11 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */
-        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack, const MuonCandidate& candidate) const override;
+        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack,
+                                                               const MuonCandidate& candidate) const override;
 
     private:
-        ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this, "MuonSegmentTrackBuilder",
-                                                                "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};

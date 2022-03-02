@@ -70,11 +70,8 @@ StatusCode LArOFCCondAlg::initialize() {
     //WriteHandle initialization 
     ATH_CHECK(m_LArOFCObjKey.initialize());
 
-    if (m_isMC) {
-        ATH_CHECK(m_LArNoiseObjKey.initialize());
-    } else {
-        ATH_CHECK(m_LArPedestalObjKey.initialize());
-    }
+    ATH_CHECK(m_LArNoiseObjKey.initialize(m_isMC));
+    ATH_CHECK(m_LArPedestalObjKey.initialize(!m_isMC));
 
     // WriteCondHandle initialization
     if (m_condSvc->regHandle(this, m_LArOFCObjKey).isFailure()) {

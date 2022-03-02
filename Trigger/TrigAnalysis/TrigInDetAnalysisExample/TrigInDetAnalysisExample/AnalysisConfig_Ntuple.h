@@ -43,7 +43,7 @@ public:
 
   AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
 			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
-			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false) : 
+			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false, int parentTruthPdgId = 0) : 
     T_AnalysisConfig<IHLTMonTool>( "Ntple",
 				   "", "", "",
 				   "", "", "",
@@ -70,7 +70,8 @@ public:
     m_TruthPdgId(TruthPdgId),
     m_finalised(true),
     m_printInfo(true),
-    m_ptmin(0)
+    m_ptmin(0),
+    m_parentTruthPdgId(parentTruthPdgId)
   {  
     //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
 
@@ -175,6 +176,9 @@ protected:
   bool m_printInfo;
 
   double m_ptmin;
+
+  int m_parentTruthPdgId;
+
 
 };
 

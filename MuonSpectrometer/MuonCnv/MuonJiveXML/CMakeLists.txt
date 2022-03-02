@@ -16,6 +16,5 @@ atlas_add_component( MuonJiveXML
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps MuonRPC_CnvToolsLib MuonReadoutGeometry JiveXMLLib GaudiKernel MuonIdHelpersLib MuonRDO MuonPrepRawData AnalysisTriggerEvent RPC_CondCablingLib)
 
 # Install files from the package:
-atlas_install_headers( MuonJiveXML )
 atlas_install_joboptions( share/*.py )
 

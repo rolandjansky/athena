@@ -12,7 +12,7 @@ void AGDDSnake::CreateSolid (const AGDDBuilder& builder)
 }
 
 
-void AGDDSnake::CreateVolume (const AGDDBuilder& builder) 
+void AGDDSnake::CreateVolume (AGDDBuilder& builder) 
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

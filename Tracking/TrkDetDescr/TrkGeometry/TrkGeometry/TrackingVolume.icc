@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -32,14 +32,32 @@ TrackingVolume::confinedLayers() const
   return m_confinedLayers;
 }
 
+inline LayerArray*
+TrackingVolume::confinedLayers()
+{
+  return m_confinedLayers;
+}
+
 inline const std::vector<const Layer*>*
 TrackingVolume::confinedArbitraryLayers() const
 {
   return m_confinedArbitraryLayers;
 }
 
+inline const std::vector<const Layer*>*
+TrackingVolume::confinedArbitraryLayers()
+{
+  return m_confinedArbitraryLayers;
+}
+
 inline const TrackingVolumeArray*
 TrackingVolume::confinedVolumes() const
+{
+  return m_confinedVolumes;
+}
+
+inline TrackingVolumeArray*
+TrackingVolume::confinedVolumes()
 {
   return m_confinedVolumes;
 }

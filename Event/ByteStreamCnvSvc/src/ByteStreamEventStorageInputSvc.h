@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMEVENTSTORAGEINPUTSVC_H
@@ -43,29 +43,30 @@ public:
   virtual ~ByteStreamEventStorageInputSvc();
 
   /// Required of all Gaudi Services
-  virtual StatusCode initialize();
-  virtual StatusCode stop      ();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop      () override;
+  virtual StatusCode finalize  () override;
 
   /// Required of all Gaudi services:  see Gaudi documentation for details
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  virtual
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
   /// Implementation of the ByteStreamInputSvc interface methods.
-  virtual const RawEvent* currentEvent () const;
-  virtual const RawEvent* nextEvent    (); //!< ++, new
-  virtual const RawEvent* previousEvent(); //!< --, old
-  virtual void            setEvent     (void* data, unsigned int eventStatus);
+  virtual const RawEvent* currentEvent () const override;
+  virtual const RawEvent* nextEvent    () override; //!< ++, new
+  virtual const RawEvent* previousEvent() override; //!< --, old
+  virtual void            setEvent     (void* data, unsigned int eventStatus) override;
 
   /// Return the current event status
-  virtual unsigned int currentEventStatus() const;
-  virtual void         validateEvent     ();
+  virtual unsigned int currentEventStatus() const override;
+  virtual void         validateEvent     () override;
 
-  virtual long positionInBlock   ();
-  virtual std::pair<long,std::string> getBlockIterator(const std::string& fileName);
-  void         closeBlockIterator(bool clearMetadata=true);
-  bool         setSequentialRead ();
-  bool         ready             () const;
-  StatusCode   generateDataHeader();
+  virtual long positionInBlock   () override;
+  virtual std::pair<long,std::string> getBlockIterator(const std::string& fileName) override;
+  virtual void         closeBlockIterator(bool clearMetadata=true) override;
+  virtual bool         setSequentialRead ();
+  virtual bool         ready             () override;
+  virtual StatusCode   generateDataHeader() override;
 
 
 private: // data
@@ -107,7 +108,7 @@ private: // properties
 private: // internal helper functions
   StatusCode loadMetadata    ();
   void       buildFragment   (EventCache* cache, uint32_t eventSize, bool validate) const;
-  bool       readerReady     () const;
+  bool       readerReady     ();
   bool       ROBFragmentCheck(const RawEvent*) const;
   unsigned   validateEvent   (const RawEvent* const rawEvent) const;
   void       setEvent        (const EventContext& context, void* data, unsigned int eventStatus);

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $
 #ifndef D3PDMAKERREADER_ROOTREADERD3PD_V2_CONSTANTS_H
 #define D3PDMAKERREADER_ROOTREADERD3PD_V2_CONSTANTS_H
 
@@ -1082,9 +1081,8 @@ static const char* D3PDREADSTATS_CXX =
    "    * $Revision: 600807 $\n"
    "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
-   "   class SelectByEntries :\n"
-   "      public std::unary_function< const D3PDReader::VariableStats&,\n"
-   "                                  ::Bool_t > {\n\n"
+   "   class SelectByEntries\n"
+   "   {\n\n"
    "   public:\n"
    "      /// Constructor specifying the minimum number of entries\n"
    "      SelectByEntries( ::Long64_t entries ) : fEntries( entries ) {}\n"
@@ -1103,7 +1101,7 @@ static const char* D3PDREADSTATS_CXX =
    "         fEntries = static_cast< ::Long64_t >( minEvFrac * maxEntries );\n"
    "      }\n\n"
    "      /// Operator evaluating if a variable should be selected\n"
-   "      result_type operator()( argument_type var ) const {\n\n"
+   "      ::Bool_t operator()( const D3PDReader::VariableStats& var ) const {\n\n"
    "         if( var.GetReadEntries() < fEntries ) {\n"
    "            return kFALSE;\n"
    "         } else {\n"
@@ -1124,9 +1122,8 @@ static const char* D3PDREADSTATS_CXX =
    "    * $Revision: 600807 $\n"
    "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
-   "   class SelectByBytes :\n"
-   "      public std::unary_function< const D3PDReader::VariableStats&,\n"
-   "                                  ::Bool_t > {\n\n"
+   "   class SelectByBytes\n"
+   "   {\n\n"
    "   public:\n"
    "      /// Constructor specifying the minimum number of bytes read\n"
    "      SelectByBytes( ::Long64_t bytes ) : fBytes( bytes ) {}\n\n"
@@ -1145,7 +1142,7 @@ static const char* D3PDREADSTATS_CXX =
    "         fBytes = static_cast< ::Long64_t >( minByteFrac * maxBytes );\n"
    "      }\n\n"
    "      /// Operator evaluating if a variable should be selected\n"
-   "      result_type operator()( argument_type var ) const {\n\n"
+   "      ::Bool_t operator()( const D3PDReader::VariableStats& var ) const {\n\n"
    "         if( var.GetZippedBytesRead() < fBytes ) {\n"
    "            return kFALSE;\n"
    "         } else {\n"

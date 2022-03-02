@@ -24,11 +24,6 @@ StatusCode JetMatcherAlg::initialize() {
   ATH_CHECK( m_l1jetContainerKey1.initialize() );
   ATH_CHECK( m_jetContainerKey2.initialize() );
 
-  if (m_jetContainerKey1.key() != "NONE" && m_l1jetContainerKey1.key() != "NONE") {
-    ATH_MSG_ERROR(" Both JetContainerKey1 and L1JetContainerKey1 were set, but we can only use one of them for jet matching. Fix your settings!");
-    return StatusCode::FAILURE;
-  }
-
   std::string prepend, keyAppendix = m_jetContainerKey2.key();
   if (!m_matchL1) {
     if (m_calibScale != "") keyAppendix = m_calibScale + "_" + m_jetContainerKey2.key();
@@ -43,16 +38,6 @@ StatusCode JetMatcherAlg::initialize() {
     m_ptRefKey = prepend+".ptRef_" + keyAppendix;
     m_etaRefKey = prepend+".etaRef_" + keyAppendix;
     m_matchedKey = prepend+".matched_" + keyAppendix;
-
-    ATH_CHECK( m_ptDiffKey.initialize() );
-    ATH_CHECK( m_energyDiffKey.initialize() );
-    ATH_CHECK( m_massDiffKey.initialize() );
-    ATH_CHECK( m_ptRespKey.initialize() );
-    ATH_CHECK( m_energyRespKey.initialize() );
-    ATH_CHECK( m_massRespKey.initialize() );
-    ATH_CHECK( m_ptRefKey.initialize() );
-    ATH_CHECK( m_etaRefKey.initialize() );
-    ATH_CHECK( m_matchedKey.initialize() );
 
     m_jetVarHandleKeys.push_back(m_ptDiffKey);
     m_jetVarHandleKeys.push_back(m_energyDiffKey);
@@ -76,16 +61,6 @@ StatusCode JetMatcherAlg::initialize() {
     m_l1etaRefKey = prepend+".etaRef_" + keyAppendix;
     m_l1matchedKey = prepend+".matched_" + keyAppendix;
 
-    ATH_CHECK( m_l1ptDiffKey.initialize() );
-    ATH_CHECK( m_l1energyDiffKey.initialize() );
-    ATH_CHECK( m_l1massDiffKey.initialize() );
-    ATH_CHECK( m_l1ptRespKey.initialize() );
-    ATH_CHECK( m_l1energyRespKey.initialize() );
-    ATH_CHECK( m_l1massRespKey.initialize() );
-    ATH_CHECK( m_l1ptRefKey.initialize() );
-    ATH_CHECK( m_l1etaRefKey.initialize() );
-    ATH_CHECK( m_l1matchedKey.initialize() );
-
     m_l1JetVarHandleKeys.push_back(m_l1ptDiffKey);
     m_l1JetVarHandleKeys.push_back(m_l1energyDiffKey);
     m_l1JetVarHandleKeys.push_back(m_l1massDiffKey);
@@ -95,6 +70,31 @@ StatusCode JetMatcherAlg::initialize() {
     m_l1JetVarHandleKeys.push_back(m_l1ptRefKey);
     m_l1JetVarHandleKeys.push_back(m_l1etaRefKey);
 
+  }
+  ATH_CHECK( m_ptDiffKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_energyDiffKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_massDiffKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_ptRespKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_energyRespKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_massRespKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_ptRefKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_etaRefKey.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_matchedKey.initialize( !m_matchL1 ) );
+  for ( auto& key : m_jetVarHandleKeys ) ATH_CHECK( key.initialize( !m_matchL1 ) );
+  ATH_CHECK( m_l1ptDiffKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1energyDiffKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1massDiffKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1ptRespKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1energyRespKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1massRespKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1ptRefKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1etaRefKey.initialize( m_matchL1 ) );
+  ATH_CHECK( m_l1matchedKey.initialize( m_matchL1 ) );
+  for ( auto& key : m_l1JetVarHandleKeys ) ATH_CHECK( key.initialize( m_matchL1 ) );
+
+  if (m_jetContainerKey1.key() != "NONE" && m_l1jetContainerKey1.key() != "NONE") {
+    ATH_MSG_ERROR(" Both JetContainerKey1 and L1JetContainerKey1 were set, but we can only use one of them for jet matching. Fix your settings!");
+    return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;

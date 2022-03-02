@@ -32,9 +32,9 @@ private:
   void getParameters();
   virtual GeoVPhysVol * build();
   
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
-  double m_pipeRadius;
+  double m_pipeRadius = 0.0;
   double m_length;
 
 };

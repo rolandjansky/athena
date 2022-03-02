@@ -64,7 +64,7 @@ namespace Trk {
 
     //! simple constructor with a MBase which the ProtoTrackState will either own or not
     ProtoTrackStateOnSurface(const MeasurementBase*,
-                             bool, bool,
+                             bool isOutlier, bool ownsMeasurement,
                              int positionOnTrajectory = -1,
                              const TransportJacobian* = 0,
                              const TrackParameters *  = 0);
@@ -76,8 +76,7 @@ namespace Trk {
     void swap(ProtoTrackStateOnSurface& rhs) throw (); // No throw exception guarantee
 
     //! checkin for data member: Measurement
-    void checkinMeasurement(MeasurementBase*,
-                            bool  classShallOwnMbase=true);
+    void checkinMeasurement(MeasurementBase*,bool  classShallOwnMbase);
 
     //! replace measurement by new, eg recalibrated one
     void replaceMeasurement(const MeasurementBase*,
@@ -106,34 +105,35 @@ namespace Trk {
     int  iterationShowingThisOutlier() const;
 
     //! checkin for data member: TransportJacobian
-    void checkinTransportJacobian(const TransportJacobian*,
-				  bool  classShallOwnJacobian=true);
+    void checkinTransportJacobian(const TransportJacobian*,bool  classShallOwnJacobian);
+    
     //! checkout for data member: TransportJacobian
     const TransportJacobian* checkoutTransportJacobian();
     //! read access for data member: TransportJacobian
     const TransportJacobian* jacobian() const;
 
     //! checkin for data member: ReferenceParameters (TrkParameters)
-    void checkinReferenceParameters(const TrackParameters*,
-                                    bool  classShallOwnRefPars=true);
+    void checkinReferenceParameters(const TrackParameters*);
+    void checkinReferenceParameters(std::unique_ptr<const TrackParameters>);
+    
     //! checkout for data member: TrackParameters
     const TrackParameters* checkoutReferenceParameters();
     //! read access for data member: referenceParameters
     const TrackParameters* referenceParameters() const;
 
     //! checkin for data member: ParametersDifference FIXME review if pointer of simply number
-    void checkinParametersDifference(const AmgVector(5)*,
-				     bool  classShallOwnDifference=true);
+    void checkinParametersDifference(std::unique_ptr<const AmgVector(5)>);
+    
     //! checkout for data member: HepVector
-    const AmgVector(5)* checkoutParametersDifference();
+    std::unique_ptr<const AmgVector(5)> checkoutParametersDifference();
     //! read access for data member: ParametersDifference
     const AmgVector(5)* parametersDifference() const;
 
     //! checkin for data member: Covariance of Track Parameters as simple matrix
-    void checkinParametersCovariance(const AmgSymMatrix(5)*,
-                    bool  classShallOwnCovariance=true);
+    void checkinParametersCovariance(std::unique_ptr<const AmgSymMatrix(5)> cov);
+    
     //! checkout for data member: Covariance
-    const AmgSymMatrix(5)* checkoutParametersCovariance();
+    std::unique_ptr<const AmgSymMatrix(5)> checkoutParametersCovariance();
     //! read access for data member: Covariance
     const AmgSymMatrix(5)* parametersCovariance() const;
 
@@ -224,6 +224,7 @@ namespace Trk {
     std::unique_ptr<const FitQualityOnSurface> m_fitQuality{};      //!< fit quality on this surface
     std::unique_ptr<const DNA_MaterialEffects> m_dnaMaterialEffects{}; //!< extended mefot for DNA
     std::unique_ptr<const ProtoMaterialEffects> m_protoMaterialEffects{}; //!< material layer and scattering info
+
     int                        m_stateID;         //!< simple counter to ease state numbering in fitter
     Identifier                 m_identifier;      //!< identify measurement for debugging
     TrackState::MeasurementType m_mType;           //!< store result once Meas is identified
@@ -235,11 +236,13 @@ namespace Trk {
     bool                       m_iOwnJacobian;     //!< flag to steer ownership of Jacobian
     const TrackParameters*     m_referenceParameters; //!< reference TrkParameters from propagator
     bool                       m_iOwnRefPars;      //!< flag to steer ownership of ref pars
-    const AmgVector(5)*        m_parametersDifference; //!< vector of diff reference minus filtered pars
-    bool                       m_iOwnParametersDifference; //!< flag to steer ownership on difference
-    const AmgSymMatrix(5)*     m_parametersCovariance; //!< covariance matrix of fitted parameters
-    bool                       m_iOwnParametersCovariance; //!< flag for ownership of covarinace matrix of fitted parameters
+    std::unique_ptr<const AmgVector(5)>        m_parametersDifference; //!< vector of diff reference minus filtered pars
+
+    std::unique_ptr<const AmgSymMatrix(5)>     m_parametersCovariance; //!< covariance matrix of fitted parameters
+    //bool                       m_iOwnParametersCovariance; //!< flag for ownership of covarinace matrix of fitted parameters
     CxxUtils::CachedUniquePtr<Amg::VectorX>   m_measurementDifferenceVector; //!< cached difference between reference TrkParameters and measurement
+    void checkinReferenceParameters(const TrackParameters*,bool  classShallOwnRefPars);
+    void checkinParametersDifference(const AmgVector(5)*, bool  classShallOwnDifference);
   };
 
   /// general swap function for ProtoTrackStateOnSurface (to speed up sort, etc)
@@ -269,8 +272,8 @@ inline void Trk::ProtoTrackStateOnSurface::positionOnTrajectory(int ID) { m_stat
 inline const Trk::MeasurementBase* Trk::ProtoTrackStateOnSurface::measurement() const { return m_measurement; }
 inline const Trk::TransportJacobian* Trk::ProtoTrackStateOnSurface::jacobian() const { return m_transportJacobian; }
 inline const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::referenceParameters() const { return m_referenceParameters; }
-inline const AmgVector(5)* Trk::ProtoTrackStateOnSurface::parametersDifference() const { return m_parametersDifference; }
-inline const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::parametersCovariance() const { return m_parametersCovariance; }
+inline const AmgVector(5)* Trk::ProtoTrackStateOnSurface::parametersDifference() const { return m_parametersDifference.get(); }
+inline const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::parametersCovariance() const { return m_parametersCovariance.get(); }
 inline const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::forwardTrackParameters() const
   {return m_forwardState.get(); }
 inline const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::smoothedTrackParameters() const

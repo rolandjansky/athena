@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SiPropertiesTool )
@@ -22,16 +22,16 @@ atlas_add_component( SiPropertiesTool
 # Run tests:
 atlas_add_test( TestSCTProperties
                 SCRIPT athena.py --threads=5 SiPropertiesTool/testSCTProperties.py
-                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT noerror.sh
                 ENVIRONMENT THREADS=5 )
 
 atlas_add_test( TestSCTPropertiesNewConf
                 SCRIPT python -m SiPropertiesTool.SCTSiPropertiesTestAlgConfig
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT noerror.sh )
 
 atlas_add_test( SiPropertiesConfig_test
                 SCRIPT test/SiPropertiesConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT noerror.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

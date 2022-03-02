@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from eflowRec import eflowRecConf
 from InDetTrackSelectionTool import InDetTrackSelectionToolConf
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaCommon.Logging import logging
 
@@ -130,6 +131,13 @@ def getPFTrackSel(tracktype, extensionCache="", trackname=None):
     )
     # Set the extension cache - if this is "" then the tool will run the extension
     TrackCaloExtensionTool.PFParticleCache = extensionCache
+    
+    # Set monitoring tool
+    from eflowRec import PFOnlineMon
+    monTool_extrapolator = PFOnlineMon.getMonTool_eflowTrackCaloExtensionTool()
+    monTool_extrapolator.HistPath = 'TrackExtrapolator'
+    TrackCaloExtensionTool.MonTool_TrackCaloExtension = monTool_extrapolator
+    
 
     # Configure the track selector
     PFTrackSelector = eflowRecConf.PFTrackSelector("PFTrackSelector_" + tracktype)
@@ -147,10 +155,9 @@ def getPFTrackSel(tracktype, extensionCache="", trackname=None):
     PFTrackSelector.tracksName = tracksin
     PFTrackSelector.VertexContainer = verticesin
 
-    from eflowRec import PFOnlineMon
-
-    monTool = PFOnlineMon.getMonTool_PFTrackSelector()
-    PFTrackSelector.MonTool = monTool
+    monTool_selector = PFOnlineMon.getMonTool_PFTrackSelector()
+    monTool_selector.HistPath = 'PFTrackSelector'
+    PFTrackSelector.MonTool = monTool_selector
 
     return PFTrackSelector
 
@@ -185,9 +192,15 @@ def getPFAlg(flags, clustersin, tracktype):
         matchingtool.MatchCut = matchcut * matchcut
         return matchingtool
 
+    from eflowRec import PFOnlineMon
+    PFTrackClusterMatchingTool_1 = CompFactory.PFTrackClusterMatchingTool("CalObjBldMatchingTool")
+    monTool_matching = PFOnlineMon.getMonTool_PFTrackClusterMatching()
+    monTool_matching.HistPath = 'PFTrackClusterMatchingTool_1'
+    PFTrackClusterMatchingTool_1.MonTool_ClusterMatching = monTool_matching
+
     # Default energy subtraction where a single cluster satisfies the expected
     # track calo energy
-    PFCellLevelSubtractionTool = eflowRecConf.PFCellLevelSubtractionTool(
+    PFCellLevelSubtractionTool = eflowRecConf.PFSubtractionTool(
         "PFCellLevelSubtractionTool",
         eflowCellEOverPTool=CellEOverPTool,
         # Uses a deltaR' cut (deltaR corrected for cluster width in eta/phi) to
@@ -208,8 +221,9 @@ def getPFAlg(flags, clustersin, tracktype):
     # A second cell-level subtraction tool that handles cases where more than one
     # cluster is needed to recover the full track expected energy
     # Reuse the default E/P subtraction tool
-    PFRecoverSplitShowersTool = eflowRecConf.PFRecoverSplitShowersTool(
-        "PFRecoverSplitShowersTool", eflowCellEOverPTool=CellEOverPTool
+    PFRecoverSplitShowersTool = eflowRecConf.PFSubtractionTool(
+        "PFRecoverSplitShowersTool", eflowCellEOverPTool=CellEOverPTool,
+        RecoverSplitShowers = True
     )
 
     # Configure moment calculation using topocluster moment calculator
@@ -241,27 +255,41 @@ def getPFAlg(flags, clustersin, tracktype):
         BaseToolList=[PFMomentCalculatorTool],
     )
 
-    from eflowRec import PFOnlineMon
-
-    monTool = PFOnlineMon.getMonTool_PFAlgorithm()
-    PFAlgorithm.MonTool = monTool
-
+    monTool_pfalg = PFOnlineMon.getMonTool_PFAlgorithm()
+    monTool_pfalg.HistPath = 'PFAlgorithm'
+    PFAlgorithm.MonTool = monTool_pfalg
+    
     return PFAlgorithm
 
 
 # Convert internal eflowRec track/cluster objects into xAOD neutral/charged
 # particle flow objects
-def getPFOCreators(tracktype):
-    PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm(
-        "PFOChargedCreatorAlgorithm_" + tracktype,
-        PFOOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
-    )
+def getPFOCreators(flags,tracktype):
 
-    PFONeutralCreatorAlgorithm = eflowRecConf.PFONeutralCreatorAlgorithm(
-        "PFONeutralCreatorAlgorithm_" + tracktype,
-        PFOOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
-        DoClusterMoments=False,  # Only CENTER_MAG
-    )
+    # flag for ATR-24619 (to remove flag and use FlowElement after)
+    if flags.Trigger.usexAODFlowElements:
+        log.debug("Using eflowRec with xAODType FlowElement") # TODO Remove after ATR-24619 complete
+        PFOChargedCreatorAlgorithm = eflowRecConf.PFChargedFlowElementCreatorAlgorithm(
+            "PFChargedCreatorAlgorithm_" + tracktype,
+            FlowElementOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
+        )
+
+        PFONeutralCreatorAlgorithm = eflowRecConf.PFNeutralFlowElementCreatorAlgorithm(
+            "PFNeutralCreatorAlgorithm_" + tracktype,
+            FlowElementOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
+        )
+    else:
+        log.debug("Using eflowRec with xAODType ParticleFlow") # TODO Remove after ATR-24619 complete
+        PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm(
+            "PFOChargedCreatorAlgorithm_" + tracktype,
+            PFOOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
+        )
+
+        PFONeutralCreatorAlgorithm = eflowRecConf.PFONeutralCreatorAlgorithm(
+            "PFONeutralCreatorAlgorithm_" + tracktype,
+            PFOOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
+            DoClusterMoments=False,  # Only CENTER_MAG
+        )
     return PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm
 
 
@@ -290,7 +318,7 @@ def PFHLTSequence(flags, clustersin, tracktype, cellsin=None):
     
     PFTrkSel = getPFTrackSel(tracktype, extension, tracks)
     PFAlg = getPFAlg(flags,clustersin, tracktype)
-    PFCCreator, PFNCreator = getPFOCreators(tracktype)
+    PFCCreator, PFNCreator = getPFOCreators(flags,tracktype)
 
     # Create HLT "parallel OR" sequence holding the PF algs
     # Can be inserted into the jet building sequence

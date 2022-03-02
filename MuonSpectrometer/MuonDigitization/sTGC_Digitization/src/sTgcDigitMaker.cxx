@@ -188,7 +188,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // Compute the distance from the hit to the wire, return value of -9.99 if unsuccessful
   double dist_wire = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number);
   if (dist_wire < -9.) {
-    ATH_MSG_WARNING("Failed to get the distance between the hit at (" 
+    ATH_MSG_DEBUG("Failed to get the distance between the hit at (" 
                     << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
                     << " and wire number = " << wire_number 
                     << ", chamber stationName: " << stationName 
@@ -213,7 +213,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
       if ((wire_number + adjacent) > 1) {
         double tmp_dist = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number + adjacent * 2);
         if (std::abs(tmp_dist) < std::abs(dist_wire)) {
-          ATH_MSG_WARNING("Wire number is more than one wire pitch away for hit position = (" 
+          ATH_MSG_DEBUG("Wire number is more than one wire pitch away for hit position = (" 
                           << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
                           << ", wire number = " << wire_number + adjacent * 2
                           << ", with d(-2) = " << tmp_dist
@@ -661,7 +661,7 @@ double sTgcDigitMaker::distanceToWire(Amg::Vector3D& position, Amg::Vector3D& di
   Amg::Vector3D perp_line = direction.cross(wire_direction);
   double norm_line = std::sqrt(perp_line.dot(perp_line));
   if (norm_line < 1.0e-5) {
-    ATH_MSG_WARNING("Unable to compute the distance of closest approach," 
+    ATH_MSG_DEBUG("Unable to compute the distance of closest approach," 
                     << " a negative value is assumed to indicate the error.");
     return -9.99;
   }
@@ -1182,7 +1182,7 @@ StatusCode sTgcDigitMaker::readFileOfTimeArrival() {
 
   // Read the sTGC_Digitization_timeWindowOffset.dat file
   std::string line;
-  GammaParameter param;
+  GammaParameter param{};
 
   while (std::getline(ifs, line)) {
     std::string key;
@@ -1207,7 +1207,7 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
 
   double d = distance;
   if (d < 0.) {
-    ATH_MSG_WARNING("getGammaParameter: expecting a positive distance, but got a negative value: " << d
+    ATH_MSG_DEBUG("getGammaParameter: expecting a positive distance, but got a negative value: " << d
                      << ". Proceed to the calculation using its absolute value.");
     d = -1.0 * d;
   }
@@ -1228,7 +1228,7 @@ double sTgcDigitMaker::getMostProbableArrivalTime(double distance) const {
 
   double d = distance;
   if (d < 0.) {
-    ATH_MSG_WARNING("getMostProbableArrivalTime: expecting a positive distance, but got a negative value: " << d
+    ATH_MSG_DEBUG("getMostProbableArrivalTime: expecting a positive distance, but got a negative value: " << d
                      << ". Proceed to the calculation using its absolute value.");
     d = -1.0 * d;
   }
@@ -1295,7 +1295,7 @@ double sTgcDigitMaker::getTimeOffsetStrip(int neighbor_index) const {
     }
     return m_timeOffsetStrip.at(neighbor_index);
   } else {
-    ATH_MSG_WARNING("either attempting to get strip's time offset with negative "
+    ATH_MSG_DEBUG("either attempting to get strip's time offset with negative "
                   "neighbor index," << neighbor_index 
                   << ", or time offset container is empty: " << m_timeOffsetStrip.size()
                   << ". Returning an offset of 0 ns.");

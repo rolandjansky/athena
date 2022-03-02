@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PATInterfaces )
@@ -30,14 +30,16 @@ atlas_add_library( PATInterfaces
 macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES PATInterfaces RootCoreUtils )
+      LINK_LIBRARIES PATInterfaces RootCoreUtils
+      POST_EXEC_SCRIPT nopost.sh )
 endmacro( _add_test )
 
 # Test(s) in the package:
 atlas_add_test( gt_SystematicSet
    SOURCES test/gt_SystematicSet.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} PATInterfaces RootCoreUtils )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} PATInterfaces RootCoreUtils
+   POST_EXEC_SCRIPT nopost.sh )
 
 _add_test( ut_SystematicSet_unordered_map )
 _add_test( ut_SystematicVariation )
@@ -45,13 +47,16 @@ _add_test( ut_make_systematic_vector )
 _add_test( ut_stream_systematics )
 
 atlas_add_test( ut_syst_constructors
-   SCRIPT test/ut_syst_constructors.py )
+   SCRIPT test/ut_syst_constructors.py
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ut_syst_dict
-   SCRIPT test/ut_syst_dict.py )
+   SCRIPT test/ut_syst_dict.py
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ut_syst_equality
-   SCRIPT test/ut_syst_equality.py )
+   SCRIPT test/ut_syst_equality.py
+   POST_EXEC_SCRIPT nopost.sh )
 
 # Clean up:
 unset( _add_test )

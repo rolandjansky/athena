@@ -73,13 +73,13 @@ class ElectronSelector : public EventAnalysis
   float m_etaCut;
 
   // Electron likelihood tool:
-  AsgElectronLikelihoodTool* m_LHTool2015; //!
+  AsgElectronLikelihoodTool* m_LHTool2015 = nullptr; //!
 
   // 
-  int m_elecneg1;
-  int m_elecneg2;
-  int m_elecpos1;
-  int m_elecpos2;
+  int m_elecneg1 = 0;
+  int m_elecneg2 = 0;
+  int m_elecpos1 = 0;
+  int m_elecpos2 = 0;
 
   // MeV to GeV conversion
   const float m_CGeV =  1.0e-3;  // Conversion factor to remove evil MeV nonsense.

@@ -1,10 +1,6 @@
 #!/bin/sh
 #
 # art-description: MC16-style simulation using G4FastCalo
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
-# art-include: master/Athena
 # art-type: grid
 # art-output: test.HITS.pool.root
 # art-output: truth.root
@@ -28,7 +24,7 @@ Sim_tf.py \
 
 rc=$?
 rc2=-9999
-echo  "art-result: $rc simulation"
+echo  "art-result: $rc simOLD"
 if [ $rc -eq 0 ]
 then
     ArtPackage=$1

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // @file IOVDbResolveTag.cxx
 // Implementation for tag resolving function, associating global tag to local folder
@@ -24,7 +24,7 @@ namespace IOVDbNamespace{
     auto j = crestClient.findGlobalTagMap(globalTagName);
     for (const auto &i:j){
       if (i["label"] == folderName){
-        result=i["tagName"];
+        result=static_cast<std::string>(i["tagName"]);
         break;
       }
     }

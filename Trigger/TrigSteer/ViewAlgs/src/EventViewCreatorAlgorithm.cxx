@@ -73,7 +73,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
   // Keep track of the ROIs we spawn a View for, do not spawn duplicates.
   // For many cases, this will be covered by the Merging operation preceding this.
-  ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
+  std::vector<ElementLink<TrigRoiDescriptorCollection>> RoIsFromDecision;
 
   if( outputHandle->size() == 0) {
     ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
@@ -264,7 +264,7 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
   muonCandidate->clear( SG::VIEW_ELEMENTS );
   auto msLink = theObject->muonSpectrometerTrackParticleLink();
   auto extTrackLink = theObject->extrapolatedMuonSpectrometerTrackParticleLink();
-  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink()) );
+  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink(), (*extTrackLink)->index()) );
 
   //store both in the view
   auto handleMuon = SG::makeHandle( m_inViewMuons,context );

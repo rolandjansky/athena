@@ -1,24 +1,27 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArHVScaleCorrSC.h"
 
 //const float LArHVScaleCorrSC::errorcode=ILArHVScaleCorr::ERRORCODE;
 
-LArHVScaleCorrSC::LArHVScaleCorrSC() {}
+LArHVScaleCorrSC::LArHVScaleCorrSC()
+  : LArCondSuperCellBase ("LArAutoCorrSC")
+{}
 
 LArHVScaleCorrSC::~LArHVScaleCorrSC() {}
 
 
-LArHVScaleCorrSC::LArHVScaleCorrSC(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArHVScaleCorrSC");
-  if (sc.isFailure()) return;
+LArHVScaleCorrSC::LArHVScaleCorrSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArAutoCorrSC")
+{
+  if (initializeBase().isFailure()) return;
  
-   readBlob(attrList,"HVScaleCorr",*m_log);
+  readBlob(attrList,"HVScaleCorr",msg());
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    ATH_MSG_ERROR( "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." );
   }
 
   return;

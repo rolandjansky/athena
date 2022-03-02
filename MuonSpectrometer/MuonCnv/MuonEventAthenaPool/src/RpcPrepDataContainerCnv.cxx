@@ -54,7 +54,7 @@ Muon::RpcPrepDataContainer* RpcPrepDataContainerCnv::createTransient() {
     static pool::Guid   p3_guid("65496D1F-E660-42A9-84C9-2002D39B87CB"); // with RpcPrepDataContainer_p3
     
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::RpcPrepDataContainer* p_collection(0);
+    Muon::RpcPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
         std::unique_ptr< Muon::RpcPrepDataContainer_p3 >  p_coll( poolReadObject< Muon::RpcPrepDataContainer_p3 >() );

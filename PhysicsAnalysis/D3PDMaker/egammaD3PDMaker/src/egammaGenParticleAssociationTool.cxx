@@ -78,9 +78,7 @@ StatusCode egammaGenParticleAssociationTool::book ()
 const xAOD::TruthParticle*
 egammaGenParticleAssociationTool::get (const xAOD::Egamma& p)
 {
-  IMCTruthClassifier::Cache cache;
   IMCTruthClassifier::Info info;
-  info.extrapolationCache = &cache;
   if (const xAOD::Electron* q =
       dynamic_cast<const xAOD::Electron*> (&p))
   {

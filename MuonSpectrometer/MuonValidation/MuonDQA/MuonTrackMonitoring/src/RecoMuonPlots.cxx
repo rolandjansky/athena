@@ -7,7 +7,7 @@
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-RecoMuonPlots::RecoMuonPlots(PlotBase* pParent, std::string sDir, bool detail):PlotBase(pParent, sDir)
+RecoMuonPlots::RecoMuonPlots(PlotBase* pParent, const std::string& sDir, bool detail):PlotBase(pParent, sDir)
 
 , m_oAllPlots(this, "/", "Reco Muon")
 , m_oMuRecoInfoPlots(this, "/")

@@ -2,8 +2,9 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NoHypoToolCreated
+from TriggerMenuMT.HLT.Config.MenuComponents import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
+from TrigHLTJetHypo.TrigJetHypoMonitoringConfig import TrigJetHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
 logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     
     from DecisionHandling.TrigCompositeUtils import isLegId, getLegIndexInt
     chain_name = chain_dict['chainName']
+    chain_mg   = chain_dict['monGroups']
     jet_signature_identifiers = ['Jet', 'Bjet']
 
     if isLegId(chain_name):
@@ -68,8 +70,15 @@ def  trigJetHypoToolFromDict(chain_dict):
                  chain_name, tuple(jet_signature_identifiers), tuple(chain_dict['signatures']))
 
     hypo_tool =  hypotool_from_chaindict(chain_dict)
-    hypo_tool.visit_debug = debug
 
+    #if menu has chain in an online monitoring group, unpack the recoalg(s) and hyposcenario(s) to configure monitoring
+    if any('jetMon:online' in group for group in chain_mg):
+        cpl = chain_dict["chainParts"] 
+        histFlags = []
+        for cp in cpl:
+            histFlags += [ cp['recoAlg'] ] + [ cp['hypoScenario']] 
+        hypo_tool.MonTool = TrigJetHypoToolMonitoring("HLTJetHypo/"+chain_name, histFlags)        
+    hypo_tool.visit_debug = debug
     return hypo_tool
 
     
@@ -79,16 +88,16 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
 def  trigJetEJsHypoToolFromDict(chain_dict):
     chain_name = chain_dict['chainName']
 
-    if 'Exotic' in chain_name:
+    if 'emerging' in chain_name:
         trackless = int(0)
         ptf = float(chain_name.split('PTF')[1].split('dR')[0].replace('p', '.'))
         dr  = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
-    elif 'Trackless' in chain_name:
+    elif 'trackless' in chain_name:
         trackless = int(1)
         ptf = 0.0
         dr = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
     else:
-        raise Exception("misconfiguration of Exotic jet chain")
+        raise Exception("misconfiguration of emerging jet chain")
 
     hypo = CompFactory.TrigJetEJsHypoTool(chain_name)
     hypo.PTF       = ptf
@@ -101,7 +110,7 @@ def  trigJetEJsHypoToolFromDict(chain_dict):
 import unittest
 class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
+        from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import (
             dictFromChainName,)
 
         chain_names = (

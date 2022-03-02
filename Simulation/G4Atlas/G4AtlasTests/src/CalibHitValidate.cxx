@@ -39,10 +39,6 @@ CalibHitValidate::CalibHitValidate(const std::string& name,
 }
 
 
-CalibHitValidate::~CalibHitValidate() {
-}
-
-
 //###############################################################################
 
 StatusCode CalibHitValidate::initialize()

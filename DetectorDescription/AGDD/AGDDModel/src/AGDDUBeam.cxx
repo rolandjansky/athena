@@ -11,7 +11,7 @@ void AGDDUbeam::CreateSolid (const AGDDBuilder& builder)
 	builder.CreateUbeam(this);
 }
 
-void AGDDUbeam::CreateVolume (const AGDDBuilder& builder)
+void AGDDUbeam::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

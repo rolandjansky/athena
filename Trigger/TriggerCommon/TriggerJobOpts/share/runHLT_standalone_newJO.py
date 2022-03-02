@@ -1,34 +1,16 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone_newJO')
 
-from AthenaConfiguration.ComponentAccumulator import CompFactory
-from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+from AthenaConfiguration.ComponentAccumulator import CompFactory
+from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior = 1
-
-flags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
-
-flags.Detector.GeometryPixel = True
-flags.Detector.GeometrySCT = True
-flags.Detector.GeometryTRT = True
-flags.Detector.GeometryID = True
-flags.Detector.GeometryBpipe = True
-flags.Detector.GeometryCavern = False
-flags.Detector.GeometryPixel = True
-flags.Detector.GeometrySCT = True
-flags.Detector.GeometryTRT = True
-
-flags.Detector.GeometryLAr = True
-flags.Detector.GeometryTile = True
-flags.Detector.GeometryMDT = True
-flags.Detector.GeometryTGC = True
-flags.Detector.GeometryCSC = True
-flags.Detector.GeometryRPC = True
 
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
@@ -50,7 +32,7 @@ flags.Calo.ClusterCorrection.defaultSource = [CALOCORR_POOL, CALOCORR_JO] # temp
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
-flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25-02' if f.Input.isMC else "CONDBR2-HLTP-2018-02"
+flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-RUN2-08-02' if f.Input.isMC else "CONDBR2-HLTP-2018-03"
 flags.Common.isOnline = lambda f: not f.Input.isMC
 flags.Common.MsgSourceLength=70
 flags.Trigger.doLVL1=True # run L1 sim also on data
@@ -58,6 +40,11 @@ flags.Trigger.enableL1MuonPhase1=True
 flags.Trigger.enableL1CaloPhase1=False
 flags.Trigger.enableL1CaloLegacy=True
 flags.Concurrency.NumThreads = 1
+
+if flags.Trigger.Online.isPartition:
+    flags.GeoModel.AtlasVersion = flags.Trigger.OnlineGeoTag
+# else rely on the auto-configuration from input file
+
 
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
@@ -83,7 +70,7 @@ acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 # this delcares to the scheduler that EventInfo object comes from the input
 loadFromSG = [('xAOD::EventInfo', 'StoreGateSvc+EventInfo')]
 
-if flags.Input.Format == 'BS':
+if flags.Input.Format is Format.BS:
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags))
 else:
@@ -94,12 +81,15 @@ else:
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags))
 
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
+from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # uncomment to obtain printout of menu (and associated components)
 # menu.printConfig(withDetails=True, summariseProps=True)
 acc.merge(menu)
+
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+acc.merge(LumiBlockMuWriterCfg(flags), sequenceName="HLTBeginSeq")
 
 if flags.Trigger.doTransientByteStream and flags.Trigger.doCalo:
     from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo

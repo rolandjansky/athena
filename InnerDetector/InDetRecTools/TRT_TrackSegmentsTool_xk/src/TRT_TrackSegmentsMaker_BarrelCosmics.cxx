@@ -662,8 +662,6 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
     double cotanParabola = a[1];
     double inverseSin3phi = 1. + a[1]*a[1]; inverseSin3phi *= std::sqrt(inverseSin3phi); // 1/sin^3phi
     double inverseR = 2. * a[2] / inverseSin3phi;
-    double sinphi = std::sqrt(1./(1+a[1]*a[1])); 
-    double cosphi = std::sqrt(1.-sinphi*sinphi); if (cotanParabola<0.) cosphi *= -1.;
 
     if (msgLvl(MSG::DEBUG)) {
        msg(MSG::DEBUG) << "TRT_TrackSegmentsMaker_BarrelCosmics: parabola fit, X: " << Xparabola << endmsg;

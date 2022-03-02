@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedEvent/SegmentTag.h"
@@ -10,10 +10,7 @@ namespace MuonCombined {
      TagBase(TagBase::Author::MuTagIMO,TagBase::Type::SegmentTagged), 
      m_segmentsInfo(segmentsInfo){}
 
-  SegmentTag::~SegmentTag() {
-    //     for( auto x : m_segmentsInfo ) delete &x;
-  }
-
+  SegmentTag::~SegmentTag() = default;
   std::vector<const Muon::MuonSegment*> SegmentTag::associatedSegments() const {
     std::vector<const Muon::MuonSegment*> segments;
     for( const auto& info : m_segmentsInfo ) {
@@ -21,5 +18,6 @@ namespace MuonCombined {
     }
     return segments;
   }
+  const std::vector<  MuonCombined::MuonSegmentInfo >& SegmentTag::segmentsInfo() const { return m_segmentsInfo; }
 
 }

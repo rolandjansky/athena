@@ -312,8 +312,8 @@ namespace MuonCalib {
         Amg::Transform3D gToStationCheck = seg.associatedSurface().transform().inverse();
         Amg::Transform3D gToStation = getGlobalToStation(chid, MuonDetMgr);
         // create the local position and direction vector
-        Amg::Vector3D segPosG(seg.globalPosition());
-        Amg::Vector3D segDirG(seg.globalDirection());
+        const Amg::Vector3D& segPosG(seg.globalPosition());
+        const Amg::Vector3D& segDirG(seg.globalDirection());
 
         // calculate local position and direction of segment
         Amg::Vector3D segPosL = gToStation * segPosG;
@@ -810,7 +810,7 @@ namespace MuonCalib {
             }
 
             // Here I have to add the nmdt, nrpc, ntgc and ncsc...
-            const std::vector<Muon::MuonPatternChamberIntersect> mpcivec = pat->chamberData();
+            const std::vector<Muon::MuonPatternChamberIntersect>& mpcivec = pat->chamberData();
             std::vector<Muon::MuonPatternChamberIntersect>::const_iterator pat_it = mpcivec.begin();
             for (; pat_it != mpcivec.end(); ++pat_it) {
                 const std::vector<const Trk::PrepRawData*> prdvec = (*pat_it).prepRawDataVec();

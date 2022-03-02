@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile raw channel maker algorithm"""
 
@@ -94,8 +94,7 @@ def TileRawChannelMakerDigiHSTruthCfg(flags, **kwargs):
     rawChannelbuilders = rawChannelMaker.TileRawChannelBuilder
 
     for rawChannelBuilder in rawChannelbuilders:
-        rawChannelContainer = rawChannelBuilder.TileRawChannelContainer
-        rawChannelBuilder.TileRawChannelContainer = rawChannelContainer + '_DigiHSTruth'
+        rawChannelBuilder.TileRawChannelContainer = f'{rawChannelBuilder.TileRawChannelContainer}_DigiHSTruth'
 
     return acc
 
@@ -113,8 +112,7 @@ def TileRawChannelOutputCfg(flags, tileRawChannelMaker, streamName):
     rawChannelbuilders = tileRawChannelMaker.TileRawChannelBuilder
 
     for rawChannelBuilder in rawChannelbuilders:
-        rawChannelContainer = rawChannelBuilder.TileRawChannelContainer
-        outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]
+        outputItemList += [f'TileRawChannelContainer#{rawChannelBuilder.TileRawChannelContainer}']
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc = OutputStreamCfg(flags, streamName, ItemList = outputItemList)

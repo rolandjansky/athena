@@ -23,7 +23,7 @@ class MMSimHit {
   // Destructor:
   virtual ~MMSimHit()=default;
    MMSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const int trackNumber);
-      MMSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink hmpl);
+      MMSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink& hmpl);
 
   //postStep globalTime
   double  globalTime()    const { return (double) m_globalTime; }

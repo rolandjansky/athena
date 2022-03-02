@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataCnv_p1.h"
 
@@ -22,6 +22,7 @@ Muon::STGC_RawData* Muon::STGC_RawDataCnv_p1::createTransient(const Muon::STGC_R
   Muon::STGC_RawData*  trans = new STGC_RawData( Identifier (persObj->m_id),
 						 persObj->m_bcTag,
 						 persObj->m_time,
+             static_cast<unsigned int>(25.0+persObj->m_time), // place holder for time->tdo from calibration
 						 persObj->m_charge, 
 						 persObj->m_isDead);
  

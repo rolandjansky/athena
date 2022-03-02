@@ -1,9 +1,10 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
@@ -13,7 +14,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
 
     # FIXME commented properties are not currently accepted by PixelConfigCondAlg
     CondArgs = {}
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         CondArgs.update(
             BarrelTimeJitter=[25.0,25.0,25.0,25.0],
             EndcapTimeJitter=[25.0,25.0,25.0],
@@ -230,7 +231,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         #====================================================================================
         # ITK
         CondArgs.update(
-            BarrelToTThresholdITK       = [     3,     3,     3,     3,     3],
+            BarrelToTThresholdITK       = [-1,-1,-1,-1,-1],
             BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06],
             BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8],
             BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3],
@@ -242,7 +243,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                                    "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
                                    "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
                                    "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"],
-            EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3],
+            EndcapToTThresholdITK       = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
             EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
             EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
             EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
@@ -281,7 +282,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
-        if flags.GeoModel.Run == "RUN4":
+        if flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:  # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
             if flags.GeoModel.Type == "BrlIncl4.0_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
@@ -291,10 +292,10 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
             elif flags.GeoModel.Type == "BrlExt3.2_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif flags.GeoModel.Run == "RUN2" or flags.GeoModel.Run == "RUN3":
+        elif flags.GeoModel.Run is LHCPeriod.Run2 or flags.GeoModel.Run is LHCPeriod.Run3:
             # Planar IBL
             if flags.GeoModel.IBLLayout == "planar":
-                if flags.GeoModel.Run == "RUN2":
+                if flags.GeoModel.Run is LHCPeriod.Run2:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
@@ -458,7 +459,7 @@ def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDeadMapCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run == "RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
@@ -487,7 +488,7 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
         from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
         acc.merge(TRT_ReadoutGeometryCfg(flags))
         kwargs.setdefault("TRT_DetEltContKey", "TRT_DetElementContainer")
-    if flags.Detector.GeometrySCT:
+    if not flags.GeoModel.Align.LegacyConditionsAccess and flags.Detector.GeometrySCT:
         from SCT_GeoModel.SCT_GeoModelConfig import SCT_AlignmentCfg
         acc.merge(SCT_AlignmentCfg(flags))
         kwargs.setdefault("SCTAlignmentStore", "SCTAlignmentStore")
@@ -504,6 +505,8 @@ def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
     kwargs.setdefault("WriteKey", "PixelDistortionData")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addCondAlgo(CompFactory.PixelDistortionAlg(name, **kwargs))
     return acc
 
@@ -514,9 +517,9 @@ def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
     # not for Run-1 data/MC
     if flags.GeoModel.IBLLayout in ("noIBL", "UNDEFINED"):
         return acc
-    if (flags.IOVDb.DatabaseInstance=="CONDBR2"):
+    if flags.IOVDb.DatabaseInstance == "CONDBR2":
         acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
-    elif (flags.Input.isMC and flags.GeoModel.Run=="RUN2") or (flags.Input.isMC and flags.GeoModel.Run=="RUN3"):
+    elif flags.Input.isMC and (flags.GeoModel.Run is LHCPeriod.Run2 or flags.GeoModel.Run is LHCPeriod.Run3):
         acc.merge(addFoldersSplitOnline(flags,"PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList"))
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/HitDiscCnfg")
@@ -528,7 +531,7 @@ def PixelOfflineCalibCondAlgCfg(flags, name="PixelOfflineCalibCondAlg", **kwargs
     """Return a ComponentAccumulator with configured PixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat"))
-    kwargs.setdefault("InputSource", 1 if flags.Common.isOnline else 2)
+    kwargs.setdefault("InputSource", 2)
     kwargs.setdefault("PixelClusterErrorDataFile", "PixelClusterErrorData.txt")
     kwargs.setdefault("PixelClusterOnTrackErrorDataFile", "PixelClusterOnTrackErrorData.txt")
     kwargs.setdefault("PixelChargeInterpolationDataFile", "PixelChargeInterpolationData.txt")
@@ -558,3 +561,31 @@ def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs
     kwargs.setdefault("WriteRadiationFluenceMapKey", "PixelRadiationDamageFluenceMapData")
     acc.addCondAlgo(CompFactory.PixelRadSimFluenceMapAlg(name, **kwargs))
     return acc
+
+
+if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+
+    flags.fillFromArgs()
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    flags.Input.Files = defaultTestFiles.RAW # need to update this depending on EDMversion
+    flags.Exec.MaxEvents=5
+
+    flags.lock()
+
+    acc = MainServicesCfg(flags)
+    acc.merge( PixelDetectorElementCondAlgCfg(flags) )
+    acc.printConfig(withDetails=True)
+    with open("PixelConditions.pkl", "wb") as file:
+        acc.store(file)
+    # TODO decide if we want to run actually
+    sc = acc.run()
+    # if sc.isFailure():
+    #     import sys
+    #     sys.exit(-1)
+
+

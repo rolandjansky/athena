@@ -45,10 +45,18 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInsideOutRecoAlg","Muo
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg_LRT","MuGirlAlg_LRT")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlStauAlg","MuGirlStauAlg")
 
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg", UseOnlyHittedSectors=True)
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT",UseOnlyHittedSectors=True)
+from AthenaCommon.BeamFlags import jobproperties
+useOnlyHitSectors = (jobproperties.Beam.beamType()=='collisions')
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT")
+
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInDetToMuonSystemExtensionAlg", "MuonInDetToMuonSystemExtensionAlg", UseOnlyHitSectors=useOnlyHitSectors)
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInDetToMuonSystemExtensionAlg_LRT","MuonInDetToMuonSystemExtensionAlg_LRT", UseOnlyHitSectors=useOnlyHitSectors)
+
+
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg_LRT", "MuonCombinedAlg_LRT")
 
@@ -57,6 +65,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg_LRT","Mu
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg_LRT","MuonCreatorAlg_LRT" )
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg_EMEO", "MuonCreatorAlg_EMEO")
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")
@@ -127,3 +136,9 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidSegmentRegionRecoveryTo
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidErrorOptimisationTool","MuidErrorOptimisationTool")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder","CombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilderFit","CombinedMuonTrackBuilderFit")
+
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedTrackBuilderFit_EMEO","CombinedTrackBuilderFit_EMEO")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonSegmentRegionRecoveryTool_EMEO","MuonSegmentRegionRecoveryTool_EMEO")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder_EMEO","CombinedMuonTrackBuilder_EMEO")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool_EMEO", "MuonCandidateTool_EMEO")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg_EMEO","MuonCombinedMuonCandidateAlg_EMEO")

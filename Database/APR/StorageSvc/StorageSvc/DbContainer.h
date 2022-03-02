@@ -99,20 +99,19 @@ namespace pool  {
     /// Mode of the handle (READ,WRITE,...)
     DbAccessMode openMode() const;
     /// Access to the size of the container
-    long long int size()    const;
+    long long int size();
     /// Access to the Database the container resides in
-    const DbDatabase& containedIn() const;
-          DbDatabase& containedIn();
+    DbDatabase& containedIn();
     /// Allow access to the Database implementation
-    IOODatabase* db() const;
+    IOODatabase* db();
     /// Let the implementation access the internals
     const IDbContainer* info()  const;
     IDbContainer* info();
     /// Retrieve persistent type information by name
-    const DbTypeInfo* objectShape(const Guid& nam) const;
+    const DbTypeInfo* objectShape(const Guid& nam);
     /// Access the token of the container object
     const Token* token() const;
-    /// Close the container the handle poits to
+    /// Close the container the handle points to
     DbStatus close();
 
     /// Open the container residing in \<file\> with given name and access mode
@@ -138,7 +137,7 @@ namespace pool  {
     /// Pass options to the implementation
     DbStatus setOption(const DbOption& refOpt);
     /// Access options
-    DbStatus getOption(DbOption& refOpt) const;
+    DbStatus getOption(DbOption& refOpt);
 
     /** Access objects through select staements.                            
       * This access type is ideal for relational Databases.
@@ -151,9 +150,9 @@ namespace pool  {
     /// Perform UPDATE statement
     DbStatus update(DbSelect& sel);
     /// Perform selection. The statement belongs to the container afterwards.
-    DbStatus select(DbSelect& sel) const;
+    DbStatus select(DbSelect& sel);
     /// Fetch next object address of the selection to set token
-    DbStatus fetch(DbSelect& sel) const;
+    DbStatus fetch(DbSelect& sel);
     //@}
 
     /** Access objects using pointer and shape
@@ -168,7 +167,7 @@ namespace pool  {
     /// Destroy an existing persistent object identified by its handle
     DbStatus destroy(const Token::OID_t& linkH);
     /// Select object in the container identified by its handle
-    DbStatus load(void** ptr, ShapeH shape, const Token::OID_t& lH) const;
+    DbStatus load(void** ptr, ShapeH shape, const Token::OID_t& lH);
     //@}
 
     /** Access objects by handle directly.                                  

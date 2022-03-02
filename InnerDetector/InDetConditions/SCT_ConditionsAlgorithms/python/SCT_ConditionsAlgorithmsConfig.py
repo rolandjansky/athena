@@ -83,7 +83,7 @@ def SCT_DetectorElementCondAlgCfg(flags, name="SCT_DetectorElementCondAlg", **kw
         from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
         acc.merge(TRT_ReadoutGeometryCfg(flags))
         kwargs.setdefault("TRT_DetEltContKey", "TRT_DetElementContainer")
-    if flags.Detector.GeometryPixel:
+    if not flags.GeoModel.Align.LegacyConditionsAccess and flags.Detector.GeometryPixel:
         from PixelGeoModel.PixelGeoModelConfig import PixelAlignmentCfg
         acc.merge(PixelAlignmentCfg(flags))
         kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")

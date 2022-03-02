@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPEVENTLOOPMGR_H
@@ -94,9 +94,8 @@ private:
   /// PileUp Merge Service
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;
 
-  /// Input Streams
+  /// Input Stream
   PileUpStream m_origStream;
-  PileUpStream m_signalStream;
 
   /// output store
   ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
@@ -127,12 +126,6 @@ private:
 
   /// property: process bkg events xing by xing without caching them
   Gaudi::Property<bool> m_xingByXing;
-
-  /// property: is this job running RDO+RDO overlay.
-  Gaudi::Property<bool> m_isEventOverlayJob;
-
-  /// property: is this job running MC RDO+RDO overlay.
-  Gaudi::Property<bool> m_isEventOverlayJobMC;
 
   /// property: control behaviour of event loop on algorithm failure
   Gaudi::Property<int> m_failureMode;
@@ -165,8 +158,6 @@ private:
   bool m_skipExecAlgs;
   bool m_loadProxies;
 
-  /// property: flag to control extra checks for embedding jobs.
-  Gaudi::Property<bool> m_isEmbedding;
   /// property: Default true. When set to false, this will allow the
   /// code to reproduce serial output in an AthenaMP job, albeit with
   /// a significant performance penalty.

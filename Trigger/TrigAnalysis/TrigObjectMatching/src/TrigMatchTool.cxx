@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -48,7 +48,6 @@ StatusCode TrigMatchTool::initialize() {
    // the cache
    ServiceHandle<IIncidentSvc> p_incSvc("IncidentSvc", this->name());
    p_incSvc->addListener( this, "EndEvent" );
-   p_incSvc->addListener( this, "TrigConf" );
 
    return StatusCode::SUCCESS;
 }
@@ -84,12 +83,4 @@ void TrigMatchTool::handle( const Incident &inc ) {
    if (inc.type() == "EndEvent") {
       this->endEvent();
    }
-   if( inc.type() == "TrigConf" ) {
-      ATH_MSG_INFO( "Switching to a new trigger configuration" );
-      // Clear and re-build all cached information. (The LVL1->LVL2 mapping
-      // is re-built the next time it is needed.)
-      clearChainIndex();
-   }
-
-   return;
 }

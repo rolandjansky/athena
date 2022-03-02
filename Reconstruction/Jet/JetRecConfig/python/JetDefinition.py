@@ -76,6 +76,7 @@ class JetDefinition(object):
                  standardRecoMode = False, # 
                  prefix = "",         # allows to tune the full JetContainer name
                  suffix = "",         # allows to tune the full JetContainer name
+                 infix = "",         # allows to tune the full JetContainer name
                  context = "default", # describe a context for which this definition will be used. See StandardJetContext
                  VRMinR = -1.0, # Minimum radius for VR jet finding
                  VRMassSc = -1.0, # Mass scale for VR jet finding, in MeV
@@ -94,6 +95,7 @@ class JetDefinition(object):
         self._inputdef = inputdef
         self._prefix = prefix
         self._suffix = suffix
+        self._infix = infix
         self._context = context
         self._VRMinRadius = VRMinR
         self._VRMassScale = VRMassSc
@@ -156,13 +158,16 @@ class JetDefinition(object):
     
     @make_lproperty
     def suffix(self): pass
+
+    @make_lproperty
+    def infix(self): pass
     
     @make_lproperty
     def basename(self): pass
 
     @basename.lsetter
     def basename(self,v):
-        raise Exception("Can NOT set property basename of JetDefinition ",self," Change prefix or suffix instead.")
+        raise Exception("Can NOT set property basename of JetDefinition ",self," Change prefix, infix or suffix instead.")
         
 
     @make_lproperty
@@ -184,7 +189,7 @@ class JetDefinition(object):
     
 
     def fullname(self):
-        return self.prefix+self.basename+"Jets"+self.suffix
+        return self.prefix+self.basename+self.infix+"Jets"+self.suffix
         
     def _defineName(self):
         self._basename = buildJetAlgName(self.algorithm,self.radius,self.VRMassScale,self.VRMinRadius)+self.inputdef.label # .label
@@ -330,7 +335,8 @@ class JetInputExternal(object):
     def __init__(self, name, objtype, algoBuilder=None, specs=None, containername=None, filterfn= _condAlwaysPass, prereqs=[]):
         self.name = name
         self.basetype = objtype
-        self.algoBuilder = algoBuilder
+        
+        self.algoBuilder = algoBuilder if algoBuilder is not None else buildNothing # buildNothing returns None (see below)
 
         # In certain cases (EventShape) we need to configure the concrete
         # output container name based on the jetdef and specs, so can
@@ -588,3 +594,5 @@ class JetConstitModifier(object):
 
 
     
+def buildNothing(*l):
+    return None

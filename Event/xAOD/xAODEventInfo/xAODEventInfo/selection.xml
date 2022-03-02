@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <!-- xAOD::EventInfo interface type(s). -->
@@ -39,6 +39,17 @@
   </class>
   <read sourceClass="xAOD::EventAuxInfo_v2" version="[1-]"
         targetClass="xAOD::EventAuxInfo_v2" source="" target="" >
+    <![CDATA[
+       newObj->toTransient();
+     ]]>
+  </read>
+
+  <class name="xAOD::EventAuxInfo_v3"
+         id="0D6FFB22-1BCB-49B9-BBFB-66B6DF352067">
+    <field name="m_decorFlags" transient="true" />
+  </class>
+  <read sourceClass="xAOD::EventAuxInfo_v3" version="[1-]"
+        targetClass="xAOD::EventAuxInfo_v3" source="" target="" >
     <![CDATA[
        newObj->toTransient();
      ]]>

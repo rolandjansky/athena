@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #######################
 # TruthClassification #
 #######################
@@ -7,7 +7,7 @@ atlas_subdir(TruthClassification)
 atlas_add_library(TruthClassificationLib
   TruthClassification/*.h Root/*.cxx
   PUBLIC_HEADERS TruthClassification
-  LINK_LIBRARIES AsgTools AsgAnalysisInterfaces xAODBase xAODEgamma xAODMuon
+  LINK_LIBRARIES AsgTools AsgAnalysisInterfaces xAODBase xAODEgamma xAODMuon FourMomUtils
   PRIVATE_LINK_LIBRARIES MCTruthClassifierLib)
 
 atlas_add_dictionary(TruthClassificationDict
@@ -43,4 +43,5 @@ atlas_add_executable(testTruthClassificationTool
 # do not contain all necessary information
 atlas_add_test(TruthClassificationToolTest
   SCRIPT testTruthClassificationTool
-  /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root)
+  /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root
+  POST_EXEC_SCRIPT nopost.sh )

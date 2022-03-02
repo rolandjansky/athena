@@ -37,7 +37,7 @@ def ElTest2HypoTool(chainDict):
 
 def getThreshold(chainDict):
     name = chainDict['chainParts'][0]['chainPartName']
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainThresholdFromName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainThresholdFromName
     return getChainThresholdFromName( name.split("_"), "TestChain")
 
 

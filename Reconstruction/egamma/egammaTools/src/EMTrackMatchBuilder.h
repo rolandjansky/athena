@@ -17,11 +17,12 @@
   */
 
 // INCLUDE HEADER FILES:
+#include "egammaInterfaces/IEMExtrapolationTools.h"
+#include "egammaInterfaces/IEMTrackMatchBuilder.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -33,7 +34,9 @@ namespace Reco {
 class ITrackToVertex;
 }
 
-class EMTrackMatchBuilder
+class CaloDetDescrManager;
+
+class EMTrackMatchBuilder final
   : public AthAlgTool
   , virtual public IEMTrackMatchBuilder
 {
@@ -54,13 +57,13 @@ public:
     const EventContext& ctx,
     EgammaRecContainer* egammas) const override final;
 
-  /** @brief execute method*/
-  virtual StatusCode trackExecute(
-    const EventContext& ctx,
-    egammaRec* eg,
-    const xAOD::TrackParticleContainer* trackPC) const override final;
-
 private:
+  /** @brief execute method*/
+  StatusCode trackExecute(const EventContext& ctx,
+                          egammaRec* eg,
+                          const xAOD::TrackParticleContainer* trackPC,
+                          const CaloDetDescrManager& caloDD) const;
+
   /** @brief A structure for keeping track match information */
   struct TrackMatch
   {
@@ -95,7 +98,7 @@ private:
                      const xAOD::CaloCluster& cluster,
                      int trackNumber,
                      const xAOD::TrackParticle& trkPB,
-                     const Trk::PropDirection dir) const;
+                     const CaloDetDescrManager& caloDD) const;
 
   /** @brief Loose track-cluster matching */
   bool isCandidateMatch(const xAOD::CaloCluster* cluster,
@@ -109,6 +112,13 @@ private:
     "TrackParticlesName",
     "",
     "Name of the input track particle container"
+  };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
   };
 
   /** @brief broad cut on deltaEta*/

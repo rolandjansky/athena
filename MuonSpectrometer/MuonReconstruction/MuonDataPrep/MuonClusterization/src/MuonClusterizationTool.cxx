@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterizationTool.h"
@@ -21,10 +21,10 @@ namespace Muon {
   StatusCode MuonClusterizationTool::initialize()
   {
     ATH_CHECK(m_idHelperSvc.retrieve());
-    m_tgcClustering = new HitClusteringObj(m_idHelperSvc->tgcIdHelper());
-    m_rpcClustering = new HitClusteringObj(m_idHelperSvc->rpcIdHelper());
-    m_rpcClustering->combinedGasGaps = m_combineGasGaps;
-    m_tgcClustering->combinedGasGaps = m_combineGasGaps;
+    m_tgcClustering = new HitClusteringObj(m_idHelperSvc->tgcIdHelper(),
+                                           m_combineGasGaps);
+    m_rpcClustering = new HitClusteringObj(m_idHelperSvc->rpcIdHelper(),
+                                           m_combineGasGaps);
     return StatusCode::SUCCESS; 
   }
 
@@ -57,9 +57,11 @@ namespace Muon {
     ATH_MSG_INFO("Performing clustering in " << m_idHelperSvc->toString(col.identify()) );
     std::vector<const MuonCluster*> prds;
     prds.insert(prds.end(),col.begin(),col.end());
-    m_tgcClustering->cluster( prds );
-    addClusters(m_tgcClustering->clustersEta,collection);
-    addClusters(m_tgcClustering->clustersPhi,collection);
+    std::vector<ClusterObj> clustersEta;
+    std::vector<ClusterObj> clustersPhi;
+    m_tgcClustering->cluster( prds, clustersEta, clustersPhi );
+    addClusters(clustersEta,collection);
+    addClusters(clustersPhi,collection);
     ATH_MSG_INFO("  input size " << col.size() << " output size " << collection->size());
 
     return collection;
@@ -117,9 +119,11 @@ namespace Muon {
     ATH_MSG_INFO("Performing clustering in " << m_idHelperSvc->toString(col.identify()) );
     std::vector<const MuonCluster*> prds;
     prds.insert(prds.end(),col.begin(),col.end());
-    m_rpcClustering->cluster( prds );
-    addClusters(m_rpcClustering->clustersEta,collection);
-    addClusters(m_rpcClustering->clustersPhi,collection);
+    std::vector<ClusterObj> clustersEta;
+    std::vector<ClusterObj> clustersPhi;
+    m_rpcClustering->cluster( prds, clustersEta, clustersPhi );
+    addClusters(clustersEta,collection);
+    addClusters(clustersPhi,collection);
     ATH_MSG_INFO("  input size " << col.size() << " output size " << collection->size());
    
     return collection;

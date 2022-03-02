@@ -116,7 +116,7 @@ int main(int narg, char* argv[]) {
   // Open simpos file.
   TFile* psfile = new TFile(arg1.c_str(), "READ");
   TTree* pstree = dynamic_cast<TTree*>(psfile->Get("csc_simpos"));
-  if ( pstree == 0 ) {
+  if ( pstree == nullptr ) {
     cout << "Unable to retrieve simpos tree" << endl;
     cerr << "  File: " << arg1 << endl;
     psfile->Print();
@@ -131,7 +131,7 @@ int main(int narg, char* argv[]) {
   // Open cluster file.
   TFile* pcfile = new TFile(arg2.c_str(), "READ");
   TTree* pctree = dynamic_cast<TTree*>(pcfile->Get("csc_cluster"));
-  if ( pctree == 0 ) {
+  if ( pctree == nullptr ) {
     cout << "Unable to retrieve cluster tree" << endl;
     cerr << "  File: " << arg2 << endl;
     pcfile->Print();

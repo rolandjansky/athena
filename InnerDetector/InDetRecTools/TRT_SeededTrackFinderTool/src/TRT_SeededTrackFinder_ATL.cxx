@@ -34,7 +34,6 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 //Updator tool
 #include "TrkToolInterfaces/IUpdator.h"
@@ -657,7 +656,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     const Trk::PerigeeSurface persurf (Amg::Vector3D(0,0,0));
 
     //Get track parameters at the end of SCT to start backwards propagation
-    auto per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
+    auto per   = m_proptool->propagate(ctx,
+                                       *upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
     if(!per){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endmsg;
       delete niTP;
@@ -768,7 +768,8 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
   const Trk::Surface&               surf  = SP->associatedSurface(); //Get the associated surface
   Trk::PropDirection                dir   = Trk::oppositeMomentum;   //Propagate backwards i.e. opposite momentum when filtering
   Trk::ParticleHypothesis           part  = Trk::nonInteracting;     //Choose a non interacting particle
-  auto       eTP   = m_proptool->propagate(*startTP,surf,dir,false,m_fieldprop,part); //Propagate
+  auto       eTP   = m_proptool->propagate(Gaudi::Hive::currentContext(),
+                                           *startTP,surf,dir,false,m_fieldprop,part); //Propagate
 
   if(!eTP){
 
@@ -1225,14 +1226,15 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
 {
   std::list<Trk::Track*> cleanSiTrack; // List of clean Si tracks per TRT segment
 
-  for (Trk::Track* track : lTrk) {
+  std::list<Trk::Track*>::const_iterator it    = lTrk.begin();
+  std::list<Trk::Track*>::const_iterator itEnd = lTrk.end();
+  for (; it != itEnd ; ++it){
     int nPixHits = 0;  //Number of Pixel PRDs
     int nSctHits = 0;  //Number of SCT PRDs
     double pixR = 0.;  //Radial position of last pixel PRD
     double sctR = 0.;  //Radial position of first SCT PRD
 
-    const Trk::Track* track_c = track;
-    const DataVector<const Trk::TrackStateOnSurface>* newtsos = track_c->trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* newtsos = (*it)->trackStateOnSurfaces();
     if(!newtsos) continue;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator itp, itpe=newtsos->end();
     for(itp=newtsos->begin(); itp!=itpe; ++itp){
@@ -1258,26 +1260,21 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
 
     ///Throw out any spurious pixel hits.Need to rebuild the vector of track states on surface from scratch, since it's const in EDM
     if(nPixHits==1 && (sctR-pixR)>200.){
-      auto cltsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-      cltsos->reserve (newtsos->size() - nPixHits);
-      const Trk::FitQuality* fq = track->fitQuality()->clone();
+      auto cltsos = DataVector<const Trk::TrackStateOnSurface>();
+      const Trk::FitQuality* fq = (*it)->fitQuality()->clone();
       // copy track Si states into track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator p_tsos;
       for(p_tsos=newtsos->begin()+nPixHits;p_tsos!=newtsos->end();++p_tsos){
-        const Trk::TrackStateOnSurface* tsos = *p_tsos;
-        // We only support containers containing exactly TSOS.
-        if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-        cltsos->push_back( cltsos->allocate (*tsos) );
+        cltsos.push_back( (*p_tsos)->clone() );
       }
       ///Construct the new track
       Trk::TrackInfo info;
  //     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-      cltsos->elt_allocator().protect();
       Trk::Track* nTrack = new Trk::Track(info, std::move(cltsos), fq);
       cleanSiTrack.push_back(nTrack);
-      delete track;
+      delete (*it);
     }else{
-      cleanSiTrack.push_back(track);
+      cleanSiTrack.push_back((*it));
     }
   }
 

@@ -225,7 +225,6 @@ private: // properties
    std::vector<std::vector<std::string> > m_inputAttrPerEvent;
 
    /// Output FileNames to be associated with Stream Clients
-   StringArrayProperty m_streamClientFilesProp{this,"OutputPoolFileAllocator",{}};
    std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
@@ -233,14 +232,14 @@ private: // properties
    long long m_domainMaxFileSize=std::numeric_limits<long long>::max();
    std::map<std::string, long long> m_databaseMaxFileSize;
 
-   /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
+   /// PersSvcPerOutput, boolean property to use multiple persistency services, one per output stream.
    /// default = true.
    BooleanProperty m_persSvcPerOutput{this,"PersSvcPerOutput",true};
    unsigned outputContextId(const std::string& outputConnection);
 
-   /// PersSvcPerInputType,boolean property to use multiple persistency services, one per input type.
-   /// default = false.
-   BooleanProperty m_persSvcPerInputType{this,"PersSvcPerInputType",false};
+   /// PersSvcPerInputType, string property, tree name to use multiple persistency services, one per input type.
+   /// default = "", no tree name results in a single persistency service.
+   StringProperty m_persSvcPerInputType{this,"PersSvcPerInputType",""};
    std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
@@ -265,9 +264,8 @@ private: // properties
 
    /// Property for DataHeaderCnv input DHForm cache size
    IntegerProperty m_DHFormCacheSize { this, "maxDHFormCacheSize", 100 };
-
    /// Flag to control SG alias filtering when writing out DataHeader (see DataHeaderCnv_p6)
-   BooleanProperty m_DHFileterAliases { this, "doFilterDHAliases", true };
+   BooleanProperty m_DHFilterAliases { this, "doFilterDHAliases", true };
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_MaterialManager.h"
@@ -48,7 +48,7 @@ SCT_MaterialManager::getElement(const std::string & elementName) const
 }
 
 const GeoMaterial* 
-SCT_MaterialManager::getMaterial(const std::string & materialName) const
+SCT_MaterialManager::getMaterial(const std::string & materialName)
 {
   return m_materialManager->getMaterial(materialName);
 }

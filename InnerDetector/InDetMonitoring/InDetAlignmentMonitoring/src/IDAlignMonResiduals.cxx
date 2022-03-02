@@ -2934,11 +2934,13 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After MagneticFieldProperties cast" << endmsg;
 
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before other side unbiased propagation" << endmsg;
-                if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
-                                                                                                                 tsos->measurementOnTrack()->associatedSurface(),
-                                                                                                                 Trk::anyDirection, false,
-                                                                                                                 *TempField,
-                                                                                                                 Trk::nonInteracting).release();
+                if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(
+                  Gaudi::Hive::currentContext(),
+                  *OtherSideUnbiasedTrackParams,
+                  tsos->measurementOnTrack()->associatedSurface(),
+                  Trk::anyDirection, false,
+                  *TempField,
+                  Trk::nonInteracting).release();
               } else {
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume does not exist" << endmsg;
               }
@@ -4411,7 +4413,7 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon) {
   };
   Double_t customaxis[21];
   int numDisks = m_SCT_Mgr->numerology().numDisks();
-  int totalPhiModules = 0;
+  //int totalPhiModules = 0;
   int totalPhiModulesOuterLayer = 0;
 
   for (int i = 0; i <= 20; i++) {
@@ -4422,7 +4424,7 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon) {
 
 
   for (int iECIndex = 0; iECIndex < m_SCT_Mgr->numerology().numEndcaps(); ++iECIndex) {
-    totalPhiModules = m_gap_sct * (numDisks - 1); //It is resetted to starting value for ECA. Only ECC modules are
+    //totalPhiModules = m_gap_sct * (numDisks - 1); //It is resetted to starting value for ECA. Only ECC modules are
                                                   // counted. This avoid double counting
     totalPhiModulesOuterLayer = m_gap_sct * (numDisks - 1);
     int iSide = m_SCT_Mgr->numerology().endcapId(iECIndex);
@@ -4446,7 +4448,7 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon) {
       for (int iEta = 0; iEta < rings; ++iEta) { //iEta<m_SCT_Mgr->numerology().numRingsForDisk(iWheel);
         ModulesPerRing = m_SCT_Mgr->numerology().numPhiModulesForDiskRing(iWheel, iEta);
         if (maxModulesPerRing < ModulesPerRing) maxModulesPerRing = ModulesPerRing;
-        totalPhiModules += ModulesPerRing;
+        //totalPhiModules += ModulesPerRing;
         maxModulesPerDisk += ModulesPerRing;
       }
       totalPhiModulesOuterLayer += maxModulesPerRing;

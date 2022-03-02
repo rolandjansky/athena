@@ -1,24 +1,28 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import FlagEnum
+from AthenaCommon.Logging import logging
+
+class RawChannelSource(FlagEnum):
+     Input="Input"           # read from the input-file, bytestream or RDO
+     Calculated="Calculated" #re-computed by the offline LArRawChannelBuilder
+     Both="Both"             # overwrite the digits computed
 
 
-def createLArConfigFlags(): 
+def createLArConfigFlags():
     lcf=AthConfigFlags()
- 
+
     lcf.addFlag("LAr.doAlign",lambda prevFlags : prevFlags.GeoModel.Layout=="atlas")
     lcf.addFlag("LAr.doHVCorr",lambda prevFlags : not prevFlags.Input.isMC)
     lcf.addFlag("LAr.doCellEmMisCalib",lambda prevFlags : prevFlags.Input.isMC)
 
-    lcf.addFlag("LAr.RawChannelSource",_determineRawChannelSource)
-                #sensible value are "input": read from the input-file, bytestream or RDO)
-                #                   "calculated": re-computed by the offline LArRawChannelBuilder
-                #                   "both": overwrite the digits computed 
+    lcf.addFlag("LAr.RawChannelSource",_determineRawChannelSource,enum=RawChannelSource)
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
-    
+
     # Include MC shape folder
     lcf.addFlag("LAr.UseMCShape", True)
     # Name of sqlite file containing Electronic Calibration values
@@ -53,7 +57,7 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.ROD.UseDelta", 0)
     # Force using the iterative OFC procedure
     lcf.addFlag("LAr.ROD.forceIter",False)
-     
+
     ##NoisyRO flags
     # cell quality cut
     lcf.addFlag("LAr.NoisyRO.CellQuality", 4000)
@@ -61,7 +65,7 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.NoisyRO.BadChanPerFEB", 30)
     # Number of Bad FEBs per partition cut
     lcf.addFlag("LAr.NoisyRO.BadFEBCut", 5)
-    # Number of channels to declare MNB-Loose 
+    # Number of channels to declare MNB-Loose
     lcf.addFlag("LAr.NoisyRO.MNBLooseCut", 5)
     # Number of channels to declare MNB-Tight
     lcf.addFlag("LAr.NoisyRO.MNBTightCut", 17)
@@ -74,33 +78,34 @@ def createLArConfigFlags():
 _lArRunInfo=None
 
 def _getLArRunInfo(prevFlags):
-    global _lArRunInfo #Model-level cache of lar run info
+    log = logging.getLogger('LArConfigFlags.getLArRunInfo')
+    global _lArRunInfo #Cache of lar run info
     if _lArRunInfo is None:
         from LArConditionsCommon.LArRunFormat import getLArFormatForRun
         runnbr=prevFlags.Input.RunNumber[0] #If more than one run, assume config for first run is valid for all runs
         dbStr="COOLONL_LAR/"+prevFlags.IOVDb.DatabaseInstance
         _lArRunInfo=getLArFormatForRun(run=runnbr,connstring=dbStr)
-        print ("Got LArRunInfo for run ",runnbr)
+        log.info("Got LArRunInfo for run %d",runnbr)
     return _lArRunInfo
-    
+
 
 def _determineRawChannelSource(prevFlags):
-    if (prevFlags.Input.isMC):
-        return "input"
-    
+    log = logging.getLogger('LArConfigFlags.determineRawChannelSource')
+    if prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay:
+        return RawChannelSource.Input
+
     lri=_getLArRunInfo(prevFlags)
     #runType: 0=RawData, 1=RawDataResult, 2=Result
     if lri is None or lri.runType is None:
-        print("WARNING do not have LArRunInfo !")
-        return "both"
-    print("runType ",lri.runType())
+        log.warning("WARNING do not have LArRunInfo !")
+        return RawChannelSource.Both
+    log.info("runType %d",lri.runType())
     if (lri.runType()==0):
-        return "calculated" #Have only digits in bytestream
+        return RawChannelSource.Calculated #Have only digits in bytestream
     elif (lri.runType()==1):
-        return "both"       #Have both, digits and raw-channels in bytestream
+        return RawChannelSource.Both       #Have both, digits and raw-channels in bytestream
     elif (lri.runType()==2):
-        return "input"      #Have only raw-channels in bytestream
+        return RawChannelSource.Input      #Have only raw-channels in bytestream
     else:
-        print("WARNING unknown LAr run type !")
-        return "both" 
-        
+        log.warning("Unknown LAr run type %i",lri.runType())
+        return RawChannelSource.Both

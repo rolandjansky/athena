@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,40 +47,15 @@
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkVolumes/Volume.h"
-// 
+//
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-// 
+//
 #include <memory>
 #include <utility>
 #include <cstdint>
 
-// for debugging could implement these methods to instrument input track
-// parameters with e.g. constructor and destructor monitoring
-inline const Trk::TrackParameters*
-replaceTrkParm(const Trk::TrackParameters* base_parm)
-{
-  return base_parm;
-}
 
-inline void
-replaceTrkParm(std::vector<std::pair<const Trk::TrackParameters*, int>>* input)
-{
-  (void)input;
-}
-
-inline void
-replaceTrkParm(std::vector<const Trk::TrackStateOnSurface*>* input)
-{
-  (void)input;
-}
-
-template<>
-inline const Trk::TrackParameters*
-replaceManagedPtr<const Trk::TrackParameters>(const Trk::TrackParameters* p_ptr)
-{
-  return p_ptr;
-}
 
 // need specialisation of cloneObj used by ObjContainer to properly clones all
 // kinds of TrackParameters:
@@ -146,7 +121,7 @@ bool Trk::Extrapolator::Cache::s_reported{};
 
 // constructor
 Trk::Extrapolator::Extrapolator(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p)
+  : AthCheckedComponent<AthAlgTool>(t, n, p)
   , m_subPropagators(Trk::NumberOfSignatures)
   , m_subupdaters(Trk::NumberOfSignatures)
   , m_propNames()
@@ -492,7 +467,7 @@ Trk::Extrapolator::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::NeutralParameters*
+std::unique_ptr<Trk::NeutralParameters>
 Trk::Extrapolator::extrapolate(const xAOD::NeutralParticle& xnParticle,
                                const Surface& sf,
                                PropDirection dir,
@@ -503,7 +478,7 @@ Trk::Extrapolator::extrapolate(const xAOD::NeutralParticle& xnParticle,
   return extrapolate(nPerigee, sf, dir, bcheck);
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const xAOD::TrackParticle& xtParticle,
                                const Surface& sf,
@@ -519,7 +494,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   return extrapolate(ctx, tPerigee, sf, dir, bcheck, particle, matupmode);
 }
 
-const Trk::NeutralParameters*
+std::unique_ptr<Trk::NeutralParameters>
 Trk::Extrapolator::extrapolate(const NeutralParameters& parameters,
                                const Surface& sf,
                                PropDirection dir,
@@ -529,7 +504,7 @@ Trk::Extrapolator::extrapolate(const NeutralParameters& parameters,
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
-      return currentPropagator->propagate(parameters, sf, dir, bcheck).release();
+      return currentPropagator->propagate(parameters, sf, dir, bcheck);
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
@@ -553,14 +528,16 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
   ATH_MSG_DEBUG("F-[" << cache.m_methodSequence << "] extrapolateStepwise(...) ");
   // initialize the return parameters vector
   // create a new internal helper vector
-  Trk::TrackParametersVector tmp;
+  Trk::TrackParametersPtrVector tmp;
   cache.m_parametersOnDetElements = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // Material effect updator cache
   populateMatEffUpdatorCache(cache);
+  //TODO revisit when objcontainer is streamlined
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   // run the extrapolation
-  ManagedTrackParmPtr parameterOnSf(
-    extrapolateImpl(ctx, cache, prop, cache.manage(parm).index(), sf, dir, bcheck, particle));
+  ManagedTrackParmPtr parameterOnSf(extrapolateImpl(
+    ctx, cache, prop, cache.manage(std::move(cloneInput)).index(), sf, dir, bcheck, particle));
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
   if (parameterOnSf) {
     tmp.push_back(parameterOnSf.release());
@@ -580,7 +557,7 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
   }
   return Trk::TrackParametersUVector(tmp.begin(), tmp.end());
 }
-std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
                                                     const IPropagator& prop,
                                                     const Trk::TrackParameters& parm,
@@ -597,7 +574,9 @@ Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
   // Material effect updator cache
   populateMatEffUpdatorCache(cache);
   // initialize the return parameters vector
-  ManagedTrackParmPtr currPar(cache.manage(parm));
+  //TODO revisit when objcontainer is streamlined
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
+  ManagedTrackParmPtr currPar(cache.manage(std::move(cloneInput)));
   const Trk::TrackingVolume* staticVol = nullptr;
   const Trk::Surface* destSurface = nullptr;
   const Trk::Layer* assocLayer = nullptr;
@@ -631,14 +610,13 @@ Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
         } else { // MSentrance
           nextPar = std::move(cache.m_parametersAtBoundary.nextParameters);
           cache.m_parametersAtBoundary.resetBoundaryInformation();
-          return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(nextPar.release(),
-                                                                           nullptr);
+          return {nextPar.to_unique(), nullptr};
         }
-      } else if (cache.m_parametersAtBoundary.nextParameters) { // outer boundary
+      } else if (cache.m_parametersAtBoundary
+                   .nextParameters) { // outer boundary
         nextPar = std::move(cache.m_parametersAtBoundary.nextParameters);
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(nextPar.release(),
-                                                                         nullptr);
+        return {nextPar.to_unique(), nullptr};
       }
     }
     currPar = std::move(nextPar);
@@ -646,10 +624,10 @@ Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
       break;
     }
   }
-  return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(currPar.release(), assocLayer);
+  return {currPar.to_unique(), assocLayer};
 }
 
-std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
   const EventContext& ctx,
   const IPropagator& prop,
@@ -666,7 +644,9 @@ Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
   // Material effect updator cache
   populateMatEffUpdatorCache(cache);
   // initialize the return parameters vector
-  ManagedTrackParmPtr currPar(cache.manage(parm));
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
+  ManagedTrackParmPtr currPar(cache.manage(std::move(cloneInput)));
+  //
   const Trk::TrackingVolume* staticVol = nullptr;
   const Trk::Surface* destSurface = nullptr;
   const Trk::Layer* assocLayer = nullptr;
@@ -700,14 +680,12 @@ Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
         } else { // MSentrance
           nextPar = std::move(cache.m_parametersAtBoundary.nextParameters);
           cache.m_parametersAtBoundary.resetBoundaryInformation();
-          return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(nextPar.release(),
-                                                                           nullptr);
+          return {nextPar.to_unique(), nullptr};
         }
       } else if (cache.m_parametersAtBoundary.nextParameters) { // outer boundary
         nextPar = std::move(cache.m_parametersAtBoundary.nextParameters);
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(nextPar.release(),
-                                                                         nullptr);
+        return {nextPar.to_unique(), nullptr};
       }
     }
     currPar = std::move(nextPar);
@@ -718,7 +696,7 @@ Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
   // reset the boundary information
   cache.m_parametersAtBoundary.resetBoundaryInformation();
   cache.m_matstates = nullptr;
-  return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(currPar.release(), assocLayer);
+  return {currPar.to_unique(), assocLayer};
 }
 
 Trk::ManagedTrackParmPtr
@@ -906,17 +884,17 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                                              << "'");
     // current static may carry non-trivial material properties, their use is optional;
     // use highest volume as B field source
-    const Trk::TrackParameters* pNextPar = prop.propagate(ctx,*currPar,cache.m_navigSurfs,
-                                       dir,m_fieldProperties,particle,solutions,path,false,
-                                       false,propagVol).release();
-    ManagedTrackParmPtr nextPar(ManagedTrackParmPtr::recapture(currPar, pNextPar));
+    std::unique_ptr<Trk::TrackParameters> pNextPar = prop.propagate(ctx,*currPar,cache.m_navigSurfs,
+                                                                   dir,m_fieldProperties,particle,solutions,path,false,
+                                                                   false,propagVol);
+    ManagedTrackParmPtr nextPar(cache.manage(std::move(pNextPar)));
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
                     << positionOutput(nextPar->position()));
     }
     if (!nextPar) {
       cache.m_parametersAtBoundary.resetBoundaryInformation();
-      return ManagedTrackParmPtr();
+      return {};
     }
     if (nextPar) {
       // collect material
@@ -959,11 +937,11 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                       << nextPar->momentum().mag() - currPar->momentum().mag() << ","
                       << eloss->deltaE());
         // use curvilinear TPs to simplify retrieval by fitters
-        std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-          nextPar->position(), nextPar->momentum(), nextPar->charge())));
+        std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+          nextPar->position(), nextPar->momentum(), nextPar->charge()));
         //
         auto mefot =
-          std::make_unique<Trk::MaterialEffectsOnTrack>(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
+          std::make_unique<Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
         cache.m_matstates->push_back(new TrackStateOnSurface(nullptr, std::move(cvlTP), nullptr, std::move(mefot)));
         if (cache.m_extrapolationCache) {
           if (m_dumpCache) {
@@ -1001,11 +979,11 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         ATH_MSG_DEBUG("M-S Crossing to static volume '" << nextVol->volumeName() << "'.'");
       }
     }
-    return ManagedTrackParmPtr();
+    return {};
   }
 
   if (!staticVol || (!staticVol->confinedDetachedVolumes()) || !currPar) {
-    return ManagedTrackParmPtr();
+    return {};
   }
 
   // reset remaining counters
@@ -1095,7 +1073,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     } else { // active material
       const Trk::TrackingVolume* detVol = dVol->associatedSubVolume(gp);
       if (!detVol && dVol->confinedVolumes()) {
-        std::vector<const Trk::TrackingVolume*> subvols = dVol->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> subvols = dVol->confinedVolumes()->arrayObjects();
         for (unsigned int iv = 0; iv < subvols.size(); iv++) {
           if (subvols[iv]->inside(gp, m_tolerance)) {
             detVol = subvols[iv];
@@ -1221,17 +1199,17 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     ATH_MSG_DEBUG("  [+] " << cache.m_navigSurfs.size() << " target surfaces in '"
                            << cache.m_currentDense->volumeName() << "'.");
     ManagedTrackParmPtr nextPar(
-      ManagedTrackParmPtr::recapture(currPar,prop.propagate(ctx,
-                                                    *currPar,
-                                                    cache.m_navigSurfs,
-                                                    dir,
-                                                    m_fieldProperties,
-                                                    particle,
-                                                    solutions,
-                                                    path,
-                                                    false,
-                                                    false,
-                                                    cache.m_currentDense).release()));
+      cache.manage(prop.propagate(ctx,
+                                                  *currPar,
+                                                  cache.m_navigSurfs,
+                                                  dir,
+                                                  m_fieldProperties,
+                                                  particle,
+                                                  solutions,
+                                                  path,
+                                                  false,
+                                                  false,
+                                                  cache.m_currentDense)));
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
                     << positionOutput(nextPar->position()));
@@ -1292,11 +1270,11 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                       << eloss->deltaE());
 
         // use curvilinear TPs to simplify retrieval by fitters
-        std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-          nextPar->position(), nextPar->momentum(), nextPar->charge())));
+        std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+          nextPar->position(), nextPar->momentum(), nextPar->charge()));
 
         auto mefot =
-          std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
 
         cache.m_matstates->push_back(new TrackStateOnSurface(nullptr, std::move(cvlTP), nullptr, std::move(mefot)));
 
@@ -1340,7 +1318,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         if (dist * dir < 0.) {
           ATH_MSG_DEBUG("  [+] Destination surface missed ? " << dist << "," << dir);
           cache.m_parametersAtBoundary.resetBoundaryInformation();
-          return ManagedTrackParmPtr();
+          return {};
         }
         ATH_MSG_DEBUG("  [+] New 3D-distance to destinatiion    - d3 = " << dist * dir);
       }
@@ -1361,14 +1339,17 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
 
               if (currentUpdator) {
-                nextPar = ManagedTrackParmPtr::recapture(
-                  nextPar,
-                  currentUpdator->update(
-                    currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmode).release());
+                nextPar = cache.manage(
+                  currentUpdator->update(currentUpdatorCache,
+                                         nextPar.get(),
+                                         *mb,
+                                         dir,
+                                         particle,
+                                         matupmode));
               }
               if (!nextPar) {
                 cache.m_parametersAtBoundary.resetBoundaryInformation();
-                return ManagedTrackParmPtr();
+                return {};
               }
 
               // collect material
@@ -1420,10 +1401,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                   *lmat, std::abs(1. / currentqoverp), 1. / costr, dir, particle);
 
                 // use curvilinear TPs to simplify retrieval by fitters
-                std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-                  nextPar->position(), nextPar->momentum(), nextPar->charge())));
+                std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+                  nextPar->position(), nextPar->momentum(), nextPar->charge()));
                 auto mefot =
-                  std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
+                  std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
                 if (cache.m_extrapolationCache) {
                   if (checkCache(cache, " mat states extrapolateToNextMaterialLayer thin")) {
                     if (m_dumpCache) {
@@ -1481,7 +1462,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               ATH_MSG_DEBUG("  [+] Crossing position is         - at "
                             << positionOutput(nextPar->position()));
             }
-            return ManagedTrackParmPtr();
+            return {};
           }
         } else if (solutions[iSol] <
                    iDest + cache.m_staticBoundaries.size() + cache.m_layers.size()) {
@@ -1511,14 +1492,17 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
 
             if (currentUpdator) {
-              nextPar = ManagedTrackParmPtr::recapture(
-                nextPar,
-                currentUpdator->update(
-                  currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmode).release());
+              nextPar = cache.manage(
+                currentUpdator->update(currentUpdatorCache,
+                                       nextPar.get(),
+                                       *nextLayer,
+                                       dir,
+                                       particle,
+                                       matupmode));
             }
             if (!nextPar) {
               cache.m_parametersAtBoundary.resetBoundaryInformation();
-              return ManagedTrackParmPtr();
+              return {};
             }
 
             // collect material
@@ -1572,10 +1556,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 materialProperties, std::abs(1. / currentqoverp), 1. / costr, dir, particle);
 
               // use curvilinear TPs to simplify retrieval by fitters
-              std::unique_ptr<const Trk::TrackParameters> cvlTP(replaceTrkParm(new Trk::CurvilinearParameters(
-                nextPar->position(), nextPar->momentum(), nextPar->charge())));
+              std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
+                nextPar->position(), nextPar->momentum(), nextPar->charge()));
               auto mefot =
-                std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
+                std::make_unique<const Trk::MaterialEffectsOnTrack>(dInX0, newsa, eloss, cvlTP->associatedSurface());
               if (cache.m_extrapolationCache) {
                 if (checkCache(cache, " mat states extrapolateToNextMaterialLayer thin")) {
                   if (m_dumpCache) {
@@ -1755,12 +1739,12 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     } else {
       ATH_MSG_DEBUG("  [!] Propagation failed, return 0");
       cache.m_parametersAtBoundary.boundaryInformation(cache.m_currentStatic, nextPar, nextPar);
-      return ManagedTrackParmPtr();
+      return {};
     }
     currPar = std::move(nextPar);
   }
 
-  return ManagedTrackParmPtr();
+  return {};
 }
 
 Trk::ManagedTrackParmPtr
@@ -1821,7 +1805,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
 
   if (!staticVol) {
     ATH_MSG_DEBUG("  [!] failing in retrieval of AlignableTV, return 0");
-    return ManagedTrackParmPtr();
+    return {};
   }
 
   // TODO if volume entry go to entry of misaligned volume
@@ -1836,7 +1820,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
         ManagedTrackParmPtr identified_parm(
           currPar); // first create a copy, to not invalidate currPar on release
         cache.m_identifiedParameters->push_back(
-          std::pair<const Trk::TrackParameters*, int>(identified_parm.release(), binIDMat->second));
+          std::pair<std::unique_ptr<Trk::TrackParameters>, int>(identified_parm.release(), binIDMat->second));
       }
     }
   }
@@ -1892,27 +1876,22 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
     // however, it does not modify the pointer, so the parameter
     // should really be passed just by pointer.
     identifiedParameters_t* intersections = cache.m_identifiedParameters.get();
-    ManagedTrackParmPtr nextPar(
-      ManagedTrackParmPtr::recapture(currPar,
-                                     prop.propagateM(ctx,
-                                                     *currPar,
-                                                     cache.m_navigSurfs,
-                                                     dir,
-                                                     m_fieldProperties,
-                                                     particle,
-                                                     solutions,
-                                                     cache.m_matstates,
-                                                     intersections,
-                                                     path,
-                                                     false,
-                                                     false,
-                                                     cache.m_currentDense,
-                                                     cache.m_extrapolationCache).release()));
-    // does nothing
-    // can be used for debugging to instrument track parameters with some monitoring (e.g.
-    // construction and destruction)
-    replaceTrkParm(cache.m_identifiedParameters.get());
-    replaceTrkParm(cache.m_matstates);
+    ManagedTrackParmPtr nextPar(cache.manage(
+      prop.propagateM(ctx,
+                      *currPar,
+                      cache.m_navigSurfs,
+                      dir,
+                      m_fieldProperties,
+                      particle,
+                      solutions,
+                      cache.m_matstates,
+                      intersections,
+                      path,
+                      false,
+                      false,
+                      cache.m_currentDense,
+                      cache.m_extrapolationCache)));
+   
 
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
@@ -1944,7 +1923,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
         if (dist * dir < 0.) {
           ATH_MSG_DEBUG("  [+] Destination surface missed ? " << dist << "," << dir);
           cache.m_parametersAtBoundary.resetBoundaryInformation();
-          return ManagedTrackParmPtr();
+          return {};
         }
         ATH_MSG_DEBUG("  [+] New 3D-distance to destinatiion    - d3 = " << dist * dir);
       }
@@ -1988,8 +1967,8 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
                   // first create a copy, to not invalidate nextPar on release
                   ManagedTrackParmPtr identified_parm(nextPar);
                   cache.m_identifiedParameters->push_back(
-                    std::pair<const Trk::TrackParameters*, int>(identified_parm.release(),
-                                                                -binIDMat->second));
+                    std::pair<std::unique_ptr<Trk::TrackParameters>, int>(identified_parm.release(),
+                                                                          -binIDMat->second));
                 }
               }
             }
@@ -2020,7 +1999,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
               }
               // implicit : parameters at boundary returned
             }
-            return ManagedTrackParmPtr();
+            return {};
           }
         }
         iSol++;
@@ -2028,15 +2007,15 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
     } else {
       ATH_MSG_DEBUG("  [!] Propagation failed, return 0");
       cache.m_parametersAtBoundary.boundaryInformation(cache.m_currentStatic, nextPar, nextPar);
-      return ManagedTrackParmPtr();
+      return {};
     }
     currPar = std::move(nextPar);
   }
 
-  return ManagedTrackParmPtr();
+  return {};
 }
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
                                            const IPropagator& prop,
                                            const Trk::TrackParameters& parm,
@@ -2049,7 +2028,7 @@ Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
   ++m_extrapolateDirectlyCalls;
 
   // now du the stuff
-  const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume();
+  const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume(ctx);
 
   // ---------------------------------------------------------------
   // [?]: cannot increment and display m_methodSequence here, since the cache is not passed here
@@ -2057,12 +2036,12 @@ Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
                                                           << "' to destination surface. ");
 
   if (currentVolume) {
-    return prop.propagate(ctx, parm, sf, dir, bcheck, m_fieldProperties, particle).release();
+    return prop.propagate(ctx, parm, sf, dir, bcheck, m_fieldProperties, particle);
   }
   return nullptr;
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
                                            const IPropagator& prop,
                                            const TrackParameters& parm,
@@ -2074,7 +2053,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
   // here to correctly set cache.m_methodSequence for sub-sequent calls ...
   ATH_MSG_DEBUG("V-[?" /*<< cache.m_methodSequence*/
                 << "] extrapolateToVolume(...) to volume '" << vol.volumeName() << "'.");
-  const TrackParameters* returnParms = nullptr;
+  std::unique_ptr<TrackParameters> returnParms = nullptr;
   Trk::PropDirection propDir = dir == Trk::oppositeMomentum ? dir : Trk::alongMomentum;
   double dist = 0.;
 
@@ -2112,13 +2091,20 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
   for (std::pair<const Trk::Surface*, double>& a_surface : surfaces) {
     if (a_surface.second > 0) {
       Cache cache{};
+      //TODO revisit when objcontainer is streamlined
+      auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
       // Material effect updator cache
       populateMatEffUpdatorCache(cache);
-      returnParms =
-        extrapolateImpl(
-          ctx, cache, prop, cache.manage(parm).index(), *(a_surface.first), propDir, true, particle)
-          .release();
-      if (returnParms == &parm) {
+      returnParms = extrapolateImpl(ctx,
+                                    cache,
+                                    prop,
+                                    cache.manage(std::move(cloneInput)).index(),
+                                    *(a_surface.first),
+                                    propDir,
+                                    true,
+                                    particle)
+                      .to_unique();
+      if (returnParms.get() == &parm) {
         throw std::logic_error("Did not create new track parameters.");
       }
       if (returnParms) {
@@ -2134,18 +2120,19 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
          ++rsIter) {
       if ((*rsIter).second < 0) {
         Cache cache{};
+        //TODO revisit when objcontainer is streamlined
+        auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
         // Material effect updator cache
         populateMatEffUpdatorCache(cache);
         returnParms = extrapolateImpl(ctx,
                                       cache,
                                       prop,
-                                      cache.manage(parm).index(),
+                                      cache.manage(std::move(cloneInput)).index(),
                                       *((*rsIter).first),
                                       Trk::oppositeMomentum,
                                       true,
-                                      particle)
-                        .release();
-        if (returnParms == &parm) {
+                                      particle).to_unique();
+        if (returnParms.get() == &parm) {
           throw std::logic_error("Did not create new track parameters.");
         }
 
@@ -2160,9 +2147,9 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
   return returnParms;
 }
 
-// Configured AlgTool extrapolation methods
+// Interface Extrapolation methods
 // ----------------------------------------------------------------/
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const TrackParameters& parm,
                                const Surface& sf,
@@ -2174,17 +2161,18 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
 {
   Cache cache{};
   // Material effect updator cache
+  //TODO revisit when objcontainer is streamlined
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   populateMatEffUpdatorCache(cache);
   return extrapolateImpl(ctx,
                          cache,
-                         cache.manage(parm).index(),
+                         cache.manage(std::move(cloneInput)).index(),
                          sf,
                          dir,
                          bcheck,
                          particle,
                          matupmode,
-                         extrapolationCache)
-    .release();
+                         extrapolationCache).to_unique();
 }
 
 Trk::TrackParametersUVector
@@ -2205,10 +2193,10 @@ Trk::Extrapolator::extrapolateStepwise(const EventContext& ctx,
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return TrackParametersUVector();
+  return {};
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const Trk::Track& trk,
                                const Trk::Surface& sf,
@@ -2225,7 +2213,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   }
 
   const Trk::TrackParameters* closestTrackParameters =
-    m_navigator->closestParameters(trk, sf, searchProp);
+    m_navigator->closestParameters(ctx, trk, sf, searchProp);
   if (closestTrackParameters) {
     return (extrapolate(
       ctx, *closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
@@ -2255,12 +2243,14 @@ Trk::Extrapolator::extrapolateBlindly(const EventContext& ctx,
 
     if (currentPropagator) {
       Cache cache{};
+      //TODO revisit when objcontainer is streamlined
+      auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
       // Material effect updator cache
       populateMatEffUpdatorCache(cache);
       return extrapolateBlindlyImpl(ctx,
                                     cache,
                                     (*currentPropagator),
-                                    cache.manage(parm).index(),
+                                    cache.manage(std::move(cloneInput)).index(),
                                     dir,
                                     bcheck,
                                     particle,
@@ -2268,10 +2258,10 @@ Trk::Extrapolator::extrapolateBlindly(const EventContext& ctx,
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return TrackParametersUVector();
+  return {};
 }
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
                                        const Trk::TrackParameters& parm,
                                        const Trk::Surface& sf,
@@ -2286,14 +2276,15 @@ Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
-      return (extrapolateDirectlyImpl(ctx, (*currentPropagator), parm, sf, dir, bcheck, particle));
+      return extrapolateDirectlyImpl(
+        ctx, (*currentPropagator), parm, sf, dir, bcheck, particle);
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
   return nullptr;
 }
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
                                        const IPropagator& prop,
                                        const Trk::TrackParameters& parm,
@@ -2306,7 +2297,7 @@ Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
   return extrapolateDirectlyImpl(ctx, prop, parm, sf, dir, bcheck, particle);
 }
 
-std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayer(const EventContext& ctx,
                                                 const TrackParameters& parm,
                                                 PropDirection dir,
@@ -2320,15 +2311,15 @@ Trk::Extrapolator::extrapolateToNextActiveLayer(const EventContext& ctx,
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      return (extrapolateToNextActiveLayerImpl(
-        ctx, (*currentPropagator), parm, dir, bcheck, particle, matupmode));
+      return extrapolateToNextActiveLayerImpl(
+        ctx, (*currentPropagator), parm, dir, bcheck, particle, matupmode);
     }
   }
   ATH_MSG_ERROR("[!] No default Propagator is configured ! Please check jobOptions.");
-  return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(0, 0);
+  return { nullptr, nullptr };
 }
 
-std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerM(
   const EventContext& ctx,
   const TrackParameters& parm,
@@ -2345,15 +2336,21 @@ Trk::Extrapolator::extrapolateToNextActiveLayerM(
     const IPropagator* currentPropagator =
       !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      return (extrapolateToNextActiveLayerMImpl(
-        ctx, (*currentPropagator), parm, dir, bcheck, material, particle, matupmode));
+      return extrapolateToNextActiveLayerMImpl(ctx,
+                                               (*currentPropagator),
+                                               parm,
+                                               dir,
+                                               bcheck,
+                                               material,
+                                               particle,
+                                               matupmode);
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return std::pair<const Trk::TrackParameters*, const Trk::Layer*>(0, 0);
+  return {nullptr, nullptr};
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateToVolume(const EventContext& ctx,
                                        const Trk::TrackParameters& parm,
                                        const Trk::TrackingVolume& vol,
@@ -2395,9 +2392,11 @@ Trk::Extrapolator::extrapolateM(const EventContext& ctx,
   }
 
   // collect the material
+  //TODO revisit when objcontainer is streamlined
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   ManagedTrackParmPtr parameterAtDestination(extrapolateImpl(ctx,
                                                              cache,
-                                                             cache.manage(parm).index(),
+                                                             cache.manage(std::move(cloneInput)).index(),
                                                              sf,
                                                              dir,
                                                              bcheck,
@@ -2434,21 +2433,6 @@ Trk::Extrapolator::extrapolateM(const EventContext& ctx,
   return tmpMatStates;
 }
 
-std::vector<const Trk::TrackParameters*>*
-Trk::Extrapolator::extrapolateM(const EventContext& /*ctx*/,
-                                const TrackParameters&,
-                                const Surface&,
-                                PropDirection,
-                                const BoundaryCheck&,
-                                std::vector<MaterialEffectsOnTrack>&,
-                                std::vector<Trk::TransportJacobian*>&,
-                                ParticleHypothesis,
-                                Trk::ExtrapolationCache*) const
-{
-  ATH_MSG_DEBUG("C-[?] extrapolateM(..) with jacobian collection - Not implemented yet.");
-  return nullptr;
-}
-
 // the validation action -> propagated to the SubTools
 void
 Trk::Extrapolator::validationAction() const
@@ -2482,8 +2466,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
 {
   // set the model action of the material effects updaters
   for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
-    if(m_subupdaters[imueot] && cache.m_MaterialUpCache[imueot]){
-      m_subupdaters[imueot]->modelAction(*(cache.m_MaterialUpCache[imueot]));
+    if(m_subupdaters[imueot]){
+      m_subupdaters[imueot]->modelAction((cache.m_MaterialUpCache[imueot]));
     }
   }
 
@@ -2497,8 +2481,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
       ++cache.m_methodSequence; // extrapolateDirectly does not have the cache and cannot increment
                                 // m_methodSequence therefore do it here
     }
-    return ManagedTrackParmPtr::recapture(
-      parm, extrapolateDirectlyImpl(ctx, prop, *parm, sf, dir, bcheck, particle));
+    return cache.manage(
+      extrapolateDirectlyImpl(ctx, prop, *parm, sf, dir, bcheck, particle));
   }
 
   // statistics && sequence output ----------------------------------------
@@ -2541,8 +2525,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
     // the extrapolate directly call
     ++cache.m_methodSequence; // extrapolateDirectly does not have the cache and cannot increment
                               // m_methodSequence
-    return ManagedTrackParmPtr::recapture(
-      parm, extrapolateDirectlyImpl(ctx, prop, *parm, sf, navDir, bcheck, particle));
+    return cache.manage(
+      extrapolateDirectlyImpl(ctx, prop, *parm, sf, navDir, bcheck, particle));
   }
   // ------------------------------
   startVolume = nextVolume;
@@ -2656,8 +2640,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
           cache.m_parametersAtBoundary.navParameters.get() !=
             cache.m_parametersAtBoundary.nextParameters.get()) {
         // extrapolate to volume boundary to avoid navigation break
-        ManagedTrackParmPtr nextPar(ManagedTrackParmPtr::recapture(
-          cache.m_parametersAtBoundary.nextParameters,
+        ManagedTrackParmPtr nextPar(cache.manage(
           currentPropagator->propagate(
             ctx,
             *cache.m_parametersAtBoundary.nextParameters,
@@ -2668,7 +2651,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
             m_fieldProperties,
             particle,
             false,
-            previousVolume).release()));
+            previousVolume)));
         // set boundary and next parameters
         cache.m_parametersAtBoundary.boundaryInformation(nextVolume, nextPar, nextPar);
         nextParameters = cache.m_parametersAtBoundary.nextParameters;
@@ -2680,7 +2663,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
         if (!m_stepPropagator) {
           ATH_MSG_ERROR(
             "extrapolation in Calo/MS called without configured STEP propagator, aborting");
-          return ManagedTrackParmPtr();
+          return {};
         }
         resultParameters = extrapolateWithinDetachedVolumes(ctx,
                                                             cache,
@@ -2697,8 +2680,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
         // destination reached : indicated through result parameters
         // set the model action of the material effects updaters
         for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
-          if(m_subupdaters[imueot] && cache.m_MaterialUpCache[imueot]){
-            m_subupdaters[imueot]->modelAction(*(cache.m_MaterialUpCache[imueot]));
+          if(m_subupdaters[imueot]){
+            m_subupdaters[imueot]->modelAction((cache.m_MaterialUpCache[imueot]));
           }
         }
         // return the parameters at destination
@@ -2844,7 +2827,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
     else if ((!nextParameters && m_stopWithUpdateZero) || !nextVolume) {
       ATH_MSG_DEBUG("  [+] Navigation stop : either the update killed the "
                     "track, or end of detector/boundary volume reached");
-      return ManagedTrackParmPtr();
+      return {};
     }
     // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
     // (+) end of extrapolate blindly(volume*)
@@ -2852,7 +2835,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
              !(cache.m_boundaryVolume->inside(navParameters->position()))) {
       ATH_MSG_DEBUG(
         "  [+] Navigation stop : next navigation step would lead outside given boundary volume");
-      return ManagedTrackParmPtr();
+      return {};
     }
     // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
     // (5) NAVIGATION BREAK : // nextParameters found but distance to surface increases
@@ -2879,32 +2862,37 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
                                                      : "switch to extrapolateDirectly() "));
     // stop with navigaiton break or zero update
     if (m_stopWithNavigationBreak || m_stopWithUpdateZero) {
-      return ManagedTrackParmPtr();
+      return {};
     }
     if (cache.m_lastValidParameters && lastVolume) {
       currentPropagator = subPropagator(*lastVolume);
     }
     if (!currentPropagator) {
-      return ManagedTrackParmPtr();
+      return {};
     }
     // create the result now
-    ManagedTrackParmPtr resultParameters(
-      ManagedTrackParmPtr::recapture(cache.m_lastValidParameters,
-                                     currentPropagator->propagate(ctx,
-                                                                  *cache.m_lastValidParameters,
-                                                                  sf,
-                                                                  Trk::anyDirection,
-                                                                  bcheck,
-                                                                  m_fieldProperties,
-                                                                  particle,
-                                                                  false,
-                                                                  lastVolume).release()));
+    ManagedTrackParmPtr resultParameters(cache.manage(
+      currentPropagator->propagate(ctx,
+                                   *cache.m_lastValidParameters,
+                                   sf,
+                                   Trk::anyDirection,
+                                   bcheck,
+                                   m_fieldProperties,
+                                   particle,
+                                   false,
+                                   lastVolume)));
     // desperate try
     if (!resultParameters) {
-      resultParameters = ManagedTrackParmPtr::recapture(
-        parm,
-        currentPropagator->propagate(
-          ctx, *parm, sf, dir, bcheck, m_fieldProperties, particle, false, startVolume).release());
+      resultParameters = cache.manage(
+        currentPropagator->propagate(ctx,
+                                     *parm,
+                                     sf,
+                                     dir,
+                                     bcheck,
+                                     m_fieldProperties,
+                                     particle,
+                                     false,
+                                     startVolume));
     }
     return resultParameters;
   }
@@ -2912,7 +2900,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
   // ----------------- this is the exit of the extrapolateBlindly() call
   // --------------------------------------
   if ((&sf) == (m_referenceSurface)) {
-    return ManagedTrackParmPtr();
+    return {};
   }
 
   // ---------------- extrapolation inside the Volume -----------------------------------
@@ -2945,20 +2933,20 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
       ATH_MSG_DEBUG("propagate using parameters " << *finalNextParameters.get());
     else {
       ATH_MSG_DEBUG("no finalNextParameters, bailing out of extrapolateDirectly");
-      return ManagedTrackParmPtr();
+      return {};
     }
     ATH_MSG_DEBUG("  [-] Fallback to extrapolateDirectly triggered ! ");
-    resultParameters = ManagedTrackParmPtr::recapture(finalNextParameters,
-                                                      prop.propagate(ctx,
-                                                                     *finalNextParameters,
-                                                                     sf,
-                                                                     dir,
-                                                                     bcheck,
-                                                                     // *startVolume,
-                                                                     m_fieldProperties,
-                                                                     particle,
-                                                                     false,
-                                                                     startVolume).release());
+    resultParameters =
+      cache.manage(prop.propagate(ctx,
+                                                  *finalNextParameters,
+                                                  sf,
+                                                  dir,
+                                                  bcheck,
+                                                  // *startVolume,
+                                                  m_fieldProperties,
+                                                  particle,
+                                                  false,
+                                                  startVolume));
   }
   // return whatever you have
   return resultParameters;
@@ -2991,16 +2979,15 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
     // nextParameters = prop.propagate(*nextParameters, sfMeffI->associatedSurface(),dir,true,tvol,
     // particle);
     ManagedTrackParmPtr nextPar(
-      ManagedTrackParmPtr::recapture(currPar,
-                                     prop.propagate(ctx,
-                                                    *currPar,
-                                                    a_sfMeff.associatedSurface(),
-                                                    dir,
-                                                    true,
-                                                    m_fieldProperties,
-                                                    particle,
-                                                    false,
-                                                    &tvol).release()));
+      cache.manage(prop.propagate(ctx,
+                                                  *currPar,
+                                                  a_sfMeff.associatedSurface(),
+                                                  dir,
+                                                  true,
+                                                  m_fieldProperties,
+                                                  particle,
+                                                  false,
+                                                  &tvol)));
     // user might have not calculated well which surfaces are intersected ... break if break
     if (!nextPar) {
       return (currPar.index() != parm)
@@ -3017,9 +3004,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
 
     ManagedTrackParmPtr upNext;
     if (currentUpdator) {
-      upNext = ManagedTrackParmPtr::recapture(
-        currPar,
-        currentUpdator->update(currentUpdatorCache, currPar.get(), a_sfMeff, particle, matupmode).release());
+      upNext = cache.manage(currentUpdator->update(
+        currentUpdatorCache, currPar.get(), a_sfMeff, particle, matupmode));
     }
     if (!upNext) {
       // update killed the track or config problem. Return
@@ -3064,7 +3050,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return ManagedTrackParmPtr();
+  return {};
 }
 
 Trk::TrackParametersUVector
@@ -3085,7 +3071,7 @@ Trk::Extrapolator::extrapolateBlindlyImpl(const EventContext& ctx,
   cache.m_boundaryVolume = boundaryVol;
   // initialize the return parameters vector
   // create a new internal helper vector
-  Trk::TrackParametersVector tmp;
+  Trk::TrackParametersPtrVector tmp;
   cache.m_parametersOnDetElements = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // run the extrapolation
@@ -3164,57 +3150,70 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
     nextParameters->position(), dir * nextParameters->momentum().normalized());
   if (distSol.numberOfSolutions() > 0) {
     dist = distSol.first();
-    // if ( distSol.numberOfSolutions()>1 && fabs(dist) < m_tolerance ) dist = distSol.second();
   } else {
     dist = distSol.toPointOfClosestApproach();
   }
 
   if (destinationLayer && destinationLayer->isOnLayer(nextParameters->position())) {
     ATH_MSG_DEBUG("  [-] Already at destination layer, distance:" << dist);
-    // if ( dist >= 0 ) return prop.propagate(*nextParameters,sf, dir,bcheck,*currVol,particle);
-    // const Trk::TrackParameters* fwd = prop.propagate(*nextParameters,sf,
-    // dir,bcheck,*currVol,particle);
-    ManagedTrackParmPtr fwd(ManagedTrackParmPtr::recapture(
-      nextParameters,
-      prop.propagate(
-        ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol).release()));
+    ManagedTrackParmPtr fwd(
+      cache.manage(prop.propagate(ctx,
+                                                  *nextParameters,
+                                                  sf,
+                                                  dir,
+                                                  bcheck,
+                                                  m_fieldProperties,
+                                                  particle,
+                                                  false,
+                                                  currVol)));
 
     if (fwd) {
       return fwd;
     }
       Trk::PropDirection oppDir =
         (dir != Trk::oppositeMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-      // return prop.propagate(*nextParameters,sf,oppDir,bcheck,*currVol,particle);
-      return ManagedTrackParmPtr::recapture(
-        nextParameters,
-        prop.propagate(
-          ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol).release());
-
+      return cache.manage(prop.propagate(ctx,
+                                         *nextParameters,
+                                         sf,
+                                         oppDir,
+                                         bcheck,
+                                         m_fieldProperties,
+                                         particle,
+                                         false,
+                                         currVol));
   }
 
   if (fabs(dist) < m_tolerance) {
     ATH_MSG_DEBUG("  [-] Already at the destination surface.");
 
-    // if (dist >= 0.) return prop.propagate(*nextParameters,sf,dir,bcheck,*currVol,particle);
     if (dist >= 0.) {
-      return ManagedTrackParmPtr::recapture(
-        nextParameters,
-        prop.propagate(
-          ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol).release());
+      return cache.manage(prop.propagate(ctx,
+                                         *nextParameters,
+                                         sf,
+                                         dir,
+                                         bcheck,
+                                         m_fieldProperties,
+                                         particle,
+                                         false,
+                                         currVol));
     }
       Trk::PropDirection oppDir =
         (dir != Trk::oppositeMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-      // return prop.propagate(*nextParameters,sf,oppDir,bcheck,*currVol,particle);
-      return ManagedTrackParmPtr::recapture(
-        nextParameters,
-        prop.propagate(
-          ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol).release());
-
-  } if (dist < 0.) {
+      return cache.manage(prop.propagate(ctx,
+                                         *nextParameters,
+                                         sf,
+                                         oppDir,
+                                         bcheck,
+                                         m_fieldProperties,
+                                         particle,
+                                         false,
+                                         currVol));
+  }
+  if (dist < 0.) {
     ATH_MSG_DEBUG("  [!] Initial 3D-distance to the surface negative ("
                   << dist << ") -> skip extrapolation.");
     cache.m_parametersAtBoundary.resetBoundaryInformation();
-    return ManagedTrackParmPtr();
+    return {};
   }
 
   ATH_MSG_DEBUG("  [+] Initial 3D-distance to destination - d3 = " << dist);
@@ -3248,14 +3247,19 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
                           << static_cast<int>(sf.type())
                           << "," << static_cast<int>(onNextLayer->associatedSurface().type())
                           << ":distance to the destination surface:" << currentDistance);
-            ManagedTrackParmPtr cParms(ManagedTrackParmPtr::recapture(
-              onNextLayer,
-              prop.propagate(ctx, *onNextLayer, sf, dir, bchk, m_fieldProperties, particle).release()));
+            ManagedTrackParmPtr cParms(
+              cache.manage(prop.propagate(ctx,
+                                                          *onNextLayer,
+                                                          sf,
+                                                          dir,
+                                                          bchk,
+                                                          m_fieldProperties,
+                                                          particle)));
             return cParms;
           }
           return onNextLayer;
         }
-          return ManagedTrackParmPtr();
+          return {};
 
       }
     } else {
@@ -3265,7 +3269,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
         break;
       }
       if (!cache.m_parametersAtBoundary.nextParameters) {
-        return ManagedTrackParmPtr();
+        return {};
       }
 
       // static volume boundary:  check distance to destination
@@ -3279,7 +3283,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
       }
       if (dist < 0.) {
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        return ManagedTrackParmPtr();
+        return {};
       } if (cache.m_parametersAtBoundary.nextVolume &&
                  (cache.m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::MS ||
                   (cache.m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::Calo &&
@@ -3294,7 +3298,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
               << " momentum="
               << momentumOutput(cache.m_parametersAtBoundary.nextParameters->momentum()));
             cache.m_parametersAtBoundary.resetBoundaryInformation();
-            return ManagedTrackParmPtr();
+            return {};
           }
           onNextLayer = cache.m_parametersAtBoundary.nextParameters;
           last_boundary_parameters = cache.m_parametersAtBoundary.nextParameters;
@@ -3394,19 +3398,23 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       ATH_MSG_VERBOSE(
         "  [+] Volume does not contain layers, just propagate to destination surface.");
       // the final extrapolation to the destinationLayer
-      nextParameters = ManagedTrackParmPtr::recapture(
-        parm,
-        prop.propagate(
-          ctx, *parm, *cache.m_destinationSurface, dir, bcheck, m_fieldProperties, particle).release());
+      nextParameters =
+        cache.manage(prop.propagate(ctx,
+                                                    *parm,
+                                                    *cache.m_destinationSurface,
+                                                    dir,
+                                                    bcheck,
+                                                    m_fieldProperties,
+                                                    particle));
       if (!nextParameters) {
-        nextParameters = ManagedTrackParmPtr::recapture(parm,
-                                                        prop.propagate(ctx,
-                                                                       *parm,
-                                                                       *cache.m_destinationSurface,
-                                                                       Trk::anyDirection,
-                                                                       bcheck,
-                                                                       m_fieldProperties,
-                                                                       particle).release());
+        nextParameters = cache.manage(
+          prop.propagate(ctx,
+                         *parm,
+                         *cache.m_destinationSurface,
+                         Trk::anyDirection,
+                         bcheck,
+                         m_fieldProperties,
+                         particle));
       }
       return nextParameters;
     }
@@ -3486,10 +3494,13 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         subMaterialEffectsUpdatorCache(cache, tvol);
 
       if (currentUpdator) {
-        nextParameters = ManagedTrackParmPtr::recapture(
-          nextParameters,
-          currentUpdator->postUpdate(
-            currentUpdatorCache, *nextParameters, *associatedLayer, dir, particle, matupmode).release());
+        nextParameters = cache.manage(
+          currentUpdator->postUpdate(currentUpdatorCache,
+                                     *nextParameters,
+                                     *associatedLayer,
+                                     dir,
+                                     particle,
+                                     matupmode));
       }
       // collect the material : either for extrapolateM or for the valdiation
       if (nextParameters && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
@@ -3504,7 +3515,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         ATH_MSG_VERBOSE("  [-] Initial postUpdate killed track.");
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
-        return ManagedTrackParmPtr();
+        return {};
       }
     }
   } else {
@@ -3537,14 +3548,14 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
-        return ManagedTrackParmPtr();
+        return {};
       } if (cache.m_boundaryVolume && nextParameters &&
                  !cache.m_boundaryVolume->inside(nextParameters->position())) {
         ATH_MSG_VERBOSE("  [+] Parameter outside the given boundary/world stopping loop.");
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
-        return ManagedTrackParmPtr();
+        return {};
       }
       // --------------------------------------------------------
       if (nextParameters) {
@@ -3609,14 +3620,14 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
-        return ManagedTrackParmPtr();
+        return {};
       } if (cache.m_boundaryVolume && updateNext &&
                  !cache.m_boundaryVolume->inside(updateNext->position())) {
         ATH_MSG_VERBOSE("  [+] Parameter outside the given boundary/world stopping loop.");
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
-        return ManagedTrackParmPtr();
+        return {};
       }
       // the fallback if only one step was done - solve cleaner
       if (updateNext) {
@@ -3647,16 +3658,14 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
     // -----------------------------------------------------------------------------------
     // Case Ib: To Destination directly since no destination layer has been found
   } else if (!toBoundary) {
-    // nextParameters =
-    // prop.propagate(*nextParameters,*cache.m_destinationSurface,dir,bcheck,tvol,particle);
-    nextParameters = ManagedTrackParmPtr::recapture(nextParameters,
-                                                    prop.propagate(ctx,
-                                                                   *nextParameters,
-                                                                   *cache.m_destinationSurface,
-                                                                   dir,
-                                                                   bcheck,
-                                                                   m_fieldProperties,
-                                                                   particle).release());
+    nextParameters =
+      cache.manage(prop.propagate(ctx,
+                                                  *nextParameters,
+                                                  *cache.m_destinationSurface,
+                                                  dir,
+                                                  bcheck,
+                                                  m_fieldProperties,
+                                                  particle));
     // job done: cleanup and go home
     // reset the recallInformation
     resetRecallInformation(cache);
@@ -3680,7 +3689,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       const IPropagator* navPropagator = &(*m_propagators[navprop]);
 
       // we veto the navigaiton parameters for calo-volumes with calo dynamic
-      bool vetoNavParameters = false; // 
+      bool vetoNavParameters = false; //
       // the next Parameters are usually better, because they're closer to the
       // boundary
       //  --- in the initial volume (assLayerReference!=0), the parm are good if
@@ -3703,8 +3712,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         m_navigator->nextTrackingVolume(ctx, *navPropagator, *navParameters, dir, tvol);
       nextVolume = nextNavCell.nextVolume;
 
-      navParameters = ManagedTrackParmPtr::recapture(
-        navParameters, nextNavCell.parametersOnBoundary.release());
+      navParameters = cache.manage(
+        std::move(nextNavCell.parametersOnBoundary));
 
       bParameters = navParameters;
       // set the new exit Cell
@@ -3720,8 +3729,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
 
     nextVolume = nextNavCell.nextVolume;
 
-    navParameters = ManagedTrackParmPtr::recapture(
-      navParameters, nextNavCell.parametersOnBoundary.release());
+    navParameters =
+      cache.manage(std::move(nextNavCell.parametersOnBoundary));
     bParameters = navParameters;
     // set the new exit Cell
     exitFace = nextNavCell.exitFace;
@@ -3747,14 +3756,13 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         subMaterialEffectsUpdatorCache(cache, tvol);
 
       if (currentUpdator) {
-        bParameters = ManagedTrackParmPtr::recapture(
-          bParameters,
-          currentUpdator->update(currentUpdatorCache,
-                                 bParameters.get(),
-                                 *(bParameters->associatedSurface().materialLayer()),
-                                 dir,
-                                 particle,
-                                 matupmode).release());
+        bParameters = cache.manage(currentUpdator->update(
+          currentUpdatorCache,
+          bParameters.get(),
+          *(bParameters->associatedSurface().materialLayer()),
+          dir,
+          particle,
+          matupmode));
       }
       // collect the material
       if (bParameters && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
@@ -3869,7 +3877,7 @@ Trk::Extrapolator::extrapolateFromLayerToLayer(const EventContext& ctx,
       if (killed) {
         ATH_MSG_VERBOSE("  [+] Material update killed the track parameters - return 0");
         // kill the track - Fatras case
-        return ManagedTrackParmPtr();
+        return {};
       } if (!nextPar) {
         ++failedAttempts;
         ++m_layerSwitched; // record for statistics output
@@ -3933,20 +3941,23 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
   // get the Parameters on the destination surface
   double pathLimit = -1.;
   ManagedTrackParmPtr parm(cache.manage(parm_ref));
-  ManagedTrackParmPtr destParameters(ManagedTrackParmPtr::recapture(
-    parm,
+  ManagedTrackParmPtr destParameters(cache.manage(
     cache.m_jacs
-      ? prop.propagate(
-          ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), jac, pathLimit, particle).release()
-      : prop.propagate(ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), particle).release()));
+      ? prop.propagate(ctx,
+                       *parm,
+                       sf,
+                       dir,
+                       bcheck,
+                       MagneticFieldProperties(),
+                       jac,
+                       pathLimit,
+                       particle)
+      : prop.propagate(
+          ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), particle)));
 
   // fallback to anyDirection
-  // destParameters = destParameters ?  destParameters : ( cache.m_jacs ? prop.propagate(parm, sf,
-  // Trk::anyDirection, bcheck, tvol, jac, particle) : prop.propagate(parm, sf, Trk::anyDirection,
-  // bcheck, tvol, particle));
   if (!destParameters) {
-    destParameters = ManagedTrackParmPtr::recapture(
-      parm,
+    destParameters = cache.manage(
       (cache.m_jacs
          ? prop.propagate(ctx,
                           *parm,
@@ -3956,8 +3967,8 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
                           MagneticFieldProperties(),
                           jac,
                           pathLimit,
-                          particle).release()
-         : prop.propagate(ctx, *parm, sf, Trk::anyDirection, bcheck, m_fieldProperties, particle).release()));
+                          particle)
+         : prop.propagate(ctx, *parm, sf, Trk::anyDirection, bcheck, m_fieldProperties, particle)));
   }
 
   // return the pre-updated ones
@@ -3967,10 +3978,13 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
 
   ManagedTrackParmPtr preUpdatedParameters(cache.manage());
   if (currentUpdator && destParameters && !startIsDestLayer) {
-    preUpdatedParameters = ManagedTrackParmPtr::recapture(
-      destParameters,
-      currentUpdator->preUpdate(
-        currentUpdatorCache, destParameters.get(), lay, dir, particle, matupmode).release());
+    preUpdatedParameters = cache.manage(
+      currentUpdator->preUpdate(currentUpdatorCache,
+                                destParameters.get(),
+                                lay,
+                                dir,
+                                particle,
+                                matupmode));
   } else {
     preUpdatedParameters = destParameters;
   }
@@ -4041,23 +4055,21 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
       // try each surface in turn
       const std::vector<const Surface*> cs = cl->constituentSurfaces();
       for (unsigned int i = 0; i < cs.size(); ++i) {
-        parsOnLayer = ManagedTrackParmPtr::recapture(
-          parm, prop.propagate(ctx, *parm, *(cs[i]), dir, true, m_fieldProperties, particle).release());
+        parsOnLayer = cache.manage(prop.propagate(
+          ctx, *parm, *(cs[i]), dir, true, m_fieldProperties, particle));
         if (parsOnLayer) {
           break;
         }
       }
     } else {
-      parsOnLayer = ManagedTrackParmPtr::recapture(
-        parm,
+      parsOnLayer = cache.manage(
         prop.propagate(
-          ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle).release());
+          ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle));
     }
   } else {
-    parsOnLayer = ManagedTrackParmPtr::recapture(
-      parm,
+    parsOnLayer = cache.manage(
       prop.propagate(
-        ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle).release());
+        ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle));
   }
 
   // return if there is nothing to do
@@ -4103,8 +4115,11 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
       if (!(*cache.m_parametersOnDetElements)[lastElement]) {
         throw std::logic_error("Invalid track parameters on det elements (lastElement)");
       }
+      //TODO revisit when objcontainer is streamlined
+      auto cloneInput =
+        std::unique_ptr<Trk::TrackParameters>(((*cache.m_parametersOnDetElements)[lastElement])->clone());
       parsOnLayer = ((*cache.m_parametersOnDetElements)[lastElement]
-                       ? cache.manage(*((*cache.m_parametersOnDetElements)[lastElement]))
+                       ? cache.manage(std::move(cloneInput))
                        : cache.manage());
       ATH_MSG_DEBUG("  [+] Detector element & overlapSearch successful,"
                     << " call update on last parameter on this layer.");
@@ -4113,10 +4128,9 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
 
   // return the full-updated ones - may create a new object
   if (lay.layerMaterialProperties() && currentUpdator) {
-    parsOnLayer = ManagedTrackParmPtr::recapture(
-      parsOnLayer,
+    parsOnLayer = cache.manage(
       currentUpdator->update(
-        currentUpdatorCache, parsOnLayer.get(), lay, dir, particle, matupmode).release());
+        currentUpdatorCache, parsOnLayer.get(), lay, dir, particle, matupmode));
   }
   // there are layers that have a surfaceArray but no material properties
   if (parsOnLayer && lay.layerMaterialProperties() &&
@@ -4185,7 +4199,7 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
   bool isStartLayer = (detSurface && detSurface == startSurface);
 
   // the temporary vector (might have to be ordered)
-  std::vector<const Trk::TrackParameters*> detParametersOnLayer;
+  std::vector<Trk::TrackParameters*> detParametersOnLayer;
   bool reorderDetParametersOnLayer = false;
   // the first test for the detector surface to be hit (false test)
   // - only do this if the parameters aren't on the surface
@@ -4196,8 +4210,8 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
   } else if (isStartLayer) {
     detParameters = parm;
   } else if (detSurface) {
-    detParameters = ManagedTrackParmPtr::recapture(
-      parm, prop.propagate(ctx, *parm, *detSurface, dir, false, m_fieldProperties, particle).release());
+    detParameters = cache.manage(
+      prop.propagate(ctx, *parm, *detSurface, dir, false, m_fieldProperties, particle));
   }
 
   // set the surface hit to true, it is anyway overruled
@@ -4256,10 +4270,9 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
       for (auto& csf : cSurfaces) {
         // propagate to the compatible surface, return types are (pathLimit
         // failure is excluded by Trk::anyDirection for the moment):
-        ManagedTrackParmPtr overlapParameters(ManagedTrackParmPtr::recapture(
-          parm,
+        ManagedTrackParmPtr overlapParameters(cache.manage(
           prop.propagate(
-            ctx, *parm, *(csf.object), Trk::anyDirection, true, m_fieldProperties, particle).release()));
+            ctx, *parm, *(csf.object), Trk::anyDirection, true, m_fieldProperties, particle)));
 
         if (overlapParameters) {
           ATH_MSG_VERBOSE("  [+] Overlap surface was hit, checking start/end surface condition.");
@@ -4409,10 +4422,9 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
         "  [I] 'AnyDirection' has been chosen: approaching direction must be determined.");
 
       // refParameters = prop.propagateParameters(parm,sf,dir,false,*associatedVolume);
-      refParameters = ManagedTrackParmPtr::recapture(
-        parm,
+      refParameters = cache.manage(
         prop.propagateParameters(
-          ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume).release());
+          ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume));
       // chose on projective method
       if (refParameters) {
         // check the direction on basis of a vector projection
@@ -4461,10 +4473,9 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
       // if the propagation has not been done already (for direction estimation)
       // do the global search always with a reference propagation
       if (!refParameters && associatedVolume) {
-        refParameters = ManagedTrackParmPtr::recapture(
-          parm,
+        refParameters = cache.manage(
           prop.propagateParameters(
-            ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume).release());
+            ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume));
       }
       // get the destination Volume
       if (refParameters) {
@@ -4594,25 +4605,22 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
         // try each surface in turn
         const std::vector<const Surface*> cs = cl->constituentSurfaces();
         for (unsigned int i = 0; i < cs.size(); ++i) {
-          parsOnLayer = ManagedTrackParmPtr::recapture(
-            parms,
+          parsOnLayer = cache.manage(
             prop.propagateParameters(
-              ctx, *parms, *(cs[i]), Trk::anyDirection, false, m_fieldProperties).release());
+              ctx, *parms, *(cs[i]), Trk::anyDirection, false, m_fieldProperties));
           if (parsOnLayer) {
             break;
           }
         }
       } else {
-        parsOnLayer = ManagedTrackParmPtr::recapture(
-          parms,
+        parsOnLayer = cache.manage(
           prop.propagateParameters(
-            ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties).release());
+            ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties));
       }
     } else {
-      parsOnLayer = ManagedTrackParmPtr::recapture(
-        parms,
+      parsOnLayer = cache.manage(
         prop.propagateParameters(
-          ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties).release());
+          ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties));
     }
   } else {
     parsOnLayer = parms;
@@ -4675,7 +4683,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
       ScatteringAngles(0, 0, sigmaMS / std::sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
 
     auto meot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
-      tInX0, std::move(scatAngles), energyLoss, *lay.surfaceRepresentation().baseSurface());
+      tInX0, scatAngles, energyLoss, *lay.surfaceRepresentation().baseSurface());
     // push it to the material states
     cache.m_matstates->push_back(
       new TrackStateOnSurface(nullptr, parsOnLayer.to_unique(), nullptr, std::move(meot)));
@@ -4732,7 +4740,7 @@ Trk::Extrapolator::checkCache(Cache& cache, const std::string& txt) const
 
 }
 
-const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+std::unique_ptr<std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const Trk::TrackParameters& parm,
                                Trk::PropDirection dir,
@@ -4761,14 +4769,16 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   // Material effect updator cache
   populateMatEffUpdatorCache(cache);
   // extrapolate to subdetector boundary
+  //TODO revisit when objcontainer is streamlined
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   ManagedTrackParmPtr subDetBounds(extrapolateToVolumeWithPathLimit(
-    ctx, cache, cache.manage(parm).index(), -1., dir, particle, boundaryVol));
+    ctx, cache, cache.manage(std::move(cloneInput)).index(), -1., dir, particle, boundaryVol));
 
   while (subDetBounds) {
     ATH_MSG_DEBUG("  Identified subdetector boundary crossing saved "
                   << positionOutput(subDetBounds->position()));
     ManagedTrackParmPtr nextPar(subDetBounds);
-    cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*, int>(
+    cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>, int>(
       subDetBounds.release(),
       cache.m_currentStatic ? cache.m_currentStatic->geometrySignature() : 0));
     if (cache.m_currentStatic && cache.m_currentStatic->geometrySignature() == destination) {
@@ -4781,16 +4791,19 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
     subDetBounds = extrapolateToVolumeWithPathLimit(
       ctx, cache, nextPar.index(), -1., dir, particle, boundaryVol);
   }
-  return !cache.m_identifiedParameters->empty() ? cache.m_identifiedParameters.release() : nullptr;
+  if (cache.m_identifiedParameters->empty()) {
+    return nullptr;
+  }
+  return  std::move(cache.m_identifiedParameters);
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
                                             const Trk::TrackParameters& parm,
                                             double& pathLim,
                                             Trk::PropDirection dir,
                                             Trk::ParticleHypothesis particle,
-                                            std::vector<const Trk::TrackParameters*>*& parmOnSf,
+                                            std::vector<Trk::TrackParameters*>*& parmOnSf,
                                             std::vector<const Trk::TrackStateOnSurface*>*& material,
                                             const Trk::TrackingVolume* boundaryVol,
                                             MaterialUpdateMode matupmod) const
@@ -4846,9 +4859,11 @@ Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
     cache.m_robustSampling = false;
   }
 
+  //TODO revisit when objcontainer is streamlined
+  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   // extrapolate to destination volume boundary with path limit
   ManagedTrackParmPtr returnParms(extrapolateToVolumeWithPathLimit(
-    ctx, cache, cache.manage(parm).index(), pathLim, dir, particle, boundaryVol, matupmod));
+    ctx, cache, cache.manage(std::move(cloneInput)).index(), pathLim, dir, particle, boundaryVol, matupmod));
 
   // folr debugging
   cache.m_robustSampling = m_robustSampling;
@@ -4856,7 +4871,7 @@ Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
   // save actual path on output
   pathLim = cache.m_path;
 
-  return returnParms.release();
+  return returnParms.to_unique();
 }
 
 Trk::ManagedTrackParmPtr
@@ -4974,7 +4989,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
         return extrapolateToVolumeWithPathLimit(
           ctx, cache, nextPar.index(), pathLim, dir, particle, destVol, matupmod);
       }
-        return ManagedTrackParmPtr();
+        return {};
 
     }
   }
@@ -5145,7 +5160,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
     } else { // active material
       const Trk::TrackingVolume* detVol = dVol->associatedSubVolume(gp);
       if (!detVol && dVol->confinedVolumes()) {
-        std::vector<const Trk::TrackingVolume*> subvols = dVol->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> subvols = dVol->confinedVolumes()->arrayObjects();
         for (unsigned int iv = 0; iv < subvols.size(); iv++) {
           if (subvols[iv]->inside(gp, m_tolerance)) {
             detVol = subvols[iv];
@@ -5182,7 +5197,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
         // layers ?
         if (detVol->confinedLayers()) {
           if (cache.m_robustSampling) {
-            std::vector<const Trk::Layer*> cLays = detVol->confinedLayers()->arrayObjects();
+            Trk::BinnedArraySpan<Trk::Layer const * const> cLays = detVol->confinedLayers()->arrayObjects();
             for (unsigned int i = 0; i < cLays.size(); i++) {
               if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
                 cache.m_layers.emplace_back(&(cLays[i]->surfaceRepresentation()), true);
@@ -5220,7 +5235,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
   if (cache.m_currentStatic->confinedLayers() && updateStatic) {
     // if ( cache.m_currentStatic->confinedLayers() ) {
     if (cache.m_robustSampling) {
-      std::vector<const Trk::Layer*> cLays =
+      Trk::BinnedArraySpan<Trk::Layer const * const> cLays =
         cache.m_currentStatic->confinedLayers()->arrayObjects();
       for (unsigned int i = 0; i < cLays.size(); i++) {
         if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
@@ -5312,19 +5327,18 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             currPar.get(), cache.m_currentDense, dir, assocVol, m_tolerance))) {
       cache.m_currentDense = cache.m_highestVolume;
     }
-    ManagedTrackParmPtr nextPar(
-      ManagedTrackParmPtr::recapture(currPar,
-                                     m_stepPropagator->propagate(ctx,
-                                                                 *currPar,
-                                                                 cache.m_navigSurfs,
-                                                                 dir,
-                                                                 m_fieldProperties,
-                                                                 particle,
-                                                                 solutions,
-                                                                 path,
-                                                                 true,
-                                                                 false,
-                                                                 cache.m_currentDense).release()));
+    ManagedTrackParmPtr nextPar(cache.manage(
+      m_stepPropagator->propagate(ctx,
+                                  *currPar,
+                                  cache.m_navigSurfs,
+                                  dir,
+                                  m_fieldProperties,
+                                  particle,
+                                  solutions,
+                                  path,
+                                  true,
+                                  false,
+                                  cache.m_currentDense)));
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
                     << positionOutput(nextPar->position()));
@@ -5352,7 +5366,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       ATH_MSG_DEBUG("  [!] Propagation failed, return 0");
       cache.m_parametersAtBoundary.boundaryInformation(cache.m_currentStatic, nextPar, nextPar);
       // @TODO reset m_parametersAtBoundary ?
-      return ManagedTrackParmPtr();
+      return {};
     }
     cache.m_path += path;
     if (pathLim > 0.) {
@@ -5393,9 +5407,9 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       ATH_MSG_DEBUG(" [M] Energy loss: STEP , EnergyLossUpdator:"
                     << nextPar->momentum().mag() - currPar->momentum().mag() << ","
                     << eloss->deltaE());
-     
+
       auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
-        dInX0, std::move(newsa), eloss, *((nextPar->associatedSurface()).baseSurface()));
+        dInX0, newsa, eloss, *((nextPar->associatedSurface()).baseSurface()));
 
       cache.m_matstates->push_back(
         new TrackStateOnSurface(nullptr, ManagedTrackParmPtr(nextPar).to_unique(), nullptr, std::move(mefot)));
@@ -5431,15 +5445,14 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             IMaterialEffectsUpdator::ICache& currentUpdatorCache =
               subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
             if (currentUpdator) {
-              nextPar = ManagedTrackParmPtr::recapture(
-                nextPar,
+              nextPar = cache.manage(
                 currentUpdator->update(
-                  currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmod).release());
+                  currentUpdatorCache, nextPar.get(), *mb, dir, particle, matupmod));
             }
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
               cache.m_parametersAtBoundary.resetBoundaryInformation();
-              return ManagedTrackParmPtr();
+              return {};
             } // the MEOT will be saved at the end
               ATH_MSG_VERBOSE(" Update energy loss:" << nextPar->momentum().mag() - pIn
                                                      << "at position:" << nextPar->position());
@@ -5523,15 +5536,14 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
         if (matUp && nextLayer->surfaceArray()) {
           double pIn = nextPar->momentum().mag();
           if (currentUpdator) {
-            nextPar = ManagedTrackParmPtr::recapture(
-              nextPar,
+            nextPar = cache.manage(
               currentUpdator->preUpdate(
-                currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmod).release());
+                currentUpdatorCache, nextPar.get(), *nextLayer, dir, particle, matupmod));
           }
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
             cache.m_parametersAtBoundary.resetBoundaryInformation();
-            return ManagedTrackParmPtr();
+            return {};
           } // the MEOT will be saved at the end
             ATH_MSG_VERBOSE(" Pre-update energy loss:"
                             << nextPar->momentum().mag() - pIn << "at position:"
@@ -5565,23 +5577,20 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             if (postFactor > 0.1) {
               double pIn = nextPar->momentum().mag();
               if (currentUpdator) {
-                nextPar = ManagedTrackParmPtr::recapture(
-                  nextPar,
-                  currentUpdator
-                    ->postUpdate(currentUpdatorCache,
-                                 *nextPar,
-                                 *nextLayer,
-                                 dir,
-                                 particle,
-                                 matupmod)
-                    .release());
+                nextPar = cache.manage(
+                  currentUpdator->postUpdate(currentUpdatorCache,
+                                             *nextPar,
+                                             *nextLayer,
+                                             dir,
+                                             particle,
+                                             matupmod));
               }
               if (!nextPar) {
                 ATH_MSG_VERBOSE("postUpdate failed for input parameters:"
                                 << nextPar->position() << "," << nextPar->momentum());
                 ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
                 cache.m_parametersAtBoundary.resetBoundaryInformation();
-                return ManagedTrackParmPtr();
+                return {};
               } // the MEOT will be saved at the end
                 ATH_MSG_VERBOSE(" Post-update energy loss:" << nextPar->momentum().mag() - pIn
                                                             << "at position:"
@@ -5591,21 +5600,18 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
           } else {
             double pIn = nextPar->momentum().mag();
             if (currentUpdator) {
-              nextPar =
-                ManagedTrackParmPtr::recapture(nextPar,
-                                               currentUpdator
-                                                 ->update(currentUpdatorCache,
-                                                          nextPar.get(),
-                                                          *nextLayer,
-                                                          dir,
-                                                          particle,
-                                                          matupmod)
-                                                 .release());
+              nextPar = cache.manage(
+                currentUpdator->update(currentUpdatorCache,
+                                       nextPar.get(),
+                                       *nextLayer,
+                                       dir,
+                                       particle,
+                                       matupmod));
             }
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
               cache.m_parametersAtBoundary.resetBoundaryInformation();
-              return ManagedTrackParmPtr();
+              return {};
             } // the MEOT will be saved at the end
               ATH_MSG_VERBOSE(" Update energy loss:" << nextPar->momentum().mag() - pIn
                                                      << "at position:" << nextPar->position());
@@ -5784,5 +5790,5 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
     currPar = std::move(nextPar);
   }
 
-  return ManagedTrackParmPtr();
+  return {};
 }

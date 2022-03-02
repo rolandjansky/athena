@@ -7,6 +7,7 @@
 #include "TopPartons/PartonHistoryUtils.h"
 
 namespace top {
+
   CalcTTZPartonHistory::CalcTTZPartonHistory(const std::string& name) : CalcTtbarPartonHistory(name) {}
 
   void CalcTTZPartonHistory::zHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
@@ -16,9 +17,9 @@ namespace top {
     TLorentzVector Z;
     TLorentzVector ZDecay1;
     TLorentzVector ZDecay2;
-    int ZDecay1_pdgId;
-    int ZDecay2_pdgId;
-    bool is_on_shell;
+    int ZDecay1_pdgId{};
+    int ZDecay2_pdgId{};
+    bool is_on_shell{};
     bool event_has_Z = CalcTTZPartonHistory::getZ(truthParticles,
                                                   &Z,
                                                   &ZDecay1,
@@ -28,6 +29,7 @@ namespace top {
                                                   &is_on_shell);
 
     if (event_has_Z && !m_ancestry_corrupted) {
+     
       ttbarPartonHistory->auxdecor< float >("MC_Z_m") = Z.M();
       ttbarPartonHistory->auxdecor< float >("MC_Z_pt") = Z.Pt();
       ttbarPartonHistory->auxdecor< float >("MC_Z_eta") = Z.Eta();
@@ -171,10 +173,12 @@ namespace top {
     ATH_CHECK(evtStore()->retrieve(truthParticles, m_config->sgKeyMCParticle()));
 
     // Create the partonHistory xAOD object
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer {};
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer {};
     partonCont->setStore(partonAuxCont);
-
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistory* ttbarPartonHistory = new xAOD::PartonHistory {};
     partonCont->push_back(ttbarPartonHistory);
 

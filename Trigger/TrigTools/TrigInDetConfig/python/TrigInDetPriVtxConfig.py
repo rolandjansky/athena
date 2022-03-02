@@ -58,6 +58,7 @@ def iterativeVertexFinderCfg(flags, signature):
     summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
     extrapolator_acc = InDetExtrapolatorCfg(flags)
     extrapolator = extrapolator_acc.getPrimary()
+    acc.addPublicTool(extrapolator)
     acc.merge(extrapolator_acc)
     linear_track_factory = CompFactory.Trk.FullLinearizedTrackFactory(
         f"FullLinearizedTrackFactory{signature}",
@@ -101,7 +102,7 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
     """ Configure the adaptive multi-vertex finder """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg, TrackToVertexIPEstimatorCfg
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
@@ -153,6 +154,7 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
             TrackSelector=acc.popToolsAndMerge(
                 trackSelectorToolCfg(flags, signature, summary_tool, extrapolator),
             ),
+            IPEstimator=acc.popToolsAndMerge(TrackToVertexIPEstimatorCfg(flags, Extrapolator = extrapolator)),
             useBeamConstraint=True,
             TracksMaxZinterval=config.TracksMaxZinterval,
             addSingleTrackVertices=config.addSingleTrackVertices,

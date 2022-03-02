@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  *   */
 
 #ifndef POOL_ROOTTREEINDEXCONTAINER_H
@@ -39,8 +39,14 @@ namespace pool {
       /// Standard destructor
       virtual ~RootTreeIndexContainer() {}
 
+      /// Open the container
+      virtual DbStatus open(DbDatabase&, const std::string&, const DbTypeInfo*, DbAccessMode) override final;
+
       /// Number of entries within the container
-      virtual long long int nextRecordId();
+      virtual long long int nextRecordId() override final;
+
+      /// Suggest next Record ID for tbe next object written - for synced indexes
+      virtual void useNextRecordId(long long int) override final;
 
       /// Find object by object identifier and load it into memory
       /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
@@ -50,10 +56,10 @@ namespace pool {
         * @return Status code indicating success or failure.
         */
       virtual DbStatus loadObject( void** ptr, ShapeH shape, 
-                                   Token::OID_t& oid);
+                                   Token::OID_t& oid) override;
       
       /// Commit single entry to container
-      virtual DbStatus writeObject(ActionList::value_type&);
+      virtual DbStatus writeObject(ActionList::value_type&) override;
 
    private:
       /// Pointer to index branch
@@ -63,6 +69,11 @@ namespace pool {
       const int m_index_multi;
       /// Index (64 bit)
       long long int m_index;
+
+      /// How much to increase nextRecordID to keep index values synced with other containers
+      long long int m_indexBump;
    };
 }
 #endif //POOL_ROOTTREEINDEXCONTAINER_H
+
+

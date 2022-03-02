@@ -161,12 +161,14 @@ def addDiTauLowPt(Seq=None):
 
     print ("Adding low-pt di-tau reconstruction")
 
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
-    addCHSPFlowObjects()
+    from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+    from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 
-    from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-    from JetRec.JetRecStandard import jtm
-    addStandardJets("AntiKt", 1.0, "EMPFlow", ptmin=40000, ptminFilter=50000, mods="pflow_ungroomed", calibOpt="none", algseq=Seq, outputGroup="TauCommon", customGetters=jtm.gettersMap["empflow_reduced"])
+    AntiKt10EMPFlow = AntiKt10LCTopo.clone(inputdef = cst.EMPFlow)
+    jetList = [AntiKt10EMPFlow]
+
+    addDAODJets(jetList,Seq)
 
     import DiTauRec.DiTauAlgorithmsHolder as DiTauAlgs
     from DiTauRec.DiTauRecConf import DiTauBuilder

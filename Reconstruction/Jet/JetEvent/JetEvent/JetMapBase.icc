@@ -41,7 +41,7 @@ JetMapBase<P>::JetMapBase(const JetMapBase& /*base*/)
 template<class P>
 inline
 JetMapBase<P>::~JetMapBase()
-{ clear() ;}
+{ JetMapBase::clear() ;}
 
 
 template<class P>

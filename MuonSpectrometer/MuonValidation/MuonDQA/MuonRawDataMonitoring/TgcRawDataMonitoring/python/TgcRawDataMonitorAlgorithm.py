@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -12,6 +12,7 @@
 def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.Enums import Format
     result = ComponentAccumulator()
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -70,8 +71,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
 
-    isBS = (inputFlags.Input.Format == 'BS')
-    if isBS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
+    if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
@@ -430,28 +430,28 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
         myGroup.defineHistogram('roi_inncoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Eta wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_inncoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_inncoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoin Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_inncoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Phi wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Phi wBW3Coin Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wBW3CoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -705,7 +705,7 @@ if __name__=='__main__':
         ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
 
     ConfigFlags.Trigger.triggerConfig = "FILE"
-    ConfigFlags.Trigger.triggerMenuSetup = "LS2_v1"
+    ConfigFlags.Trigger.triggerMenuSetup = "Dev_pp_run3_v1"
 
     ConfigFlags.lock()
     ConfigFlags.dump()
@@ -729,8 +729,6 @@ if __name__=='__main__':
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
     cfg.merge(L1ConfigSvcCfg(ConfigFlags))
     generateL1Menu(ConfigFlags)

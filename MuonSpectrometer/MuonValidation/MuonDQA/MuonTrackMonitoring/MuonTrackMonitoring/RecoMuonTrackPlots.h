@@ -24,7 +24,7 @@
 
 class RecoMuonTrackPlots:public PlotBase {
     public:
-      RecoMuonTrackPlots(PlotBase* pParent, std::string sDir);
+      RecoMuonTrackPlots(PlotBase* pParent, const std::string& sDir);
 
       // Reco only information
       Trk::ParamPlots                 m_oAllPlots;

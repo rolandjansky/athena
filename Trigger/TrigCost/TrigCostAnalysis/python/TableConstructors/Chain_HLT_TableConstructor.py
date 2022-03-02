@@ -15,8 +15,8 @@ from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
 class Chain_HLT_TableConstructor(TableConstructorBase):
     ''' @brief Class representing Chain_HLT table
     '''
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         self.totalTime = 0 # Total time of algoirthms execution
         self.expectedHistograms = ["Group_perCall", 
                                    "Chain_perEvent", 

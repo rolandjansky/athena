@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -33,6 +33,11 @@ jetFlags.usePFlow.set_On()
 jetFlags.useMuonSegments.set_On()
 jetFlags.useBTagging.set_On()
 
+from InDetRecExample.InDetJobProperties import InDetFlags
+if not InDetFlags.doR3LargeD0():
+  jetFlags.useLargeD0Tracks.set_Off()
+
+
 # Lock all the flags used here so that later attempts to change
 # the value will fail with an error message.
 jetFlags.useTruth.lock()
@@ -55,6 +60,7 @@ jetlog.info( myname + "jetFlags.useCaloQualityTool: " + str(jetFlags.useCaloQual
 jetlog.info( myname + "jetFlags.additionalTopoGetters: " + str(jetFlags.additionalTopoGetters()) )
 jetlog.info( myname + "jetFlags.truthFlavorTags: " + str(jetFlags.truthFlavorTags()) )
 jetlog.info( myname + "jetFlags.skipTools: " + str(jetFlags.skipTools()) )
+jetlog.info( myname + "jetFlags.useTrackVertexTool: " + str(jetFlags.useTrackVertexTool()) )
 
 #########################################################
 # Create standard tool manager.
@@ -113,6 +119,9 @@ if jetFlags.useTracks():
   emgetters += [jtm.gtrackget]
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
+
+if jetFlags.useLargeD0Tracks():
+  emgetters += [jtm.gtracklrtget]
 
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]

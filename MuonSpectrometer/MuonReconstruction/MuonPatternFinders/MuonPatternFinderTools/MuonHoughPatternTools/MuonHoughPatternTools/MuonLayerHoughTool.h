@@ -198,7 +198,7 @@ namespace Muon {
         Gaudi::Property<bool> m_useSeeds{this, "UseSeeds", true};
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
         std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
         std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;

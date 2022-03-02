@@ -67,8 +67,9 @@ public:
   StatusCode book();
   /// Overrride configured booking path
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
+  const std::string getPath() const          { return m_histoPath; }
 
-  virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
+  virtual const ServiceHandle<ITHistSvc>& histogramService() const { return m_histSvc; }
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
 
@@ -79,7 +80,7 @@ private:
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
-  Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
+  Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms", "OrderedSet<std::string>"};
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
   Gaudi::Property<bool> m_failOnEmpty { this, "FailOnEmpty", true, "Fail in initialize() if no histograms defined" };
   BooleanProperty m_useCache { this, "UseCache", true, "Cache filler lookups" };

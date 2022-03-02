@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
@@ -26,7 +26,7 @@ P4DummyTest::P4DummyTest()
   P4PtEtaPhiM fourP4PtEtaPhiM(theP4IPtCotThPhiM);
 
 
-  double aux = theP4EEtaPhiM.px();
+  double aux [[maybe_unused]] = theP4EEtaPhiM.px();
   aux+=theP4PxPyPzE.px();
   aux+=theP4IPtCotThPhiM.px();
   double theDeltaR1= P4Helpers::deltaR(theP4EEtaPhiM,theP4IPtCotThPhiM);

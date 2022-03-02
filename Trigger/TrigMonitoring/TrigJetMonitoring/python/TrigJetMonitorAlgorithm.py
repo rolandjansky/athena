@@ -9,6 +9,7 @@
 '''
 
 import sys,argparse
+from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
 
 #####################################
 # Offline jet collections to monitor
@@ -33,7 +34,27 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J20'  : 'LVL1JetRoIs',
   'L1_J100' : 'LVL1JetRoIs',
 }
-
+Legacy2PhaseIJetThresholdDict = {
+  'J5'   : 'jJ20',
+  'J12'  : 'jJ30',
+  'J15'  : 'jJ40',
+  '4J15' : '4jJ40',
+  'J20'  : 'jJ50',
+  'J25'  : 'jJ55',
+  'J30'  : 'jJ60',
+  'J35'  : 'jJ70',
+  'J40'  : 'jJ80',
+  'J45'  : 'jJ85',
+  'J50'  : 'jJ90',
+  'J75'  : 'jJ125',
+  'J85'  : 'jJ140',
+  'J100' : 'jJ160',
+  'J120' : 'jJ180',
+  'J400' : 'jJ500',
+}
+Legacy2PhaseILargeJetThresholdDict = {
+  'J100' : 'jLJ140'
+}
 
 ############################################
 # HLT jet collections and chains to monitor
@@ -68,6 +89,9 @@ Chains2Monitor['MT'] = {
   'HLT_3j200_L1J100'                       : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j80_j60_L1J15'                      : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_subjesgscIS_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf',            'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+   ## for Phase I chain comparisons
+  'HLT_j45_320eta490_L1J15p31ETA49'      : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',        'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j280_320eta490_L1J75p31ETA49'     : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',        'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
   # Small-R PFlow chains
   'HLT_j45_pf_ftf_L1J15'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_pf_subjesgscIS_ftf_L1J15'       : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
@@ -87,9 +111,8 @@ Chains2Monitor['MT'] = {
   'HLT_j460_a10sd_lcw_nojcalib_L1J100'                  : { 'HLTColl' : 'HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalib',          'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j460_a10sd_pf_nojcalib_ftf_L1J100'               : { 'HLTColl' : 'HLT_AntiKt10EMPFlowSoftDropBeta100Zcut10Jets_nojcalib_ftf',     'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j460_a10sd_cssk_pf_nojcalib_ftf_L1J100'          : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10sd_cssk_pf_jes_ftf_L1J100'               : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',      'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10sd_cssk_pf_jes_ftf_preselj225_L1J100'               : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',      'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j460_a10sd_cssk_pf_nojcalib_ftf_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100'      : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',      'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   # Chains seeded by L1SC111-CJ15
   'HLT_j460_a10t_lcw_jes_L1SC111-CJ15'          : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
@@ -102,16 +125,39 @@ Chains2Monitor['MT'] = {
 }
 # Phase1 : duplicate all relevant chains with jFex algos
 temp_Phase1_chains = dict()
+import re
+L1pattern = re.compile(r"L1([0-9]*[J][0-9]+)")
 for chainName in Chains2Monitor['MT']:
-  if 'L1J' in chainName or 'L14J' in chainName: 
-    newChain = chainName.replace('L1J','L1jJ').replace('L14J','L14jJ')
-    temp_Phase1_chains[newChain] = Chains2Monitor['MT'][chainName] #uses same reference chain, not phase1 variation!
+  foundL1 = L1pattern.search(chainName)
+  if foundL1:
+    L1Legacy =  foundL1.group(1)
+    if L1Legacy in Legacy2PhaseIJetThresholdDict:
+        L1PhaseI = Legacy2PhaseIJetThresholdDict[L1Legacy]
+        newChain = chainName.replace(L1Legacy,L1PhaseI)
+        temp_Phase1_chains[newChain] = Chains2Monitor['MT'][chainName] #uses same reference chain, not phase1 variation!
+    if "a10" in chainName and L1Legacy in Legacy2PhaseILargeJetThresholdDict:   ## For now monitor a10 chains seeded by both jLJ and jJ items.
+        L1PhaseI = Legacy2PhaseILargeJetThresholdDict[L1Legacy]
+        newChain = chainName.replace(L1Legacy,L1PhaseI)
+        temp_Phase1_chains[newChain] = Chains2Monitor['MT'][chainName] #uses same reference chain, not phase1 variation!
   if 'L1SC111-CJ15' in chainName:
-    for largerSeed in ('L1SC111-CjJ15', 'L1jLJ100', 'L1jLJ140') :
+    for largerSeed in ('L1SC111-CjJ40', 'L1jLJ140', 'L1jLJ160') :
       newChain = chainName.replace('L1SC111-CJ15', largerSeed)
       temp_Phase1_chains[newChain] = Chains2Monitor['MT'][chainName]      
       pass
     pass
+temp_Phase1_chains.update({
+  # Additional Phase I test chains (beyond the duplicated ones)
+  'HLT_noalg_L1jJ80'                      : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j25_pf_ftf_L1RD0_FILLED', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_noalg_L1jJ160'                     : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_noalg_L1jJ140'                     : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf', 'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_noalg_L1jLJ140'                    : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf', 'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_j45_pf_ftf_preselj20_L1jJ40'       : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_preselj20_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_j45_pf_ftf_preselj20_L1J15'        : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_preselj20_L1jJ40', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_j60_pf_ftf_preselj50_L1jJ50'       : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_HT1000_L1HT190-J15s5pETA21'     : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_HT1000_L1HT190-jJ40s5pETA21'    : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+})
+
 Chains2Monitor['MT'].update(temp_Phase1_chains)
 
 
@@ -170,7 +216,10 @@ def getBinningFromThreshold(chain,varname):
   xbins, xmin, xmax = 160,0.,800000.
   #pt and et binning based on threshold
   if varname == "pt" or varname == "et":
-    threshold = int(chain.split("_")[1].split('j')[1])
+    if 'noalg' in chain:
+        return 60,xmin,300000 # good enough for L1 jJ40 & jJ100
+    else:
+        threshold = int(chain.split("_")[1].split('j')[1])
     if threshold < 50:
       return 40, 0., 100000.
     if threshold < 120:
@@ -282,6 +331,7 @@ def TrigJetMonConfig(inputFlags):
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg)
 
   # Match offline to offline jets
@@ -291,6 +341,7 @@ def TrigJetMonConfig(inputFlags):
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg)
 
   # Match L1 to offline as well as HLT jets
@@ -299,6 +350,7 @@ def TrigJetMonConfig(inputFlags):
       if matchjetcoll != 'NONE':
         name = 'Matching_{}_{}'.format(l1jetColl,matchjetcoll)
         alg = CompFactory.JetMatcherAlg(name, L1JetContainerName1=l1jetColl,JetContainerName2=matchjetcoll,MatchL1=True)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg)
 
   # The following class will make a sequence, configure algorithms, and link
@@ -588,7 +640,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
    )
    for hist in ExtraOnlineNJetHists: trigConf.appendHistos(EventHistoSpec(hist, (20,0,25), title=hist+';'+hist+';Entries'))
    # Add NjetEt and NjetPt histograms for simple scenarios
-   if 'ht' not in chain and 'HT' not in chain and 'dijet' not in chain and 'DIJET' not in chain and 'fbdj' not in chain:
+   if 'ht' not in chain and 'HT' not in chain and 'dijet' not in chain and 'DIJET' not in chain and 'fbdj' not in chain and 'noalg' not in chain:
      NjetHistName = getNjetHistName(chain)
      from JetMonitoring.JetStandardHistoSpecs import knownEventVar
      if knownEventVar.get(NjetHistName,None) is not None and NjetHistName not in ExtraOnlineNJetHists: #avoids duplication warnings for some chains
@@ -647,7 +699,8 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
        xbins, xmin, xmax = getBinningFromThreshold(chain,conf.Var.Name)
        group.defineHistogram('trigPassed,jetVar;'+histname,title=histname, type="TEfficiency", path=chainFolder, xbins=xbins , xmin=xmin, xmax=xmax ,)
    # Get jet index and eta selection for offline jets
-   parts        = chain.split('j')
+   validchain = chain.replace('noalg','j0') 
+   parts        = validchain.split('j')
    multiplicity = parts[0].split('_')[1]
    if multiplicity != '': index = int(multiplicity) - 1 # single-threhold multijet chains
    else: index = 0 # single-jet chain
@@ -801,6 +854,7 @@ if __name__=='__main__':
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
 
   # Match offline to offline jets
@@ -810,6 +864,7 @@ if __name__=='__main__':
         scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
         name = 'Matching_{}{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm')
 
   # Match L1 to offline as well as HLT jets
@@ -818,6 +873,7 @@ if __name__=='__main__':
       if matchjetcoll != 'NONE':
         name = 'Matching_{}_{}'.format(l1jetColl,matchjetcoll)
         alg = CompFactory.JetMatcherAlg(name, L1JetContainerName1=l1jetColl,JetContainerName2=matchjetcoll,MatchL1=True)
+        alg.ExtraInputs += [('xAOD::TrigCompositeContainer','StoreGateSvc+%s' % getRun3NavigationContainerFromInput(ConfigFlags))]
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm')
   
   # Loop over L1 jet collectoins

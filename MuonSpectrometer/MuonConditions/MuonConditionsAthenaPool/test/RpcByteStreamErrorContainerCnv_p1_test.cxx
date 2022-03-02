@@ -32,7 +32,7 @@ void testit (const Muon::RpcByteStreamErrorContainer& trans1)
 {
   RpcByteStreamErrorContainerCnv_p1 cnv;
   Muon::RpcByteStreamErrorContainer_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Muon::RpcByteStreamErrorContainer trans2;
   cnv.persToTrans (&pers, &trans2, log);

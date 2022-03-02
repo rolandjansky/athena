@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCPatchPanel.h"
@@ -117,35 +117,6 @@ TGCPatchPanel::TGCPatchPanel( TGCArguments* tgcargs )
 
 void TGCPatchPanel::connect()
 {
-}
-
-TGCPatchPanel::TGCPatchPanel(const TGCPatchPanel& right)
-{
-  m_id = right.m_id;
-  m_type = right.m_type;
-  m_region = right.m_region;
-  m_bunchCounter = right.m_bunchCounter;
-  m_hasASDOut = right.m_hasASDOut; 
-  m_hasBIDOut = right.m_hasBIDOut;
-  m_nHit = right.m_nHit;
-
-  for(int i=0; i<NumberOfPatchPanelOut; i+=1){
-    m_idSlaveBoard[i] = right.m_idSlaveBoard[i];
-    m_PPOut[i] = new TGCPatchPanelOut(*right.m_PPOut[i]);
-  }
-
-  for(int i=0; i<NChOfPPOutputConnector; i+=1){
-    for(int j=0; j<MaxNumberOfConnector; j+=1){
-      m_ASDOut[i][j] = new TGCASDOut(*right.m_ASDOut[i][j]);
-      for(int k=0; k<NumberOfBunchKeptInPP; k+=1){
-        m_BIDOut[i][j][k] = new TGCBIDOut(*right.m_BIDOut[i][j][k]);
-      }
-    }
-  }
-
-  for(int i=0; i<2; i+=1) m_PPAdj[i] = right.m_PPAdj[i];
-
-  m_connectionInPP = new TGCConnectionInPP(*right.m_connectionInPP);
 }
 
 TGCPatchPanel&

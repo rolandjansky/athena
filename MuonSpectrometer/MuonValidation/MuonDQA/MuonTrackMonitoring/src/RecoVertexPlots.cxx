@@ -5,7 +5,7 @@
 #include "MuonTrackMonitoring/RecoVertexPlots.h"
 
 
-RecoVertexPlots::RecoVertexPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir),
+RecoVertexPlots::RecoVertexPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir),
 	m_nMDT(nullptr),
 	m_nRPC(nullptr),
 	m_nTGC(nullptr),

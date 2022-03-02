@@ -215,7 +215,7 @@ from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTRKLUMIStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKLUMIStream )
 IDTRKLUMIStream = MSMgr.NewPoolRootStream( streamName, fileName )
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Add generic event information
 IDTRKLUMIStream.AddItem("xAOD::EventInfo#*")

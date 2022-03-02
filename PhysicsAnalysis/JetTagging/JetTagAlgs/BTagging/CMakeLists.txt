@@ -6,12 +6,8 @@ atlas_subdir( BTagging )
 # Component(s) in the package:
 atlas_add_library( BTaggingLib
                    src/BTagTool.cxx
-                   src/BTagTrackAssociation.cxx
-                   src/BTagSecVertexing.cxx
                    src/BTagLightSecVertexing.cxx
-                   src/JetBTaggerTool.cxx
                    src/JetBTaggingAlg.cxx
-                   src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
                    src/JetSecVertexingAlg.cxx
                    src/JetSecVtxFindingAlg.cxx

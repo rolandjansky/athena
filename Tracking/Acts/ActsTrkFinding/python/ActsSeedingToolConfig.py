@@ -3,20 +3,22 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ActsInterop import UnitConstants
+import math
 
-
+# The first two entries (i.e. non ITk) will be removed in the future
+# InDetStrip = InDetSCT
 ActsSeedToolProperties = {
-    'PixelSpacePoints' : {
+    'InDetPixel' : {
     },
-    'SCT_SpacePoints' : {
+    'InDetStrip' : {
         'rMax' : 600 * UnitConstants.mm,
         'deltaRMax' : 400 * UnitConstants.mm
     },
-    'ITkPixelSpacePoints' : {
+    'ITkPixel' : {
         'rMax' : 320 * UnitConstants.mm,
         'deltaRMax' : 120 * UnitConstants.mm
     },
-    'ITkStripSpacePoints' : {
+    'ITkStrip' : {
         'rMax' : 1100 * UnitConstants.mm,
         'deltaRMax' : 500 * UnitConstants.mm
     }
@@ -25,17 +27,23 @@ ActsSeedToolProperties = {
 
 def ActsSeedingToolCfg(ConfigFlags,
                        name: str = 'ActsSeedingTool',
-                       inputCollection: str = ''):
+                       configuration: str = ''):
     assert isinstance(name, str)
-    assert isinstance(inputCollection, str)
+    assert isinstance(configuration, str)
+
+    # Get geometry and attach to configuration
+    if ConfigFlags.Detector.GeometryITk:
+        configuration = 'ITk' + configuration
+    elif ConfigFlags.Detector.GeometryID:
+        configuration = 'InDet' + configuration
 
     # Only get the properties that have to be modified w.r.t. the default values
-    options = ActsSeedToolProperties.get(inputCollection, None)
+    options = ActsSeedToolProperties.get(configuration, None)
     if options is None:
-        raise ValueError(f"Acts Seed Tool has no-known configuration for the `{inputCollection}` input collection")
+        raise ValueError(f"Requested not-known Acts Seed Tool configuration: `{configuration}'")
 
     return ActsSeedingToolBaseCfg(ConfigFlags, 
-                                  f'{name}_{inputCollection}', 
+                                  f'{name}_{configuration}', 
                                   **options)
 
 
@@ -45,20 +53,43 @@ def ActsSeedingToolBaseCfg(ConfigFlags,
     acc = ComponentAccumulator()
 
     options['name'] = name
-    options.setdefault('rMax', 200. * UnitConstants.mm)
-    options.setdefault('deltaRMin', 5. * UnitConstants.mm)
-    options.setdefault('deltaRMax', 60. * UnitConstants.mm)
+
+    # Used by SeedfinderConfig
+    options.setdefault('minPt', 500. * UnitConstants.MeV) # Also used by SpacePointGridConfig
+    options.setdefault('cotThetaMax', 7.40627) # Also used by SpacePointGridConfig  
+    options.setdefault('deltaRMin', 5. * UnitConstants.mm) # Also used by SeedFilterConfig
+    options.setdefault('deltaRMax', 60. * UnitConstants.mm) # Also used by SpacePointGridConfig 
+    options.setdefault('impactMax', 3 * UnitConstants.mm) # Also used by SpacePointGridConfig 
+    options.setdefault('sigmaScattering', 5)    
+    options.setdefault('maxPtScattering', 10 * UnitConstants.mm)
+    options.setdefault('maxSeedsPerSpM', 5) # Also used by SeedFilterConfig
     options.setdefault('collisionRegionMin', -250. * UnitConstants.mm)
     options.setdefault('collisionRegionMax', 250. * UnitConstants.mm)
-    options.setdefault('zMin', -2000 * UnitConstants.mm)
-    options.setdefault('zMax', 2000 * UnitConstants.mm)
-    options.setdefault('maxSeedsPerSpM', 1)
-    options.setdefault('cotThetaMax', 7.40627)
-    options.setdefault('sigmaScattering', 5)
+    options.setdefault('phiMin', -math.pi)
+    options.setdefault('phiMax', math.pi)
+    options.setdefault('zMin', -2000 * UnitConstants.mm) # Also used by SpacePointGridConfig  
+    options.setdefault('zMax', 2000 * UnitConstants.mm) # Also used by SpacePointGridConfig  
+    options.setdefault('rMax', 200. * UnitConstants.mm) # Also used by SpacePointGridConfig  
+    options.setdefault('rMin', 33 * UnitConstants.mm)
     options.setdefault('radLengthPerSeed', 0.5)
-    options.setdefault('minPt', 500. * UnitConstants.MeV)
-    options.setdefault('impactMax', 3 * UnitConstants.mm)
-    
+    options.setdefault('zAlign', 0 * UnitConstants.mm)
+    options.setdefault('rAlign', 0 * UnitConstants.mm)
+    options.setdefault('sigmaError', 5)
+
+    # Used by SeedFilterConfig
+    options.setdefault('deltaInvHelixDiameter', 0.00003 * 1. / UnitConstants.mm)
+    options.setdefault('impactWeightFactor', 1.)
+    options.setdefault('compatSeedWeight', 200.)
+    options.setdefault('compatSeedLimit', 2)
+
+    # Used by SpacePointGridConfig
+    options.setdefault('numPhiNeighbors', 1)
+    options.setdefault('zBinEdges', [])
+
+    # Used by others
+    options.setdefault('zBinNeighborsTop', [])
+    options.setdefault('zBinNeighborsBottom', [])
+
     ActsTrk__ActsSeedingTool = CompFactory.getComp("ActsTrk::ActsSeedingTool")
     acc.setPrivateTools(ActsTrk__ActsSeedingTool(**options))
     return acc

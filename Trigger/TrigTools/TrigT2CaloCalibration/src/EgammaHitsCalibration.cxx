@@ -43,7 +43,7 @@ StatusCode EgammaHitsCalibration::finalize(){
 }
 
 void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
-    const void * /*param*/){
+    const void * /*param*/) const{
 
     const float etamax = m_etamax();
     const float eta_start_crack = m_eta_start_crack();
@@ -92,7 +92,8 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
         (*m_log) << MSG::DEBUG << "Second order:  " << correction[5][ibin_frontCorr][0] << "  " << correction[5][ibin_frontCorr][1] << "  "  << correction[5][ibin_frontCorr][2] << " " << correction[5][ibin_frontCorr][3] << endmsg;
 #endif
 
-    float shower_lbary = m_showerDepth.depth(the_aeta,
+    EgammaHitsShowerDepth showerDepth;
+    float shower_lbary = showerDepth.depth(the_aeta,
                                              eta_start_crack,
                                              eta_end_crack,
                                              m_sampling_depth(),

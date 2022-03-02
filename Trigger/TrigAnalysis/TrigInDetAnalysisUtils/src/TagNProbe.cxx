@@ -25,18 +25,16 @@ double TagNProbe::computeZ_obj( TIDA::Track* t1, TIDA::Track* t2 ) {
   else if ( tnpType.Contains("Electron") )  mass = electronMass;
   else if ( tnpType.Contains("Tau") )       mass = tauMass;
 
-  if ( !m_tom->status() && tnpType.Contains("Electron") )
-    return -1.0;
-
-  const TrackTrigObject* tobj1 = m_tom->object( t1->id() );
-  const TrackTrigObject* tobj2 = m_tom->object( t2->id() );
-
-  if ( !tobj1 && !tobj2 && tnpType.Contains("Electron") ) 
-    return -1.0;
-
   TLorentzVector v1, v2;
   double z0_1, z0_2;
-  if ( tnpType.Contains("Electron") ) { 
+  if ( tnpType.Contains("Electron") ) {
+    
+    if ( m_tom != 0 && !m_tom->status() )
+      return -1.0;
+
+    const TrackTrigObject* tobj1 = m_tom->object( t1->id() );
+    const TrackTrigObject* tobj2 = m_tom->object( t2->id() );
+
     v1.SetPtEtaPhiM( (tobj1->pt())/1000., tobj1->eta(), tobj1->phi(), mass );
     v2.SetPtEtaPhiM( (tobj2->pt())/1000., tobj2->eta(), tobj2->phi(), mass );
     z0_1 = (double)(tobj1->z0());
@@ -52,12 +50,14 @@ double TagNProbe::computeZ_obj( TIDA::Track* t1, TIDA::Track* t2 ) {
   double invMass = (double)( v1 + v2 ).M();
   double z0diff = std::fabs( z0_1 - z0_2 );
 
-  if ( invMass > m_ZmassMin && invMass < m_ZmassMax && z0diff < 5 )
-    return invMass;
+  if ( invMass > m_ZmassMin && invMass < m_ZmassMax && z0diff < 5 )  return invMass;
   
   return -1.0;
 
 }
+
+
+
 
 // ------------------------------------------------------------------
 
@@ -87,6 +87,9 @@ double TagNProbe::computeZ( TIDA::Track* t1, TIDA::Track* t2 ) {
   return invMass;
   
 }
+
+
+
 
 // ------------------------------------------------------------------
 
@@ -122,9 +125,13 @@ std::pair<double,double> TagNProbe::selection( TIDA::Roi& troi, TIDA::Roi& proi 
   }
 
   std::pair<double,double> pNull = std::make_pair( 0., 0. );
+
   return pNull;
 
 }
+
+
+
 
 // ------------------------------------------------------------------
 
@@ -141,7 +148,7 @@ bool TagNProbe::FindProbes()
 
   // loop for possible probes
   for ( size_t ip=0 ; ip<m_chain_tnp->size() ; ip++ ) {
-
+    
     TIDA::Roi& proi = m_chain_tnp->rois()[ ip ];
     TIDARoiDescriptor roi_probe( proi.roi() );
 
@@ -156,7 +163,7 @@ bool TagNProbe::FindProbes()
 
       TIDA::Roi& troi = m_chain->rois()[ it ];
       TIDARoiDescriptor roi_tag( troi.roi() );
-  
+
       /// tag and probe are the same: skip this tag
       if ( roi_probe == roi_tag ) continue;
 
@@ -167,7 +174,7 @@ bool TagNProbe::FindProbes()
       if ( !found_tnp && mass>0 ) found_tnp = true;
 
       if ( mass>0 ) {
-        tags.push_back( &troi );
+	tags.push_back( &troi );
         masses.push_back( mass );
         masses_obj.push_back( mass_obj );
         if ( m_unique ) break;
@@ -228,8 +235,6 @@ TIDA::Chain* TagNProbe::GetTagChain( std::string probe_name, std::vector<TIDA::C
       }
     }
   }
-  else 
-    std::cerr << "***** probe chain " << probe_name << " not in map" << std::endl;
 
   return chain_tag;
 
@@ -245,10 +250,7 @@ std::vector<TIDA::Roi*> TagNProbe::GetRois( TIDA::Chain * chain, std::vector<TID
   /// for each configured probe chain find the correspondig tag chain in the event
   chain_tag = GetTagChain( chain->name(), chains );
   
-  if ( chain_tag == 0 ) {
-    std::cerr << "Chain for Tag&Probe was not found!" << std::endl;
-    return rois;
-  }
+  if ( chain_tag == 0 ) return rois; 
 
   /// resetting the chains
   m_chain = 0;
@@ -258,10 +260,23 @@ std::vector<TIDA::Roi*> TagNProbe::GetRois( TIDA::Chain * chain, std::vector<TID
   SetChains( chain, chain_tag );
 
   /// find the probe RoIs
-  if ( !FindProbes() ) {
-    std::cout << "No Probes were found!" << std::endl;
-    return rois;
-  }
+  if ( !FindProbes() ) return rois;
+
+  /// getting the vector of rois to process
+  rois = GetProbes();
+
+  return rois;
+}
+
+// ------------------------------------------------------------------
+
+std::vector<TIDA::Roi*> TagNProbe::GetRois( std::vector<TIDA::Chain>& chains ) {
+
+  std::vector<TIDA::Roi*> rois;
+  FindTIDAChains(chains) ;
+
+  /// find the probe RoIs
+  if ( !FindProbes() ) return rois;
 
   /// getting the vector of rois to process
   rois = GetProbes();
@@ -287,6 +302,15 @@ void TagNProbe::BookMinvHisto( std::string chain_name ) {
 
 // ------------------------------------------------------------------
 
+void TagNProbe::BookMinvHisto( ) {
+
+  m_hMinv = new TH1D( "Minv_TnP", "Tag&Probe invariant mass", 320, 0, 200 );
+  m_hMinv_obj = new TH1D( "Minv_obj_TnP", "Tag&Probe invariant mass (object-based)", 320, 0, 200 );
+
+}
+
+// ------------------------------------------------------------------
+
 void TagNProbe::FillMinvHisto( std::string chain_name, unsigned int probe_index ) {
 
   /// find the histogram for chain_name
@@ -298,13 +322,25 @@ void TagNProbe::FillMinvHisto( std::string chain_name, unsigned int probe_index 
        hMinv_obj_itr != m_hMinv_obj_map.end() &&
        m_masses[probe_index].size() == m_masses_obj[probe_index].size() ) {
 
-    for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
-      hMinv_itr->second->Fill( m_masses[probe_index].at(im) );
-      hMinv_obj_itr->second->Fill( m_masses_obj[probe_index].at(im) );
-    }
-  } else
-    std::cerr << " ****** Could not find T&P histos " << std::endl;
+    //    for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
+    //      hMinv_itr->second->Fill( m_masses[probe_index].at(im) );
+    //      hMinv_obj_itr->second->Fill( m_masses_obj[probe_index].at(im) );
+    //    }
+  }
+}
 
+// ------------------------------------------------------------------
+
+void TagNProbe::FillMinvHisto( unsigned int probe_index ) {
+
+  if ( m_masses[probe_index].size() == m_masses_obj[probe_index].size() &&
+       m_masses[probe_index].size() > 0 ) {
+
+    //  for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
+    //    m_hMinv->Fill( m_masses[probe_index].at(im) );
+    //    m_hMinv_obj->Fill( m_masses_obj[probe_index].at(im) );
+    //  }
+  }
 }
 
 // ------------------------------------------------------------------
@@ -323,12 +359,14 @@ void TagNProbe::WriteMinvHisto( TDirectory* foutdir ) {
       std::string dirpath( foutdir->GetPath() );
       dirpath += dirname;
 
+#if 0
       /// renaming (title and object name) histos
       /// setting output TDirectory
       /// Write is called in rmain.cxx
       hMinv_itr->second->SetTitle( "Tag&Probe invariant mass" );
       hMinv_itr->second->SetName( "Minv_TnP" );
       hMinv_itr->second->SetDirectory( foutdir->GetDirectory( dirpath.c_str() ) );
+#endif
 
       foutdir->cd();
     }
@@ -343,14 +381,28 @@ void TagNProbe::WriteMinvHisto( TDirectory* foutdir ) {
       std::string dirpath( foutdir->GetPath() );
       dirpath += dirname;
 
+#if 0
       /// renaming (title and object name) histos and
       /// setting output TDirectory
       /// Write is called in rmain.cxx
       hMinv_obj_itr->second->SetTitle( "Tag&Probe invariant mass (object-based)" );
       hMinv_obj_itr->second->SetName( "Minv_obj_TnP" );
       hMinv_obj_itr->second->SetDirectory( foutdir->GetDirectory( dirpath.c_str() ) );
+#endif
 
       foutdir->cd();
     }
 
 }
+
+// ------------------------------------------------------------------
+
+void TagNProbe::FindTIDAChains( std::vector<TIDA::Chain>& chains ) {
+  
+  for ( int ic=0 ; ic<(int)(chains.size()) ; ++ic ){
+    std::string chainConfig = chains[ic].name() ;
+    if ( (chainConfig) == m_probeChainName ) m_chain_tnp = &( chains[ic] ) ;
+    if ( (chainConfig) == m_tagChainName ) m_chain = &( chains[ic] ) ;
+  }
+}
+

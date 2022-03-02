@@ -15,6 +15,7 @@
 #include <cmath>
 #include <memory>
 
+// fwd
 class TileDddbManager;
 class TileDetDescrRegion;
 class TileDetDescriptor;
@@ -37,21 +38,21 @@ class TileDetDescrManager : public GeoVDetectorManager
   static const double vItcGapCells[6];
 
   // TYPEDEFS
-  typedef std::vector <TileDetDescrRegion*>		tile_region_vec;
-  typedef tile_region_vec::size_type		        tile_region_vec_size;
-  typedef tile_region_vec::const_iterator		tile_region_const_iterator;
+  typedef std::vector <TileDetDescrRegion*>     tile_region_vec;
+  typedef tile_region_vec::size_type                tile_region_vec_size;
+  typedef tile_region_vec::const_iterator       tile_region_const_iterator;
 
-  typedef std::vector <TileDetDescriptor*>		tile_descr_vec;
-  typedef tile_descr_vec::size_type		        tile_descr_vec_size;
-  typedef tile_descr_vec::const_iterator		tile_descr_const_iterator;
+  typedef std::vector <TileDetDescriptor*>      tile_descr_vec;
+  typedef tile_descr_vec::size_type             tile_descr_vec_size;
+  typedef tile_descr_vec::const_iterator        tile_descr_const_iterator;
 
-  typedef std::vector <CaloDetDescriptor*>		calo_descr_vec;
-  typedef calo_descr_vec::size_type		        calo_descr_vec_size;
-  typedef calo_descr_vec::const_iterator		calo_descr_const_iterator;
+  typedef std::vector <CaloDetDescriptor*>      calo_descr_vec;
+  typedef calo_descr_vec::size_type             calo_descr_vec_size;
+  typedef calo_descr_vec::const_iterator        calo_descr_const_iterator;
 
-  typedef std::vector <CaloDetDescrElement*>		calo_element_vec;
-  typedef calo_element_vec::size_type		        calo_element_vec_size;
-  typedef calo_element_vec::const_iterator		calo_element_const_iterator;
+  typedef std::vector <CaloDetDescrElement*>        calo_element_vec;
+  typedef calo_element_vec::size_type               calo_element_vec_size;
+  typedef calo_element_vec::const_iterator      calo_element_const_iterator;
 
   typedef std::map <unsigned int, TileDetDescrRegion*,  std::less<unsigned int> >  tile_region_map;
   typedef std::map <unsigned int, CaloDetDescriptor*,   std::less<int> >           scalo_descr_map;
@@ -210,21 +211,21 @@ class TileDetDescrManager : public GeoVDetectorManager
   const CaloCell_ID*  m_cell_id;
   const TileHWID*     m_tile_hwid;
 
-  tile_region_vec 	m_tile_region_vec;
-  tile_region_map 	m_tile_region_map;
-  tile_descr_vec 	m_tile_descr_vec;
+  tile_region_vec   m_tile_region_vec;
+  tile_region_map   m_tile_region_map;
+  tile_descr_vec    m_tile_descr_vec;
 
   // calo descriptors : 1 map for CaloSample*sign and one unsorted vector
-  calo_descr_vec 	m_calo_descr_vec;
-  scalo_descr_map 	m_calo_descr_map;
+  calo_descr_vec    m_calo_descr_vec;
+  scalo_descr_map   m_calo_descr_map;
 
   // modules : 1 map for compact id, 1 vector for hashed
-  calo_descr_vec 	m_tile_module_vec;
-  calo_descr_map 	m_tile_module_map;
+  calo_descr_vec    m_tile_module_vec;
+  calo_descr_map    m_tile_module_map;
 
   // cells : 1 map for compact id, 1 vector for hashed
-  calo_element_vec 	m_tile_cell_vec;
-  calo_element_map 	m_tile_cell_map;
+  calo_element_vec  m_tile_cell_vec;
+  calo_element_map  m_tile_cell_map;
 
   cell_dim_map          m_cell_dim_map;
 

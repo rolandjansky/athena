@@ -59,23 +59,23 @@ dSFMTEngine::dSFMTEngine():m_dsfmt(0)
   seedlist[0] = (seedlist[0])^mask;
   seedlist[1] = 0;
   setSeeds( seedlist, engineNum );
-  for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
+  for( int i=0; i < 2000; ++i ) dSFMTEngine::flat();      // Warm up just a bit
 }
 
 dSFMTEngine::dSFMTEngine(long seed):m_dsfmt(0)  
 {
   init_dsfmt();
   
-  setSeed( seed , 0);
-  for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
+  dSFMTEngine::setSeed( seed , 0);
+  for( int i=0; i < 2000; ++i ) dSFMTEngine::flat();      // Warm up just a bit
 }
 
 dSFMTEngine::dSFMTEngine(const long * seeds):m_dsfmt(0) 
 {
   init_dsfmt();
   
-  setSeeds( seeds, 0 );
-  for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
+  dSFMTEngine::setSeeds( seeds, 0 );
+  for( int i=0; i < 2000; ++i ) dSFMTEngine::flat();      // Warm up just a bit
 }
 
 void dSFMTEngine::init_dsfmt()
@@ -131,7 +131,7 @@ void dSFMTEngine::setSeeds(const uint32_t *seeds, int) {
   if (*seeds) {
     int i = 0;
     const int numBuff=DSFMT_N;
-    while (seeds[i] && i < numBuff) {
+    while (i < numBuff && seeds[i]) {
       //cout<<"  seed "<<i<<" = "<<seeds[i]<<endl;
       ++i;
     }
@@ -147,7 +147,7 @@ void dSFMTEngine::setSeeds(const long *seeds, int) {
     int i = 0;
     const int numBuff=DSFMT_N;
     uint32_t buf[numBuff];
-    while (seeds[i] && i < numBuff) {
+    while (i < numBuff && seeds[i]) {
       buf[i]=seeds[i];
       //cout<<"  seed "<<i<<" = "<<buf[i]<<endl;
       ++i;

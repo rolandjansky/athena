@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //              jFEXForwardJetsAlgo - Algorithm for small R jet Algorithm in jFEX
@@ -43,12 +43,7 @@ namespace LVL1 {
     virtual StatusCode reset() override;
 
     virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int jfex, int fpga) override;
-    //virtual int realValue(int ID, int eta) override;
-    virtual float globalPhi(int TTID)  override;
-    virtual float globalEta(int TTID)  override;   
-    virtual unsigned int localPhi(int TTID)  override;
-    virtual unsigned int localEta(int TTID)  override;
-    virtual unsigned int getTTowerET(int TTID) override; 
+    virtual std::array<float,3> globalEtaPhiEt(int) override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> calculateJetETs() override;

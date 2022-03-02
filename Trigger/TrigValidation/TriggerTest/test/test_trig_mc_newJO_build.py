@@ -26,7 +26,7 @@ run.input = 'ttbar'
 run.executable = 'python'
 run.args = 'runHLT_standalone_newJO.py'
 run.args += ' --filesInput='+Input.get_input(run.input).paths[0]
-run.args += ' Trigger.triggerMenuSetup="LS2_v1"'
+run.args += ' Trigger.triggerMenuSetup="Dev_pp_run3_v1"'
 run.args += ' Trigger.doRuntimeNaviVal=True'
 run.args += ' Output.doWriteRDO=False' #TODO enable once fixes issue with missing containers
 run.prmon = False

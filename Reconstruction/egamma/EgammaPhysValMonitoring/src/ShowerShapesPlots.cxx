@@ -154,7 +154,7 @@ namespace Egamma{
   void ShowerShapesPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const{
 
     float weight = 1.;
-    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+    weight = eventInfo.beamSpotWeight();
 
     float eta2 = fabs (egamma.caloCluster()->etaBE (2));  
     float et37 = egamma.caloCluster()->e() / cosh (eta2);

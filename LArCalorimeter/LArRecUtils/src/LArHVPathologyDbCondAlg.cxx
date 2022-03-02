@@ -184,7 +184,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
 
   std::vector<unsigned short> list;
   std::vector<HWIdentifier> hwlineId;
-  unsigned int HVline;
+  unsigned int HVline = 0;
   // loop over all EM Identifiers
   for (auto id: m_larem_id->channel_ids()) {
      hwlineId.clear();

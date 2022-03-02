@@ -1,14 +1,12 @@
 #include "../ReducePileUpEventInfoAlg.h"
 #include "../ThinIParticlesAlg.h"
 #include "../ThinIParticlesTool.h"
-#include "../ThinCaloCellsAlg.h"
 #include "../ThinGeantTruthAlg.h"
 #include "../ThinNegativeEnergyCaloClustersAlg.h"
 #include "../ThinNegativeEnergyNeutralPFOsAlg.h"
 #include "../ThinInDetForwardTrackParticlesAlg.h"
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
-#include "../ThinCaloCellsTool.h"
 #include "../ThinTrkTrackAlg.h"
 #endif
 #include "../ThinCaloClustersAlg.h"
@@ -24,10 +22,8 @@ DECLARE_COMPONENT( ThinNegativeEnergyNeutralPFOsAlg )
 DECLARE_COMPONENT( ReducePileUpEventInfoAlg )
 DECLARE_COMPONENT( ThinIParticlesAlg )
 DECLARE_COMPONENT( ThinIParticlesTool )
-DECLARE_COMPONENT( ThinCaloCellsAlg )
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
-DECLARE_COMPONENT( ThinCaloCellsTool )
 DECLARE_COMPONENT( ThinTrkTrackAlg )
 #endif
 DECLARE_COMPONENT( ThinCaloClustersAlg )

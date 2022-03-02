@@ -30,3 +30,16 @@ Muon::NSW_TrigRawData::NSW_TrigRawData(uint16_t sectorId, char sectorSide, uint1
 {
 
 }
+
+Muon::NSW_TrigRawData::NSW_TrigRawData(const Muon::NSW_TrigRawData &trd) :
+  DataVector<Muon::NSW_TrigRawDataSegment>()
+{
+  m_sectorId = trd.m_sectorId;
+  m_sectorSide = trd.m_sectorSide;
+  m_bcId = trd.m_bcId;
+  for (const auto rawSegment : trd) {
+    Muon::NSW_TrigRawDataSegment* trigRawDataSegment = new Muon::NSW_TrigRawDataSegment(*rawSegment);
+    this->push_back(trigRawDataSegment);
+  }
+}
+

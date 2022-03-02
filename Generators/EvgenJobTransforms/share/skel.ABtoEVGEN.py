@@ -154,8 +154,9 @@ if hasattr(runArgs, "rivetAnas"):
     from Rivet_i.Rivet_iConf import Rivet_i
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
-    anaSeq.Rivet_i.DoRootHistos = True
-
+    anaSeq.Rivet_i.AnalysisPath = os.environ['PWD']
+    if hasattr(runArgs, "outputYODAFile"):
+      anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -413,7 +414,10 @@ else:
 import EventInfoMgt.EventInfoMgtInit
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_energy": str(int(runArgs.ecmEnergy*Units.GeV/2.0))})
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": 'collisions'})
-if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface

@@ -5,6 +5,9 @@
 
 #include "FlavorTagDiscriminants/PoorMansIpAugmenterAlg.h"
 
+#include "StoreGate/WriteDecorHandle.h"
+#include "StoreGate/ReadDecorHandle.h"
+
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
@@ -164,6 +167,19 @@ namespace FlavorTagDiscriminants {
     CHECK( m_dec_track_pos.initialize() );
     CHECK( m_dec_track_mom.initialize() );
 
+    ATH_MSG_DEBUG(
+      "Accessors for beamspot:" <<
+      "    ** " << m_beam_sigma_x <<
+      "    ** " << m_beam_sigma_y <<
+      "    ** " << m_beam_sigma_z <<
+      "    ** " << m_beam_cov_xy <<
+      "");
+
+    CHECK( m_beam_sigma_x.initialize() );
+    CHECK( m_beam_sigma_y.initialize() );
+    CHECK( m_beam_sigma_z.initialize() );
+    CHECK( m_beam_cov_xy.initialize() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -200,6 +216,15 @@ namespace FlavorTagDiscriminants {
     SG::WriteDecorHandle<TPC,std::vector<float>> decor_track_mom(
       m_dec_track_mom, ctx);
 
+    SG::ReadDecorHandle<xAOD::EventInfo,float> beam_sigma_x(
+      m_beam_sigma_x, ctx);
+    SG::ReadDecorHandle<xAOD::EventInfo,float> beam_sigma_y(
+      m_beam_sigma_y, ctx);
+    SG::ReadDecorHandle<xAOD::EventInfo,float> beam_sigma_z(
+      m_beam_sigma_z, ctx);
+    SG::ReadDecorHandle<xAOD::EventInfo,float> beam_cov_xy(
+      m_beam_cov_xy, ctx);
+
     // now decorate the tracks
     for (const xAOD::TrackParticle *trk: *tracks) {
 
@@ -207,9 +232,9 @@ namespace FlavorTagDiscriminants {
       float d0_sigma2 = trk->definingParametersCovMatrixDiagVec().at(Pmt::d0);
       float bs_d0_sigma2 = xAOD::TrackingHelpers::d0UncertaintyBeamSpot2(
         trk->phi(),
-        evt.beamPosSigmaX(),
-        evt.beamPosSigmaY(),
-        evt.beamPosSigmaXY());
+        beam_sigma_x(evt),
+        beam_sigma_y(evt),
+        beam_cov_xy(evt));
       float full_d0_sigma = std::sqrt(d0_sigma2 + bs_d0_sigma2);
       ATH_MSG_DEBUG("track    d0Uncertainty: " << std::sqrt(d0_sigma2));
       ATH_MSG_DEBUG("beamspot d0Uncertainty: " << std::sqrt(bs_d0_sigma2));
@@ -221,7 +246,7 @@ namespace FlavorTagDiscriminants {
       } else {
         // if we don't have a primary we take the beamspot z
         // uncertainty
-        double vxZCov = std::pow(evt.beamPosSigmaZ(), 2);
+        double vxZCov = std::pow(beam_sigma_z(evt), 2);
         decor_z0_sigma(*trk) = Pmt::getSigmaZ0SinTheta(*trk, vxZCov);
       }
 

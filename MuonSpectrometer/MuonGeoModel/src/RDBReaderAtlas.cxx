@@ -187,7 +187,7 @@ namespace MuonGM {
             m_xtomo = m_dhxtomo->data();
 
         // ASZT
-        if (asciiFileDBMap != 0 && asciiFileDBMap->find("ASZT") != asciiFileDBMap->end()) {
+        if (asciiFileDBMap != nullptr && asciiFileDBMap->find("ASZT") != asciiFileDBMap->end()) {
 
             log << MSG::INFO << "getting aszt from ascii file - named <" << asciiFileDBMap->find("ASZT")->second << ">" << endmsg;
             log << MSG::INFO << "Ascii aszt input has priority over A-lines in ORACLE; A-lines from Oracle will not be read" << endmsg;
@@ -201,7 +201,7 @@ namespace MuonGM {
             }
         }
 
-        if (m_dhaszt == 0 || m_dhaszt->size() == 0) {
+        if (m_dhaszt == nullptr || m_dhaszt->size() == 0) {
             log << MSG::INFO << "No Ascii aszt input found: looking for A-lines in ORACLE" << endmsg;
 
             if (theAmdcDb) {
@@ -230,7 +230,7 @@ namespace MuonGM {
         }
 
         // Internal CSC Alignment parameters
-        if (asciiFileDBMap != 0 && asciiFileDBMap->find("IACSC") != asciiFileDBMap->end()) {
+        if (asciiFileDBMap != nullptr && asciiFileDBMap->find("IACSC") != asciiFileDBMap->end()) {
 
             log << MSG::INFO << "getting iacsc from ascii file - named <" << asciiFileDBMap->find("IACSC")->second << ">" << endmsg;
             log << MSG::INFO << "Ascii iacsc input has priority over A-lines in ORACLE; A-lines from Oracle will not be read" << endmsg;
@@ -242,7 +242,7 @@ namespace MuonGM {
                 log << MSG::INFO << "N. of lines read = " << m_dhiacsc->size() << endmsg;
             }
         }
-        if (m_dhiacsc == 0 || m_dhiacsc->size() == 0) {
+        if (m_dhiacsc == nullptr || m_dhiacsc->size() == 0) {
             log << MSG::INFO << "No Ascii iacsc input found: looking for A-lines in ORACLE" << endmsg;
             std::unique_ptr<IRDBQuery> isztData;
             if (!m_pRDBAccess->getChildTag("ISZT", geoTag, geoNode).empty()) {
@@ -457,7 +457,7 @@ namespace MuonGM {
             Station *station = (*it).second;
             for (int ic = 0; ic < station->GetNrOfComponents(); ic++) {
                 Component *c = station->GetComponent(ic);
-                if (c == NULL)
+                if (c == nullptr)
                     continue;
                 const std::string &cname = c->name;
 

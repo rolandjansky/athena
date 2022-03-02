@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Script that is used by the build.sh scripts of the individual projects.
 # It builds and packages the project in a uniform way.
@@ -120,6 +120,8 @@ fi
 # partially successful build...)
 if [ "${ATLAS_CI_BUILD}" = "1" ]; then
    set -e
+   # Enable build of CITest package
+   ATLAS_EXTRA_CMAKE_ARGS+=(-DATLAS_ENABLE_CI_TESTS:BOOL=TRUE)
 else
    set +e
 fi
@@ -174,6 +176,16 @@ if [ -n "${ATLAS_EXE_MAKE}" ]; then
    # of something during the build.
    cmake -E remove -f                                                          \
       "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}/*/share/clid.db"
+
+   # Delete all package CLID files if there are any conflicts (ATEAM-809)
+   clid_conflicts=$(find "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}"      \
+                         -name '*_clid.db' -exec cat {} + |                    \
+                        sort -u | awk 'seen[$1]++')
+   if [ -n "${clid_conflicts}" ]; then
+       echo "Deleting clid.db files due to this conflict: ${clid_conflicts}"
+       find "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}" -name '*_clid.db' -delete
+   fi
+
    # Build the project.
    { atlas_build_time PROJECT_BUILD cmake                                      \
       --build "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}" --              \

@@ -34,7 +34,7 @@ namespace InDet
       StatusCode storePhase();
       
     private:
-      double	m_phase;
+      double	m_phase = 0.0;
 
       SG::ReadHandleKeyArray<TrackCollection>	m_readKey_tracks 	{this, "InputTracksNames"	,{"Tracks"}, "Tracks to extract event phase" };
       SG::WriteHandleKey<ComTime> 		m_writeKey_TRTPhase	{this, "EventPhaseName"		,"TRT_Phase", "TRT Event Phase name to store" };

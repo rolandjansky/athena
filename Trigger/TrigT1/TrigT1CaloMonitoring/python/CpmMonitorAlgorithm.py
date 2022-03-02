@@ -44,7 +44,6 @@ def CpmMonitoringConfig(inputFlags):
     monCMXinPath=trigPath+"_CMX/Input/"
     monCMXoutPath=trigPath+"_CMX/Output/"
 
-    #MonGroup monEvents( this, errorDir + "/Detail", run, attr, "", "eventSample" );
     monEventsPath=errorPath+"/Detail/"
 
     # add monitoring algorithm to group, with group name and main directory 
@@ -217,18 +216,18 @@ def CpmMonitoringConfig(inputFlags):
     myGroup.defineHistogram('cmxCpmTobsEnerRight;cmx_1d_tob_EnergyRight', title='CMX-CP TOBs Cluster Energy Right CMX',
                             cutmask='',path=monCMXinPath,
                             xbins=maxEnergyRange,xmin=0,xmax=maxEnergyRange)
-    myGroup.defineHistogram('cmxCpmTobsLeft;cmx_1d_tob_TOBsPerCPMLeft', title='CMX-CP TOBs per CPM Left;Number of TOBs;',
+    myGroup.defineHistogram('cmxCpmTobsLeft;cmx_1d_tob_TOBsPerCPMLeft', title='CMX-CP TOBs per CPM Left CMX;Number of TOBs;',
                             cutmask='',path=monCMXinPath,
                             xbins=tobsPerCPM+1,xmin=1,xmax=tobsPerCPM+2)
-    myGroup.defineHistogram('cmxCpmTobsRight;cmx_1d_tob_TOBsPerCPMRight', title='CMX-CP TOBs per CPM Right;Number of TOBs;',
+    myGroup.defineHistogram('cmxCpmTobsRight;cmx_1d_tob_TOBsPerCPMRight', title='CMX-CP TOBs per CPM Right CMX;Number of TOBs;',
                             cutmask='',path=monCMXinPath,
                             xbins=tobsPerCPM+1,xmin=1,xmax=tobsPerCPM+2)
 
     #
-    myGroup.defineHistogram('cmxCpmTobsIsolLeft;cmx_1d_tob_IsolationLeft', title='CMX-CP TOBs Encoded Isolation Left;;',
+    myGroup.defineHistogram('cmxCpmTobsIsolLeft;cmx_1d_tob_IsolationLeft', title='CMX-CP TOBs Encoded Isolation Value Left CMX;;',
                             cutmask='', path=monCMXinPath,
                             xbins=isolRange,xmin=0,xmax=isolRange)
-    myGroup.defineHistogram('cmxCpmTobsIsolRight;cmx_1d_tob_IsolationRight', title='CMX-CP TOBs Encoded Isolation Right;;',
+    myGroup.defineHistogram('cmxCpmTobsIsolRight;cmx_1d_tob_IsolationRight', title='CMX-CP TOBs Encoded Isolation Value Right CMX;;',
                             cutmask='', path=monCMXinPath,
                             xbins=isolRange,xmin=0,xmax=isolRange)
     # isolation Bits
@@ -336,30 +335,24 @@ def CpmMonitoringConfig(inputFlags):
     #  Error Overview and Summary
     #
     NumberOfSummaryBins=8
+    errorOverview_labels = [ "EM parity","EM link""Had parity","Had link","CPM status","TOB parity","Sum parity","CMX status"]
 
     # 2d overview to expert path
     myGroup.defineHistogram('cpmErrorX,cpmErrorY;cpm_2d_ErrorOverview',
                             title="CP Error Overview;;",type='TH2F',
-                            cutmask='',path=monExpertPath,
-                            xbins=64,xmin=0.,xmax=64.0,ybins=NumberOfSummaryBins,ymin=0.,ymax=NumberOfSummaryBins,weight='')
+                            path=monExpertPath,
+                            xbins=64,xmin=0.,xmax=64.0,ybins=NumberOfSummaryBins,ymin=0.,ymax=NumberOfSummaryBins,ylabels=errorOverview_labels)
 
     # 1d summary to shiftpath
     myGroup.defineHistogram('cpmErrorSummary;cpm_1d_ErrorSummary', title='CP Error Summary;;Events',
-                            cutmask='',path=monShiftPath,
-                            xbins=NumberOfSummaryBins,xmin=0,xmax=NumberOfSummaryBins)
+                            path=monShiftPath,
+                            xbins=NumberOfSummaryBins,xmin=0,xmax=NumberOfSummaryBins,xlabels=errorOverview_labels)
 
-
-    EventSamples=10  # Number of Error Event Number Samples
-    myGroup.defineHistogram('GLinkParityError,cpmLoc;cpm_2d_ErrorEventNumbers',
-                            title='CP Error Event Numbers;Events with Error/Mismatch;ytit',type='TH2I',
-                            cutmask='',path=monDetailPath,
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=NumberOfSummaryBins,ymin=0,ymax=NumberOfSummaryBins)
-
-    #
-    myGroup.defineHistogram('cpmErrorX,cpmErrorY;cpm_2d_ErrorEventNumbers_2',
+    # event numbers
+    myGroup.defineHistogram('evtstr,cpmErrorSummary_Events;cpm_2d_ErrorEventNumbers',
                             title="CP Error Event Numbers;Events with Error/Mismatch;",type='TH2I',
-                            cutmask='',path=monEventsPath,
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=NumberOfSummaryBins,ymin=0,ymax=NumberOfSummaryBins)
+                            path=monEventsPath,merge='merge',
+                            xbins=1,ymin=0,ymax=NumberOfSummaryBins,ylabels=errorOverview_labels)
 
     acc = helper.result()
     result.merge(acc)
@@ -380,7 +373,8 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     import glob
 
-    inputs = glob.glob('/eos/atlas/atlastier0/rucio/data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.recon.ESD.f1073/data18_13TeV.00357750.physics_Main.recon.ESD.f1073._lb0124._SFO-3._0001.1')
+    #inputs = glob.glob('/eos/atlas/atlastier0/rucio/data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.recon.ESD.f1073/data18_13TeV.00357750.physics_Main.recon.ESD.f1073._lb0124._SFO-3._0001.1')
+    inputs = glob.glob('/eos/atlas/atlastier0/rucio/data18_13TeV/physics_Main/00354311/data18_13TeV.00354311.physics_Main.recon.ESD.f1129/data18_13TeV.00354311.physics_Main.recon.ESD.f1129._lb0013._SFO-8._0001.1')
 
     ConfigFlags.Input.Files = inputs
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput_LVL1.root'
@@ -391,9 +385,9 @@ if __name__=='__main__':
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.Dump = False
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg  
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     CpmMonitorCfg = CpmMonitoringConfig(ConfigFlags)

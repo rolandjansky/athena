@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadTgcDigit.h"
@@ -14,8 +14,7 @@ const int maxDig  = 4096;
 
 ReadTgcDigit::ReadTgcDigit(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator), 
-    m_ntuplePtr(0), 
-    m_activeStore("ActiveStoreSvc", name)
+    m_ntuplePtr(nullptr)
 {
   // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);
@@ -27,7 +26,6 @@ ReadTgcDigit::ReadTgcDigit(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode ReadTgcDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
   ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
@@ -56,9 +54,10 @@ StatusCode ReadTgcDigit::execute()
 
   // get TGC digit container
   const std::string key = "TGC_DIGITS";
-  const TgcDigitContainer* tgc_container = nullptr;
-  ATH_CHECK( (*m_activeStore)->retrieve(tgc_container, key) );
- 
+  SG::ReadHandle<TgcDigitContainer> hndl(key);
+  const TgcDigitContainer* tgc_container = hndl.get();
+  ATH_CHECK( tgc_container != nullptr );
+
   ATH_MSG_DEBUG("****** tgc->size() : " << tgc_container->size() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS; 

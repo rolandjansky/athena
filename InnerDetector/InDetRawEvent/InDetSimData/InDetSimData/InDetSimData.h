@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -52,7 +52,7 @@ public:
     InDetSimData (std::vector< Deposit >&& deposits, int simDataWord = 0);
     InDetSimData (const InDetSimData& other);
     InDetSimData &operator=(const InDetSimData& other);
-    InDetSimData &operator=(InDetSimData&& other);
+    InDetSimData &operator=(InDetSimData&& other) noexcept;
     virtual ~InDetSimData();
     int word() const;                           // Get the packed simdata word
     void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits

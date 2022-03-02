@@ -1099,7 +1099,7 @@ InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign( double thick
     return design;
 }
 
-HGTD_DetectorManager* HGTD_DetectorFactory::getDetectorManager() const {
+const HGTD_DetectorManager* HGTD_DetectorFactory::getDetectorManager() const {
     return m_detectorManager;
 }
 

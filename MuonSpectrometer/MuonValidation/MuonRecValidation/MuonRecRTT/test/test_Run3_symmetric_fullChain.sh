@@ -30,7 +30,7 @@
 # the postInclude adds a validation algorithm which writes out an ntuple for sim hit validation
 # (without the postInclude, a standard simulation job would run)
 
-cond_tag="default:OFLCOND-MC16-SDR-RUN2-08"
+cond_tag="default:OFLCOND-MC21-SDR-RUN3-05"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
           --conditionsTag "${cond_tag}" \
@@ -90,7 +90,7 @@ fi
 Digi_tf.py --inputHITSFile OUT_HITS.root \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.digi.py \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3SYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3SYM-01")' \
+           --conditionsTag "${cond_tag}" \
            --outputRDOFile OUT_RDO.root
 exit_code=$?
 echo  "art-result: ${exit_code} Digi_tf.py"
@@ -150,7 +150,8 @@ Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3SYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3SYM-01")' \
+           --conditionsTag "${cond_tag}" \
+           --preExec 'from RecExConfig.RecFlags import rec;rec.doZdc.set_Value_and_Lock(False);' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
@@ -181,7 +182,8 @@ fi
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=1" \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3SYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3SYM-01")' \
+           --conditionsTag "${cond_tag}" \
+           --preExec 'from RecExConfig.RecFlags import rec;rec.doZdc.set_Value_and_Lock(False);' \
            --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_1thread"
@@ -197,7 +199,8 @@ mv log.RAWtoESD log.RAWtoESD_1thread
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=5" \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3SYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3SYM-01")' \
+           --conditionsTag "${cond_tag}" \
+           --preExec 'from RecExConfig.RecFlags import rec;rec.doZdc.set_Value_and_Lock(False);' \           
            --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_5thread"

@@ -69,10 +69,10 @@ std::vector<const xAOD::CaloCluster*> TauClusterFinder::getClusterList(const xAO
       // If jet perfroms the vertex correction, then cluster in Topo jets is in a shallow copy of CaloCalTopoCluster. 
       // Since jets and the shallow copy may not be stored to AOD in R22, these clusters will be invalid with AOD as input. 
       // To fix this issue, we now retrieve the clusters in the original CaloCalTopoCluster. 
-      if (m_doJetVertexCorrection) {
-        const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*cluster);
-        const xAOD::CaloCluster* orignialCluster = static_cast<const xAOD::CaloCluster*>(originalParticle);
-        clusterList.push_back(orignialCluster);
+      const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*cluster);
+      if (m_useOrigCluster and originalParticle != nullptr) {
+        const xAOD::CaloCluster* originalCluster = static_cast<const xAOD::CaloCluster*>(originalParticle);
+        clusterList.push_back(originalCluster);
       }
       else {
         clusterList.push_back(cluster);

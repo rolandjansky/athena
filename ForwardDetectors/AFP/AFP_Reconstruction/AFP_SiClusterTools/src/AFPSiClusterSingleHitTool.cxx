@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,7 +11,7 @@
  */
 
 
-#include "AFPSiClusterSingleHitTool.h"
+#include "AFP_SiClusterTools/AFPSiClusterSingleHitTool.h"
 #include "AFP_SiClusterTools/AFPSiClusterBasicObj.h"
 #include "xAODForward/AFPClusterAlgID.h"
 #include "xAODForward/AFPSiHit.h"
@@ -25,12 +25,7 @@
 AFPSiClusterSingleHitTool::AFPSiClusterSingleHitTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface *parent)
-    : ::AthAlgTool(type, name, parent) {
-  declareInterface<IAFPSiClusterAlgTool>(this);
-
-  declareProperty("chargeThreshold",
-                  m_chargeThreshold = 1000,
-                  "Charge above which hits are used for clustering");
+    : base_class(type, name, parent) {
 }
 
 StatusCode AFPSiClusterSingleHitTool::initialize() {
@@ -41,7 +36,7 @@ StatusCode AFPSiClusterSingleHitTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFPSiClusterSingleHitTool::doClustering (const std::list<const xAOD::AFPSiHit*>& hits, std::list<AFPSiClusterBasicObj>& outputClusters)
+StatusCode AFPSiClusterSingleHitTool::doClustering (const std::list<const xAOD::AFPSiHit*>& hits, std::list<AFPSiClusterBasicObj>& outputClusters) const
 {
   for (const xAOD::AFPSiHit* theHit : hits)
     if (theHit->depositedCharge() > m_chargeThreshold)

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //01/2009: T. Guillemin
 //This algorithm predicts the relative times of the physics pulses 
 //from the calibration pulses and the complete readout path
-#ifndef LARTIMEPHYSPREDICTION_H
-#define LARTIMEPHYSPREDICTION_H
+#ifndef LARCALIBUTILS_LARTIMEPHYSPREDICTION_H
+#define LARCALIBUTILS_LARTIMEPHYSPREDICTION_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -14,9 +14,10 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArCalibLineMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class CaloDepthTool;
-class CaloDetDescrManager;
 class ITHistSvc;
 
 class LArTimePhysPrediction : public AthAlgorithm
@@ -43,6 +44,10 @@ class LArTimePhysPrediction : public AthAlgorithm
   CaloDepthTool*  m_CaloDepthTool;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   int m_nchannels_max;
   std::vector<std::vector<double> > m_vLCalib_EMB;

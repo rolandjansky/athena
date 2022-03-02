@@ -1,10 +1,11 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LVL1InterfacesMonitoringCfg(flags):
     '''Function to call T1 interfaces DQ monitoring algorithms'''
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.Enums import Format
     import logging
 
     # local printing
@@ -15,8 +16,9 @@ def LVL1InterfacesMonitoringCfg(flags):
     result = ComponentAccumulator()
 
     # If we're not putting trigger objects in event store, can't monitor them
-    if not flags.DQ.triggerDataAvailable:
-        return result
+    if not flags.Trigger.Online.isPartition:
+        if not flags.DQ.triggerDataAvailable:
+            return result
 
     isData = not flags.Input.isMC
 
@@ -27,7 +29,7 @@ def LVL1InterfacesMonitoringCfg(flags):
         result.merge(L1CaloL1TopoMonitoringConfig(flags))
     
         # For online running on bytestream data
-        if flags.Input.Format == 'BS' and flags.Trigger.Online.isPartition:
+        if flags.Input.Format is Format.BS and flags.Trigger.Online.isPartition:
             from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoRawDataContainerBSCnvCfg
             result.merge(L1TopoRawDataContainerBSCnvCfg(flags))
 

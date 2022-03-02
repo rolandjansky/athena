@@ -76,10 +76,10 @@ void EMBAccordionDetails::Clockwork::getRPhi()
   const double dl=0.001;
   const double inv_dl = 1 / dl;
   double cenx[15],ceny[15];
-  double xl,xl2;
+  //double xl,xl2;
   double sum1[5000],sumx[5000];
-  xl=0;
-  xl2=0.;
+  //xl=0;
+  //xl2=0.;
   NRphi=5000;
   Rmin=1500.;
   dR=0.10;
@@ -121,11 +121,11 @@ void EMBAccordionDetails::Clockwork::getRPhi()
            phi1=-delta[i];
         }
      }
-     xl2+=rint*fabs(phi1-phi0);
+     //xl2+=rint*fabs(phi1-phi0);
      int nstep=int((phi1-phi0) * inv_dt)+1;
 //     std::cout << "fold " << phi0 << " " << phi1 << " " << nstep << std::endl;
      for (int ii=0;ii<nstep;ii++) {
-        xl+=dl;
+        //xl+=dl;
         double phi=phi0+dt*((double)ii);
         double x=cenx[i]+rint*cos(phi);
         double y=ceny[i]+rint*sin(phi);
@@ -152,11 +152,11 @@ void EMBAccordionDetails::Clockwork::getRPhi()
         else        phi=-M_PI/2.+delta[i];
         double x1=x0-0.5*along*cos(phi);
         double y1=y0-0.5*along*sin(phi);
-        xl2+=along;
+        //xl2+=along;
         int nstep=int(along * inv_dl)+1;
 //        std::cout << "straight" << x0 << " " << y0 << along << " " << nstep << std::endl;
         for (int ii=0;ii<nstep;ii++) {
-           xl+=dl;
+           //xl+=dl;
            double x=x1+dl*((double)ii)*cos(phi);
            double y=y1+dl*((double)ii)*sin(phi);
            double radius=sqrt(x*x+y*y);
@@ -170,7 +170,7 @@ void EMBAccordionDetails::Clockwork::getRPhi()
         }
      }
   }
-//  std::cout << "total electrode lenght " << xl << " " << xl2 << std::endl;
+//  std::cout << "total electrode length " << xl << " " << xl2 << std::endl;
 //  std::cout << "rmax in accordion " << Rmax << std::endl;
   for (int i=0; i<NRphi; i++) {
     if (sum1[i]>0) {

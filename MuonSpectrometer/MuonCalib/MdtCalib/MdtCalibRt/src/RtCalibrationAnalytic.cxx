@@ -61,11 +61,11 @@ void RtCalibrationAnalytic::init(const double &rt_accuracy, const unsigned int &
     /////////////////////////////
     m_r_max = 15.0 * CLHEP::mm;
     m_control_histograms = false;
-    m_tfile = 0;
-    m_cut_evolution = 0;
-    m_nb_segment_hits = 0;
-    m_CL = 0;
-    m_residuals = 0;
+    m_tfile = nullptr;
+    m_cut_evolution = nullptr;
+    m_nb_segment_hits = nullptr;
+    m_CL = nullptr;
+    m_residuals = nullptr;
     m_split_into_ml = split;
     m_full_matrix = full_matrix;
     m_nb_segments = 0;
@@ -100,7 +100,7 @@ void RtCalibrationAnalytic::init(const double &rt_accuracy, const unsigned int &
 
     // correction function
     if (func_type < 1 || func_type > 3) {
-        m_base_function = 0;
+        m_base_function = nullptr;
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationAnalytic::init - Illegal correction function type!", __FILE__, __LINE__));
     }
@@ -696,7 +696,7 @@ void RtCalibrationAnalytic::setInput(const IMdtCalibrationOutput *rt_input) {
     ////////////////////////////////////////////
     // CHECK IF THE OUTPUT CLASS IS SUPPORTED //
     ////////////////////////////////////////////
-    if (input == 0) {
+    if (input == nullptr) {
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationAnalytic::setInput - Calibration input class not supported.", __FILE__, __LINE__));
     }

@@ -1,0 +1,57 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                                               0    INFO Application Manager Initialized successfully
+ApplicationMgr                                               0 SUCCESS ****************************** Algorithm Sequence ****************************
+ApplicationMgr                                               0 SUCCESS AthSequencer/AthMasterSeq
+ApplicationMgr                                               0 SUCCESS      AthSequencer/AthAlgEvtSeq
+ApplicationMgr                                               0 SUCCESS           AthSequencer/AthBeginSeq
+ApplicationMgr                                               0 SUCCESS                AthIncFirerAlg/BeginIncFiringAlg
+ApplicationMgr                                               0 SUCCESS                IncidentProcAlg/IncidentProcAlg1
+ApplicationMgr                                               0 SUCCESS           AthSequencer/AthAllAlgSeq
+ApplicationMgr                                               0 SUCCESS                AthSequencer/AthAlgSeq
+ApplicationMgr                                               0 SUCCESS                     SGInputLoader/SGInputLoader
+ApplicationMgr                                               0 SUCCESS                     CaloBCIDAvgAlg/CaloBCIDAvgAlg
+ApplicationMgr                                               0 SUCCESS                     HLTCaloCellMaker/CaloCellSeedLessFS
+ApplicationMgr                                               0 SUCCESS                     LVL1::SCEmulation/LVL1::SCEmulation
+ApplicationMgr                                               0 SUCCESS                     LArSuperCellBCIDEmAlg/LArSuperCellBCIDEmAlg
+ApplicationMgr                                               0 SUCCESS                     LVL1::eFEXDriver/eFEXDriver
+ApplicationMgr                                               0 SUCCESS                     LVL1::jFEXDriver/jFEXDriver
+ApplicationMgr                                               0 SUCCESS                     LVL1::gFEXDriver/gFEXDriver
+ApplicationMgr                                               0 SUCCESS                AthSequencer/AthCondSeq
+ApplicationMgr                                               0 SUCCESS                     CondInputLoader/CondInputLoader
+ApplicationMgr                                               0 SUCCESS                     LArAlignCondAlg/LArAlignCondAlg
+ApplicationMgr                                               0 SUCCESS                     CaloAlignCondAlg/CaloAlignCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArFebRodMappingAlg/LArFebRodMappingAlg
+ApplicationMgr                                               0 SUCCESS                     LArOnOffMappingAlg/LArOnOffMappingAlg
+ApplicationMgr                                               0 SUCCESS                     LArRoIMapCondAlg/LArRoIMapCondAlg
+ApplicationMgr                                               0 SUCCESS                     RegSelCondAlg_LAr/RegSelCondAlg_TTEM
+ApplicationMgr                                               0 SUCCESS                     RegSelCondAlg_LAr/RegSelCondAlg_TTHEC
+ApplicationMgr                                               0 SUCCESS                     RegSelCondAlg_LAr/RegSelCondAlg_FCALEM
+ApplicationMgr                                               0 SUCCESS                     RegSelCondAlg_LAr/RegSelCondAlg_FCALHAD
+ApplicationMgr                                               0 SUCCESS                     RegSelCondAlg_Tile/RegSelCondAlg_TILE
+ApplicationMgr                                               0 SUCCESS                     LArBadChannelCondAlg/LArBadChannelCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArBadFebCondAlg/LArBadFebCondAlg
+ApplicationMgr                                               0 SUCCESS                     TileEMScaleCondAlg/TileEMScaleCondAlg
+ApplicationMgr                                               0 SUCCESS                     TileBadChannelsCondAlg/TileBadChannelsCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArFlatConditionsAlg<LArOFCFlat>/LArFlatConditionsAlg<LArOFCFlat>
+ApplicationMgr                                               0 SUCCESS                     OnlineLumiCalibrationCondAlg/OnlineLumiCalibrationCondAlg
+ApplicationMgr                                               0 SUCCESS                     LuminosityCondAlg/LuminosityCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArMCSymCondAlg/LArMCSymCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArSymConditionsAlg<LArMinBiasAverageMC, LArMinBiasAverageSym>/LArPileUpAvgSymCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArSymConditionsAlg<LArShape32MC, LArShape32Sym>/LArPileUpShapeSymCondAlg
+ApplicationMgr                                               0 SUCCESS                     CaloBCIDCoeffsCondAlg/CaloBCIDCoeffsCondAlg
+ApplicationMgr                                               0 SUCCESS                     CaloBCIDLumiCondAlg/CaloBCIDLumiCondAlg
+ApplicationMgr                                               0 SUCCESS                     CaloNoiseCondAlg/Calo_electronicNoiseAlg
+ApplicationMgr                                               0 SUCCESS                     CaloNoiseSigmaDiffCondAlg/CaloNoiseSigmaDiffCondAlg
+ApplicationMgr                                               0 SUCCESS           AthSequencer/AthEndSeq
+ApplicationMgr                                               0 SUCCESS                AthIncFirerAlg/EndIncFiringAlg
+ApplicationMgr                                               0 SUCCESS                IncidentProcAlg/IncidentProcAlg2
+ApplicationMgr                                               0 SUCCESS      AthSequencer/AthOutSeq
+ApplicationMgr                                               0 SUCCESS           EventInfoTagBuilder/EventInfoTagBuilder
+ApplicationMgr                                               0 SUCCESS           AthenaOutputStream/OutputStreamAOD
+ApplicationMgr                                               0 SUCCESS      AthIncFirerAlg/EndAlgorithmsFiringAlg
+ApplicationMgr                                               0 SUCCESS      IncidentProcAlg/IncidentProcAlg3
+ApplicationMgr                                               0 SUCCESS ******************************************************************************
+ApplicationMgr                                               0    INFO Application Manager Started successfully
+ApplicationMgr                                                    INFO Application Manager Stopped successfully
+ApplicationMgr                                                    INFO Application Manager Finalized successfully
+ApplicationMgr                                                    INFO Application Manager Terminated successfully

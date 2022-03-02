@@ -35,10 +35,12 @@ TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISv
   ,m_doRandom(true)
   ,m_allChains{}
   ,m_muonContainerKey("Muons")
+  ,m_collisionRun(true)
   ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty ("AllChains", m_allChains);
   declareProperty("MuonContainerName",m_muonContainerKey);
+  declareProperty("CollisionRun",m_collisionRun);
 }
 
 
@@ -48,7 +50,7 @@ TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
 StatusCode TrigBjetMonitorAlgorithm::initialize() {
   ATH_CHECK( m_muonContainerKey.initialize() );
 
-  ATH_CHECK( m_offlineVertexContainerKey.initialize() );
+  ATH_CHECK( m_offlineVertexContainerKey.initialize(m_collisionRun) );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineTrackContainerKey.initialize() );
 
@@ -74,28 +76,29 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   using namespace Monitored;
 
 
-  // Read off-line PV's  and fill histograms 
+  // Read off-line PV's  and fill histograms
+ 
+  if (m_collisionRun) {
+    auto OffNVtx = Monitored::Scalar<int>("Off_NVtx",0);
+    auto OffxVtx = Monitored::Scalar<float>("Off_xVtx",0.0);
+    auto OffyVtx = Monitored::Scalar<float>("Off_yVtx",0.0);
+    auto OffzVtx = Monitored::Scalar<float>("Off_zVtx",0.0);
 
-  auto OffNVtx = Monitored::Scalar<int>("Off_NVtx",0);
-  auto OffxVtx = Monitored::Scalar<float>("Off_xVtx",0.0);
-  auto OffyVtx = Monitored::Scalar<float>("Off_yVtx",0.0);
-  auto OffzVtx = Monitored::Scalar<float>("Off_zVtx",0.0);
-
-  SG::ReadHandle<xAOD::VertexContainer> offlinepv = SG::makeHandle( m_offlineVertexContainerKey, ctx );
-  if (! offlinepv.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_offlineVertexContainerKey);
-    return StatusCode::FAILURE;
+    SG::ReadHandle<xAOD::VertexContainer> offlinepv = SG::makeHandle( m_offlineVertexContainerKey, ctx );
+    if (! offlinepv.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_offlineVertexContainerKey);
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG(" Size of the Off-line PV container: " << offlinepv->size() );
+    OffNVtx = offlinepv->size() ;
+    for (unsigned int j = 0; j<offlinepv->size(); j++){
+      OffxVtx = (*(offlinepv))[j]->x();
+      OffyVtx = (*(offlinepv))[j]->y();
+      OffzVtx = (*(offlinepv))[j]->z();
+      fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
+    }
+    fill("TrigBjetMonitor",OffNVtx);
   }
-  ATH_MSG_DEBUG(" Size of the Off-line PV container: " << offlinepv->size() );
-  OffNVtx = offlinepv->size() ;
-  for (unsigned int j = 0; j<offlinepv->size(); j++){
-    OffxVtx = (*(offlinepv))[j]->x();
-    OffyVtx = (*(offlinepv))[j]->y();
-    OffzVtx = (*(offlinepv))[j]->z();
-    fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
-  }
-  fill("TrigBjetMonitor",OffNVtx);
-  
 
   // print the trigger chain names 
 
@@ -269,14 +272,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    btag->loglikelihoodratio("IP3D", wIP3D);
 	    ATH_MSG_DEBUG("        wIP3D: " << wIP3D);
 	    fill("TrigBjetMonitor",wIP3D);
-	    
-	    // Discriminants
-	    NameH = "wMV2c10_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto wMV2c10 = Monitored::Scalar<double>(NameH,0.0);
-	    btag->MVx_discriminant("MV2c10",wMV2c10);
-	    ATH_MSG_DEBUG("        wMV2c10: " << wMV2c10);
-	    fill("TrigBjetMonitor",wMV2c10);
 	    
 	    // SV1 variables (credit LZ)
 	    NameH = "xNVtx_tr_"+trigName;

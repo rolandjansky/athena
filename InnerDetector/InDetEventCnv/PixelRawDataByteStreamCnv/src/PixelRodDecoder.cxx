@@ -155,7 +155,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
   // @TODO find better solution for the error counter to avoid complex index computations and hard coded maximum size.
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
-  std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> bsErrWord;
+  std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> bsErrWord{};
   std::fill(bsErrWord.begin(),bsErrWord.end(),0);
   // Check ROD status
   if (robFrag->nstatus()!=0) {
@@ -259,6 +259,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         if (isIBLModule || isDBMModule) {   // get FE channel id for IBL
           linkNum_IBLheader = decodeModule_IBL(rawDataWord);
           chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
+          if (m_pixelReadout->getModuleType(m_pixel_id->wafer_id(offlineIdHash))==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
         }
         else {                              // for PIXEL
           chFE = decodeFE(rawDataWord);
@@ -879,6 +880,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           }
 
           int chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
+          if (m_pixelReadout->getModuleType(m_pixel_id->wafer_id(offlineIdHash))==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
+
           if (serviceCodeCounter>0 && serviceCode<32) {
             if (serviceCode!=14) {
               // Monitor service record for IBL (not DBM)

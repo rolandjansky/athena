@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  MuonNoSort.cxx
 //  TopoCore
@@ -37,11 +37,10 @@ TCS::MuonNoSort::sort(const InputTOBArray & input, TOBArray & output) {
 
    const MuonTOBArray & muons = dynamic_cast<const MuonTOBArray&>(input);
 
-   // fill output array with GenericTOB buildt from clusters
-   for(MuonTOBArray::const_iterator cl = muons.begin(); cl!= muons.end(); ++cl ) {
-      const GenericTOB gtob(**cl);
+   // fill output array with GenericTOB built from clusters
+   for(MuonTOBArray::const_iterator muon = muons.begin(); muon!= muons.end(); ++muon ) {
 
-      
+      const GenericTOB gtob(**muon);
       output.push_back( gtob );
    }
 

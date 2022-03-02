@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/LArDetectorManager.h"
@@ -29,7 +29,8 @@ LArDetectorManager::LArDetectorManager (const EMBDetectorManager* emb
 
 LArDetectorManager::~LArDetectorManager()
 {
-  for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
+  unsigned int ntree = LArDetectorManager::getNumTreeTops();
+  for (unsigned int i=0;i<ntree;i++) LArDetectorManager::getTreeTop(i)->unref();
 }
 
 PVConstLink LArDetectorManager::getTreeTop (unsigned int i) const

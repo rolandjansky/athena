@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -24,7 +24,7 @@ LArRodBlockTransparentV0<DSPHEADER>::LArRodBlockTransparentV0() : LArRodBlockStr
   //Fill array of offset to enable for-loops
   m_BlkOffset=DSPHEADER::RawDataBlkOffset; //RawDataOffset
   m_fixedGain=CaloGain::LARNGAIN;
-  resetPointers();
+  LArRodBlockTransparentV0::resetPointers();
 }
 
 // clear temporary block vectors 

@@ -3,7 +3,6 @@
 */
 
 #include "GeneratorFilters/xAODMultiMuonFilter.h"
-#include "EventInfo/EventStreamInfo.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"

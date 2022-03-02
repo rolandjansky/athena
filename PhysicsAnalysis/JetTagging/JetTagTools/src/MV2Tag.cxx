@@ -29,7 +29,6 @@
 #include <list>
 #include <math.h>       /* hypot */
 
-#include "xAODBTagging/ftagfloat_t.h"
 
 using Athena::Units::GeV;
 
@@ -174,12 +173,12 @@ namespace Analysis {
 
       if (m_taggerNameBase.find("MV2c")!=std::string::npos) {
         //MV2cXX
-        BTag->setVariable<ftagfloat_t>(m_xAODBaseName, "discriminant", mv2);
+        BTag->setVariable<float>(m_xAODBaseName, "discriminant", mv2);
       }else {
         //MV2m
-        BTag->setVariable<ftagfloat_t>(m_xAODBaseName, "pb", mv2m_pb);
-        BTag->setVariable<ftagfloat_t>(m_xAODBaseName, "pu", mv2m_pu);
-        BTag->setVariable<ftagfloat_t>(m_xAODBaseName, "pc", mv2m_pc);
+        BTag->setVariable<float>(m_xAODBaseName, "pb", mv2m_pb);
+        BTag->setVariable<float>(m_xAODBaseName, "pu", mv2m_pu);
+        BTag->setVariable<float>(m_xAODBaseName, "pc", mv2m_pc);
       }
     }
 

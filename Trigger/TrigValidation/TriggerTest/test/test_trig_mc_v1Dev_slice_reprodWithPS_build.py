@@ -100,7 +100,7 @@ def generate_config_steps():
     ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
     ex.input = 'ttbar'
     ex.threads = 1
-    ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=False;doWriteRDOTrigger=False;"'
+    ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doWriteBS=False;doWriteRDOTrigger=False;"'
     ex.perfmon = False
     # Make a copy of the default prescales file
     copy_ps = CopyStep('CopyPrescales.Default', 'HLTPrescalesSet*.json', 'prescales_Default.json')

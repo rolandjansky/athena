@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  jJetSelect.cxx
 //  TopoCore
@@ -24,7 +24,6 @@ TCS::jJetSelect::jJetSelect(const std::string & name) :
    defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 31);
-   defineParameter( "DoEtaCut", 1);
 }
 
 
@@ -37,7 +36,6 @@ TCS::jJetSelect::initialize() {
    m_et = parameter("MinET").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doEtaCut = parameter("DoEtaCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -53,8 +51,8 @@ TCS::jJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
   for(jJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
     unsigned int Et = parType_t((*jet)->Et()); 
     if( Et <= m_et ) continue; // ET cut
-    if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) < m_minEta)) continue; 
-    if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) > m_maxEta)) continue;      	
+    if ( parType_t(std::abs((*jet)-> eta())) < m_minEta ) continue; 
+    if ( parType_t(std::abs((*jet)-> eta())) > m_maxEta ) continue;      	
 
     output.push_back( GenericTOB(**jet) );
   }

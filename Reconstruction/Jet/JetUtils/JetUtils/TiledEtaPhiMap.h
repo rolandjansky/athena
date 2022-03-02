@@ -29,10 +29,10 @@
 namespace JetTiledMap {
 
   struct utils {
-    static double DR2(double eta1, double phi1, double eta2,double phi2) {
+    static constexpr double DR2(double eta1, double phi1, double eta2,double phi2) {
       double deta = eta1 - eta2;
-      static double pi = std::acos(-1.0);
-      static double twopi = 2.0*pi;
+      constexpr double pi = M_PI;
+      constexpr double twopi = 2.0*pi;
       double dphi = phi1 - phi2;
       while ( dphi > pi ) dphi -= twopi;
       while ( dphi <= -pi ) dphi += twopi;

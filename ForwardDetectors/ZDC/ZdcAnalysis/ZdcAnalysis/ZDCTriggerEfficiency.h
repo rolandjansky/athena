@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCTRIGGEREFFICIENCY_H
@@ -10,90 +10,81 @@
 #include <vector>
 #include <array>
 #include <algorithm>
-class ZDCTriggerEfficiency{
-  public:
-	bool _haveParams;
-  bool _haveCorrCoeffs;
 
-  unsigned int _minLB;
-  unsigned int _maxLB;
+class MsgStream;
 
-  unsigned int _currentLB;
+class ZDCTriggerEfficiency {
+private:
+  bool m_haveParams;
+  bool m_haveCorrCoeffs;
 
-  std::array<std::vector<TSpline3*>, 2> _effParams;
-  std::array<std::vector<TSpline3*>, 2> _effParamErrors;
-  std::array<std::vector<TSpline3*>, 2> _effParamCorrCoeffs;
+  unsigned int m_minLB;
+  unsigned int m_maxLB;
 
-  std::array<std::vector<double>, 2> _currentParams;
-  std::array<std::vector<double>, 2> _currentParamErrors;
-  std::array<std::vector<double>, 2> _currentCorrCoefff;
+  unsigned int m_currentLB;
 
-	void UpdatelumiBlock(unsigned int lumiBlock) 
-	{
-		if (!_haveParams) throw;
+  std::array<std::vector<TSpline3*>, 2> m_effParams;
+  std::array<std::vector<TSpline3*>, 2> m_effParamErrors;
+  std::array<std::vector<TSpline3*>, 2> m_effParamCorrCoeffs;
 
-		if (lumiBlock != _currentLB) {
-			int newLB = std::max(std::min(lumiBlock, _maxLB), _minLB);
-			for (int side : {0, 1}) { 
-				_currentParams[side].clear();
-				_currentParamErrors[side].clear();
-				_currentCorrCoefff[side].clear();
-
-				for (size_t ipar = 0; ipar < _effParams[side].size(); ipar++) {
-					_currentParams[side].push_back(_effParams[side][ipar]->Eval(newLB));
-					_currentParamErrors[side].push_back(_effParamErrors[side][ipar]->Eval(newLB));
-
-					if (_haveCorrCoeffs) {
-						_currentCorrCoefff[side].push_back(_effParamCorrCoeffs[side][ipar]->Eval(newLB));
-					}
-				}
-				_currentLB = lumiBlock;
-			}
-		}
-	}
+  std::array<std::vector<double>, 2> m_currentParams;
+  std::array<std::vector<double>, 2> m_currentParamErrors;
+  std::array<std::vector<double>, 2> m_currentCorrCoefff;
 
 public:
- ZDCTriggerEfficiency() : // in order, alpha-beta, alpha-theta, beta-theta
-  _haveParams(false), _haveCorrCoeffs(false),
-    _minLB(0), _maxLB(0), _currentLB(0)
-    {
-      
-	}
-
-  void SetEffParamsAndErrors(std::array<std::vector<TSpline3*>, 2> effParams, 
-			     std::array<std::vector<TSpline3*>, 2> effParamErrors)
+  void UpdatelumiBlock(unsigned int lumiBlock)
   {
-    for (int side : {0, 1}) { 
-      _effParams[side] = effParams[side];
-      _effParamErrors[side] = effParamErrors[side];
-      for (int iarr=0;iarr<3;iarr++)
-	{
-	  _effParams[side].at(iarr)->Print();
-	  _effParamErrors[side].at(iarr)->Print();
-	}
-    }
+    if (!m_haveParams) throw std::runtime_error("No params for trigger efficiency.");
 
-    _minLB = _effParams[0][0]->GetXmin();
-    _maxLB = _effParams[0][0]->GetXmax();
-    _haveParams = true;
+    if (lumiBlock != m_currentLB) {
+      int newLB = std::max(std::min(lumiBlock, m_maxLB), m_minLB);
+      for (int side : {0, 1}) {
+        m_currentParams[side].clear();
+        m_currentParamErrors[side].clear();
+        m_currentCorrCoefff[side].clear();
+
+        for (size_t ipar = 0; ipar < m_effParams[side].size(); ipar++) {
+          m_currentParams[side].push_back(m_effParams[side][ipar]->Eval(newLB));
+          m_currentParamErrors[side].push_back(m_effParamErrors[side][ipar]->Eval(newLB));
+
+          if (m_haveCorrCoeffs) {
+            m_currentCorrCoefff[side].push_back(m_effParamCorrCoeffs[side][ipar]->Eval(newLB));
+          }
+        }
+        m_currentLB = lumiBlock;
+      }
+    }
   }
 
-  void SetEffParamCorrCoeffs(std::array<std::vector<TSpline3*>, 2> effParamsCorrCoeffs) 
-  {
-    for (int side : {0, 1}) { 
-      _effParamCorrCoeffs[side] = effParamsCorrCoeffs[side];
-      for (int iarr=0;iarr<3;iarr++)
-	{
-	  _effParamCorrCoeffs[side].at(iarr)->Print();
-	}
-    }
+  ZDCTriggerEfficiency() : // in order, alpha-beta, alpha-theta, beta-theta
+    m_haveParams(false), m_haveCorrCoeffs(false),
+    m_minLB(0), m_maxLB(0), m_currentLB(0) {
 
-    _haveCorrCoeffs = true;
   }
 
-  float GetEfficiency(int side, float ADCSum);
+  void SetEffParamsAndErrors(std::array<std::vector<TSpline3*>, 2> effParams,
+                             std::array<std::vector<TSpline3*>, 2> effParamErrors) {
+    for (int side : {0, 1}) {
+      m_effParams[side] = effParams[side];
+      m_effParamErrors[side] = effParamErrors[side];
+    }
 
-  std::pair<float, float> GetEfficiencyAndError(int side, float ADCSum);
+    m_minLB = m_effParams[0][0]->GetXmin();
+    m_maxLB = m_effParams[0][0]->GetXmax();
+    m_haveParams = true;
+  }
+
+  void SetEffParamCorrCoeffs(std::array<std::vector<TSpline3*>, 2> effParamsCorrCoeffs) {
+    for (int side : {0, 1}) {
+      m_effParamCorrCoeffs[side] = effParamsCorrCoeffs[side];
+    }
+
+    m_haveCorrCoeffs = true;
+  }
+
+  double GetEfficiency(int side, float ADCSum);
+
+  std::pair<double, double> GetEfficiencyAndError(MsgStream& msg, int side, float ADCSum);
 
 };
 

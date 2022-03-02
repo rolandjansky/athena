@@ -11,7 +11,7 @@ void AGDDBolt::CreateSolid (const AGDDBuilder& builder)
 	builder.CreateBolt(this);
 }
 
-void AGDDBolt::CreateVolume (const AGDDBuilder& builder)
+void AGDDBolt::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

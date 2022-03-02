@@ -76,17 +76,38 @@ findCentralCell(const xAOD::CaloCluster* cluster, Identifier& cellCentrId)
   }
   return thereIsACentrCell;
 }
-
+bool
+isCore(const Identifier Id,
+       const std::vector<IdentifierHash>& neighbourList,
+       const CaloCell_ID* calocellId)
+{
+  const IdentifierHash hashId = calocellId->calo_cell_hash(Id);
+  std::vector<IdentifierHash>::const_iterator it =
+    std::find(neighbourList.begin(), neighbourList.end(), hashId);
+  return (it != neighbourList.end());
 }
+
+std::vector<IdentifierHash>
+findNeighbours(const Identifier cellCentrId,
+               const LArEM_ID* emHelper,
+               const CaloCell_ID* calocellId)
+{
+  std::vector<IdentifierHash> neighbourList;
+  const IdentifierHash hashId = calocellId->calo_cell_hash(cellCentrId);
+  emHelper->get_neighbours(hashId, LArNeighbours::all2D, neighbourList);
+  return neighbourList;
+}
+
+}//end anonymous namespace
 
 egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent)
   : AthAlgTool(type, name, parent)
   , m_emHelper(nullptr)
+  , m_calocellId(nullptr)
 {
   declareInterface<IegammaOQFlagsBuilder>(this);
-  m_calocellId = nullptr;
 }
 
 egammaOQFlagsBuilder::~egammaOQFlagsBuilder() = default;
@@ -124,26 +145,6 @@ StatusCode
 egammaOQFlagsBuilder::finalize()
 {
   return StatusCode::SUCCESS;
-}
-
-bool
-egammaOQFlagsBuilder::isCore(
-  const Identifier Id,
-  const std::vector<IdentifierHash>& neighbourList) const
-{
-  const IdentifierHash hashId = m_calocellId->calo_cell_hash(Id);
-  std::vector<IdentifierHash>::const_iterator it =
-    std::find(neighbourList.begin(), neighbourList.end(), hashId);
-  return (it != neighbourList.end());
-}
-
-std::vector<IdentifierHash>
-egammaOQFlagsBuilder::findNeighbours(const Identifier cellCentrId) const
-{
-  std::vector<IdentifierHash> neighbourList;
-  const IdentifierHash hashId = m_calocellId->calo_cell_hash(cellCentrId);
-  m_emHelper->get_neighbours(hashId, LArNeighbours::all2D, neighbourList);
-  return neighbourList;
 }
 
 StatusCode
@@ -200,7 +201,8 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   bool foundCentralCell = findCentralCell(cluster, cellCentrId);
   if (foundCentralCell) {
     // Find the list of neighbours cells, to define the 3x3 cluster core
-    std::vector<IdentifierHash> neighbourList = findNeighbours(cellCentrId);
+    std::vector<IdentifierHash> neighbourList =
+      findNeighbours(cellCentrId, m_emHelper, m_calocellId);
     // Get Bad-channel info for this event
     SG::ReadCondHandle<LArBadChannelCont> larBadChanHdl{ m_bcContKey, ctx };
     const LArBadChannelCont* larBadChanCont = *larBadChanHdl;
@@ -245,7 +247,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
           badE += cell->e();
         }
       }
-      const bool isACoreCell = isCore(cell->ID(), neighbourList);
+      const bool isACoreCell = isCore(cell->ID(), neighbourList, m_calocellId);
 
       bool isStripCoreCell = false;
       if ((layer == CaloSampling::EMB1 || layer == CaloSampling::EME1) &&

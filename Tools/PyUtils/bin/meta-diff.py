@@ -44,6 +44,20 @@ def main():
         action="store_true",
         help="When comparing lists, check the element order too.",
     )
+    
+    parser.add_argument(
+        "-r",
+        "--regex",
+        action="store_true",
+        help="Allows filtering by regex instead of by plain string",
+    )
+    
+    parser.add_argument(
+        "-k",
+        "--key-only",
+        action="store_true",
+        help="Show only the keys and not the difference",
+    )
 
     parser.add_argument(
         "-d",
@@ -51,13 +65,13 @@ def main():
         nargs="*",
         default=None,
         metavar="KEY",
-        help="Keys to drop from metadata retrieved from file",
+        help="Keys to drop from metadata retrieved from file. Separe nested dictionary keys using '.'. An '*' matches any key.",
     )
 
     parser.add_argument(
         "-m",
         "--mode",
-        default="lite",
+        default="full",
         metavar="MODE",
         type=str,
         choices=["tiny", "lite", "full", "peeker"],
@@ -111,24 +125,30 @@ def main():
 
     args = parser.parse_args()
 
-    try:
-        diff = meta_diff(
-            args.files,
-            verbose=args.verbose,
-            ordered=args.ordered,
-            drop=args.drop,
-            mode=args.mode,
-            meta_key_filter=args.filter,
-            file_type=args.type,
-            promote=args.promote,
-            diff_format=args.diff_format,
-        )
-    except (ValueError, IndexError):
+    if len(args.files) != 2:
         print("you must supply two files to compare")
         sys.exit(1)
-    except ReferenceError:
-        print("no such file")
-        sys.exit(1)
+      
+    for file_name in args.files:
+        if not os.path.exists(file_name):
+            print("File does not exists: {}".format(file_name))
+            sys.exit(1)
+
+    
+    diff = meta_diff(
+        args.files,
+        verbose=args.verbose,
+        ordered=args.ordered,
+        drop=args.drop,
+        mode=args.mode,
+        meta_key_filter=args.filter,
+        file_type=args.type,
+        promote=args.promote,
+        diff_format=args.diff_format,
+        regex=args.regex,
+        key_only=args.key_only,
+    )
+
 
     if diff:
         print("\n".join(diff))

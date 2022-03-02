@@ -766,8 +766,14 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                    << " ipeakMin=" << ipeakMin
                    << " fixedTime=" << ((fixedTime) ? "true" : "false") );
 
-  std::vector<double> *tpulse = &m_dummy, *ypulse = &m_dummy, *tdpulse = &m_dummy, *dpulse = &m_dummy;
-  std::vector<double> *tleak = &m_dummy, *yleak = &m_dummy, *tdleak = &m_dummy, *dleak = &m_dummy;
+  const std::vector<double>* tpulse = &m_dummy;
+  const std::vector<double>* ypulse = &m_dummy;
+  const std::vector<double>* tdpulse = &m_dummy;
+  const std::vector<double>* dpulse = &m_dummy;
+  const std::vector<double>* tleak = &m_dummy;
+  const std::vector<double>* yleak = &m_dummy;
+  const std::vector<double>* tdleak = &m_dummy;
+  const std::vector<double>* dleak = &m_dummy;
   
   if (m_idocis && ((m_cischan == -1) || (channel == m_cischan))) { // CIS pulse
     if (igain == 0) { // low gain

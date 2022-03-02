@@ -3,12 +3,14 @@
 from .CTP import CTP
 from .Items import MenuItemsCollection
 from .Thresholds import MenuThresholdsCollection
-from .TopoAlgorithms import MenuTopoAlgorithmsCollection
+from .TopoAlgorithms import MenuTopoAlgorithmsCollection, AlgType, AlgCategory
 from .Boards import MenuBoardsCollection
 from .Connectors import MenuConnectorsCollection, CType
 from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
+from .ThresholdType import ThrType
+from ..Config.TypeWideThresholdConfig import getTypeWideThresholdConfig
 
 from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
@@ -168,14 +170,23 @@ class L1Menu(object):
                      raise RuntimeError("Algorithm %s in board %s with input %s not allowed" % (algo.name, boardName, algoInput ))
 
 
+    def checkCTPINconnectors(self):
+        for conn in self.connectors:
+            if conn.ctype == CType.CTPIN:
+               if len(conn.triggerLines)>31:
+                   raise RuntimeError("Too many CTP inputs in %s: %i but a max of 31 are allowed" %(conn.name,len(conn.triggerLines)))
+
     def checkCountCTPInputsOutput(self):
         from collections import namedtuple
         ctpInput = namedtuple('ctpInput',"name, conn, nbit")
         ctpInputs = []
+        ctpUnusedInputs = []
         ctpOutputs = []
         thrNames = [] 
         ctpInputBitSets = dict()
         ctpInputNameSets = dict()
+        ctpUnusedInputBitSets = dict()
+        ctpUnusedInputNameSets = dict()
         for item in self.items:
             ctpOutputs.append(item.name)
             for thrName in item.thresholdNames():
@@ -183,20 +194,54 @@ class L1Menu(object):
                     thrName = thrName[3:]
                 if thrName not in thrNames:
                     thrNames.append(thrName)
+        thrNames_notFound = []
         for thrName in thrNames:
+            thrName_found = False
             for conn in self.connectors:
                 if conn.ctype != CType.ELEC:
                     for tl in conn.triggerLines:
                         if thrName == tl.name:
                             ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                            thrName_found = True
                 else:
                      for fpga in conn.triggerLines:
                         for clock in conn.triggerLines[fpga]:
                             for tl in conn.triggerLines[fpga][clock]:
                                 if thrName == tl.name:
                                     ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                                    thrName_found = True
+            if not thrName_found:
+                thrNames_notFound.append(thrName)
 
-        if len(thrNames) != len(ctpInputs):
+        for conn in self.connectors:
+            if conn.ctype != CType.ELEC:
+                for tl in conn.triggerLines:
+                    thrName = tl.name
+                    if thrName[:3]=='ZB_':
+                        thrName = thrName[3:]
+                    usedInput = False
+                    for ctpIn in ctpInputs:
+                       if thrName == ctpIn.name:
+                           usedInput = True
+                    if not usedInput:
+                       ctpUnusedInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+            else:
+                for fpga in conn.triggerLines:
+                    for clock in conn.triggerLines[fpga]:
+                        for tl in conn.triggerLines[fpga][clock]:
+                           thrName = tl.name
+                           if thrName[:3]=='ZB_':
+                               thrName = thrName[3:]
+                           usedInput = False
+                           for ctpIn in ctpInputs:
+                              if thrName == ctpIn.name:
+                                  usedInput = True
+                           if not usedInput:
+                              ctpUnusedInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+
+        if len(thrNames_notFound)>0:
+            log.error("Thresholds [%s] are not found", ",".join(thrNames_notFound)) 
+            log.error("Input thresholds are [%s]", ",".join([ input.name for input in ctpInputs]))
             raise RuntimeError("Not all input thresholds found!")
 
         for ctpIn in ctpInputs:
@@ -227,20 +272,137 @@ class L1Menu(object):
                 ctpInputNameSets[thrset].append(thrName)
                 ctpInputBitSets[thrset] += ctpIn.nbit
 
+        for ctpIn in ctpUnusedInputs:
+            thrset = None
+            thrName = ctpIn.name
+            if thrName[:2] in ['EM','HA','XE','TE','XS']:
+                thrset = 'legacyCalo'
+            elif thrName[:1]=='J':
+                thrset = 'legacyCalo'
+            elif thrName[:2]=='MU':
+                thrset = 'muon'
+            elif thrName[:3] in ['ALF', 'MBT','AFP','BCM','CAL','NIM','ZDC','BPT','LUC']:
+                thrset = 'detector'
+            elif thrName[:6]=='R2TOPO':
+                thrset = 'legacyTopo'
+            elif thrName[:1] in ['e','j','c','g']:
+                thrset = 'topo1'
+            elif thrName[:4]=='TOPO':
+                if 'Topo2' in ctpIn.conn:
+                    thrset = 'topo2'
+                elif 'Topo3' in ctpIn.conn:
+                    thrset = 'topo3'
+
+            if thrset not in ctpUnusedInputBitSets:
+                ctpUnusedInputBitSets[thrset] = 0
+                ctpUnusedInputNameSets[thrset] = []
+            if thrName not in ctpUnusedInputNameSets[thrset]:
+                ctpUnusedInputNameSets[thrset].append(thrName)
+                ctpUnusedInputBitSets[thrset] += ctpIn.nbit
+
         totalInputs = 0
         log.info("Check total number of CTP input and output bits:")
         log.info("Number of output bits: %i", len(ctpOutputs) )
         for thrset in ctpInputBitSets:
-            log.info("%s: %i thresholds and %i  bits", thrset, len(ctpInputNameSets[thrset]), ctpInputBitSets[thrset]  )
+            log.info("Used inputs in %s: %i thresholds and %i  bits", thrset, len(ctpInputNameSets[thrset]), ctpInputBitSets[thrset]  )
             if thrset is not None:
                 log.debug("Threshold set %s: %s", thrset, ",".join(ctpInputNameSets[thrset]) )
             else:
                 log.info("Unrecognised CTP input bits: %s", ",".join(ctpInputNameSets[thrset]) )
             totalInputs += ctpInputBitSets[thrset]
-        log.info("Number of inputs bits: %i" , totalInputs )
+        log.info("Number of used inputs bits: %i" , totalInputs )
+        totalUnusedInputs = 0
+        for thrset in ctpUnusedInputBitSets:
+            log.debug("Unused thresholds in %s: %i thresholds and %i  bits", thrset, len(ctpUnusedInputNameSets[thrset]), ctpUnusedInputBitSets[thrset]  )
+            if thrset is not None:
+                log.debug("Unused threshold set %s: %s", thrset, ",".join(ctpUnusedInputNameSets[thrset]) )
+            else:
+                log.debug("Unrecognised CTP input bits: %s", ",".join(ctpUnusedInputNameSets[thrset]) )
+            totalUnusedInputs += ctpUnusedInputBitSets[thrset]
+        log.debug("Number of un-used inputs bits: %i" , totalUnusedInputs )
 
         # Fail menu generation for menus going to P1:
-        if ( totalInputs > 512 or len(ctpOutputs) > 512 ):
-            if L1MenuFlags.ApplyCTPLimits():
-                raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than 512 in a physics menu!")
+        if ( totalInputs > Limits.MaxTrigItems or len(ctpOutputs) > Limits.MaxTrigItems ):
+            raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than %i in a physics menu!" % Limits.MaxTrigItems)
+
+    # Avoid that L1 item is defined only for BGRP0 as this include also the CALREQ BGRP2 (ATR-24781)
+    def checkBGRP(self):
+        for item in self.items:
+            if len(item.bunchGroups)==1 and item.bunchGroups[0]=='BGRP0':
+               raise RuntimeError("L1 item %s is defined with only BGRP0, ie it can trigger also in the CALREQ BGRP2 bunches. Please add another bunch group (ATR-24781)" % item.name) 
+
+
+    def checkPtMinToTopo(self):
+        # check that the ptMinToTopo for all types of thresholds is lower than the minimum Et cuts applied in multiplicity and decision algorithms
+
+        # collect the ptMinToTopo values
+        ptMin = {}
+        for thrtype in ThrType.Run3Types():
+            ttconfig = getTypeWideThresholdConfig(thrtype)
+            inputtype = thrtype.name
+            if inputtype == 'cTAU':
+                inputtype = 'eTAU'
+            for key, value in ttconfig.items():
+                if "ptMinToTopo" in key:
+                    if inputtype in ptMin:
+                        if ptMin[inputtype] > value:
+                             ptMin[inputtype] = value
+                    else: 
+                        ptMin[inputtype] = value
+
+        # loop over multiplicity algorithms and get the min et values
+        thresholdMin = {}
+        for algo in self.topoAlgos.topoAlgos[AlgCategory.MULTI][AlgType.MULT]:
+             alg = self.topoAlgos.topoAlgos[AlgCategory.MULTI][AlgType.MULT][algo]
+             threshold = alg.threshold
+             inputtype = alg.input
+             if 'cTAU' in inputtype:
+                 inputtype = 'eTAU'
+             elif any(substring in inputtype for substring in ['XE','TE','MHT']):
+                 continue
+             thr = self.thresholds.thresholds[threshold]
+             minEt = 99999 
+             if hasattr(thr, 'thresholdValues'):
+                 etvalues = thr.thresholdValues
+                 for etvalue in etvalues:
+                     et = etvalue.value
+                     if et < minEt:
+                         minEt = et
+             if hasattr(thr, 'et'):
+                 if thr.et < minEt:
+                     minEt = thr.et
+             if inputtype in thresholdMin:
+                 if minEt < thresholdMin[inputtype]:
+                     thresholdMin[inputtype] = minEt
+             else:
+                 thresholdMin[inputtype] = minEt
+
+        # loop over sorting algorithms and get the min et values
+        for algo in self.topoAlgos.topoAlgos[AlgCategory.TOPO][AlgType.SORT]:
+             alg = self.topoAlgos.topoAlgos[AlgCategory.TOPO][AlgType.SORT][algo]
+             if alg.inputvalue == 'MuonTobs':
+                 continue
+             for (pos, variable) in enumerate(alg.variables): 
+                 if variable.name == "MinET":
+                     value = variable.value/10 # convert energies from 100MeV to GeV units
+                     inputtype = ''
+                     if alg.inputvalue == 'eEmTobs':
+                         inputtype = 'eEM'
+                     elif alg.inputvalue == 'eTauTobs':
+                         inputtype = 'eTAU'
+                     elif alg.inputvalue == 'jJetTobs':
+                         inputtype = 'jJ'
+                     else:
+                         raise RuntimeError("checkPtMinToTopo: input type %s in sorting algo not recognised" % alg.inputvalue)
+                     if inputtype in thresholdMin:
+                         if value < thresholdMin[inputtype]:
+                              thresholdMin[inputtype] = value
+                     else:
+                         thresholdMin[inputtype] = value      
+        for thr in thresholdMin:
+            if thr in ptMin:
+                 if thresholdMin[thr] < ptMin[thr]:
+                     raise RuntimeError("checkPtMinToTopo: for threshold type %s the minimum threshold %i is less than ptMinToTopo %i" % (thr, thresholdMin[thr], ptMin[thr]))
+            else:
+                 raise RuntimeError("checkPtMinToTopo: for threshold type %s the minimum threshold is %i and no ptMinToTopo value is found" % (thr, thresholdMin[thr]))  
 

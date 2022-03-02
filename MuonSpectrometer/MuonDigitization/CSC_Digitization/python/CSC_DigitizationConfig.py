@@ -31,6 +31,10 @@ def getCscDigitizationToolBase(name, **kwargs):
         # This should match the range for the CSC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", CSC_FirstXing() ) 
         kwargs.setdefault("LastXing",  CSC_LastXing() ) 
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     kwargs.setdefault("pedestal", 0.0) 	 
     kwargs.setdefault("WindowLowerOffset", -25.0) #-50.0,	 

@@ -389,17 +389,17 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
     ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
 
-    for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+    for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
       TrigL2MuonSA::MdtHits mdt_normal;
-      for(int i_hit = 0; i_hit < (int)mdtHits_normal.size(); i_hit++){
+      for(unsigned int i_hit = 0; i_hit < mdtHits_normal.size(); i_hit++){
         unsigned int chamber = mdtHits_normal[i_hit].Chamber;
 
         if (chamber >= xAOD::L2MuonParameters::MaxChamber) continue;
         double Z = mdtHits_normal[i_hit].Z;
         double R = mdtHits_normal[i_hit].R;
         double residual = 999999;
-        int clusterRoadID = 9999;
-        for(int j_road = 0; j_road < (int)clusterRoad.size(); j_road++){
+        unsigned int clusterRoadID = 9999;
+        for(unsigned int j_road = 0; j_road < clusterRoad.size(); j_road++){
           double aw = clusterRoad.at(j_road).aw[chamber][0];
           double bw = clusterRoad.at(j_road).bw[chamber][0];
           double tmp_residual;
@@ -506,17 +506,17 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
     ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
     ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
 
-    for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+    for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
       TrigL2MuonSA::MdtHits mdt_normal;
-      for(int i_hit = 0; i_hit < (int)mdtHits_normal.size(); i_hit++){
+      for(unsigned int i_hit = 0; i_hit < mdtHits_normal.size(); i_hit++){
         unsigned int chamber = mdtHits_normal[i_hit].Chamber;
 
         if (chamber >= xAOD::L2MuonParameters::MaxChamber) continue;
         double Z = mdtHits_normal[i_hit].Z;
         double R = mdtHits_normal[i_hit].R;
         double residual = 999999;
-        int clusterRoadID = 9999;
-        for(int j_road = 0; j_road < (int)clusterRoad.size(); j_road++){
+        unsigned int clusterRoadID = 9999;
+        for(unsigned int j_road = 0; j_road < clusterRoad.size(); j_road++){
           double aw = clusterRoad.at(j_road).aw[chamber][0];
           double bw = clusterRoad.at(j_road).bw[chamber][0];
           double tmp_residual;

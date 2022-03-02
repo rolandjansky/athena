@@ -73,11 +73,10 @@ genSeq.Pythia8.Commands += ["SoftQCD:inelastic = on"]
 genSeq.Pythia8.CollisionEnergy=13000. # how to set this automatically?
 
 from EvgenProdTools.EvgenProdToolsConf import FixHepMC
-genSeq+=FixHepMC(McEventKey=gen_pu,McEventsR=gen_pu,McEventsRW=gen_pu,OutputLevel=INFO)
+genSeq+=FixHepMC(McEventKey=gen_pu,McEventsR=gen_pu,OutputLevel=INFO)
 
 genSeq.Pythia8.McEventKey=gen_pu
 genSeq.Pythia8.McEventsR=gen_pu
-genSeq.Pythia8.McEventsRW=gen_pu
 # genSeq.Pythia8.OutputLevel=DEBUG
 
 genSeq.Pythia8.NCollPerEvent=-1

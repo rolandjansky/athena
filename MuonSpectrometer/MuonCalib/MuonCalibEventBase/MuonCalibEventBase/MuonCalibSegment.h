@@ -152,17 +152,17 @@ namespace MuonCalib {
         void addCloseHit(TgcCalibHitBase* hit);    //!< add the tgc hit to the set nearby the segment
 
         //!< Version using the smart pointers
-        void addHitOnTrack(MdtHitPtr hit);  //!< add the MdtCalibHitBase to the set assigned to the segment
-        void addCloseHit(MdtHitPtr hit);    //!< add the mdt hit to the set nearby the segment
+        void addHitOnTrack(const MdtHitPtr& hit);  //!< add the MdtCalibHitBase to the set assigned to the segment
+        void addCloseHit(const MdtHitPtr& hit);    //!< add the mdt hit to the set nearby the segment
 
-        void addHitOnTrack(CscHitPtr hit);  //!< add the CscCalibHitBase to the set assigned to the segment
-        void addCloseHit(CscHitPtr hit);    //!< add the csc hit to the set nearby the segment
+        void addHitOnTrack(const CscHitPtr& hit);  //!< add the CscCalibHitBase to the set assigned to the segment
+        void addCloseHit(const CscHitPtr& hit);    //!< add the csc hit to the set nearby the segment
 
-        void addHitOnTrack(RpcHitPtr hit);  //!< add the CscCalibHitBase to the set assigned to the segment
-        void addCloseHit(RpcHitPtr hit);    //!< add the csc hit to the set nearby the segment
+        void addHitOnTrack(const RpcHitPtr& hit);  //!< add the CscCalibHitBase to the set assigned to the segment
+        void addCloseHit(const RpcHitPtr& hit);    //!< add the csc hit to the set nearby the segment
 
-        void addHitOnTrack(TgcHitPtr hit);  //!< add the TgcCalibHitBase to the set assigned to the segment
-        void addCloseHit(TgcHitPtr hit);    //!< add the tgc hit to the set nearby the segment
+        void addHitOnTrack(const TgcHitPtr& hit);  //!< add the TgcCalibHitBase to the set assigned to the segment
+        void addCloseHit(const TgcHitPtr& hit);    //!< add the tgc hit to the set nearby the segment
 
         void refineMdtSelection(const std::vector<unsigned int>& new_selection);  //!< move trck hits to close hits
         std::ostream& dump(std::ostream& stream) const;

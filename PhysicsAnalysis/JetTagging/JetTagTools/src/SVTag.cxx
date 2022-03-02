@@ -22,7 +22,6 @@
 #include <string>
 
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
-#include "xAODBTagging/ftagfloat_t.h"
  
 namespace Analysis
 {
@@ -453,9 +452,9 @@ namespace Analysis
 	}
 
   if (m_save_probabilities) {
-	BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pb", probi[0]);
-	BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pu", probi[1]);
-	if (m_useCHypo) BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pc", probi[2]);
+	BTag.setVariable<float>(m_xAODBaseName, "pb", probi[0]);
+	BTag.setVariable<float>(m_xAODBaseName, "pu", probi[1]);
+	if (m_useCHypo) BTag.setVariable<float>(m_xAODBaseName, "pc", probi[2]);
   }
  	
       }
@@ -463,9 +462,9 @@ namespace Analysis
       /* For SV0, put the signed 3D Lxy significance: */
     } else {
       ATH_MSG_VERBOSE("#BTAG# SV0 Lxy3D significance = " << distnrm);
-      BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pb", exp(distnrm));
-      BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pu", 1);
-      if (m_useCHypo) BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pc", 1);
+      BTag.setVariable<float>(m_xAODBaseName, "pb", exp(distnrm));
+      BTag.setVariable<float>(m_xAODBaseName, "pu", 1);
+      if (m_useCHypo) BTag.setVariable<float>(m_xAODBaseName, "pc", 1);
     }
 
     ATH_MSG_VERBOSE("#BTAG# SVTag Finalizing... ");
@@ -539,7 +538,7 @@ namespace Analysis
     meanCovariance.setZero();
     sumWeights.computeInverseWithCheck(meanCovariance, invertible); 
     if (! invertible) { 
-       ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices"); 
+       ATH_MSG_WARNING("#BTAG# Could not invert sum of sec vtx matrices");
     return 0.; 
     } 
 

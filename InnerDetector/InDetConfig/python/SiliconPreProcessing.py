@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 def InDetSiElementPropertiesTableCondAlgCfg(flags, name="InDetSiElementPropertiesTableCondAlg", **kwargs):
     # For SCT DetectorElementCollection used
@@ -17,7 +18,7 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     # --- SiSpacePointMakerTool (public)
     #
 
-    if flags.Beam.Type == "cosmics" or flags.InDet.doBeamHalo:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault("StripLengthTolerance", 0.05)
         kwargs.setdefault("UsePerpendicularProjection", True)
     
@@ -34,6 +35,9 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     acc = SCT_ReadoutGeometryCfg(flags)
 
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(flags))
+
     InDetSiSpacePointMakerTool = acc.popToolsAndMerge(SiSpacePointMakerToolCfg(flags))
 
     kwargs.setdefault("SiSpacePointMakerTool", InDetSiSpacePointMakerTool)
@@ -46,11 +50,11 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     kwargs.setdefault("ProcessSCTs", flags.Detector.EnableSCT)
     kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableSCT)
 
-    if flags.InDet.doDBMstandalone:
+    if flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault("OverlapLimitEtaMax", 5.0)
         kwargs.setdefault("OverlapLimitEtaMin", 0)
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("ProcessOverlaps", False)
         kwargs.setdefault("OverrideBeamSpot", True)
         kwargs.setdefault("VertexZ", 0)
@@ -80,12 +84,12 @@ def InDetPRD_MultiTruthMakerSiCfg(flags, name="InDetPRD_MultiTruthMakerSi", **kw
         kwargs.setdefault("TruthNamePixel", 'PRD_MultiTruthPixel') # InDetKeys.PixelClustersTruth()
         kwargs.setdefault("TruthNameSCT", 'PRD_MultiTruthSCT') # InDetKeys.SCT_ClustersTruth()
         kwargs.setdefault("TruthNameTRT", "")
-         # a bit complicated, but this is how the truth maker gets to know which detector is on
-        if (not flags.Detector.EnablePixel or not flags.InDet.doPixelPRDFormation):
+        # a bit complicated, but this is how the truth maker gets to know which detector is on
+        if not flags.Detector.EnablePixel:
             kwargs.setdefault("PixelClusterContainerName", "")
             kwargs.setdefault("SimDataMapNamePixel", "")
             kwargs.setdefault("TruthNamePixel", "")
-        if (not flags.Detector.EnableSCT or not flags.InDet.doSCT_PRDFormation):
+        if not flags.Detector.EnableSCT:
             kwargs.setdefault("SCTClusterContainerName", "")
             kwargs.setdefault("SimDataMapNameSCT", "")
             kwargs.setdefault("TruthNameSCT", "")
@@ -114,11 +118,11 @@ def InDetPRD_MultiTruthMakerSiPUCfg(flags, name="InDetPRD_MultiTruthMakerSiPU", 
         kwargs.setdefault("TruthNameSCT", 'PRD_PU_MultiTruthSCT') # InDetKeys.SCT_PU_ClustersTruth()
         kwargs.setdefault("TruthNameTRT", "")
          # a bit complicated, but this is how the truth maker gets to know which detector is on
-        if (not flags.Detector.EnablePixel or not flags.InDet.doPixelPRDFormation):
+        if not flags.Detector.EnablePixel:
             kwargs.setdefault("PixelClusterContainerName", "")
             kwargs.setdefault("SimDataMapNamePixel", "")
             kwargs.setdefault("TruthNamePixel", "")
-        if (not flags.Detector.EnableSCT or not flags.InDet.doSCT_PRDFormation):
+        if not flags.Detector.EnableSCT:
             kwargs.setdefault("SCTClusterContainerName", "")
             kwargs.setdefault("SimDataMapNameSCT", "")
             kwargs.setdefault("TruthNameSCT", "")
@@ -136,11 +140,9 @@ def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **
     from InDetConfig.TrackingCommonConfig import NnClusterizationFactoryCfg
     NnClusterizationFactory = acc.getPrimaryAndMerge(NnClusterizationFactoryCfg(flags))
 
-    useBeamConstraint = flags.InDet.useBeamConstraint
-
     kwargs.setdefault("PriorMultiplicityContent", MultiplicityContent)
     kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
-    kwargs.setdefault("useBeamSpotInfo", useBeamConstraint)
+    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
 
     NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
 
@@ -153,13 +155,11 @@ def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
     from InDetConfig.TrackingCommonConfig import NnClusterizationFactoryCfg
     NnClusterizationFactory = acc.getPrimaryAndMerge(NnClusterizationFactoryCfg(flags))
 
-    useBeamConstraint = flags.InDet.useBeamConstraint
-
     kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
     kwargs.setdefault("ThresholdSplittingIntoTwoClusters", 0.5)
     kwargs.setdefault("ThresholdSplittingIntoThreeClusters", 0.25)
     kwargs.setdefault("SplitOnlyOnBLayer", False)
-    kwargs.setdefault("useBeamSpotInfo", useBeamConstraint)
+    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
     # --- new NN splitter
     NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
 
@@ -176,56 +176,52 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     #
     # ----------- PrepRawData creation from Raw Data Objects
     #
-    redoPatternRecoAndTracking = False
 
-    if flags.InDet.doPRDFormation:
+    #
+    # --- Slim BCM RDOs by zero-suppressing
+    #   
+    if flags.Detector.EnableBCM:
+        from InDetConfig.TrackRecoConfig import BCM_ZeroSuppressionCfg
+        acc.merge(BCM_ZeroSuppressionCfg(flags))
+    
+    #
+    # -- Pixel Clusterization
+    #
+    if flags.Detector.EnablePixel:
         #
-        # --- Slim BCM RDOs by zero-suppressing
-        #   
-        if flags.Detector.EnableBCM:
-            from InDetConfig.TrackRecoConfig import BCM_ZeroSuppressionCfg
-            acc.merge(BCM_ZeroSuppressionCfg(flags))
-        
+        # --- PixelClusterization algorithm
         #
-        # -- Pixel Clusterization
+        from InDetConfig.TrackRecoConfig import PixelClusterizationCfg
+        acc.merge(PixelClusterizationCfg(flags))
+        if flags.InDet.doSplitReco :
+            from InDetConfig.TrackRecoConfig import PixelClusterizationPUCfg
+            acc.merge(PixelClusterizationPUCfg(flags))
+    #
+    # --- SCT Clusterization
+    #
+    if flags.Detector.EnableSCT:
         #
-        if (flags.Detector.EnablePixel and flags.InDet.doPixelPRDFormation) or redoPatternRecoAndTracking:
-            #
-            # --- PixelClusterization algorithm
-            #
-            from InDetConfig.TrackRecoConfig import PixelClusterizationCfg
-            acc.merge(PixelClusterizationCfg(flags))
-            if flags.InDet.doSplitReco :
-                from InDetConfig.TrackRecoConfig import PixelClusterizationPUCfg
-                acc.merge(PixelClusterizationPUCfg(flags))
+        # --- SCT_Clusterization algorithm
         #
-        # --- SCT Clusterization
-        #
-        if flags.Detector.EnableSCT and flags.InDet.doSCT_PRDFormation:
-            #
-            # --- SCT_Clusterization algorithm
-            #
-            from InDetConfig.TrackRecoConfig import SCTClusterizationCfg
-            acc.merge(SCTClusterizationCfg(flags))
-            if flags.InDet.doSplitReco :
-                from InDetConfig.TrackRecoConfig import SCTClusterizationPUCfg
-                acc.merge(SCTClusterizationPUCfg(flags))
+        from InDetConfig.TrackRecoConfig import SCTClusterizationCfg
+        acc.merge(SCTClusterizationCfg(flags))
+        if flags.InDet.doSplitReco :
+            from InDetConfig.TrackRecoConfig import SCTClusterizationPUCfg
+            acc.merge(SCTClusterizationPUCfg(flags))
     #
     # ----------- form SpacePoints from clusters in SCT and Pixels
     #
     #
-    if flags.InDet.doSpacePointFormation:
-        acc.merge(InDetSiElementPropertiesTableCondAlgCfg(flags))
-        acc.merge(InDetSiTrackerSpacePointFinderCfg(flags))
+    acc.merge(InDetSiElementPropertiesTableCondAlgCfg(flags))
+    acc.merge(InDetSiTrackerSpacePointFinderCfg(flags))
 
     # this truth must only be done if you do PRD and SpacePointformation
     # If you only do the latter (== running on ESD) then the needed input (simdata)
     # is not in ESD but the resulting truth (clustertruth) is already there ...
-    if flags.InDet.doPRDFormation and flags.InDet.doSpacePointFormation:
-        if flags.InDet.doTruth:
-            acc.merge(InDetPRD_MultiTruthMakerSiCfg(flags))
-            if flags.InDet.doSplitReco:
-                acc.merge(InDetPRD_MultiTruthMakerSiPUCfg(flags))
+    if flags.InDet.doTruth:
+        acc.merge(InDetPRD_MultiTruthMakerSiCfg(flags))
+        if flags.InDet.doSplitReco:
+            acc.merge(InDetPRD_MultiTruthMakerSiPUCfg(flags))
 
     return acc
 
@@ -236,9 +232,9 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
 
-    ConfigFlags.InDet.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads
@@ -254,12 +250,6 @@ if __name__ == "__main__":
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
-
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    top_acc.merge(MagneticFieldSvcCfg(ConfigFlags))
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
 
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
 

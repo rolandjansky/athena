@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg
+from LArConfiguration.LArConfigFlags import RawChannelSource
 
 def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
@@ -20,7 +21,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
         acc.merge(LArOFCCondAlgCfg(configFlags))
         kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         kwargs.setdefault("ShapeKey", "LArShapeSym")
-        if configFlags.GeoModel.Run == "RUN1": # back to flat threshold
+        if configFlags.GeoModel.Run is LHCPeriod.Run1:  # back to flat threshold
            kwargs.setdefault("useDB", False)
            dspkey = ''
         else:
@@ -30,7 +31,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
            dbInstance="LAR_OFL"
            acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
-        if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        if configFlags.Common.ProductionStep is ProductionStep.PileUpPresampling:
             kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         else:
             kwargs.setdefault("LArDigitKey", "LArDigitContainer_MC")
@@ -46,16 +47,17 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
             obj='LArDSPThresholdsComplete'
             dspkey = 'Run1DSPThresholdsKey'
             sgkey='LArDSPThresholds'
+            dbString = 'COMP200'
         else:
             fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
             sgkey=fld
-        dbString="CONDBR2"
+            dbString="CONDBR2"
         dbInstance="LAR_ONL"
         acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
     kwargs.setdefault(dspkey, sgkey)
 
-    if configFlags.LAr.ROD.forceIter or configFlags.LAr.RawChannelSource == "calculated":
+    if configFlags.LAr.ROD.forceIter or configFlags.LAr.RawChannelSource is RawChannelSource.Calculated:
        # iterative OFC procedure
        LArRawChannelBuilderIterAlg=CompFactory.LArRawChannelBuilderIterAlg
        kwargs.setdefault('minSample',2)

@@ -37,11 +37,14 @@ namespace InDet {
     /** Safely access a track's linked truth particle, if available **/
     virtual const xAOD::TruthParticle* getTruth( const xAOD::TrackParticle* track ) const override;
 
-    /** Computes the tracks origin */
+    /** Computes the truth particle origin */
+    virtual int getTruthOrigin(const xAOD::TruthParticle* truth) const override;
+
+    /** Computes the track origin */
     virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;
 
-    /** Computes the truth origin (from B or D hadron) */
-    virtual bool isFrom(const xAOD::TruthParticle* part, int flav) const override;
+    /** Check if a truth particle is from the specified origin (from B or D hadron, or tau) */
+    virtual bool isFrom(const xAOD::TruthParticle* truth, int flav) const override;
 
   private:
 

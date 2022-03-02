@@ -292,8 +292,8 @@ namespace MuonGM {
         std::array<double, maxwlay> m_wireplanez{-9999.};
 
         // internal alignment
-        double m_cscIntTransl[4][3];  // first index is wireLayer, second = 0,1,2 for    s,z,t
-        double m_cscIntRot[4][3];     // first index is wireLayer, second = 0,1,2 for rots,z,t
+        double m_cscIntTransl[4][3]{};  // first index is wireLayer, second = 0,1,2 for    s,z,t
+        double m_cscIntRot[4][3]{};     // first index is wireLayer, second = 0,1,2 for rots,z,t
     };
 
     inline int CscReadoutElement::ChamberLayer() const { return m_chamberlayer; }

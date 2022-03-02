@@ -62,10 +62,13 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey, ctx);
     ATH_CHECK(handle.record(std::make_unique<Trk::SegmentCollection>()));
 
-    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);
+    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);   
     const Muon::TgcPrepDataContainer* tgcPrdCont = tgcPrds.cptr();
+
+
     SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey, ctx);
     const Muon::RpcPrepDataContainer* rpcPrdCont = rpcPrds.cptr();
+
 
     SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey, ctx);
     if (!patternColl.isValid()) {
@@ -80,16 +83,24 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
             // check the technology & call the corresponding segment finder
             std::vector<const Muon::TgcPrepDataCollection*> tgcCols;
             std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
-            tgcCols.reserve(tgcPrdCont->size());
-            for (auto p : *tgcPrdCont) {
-                if (!p->empty()) tgcCols.push_back(p);
-            }
-            rpcCols.reserve(rpcPrdCont->size());
-            for (auto p : *rpcPrdCont) {
-                if (!p->empty()) rpcCols.push_back(p);
-            }
+            
+            if (tgcPrdCont) {
+                tgcCols.reserve(tgcPrdCont->size());
+                for (const Muon::TgcPrepDataCollection* p : *tgcPrdCont) {
+                    if (!p->empty()) tgcCols.push_back(p);
+                }
+            } else ATH_MSG_VERBOSE("No tgc container is available");
+
+            if (rpcPrdCont) {
+                rpcCols.reserve(rpcPrdCont->size());
+                  for (const Muon::RpcPrepDataCollection* p : *rpcPrdCont) {
+                    if (!p->empty()) rpcCols.push_back(p);
+                }
+            } else ATH_MSG_VERBOSE("No rpc container is available");
+            
+            
             createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols, ctx);
-            createSegmentsFromClusters(*patt, handle.ptr());
+            createSegmentsFromClusters(ctx, *patt, handle.ptr());
         }  // end loop on pattern combinations
 
     } else {
@@ -99,15 +110,15 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     // do cluster based segment finding
     if (m_doTGCClust || m_doRPCClust) {
         SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey, ctx);
-        const PRD_MultiTruthCollection* tgcTruthColl = 0;
-        const PRD_MultiTruthCollection* rpcTruthColl = 0;
+        const PRD_MultiTruthCollection* tgcTruthColl = nullptr;
+        const PRD_MultiTruthCollection* rpcTruthColl = nullptr;
         if (m_doClusterTruth) {
             SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
             SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
             tgcTruthColl = tgcTruth.cptr();
             rpcTruthColl = rpcTruth.cptr();
         }
-        m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doRPCClust ? rpcPrdCont : 0, m_doTGCClust ? tgcPrdCont : 0, tgcTruthColl,
+        m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doRPCClust ? rpcPrdCont : nullptr, m_doTGCClust ? tgcPrdCont : nullptr, tgcTruthColl,
                                               rpcTruthColl, handle.ptr());
     }
 
@@ -175,7 +186,7 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
 }  // execute
 
-void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const {
+void MuonSegmentFinderAlg::createSegmentsFromClusters(const EventContext& ctx, const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const {
     // turn the PRD into MuonCluster
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> > clustersPerSector;
     std::vector<Muon::MuonPatternChamberIntersect>::const_iterator it = patt->chamberData().begin();
@@ -204,8 +215,8 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit_end = clustersPerSector.end();
     for (; sit != sit_end; ++sit) {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters = sit->second;
-        std::vector<Muon::MuonSegment*> segVec;
-        m_clusterSegMakerNSW->find(clusters, segVec, segments);
+        std::vector<std::unique_ptr<Muon::MuonSegment>> segVec;
+        m_clusterSegMakerNSW->find(ctx, clusters, segVec, segments);
 
         // cleanup the memory
         for (std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit != clusters.end(); ++cit) { delete *cit; }
@@ -213,8 +224,8 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
 }
 
 void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
-                                                  const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                                  const std::vector<const Muon::TgcPrepDataCollection*> tgcCols,
+                                                  const std::vector<const Muon::RpcPrepDataCollection*>& rpcCols,
+                                                  const std::vector<const Muon::TgcPrepDataCollection*>& tgcCols,
                                                   const EventContext& ctx) const {
     if (m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {
         // break the pattern combination into regions and calibrate the PRDs
@@ -249,7 +260,7 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
                 }
             }
 
-            Trk::TrackParameters* trkpars = 0;
+            Trk::TrackParameters* trkpars = nullptr;
             if (patcomb->trackParameter()) trkpars = patcomb->trackParameter()->clone();
             Muon::MuonPatternCombination pattern(trkpars, chambers);
             ATH_MSG_VERBOSE(" created pattern for region: number of chambers " << chambers.size());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -155,7 +155,6 @@ void TrigL2MuonSA::RpcClusterPreparator::buildClusters(const ToolHandle<ClusterP
     std::vector<Identifier> theIDs;
     int lastStrip=-999;
     Amg::Vector3D globalPosition(0,0,0);
-    float clusterWidth=0;
     unsigned int count=0;
     
     // get the ID from the first digit in collection
@@ -168,21 +167,10 @@ void TrigL2MuonSA::RpcClusterPreparator::buildClusters(const ToolHandle<ClusterP
       const int stationEta    = m_idHelperSvc->rpcIdHelper().stationEta((*dig_it).second->identify());
       std::string stationName = m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName((*dig_it).second->identify()));
 
-      int layer = 0;
-      // BO
-      if (stationName.substr(0,2)=="BO") layer = 4;
-      // doubletR
-      layer += 2*(doubletR-1);
-      // BML7 special chamber with 1 RPC doublet (doubletR=1 but RPC2) :
-      if (stationName.substr(0,3)=="BML"&&stationEta==7) layer+=2;
-      // gasGap
-      layer += gasGap - 1;
-
       if(lastStrip==-999){ // first hit of a cluster..
         lastStrip=(*dig_it).first;
         theIDs.push_back((*dig_it).second->identify());
         globalPosition+=descriptor->stripPos((*dig_it).second->identify());
-        clusterWidth+=descriptor->StripWidth(measphi);
         ATH_MSG_DEBUG( ">> first hit of a cluster, id = " << lastStrip << ", RPChit x/y/z/ = " << descriptor->stripPos((*dig_it).second->identify()).x() << "/" << descriptor->stripPos((*dig_it).second->identify()).y() << "/" << descriptor->stripPos((*dig_it).second->identify()).z());
 
       } else if(std::abs(lastStrip-(*dig_it).first)==1){ // still on the same cluster
@@ -190,7 +178,6 @@ void TrigL2MuonSA::RpcClusterPreparator::buildClusters(const ToolHandle<ClusterP
         lastStrip=(*dig_it).first;
         theIDs.push_back((*dig_it).second->identify());
         globalPosition+=descriptor->stripPos((*dig_it).second->identify());
-        clusterWidth+=descriptor->StripWidth(measphi);
         ATH_MSG_DEBUG( " ... still on the same cluster,  id = " << lastStrip << ", RPChit x/y/z/ = " << descriptor->stripPos((*dig_it).second->identify()).x() << "/" << descriptor->stripPos((*dig_it).second->identify()).y() << "/" << descriptor->stripPos((*dig_it).second->identify()).z());
 
       } else { // close the cluster
@@ -206,7 +193,6 @@ void TrigL2MuonSA::RpcClusterPreparator::buildClusters(const ToolHandle<ClusterP
       
         theIDs.push_back((*dig_it).second->identify());
         globalPosition=descriptor->stripPos((*dig_it).second->identify());
-        clusterWidth=descriptor->StripWidth(measphi);
       }
 
 

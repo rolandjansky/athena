@@ -92,10 +92,10 @@ namespace MuonCalib {
         ATH_MSG_INFO("Reading calibration from '" << (m_calib_dir + "/t0s") << "'");
         t0s.clear();
         DIR *directory(opendir((m_calib_dir + "/t0s").c_str()));
-        if (directory == NULL) return StatusCode::SUCCESS;
+        if (directory == nullptr) return StatusCode::SUCCESS;
         struct dirent *dent;
         // loop on all files in directory
-        while ((dent = readdir(directory)) != NULL) {
+        while ((dent = readdir(directory)) != nullptr) {
             std::string nm(dent->d_name);
             std::string station_str;
             int eta, phi, ml;
@@ -123,10 +123,10 @@ namespace MuonCalib {
         rts.clear();
         res.clear();
         DIR *directory(opendir((m_calib_dir + "/rts").c_str()));
-        if (directory == NULL) return StatusCode::SUCCESS;
+        if (directory == nullptr) return StatusCode::SUCCESS;
         struct dirent *dent;
         // loop on all files in directory
-        while ((dent = readdir(directory)) != NULL) {
+        while ((dent = readdir(directory)) != nullptr) {
             std::string nm(dent->d_name);
             std::string station_str;
             int eta, phi, ml;
@@ -143,8 +143,8 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    bool CalibrationFileIOTool::fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, std::shared_ptr<const IRtRelation> new_rt,
-                                        std::shared_ptr<const MuonCalib::IRtResolution> resolut) {
+    bool CalibrationFileIOTool::fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, const std::shared_ptr<const IRtRelation>& new_rt,
+                                        const std::shared_ptr<const MuonCalib::IRtResolution>& resolut) {
         ///////////////
         // VARIABLES //
         ///////////////

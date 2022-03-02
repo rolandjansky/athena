@@ -148,8 +148,15 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
   // Note that altough the input is a xAOD::TrackParticle
   // what we really refit is a Trk::Track.
   ATH_CHECK(refitTracks(ctx, siliconTrkTracks, refitted, failedfit));
-  siliconTrkTracks.clear();
 
+  const size_t refittedCount = refitted.size();
+  const size_t failedCount = failedfit.size();
+  const size_t trtCount = trtAloneTrkTracks.size();
+  const size_t totalCount = refittedCount + failedCount + trtCount;
+
+  //reserve as we know how many we will create
+  cPtrTracks->reserve(totalCount);
+  cPtrTrkPart->reserve(totalCount);
   // Fill the final collections
   ATH_CHECK(createCollections(ctx,
                               refitted,
@@ -160,10 +167,9 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
                               trackTES.ptr()));
 
   // Update counters
-  m_RefittedTracks.fetch_add(refitted.size(), std::memory_order_relaxed);
-  m_FailedFitTracks.fetch_add(failedfit.size(), std::memory_order_relaxed);
-  m_FailedSiliconRequirFit.fetch_add(trtAloneTrkTracks.size(),
-                                     std::memory_order_relaxed);
+  m_RefittedTracks.fetch_add(refittedCount, std::memory_order_relaxed);
+  m_FailedFitTracks.fetch_add(failedCount, std::memory_order_relaxed);
+  m_FailedSiliconRequirFit.fetch_add(trtCount, std::memory_order_relaxed);
   return StatusCode::SUCCESS;
 }
 

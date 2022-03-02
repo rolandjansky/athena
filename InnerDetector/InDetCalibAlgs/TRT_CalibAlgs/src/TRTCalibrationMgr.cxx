@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************
@@ -193,7 +193,7 @@ StatusCode TRTCalibrationMgr::execute() {
 
 			for (t=trks->begin();t!=trks->end();++t) {
 
-				if ( m_trackSelector->decision(*(*t), 0)) {
+				if ( m_trackSelector->decision(*(*t), nullptr)) {
 
 					m_ntrk++;
 					aTrack=*t;
@@ -201,7 +201,8 @@ StatusCode TRTCalibrationMgr::execute() {
 					if(m_dorefit){
 						//Refit Track with new ROT creator
 						Trk::RunOutlierRemoval runOutlier=true;
-						aTrack= m_trackFitter->fit(*aTrack,runOutlier,aTrack->info().particleHypothesis());
+						aTrack= m_trackFitter->fit(Gaudi::Hive::currentContext(),
+                                       *aTrack,runOutlier,aTrack->info().particleHypothesis()).release();
 					}
 					// Check selection if requested
 					if (aTrack ){

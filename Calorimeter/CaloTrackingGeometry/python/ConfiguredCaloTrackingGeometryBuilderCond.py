@@ -29,7 +29,6 @@ class ConfiguredCaloTrackingGeometryBuilderCond( Calo__CaloTrackingGeometryBuild
         if not hasattr(ToolSvc,the_name) :
            ConfLArVolumeBuilder = ConfiguredLArVolumeBuilder(name='LArVolumeBuilder', nameSuffix=nameSuffix)
            ToolSvc += ConfLArVolumeBuilder
-           print (dir(ToolSvc),hasattr(ToolSvc,the_name))
         else :
            ConfLArVolumeBuilder=getattr(ToolSvc,the_name)
 
@@ -44,10 +43,10 @@ class ConfiguredCaloTrackingGeometryBuilderCond( Calo__CaloTrackingGeometryBuild
 
 
         # The volume helper
-        the_name='TrackingVolumeHelper'+nameSuffix
+        the_name='TrackingVolumeHelper'
         if not hasattr(ToolSvc,the_name) :
            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-           CaloTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper'+nameSuffix)
+           CaloTrackingVolumeHelper = Trk__TrackingVolumeHelper(the_name)
            ToolSvc += CaloTrackingVolumeHelper
         else :
             CaloTrackingVolumeHelper=getattr(ToolSvc,the_name)

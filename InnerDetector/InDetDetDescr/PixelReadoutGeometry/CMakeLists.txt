@@ -29,7 +29,7 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 # Test(s) in the package:
 atlas_add_test( PixelReadoutGeometryConfig_test
                 SCRIPT test/PixelReadoutGeometryConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 if( NOT SIMULATIONBASE )
   # disabled in AthSimulation
@@ -37,5 +37,6 @@ if( NOT SIMULATIONBASE )
                   SOURCES test/ITkPixelReadoutManager_test.cxx src/ITkPixelReadoutManager.cxx
                   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
                   LINK_LIBRARIES ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel PixelReadoutGeometryLib
+                  POST_EXEC_SCRIPT nopost.sh
                   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test" )
 endif()

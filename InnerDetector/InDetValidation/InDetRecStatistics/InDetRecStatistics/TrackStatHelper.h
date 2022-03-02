@@ -189,8 +189,8 @@ namespace InDet {
     std::string  m_TrackCollectionKey;//!< StoreGate Track Collection Key
     std::string  m_TrackTruthCollectionKey;  //!< StoreGate Track Truth Collection Key
 
-    mutable std::atomic<bool>  m_author_found ATLAS_THREAD_SAFE [Trk::TrackInfo::NumberOfTrackFitters]; //!<Number of tracking authors found
-    mutable std::atomic<long>  m_events ATLAS_THREAD_SAFE ;//!< Number of events
+    mutable std::atomic<bool>  m_author_found ATLAS_THREAD_SAFE [Trk::TrackInfo::NumberOfTrackFitters]{}; //!<Number of tracking authors found
+    mutable std::atomic<long>  m_events ATLAS_THREAD_SAFE {} ;//!< Number of events
 
     template <int N_Categories, int N_Types, int N_Regions, typename T_Int=long>
     struct Counter {

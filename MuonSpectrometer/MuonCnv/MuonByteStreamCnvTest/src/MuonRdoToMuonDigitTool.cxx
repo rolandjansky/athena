@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
@@ -82,7 +82,6 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
 StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_acSvc.retrieve() );
   ATH_CHECK( m_idHelperSvc.retrieve() );
 
   ATH_CHECK(m_mdtRdoKey.initialize(m_decodeMdtRDO));
@@ -191,8 +190,6 @@ StatusCode MuonRdoToMuonDigitTool::decodeCscRDO(const EventContext& ctx, CscDigi
 {
   ATH_MSG_DEBUG( "Decoding CSC RDO into CSC Digit"  );
 
-  m_acSvc->setStore( &*evtStore() );
-
   // retrieve the collection of RDO
   SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey, ctx);
   if (!rdoRH.isValid()) {
@@ -287,8 +284,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgcRDO(const EventContext& ctx, TgcDigi
 StatusCode MuonRdoToMuonDigitTool::decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer* stgcContainer) const
 {
   ATH_MSG_DEBUG( "Decoding sTGC RDO into sTGC Digit"  );
-
-  m_acSvc->setStore( &*evtStore() );
+  evtStore()->makeCurrent();
 
 
   SG::ReadHandle<Muon::STGC_RawDataContainer> rdoRH(m_stgcRdoKey, ctx);
@@ -318,8 +314,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeMM_RDO(const EventContext& ctx, MmDigit
 {
   ATH_MSG_DEBUG( "Decoding MM RDO into MM Digit"  );
 
-  m_acSvc->setStore( &*evtStore() );
-
+  evtStore()->makeCurrent();
   SG::ReadHandle<Muon::MM_RawDataContainer> rdoRH(m_mmRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No MM RDO container found!" );
@@ -517,13 +512,12 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc (const RpcPad& rdoColl,
                                   elementId.show();
                         } 
 
-                        m_acSvc->setStore( &*evtStore() );
-
+                        evtStore()->makeCurrent();
                         std::unique_ptr<RpcDigitCollection>& coll = rpcDigitMap[coll_hash];
                         if (!coll) {
                           coll = std::make_unique<RpcDigitCollection> (elementId, coll_hash);
                         }
-                        coll->push_back (std::move (newDigit));
+                        coll->push_back (newDigit);
                     }
                 }
             }

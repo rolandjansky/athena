@@ -44,6 +44,9 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
     kwargs.setdefault("TRTStrawSummaryTool", StrawStatusTool)
 
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+
     # Do TRT overlay
     alg = CompFactory.TRTOverlay(name, **kwargs)
     acc.addEventAlgo(alg)

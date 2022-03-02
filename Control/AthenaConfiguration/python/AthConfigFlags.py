@@ -1,41 +1,72 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
 from AthenaCommon.Logging import logging
 _msg = logging.getLogger('AthConfigFlags')
 
 class CfgFlag(object):
-    __slots__ = ['_value','_setDef']
+    """The base flag object.
 
-    def __init__(self,default):
+    A flag can be set to either a fixed value or a callable, which computes
+    the value based on other flags.
+    """
+
+    __slots__ = ['_value', '_setDef', '_enum']
+
+    def __init__(self, default, enum=None):
+        """Initialise the flag with the default value.
+
+        Optionally set an enum of allowed values.
+        """
         if default is None:
             raise RuntimeError("Default value of a flag must not be None")
+        self._enum = enum
         self.set(default)
         return
 
+    def set(self, value):
+        """Set the value of the flag.
 
-    def set(self,value):
+        Can be a constant value or a callable.
+        """
         if callable(value):
             self._value=None
             self._setDef=value
         else:
             self._value=value
             self._setDef=None
+
+            if not self._validateEnum(self._value):
+                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(self._value) ))
         return
 
-    def get(self,flagdict=None):
+    def get(self, flagdict=None):
+        """Get the value of the flag.
+
+        If the currently set value is a callable, a dictionary of all available
+        flags needs to be provided.
+        """
+
         if self._value is not None:
             return deepcopy(self._value)
+
+        if not flagdict:
+            raise RuntimeError("Flag is using a callable but all flags are not available.")
 
         #Have to call the method to obtain the default value, and then reuse it in all next accesses
         if flagdict.locked():
             # optimise future reads, drop possibility to update this flag ever
             self._value=self._setDef(flagdict)
             self._setDef=None
+            if not self._validateEnum(self._value):
+                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(self._value) ))
             return deepcopy(self._value)
         else:
             #use function for as long as the flags are not locked
-            return deepcopy(self._setDef(flagdict))
+            val=self._setDef(flagdict)
+            if not self._validateEnum(val):
+                raise RuntimeError("Flag is of type '{}', but '{}' set.".format( self._enum, type(val)))
+            return deepcopy(val)
 
     def __repr__(self):
         if self._value is not None:
@@ -43,6 +74,15 @@ class CfgFlag(object):
         else:
             return "[function]"
 
+    def _validateEnum(self, value):
+        if self._enum is None:
+            return True
+
+        if value is not None:
+            try:
+                return value in self._enum
+            except TypeError:
+                return False
 
 class FlagAddress(object):
     def __init__(self, f, name):
@@ -116,7 +156,7 @@ class FlagAddress(object):
 
 class AthConfigFlags(object):
 
-    def __init__(self):        
+    def __init__(self):
         self._flagdict=dict()
         self._locked=False
         self._dynaflags = dict()
@@ -151,11 +191,11 @@ class AthConfigFlags(object):
         raise RuntimeError( "No such flag: "+ name+". The name is likely incomplete." )
 
 
-    def addFlag(self,name,setDef):
+    def addFlag(self, name, setDef, enum=None):
         self._tryModify()
         if name in self._flagdict:
             raise KeyError("Duplicated flag name: {}".format( name ))
-        self._flagdict[name]=CfgFlag(setDef)
+        self._flagdict[name]=CfgFlag(setDef, enum)
         return
 
     def addFlagsCategory(self, path, generator, prefix=False):
@@ -188,15 +228,16 @@ class AthConfigFlags(object):
                 return
             if flagBaseName in self._dynaflags:
                 _msg.debug("Dynamically loading the flags under %s", flagBaseName )
+                # Retain locked status and hash
                 isLocked = self._locked
+                myHash = self._hash
                 self._locked = False
                 generator, prefix = self._dynaflags[flagBaseName]
                 self.join( generator(), flagBaseName if prefix else "" )
                 self._locked = isLocked
+                self._hash = myHash
                 del self._dynaflags[flagBaseName]
                 self._loaded.add(flagBaseName)
-                # recalculate hash if needed
-                if self._locked: self._hash = self._calculateHash()
 
         pathfrags = name.split('.')
         for maxf in range(1, len(pathfrags)+1):
@@ -252,7 +293,7 @@ class AthConfigFlags(object):
         return self._get(name)
 
     def lock(self):
-        if(not self._locked):
+        if not self._locked:
             self._locked = True
             self._hash = self._calculateHash()
         return
@@ -282,7 +323,7 @@ class AthConfigFlags(object):
         newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
         """
 
-        def _copyFunction(obj):            
+        def _copyFunction(obj):
             return obj if self.locked() else deepcopy(obj) # if flags are locked we can reuse containers, no need to deepcopy
 
         _msg.info("cloning flags and replacing %s by %s", subsetToReplace, replacementSubset)
@@ -333,7 +374,7 @@ class AthConfigFlags(object):
         for k,v in self._dynaflags.items(): # cant just assign the dicts because then they are shared when loading
             newFlags._dynaflags[k] = _copyFunction(v)
         newFlags._hash = None
-        
+
         if self._locked:
             newFlags.lock()
         return newFlags
@@ -403,6 +444,7 @@ class AthConfigFlags(object):
         parser.add_argument("-l", "--loglevel", default=None, help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
         parser.add_argument("--configOnly", type=str, default=None, help="Stop after configuration phase (may not be respected by all diver scripts)")
         parser.add_argument("--threads", type=int, default=0, help="Run with given number of threads")
+        parser.add_argument("--nprocs", type=int, default=0, help="Run AthenaMP with given number of worker processes")
 
         return parser
 
@@ -442,9 +484,12 @@ class AthConfigFlags(object):
                 self.Exec.OutputLevel=getattr(Constants,args.loglevel)
             else:
                 raise ValueError("Unknown log-level, allowed values are ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, FATAL")
-        
+
         if args.threads:
             self.Concurrency.NumThreads = args.threads
+
+        if args.nprocs:
+            self.Concurrency.NumProcs = args.nprocs
 
         #All remaining arguments are assumed to be key=value pairs to set arbitrary flags:
 

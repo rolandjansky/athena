@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCalibDigitMaker.h"
@@ -29,11 +29,13 @@ LArCalibDigitMaker::LArCalibDigitMaker(const std::string& name, ISvcLocator* pSv
  declareProperty("DAC",m_vDAC);
  declareProperty("Delay",m_vDelay);
  declareProperty("Pattern",m_vPattern);
+ declareProperty("nPattern",m_nPatterns);
  declareProperty("NTrigger",m_nTrigger);
  declareProperty("BoardIDs",m_vBoardIDs);
  declareProperty("DelayScale",m_delayScale=(25./240.)*ns);
  declareProperty("DontRun",m_dontRun=false); //Put only Board configuration in DetectorStore
  declareProperty("isSC",m_isSC=false);
+ declareProperty("skipDuplicates",m_skipDuplicates=false);
 }
 
 LArCalibDigitMaker::~LArCalibDigitMaker() 
@@ -42,6 +44,10 @@ LArCalibDigitMaker::~LArCalibDigitMaker()
 
 StatusCode LArCalibDigitMaker::initialize()
 {
+
+  m_oldeventNb=-999;
+  m_eventNb=-1;
+
   ATH_MSG_DEBUG ( "======== LArCalibDigitMaker Initialize ========" );
   // bool containsKeySC = false;
   for (unsigned int i = 0; i < m_keylist.size(); ++i) {
@@ -50,24 +56,9 @@ StatusCode LArCalibDigitMaker::initialize()
        ATH_MSG_DEBUG ( "======== LArCalibDigitMaker isSC is True  ========" );
     }
   }
-  if(m_isSC){
-    ATH_CHECK( m_calibMapSCKey.initialize() );
-  }else{
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }
+  ATH_CHECK( m_calibMapSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_calibMapKey.initialize(!m_isSC) );
     
-
-  //Check if calibParams are given consistently: Either all or non
-  // FIXME - the check should be implemented properly
- /* 
-  if (! ((m_vBoardIDs[0].size()==0 && m_vBoardIDs[1].size()==0 && m_vBoardIDs[2].size()==0 && m_vBoardIDs[3].size()==0 && m_vBoardIDs[4].size()==0 && m_vDAC.size()==0 && m_vDelay.size()==0 && m_vPattern[0].size()==0 && m_vPattern[1].size()==0 && m_vPattern[2].size()==0 && m_vPattern[3].size()==0 && m_vPattern[4].size()==0 && m_nTrigger==0) ||
-      (m_vBoardIDs[0].size() && m_vBoardIDs[1].size() && m_vBoardIDs[2].size() && m_vBoardIDs[3].size() && m_vBoardIDs[4].size() && m_vDAC.size() && m_vDelay.size() && m_vPattern[0].size() && m_vPattern[1].size() && m_vPattern[2].size() && m_vPattern[3].size() && m_vPattern[4].size() && m_nTrigger))) {
-    ATH_MSG_ERROR ( "Problem with jobOptions! Please set either ALL calibration parameters (DAC, Delay, Pattern, BoardIDs and nTigger) or none!" );
-   
-    return StatusCode::FAILURE;
-  }
-  */
-  
   //if we have calib board params as jobOpts, set them
 
   std::vector<std::vector<unsigned>> theseBoardIDs;
@@ -85,19 +76,25 @@ StatusCode LArCalibDigitMaker::initialize()
   for (const auto& elem : m_vDAC) {
     theseDACs.emplace_back(elem.begin(), elem.end());
   }
+  std::vector<unsigned> cutPattern;
 
   auto calibParams = std::make_unique<LArCalibParams>();
   ATH_CHECK( calibParams->initialize() ); 
-
   for( long unsigned int i=0; i < theseBoardIDs.size(); i++ ){
     if (theseBoardIDs[i].size() && m_vDAC[i].size() && m_vDelay.size() && thesePatterns[i].size() && m_nTrigger) {
+      cutPattern = thesePatterns[i];
+
+      if (thesePatterns[i].size() != ((unsigned int)m_nPatterns[i])){
+	ATH_MSG_WARNING("Going to change pattern length from "<<thesePatterns[i].size()<<" to "<<m_nPatterns[i]);
+	cutPattern.resize(m_nPatterns[i]);
+      }
       if (thesePatterns[i].size()%4) {
 	ATH_MSG_ERROR ( "Problem with jobOptions! One Pattern must conists of 4 32bit values! Pattern "<< i );
 	return StatusCode::FAILURE;
       }
       for (unsigned id : theseBoardIDs[i]) {
 	const HWIdentifier calibBoardHWID(id);
-	calibParams->set(calibBoardHWID,m_nTrigger,thesePatterns[i],theseDACs[i],m_vDelay);
+	calibParams->set(calibBoardHWID,m_nTrigger,cutPattern,theseDACs[i],m_vDelay);
       }
     }
   }
@@ -143,7 +140,13 @@ StatusCode LArCalibDigitMaker::execute() {
  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
  //  const unsigned eventNb=thisEventInfo->event_ID()->event_number();
- const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;        // Are we sure?
+ unsigned eventNbtmp=ctx.eventID().event_number();
+ if((int)eventNbtmp!=m_oldeventNb){
+   m_oldeventNb=eventNbtmp;
+   m_eventNb++;
+ }
+ const unsigned eventNb=(int)m_eventNb;
+
  ATH_MSG_DEBUG ( "======== executing event "<< eventNb << " ========" );
  
  const LArCalibParams* calibParams = nullptr;
@@ -161,11 +164,18 @@ StatusCode LArCalibDigitMaker::execute() {
      ATH_MSG_DEBUG ( "LArDigitContainer with key '" << key << "' is empty. Ignored." );
      continue; //Try next container
    }
+   if (!m_pulsedChids.empty()) m_pulsedChids.clear();
    //Iterate over LArDigitContainer and build LArCalibDigitContainer
    LArCalibDigitContainer* calibDigitContainer=new LArCalibDigitContainer();
    calibDigitContainer->setDelayScale(m_delayScale);
    for (const LArDigit* digit : *larDigitCont) {
      HWIdentifier chid=digit->hardwareID();
+     
+     if(std::find(m_pulsedChids.begin(), m_pulsedChids.end(), chid) != m_pulsedChids.end()) {
+       if(m_skipDuplicates) continue; // skip this channel if it was already pulsed
+       m_pulsedChids.push_back(chid);
+     }
+
      //Get data members of LArDigit
      const std::vector<short>& samples=digit->samples();
      CaloGain::CaloGain gain=digit->gain();
@@ -173,15 +183,29 @@ StatusCode LArCalibDigitMaker::execute() {
      if (calibChannelIDs.size()==0) {
        continue; //Disconnected channel
      }
-     //For the time beeing, I assume we are in H8 and have only one calib channel per FEB channel
+     //For the time being, I assume we are in H8 and have only one calib channel per FEB channel
      std::vector<HWIdentifier>::const_iterator csl_it=calibChannelIDs.begin();
      //Now the CalibBoard settings:
      //Get data to build LArCalibDigit:
-     uint16_t dac=calibParams->DAC(eventNb,*csl_it);
+     unsigned ddac=calibParams->DAC(eventNb,*csl_it);
+     if(ddac==kmaxDAC) {
+        ATH_MSG_WARNING("SKIP "<<chid<<" "<<gain<<" "<<ddac<<"  event no "<<eventNb);
+        continue;
+     }
+     uint16_t dac=ddac;
      uint16_t delay=calibParams->Delay(eventNb,*csl_it);
-     bool ispulsed=calibParams->isPulsed(eventNb,*csl_it);
+     bool ispulsed=false;
+     for(; csl_it != calibChannelIDs.end(); ++csl_it) {
+       if(calibParams->isPulsed(eventNb,*csl_it)){
+	 ispulsed=true;
+	 break;
+       }
+     }
      //build LArCalibDigit:
-     
+     if ( ispulsed ){
+       ATH_MSG_DEBUG("HERE!! "<<chid<<" "<<gain<<" "<<dac<<" "<<delay<<" "<<ispulsed<<" event no "<<eventNb<<" "<<calibChannelIDs.size()<<" calib lines, first is "<<*csl_it);
+
+     }
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits

@@ -59,7 +59,7 @@ private:
   std::vector<uint16_t> m_int2subDetectorId;
   std::vector<uint16_t> m_int2rodId;
 
-  CSCcablingSvc * m_cabling;
+  CSCcablingSvc * m_cabling = nullptr;
 
 };
 

@@ -18,11 +18,13 @@
 
 // GeneratorObjectsTPCnv includes
 #include "GeneratorObjectsTPCnv/McEventCollection_p5.h"
+// v6 #include "GeneratorObjectsTPCnv/McEventCollection_p6.h"
 
 // Forward declaration
 
 // the latest persistent representation type of DataCollection:
 typedef McEventCollection_p5  McEventCollection_PERS;
+// v6 typedef McEventCollection_p6  McEventCollection_PERS;
 
 class McEventCollectionCnv: public T_AthenaPoolCustomCnv<
                                       McEventCollection, 

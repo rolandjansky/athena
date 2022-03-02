@@ -66,7 +66,7 @@ class TrigMultiTrkStateBase: public ::ITrigBphysState {
       : ITrigBphysState(context, previousDecisions, decisions, trigBphysCollection, beamSpotData),
         m_isEventAccepted(0) {}
   virtual ~TrigMultiTrkStateBase() = default;
-  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t) = 0;
+  virtual std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>>& getDecisionLinks(size_t) = 0;
   virtual TrigCompositeUtils::DecisionIDContainer& getDecisionIDs(size_t) = 0;
   virtual void addTrigBphysObject(xAOD::TrigBphys*, const std::vector<size_t>& legIndices) = 0;
 
@@ -97,12 +97,12 @@ class TrigMultiTrkState : public TrigMultiTrkStateBase {
 
   struct LEPTON {
     ElementLink<CONTAINER> link;
-    ElementLinkVector<TrigCompositeUtils::DecisionContainer> decisionLinks;
+    std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>> decisionLinks;
     TrigCompositeUtils::DecisionIDContainer decisionIDs;
   };
 
   std::vector<LEPTON>& leptons() { return m_leptons; }
-  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t i) override final {
+  virtual std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>>& getDecisionLinks(size_t i) override final {
     return m_leptons.at(i).decisionLinks;
   }
   virtual TrigCompositeUtils::DecisionIDContainer& getDecisionIDs(size_t i) override final {
@@ -240,6 +240,10 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
     "range of the invariant mass of the track combinations"};
   Gaudi::Property<bool> m_applyOverlapRemoval {this, "applyOverlapRemoval", true,
     "apply overlap removal for the close-by same-sign objects from different views"};
+  Gaudi::Property<bool> m_combineInputDecisionCollections {this, "combineInputDecisionCollections", false,
+    "combine objects attached to decisions from different input collections, needed for HLT_mu4_ivarloose_mu4_b10invmAB120vtx20_L12MU3V chains"};
+  Gaudi::Property<bool> m_useLeptonMomentum {this, "useLeptonMomentum", false,
+    "use 4-momentum of the xAOD::Muon to make fast calculation of the xAOD::TrigBphys mass, needed for consistency with TrigComboHypoTool::compute()"};
   Gaudi::Property<float> m_deltaR {this, "deltaR", 0.01,
     "minimum deltaR between same-sign tracks (overlap removal)"};
   Gaudi::Property<float> m_deltaRMax {this, "deltaRMax", std::numeric_limits<float>::max(),

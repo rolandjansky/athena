@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLEVALUECONTAINER_H
 #define EVENTCONTAINERS_IDENTIFIABLEVALUECONTAINER_H
 
 #include "EventContainers/IdentifiableValueCache.h"
+#include "CxxUtils/checker_macros.h"
 #include <set>
 
 class IdentifiableValueContainerBase {};
@@ -101,11 +102,12 @@ std::vector<std::pair<size_t, T>> IdentifiableValueContainer<T>::getAll() const{
 
 template< class T >
 T IdentifiableValueContainer<T>::retrieve(size_t i) const{
-     auto r = m_cache->retrieve(i);
+     Cache* cache ATLAS_THREAD_SAFE = m_cache;
+     auto r = cache->retrieve(i);
      //Should be quicker to establish empty cache than empty mask with a std::set
      //So the cache is checked first
-     if(r!= m_cache->emptyValue() && present(i)) return r;
-     else return m_cache->emptyValue();
+     if(r!= cache->emptyValue() && present(i)) return r;
+     else return cache->emptyValue();
 }
 
 template< class T >

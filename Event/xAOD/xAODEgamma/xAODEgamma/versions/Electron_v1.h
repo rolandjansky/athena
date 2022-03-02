@@ -69,7 +69,7 @@ namespace xAOD {
     /// @{
 
     /// @brief The type of the object as a simple enumeration
-    virtual Type::ObjectType type() const final; //Always an Electron.
+    virtual Type::ObjectType type() const override final; //Always an Electron.
 
     /// @}
 

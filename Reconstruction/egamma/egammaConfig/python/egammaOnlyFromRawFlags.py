@@ -4,7 +4,6 @@
 def egammaOnlyFromRaw(flags):
     """egammaOnlyFromRaw flags for Reco_tf with CA"""
     flags.Detector.GeometryMuon = False
-    flags.Reco.EnableMuon = False
     flags.Reco.EnableCombinedMuon = False
     flags.Reco.EnablePFlow = False
     flags.Reco.EnableTau = False

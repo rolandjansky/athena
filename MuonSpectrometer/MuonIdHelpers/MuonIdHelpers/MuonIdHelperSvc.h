@@ -171,12 +171,12 @@ namespace Muon {
         bool recoMM() const override;
 
     private:
-        const RpcIdHelper* m_rpcIdHelper;
-        const TgcIdHelper* m_tgcIdHelper;
-        const CscIdHelper* m_cscIdHelper;
-        const MdtIdHelper* m_mdtIdHelper;
-        const MmIdHelper* m_mmIdHelper;
-        const sTgcIdHelper* m_stgcIdHelper;
+        const RpcIdHelper* m_rpcIdHelper = nullptr;
+        const TgcIdHelper* m_tgcIdHelper = nullptr;
+        const CscIdHelper* m_cscIdHelper = nullptr;
+        const MdtIdHelper* m_mdtIdHelper = nullptr;
+        const MmIdHelper* m_mmIdHelper = nullptr;
+        const sTgcIdHelper* m_stgcIdHelper = nullptr;
         Gaudi::Property<bool> m_hasCSC{this, "HasCSC", true, "Specify whether current detector layout contains CSC chambers"};
         Gaudi::Property<bool> m_hasSTgc{this, "HasSTgc", true, "Specify whether current detector layout contains STGC chambers"};
         Gaudi::Property<bool> m_hasMM{this, "HasMM", true, "Specify whether current detector layout contains MicroMegas chambers"};

@@ -12,7 +12,6 @@ extern "C" {
 }
 #include <vector>
 #include <string>
-#include <bitset>
 
 // EDM include(s):
 #include "xAODCore/AuxContainerBase.h"
@@ -33,10 +32,12 @@ namespace xAOD {
       L1TopoSimResultsAuxContainer_v1();
 
    private:
-      std::vector< std::string > boardName;
-      std::vector< uint32_t > word32;
-      std::vector< uint64_t > word64;
-      std::vector< std::bitset<128> > wordOptical;
+      std::vector< unsigned int > connectionId;
+      std::vector< uint32_t > topoWord;
+      std::vector< uint32_t > topoWordOverflow;
+      std::vector< uint64_t > topoWord64;
+      std::vector< uint64_t > topoWord64Overflow;
+      std::vector< unsigned int > bitWidth;
       std::vector< unsigned int > clock;
 
    }; // class L1TopoSimResultsAuxContainer_v1

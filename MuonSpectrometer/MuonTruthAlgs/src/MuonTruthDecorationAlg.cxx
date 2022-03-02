@@ -36,6 +36,24 @@ namespace {
         MCTruthPartClassifier::ParticleOrigin ::PiZero,         // 42
 
     };
+    constexpr float dummy_val = -1.;
+    
+     struct RecordPars {
+        RecordPars() = default;
+        RecordPars(Amg::Vector3D&& _pos, Amg::Vector3D&&_mom):
+            pos{std::move(_pos)},
+            mom{std::move(_mom)}{}
+        RecordPars(const CLHEP::Hep3Vector& _pos, const CLHEP::Hep3Vector& _mom):
+            pos{_pos.x(), _pos.y(), _pos.z()},
+            mom{_mom.x(), _mom.y(), _mom.z()}{
+            
+        }
+        const Amg::Vector3D pos{Amg::Vector3D::Zero()};
+        const Amg::Vector3D mom{Amg::Vector3D::Zero()};
+        
+        std::string record_name;
+        const Trk::TrackingVolume* volume{nullptr};
+    };
 
 }  // namespace
 namespace Muon {
@@ -84,7 +102,7 @@ namespace Muon {
         }
 
         // loop over truth coll
-        for (const auto truth : *truthContainer) {
+        for (const xAOD::TruthParticle* truth : *truthContainer) {
             if (truth->status() != 1 || !truth->isMuon() || truth->pt() < 1000.) continue;
             xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();
             muonTruthContainer->push_back(truthParticle);
@@ -143,7 +161,7 @@ namespace Muon {
     }
 
     void MuonTruthDecorationAlg::createSegments(const EventContext& ctx, const ElementLink<xAOD::TruthParticleContainer>& truthLink,
-                                                SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+                                                SG::WriteHandle<xAOD::MuonSegmentContainer>& segmentContainer,
                                                 const MuonTruthDecorationAlg::ChamberIdMap& ids) const {
         std::vector<SG::ReadHandle<MuonSimDataCollection> > sdoCollections(6);
         for (const SG::ReadHandleKey<MuonSimDataCollection>& k : m_SDO_TruthNames) {
@@ -169,18 +187,12 @@ namespace Muon {
         // loop over chamber layers
         for (const auto& lay : ids) {
             // skip empty layers
-            Amg::Vector3D firstPos = Amg::Vector3D::Zero();
-            Amg::Vector3D secondPos = Amg::Vector3D::Zero();
-            bool firstPosSet = false;
-            bool secondPosSet = false;
+            Amg::Vector3D firstPos{Amg::Vector3D::Zero()}, secondPos{Amg::Vector3D::Zero()};
+            bool firstPosSet{false}, secondPosSet{false};
             Identifier chId;
             int index = -1;
-            uint8_t nprecLayers = 0;
-            uint8_t nphiLayers = 0;
-            uint8_t ntrigEtaLayers = 0;
-            std::set<int> phiLayers;
-            std::set<int> etaLayers;
-            std::set<int> precLayers;
+            uint8_t nprecLayers{0}, nphiLayers{0}, ntrigEtaLayers{0};
+            std::set<int> phiLayers, etaLayers, precLayers;
             ATH_MSG_DEBUG(" new chamber layer " << Muon::MuonStationIndex::chName(lay.first) << " hits " << ids.size());
             // loop over hits
             for (const auto& id : lay.second) {
@@ -207,67 +219,69 @@ namespace Muon {
                     }
                 }
                 // use SDO to look-up truth position of the hit
-                if (useSDO) {
-                    Amg::Vector3D gpos(0., 0., 0.);
+                if (!useSDO) {
+                    continue;
+               }
+                Amg::Vector3D gpos{Amg::Vector3D::Zero()};
+                if (!isCsc) {
                     bool ok = false;
-                    if (!isCsc) {
-                        int index = m_idHelperSvc->technologyIndex(id);
-                        if (index < (int)sdoCollections.size() && sdoCollections[index]->size() != 0) {
-                            auto pos = sdoCollections[index]->find(id);
-                            if (pos != sdoCollections[index]->end()) {
-                                gpos = pos->second.globalPosition();
-                                if (gpos.perp() > 0.1) ok = true;  // sanity check
-                            }
-                        }
-                        // look up successfull, calculate
-                        if (ok) {
-                            // small comparison function
-                            auto isSmaller = [isEndcap](const Amg::Vector3D& p1, const Amg::Vector3D& p2) {
-                                if (isEndcap)
-                                    return fabs(p1.z()) < fabs(p2.z());
-                                else
-                                    return p1.perp() < p2.perp();
-                            };
-                            if (!firstPosSet) {
-                                firstPos = gpos;
-                                firstPosSet = true;
-                            } else if (!secondPosSet) {
-                                secondPos = gpos;
-                                secondPosSet = true;
-                                if (isSmaller(secondPos, firstPos)) std::swap(firstPos, secondPos);
-                            } else {
-                                // update position if we can increase the distance between the two positions
-                                if (isSmaller(gpos, firstPos))
-                                    firstPos = gpos;
-                                else if (isSmaller(secondPos, gpos))
-                                    secondPos = gpos;
-                            }
-                        }
-                    } else {
-                        SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames, ctx);
-                        auto pos = cscCollection->find(id);
-                        if (pos != cscCollection->end()) {
-                            const MuonGM::CscReadoutElement* descriptor = m_muonMgr->getCscReadoutElement(id);
-                            ATH_MSG_DEBUG("found csc sdo with " << pos->second.getdeposits().size() << " deposits");
-                            Amg::Vector3D locpos(0, pos->second.getdeposits()[0].second.ypos(), pos->second.getdeposits()[0].second.zpos());
-                            gpos = descriptor->localToGlobalCoords(locpos, m_idHelperSvc->cscIdHelper().elementID(id));
-                            ATH_MSG_DEBUG("got CSC global position " << gpos);
-                            if (!firstPosSet) {
-                                firstPos = gpos;
-                                firstPosSet = true;
-                            } else if (!secondPosSet) {
-                                secondPos = gpos;
-                                secondPosSet = true;
-                                if (secondPos.perp() < firstPos.perp()) std::swap(firstPos, secondPos);
-                            } else {
-                                if (gpos.perp() < firstPos.perp())
-                                    firstPos = gpos;
-                                else if (secondPos.perp() < gpos.perp())
-                                    secondPos = gpos;
-                            }
+                    int index = m_idHelperSvc->technologyIndex(id);
+                    if (index < (int)sdoCollections.size() && sdoCollections[index]->size() != 0) {
+                        auto pos = sdoCollections[index]->find(id);
+                        if (pos != sdoCollections[index]->end()) {
+                            gpos = pos->second.globalPosition();
+                            if (gpos.perp() > 0.1) ok = true;  // sanity check
                         }
                     }
-                }
+                    // look up successful, calculate
+                    if (!ok) continue;
+                    
+                    // small comparison function
+                    auto isSmaller = [isEndcap](const Amg::Vector3D& p1, const Amg::Vector3D& p2) {
+                        if (isEndcap)
+                            return std::abs(p1.z()) < std::abs(p2.z());
+                        else
+                            return p1.perp() < p2.perp();
+                    };
+                    if (!firstPosSet) {
+                        firstPos = gpos;
+                        firstPosSet = true;
+                    } else if (!secondPosSet) {
+                        secondPos = gpos;
+                        secondPosSet = true;
+                        if (isSmaller(secondPos, firstPos)) std::swap(firstPos, secondPos);
+                    } else {
+                        // update position if we can increase the distance between the two positions
+                        if (isSmaller(gpos, firstPos))
+                            firstPos = gpos;
+                        else if (isSmaller(secondPos, gpos))
+                            secondPos = gpos;
+                    }                    
+                } else {
+                    SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames, ctx);
+                    auto pos = cscCollection->find(id);
+                    if (pos == cscCollection->end()) {
+                        continue;
+                    }
+                    const MuonGM::CscReadoutElement* descriptor = m_muonMgr->getCscReadoutElement(id);
+                    ATH_MSG_DEBUG("found csc sdo with " << pos->second.getdeposits().size() << " deposits");
+                    Amg::Vector3D locpos(0, pos->second.getdeposits()[0].second.ypos(), pos->second.getdeposits()[0].second.zpos());
+                    gpos = descriptor->localToGlobalCoords(locpos, m_idHelperSvc->cscIdHelper().elementID(id));
+                    ATH_MSG_DEBUG("got CSC global position " << gpos);
+                    if (!firstPosSet) {
+                        firstPos = gpos;
+                        firstPosSet = true;
+                    } else if (!secondPosSet) {
+                        secondPos = gpos;
+                        secondPosSet = true;
+                        if (secondPos.perp() < firstPos.perp()) std::swap(firstPos, secondPos);
+                    } else {
+                        if (gpos.perp() < firstPos.perp())
+                            firstPos = gpos;
+                        else if (secondPos.perp() < gpos.perp())
+                            secondPos = gpos;
+                    }                    
+                }                
             }
             if (precLayers.size() > 2) {
                 matchMap[lay.first] = index;
@@ -303,152 +317,130 @@ namespace Muon {
 
     void MuonTruthDecorationAlg::addTrackRecords(const EventContext& ctx, xAOD::TruthParticle& truthParticle) const {
         // first loop over track records, store parameters at the different positions
-        int barcode = truthParticle.barcode();
-        const xAOD::TruthVertex* vertex = truthParticle.prodVtx();
-        std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > parameters;
-        if (vertex)
-            parameters.push_back(std::make_pair(Amg::Vector3D(vertex->x(), vertex->y(), vertex->z()),
-                                                Amg::Vector3D(truthParticle.px(), truthParticle.py(), truthParticle.pz())));
-
+        const int barcode = truthParticle.barcode();
+        const xAOD::TruthVertex* vertex = truthParticle.prodVtx();        
+        const Trk::TrackingGeometry* trackingGeometry = !m_extrapolator.empty()? m_extrapolator->trackingGeometry() : nullptr;
+      
+        std::vector<RecordPars> parameters;
+        if (vertex) {
+            parameters.emplace_back(Amg::Vector3D{vertex->x(), vertex->y(), vertex->z()},
+                                    Amg::Vector3D{truthParticle.px(), truthParticle.py(), truthParticle.pz()});
+        }
         for (SG::ReadHandle<TrackRecordCollection>& col : m_trackRecordCollectionNames.makeHandles(ctx)) {
             if (!col.isPresent()) continue;
-            const std::string name = col.key();
-            float& x = truthParticle.auxdata<float>(name + "_x");
-            float& y = truthParticle.auxdata<float>(name + "_y");
-            float& z = truthParticle.auxdata<float>(name + "_z");
-            float& px = truthParticle.auxdata<float>(name + "_px");
-            float& py = truthParticle.auxdata<float>(name + "_py");
-            float& pz = truthParticle.auxdata<float>(name + "_pz");
-            x = -99999.;
-            y = -99999.;
-            z = -99999.;
-            px = -99999.;
-            py = -99999.;
-            pz = -99999.;
-
+            const std::string r_name = col.key();
+            
+            float& x = truthParticle.auxdata<float>(r_name + "_x");
+            float& y = truthParticle.auxdata<float>(r_name + "_y");
+            float& z = truthParticle.auxdata<float>(r_name + "_z");
+            float& px = truthParticle.auxdata<float>(r_name + "_px");
+            float& py = truthParticle.auxdata<float>(r_name + "_py");
+            float& pz = truthParticle.auxdata<float>(r_name + "_pz");
+            bool& found_truth = truthParticle.auxdata<bool>(r_name + "_is_matched");
+            x = y = z = px = py = pz = dummy_val;
+            found_truth = false;
             // Need to always make these, to avoid crashes later
-            float& ex = truthParticle.auxdata<float>(name + "_x_extr");
-            float& ey = truthParticle.auxdata<float>(name + "_y_extr");
-            float& ez = truthParticle.auxdata<float>(name + "_z_extr");
-            float& epx = truthParticle.auxdata<float>(name + "_px_extr");
-            float& epy = truthParticle.auxdata<float>(name + "_py_extr");
-            float& epz = truthParticle.auxdata<float>(name + "_pz_extr");
-            truthParticle.auxdata<std::vector<float> >(name + "_cov_extr");  /// add but don't initialize
-            ex = -99999.;
-            ey = -99999.;
-            ez = -99999.;
-            epx = -99999.;
-            epy = -99999.;
-            epz = -99999.;
-
+            float& ex = truthParticle.auxdata<float>(r_name + "_x_extr");
+            float& ey = truthParticle.auxdata<float>(r_name + "_y_extr");
+            float& ez = truthParticle.auxdata<float>(r_name + "_z_extr");
+            float& epx = truthParticle.auxdata<float>(r_name + "_px_extr");
+            float& epy = truthParticle.auxdata<float>(r_name + "_py_extr");
+            float& epz = truthParticle.auxdata<float>(r_name + "_pz_extr");
+            truthParticle.auxdata<std::vector<float> >(r_name + "_cov_extr") = emptyVec;
+            truthParticle.auxdata<bool>(r_name+"_is_extr") = false;
+            ex = ey = ez = epx = epy = epz = dummy_val;
+            
             // loop over collection and find particle with the same bar code
             for (const auto& particle : *col) {
                 if ((particle.GetBarCode()) % m_barcodeOffset != barcode) continue;
                 CLHEP::Hep3Vector pos = particle.GetPosition();
                 CLHEP::Hep3Vector mom = particle.GetMomentum();
-                ATH_MSG_VERBOSE("Found associated  " << name << " pt " << mom.perp() << " position: r " << pos.perp() << " z " << pos.z());
-                x = pos.x();
-                y = pos.y();
-                z = pos.z();
-                px = mom.x();
-                py = mom.y();
-                pz = mom.z();
-                parameters.push_back(std::make_pair(Amg::Vector3D(x, y, z), Amg::Vector3D(px, py, pz)));
+                ATH_MSG_VERBOSE("Found associated  " << r_name << " pt " << mom.perp() << " position: r " << pos.perp() << " z " << pos.z());
+                x = pos.x(); y = pos.y(); z = pos.z();
+                px = mom.x(); py = mom.y(); pz = mom.z();
+                parameters.emplace_back(pos, mom);                
+                found_truth = true;
                 break;
             }
-        }
-
-        // second loop, extrapolate between the points
-        if (vertex &&                                                        /// require vertex
-            parameters.size() == m_trackRecordCollectionNames.size() + 1 &&  // logic assumes there is one more parameter than track records
-            parameters.size() > 1 &&                                         // we need at least two parameters
-            !m_extrapolator.empty() && m_extrapolator->trackingGeometry()    // extrapolation needs to be setup correctly
-        ) {
-            const Trk::TrackingGeometry& trackingGeometry = *m_extrapolator->trackingGeometry();
-            AmgSymMatrix(5) cov;
-            cov.setIdentity();
-            cov(0, 0) = 1e-3;
-            cov(1, 1) = 1e-3;
-            cov(2, 2) = 1e-6;
-            cov(3, 3) = 1e-6;
-            cov(4, 4) = 1e-3 / truthParticle.p4().P();
-            for (unsigned int i = 0; i < parameters.size() - 1; ++i) {
-                Trk::CurvilinearParameters pars(parameters[i].first, parameters[i].second, (truthParticle.pdgId() < 0) ? 1 : -1,
-                                                AmgSymMatrix(5)(cov));
-                // pick destination volume
-                std::string vname;
-                std::string name = m_trackRecordCollectionNames.at(i).key();
-                if (name == "CaloEntryLayer")
-                    vname = "InDet::Containers::InnerDetector";
-                else if (name == "MuonEntryLayer")
-                    vname = "Calo::Container";
-                else if (name == "MuonExitLayer")
-                    vname = "Muon::Containers::MuonSystem";
-                else {
-                    ATH_MSG_WARNING("no destination surface");
-                    continue;
-                }
-                const Trk::TrackingVolume* volume = trackingGeometry.trackingVolume(vname);
-                if (!volume) {
-                    ATH_MSG_WARNING(" failed to get volume" << vname);
-                    continue;
-                }
-                float& ex = truthParticle.auxdata<float>(name + "_x_extr");
-                float& ey = truthParticle.auxdata<float>(name + "_y_extr");
-                float& ez = truthParticle.auxdata<float>(name + "_z_extr");
-                float& epx = truthParticle.auxdata<float>(name + "_px_extr");
-                float& epy = truthParticle.auxdata<float>(name + "_py_extr");
-                float& epz = truthParticle.auxdata<float>(name + "_pz_extr");
-                std::vector<float>& covMat = truthParticle.auxdata<std::vector<float> >(name + "_cov_extr");
-                ex = -99999.;
-                ey = -99999.;
-                ez = -99999.;
-                epx = -99999.;
-                epy = -99999.;
-                epz = -99999.;
-
-                std::unique_ptr<const Trk::TrackParameters> exPars{
-                    m_extrapolator->extrapolateToVolume(ctx, pars, *volume, Trk::alongMomentum, Trk::muon)};
-                if (exPars && exPars->covariance() &&
-                    Amg::saneCovarianceDiagonal(*exPars->covariance())) {
-                  ex = exPars->position().x();
-                  ey = exPars->position().y();
-                  ez = exPars->position().z();
-                  epx = exPars->momentum().x();
-                  epy = exPars->momentum().y();
-                  epz = exPars->momentum().z();
-                  double errorp = 1.;
-                  Amg::compress(*exPars->covariance(), covMat);
-                  double p = exPars->momentum().mag();
-                  errorp = std::sqrt((*exPars->covariance())(Trk::qOverP,
-                                                             Trk::qOverP)) *
-                           p * p;
-                  ATH_MSG_VERBOSE(
-                    " Extrapolated to "
-                    << name << std::endl
-                    << " truth: r " << parameters[i + 1].first.perp() << " z "
-                    << parameters[i + 1].first.z() << " p "
-                    << parameters[i + 1].second.mag() << std::endl
-                    << " extrp: r " << exPars->position().perp() << " z "
-                    << exPars->position().z() << " p "
-                    << exPars->momentum().mag() << " res p "
-                    << (parameters[i + 1].second.mag() -
-                        exPars->momentum().mag())
-                    << " error " << errorp << " cov "
-                    << (*exPars->covariance())(Trk::qOverP, Trk::qOverP)
-                    << " pull p "
-                    << (parameters[i + 1].second.mag() -
-                        exPars->momentum().mag()) /
-                         errorp);
-                }
+            
+            if (!trackingGeometry) continue;
+            
+            /// Make sure that the parameter vector has the same size
+            if (!found_truth) parameters.emplace_back();
+            RecordPars& r_pars = parameters.back();
+            r_pars.record_name = r_name;
+            const Trk::TrackingVolume* volume = nullptr;
+            if (r_name == "CaloEntryLayer")
+                volume = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+            else if (r_name == "MuonEntryLayer")
+                volume = trackingGeometry->trackingVolume("Calo::Container");
+            else if (r_name == "MuonExitLayer")
+                volume = trackingGeometry->trackingVolume("Muon::Containers::MuonSystem");
+            else {
+                ATH_MSG_WARNING("no destination surface for track record "<<r_name);
             }
+            r_pars.volume = found_truth ? volume : nullptr;
         }
-        for (unsigned int i = 0; i < m_trackRecordCollectionNames.size(); i++) {
-            const std::string name = m_trackRecordCollectionNames.at(i).key();
-            if (!truthParticle.isAvailable<std::vector<float> >(name + "_cov_extr")) {
-                truthParticle.auxdata<std::vector<float> >(name + "_cov_extr") = emptyVec;
+        /// Second loop, extrapolate between the points
+        
+        /// extrapolation needs to be setup correctly
+        if (!trackingGeometry) return;
+       
+        
+        AmgSymMatrix(5) cov;
+        cov.setIdentity();
+        cov(0, 0) = cov(1, 1) = 1e-3;
+        cov(2, 2) = cov(3, 3) = 1e-6;
+        cov(4, 4) = 1e-3 / truthParticle.p4().P();
+        for (unsigned int i = 0; i < parameters.size() - 1; ++i) {
+            const RecordPars& start_pars = parameters[i];
+            const RecordPars& end_pars = parameters[i+1];
+            /// If the track record is named, then we should have a volume
+            if ( (start_pars.record_name.size() && !start_pars.volume) || !end_pars.volume) continue;
+            Trk::CurvilinearParameters pars(start_pars.pos, start_pars.mom, truthParticle.charge(), cov);
+            
+            const Trk::TrackingVolume* volume = end_pars.volume;
+            const std::string& r_name = end_pars.record_name;
+            float& ex = truthParticle.auxdata<float>(r_name + "_x_extr");
+            float& ey = truthParticle.auxdata<float>(r_name + "_y_extr");
+            float& ez = truthParticle.auxdata<float>(r_name + "_z_extr");
+            float& epx = truthParticle.auxdata<float>(r_name + "_px_extr");
+            float& epy = truthParticle.auxdata<float>(r_name + "_py_extr");
+            float& epz = truthParticle.auxdata<float>(r_name + "_pz_extr");
+            std::vector<float>& covMat = truthParticle.auxdata<std::vector<float> >(r_name + "_cov_extr");
+           
+            std::unique_ptr<const Trk::TrackParameters> exPars{
+                m_extrapolator->extrapolateToVolume(ctx, pars, *volume, Trk::alongMomentum, Trk::muon)};
+            if (! exPars || !exPars->covariance() || !Amg::saneCovarianceDiagonal(*exPars->covariance())) {
+                ATH_MSG_VERBOSE("Extrapolation to "<<r_name<<" failed. ");
+                continue;                    
             }
-        }
+            truthParticle.auxdata<bool>(r_name+"_is_extr") = true;            
+            ex = exPars->position().x();
+            ey = exPars->position().y();
+            ez = exPars->position().z();
+            epx = exPars->momentum().x();
+            epy = exPars->momentum().y();
+            epz = exPars->momentum().z();
+            Amg::compress(*exPars->covariance(), covMat);
+            
+            const double errorp = Amg::error(*exPars->covariance(), Trk::qOverP);
+            ATH_MSG_VERBOSE( " Extrapolated to " << r_name << std::endl
+                << " truth: r " << end_pars.pos.perp() << " z "
+                << end_pars.pos.z() << " p "
+                << end_pars.mom.mag() << std::endl
+                << " extrp: r " << exPars->position().perp() << " z "
+                << exPars->position().z() << " p "
+                << exPars->momentum().mag() << " res p "
+                << (end_pars.mom.mag() -
+                    exPars->momentum().mag())
+                << " error " << errorp << " cov "
+                << (*exPars->covariance())(Trk::qOverP, Trk::qOverP)
+                << " pull p "
+                << (end_pars.mom.mag() -
+                    exPars->momentum().mag()) /
+                     errorp);                
+        }                
     }
 
     void MuonTruthDecorationAlg::addHitCounts(const EventContext& ctx, xAOD::TruthParticle& truthParticle,
@@ -495,24 +487,34 @@ namespace Muon {
 
                 if (m_idHelperSvc->issTgc(id)) {
                     int index = m_idHelperSvc->phiIndex(id);
-                    if (measPhi)
-                        ++nphiHitsPerChamberLayer[index];
-                    else
-                        ++ntrigEtaHitsPerChamberLayer[index];
+                    if (index >= 0) {
+                      if (measPhi)
+                        ++nphiHitsPerChamberLayer.at(index);
+                      else
+                        ++ntrigEtaHitsPerChamberLayer.at(index);
+                    }
                 } else if (m_idHelperSvc->isMM(id)) {
-                    ++nprecHitsPerChamberLayer[chIndex];
+                  if (chIndex >= 0) {
+                    ++nprecHitsPerChamberLayer.at(chIndex);
+                  }
                 } else if (m_idHelperSvc->isTrigger(id)) {
                     int index = m_idHelperSvc->phiIndex(id);
-                    if (measPhi)
-                        ++nphiHitsPerChamberLayer[index];
-                    else
-                        ++ntrigEtaHitsPerChamberLayer[index];
+                    if (index >= 0) {
+                      if (measPhi)
+                        ++nphiHitsPerChamberLayer.at(index);
+                      else
+                        ++ntrigEtaHitsPerChamberLayer.at(index);
+                    }
                 } else {
                     if (measPhi) {
                         Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
-                        ++nphiHitsPerChamberLayer[index];
+                        if (index >= 0) {
+                          ++nphiHitsPerChamberLayer.at(index);
+                        }
                     } else {
-                        ++nprecHitsPerChamberLayer[chIndex];
+                      if (chIndex >= 0) {
+                        ++nprecHitsPerChamberLayer.at(chIndex);
+                      }
                     }
                 }
             }
@@ -659,11 +661,13 @@ namespace Muon {
 
     void MuonTruthDecorationAlg::addHitIDVectors(xAOD::TruthParticle& truthParticle,
                                                  const MuonTruthDecorationAlg::ChamberIdMap& ids) const {
-        std::vector<unsigned long long> mdtTruthHits;
-        std::vector<unsigned long long> cscTruthHits;
-        std::vector<unsigned long long> tgcTruthHits;
+        
+        std::vector<unsigned long long>& mdtTruthHits = truthParticle.auxdata<std::vector<unsigned long long> >("truthMdtHits");
+        std::vector<unsigned long long>& tgcTruthHits = truthParticle.auxdata<std::vector<unsigned long long> >("truthTgcHits");
+        std::vector<unsigned long long>& rpcTruthHits = truthParticle.auxdata<std::vector<unsigned long long> >("truthRpcHits");
+        
         std::vector<unsigned long long> stgcTruthHits;
-        std::vector<unsigned long long> rpcTruthHits;
+        std::vector<unsigned long long> cscTruthHits;
         std::vector<unsigned long long> mmTruthHits;
 
         // loop over chamber layers
@@ -691,13 +695,15 @@ namespace Muon {
                     mmTruthHits.push_back(id.get_compact());
             }
         }
-        truthParticle.auxdata<std::vector<unsigned long long> >("truthMdtHits") = mdtTruthHits;
-        if (m_idHelperSvc->hasCSC()) truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits") = cscTruthHits;
-        truthParticle.auxdata<std::vector<unsigned long long> >("truthTgcHits") = tgcTruthHits;
-        truthParticle.auxdata<std::vector<unsigned long long> >("truthRpcHits") = rpcTruthHits;
-        if (m_idHelperSvc->hasSTgc()) truthParticle.auxdata<std::vector<unsigned long long> >("truthStgcHits") = stgcTruthHits;
-        if (m_idHelperSvc->hasMM()) truthParticle.auxdata<std::vector<unsigned long long> >("truthMMHits") = mmTruthHits;
-
+        if (m_idHelperSvc->hasCSC()) {
+            truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits") = cscTruthHits;
+        }
+        if (m_idHelperSvc->hasSTgc()) {
+            truthParticle.auxdata<std::vector<unsigned long long> >("truthStgcHits") = stgcTruthHits;
+        }
+        if (m_idHelperSvc->hasMM()) {
+            truthParticle.auxdata<std::vector<unsigned long long> >("truthMMHits") = mmTruthHits;
+        }
         ATH_MSG_VERBOSE("Added " << mdtTruthHits.size() << " mdt truth hits, " << cscTruthHits.size() << " csc truth hits, "
                                  << rpcTruthHits.size() << " rpc truth hits, and " << tgcTruthHits.size() << " tgc truth hits");
     }

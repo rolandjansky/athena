@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialProvider/TrkMaterialProviderTool.h"
@@ -153,7 +153,7 @@ Trk::TrkMaterialProviderTool::finalize()
 void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParameters) const
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParameters)");
-
+ 
   // back extrapolate to perigee, get pAtCaloEntry from list of TSOSs
   // and update/add calo+ID material to mstrack to be refitted.
   const Trk::TrackStates* inputTSOS_orig = track.trackStateOnSurfaces();
@@ -686,19 +686,19 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
 
 // Get Calorimeter TSOS from TG (extrapolateM)
 Trk::TrackStates*
-Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
-					   const Trk::Track&            muonTrack,
-					   const Trk::Surface&		surf,
-					   Trk::PropDirection		dir,
-					   Trk::ParticleHypothesis	mateffects,
-             double&                      Eloss,
-             double&                      X0ScaleMS,
-             double&                      ElossScaleMS,
-					   const Trk::TrackParameters*	parms,
-					   bool                         boundaryCheck,
-					   bool                         removeOoC) const
+Trk::TrkMaterialProviderTool::getCaloTSOS(const Trk::TrackParameters& parm,
+                                          const Trk::Track& muonTrack,
+                                          const Trk::Surface& surf,
+                                          Trk::PropDirection dir,
+                                          Trk::ParticleHypothesis mateffects,
+                                          double& Eloss,
+                                          double& X0ScaleMS,
+                                          double& ElossScaleMS,
+                                          const Trk::TrackParameters* parms,
+                                          bool boundaryCheck,
+                                          bool removeOoC) const
 {
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   bool fremoveMS = false;
   if(!removeOoC) fremoveMS = true;
 
@@ -715,8 +715,11 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   double pOri  = parm.momentum().mag();
 
   // Get TSOS from extrapolateM (from TG)
-  std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir,
-                                                                                            boundaryCheck, mateffects);
+  std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(ctx,
+                                                                                            parm, 
+                                                                                            surf, dir,
+                                                                                            boundaryCheck, 
+                                                                                            mateffects);
 
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM, no-removal");
 
@@ -1410,7 +1413,6 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   double deltaPhi = 0.;
   double deltaTheta = 0.;
 
-  double depth_tot = 0.;
   int n_tot = 0;
 
   double w_tot = 0.;
@@ -1475,7 +1477,6 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       deltaE_rad_tot       += std::abs(scaleEloss*energyLoss->meanRad());
       sigmaDeltaE_rad_tot  += std::abs(scaleEloss*energyLoss->sigmaRad());
 
-      depth_tot += depth;
       n_tot++;
 
       Amg::Vector3D dir = m->trackParameters()->momentum().unit();

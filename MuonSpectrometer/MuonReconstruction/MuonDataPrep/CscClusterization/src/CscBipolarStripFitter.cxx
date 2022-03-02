@@ -111,7 +111,7 @@ Result CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identif
     //  int ipar = 3;
     //  int par[3] = {true,true,false};
     //  double m_chi2;
-    double result[3];
+    //double result[3];
     //////  int FitStatus = TheFitter(m_x,noise,initValues,imeas,meas,ipar,par,&m_chi2,result);
 
     // Add an error proportional to the charge.
@@ -122,7 +122,7 @@ Result CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identif
     ATH_MSG_DEBUG("  Charge: " << res.charge);
     ATH_MSG_DEBUG("  Charge err: " << res.dcharge);
     ATH_MSG_DEBUG("    Time: " << res.time);
-    ATH_MSG_DEBUG("   fit  : " << result[0] << " " << result[1] << " " << result[2]);
+    //ATH_MSG_DEBUG("   fit  : " << result[0] << " " << result[1] << " " << result[2]);
     return res;
 }
 

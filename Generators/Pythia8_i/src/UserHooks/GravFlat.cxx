@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "UserSetting.h"
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8/PhaseSpace.h"
@@ -82,7 +86,7 @@ namespace Pythia8 {
           const double p4 = 1.45857e-08;
           const double p5 = -2.13169e-12;
           const double p6 = 1.26473e-16;
-          weightPL = 1/(p0+(p1*rH)+(p2*pow(rH,2))+(p3*pow(rH,3))+(p4*pow(rH,4))+(p5*pow(rH,5))+(p6*pow(rH,6)));
+          weightPL = 1/(p0+(p1*rH)+(p2*std::pow(rH,2))+(p3*std::pow(rH,3))+(p4*std::pow(rH,4))+(p5*std::pow(rH,5))+(p6*std::pow(rH,6)));
         }
         else if (rH < 5500) {
           // Completely Flat M=2 TeV, Above 4 TeV, Below 5.5 TeV
@@ -94,7 +98,7 @@ namespace Pythia8 {
           const double p4 = 4.92286e-09;
           const double p5 = -2.1452e-13;
           const double p6 = 2.97112e-18;
-          weightPL = 1/(p0+(p1*rH)+(p2*pow(rH,2))+(p3*pow(rH,3))+(p4*pow(rH,4))+(p5*pow(rH,5))+(p6*pow(rH,6)));
+          weightPL = 1/(p0+(p1*rH)+(p2*std::pow(rH,2))+(p3*std::pow(rH,3))+(p4*std::pow(rH,4))+(p5*std::pow(rH,5))+(p6*std::pow(rH,6)));
         }
         else if (rH <= 6500) {
           // Completely Flat M=2 TeV, Above 5.5 TeV, Below 6.5 TeV

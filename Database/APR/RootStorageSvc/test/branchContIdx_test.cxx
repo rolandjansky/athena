@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,9 @@
 #include "StorageSvc/FileDescriptor.h"
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DbString.h"
+#include "StorageSvc/DbOption.h"
 
+using namespace pool;
 using namespace std;
 
 const string            filename = "branchContIdx_testfile.root";    // test file name
@@ -35,8 +37,9 @@ const string            filename = "branchContIdx_testfile.root";    // test fil
 //const string            containerNameB = "ContainerB";               // container for objects B
 
 // use branch containes
-const string            containerNameA = "Containers(A)";               // container for objects A
-const string            containerNameB = "Containers(B)";               // container for objects B
+const string            containerNameA = "Containers(A)";            // branch container for objects A
+const string            containerNameB = "Containers(B)";            // branch container for objects B
+const string            containerNameC = "ContainerC";               // tree container for objects C
 
 
 //const pool::DbType      storageType = pool::ROOTTREE_StorageType;
@@ -48,12 +51,19 @@ pool::DbString       myStringA3("This is my string A3");
 pool::DbString       myStringA4("This is my string A4");
 pool::DbString       myStringA5("This is my string A5");
 pool::DbString       myStringA6("This is my string A6");
+pool::DbString       myStringA7("This is my string A7");
 
 pool::DbString       myStringB1("This is my string B1");
 pool::DbString       myStringB2("This is my string B2");
+pool::DbString       myStringB3("This is my string B3");
+
+pool::DbString       myStringC1("This is my string C1");
+pool::DbString       myStringC2("This is my string C2");
+pool::DbString       myStringC3("This is my string C3");
 
 // string tokens to written objects, for use when reading back
-string refA1, refA2, refA3, refA4, refA5, refA6, refB1, refB2;
+string refA1, refA2, refA3, refA4, refA5, refA6, refA7;
+string refB1, refB2, refB3, refC1, refC2, refC3;
 
 
 int main() {
@@ -93,6 +103,18 @@ int main() {
       throw std::runtime_error( "Could not create a persistent shape." );
    }
 
+   // Get IStorageExplorer IFace to set options
+   void *p = nullptr;
+   storSvc->queryInterface( IStorageExplorer::interfaceID(), &p );
+   IStorageExplorer *storage = (IStorageExplorer*)p;
+   if( !storage ) {
+      throw std::runtime_error( "Failed to retrieve IStorageExplorer" );
+   }
+   // Set container for master index (enables index synchronization between TTrees)
+   //DbOption masterIdxOpt("INDEX_MASTER", "", containerNameA.c_str());
+   DbOption masterIdxOpt("INDEX_MASTER", "", "*");
+   storage->setDatabaseOption(fd, masterIdxOpt);
+
    // Commit here to test empty commits
    if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
       throw std::runtime_error( "Empty commit FAILED" );
@@ -106,26 +128,34 @@ int main() {
       }
       return token;
    };
+
+   auto Commit = [&](const int) {
+      if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+         throw std::runtime_error( "Commit FAILED" );
+      }
+   };
    
    refA1 = writeStr(containerNameA, myStringA1)->toString();
    refA2 = writeStr(containerNameA, myStringA2)->toString();
    refA3 = writeStr(containerNameA, myStringA3)->toString();
    refB1 = writeStr(containerNameB, myStringB1)->toString();
+   refC1 = writeStr(containerNameC, myStringC1)->toString();
 
-   // Commit
-   if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
-      throw std::runtime_error( "Commit FAILED" );
-   }
+   Commit(1);
 
    refA4 = writeStr(containerNameA, myStringA4)->toString();
    refB2 = writeStr(containerNameB, myStringB2)->toString();
+   refC2 = writeStr(containerNameC, myStringC2)->toString();
    refA5 = writeStr(containerNameA, myStringA5)->toString();
    refA6 = writeStr(containerNameA, myStringA6)->toString();
 
-   // Commit again
-   if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
-      throw std::runtime_error( "Commit FAILED" );
-   }
+   Commit(2);
+
+   refA7 = writeStr(containerNameA, myStringA7)->toString();
+   refC3 = writeStr(containerNameC, myStringC3)->toString();
+   refB3 = writeStr(containerNameB, myStringB3)->toString();
+
+   Commit(3);
 
    // Close session
    if( !storSvc->disconnect( fd ).isSuccess() ) {
@@ -147,6 +177,10 @@ int main() {
    cout << "Token for object A6 = " << refA6 << endl;
    cout << "Token for object B1 = " << refB1 << endl;
    cout << "Token for object B2 = " << refB2 << endl;
+   cout << "Token for object B3 = " << refB3 << endl;
+   cout << "Token for object C1 = " << refC1 << endl;
+   cout << "Token for object C2 = " << refC2 << endl;
+   cout << "Token for object C3 = " << refC3 << endl;
 
 
    // ===============    READ back
@@ -179,8 +213,13 @@ int main() {
    };
    
    readfun(refA1);   cout << "read back A1: " << readString << endl;
+   readfun(refA7);   cout << "read back A7: " << readString << endl;
+   readfun(refC3);   cout << "read back C3: " << readString << endl;
    readfun(refB1);   cout << "read back B1: " << readString << endl;
+   readfun(refC2);   cout << "read back C2: " << readString << endl;
    readfun(refA3);   cout << "read back A3: " << readString << endl;
+   readfun(refC1);   cout << "read back C1: " << readString << endl;
+   readfun(refB3);   cout << "read back B3: " << readString << endl;
    readfun(refA6);   cout << "read back A6: " << readString << endl;
    readfun(refA4);   cout << "read back A4: " << readString << endl;
    readfun(refB2);   cout << "read back B2: " << readString << endl;

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_H
@@ -24,7 +24,6 @@
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IConditionsCleanerSvc.h"
 #include "AthenaKernel/IHybridProcessorHelper.h"
-#include "StoreGate/ActiveStoreSvc.h"
 
 #include <memory>
 #include <string>
@@ -82,10 +81,6 @@ protected:
   typedef ServiceHandle<IConversionSvc> IConversionSvc_t;
   /// @property Reference to the Histogram Persistency Service
   IConversionSvc_t   m_histoPersSvc;
-
-  typedef ServiceHandle<ActiveStoreSvc> ActiveStoreSvc_t;
-  /// @property Reference to the Histogram Persistency Service
-  ActiveStoreSvc_t   m_activeStoreSvc;
 
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;
@@ -290,6 +285,8 @@ private:
       , "EventService_EventRanges"
       , "The name of the Yampl channel between AthenaMT and the Pilot"
       };
+
+  Gaudi::Property<std::string> m_socketName{this, "SocketName", {}, "YAMPL socket name"};
 
   // Hopefully a temporary measurement. For the time being we cannot
   // support event ranges from different input files.

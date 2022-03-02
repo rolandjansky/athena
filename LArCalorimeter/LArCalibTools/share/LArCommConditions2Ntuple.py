@@ -92,6 +92,8 @@ DetFlags.digitize.all_setOff()
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit 
 
+from LArConditionsCommon import LArAlignable #noqa F401
+
 #Get identifier mapping (needed by LArConditionsContainer)
 svcMgr.IOVDbSvc.GlobalTag=DBTag
 if IsMC:
@@ -477,5 +479,5 @@ svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFile+"' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
 #svcMgr.MessageSvc.OutputLevel = DEBUG
-
+svcMgr.MessageSvc.Format = "% F%50W%C%8W%R%T %0W%M"
 svcMgr.IOVDbSvc.DBInstance=""

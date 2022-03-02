@@ -100,6 +100,22 @@ void dispWind() const;
 void dispWind(ubit16 thres) const;
 void dispDefaultConfiguration() const;
 ubit16 char2int(const char *str, CMAword the32[2]);
+////////////////////////////////////////////////////////////////////////////////
+static const ubit16 s_nthres;     // number of thresholds possible
+static const ubit16 s_nchan[2];   // CMA x-y dimensions
+static const float s_BCtime;      // Bunch-Crossing separation (25 ns)
+static const ubit16 s_NDLLCYC;    // Number of DLL Cycles in one Bunch Crossing
+static const float s_DLLtime;     // Bunch-Crossing IDentifier
+static const sbit16 s_NBunch;     // number of Bunch-Crossings to be considered
+static const sbit16 s_nclock;     // length of the CMA buffers
+                                  // crossing in the CMA buffers
+static const sbit16 s_timeGroupA; // number of channel in a group for 
+                                  // timing setting
+static const sbit16 s_timeGroupB; // number of channel in a group for 
+                                  // timing setting
+static const sbit16 s_wordlen;    // number of bits for a single word in CMAword 
+                                  // (to be fixed to 32);
+////////////////////////////////////////////////////////////////////////////////
 //
 private:
 int m_run;
@@ -227,20 +243,6 @@ CMAword *m_roads;    // programmed 3 roads
 CMAword *m_overl;    // overlapping channels list
  sbit32 *m_geome;    // geometry
 ////////////////////////////////////////////////////////////////////////////////
-static const ubit16 s_nthres;     // number of thresholds possible
-static const ubit16 s_nchan[2];   // CMA x-y dimensions
-static const float s_BCtime;      // Bunch-Crossing separation (25 ns)
-static const ubit16 s_NDLLCYC;    // Number of DLL Cycles in one Bunch Crossing
-static const float s_DLLtime;     // Bunch-Crossing IDentifier
-static const sbit16 s_NBunch;     // number of Bunch-Crossings to be considered
-static const sbit16 s_nclock;     // length of the CMA buffers
-                                // crossing in the CMA buffers
-static const sbit16 s_timeGroupA; // number of channel in a group for 
-                                // timing setting
-static const sbit16 s_timeGroupB; // number of channel in a group for 
-                                // timing setting
-static const sbit16 s_wordlen;    // number of bits for a single word in CMAword 
-                                // (to be fixed to 32);
 sbit16 m_thisBC;                  // real Bunch Crossing ID 
                                 //   (from real data for example...)
 ubit16 m_BCzero;                  // offset for bunch crossing address
@@ -383,8 +385,6 @@ void makeOutPattern();
 ubit16 config(ubit16 i, ubit16 *arr) const;
 void   set_to_0 (CMAword *p, sbit16 channel) const;
 void   set_to_1 (CMAword *p, sbit16 channel) const;
-ubit16 bitstatus(const CMAword *p, ubit16 channel) const;
-void inds(ubit16 *i, ubit16 channel) const;
 CMAword intPow (const ubit16 base, const ubit16 expo) const;
 void wind() const;
 void show_attributes() const;

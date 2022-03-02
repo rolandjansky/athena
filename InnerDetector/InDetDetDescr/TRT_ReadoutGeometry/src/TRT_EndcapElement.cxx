@@ -241,7 +241,7 @@ TRT_EndcapElement::elementSurface() const
 void
 TRT_EndcapElement::createSurfaceCache() const
 {
- if (!m_surfaceCache) {
+ if (!m_surfaceCache.isValid()) {
     m_surfaceCache.set(createSurfaceCacheHelper());
   }
   // create the surface if needed
@@ -249,7 +249,8 @@ TRT_EndcapElement::createSurfaceCache() const
     elementSurface();
   }
 }
-std::unique_ptr<SurfaceCache>
+
+SurfaceCache
 TRT_EndcapElement::createSurfaceCacheHelper() const
 {
   // Calculate the surface
@@ -286,10 +287,9 @@ TRT_EndcapElement::createSurfaceCacheHelper() const
   // create the igredients and the cache
   auto center = Amg::Vector3D(transform.translation());
   auto bounds = std::make_unique<Trk::DiscBounds>(rMin, rMax, phiHalfWidth);
-  auto normal = std::make_unique<Amg::Vector3D>(transform.rotation().col(2));
+  auto normal = Amg::Vector3D(transform.rotation().col(2));
 
-  return std::make_unique<SurfaceCache>(
-    transform, center, std::move(normal), std::move(bounds));
+  return {transform, center, normal, std::move(bounds)};
 }
 
 int

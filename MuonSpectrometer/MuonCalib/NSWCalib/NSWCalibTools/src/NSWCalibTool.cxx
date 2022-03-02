@@ -9,46 +9,46 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 namespace {
-  static constexpr double const& toRad = M_PI/180;
-  static constexpr double const& pitchErr = 0.425 * 0.425 / 12;
-  static constexpr double const& reciprocalSpeedOfLight = 1. / Gaudi::Units::c_light; // mm/ns
+  constexpr double const& toRad = M_PI/180;
+  constexpr double const& pitchErr = 0.425 * 0.425 / 12;
+  constexpr double const& reciprocalSpeedOfLight = 1. / Gaudi::Units::c_light; // mm/ns
   
   // since the final operation gas is not yet fixed different, different mixtures are added for studies 
-  static const std::map<std::string, float> map_transDiff {{"ArCo2_937", 0.036},
+  const std::map<std::string, float> map_transDiff {{"ArCo2_937", 0.036},
                               {"ArCo2_8020", 0.019}, {"ArCo2iC4H10_9352", 0.035}};
-  static const std::map<std::string, float> map_longDiff {{"ArCo2_937", 0.019},
+  const std::map<std::string, float> map_longDiff {{"ArCo2_937", 0.019},
                               {"ArCo2_8020", 0.022 }, {"ArCo2iC4H10_9352", 0.0195}};
-  static const std::map<std::string, float> map_vDrift {{"ArCo2_937", 0.047},
+  const std::map<std::string, float> map_vDrift {{"ArCo2_937", 0.047},
                               {"ArCo2_8020", 0.040}, {"ArCo2iC4H10_9352", 0.045}};
 
 
   // sTGC conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
   // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
-  static constexpr double const& sTGC_chargeToPdoSlope = 1.0304;
-  static constexpr double const& sTGC_chargeToPdoOffset = 59.997;
+  constexpr double const& sTGC_chargeToPdoSlope = 1.0304;
+  constexpr double const& sTGC_chargeToPdoOffset = 59.997;
   // sTGC conversion from PDO to potential
-  static constexpr double const& sTGC_pdoToChargeSlope = 0.97050;
-  static constexpr double const& sTGC_pdoToChargeOffset = -54.345;
+  constexpr double const& sTGC_pdoToChargeSlope = 0.97050;
+  constexpr double const& sTGC_pdoToChargeOffset = -54.345;
 
   // MM conversion from charge to PDO
-  static constexpr double const& MM_chargeToPdoSlope = 9./6421;
-  static constexpr double const& MM_chargeToPdoOffset = 0;
+  constexpr double const& MM_chargeToPdoSlope = 9./6421;
+  constexpr double const& MM_chargeToPdoOffset = 0;
   // MM conversion from PDO to charge
-  static constexpr double const& MM_pdoToChargeSlope = 713.4;
-  static constexpr double const& MM_pdoToChargeOffset = 0;
+  constexpr double const& MM_pdoToChargeSlope = 713.4;
+  constexpr double const& MM_pdoToChargeOffset = 0;
 
 
   //Functional form fit to agree with Garfield simulations. Fit and parameters from G. Iakovidis
   // For now only the parametrisation for 93:7 is available
-  static const std::map<std::string, std::vector<float>> map_lorentzAngleFunctionPars {
+  const std::map<std::string, std::vector<float>> map_lorentzAngleFunctionPars {
                               {"ArCo2_937", std::vector<float>{0, 58.87, -2.983, -10.62, 2.818}},
                               {"ArCo2_8020", std::vector<float>{0, 58.87, -2.983, -10.62, 2.818}},
                               {"ArCo2iC4H10_9352", std::vector<float>{0, 58.87, -2.983, -10.62, 2.818}}};
 
   // For now only the parametrisation for 93:7 is available
-  static const std::map<std::string, float> map_interactionDensitySigma {{"ArCo2_937", 4.04 / 5.},
+  const std::map<std::string, float> map_interactionDensitySigma {{"ArCo2_937", 4.04 / 5.},
                                    {"ArCo2_8020", 4.04 / 5.}, {"ArCo2iC4H10_9352", 4.04 / 5.}};
-  static const std::map<std::string, float> map_interactionDensityMean {{"ArCo2_937", 16.15 / 5.},
+  const std::map<std::string, float> map_interactionDensityMean {{"ArCo2_937", 16.15 / 5.},
                                    {"ArCo2_8020", 16.15 / 5.}, {"ArCo2iC4H10_9352", 16.15 / 5.}};
 
 }
@@ -72,13 +72,15 @@ StatusCode Muon::NSWCalibTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize()");
   ATH_CHECK(m_idHelperSvc.retrieve());
-  if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
+  ATH_CHECK(m_fieldCondObjInputKey.initialize( m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ));
+  ATH_CHECK(m_muDetMgrKey.initialize( m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ));
+
+  if ( m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) {
+    ATH_CHECK(initializeGasProperties());
+  } else {
     ATH_MSG_INFO("MM or STGC not part of initialized detector layout, skipping initialization");
-    return StatusCode::SUCCESS;
   }
-  ATH_CHECK(m_fieldCondObjInputKey.initialize());
-  ATH_CHECK(m_muDetMgrKey.initialize());
-  ATH_CHECK(initializeGasProperties());
+
   return StatusCode::SUCCESS;
 }
 

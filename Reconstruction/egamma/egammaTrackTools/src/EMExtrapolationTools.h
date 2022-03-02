@@ -56,24 +56,25 @@ public:
 
   /** @brief initialize method */
   virtual StatusCode initialize() override final;
-  /** @brief finalize method */
-  virtual StatusCode finalize() override final;
 
-  typedef std::unordered_map<size_t, std::unique_ptr<Trk::CaloExtension>> Cache;
-
+  virtual std::pair<std::vector<CaloSampling::CaloSample>,
+                    std::vector<std::unique_ptr<Trk::Surface>>>
+  getClusterLayerSurfaces(
+    const xAOD::CaloCluster& cluster,
+    const CaloDetDescrManager& caloDD) const override final;
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  */
   virtual StatusCode getMatchAtCalo(
     const EventContext& ctx,
     const xAOD::CaloCluster& cluster,
     const xAOD::TrackParticle& trkPB,
-    Trk::PropDirection direction,
+    const std::vector<CaloSampling::CaloSample>& samples,
+    const std::vector<std::unique_ptr<Trk::Surface>>& surfaces,
     std::array<double, 4>& eta,
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
-    unsigned int extrapFrom = fromPerigee,
-    Cache* cache = nullptr) const override final;
+    unsigned int extrapFrom = fromPerigee) const override final;
 
   /** test for vertex-to-cluster match given also the positions
     at the calorimeter from the vertex extrapolation  **/
@@ -113,18 +114,11 @@ private:
    * (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
 
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool{
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_ParticleCaloExtensionTool{
     this,
-    "LastCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"
+    "CaloExtensionTool",
+    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
   };
-
-  ToolHandle<Trk::IParticleCaloExtensionTool>
-    m_perigeeParticleCaloExtensionTool{
-      this,
-      "PerigeeCaloExtensionTool",
-      "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
-    };
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator{
     this,
@@ -149,34 +143,6 @@ private:
   // ID TRT helper
   const TRT_ID* m_trtId;
   Gaudi::Property<bool> m_enableTRT{ this, "EnableTRT", true };
-
-  // Cache collections for GSF Track Particle extrapolation Perigee
-  SG::ReadHandleKey<CaloExtensionCollection> m_PerigeeCacheKey{
-    this,
-    "PerigeeCache",
-    "PerigeeCaloExtension",
-    "Name of GSF Perigee extrapolation cache"
-  };
-  SG::ReadHandleKey<CaloExtensionCollection> m_LastCacheKey{
-    this,
-    "LastCache",
-    "LastCaloExtension",
-    "Name of Last measurement extrapolation cache"
-  };
-
-  // Use a cache for Track Particle extrapolation
-  Gaudi::Property<bool> m_usePerigeeCaching{
-    this,
-    "useCaching",
-    false,
-    "Use a CaloExtension Collection as cache from Perigee"
-  };
-  Gaudi::Property<bool> m_useLastCaching{
-    this,
-    "useLastCaching",
-    false,
-    "Use a CaloExtension Collection as cache"
-  };
 };
 
 #endif

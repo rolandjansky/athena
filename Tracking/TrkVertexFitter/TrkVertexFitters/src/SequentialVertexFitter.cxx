@@ -249,8 +249,8 @@ namespace Trk{
       newPosition = returnVertex->position();
       newChi2 = returnVertex->chiSquared();
       ++n_iter;
-      //the fit always fails if a negative chisquared was returned at some point
-      fitFailed = (n_iter == m_maxStep) or (newChi2 <0.);
+      //the fit always fails if a negative chisquared was returned at some point or the z-coordinate of the vertex was outside ID
+      fitFailed = (n_iter == m_maxStep) or (newChi2 <0.) or std::abs(returnVertex->z())>m_maxZ;
       deltaR = (previousPosition - newPosition).perp();
       // the rest after 'fitFailed' won't be evaluated if the fit failed, 
       // so hopefully no more FPE in the division

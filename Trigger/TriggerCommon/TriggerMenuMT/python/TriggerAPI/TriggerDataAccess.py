@@ -297,9 +297,10 @@ def getHLTmap_fromTM(period, release):
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     menu = GenerateMenuMT()
-    menu.getChainsFromMenu()
+    menu.getChainsFromMenu(ConfigFlags)
 
     if not period & TriggerPeriod.future: return {}, 0
     hltMap = {}

@@ -1,7 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 namespace Trk {
+
+inline bool StraightLineSurface::operator==(const StraightLineSurface& sf) const
+{
+  return *this == static_cast<const Surface& >(sf);
+}
 
 /** Return the surface type */
 inline SurfaceType

@@ -37,7 +37,7 @@ public:
    void Print()                  const;
 
    /**Add a line */
-   void Add(AmdcAline ToBeAdded);
+   void Add(const AmdcAline& ToBeAdded);
 
    /**Get number of lines */
    int NberOfObjects() const;

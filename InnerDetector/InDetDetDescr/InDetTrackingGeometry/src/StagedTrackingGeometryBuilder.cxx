@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -930,7 +930,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
       }
       binUtils->push_back(surfArray->binUtility()->clone());
       if (id+1<discOrder.size()) rsteps.push_back( 0.5*(rbounds[id].second+rbounds[id+1].first));
-      const std::vector<const Trk::Surface*>& ringSurf =surfArray->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Surface const * const> ringSurf =surfArray->arrayObjects();
       surfs.insert(surfs.end(),ringSurf.begin(),ringSurf.end());
             
     }  
@@ -947,7 +947,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   // create merged binned array
   // a two-dimensional BinnedArray is needed ; takes possession of binUtils and
   // will delete it on destruction.
-  Trk::BinnedArray<Trk::Surface>* mergeBA = new Trk::BinnedArray1D1D<Trk::Surface>(surfaces,new Trk::BinUtility(rsteps,Trk::open,Trk::binR),binUtils);
+  Trk::BinnedArray<const Trk::Surface>* mergeBA = new Trk::BinnedArray1D1D<const Trk::Surface>(surfaces,new Trk::BinUtility(rsteps,Trk::open,Trk::binR),binUtils);
 
   //DiscOverlapDescriptor takes possession of clonedBinUtils, will delete it on destruction.
   // but *does not* manage mergeBA.      
@@ -975,7 +975,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
                                                    olDescriptor); 
   
    // register the layer to the surfaces 
-   const std::vector<const Trk::Surface*>& layerSurfaces     = mergeBA->arrayObjects();
+  Trk::BinnedArraySpan<Trk::Surface const * const> layerSurfaces     = mergeBA->arrayObjects();
    for (const auto *sf : layerSurfaces) {
      const InDetDD::SiDetectorElement* detElement = dynamic_cast<const InDetDD::SiDetectorElement*>(sf->associatedDetectorElement());
      const std::vector<const Trk::Surface*>& allSurfacesVector = detElement->surfaces();

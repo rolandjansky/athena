@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: magnetic field toggle (on->off->on) test with dummy job options
 # art-type: build
@@ -74,7 +74,7 @@ logmerge.extra_log_regex = 'athenaHLT-.*-.*(.out|.err)'
 
 # Compare to reference to check field status
 refcomp = CheckSteps.RegTestStep('RegTest')
-refcomp.regex = '^AtlasFieldCacheCondAlg.*INFO.*|^MagFieldCondReader.*INFO.*'
+refcomp.regex = 'AtlasFieldCacheCondAlg.*INFO.*|MagFieldCondReader.*INFO.*'
 refcomp.reference = 'TrigP1Test/test_trigP1_magFieldToggle.ref'
 refcomp.required = True              # Final exit code depends on this step
 test.check_steps.insert(-1, refcomp) # Add before the last (zip) step

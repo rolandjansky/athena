@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -8,11 +8,11 @@
 //
 
 #include "TRT_CablingData.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
   //Constructor
 TRT_CablingData::TRT_CablingData()
@@ -30,16 +30,16 @@ TRT_CablingData::~TRT_CablingData()
     delete i->second;
 }
 
-  // Fill m_identfierForAllStraws with zeros (TB case)
-void TRT_CablingData::zero_identfierForAllStraws
-(int, std::vector<Identifier> )
+  // Fill m_identifierForAllStraws with zeros (TB case)
+void TRT_CablingData::zero_identifierForAllStraws
+(int, const std::vector<Identifier>& )
 {  
   return;
 }
 
-  // Fill m_identfierHashForAllStraws with zeros (TB case)
-void TRT_CablingData::zero_identfierHashForAllStraws
-(int, std::vector<IdentifierHash> )
+  // Fill m_identifierHashForAllStraws with zeros (TB case)
+void TRT_CablingData::zero_identifierHashForAllStraws
+(int, const std::vector<IdentifierHash>& )
 {
   return;
 }
@@ -61,12 +61,33 @@ TRT_CablingData::find_idandhash (int rod, int bufferPosition)
   return offsetvec[bufferPosition];
 }
 
+const TRT_CablingData::idandhash_t&
+TRT_CablingData::find_idandhash (int rod, int bufferPosition) const
+{
+  assert (rod >= 0);
+  assert (bufferPosition >= 0);
+  unsigned int rodhi = ((unsigned)rod & 0xffff0000) >> 16;
+  unsigned int rodlo = (rod & 0x0000ffff);
+  auto it = m_rodoffset_to_id.find (rodhi);
+  if (it != m_rodoffset_to_id.end()) {
+    const rodvec_t& rodvec = it->second;
+    if (rodlo < rodvec.size()) {
+      const offsetvec_t& offsetvec = rodvec[rodlo];
+      if ((unsigned)bufferPosition < offsetvec.size())
+        return offsetvec[bufferPosition];
+    }
+  }
+
+  static const idandhash_t dum;
+  return dum;
+}
+
   // Set value of Identifier for each straw (TB case)
-void TRT_CablingData::set_identfierForAllStraws(int rod, 
+void TRT_CablingData::set_identifierForAllStraws(int rod, 
   int bufferPosition, Identifier strawID)
 {    
   find_idandhash (rod, bufferPosition).first = strawID;
-  m_BufferOffsetForAllIdentifiers.push_back(idpair (strawID, bufferPosition));
+  m_BufferOffsetForAllIdentifiers.emplace_back(strawID, bufferPosition);
   m_bofai_sorted = false;
 
    //   cout << "set m_BufferOffsetForAllIdentifiers[" 
@@ -76,49 +97,49 @@ void TRT_CablingData::set_identfierForAllStraws(int rod,
 
 
  // Set value of Identifier for each straw (DC1, DC2)
-void TRT_CablingData::set_identfierForAllStraws(Identifier strawID)
+void TRT_CablingData::set_identifierForAllStraws(Identifier strawID)
 {
-  m_identfierForAllStraws.push_back(strawID);
+  m_identifierForAllStraws.push_back(strawID);
 }
 
 
   // Set value of IdentifierHash for each straw (TB case)
-void TRT_CablingData::set_identfierHashForAllStraws(int rod, 
+void TRT_CablingData::set_identifierHashForAllStraws(int rod, 
   int bufferPosition, IdentifierHash hashId)
 {    
   find_idandhash (rod, bufferPosition).second = hashId;
 }
 
   // Set value of IdentifierHash for each straw (DC1, DC2)
-void TRT_CablingData::set_identfierHashForAllStraws(IdentifierHash hashId)
+void TRT_CablingData::set_identifierHashForAllStraws(IdentifierHash hashId)
 {
-  m_identfierHashForAllStraws.push_back(hashId);
+  m_identifierHashForAllStraws.push_back(hashId);
 }
 
 
-Identifier TRT_CablingData::get_identfierForAllStraws(int rod, 
-  int bufferPosition)
+Identifier TRT_CablingData::get_identifierForAllStraws(int rod, 
+  int bufferPosition) const
 {
   return find_idandhash (rod, bufferPosition).first;
 }
 
-IdentifierHash TRT_CablingData::get_identfierHashForAllStraws
-  (int rod, int bufferPosition)
+IdentifierHash TRT_CablingData::get_identifierHashForAllStraws
+  (int rod, int bufferPosition) const
 {
   return find_idandhash (rod, bufferPosition).second;
 }
 
 
   // Get value of Identifier for each straw (DC1, DC2)
-Identifier TRT_CablingData::get_identfierForAllStraws(int shift)
+Identifier TRT_CablingData::get_identifierForAllStraws(int shift) const
 {
-  return m_identfierForAllStraws[shift];
+  return m_identifierForAllStraws[shift];
 }
 
   // Get value of IdentifierHash for each straw (DC1, DC2)
-IdentifierHash TRT_CablingData::get_identfierHashForAllStraws(int shift)
+IdentifierHash TRT_CablingData::get_identifierHashForAllStraws(int shift) const
 {
-  return m_identfierHashForAllStraws[shift];
+  return m_identifierHashForAllStraws[shift];
 }
 
 // Get buffer offset from Identifier

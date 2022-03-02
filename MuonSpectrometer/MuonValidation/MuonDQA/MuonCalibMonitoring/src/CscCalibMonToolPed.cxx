@@ -16,7 +16,7 @@
 CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
   CscCalibMonToolBase(type, name, parent),
-  m_h_pedMissingChannels(NULL),
+  m_h_pedMissingChannels(nullptr),
   m_pedBadBin(1),
   m_noiseBadBin(2),
   m_rmsBadBin(3),
@@ -25,26 +25,26 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_chi2BadBin(6),
   m_missingBadBin(7),
   m_onlTHoldBreachBadBin(8),
-  m_h_numBad(NULL),
-  m_pedNewColl(NULL),
-  m_pedOldColl(NULL),
-  m_pedDiffColl(NULL),        
-  m_noiseNewColl(NULL),
-  m_noiseOldColl(NULL),
-  m_noiseDiffColl(NULL),
-  m_chi2Coll(NULL),
-  m_rmsNewColl(NULL),
-  m_rmsOldColl(NULL),
-  m_rmsDiffColl(NULL),
-  m_f001NewColl(NULL),
-  m_f001OldColl(NULL),
-  m_f001DiffColl(NULL),
-  m_onlTHoldBreachColl(NULL),
-  m_nEntriesColl(NULL),
-  m_tholdDiffColl(NULL),
-  m_maxBitCorrColl(NULL),
-  m_h2_rmsVnoiseEta(NULL),
-  m_h2_rmsVnoisePhi(NULL)
+  m_h_numBad(nullptr),
+  m_pedNewColl(nullptr),
+  m_pedOldColl(nullptr),
+  m_pedDiffColl(nullptr),        
+  m_noiseNewColl(nullptr),
+  m_noiseOldColl(nullptr),
+  m_noiseDiffColl(nullptr),
+  m_chi2Coll(nullptr),
+  m_rmsNewColl(nullptr),
+  m_rmsOldColl(nullptr),
+  m_rmsDiffColl(nullptr),
+  m_f001NewColl(nullptr),
+  m_f001OldColl(nullptr),
+  m_f001DiffColl(nullptr),
+  m_onlTHoldBreachColl(nullptr),
+  m_nEntriesColl(nullptr),
+  m_tholdDiffColl(nullptr),
+  m_maxBitCorrColl(nullptr),
+  m_h2_rmsVnoiseEta(nullptr),
+  m_h2_rmsVnoisePhi(nullptr)
 {
   declareProperty("MaxPedDiff",m_pedMaxDiff=2.0);
   declareProperty("MaxNoiseDiff",m_noiseMaxDiff = 5.0);
@@ -603,7 +603,7 @@ StatusCode CscCalibMonToolPed::postProc()
       ATH_MSG_INFO( "No bit histogram vector found from calibration. "
                     << " Won't be in monitoring output file. "  );
 
-    const DataVector<TH2F> * bitCorrelations = NULL;
+    const DataVector<TH2F> * bitCorrelations = nullptr;
 
     if(m_doBitCorrelations)
       bitCorrelations = pedReport->getBitCorrelation();

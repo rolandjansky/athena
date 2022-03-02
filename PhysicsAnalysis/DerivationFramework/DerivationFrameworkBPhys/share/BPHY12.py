@@ -115,12 +115,14 @@ print(BPHY12DiMuonFinder)
 ##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
-
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY12_Reco_DiMuon = DerivationFramework__Reco_Vertex(
   name                   = "BPHY12_Reco_DiMuon",
   VertexSearchTool             = BPHY12DiMuonFinder,
   OutputVtxContainerName = "BPHY12DiMuonCandidates",
+  V0Tools                = TrackingCommon.getV0Tools(),
+  PVRefitter             = BPHY12_VertexTools.PrimaryVertexRefitter,
   PVContainerName        = "PrimaryVertices",
   RefPVContainerName     = "BPHY12RefittedPrimaryVertices",
   RefitPV                = True,
@@ -146,6 +148,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY12_Select_DiMuons = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY12_Select_DiMuons",
   HypothesisName        = "Jpsi",
+  V0Tools               = TrackingCommon.getV0Tools(),
   InputVtxContainerName = "BPHY12DiMuonCandidates",
   VtxMassHypo           = 3096.916,
   MassMin               = 1.0,
@@ -207,10 +210,12 @@ print(BPHY12BmumuKstFinder)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex  
 BPHY12_Reco_BmumuKst  = DerivationFramework__Reco_Vertex(
     name                   = "BPHY12_Reco_BmumuKst",
-    Jpsi2PlusTrackName     = BPHY12BmumuKstFinder,
+    VertexSearchTool     = BPHY12BmumuKstFinder,
     OutputVtxContainerName = "BPHY12BmumuKstCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "BPHY12RefittedPrimaryVertices",
+    RefPVContainerName     = "BPHY12RefittedPrimaryVertices2",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY12_VertexTools.PrimaryVertexRefitter,
     RefitPV                = True,
     MaxPVrefit             = 10000,
     DoVertexType = 7)
@@ -222,6 +227,7 @@ print(BPHY12_Reco_BmumuKst)
 #  set mass hypothesis (K pi)
 BPHY12_Select_BmumuKst = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY12_Select_BmumuKst",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     HypothesisName             = "Bd", #creates output variable pass_Bd
     InputVtxContainerName      = "BPHY12BmumuKstCandidates",
     TrkMasses                  = [105.658, 105.658, 493.677, 139.570],
@@ -329,12 +335,6 @@ streamName = derivationFlags.WriteDAOD_BPHY12Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY12Stream )
 BPHY12Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY12Stream.AcceptAlgs(["BPHY12Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="BPHY12ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================
@@ -355,6 +355,8 @@ BPHY12SlimmingHelper.IncludeBPhysTriggerContent = True
 AllVariables += ["PrimaryVertices"]
 StaticContent += ["xAOD::VertexContainer#BPHY12RefittedPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY12RefittedPrimaryVerticesAux."]
+StaticContent += ["xAOD::VertexContainer#BPHY12RefittedPrimaryVertices2"]
+StaticContent += ["xAOD::VertexAuxContainer#BPHY12RefittedPrimaryVertices2Aux."]
 
 ## ID track particles
 AllVariables += ["InDetTrackParticles"]

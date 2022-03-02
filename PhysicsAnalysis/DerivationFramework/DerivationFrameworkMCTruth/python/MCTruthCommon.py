@@ -46,137 +46,20 @@ if DerivationFrameworkIsMonteCarlo:
                                     "Partons",
                                     ]
 
-
-def simplePJGetter(Label, InputContainer):
-    # Set up a pseudo-jet algorithm
-    from AthenaCommon import CfgMgr
-    return CfgMgr.PseudoJetAlgorithm(Label+"Get",
-                                      InputContainer = InputContainer,
-                                      Label = Label,
-                                      OutputContainer = "PseudoJet"+Label,
-                                      SkipNegativeEnergy = True
-                                      )
-
-# Helper for adding truth jet collections
+# Helper for adding truth jet collections via new jet config
 def addTruthJets(kernel=None, decorationDressing=None):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
-    # make sure if we are using EVNT that we don't try to check sim metadata 
-    barCodeFromMetadata=2
-    if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-        barCodeFromMetadata=0
-    from JetRec.JetRecStandardToolManager import jtm
-    if decorationDressing is not None and not hasattr(jtm,'truthpartdressedwz'):
-        from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-        if 'truthpartdressedwz' not in jtm.tools:
-            jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
-                                          MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                          IncludePromptLeptons=False,IncludePromptPhotons=True,
-                                          IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
-                                          FSRPhotonCone=-1., DressingDecorationName=decorationDressing
-                                         )
-        # Add a jet tool runner for this thing
-        from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetAlgorithm
-        from JetRec.JetRecFlags import jetFlags
-        jtm += JetToolRunner("jetdressedwzrun", EventShapeTools=[], Tools=[jtm.truthpartdressedwz], Timer=jetFlags.timeJetToolRunner() )
-        # And an algorithm to run in
-        kernel += JetAlgorithm("jetdressedwzalg")
-        jetdressedwzalg = kernel.jetdressedwzalg
-        jetdressedwzalg.Tools = [ jtm.jetdressedwzrun ]
-        if 'truthdressedwzget' not in jtm.tools:
-            jtm += PseudoJetAlgorithm("truthdressedwzget",
-                                      Label = "TruthDressedWZ",
-                                      InputContainer = jtm.truthpartdressedwz.OutputName,
-                                      OutputContainer = "PseudoJetTruthDressedWZ",
-                                      SkipNegativeEnergy = True
-                                     )
-        jtm.gettersMap['truthdressedwz'] = list(jtm.gettersMap['truth'])
-        jtm.gettersMap['truthdressedwz'][0] = jtm.truthdressedwzget
-    if not hasattr(jtm,'truthpartcharged'):
-        from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-        if 'truthpartcharged' not in jtm.tools:
-            jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
-                                         MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                         ChargedParticlesOnly=True,
-                                         BarCodeFromMetadata=barCodeFromMetadata
-                                        )
-        # Add a jet tool runner for this thing
-        from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetAlgorithm
-        from JetRec.JetRecFlags import jetFlags
-        jtm += JetToolRunner("jetchargedrun", EventShapeTools=[], Tools=[jtm.truthpartcharged], Timer=jetFlags.timeJetToolRunner() )
-        # And an algorithm to run in
-        kernel += JetAlgorithm("jetchargedalg")
-        jetchargedalg = kernel.jetchargedalg
-        jetchargedalg.Tools = [ jtm.jetchargedrun ]
-        if 'truthchargedget' not in jtm.tools:
-            jtm += PseudoJetAlgorithm("truthchargedget",
-                                      Label = "TruthCharged",
-                                      InputContainer = jtm.truthpartcharged.OutputName,
-                                      OutputContainer = "PseudoJetTruthCharged",
-                                      SkipNegativeEnergy = True
-                                     )
-        jtm.gettersMap['truthcharged'] = [jtm.truthchargedget]
 
-    # Add jet algorithms if they aren't there
-    from JetRec.JetRecStandard import jtm
-    from JetRec.JetRecConf import JetAlgorithm
-    truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
-    threshold = 15000. if dfInputIsEVNT else 5000.
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthJets") and not hasattr(kernel,'jetalgAntiKt4Truth'):
-        # Standard truth jets
-        # To remove jet constituents add the modifier jtm.removeconstit
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets("AntiKt", 0.4, "Truth", threshold, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets") and not hasattr(kernel,'jetalgAntiKt4TruthWZ'):
-        # WZ Truth Jets - handle non-dressed case
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets("AntiKt", 0.4, "TruthWZ", threshold, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthDressedWZJets") and decorationDressing is not None:
-        # WZ Dressed Truth Jets - handle dressed case
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=threshold, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt2TruthChargedJets"):
-        # R=0.2 truth charged jets
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets("AntiKt", 0.2, "TruthCharged", 5000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets") and not hasattr(kernel,'jetalgAntiKt10Truth'):
-        # AntiKt2 truth charged jets ghost association
-        from JetRec.JetRecConf import PseudoJetAlgorithm
-        if 'gakt2truthchargedget' not in jtm.tools:
-            jtm += PseudoJetAlgorithm("gakt2truthchargedget", # give a unique name
-                                      InputContainer = "AntiKt2TruthChargedJets", # SG key
-                                      Label = "GhostAntiKt2TruthChargedJets",   # this is the name you'll use to retrieve associated ghosts
-                                      OutputContainer = "PseudoJetGhostAntiKt2TruthChargedJet",
-                                      SkipNegativeEnergy = True,
-                                     )
-        trackjetgetters = []
-        trackjetgetters += [jtm.gakt2truthchargedget]
-        truthgetters = [jtm.truthget]
-        truthgetters += trackjetgetters
-        flavorgetters = []
-        from JetRec.JetRecFlags import jetFlags
-        for ptype in jetFlags.truthFlavorTags():
-            flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
-        truthgetters   += flavorgetters
-        jtm.gettersMap["truth"]   = list(truthgetters)
+    from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthWZ,AntiKt4TruthDressedWZ,AntiKtVRTruthCharged
+    from JetRecConfig.StandardLargeRJets import AntiKt10TruthTrimmed,AntiKt10TruthSoftDrop
 
-        # NB! This line works together with the next block. Some care is required here!
-        # If we build groomed jets, the jet code will automatically build ungroomed jets, so no need to add them separately
-        #Large R ungroomed jets
-        if objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets") or objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthSoftDropBeta100Zcut10Jets"):
-            from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-            addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets") and not hasattr(kernel,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20'):
-        #Large R jets
-        from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
-        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
-                       algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthSoftDropBeta100Zcut10Jets") and not hasattr(kernel,'jetalgAntiKt10TruthSoftDropBeta100Zcut10'):
-        from DerivationFrameworkJetEtMiss.JetCommon import addSoftDropJets
-        addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed",
-                        algseq=kernel, outputGroup="SoftDrop", writeUngroomed=False)
+    jetList = [AntiKt4Truth,AntiKt4TruthWZ,AntiKt4TruthDressedWZ,AntiKtVRTruthCharged,
+               AntiKt10TruthTrimmed,AntiKt10TruthSoftDrop]
 
+    from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+    addDAODJets(jetList, kernel)
 
 
 # Helper for scheduling the truth MET collection
@@ -535,29 +418,29 @@ def addTruthEnergyDensity(kernel=None):
     # Truth energy density tools
     from EventShapeTools.EventDensityConfig import configEventDensityTool,EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
-    from JetRec.JetRecStandard import jtm
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
     if not hasattr(ToolSvc,'EDTruthCentralTool'):
         DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool",
-                                                            jtm.truthget.Label,
+                                                            cst.Truth.label,
                                                             0.5,
                                                             AbsRapidityMax      = 1.5,
                                                             OutputContainer     = "TruthIsoCentralEventShape",
                                                            )
         # Note the helper function mangles the naming in a specific way that is not sufficiently general
-        DFCommonTruthCentralEDTool.InputContainer = jtm.truthget.OutputContainer
+        DFCommonTruthCentralEDTool.InputContainer = "PseudoJet"+cst.Truth.label
         ToolSvc += DFCommonTruthCentralEDTool
         kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
     if not hasattr(ToolSvc,'EDTruthForwardTool'):
         DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool",
-                                                            jtm.truthget.Label,
+                                                            cst.Truth.label,
                                                             0.5,
                                                             AbsRapidityMin      = 1.5,
                                                             AbsRapidityMax      = 3.0,
                                                             OutputContainer     = "TruthIsoForwardEventShape",
                                                            )
         # Note the helper function mangles the naming in a specific way that is not sufficiently general
-        DFCommonTruthForwardEDTool.InputContainer = jtm.truthget.OutputContainer
+        DFCommonTruthForwardEDTool.InputContainer = "PseudoJet"+cst.Truth.label
         ToolSvc += DFCommonTruthForwardEDTool
         kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 

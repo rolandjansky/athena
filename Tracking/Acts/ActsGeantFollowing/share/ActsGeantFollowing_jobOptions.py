@@ -161,6 +161,7 @@ trkGeomSvc.BuildSubDetectors = [
 ]
 from AthenaConfiguration.ComponentFactory import CompFactory
 trkGeomSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
+trkGeomSvc.BuildBeamPipe = True
 trkGeomSvc.UseMaterialMap = True
 trkGeomSvc.MaterialMapInputFile = "/eos/project-a/acts/public/MaterialMaps/ATLAS-material-maps.json"
 ServiceMgr += trkGeomSvc

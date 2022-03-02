@@ -106,11 +106,11 @@ void Amplifier::InitResponse(unsigned int bins, double binsize)
 
   cluster_vec_it it = m_response.begin();
   double i(0.);
-  double resp(0),max(0.),integral(0.);
+  double resp(0),max(0.);//,integral(0.);
   while( it != m_response.end() ){
     resp = m_binsize*ResponseFunction(m_binsize*i);
     if(resp>max) max = resp;
-    integral+=resp;
+    //integral+=resp;
     *it = resp;
     ++it;++i;
   }  

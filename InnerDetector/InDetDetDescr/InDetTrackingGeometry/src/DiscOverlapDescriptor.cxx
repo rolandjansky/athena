@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,8 +19,49 @@
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/Identifier.h"
 #include <utility>
+#include <exception>
 
-InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array, 
+namespace {
+
+//Helpers to do "pseudo retrievals"
+//if this was an alg/tool these would have been done
+//once in init.
+
+const StoreGateSvc*
+getDetStore()
+{
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  const StoreGateSvc* detStore = nullptr;
+  if (svcLocator->service("DetectorStore", detStore).isFailure()) {
+    throw std::runtime_error(
+      "DiscOverlapDescriptor can not locate DetectorStore");
+  }
+  return detStore;
+}
+
+const PixelID*
+getPixelID(StoreGateSvc const * const  detStore)
+{
+  const PixelID* pixIdHelper = nullptr;
+  if (detStore->retrieve(pixIdHelper, "PixelID").isFailure()) {
+    throw std::runtime_error("DiscOverlapDescriptor can not locate PixelID");
+  }
+  return pixIdHelper;
+}
+
+const SCT_ID*
+getSCT_ID(StoreGateSvc const * const detStore)
+{
+  const SCT_ID* sctIdHelper = nullptr;
+  if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
+    throw std::runtime_error("DiscOverlapDescriptor can not locate SCT_ID");
+  }
+  return sctIdHelper;
+}
+
+} // end anonymous namespace
+
+InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<const Trk::Surface>* bin_array, 
                                                     std::vector<Trk::BinUtility*>* singleBinUtils,
                                                     bool isPixel):
   m_bin_array(bin_array),
@@ -34,39 +75,22 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
                                                      const Amg::Vector3D& pos,
                                                      const Amg::Vector3D&) const
 {
-  // Get Storegate, ID helpers, and so on
-  if (m_sctIdHelper==nullptr || m_pixIdHelper==nullptr) {
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    
-    // get DetectorStore service
-    StoreGateSvc* detStore = nullptr;
-    if (svcLocator->service("DetectorStore", detStore).isFailure()) {
-      return false;
-    }
-    
-    if (m_pixelCase) {
-      const PixelID* pixIdHelper = nullptr;
-      if (detStore->retrieve(pixIdHelper, "PixelID").isFailure()) {
-        return false;
-      }
-      m_pixIdHelper = pixIdHelper;
-    } else {
-      const SCT_ID* sctIdHelper = nullptr;
-      if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
-        return false;
-      }
-      m_sctIdHelper = sctIdHelper;
-    }
-  }
+  //These are done once no matter how many 
+  //instances of DiscOverlapDescriptor we have
+  static const StoreGateSvc* const detStore = getDetStore();
+  static const PixelID* const pixIdHelper = getPixelID(detStore);
+  static const SCT_ID* const sctIdHelper = getSCT_ID(detStore);
   
   // get the according detector element
   const InDetDD::SiDetectorElement* pElement  = dynamic_cast<const InDetDD::SiDetectorElement*>(tsf.associatedDetectorElement());
   
   // first add the target surface
   surfaces.emplace_back(Trk::Intersection(pos, 0., true),&tsf);
-  int etaModule = m_pixelCase ? m_pixIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier()) 
-                  : m_sctIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier());
-  
+  int etaModule =
+    m_pixelCase
+      ? pixIdHelper->eta_module(tsf.associatedDetectorElementIdentifier())
+      : sctIdHelper->eta_module(tsf.associatedDetectorElementIdentifier());
+
   // return empty cell vector
   if (pElement) {
     size_t newCapacity = surfaces.size() + 19;
@@ -100,42 +124,48 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
       const Trk::Surface* previousPhi_NextEta = nullptr;
       const Trk::Surface* nextPhi_NextEta     = nullptr;
       
-      std::vector<const Trk::Surface*> surf = m_bin_array->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Surface const * const> surf = m_bin_array->arrayObjects();
       size_t offset = 0;
       for (unsigned int bin = 0; bin < m_singleBinUtils->size(); bin++) {
-        int etamod = m_pixelCase ? m_pixIdHelper.load()->eta_module((*(surf.at(offset))).associatedDetectorElementIdentifier()) : m_sctIdHelper.load()->eta_module((*(surf.at(offset))).associatedDetectorElementIdentifier());
-        
-        if (etamod == etaModule || etamod<(etaModule-1) || etamod>(etaModule+1)) {
+        int etamod =
+          m_pixelCase
+            ? pixIdHelper->eta_module(
+                (*(surf[offset])).associatedDetectorElementIdentifier())
+            : sctIdHelper->eta_module(
+                (*(surf[offset])).associatedDetectorElementIdentifier());
+
+        if (etamod == etaModule || etamod < (etaModule - 1) ||
+            etamod > (etaModule + 1)) {
           offset += (std::as_const(*m_singleBinUtils).at(bin))->bins();
           continue;
         }
-        
+
         double PrevDeltaPhi = 9999.;
         double NextDeltaPhi = -9999.;
         for (unsigned int ss = offset; ss < (offset+(std::as_const(*m_singleBinUtils).at(bin))->bins()); ss++ ) {
           if (etamod == (etaModule-1) ) {
-            if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
-              samePhi_PrevEta = surf.at(ss);
-            double DeltaPhi = tsf.center().phi() - (*(surf.at(ss))).center().phi();
+            if( tsf.center().phi() == (*(surf[ss])).center().phi() )
+              samePhi_PrevEta = surf[ss];
+            double DeltaPhi = tsf.center().phi() - (*(surf[ss])).center().phi();
             if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
-              previousPhi_PrevEta = surf.at(ss);
+              previousPhi_PrevEta = surf[ss];
               PrevDeltaPhi = DeltaPhi;
             }
             if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
-              nextPhi_PrevEta = surf.at(ss);
+              nextPhi_PrevEta = surf[ss];
               NextDeltaPhi = DeltaPhi;
             }
           } else if (etamod == (etaModule+1) ) {
-            if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
-              samePhi_NextEta = surf.at(ss);
-            double DeltaPhi = tsf.center().phi() - (*(surf.at(ss))).center().phi();
+            if( tsf.center().phi() == (*(surf[ss])).center().phi() )
+              samePhi_NextEta = surf[ss];
+            double DeltaPhi = tsf.center().phi() - (*(surf[ss])).center().phi();
             if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
-              previousPhi_NextEta = surf.at(ss);
+              previousPhi_NextEta = surf[ss];
               PrevDeltaPhi = DeltaPhi;
             }
             
             if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
-              nextPhi_NextEta = surf.at(ss);
+              nextPhi_NextEta = surf[ss];
               NextDeltaPhi = DeltaPhi;
             }
           }
@@ -210,20 +240,25 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
 }
 
 bool InDet::DiscOverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {
-  std::cout << "Dumping Surfaces for "<< (m_pixelCase ? "Pixel " : "SCT ") << "with size = " << surfaces.size() << std::endl;
+  std::cout << "Dumping Surfaces for " << (m_pixelCase ? "Pixel " : "SCT ")
+            << "with size = " << surfaces.size() << std::endl;
+  static const StoreGateSvc* const detStore = getDetStore();
+  static const PixelID* const pixIdHelper = getPixelID(detStore);
+  static const SCT_ID* const sctIdHelper = getSCT_ID(detStore);
+ 
   for (unsigned int surf = 0; surf < surfaces.size(); surf++) {
     Identifier hitId = ((surfaces.at(surf)).object)->associatedDetectorElementIdentifier(); 
     if (m_pixelCase)
-      std::cout <<  "barrel_ec " << m_pixIdHelper.load()->barrel_ec(hitId) 
-                << ", layer_disk " << m_pixIdHelper.load()->layer_disk(hitId) 
-                << ", phi_module " << m_pixIdHelper.load()->phi_module(hitId) 
-                << ", eta_module " << m_pixIdHelper.load()->eta_module(hitId) << std::endl;
+      std::cout <<  "barrel_ec " << pixIdHelper->barrel_ec(hitId) 
+                << ", layer_disk " << pixIdHelper->layer_disk(hitId) 
+                << ", phi_module " << pixIdHelper->phi_module(hitId) 
+                << ", eta_module " << pixIdHelper->eta_module(hitId) << std::endl;
     else 
-      std::cout <<  "barrel_ec " << m_sctIdHelper.load()->barrel_ec(hitId) 
-                << ", layer_disk " << m_sctIdHelper.load()->layer_disk(hitId) 
-                << ", phi_module " << m_sctIdHelper.load()->phi_module(hitId) 
-                << ", eta_module " << m_sctIdHelper.load()->eta_module(hitId) 
-                << ", side " << m_sctIdHelper.load()->side(hitId) << std::endl;
+      std::cout <<  "barrel_ec " << sctIdHelper->barrel_ec(hitId) 
+                << ", layer_disk " << sctIdHelper->layer_disk(hitId) 
+                << ", phi_module " << sctIdHelper->phi_module(hitId) 
+                << ", eta_module " << sctIdHelper->eta_module(hitId) 
+                << ", side " << sctIdHelper->side(hitId) << std::endl;
   }
   return true;
 }

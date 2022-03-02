@@ -10,10 +10,11 @@ __author__ = "Bruno Lenzi"
 
 from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
 
+
 class egammaKeysDict:
     inputs = dict(
     )
-
+    
     ShowerShapesSuppress = '.-e033.-e011.-e333.-e335.-e337.-e377'
     PhotonisemSuppress = '.-isEMLoose.-isEMTight'
     ElectronisemSupress = '.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight'
@@ -43,11 +44,6 @@ class egammaKeysDict:
             'egamma66FWDClusters',
             '',
             ''],
-        TopoSeededCluster=[
-            'xAOD::CaloClusterContainer',
-            'egammaTopoSeededClusters',
-            '',
-            '-CellLink'],
         Electron=[
             'xAOD::ElectronContainer',
             'Electrons',
@@ -77,25 +73,20 @@ class egammaKeysDict:
         TrackParticle=[
             'xAOD::TrackParticleContainer',
             'GSFTrackParticles',
-            '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi', ''],
+            '', ''],
         Track=['TrackCollection',
                'GSFTracks',
                '',
                ''],
         Truth=['xAOD::TruthParticleContainer',
                'egammaTruthParticles',
-               '-caloExtension',
+               '',
                '']
     )
     #
     outputs['CellLink'] = [
         'CaloClusterCellLinkContainer',
         outputs['Cluster'][1] + '_links', '', '']
-    outputs['TopoSeededCellLink'] = [
-        'CaloClusterCellLinkContainer',
-        outputs['TopoSeededCluster'][1] +
-        '_links',
-        '', '']
     outputs['FwdClusterCellLink'] = [
         'CaloClusterCellLinkContainer',
         outputs['FwdCluster'][1] + '_links',
@@ -128,10 +119,6 @@ del i, j
 
 def caloCellKey():
     "Return the default key for CaloCells, depending on the job configuration"
-    #from egammaRec import egammaRecFlags as egRecFlags
-    #egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-    #if egammaRecFlags.cellContainerName.statusOn:
-    #    return egammaRecFlags.cellContainerName()
     from RecExConfig.RecFlags import rec
     if rec.readAOD:
         return "AODCellContainer"

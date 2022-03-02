@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -310,7 +310,10 @@ namespace Trk
 					// you need to extrapolate the original perigee ((*BTIter).originalPerigee) really to the
 					// found vertex. The first propagation above is only to the starting point. But here we
 					// want to store it wrt. to the last fitted vertex
-					auto extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters> ( m_extrapolator->extrapolate ( * ( *BTIter ).originalPerigee, perigeeSurface ) );
+					auto extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters> ( m_extrapolator->extrapolate ( 
+              Gaudi::Hive::currentContext(), 
+              * ( *BTIter ).originalPerigee, 
+              perigeeSurface ) );
 					if ( extrapolatedPerigee==nullptr )
 					{
 						extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters>(((*BTIter).originalPerigee)->clone());

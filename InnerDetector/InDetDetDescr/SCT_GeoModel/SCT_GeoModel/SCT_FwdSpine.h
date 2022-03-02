@@ -38,13 +38,13 @@ private:
 
   int m_ringType;
 
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
-  double m_thickness;
-  double m_width;
-  double m_length;
-  double m_moduleCenterToEnd;
-  double m_moduleCenterToEndTmp;
+  double m_thickness = 0.0;
+  double m_width = 0.0;
+  double m_length = 0.0;
+  double m_moduleCenterToEnd = 0.0;
+  double m_moduleCenterToEndTmp = 0.0;
 };
 
 #endif // SCT_GEOMODEL_SCT_FWDSPINE_H

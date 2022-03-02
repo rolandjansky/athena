@@ -2,7 +2,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 import MdtRawDataMonitoring.MdtRawMonLabels as labels
-from ROOT import TBox, kGray, TLine, TMath , TF1, kBlue, kRed
+from ROOT import TBox, kGray, TLine, TMath , TF1, kBlue, kRed, kBlack
 from MdtRawDataMonitoring.MdtRawMonLabels import * # noqa
 
 def getMDTLabel(x,y):
@@ -16,12 +16,163 @@ def getMDTLabelx(x):
     return labelx
 
 
-def putBoxMdtGlobal(h, ecap):
+def putBoxMdtRegional(h, xAxis, geo):
+    offset=0
+    #Make gray boxes                                                                                                                                                        
+    if(xAxis=="BOA"):
+        putBox(h, 0, 0, 1, 44, offset);  putBox(h, 7, 0, 9, 44 ,offset)
+        putBox(h, 0, 48, 1, 52 ,offset); putBox(h, 8, 48, 9, 52 ,offset)
+        putBox(h, 0, 56, 1, 64 ,offset); putBox(h, 7, 56, 9, 64 ,offset)
+
+        putLine(h, 1, 0, 1, 44 ); putLine(h, 7, 0, 7, 44 ); putLine(h, 0, 44, 1, 44); putLine(h, 7, 44, 9, 44)
+        putLine(h, 1, 48, 1, 52); putLine(h, 8, 48, 8, 52); putLine(h, 0, 48, 1, 48); putLine(h, 8, 48, 9, 48); putLine(h, 0, 52, 1, 52); putLine(h, 8, 52, 9, 52)
+        putLine(h, 1, 56, 1, 64); putLine(h, 7, 56, 7, 64); putLine(h, 0, 56, 1, 56); putLine(h, 7, 56, 9, 56 )
+
+    if(xAxis=="BOC"):
+        putBox(h, 0, 0, 2, 44 ,offset)
+        putBox(h, 0, 48, 1, 52 ,offset)
+        putBox(h, 0, 56, 2, 64 ,offset)
+    
+        putLine(h, 2, 0, 2, 44); putLine(h, 0, 44, 2, 44)
+        putLine(h, 1, 48, 1, 52); putLine(h, 0, 48, 1, 48); putLine(h, 0, 52, 1, 52)
+        putLine(h, 2, 56, 2, 64); putLine(h, 0, 56, 2, 56)
+
+    if(xAxis=="BIA") :
+        putBox(h, 6, 0, 8, 4 ,offset); putLine(h, 6, 0, 8, 0); putLine(h, 6, 0, 6, 4); putLine(h, 6, 4, 8, 4) #phi 1                                                   
+        putBox(h, 7, 6, 8, 8 ,offset); putLine(h, 7, 6, 8, 6); putLine(h, 7, 6, 7, 8) #phi 2                                                                            
+        putBox(h, 6, 8, 8, 12 ,offset); putLine(h, 6, 8, 7, 8); putLine(h, 6, 8, 6, 12); putLine(h, 6, 12, 8, 12) #phi 3                                                       
+        putBox(h, 7, 14, 8, 16 ,offset); putLine(h, 7, 14, 8, 14); putLine(h, 7, 14, 7, 16) #phi 4                                                                             
+        putBox(h, 6, 16, 8, 20 ,offset); putLine(h, 6, 16, 7, 16); putLine(h, 6, 16, 6, 20); putLine(h, 6, 20, 8, 20) #phi 5                                                       
+        putBox(h, 7, 22, 8, 24 ,offset); putLine(h, 7, 22, 8, 22); putLine(h, 7, 22, 7, 24) #phi 6                                                                               
+        putBox(h, 6, 24, 8, 28 ,offset); putLine(h, 6, 24, 7, 24); putLine(h, 6, 24, 6, 28); putLine(h, 6, 28, 8, 28) #phi 7                                                      
+        putBox(h, 7, 30, 8, 32 ,offset); putLine(h, 7, 30, 8, 30); putLine(h, 7, 30, 7, 32) #phi 8                                                                              
+        putBox(h, 6, 32, 8, 36 ,offset); putLine(h, 6, 32, 7, 32); putLine(h, 6, 32, 6, 36); putLine(h, 6, 36, 8, 36) #phi 9                                                     
+        putBox(h, 7, 38, 8, 40 ,offset); putLine(h, 7, 38, 8, 38); putLine(h, 7, 38, 7, 40) #phi 10                                                                                  
+        putBox(h, 6, 40, 8, 44 ,offset); putLine(h, 6, 40, 7, 40); putLine(h, 6, 40, 6, 44) #putLine(h, 6, 40, 5, 44) #phi 11                                                
+        putBox(h, 5, 44, 8, 48 ,offset); putLine(h, 5, 44, 6, 44); putLine(h, 5, 44, 5, 48); putLine(h, 5, 48, 8, 48) #phi 11 M                                                
+        putBox(h, 7, 50, 8, 52 ,offset); putLine(h, 7, 50, 8, 50); putLine(h, 7, 50, 7, 52) #phi 12                                                                            
+        putBox(h, 6, 52, 8, 56 ,offset); putLine(h, 6, 52, 7, 52); putLine(h, 6, 52, 6, 56); putLine(h, 6, 56, 8, 56) #phi 13                                                 
+        putBox(h, 7, 58, 8, 60 ,offset); putLine(h, 7, 58, 8, 58); putLine(h, 7, 58, 7, 60) #phi 14                                                                             
+        putBox(h, 6, 60, 8, 64 ,offset); putLine(h, 6, 60, 7, 60); putLine(h, 6, 60, 6, 64) #putLine(h, 6, 60, 5, 64) #phi 15                                                    
+        putBox(h, 5, 64, 8, 68 ,offset); putLine(h, 5, 64, 6, 64); putLine(h, 5, 64, 5, 68); putLine(h, 5, 68, 8, 68) #phi 15 M                                           
+        putBox(h, 7, 70, 8, 72 ,offset); putLine(h, 7, 70, 8, 70); putLine(h, 7, 70, 7, 72); putLine(h, 7, 72, 8, 72) # phi 16              
+  
+        if geo==1:
+            putBox(h, 7, 0, 8, 72, 0)
+            
+            
+    if(xAxis=="BIC"):
+        putBox(h, 2, 0, 0, 4 ,offset); putLine(h, 2, 0, 0, 0); putLine(h, 2, 0, 2, 4); putLine(h, 2, 4, 0, 4) #phi 1   
+        putBox(h, 1, 6, 0, 8 ,offset); putLine(h, 1, 6, 0, 6); putLine(h, 1, 6, 1, 8) #phi 2                                                                                         
+        putBox(h, 2, 8, 0, 12 ,offset); putLine(h, 2, 8, 1, 8); putLine(h, 2, 8, 2, 12); putLine(h, 2, 12, 0, 12) #phi 3                                                       
+        putBox(h, 1, 14, 0, 16 ,offset); putLine(h, 1, 14, 0, 14); putLine(h, 1, 14, 1, 16)#phi 4                                                                                
+        putBox(h, 2, 16, 0, 20 ,offset); putLine(h, 2, 16, 1, 16); putLine(h, 2, 16, 2, 20); putLine(h, 2, 20, 0, 20) #phi 5                                                    
+        putBox(h, 1, 22, 0, 24 ,offset); putLine(h, 1, 22, 0, 22); putLine(h, 1, 22, 1, 24) #phi 6                                                                               
+        putBox(h, 2, 24, 0, 28 ,offset); putLine(h, 2, 24, 1, 24); putLine(h, 2, 24, 2, 28); putLine(h, 2, 28, 0, 28) #phi 7                                                     
+        putBox(h, 1, 30, 0, 32 ,offset); putLine(h, 1, 30, 0, 30); putLine(h, 1, 30, 1, 32) #phi 8                                                                                
+        putBox(h, 2, 32, 0, 36 ,offset); putLine(h, 2, 32, 1, 32); putLine(h, 2, 32, 2, 36); putLine(h, 2, 36, 0, 36) #phi 9                                                         
+        putBox(h, 1, 38, 0, 40 ,offset); putLine(h, 1, 38, 0, 38); putLine(h, 1, 38, 1, 40) #phi 10                                                                            
+        putBox(h, 2, 40, 0, 44 ,offset); putLine(h, 2, 40, 1, 40); putLine(h, 2, 40, 2, 44) #putLine(h, 2, 40, 3, 44) #phi 11                                                     
+        putBox(h, 3, 44, 0, 48 ,offset); putLine(h, 3, 44, 2, 44); putLine(h, 3, 44, 3, 48); putLine(h, 3, 48, 0, 48)#phi 11 M                                                  
+        putBox(h, 1, 50, 0, 52 ,offset); putLine(h, 1, 50, 0, 50); putLine(h, 1, 50, 1, 52) #phi 12                                                                             
+        putBox(h, 2, 52, 0, 56 ,offset); putLine(h, 2, 52, 1, 52); putLine(h, 2, 52, 2, 56); putLine(h, 2, 56, 0, 56)# phi 13                                                    
+        putBox(h, 1, 58, 0, 60 ,offset); putLine(h, 1, 58, 0, 58); putLine(h, 1, 58, 1, 60) #phi 14                                                                               
+        putBox(h, 2, 60, 0, 64 ,offset); putLine(h, 2, 60, 1, 60); putLine(h, 2, 60, 2, 64) #putLine(h, 2, 60, 3, 64); //phi 15                                                    
+        putBox(h, 3, 64, 0, 68 ,offset); putLine(h, 3, 64, 2, 64); putLine(h, 3, 64, 3, 68); putLine(h, 3, 68, 0, 68) #phi 15 M                                     
+        putBox(h, 1, 70, 0, 72 ,offset); putLine(h, 1, 70, 0, 70); putLine(h, 1, 70, 1, 72); putLine(h, 1, 72, 0, 72) #phi 16 
+
+    if(xAxis=="EIA"):
+        putBox(h, 2, 4, 5, 8 ,offset);  putLine(h, 2, 4, 5, 4); putLine(h, 2, 4, 2, 8); putLine(h, 2, 8, 4, 8) #phi 2                                                    
+        putBox(h, 4, 8, 5, 12 ,offset); putLine(h, 4, 8, 4, 12) #phi 3                                                                                                           
+        putBox(h, 2, 12, 5, 16 ,offset);  putLine(h, 2, 12, 4, 12); putLine(h, 2, 12, 2, 16); putLine(h, 2, 16, 4, 16) #phi 4                                                   
+        putBox(h, 4, 16, 5, 20 ,offset); putLine(h, 4, 16, 4, 20) #phi 5                                                                                                         
+        putBox(h, 2, 20, 5, 24 ,offset);  putLine(h, 2, 20, 4, 20); putLine(h, 2, 20, 2, 24); putLine(h, 2, 24, 4, 24) #phi 6                                                       
+        putBox(h, 4, 24, 5, 28 ,offset); putLine(h, 4, 24, 4, 28) #phi 7                                                                                                        
+        putBox(h, 2, 28, 5, 32 ,offset);  putLine(h, 2, 28, 4, 28); putLine(h, 2, 28, 2, 32); putLine(h, 2, 32, 5, 32) # phi 8                                                   
+        putBox(h, 2, 36, 5, 40 ,offset);  putLine(h, 2, 36, 5, 36); putLine(h, 2, 36, 2, 40); putLine(h, 2, 40, 4, 40) #phi 10                                                   
+        putBox(h, 4, 40, 5, 44 ,offset); putLine(h, 4, 40, 4, 44) #phi 11                                                                                                        
+        putBox(h, 2, 44, 5, 48 ,offset);  putLine(h, 2, 44, 4, 44); putLine(h, 2, 44, 2, 48); putLine(h, 2, 48, 4, 48) #phi 12                                                  
+        putBox(h, 4, 48, 5, 52 ,offset); putLine(h, 4, 48, 4, 52) #phi 13                                                                                                        
+        putBox(h, 2, 52, 5, 56 ,offset);  putLine(h, 2, 52, 4, 52); putLine(h, 2, 52, 2, 56); putLine(h, 2, 56, 4, 56) # phi 14                                                 
+        putBox(h, 4, 56, 5, 60 ,offset); putLine(h, 4, 56, 4, 60) #phi 15                                                                                                        
+        putBox(h, 2, 60, 5, 64 ,offset);  putLine(h, 2, 60, 4, 60); putLine(h, 2, 60, 2, 64); putLine(h, 2, 64, 5, 64) # phi 16                            
+
+        if geo ==1:
+            putBox(h, 0, 0, 3, 64 ,0)
+
+    if(xAxis=="EIC"):
+        putBox(h, 3, 4, 0, 8 ,offset);  putLine(h, 3, 4, 0, 4); putLine(h, 3, 4, 3, 8); putLine(h, 3, 8, 1, 8) # phi 2                                       
+        putBox(h, 1, 8, 0, 12 ,offset); putLine(h, 1, 8, 1, 12) #phi 3                                                                                                        
+        putBox(h, 3, 12, 0, 16 ,offset);  putLine(h, 3, 12, 1, 12); putLine(h, 3, 12, 3, 16); putLine(h, 3, 16, 1, 16) # phi 4                                                 
+        putBox(h, 1, 16, 0, 20 ,offset); putLine(h, 1, 16, 1, 20) #phi 5                                                                                   
+        putBox(h, 3, 20, 0, 24 ,offset);  putLine(h, 3, 20, 1, 20); putLine(h, 3, 20, 3, 24); putLine(h, 3, 24, 1, 24) # phi 6      
+        putBox(h, 1, 24, 0, 28 ,offset); putLine(h, 1, 24, 1, 28) #phi 7                                                                           
+        putBox(h, 3, 28, 0, 32 ,offset);  putLine(h, 3, 28, 1, 28); putLine(h, 3, 28, 3, 32); putLine(h, 3, 32, 0, 32) # phi     
+        putBox(h, 3, 36, 0, 40 ,offset);  putLine(h, 3, 36, 0, 36); putLine(h, 3, 36, 3, 40); putLine(h, 3, 40, 1, 40) # phi 10                                                    
+        putBox(h, 1, 40, 0, 44 ,offset); putLine(h, 1, 40, 1, 44) #phi 11                                                                                                        
+        putBox(h, 3, 44, 0, 48 ,offset);  putLine(h, 3, 44, 1, 44); putLine(h, 3, 44, 3, 48); putLine(h, 3, 48, 1, 48) # phi 12                                                     
+        putBox(h, 1, 48, 0, 52 ,offset); putLine(h, 1, 48, 1, 52) #phi 13                                                                                                         
+        putBox(h, 3, 52, 0, 56 ,offset);  putLine(h, 3, 52, 1, 52); putLine(h, 3, 52, 3, 56); putLine(h, 3, 56, 1, 56) # phi 14                                                  
+        putBox(h, 1, 56, 0, 60 ,offset); putLine(h, 1, 56, 1, 60) #phi 15                                                                           
+        putBox(h, 3, 60, 0, 64 ,offset);  putLine(h, 3, 60, 1, 60); putLine(h, 3, 60, 3, 64); putLine(h, 3, 64, 0, 64) # phi 16       
+        
+        if geo ==1:
+            putBox(h, 2, 0, 5, 64 ,0)
+
+
+
+    if(xAxis=="EEA"):
+        putBox(h, 1, 16, 2, 20 ,offset)
+        putLine(h, 1, 16, 2, 16)
+        putLine(h, 1, 16, 1, 20)
+        putLine(h, 1, 20, 2, 20)
+  
+
+    if(xAxis=="EEC"):
+        putBox(h, 0, 16, 1, 20 ,offset)
+        putLine(h, 0, 16, 1, 16)
+        putLine(h, 1, 16, 1, 20)
+        putLine(h, 0, 20, 1, 20)
+
+
+    if(xAxis=="BEA" or xAxis == "BEC"):
+        putBox(h, 2, 0, 3, 16 ,offset)
+        putLine(h, 2, 0, 2, 16)
+        
+
+    if(xAxis == "EMA" or xAxis == "EMC"):
+        putBox(h, 5, 0, 6, 64 ,offset)
+        putLine(h, 5, 0, 5, 64)
+  
+
+    if(xAxis == "EOA" or xAxis == "EOC"):
+        putBox(h, 6, 0, 7, 64 ,offset)
+        putLine(h, 6, 0, 6, 64)
+
+    if(xAxis[0:2] == "EE" or xAxis[0:2] == "BI" or xAxis[0:2] == "EI" or xAxis[0:2] == "BM" or xAxis[0:2] == "BO"):
+        #Draw TickMarks
+        for i in range(h.GetNbinsY()+1):
+            l = TLine(0,i,0.55*h.GetNbinsX()/17,i)
+            h.GetListOfFunctions().Add(l)
+        for i in range(h.GetNbinsX()+1):
+            l = TLine(i,0,i,0.55/17*h.GetNbinsY())
+            h.GetListOfFunctions().Add(l)
+
+        lx = TLine(0,0,h.GetNbinsX(),0)
+        ly = TLine(0,0,0,h.GetNbinsY())
+        lx.SetLineColor(kBlack)
+        ly.SetLineColor(kBlack)
+        h.GetListOfFunctions().Add(lx)
+        h.GetListOfFunctions().Add(ly)
+
+
+def putBoxMdtGlobal(h, ecap, geo):
     if(ecap == "B"):
         offset = 8
         # Left Side
         putBox(h, 0, 0, 6, 16, offset); putLine(h, 6, 0, 6, 16, offset); putLine(h, 2, 16, 6, 16, offset)
-        putBox(h, 0, 16, 2, 18, offset); putLine(h, 2, 16, 2, 18, offset); putLine(h, 0, 18, 2, 18, offset)
+        putBox(h, 0, 16, 2, 18, offset); putLine(h, 2, 16, 2, 18, offset)
+        putLine(h, 0, 18, 2, 18, offset)
         putBox(h, 0, 20, 2, 22, offset); putLine(h, 2, 20, 2, 22, offset); putLine(h, 0, 20, 2, 20, offset); putLine(h, 0, 22, 2, 22, offset)  # 3
         putBox(h, 0, 24, 2, 26, offset); putLine(h,2,24,2,26,offset); putLine(h, 0, 24, 2, 24, offset); putLine(h, 0, 26, 2, 26, offset)  # 5
         putBox(h, 0, 28, 2, 30, offset); putLine(h,2,28,2,30,offset); putLine(h,0,28,2,28,offset); putLine(h,0,30,2,30,offset)  # 7
@@ -31,10 +182,12 @@ def putBoxMdtGlobal(h, ecap):
         putBox(h, 0, 42, 2, 44, offset);  putLine(h,0,42,2,42,offset); putLine(h,2,42,2,44,offset); putLine(h,0,44,2,44,offset)  # 13
         putBox(h, 0, 46, 3, 48, offset);  putLine(h,3,46,3,48,offset); putLine(h,0,46,3,46,offset); putLine(h,2,48,3,48,offset)  # 15M
         putBox(h, 0, 48, 2, 50, offset);  putLine(h,2,48,2,50,offset); putLine(h,0,50,2,50,offset)  # 15R
-        putBox(h, 0, 52, 2, 106, offset); putLine(h,0,52,2,52,offset); putLine(h,0,106,2,106,offset)
+        putBox(h, 0, 52, 2, 106, offset)
+        putLine(h,0,52,2,52,offset)
+
+        putLine(h,0,106,2,106,offset)
         putBox(h, 0, 108, 1, 110, offset); putLine(h,1,108,1,110,offset); putLine(h,0,108,1,108,offset); putLine(h,0,110,1,110,offset)
         putBox(h, 0, 112, 2, 116, offset); putLine(h,2,112,2,116,offset); putLine(h,0,112,2,112,offset)
-
         putLine(h,2,52,2,106,offset)
 
         # Mid Section
@@ -44,7 +197,11 @@ def putBoxMdtGlobal(h, ecap):
 
         # Right Side
         putBox(h, 11, 0, 17, 16, offset);     putLine(h,11,0,11,16, offset); putLine(h,11,16,15,16, offset)
-        putBox(h, 15, 16, 17, 18, offset);  putLine(h,15,16,15,18, offset); putLine(h,15,18,17,18, offset)  # 1
+        putBox(h, 15, 16, 17, 18, offset);  putLine(h,15,16,15,18, offset)
+        if geo==0:
+            putLine(h,15,18,17,18, offset)  # 1
+        elif geo==1:
+            putLine(h,15,18,16,18, offset)  # 1
         putBox(h, 15, 20, 17, 22, offset);  putLine(h,15,20,15,22, offset); putLine(h,15,20,17,20, offset); putLine(h,15,22,17,22, offset)  # 3
         putBox(h, 15, 24, 17, 26, offset);  putLine(h,15,24,15,26, offset); putLine(h,15,24,17,24, offset); putLine(h,15,26,17,26, offset)  # 5
         putBox(h, 15, 28, 17, 30, offset);  putLine(h,15,28,15,30, offset); putLine(h,15,28,17,28, offset); putLine(h,15,30,17,30, offset)  # 7
@@ -54,58 +211,167 @@ def putBoxMdtGlobal(h, ecap):
         putBox(h, 15, 42, 17, 44, offset);    putLine(h,15,42,15,44, offset); putLine(h,15,42,17,42, offset); putLine(h,15,44,17,44, offset)  # 13
         putBox(h, 14, 46, 17, 48, offset);    putLine(h,14,46,14,48, offset); putLine(h,14,46,17,46, offset); putLine(h,14,48,15,48, offset)  # 15M
         putBox(h, 15, 48, 17, 50, offset);    putLine(h,15,48,15,50, offset); putLine(h,15,50,17,50, offset)  # 15R
-        putBox(h, 15, 52, 17, 106, offset);  putLine(h,15,52,17,52, offset); putLine(h,15,106,17,106, offset)
+        putBox(h, 15, 52, 17, 106, offset)
+        if geo==0:
+            putLine(h,15,52,17,52, offset)
+        elif geo==1:
+            putLine(h,15,52,16,52, offset)
+        putLine(h,15,106,17,106, offset)
         putBox(h, 16, 108, 17, 110, offset);   putLine(h,16,108,16,110, offset); putLine(h,16,108,17,108, offset); putLine(h,16,110,17,110, offset)
         putBox(h, 15, 112, 17, 116, offset);   putLine(h,15,112,15,116, offset); putLine(h,15,112,17,112, offset)
+
+        if geo==1:
+            putBox(h, 8, 18, 9, 52, 0)
 
         putLine(h,15,52,15,106, offset)
 
     elif(ecap == "E"):
         offset = 6
-        # Bottom: NEW
+        # Bottom: 
         putBox(h, 0, 0, 4, 32, offset); putBox(h, 4, 8, 5, 10, offset)
         putLine(h, 4, 0, 4, 8, offset); putLine(h, 4, 8, 5, 8, offset); putLine(h, 5, 8, 5, 10, offset); putLine(h, 4, 10, 5, 10, offset); putLine(h, 4, 10, 4, 32, offset)  # Left side
         putBox(h, 8, 0, 12, 32, offset); putBox(h, 7, 8, 8, 10, offset)
         putLine(h, 8, 0, 8, 8, offset); putLine(h, 7, 8, 8, 8, offset); putLine(h, 7, 8, 7, 10, offset); putLine(h, 7, 10, 8, 10, offset);  putLine(h, 8, 10, 8, 32, offset)
-
         # Left
-        putBox(h, 0, 32, 1, 34, offset); putLine(h, 1, 32, 4, 32, offset); putLine(h, 1, 32, 1, 34, offset)  # phi 1
-        putBox(h, 0, 34, 4, 36, offset); putLine(h, 1, 34, 4, 34, offset); putLine(h, 4, 34, 4, 36, offset); putLine(h, 2, 36, 4, 36, offset)  # phi 2
+        putBox(h, 0, 32, 1, 34, offset)
+        putBox(h, 0, 34, 4, 36, offset)
         putBox(h, 0, 36, 2, 38, offset); putLine(h, 2, 36, 2, 38, offset)  # phi 3
-        putBox(h, 0, 38, 4, 40, offset); putLine(h, 2, 38, 4, 38, offset); putLine(h, 4, 38, 4, 40, offset); putLine(h, 2, 40, 4, 40, offset)  # phi 4
-        putBox(h, 0, 40, 2, 42, offset); putLine(h, 2, 40, 2, 42, offset)  # phi 5
-        putBox(h, 0, 42, 4, 44, offset); putLine(h, 2, 42, 4, 42, offset); putLine(h, 4, 42, 4, 44, offset); putLine(h, 2, 44, 4, 44, offset)  # phi 6
+        putBox(h, 0, 38, 4, 40, offset)
+        putBox(h, 0, 40, 2, 42, offset)
+        putBox(h, 0, 42, 4, 44, offset)
         putBox(h, 0, 44, 2, 46, offset); putLine(h, 2, 44, 2, 46, offset)  # phi 7
-        putBox(h, 0, 46, 4, 48, offset); putLine(h, 2, 46, 4, 46, offset); putLine(h, 4, 46, 4, 48, offset); putLine(h, 1, 48, 4, 48, offset)  # phi 8
+        putBox(h, 0, 46, 4, 48, offset); putLine(h, 2, 46, 4, 46, offset)
         putBox(h, 0, 48, 1, 50, offset); putLine(h, 1, 48, 1, 50, offset)  # phi 9
-        putBox(h, 0, 50, 4, 52, offset); putLine(h, 1, 50, 4, 50, offset); putLine(h, 4, 50, 4, 52, offset); putLine(h, 2, 52, 4, 52, offset)  # phi 10
-        putBox(h, 0, 52, 2, 54, offset); putLine(h, 2, 52, 2, 54, offset)  # phi 11
-        putBox(h, 0, 54, 4, 56, offset); putLine(h, 2, 54, 4, 54, offset); putLine(h, 4, 54, 4, 56, offset); putLine(h, 2, 56, 4, 56, offset)  # phi 12
-        putBox(h, 0, 56, 2, 58, offset); putLine(h, 2, 56, 2, 58, offset)  # phi 13
-        putBox(h, 0, 58, 4, 60, offset); putLine(h, 2, 58, 4, 58, offset); putLine(h, 4, 58, 4, 60, offset); putLine(h, 2, 60, 4, 60, offset)  # phi 14
-        putBox(h, 0, 60, 2, 62, offset); putLine(h, 2, 60, 2, 62, offset)  # phi 15
-        putBox(h, 0, 62, 4, 64, offset); putLine(h, 2, 62, 4, 62, offset); putLine(h, 4, 62, 4, 64, offset); putLine(h, 1, 64, 4, 64, offset)  # phi 16
+        putBox(h, 0, 50, 4, 52, offset)
+        putBox(h, 0, 52, 2, 54, offset) 
+        putBox(h, 0, 54, 4, 56, offset)
+        putBox(h, 0, 56, 2, 58, offset)
+        putBox(h, 0, 58, 4, 60, offset)
+        putBox(h, 0, 60, 2, 62, offset)
+        putBox(h, 0, 62, 4, 64, offset) 
         putBox(h, 0, 64, 1, 96, offset); putLine(h, 1, 64, 1, 96, offset); putLine(h, 0, 96, 1, 96, offset)
+        if geo==1:
+            putBox(h, -3, 32, 3, 64, 0)
+
+        if geo==0:
+            putLine(h, 1, 32, 4, 32, offset)
+            putLine(h, 1, 34, 4, 34, offset)
+            putLine(h, 1, 48, 4, 48, offset)  # phi 8
+            putLine(h, 1, 50, 4, 50, offset)
+            putLine(h, 1, 64, 4, 64, offset)  # phi 16
+            putLine(h, 2, 36, 4, 36, offset)  # phi 2
+            putLine(h, 2, 38, 4, 38, offset)
+            putLine(h, 2, 40, 4, 40, offset)  # phi 4
+            putLine(h, 2, 42, 4, 42, offset)
+            putLine(h, 2, 44, 4, 44, offset)  # phi 6
+            putLine(h, 2, 52, 4, 52, offset)  # phi 10
+            putLine(h, 2, 54, 4, 54, offset)
+            putLine(h, 2, 56, 4, 56, offset)  # phi 12
+            putLine(h, 2, 58, 4, 58, offset)
+            putLine(h, 2, 60, 4, 60, offset)  # phi 14
+            putLine(h, 2, 62, 4, 62, offset)
+        elif geo==1:
+            putLine(h, 1, 32, 3, 32, offset)
+            putLine(h, 1, 34, 3, 34, offset)
+            putLine(h, 1, 48, 3, 48, offset)  # phi 8
+            putLine(h, 1, 50, 3, 50, offset)
+            putLine(h, 1, 64, 3, 64, offset)  # phi 16
+            putLine(h, 2, 36, 3, 36, offset)  # phi 2
+            putLine(h, 2, 38, 3, 38, offset)
+            putLine(h, 2, 40, 3, 40, offset)  # phi 4
+            putLine(h, 2, 42, 3, 42, offset)
+            putLine(h, 2, 44, 3, 44, offset)  # phi 6
+            putLine(h, 2, 52, 3, 52, offset)  # phi 10
+            putLine(h, 2, 54, 3, 54, offset)
+            putLine(h, 2, 56, 3, 56, offset)  # phi 12
+            putLine(h, 2, 58, 3, 58, offset)
+            putLine(h, 2, 60, 3, 60, offset)  # phi 14
+            putLine(h, 2, 62, 3, 62, offset)
+
+        if geo==0:
+            putLine(h, 4, 34, 4, 36, offset) 
+            putLine(h, 4, 38, 4, 40, offset) 
+            putLine(h, 4, 42, 4, 44, offset)
+            putLine(h, 4, 46, 4, 48, offset)
+            putLine(h, 4, 50, 4, 52, offset)
+            putLine(h, 4, 54, 4, 56, offset)
+            putLine(h, 4, 58, 4, 60, offset)
+            putLine(h, 4, 62, 4, 64, offset)
+
+        putLine(h, 1, 32, 1, 34, offset)  # phi 1
+        putLine(h, 2, 40, 2, 42, offset)  # phi 5
+        putLine(h, 2, 52, 2, 54, offset)  # phi 11        
+        putLine(h, 2, 56, 2, 58, offset)  # phi 13
+        putLine(h, 2, 60, 2, 62, offset)  # phi 15
+
 
         # Right
-        putBox(h, 11, 32, 12, 34, offset); putLine(h, 8, 32, 11, 32, offset); putLine(h, 11, 32, 11, 34, offset)  # phi 1
-        putBox(h, 8, 34, 12, 36, offset);  putLine(h, 8, 34, 11, 34, offset); putLine(h, 8, 34, 8, 36, offset); putLine(h, 10, 36, 8, 36, offset)  # phi 2
+        putBox(h, 11, 32, 12, 34, offset)
+        putBox(h, 8, 34, 12, 36, offset)
         putBox(h, 10, 36, 12, 38, offset); putLine(h, 10, 36, 10, 38, offset)  # phi 3
-        putBox(h, 8, 38, 12, 40, offset);  putLine(h, 10, 38, 8, 38, offset); putLine(h, 8, 38, 8, 40, offset); putLine(h, 10, 40, 8, 40, offset)  # phi 4
+        putBox(h, 8, 38, 12, 40, offset)
         putBox(h, 10, 40, 12, 42, offset); putLine(h, 10, 40, 10, 42, offset)  # phi 5
-        putBox(h, 8, 42, 12, 44, offset);  putLine(h, 10, 42, 8, 42, offset); putLine(h, 8, 42, 8, 44, offset); putLine(h, 10, 44, 8, 44, offset)  # phi 6
+        putBox(h, 8, 42, 12, 44, offset)
         putBox(h, 10, 44, 12, 46, offset); putLine(h, 10, 44, 10, 46, offset)  # phi 7
-        putBox(h, 8, 46, 12, 48, offset);  putLine(h, 10, 46, 8, 46, offset); putLine(h, 8, 46, 8, 48, offset); putLine(h, 11, 48, 8, 48, offset)  # phi 8
+        putBox(h, 8, 46, 12, 48, offset)# phi 8 
         putBox(h, 11, 48, 12, 50, offset); putLine(h, 11, 48, 11, 50, offset)  # phi 9
-        putBox(h, 8, 50, 12, 52, offset);  putLine(h, 11, 50, 8, 50, offset); putLine(h, 8, 50, 8, 52, offset); putLine(h, 10, 52, 8, 52, offset)  # phi 10
+        putBox(h, 8, 50, 12, 52, offset)
         putBox(h, 10, 52, 12, 54, offset); putLine(h, 10, 52, 10, 54, offset)  # phi 11
-        putBox(h, 8, 54, 12, 56, offset);  putLine(h, 10, 54, 8, 54, offset); putLine(h, 8, 54, 8, 56, offset); putLine(h, 10, 56, 8, 56, offset)  # phi 12
+        putBox(h, 8, 54, 12, 56, offset)
         putBox(h, 10, 56, 12, 58, offset); putLine(h, 10, 56, 10, 58, offset)  # phi 13
-        putBox(h, 8, 58, 12, 60, offset);  putLine(h, 10, 58, 8, 58, offset); putLine(h, 8, 58, 8, 60, offset); putLine(h, 10, 60, 8, 60, offset)  # phi 14
+        putBox(h, 8, 58, 12, 60, offset)
         putBox(h, 10, 60, 12, 62, offset); putLine(h, 10, 60, 10, 62, offset)  # phi 15
-        putBox(h, 8, 62, 12, 64, offset);  putLine(h, 10, 62, 8, 62, offset); putLine(h, 8, 62, 8, 64, offset); putLine(h, 11, 64, 8, 64, offset)  # phi 16
-
+        putBox(h, 8, 62, 12, 64, offset)
         putBox(h, 11, 64, 12, 96, offset); putLine(h, 11, 64, 11, 96, offset); putLine(h, 12, 96, 11, 96, offset)
+
+        if geo==0:
+            putLine(h, 8, 32, 11, 32, offset)
+            putLine(h, 8, 34, 11, 34, offset)
+            putLine(h, 10, 36, 8, 36, offset)  # phi 2
+            putLine(h, 10, 38, 8, 38, offset)
+            putLine(h, 10, 40, 8, 40, offset)  # phi 4
+            putLine(h, 10, 42, 8, 42, offset)
+            putLine(h, 10, 44, 8, 44, offset)  # phi 6
+            putLine(h, 10, 46, 8, 46, offset)
+            putLine(h, 11, 48, 8, 48, offset)  # phi 8
+            putLine(h, 11, 50, 8, 50, offset)
+            putLine(h, 10, 52, 8, 52, offset)  # phi 10
+            putLine(h, 10, 54, 8, 54, offset)
+            putLine(h, 10, 56, 8, 56, offset)  # phi 12
+            putLine(h, 10, 58, 8, 58, offset)
+            putLine(h, 10, 60, 8, 60, offset)  # phi 14
+            putLine(h, 10, 62, 8, 62, offset)
+            putLine(h, 11, 64, 8, 64, offset)  # phi 16
+        elif geo==1:
+            putLine(h, 9, 32, 11, 32, offset)
+            putLine(h, 9, 34, 11, 34, offset)
+            putLine(h, 10, 36, 9, 36, offset)  # phi 2
+            putLine(h, 10, 38, 9, 38, offset)
+            putLine(h, 10, 40, 9, 40, offset)  # phi 4
+            putLine(h, 10, 42, 9, 42, offset)
+            putLine(h, 10, 44, 9, 44, offset)  # phi 6
+            putLine(h, 10, 46, 9, 46, offset)
+            putLine(h, 11, 48, 9, 48, offset)  # phi 8
+            putLine(h, 11, 50, 9, 50, offset)
+            putLine(h, 10, 52, 9, 52, offset)  # phi 10
+            putLine(h, 10, 54, 9, 54, offset)
+            putLine(h, 10, 56, 9, 56, offset)  # phi 12
+            putLine(h, 10, 58, 9, 58, offset)
+            putLine(h, 10, 60, 9, 60, offset)  # phi 14
+            putLine(h, 10, 62, 9, 62, offset)
+            putLine(h, 11, 64, 9, 64, offset)  # phi 16
+
+        if geo==0:
+            putLine(h, 8, 34, 8, 36, offset)
+            putLine(h, 8, 38, 8, 40, offset)
+            putLine(h, 8, 42, 8, 44, offset)
+            putLine(h, 8, 46, 8, 48, offset)
+            putLine(h, 8, 50, 8, 52, offset)
+            putLine(h, 8, 54, 8, 56, offset)
+            putLine(h, 8, 58, 8, 60, offset)
+            putLine(h, 8, 62, 8, 64, offset)
+
+        putLine(h, 11, 32, 11, 34, offset)  # phi 1
 
 
 def putBox(h, x1, y1, x2, y2, offset):
@@ -114,8 +380,7 @@ def putBox(h, x1, y1, x2, y2, offset):
     box.SetLineColor(kGray)
     h.GetListOfFunctions().Add(box)
 
-
-def putLine(h, x1, y1, x2, y2, offset, c=1):
+def putLine(h, x1, y1, x2, y2, offset=0, c=1):
     line = TLine(x1-offset, y1*0.5, x2-offset, y2*0.5)
     line.SetLineColor(c)
     h.GetListOfFunctions().Add(line)
@@ -230,7 +495,15 @@ def MDT2DHWName(name):
    stateta_c += name[4:5]
    stateta_c += eta_s
    
-   return (stateta_c, statphi_c, statphi_c2)
+   stateta_IMO_c = name[0:1]
+   stateta_IMO_c += name[4:5]
+   stateta_IMO_c += eta_s
+
+   statphi_IMO_c = name[1:2]+" "+statphi_s
+   if((name[0:3]=="BIR" or name[0:3]=="BIM")  and (name[5:7] == "11" or name[5:7] == "15" )):
+       statphi_IMO_c = statphi_IMO_c+" "+name[2:3]
+
+   return (stateta_IMO_c, statphi_IMO_c, stateta_c, statphi_c, statphi_c2)
 
 
 def MDTTubeEff(name,hi_num,hi_den):

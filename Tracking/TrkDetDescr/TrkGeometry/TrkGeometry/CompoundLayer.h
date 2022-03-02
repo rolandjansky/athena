@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -91,8 +91,6 @@ inline std::vector<const Surface*> CompoundLayer::closestSurfaces(
     const Amg::Vector3D&, const Amg::Vector3D&, bool) const {
   return m_surfaces;
 }
-// inline const Surface& CompoundLayer::surfaceRepresentation()
-//{ return layerRepresentation().surfaceRepresentation(); }
 
 }  // namespace Trk
 

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -26,7 +26,7 @@ LArRodBlockCalibrationV3::LArRodBlockCalibrationV3() : LArRodBlockStructure()
 {
   m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
   m_fixedGain=CaloGain::LARNGAIN;
-  resetPointers();
+  LArRodBlockCalibrationV3::resetPointers();
 }
 
 // clear temporary block vectors 
@@ -155,7 +155,7 @@ int LArRodBlockCalibrationV3::getNextRawData(int& channelNumber, std::vector<sho
 
 
 
-int LArRodBlockCalibrationV3::getNextAccumulatedCalibDigit(int& channelNumber,  std::vector < uint32_t >& samplesSum ,  std::vector < uint32_t >& samples2Sum,  uint32_t& /*idummy*/, uint32_t& gain )
+int LArRodBlockCalibrationV3::getNextAccumulatedCalibDigit(int& channelNumber,  std::vector < uint64_t >& samplesSum ,  std::vector < uint64_t >& samples2Sum,  uint32_t& /*idummy*/, uint32_t& gain )
 {
 #ifdef LARBSDBGOUTPUT
   MsgStream logstr(Athena::getMessageSvc(), BlockType());

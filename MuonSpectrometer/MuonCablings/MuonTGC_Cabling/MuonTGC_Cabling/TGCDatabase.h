@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASE_HH
@@ -25,29 +25,27 @@ public:
 	      const std::string& filename, 
 	      const std::string& blockname);
 
-  TGCDatabase(const TGCDatabase &); 
+  TGCDatabase(const TGCDatabase &) = default;
 
   virtual ~TGCDatabase(void);
   
   // assignment operator 
-  TGCDatabase& operator=(const TGCDatabase&);
+  TGCDatabase& operator=(const TGCDatabase&) = default;
 
   DatabaseType getDatabaseType(void) const { return m_type; }
   
-  void clear();
-
-  virtual int getEntry(int entry, int column);
+  virtual int getEntry(int entry, int column) const;
  
-  virtual int getEntrySize(int entry);
+  virtual int getEntrySize(int entry) const;
  
-  virtual int getMaxEntry(void);
+  virtual int getMaxEntry(void) const;
  
   virtual bool update(const std::vector<int>& );
  
   virtual int  find(const std::vector<int>&) const;
 
-  virtual int getIndexDBIn(int* indexIn);
-  virtual int getIndexDBOut(int* indexOut);
+  virtual int getIndexDBIn(int* indexIn) const;
+  virtual int getIndexDBOut(int* indexOut) const;
  
 protected:
   virtual void readDB(void) {}

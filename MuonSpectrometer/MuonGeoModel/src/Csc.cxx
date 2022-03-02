@@ -61,7 +61,7 @@ namespace MuonGM {
 
     Csc::~Csc() {
         delete layer;
-        layer = 0;
+        layer = nullptr;
     }
 
     GeoFullPhysVol *Csc::build(const StoredMaterialManager& matManager,
@@ -97,7 +97,7 @@ namespace MuonGM {
         if (minimalgeo == 1)
             return pcsc;
 
-        GeoVPhysVol *lay = layer->build(matManager, mysql, cutoutson, std::move(vcutdef));
+        GeoVPhysVol *lay = layer->build(matManager, mysql, cutoutson, vcutdef);
         if (!skip_csc)
             pcsc->add(lay);
 

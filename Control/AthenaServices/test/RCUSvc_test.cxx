@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthenaServices/test/RCUSvc_test.cxx
@@ -10,6 +10,10 @@
 
 
 #undef NDEBUG
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IRCUSvc.h"
 #include "AthenaKernel/errorcheck.h"

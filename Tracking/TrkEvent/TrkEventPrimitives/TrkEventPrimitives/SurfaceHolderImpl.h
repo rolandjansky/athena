@@ -16,23 +16,21 @@ SurfaceUniquePtrT.h
 
 In the case of surfaces we do not want to
 take onwership when they are owned by the
-Trakcing Geometry or a detector element.
+Tracking Geometry or a detector element.
 
-In the other hand we  want to take owneship if
+In the other hand we  want to take ownership if
 they are free.
 
 As a result when we have classes
-with a m_associatedSurface
+with a m_associatedSurface member
 we need to repeat some boiler plate code.
 
-The helpers try to make writing such code
+These helpers try to make writing such code
 a bit easier and more uniform.
 
 In reality one should prefer the code based
 on SurfaceUniquePtr
-
 But :
-
 We get this kind of
 warning when creating
 dictionaries:
@@ -47,7 +45,7 @@ Under TrkDetDescr/TrkSurfaces :
 The test : SurfaceHolder_test
 has a mock code on how we could use
 these for classes where we want to hold
-a ptr to a const Surface and manage
+a ptr to a const Surface and manage it,
 based on if its free or owned.
 
 The header :

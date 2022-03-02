@@ -9,7 +9,7 @@
 
 export ATHENA_CORE_NUMBER=8 # set number of cores used in multithread to 8.
 
-athena.py --threads=8  eflowRec/run_ESDPFlowRecoR22_EOverP.py
+python $Athena_DIR/python/eflowRec/PFRunESDtoAOD_mc20e_eOverP.py
 rc1=$?
 
 echo "art-result: ${rc1}"

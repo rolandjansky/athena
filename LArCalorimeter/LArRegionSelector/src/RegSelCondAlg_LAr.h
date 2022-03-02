@@ -24,6 +24,7 @@
 #include "IRegionSelector/IRegSelLUTCondData.h"
 #include "RegionSelector/RegSelectorHashMap.h"
 #include "LArRecConditions/LArRoIMap.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include <string>
 
@@ -48,6 +49,9 @@ private:
    
   SG::ReadCondHandleKey<LArRoIMap> m_roiMapKey
     {this, "LArRoIMapKey", "LArRoIMap", "LAr RoI map key"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+    {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store"};
 
   /// Output conditions object
   SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  

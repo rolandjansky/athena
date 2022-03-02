@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataContainerCnv_p1.h"
@@ -9,7 +9,7 @@
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
 
 // Gaudi
 #include "GaudiKernel/Bootstrap.h"
@@ -50,16 +50,19 @@ StatusCode Muon::MMPrepDataContainerCnv_p1::initialize(MsgStream& log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the MM IdHelper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
+    if (m_eventCnvTool.retrieve().isFailure()) {
         log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
-        return sc;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
-
+const MuonGM::MMReadoutElement* Muon::MMPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::MMReadoutElement*>(cnv_tool->getDetectorElement(id));
+}
 void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContainer* transCont, Muon::MMPrepDataContainer_p1* persCont,
                                                   MsgStream& log) {
     if (!m_isInitialized) {
@@ -127,7 +130,7 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
 
             persCont->m_prdDeltaId.emplace_back(diff);  // store delta identifiers, rather than full identifiers
 
-            const MuonGM::MMReadoutElement* ele_from_mgr = m_muonDetMgr->getMMReadoutElement(chan_id);
+            const MuonGM::MMReadoutElement* ele_from_mgr = getReadOutElement(chan_id);
             if (log.level() <= MSG::WARNING && chan->detectorElement()->identify() != ele_from_mgr->identify()) {
                 log << MSG::WARNING << "DE from det manager (" << m_MMId->print_to_string(ele_from_mgr->identify())
                     << ") does not match that from PRD (" << m_MMId->print_to_string(chan->detectorElement()->identify()) << ") for PRD "
@@ -189,7 +192,7 @@ void Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContaine
                     << ", channel=" << channel << " -> id=" << clusId.get_compact() << endmsg;
             }
 
-            const MuonGM::MMReadoutElement* detEl = m_muonDetMgr->getMMReadoutElement(clusId);
+            const MuonGM::MMReadoutElement* detEl = getReadOutElement(clusId);
             if (!detEl) {
                 if (log.level() <= MSG::WARNING) {
                     log << MSG::WARNING << "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="

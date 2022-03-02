@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -474,7 +474,7 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           Amg::MatrixX covFromMS( 1,1 ) ;
           covFromMS( 1, 1 )   = (*METrkMeasuredPerigee->covariance())( Trk::qOverP, Trk::qOverP ) ;
 
-          Trk::PseudoMeasurementOnTrack *pmot = new Trk::PseudoMeasurementOnTrack( Trk::LocalParameters( parFromMSVec ),
+          auto pmot = std::make_unique<const Trk::PseudoMeasurementOnTrack>( Trk::LocalParameters( parFromMSVec ),
 										   covFromMS, *surf) ;
 
 
@@ -486,15 +486,10 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           type.set(Trk::TrackStateOnSurface::Measurement);
 
           const Perigee* IDPerigeeParameters  = muon->inDetTrackParticle()->originalTrack()->perigeeParameters();
-          const Perigee* IDPerigeeParametersClone(nullptr);
-          if (IDPerigeeParameters) IDPerigeeParametersClone  = IDPerigeeParameters->clone();
-
-
-          // std::cout << "muon->inDetTrackParticle()->originalTrack()->perigeeParameters(): " << IDPerigeeParameters << std::endl;
-          // std::cout << "muon->inDetTrackParticle()->originalTrack()->perigeeParameters()->clone(): "<< IDPerigeeParametersClone << std::endl;
+          std::unique_ptr<const  Perigee> IDPerigeeParametersClone=(IDPerigeeParameters) ? IDPerigeeParameters->uniqueClone(): nullptr;
 
           if(IDPerigeeParameters && IDPerigeeParametersClone ){
-            trackStateOnSurfaces.push_back(new const Trk::TrackStateOnSurface(pmot, IDPerigeeParametersClone, nullptr, nullptr, type));
+            trackStateOnSurfaces.push_back(new const Trk::TrackStateOnSurface(std::move(pmot), std::move(IDPerigeeParametersClone), nullptr, nullptr, type));
 
             for ( ; sb != muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->end(); ++sb)  trackStateOnSurfaces.push_back((**sb).clone());
 
@@ -503,7 +498,9 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
               std::move(trackStateOnSurfaces),
               nullptr);
 
-            Trk::Track* MSConstraintFittedTrack = m_trackFitter->fit(*tmpTrack, m_runOutlierRemoval, Trk::muon);
+            Trk::Track* MSConstraintFittedTrack = (m_trackFitter->fit(Gaudi::Hive::currentContext(),
+                                                                     *tmpTrack, m_runOutlierRemoval, 
+                                                                     Trk::muon)).release();
 
             if(!MSConstraintFittedTrack){
               ++m_nCBMuonsFailedRefit;
@@ -551,7 +548,6 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           delete tmpTrack;
           } else{
             ATH_MSG_WARNING("failed in IDPerigeeParameters or IDPerigeeParametersClone  !");
-            delete pmot;
           }
 
         }

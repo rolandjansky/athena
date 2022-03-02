@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -116,12 +116,12 @@ public:
   virtual void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
-    BinnedArray<TrackingVolume>* insidevolarray) const = 0;
+    BinnedArray<const TrackingVolume>* insidevolarray) const = 0;
 
   virtual void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
-    SharedObject<BinnedArray<TrackingVolume>> insidevolarray) const = 0;
+    SharedObject<BinnedArray<const TrackingVolume>> insidevolarray) const = 0;
 
   /**  Glue Volume method: set outside Volume
        --- Neccessary as friendship cannot be inherited: your father's friend
@@ -139,12 +139,12 @@ public:
   virtual void setOutsideTrackingVolumeArray
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
                         BoundarySurfaceFace face,
-                        BinnedArray<TrackingVolume>* outsidevolarray) const = 0;
+                        BinnedArray<const TrackingVolume>* outsidevolarray) const = 0;
 
   virtual void setOutsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
-    SharedObject<BinnedArray<TrackingVolume>> outsidevolarray) const = 0;
+    SharedObject<BinnedArray<const TrackingVolume>> outsidevolarray) const = 0;
 
 protected:
   /** Protected method to register the Layer to the Surface */

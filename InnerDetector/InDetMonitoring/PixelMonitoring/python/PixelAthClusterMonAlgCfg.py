@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -9,7 +9,7 @@
 
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, define2DProfPerFEHist, definePP0Histos
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers, defineMapVsLumiLayers
-from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
+from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers, baselayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, ztotbinsy, ztotminsy
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
 from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
@@ -54,12 +54,17 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfFEsStatusLB')
 
     histoGroupName = 'BadModulesPerLumi'
-    title          = 'Number of bad modules (bad+active) per event per LB'
+    title          = 'Fraction of bad modules (bad+active) per event per LB'
     yaxistext      = ';# modules/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
 
     histoGroupName = 'DisabledModulesPerLumi'
-    title          = 'Number of disabled modules per event per LB'
+    title          = 'Fraction of disabled modules per event per LB'
+    yaxistext      = ';# modules/event'
+    define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
+
+    histoGroupName = 'BadAndDisabledModulesPerLumi'
+    title          = 'Fraction of bad and disabled modules per event per LB'
     yaxistext      = ';# modules/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
 
@@ -239,7 +244,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             xaxistext      = ';Module eta index'
             yaxistext      = ';# pixels/cluster'
             title = addOnTrackTxt('Number of pixels per cluster vs eta', ontrack, True)
-            for idx, layer in enumerate(layers):
+            for idx, layer in enumerate(baselayers):
                 groupname   = histoGroupName  + '_{0}'.format(layer)
                 fulltitle   = title + ', {0}'.format(layer) + runtext + xaxistext + yaxistext
                 layerGroup = helper.addGroup(alg, groupname)

@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-# $Id$
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # @file TruthD3PDMaker/python/MCTruthClassifierConfig.py
 # @author scott snyder <snyder@bnl.gov>
@@ -20,14 +18,16 @@ mckey = resolveSGKey ('DataVector<xAOD::TruthParticle_v1>', D3PDMakerFlags.Truth
 
 from TruthD3PDAnalysis import D3PDMCTruthClassifier
 from MCTruthClassifier import MCTruthClassifierBase
-D3PDMCTruthClassifier = D3PDMCTruthClassifier (name = 'D3PDMCTruthClassifier',
-                                               xAODTruthParticleContainerName = mckey,
-                                               ParticleCaloExtensionTool=MCTruthClassifierBase.ClassifierParticleCaloExtensionTool,
-                                               pTNeutralPartCut = 1e-3,
-                                               OutputLevel = ERROR,
-                                               partExtrConePhi = 0.6, #0.4
-                                               partExtrConeEta = 0.2, #0.2
-                                               ROICone = True)
+D3PDMCTruthClassifier = D3PDMCTruthClassifier(
+    name='D3PDMCTruthClassifier',
+    CaloDetDescrManager = 'CaloDetDescrManager',
+    xAODTruthParticleContainerName=mckey,
+    ParticleCaloExtensionTool=MCTruthClassifierBase.getMCTruthClassifierCaloExtensionTool(),
+    pTNeutralPartCut=1e-3,
+    OutputLevel=ERROR,
+    partExtrConePhi=0.6,  # 0.4
+    partExtrConeEta=0.2,  # 0.2
+    ROICone=True)
 try:
     D3PDMCTruthClassifier.forceNotUseBremRefitTrk = True
 except AttributeError:

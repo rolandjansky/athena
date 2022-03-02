@@ -157,7 +157,7 @@ class CaloDetDescrManager_Base
   inline bool isInitialized() const {return true;}
   /** @brief get lar geometry label, distinguish between full atlas and TB
    */
-  inline std::string lar_geometry() const {return m_lar_geometry;}
+  inline const std::string& lar_geometry() const {return m_lar_geometry;}
   /** @brief set lar geometry label, distinguish between full atlas and TB
    */
   inline void set_lar_geometry(const std::string& geom) { m_lar_geometry = geom;}

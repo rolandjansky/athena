@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "TrkCaloExtension/CaloExtension.h"
+
 
 namespace MuonCombined {
 
@@ -18,8 +18,9 @@ namespace MuonCombined {
 
     std::string InDetCandidate::toString() const {
         std::ostringstream sout;
-        sout << " pt " << indetTrackParticle().pt() << " eta " << indetTrackParticle().eta() << " phi " << indetTrackParticle().phi();
-        if (isSiliconAssociated()) sout << std::endl << " is SiliconAssociated.";
+        sout << " pt: " << indetTrackParticle().pt() *1.e-3<< " GeV, eta: " << indetTrackParticle().eta() << ", phi: " << indetTrackParticle().phi();
+        sout <<", d0: "<<indetTrackParticle().d0()<<", z0: "<<indetTrackParticle().z0()<<", q: "<<indetTrackParticle().charge()<<" ";
+        if (isSiliconAssociated()) sout << "  is SAF.";
         return sout.str();
     }
 
@@ -36,9 +37,16 @@ namespace MuonCombined {
     void InDetCandidate::setSiliconAssociated(bool value) { m_siAssociated = value; }
 
     void InDetCandidate::setExtension(std::unique_ptr<Muon::MuonSystemExtension> extension) { m_extension = std::move(extension); }
-    void InDetCandidate::setExtension(std::unique_ptr<Trk::CaloExtension> extension) { m_calo_extension = std::move(extension); }
+    void InDetCandidate::setExtension(std::unique_ptr<Trk::CaloExtension>& extension) { 
+        m_calo_extension = std::move(extension); 
+        m_calo_extension_ptr = m_calo_extension.get();
+    }
+    void InDetCandidate::setExtension(const Trk::CaloExtension* extension) { m_calo_extension_ptr =extension; }
 
     const Muon::MuonSystemExtension* InDetCandidate::getExtension() const { return m_extension.get(); }
-    const Trk::CaloExtension* InDetCandidate::getCaloExtension() const { return m_calo_extension.get(); }
+    const Trk::CaloExtension* InDetCandidate::getCaloExtension() const { return m_calo_extension_ptr; }
+
+    bool InDetCandidate::operator==(const InDetCandidate& other ) const { return &other.indetTrackParticle() == &indetTrackParticle(); }
+       
 
 }  // namespace MuonCombined

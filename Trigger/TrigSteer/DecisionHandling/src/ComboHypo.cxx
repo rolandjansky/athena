@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/ComboHypo.h"
@@ -25,11 +25,7 @@ StatusCode ComboHypo::initialize() {
   ATH_CHECK( m_outputs.initialize() );
   ATH_CHECK( m_inputs.initialize() );
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
-  ATH_MSG_INFO( "with these inputs: ");
-  for (const auto& inp:m_inputs){
-    ATH_MSG_INFO("-- "<< inp.key());
-  }
-  
+
   if (m_hypoTools.size()>0) {
     ATH_CHECK(m_hypoTools.retrieve());
   }
@@ -46,10 +42,14 @@ StatusCode ComboHypo::initialize() {
   
   const size_t maxMult = maxMultEl->second.size();
 
-  if (msgLvl(MSG::INFO)){ 
-    ATH_MSG_INFO( "with this multiplicity map: ");
+  if (msgLvl(MSG::DEBUG)){
+    ATH_MSG_DEBUG( "with these inputs:");
+    for (const auto& inp : m_inputs) {
+      ATH_MSG_DEBUG("-- "<< inp.key());
+    }
+    ATH_MSG_DEBUG( "with this multiplicity map:");
     for ( const auto& m : m_multiplicitiesReqMap ) {
-      ATH_MSG_INFO("-- " << m.first 
+      ATH_MSG_DEBUG("-- " << m.first
         << " multiplicities: " << m.second 
         <<", input-collection-indicies: " << m_legToInputCollectionMap[m.first]);
     }
@@ -115,7 +115,7 @@ StatusCode ComboHypo::copyDecisions( const Combo::LegDecisionsMap & passingLegs,
         for (const DecisionID c : common){
           const HLT::Identifier cID = HLT::Identifier(c);
           // add the decID only if this candidate passed the combination selection
-          const ElementLinkVector<DecisionContainer>& Comb=passingLegs.at(c);
+          const std::vector<ElementLink<DecisionContainer>>& Comb=passingLegs.at(c);
           if(std::find(Comb.begin(), Comb.end(), thisEL) == Comb.end()) {
             continue;
           }
@@ -230,7 +230,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       // Finally, the same behaviour may also be triggered by the HypoAlg adding an an int32_t decoration called "noCombo" with value 1
       // to the Decision Object.
 
-      for (const ElementLink<DecisionContainer> dEL : it->second){
+      for (const ElementLink<DecisionContainer>& dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0; // The container hash of the DecisionObject's most-recent feature, and its initial ROI
         uint16_t featureIndex = 0, roiIndex = 0; // The container index of the DecisionObject's most-recent feature, and its initial ROI
         bool roiIsFullscan = false; // Will be set to true if the DecisionObject's initial ROI is flagged as FullScan
@@ -508,9 +508,9 @@ StatusCode ComboHypo::fillDecisionsMap( Combo::LegDecisionsMap &  dmap, const Ev
     size_t legCount = 0;
     for (const auto& entry: dmap){
       ATH_MSG_DEBUG("leg ["<<legCount<<"]: ");
-      const ElementLinkVector<DecisionContainer>& decisions = entry.second;
+      const std::vector<ElementLink<DecisionContainer>>& decisions = entry.second;
       ATH_MSG_DEBUG(" ++++ " << HLT::Identifier( entry.first ) <<" Number Decisions: "<< decisions.size());
-      for (const ElementLink<DecisionContainer> d : decisions){
+      for (const ElementLink<DecisionContainer>& d : decisions){
         ATH_MSG_DEBUG("     Decision: (ContainerKey:"<<d.dataID()<<", DecisionElementIndex:"<<d.index()<<")");
       }
       legCount++;

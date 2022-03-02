@@ -1,9 +1,10 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 #Muon RecRoiTools
@@ -45,7 +46,7 @@ def RoIBResultByteStreamToolCfg(name, flags, writeBS=False):
 
 def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.ExampleL1TriggerByteStreamTool(name)
-  muctpi_moduleid = 1
+  muctpi_moduleid = 0
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
@@ -59,10 +60,9 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
     tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
   return tool
 
-def MuonRoIByteStreamToolCfg(name, flags, daq=False, writeBS=False):
-  tool_name = name+"DAQ" if daq else name
-  tool = CompFactory.MuonRoIByteStreamTool(tool_name)
-  muctpi_moduleid = 0 if daq else 1
+def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
+  tool = CompFactory.MuonRoIByteStreamTool(name)
+  muctpi_moduleid = 0  # No RoIB in Run 3, we always read the DAQ ROB
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
@@ -73,7 +73,7 @@ def MuonRoIByteStreamToolCfg(name, flags, daq=False, writeBS=False):
   else:
     # read BS == write xAOD
     tool.MuonRoIContainerReadKey=""
-    tool.MuonRoIContainerWriteKey = "LVL1MuonRoIsDAQ" if daq else "LVL1MuonRoIs"
+    tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
 
   tool.UseRun3Config = flags.Trigger.enableL1MuonPhase1
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
@@ -132,11 +132,10 @@ def L1TriggerByteStreamDecoderCfg(flags):
         for module_id in roibResultTool.EMModuleIds:
           maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, module_id)))
 
-  # Run-3 L1Muon decoding
-  if flags.Trigger.enableL1MuonPhase1:
+  # Run-3 L1Muon decoding (only when running HLT - offline we read it from HLT result)
+  if flags.Trigger.enableL1MuonPhase1 and flags.Trigger.doHLT:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool",
                                            flags=flags,
-                                           daq=(not flags.Trigger.doHLT),  # RoIB ROB for HLT, DAQ ROB for offline
                                            writeBS=False)
     decoderTools += [muonRoiTool]
 
@@ -168,19 +167,16 @@ def L1TriggerByteStreamEncoderCfg(flags):
     acc.addPublicTool(roibResultTool)
     # Special - in BS->BS job without L1Sim, need to decode extra data from input
     # for encoding the CTP information back to BS
-    if flags.Input.Format == 'BS' and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
+    if flags.Input.Format is Format.BS and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
       from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
       acc.merge(ByteStreamReadCfg(flags, type_names=['CTP_RDO/CTP_RDO']))
 
   # Run-3 L1Muon encoding
   if flags.Trigger.L1.doMuon and flags.Trigger.enableL1MuonPhase1:
-    # Write to both RoIB and DAQ ROBs
-    for encode_daq in [False, True]:
-      muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool",
-                                             flags=flags,
-                                             daq=encode_daq,
-                                             writeBS=True)
-      acc.addPublicTool(muonRoiTool)
+    muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool",
+                                           flags=flags,
+                                           writeBS=True)
+    acc.addPublicTool(muonRoiTool)
 
   # TODO: Run-3 L1Calo, L1Topo, CTP
 

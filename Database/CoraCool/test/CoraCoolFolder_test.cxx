@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_SUITE(CoraCoolFolderTest)
     BOOST_TEST(pFolder->coralFKey() == "FgKey");
     BOOST_TEST(pFolder->coralPKey() == "PrimKey");
     BOOST_TEST((pFolder->fkSpecification() == fkspec));
-    BOOST_TEST((pFolder->payloadSpecification() == payloadspec));
+    BOOST_TEST((pFolder->payloadSpecification() == static_cast<const cool::IRecordSpecification&>(payloadspec)));
     coral::AttributeList returnedAttrList = pFolder->emptyAttrList();
     std::stringstream attrListRepresentation;
     attrListRepresentation<<returnedAttrList;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -365,7 +365,7 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TGraph* graph) {
 StatusCode IDPerfMonKshort::fillHistograms()
 {
   ATH_MSG_VERBOSE( "IDPerfMonKshort fillHistogram() started");
-  const xAOD::TrackParticleContainer* tracks(0);
+  const xAOD::TrackParticleContainer* tracks(nullptr);
   StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
   if (sc.isFailure()) {
     ATH_MSG_DEBUG( "No Collection with name "<<m_tracksName<<" found in StoreGate" );
@@ -374,7 +374,7 @@ StatusCode IDPerfMonKshort::fillHistograms()
     ATH_MSG_DEBUG( "Collection with name "<<m_tracksName<<" found in StoreGate" );
   }
 
-  const xAOD::VertexContainer* PrimVxContainer(0);
+  const xAOD::VertexContainer* PrimVxContainer(nullptr);
   if(evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)){
     if ( evtStore()->retrieve(PrimVxContainer,m_VxPrimContainerName).isFailure()) {
       ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
@@ -389,7 +389,7 @@ StatusCode IDPerfMonKshort::fillHistograms()
   }
   const xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
 
-  const xAOD::VertexContainer* SecVxContainer(0);
+  const xAOD::VertexContainer* SecVxContainer(nullptr);
  if(evtStore()->contains<xAOD::VertexContainer>(m_VxContainerName)){
    if (evtStore()->retrieve(SecVxContainer,m_VxContainerName).isFailure()) {
      ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxContainerName<<" found in StoreGate");
@@ -472,15 +472,15 @@ StatusCode IDPerfMonKshort::fillHistograms()
    double trackPos_d0_wrtPV = 0;
    double trackNeg_d0 = 0;
    double trackNeg_d0_wrtPV = 0;
-   const xAOD::TrackParticle* trackPos(0);
-   const xAOD::TrackParticle* trackNeg(0);
+   const xAOD::TrackParticle* trackPos(nullptr);
+   const xAOD::TrackParticle* trackNeg(nullptr);
 
    int ntrk(-1);
    ntrk = secVx_elem->nTrackParticles();
    ATH_MSG_DEBUG("track particles associated to vertex : "<<ntrk );
    if(ntrk>0){
      auto tpLinks = secVx_elem->trackParticleLinks();
-     for (auto link: tpLinks){
+     for (const auto& link: tpLinks){
        Info("execute()", "V0: TP link = %d %s ", link.isValid(), link.dataID().c_str() );
        if(ntrk == 2){
 	 ATH_MSG_DEBUG("Exactly two track particles!");
@@ -494,7 +494,7 @@ StatusCode IDPerfMonKshort::fillHistograms()
        }
      }//trackparticles
    }//ntrk
-   if(trackPos!=0) {
+   if(trackPos!=nullptr) {
       uint8_t dummy(-1);
       trackPos_nSVTHits = trackPos->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
       trackPos_d0 = trackPos->d0();
@@ -503,7 +503,7 @@ StatusCode IDPerfMonKshort::fillHistograms()
     }
     //std::cout <<"@todo : check (2) " << std::endl;
 
-    if(trackNeg!=0) {
+    if(trackNeg!=nullptr) {
       uint8_t dummy(-1);
       trackNeg_nSVTHits = trackNeg->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
       trackNeg_d0 = trackNeg->d0();

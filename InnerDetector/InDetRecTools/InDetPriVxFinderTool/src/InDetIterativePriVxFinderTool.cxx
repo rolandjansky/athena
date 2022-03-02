@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -25,19 +25,13 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-#include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
-
 #include "AthContainers/DataVector.h"
-#include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrackLink/ITrackLink.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
@@ -55,10 +49,6 @@ InDetIterativePriVxFinderTool::InDetIterativePriVxFinderTool(
   const std::string& n,
   const IInterface* p)
   : AthAlgTool(t, n, p)
-  , m_iVertexFitter("Trk::AdaptiveVertexFitter")
-  , m_trkFilter("InDet::InDetTrackSelection")
-  , m_SeedFinder("Trk::ZScanSeedFinder")
-  , m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator")
   , m_useBeamConstraint(false)
   , m_significanceCutSeeding(10)
   , m_maximumChi2cutForSeeding(6. * 6.)
@@ -70,12 +60,6 @@ InDetIterativePriVxFinderTool::InDetIterativePriVxFinderTool(
   , m_maxTracks(5000)
 {
   declareInterface<IVertexFinder>(this);
-
-  declareProperty("VertexFitterTool", m_iVertexFitter);
-  declareProperty("TrackSelector", m_trkFilter);
-  declareProperty("SeedFinder", m_SeedFinder);
-  declareProperty("ImpactPoint3dEstimator", m_ImpactPoint3dEstimator);
-  declareProperty("LinearizedTrackFactory", m_LinearizedTrackFactory);
   declareProperty("useBeamConstraint", m_useBeamConstraint);
   declareProperty("significanceCutSeeding", m_significanceCutSeeding);
   declareProperty("maximumChi2cutForSeeding", m_maximumChi2cutForSeeding);
@@ -164,7 +148,7 @@ InDetIterativePriVxFinderTool::findVertex(const EventContext& ctx,
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
-  typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
+  using TrackDataVecIter = DataVector<Trk::Track>::const_iterator;
 
   bool selectionPassed;
   for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end();
@@ -191,7 +175,7 @@ InDetIterativePriVxFinderTool::findVertex(const EventContext& ctx,
                       << " survived the preselection.");
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-    returnContainers = findVertex(ctx,selectedTracks);
+    returnContainers = findVertex(ctx, selectedTracks);
 
   return returnContainers;
 }
@@ -209,7 +193,8 @@ InDetIterativePriVxFinderTool::findVertex(
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
-  using TrackParticleDataVecIter = DataVector<xAOD::TrackParticle>::const_iterator;
+  using TrackParticleDataVecIter =
+    DataVector<xAOD::TrackParticle>::const_iterator;
 
   bool selectionPassed;
   for (TrackParticleDataVecIter itr = trackParticles->begin();
@@ -600,9 +585,10 @@ InDetIterativePriVxFinderTool::findVertex(
                        ((!m_useBeamConstraint && ndf > 0 && ntracks >= 2) ||
                         (m_useBeamConstraint && ndf > 3 && ntracks >= 2));
 
-          ATH_MSG_DEBUG(" Refitted xAODVertex is pointer: " << myxAODVertex
-                        << " ndf = " << ndf << " ntracks (with weight>0.01) "
-                        << ntracks << " beam constraint "
+          ATH_MSG_DEBUG(" Refitted xAODVertex is pointer: "
+                        << myxAODVertex << " ndf = " << ndf
+                        << " ntracks (with weight>0.01) " << ntracks
+                        << " beam constraint "
                         << (m_useBeamConstraint ? "yes" : "no"));
 
           if (!goodVertex) {
@@ -702,7 +688,7 @@ InDetIterativePriVxFinderTool::findVertex(
   //---- add dummy vertex at the end
   //------------------------------------------------------//
   //---- if one or more vertices are already there: let dummy have same position
-  //as primary vertex
+  // as primary vertex
   if (!m_createSplitVertices) {
     if (!theVertexContainer->empty()) {
       xAOD::Vertex* primaryVtx = theVertexContainer->front();
@@ -799,7 +785,7 @@ InDetIterativePriVxFinderTool::findVertex(
           // If track is an xAOD::TrackParticle, set directly in xAOD::Vertex
           if (linkToXAODTP) {
             (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
-          } 
+          }
 
           origTracks.erase(origtrkiter);
           origtrkbegin = origTracks.begin();

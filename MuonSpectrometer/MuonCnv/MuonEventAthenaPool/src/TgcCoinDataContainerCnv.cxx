@@ -23,7 +23,7 @@ TgcCoinDataContainerCnv::TgcCoinDataContainerCnv(ISvcLocator* svcloc) :
 TgcCoinDataContainerCnvBase(svcloc),
     // Must create DataVector that does NOT own elements
     //m_prdCollVec(TgcCoinDataCollVec(SG::VIEW_ELEMENTS)),
-    m_storeGate(0)
+    m_storeGate(nullptr)
     //m_cscId(0) 
 {
 }
@@ -81,7 +81,7 @@ Muon::TgcCoinDataContainer* TgcCoinDataContainerCnv::createTransient() {
     static pool::Guid   p2_guid("524775D8-A66F-4AD3-912E-7D05389C1011"); // with TgcCoinData_tlp2
     static pool::Guid   p3_guid("95BF89C7-1FFC-464F-A14D-742F9E874E56"); // with TgcCoinData_tlp3
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::TgcCoinDataContainer* p_collection(0);
+    Muon::TgcCoinDataContainer* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
         poolReadObject< TgcCoinDataContainer_PERS >( m_TPConverter_tlp3 );

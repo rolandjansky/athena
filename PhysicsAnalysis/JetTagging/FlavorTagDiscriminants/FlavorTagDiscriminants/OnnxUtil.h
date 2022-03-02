@@ -8,9 +8,10 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include <core/session/onnxruntime_cxx_api.h>
 #include <map>
 
-
 namespace FlavorTagDiscriminants {
 
+  typedef std::pair<std::vector<float>, std::vector<int64_t>> input_pair;
+  
   //
   // Utility class that loads the onnx model from the given path
   // and runs inference based on the user given inputs
@@ -25,7 +26,7 @@ namespace FlavorTagDiscriminants {
       void initialize();
 
       void runInference(
-        const std::map<std::string, std::vector<std::vector<float>>> & gnn_inputs,
+        std::map<std::string, input_pair> & gnn_inputs,
         std::map<std::string, float>& output
       ) const;
 
@@ -40,6 +41,7 @@ namespace FlavorTagDiscriminants {
 
       std::vector<std::string> m_input_node_names;
       std::vector<std::string> m_output_node_names;
+
   }; // Class OnnxUtil
 } // end of FlavorTagDiscriminants namespace
 

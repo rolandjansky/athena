@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_PAI_utils.h"
 
-#include "math.h"
 #include <algorithm>
-#include <vector>
+#include <cmath>
 #include <iostream>
 #include <limits>
+#include <vector>
 //___________________________________________________________________________
 
 float TRT_PAI_utils::Interpolate(const float& xval,

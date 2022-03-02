@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************
@@ -183,7 +183,7 @@ void diff( const TrigTauClusterDetails& clus1, const TrigTauClusterDetails& clus
 {
     double epsilon=0.001;
 
-    char name[20];
+    char name[32];
     for (int i = 0; i< NUMEMSAMP ; i++) {
       if (fabs(clus1.EMRadius(i) - clus2.EMRadius(i)) > epsilon) 
 	{sprintf(name,"EMRadius[%d]",i); varChange[name] = clus1.EMRadius(i) - clus2.EMRadius(i); }

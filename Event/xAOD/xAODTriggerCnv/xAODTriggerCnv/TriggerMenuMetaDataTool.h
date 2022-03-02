@@ -11,6 +11,7 @@
 // System include(s):
 #include <string>
 #include <memory>
+#include <mutex>
 
 // Gaudi/Athena include(s):
 #include "AsgTools/AsgMetadataTool.h"
@@ -85,24 +86,33 @@ namespace xAODMaker {
 
    private:
 
-      /// Perform the R2 data copy
+      /// Perform the R2 data copy from the input metastore to the internal metastore
       StatusCode checkxAODTriggerMenu();
+      /// Perform the R2 data copy from the internal metastore to the output metastore
       StatusCode endxAODTriggerMenu();
+      /// Common code to copy and de-duplicate menus from the copyFrom collection into the copyTo collection.
+      StatusCode doCopyxAODTriggerMenu(const xAOD::TriggerMenuContainer* copyFrom, 
+         xAOD::TriggerMenuContainer* copyTo);
 
-      /// Perform the R3 data copy
+
+      /// Perform the R3 data copy from the input metastore to the internal metastore
       StatusCode checkxAODTriggerMenuJson();
+      /// Perform the R3 data copy from the internal metastore to the output metastore
       StatusCode endxAODTriggerMenuJson();
+      /// Common code to copy and de-duplicate menus from the copyFrom collection into the copyTo collection.
+      StatusCode doCopyxAODTriggerMenuJson(const std::string& inputMetaSGKey, 
+         const xAOD::TriggerMenuJsonContainer* copyFrom, 
+         xAOD::TriggerMenuJsonContainer* copyTo);
 
-      /// Helper function to do the R3 data copy to the internal store
-      StatusCode checkCopyJSON(const std::string& inputMetaSGKey,
-         std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
-         std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer);
+      /// Helper function to do the R3 data copy to the internal store for a given JSON
+      StatusCode checkCopyJson(const std::string& inputMetaSGKey,
+         std::unique_ptr< xAOD::TriggerMenuJsonContainer >& internalContainer,
+         std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& internalAuxContainer);
 
-      // Helper function to move the internal store to the output file
-      StatusCode checkExportJSON(const std::string& outputMetaSGKey,
-         std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
-         std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer);
-
+      // Helper function to move the internal store to the output file for a given JSON
+      StatusCode checkExportJson(const std::string& outputMetaSGKey,
+         std::unique_ptr< xAOD::TriggerMenuJsonContainer >& internalContainer,
+         std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& internalAuxContainer);
 
       /// @name Runs 1, 2 data propagation
       /// @{
@@ -125,6 +135,9 @@ namespace xAODMaker {
       std::string m_inputKeyJSON_HLT;
       std::string m_outputKeyJSON_HLT;
 
+      std::string m_inputKeyJSON_HLTMonitoring;
+      std::string m_outputKeyJSON_HLTMonitoring;
+
       std::string m_inputKeyJSON_L1;
       std::string m_outputKeyJSON_L1;
 
@@ -139,6 +152,9 @@ namespace xAODMaker {
 
       std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hlt;
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltAux;
+
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hltmonitoring;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltmonitoringAux;
 
       std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_l1;
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_l1Aux;
@@ -157,6 +173,9 @@ namespace xAODMaker {
       /// Internal status flag showing whether a BeginInputFile incident was
       /// seen already
       bool m_beginFileIncidentSeen;
+
+      /// Global serial protection over writing to the output store for MP
+      static std::mutex s_mutex ATLAS_THREAD_SAFE;
 
    }; // class TriggerMenuMetaDataTool
 

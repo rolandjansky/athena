@@ -48,7 +48,7 @@ class MuonSegmentPairMatchingTool : virtual public IMuonSegmentPairMatchingTool,
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };  //!< EDM Helper tool
 
-    ToolHandle<MuonEDMPrinterTool> m_printer{
+    PublicToolHandle<MuonEDMPrinterTool> m_printer{
         this,
         "Printer",
         "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

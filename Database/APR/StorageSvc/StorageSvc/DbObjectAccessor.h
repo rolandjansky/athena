@@ -39,7 +39,7 @@ namespace pool  {
       */
     static DbStatus read( void**                    ptr,
                           ShapeH                    shape,
-                          const DbContainer&        cntH,
+                          DbContainer&              cntH,
                           const Token::OID_t&       oid,
                           int                       merge_section );
 

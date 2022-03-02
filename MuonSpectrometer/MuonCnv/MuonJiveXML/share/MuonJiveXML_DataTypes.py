@@ -1,5 +1,6 @@
 #Avoid multiple includes
 include.block("MuonJiveXML/MuonJiveXML_DataTypes.py")
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 # Include the base options if the user didn't already do that
 if not "theEventData2XML" in dir():
@@ -7,10 +8,13 @@ if not "theEventData2XML" in dir():
 
 theEventData2XML.DataTypes += ["JiveXML::MdtPrepDataRetriever/MdtPrepDataRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::TgcPrepDataRetriever/TgcPrepDataRetriever"]
-theEventData2XML.DataTypes += ["JiveXML::CscPrepDataRetriever/CscPrepDataRetriever"]
-theEventData2XML.DataTypes += ["JiveXML::CSCClusterRetriever/CSCClusterRetriever"]
-theEventData2XML.DataTypes += ["JiveXML::sTgcPrepDataRetriever/sTgcPrepDataRetriever"]
-theEventData2XML.DataTypes += ["JiveXML::MMPrepDataRetriever/MMPrepDataRetriever"]
+if MuonGeometryFlags.hasCSC():
+    theEventData2XML.DataTypes += ["JiveXML::CSCClusterRetriever/CSCClusterRetriever"]
+    theEventData2XML.DataTypes += ["JiveXML::CscPrepDataRetriever/CscPrepDataRetriever"]
+if MuonGeometryFlags.hasSTGC():
+    theEventData2XML.DataTypes += ["JiveXML::sTgcPrepDataRetriever/sTgcPrepDataRetriever"]
+if MuonGeometryFlags.hasMM():
+    theEventData2XML.DataTypes += ["JiveXML::MMPrepDataRetriever/MMPrepDataRetriever"]
 
 ### RpcPrepData and TrigRpc share datatype 'RPC'. Must not be run together !
 ### RPCPrepData: default 'plain' retriever

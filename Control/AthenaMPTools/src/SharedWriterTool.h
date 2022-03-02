@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_SHAREDWRITERTOOL_H
@@ -19,7 +19,6 @@ class SharedWriterTool final : public AthenaMPToolBase
   virtual ~SharedWriterTool() override;
   
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
 
   // _________IAthenaMPTool_________   
   virtual int makePool(int maxevt, int nprocs, const std::string& topdir) override;
@@ -37,6 +36,14 @@ class SharedWriterTool final : public AthenaMPToolBase
   SharedWriterTool();
   SharedWriterTool(const SharedWriterTool&);
   SharedWriterTool& operator= (const SharedWriterTool&);
+
+  // Properties
+  Gaudi::Property<bool>  m_nMotherProcess{
+      this, "MotherProcess", false,
+      "Expect mother process to write event data. The default is false."};
+  Gaudi::Property<bool> m_debug{
+      this, "Debug", false,
+      "Are we running in debug mode? The default is false"};
 
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1)
   int  m_writer;          // Number of writer stream servers

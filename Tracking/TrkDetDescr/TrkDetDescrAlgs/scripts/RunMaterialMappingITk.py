@@ -70,7 +70,6 @@ ConfigFlags.GeoModel.AtlasVersion = args.geometrytag
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.TrackingGeometry.MaterialSource = "None"
-ConfigFlags.Beam.Type =''
 
 ConfigFlags.Detector.GeometryCalo  = False
 ConfigFlags.Detector.GeometryMuon  = False

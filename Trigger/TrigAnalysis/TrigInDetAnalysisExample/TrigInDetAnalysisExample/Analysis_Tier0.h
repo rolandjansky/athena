@@ -24,6 +24,9 @@
 
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
 
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 class Analysis_Tier0 : public TrackAnalysis { 
 
 public:
@@ -54,9 +57,15 @@ public:
   std::map<std::string, TProfile*>::const_iterator TEffbegin() const { return m_effhistos.begin(); }
   std::map<std::string, TProfile*>::const_iterator TEffend()   const { return m_effhistos.end(); }
 
+
+  void set_monTool( ToolHandle<GenericMonitoringTool>* m ) { m_monTool=m; }
+
+  ToolHandle<GenericMonitoringTool>* monTool() { return m_monTool; }
+
+
   bool debug() const { return m_debug; }
   
- private:
+public:
 
   void addHistogram( TH1* h ) {
     std::string name = h->GetName();
@@ -70,7 +79,7 @@ public:
 
   double phi(double p);
 
- private:
+private:
 
   std::map<std::string, TH1*> m_histos;
   std::map<std::string, TProfile*> m_effhistos;
@@ -211,6 +220,8 @@ public:
   unsigned long long m_eventid;
 
   VtxAnalysis* m_vtxanal;
+
+  ToolHandle<GenericMonitoringTool>* m_monTool;
 
 };
 

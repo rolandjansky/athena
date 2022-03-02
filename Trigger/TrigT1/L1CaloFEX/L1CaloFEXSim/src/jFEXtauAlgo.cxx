@@ -33,16 +33,16 @@ LVL1::jFEXtauAlgo::~jFEXtauAlgo() {
 }
 
 StatusCode LVL1::jFEXtauAlgo::initialize() {
-    ATH_CHECK(m_jFEXtauAlgo_jTowerContainerKey.initialize());
+    ATH_CHECK(m_jTowerContainerKey.initialize());
     return StatusCode::SUCCESS;
 }
 
 //calls container for TT
 StatusCode LVL1::jFEXtauAlgo::safetyTest() {
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    if(! jk_jFEXtauAlgo_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve  jk_jFEXtauAlgo_jTowerContainer " << m_jFEXtauAlgo_jTowerContainerKey.key());
+    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jTowerContainerKey);
+    if(! m_jTowerContainer.isValid()) {
+        ATH_MSG_FATAL("Could not retrieve  jTowerContainer " << m_jTowerContainerKey.key());
         return StatusCode::FAILURE;
     }
 
@@ -178,8 +178,7 @@ int LVL1::jFEXtauAlgo::getRealPhi(unsigned int TTID ) {
         return 0;
     }
     
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(TTID);
+    const LVL1::jTower * tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->phi();
 }
 //Gets Eta of the TT
@@ -188,8 +187,7 @@ int LVL1::jFEXtauAlgo::getRealEta(unsigned int TTID ) {
         return 0;
     }
     
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(TTID);
+    const LVL1::jTower * tmpTower = m_jTowerContainer->findTower(TTID);
     return realValue(TTID,tmpTower->eta()); //return positive ETA for even TTs ID 2XX.XXX.. etc and negative ETA for odd TTs ID 1XX.XXX.. and so on
     //return tmpTower->eta();
 }

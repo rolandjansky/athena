@@ -26,24 +26,35 @@ ForestTMVA::ForestTMVA(TTree* tree) : ForestWeighted<NodeTMVA>()
     tree->SetBranchAddress("values", &values);
     tree->SetBranchAddress("offset", &offset);
 
-    for (int i = 0; i < tree->GetEntries(); ++i)
-    {
-        // each entry in the TTree is a decision tree
-        tree->GetEntry(i);
-        if (!vars) { throw std::runtime_error("vars pointer is null in ForestTMVA constructor"); }
-        if (!values) { throw std::runtime_error("values pointers is null in ForestTMVA constructor"); }
-        if (vars->size() != values->size()) { throw std::runtime_error("inconsistent size for vars and values in ForestTMVA constructor"); }
+    int numEntries = tree->GetEntries();
+    for (int entry = 0; entry < numEntries; ++entry) {
+      // each entry in the TTree is a decision tree
+      tree->GetEntry(entry);
+      if (!vars) {
+        throw std::runtime_error(
+          "vars pointer is null in ForestTMVA constructor");
+      }
+      if (!values) {
+        throw std::runtime_error(
+          "values pointers is null in ForestTMVA constructor");
+      }
+      if (vars->size() != values->size()) {
+        throw std::runtime_error(
+          "inconsistent size for vars and values in ForestTMVA constructor");
+      }
 
-        nodes.clear();
+      nodes.clear();
 
-        std::vector<MVAUtils::index_t> right = detail::computeRight(*vars);
+      std::vector<MVAUtils::index_t> right = detail::computeRight(*vars);
 
-        for (size_t i = 0; i < vars->size(); ++i) {
-            nodes.emplace_back(vars->at(i), values->at(i), right[i]);
-            if (vars->at(i) > m_max_var) { m_max_var = vars->at(i); }
+      for (size_t i = 0; i < vars->size(); ++i) {
+        nodes.emplace_back(vars->at(i), values->at(i), right[i]);
+        if (vars->at(i) > m_max_var) {
+          m_max_var = vars->at(i);
         }
-        newTree(nodes, offset);
-    }  // end loop on TTree, all decision tree loaded
+      }
+      newTree(nodes, offset);
+    } // end loop on TTree, all decision tree loaded
     delete vars;
     delete values;
 }

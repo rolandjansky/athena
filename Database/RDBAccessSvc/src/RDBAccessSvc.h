@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -60,9 +60,6 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
  public:
   /// Standard Service Constructor
   RDBAccessSvc(const std::string& name, ISvcLocator* svc);
-
-  /// Standard Service Destructor
-  ~RDBAccessSvc() override;
 
   StatusCode initialize() override;
   StatusCode finalize() override;

@@ -330,7 +330,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
               ATH_CHECK( tgcprd_profile_ac[ac]->regHist(m_tgcstripprofilephi48[ac][i][phi48]) );
             }
             else{
-              m_tgcstripprofilephi48[ac][i][phi48] = 0;
+              m_tgcstripprofilephi48[ac][i][phi48] = nullptr;
             }
           }
         }
@@ -341,8 +341,8 @@ TgcRawDataValAlg::bookHistogramsProfile(){
       for(int ac=0;ac<2;ac++)
         for(int i=0;i<7;i++)
           for(int phi48=0;phi48<48;phi48++){
-            m_tgcwireprofilephi48[ac][i][phi48] = 0;
-            m_tgcstripprofilephi48[ac][i][phi48] = 0;
+            m_tgcwireprofilephi48[ac][i][phi48] = nullptr;
+            m_tgcstripprofilephi48[ac][i][phi48] = nullptr;
           }
     
   }//mon_profile

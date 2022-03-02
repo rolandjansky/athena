@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EMECSupportConstruction
@@ -83,8 +83,6 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-
-#include "GeoSpecialShapes/LArWheelCalculator.h"
 
 #include "LArGeoEndcap/EMECConstruction.h"
 #include "LArGeoEndcap/EMECSupportConstruction.h"
@@ -199,6 +197,15 @@ EMECSupportConstruction::EMECSupportConstruction(
     m_DB_mn = rdbAccess->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
     if(m_DB_mn->size() == 0){
         m_DB_mn = rdbAccess->getRecordsetPtr("EmecMagicNumbers", "EmecMagicNumbers-00");
+    }
+
+    m_DB_EmecFan = rdbAccess->getRecordsetPtr("EmecFan", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_EmecFan->size() == 0){
+      m_DB_EmecFan = rdbAccess->getRecordsetPtr("EmecFan", "EmecFan-00");
+    }
+    m_DB_ColdContraction = rdbAccess->getRecordsetPtr("ColdContraction", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_ColdContraction->size() == 0){
+      m_DB_ColdContraction = rdbAccess->getRecordsetPtr("ColdContraction", "ColdContraction-00");
     }
 }
 
@@ -694,6 +701,17 @@ GeoPhysVol* EMECSupportConstruction::back_envelope(void) const
 
 void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysical) const
 {
+	
+        const double coldContraction=(*m_DB_ColdContraction)[0]->getDouble("ABSORBERCONTRACTION");
+        const double electrodeInvColdContraction=(*m_DB_ColdContraction)[0]->getDouble("ELECTRODEINVCONTRACTION");
+        const double leadThicknessOuter=(*m_DB_EmecFan)[0]->getDouble("LEADTHICKNESSOUTER")*Gaudi::Units::mm;
+        const double steelThickness=(*m_DB_EmecFan)[0]->getDouble("STEELTHICKNESS")*Gaudi::Units::mm;
+        const double glueThickness=(*m_DB_EmecFan)[0]->getDouble("GLUETHICKNESS")*Gaudi::Units::mm;
+        const double electrodeTotalThickness=(*m_DB_EmecFan)[0]->getDouble("ELECTRODETOTALTHICKNESS")*Gaudi::Units::mm;
+  
+        const double outerAbsorberDy=(leadThicknessOuter/2+steelThickness+glueThickness)*coldContraction;
+        const double electrodeDy=electrodeTotalThickness/2/electrodeInvColdContraction;
+
 	std::string id = "FrontOuterBarrettes";
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
 	map_t numbers = getNumbersMap(m_DB_numbers, id);
@@ -726,9 +744,9 @@ void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysica
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 41.4);         // start of barrette rel to start of abs.
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 1290.) / 2.;         // length of the connected part
 	assert(rmn + dr > rminFOB && rmn + dr + dx*2 < rmaxFOB);
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterAbsorberWheel);
+
 	const double r0A = rmn + dr + dx;
-	GeoBox *shapeFOBA = new GeoBox(dx, dy, dzFOB);
+	GeoBox *shapeFOBA = new GeoBox(dx, outerAbsorberDy, dzFOB);
 	GeoLogVol *logicalFOBA = new GeoLogVol(name, shapeFOBA, m_G10FeOuter);
 	GeoPhysVol *physFOBA = new GeoPhysVol(logicalFOBA);
 	physFOBMP->add(new GeoTransform(GeoTrf::TranslateX3D(r0A)));
@@ -738,11 +756,11 @@ void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysica
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 48.4);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 1283.8) / 2.;
 	assert(rmn + dr > rminFOB && rmn + dr + dx*2 < rmaxFOB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterElectrodWheel);
+
 	const double r0E = rmn + dr + dx;
 	double x0 = r0E * cos(dfi/2.);
 	double y0 = r0E * sin(dfi/2.);
-	GeoBox *shapeFOBE = new GeoBox(dx, dy, dzFOB);
+	GeoBox *shapeFOBE = new GeoBox(dx, electrodeDy, dzFOB);
 	GeoLogVol *logicalFOBE = new GeoLogVol(name, shapeFOBE, m_Kapton_Cu);
 	GeoPhysVol *physFOBE = new GeoPhysVol(logicalFOBE);
 	physFOBMP->add(new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translate3D(x0,y0,0.)*GeoTrf::RotateZ3D(dfi/2.))));
@@ -791,6 +809,17 @@ void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysica
 
 void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysical) const
 {
+
+        const double coldContraction=(*m_DB_ColdContraction)[0]->getDouble("ABSORBERCONTRACTION");
+        const double electrodeInvColdContraction=(*m_DB_ColdContraction)[0]->getDouble("ELECTRODEINVCONTRACTION");
+        const double leadThicknessInner=(*m_DB_EmecFan)[0]->getDouble("LEADTHICKNESSINNER")*Gaudi::Units::mm;
+        const double steelThickness=(*m_DB_EmecFan)[0]->getDouble("STEELTHICKNESS")*Gaudi::Units::mm;
+        const double glueThickness=(*m_DB_EmecFan)[0]->getDouble("GLUETHICKNESS")*Gaudi::Units::mm;
+        const double electrodeTotalThickness=(*m_DB_EmecFan)[0]->getDouble("ELECTRODETOTALTHICKNESS")*Gaudi::Units::mm;
+  
+        const double innerAbsorberDy=(leadThicknessInner/2+steelThickness+glueThickness)*coldContraction;
+        const double electrodeDy=electrodeTotalThickness/2/electrodeInvColdContraction;
+  
 	std::string id = "FrontInnerBarrettes";
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
 	map_t numbers = getNumbersMap(m_DB_numbers, id);
@@ -823,9 +852,9 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 75.6);      // start of barrette rel to start of abs.
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 192.) / 2.;       // length of the connected part
 	assert(rmn + dr > rminFIB && rmn + dr + dx*2 < rmaxFIB);
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerAbsorberWheel);
+
 	const double r0A = rmn + dr + dx;
-	GeoBox *shapeFIBA = new GeoBox(dx, dy, dzFIB);
+	GeoBox *shapeFIBA = new GeoBox(dx, innerAbsorberDy, dzFIB);
 	GeoLogVol *logicalFIBA = new GeoLogVol(name, shapeFIBA, m_G10FeInner);
 	GeoPhysVol *physFIBA = new GeoPhysVol(logicalFIBA);
 	physFIBMP->add(new GeoTransform(GeoTrf::TranslateX3D(r0A)));
@@ -835,11 +864,11 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 106.3);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 144.4) / 2.;
 	assert(rmn + dr > rminFIB && rmn + dr + dx*2 < rmaxFIB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerElectrodWheel);
+	
 	const double r0E = rmn + dr + dx;
 	double x0 = r0E * cos(dfi/2.);
 	double y0 = r0E * sin(dfi/2.);
-	GeoBox *shapeFIBE = new GeoBox(dx, dy, dzFIB);
+	GeoBox *shapeFIBE = new GeoBox(dx, electrodeDy, dzFIB);
 	GeoLogVol *logicalFIBE = new GeoLogVol(name, shapeFIBE, m_Kapton_Cu);
 	GeoPhysVol *physFIBE = new GeoPhysVol(logicalFIBE);
 	physFIBMP->add(new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translate3D(x0,y0,0.)*GeoTrf::RotateZ3D(dfi/2.))));
@@ -888,6 +917,17 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 // It seems we need to accout for z side for BOB only at the moment
 void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical) const
 {
+
+        const double coldContraction=(*m_DB_ColdContraction)[0]->getDouble("ABSORBERCONTRACTION");
+        const double electrodeInvColdContraction=(*m_DB_ColdContraction)[0]->getDouble("ELECTRODEINVCONTRACTION");
+        const double leadThicknessOuter=(*m_DB_EmecFan)[0]->getDouble("LEADTHICKNESSOUTER")*Gaudi::Units::mm;
+        const double steelThickness=(*m_DB_EmecFan)[0]->getDouble("STEELTHICKNESS")*Gaudi::Units::mm;
+        const double glueThickness=(*m_DB_EmecFan)[0]->getDouble("GLUETHICKNESS")*Gaudi::Units::mm;
+        const double electrodeTotalThickness=(*m_DB_EmecFan)[0]->getDouble("ELECTRODETOTALTHICKNESS")*Gaudi::Units::mm;
+  
+        const double outerAbsorberDy=(leadThicknessOuter/2+steelThickness+glueThickness)*coldContraction;
+        const double electrodeDy=electrodeTotalThickness/2/electrodeInvColdContraction;
+
 	const std::string id = "BackOuterBarrettes";
 
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
@@ -923,9 +963,9 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 42.1);        // start of barrette rel to start of abs
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 1229.) / 2.;        // length of the connected part
 	assert(rmn + dr > rminBOB && rmn + dr + dx * 2 < rmaxBOB);
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterAbsorberWheel);
+
 	const double r0A = rmn + dr + dx;
-	GeoBox *shapeBOBA = new GeoBox(dx, dy, dzBOB);
+	GeoBox *shapeBOBA = new GeoBox(dx, outerAbsorberDy, dzBOB);
 	GeoLogVol *logicalBOBA = new GeoLogVol(name, shapeBOBA, m_G10FeOuter);
 	GeoPhysVol *physBOBA = new GeoPhysVol(logicalBOBA);
 	physBOBMP->add(new GeoTransform(GeoTrf::TranslateX3D(r0A)));
@@ -935,11 +975,11 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 41.);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 1246.9) / 2.;
 	assert(rmn + dr > rminBOB && rmn + dr + dx*2 < rmaxBOB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterElectrodWheel);
+
 	double r0E = rmn + dr + dx;
 	double y0 = r0E * sin(dfi/2.);
 	double x0 = r0E * cos(dfi/2.);
-	GeoBox *shapeBOBE = new GeoBox(dx, dy, dzBOB);
+	GeoBox *shapeBOBE = new GeoBox(dx, electrodeDy, dzBOB);
 	GeoLogVol *logicalBOBE = new GeoLogVol(name, shapeBOBE, m_Kapton_Cu);
 	GeoPhysVol *physBOBE = new GeoPhysVol(logicalBOBE);
 	physBOBMP->add(new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translate3D(x0,y0,0.)*GeoTrf::RotateZ3D(dfi/2.))));
@@ -989,6 +1029,18 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 
 void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical) const
 {
+        const double coldContraction=(*m_DB_ColdContraction)[0]->getDouble("ABSORBERCONTRACTION");
+        const double electrodeInvColdContraction=(*m_DB_ColdContraction)[0]->getDouble("ELECTRODEINVCONTRACTION");
+        const double leadThicknessInner=(*m_DB_EmecFan)[0]->getDouble("LEADTHICKNESSINNER")*Gaudi::Units::mm;
+        const double steelThickness=(*m_DB_EmecFan)[0]->getDouble("STEELTHICKNESS")*Gaudi::Units::mm;
+        const double glueThickness=(*m_DB_EmecFan)[0]->getDouble("GLUETHICKNESS")*Gaudi::Units::mm;
+        const double electrodeTotalThickness=(*m_DB_EmecFan)[0]->getDouble("ELECTRODETOTALTHICKNESS")*Gaudi::Units::mm;
+  
+        const double innerAbsorberDy=(leadThicknessInner/2+steelThickness+glueThickness)*coldContraction;
+        const double electrodeDy=electrodeTotalThickness/2/electrodeInvColdContraction;
+
+
+
 	std::string id = "BackInnerBarrettes";
 
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
@@ -1022,10 +1074,10 @@ void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical
 	double rmn = getNumber(m_DB_numbers, numbers, "R0", "PARVALUE", 344.28); // start of abs.
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 56.1); // start of barrette rel to start of abs.
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 255.) / 2.;
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerAbsorberWheel);
+
 	assert(rmn+dr>rminBIB && rmn+dr+dx*2.<rmaxBIB);
 	const double r0A = rmn + dr + dx;
-	GeoBox *shapeBIBA = new GeoBox(dx, dy, dzBIB);
+	GeoBox *shapeBIBA = new GeoBox(dx, innerAbsorberDy, dzBIB);
 	GeoLogVol *logicalBIBA = new GeoLogVol(name, shapeBIBA, m_G10FeInner);
 	GeoPhysVol *physBIBA = new GeoPhysVol(logicalBIBA);
 	physBIBMP->add(new GeoTransform(GeoTrf::TranslateX3D(r0A)));
@@ -1036,11 +1088,11 @@ void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 76.6);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 208.9) / 2.;
 	assert(rmn + dr > rminBIB && rmn + dr + dx * 2. < rmaxBIB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerElectrodWheel);
+
 	const double r0E = rmn + dr + dx;
 	double y0 = r0E * sin(dfi * 0.5);
 	double x0 = r0E * cos(dfi * 0.5);
-	GeoBox *shapeBIBE = new GeoBox(dx, dy, dzBIB);
+	GeoBox *shapeBIBE = new GeoBox(dx, electrodeDy, dzBIB);
 	GeoLogVol *logicalBIBE = new GeoLogVol(name, shapeBIBE, m_Kapton_Cu);
 	GeoPhysVol *physBIBE = new GeoPhysVol(logicalBIBE);
 	physBIBMP->add(new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translate3D(x0, y0, 0.)*GeoTrf::RotateZ3D(dfi*0.5))));

@@ -85,8 +85,26 @@ def getConfig_MU():
     
     # roads from https://indico.cern.ch/event/1011425/contributions/4272884/
     confObj["roads"] = odict()
-    confObj["roads"]["rpc"] = odict([(0,0), (4,0), (6,1), (8,2), (10,3), (12,4), (14,5)])
-    confObj["roads"]["tgc"] = odict([(0,0)] + list(zip([3,4,5,6,7,8,9,10,11,12,13,14,15,18,20],list(range(0,15)))))
+    confObj["roads"]["rpc"] = odict([(0,0), (4,1), (6,2), (8,3), (10,4), (12,5), (14,6)])
+    confObj["roads"]["tgc"] = odict([(0,0)] + list(zip([3,4,5,6,7,8,9,10,11,12,13,14,15,18,20],list(range(1,16)))))
+
+    # check that there is a unique assignment between roads and pt values
+    for muonDet in ("rpc","tgc"):
+        roads = []
+        ptValues = []
+        for ptValue in confObj["roads"][muonDet]: 
+            if ptValue in ptValues:
+                raise RuntimeError("Muon roads: pt value %s is duplicated, please fix.", str(ptValue) ) 
+            else: 
+                ptValues += [ptValue]
+            road = confObj["roads"][muonDet][ptValue]
+            if road !=0 and road in roads:
+                raise RuntimeError("Muon roads: road %s is duplicated, please fix.", str(road) )
+            else:
+                roads += [road]
+    if len(confObj["roads"]["rpc"])!=7 or len(confObj["roads"]["tgc"])!=16:
+        raise RuntimeError("Muon roads: number of roads not as expected. TGC=%s (exp 16), RCP=%s (exp 7)", len(confObj["roads"]["tgc"]), len(confObj["roads"]["rpc"]) )
+
     return confObj
 
 
@@ -310,12 +328,12 @@ def getConfig_jTAU():
 
 def getConfig_jJ():
     confObj = odict()
-    confObj["ptMinToTopo1"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopo2"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopo3"] = 15 # PLACEHOLDER
-    confObj["ptMinxTOB1"] = 15 # PLACEHOLDER
-    confObj["ptMinxTOB2"] = 15 # PLACEHOLDER
-    confObj["ptMinxTOB3"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopo1"] = 5 # PLACEHOLDER
+    confObj["ptMinToTopo2"] = 5 # PLACEHOLDER
+    confObj["ptMinToTopo3"] = 5 # PLACEHOLDER
+    confObj["ptMinxTOB1"] = 5 # PLACEHOLDER
+    confObj["ptMinxTOB2"] = 5 # PLACEHOLDER
+    confObj["ptMinxTOB3"] = 5 # PLACEHOLDER
     confObj["resolutionMeV"] = 200  
     return confObj
 
@@ -344,12 +362,12 @@ def getConfig_gLJ():
     confObj["seedThrA"] = 3 
     confObj["seedThrB"] = 3 
     confObj["seedThrC"] = 3 
-    confObj["rhoTowerMinA"] = 0.25 
-    confObj["rhoTowerMinB"] = 0.25 
-    confObj["rhoTowerMinC"] = 0.25 
-    confObj["rhoTowerMaxA"] = -9.6 
-    confObj["rhoTowerMaxB"] = -9.6 
-    confObj["rhoTowerMaxC"] = -9.6 
+    confObj["rhoTowerMinA"] = -9.6 
+    confObj["rhoTowerMinB"] = -9.6 
+    confObj["rhoTowerMinC"] = -9.6 
+    confObj["rhoTowerMaxA"] = 0.25 
+    confObj["rhoTowerMaxB"] = 0.25 
+    confObj["rhoTowerMaxC"] = 0.25 
     confObj["resolutionMeV"] = 200
 
     # Check that all values are integers in MeV

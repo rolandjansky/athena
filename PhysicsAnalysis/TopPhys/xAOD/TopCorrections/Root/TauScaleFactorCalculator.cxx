@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: TauScaleFactorCalculator.cxx 805414 2017-05-24 12:21:29Z yili $
@@ -36,8 +36,6 @@ namespace top {
     // Tau-electron overlap removal up/down, true hadtau
 
     for (auto tauSFpair : top::tauSF_name) {
-      if (m_config->tauSFDoRNNID() == false && tauSFpair.second.Contains("RNN")) continue;
-      if (m_config->tauSFDoBDTID() == false && tauSFpair.second.Contains("JETID")) continue;
       m_syst_map[tauSFpair.second.Data()] = CP::SystematicSet(tauSFpair.second.Data());
     }
 

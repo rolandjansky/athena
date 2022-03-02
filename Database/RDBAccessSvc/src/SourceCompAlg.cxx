@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SourceCompAlg.h"
@@ -11,10 +11,6 @@ typedef std::map<std::string,IRDBRecordset_ptr> NodeToRecordsetMap;
 
 SourceCompAlg::SourceCompAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-{
-}
-
-SourceCompAlg::~SourceCompAlg()
 {
 }
 
@@ -54,16 +50,17 @@ StatusCode SourceCompAlg::initialize()
     tagList.push_back(m_globalTag.value());
   }
 
+  StatusCode result{StatusCode::SUCCESS};
   if(!tagList.empty()) {
     // Loop over the tags and compare them
-    compareGlobalTags(tagList,rdbAccess,log);
+    result = compareGlobalTags(tagList,rdbAccess,log);
   }
 
   log.close();
   rdbAccess->disconnect(m_connNames[1]);
   rdbAccess->disconnect(m_connNames[0]);
 
-  return StatusCode::SUCCESS;
+  return result;
 }
 
 StatusCode SourceCompAlg::execute()
@@ -145,9 +142,9 @@ std::vector<std::string> SourceCompAlg::getGlobalTags(RDBAccessSvc* rdbAccessSvc
 }
 
 
-void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
-				      , RDBAccessSvc* rdbAccessSvc
-				      , std::ofstream& log)
+StatusCode SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
+					    , RDBAccessSvc* rdbAccessSvc
+					    , std::ofstream& log)
 {
   ATH_MSG_INFO("compareGlobalTags()");
   for(const std::string& tag : globalTags) {
@@ -159,7 +156,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
       // Double-check the existence of the global tag in the database
       if(rdbAccessSvc->getChildTag("ATLAS",tag,"ATLAS",m_connNames[connInd])=="") {
 	ATH_MSG_FATAL("Unable to find " << tag << " in the connection " << m_connNames[connInd]);
-	return;
+	return StatusCode::FAILURE;
       }
 
       // Get tag details, only needed for generation of tag cache
@@ -197,7 +194,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
   
     bool difFound{false};
     NodeToRecordsetMap::const_iterator it = map[0].begin();
-    for(; it!=map[0].end(); it++) {
+    for(; it!=map[0].end(); ++it) {
       if(map[1].find(it->first)==map[1].end()) {
 	if(!difFound) {
 	  difFound = true;
@@ -210,7 +207,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
   
     difFound = false;
     it = map[1].begin();
-    for(; it!=map[1].end(); it++) {
+    for(; it!=map[1].end(); ++it) {
       if(map[0].find(it->first)==map[0].end()) {
 	if(!difFound) {
           difFound = true;
@@ -223,7 +220,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
 
     difFound = false;
     it = map[0].begin();
-    for(; it!=map[0].end(); it++) {
+    for(; it!=map[0].end(); ++it) {
       NodeToRecordsetMap::const_iterator it1 = map[1].find(it->first);
       if(it1!=map[1].end()) {
 	IRDBRecordset_ptr recPtr0 = it->second;
@@ -244,4 +241,5 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
       }
     } 
   }
+  return StatusCode::SUCCESS;
 }

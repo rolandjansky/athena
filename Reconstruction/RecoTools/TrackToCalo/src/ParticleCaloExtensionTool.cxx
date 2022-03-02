@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "ParticleCaloExtensionTool.h"
@@ -50,7 +50,7 @@ ParticleCaloExtensionTool::initialize()
     ATH_MSG_WARNING("Unsupported particle type, using strategy based on type "
                     << m_particleTypeName);
   }
-  if (m_particleStrategy == electron) {
+  if (!m_calosurf.empty()) {
     ATH_CHECK(m_calosurf.retrieve());
   } else {
     m_calosurf.disable();
@@ -331,7 +331,7 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
    * TrkDetDescrUtils/GeometrySignature.h
    * The extrapolation stop at the indicated subdetector exit
    */
-  const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  std::unique_ptr<std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
     caloParameters = m_extrapolator->extrapolate(
       ctx, startPars, propDir, particleType, material, m_extrapolDetectorID);
 
@@ -370,20 +370,20 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
                                            << "  extrapolation exit ID="
                                            << m_extrapolDetectorID);
 
-  for (const auto& p : *caloParameters) {
+  for (auto& p : *caloParameters) {
     if (!p.first) {
       continue;
     }
     // assign parameters
     // calo aentry muon entry and the crossed calo layers
     if (p.second == 1 && propDir == Trk::alongMomentum) {
-      caloEntry = p.first;
+      caloEntry = p.first.release();
     } else if (p.second == 3 && propDir == Trk::oppositeMomentum) {
-      caloEntry = p.first;
+      caloEntry = p.first.release();
     } else if (p.second == 3 && propDir == Trk::alongMomentum) {
-      muonEntry = p.first;
+      muonEntry = p.first.release();
     } else if (p.second == 4 && propDir == Trk::oppositeMomentum) {
-      muonEntry = p.first;
+      muonEntry = p.first.release();
     } else {
       bool isEntry = p.second > 0;
       TrackParametersIdentifier id = parsIdHelper.encode(
@@ -404,7 +404,6 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
                                                       p.first->charge(),
                                                       std::nullopt,
                                                       id));
-        delete p.first;
       } else {
         std::optional<AmgSymMatrix(5)> covariance(std::nullopt);
         if (p.first->covariance()) {
@@ -415,7 +414,6 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
                                                       p.first->charge(),
                                                       std::move(covariance),
                                                       id));
-        delete p.first;
       }
     }
   }
@@ -425,110 +423,78 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
     // muonEntry is right at the startPars position
     muonEntry = startPars.clone();
   }
-  delete caloParameters;
 
   return std::make_unique<Trk::CaloExtension>(
     caloEntry, muonEntry, std::move(caloLayers));
 }
 
-std::vector<std::pair<CaloSampling::CaloSample,
-                      std::unique_ptr<const Trk::TrackParameters>>>
-ParticleCaloExtensionTool::egammaCaloExtension(
-  const EventContext& ctx,
-  const TrackParameters& startPars,
-  const xAOD::CaloCluster& cluster,
-  ParticleHypothesis particleType) const
+std::vector<std::unique_ptr<Trk::Surface>>
+ParticleCaloExtensionTool::caloSurfacesFromLayers(
+  const std::vector<CaloSampling::CaloSample>& clusterLayers,
+  double eta,
+  const CaloDetDescrManager& caloDD) const
 {
-
-  std::vector<std::pair<CaloSampling::CaloSample,
-                        std::unique_ptr<const Trk::TrackParameters>>>
-    caloParameters{};
-
-  if (m_particleStrategy != electron) {
-    return caloParameters;
-  }
-
-  // figure which layer we need
-  // based on the where most of the energy of the cluster
-  // is we might want to do EM barrel, EM endCap
-  // or forward calo layers/samplings
-  constexpr std::array<CaloSampling::CaloSample, 4> barrelLayers = {
-    CaloSampling::PreSamplerB,
-    CaloSampling::EMB1,
-    CaloSampling::EMB2,
-    CaloSampling::EMB3
-  };
-  constexpr std::array<CaloSampling::CaloSample, 4> endcapLayers = {
-    CaloSampling::PreSamplerE,
-    CaloSampling::EME1,
-    CaloSampling::EME2,
-    CaloSampling::EME3
-  };
-  constexpr std::array<CaloSampling::CaloSample, 1> forwardLayers = {
-    CaloSampling::FCAL0,
-  };
-
-  // figure which layers we  want to shoot at
-  bool isBarrel = false;
-  if (cluster.inBarrel() && cluster.inEndcap()) {
-    isBarrel = cluster.eSample(CaloSampling::EMB2) >=
-               cluster.eSample(CaloSampling::EME2);
-  } else if (cluster.inBarrel()) {
-    isBarrel = true;
-  }
-
-  bool isEMEC = false;
-  if (!isBarrel && cluster.eSample(CaloSampling::EME2) >
-                     cluster.eSample(CaloSampling::FCAL0)) {
-    isEMEC = true;
-  }
-
-  std::vector<CaloSampling::CaloSample> clusterLayers;
-  clusterLayers.reserve(4);
-  if (isBarrel) {
-    for (const CaloSampling::CaloSample lay : barrelLayers) {
-      if (cluster.hasSampling(lay)) {
-        clusterLayers.emplace_back(lay);
-      }
-    }
-  } else if (isEMEC) {
-    for (const CaloSampling::CaloSample lay : endcapLayers) {
-      if (cluster.hasSampling(lay)) {
-        clusterLayers.emplace_back(lay);
-      }
-    }
-  } else {
-    for (const CaloSampling::CaloSample lay : forwardLayers) {
-      if (cluster.hasSampling(lay)) {
-        clusterLayers.emplace_back(lay);
-      }
-    }
-  }
-  //
-
-  // Create surfaces at them
+  // Create surfaces at the layers
   std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
-  caloSurfaces.reserve(4);
+  caloSurfaces.reserve(clusterLayers.size());
   for (CaloSampling::CaloSample lay : clusterLayers) {
-    auto* surf = m_calosurf->CreateUserSurface(lay, 0., cluster.eta());
+    auto* surf = m_calosurf->CreateUserSurface(lay, 0., eta, &caloDD);
     if (surf) {
       caloSurfaces.emplace_back(surf);
     }
   }
 
+  return caloSurfaces;
+}
+
+std::vector<std::pair<CaloSampling::CaloSample,
+                      std::unique_ptr<const Trk::TrackParameters>>>
+ParticleCaloExtensionTool::surfaceCaloExtension(
+  const EventContext& ctx,
+  const TrackParameters& startPars,
+  const std::vector<CaloSampling::CaloSample>& clusterLayers,
+  const std::vector<std::unique_ptr<Trk::Surface>>& caloSurfaces,
+  ParticleHypothesis particleType) const
+{
+  std::vector<std::pair<CaloSampling::CaloSample,
+                        std::unique_ptr<const Trk::TrackParameters>>>
+    caloParameters{};
   const auto* lastImpact = &startPars;
   // Go into steps from layer to layer
   size_t numSteps = caloSurfaces.size();
   for (size_t i = 0; i < numSteps; ++i) {
-    const auto* nextImpact = m_extrapolator->extrapolate(
-      ctx, *lastImpact, *(caloSurfaces[i]), alongMomentum, false, particleType);
-
+    std::unique_ptr<const Trk::TrackParameters> nextImpact =
+      m_extrapolator->extrapolate(ctx,
+                                  *lastImpact,
+                                  *(caloSurfaces[i]),
+                                  alongMomentum,
+                                  false,
+                                  particleType);
     if (nextImpact) {
-      caloParameters.emplace_back(clusterLayers[i], nextImpact);
-      lastImpact = nextImpact;
+      caloParameters.emplace_back(clusterLayers[i], std::move(nextImpact));
+      lastImpact = caloParameters.back().second.get();
     }
   }
   return caloParameters;
+}
+
+std::vector<std::pair<CaloSampling::CaloSample,
+                      std::unique_ptr<const Trk::TrackParameters>>>
+ParticleCaloExtensionTool::layersCaloExtension(
+  const EventContext& ctx,
+  const TrackParameters& startPars,
+  const std::vector<CaloSampling::CaloSample>& clusterLayers,
+  double eta,
+  const CaloDetDescrManager& caloDD,
+  ParticleHypothesis particleType) const
+{
+
+  // Create surfaces at the layers
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces =
+    caloSurfacesFromLayers(clusterLayers, eta, caloDD);
+
+  return surfaceCaloExtension(
+    ctx, startPars, clusterLayers, caloSurfaces, particleType);
 }
 
 } // end of namespace Trk

@@ -12,6 +12,9 @@
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
@@ -58,6 +61,36 @@ private:
     this, "jFexTauRoIKey", "L1_jFexTauRoI",
     "Key of the jFex Tau RoI container to be linked to L1 Trigger Result"};
 
+  // jFex small-R Jet RoIs
+  SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetRoIKey {
+    this, "jFexSRJetRoIKey", "L1_jFexSRJetRoI",
+    "Key of the jFex small-R Jet RoI container to be linked to L1 Trigger Result"};
+
+  // jFex large-R Jet RoIs
+  SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jFexLRJetRoIKey {
+    this, "jFexLRJetRoIKey", "L1_jFexLRJetRoI",
+    "Key of the jFex large-R Jet RoI container to be linked to L1 Trigger Result"};
+
+  // gFex small-R Jet RoIs
+  SG::ReadHandleKey<xAOD::gFexJetRoIContainer> m_gFexSRJetRoIKey {
+    this, "gFexSRJetRoIKey", "L1_gFexSRJetRoI",
+    "Key of the gFex small-R Jet RoI container to be linked to L1 Trigger Result"};
+
+  // gFex large-R Jet RoIs
+  SG::ReadHandleKey<xAOD::gFexJetRoIContainer> m_gFexLRJetRoIKey {
+    this, "gFexLRJetRoIKey", "L1_gFexLRJetRoI",
+    "Key of the gFex large-R Jet RoI container to be linked to L1 Trigger Result"};
+
+  // Key of the cTau container to create (if empty, cTau creation is disabled)
+  SG::WriteHandleKey<xAOD::eFexTauRoIContainer> m_cTauRoIKey {
+    this, "cTauRoIKey", "L1_cTauRoI",
+    "Key of the cTau RoI container to be created (contains copies of eTaus matched to jTaus)"};
+
+  // Key of the cTau decoration linking eFexTau to the matching jFexTau
+  SG::WriteDecorHandleKey<xAOD::eFexTauRoIContainer> m_cjTauLinkKey {
+    this, "cjTauLinkKey", "L1_cTauRoI.jTauLink",
+    "Decoration for the link from eTau to the matching jTau"};
+
   // Threshold pattern tools
   ToolHandleArray<IRoIThresholdsTool> m_thresholdPatternTools {
     this, "ThresholdPatternTools", {},
@@ -68,6 +101,10 @@ private:
   // - CTP result
   // - L1Topo result
   // - the remaining Run-3 L1Calo RoIs
+
+  // ------------------------- Helper methods ----------------------------------
+  /// Create the combined Tau container matching eTau to jTau
+  StatusCode createCombinedTauRoIs(xAOD::TrigComposite& l1tr, const EventContext& eventContext) const;
 };
 
 #endif // HLTSEEDING_L1TRIGGERRESULTMAKER_H

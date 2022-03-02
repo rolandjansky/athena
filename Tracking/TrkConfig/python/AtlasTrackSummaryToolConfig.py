@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 @AccumulatorCache
-def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
+def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
     # Based on AtlasTrackSummaryTool.py
     # FIXME - check all of this once the ID configuration is available, because probably we can simplify this a lot
 
@@ -16,30 +16,32 @@ def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
     result.addPublicTool(extrapolator)
 
     # Setup Association Tool
-    from InDetConfig.InDetRecToolConfig import PrdAssociationToolCfg
-    atlasPrdAssociationTool = result.getPrimaryAndMerge(PrdAssociationToolCfg(flags,
-                                                                              name='AtlasPrdAssociationTool'))
+    from InDetConfig.InDetRecToolConfig import InDetPrdAssociationToolCfg
+    atlasPrdAssociationTool = result.popToolsAndMerge(InDetPrdAssociationToolCfg(flags,
+                                                                                 name='AtlasPrdAssociationTool'))
     atlasPrdAssociationTool.addTRToutliers = False
+    result.addPublicTool(atlasPrdAssociationTool)
 
     # Loading Configurable HoleSearchTool
-    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
-    atlasHoleSearchTool = result.getPrimaryAndMerge(TrackHoleSearchToolCfg(flags,
-                                                                           name="AtlasHoleSearchTool",
-                                                                           Extrapolator=extrapolator))
+    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
+    atlasHoleSearchTool = result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags,
+                                                                              name="AtlasHoleSearchTool",
+                                                                              Extrapolator=extrapolator))
+    result.addPublicTool(atlasHoleSearchTool)
 
     # FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-    from InDetConfig.InDetRecToolConfig import TrackSummaryHelperToolCfg
-    indet_track_summary_helper_tool = result.getPrimaryAndMerge(TrackSummaryHelperToolCfg(flags,
-                                                                                          name="AtlasTrackSummaryHelperTool",
-                                                                                          AssoTool=atlasPrdAssociationTool,
-                                                                                          DoSharedHits=False,
-                                                                                          HoleSearch=atlasHoleSearchTool))
+    from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+    indet_track_summary_helper_tool = result.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
+                                                                                             name="AtlasTrackSummaryHelperTool",
+                                                                                             AssoTool=atlasPrdAssociationTool,
+                                                                                             DoSharedHits=False,
+                                                                                             HoleSearch=atlasHoleSearchTool))
 
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
-    muon_track_summary_helper_tool = result.getPrimaryAndMerge(MuonTrackSummaryHelperToolCfg(flags))
+    muon_track_summary_helper_tool = result.popToolsAndMerge(MuonTrackSummaryHelperToolCfg(flags))
 
-    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name="CombinedMuonTrackSummary",
+    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name=name,
                                                           doSharedHits=False,
                                                           doHolesInDet=True,
                                                           doHolesMuon=False,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HLTCalo_L2CaloEMClustersMonitor.h"
@@ -201,7 +201,9 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   HLT_barrel_high_et_num = n_hlt_barrel_high_et_clusters;
   HLT_no_OFF_match_num = n_hlt_clusters_no_match;
   HLT_with_OFF_match_num = n_hlt_clusters_with_match;
-  HLT_matched_fraction = (float) n_hlt_clusters_with_match / (float) (n_hlt_clusters_with_match + n_hlt_clusters_no_match);
+  if (n_hlt_clusters>0) {
+    HLT_matched_fraction = static_cast<float>(n_hlt_clusters_with_match) / n_hlt_clusters;
+  }
 
   //////////////////
   // OFF CLUSTERS //
@@ -297,8 +299,9 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   OFF_num = n_off_clusters;
   OFF_no_HLT_match_num = n_off_clusters_no_match;
   OFF_with_HLT_match_num = n_off_clusters_with_match;
-
-  OFF_matched_fraction = (float) n_off_clusters_with_match / (float) (n_off_clusters_with_match + n_off_clusters_no_match);
+  if (n_off_clusters>0) {
+    OFF_matched_fraction = static_cast<float>(n_off_clusters_with_match) / n_off_clusters;
+  }
 
   // Fill everything
   fill(m_mongroup_name,

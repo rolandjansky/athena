@@ -20,7 +20,7 @@ atlas_add_component( LArG4SD
 
 atlas_add_test( LArG4SDToolConfig_test
                 SCRIPT test/LArG4SDToolConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

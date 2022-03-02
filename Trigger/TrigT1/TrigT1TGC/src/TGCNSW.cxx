@@ -120,7 +120,7 @@ std::shared_ptr<const NSWTrigOut> TGCNSW::getOutput(TGCRegionType region ,int si
 }
 
 
-void TGCNSW::setOutput(int side, int NSWTriggerProcesser, uint8_t NSWeta_8bit, uint8_t NSWphi_6bit, uint8_t NSWDtheta_5bit)
+void TGCNSW::setOutput(int side, int NSWTriggerProcesser, uint8_t NSWeta_8bit, uint8_t NSWphi_6bit, uint8_t NSWDtheta_5bit, bool lowRes, bool phiRes, bool NSWmonitor)
 {
   if ( (side<0)||(side>1) ) return;//side 0::Aside 1::Cside
   if ( (NSWTriggerProcesser<0) || (NSWTriggerProcesser>=NumberOfNSWTriggerProcesser) ) return;
@@ -129,6 +129,9 @@ void TGCNSW::setOutput(int side, int NSWTriggerProcesser, uint8_t NSWeta_8bit, u
   m_buffer[side][NSWTriggerProcesser]->setEta(NSWeta_8bit);
   m_buffer[side][NSWTriggerProcesser]->setPhi(NSWphi_6bit);
   m_buffer[side][NSWTriggerProcesser]->setDtheta(NSWDtheta_5bit);
+  m_buffer[side][NSWTriggerProcesser]->setLowRes(lowRes);
+  m_buffer[side][NSWTriggerProcesser]->setPhiRes(phiRes);
+  m_buffer[side][NSWTriggerProcesser]->setMonitor(NSWmonitor);
 }
  
 void TGCNSW::eraseOutput()

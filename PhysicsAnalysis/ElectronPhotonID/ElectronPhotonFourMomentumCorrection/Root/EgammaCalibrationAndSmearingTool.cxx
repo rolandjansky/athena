@@ -35,6 +35,7 @@
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
 
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
+#include <cmath>
 
 
 namespace CP {
@@ -261,7 +262,7 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
   : asg::AsgMetadataTool(name),
     m_TESModel(egEnergyCorr::UNDEFINED),
     m_TResolutionType(egEnergyCorr::Resolution::SigmaEff90),
-    m_currentScaleVariation_MC(egEnergyCorr::Scale::None),
+    m_use_mapping_correction(false), m_currentScaleVariation_MC(egEnergyCorr::Scale::None),
     m_currentScaleVariation_data(egEnergyCorr::Scale::Nominal),
     m_currentResolutionVariation_MC(egEnergyCorr::Resolution::Nominal),
     m_currentResolutionVariation_data(egEnergyCorr::Resolution::None),
@@ -297,7 +298,7 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
   declareProperty("randomRunNumber", m_user_random_run_number=0);
   // this is the user input, it is never changed by the tool. The tool uses m_simulation.
   declareProperty("useAFII", m_use_AFII = AUTO, "This will be set automatically for you if using athena, (int)0=full sim, (int)1=fast sim");
-  m_use_mapping_correction = false;
+  
 }
 
 EgammaCalibrationAndSmearingTool::~EgammaCalibrationAndSmearingTool() {
@@ -1089,7 +1090,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
 
   }
   else if (m_decorrelation_model_scale == ScaleDecorrelation::FULL) {
-    typedef std::vector<std::pair<double, double>> pairvector;
+    using pairvector = std::vector<std::pair<double, double>>;
     const pairvector decorrelation_bins_BE = {{0., 1.45}, {1.52, 2.5}};
     const std::vector<double> decorrelation_edges_TWELVE = {0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4};
     const std::vector<double> decorrelation_edges_MODULE = {0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.37, 1.52, 1.8};
@@ -1346,7 +1347,7 @@ double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  dou
 
   double Ecl_corr = 0.;
   int DivInt = 0;
-  double pi = 3.1415926535897932384626433832795 ;
+  double pi = M_PI ;
 
   if ( m_TESModel == egEnergyCorr::es2017_summer_improved || m_TESModel == egEnergyCorr::es2017_summer_final || m_TESModel == egEnergyCorr::es2017_R21_v0 || m_TESModel == egEnergyCorr::es2017_R21_v1 || m_TESModel == egEnergyCorr::es2017_R21_ofc0_v1 || m_TESModel == egEnergyCorr::es2018_R21_v0 || m_TESModel == egEnergyCorr::es2018_R21_v1) {
 
@@ -1446,7 +1447,7 @@ double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  dou
 
 double EgammaCalibrationAndSmearingTool::correction_phi_unif(double eta, double phi) const
 {
-  const double PI = 3.141592653589793;  // TODO: move to M_PI from cmath with #define _USE_MATH_DEFINES
+  constexpr double PI = M_PI;
   double Fcorr = 1.0;
 
   if (m_use_mapping_correction) {

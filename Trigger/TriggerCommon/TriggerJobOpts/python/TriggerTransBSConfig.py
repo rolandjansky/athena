@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 '''
 ComponentAccumulator configuration for producing transient ByteStream,
 which is required when running HLT selection algorithms on MC RDO inputs
@@ -26,12 +26,6 @@ def triggerTransBSCfg_Base(flags, itemList, typeNames, extraInputs, seqName="Ath
         item_list=itemList,
         type_names=typeNames,
         extra_inputs=extraInputs)
-
-    # Allow merging extra input lists
-    def merge_lists(a, b):
-        a.extend([item for item in b if item not in a])
-        return a
-    transBSCfg.getEventAlgo('TransBSStreamAlg')._descriptors['ExtraInputs'].semantics.merge = merge_lists
 
     acc.merge(transBSCfg, sequenceName=seqName)
     return acc

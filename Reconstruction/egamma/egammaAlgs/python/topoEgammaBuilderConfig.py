@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Instantiate the two supercluster
@@ -16,14 +16,18 @@ from egammaTools.EMPIDBuilderConfig import (
     EMPIDBuilderElectronCfg, EMPIDBuilderPhotonCfg)
 
 
-def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
+def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder',
+                         sequenceName = None,
+                         **kwargs):
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
+
     if "EMClusterTool" not in kwargs:
         emclustool = EMClusterToolCfg(flags)
         kwargs["EMClusterTool"] = acc.popToolsAndMerge(emclustool)
 
-    if "EMShowerBuilder" not in kwargs:
+    if "EMShowerTool" not in kwargs:
         emshowerbuilder = EMShowerBuilderCfg(flags)
         kwargs["EMShowerTool"] = acc.popToolsAndMerge(emshowerbuilder)
 
@@ -77,7 +81,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.lock()
 
     acc = MainServicesCfg(flags)

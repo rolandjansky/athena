@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -255,6 +255,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
 
   if (m_toolScenario==kAlgStandard) {
     std::vector<double> vecToT;
+    vecToT.reserve(vtsos->size());
     double ToTsum = 0;
 
     for ( ; itr!=itre ; ++itr) {

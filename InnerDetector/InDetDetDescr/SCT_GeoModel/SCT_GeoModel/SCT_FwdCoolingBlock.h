@@ -41,15 +41,15 @@ private:
   void getParameters();
   virtual GeoVPhysVol * build();
   
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
-  double m_thickness;
-  double m_deltaR;
-  double m_rphi;
-  double m_offset;
+  double m_thickness = 0.0;
+  double m_deltaR = 0.0;
+  double m_rphi = 0.0;
+  double m_offset = 0.0;
   int m_hiLo;
   int m_mainSec;
-  int m_coolingBlockIndex;
+  int m_coolingBlockIndex = 0;
 
 };
 

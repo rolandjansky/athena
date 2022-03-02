@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef READTGCDIGIT_H
@@ -29,7 +29,6 @@ public:
 
 protected:
   NTuple::Tuple* m_ntuplePtr;
-  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
 private:
   StatusCode accessNtuple();

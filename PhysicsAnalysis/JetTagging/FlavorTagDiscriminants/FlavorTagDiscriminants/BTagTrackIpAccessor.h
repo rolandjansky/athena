@@ -30,12 +30,13 @@ class BTagTrackIpAccessor {
 public:
   // used to have "btagIp_" as a default argument
   BTagTrackIpAccessor(const std::string& prefix);
-  void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
+  void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
 
   // NOTE: this should be called in the derivations if possible,
   // since it adds information that we don't need to store and
   // should be independent of the jet
-  void augment_with_grades(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
+  void augment_with_grades(const xAOD::TrackParticle &track,
+                           const xAOD::Jet &jet) const;
 
   // NOTE: this _must_ be called outside the derivation framework,
   // and should only be called in cases where the decoration is read
@@ -43,13 +44,15 @@ public:
   // assigned to!
   //
   // Better advice: don't use this at all, use getSignedIp() instead
-  void augment_with_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
+  void augment_with_ip(const xAOD::TrackParticle &track,
+                       const xAOD::Jet &jet) const;
   double d0(const xAOD::TrackParticle &track) const;
   double d0Uncertainty(const xAOD::TrackParticle &track) const;
   double z0SinTheta(const xAOD::TrackParticle &track) const;
   double z0SinThetaUncertainty(const xAOD::TrackParticle &track) const;
 
-  BTagSignedIP getSignedIp(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
+  BTagSignedIP getSignedIp(const xAOD::TrackParticle &track,
+                           const xAOD::Jet &jet) const;
   std::set<std::string> getTrackIpDataDependencyNames() const;
 private:
   typedef SG::AuxElement AE;

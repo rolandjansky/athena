@@ -52,7 +52,7 @@ DblQ00Acut::DblQ00Acut(AmdcDb* acut) :
   if (m_nObj == 0) std::cerr<<"NO Acut banks in the AmdcDbRecord"<<std::endl;
 
   const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
     return;
   } 
@@ -67,7 +67,7 @@ DblQ00Acut::DblQ00Acut(AmdcDb* acut) :
   it = pIRDBRecordset->begin();
   for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-     if(pAmdcDbRecord == 0){
+     if(pAmdcDbRecord == nullptr){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
        return;
      }
@@ -84,7 +84,7 @@ DblQ00Acut::DblQ00Acut(AmdcDb* acut) :
 DblQ00Acut::~DblQ00Acut()
 {
     delete [] m_d;
-    m_d = 0;
+    m_d = nullptr;
 }
 
 } // end of namespace MuonGM

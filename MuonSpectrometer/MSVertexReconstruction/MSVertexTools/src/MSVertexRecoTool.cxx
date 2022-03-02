@@ -542,7 +542,8 @@ namespace Muon {
                 Trk::CylinderSurface cyl(surfaceTransformMatrix, rpos, 10000.);  // create the surface
                 // extrapolate to the surface
                 std::unique_ptr<const Trk::TrackParameters> extrap_par(
-                    m_extrapolator->extrapolate(*TracksForVertexing[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
+                    m_extrapolator->extrapolate(ctx,
+                                                *TracksForVertexing[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
 
                 const Trk::AtaCylinder* extrap = dynamic_cast<const Trk::AtaCylinder*>(extrap_par.get());
 
@@ -574,7 +575,8 @@ namespace Muon {
                         srfTransMat2.setIdentity();
                         Trk::CylinderSurface cyl2(srfTransMat2, rpos, 10000.);
                         std::unique_ptr<const Trk::TrackParameters> extrap_par2(
-                            m_extrapolator->extrapolate(*TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
+                            m_extrapolator->extrapolate(ctx,
+                                                        *TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
                         const Trk::AtaCylinder* extrap2 = dynamic_cast<const Trk::AtaCylinder*>(extrap_par2.get());
 
                         if (extrap2) {
@@ -872,12 +874,10 @@ namespace Muon {
     void MSVertexRecoTool::MSStraightLineVx_oldMethod(const std::vector<Tracklet>& trks, std::unique_ptr<MSVertex>& vtx,
                                                       const EventContext& ctx) const {
         // find the line of flight of the vpion
-        float aveX(0), aveY(0), aveR(0), aveZ(0);
+        float aveX(0), aveY(0);
         for (auto trkItr = trks.cbegin(); trkItr != trks.cend(); ++trkItr) {
             aveX += trkItr->globalPosition().x();
             aveY += trkItr->globalPosition().y();
-            aveR += trkItr->globalPosition().perp();
-            aveZ += trkItr->globalPosition().z();
         }
         float vxphi = std::atan2(aveY, aveX);
 

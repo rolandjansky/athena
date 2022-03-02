@@ -11,7 +11,6 @@
 //
 // PURPOSE:  LVL2 Combined Muon FEX Algorithm (MT version)
 // ********************************************************************
-
 #ifndef TRIGMUCOMB_MUCOMB_H
 #define TRIGMUCOMB_MUCOMB_H
 
@@ -24,7 +23,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -37,7 +36,7 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */
-class muComb : public AthAlgorithm
+class muComb : public AthReentrantAlgorithm
 {
  public:
   /** Constructor */
@@ -47,7 +46,7 @@ class muComb : public AthAlgorithm
   virtual StatusCode initialize() override;
 
   /** execute execute the combined muon FEX. */
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 
@@ -81,19 +80,19 @@ class muComb : public AthAlgorithm
 
   int    drptMatch(double, double, double,
                    double, double, double, int,
-		   double&, double&, double&, double&, double&);
+		   double&, double&, double&, double&, double&) const;
 
   int    drptMatch(const xAOD::L2StandAloneMuon* feature,
                    double, double, double, int,
-		   double&, double&, double&, double&, double&);
+		   double&, double&, double&, double&, double&) const;
 
   int    mfMatch(const xAOD::L2StandAloneMuon* feature,
                  double, double, double, double,
-		 double&, double&, double&, double&, double&, int&);
+		 double&, double&, double&, double&, double&, int&) const;
 
   int    g4Match(const xAOD::L2StandAloneMuon* feature,
                  double, double, double, double, double, double, double,
-		 double&, double&, double&, double&, double&, int&);
+		 double&, double&, double&, double&, double&, int&) const;
 
  private:
 

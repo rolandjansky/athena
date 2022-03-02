@@ -39,12 +39,7 @@ EnergyInputProviderFEX::initialize() {
   incidentSvc->addListener(this,"BeginRun", 100);
   incidentSvc.release().ignore();
   
-  auto is_jMet_EDMvalid = m_jMet_EDMKey.initialize();
-  
-  //Temporarily check EDM status by hand to avoid the crash!                                                                                                 
-  if (is_jMet_EDMvalid != StatusCode::SUCCESS) {
-    ATH_MSG_WARNING("No EDM found for jFEX Met..");
-  }
+  ATH_CHECK(m_jMet_EDMKey.initialize(SG::AllowEmpty));
 
   return StatusCode::SUCCESS;
 }
@@ -83,12 +78,12 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
-  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!                                                                                                  
-  if(!jMet_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_jMet_EDMKey.key() << ". No jFEX MET input for L1Topo");
-     return StatusCode::SUCCESS;
+  if (m_jMet_EDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex MET input disabled, skip filling");
+    return StatusCode::SUCCESS;
   }
+  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
+  ATH_CHECK(jMet_EDM.isValid());
 
   // The jFEX MET container has 12 elements, 2 TOBs per jFEX module, so a total of 12. 
   // According to the documentation https://gitlab.cern.ch/l1calo-run3-simulation/documentation/Run3L1CaloOfflineSWReqs/-/blob/master/l1caloreqs.pdf
@@ -99,12 +94,12 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   for(const auto it : *jMet_EDM){
     const xAOD::jFexMETRoI *jFEXMet = it;
     // Get the MET components and convert to 100 MeV units
-    int et_x = jFEXMet->getE_x()*2;
-    int et_y = jFEXMet->getE_y()*2;
-    int jFexNumber = jFEXMet->getjFexNumber();
-    int fpgaNumber = jFEXMet->getfpgaNumber();  
+    int et_x = jFEXMet->tobEx()*2;
+    int et_y = jFEXMet->tobEy()*2;
+    int jFexNumber = jFEXMet->jFexNumber();
+    int fpgaNumber = jFEXMet->fpgaNumber();  
 
-    if( fpgaNumber==0 || fpgaNumber==3)
+    if( fpgaNumber==0 || fpgaNumber==2)
       {
 	global_et_x+=et_x;
 	global_et_y+=et_y;
@@ -116,8 +111,15 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   ATH_MSG_DEBUG("Global MET candidate Ex = " << global_et_x << ", Ey = " <<global_et_y);
   unsigned int et =  std::sqrt( global_et_x*global_et_x + global_et_y*global_et_y );
   TCS::MetTOB met( -(global_et_x), -(global_et_y), et );
+
+  ATH_MSG_DEBUG( "Setting the EtDouble to : " << et/10.);
+  met.setExDouble( static_cast<double>(-global_et_x/10.) );
+  met.setEyDouble( static_cast<double>(-global_et_y/10.) );
+  met.setEtDouble( static_cast<double>(et/10.) );
+  ATH_MSG_DEBUG("MET EtDouble : " << met.EtDouble());
+
   inputEvent.setMET( met );
-  m_h_met_Pt->Fill(met.Et()/10.);
+  m_h_met_Pt->Fill(met.EtDouble());
   m_h_met_Phi->Fill( atan2(met.Ey(),met.Ex()) );
     
   /* not checking overflow currently to be enabled in release 22. 

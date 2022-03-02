@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # read alignment constants from DB to update MuonGeoModel
@@ -41,7 +41,9 @@ MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 condSequence = AthSequencer("AthCondSeq")
 
 from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 MuonAlignAlg = MuonAlignmentCondAlg()
+MuonAlignAlg.DoCSCs = MuonGeometryFlags.hasCSC()
 MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                "/MUONALIGN/MDT/ENDCAP/SIDEC",
@@ -68,7 +70,6 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
         MuonDetectorTool.EnableMdtDeformations = 3
 
 # here define if I-lines (CSC internal alignment) are enabled
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if muonAlignFlags.UseIlines and MuonGeometryFlags.hasCSC(): 
     if 'HLT' in globalflags.ConditionsTag() :
         logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")

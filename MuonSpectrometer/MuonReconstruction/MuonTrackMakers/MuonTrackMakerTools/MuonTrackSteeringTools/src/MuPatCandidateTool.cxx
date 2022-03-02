@@ -56,27 +56,25 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    MuPatSegment* MuPatCandidateTool::createSegInfo(const MuonSegment& segment, GarbageContainer& trash_bin) const {
+    std::unique_ptr<MuPatSegment> MuPatCandidateTool::createSegInfo(const EventContext& ctx, const MuonSegment& segment, GarbageContainer& trash_bin) const {
         Identifier chid = m_edmHelperSvc->chamberId(segment);
         if (m_idHelperSvc->isTrigger(chid)) {
             ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid));
             return nullptr;
         }
-        MuPatSegment* info = new MuPatSegment();
+        std::unique_ptr<MuPatSegment> info = std::make_unique<MuPatSegment>();
         info->segment = &segment;
         info->chid = chid;
         info->chIndex = m_idHelperSvc->chamberIndex(info->chid);
         std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(segment);
-        std::set<Identifier>::iterator chit = chIds.begin();
-        std::set<Identifier>::iterator chit_end = chIds.end();
-        for (; chit != chit_end; ++chit) {
-            MuonStationIndex::ChIndex chIdx = m_idHelperSvc->chamberIndex(*chit);
+        for (const Identifier& id : chIds) {
+            MuonStationIndex::ChIndex chIdx = m_idHelperSvc->chamberIndex(id);
             info->addChamber(chIdx);
             // set default name
             if (!info->name.empty()) info->name += "+";
             // stationname_eta_phi
             std::ostringstream oss;
-            oss << MuonStationIndex::chName(chIdx) << "_" << m_idHelperSvc->stationEta(*chit) << "_" << m_idHelperSvc->stationPhi(*chit);
+            oss << MuonStationIndex::chName(chIdx) << "_" << m_idHelperSvc->stationEta(id) << "_" << m_idHelperSvc->stationPhi(id);
             info->name += oss.str();
         }
         info->stIndex = m_idHelperSvc->stationIndex(info->chid);
@@ -90,9 +88,7 @@ namespace Muon {
         if (!info->segPars) { ATH_MSG_WARNING(" failed to create track parameter for segment "); }
 
         updateHits(*info, info->segment->containedMeasurements(), trash_bin, m_doMdtRecreation, m_doCscRecreation, true);
-        MuPatHitList& hitList = info->hitList();
-        m_hitHandler->create(segment, hitList, trash_bin);
-
+        m_hitHandler->create(ctx, segment, info->hitList(), trash_bin);
         return info;
     }
 
@@ -100,7 +96,7 @@ namespace Muon {
                                                GarbageContainer& trash_bin) const {
         // add segment to candidate
         can.addSegment(&segInfo, track);
-        return recalculateCandidateSegmentContent(can, trash_bin);
+        return  recalculateCandidateSegmentContent(can, trash_bin);
     }
 
     std::unique_ptr<MuPatTrack> MuPatCandidateTool::copyCandidate(MuPatTrack* canIn) const {
@@ -112,7 +108,7 @@ namespace Muon {
     std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate(MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track,
                                                                     GarbageContainer& trash_bin) const {
         // create the new candidate
-        std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(&segInfo, track));
+        std::unique_ptr<MuPatTrack> candidate = std::make_unique< MuPatTrack>(&segInfo, track);
         recalculateCandidateSegmentContent(*candidate, trash_bin);
         return candidate;
     }
@@ -125,7 +121,7 @@ namespace Muon {
     std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate(MuPatSegment& segInfo1, MuPatSegment& segInfo2,
                                                                     std::unique_ptr<Trk::Track>& track, GarbageContainer& trash_bin) const {
         // create the new candidate
-        std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(&segInfo1, &segInfo2, track));
+        std::unique_ptr<MuPatTrack> candidate = std::make_unique<MuPatTrack>(&segInfo1, &segInfo2, track);
         recalculateCandidateSegmentContent(*candidate, trash_bin);
         return candidate;
     }
@@ -135,7 +131,7 @@ namespace Muon {
         std::vector<MuPatSegment*> segments;
 
         // create the new candidate
-        std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(segments, track));
+        std::unique_ptr<MuPatTrack> candidate = std::make_unique<MuPatTrack>(segments, track);
         recalculateCandidateSegmentContent(*candidate, trash_bin);
         return candidate;
     }
@@ -342,16 +338,13 @@ namespace Muon {
         IdClusIt chit_end = idClusters.end();
         for (; chit != chit_end; ++chit) {
             if (msgLvl(MSG::VERBOSE)) {
-                msg(MSG::VERBOSE) << " in " << m_idHelperSvc->toStringDetEl(chit->first) << "  clusters: " << chit->second.size()
+                msg(MSG::VERBOSE )<<__FILE__<<":"<<__LINE__ << " in " << m_idHelperSvc->toStringDetEl(chit->first) << "  clusters: " << chit->second.size()
                                   << std::endl;
-
-                std::vector<const MuonClusterOnTrack*>::iterator cl_it = chit->second.begin();
-                std::vector<const MuonClusterOnTrack*>::iterator cl_it_end = chit->second.end();
-                for (; cl_it != cl_it_end; ++cl_it) {
-                    msg(MSG::VERBOSE) << "   " << m_idHelperSvc->toString((*cl_it)->identify());
+                for (const MuonClusterOnTrack* cl_it : chit->second) {
+                    msg(MSG::VERBOSE) << "   " << m_idHelperSvc->toString(cl_it->identify());
 
                     // hack to get correct print-out
-                    if (cl_it + 1 == cl_it_end)
+                    if (cl_it == chit->second.back())
                         msg(MSG::VERBOSE) << endmsg;
                     else
                         msg(MSG::VERBOSE) << std::endl;
@@ -399,20 +392,18 @@ namespace Muon {
 
     bool MuPatCandidateTool::recalculateCandidateSegmentContent(MuPatTrack& candidate, GarbageContainer& trash_bin) const {
         // loop over track and get the chambers on the track
-        const DataVector<const Trk::TrackStateOnSurface>* states = candidate.track().trackStateOnSurfaces();
+        const Trk::TrackStates* states = candidate.track().trackStateOnSurfaces();
         if (!states) return false;
 
         std::set<MuonStationIndex::ChIndex> chambers;
 
         // loop over TSOSs
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
+        for (const Trk::TrackStateOnSurface* tsos : *states) {
             // only look at measurements
-            if (!(*tsit)->type(Trk::TrackStateOnSurface::Measurement) || (*tsit)->type(Trk::TrackStateOnSurface::Outlier)) continue;
+            if (!tsos->type(Trk::TrackStateOnSurface::Measurement) || tsos->type(Trk::TrackStateOnSurface::Outlier)) continue;
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
             if (!meas) continue;
 
             // get chamber index
@@ -427,8 +418,8 @@ namespace Muon {
             ATH_MSG_VERBOSE(" in recal " << m_idHelperSvc->toString(id));
         }
         if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << " recalculateCandidateSegmentContent, old chambers " << candidate.chambers().size() << " new chambers "
-                              << chambers.size() << endmsg;
+            ATH_MSG_VERBOSE(" recalculateCandidateSegmentContent, old chambers " << candidate.chambers().size() << " new chambers "
+                              << chambers.size());
             for (const MuonStationIndex::ChIndex& chit : candidate.chambers()) {
                 if (!chambers.count(chit)) { ATH_MSG_VERBOSE(" removing chamber index from candidate " << MuonStationIndex::chName(chit)); }
             }
@@ -443,7 +434,7 @@ namespace Muon {
         // update the hit summary
         updateHits(candidate, candidate.track().measurementsOnTrack()->stdcont(), trash_bin);
 
-        ATH_MSG_VERBOSE(m_hitHandler->print(candidate.hitList()));
+        ATH_MSG_VERBOSE("Print content after recalculateCandidateSegmentContent() -- "<<m_hitHandler->print(candidate.hitList()));
 
         return bRemovedSegments;
     }

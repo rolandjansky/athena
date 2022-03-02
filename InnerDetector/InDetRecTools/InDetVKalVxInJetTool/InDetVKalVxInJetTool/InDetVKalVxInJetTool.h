@@ -43,6 +43,7 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 //Remove in boost > 1.76 when the boost iterator issue
 //is solved see ATLASRECTS-6358
@@ -51,8 +52,10 @@
 //
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 //
 //
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
 
@@ -69,6 +72,11 @@ namespace Trk{
   class IVKalState;
 }
 
+class BeamPipeDetectorManager;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 typedef std::vector<double> dvect;
 
@@ -111,7 +119,6 @@ namespace InDet {
 
     private:
 
-      double m_w_1{};
       TTree* m_tuple{};
       TH1D* m_hb_massPiPi{};
       TH1D* m_hb_massPiPi1{};
@@ -183,8 +190,9 @@ namespace InDet {
       double m_a0TrkErrorCut{};
       double m_zTrkErrorCut{};
       double m_cutBVrtScore{};
-      double m_Vrt2TrMassLimit{};
+      double m_vrt2TrMassLimit{};
 
+      bool m_useWrongRadErrorCut{};
       bool m_fillHist{};
 
       bool m_existIBL{};
@@ -220,8 +228,18 @@ namespace InDet {
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
       Trk::TrkVKalVrtFitter*   m_fitSvc{};
       IChronoStatSvc * m_timingProfile{}; 
- 
+
       ToolHandle < IInDetTrkInJetType >       m_trackClassificator;
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this,"EventInfoName", "EventInfo"};
+
+      bool m_useEtaDependentCuts = false;
+      /** service to get cut values depending on different variable */
+      ServiceHandle<InDet::IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
+
+      bool m_useITkMaterialRejection;
+      const BeamPipeDetectorManager*       m_beamPipeMgr;
+      const InDetDD::PixelDetectorManager* m_pixelManager;
+      std::unique_ptr<TH2D> m_ITkPixMaterialMap;
 
       double m_massPi {};
       double m_massP {};
@@ -245,6 +263,7 @@ namespace InDet {
        static const int maxNTrk=100;
        static const int maxNVrt=100;
        int nTrkInJet;
+       float ewgt;
        float ptjet;
        float etajet;
        float phijet;
@@ -270,6 +289,7 @@ namespace InDet {
        float VrtSig3D[maxNVrt];
        float VrtSig2D[maxNVrt];
        float VrtDR[maxNVrt];
+       float VrtdRtt[maxNVrt];
        float VrtErrR[maxNVrt];
        float mass[maxNVrt];
        float Chi2[maxNVrt];
@@ -284,6 +304,7 @@ namespace InDet {
        //---
        int   nNVrt;
        float NVrtDist2D[maxNVrt];
+       float NVrtSig3D[maxNVrt];
        int   NVrtNT[maxNVrt];
        int   NVrtTrkI[maxNVrt];
        float NVrtM[maxNVrt];
@@ -366,8 +387,9 @@ namespace InDet {
       void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string& name ) const;
 
 
-      StatusCode cutTrk(double,double, double , double , double , 
-         long int ,long int ,long int , long int ) const;
+      StatusCode cutTrk(std::unordered_map<std::string,double> TrkVarDouble,
+                        std::unordered_map<std::string,int> TrkVarInt,
+			float evtWgt=1.) const;
       double coneDist(const AmgVector(5) & , const TLorentzVector & ) const;
 //
 // Gives correct mass assignment in case of nonequal masses
@@ -398,14 +420,10 @@ namespace InDet {
       void clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
       double jetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &primVrt, const TLorentzVector &JetDir) const;
 
-      double vrtVrtDist(const Trk::RecVertex & primVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& VrtErr,double& Signif ) const;
       double vrtVrtDist2D(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& VrtErr,double& Signif ) const;
-      double vrtVrtDist(const Trk::RecVertex & primVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double vrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
@@ -469,7 +487,8 @@ namespace InDet {
      int   selGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& inpPart,
                                 const xAOD::Vertex                           & primVrt,
                                 const TLorentzVector                         & jetDir,
-                                      std::vector<const xAOD::TrackParticle*>& selPart) const;
+                                      std::vector<const xAOD::TrackParticle*>& selPart,
+                                float evtWgt=1.) const;
 
 
       template <class Trk>
@@ -480,7 +499,8 @@ namespace InDet {
                         std::vector<double>      & InpMass, 
                         int                      & nRefPVTrk,
                         std::vector<const Trk*>  & TrkFromV0,
-                        std::vector<const Trk*>  & ListSecondTracks) const;
+                        std::vector<const Trk*>  & ListSecondTracks,
+			float evtWgt=1.) const;
 
      Amg::MatrixX  makeVrtCovMatrix( std::vector<double> & ErrorMatrix ) const;
 

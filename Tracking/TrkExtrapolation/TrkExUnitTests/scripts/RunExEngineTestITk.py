@@ -1,5 +1,3 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
-from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
 from AthenaCommon.Configurable import Configurable
@@ -24,7 +22,6 @@ ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.TrackingGeometry.MaterialSource = "Input"
-ConfigFlags.Beam.Type =''
 
 ConfigFlags.Detector.GeometryCalo = False
 ConfigFlags.Detector.GeometryMuon = False

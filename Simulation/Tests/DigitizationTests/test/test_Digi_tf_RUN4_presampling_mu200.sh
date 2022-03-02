@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run 4 pile-up presampling
 # art-type: grid
@@ -16,7 +16,7 @@ Digi_tf.py \
 --PileUpPresampling True \
 --conditionsTag default:OFLCOND-MC15c-SDR-14-05 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-P2-ITK-24-00-00 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -30,6 +30,6 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc Digi_tf.py"
+echo "art-result: $rc digiCA"
 
 exit $status

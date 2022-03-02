@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Possible cases:
 # 1) inputEVNTFile (normal)
@@ -16,7 +16,8 @@
 
 from PyJobTransforms.TransformUtils import executeFromFragment
 from AthenaConfiguration.ComponentFactory import CompFactory
-AthSequencer=CompFactory.AthSequencer
+from AthenaConfiguration.Enums import BeamType
+from G4AtlasApps.SimEnums import CavernBackground
 
 
 def specialConfigPreInclude(ConfigFlags):
@@ -33,7 +34,7 @@ def specialConfigPostInclude(ConfigFlags, cfg):
 
 def CommonSimulationCfg(ConfigFlags, log):
     # Configure main services and input reading (if required)
-    if ConfigFlags.Input.Files == '':
+    if not ConfigFlags.Input.Files:
         # Cases 3a, 3b
         from AthenaConfiguration.MainServicesConfig import MainEvgenServicesCfg
         cfg = MainEvgenServicesCfg(ConfigFlags)
@@ -44,7 +45,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg.getService("EventSelector").OverrideRunNumber = True
         from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
         cfg.merge(EvtIdModifierSvcCfg(ConfigFlags))
-        if ConfigFlags.Beam.Type == 'cosmics':
+        if ConfigFlags.Beam.Type is BeamType.Cosmics:
             # Case 3b: Configure the cosmic Generator
             from CosmicGenerator.CosmicGeneratorConfig import CosmicGeneratorCfg
             cfg.merge(CosmicGeneratorCfg(ConfigFlags))
@@ -58,7 +59,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg = MainServicesCfg(ConfigFlags)
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         cfg.merge(PoolReadCfg(ConfigFlags))
-        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBG == "Read":
+        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBackground is CavernBackground.Read:
             # Cases 2a, 2b, 2c
             from TrackRecordGenerator.TrackRecordGeneratorConfigNew import Input_TrackRecordGeneratorCfg
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))
@@ -68,8 +69,8 @@ def CommonSimulationCfg(ConfigFlags, log):
             cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
             from McEventCollectionFilter.McEventCollectionFilterConfig import TruthResetAlgCfg
             cfg.merge(TruthResetAlgCfg(ConfigFlags))
-            cfg.addSequence(AthSequencer('SimSequence'), parentName='AthAlgSeq')
-            cfg.addSequence(AthSequencer('CopyHitSequence'), parentName='AthAlgSeq')
+            cfg.addSequence(CompFactory.AthSequencer('SimSequence'), parentName='AthAlgSeq')
+            cfg.addSequence(CompFactory.AthSequencer('CopyHitSequence'), parentName='AthAlgSeq')
 
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolWriteCfg(ConfigFlags))
@@ -91,7 +92,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         # add the ISF_MainConfig
         from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
         cfg.merge(ISF_KernelCfg(ConfigFlags))
-        AcceptAlgNames = ['ISF_Kernel_' + ConfigFlags.Sim.ISF.Simulator]
+        AcceptAlgNames = ['ISF_Kernel_' + ConfigFlags.Sim.ISF.Simulator.value]
         if ConfigFlags.Sim.ISF.ReSimulation:
             AcceptAlgNames += ['RenameHitCollections']
     else:

@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:41:26 CET 
  **
- **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -31,7 +31,7 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TrackSelector.h"
-#include "TrigInDetAnalysis/TIDAVertexNew.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
@@ -242,7 +242,7 @@ const std::vector<TIDA::Track> ibl_filter( const std::vector<TIDA::Track>& tv ) 
     double z = tv[i].z0() + ribl/std::tan(theta);
 
     if ( !tv[i].expectBL() ) { 
-      std::cout << "missing IBL: phi: " << tv[i].phi() << "\tz: " << z << " (" << eta << " " << theta*180/3.14159 << ")" << std::endl; 
+      std::cout << "missing IBL: phi: " << tv[i].phi() << "\tz: " << z << " (" << eta << " " << theta*180/M_PI << ")" << std::endl; 
       if ( h ) h->Fill( z, tv[i].phi() );
     }
     else { 
@@ -1657,9 +1657,7 @@ int main(int argc, char** argv)
     /// select the reference offline vertices
 
     std::vector<TIDA::Vertex> vertices; // keep for now as needed for line 1709
-    
-    std::vector<TIDA::VertexNew> vertices_new;
-
+  
     //    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
     
     const TIDA::Chain* vtxchain = track_ev->chain("Vertex");
@@ -1667,7 +1665,6 @@ int main(int argc, char** argv)
     if ( vtxchain && vtxchain->size()>0 ) { 
  
       const std::vector<TIDA::Vertex>& mv = vtxchain->at(0).vertices();
-      const std::vector<TrackTrigObject>& mvTracks = vtxchain->at(0).objects();
 
       int     selectvtx = -1;
       double  selection = 0;
@@ -1679,7 +1676,8 @@ int main(int argc, char** argv)
         for ( size_t iv=0 ; iv<mv.size() ; iv++ ) {
           if ( mv[iv].Ntracks()==0 ) continue;
           double selection_ = 0.0;
-          TIDA::VertexNew vtx_temp( mv[iv], mvTracks[iv], &offTracks.tracks() );
+          TIDA::Vertex vtx_temp( mv[iv] );
+          vtx_temp.selectTracks( offTracks.tracks() );
           for (unsigned itr=0; itr<vtx_temp.tracks().size(); itr++) {
             TIDA::Track* tr = vtx_temp.tracks().at(itr);
             if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
@@ -1692,21 +1690,16 @@ int main(int argc, char** argv)
         }
         if ( selectvtx!=-1 ) {
           vertices.push_back( mv[selectvtx] );
-          vertices_new.push_back( TIDA::VertexNew( mv[selectvtx], mvTracks[selectvtx] ) );
         }
       }
       else if ( vtxind>=0 ) {
         if ( size_t(vtxind)<mv.size() )  { 
           vertices.push_back( mv[vtxind] );
-          TIDA::VertexNew vtx( mv[vtxind], mvTracks[vtxind] );
-          vertices_new.push_back( vtx );
         }
       }
       else { 
         for ( size_t iv=0 ; iv<mv.size() ; iv++ ) { 
           vertices.push_back( mv[iv] );
-          TIDA::VertexNew vtx( mv[iv], mvTracks[iv] );
-          vertices_new.push_back( vtx );
         }
       }
       
@@ -1858,9 +1851,8 @@ int main(int argc, char** argv)
         
         /// select the test sample (trigger) vertices
         const std::vector<TIDA::Vertex>& mvt = troi.vertices();
-        const std::vector<TrackTrigObject>& mvtTracks = troi.objects();
 
-        std::vector<TIDA::VertexNew> vertices_new_test;
+        std::vector<TIDA::Vertex> vertices_test;
         
         int     selectvtx = -1;
         double  selection = 0;
@@ -1871,7 +1863,8 @@ int main(int argc, char** argv)
           
           for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
             double selection_ = 0.0;
-            TIDA::VertexNew vtx_temp( mvt[iv], mvtTracks[iv], &testp );
+            TIDA::Vertex vtx_temp( mvt[iv] );
+            vtx_temp.selectTracks( testp );
             for (unsigned itr=0; itr<vtx_temp.tracks().size(); itr++) {
             TIDA::Track* tr = vtx_temp.tracks().at(itr);
             if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
@@ -1883,38 +1876,25 @@ int main(int argc, char** argv)
             }
           }
           if ( selectvtx!=-1 ) {
-            if ( useVertexTracks ) {
-              TIDA::VertexNew selected( mvt[selectvtx], mvtTracks[selectvtx], &testp );
-              vertices_new_test.push_back( selected );
-            }
-            else {
-              TIDA::VertexNew selected( mvt[selectvtx] );
-              vertices_new_test.push_back( selected );
-            }
+            TIDA::Vertex selected( mvt[selectvtx] );
+            if ( useVertexTracks ) selected.selectTracks( testp );
+            vertices_test.push_back(selected);
           }
         }
+
         else if ( vtxind_rec!=-1 ) {
           if ( unsigned(vtxind_rec)<mvt.size() ) { 
-            if ( useVertexTracks ) {
-              TIDA::VertexNew selected( mvt[vtxind], mvtTracks[vtxind], &testp );
-              vertices_new_test.push_back( selected );
-            }
-            else {
-              TIDA::VertexNew selected( mvt[vtxind] );
-              vertices_new_test.push_back( selected );
-            }
+            TIDA::Vertex selected( mvt[vtxind] );
+            if ( useVertexTracks ) selected.selectTracks( testp );
+            vertices_test.push_back( selected );
           }
         }
+        
         else {  
           for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
-            if ( useVertexTracks ) {
-              TIDA::VertexNew selected( mvt[iv], mvtTracks[iv], &testp );
-              vertices_new_test.push_back( selected );
-            }
-            else {
-              TIDA::VertexNew selected( mvt[iv] );
-              vertices_new_test.push_back( selected );
-            }
+            TIDA::Vertex selected( mvt[iv] );
+            if ( useVertexTracks ) selected.selectTracks( testp );
+            vertices_test.push_back( selected );
           }
         }
         
@@ -1953,14 +1933,6 @@ int main(int argc, char** argv)
           }
           
         }
-        
-        // EMIL - I've moved this bit of code up to have access to trigger tracks above
-        // testTracks.clear();
-
-        // testTracks.selectTracks( troi.tracks() );
-        
-        // /// trigger tracks already restricted by roi - so no roi filtering required 
-        // std::vector<TIDA::Track*> testp = testTracks.tracks();
         
         /// here we set the roi for the filter so we can request only those tracks 
         /// inside the roi
@@ -2116,7 +2088,7 @@ int main(int argc, char** argv)
         /// offline vertices
 
         // new vertex class containing tracks, offline
-        std::vector<TIDA::VertexNew> vertices_new_roi;
+        std::vector<TIDA::Vertex> vertices_roi;
 
         /// do for all vertices now ...
         //        if ( chain.name().find("SuperRoi") ) { 
@@ -2124,16 +2096,16 @@ int main(int argc, char** argv)
 
           /// select the reference offline vertices
           
-          vertices_new_roi.clear();
+          vertices_roi.clear();
           
-          const std::vector<TIDA::VertexNew>& mv = vertices_new;
+          const std::vector<TIDA::Vertex>& mv = vertices;
             
           //      std::cout << "vertex filtering " << mv.size() << std::endl;
 
 
           for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
 
-            const TIDA::VertexNew& vx = mv[iv];
+            const TIDA::Vertex& vx = mv[iv];
 
             // reject all vertices that are not in the roi
 
@@ -2155,13 +2127,15 @@ int main(int argc, char** argv)
 
             if ( useVertexTracks ) {
               // refp contains roi filtered tracks, vx contains ids of tracks belonging to vertex
-              TIDA::VertexNew vertex_new_roi( vx, &refp );
-              trackcount = vertex_new_roi.Ntracks();
+              TIDA::Vertex vertex_roi( vx );
+              vertex_roi.selectTracks( refp );
+              trackcount = vertex_roi.Ntracks();
               if ( trackcount>=ntracks && trackcount>0 ) {
-                vertices_new_roi.push_back(vertex_new_roi);
+                vertices_roi.push_back( vertex_roi );
               }
             }
             else {
+              // old track count method still in use?
               for (unsigned itr=0; itr<refp.size(); itr++){
                 TIDA::Track* tr = refp[itr];
                 double theta_     = 2*std::atan(std::exp(-tr->eta())); 
@@ -2171,14 +2145,9 @@ int main(int argc, char** argv)
             /// don't add vertices with no matching tracks - remember the 
             /// tracks are filtered by Roi already so some vertices may have 
             /// no tracks in the Roi - ntracks set to 0 by default
-              if ( trackcount>=ntracks && trackcount>0 ) { 
-                vertices_new_roi.push_back( 
-                  TIDA::VertexNew( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
-                                                 vx.dx(), vx.dy(), vx.dz(),
-                                                 trackcount, 
-                                                 vx.chi2(), vx.ndof() ) ) );// ndof not valid for only Roi tracks 
-              
-              //            std::cout << "\t \t" << vertices_roi.back() << std::endl;
+              if ( trackcount>=ntracks && trackcount>0 ) {
+                TIDA::Vertex vertex_roi( vx ); 
+                vertices_roi.push_back( vertex_roi );
               }
             }
 
@@ -2221,7 +2190,7 @@ int main(int argc, char** argv)
 
           ///  so we now use a handy wrapper function to do the conversion for us ...
 
-          if ( vertices_new_roi.size()>0 ) vtxanal->execute( pointers(vertices_new_roi), pointers(vertices_new_test), track_ev );
+          if ( vertices_roi.size()>0 ) vtxanal->execute( pointers(vertices_roi), pointers(vertices_test), track_ev );
 
         }
 

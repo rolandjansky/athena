@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef ATHENASERVICES_DECISIONSVC_H
 #define ATHENASERVICES_DECISIONSVC_H 
@@ -27,7 +27,7 @@
  * @author S.Binet<binet@cern.ch>
  * @author B.Radics<radbal@cern.ch>
  */
-class ATLAS_CHECK_THREAD_SAFETY DecisionSvc : public extends<AthService, IDecisionSvc>
+class DecisionSvc : public extends<AthService, IDecisionSvc>
 { 
 
 public: 

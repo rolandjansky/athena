@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackData (
     //const Trk::FitterStatusCode /*fitStatCode*/ ) const {
 
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx)");
-
+   const EventContext& ctx = Gaudi::Hive::currentContext();
   //----------------------------------------------
   // fill track parameters in ntuple
   const Trk::Perigee* perpars = track.perigeeParameters();
@@ -181,8 +181,11 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackData (
         !m_extrapolator.empty() ) {
       ATH_MSG_VERBOSE ("try extrapolate SiSPSeeded track to perigee");
       const Trk::PerigeeSurface perSurf;
-      perpars = dynamic_cast<const Trk::Perigee *>
-        (m_extrapolator->extrapolate(track, perSurf, Trk::anyDirection, false, Trk::nonInteracting));
+      std::unique_ptr<const Trk::TrackParameters> tmp = m_extrapolator->extrapolate(
+        ctx, track, perSurf, Trk::anyDirection, false, Trk::nonInteracting);
+      if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+        perpars = static_cast<const Trk::Perigee *> (tmp.release());
+      }
       if (perpars != nullptr && fillTrackPerigee(perpars).isFailure()) {
         msg(MSG::WARNING) << "Newly made perigee parameters could not be "
                           << "written to ntuple" << endmsg;
@@ -220,6 +223,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillProtoTrajectoryData
    const unsigned int ) const 
   // const Trk::FitterStatusCode) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
   
   if (myPerigee != nullptr) {
@@ -241,7 +245,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillProtoTrajectoryData
     if (nearestParam!=nullptr) {
       const Trk::PerigeeSurface   perSurf;
       const Trk::Perigee* perpars = dynamic_cast<const Trk::Perigee *>
-        (m_extrapolator->extrapolate(*nearestParam, perSurf, Trk::anyDirection, false, Trk::pion));
+        (m_extrapolator->extrapolate(ctx,*nearestParam, perSurf, Trk::anyDirection, false, Trk::pion).release());
       if (perpars != nullptr && fillTrackPerigee(perpars).isFailure()) {
         ATH_MSG_WARNING ("Newly made perigee parameters could not be written to ntuple");
       }

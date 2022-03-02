@@ -569,7 +569,7 @@ namespace MuonCalib {
     return StatusCode::FAILURE;
   }
 
-  std::string CscReadWriteCoolStr::RetrieveDataAsString( std::string coolKey, int hash, std::string dataType){
+  std::string CscReadWriteCoolStr::RetrieveDataAsString( const std::string& coolKey, int hash, const std::string& dataType){
     std::stringstream stream;
     if(dataType == "uint32_t")
     {

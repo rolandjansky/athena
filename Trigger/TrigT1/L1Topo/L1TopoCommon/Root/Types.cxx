@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoCommon/Types.h"
@@ -40,13 +40,10 @@ TCS::inputType(const std::string& input) {
    if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
       return TCS::JEM;
 
-   if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
-      return TCS::CLUSTER;
-
-   if ( input == "eTAU" || input == "eTauTobArray" || input == "eTauTobs" )
+   if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" || input == "eTAU" )
       return TCS::ETAU;
 
-   if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
+   if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" || input == "jTAU" )
       return TCS::JTAU;
 
    if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" || input == "cTAU" )
@@ -87,9 +84,37 @@ TCS::inputType(const std::string& input) {
           
    if ( input == "SumEt" || input == "SumEtTobArray" || input == "SumEtTobs" )
       return TCS::MET;
+
+   if ( input == "jXE")
+      return TCS::MET;
           
 
    TCS_EXCEPTION("L1TopoCommon: unknown input type " + input);
    
    return TCS::NONE;
+}
+
+TCS::outputTopoType_t
+TCS::outputType(const std::string& output) {
+  if (output == "LegacyTopo0")
+    {return TCS::LEGACYTOPO0;}
+  else if (output == "LegacyTopo1")
+    {return TCS::LEGACYTOPO1;}
+  else if (output == "Topo2El")
+    {return TCS::TOPO2EL;}
+  else if (output == "Topo3El")
+    {return TCS::TOPO3EL;}
+  else if (output == "Topo1Opt0")
+    {return TCS::TOPO1OPT0;}
+  else if (output == "Topo1Opt1")
+    {return TCS::TOPO1OPT1;}
+  else if (output == "Topo1Opt2")
+    {return TCS::TOPO1OPT2;}
+  else if (output == "Topo1Opt3")
+    {return TCS::TOPO1OPT3;}
+  else
+    {
+      TCS_EXCEPTION("L1TopoCommon: unknown output type " + output);
+      return TCS::UNDEF;
+    }
 }

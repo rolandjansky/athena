@@ -74,11 +74,14 @@ print(BPHY11_JpsiFinder)
 ##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY11_JpsiSelectAndWrite = DerivationFramework__Reco_Vertex(
     name                   = "BPHY11_JpsiSelectAndWrite",
     VertexSearchTool             = BPHY11_JpsiFinder,
     OutputVtxContainerName = "BPHY11_JpsiCandidates",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY11_VertexTools.PrimaryVertexRefitter,
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
     DoVertexType           = 1
@@ -95,6 +98,7 @@ BPHY11_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY11_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY11_JpsiCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.900,
   MassMin               = 2600.0,
   MassMax               = 3600.0,
@@ -154,9 +158,11 @@ print(BPHY11_LbJpsipK)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex	
 BPHY11_LbJpsipKSelectAndWrite = DerivationFramework__Reco_Vertex(
   name                      = "BPHY11_LbJpsipKSelectAndWrite",
-  Jpsi2PlusTrackName        = BPHY11_LbJpsipK,
+  VertexSearchTool        = BPHY11_LbJpsipK,
   OutputVtxContainerName    = "LbJpsipKCandidates",
   PVContainerName           = "PrimaryVertices",
+  V0Tools                   = TrackingCommon.getV0Tools(),
+  PVRefitter                = BPHY11_VertexTools.PrimaryVertexRefitter,
   RefPVContainerName        = "BPHY11_RefittedPrimaryVertices",
   RefitPV                   = True,
   MaxPVrefit                = 10000, 
@@ -171,6 +177,7 @@ BPHY11_Select_Lb2JpsipK = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_Lb2JpsipK",
   HypothesisName            = "Lb_pK",
   InputVtxContainerName     = "LbJpsipKCandidates",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = [105.658, 105.658, 938.272, 493.677],
   VtxMassHypo               = 5619.6,
   MassMin                   = 4000.0,
@@ -188,6 +195,7 @@ BPHY11_Select_Lb2JpsiKp = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_Lb2JpsiKp",
   HypothesisName            = "Lb_Kp",
   InputVtxContainerName     = "LbJpsipKCandidates",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = [105.658, 105.658, 493.677, 938.272],
   VtxMassHypo               = 5619.6,
   MassMin                   = 4000.0,
@@ -206,6 +214,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY11_Lb_pK_PV              = DerivationFramework__ReVertex(
   name                       = "BPHY11_Lb_pK_PV",
   InputVtxContainerName      = "LbJpsipKCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseMassConstraint          = True,
@@ -218,13 +227,14 @@ BPHY11_Lb_pK_PV              = DerivationFramework__ReVertex(
   OutputVtxContainerName     = "LbJpsipKCandidatesPV"
 )
 
-ToolSvc += BPHY11_LbPlusTrk
-print(BPHY11_LbPlusTrk)
+ToolSvc += BPHY11_Lb_pK_PV
+print(BPHY11_Lb_pK_PV)
 
 BPHY11_Select_Lb_pK_PV      = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_Lb_pK_PV",
   HypothesisName            = "Lb_pK_PV",
   InputVtxContainerName     = "LbJpsipKCandidatesPV",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = BPHY11_Lb_pK_PV.MassInputParticles,
   VtxMassHypo               = 5619.6,
   MassMin                   = 0.0,
@@ -232,12 +242,13 @@ BPHY11_Select_Lb_pK_PV      = DerivationFramework__Select_onia2mumu(
   Chi2Max                   = 1.0e10
 )
 
-ToolSvc += BPHY11_Select_LbPlusTrk
-print(BPHY11_Select_LbPlusTrk)
+ToolSvc += BPHY11_Select_Lb_pK_PV
+print(BPHY11_Select_Lb_pK_PV)
 
 BPHY11_Lb_Kp_PV              = DerivationFramework__ReVertex(
   name                       = "BPHY11_Lb_Kp_PV",
   InputVtxContainerName      = "LbJpsipKCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   HypothesisNames            = [ BPHY11_Select_Lb2JpsiKp.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseMassConstraint          = True,
@@ -256,6 +267,7 @@ BPHY11_Select_Lb_Kp_PV      = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_Lb_Kp_PV",
   HypothesisName            = "Lb_Kp_PV",
   InputVtxContainerName     = "LbJpsiKpCandidatesPV",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = BPHY11_Lb_Kp_PV.MassInputParticles,
   VtxMassHypo               = 5619.6,
   MassMin                   = 0.0,
@@ -272,6 +284,7 @@ print     ( BPHY11_Select_Lb_Kp_PV)
 BPHY11_Lb_pK_ReFit           = DerivationFramework__ReVertex(
   name                       = "BPHY11_Lb_pK_ReFit",
   InputVtxContainerName      = "LbJpsipKCandidatesPV",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   HypothesisNames            = [ BPHY11_Select_Lb_pK_PV.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseMassConstraint          = True,
@@ -291,6 +304,7 @@ BPHY11_Select_Lb_pK_ReFit   = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_Lb_pK_ReFit",
   HypothesisName            = "Lb_pK_ReFit",
   InputVtxContainerName     = "LbJpsipKCandidatesReFit",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = BPHY11_Lb_pK_ReFit.MassInputParticles,
   VtxMassHypo               = 5619.6,
   MassMin                   = 0.0,
@@ -304,6 +318,7 @@ print(BPHY11_Select_Lb_pK_ReFit)
 BPHY11_Lb_Kp_ReFit           = DerivationFramework__ReVertex(
   name                       = "BPHY11_Lb_Kp_ReFit",
   InputVtxContainerName      = "LbJpsiKpCandidatesPV",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   HypothesisNames            = [ BPHY11_Select_Lb_Kp_PV.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseMassConstraint          = True,
@@ -323,6 +338,7 @@ BPHY11_Select_Lb_Kp_ReFit   = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_Lb_Kp_ReFit",
   HypothesisName            = "Lb_Kp_ReFit",
   InputVtxContainerName     = "LbJpsiKpCandidatesReFit",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = BPHY11_Lb_Kp_ReFit.MassInputParticles,
   VtxMassHypo               = 5619.6,
   MassMin                   = 0.0,
@@ -338,6 +354,7 @@ print(BPHY11_Select_Lb_Kp_ReFit)
 BPHY11_LbPlusTrk             = DerivationFramework__ReVertex(
   name                       = "BPHY11_LbPlusTrk",
   InputVtxContainerName      = "LbJpsipKCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName, BPHY11_Select_Lb2JpsiKp.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseAdditionalTrack         = True,
@@ -360,6 +377,7 @@ BPHY11_Select_LbPlusTrk     = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_LbPlusTrk",
   HypothesisName            = "LbPlusTrk",
   InputVtxContainerName     = "LbJpsipKTrkCandidates",
+  V0Tools                   = TrackingCommon.getV0Tools(),
   TrkMasses                 = BPHY11_LbPlusTrk.MassInputParticles,
   VtxMassHypo               = 5619.6,
   MassMin                   = 4000.0,
@@ -428,7 +446,6 @@ ToolSvc += BPHY11_thinningTool_Tracks
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
 BPHY11_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "BPHY11_thinningTool_PV",
-  ThinningService            = "BPHY11_ThinningSvc",
   CandidateCollections       = ["LbJpsipKCandidates",
                                 "LbJpsipKCandidatesPV",
                                 "LbJpsiKpCandidatesPV",
@@ -502,14 +519,6 @@ fileName      = buildFileName( derivationFlags.WriteDAOD_BPHY11Stream )
 BPHY11Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY11Stream.AcceptAlgs(["BPHY11_Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-
-BPHY11_ThinningSvc = createThinningSvc( svcName="BPHY11_ThinningSvc", outStreams=[evtStream] )
-svcMgr += BPHY11_ThinningSvc
 
 #====================================================================
 # Slimming 

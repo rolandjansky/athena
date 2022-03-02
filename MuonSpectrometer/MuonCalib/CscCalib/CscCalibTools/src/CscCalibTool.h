@@ -128,8 +128,8 @@ public:
   virtual double getLatency() const override final;
 
 
-  mutable std::atomic_int m_messageCnt_t0base;
-  mutable std::atomic_int m_messageCnt_t0phase;
+  mutable std::atomic_int m_messageCnt_t0base{};
+  mutable std::atomic_int m_messageCnt_t0phase{};
   //private:
   //  ../src/CscCalibTool.cxx: In member function 'virtual bool CscCalibTool::stripT0phase(uint32_t) const':
   //  ../src/CscCalibTool.cxx:351: error: increment of data-member 'CscCalibTool::m_messageCnt_t0phase' in read-only structure

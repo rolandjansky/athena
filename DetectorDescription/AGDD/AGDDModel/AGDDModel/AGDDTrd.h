@@ -29,7 +29,7 @@ public:
 	double y1() const {return m_y1;}
 	double y2() const {return m_y2;}
 	double z() const {return m_z;}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	double m_x1;
 	double m_x2;

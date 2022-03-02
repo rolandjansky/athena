@@ -1,10 +1,10 @@
 """Define methods to construct configured MDT Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
@@ -64,7 +64,7 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
-    kwargs.setdefault("UseTof", flags.Beam.Type != "cosmics")
+    kwargs.setdefault("UseTof", flags.Beam.Type is not BeamType.Cosmics)
     # "RT_Relation_DB_DigiTool" in jobproperties.Digitization.experimentalDigi() not migrated
     digiTool = acc.popToolsAndMerge(MDT_Response_DigiToolCfg(flags))
     kwargs.setdefault("DigitizationTool", digiTool)
@@ -73,6 +73,8 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", MDT_FirstXing())
         kwargs.setdefault("LastXing", MDT_LastXing())
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     MdtDigitizationTool = CompFactory.MdtDigitizationTool
     acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc
@@ -81,8 +83,14 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
 def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(MDT_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(MDT_RangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
@@ -98,6 +106,7 @@ def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MDT_SDO")
+    kwargs.setdefault("PileUpMergeSvc", '')
     return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 

@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from JetTagTools.BTagTrackToVertexToolConfig import BTagTrackToVertexToolCfg
+from JetTagTools.InDetEtaDependentCutsSvcConfig import IDEtaDependentCuts_IPXD_SvcCfg
 
-# import the TrackSelector configurable
-Analysis__TrackSelector=CompFactory.Analysis.TrackSelector
 
 def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPTrackSelector tool and returns it.
@@ -31,7 +31,11 @@ def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = T
         for option in defaults:
             options.setdefault(option, defaults[option])
 
+        if flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+            acc.merge(IDEtaDependentCuts_IPXD_SvcCfg(flags, name="IDEtaDepCutsSvc_" + name))
+            options.setdefault("InDetEtaDependentCutsSvc", acc.getService("IDEtaDepCutsSvc_" + name))
+
     options['name'] = name
-    acc.setPrivateTools(Analysis__TrackSelector( **options))
+    acc.setPrivateTools(CompFactory.Analysis.TrackSelector(**options))
 
     return acc

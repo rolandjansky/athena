@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,6 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 #include "GeoPrimitives/GeoPrimitives.h" 
 #include "EventPrimitives/EventPrimitives.h"
@@ -156,11 +155,9 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   Trk::ParticleHypothesis hypo = input.info().particleHypothesis();
 
   /** Get the  measurements */
-  auto uppertraj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  auto lowertraj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  uppertraj->reserve (input.trackStateOnSurfaces()->size());
-  lowertraj->reserve (input.trackStateOnSurfaces()->size());
-
+  auto uppertraj = DataVector<const Trk::TrackStateOnSurface>();
+  auto lowertraj = DataVector<const Trk::TrackStateOnSurface>();
+  
   unsigned int totalNumberHits = 0;
 
   unsigned int totalNumberPixelHits = 0;
@@ -181,32 +178,30 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   //DataVector<Trk::MeasurementBase const>::const_iterator measEnd = input.measurementsOnTrack()->end(); 
   //for(;meas != measEnd; ++meas){
   //Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
-  bool perigeeseen=false;
-  for (const Trk::TrackStateOnSurface* tsos : *input.trackStateOnSurfaces()) {
-    if (tsos->type(Trk::TrackStateOnSurface::Outlier)) continue;
-    if (originalPerigee==tsos->trackParameters()){
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosit = input.trackStateOnSurfaces()->begin();
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosEnd = input.trackStateOnSurfaces()->end();
+  bool perigeeseen=false; 
+  for(;tsosit != tsosEnd; ++tsosit){
+    if ((**tsosit).type(Trk::TrackStateOnSurface::Outlier)) continue;
+    if (originalPerigee==(**tsosit).trackParameters()){
       perigeeseen=true;
-      // We only support containers containing exactly TSOS.
-      if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-      uppertraj->push_back(uppertraj->allocate(*tsos));
-      lowertraj->push_back(lowertraj->allocate(*tsos));
+      uppertraj.push_back((**tsosit).clone());
+      lowertraj.push_back((**tsosit).clone());
       continue;
     }
 
     if (m_keepmaterial &&
-        (tsos->type(Trk::TrackStateOnSurface::Scatterer) ||
-         tsos->type(Trk::TrackStateOnSurface::BremPoint) ||
-         tsos->type(Trk::TrackStateOnSurface::CaloDeposit))) {
-      // We only support containers containing exactly TSOS.
-      if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+        ((**tsosit).type(Trk::TrackStateOnSurface::Scatterer) ||
+         (**tsosit).type(Trk::TrackStateOnSurface::BremPoint) ||
+         (**tsosit).type(Trk::TrackStateOnSurface::CaloDeposit))) {
       if (!perigeeseen)
-        uppertraj->push_back(uppertraj->allocate(*tsos));
+        uppertraj.push_back((**tsosit).clone());
       else
-        lowertraj->push_back(lowertraj->allocate(*tsos));
+        lowertraj.push_back((**tsosit).clone());
       continue;
     }
     const Trk::RIO_OnTrack *rio = nullptr;
-    const Trk::MeasurementBase *measb=tsos->measurementOnTrack();
+    const Trk::MeasurementBase *measb=(**tsosit).measurementOnTrack();
     if (measb) rio=dynamic_cast<const Trk::RIO_OnTrack*>(measb);
 
     if(rio){
@@ -235,11 +230,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
 
         if (!siliconHitsOnly || m_trtid->is_sct(surfaceid) ||
             m_trtid->is_pixel(surfaceid))
-        {
-          // We only support containers containing exactly TSOS.
-          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-          uppertraj->push_back(uppertraj->allocate(*tsos));
-        }
+          uppertraj.push_back((**tsosit).clone());
       }
 
       // if( (*meas)->globalPosition().y() < 0){
@@ -254,12 +245,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
 
         if (!siliconHitsOnly || m_trtid->is_sct(surfaceid) ||
             m_trtid->is_pixel(surfaceid))
-        {
           // m_lowerHits.push_back( *meas);
-          // We only support containers containing exactly TSOS.
-          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-          lowertraj->push_back(lowertraj->allocate(*tsos));
-        }
+          lowertraj.push_back((**tsosit).clone());
       }
     } else {
       if (msgLvl(MSG::VERBOSE))
@@ -274,36 +261,27 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
           if (msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Adding an upper pseudoMeasurement" << endmsg;
           ++numberUpperPseudoMeas;
-          // We only support containers containing exactly TSOS.
-          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-          uppertraj->push_back(uppertraj->allocate(*tsos));
+          uppertraj.push_back((**tsosit).clone());
         }
         if (perigeeseen || totalNumberHits == totalNumberTRTHits) {
           if (msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Adding a lower pseudoMeasurement" << endmsg;
           ++numberLowerPseudoMeas;
-          // We only support containers containing exactly TSOS.
-          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
-          lowertraj->push_back(lowertraj->allocate(*tsos));
+          lowertraj.push_back((**tsosit).clone());
         }
       }
 
       const Trk::CompetingRIOsOnTrack* crot =
         dynamic_cast<const Trk::CompetingRIOsOnTrack*>(measb);
       if (crot) {
-        // We only support containers containing exactly TSOS.
-        if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
         if (!perigeeseen)
-          uppertraj->push_back(uppertraj->allocate(*tsos));
+          uppertraj.push_back((**tsosit).clone());
         else
-          lowertraj->push_back(lowertraj->allocate(*tsos));
+          lowertraj.push_back((**tsosit).clone());
       }
     }
   }
 
-  uppertraj->elt_allocator().protect();
-  lowertraj->elt_allocator().protect();
-  
   Trk::Track upperorigtrack(input.info(),std::move(uppertraj),nullptr);
   Trk::Track lowerorigtrack(input.info(),std::move(lowertraj),nullptr);
   
@@ -312,7 +290,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling upper fit" << endmsg;
     //m_upperTrack = m_trkfitter->fit(m_upperHits, *originalPerigee, true, hypo);
-    upperTrack = m_trkfitter->fit(upperorigtrack, false, hypo);
+    upperTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),upperorigtrack, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling upper fit" << endmsg;
     
     if(!upperTrack){
@@ -346,7 +324,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   if(isConstrained(numberLowerPixelHits,numberLowerSCTHits,numberLowerTRTHits,numberLowerPseudoMeas)){
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling lower fit" << endmsg;
-    lowerTrack = m_trkfitter->fit(lowerorigtrack, false, hypo);
+    lowerTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),lowerorigtrack, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling lower fit" << endmsg;
     
     if(!lowerTrack){
@@ -453,7 +431,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
-  outputTrack = m_trkfitter->fit(TRTHits, *originalPerigee, true, hypo);
+  outputTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),TRTHits, *originalPerigee, true, hypo)).release();
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
@@ -538,7 +516,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
-  outputTrack = m_trkfitter->fit(SiHits, *originalPerigee, false, hypo);
+  outputTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),SiHits, *originalPerigee, false, hypo)).release();
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
@@ -769,7 +747,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(isConstrained(numberOddPixelHits,numberOddSCTHits,numberOddTRTHits,numberOddPseudoMeas)){  
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling odd fit" << endmsg;
-    oddTrack = m_trkfitter->fit(oddHits, *originalPerigee, false, hypo);
+    oddTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),oddHits, *originalPerigee, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling odd fit" << endmsg;
     
     if(!oddTrack){
@@ -795,7 +773,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(isConstrained(numberEvenPixelHits,numberEvenSCTHits,numberEvenTRTHits,numberEvenPseudoMeas)){
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling even fit" << endmsg;
-    evenTrack = m_trkfitter->fit(evenHits, *originalPerigee, false, hypo);
+    evenTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),evenHits, *originalPerigee, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling even fit" << endmsg;
     
     if(!evenTrack){

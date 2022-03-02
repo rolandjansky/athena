@@ -11,12 +11,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
-def makeInDetTrigFastTrackingNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
+def makeInDetTrigFastTrackingNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None, LRTInputCollection = None ):
 
-  viewAlgs, viewVerify = makeInDetTrigFastTracking( config, rois, doFTF, None, secondStageConfig)
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config, rois, doFTF, None, secondStageConfig, LRTInputCollection)
   return viewAlgs
 
-def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
+def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None, LRTInputCollection = None):
 
   if config is None :
     raise ValueError('makeInDetTrigFastTracking() No config provided!')
@@ -314,13 +314,55 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
       if config is None:
             raise ValueError('makeInDetTrigFastTracking() No signature config specified')
 
-      from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-      #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.input_name,
-                                       conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
-      theFTF.RoIs           = rois
+      if config.useSiSPSeededTrackFinder and "LRT" in config.name:
+        # use SiSPSeededTrackFinder for fast tracking
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        trackingCuts = ConfiguredNewTrackingCuts( "R3LargeD0" )
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+        summaryTool = InDetTrigTrackSummaryTool
+        # --- Loading Pixel, SCT conditions
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+          from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+          condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name     = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                ReadKey  = "PixelDetectorElementCollection",
+                                                                WriteKey = "PixelDetElementBoundaryLinks_xk",)
 
-      viewAlgs.append(theFTF)
+        if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
+          from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+          condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
+
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
+          from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+          condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name     = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                ReadKey  = "SCT_DetectorElementCollection",
+                                                                WriteKey = "SCT_DetElementBoundaryLinks_xk")
+
+        from .InDetTrigCommon import siSPSeededTrackFinder_builder, add_prefix
+        siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = add_prefix( 'siSPSeededTrackFinder', config.input_name ),
+                                                               config                = config,
+                                                               outputTracks          = config.trkTracks_FTF(), 
+                                                               trackingCuts          = trackingCuts,
+                                                               usePrdAssociationTool = False,
+                                                               nameSuffix            = config.input_name,
+                                                               trackSummaryTool      = summaryTool )
+
+
+        viewAlgs.append( siSPSeededTrackFinder )
+
+      else:
+
+        from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
+        #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
+        theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.input_name,
+                                        conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
+        theFTF.RoIs           = rois
+
+        if LRTInputCollection is not None:
+          theFTF.inputTracksName = LRTInputCollection
+
+        viewAlgs.append(theFTF)
 
       if not config.doZFinderOnly: 
 

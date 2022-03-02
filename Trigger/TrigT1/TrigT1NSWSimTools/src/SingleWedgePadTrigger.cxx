@@ -80,12 +80,12 @@ namespace NSWL1{
     bool SingleWedgePadTrigger::isInTransitionRegion() const{
         Polygon ROI=padOverlap3(this->pads());
         if(area(ROI)==0) return false;
-        float phi0=m_pads[0]->sectorType()==1 ? (PI/4)*(m_pads[0]->sectorId()-1) : (PI/8)+(PI/4)*(m_pads[0]->sectorId()-1);
-        if(phi0>PI) phi0-=2*PI;
+        float phi0=m_pads[0]->sectorType()==1 ? (M_PI/4)*(m_pads[0]->sectorId()-1) : (M_PI/8)+(M_PI/4)*(m_pads[0]->sectorId()-1);
+        if(phi0>M_PI) phi0-=2*M_PI;
         float ROIx=centroid(ROI).x();
         float ROIy=centroid(ROI).y(); //YR 8-18 using the center local Y of the ROI for the decision if in the TR
         float ROIr=sqrt(ROIx*ROIx+ROIy*ROIy);
-        float ROIphi=ROIy/ROIx;
+        float ROIphi=atan2(ROIy,ROIx);
         float ROILocalPhi=abs(ROIphi-phi0);
         float ROILocalY=ROIr*cos(ROILocalPhi);
         bool isTr=false;

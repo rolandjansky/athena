@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORATHENAPOOL_H
@@ -35,7 +35,6 @@ class IOpaqueAddress;
 class ISvcLocator;
 class EventContextAthenaPool;
 class PoolCollectionConverter;
-class ActiveStoreSvc;
 class StoreGateSvc;
 namespace pool {
    class ICollectionCursor;
@@ -169,7 +168,6 @@ private: // internal member functions
 private: // data
    EventContextAthenaPool*         m_endIter{};
 
-   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc{this, "ActiveStoreSvc", "ActiveStoreSvc", ""};
 
    mutable PoolCollectionConverter* m_poolCollectionConverter ATLAS_THREAD_SAFE {};
    mutable pool::ICollectionCursor* m_headerIterator ATLAS_THREAD_SAFE {};

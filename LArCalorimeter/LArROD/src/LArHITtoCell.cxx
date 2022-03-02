@@ -15,14 +15,12 @@
 #include "LArHITtoCell.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "LArSimEvent/LArHitContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "boost/foreach.hpp"
 #include <cmath>
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <random>
 #include <sys/time.h>
 
@@ -34,7 +32,6 @@
 LArHITtoCell::LArHITtoCell(const std::string& name,
                                    ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
-    m_dd_mgr(0),
     m_calo_id_manager(0)
 {
 }
@@ -42,7 +39,13 @@ LArHITtoCell::LArHITtoCell(const std::string& name,
 StatusCode LArHITtoCell::initialize(){
 	
 	ATH_CHECK( m_hitMapKey.initialize() );
-	if ( m_isSC ) ATH_CHECK( m_scidtool.retrieve() );
+	if ( m_isSC ) {
+	  ATH_CHECK( m_scidtool.retrieve() );
+	  ATH_CHECK( m_caloSuperCellMgrKey.initialize() );
+	}
+	else {
+	  ATH_CHECK( m_caloMgrKey.initialize() );
+	}
 	ATH_CHECK( detStore()->retrieve (m_calo_id_manager, "CaloIdManager") );
         
         CHECK( detStore()->retrieve(m_OflHelper,"CaloCell_ID") );
@@ -60,16 +63,6 @@ StatusCode LArHITtoCell::initialize(){
         } else {
           ATH_MSG_DEBUG( "Successfully accessed CaloCell_SuperCell_ID helper");
         }
-
-	if ( m_isSC ) {
-	   const CaloSuperCellDetDescrManager* cddm=nullptr;
-	   CHECK( detStore()->retrieve(cddm) );
-	   m_dd_mgr = (const CaloDetDescrManager_Base*) cddm;
-	} else {
-	   const CaloDetDescrManager* cddm=nullptr;
-	   CHECK( detStore()->retrieve(cddm) );
-	   m_dd_mgr = (const CaloDetDescrManager_Base*) cddm;
-	}
 
 	return StatusCode::SUCCESS;
 }
@@ -94,6 +87,18 @@ StatusCode LArHITtoCell::execute(const EventContext& context) const
   if (!fracS ) {
      ATH_MSG_ERROR("Do not have SC fracs !!!");
      return StatusCode::FAILURE;
+  }
+
+  const CaloDetDescrManager_Base* dd_mgr{nullptr};
+  if(m_isSC) {
+    SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey,context};
+    ATH_CHECK(caloSuperCellMgrHandle.isValid());
+    dd_mgr = *caloSuperCellMgrHandle;
+  }
+  else {
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,context};
+    ATH_CHECK(caloMgrHandle.isValid());
+    dd_mgr = *caloMgrHandle;
   }
 
   int it = 0;
@@ -143,11 +148,11 @@ StatusCode LArHITtoCell::execute(const EventContext& context) const
           if ( m_isSC ){
     	    Identifier scId = m_scHelper->cell_id(IdentifierHash(i));
 	    hw = cabling->createSignalChannelID(scId);
-            dde = m_dd_mgr->get_element (scId);
+            dde = dd_mgr->get_element (scId);
 	  } else {
             Identifier cellId = m_OflHelper->cell_id(IdentifierHash(i));
 	    hw = cabling->createSignalChannelID(cellId);
-            dde = m_dd_mgr->get_element (cellId);
+            dde = dd_mgr->get_element (cellId);
 	  }
        
           ss->setCaloDDE(dde);

@@ -78,7 +78,6 @@ namespace LVL1 {
     ToolHandle<IeFEXFillEDM> m_eFEXFillEDMTool {this, "eFEXFillEDMTool", "LVL1::eFEXFillEDM", "Tool to fille eFEX EDMs"};
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerSGKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
-    SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     SG::WriteHandleKey< xAOD::eFexEMRoIContainer > m_eFexOutKey {this,"Key_eFexEMOutputContainer","L1_eEMRoI","Output eFexEM container"};
     SG::WriteHandleKey< xAOD::eFexTauRoIContainer > m_eFexTauOutKey {this,"Key_eFexTauOutputContainer","L1_eTauRoI","Output eFexTau container"};

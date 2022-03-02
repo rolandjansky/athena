@@ -47,7 +47,7 @@ void IndexSet::init(const unsigned int& r_nb_indices) {
 //:: METHOD init(.,.) ::
 //::::::::::::::::::::::::
 
-void IndexSet::init(const unsigned int& r_nb_indices, const std::vector<int> r_index) {
+void IndexSet::init(const unsigned int& r_nb_indices, const std::vector<int>& r_index) {
     ///////////////////////
     // CHECK VECTOR SIZE //
     ///////////////////////

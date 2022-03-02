@@ -885,11 +885,7 @@ void VP1MainWindow::pluginDialogClosed() {
 	if (res!=QDialog::Accepted||filename.isEmpty())
 		return;
 
-	//How many channels would be affected by such unloading?
 	QStringList bns = m_channelmanager->channelsInPluginFile(filename);
-	int naffected(0);
-	foreach (QString bn, bns)
-	naffected += m_channelmanager->nActive(bn);
 
 	foreach (QString bn, bns) {
 		while(m_channelmanager->basename2UniqueNames(bn).count()>0)

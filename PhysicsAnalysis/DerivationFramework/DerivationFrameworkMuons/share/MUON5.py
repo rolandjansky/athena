@@ -78,26 +78,6 @@ if is_MC:
     from DerivationFrameworkTau.TauTruthCommon import *
     
 #======================================================================
-# TAU OVERLAPPING ELECTRON LLH DECORATORS 
-#======================================================================
-
-from TauAnalysisTools.TauAnalysisToolsConf             import TauAnalysisTools__TauOverlappingElectronLLHDecorator
-from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauOverlappingElectronLLHDecoratorWrapper
-
-# Tau Overlapping Electron LLH Decorator
-MUON5TauOrlElLLHDec = TauAnalysisTools__TauOverlappingElectronLLHDecorator(name                  = "MUON5TauOrlElLLHDec",
-                                                                           ElectronContainerName = "Electrons")  
-ToolSvc += MUON5TauOrlElLLHDec
-   
-# Tau Overlapping Electron LLH Decorator Wrapper
-MUON5TauOrlElLLHDecWrapper = DerivationFramework__TauOverlappingElectronLLHDecoratorWrapper(name                               = "MUON5TauOrlElLLHDecWrapper",
-                                                                                            TauOverlappingElectronLLHDecorator = MUON5TauOrlElLLHDec,
-                                                                                            TauContainerName                   = "TauJets")
-ToolSvc += MUON5TauOrlElLLHDecWrapper
-
-augmentationTools.append(MUON5TauOrlElLLHDecWrapper)
-
-#======================================================================
 # BACKGROUND ELECTRON DECORATION TYPE/ORIGIN
 #======================================================================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/trunk/src/BkgElectronClassification.cxx

@@ -98,11 +98,11 @@ namespace LVL1 {
       // int centralNphi = 32;
       // int forwardNphi = 16;
 
-      int fcalEta = 18; int fcalPhi = 0; int fcalMod = 900000;
-      int initialFCAL = calcTowerID(fcalEta,fcalPhi,FEXAlgoSpaceDefs::forwardNphi,fcalMod);//900288
-      int transfcalEta = 14; int transfcalPhi = 0; int transfcalMod = 700000;
-      int initialTRANSFCAL = calcTowerID(transfcalEta,transfcalPhi,FEXAlgoSpaceDefs::forwardNphi,transfcalMod);//700224
-      int emecEta = 12; int emecPhi = 0; int emecMod = 500000;
+      int fcalEta = 19; int fcalPhi = 0; int fcalMod = 900000;
+      int initialFCAL = calcTowerID(fcalEta,fcalPhi,FEXAlgoSpaceDefs::forwardNphi,fcalMod);//900304
+      int transfcalEta = 15; int transfcalPhi = 0; int transfcalMod = 700000;
+      int initialTRANSFCAL = calcTowerID(transfcalEta,transfcalPhi,FEXAlgoSpaceDefs::centralNphi,transfcalMod);//700480
+      int emecEta = 11; int emecPhi = 0; int emecMod = 500000;
       int initialEMEC = calcTowerID(emecEta,emecPhi,FEXAlgoSpaceDefs::centralNphi,emecMod);//500384
       int transembEta = 7; int transembPhi = 0; int transembMod = 300000;
       int initialTRANSEMB = calcTowerID(transembEta,transembPhi,FEXAlgoSpaceDefs::centralNphi,transembMod);///300224
@@ -116,16 +116,16 @@ namespace LVL1 {
       int initialposTRANSEMB = calcTowerID(transembposEta,transembposPhi,FEXAlgoSpaceDefs::centralNphi,transembposMod);//400224
       int emecposEta = 8; int emecposPhi = 0; int emecposMod = 600000;
       int initialposEMEC = calcTowerID(emecposEta,emecposPhi,FEXAlgoSpaceDefs::centralNphi,emecposMod);//600256
-      int transfcalposEta = 13; int transfcalposPhi = 0; int transfcalposMod = 800000;
-      int initialposTRANSFCAL = calcTowerID(transfcalposEta,transfcalposPhi,FEXAlgoSpaceDefs::forwardNphi,transfcalposMod);//800208
-      int fcalposEta = 15; int fcalposPhi = 0; int fcalposMod = 1000000;
+      int transfcalposEta = 12; int transfcalposPhi = 0; int transfcalposMod = 800000;
+      int initialposTRANSFCAL = calcTowerID(transfcalposEta,transfcalposPhi,FEXAlgoSpaceDefs::centralNphi,transfcalposMod);//800416
+      int fcalposEta = 16; int fcalposPhi = 0; int fcalposMod = 1000000;
       int initialposFCAL = calcTowerID(fcalposEta,fcalposPhi,FEXAlgoSpaceDefs::forwardNphi,fcalposMod);//1000240
 
 
       // Since gFEX consists of a single module, here we are just (re)assigning the gTowerID
 
-      // Defining a matrix 32x38 corresponding to the gFEX structure (32 phi x 38 eta in the most general case - forward region has 16 phi bins)
-      typedef  std::array<std::array<int, 38>, 32> gTowersIDs;
+      // Defining a matrix 32x40 corresponding to the gFEX structure (32 phi x 40 eta in the most general case - forward region has 16 phi bins)
+      typedef  std::array<std::array<int, FEXAlgoSpaceDefs::totalNeta>, FEXAlgoSpaceDefs::centralNphi> gTowersIDs;
       gTowersIDs tmp_gTowersIDs_subset;
 
       int rows = tmp_gTowersIDs_subset.size();
@@ -134,76 +134,76 @@ namespace LVL1 {
       // set the FCAL negative part
       for(int thisCol=0; thisCol<4; thisCol++){
          for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialFCAL - ((thisCol) * 16) + thisRow;
+            int towerid = initialFCAL - ((thisCol) * (FEXAlgoSpaceDefs::forwardNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the TRANSFCAL negative part (FCAL-EMEC overlap)
-      for(int thisCol=4; thisCol<6; thisCol++){
-         for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialTRANSFCAL - ((thisCol-4) * 16) + thisRow;
+      for(int thisCol=4; thisCol<8; thisCol++){
+         for(int thisRow=0; thisRow<rows; thisRow++){
+            int towerid = initialTRANSFCAL - ((thisCol-4) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the EMEC negative part
-      for(int thisCol=6; thisCol<11; thisCol++){
+      for(int thisCol=8; thisCol<12; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-            int towerid = initialEMEC - ((thisCol-6) * 32) + thisRow;
+            int towerid = initialEMEC - ((thisCol-8) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the TRANSEMB (EMB-EMEC overlap) negative part
       for(int thisRow = 0; thisRow < rows; thisRow++){
-         int thisCol = 11;
+         int thisCol = 12;
          int towerid = initialTRANSEMB + thisRow;
          tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
       }
 
       // set the EMB negative part
-      for(int thisCol = 12; thisCol < 19; thisCol++){
+      for(int thisCol = 13; thisCol < 20; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-           int towerid = initialEMB - ( (thisCol-12) * 32) + thisRow;
+           int towerid = initialEMB - ( (thisCol-13) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
            tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
          // set the EMB positive part
-      for(int thisCol = 19; thisCol < 26; thisCol++){
+      for(int thisCol = 20; thisCol < 27; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-            int towerid = initialposEMB + ( (thisCol-19) * 32) + thisRow;
+            int towerid = initialposEMB + ( (thisCol-20) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the TRANSEMB (EMB-EMEC overlap) positive part
       for(int thisRow = 0; thisRow < rows; thisRow++){
-         int thisCol = 26;
+         int thisCol = 27;
          int towerid = initialposTRANSEMB + thisRow;
          tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
       }
       // set the EMEC positive part
-      for(int thisCol=27; thisCol<32; thisCol++){
+      for(int thisCol=28; thisCol<32; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-            int towerid = initialposEMEC + ((thisCol-27) * 32) + thisRow;
+            int towerid = initialposEMEC + ((thisCol-28) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the TRANSFCAL positive part (EMEC-FCAL overlap)
-      for(int thisCol=32; thisCol<34; thisCol++){
-         for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialposTRANSFCAL + ((thisCol-32) * 16) + thisRow;
+      for(int thisCol=32; thisCol<36; thisCol++){
+         for(int thisRow=0; thisRow<rows; thisRow++){
+            int towerid = initialposTRANSFCAL + ((thisCol-32) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the FCAL positive part
-      for(int thisCol=34; thisCol<cols; thisCol++){
+      for(int thisCol=36; thisCol<cols; thisCol++){
          for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialposFCAL + ((thisCol-34) * 16) + thisRow;
+            int towerid = initialposFCAL + ((thisCol-36) * (FEXAlgoSpaceDefs::forwardNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
@@ -272,14 +272,27 @@ namespace LVL1 {
       }
       //iterate over all gBlock Tobs and fill EDM with them
       for(auto &tob : m_allgBlockTobs){
+         //Check the status of the TOB (bit 7)
+         //Only fill the EDM if status = 1 (means it passed the threshold, see JetFinder algorithm) 
+         int statusBit = 7;
+         int statusMask = 0x1;
+         int tob_status = (tob >> statusBit) & statusMask;
+         if (tob_status == 1){
          ATH_CHECK(fillgBlockEDM(tob));
-
+         }
       }
+
       //iterate over all gJet Tobs and fill EDM with them
       for(auto &tob : m_allgJetTobs){
-         ATH_CHECK(fillgJetEDM(tob));
+         //Check the status of the TOB (bit 7)
+         //Only fill the EDM if status = 1 (means it passed the threshold, see JetFinder algorithm) 
+         int statusBit = 7;
+         int statusMask = 0x1;
+         int tob_status = (tob >> statusBit) & statusMask;
+         if (tob_status == 1){
+            ATH_CHECK(fillgJetEDM(tob));   
+         }
       }
-
 
       //iterate over all JwoJ scalar energy Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgScalarEJwojTobs){

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// This source file implements all of the functions related to <OBJECT>
+// This source file implements all of the functions related to Electrons
 // in the SUSYObjDef_xAOD class
 
 // Local include(s):
@@ -68,8 +68,8 @@ StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::S
     return StatusCode::FAILURE;
   }
 
-  const xAOD::ElectronContainer* electrons(0);
-  if (copy==NULL) { // empty container provided
+  const xAOD::ElectronContainer* electrons = nullptr;
+  if (copy==nullptr) { // empty container provided
     if (containerToBeCopied != nullptr) {
       electrons = containerToBeCopied;
     }
@@ -116,7 +116,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_passChID(input) = false;
   dec_ecisBDT(input) = -999.;
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   const xAOD::Vertex* pv = this->GetPrimVtx();
   const xAOD::TrackParticle* track =  input.trackParticle();
@@ -190,10 +190,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   //dec_passBaseID(input) = true;
 
   // calibrate the electron 4-vector here only if within eta window
-  if (fabs(input.caloCluster()->etaBE(2)) >= etacut) return StatusCode::SUCCESS;
+  if (std::abs(input.caloCluster()->etaBE(2)) >= etacut) return StatusCode::SUCCESS;
 
   if (m_eleBaselineCrackVeto){
-    if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
+    if  ( std::abs( input.caloCluster()->etaBE(2) ) >1.37 &&  std::abs( input.caloCluster()->etaBE(2) ) <1.52) {
       return StatusCode::SUCCESS;
     }
   }
@@ -210,8 +210,8 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   if (input.pt() < etcut) return StatusCode::SUCCESS;
 
-  if (m_elebaselinez0>0. && fabs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
-  if (m_elebaselined0sig>0. && fabs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
+  if (m_elebaselinez0>0. && std::abs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
+  if (m_elebaselined0sig>0. && std::abs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
 
   //--- Do baseline isolation check
   if ( !( m_eleBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
@@ -280,21 +280,21 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   if (input.p4().Perp2() <= etcut * etcut || input.p4().Perp2() == 0) return false; // eT cut (might be necessary for leading electron to pass trigger)
   if ( etacut==DUMMYDEF ){
-    if(fabs(input.caloCluster()->etaBE(2)) > m_eleEta ) return false;
+    if(std::abs(input.caloCluster()->etaBE(2)) > m_eleEta ) return false;
   }
-  else if ( fabs(input.caloCluster()->etaBE(2)) > etacut ) return false;
+  else if ( std::abs(input.caloCluster()->etaBE(2)) > etacut ) return false;
 
   if (m_eleCrackVeto){
-    if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
+    if  ( std::abs( input.caloCluster()->etaBE(2) ) >1.37 &&  std::abs( input.caloCluster()->etaBE(2) ) <1.52) {
       return false;
     }
   }
 
   if (acc_d0sig(input) != 0) {
-    if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
+    if (d0sigcut > 0.0 && std::abs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
-  if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
+  if (z0cut > 0.0 && std::abs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
 
 
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
@@ -319,7 +319,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
                                        const bool triggerSF,
                                        const bool isoSF,
                                        const std::string& trigExpr,
-				                           const bool ecidsSF,
+				       const bool ecidsSF,
                                        const bool cidSF ) {
 
   if ((m_eleId == "VeryLooseLLH" || m_eleId == "LooseLLH" || m_eleId == "Loose" || m_eleId == "Medium" || m_eleId == "Tight") && (idSF || triggerSF || isoSF)) {

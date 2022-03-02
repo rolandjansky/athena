@@ -13,8 +13,8 @@ if __name__ == '__main__':
 
     # Set the necessary configuration flags
     # Process 100 events in 8 threads/slots and do full monitoring
+    ConfigFlags.Input.Files = []
     ConfigFlags.Exec.MaxEvents = 100
-    ConfigFlags.Concurrency.NumProcs = 8
     ConfigFlags.Concurrency.NumThreads = 8
     ConfigFlags.PerfMon.doFullMonMT = True
     ConfigFlags.PerfMon.OutputJSON = 'perfmonmt_test.json'

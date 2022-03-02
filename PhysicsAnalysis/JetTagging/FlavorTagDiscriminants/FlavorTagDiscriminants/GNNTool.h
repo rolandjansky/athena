@@ -66,11 +66,6 @@ namespace FlavorTagDiscriminants {
       std::unique_ptr<OnnxUtil> m_onnxUtil;
       lwt::GraphConfig m_config;
 
-      // arguments to getToolConfig
-      std::vector<FTagInputConfig> m_inputs;
-      std::vector<FTagTrackSequenceConfig> m_track_sequences;
-      FTagOptions m_options;
-
       SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> m_jetLink;
       std::string m_input_node_name;
       std::vector<internal::VarFromBTag> m_varsFromBTag;

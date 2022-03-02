@@ -22,7 +22,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-from JetRecConfig.JetDefinition import JetDefinition, JetInputConstitSeq
+from JetRecConfig.JetDefinition import JetDefinition, JetInputConstitSeq, JetInputConstit, JetInputExternal
 from JetRecConfig.JetGrooming import GroomingDefinition
 from JetRecConfig.DependencyHelper import solveDependencies, solveGroomingDependencies, aliasToModDef
 
@@ -65,7 +65,13 @@ def JetRecCfg( configFlags, jetdef,  returnConfiguredDef=False):
     elif isinstance(jetdef, GroomingDefinition):
         algs, jetdef_i = getJetGroomAlgs(configFlags, jetdef, True)
 
+    # FIXME temporarily reorder for serial running
+    if configFlags.Concurrency.NumThreads <= 0:
+        jetlog.info("Reordering algorithms in sequence {0}".format(sequenceName))
+        algs = reOrderAlgs(algs)
+
     for a in algs:
+
         if isinstance(a, ComponentAccumulator):
             components.merge(a )
         else:
@@ -89,7 +95,11 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        components.addEventAlgo( a )
+
+        if isinstance(a, ComponentAccumulator):
+            components.merge(a)
+        else:
+            components.addEventAlgo(a)
     
     return components
 
@@ -175,8 +185,12 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     
     # Transfer the input & ghost dependencies onto the parent jet alg,
     # so they are handled when instatiating the parent jet algs
-    groomdef_i.ungroomeddef.ghostdefs += [ g.split(':')[1] for g in groomdef_i._prereqOrder if g.startswith('ghost:')]
-    groomdef_i.ungroomeddef.extrainputs += [ g.split(':')[1] for g in groomdef_i._prereqOrder if g.startswith('input:')]
+    for prereq  in groomdef_i._prereqOrder:
+        reqType, reqKey = prereq.split(':')
+        if reqType=='ghost':
+            groomdef_i.ungroomeddef.ghostdefs.append(reqKey)
+        elif reqType.endswith('input:') : # can be extinput or input
+            groomdef_i.ungroomeddef.extrainputs.append(reqKey)
 
     jetlog.info("Scheduling parent alg {} for {} ".format(groomdef.ungroomeddef.fullname(), groomdef.fullname()))
 
@@ -195,6 +209,16 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     return algs
 
 
+def getJetAlgs(configFlags, jetdef, returnConfiguredDef=False, monTool=None):
+    # Useful helper function For Run-II config style
+    if isinstance(jetdef, JetDefinition):
+        func = getJetDefAlgs
+    elif isinstance(jetdef, GroomingDefinition):
+        func = getJetGroomAlgs
+
+    return func(configFlags, jetdef, returnConfiguredDef, monTool)
+
+
 ########################################################################
 #
 # Mid level functions returning specific type of algs out of JetDefinition
@@ -208,7 +232,7 @@ def getPseudoJetAlgs(jetdef):
     (this function is factorized out of PseudoJetCfg so it can be used standalone in the trigger config)
     """
     
-    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None)
+    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None, flags=jetdef._cflags)
     #print("aaaa" , constitpjalg, constitpjalg.OutputContainer)
     finalPJContainer = str(constitpjalg.OutputContainer)
     pjalglist = [constitpjalg]
@@ -288,25 +312,27 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
         return cname in filecontents
 
     # Loop over all inputs required by jetdefs and get the corresponding algs
-    inputdeps = [ inputkey for inputkey in jetdef._prereqOrder if inputkey.startswith('input:')]
+    inputdeps = [ inputkey for inputkey in jetdef._prereqOrder if inputkey.startswith('input:') or inputkey.startswith('extinput:') ]
     algs = []
     for inputfull in inputdeps:
         inputInstance = jetdef._prereqDic[inputfull]
         if isInInput( inputInstance ):
             jetlog.info(f"Input container for {inputInstance} already in input file.")
             continue
-        
+
+        # Get the input or external alg
         if isinstance(inputInstance, JetInputConstit):
-            constitalg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
-            if constitalg:
-                algs +=[ constitalg ]
+            alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
         else: # it must be a JetInputExternal
-            # check if it has something to build an Algorithm
-            if inputInstance.algoBuilder:
-                algs+=[ inputInstance.algoBuilder( jetdef, inputInstance.specs ) ]
+            alg = inputInstance.algoBuilder( jetdef, inputInstance.specs ) 
+
+        if alg is not None:
+            if isinstance( alg, list):
+                # this can happen when running in runII style atlas config...
+                algs+=alg
             else:
-                # for now just hope the input will be present... 
-                pass
+                algs.append(alg)
+
     return algs
 
 
@@ -314,16 +340,18 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
 
 
 
-def getConstitPJGAlg(constitdef,suffix=None):
+def getConstitPJGAlg(constitdef,suffix=None, flags=None):
     """returns a configured PseudoJetAlgorithm which converts the inputs defined by constitdef into fastjet::PseudoJet
 
     IMPORTANT : constitdef must have its dependencies solved (i.e. it must result from a solveDependencies() call)
-"""
+    
+    the flags argument is TEMPORARY and will be removed once further dev on PseudoJetAlgorithm is done (see comment below)
+    """
 
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(constitdef.name,constitdef.inputname))
 
     full_label = constitdef.label + '' if suffix is None else f'_{suffix}'
-    
+
     pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+full_label,
         InputContainer = constitdef.containername,
@@ -331,6 +359,21 @@ def getConstitPJGAlg(constitdef,suffix=None):
         Label = full_label,
         SkipNegativeEnergy=True
         )
+
+    
+    # This is a terrible temporary hack to enable running in cosmic runs.
+    # There should not be any Properties setting here in a helper function.
+    # This will have to be fixed when all the filtering occuring in PseudoJetAlgorithm
+    # is removed and done as part of a JetConstituentModSequence.
+    if flags is not None:
+        from AthenaConfiguration.Enums import BeamType        
+        pjgalg.UseChargedPV = (flags.Beam.Type == BeamType.Collisions)
+    
+    if suffix == 'EMPFlowPUSB':
+        pjgalg.UseChargedPV=False
+        pjgalg.UseChargedPUsideband=True
+    # end of HAck
+        
     return pjgalg
 
 def getGhostPJGAlg(ghostdef):
@@ -631,7 +674,8 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
                 if fullkey in jetdef._prereqOrder: 
                     jetdef._prereqOrder.remove(fullkey)
                 if compType=='ghost':
-                    jetdef._prereqOrder.remove('input:'+comp)
+                    removeFromList(jetdef._prereqOrder, 'input:'+comp)
+                    removeFromList(jetdef._prereqOrder, 'extinput:'+comp)
             else:
                 outList.append(comp)
         jetlog.info(" *** Number of {} filtered components = {}  final  list={}".format(compType, nOut, outList) )
@@ -690,10 +734,57 @@ def isAnalysisRelease():
     return 'Analysis' in os.environ.get("AtlasProject", "")
 
 
+def reOrderAlgs(algs):
+    """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
+    This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
+    """
+    algs = [ a for a in algs if not isinstance(a, ComponentAccumulator)] 
+    evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
+    pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
+    pairsToswap = []
+    for i, edalg in evtDensityAlgs:
+        edInput = edalg.EventDensityTool.InputContainer
+        for j, pjalg in pjAlgs:
+            if j < i:
+                continue 
+            if edInput == str(pjalg.OutputContainer):
+                pairsToswap.append((i, j))
+    for i, j in pairsToswap:
+        algs[i], algs[j] = algs[j], algs[i]
+    return algs
 
 
 
+def registerAsInputConstit( jetdef ):
+    """Make the jet collection described by jetdef available as constituents to other jet finding 
+   
+    Technically : create  JetInputExternal and JetInputConstit and register them in the relevant look-up dictionnaries.
+    the JetInputConstit will have a algoBuilder to generate the JetContainer described by jetdef
+    """
+    from .StandardJetConstits import stdConstitDic, stdInputExtDic
+    jetname = jetdef.fullname()
 
+    # define a function to generate the CA for this jetdef
+    def jetBuilder(largejetdef,spec):
+        from AthenaCommon.Configurable import Configurable
+        if Configurable.configurableRun3Behavior :
+            return JetRecCfg(largejetdef._cflags, jetdef)
+        else:
+            # Compatibility with runII style : we can't use ComponentAccumulator and must return the list of algs.
+            #  When this is not needed anymore we can remove here and simplify inside getInputAlgs()
+            algs, jetdef_i = getJetAlgs(largejetdef._cflags, jetdef, True)
+            algs = reOrderAlgs( [a for a in algs if a is not None])
+            return algs
+            
+    stdInputExtDic[jetname]  = JetInputExternal( jetname, jetname, algoBuilder=jetBuilder)
+    stdConstitDic[jetname] = JetInputConstit(jetname, xAODType.Jet, jetname )
+    
+
+def removeFromList(l, o):
+    if o in l:
+        l.remove(o)
+
+    
 if __name__=="__main__":
 
     # Setting needed for the ComponentAccumulator to do its thing
@@ -716,7 +807,7 @@ if __name__=="__main__":
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Add the components from our jet reconstruction job
-    from StandardJetDefs import AntiKt4EMTopo
+    from StandardSmallRJets import AntiKt4EMTopo
     AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Filter:15000","Sort"] + ["JVT"] + ["PartonTruthLabel"]
     cfg.merge(JetRecCfg(AntiKt4EMTopo,ConfigFlags,jetnameprefix="New"))
 

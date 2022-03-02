@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging  import logging
 from InDetVKalVxInJetTool.InDetVKalVxInJetToolConf import InDet__InDetVKalVxInJetTool
@@ -22,26 +22,34 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         #----------------------
         # Secondary vertex finder itself
         #
-        if hasattr(ToolSvc,'InDetParticleCreatorTool'):
-          InDet__InDetVKalVxInJetTool.__init__( self, name = name,
+        InDet__InDetVKalVxInJetTool.__init__( self, name = name,
                                                 VertexFitterTool     = SVertexFitterTool
                                               )
-        else:         #--------------------------------
-                      # TrackParticle creator is needed
-          from TrkParticleCreator.TrkParticleCreatorConf     import Trk__TrackParticleCreatorTool
-          if hasattr(ToolSvc,'InDetTrackSummaryTool'):
-            SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
-                                                                  TrackSummaryTool="" )
-          else:
-            from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
-            SVTrackSummaryTool = AtlasTrackSummaryTool(name="SVTrackSummaryTool")
-            ToolSvc += SVTrackSummaryTool
-            SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
-                                                                  TrackSummaryTool="" )
-          ToolSvc += SVParticleCreatorTool
-          InDet__InDetVKalVxInJetTool.__init__( self, name = name,
+
+# define the class
+class InDetVKalVxInHiPtJetFinder( InDet__InDetVKalVxInJetTool ):
+
+    def __init__(self, name = 'InDetVKalVxInJetFinder'  ):
+
+        mlog = logging.getLogger( 'InDetVKalVxInHiPtJetFinder::__init__ ' )
+        mlog.info("entering")
+        #----------------------
+        # VKalVrt vertex fitter
+        #
+        from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+                                                  Extrapolator="Trk::Extrapolator/AtlasExtrapolator"
+                                                 )
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += SVertexFitterTool
+        #----------------------
+        # Secondary vertex finder itself
+        #
+        InDet__InDetVKalVxInJetTool.__init__( self, name = name,
                                                 VertexFitterTool     = SVertexFitterTool,
-                                                TrackParticleCreator = SVParticleCreatorTool
+                                                CutSharedHits    = 0,
+                                                Sel2VrtChi2Cut   = 4.,
+                                                CutBVrtScore = 0.002
                                               )
 
 ##########################################################################################################
@@ -58,19 +66,6 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         SVAtlasExtrapolator=AtlasExtrapolator()
         ToolSvc+=SVAtlasExtrapolator
 
-        #--------------------------
-        from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
-        SVAtlasTrackSummaryTool = AtlasTrackSummaryTool()
-        ToolSvc += SVAtlasTrackSummaryTool
-
-        #-------------------------
-        # TrackParticle creator
-        #
-        from TrkParticleCreator.TrkParticleCreatorConf     import Trk__TrackParticleCreatorTool
-        SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
-                                                              TrackSummaryTool=""
-                                                             )
-        ToolSvc += SVParticleCreatorTool
         #----------------------
         # VKalVrt vertex fitter
         #
@@ -86,15 +81,7 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         SVLinearizedTrackFactory = Trk__FullLinearizedTrackFactory(name="SVLinearizedTrackFactory",Extrapolator = SVAtlasExtrapolator)
         ToolSvc += SVLinearizedTrackFactory
 
-        from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
-        SVTrackToVertexIPEstimator = Trk__TrackToVertexIPEstimator(name="SVTrackToVertexIPEstimator",
-                                                                   Extrapolator = SVAtlasExtrapolator,
-                                                                   LinearizedTrackFactory=SVLinearizedTrackFactory)
-        ToolSvc += SVTrackToVertexIPEstimator
 
         InDet__InDetVKalVxInJetTool.__init__( self, name = name,
-                                             VertexFitterTool     = SVertexFitterTool,
-                                             TrackParticleCreator = SVParticleCreatorTool,
-                                             TrackSummaryTool     = SVAtlasTrackSummaryTool,
-                                             TrackToVertexTool    = SVTrackToVertexIPEstimator
+                                             VertexFitterTool     = SVertexFitterTool
                                             )

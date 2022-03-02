@@ -66,8 +66,8 @@ namespace Trk
       virtual FitterStatusCode
         filterTrajectoryPiece (Trajectory& trajectory,
                                Trajectory::iterator&,
-                               const TrackParameters*&,
-                               const TrackParameters*&,
+                               std::unique_ptr<const Trk::TrackParameters>&,
+                               std::unique_ptr<const Trk::TrackParameters>&,
                                int,
                                const ParticleHypothesis&) const;
 

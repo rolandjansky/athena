@@ -14,62 +14,62 @@ LArG4__BarrelPresampler__Geometry=CompFactory.LArG4.BarrelPresampler.Geometry
 
 def BarrelCryostatCalibrationCalculatorCfg(ConfigFlags, name="BarrelCryostatCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__BarrelCryostat__CalibrationCalculator(name, **kwargs) )
+    result.addService( LArG4__BarrelCryostat__CalibrationCalculator(name, **kwargs), primary=True )
     return result
 
 
 def BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags, name="BarrelCryostatCalibrationLArCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__BarrelCryostat__CalibrationLArCalculator(name, **kwargs) )
+    result.addService( LArG4__BarrelCryostat__CalibrationLArCalculator(name, **kwargs), primary=True )
     return result
 
 
 def BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags, name="BarrelCryostatCalibrationMixedCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__BarrelCryostat__CalibrationMixedCalculator(name, **kwargs) )
+    result.addService( LArG4__BarrelCryostat__CalibrationMixedCalculator(name, **kwargs), primary=True )
     return result
 
 
 def DMCalibrationCalculatorCfg(ConfigFlags, name="DMCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__DM__CalibrationCalculator(name, **kwargs) )
+    result.addService( LArG4__DM__CalibrationCalculator(name, **kwargs), primary=True )
     return result
 
 
 def BarrelCalibrationCalculatorCfg(ConfigFlags, name="BarrelCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__Barrel__CalibrationCalculator(name, **kwargs) )
+    result.addService( LArG4__Barrel__CalibrationCalculator(name, **kwargs), primary=True )
     return result
 
 
 def BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags, name="BarrelPresamplerCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__BarrelPresampler__CalibrationCalculator(name, **kwargs) )
+    result.addService( LArG4__BarrelPresampler__CalibrationCalculator(name, **kwargs), primary=True )
     return result
 
 
 def EMBCalculatorCfg(ConfigFlags, name="EMBCalculator", **kwargs):
-    result = LArBarrelGeometryCfg(ConfigFlags)
-    kwargs.setdefault("GeometryCalculator", result.getService("LArBarrelGeometry"))
-    result.addService(LArBarrelCalculator(name, **kwargs))
+    result = ComponentAccumulator()
+    kwargs.setdefault("GeometryCalculator", result.getPrimaryAndMerge(LArBarrelGeometryCfg(ConfigFlags)).name)
+    result.addService(LArBarrelCalculator(name, **kwargs), primary=True)
     return result
 
 
 def EMBPresamplerCalculatorCfg(ConfigFlags, name="EMBPresamplerCalculator", **kwargs):
-    result = LArBarrelPresamplerGeometryCfg(ConfigFlags)
-    kwargs.setdefault("GeometryCalculator", result.getService("LArBarrelPresamplerGeometry"))
+    result = ComponentAccumulator()
+    kwargs.setdefault("GeometryCalculator", result.getPrimaryAndMerge(LArBarrelPresamplerGeometryCfg(ConfigFlags)).name)
 
-    result.addService(LArBarrelPresamplerCalculator(name, **kwargs))
+    result.addService(LArBarrelPresamplerCalculator(name, **kwargs), primary=True)
     return result
 
 
 def LArBarrelGeometryCfg(ConfigFlags, name="LArBarrelGeometry", **kwargs):
     result = ComponentAccumulator()
-    result.addService(LArG4__Barrel__Geometry(name, **kwargs))
+    result.addService(LArG4__Barrel__Geometry(name, **kwargs), primary=True)
     return result
 
 
 def LArBarrelPresamplerGeometryCfg(ConfigFlags, name="LArBarrelPresamplerGeometry", **kwargs):
     result = ComponentAccumulator()
-    result.addService(LArG4__BarrelPresampler__Geometry(name, **kwargs))
+    result.addService(LArG4__BarrelPresampler__Geometry(name, **kwargs), primary=True)
     return result

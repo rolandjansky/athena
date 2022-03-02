@@ -118,10 +118,10 @@ StatusCode Trk::TrackSlimmer::execute()
           //loop through tracks, slimming them as you go.
           TrackCollection::const_iterator it    = trackLocation->begin();
           TrackCollection::const_iterator itEnd = trackLocation->end();
-          for (; it!=itEnd; it++)
+          for (; it!=itEnd; ++it)
             { 
 	      const DataVector< const Trk::TrackParameters > * params = (**it).trackParameters();
-	      if ( params!=nullptr && params->size()>0 && params->front()->pT()>m_ptCut )
+	      if ( params!=nullptr && !params->empty() && params->front()->pT()>m_ptCut )
                 {
 		  Track* slimmed = m_slimTool->slim(**it);
                   if (m_setPersistificationHints) {
@@ -146,7 +146,7 @@ StatusCode Trk::TrackSlimmer::execute()
                   //m_log<<MSG::INFO<<"Original Track"<<(**it)<<endmsg;
                   //m_log<<MSG::INFO<<"Slimmed Track"<<(*slimmed)<<endmsg;
                 } else {
-                if (params!=nullptr && params->size()>0) numTracksFailingPtCut++;
+                if (params!=nullptr && !params->empty()) numTracksFailingPtCut++;
               }
             }
 

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloFillRectangularCluster.cxx,v 1.20 2009-04-25 17:57:01 ssnyder Exp $
 /**
  * @file  CaloFillRectangularCluster.h
  * @author scott snyder <snyder@bnl.gov>, D. Lelas, H. Ma, S. Rajagopalan
@@ -23,6 +21,7 @@
 #include "CaloUtils/CaloCellList.h"
 #include "AthenaKernel/errorcheck.h"
 #include <algorithm>
+#include <utility>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -396,7 +395,7 @@ SamplingHelper::calculate_and_set
 
   double fallback_eta = eta;
   double fallback_phi = phi;
-  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0) {
+  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0 && fallback_layer < 4) {
     // In the calo frame
     fallback_eta = m_cluster->etaSample (samplings[fallback_layer]);
     fallback_phi = m_cluster->phiSample (samplings[fallback_layer]);
@@ -754,7 +753,8 @@ SamplingHelper_Cluster::calculate
 /// Return the cell with the maximum energy.
 const CaloCell* SamplingHelper_Cluster::max_et_cell() const
 {
-  return *std::max_element(m_cluster->cell_begin(), m_cluster->cell_end(),
+  return *std::max_element(std::as_const(*m_cluster).cell_begin(),
+                           std::as_const(*m_cluster).cell_end(),
                            et_compare_larem_only());
 }
 

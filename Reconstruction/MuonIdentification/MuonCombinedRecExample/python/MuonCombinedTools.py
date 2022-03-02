@@ -41,7 +41,7 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
             kwargs.setdefault("nHitSct", 3 )
             kwargs.setdefault("nHitSi", 4 )
 
-    kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
+    kwargs.setdefault("TrackSummaryTool", "" )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
 
@@ -105,23 +105,22 @@ def MuonPrintingTool(name="MuonPrintingTool",**kwargs ):
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonTrkMaterialProviderTool"))
+    kwargs.setdefault("AmbiguityProcessor", getPublicTool("MuonAmbiProcessor"))
+    
     if ConfigFlags.Muon.MuonTrigger:
-        kwargs.setdefault('MakeTrackAtMSLink',True)
-        kwargs.setdefault("FillTimingInformation",False)
         kwargs.setdefault("MuonSelectionTool", "")
         kwargs.setdefault("UseCaloCells", False)
         kwargs.setdefault("TrackSegmentAssociationTool", "")
     else:
-        getPublicTool("MuonMomentumBalanceSignificanceTool")
-        getPublicTool("MuonScatteringAngleSignificanceTool")
-        getPublicTool("MuonCaloParticleCreator")
+        kwargs.setdefault("MomentumBalanceTool", getPublicTool("MuonMomentumBalanceSignificanceTool"))
+        kwargs.setdefault("ScatteringAngleTool", getPublicTool("MuonScatteringAngleSignificanceTool"))
+    
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
-    kwargs.setdefault("ParticleCaloExtensionToolID", getPublicTool("MuonParticleCaloExtensionTool") )
     kwargs.setdefault("MuonPrinter", getPublicTool("MuonPrintingTool") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
@@ -146,7 +145,17 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
                                               TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
         kwargs.setdefault("TrackBuilder", trigTrackBuilder)
+        kwargs.setdefault("TrackSegmentAssociationTool", "" )
+    else:
+        kwargs.setdefault("TrackBuilder", getPublicTool("CombinedMuonTrackBuilder"))
+        kwargs.setdefault("SegmentContainer", "xaodMuonSegments")
+  
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
+
+def MuonCandidateTool_EMEO(name="MuonCandidateTool_EMEO" ):
+    return MuonCandidateTool(name = name,
+                             TrackBuilder= getPublicTool("CombinedMuonTrackBuilder_EMEO"),
+                             Commissioning = True)
 
 def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     tools = []
@@ -176,9 +185,7 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
 
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
-    kwargs.setdefault("ParticleCaloExtensionTool",  getPublicTool("MuonParticleCaloExtensionTool") )
     from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTagTestTool
     kwargs.setdefault("TagTool", CombinedMuonTagTestTool())
-
     return CfgMgr.MuonCombined__MuonCombinedStacoTagTool(name,**kwargs)
 

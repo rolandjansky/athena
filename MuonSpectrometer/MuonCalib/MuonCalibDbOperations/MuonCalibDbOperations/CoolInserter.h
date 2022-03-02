@@ -56,7 +56,7 @@ namespace MuonCalib {
         std::vector<std::string> m_tagt0;  // tag of the folder
         std::vector<std::string> m_tagrt;  // tag of the folder
         // overwirte iov - job-option
-        int m_iov_start, m_iov_end;
+        int m_iov_start = 0, m_iov_end = 0;
         long long m_iovt_start, m_iovt_end;
         // cool connection string - job option job option
         std::string m_cool_connection_string;

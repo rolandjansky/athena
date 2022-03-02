@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "STGC_RawDataContainerCnv.h"
@@ -42,7 +42,8 @@ StatusCode STGC_RawDataContainerCnv::initialize() {
     log << MSG::FATAL << "Could not get ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    m_TPConverter.initialize(idHelper); 
+    m_TPConverter_p1.initialize(idHelper); 
+    m_TPConverter_p2.initialize(idHelper); 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the ID helper and passed to the TP convertor." << endmsg;
   }
 
@@ -52,7 +53,7 @@ StatusCode STGC_RawDataContainerCnv::initialize() {
 STGC_RawDataContainer_PERS*    STGC_RawDataContainerCnv::createPersistent (Muon::STGC_RawDataContainer* transCont) {
     MsgStream log(msgSvc(), "STGC_RawDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    return m_TPConverter.createPersistent( transCont, log );
+    return m_TPConverter_p2.createPersistent( transCont, log );
 }
 
 Muon::STGC_RawDataContainer*
@@ -62,12 +63,18 @@ STGC_RawDataContainerCnv::createTransient()
   MsgStream log(msgSvc(), "STGC_RawDataContainerCnv" );
  
   STGC_RawDataContainer *transCont = nullptr;
+  static pool::Guid	p2_guid("F66FDF31-1BFD-43DE-B793-93635D98597E");
   static pool::Guid	p1_guid("E9229710-DB8A-447E-9546-4BAB079C7547");
 
-  if( compareClassGuid(p1_guid) ) {
+  if( compareClassGuid(p2_guid) ) {
+    std::unique_ptr< STGC_RawDataContainer_p2 >  cont( this->poolReadObject<STGC_RawDataContainer_p2>() );
+    const STGC_RawDataContainer_p2* constCont = cont.get();
+    transCont =  m_TPConverter_p2.createTransient( constCont, log );
+    
+  } else if( compareClassGuid(p1_guid) ) {
     std::unique_ptr< STGC_RawDataContainer_p1 >  cont( this->poolReadObject<STGC_RawDataContainer_p1>() );
     const STGC_RawDataContainer_p1* constCont = cont.get();
-    transCont =  m_TPConverter.createTransient( constCont, log );
+    transCont =  m_TPConverter_p1.createTransient( constCont, log );
     // virtual Muon::STGC_RawDataContainer* createTransient(const Muon::STGC_RawDataContainer_p1* persObj, MsgStream& log) override final;
     
   } else {

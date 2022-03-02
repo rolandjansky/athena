@@ -236,12 +236,15 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
     // loop over detElements    
     for(const auto & pThisDetectorElement: detElements) {
         // propagate without boundary checks to detElement
-        std::shared_ptr<const Trk::TrackParameters> nextTrkPar = m_propagator->propagateParameters(*previousTrkPar, pThisDetectorElement->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+        std::shared_ptr<const Trk::TrackParameters> nextTrkPar = m_propagator->propagateParameters(ctx,
+                                                                                                   *previousTrkPar, pThisDetectorElement->surface(), 
+                                                                                                   Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
         if(!nextTrkPar) {
             // propagate directly to this detElement and hope that the Fitter will do a better job:
             ATH_MSG_DEBUG("step by step propagation of track parameters to TRT detector element failed: Try direct propagation (this may cause problems for the Fitter)");
             ATH_MSG_DEBUG("Problem was in " << pThisDetectorElement->type() <<" at (" << pThisDetectorElement->center().x() <<", "<< pThisDetectorElement->center().y() <<", "<< pThisDetectorElement->center().z() << ")" );
-            nextTrkPar = m_propagator->propagateParameters(*event_data.m_siliconTrkParams, pThisDetectorElement->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+            nextTrkPar = m_propagator->propagateParameters(ctx,*event_data.m_siliconTrkParams, 
+                                                           pThisDetectorElement->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
             if (!nextTrkPar) {
                 ATH_MSG_WARNING("direct propagation of track parameters to TRT detector element failed:");
                 ATH_MSG_WARNING("   this detector element will be dropped and RIOs on the road may be lost!");
@@ -661,7 +664,9 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
         // get StraightLineSurface of the RIO closest to the prediction
         const Trk::Surface& RIOsurface = minDistanceRIO[groupIndex]->detectorElement()->surface(minDistanceRIO[groupIndex]->identify());
         // propagate to this surface
-        auto TrkPar = m_propagator->propagateParameters(*event_data.m_siliconTrkParams, RIOsurface, Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+        auto TrkPar = m_propagator->propagateParameters(Gaudi::Hive::currentContext(),
+                                                        *event_data.m_siliconTrkParams, RIOsurface, Trk::alongMomentum, 
+                                                        false, m_fieldprop, Trk::nonInteracting);
         if (!TrkPar) {
             ATH_MSG_WARNING("propagation of track parameters to the RIO surface failed:");
             ATH_MSG_WARNING("   this group of RIOs will skipped!");

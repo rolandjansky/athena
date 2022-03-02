@@ -28,8 +28,6 @@
 #include "LWHists/TH2F_LW.h"
 
 
-const float L1CaloPprPhos4ShapeCollection::PI = 3.14159265;
-
 L1CaloPprPhos4ShapeCollection::L1CaloPprPhos4ShapeCollection(void):
    m_minSignalHeight(30),
    m_timingRegime("Calib1"),

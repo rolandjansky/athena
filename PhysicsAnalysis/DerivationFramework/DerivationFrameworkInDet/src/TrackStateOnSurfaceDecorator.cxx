@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -348,22 +348,57 @@ namespace DerivationFramework {
       }
 
       if ( trkTrack->perigeeParameters() ){
-        // Track extrapolation
-        std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,
-                                                                                        (trkTrack->perigeeParameters())->associatedSurface(),
-                                                                                        Trk::oppositeMomentum,
-                                                                                        true,
-                                                                                        Trk::pion,
-                                                                                        Trk::addNoise));
 
-        Trk::CylinderSurface cylSurfIBL(29.5,3000.0);
-        Trk::CylinderSurface cylSurfBL(50.5,3000.0);
-        Trk::CylinderSurface cylSurfL1(88.5,3000.0);
-        Trk::CylinderSurface cylSurfL2(122.5,3000.0);
-        std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(m_extrapolator->extrapolate(*perigee,cylSurfIBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-        std::unique_ptr<const Trk::TrackParameters> outputParamsBL(m_extrapolator->extrapolate(*perigee,cylSurfBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-        std::unique_ptr<const Trk::TrackParameters> outputParamsL1(m_extrapolator->extrapolate(*perigee,cylSurfL1,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-        std::unique_ptr<const Trk::TrackParameters> outputParamsL2(m_extrapolator->extrapolate(*perigee,cylSurfL2,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+        if(m_pixelLayerRadii.size() < 4) ATH_MSG_WARNING("Too few layer radii set! Should be at least 4!");  
+
+        Trk::CylinderSurface cylSurfIBL(m_pixelLayerRadii[0], 3000.0);
+        Trk::CylinderSurface cylSurfBL(m_pixelLayerRadii[1], 3000.0);
+        Trk::CylinderSurface cylSurfL1(m_pixelLayerRadii[2], 3000.0);
+        Trk::CylinderSurface cylSurfL2(m_pixelLayerRadii[3], 3000.0);
+
+        bool allExtrapolationsSucceded = true;
+        Trk::PropDirection whichDir = Trk::alongMomentum;
+        Trk::MaterialUpdateMode whichMode = Trk::removeNoise;
+        //check the radius of the start parameters, to see which direction we need to go to the target surface
+        float startRadius = trkTrack->perigeeParameters()->associatedSurface().center().perp();
+        ATH_MSG_VERBOSE("Start radius for extrapolating to layers: "<<startRadius);
+        //see if we go along or opposite momentum
+        if(startRadius>m_pixelLayerRadii[0]) {whichDir = Trk::oppositeMomentum; whichMode = Trk::addNoise;}
+        std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(
+          m_extrapolator->extrapolate(ctx,
+                                      *(trkTrack->perigeeParameters()),
+                                      cylSurfIBL,
+                                      whichDir,
+                                      true,
+                                      Trk::pion,
+                                      whichMode));
+        if(startRadius>m_pixelLayerRadii[1]) {whichDir = Trk::oppositeMomentum; whichMode = Trk::addNoise;}                              
+        std::unique_ptr<const Trk::TrackParameters> outputParamsBL(
+          m_extrapolator->extrapolate(ctx,
+                                      *(trkTrack->perigeeParameters()),
+                                      cylSurfBL,
+                                      whichDir,
+                                      true,
+                                      Trk::pion,
+                                      whichMode));
+        if(startRadius>m_pixelLayerRadii[2]) {whichDir = Trk::oppositeMomentum; whichMode = Trk::addNoise;}                             
+        std::unique_ptr<const Trk::TrackParameters> outputParamsL1(
+          m_extrapolator->extrapolate(ctx,
+                                      *(trkTrack->perigeeParameters()),
+                                      cylSurfL1,
+                                      whichDir,
+                                      true,
+                                      Trk::pion,
+                                      whichMode));
+        if(startRadius>m_pixelLayerRadii[2]) {whichDir = Trk::oppositeMomentum; whichMode = Trk::addNoise;}                             
+        std::unique_ptr<const Trk::TrackParameters> outputParamsL2(
+          m_extrapolator->extrapolate(ctx,
+                                      *(trkTrack->perigeeParameters()),
+                                      cylSurfL2,
+                                      whichDir,
+                                      true,
+                                      Trk::pion,
+                                      whichMode));
 
         if (outputParamsIBL.get()) {
           trackPixFloatDecorators[kTrkIBLXDecor](*track) = outputParamsIBL->position().x();
@@ -371,6 +406,8 @@ namespace DerivationFramework {
           trackPixFloatDecorators[kTrkIBLZDecor](*track) = outputParamsIBL->position().z();
         }
         else {
+          allExtrapolationsSucceded = false;
+          ATH_MSG_VERBOSE("Extrapolation to IBL failed...");
           trackPixFloatDecorators[kTrkIBLXDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkIBLYDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkIBLZDecor](*track) = 0.0;
@@ -382,6 +419,8 @@ namespace DerivationFramework {
           trackPixFloatDecorators[kTrkBLZDecor](*track) = outputParamsBL->position().z();
         }
         else {
+          allExtrapolationsSucceded = false;
+          ATH_MSG_VERBOSE("Extrapolation to BLayer failed...");
           trackPixFloatDecorators[kTrkBLXDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkBLYDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkBLZDecor](*track) = 0.0;
@@ -393,6 +432,8 @@ namespace DerivationFramework {
           trackPixFloatDecorators[kTrkL1ZDecor](*track) = outputParamsL1->position().z();
         }
         else {
+          allExtrapolationsSucceded = false;
+          ATH_MSG_VERBOSE("Extrapolation to L1 failed...");
           trackPixFloatDecorators[kTrkL1XDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkL1YDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkL1ZDecor](*track) = 0.0;
@@ -404,10 +445,29 @@ namespace DerivationFramework {
           trackPixFloatDecorators[kTrkL2ZDecor](*track) = outputParamsL2->position().z();
         }
         else {
+          allExtrapolationsSucceded = false;
+          ATH_MSG_VERBOSE("Extrapolation to L2 failed...");
           trackPixFloatDecorators[kTrkL2XDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkL2YDecor](*track) = 0.0;
           trackPixFloatDecorators[kTrkL2ZDecor](*track) = 0.0;
         }
+      if(!allExtrapolationsSucceded) ATH_MSG_WARNING("At least one extrapolation to a Pixel layer failed!");
+      }
+      else{
+          ATH_MSG_WARNING("No perigee TrackParameters found - filling positions on layers to (0,0,0)!");
+          //should decorate nonetheless, to make sure decorations are consistent across events
+          trackPixFloatDecorators[kTrkIBLXDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkIBLYDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkIBLZDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkBLXDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkBLYDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkBLZDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL1XDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL1YDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL1ZDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL2XDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL2YDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL2ZDecor](*track) = 0.0;
       }
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
@@ -594,15 +654,7 @@ namespace DerivationFramework {
 
 
         // Track extrapolation
-        std::unique_ptr<const Trk::TrackParameters> extrap( m_extrapolator->extrapolate(*trkTrack,trackState->surface()) );
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,false);
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::pion,Trk::MaterialUpdateMode::removeNoise);
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::nonInteractingMuon,Trk::MaterialUpdateMode::addNoise);
-
-//        Amg::Transform3D *newDetElem = new Amg::Transform3D();
-//        *newDetElem = trackState->surface().transform();
-//        Trk::PerigeeSurface newSurface(newDetElem);
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolateDirectly(track->perigeeParameters(),newSurface);
+        std::unique_ptr<const Trk::TrackParameters> extrap( m_extrapolator->extrapolate(ctx,*trkTrack,trackState->surface()) );
 
         // Set local positions on the surface
         if (tp) { 
@@ -683,28 +735,6 @@ namespace DerivationFramework {
           } 
         }
 
-
-//        if (isPixel ) {
-//           tsos_bec.push_back( (int)m_pixId->barrel_ec(surfaceID) );
-//           tsos_layer.push_back( (int)m_pixId->layer_disk(surfaceID) );
-//           tsos_moduleeta.push_back( (int)m_pixId->eta_module(surfaceID) );
-//           tsos_modulephi.push_back( (int)m_pixId->phi_module(surfaceID) );
-//        } else if ( isSCT ) {
-//           tsos_bec.push_back( (int)m_sctId->barrel_ec(surfaceID) );
-//           tsos_layer.push_back( (int)m_sctId->layer_disk(surfaceID) );
-//           tsos_moduleeta.push_back( (int)m_sctId->barrel_ec(surfaceID) );
-//           tsos_modulephi.push_back( (int)m_sctId->phi_module(surfaceID) );
-//        } else if ( isTRT ) {
-//           tsos_bec.push_back( (int)m_trtId->barrel_ec(surfaceID) );
-//           tsos_layer.push_back( (int)m_trtId->layer_or_wheel(surfaceID) );
-//           tsos_moduleeta.push_back( (int)m_trtId->straw_layer(surfaceID) );
-//           tsos_modulephi.push_back( (int)m_trtId->phi_module(surfaceID) );
-//        }
-        
-        
-
- 
- 
         // Add the drift time for the tracks position -- note the position is biased 
         if (isTRT) {
           TRTCond::RtRelation const *rtr = m_trtcaldbTool->getRtRelation(surfaceID);

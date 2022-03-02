@@ -8,7 +8,7 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -48,6 +48,7 @@ StatusCode RegSelCondAlg_LAr::initialize() {
   ATH_MSG_DEBUG("RegSelCondAlg_LAr::initialize() ");
   ATH_CHECK(m_tableKey.initialize());
   ATH_CHECK(m_roiMapKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_INFO("RegSelCondAlg_LAr::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
 }
@@ -133,12 +134,12 @@ std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable (const LArRoI
 
   IToolSvc* toolSvc = nullptr;
   if ( service( "ToolSvc", toolSvc).isFailure() ) { 
-    ATH_MSG_ERROR( " Successfully retrieved ToolSvc ");
+    ATH_MSG_ERROR( "Failed to retrieve ToolSvc ");
     return lut;
   }
 
-  const CaloTTDescrManager* manager; 
-  const CaloLVL1_ID*        helper; 
+  const CaloTTDescrManager* manager = nullptr; 
+  const CaloLVL1_ID*        helper = nullptr;
 
   if ( detStore()->retrieve(manager).isFailure() ) {
     ATH_MSG_ERROR( "CaloTTMgr Manager not found" );

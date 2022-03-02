@@ -78,8 +78,8 @@ namespace Trk
   private:
 
   // internal methods performing the actual calculations
-  float trackParametersChi2(const Amg::Vector3D & new_position, const LinearizedTrack * trk, const AmgSymMatrix(5) & trkParametersWeight) const;
-  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const Amg::Vector3D & new_position) const;
+  static float trackParametersChi2(const Amg::Vector3D & new_position, const LinearizedTrack * trk, const AmgSymMatrix(5) & trkParametersWeight) ;
+  static float vertexPositionChi2(const xAOD::Vertex& old_vtx, const Amg::Vector3D & new_position) ;
 
 /**
  * Method where the fit is actually done

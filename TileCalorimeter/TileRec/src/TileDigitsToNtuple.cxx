@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -71,7 +71,7 @@ StatusCode TileDigitsToNtuple::initialize() {
   CHECK( detStore()->retrieve(m_tileHWID) );
   CHECK( detStore()->retrieve(m_tileTBID) );
 
-  const TileInfo* tileInfo;
+  const TileInfo* tileInfo = nullptr;
   CHECK( detStore()->retrieve(tileInfo, m_infoName) );
   m_nSamples = tileInfo->NdigitSamples(); // number of time slices for each chan
 

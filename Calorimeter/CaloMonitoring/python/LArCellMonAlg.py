@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCellMonConfigOld(inputFlags):
@@ -78,11 +78,13 @@ def LArCellMonConfig(inputFlags):
     lArCellMonAlg=CompFactory.LArCellMonAlg
 
     algname='LArCellMonAlg'
-    if inputFlags.Beam.Type == 'cosmics':
+    from AthenaConfiguration.Enums import BeamType
+    if inputFlags.Beam.Type is BeamType.Cosmics:
         algname=algname+'Cosmics'
 
-    isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
-    algo = LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
+    algo = LArCellMonConfigCore(helper, lArCellMonAlg, inputFlags,
+                                inputFlags.Beam.Type is BeamType.Cosmics,
+                                inputFlags.Input.isMC, algname)
     algo.useTrigger = inputFlags.DQ.useTrigger
 
     #copied from LArCellMonTool
@@ -512,8 +514,6 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-#    from AthenaConfiguration.TestDefaults import defaultTestFiles
-#    ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio//data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0123._SFO-3._0004.data']
     # to test tier0 workflow:
     #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
@@ -522,7 +522,6 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = True
     ConfigFlags.DQ.useTrigger = True
     ConfigFlags.DQ.Environment = 'tier0'
-#TMP    ConfigFlags.Beam.Type = 'collisions'
     ConfigFlags.lock()
 
 

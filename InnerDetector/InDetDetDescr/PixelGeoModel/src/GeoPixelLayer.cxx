@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -31,6 +31,7 @@
 #include "GeoModelKernel/GeoTubs.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include <memory>
 #include <sstream>
 
 GeoPixelLayer::GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
@@ -72,14 +73,14 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
   std::unique_ptr<GeoPixelStaveSupport> staveSupport;
   if (staveLayout ==0 || staveLayout==1) {
-    staveSupport.reset( new GeoPixelTMT (m_DDmgr, m_gmt_mgr) );
+    staveSupport = std::make_unique<GeoPixelTMT>( m_DDmgr, m_gmt_mgr );
   }
   if (staveLayout == 3) {
-    staveSupport.reset( new GeoPixelSimpleStaveSupport (m_DDmgr, m_gmt_mgr) );
+    staveSupport = std::make_unique<GeoPixelSimpleStaveSupport>( m_DDmgr, m_gmt_mgr );
   }
   else if (staveLayout >3 && staveLayout <7)
   {
-    staveSupport.reset( new GeoPixelDetailedStaveSupport (m_DDmgr, m_gmt_mgr));
+    staveSupport = std::make_unique<GeoPixelDetailedStaveSupport>( m_DDmgr, m_gmt_mgr);
   }
 
   if (staveLayout >3 && staveLayout <7)

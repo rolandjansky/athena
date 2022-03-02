@@ -29,7 +29,7 @@ atlas_add_library( JetTagToolsLib
     PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
     PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel
-    GeoPrimitives ITrackToVertex InDetSVWithMuonToolLib JetTagCalibrationLib JetTagInfo
+    GeoPrimitives ITrackToVertex InDetRecToolInterfaces InDetSVWithMuonToolLib JetTagCalibrationLib JetTagInfo
     MVAUtils StoreGateLib xAODBTagging xAODJet xAODTracking
     PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} InDetTrackSelectionToolLib MuonAnalysisInterfacesLib
     Navigation Particle ParticleJetToolsLib TrkEventPrimitives TrkLinks TrkNeuralNetworkUtilsLib

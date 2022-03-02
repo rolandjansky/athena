@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,7 +42,7 @@ class eflowEEtaBinBase {
 
   int getEBinIndex(double e) const;
   int getEtaBinIndex(double eta) const;
-  int getBinIndex(double x, const std::vector<double>& binBounds) const;
+  static int getBinIndex(double x, const std::vector<double>& binBounds) ;
 
   EnergyInterpolationMode m_mode;
 

@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.Logging import logging
 _log = logging.getLogger('AnalysisTriggerAlgsCAConfig.py')
 
@@ -16,7 +17,7 @@ def RoIBResultToxAODCfg(flags):
     alg.DoMuon = flags.Detector.EnableMuon and not flags.Trigger.enableL1MuonPhase1
     alg.DoCalo = flags.Detector.EnableCalo and flags.Trigger.enableL1CaloLegacy
 
-    if flags.Input.Format == 'POOL':
+    if flags.Input.Format is Format.POOL:
         if str(alg.xAODKeyMuon) in flags.Input.Collections:
             _log.debug('L1Muon xAOD already in the input file, setting RoIBResultToxAOD.DoMuon=False')
             alg.DoMuon = False
@@ -29,9 +30,7 @@ def RoIBResultToxAODCfg(flags):
         _log.debug('Not adding RoIBResultToxAOD because both DoMuon and DoCalo properties are False')
         return ComponentAccumulator()
 
-    acc.addEventAlgo(alg)
-
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
         from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
         acc.merge(LVL1CaloRun2ReadBSCfg(flags, forRoIBResultToxAOD=True))
 
@@ -45,10 +44,10 @@ def RoIBResultToxAODCfg(flags):
         acc.merge(MuonGeoModelCfg(flags))
         # RPC
         from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
-        acc.merge( RPCCablingConfigCfg(flags) )
+        acc.merge(RPCCablingConfigCfg(flags))
         #TGC
         from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
-        acc.merge( TGCCablingConfigCfg(flags) )
+        acc.merge(TGCCablingConfigCfg(flags))
 
     if alg.DoCalo:
         outputList += [
@@ -59,7 +58,8 @@ def RoIBResultToxAODCfg(flags):
         ]
         from  TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
         acc.merge(L1ConfigSvcCfg(flags))
-    
+
+    acc.addEventAlgo(alg)
 
     return acc, outputList
 

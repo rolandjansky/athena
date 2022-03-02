@@ -94,7 +94,7 @@ namespace Muon {
         };
         ServiceHandle<IIncidentSvc> m_incidentSvc;
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  MuonSort.h
 //  TopoCore
@@ -34,6 +34,9 @@ namespace TCS {
       parType_t      m_numberOfMuons = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
+      parType_t      m_InnerCoinCut   = { 0 };
+      parType_t      m_FullStationCut = { 0 };
+      parType_t      m_GoodMFieldCut  = { 0 };
 
    };
 

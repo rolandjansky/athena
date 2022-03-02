@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+import AthenaCommon.SystemOfUnits as Units
+
 def createSecVertexingFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
     flags = AthConfigFlags()        
@@ -18,7 +20,7 @@ def createSecVertexingFlags():
     flags.addFlag("TrkSel.maxTrtD0"                   , 10000.)
     flags.addFlag("TrkSel.maxSiZ0"                    , 10000.)
     flags.addFlag("TrkSel.maxTrtZ0"                   , 10000.)
-    flags.addFlag("TrkSel.minPt"                      , lambda pcf: pcf.InDet.Tracking.minPT)
+    flags.addFlag("TrkSel.minPt"                      , lambda pcf: pcf.InDet.Tracking.ActivePass.minPT)
     flags.addFlag("TrkSel.RatioCut1"                  , 0.0) # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt < 15
     flags.addFlag("TrkSel.RatioCut2"                  , 0.0) # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): 15 < Ntrt < 25
     flags.addFlag("TrkSel.RatioCut3"                  , 0.0) # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25
@@ -119,3 +121,38 @@ def createEGammaPileUpSecVertexingFlags():
     flags.Finder.MinInitVtxR                = 0.0        # off
     return flags
 # TODO add more variants
+
+def createPriVertexingFlags():
+    from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+    flags= AthConfigFlags()
+
+    flags.addFlag("doVertexFinding", True) # Turn on the primary vertex reconstruction
+    flags.addFlag("maxAbsEta", 9999.0)
+    flags.addFlag("maxD0", 4.0 * Units.mm)
+    flags.addFlag("maxNPixelHoles", 1)
+    flags.addFlag("maxSigmaD0", 5.0)
+    flags.addFlag("maxSigmaZ0SinTheta", 10.0)
+    flags.addFlag("maxZ0", 1000.0 * Units.mm)
+    flags.addFlag("maxZ0SinTheta", 1000.0)
+    flags.addFlag("minNInnermostLayerHits", 0)
+    flags.addFlag("minNPixelHits", 1)
+    flags.addFlag("minNSctHits", 4)
+    flags.addFlag("minNSiHits", 6)
+    flags.addFlag("minNTrtHits", 0)
+    flags.addFlag("minPt", 500.0 * Units.MeV)
+    flags.addFlag("maxZinterval", 3)
+    flags.addFlag("doMaxTracksCut", True)
+    flags.addFlag("MaxTracks", 3000)
+    flags.addFlag("setup", "ActsGaussAdaptiveMultiFinding") # string to store the setup for primary vertexing, possible types: 'ActsGaussAdaptiveMultiFinding', 'GaussAdaptiveMultiFinding', 'GaussIterativeFinding', 'AdaptiveMultiFinding', 'IterativeFinding'
+    flags.addFlag("sortingSetup", "SumPt2Sorting") # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting'
+    flags.addFlag("useBeamConstraint", True)
+    flags.addFlag("doPrimaryVertex3DFinding", True)  # will be set to false automatically if beam constraint ON, otherwise true. Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
+
+    return flags
+
+def createITkPriVertexingFlags():
+    flags = createPriVertexingFlags()
+
+    flags.minNTrtHits = 0
+
+    return flags

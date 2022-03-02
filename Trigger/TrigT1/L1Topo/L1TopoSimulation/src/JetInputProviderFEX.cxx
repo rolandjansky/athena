@@ -40,21 +40,10 @@ JetInputProviderFEX::initialize() {
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
-   
-   auto isjEDMvalid = m_jEDMKey.initialize();
-   auto isJEDMvalid = m_JEDMKey.initialize();
-   auto isjTauEDMvalid = m_jTauEDMKey.initialize();
 
-   //Temporarily check EDM status by hand to avoid the crash!
-   if (isjEDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for jFEX small R jets..");
-   }
-   if (isJEDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for jFEX large R jets..");
-   }
-   if (isjTauEDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for jFEX taus..");
-   }
+   CHECK(m_jEDMKey.initialize(SG::AllowEmpty));
+   CHECK(m_JEDMKey.initialize(SG::AllowEmpty));
+   CHECK(m_jTauEDMKey.initialize(SG::AllowEmpty));
 
    return StatusCode::SUCCESS;
 }
@@ -159,31 +148,13 @@ JetInputProviderFEX::handle(const Incident& incident) {
 
 
 StatusCode
-JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
-   
-  SG::ReadHandle<xAOD::jFexSRJetRoIContainer> jContainer(m_jEDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!jContainer.isValid()){
-     ATH_MSG_WARNING("Could not retrieve EDM Container for small R jets " << m_jEDMKey.key() << ". No jFEX input for L1Topo");
-     
+JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
+  if (m_jTauEDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex Tau input disabled, skip filling");
     return StatusCode::SUCCESS;
   }
-   
-  SG::ReadHandle<xAOD::jFexLRJetRoIContainer> JContainer(m_JEDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!JContainer.isValid()){
-     ATH_MSG_WARNING("Could not retrieve EDM Container for large R jets" << m_JEDMKey.key() << ". No jFEX input for L1Topo");
-     
-    return StatusCode::SUCCESS;
-  }
-   
   SG::ReadHandle<xAOD::jFexTauRoIContainer> jTauContainer(m_jTauEDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!jTauContainer.isValid()){
-     ATH_MSG_WARNING("Could not retrieve EDM Container for jTaus " << m_jTauEDMKey.key() << ". No jFEX input for L1Topo");
-     
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK(jTauContainer.isValid());
 
   for(const auto it : * jTauContainer) {
     const xAOD::jFexTauRoI* jFexRoI = it;
@@ -222,6 +193,19 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     m_hjTauPhiEta->Fill(jtau.eta(),jtau.phi()); 
     m_hjTauIsolationEta->Fill(jtau.eta(),jtau.isolation()); 
   }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
+  if (m_JEDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex LRJet input disabled, skip filling");
+    return StatusCode::SUCCESS;
+  }
+  SG::ReadHandle<xAOD::jFexLRJetRoIContainer> JContainer(m_JEDMKey);
+  ATH_CHECK(JContainer.isValid());
   
   for(const auto it : * JContainer) {
     const xAOD::jFexLRJetRoI* jFexRoI = it;
@@ -253,6 +237,19 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     m_hjLargeRJetPt->Fill(jet.EtDouble());
     m_hjLargeRJetPhiEta->Fill(jet.eta(),jet.phi());
   }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
+  if (m_jEDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex SRJet input disabled, skip filling");
+    return StatusCode::SUCCESS;
+  }
+  SG::ReadHandle<xAOD::jFexSRJetRoIContainer> jContainer(m_jEDMKey);
+  ATH_CHECK(jContainer.isValid());
   
   for(const auto it : * jContainer){
     const xAOD::jFexSRJetRoI* jFexRoI = it;
@@ -286,5 +283,15 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     m_hjJetPhiEta->Fill(jet.eta(),jet.phi());
     
   }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+  ATH_CHECK(fillTau(inputEvent));
+  ATH_CHECK(fillSRJet(inputEvent));
+  ATH_CHECK(fillLRJet(inputEvent));
   return StatusCode::SUCCESS;
 }

@@ -29,7 +29,7 @@ def InDetJetFitterTwoTrackVtxFinderToolCfg(name, suffix="", useBTagFlagsDefaults
         defaults = { 'ID_maxR' : 1150.,
                      'ID_maxZ' : 2727.,
                      'twoVertexProbabilityCut' : 0.034,
-                     'revertFromPositiveToNegativeTags' : False,
+                     'revertFromPositiveToNegativeTags' : True if (suffix=="FLIP_SIGN") else False,
 #                     'CrossDistancesSeedFinder' : ,
                      'SequentialVertexFitter' : jetFitterSequentialVertexFitter }
         for option in defaults:

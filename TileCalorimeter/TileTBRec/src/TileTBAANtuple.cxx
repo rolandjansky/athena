@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -1522,7 +1522,7 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
     return StatusCode::FAILURE;
 
   // get named container
-  const TileRawChannelContainer* rcCnt;
+  const TileRawChannelContainer* rcCnt = nullptr;
   CHECK( evtStore()->retrieve(rcCnt, containerId) );
 
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();

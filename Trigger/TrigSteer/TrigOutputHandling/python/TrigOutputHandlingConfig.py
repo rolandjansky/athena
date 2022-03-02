@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -37,6 +37,8 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
    m.MonTool.defineHistogram('TIME_makeResult', path='EXPERT', type='TH1F', title='makeResult() call time;Time [ms];Events',
                              xbins=200, xmin=0, xmax=50 )
+   m.MonTool.defineHistogram('TIME_makeResult_extRange', path='EXPERT', type='TH1F', title='makeResult() call time;Time [ms];Events',
+                             xbins=200, xmin=0, xmax=50, opt='kCanRebin' )
 
    return m
 
@@ -69,15 +71,6 @@ def TriggerEDMSerialiserToolCfg(name="Serialiser"):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
-
-   # Allow appending to the collections list
-   def merge_collection_list(a, b):
-      for item in b:
-         if item not in a:
-               a.append(item)
-      return a
-   serialiser._descriptors['CollectionsToSerialize'].semantics.merge = merge_collection_list
-
 
    from TrigEDMConfig.TriggerEDMRun3 import tpMap
    tpTool = CompFactory.TrigSerTPTool()

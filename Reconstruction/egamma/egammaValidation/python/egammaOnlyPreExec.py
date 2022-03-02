@@ -15,6 +15,9 @@ def setRunEgammaOnlyRecoFlags():
     rec.doMuon.set_Value_and_Lock(False)
     rec.doBTagging.set_Value_and_Lock(False)
     rec.doCaloRinger.set_Value_and_Lock(False)
+    rec.doAlfa.set_Value_and_Lock(False)
+    rec.doAFP.set_Value_and_Lock(False)
+    rec.doLucid.set_Value_and_Lock(False)
 
     recAlgs.doMuonSpShower.set_Value_and_Lock(False)
     recAlgs.doEFlow.set_Value_and_Lock(False)

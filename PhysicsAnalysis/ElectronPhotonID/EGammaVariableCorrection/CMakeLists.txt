@@ -5,14 +5,15 @@ atlas_subdir( EGammaVariableCorrection )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist Graph RIO )
+find_package( Boost COMPONENTS thread )
 
 # Component(s) in the package:
 atlas_add_library( EGammaVariableCorrectionLib
    EGammaVariableCorrection/*.h
    Root/*.cxx
    PUBLIC_HEADERS EGammaVariableCorrection
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib 
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib
    PRIVATE_LINK_LIBRARIES PathResolver xAODEgamma xAODEventShape)
 
 if( NOT XAOD_STANDALONE )

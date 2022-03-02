@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODFORWARD_XAODFORWARDDICT_H
 #define XAODFORWARD_XAODFORWARDDICT_H
@@ -48,11 +48,23 @@
 #include "xAODForward/versions/AFPTrackAuxContainer_v2.h"
 #include "xAODForward/versions/AFPTrack_v2.h"
 
+#include "xAODForward/AFPToFTrackContainer.h"
+#include "xAODForward/AFPToFTrackAuxContainer.h"
+#include "xAODForward/versions/AFPToFTrackContainer_v1.h"
+#include "xAODForward/versions/AFPToFTrackAuxContainer_v1.h"
+#include "xAODForward/versions/AFPToFTrack_v1.h"
+
 #include "xAODForward/AFPProtonContainer.h"
 #include "xAODForward/AFPProtonAuxContainer.h"
 #include "xAODForward/versions/AFPProtonContainer_v1.h"
 #include "xAODForward/versions/AFPProtonAuxContainer_v1.h"
 #include "xAODForward/versions/AFPProton_v1.h"
+
+#include "xAODForward/AFPVertexContainer.h"
+#include "xAODForward/AFPVertexAuxContainer.h"
+#include "xAODForward/versions/AFPVertexContainer_v1.h"
+#include "xAODForward/versions/AFPVertexAuxContainer_v1.h"
+#include "xAODForward/versions/AFPVertex_v1.h"
 
 #include "xAODForward/ZdcModuleContainer.h"
 #include "xAODForward/ZdcModuleAuxContainer.h"
@@ -86,6 +98,7 @@ namespace {
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPSiHitsClusterContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPTrackContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPTrackContainer_v2 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPToFTrackContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPProtonContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, ALFADataContainer_v1 );

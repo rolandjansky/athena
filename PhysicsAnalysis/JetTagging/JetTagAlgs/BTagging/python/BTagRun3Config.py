@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
@@ -73,7 +74,7 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlo
     result=ComponentAccumulator()
 
     # Can only configure b-tagging for collisions; not cosmics, etc.
-    if inputFlags.Beam.Type != 'collisions':
+    if inputFlags.Beam.Type is not BeamType.Collisions:
         return result
 
     taggerList = inputFlags.BTagging.run2TaggersList
@@ -128,8 +129,8 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
     }
 
     #Track Association
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", "TracksForBTagging", **kwargs))
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "Muons", "MuonsForBTagging", **kwargs))
+    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "InDetTrackParticles", "TracksForBTagging", **kwargs))
+    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "Muons", "MuonsForBTagging", **kwargs))
 
     for sv in SecVertexers:
         result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "PrimaryVertices", sv, "TracksForBTagging"))

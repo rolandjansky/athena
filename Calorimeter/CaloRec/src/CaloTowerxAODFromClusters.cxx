@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,6 +32,12 @@ StatusCode CaloTowerxAODFromClusters::initialize() {
 
 StatusCode CaloTowerxAODFromClusters::execute(const EventContext& ctx) const
 { 
+  const CellToTowerVec& cellToTower = getIndexCache(ctx);
+  if(cellToTower.empty()) {
+    ATH_MSG_ERROR( "Failed to compute the index cache");
+    return StatusCode::FAILURE;
+  }
+
   SG::ReadHandle<xAOD::CaloClusterContainer> inputClusterContainer(m_inputClusterContainerKey, ctx);
 
   SG::WriteHandle<xAOD::CaloTowerContainer> caloTowerContainer =
@@ -54,8 +60,8 @@ StatusCode CaloTowerxAODFromClusters::execute(const EventContext& ctx) const
       //Check it this cell is already part of reducedCellContainer
       if (!addedCellsMap.test(cellHash)) {
 	addedCellsMap.set(cellHash);
-	assert(cellHash<m_cellToTower.size());
-	const auto& c2ts=m_cellToTower[cellHash];
+	assert(cellHash<cellToTower.size());
+	const auto& c2ts=cellToTower[cellHash];
 	//Remember: A cell can contribute to more than one tower!
 	for (const cellToTower_t& c2t : c2ts) {
 	  (*caloTowerContainer)[c2t.m_towerIdx]->addEnergy(cell->e()*c2t.m_weight);

@@ -23,7 +23,8 @@ FastChain_tf.py --maxEvents 500 \
     --conditionsTag OFLCOND-RUN12-SDR-31 \
     --inputRDOFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RecoInputRefs/RDO_pileup_fastsim_fulldigi.pool.root' \
     --outputAODFile ${aodFile} \
-    --preExec "all:rec.doTrigger.set_Value_and_Lock(False)" \
+    --steering 'doRDO_TRIG' \
+    --athenaopts "all:--threads=1" \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 rc2=$?

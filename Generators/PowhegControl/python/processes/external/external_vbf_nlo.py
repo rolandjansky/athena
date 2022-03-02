@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 from .external_base import ExternalBase
@@ -49,6 +49,11 @@ class ExternalVBFNLO(ExternalBase):
         # Convert allowed decay mode into PROC_ID/DECAYMODE
         __vector_boson_type = self.decay_mode.split(">")[0].strip()
         __vector_boson_decay = self.decay_mode.split(" ")[2].replace("+", "").replace("-", "")
+        if __vector_boson_type in ["w+", "w-", "z"] and __vector_boson_decay == "tau":
+            logger.warning("Powheg/VBFNLO does support directly tau decays for VBF W, Z production")
+            logger.warning("Ask to generate muon decays and hack the LHE files - make sure to validate!")
+            __vector_boson_decay = "mu"
+            process.add_algorithm("mu2tau")
         # Add runcard entries
         VBF_runcard_entries = [("PROC_ID", {"z": 120, "w+": 130, "w-": 140}[__vector_boson_type], "{} boson".format(__vector_boson_type)),
                                ("DECAYMODE", {"e": 11, "mu": 13}[__vector_boson_decay], self.decay_mode),

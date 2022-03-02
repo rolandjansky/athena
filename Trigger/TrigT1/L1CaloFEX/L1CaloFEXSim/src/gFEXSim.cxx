@@ -49,6 +49,7 @@ namespace LVL1 {
       ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
       ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
       ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+      ATH_CHECK(m_l1MenuKey.initialize());
       return StatusCode::SUCCESS;
    }
 
@@ -58,8 +59,8 @@ namespace LVL1 {
 
 StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputCollection* gFEXOutputs){
 
-   typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
-   typedef  std::array<std::array<int, 7>, 32> gTowersForward;
+   typedef  std::array<std::array<int, FEXAlgoSpaceDefs::centralNeta>, FEXAlgoSpaceDefs::centralNphi> gTowersCentral;
+   typedef  std::array<std::array<int, FEXAlgoSpaceDefs::forwardNeta>, FEXAlgoSpaceDefs::centralNphi> gTowersForward;
 
    int rows = tmp_gTowersIDs_subset.size();
    int cols = tmp_gTowersIDs_subset[0].size();
@@ -76,9 +77,9 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    //FPGA A----------------------------------------------------------------------------------------------------------------------------------------------
    gTowersCentral tmp_gTowersIDs_subset_centralFPGA;
    memset(&tmp_gTowersIDs_subset_centralFPGA, 0, sizeof tmp_gTowersIDs_subset_centralFPGA);
-   for (int myrow = 0; myrow<32; myrow++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
       for (int mycol = 0; mycol<12; mycol++){
-         tmp_gTowersIDs_subset_centralFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+7];
+         tmp_gTowersIDs_subset_centralFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+8];
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(0));
@@ -90,9 +91,9 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    //FPGA B----------------------------------------------------------------------------------------------------------------------------------------------
    gTowersCentral tmp_gTowersIDs_subset_centralFPGA_B;
    memset(&tmp_gTowersIDs_subset_centralFPGA_B, 0, sizeof tmp_gTowersIDs_subset_centralFPGA_B);
-   for (int myrow = 0; myrow<32; myrow++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
       for (int mycol = 0; mycol<12; mycol++){
-         tmp_gTowersIDs_subset_centralFPGA_B[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+19];
+         tmp_gTowersIDs_subset_centralFPGA_B[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+20];
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(1));
@@ -103,19 +104,19 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    //FPGA C-P ----------------------------------------------------------------------------------------------------------------------------------------------
-   //Use a matrix with 32 rows, even if FPGA-C (positive) mostly deals with regions of 16 bins in phi.
-   //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
-   //but we fill half of it in the region 2.8<|eta|<4.8.
+   //Use a matrix with 32 rows, even if FPGA-C (positive) also deals with regions of 16 bins in phi (those connected to FCAL).
+   //We have 4 columns with 32 rows and 4 columns with 16 rows for each FPGA-C.
+   //So we use a matrix 32x8 but we fill only half of it in the region 3.3<|eta|<4.8.
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA;
    memset(&tmp_gTowersIDs_subset_forwardFPGA, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA);
-   for (int myrow = 0; myrow<32; myrow++){
-      for (int mycol = 0; mycol<1; mycol++){
-         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+31];
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
+      for (int mycol = 0; mycol<4; mycol++){
+         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+32];
       }
    }
-   for (int myrow = 0; myrow<16; myrow++){
-      for (int mycol = 1; mycol<7; mycol++){
-         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+31];
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::forwardNphi; myrow++){
+      for (int mycol = 4; mycol<8; mycol++){
+         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+32];
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(2));
@@ -126,18 +127,18 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------
-   //Use a matrix with 32 rows, even if FPGA-C (negative) mostly deals with regions of 16 bins in phi.
-   //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
-   //but we fill half of it in the region 2.8<|eta|<4.8.
+   //Use a matrix with 32 rows, even if FPGA-N (negative) also deals with regions of 16 bins in phi (those connected to FCAL).
+   //We have 4 columns with 32 rows and 4 columns with 16 rows for each FPGA-C.
+   //So we use a matrix 32x8 but we fill only half of it in the region 3.3<|eta|<4.8.
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA_N;
    memset(&tmp_gTowersIDs_subset_forwardFPGA_N, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA_N);
-   for (int myrow = 0; myrow<16; myrow++){
-      for (int mycol = 0; mycol<6; mycol++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::forwardNphi; myrow++){
+      for (int mycol = 0; mycol<4; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA_N[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol];
       }
    }
-   for (int myrow = 0; myrow<32; myrow++){
-      for (int mycol = 6; mycol<7; mycol++){
+   for (int myrow = 0; myrow<FEXAlgoSpaceDefs::centralNphi; myrow++){
+      for (int mycol = 4; mycol<8; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA_N[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol];
       }
    }
@@ -147,10 +148,57 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    m_gFEXFPGA_Tool->reset();
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+   // Retrieve the L1 menu configuration
+   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+   ATH_CHECK(l1Menu.isValid());
+
+   //Parameters related to gLJ (large-R jet objects - gJet)
+   auto & thr_gLJ = l1Menu->thrExtraInfo().gLJ();
+   int gLJ_seedThrA = 0;
+   int gLJ_seedThrB = 0;
+   gLJ_seedThrA = thr_gLJ.seedThr('A'); //defined in GeV by default
+   gLJ_seedThrA = gLJ_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gLJ_seedThrB = thr_gLJ.seedThr('B'); //defined in GeV by default
+   gLJ_seedThrB = gLJ_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   int gLJ_ptMinToTopoCounts1 = 0;
+   int gLJ_ptMinToTopoCounts2 = 0;
+   gLJ_ptMinToTopoCounts1 = thr_gLJ.ptMinToTopoCounts(1); 
+   gLJ_ptMinToTopoCounts2 = thr_gLJ.ptMinToTopoCounts(2); 
+   float gLJ_rhoMaxA = 0;
+   float gLJ_rhoMaxB = 0;
+   float gLJ_rhoMinA = 0;
+   float gLJ_rhoMinB = 0;
+   // gLJ_rhoMaxA = (thr_gLJ.rhoTowerMax('A'));//Not using these values from Trigger Menu at the moment, as they are not defined correctly 
+   // gLJ_rhoMaxB = (thr_gLJ.rhoTowerMax('B'));//Also note that values in Trigger Menu are in GeV, while here gTowers are in 200 MeV scale
+   // gLJ_rhoMinA = (thr_gLJ.rhoTowerMin('A'));
+   // gLJ_rhoMinB = (thr_gLJ.rhoTowerMin('B'));
+   
+   //Temporary defining parameters for rho 
+   gLJ_rhoMaxA = 250;
+   gLJ_rhoMaxB = 250;
+   gLJ_rhoMinA = 0;
+   gLJ_rhoMinB = 0;
+
+   
+
+   //Parameters related to gJ (small-R jet objects - gBlock)
+   auto & thr_gJ = l1Menu->thrExtraInfo().gJ();
+   int gJ_ptMinToTopoCounts1 = 0;
+   int gJ_ptMinToTopoCounts2 = 0;
+   gJ_ptMinToTopoCounts1 = thr_gJ.ptMinToTopoCounts(1); 
+   gJ_ptMinToTopoCounts2 = thr_gJ.ptMinToTopoCounts(2); 
+
+
    int pucA = 0;
    int pucB = 0;
-   int seedThreshold = 0;
+   //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
    int jetThreshold = 0;
+
+   if (FEXAlgoSpaceDefs::ENABLE_PUC){
+   m_gFEXJetAlgoTool->pileUpCalculation(Atwr, gLJ_rhoMaxA, gLJ_rhoMinA,  4,  pucA);
+   m_gFEXJetAlgoTool->pileUpCalculation(Btwr, gLJ_rhoMaxB, gLJ_rhoMinB,  4,  pucB);
+   }
 
    // The output TOBs, to be filled by the gFEXJetAlgoTool
    std::array<uint32_t, 7> ATOB1_dat = {0};
@@ -161,10 +209,11 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    // Use the gFEXJetAlgoTool
 
    // Pass the energy matrices to the algo tool, and run the algorithms
-   auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr,
-                                                 pucA, pucB, seedThreshold, jetThreshold,
-                                                 ATOB1_dat, ATOB2_dat,
-                                                 BTOB1_dat, BTOB2_dat);
+   auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr, pucA, pucB, 
+                                                gLJ_seedThrA, gLJ_seedThrB, gJ_ptMinToTopoCounts1, gJ_ptMinToTopoCounts2, 
+                                                jetThreshold, gLJ_ptMinToTopoCounts1, gLJ_ptMinToTopoCounts2,
+                                                ATOB1_dat, ATOB2_dat,
+                                                BTOB1_dat, BTOB2_dat);
 
    m_gRhoTobWords.resize(2);
    m_gBlockTobWords.resize(8);
@@ -194,9 +243,28 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    // Use the gFEXJetAlgoTool
    std::array<uint32_t, 4> outTOB = {0};
 
-   m_gFEXJwoJAlgoTool->setAlgoConstant(FEXAlgoSpaceDefs::aFPGA_A, FEXAlgoSpaceDefs::bFPGA_A,
-                                       FEXAlgoSpaceDefs::aFPGA_B, FEXAlgoSpaceDefs::bFPGA_B,
-                                       FEXAlgoSpaceDefs::gblockThreshold);
+   //Parameters related to gXE (JwoJ MET objects)
+   auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
+   int gXE_seedThrA = 0;
+   int gXE_seedThrB = 0;
+   gXE_seedThrA = thr_gXE.seedThr('A'); //defined in GeV by default
+   gXE_seedThrA = gXE_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gXE_seedThrB = thr_gXE.seedThr('B'); //defined in GeV by default
+   gXE_seedThrB = gXE_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+
+   unsigned int aFPGA_A = 0;
+   unsigned int bFPGA_A = 0;
+   unsigned int aFPGA_B = 0;
+   unsigned int bFPGA_B = 0;
+   aFPGA_A = thr_gXE.JWOJ_param('A','a');
+   bFPGA_A = thr_gXE.JWOJ_param('A','b');
+   aFPGA_B = thr_gXE.JWOJ_param('B','a');
+   bFPGA_B = thr_gXE.JWOJ_param('B','b');
+   
+
+   m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
+                                       aFPGA_B, bFPGA_B,
+                                       gXE_seedThrA, gXE_seedThrB);
 
    auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
 
