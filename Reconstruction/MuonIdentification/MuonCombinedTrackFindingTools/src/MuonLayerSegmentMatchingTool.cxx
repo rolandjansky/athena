@@ -22,7 +22,8 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    bool MuonLayerSegmentMatchingTool::match(const EventContext& ctx, const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment) const {
+    bool MuonLayerSegmentMatchingTool::match(const EventContext& ctx, const MuonSystemExtension::Intersection& intersection,
+                                             const MuonSegment& segment) const {
         if (msgLvl(MSG::VERBOSE)) {
             std::shared_ptr<const Trk::TrackParameters> pars = intersection.trackParameters;
             msg(MSG::VERBOSE) << " startPars: phi " << pars->position().phi() << " r " << pars->position().perp() << " z "
@@ -33,14 +34,14 @@ namespace Muon {
             msg(MSG::VERBOSE) << endmsg;
         }
 
-        std::shared_ptr<Trk::TrackParameters> exPars(
-            m_extrapolator->extrapolate(ctx,*intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
+        std::shared_ptr<Trk::TrackParameters> exPars(m_extrapolator->extrapolate(
+            ctx, *intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
         if (!exPars) {
             ATH_MSG_VERBOSE(" extrapolation failed ");
             return false;
         }
 
-       std::shared_ptr<Trk::AtaPlane> ataPlane = std::dynamic_pointer_cast<Trk::AtaPlane>(exPars);
+        std::shared_ptr<Trk::AtaPlane> ataPlane = std::dynamic_pointer_cast<Trk::AtaPlane>(exPars);
         if (!ataPlane) {
             ATH_MSG_WARNING(" dynamic_cast<> failed ");
             return false;
@@ -80,7 +81,7 @@ namespace Muon {
     void MuonLayerSegmentMatchingTool::select(const MuonSystemExtension::Intersection& intersection,
                                               const std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
                                               std::vector<std::shared_ptr<const Muon::MuonSegment> >& selectedSegments) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();       
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // loop over segments and match them to the intersection
         for (const auto& segment : segments) {
             if (match(ctx, intersection, *segment)) { selectedSegments.push_back(segment); }

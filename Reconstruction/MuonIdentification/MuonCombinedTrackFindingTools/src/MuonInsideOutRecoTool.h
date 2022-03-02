@@ -19,6 +19,7 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
@@ -26,7 +27,6 @@
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "xAODTracking/VertexContainer.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon {
     struct MuonCandidate;
@@ -62,8 +62,9 @@ namespace MuonCombined {
                             TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
         /** find the best candidate for a given set of segments */
-        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> findBestCandidate(const EventContext& ctx,
-            const xAOD::TrackParticle& indetTrackParticle, const std::vector<Muon::MuonLayerRecoData>& allLayers) const;
+        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> findBestCandidate(
+            const EventContext& ctx, const xAOD::TrackParticle& indetTrackParticle,
+            const std::vector<Muon::MuonLayerRecoData>& allLayers) const;
 
     private:
         /** handle a single candidate */
@@ -73,8 +74,8 @@ namespace MuonCombined {
 
         /** add muon candidate to indet candidate */
         void addTag(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
-                    const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack, TrackCollection* combTracks, TrackCollection* meTracks,
-                    Trk::SegmentCollection* segments) const;
+                    const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack, TrackCollection* combTracks,
+                    TrackCollection* meTracks, Trk::SegmentCollection* segments) const;
 
         /** access data in layer */
         bool getLayerData(const Muon::MuonLayerSurface& surf, Muon::MuonLayerPrepRawData& layerPrepRawData,
@@ -82,12 +83,11 @@ namespace MuonCombined {
 
         /** access data in layer for a given technology */
         template <class COL>
-        bool getLayerDataTech(Muon::MuonStationIndex::TechnologyIndex technology,
-                              const Muon::MuonLayerSurface& surf,
+        bool getLayerDataTech(Muon::MuonStationIndex::TechnologyIndex technology, const Muon::MuonLayerSurface& surf,
                               const Muon::MuonPrepDataContainer<COL>* input, std::vector<const COL*>& output) const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+        ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                               "Handle to the service providing the IMuonEDMHelperSvc interface"};
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<Muon::IMuonLayerSegmentFinderTool> m_segmentFinder{this, "MuonLayerSegmentFinderTool",

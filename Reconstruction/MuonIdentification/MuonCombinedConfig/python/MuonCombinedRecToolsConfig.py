@@ -1033,10 +1033,7 @@ def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
     return result
 
 def MuonCandidateTrackBuilderToolCfg(flags, name="MuonCandidateTrackBuilderTool", **kwargs):
-    from MuonConfig.MuonTrackBuildingConfig import MooTrackBuilderCfg
-    result = MooTrackBuilderCfg(flags, name="MooMuonTrackBuilder")
-    kwargs.setdefault("MuonSegmentTrackBuilder", result.getPrimary())
-
+    result = ComponentAccumulator()
     acc = CombinedMuonTrackBuilderCfg(flags)
     combined_muon_track_builder = acc.getPrimary()
     kwargs.setdefault("MuonTrackBuilder", combined_muon_track_builder)
