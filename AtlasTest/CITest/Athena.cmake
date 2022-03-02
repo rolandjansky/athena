@@ -63,7 +63,7 @@ atlas_add_citest( RecoRun2MC_CAConfig
    SCRIPT RunWorkflowTests_Run2.py --CI -r -w MCReco -e '--CA --maxEvents 5' --no-output-checks )
 
 atlas_add_citest( RecoRun3MC
-   SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25' --no-output-checks )
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoRun3MC.sh )
 
 atlas_add_citest( RecoRun3MC_CAConfig
    SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--CA --maxEvents 5' --no-output-checks )
