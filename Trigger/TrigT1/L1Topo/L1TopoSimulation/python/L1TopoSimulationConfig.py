@@ -61,6 +61,13 @@ def L1TopoSimulationCfg(flags):
     emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
     jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
     energyProvider = CompFactory.LVL1.EnergyInputProviderFEX("EnergyInputProviderFEX")
+    if not flags.Trigger.enableL1CaloPhase1:
+        emtauProvider.eFexEMRoIKey = ""
+        emtauProvider.eFexTauRoIKey = ""
+        jetProvider.jFexSRJetRoIKey = ""
+        jetProvider.jFexLRJetRoIKey = ""
+        jetProvider.jFexTauRoIKey = ""
+        energyProvider.jFexMETRoIKey = ""
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,
