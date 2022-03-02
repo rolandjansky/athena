@@ -142,10 +142,9 @@ def TrigComboHypoToolFromDict(chainDict):
  
         if len(chainDict['extraComboHypos'])==1:#to avoid breaking changes in the ref files
             monToolName = "MonTool_"+chainName
-            histNameTag = var
         else:
             monToolName = f"MonTool_{chainName}_{chainDict['extraComboHypos'][iTopo]}"
-            histNameTag = f"{var}leg{i_legA:03d}leg{i_legB:03d}"
+        histNameTag = var
         monTool = GenericMonitoringTool(monToolName)
         monTool.Histograms = [defineHistogram(histNameTag+'OfAccepted', type='TH1F', path='EXPERT',
                                               title=var+" in accepted combinations; {}".format(var),
@@ -163,7 +162,8 @@ def TrigComboHypoToolFromDict(chainDict):
         if len(chainDict['extraComboHypos'])==1:#to avoid breaking changes in the ref files
             monTool.HistPath = f'ComboHypo/{chainName}'
         else:
-            monTool.HistPath = f'ComboHypo/{chainName}_detail_{histNameTag}'
+            subDirNameTag    = f"{var}leg{i_legA:03d}leg{i_legB:03d}"
+            monTool.HistPath = f'ComboHypo/{chainName}/detail_{subDirNameTag}'
 
         # Set keys of dict to match tool config properties
         singleTopoDef = {
