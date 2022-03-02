@@ -26,11 +26,13 @@ namespace top {
 
     m_calibrationPeriodTool("CP::MuonCalibrationPeriodTool"),
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto"),
+    m_softmuonSelectionTool("CP::SoftMuonSelectionTool"),
     m_IFFTruthTool("TruthClassificationTool") {
     declareProperty("config", m_config);
 
     declareProperty("MuonCalibrationPeriodTool", m_calibrationPeriodTool);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
+    declareProperty("SoftMuonSelectionTool", m_softmuonSelectionTool);
     declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
   }
 
@@ -39,6 +41,7 @@ namespace top {
 
     top::check(m_calibrationPeriodTool.retrieve(), "Failed to retrieve muon calibration tool");
     top::check(m_muonSelectionToolVeryLooseVeto.retrieve(), "Failed to retrieve Selection Tool");
+    top::check(m_softmuonSelectionTool.retrieve(),"Failed to retrieve Selection Tool");
     if(m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
 
     ///-- Set Systematics Information --///
@@ -107,7 +110,7 @@ namespace top {
 
           // don't do the decorations unless the muons are at least Loose
           // this is because it may fail if the muons are at just VeryLoose
-          if (m_muonSelectionToolVeryLooseVeto->accept(*muon)) {
+          if (m_muonSelectionToolVeryLooseVeto->accept(*muon)||(m_config->softmuonUseLowPt() && m_softmuonSelectionTool->accept(*muon))) {
             double d0sig = xAOD::TrackingHelpers::d0significance(muon->primaryTrackParticle(),
                                                                  beam_pos_sigma_x,
                                                                  beam_pos_sigma_y,

@@ -50,11 +50,12 @@ namespace top {
     m_isolationTool_Loose_FixedRad("CP::IsolationTool_Loose_FixedRad"),
     m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
     m_IFFTruthTool("TruthClassificationTool"),
-
     m_isolationTool_PLImprovedTight("CP::IsolationTool_PLImprovedTight"),
     m_isolationTool_PLImprovedVeryTight("CP::IsolationTool_PLImprovedVeryTight"),
-
-    m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto") {
+    m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto"),
+    m_muonSelectionTool("CP::MuonSelectionTool"),
+    m_muonSelectionToolLoose("CP::MuonSelectionToolLoose")     
+    {
     declareProperty("config", m_config);
 
     declareProperty("MuonCalibrationPeriodTool", m_calibrationPeriodTool);
@@ -82,6 +83,8 @@ namespace top {
     declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
+    declareProperty("MuonSelectionTool", m_muonSelectionTool);
+    declareProperty("MuonSelectionToolLoose", m_muonSelectionToolLoose);
     declareProperty("IsolationTool_PLImprovedTight", m_isolationTool_PLImprovedTight);
     declareProperty("IsolationTool_PLImprovedVeryTight", m_isolationTool_PLImprovedVeryTight);
   }
@@ -115,6 +118,8 @@ namespace top {
     top::check(m_isolationTool_PLImprovedTight.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_PLImprovedVeryTight.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_muonSelectionToolVeryLooseVeto.retrieve(), "Failed to retrieve Selection Tool");
+    top::check(m_muonSelectionTool.retrieve(), "Failed to retrieve Selection Tool");
+    top::check(m_muonSelectionToolLoose.retrieve(), "Failed to retrieve Selection Tool");
     if (m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
 
     ///-- Set Systematics Information --///
@@ -138,7 +143,7 @@ namespace top {
 
     m_config->systematicsMuons(specifiedSystematics());
 
-    m_isFirstEvent = true;
+    m_isFirstCheckForLowPtMVA = true;
 
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker completed initialize");
     return StatusCode::SUCCESS;
@@ -189,18 +194,16 @@ namespace top {
 
       ///-- Loop over the xAOD Container and apply corrections--///
       for (auto muon : *(shallow_xaod_copy.first)) {
+        
         ///-- Check if chamberIndex is Available if UseMVALowPt is On in order to print some useful message before the
-        // crash
-        if (m_isFirstEvent) {
-          if ((m_config->muonUseMVALowPt() || m_config->muonUseMVALowPtLoose() || m_config->softmuonUseMVALowPt()) &&
-              !chamberIndex.isAvailable(*muon)) {
-            ATH_MSG_ERROR(
-              "MuonSegmentsAux.chamberIndex is not available in yout derivation so UseMVALowPt cannot be performed.");
+        if (m_isFirstCheckForLowPtMVA && (m_config->muonUseMVALowPt() || m_config->muonUseMVALowPtLoose() || m_config->softmuonUseMVALowPt()) && muon->nMuonSegments()>0 && muon->muonSegment(0) ) {
+          if (!chamberIndex.isAvailable(*(muon->muonSegment(0)))) {
+            ATH_MSG_ERROR("MuonSegmentsAuxDyn.chamberIndex is not available in your derivation, so UseMVALowPt cannot be performed.");
             ATH_MSG_ERROR("Please turn OFF UseMVALowPt or use more recent p-tag");
             ATH_MSG_ERROR("AnalysisTop will crash soon...");
             throw std::runtime_error("Missing MuonSegmentsAux.chamberIndex variable");
           }
-          m_isFirstEvent = false;
+          else m_isFirstCheckForLowPtMVA = false;
         }
 
         ///-- Apply momentum correction --///
@@ -209,7 +212,8 @@ namespace top {
 
           // don't do the decorations unless the muons are at least Loose
           // this is because it may fail if the muons are at just VeryLoose
-          if (m_muonSelectionToolVeryLooseVeto->accept(*muon)) {
+          if (m_muonSelectionToolVeryLooseVeto->accept(*muon) || (m_config->muonUseLowPt() && m_muonSelectionTool->accept(*muon))|| (m_config->muonUseLowPtLoose() && m_muonSelectionToolLoose->accept(*muon))) 
+          {
             double d0sig = xAOD::TrackingHelpers::d0significance(muon->primaryTrackParticle(),
                                                                  beam_pos_sigma_x,
                                                                  beam_pos_sigma_y,
