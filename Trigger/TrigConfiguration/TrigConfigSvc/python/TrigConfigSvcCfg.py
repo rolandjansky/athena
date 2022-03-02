@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -282,8 +282,7 @@ def L1PrescaleCondAlgCfg( flags ):
 
     tc = getTrigConfigFromFlag( flags )
     l1PrescaleCondAlg.Source = tc["SOURCE"]
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline():
+    if flags.Common.isOnline:
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         acc.merge(addFolders(flags, getL1PrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
         log.info("Adding folder %s to CompAcc", getL1PrescaleFolderName() )
@@ -340,8 +339,7 @@ def HLTPrescaleCondAlgCfg( flags ):
 
     tc = getTrigConfigFromFlag( flags )
     hltPrescaleCondAlg.Source = tc["SOURCE"]
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline() or tc["SOURCE"]=="COOL":
+    if flags.Common.isOnline or tc["SOURCE"]=="COOL":
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         acc.merge(addFolders(flags, getHLTPrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
         log.info("Adding folder %s to CompAcc", getHLTPrescaleFolderName() )
