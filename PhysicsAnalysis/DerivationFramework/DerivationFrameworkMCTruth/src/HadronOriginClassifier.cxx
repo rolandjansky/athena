@@ -46,11 +46,12 @@ namespace DerivationFramework{
           || m_DSID ==411233 || m_DSID==411234 //Powheg+H7.1.3 ttbar 
           || (m_DSID>=411329 && m_DSID<=411334) //Powheg+H7.1.3 ttbar HF-filtered
           || (m_DSID>=411335 && m_DSID<=411337) //Powheg+H7.1.3 ttbar HT-filtered
-          || m_DSID ==412116 || m_DSID==412117 //amc@NLO+H7.1.3 ttbar 
-          || m_DSID ==504329 || m_DSID==504333 || m_DSID==504337 || m_DSID==504341 || m_DSID==504345//amc@NLO+H7.2.1 refined ttZ
+          || m_DSID ==412116 || m_DSID == 412117 //amc@NLO+H7.1.3 ttbar 
+          || m_DSID ==504329 || m_DSID == 504333 || m_DSID == 504341 //amc@NLO+H7.2.1 refined ttZ
+	  || (m_DSID >= 601239 && m_DSID <= 601240)
           ){
       m_GenUsed=HerwigPP;
-      if (m_DSID==410245){
+      if (m_DSID==410245 || (m_DSID >= 601239 && m_DSID <= 601240)){
         m_ttbb=true;
       }
     }
