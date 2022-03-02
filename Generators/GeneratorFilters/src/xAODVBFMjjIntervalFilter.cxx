@@ -8,8 +8,6 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 #include "CLHEP/Random/RandomEngine.h"
-#include "EventInfo/EventInfo.h" // For setting the weight
-#include "EventInfo/EventType.h" // From event info - the real holder of the event weight
 #include "GaudiKernel/PhysicalConstants.h"
 
 // Pt  High --> Low
@@ -228,7 +226,12 @@ StatusCode xAODVBFMjjIntervalFilter::filterEvent()
             double existingWeight = (*mec)[i]->weights().size() > 0 ? (*mec)[i]->weights()[0] : 1.;
             if ((*mec)[i]->weights().size() > 0)
             {
-                (*mec)[i]->weights()[0] = existingWeight * eventWeight * m_norm;
+              for (unsigned int iw = 0; iw < (*mec)[i]->weights().size(); ++iw) {
+                 double existWeight = (*mec)[i]->weights()[iw];
+                 (*mec)[i]->weights()[iw] = existWeight * eventWeight * m_norm;
+              }
+//
+//                (*mec)[i]->weights()[0] = existingWeight * eventWeight * m_norm;
             }
             else
             {

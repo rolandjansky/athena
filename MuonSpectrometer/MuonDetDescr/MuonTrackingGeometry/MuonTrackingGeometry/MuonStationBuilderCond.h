@@ -44,16 +44,16 @@ namespace Muon {
     public:
         MuonStationBuilderCond(const std::string&, const std::string&, const IInterface*);
         virtual ~MuonStationBuilderCond() = default;
-        StatusCode initialize();
+        StatusCode initialize() override;
 
         std::pair<EventIDRange, std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume>>>>
-        buildDetachedTrackingVolumes(const EventContext& ctx, bool blend = false) const;
+        buildDetachedTrackingVolumes(const EventContext& ctx, bool blend = false) const override;
 
     private:
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-        const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumeTypes(
-            bool blend, const MuonGM::MuonDetectorManager* muonMgr) const;
+        std::vector<std::unique_ptr<Trk::DetachedTrackingVolume>> buildDetachedTrackingVolumeTypes(
+                                                                    bool blend, const MuonGM::MuonDetectorManager* muonMgr) const;
 
         void glueComponents(const Trk::DetachedTrackingVolume*) const;
         void encloseLayers(const Trk::DetachedTrackingVolume*) const;

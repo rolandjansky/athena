@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg, ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
 import InDetConfig.ITkTrackingCommonConfig as TC
 
@@ -28,7 +29,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     if (len(InputCollections) > 0) and flags.ITk.Tracking.ActivePass.usePrdAssociationTool:
         # not all classes have that property !!!
         kwargs.setdefault("PRDtoTrackMap", 'ITkPRDtoTrackMap'+ flags.ITk.Tracking.ActivePass.extension)
-    if not flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is not BeamType.Cosmics:
         kwargs.setdefault("maxRadius1", 0.75*flags.ITk.Tracking.ActivePass.radMax)
         kwargs.setdefault("maxRadius2", flags.ITk.Tracking.ActivePass.radMax)
         kwargs.setdefault("maxRadius3", flags.ITk.Tracking.ActivePass.radMax)
@@ -45,6 +46,11 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
         kwargs.setdefault("useStrip", False)
         if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
             kwargs.setdefault("usePixel", False)
+
+    if flags.ITk.Tracking.writeSeedValNtuple:
+        kwargs.setdefault("WriteNtuple", True)
+        HistService = CompFactory.THistSvc(Output = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"])
+        acc.addService(HistService)
 
     ITkSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
 
@@ -148,7 +154,7 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("Xi2max", flags.ITk.Tracking.ActivePass.Xi2max[0])
     kwargs.setdefault("Xi2maxNoAdd", flags.ITk.Tracking.ActivePass.Xi2maxNoAdd[0])
     kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.ActivePass.nWeightedClustersMin[0])
-    kwargs.setdefault("CosmicTrack", flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("CosmicTrack", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("Xi2maxMultiTracks", flags.ITk.Tracking.ActivePass.Xi2max[0])
     kwargs.setdefault("doMultiTracksProd", True)
     kwargs.setdefault("useBremModel", flags.Detector.EnableCalo and flags.ITk.Tracking.doBremRecovery and flags.ITk.Tracking.ActivePass.extension == "") # Disabled for second passes in reco
@@ -164,7 +170,7 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.ITk.Tracking.ActivePass.usePrdAssociationTool))
     kwargs.setdefault("ITKGeometry", True)
 
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_Cosmic')
 
     elif flags.ITk.Tracking.ActivePass.extension == "ConversionFinding":
@@ -280,7 +286,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
     kwargs.setdefault("AssociationTool" , ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
     kwargs.setdefault("UseParameterization" , False)
-    kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("Cosmics"             , flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("doPixelSplitting"    , flags.ITk.Tracking.doPixelClusterSplitting )
     kwargs.setdefault("doITk" , True)
 
@@ -323,7 +329,7 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
     #
     # --- set up different Scoring Tool for collisions and cosmics
     #
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
     else:
         ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
@@ -357,7 +363,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     #
     # --- set up different Scoring Tool for collisions and cosmics
     #
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
     else:
         ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))

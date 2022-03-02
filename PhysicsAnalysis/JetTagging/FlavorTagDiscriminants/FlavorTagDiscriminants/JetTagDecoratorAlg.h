@@ -24,6 +24,7 @@ namespace FlavorTagDiscriminants {
   {
   public:
     JetTagDecoratorAlg(const std::string& name, ISvcLocator* svcloc);
+    StatusCode initialize() override;
   };
 }
 

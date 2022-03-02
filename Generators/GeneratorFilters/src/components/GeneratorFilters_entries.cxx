@@ -8,6 +8,7 @@
 #include "GeneratorFilters/xAODDiLeptonMassFilter.h"
 #include "GeneratorFilters/xAODDirectPhotonFilter.h"
 #include "GeneratorFilters/xAODElectronFilter.h"
+#include "GeneratorFilters/xAODLeptonFilter.h"
 #include "GeneratorFilters/xAODLeptonPairFilter.h"
 #include "GeneratorFilters/xAODM4MuIntervalFilter.h"
 #include "GeneratorFilters/xAODMETFilter.h"
@@ -27,6 +28,8 @@
 #include "GeneratorFilters/xAODVBFForwardJetsFilter.h"
 #include "GeneratorFilters/xAODVBFMjjIntervalFilter.h"
 #include "GeneratorFilters/xAODXtoVVDecayFilterExtended.h"
+#include "GeneratorFilters/xAODForwardProtonFilter.h"
+
 
 
 // slimmers for 22.6
@@ -141,6 +144,7 @@ DECLARE_COMPONENT( xAODDecayTimeFilter )
 DECLARE_COMPONENT( xAODDiLeptonMassFilter )
 DECLARE_COMPONENT( xAODDirectPhotonFilter )
 DECLARE_COMPONENT( xAODElectronFilter )
+DECLARE_COMPONENT( xAODLeptonFilter ) 
 DECLARE_COMPONENT( xAODLeptonPairFilter )
 DECLARE_COMPONENT( xAODM4MuIntervalFilter )
 DECLARE_COMPONENT( xAODMETFilter)
@@ -160,6 +164,7 @@ DECLARE_COMPONENT( xAODTTbarWToLeptonFilter )
 DECLARE_COMPONENT( xAODVBFForwardJetsFilter )
 DECLARE_COMPONENT( xAODVBFMjjIntervalFilter )
 DECLARE_COMPONENT( xAODXtoVVDecayFilterExtended )
+
 
 //slimmers accepted for 22.6
 DECLARE_COMPONENT( PileupTruthParticleSlimmer )
@@ -196,6 +201,7 @@ DECLARE_COMPONENT( TTbarWithJpsimumuFilter )
 DECLARE_COMPONENT( VBFForwardJetsFilter )
 DECLARE_COMPONENT( VBFMjjIntervalFilter )
 DECLARE_COMPONENT( XtoVVDecayFilterExtended )
+DECLARE_COMPONENT( xAODForwardProtonFilter )
 
 // others
 DECLARE_COMPONENT( ElectronFilter )

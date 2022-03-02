@@ -1,5 +1,3 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
-from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
 from AthenaCommon.Configurable import Configurable
@@ -9,7 +7,6 @@ Configurable.configurableRun3Behavior = True
 
 ## Just enable ID for the moment.
 ConfigFlags.Input.isMC             = True
-ConfigFlags.Beam.Type = ''    
 
 ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"    
 ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"

@@ -1,15 +1,15 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewRecoCA
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewRecoCA
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFTrackIsolationHypoToolFromDict
 from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
-from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_Cfg, regSelTool_MDT_Cfg, regSelTool_CSC_Cfg
@@ -20,7 +20,7 @@ from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, Mdt
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
-from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
+from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg, MuonInDetToMuonSystemExtensionAlgCfg
 from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlgCfg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
 
@@ -43,12 +43,15 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
     EFMuonCBViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                                             ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                             ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                            ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                            ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
                                             ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
+    if flags.Detector.GeometryCSC:
+        EFMuonCBViewDataVerifier.DataObjects += [
+                                                ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                                ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if 'FS' in name:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
-    elif flags.Beam.Type != 'collisions':
+    elif flags.Beam.Type is not BeamType.Collisions:
         EFMuonCBViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
 
     else:
@@ -65,7 +68,7 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
     result.addEventAlgo(EFMuonCBViewDataVerifier)
     return result
 
-def EFMuonViewDataVerifierCfg(name='RoI'):
+def EFMuonViewDataVerifierCfg(flags, name='RoI'):
     EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon_"+name)
     EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                           ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EFMuMSReco_'+name+'RoIs' ),
@@ -73,9 +76,10 @@ def EFMuonViewDataVerifierCfg(name='RoI'):
                                           ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
                                           ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
                                           ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
-                                          ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
-                                          ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' )
-                                      ]
+                                          ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' )]
+    if flags.Detector.GeometryCSC:
+        EFMuonViewDataVerifier.DataObjects += [( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' )]
+
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
     return result
@@ -83,9 +87,11 @@ def EFMuonViewDataVerifierCfg(name='RoI'):
 def MuonInsideOutViewDataVerifierCfg(flags):
     MuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVMuInsideOut")
     MuonViewDataVerifier.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements'),
-                                        ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
-    if flags.Beam.Type != 'cosmics':
+                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements')]
+                                     
+    if flags.Detector.GeometryCSC:
+        MuonViewDataVerifier.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+    if flags.Beam.Type is not BeamType.Cosmics:
         MuonViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
 
 
@@ -93,7 +99,7 @@ def MuonInsideOutViewDataVerifierCfg(flags):
     result.addEventAlgo(MuonViewDataVerifier)
     return result
 
-def MuFastViewDataVerifier():
+def MuFastViewDataVerifier(flags):
     result = ComponentAccumulator()
     dataobjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                    ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
@@ -101,10 +107,10 @@ def MuFastViewDataVerifier():
                    ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
                    ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
                    ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
-                   ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
                    ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' )]
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.enableL1MuonPhase1:
+    if flags.Detector.GeometryCSC:
+        dataobjects += [( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' )]
+    if flags.Trigger.enableL1MuonPhase1:
         dataobjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
     else:
         dataobjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
@@ -128,13 +134,15 @@ def MuIsoViewDataVerifierCfg():
     result.addEventAlgo(alg)
     return result
 
-def MuDataPrepViewDataVerifierCfg():
+def MuDataPrepViewDataVerifierCfg(flags):
     result = ComponentAccumulator()
+    dataobjects = [( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
+                   ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ),
+                   ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
+    if flags.Detector.GeometryCSC:
+                       dataobjects += ( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' )
     alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuDataPrep",
-                                                 DataObjects = [( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' ),
-                                                                ( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
-                                                                ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ),
-                                                                ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )])
+                                                 DataObjects = dataobjects)
     result.addEventAlgo(alg)
     return result
 
@@ -207,14 +215,15 @@ def decodeCfg(flags, RoIs):
     RegSelTool_RPC = acc.popToolsAndMerge(regSelTool_RPC_Cfg(flags))
     RegSelTool_TGC = acc.popToolsAndMerge(regSelTool_TGC_Cfg(flags))
     RegSelTool_MDT = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
-    RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
+    if flags.Detector.GeometryCSC:
+        RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
 
     doSeededDecoding =True
     if 'FS' in RoIs:
         doSeededDecoding = False
 
     if flags.Input.isMC:
-        acc.merge(MuDataPrepViewDataVerifierCfg())
+        acc.merge(MuDataPrepViewDataVerifierCfg(flags))
     # Get RPC BS decoder
     if not flags.Input.isMC:
         rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
@@ -258,22 +267,23 @@ def decodeCfg(flags, RoIs):
     acc.merge( mdtAcc )
 
     # Get CSC BS decoder
-    if not flags.Input.isMC:
-        cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
-        cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
-        cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-        cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
+    if flags.Detector.GeometryCSC:
+        if not flags.Input.isMC:
+            cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
+            cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
+            cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
+            cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
+            acc.merge( cscAcc )
+
+        # Get CSC BS->RDO convertor
+        cscAcc = CscRDODecodeCfg( flags, name="CscRdoToCscPrepData_"+RoIs )
+        cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).RoIs = RoIs
+        cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
         acc.merge( cscAcc )
 
-    # Get CSC BS->RDO convertor
-    cscAcc = CscRDODecodeCfg( flags, name="CscRdoToCscPrepData_"+RoIs )
-    cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).RoIs = RoIs
-    cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
-    acc.merge( cscAcc )
-
-    # Get CSC cluster builder
-    cscAcc = CscClusterBuildCfg( flags, name="CscThresholdClusterBuilder_"+RoIs )
-    acc.merge( cscAcc )
+        # Get CSC cluster builder
+        cscAcc = CscClusterBuildCfg( flags, name="CscThresholdClusterBuilder_"+RoIs )
+        acc.merge( cscAcc )
 
     return acc
 
@@ -298,7 +308,7 @@ def _muFastStepSeq(flags):
     reco = InViewRecoCA("L2MuFastReco")
 
     #external data loading to view
-    reco.mergeReco( MuFastViewDataVerifier() )
+    reco.mergeReco( MuFastViewDataVerifier(flags) )
 
     # decoding
     decodeAcc = decodeCfg(flags, selAcc.name+"RoIs")
@@ -373,20 +383,12 @@ def _muEFSAStepSeq(flags, name='RoI'):
         roiTool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews")
         requireParentView = True
                                                          
-    viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
-                                                         ViewFallThrough = True,
-                                                         RequireParentView = requireParentView,
-                                                         RoIsLink        = 'initialRoI',
-                                                         RoITool         = roiTool,
-                                                         InViewRoIs      = viewName+'RoIs',
-                                                         Views           = viewName+'Views',
-                                                         ViewNodeName    = viewName+"InView")
-    recoMS = InViewRecoCA(name=viewName, viewMaker=viewMakerAlg)
+    recoMS = InViewRecoCA(name=viewName, RoITool = roiTool, RequireParentView = requireParentView)
     
     recoMS.merge(TrackingGeometrySvcCfg(flags))
     ###################
 
-    recoMS.mergeReco(EFMuonViewDataVerifierCfg(name))
+    recoMS.mergeReco(EFMuonViewDataVerifierCfg(flags, name))
 
     # decoding
     recoMS.mergeReco(decodeCfg(flags, selAccMS.name+"RoIs"))
@@ -476,7 +478,10 @@ def _muEFCBStepSeq(flags, name='RoI'):
         seqIOreco = parOR("muonInsideOutRecoSeq")
         acc.addSequence(seqIOreco, parentName=seqFilter.name)
         recoCB.mergeReco(MuonInsideOutViewDataVerifierCfg(flags))
-        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "IndetCandidates_"+name)
+        inDetExtensionCfg = MuonInDetToMuonSystemExtensionAlgCfg(flags, name="TrigInDetMuonExtensionAlg_"+name, InputInDetCandidates="InDetCandidates_"+name,
+                                                                 WriteInDetCandidates="InDetCandidatesSystemExtended_"+name)
+        acc.merge(inDetExtensionCfg, sequenceName=seqIOreco.name)
+        muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "InDetCandidatesSystemExtended_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
         insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
                                                    MuonContainerLocation = "MuonsInsideOut_"+name, SegmentContainerName = "xaodInsideOutCBSegments", 

@@ -180,10 +180,13 @@ class L1Menu(object):
         from collections import namedtuple
         ctpInput = namedtuple('ctpInput',"name, conn, nbit")
         ctpInputs = []
+        ctpUnusedInputs = []
         ctpOutputs = []
         thrNames = [] 
         ctpInputBitSets = dict()
         ctpInputNameSets = dict()
+        ctpUnusedInputBitSets = dict()
+        ctpUnusedInputNameSets = dict()
         for item in self.items:
             ctpOutputs.append(item.name)
             for thrName in item.thresholdNames():
@@ -191,20 +194,54 @@ class L1Menu(object):
                     thrName = thrName[3:]
                 if thrName not in thrNames:
                     thrNames.append(thrName)
+        thrNames_notFound = []
         for thrName in thrNames:
+            thrName_found = False
             for conn in self.connectors:
                 if conn.ctype != CType.ELEC:
                     for tl in conn.triggerLines:
                         if thrName == tl.name:
                             ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                            thrName_found = True
                 else:
                      for fpga in conn.triggerLines:
                         for clock in conn.triggerLines[fpga]:
                             for tl in conn.triggerLines[fpga][clock]:
                                 if thrName == tl.name:
                                     ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                                    thrName_found = True
+            if not thrName_found:
+                thrNames_notFound.append(thrName)
 
-        if len(thrNames) != len(ctpInputs):
+        for conn in self.connectors:
+            if conn.ctype != CType.ELEC:
+                for tl in conn.triggerLines:
+                    thrName = tl.name
+                    if thrName[:3]=='ZB_':
+                        thrName = thrName[3:]
+                    usedInput = False
+                    for ctpIn in ctpInputs:
+                       if thrName == ctpIn.name:
+                           usedInput = True
+                    if not usedInput:
+                       ctpUnusedInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+            else:
+                for fpga in conn.triggerLines:
+                    for clock in conn.triggerLines[fpga]:
+                        for tl in conn.triggerLines[fpga][clock]:
+                           thrName = tl.name
+                           if thrName[:3]=='ZB_':
+                               thrName = thrName[3:]
+                           usedInput = False
+                           for ctpIn in ctpInputs:
+                              if thrName == ctpIn.name:
+                                  usedInput = True
+                           if not usedInput:
+                              ctpUnusedInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+
+        if len(thrNames_notFound)>0:
+            log.error("Thresholds [%s] are not found", ",".join(thrNames_notFound)) 
+            log.error("Input thresholds are [%s]", ",".join([ input.name for input in ctpInputs]))
             raise RuntimeError("Not all input thresholds found!")
 
         for ctpIn in ctpInputs:
@@ -235,22 +272,58 @@ class L1Menu(object):
                 ctpInputNameSets[thrset].append(thrName)
                 ctpInputBitSets[thrset] += ctpIn.nbit
 
+        for ctpIn in ctpUnusedInputs:
+            thrset = None
+            thrName = ctpIn.name
+            if thrName[:2] in ['EM','HA','XE','TE','XS']:
+                thrset = 'legacyCalo'
+            elif thrName[:1]=='J':
+                thrset = 'legacyCalo'
+            elif thrName[:2]=='MU':
+                thrset = 'muon'
+            elif thrName[:3] in ['ALF', 'MBT','AFP','BCM','CAL','NIM','ZDC','BPT','LUC']:
+                thrset = 'detector'
+            elif thrName[:6]=='R2TOPO':
+                thrset = 'legacyTopo'
+            elif thrName[:1] in ['e','j','c','g']:
+                thrset = 'topo1'
+            elif thrName[:4]=='TOPO':
+                if 'Topo2' in ctpIn.conn:
+                    thrset = 'topo2'
+                elif 'Topo3' in ctpIn.conn:
+                    thrset = 'topo3'
+
+            if thrset not in ctpUnusedInputBitSets:
+                ctpUnusedInputBitSets[thrset] = 0
+                ctpUnusedInputNameSets[thrset] = []
+            if thrName not in ctpUnusedInputNameSets[thrset]:
+                ctpUnusedInputNameSets[thrset].append(thrName)
+                ctpUnusedInputBitSets[thrset] += ctpIn.nbit
+
         totalInputs = 0
         log.info("Check total number of CTP input and output bits:")
         log.info("Number of output bits: %i", len(ctpOutputs) )
         for thrset in ctpInputBitSets:
-            log.info("%s: %i thresholds and %i  bits", thrset, len(ctpInputNameSets[thrset]), ctpInputBitSets[thrset]  )
+            log.info("Used inputs in %s: %i thresholds and %i  bits", thrset, len(ctpInputNameSets[thrset]), ctpInputBitSets[thrset]  )
             if thrset is not None:
                 log.debug("Threshold set %s: %s", thrset, ",".join(ctpInputNameSets[thrset]) )
             else:
                 log.info("Unrecognised CTP input bits: %s", ",".join(ctpInputNameSets[thrset]) )
             totalInputs += ctpInputBitSets[thrset]
-        log.info("Number of inputs bits: %i" , totalInputs )
+        log.info("Number of used inputs bits: %i" , totalInputs )
+        totalUnusedInputs = 0
+        for thrset in ctpUnusedInputBitSets:
+            log.debug("Unused thresholds in %s: %i thresholds and %i  bits", thrset, len(ctpUnusedInputNameSets[thrset]), ctpUnusedInputBitSets[thrset]  )
+            if thrset is not None:
+                log.debug("Unused threshold set %s: %s", thrset, ",".join(ctpUnusedInputNameSets[thrset]) )
+            else:
+                log.debug("Unrecognised CTP input bits: %s", ",".join(ctpUnusedInputNameSets[thrset]) )
+            totalUnusedInputs += ctpUnusedInputBitSets[thrset]
+        log.debug("Number of un-used inputs bits: %i" , totalUnusedInputs )
 
         # Fail menu generation for menus going to P1:
-        if ( totalInputs > 512 or len(ctpOutputs) > 512 ):
-            if L1MenuFlags.ApplyCTPLimits():
-                raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than 512 in a physics menu!")
+        if ( totalInputs > Limits.MaxTrigItems or len(ctpOutputs) > Limits.MaxTrigItems ):
+            raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than %i in a physics menu!" % Limits.MaxTrigItems)
 
     # Avoid that L1 item is defined only for BGRP0 as this include also the CALREQ BGRP2 (ATR-24781)
     def checkBGRP(self):

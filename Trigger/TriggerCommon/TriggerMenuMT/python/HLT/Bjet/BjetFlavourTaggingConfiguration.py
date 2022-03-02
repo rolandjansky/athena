@@ -74,14 +74,14 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         # DL1d, uses IP3D dips above
         'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
 
-        # The following were the best offline R22 taggers according to
+        # The following were the best online R22 taggers according to
         #
         # https://ftag-docs.docs.cern.ch/algorithms/available_taggers/
         #
-        # R22 retraining for DIPS, provides dipsLoose20210729
-        'BTagging/20210729/dipsLoose/antikt4empflow/network.json',
-        # R22 retraining with the above DIPS, provides DL1dv00
-        'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json',
+        # R22 retraining for DIPS, provides dips20211116 with a loose track selection
+        'BTagging/20211216trig/dips/AntiKt4EMPFlow/network.json',
+        # R22 retraining with the above DIPS, provides DL1d20211216
+        'BTagging/20211216trig/dl1d/AntiKt4EMPFlow/network.json',
     ]
     for jsonFile in tagger_list:
         acc.merge(HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection=BTagName, TrackCollection=inputTracks, NNFile=jsonFile) )
@@ -120,23 +120,21 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     # Now we have to add an algorithm that tags the jets with dips
     # The input and output remapping is handled via a map in DL2.
     #
-    # The file above adds dipsLoose20210517_p*, we'll call them
+    # The file above adds fastDIPSnoPV20220211_p*, we'll call them
     # dips_p* on the jet.
-    nnFile = 'BTagging/20210517/dipsLoose/antikt4empflow/network.json'
+    nnFile = 'BTagging/20220211trig/fastDips/antikt4empflow/network.json'
     variableRemapping = {
         'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
-        **{f'dipsLoose20210517_p{x}': f'fastDips_p{x}' for x in 'cub'},
+        **{f'fastDIPSnoPV20220211_p{x}': f'fastDips_p{x}' for x in 'cub'},
         'btagIp_': trackIpPrefix,
     }
     # not all the keys that the NN requests are declaired. This will
     # cause an algorithm stall if we don't explicetly tell it that it
     # can ignore some of them.
     missingKeys = getStaticTrackVars(inputTracks)
-    # The 'jetLink' is a special special hack: it won't be used
-    # because we're tagging the jet directly here, but DL2 still
-    # reports it as a dependency.
-    missingKeys += [f'{jet_name}.jetLink']
+
     nnAlgoKey = nnFile.replace('/','_').split('.')[0]
+
     ca.addEventAlgo(
         CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
             name='_'.join([

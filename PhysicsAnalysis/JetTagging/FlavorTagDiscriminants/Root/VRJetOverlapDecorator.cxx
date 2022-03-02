@@ -76,7 +76,9 @@ VRJetOverlapDecorator::VRJetOverlapDecorator(const VRJetOverlapConfig& cfg):
 }
 
 void VRJetOverlapDecorator::decorate(const xAOD::JetContainer& jets) const {
-  if (jets.size() < 2) return;
+  // if no jet is present, do nothing
+  if (jets.empty() && m_param_source == VRJetParameters::EDM) return;
+
   VRConfig cfg;
   if (m_param_source == VRJetParameters::EDM) {
     // we'll assume all the jets have the same parameters, I don't

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
@@ -12,13 +12,13 @@ atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateL1MenuRun3.py
-                       scripts/trigCompareOldandNewL1Menus.py
-                       scripts/verify_menu_config.py                       
+                       scripts/verify_menu_config.py
                        scripts/generateBunchGroupSetFromOldKey.py
                        scripts/trigmenu_modify_prescale_json.py
                        scripts/extract_chain_from_json.py
                        scripts/runTriggerAPIExample.py
-                       scripts/generateUnprescaledLists.py                       
+                       scripts/generateUnprescaledLists.py
+                       scripts/test_menu_dump.py
                        POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Shell scripts without flake8 checking:
@@ -92,3 +92,8 @@ atlas_add_test( generateMenuMT_newJO
                 PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
+
+# test for menu name consistency
+atlas_add_test( test_menu_dump
+  SCRIPT test_menu_dump.py -p
+  POST_EXEC_SCRIPT nopost.sh )

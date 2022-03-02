@@ -31,7 +31,7 @@ include( "AtlasGeoModel/GeoModelCommon.py" )
 
 
 theApp.ExtSvc += ["AtRndmGenSvc"]
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 RndmGenSvc = AtRndmGenSvc()
 RndmGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 ServiceMgr += RndmGenSvc

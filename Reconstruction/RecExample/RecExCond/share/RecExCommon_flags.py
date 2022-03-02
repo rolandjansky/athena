@@ -500,10 +500,6 @@ else:
    if(pos>-1):
       rec.LCGCMTVersion=myathpath[pos+7:pos+10]
 
-if rec.doTrigger():
-   from TriggerJobOpts.TriggerFlags import sync_Trigger2Reco
-   sync_Trigger2Reco()
-
 del _AODFlagsAvailable
 
 if len(rec.UserFlags())>0:

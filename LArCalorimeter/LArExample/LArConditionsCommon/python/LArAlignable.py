@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Job options needed to enable LAr alignment
 
 from AthenaCommon.DetFlags import DetFlags
 import os
-activateCondAlgs = (not DetFlags.simulate.any_on() or DetFlags.overlay.any_on()) and "AthSimulation_DIR" not in os.environ
+activateCondAlgs = "AthSimulation_DIR" not in os.environ
 
 from IOVDbSvc.CondDB import conddb
 

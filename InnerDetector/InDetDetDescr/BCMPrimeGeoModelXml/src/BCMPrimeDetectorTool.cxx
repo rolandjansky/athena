@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCMPrimeDetectorFactory.h"
@@ -28,7 +28,7 @@ StatusCode BCMPrimeDetectorTool::create()
   // Get the detector configuration.
   ATH_CHECK(m_geoDbTagSvc.retrieve());
   ATH_CHECK(m_rdbAccessSvc.retrieve());
-  GeoModelExperiment *theExpt;
+  GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
   //

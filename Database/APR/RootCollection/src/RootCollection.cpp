@@ -25,6 +25,8 @@
 #include "TMessage.h"
 #include "TDirectory.h"
 
+#include "boost/algorithm/string/predicate.hpp"
+
 #define corENDL coral::MessageStream::endmsg
 
 #include <map>
@@ -68,13 +70,13 @@ namespace pool {
 	m_metadata( 0 ),
 	m_fileMgr( 0 )
     {
-       open();
+       RootCollection::open();
     }
 
      
      RootCollection::~RootCollection()
      {
-        if( m_open ) close();
+        if( m_open ) RootCollection::close();
         else cleanup();
      }
 
@@ -212,7 +214,7 @@ namespace pool {
       if( m_open ) close();
 
       if( !m_fileCatalog
-        && m_fileName.find("PFN:") == 0
+        && boost::starts_with (m_fileName, "PFN:")
         && m_description.connection().empty() )
       {
         // special case with no catalog and PFN specified

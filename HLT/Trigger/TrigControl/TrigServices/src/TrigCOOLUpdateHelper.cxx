@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -193,6 +193,12 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
 //=========================================================================
 StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
 {
+  // Extract COOL folder updates from CTP fragment
+  if ( extractFolderUpdates(ctx).isFailure() ) {
+    ATH_MSG_ERROR("Failure reading CTP extra payload");
+    return StatusCode::FAILURE;
+  }
+
   // Loop over folders to be updated
   for (auto& [idx, f] : m_folderUpdates) {
           
@@ -263,9 +269,9 @@ StatusCode TrigCOOLUpdateHelper::getFolderName(CTPfragment::FolderIndex idx, std
 
 
 //=========================================================================
-// Schedule COOL folder updates (called on every event by HltEventLoopMgr)
+// Extract COOL folder updates from CTP fragment
 //=========================================================================
-StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
+StatusCode TrigCOOLUpdateHelper::extractFolderUpdates(const EventContext& ctx)
 {
   using CTPfragment::FolderIndex;
   using CTPfragment::FolderEntry;

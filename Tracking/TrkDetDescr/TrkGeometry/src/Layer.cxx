@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -147,8 +147,7 @@ const Trk::Surface* Trk::Layer::subSurfaceReference(unsigned int idx) const {
   const Trk::Surface* referenceSurface = nullptr;
   if (m_surfaceArray) {
     // get a reference surface
-    const std::vector<const Trk::Surface*>& surfaces =
-        m_surfaceArray->arrayObjects();
+    Trk::BinnedArraySpan<Trk::Surface const * const> surfaces =  std::as_const(*m_surfaceArray).arrayObjects();
     // get a reference surface
     unsigned int rfSurfaces = surfaces.size();
     if (idx && idx < rfSurfaces) return surfaces[idx];
@@ -205,8 +204,7 @@ const Trk::MaterialProperties* Trk::Layer::fullUpdateMaterialProperties(
 bool Trk::Layer::needsMaterialProperties() const {
   //!< @todo this is temporary
   if (m_surfaceArray) {
-    const std::vector<const Trk::Surface*>& surfaces =
-        m_surfaceArray->arrayObjects();
+    Trk::BinnedArraySpan<Trk::Surface const * const > surfaces = std::as_const(*m_surfaceArray).arrayObjects();
     for (const auto& sIter : surfaces) {
       if (sIter && sIter->materialLayer() &&
           (sIter->materialLayer())->layerMaterialProperties())
@@ -224,7 +222,9 @@ void Trk::Layer::assignMaterialProperties(const LayerMaterialProperties& prop,
   if (scale != 1.0) (*(m_layerMaterialProperties.get())) *= scale;
 }
 
-void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
+void
+Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const
+{
   // set the layer surface representation
   ++tSurfaces;
   if (surfaceRepresentation().owner() == Trk::noOwn) {
@@ -233,9 +233,8 @@ void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
   }
   // set the subsurface representation, usually already owned by DetElement
   if (m_surfaceArray) {
-    const std::vector<const Trk::Surface*>& surfaces =
-        m_surfaceArray->arrayObjects();
-    for (const auto *sIter : surfaces) {
+    BinnedArraySpan<Trk::Surface const * const> surfaces = m_surfaceArray->arrayObjects();
+    for (const auto* sIter : surfaces) {
       if (sIter && (*sIter).owner() == Trk::noOwn) {
         const_cast<Trk::Surface&>((*sIter)).setOwner(Trk::TGOwn);
         ++cSurfaces;

@@ -38,6 +38,13 @@
 #include "GeneratorObjectsTPCnv/McEventCollection_p5.h"
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p5.h"
 
+#include "GeneratorObjectsTPCnv/GenParticle_p6.h"
+#include "GeneratorObjectsTPCnv/GenVertex_p6.h"
+#include "GeneratorObjectsTPCnv/GenEvent_p6.h"
+#include "GeneratorObjectsTPCnv/McEventCollection_p6.h"
+#include "GeneratorObjectsTPCnv/McEventCollectionCnv_p6.h"
+
+
 DECLARE_TPCNV_FACTORY(McEventCollectionCnv_p1,
                       McEventCollection,
                       McEventCollection_p1,
@@ -62,3 +69,8 @@ DECLARE_TPCNV_FACTORY(McEventCollectionCnv_p5,
                       McEventCollection,
                       McEventCollection_p5,
                       Athena::TPCnvVers::Current)
+
+DECLARE_TPCNV_FACTORY(McEventCollectionCnv_p6,
+                      McEventCollection,
+                      McEventCollection_p6,
+                      Athena::TPCnvVers::Old)

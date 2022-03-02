@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -65,19 +65,19 @@ using namespace InDetDD;
 SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, const std::string &name,
                                                      const IInterface* parent):
   PileUpToolBase(type, name, parent),
-  m_thpcsi(NULL),
+  m_thpcsi(nullptr),
   m_rndmSvc("AtRndmGenSvc",name),
-  m_pixel_ID(0),
-  m_sct_ID(0),
-  m_randomEngine(0),
+  m_pixel_ID(nullptr),
+  m_sct_ID(nullptr),
+  m_randomEngine(nullptr),
   m_randomEngineName("SiSmearedDigitization"),
   m_pitch_X(0),
   m_pitch_Y(0),
   m_merge(false),
   m_nSigma(0.),
   m_useDiscSurface(false),
-  m_pixelClusterContainer(0),
-  m_sctClusterContainer(0),
+  m_pixelClusterContainer(nullptr),
+  m_sctClusterContainer(nullptr),
   m_mergeSvc("PileUpMergeSvc",name),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
@@ -86,9 +86,9 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_SmearPixel(true), //true: smear pixel --- false: smear SCT
   m_emulateAtlas(true), // error rotation for endcap SCT
   m_checkSmear(false),
-  m_thistSvc(NULL),
-  m_outputFile(NULL),
-  m_currentTree(NULL),
+  m_thistSvc(nullptr),
+  m_outputFile(nullptr),
+  m_currentTree(nullptr),
   m_x_pixel(0),
   m_y_pixel(0),
   m_x_exit_pixel(0),
@@ -295,7 +295,7 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
@@ -331,7 +331,7 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents(const EventContext& ct
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel processAllSubEvents() ---" );
 
-  InDet::SiClusterContainer* symSiContainer=0;
+  InDet::SiClusterContainer* symSiContainer=nullptr;
 
   if(m_SmearPixel){ // Smear Pixel
     m_pixelClusterContainer = new InDet::PixelClusterContainer(m_pixel_ID->wafer_hash_max());
@@ -395,7 +395,7 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents(const EventContext& ct
   }
 
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
 
   m_simHitColl = new SiHitCollection;
 
@@ -493,7 +493,7 @@ StatusCode SiSmearedDigitizationTool::retrieveTruth(){
 }
 
 template<typename CLUSTER>
-StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * map, CLUSTER * cluster, TimedHitPtr<SiHit> hit){
+StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * map, CLUSTER * cluster, const TimedHitPtr<SiHit>& hit){
 
   ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << hit->particleLink());
   if (hit->particleLink().isValid()){
@@ -538,10 +538,10 @@ double SiSmearedDigitizationTool::calculateDistance(CLUSTER * clusterA, CLUSTER 
 template<typename CLUSTER>
 double SiSmearedDigitizationTool::calculateSigma(CLUSTER * clusterA, CLUSTER * clusterB){
   // take needed information on the first cluster
-  Amg::MatrixX clusterErr_a = clusterA->localCovariance();
+  const Amg::MatrixX& clusterErr_a = clusterA->localCovariance();
 
   // take needed information on the second clusters
-  Amg::MatrixX clusterErr_b = clusterB->localCovariance();
+  const Amg::MatrixX& clusterErr_b = clusterB->localCovariance();
 
   double sigmaX = sqrt(Amg::error(clusterErr_a,Trk::locX) * Amg::error(clusterErr_a,Trk::locX) +
                        Amg::error(clusterErr_b,Trk::locX) * Amg::error(clusterErr_b,Trk::locX));
@@ -556,11 +556,11 @@ template<typename CLUSTER>
 ClusterInfo SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB) {
   // take needed information on the first clusters
   Amg::Vector2D intersection_a = clusterA->localPosition();
-  Amg::MatrixX clusterErr_a = clusterA->localCovariance();
+  const Amg::MatrixX& clusterErr_a = clusterA->localCovariance();
 
   // take needed information on the second clusters
   Amg::Vector2D intersection_b = clusterB->localPosition();
-  Amg::MatrixX clusterErr_b = clusterB->localCovariance();
+  const Amg::MatrixX& clusterErr_b = clusterB->localCovariance();
 
   double sigmaX = sqrt(Amg::error(clusterErr_a,Trk::locX) * Amg::error(clusterErr_a,Trk::locX) +
                        Amg::error(clusterErr_b,Trk::locX) * Amg::error(clusterErr_b,Trk::locX));
@@ -575,8 +575,8 @@ ClusterInfo SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA, C
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: intersection = " << intersection);
 
-  InDet::SiWidth siWidth_a = clusterA->width();
-  InDet::SiWidth siWidth_b = clusterB->width();
+  const InDet::SiWidth& siWidth_a = clusterA->width();
+  const InDet::SiWidth& siWidth_b = clusterB->width();
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: siWidth_a = " << siWidth_a);
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: siWidth_b = " << siWidth_b);
@@ -649,7 +649,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Pixel_detElement_RIO_map * c
                                                                         rdoList,
                                                                         siWidth,
                                                                         hitSiDetElement,
-                                                                        std::move(clusterErr));
+                                                                        clusterErr);
             ((*inner_iter).second) = pixelCluster;
 
             cluster_map->erase(iter);
@@ -716,7 +716,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(SCT_detElement_RIO_map * clu
                                                                     rdoList,
                                                                     siWidth,
                                                                     hitSiDetElement,
-                                                                    std::move(clusterErr));
+                                                                    clusterErr);
             ((*inner_iter).second) = sctCluster;
 
             cluster_map->erase(iter);
@@ -777,7 +777,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
       int etaModule = hit->getEtaModule();
       int side      = 0;
 
-      const InDetDD::SiDetectorElement* hitSiDetElement = 0;
+      const InDetDD::SiDetectorElement* hitSiDetElement = nullptr;
 
       if(m_SmearPixel) { // Smear Pixel
         Identifier wafer_id = m_pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
@@ -847,8 +847,8 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         localExitZ  = sct_localEndPosition.z();
       }
 
-      double distX = std::fabs(std::fabs(localExitX)-std::fabs(localEntryX));
-      double distY = std::fabs(std::fabs(localExitY)-std::fabs(localEntryY));
+      double distX = std::abs(std::abs(localExitX)-std::abs(localEntryX));
+      double distY = std::abs(std::abs(localExitY)-std::abs(localEntryY));
 
       if(m_SmearPixel) { // Smear Pixel
         ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel start position --- " << localEntryX << ",  " << localEntryY << ",  " << localEntryZ );
@@ -987,7 +987,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
 
         InDet::SiWidth siWidth(Amg::Vector2D(elementX,elementY), Amg::Vector2D(lengthX, lengthY));
 
-        InDet::PixelCluster* pixelCluster = 0;
+        InDet::PixelCluster* pixelCluster = nullptr;
 
         AmgSymMatrix(2) covariance;
         covariance.setIdentity();
@@ -1037,7 +1037,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
       } else { // Smear SCT --> Create SCT Cluster
 
         // prepare the clusters
-        InDet::SCT_Cluster * sctCluster = 0;
+        InDet::SCT_Cluster * sctCluster = nullptr;
 
         // Pixel Design needed -------------------------------------------------------------
         const InDetDD::SCT_ModuleSideDesign* design_sct;
@@ -1052,7 +1052,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         // Find length of strip at centre
         double clusterWidth = rdoList.size()*hitSiDetElement->phiPitch(intersection);
         const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design_sct->endsOfStrip(intersection));
-        double stripLength = fabs(ends.first.xEta()-ends.second.xEta());
+        double stripLength = std::abs(ends.first.xEta()-ends.second.xEta());
 
         InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1),
                                Amg::Vector2D(clusterWidth,stripLength) );

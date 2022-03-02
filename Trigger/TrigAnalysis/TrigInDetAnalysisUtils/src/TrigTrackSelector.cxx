@@ -1022,7 +1022,6 @@ void  TrigTrackSelector::selectTracks( const TrackCollection* trigtracks ) {
 }
 
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
 
 bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
     // do the track extraction stuff here....
@@ -1226,15 +1225,11 @@ void TrigTrackSelector::selectTracks( xAOD::TrackParticleContainer::const_iterat
 }
 
 
-void TrigTrackSelector::selectTracks( TrackParticleLinks_t tracks, void* ) {
-	for( const auto& track : tracks ) {
-	  const xAOD::TrackParticle* trkp = *track;
-    selectTrack( trkp );
-  }
+void TrigTrackSelector::selectTracks( const TrackParticleLinks_t& tracks ) {
+  for( const auto& track : tracks ) selectTrack( *track );
 }
 
 
-#endif
 
 
 

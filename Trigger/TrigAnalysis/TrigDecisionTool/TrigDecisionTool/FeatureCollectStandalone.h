@@ -63,11 +63,11 @@ namespace Trig {
  
     HLT::TriggerElement::FeatureAccessHelper getTypelessBits(const HLT::TriggerElement* te, const HLT::TrigNavStructure* navigation);
 
-    void typelessCollect(const HLT::TriggerElement* te, HLT::class_id_type clid, std::vector<Trig::TypelessFeature>& data, const std::string& label, unsigned int condition, HLT::TrigNavStructure* navigation);
+    void typelessCollect(const HLT::TriggerElement* te, HLT::class_id_type clid, std::vector<Trig::TypelessFeature>& data, const std::string& label, unsigned int condition, const HLT::TrigNavStructure* navigation);
     
 
     template<typename REQUESTED,typename STORED, typename CONTAINER>
-    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, HLT::TrigNavStructure* navigation, const asg::EventStoreType* store,const std::string& container_name = ClassID_traits<CONTAINER>::typeName());
+    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, const HLT::TrigNavStructure* navigation, const asg::EventStoreType* store,const std::string& container_name = ClassID_traits<CONTAINER>::typeName());
 
 
     //////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ namespace Trig {
     }
 
     template<typename REQUESTED,typename STORED, typename CONTAINER>
-    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, HLT::TrigNavStructure* navigation, const asg::EventStoreType* store, const std::string& container_name) {
+    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, const HLT::TrigNavStructure* navigation, const asg::EventStoreType* store, const std::string& container_name) {
       std::vector<Trig::Feature<REQUESTED> > typedvec;
 
       for(auto feature : features){

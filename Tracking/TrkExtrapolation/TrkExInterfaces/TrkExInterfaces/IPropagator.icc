@@ -79,7 +79,7 @@ Trk::IPropagator::propagateM(
   ParticleHypothesis,
   std::vector<unsigned int>&,
   std::vector<const Trk::TrackStateOnSurface*>*&,
-  std::vector<std::pair<const Trk::TrackParameters*, int>>*&,
+  std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>*,
   double&,
   bool,
   bool,

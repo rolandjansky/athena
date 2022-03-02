@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AlignWrt.cxx
@@ -23,7 +23,7 @@ InDetAlignWrt::InDetAlignWrt(const std::string& name, ISvcLocator* pSvcLocator)
   :AthAlgorithm   (name, pSvcLocator),
    p_iddbtool("InDetAlignDBTool"),
    p_migratetool("InDetAlignDBTool/InDetAlignMigrate"),
-   p_eventinfo (0),
+   p_eventinfo (nullptr),
    m_setup     (false),
    m_par_create(true),
    m_par_wrt(false),

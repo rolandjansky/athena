@@ -17,7 +17,7 @@ ServiceMgr += PartPropSvc()
 #--------------------------------------------------------------
 # The following is needed to load the Athena Random
 # Number Generation Service.
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 ServiceMgr.AtRndmGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 # ServiceMgr.AtRndmGenSvc.ReadFromFile = true;

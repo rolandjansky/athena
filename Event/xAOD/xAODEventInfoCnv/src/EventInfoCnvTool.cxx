@@ -83,8 +83,8 @@ namespace xAODMaker {
       if(m_disableBeamSpot){
          ATH_MSG_WARNING( "Beam conditions service manually disabled on EventInfo object" );
          m_beamCondSvcAvailable = false;
-      } 
-      
+      }
+
       // Try to access the beam conditions service:
       ATH_CHECK(m_beamSpotKey.initialize(m_beamCondSvcAvailable));
 

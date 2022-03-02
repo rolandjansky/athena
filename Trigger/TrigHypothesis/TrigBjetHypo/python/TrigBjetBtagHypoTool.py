@@ -16,16 +16,16 @@ bTaggingWP = \
   , 'dl1r77' : 2.23
   , 'dl1r85' : 1.32
 
-  , "dl1d40" : 7.213
-  , "dl1d50" : 5.814
-  , "dl1d60" : 4.456
-  , "dl1d70" : 3.134
-  , "dl1d75" : 2.415
-  , "dl1d77" : 2.096
-  , "dl1d80" : 1.591
-  , "dl1d85" : 0.620
-  , "dl1d90" : -0.505
-  , "dl1d95" : -1.751
+  , "dl1d40" : 6.957
+  , "dl1d50" : 5.730
+  , "dl1d60" : 4.512
+  , "dl1d70" : 3.251
+  , "dl1d75" : 2.489
+  , "dl1d77" : 2.157
+  , "dl1d80" : 1.626
+  , "dl1d85" : 0.634
+  , "dl1d90" : -0.465
+  , "dl1d95" : -1.616
   }
 
 
@@ -51,21 +51,13 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
 
     return tool
 
-def TrigBjetBtagHypoToolFromName( name, conf ):
-    """ Configure a b-jet hypo tool from chain name. """
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName( conf )
-    decodedDict['chainName'] = name # override
-    
-    return TrigBjetBtagHypoToolFromDict( decodedDict )
-
 
 ####################################################################################################  
 
 def decodeThreshold( threshold_btag ):
     """ decodes the b-tagging thresholds """
 
-    log.debug("TrigBjetBtagHypoToolFromName: decoding threshold b%s", threshold_btag)
+    log.debug("decoded b-jet threshold: b%s", threshold_btag)
 
     tagger = "offperf" if threshold_btag == "offperf" else re.findall("(.*)[0-9]{2}",threshold_btag)[0]
 
@@ -80,7 +72,7 @@ def decodeThreshold( threshold_btag ):
     # do we really need a default for boffperf?
     tagger = "DL1r"
     if "dl1d" in threshold_btag : 
-        tagger = "DL1dv00"
+        tagger = "DL1d20211216"
 
     cut = bTaggingWP.get( threshold_btag,-20 )
     return [tagger,cut]

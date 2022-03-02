@@ -76,10 +76,21 @@ CachedValue<T>::CachedValue (const CachedValue& other)
 template <class T>
 inline
 CachedValue<T>::CachedValue (CachedValue&& other) noexcept
-  : m_cacheValid (INVALID)
+  : m_cacheValid (INVALID),
+    m_val()
 {
   if (other.m_cacheValid == VALID) {
+    // If we get here, m_val should be properly initialized.
+    // But sometimes gcc12 has trouble proving that.
+    // Suppress a maybe-uninitialized warning here.
+#if __GNUC__ >= 12
+#pragma GCC diagnostic push    
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     m_val = std::move (other.m_val);
+#if __GNUC__ >= 12
+#pragma GCC diagnostic pop
+#endif
     other.m_cacheValid = INVALID;
     m_cacheValid = VALID;
   }

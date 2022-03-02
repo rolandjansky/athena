@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCMODULEID_HH
@@ -14,7 +14,7 @@ class TGCModuleId : public TGCId
 {
 public:
   enum ModuleIdType {NoModuleIdType=-1, 
-		     PP, SLB, HPB, SL, SSW, ROD, 
+		     PP, SLB, HPB, SL, SSW, ROD, SROD,
 		     MaxModuleIdType};
   
   // Constructor & Destructor

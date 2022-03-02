@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+#
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Pre-exec script used for all CI tests
+#
+
+# This time stamp is used by NICOS:
+echo "[CITest][${ATLAS_CTEST_TESTNAME}] start time: `date` (`date +%s.%N`)"
+
+# Clean private working directory:
+if [ -n "@CI_WORKDIR@" ]; then
+    rm -rf "@CI_WORKDIR@/*"
+fi

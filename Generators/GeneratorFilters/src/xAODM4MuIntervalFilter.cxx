@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header for this module
@@ -8,8 +8,6 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 #include "CLHEP/Random/RandomEngine.h"
-#include "EventInfo/EventInfo.h"        // For setting the weight
-#include "EventInfo/EventType.h"        // From event info - the real holder of the event weight
 
 
 
@@ -114,7 +112,11 @@ for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++it
       if (!(*mec)[i]) continue;
       double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
       if ((*mec)[i]->weights().size()>0) {
-        (*mec)[i]->weights()[0] = existingWeight*eventWeight;
+        for (unsigned int iw = 0; iw < (*mec)[i]->weights().size(); ++iw) {
+           double existWeight = (*mec)[i]->weights()[iw];
+           (*mec)[i]->weights()[iw] = existWeight*eventWeight;
+        }
+//        (*mec)[i]->weights()[0] = existingWeight*eventWeight;
       } else {
         (*mec)[i]->weights().push_back( eventWeight*existingWeight );
       }

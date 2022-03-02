@@ -190,6 +190,10 @@ def commonSCT_DigitizationConfig(name,**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", SCT_FirstXing())
         kwargs.setdefault("LastXing",  SCT_LastXing() )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("MergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     from AthenaCommon import CfgMgr
     return CfgMgr.SCT_DigitizationTool(name,**kwargs)

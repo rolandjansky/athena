@@ -16,6 +16,7 @@ StatusCode TrigCountSpacePoints::initialize()
   ATH_CHECK(m_sctSpKey.initialize());
   ATH_CHECK(m_sctHelperKey.initialize());
   ATH_CHECK(m_spacePointsKey.initialize());
+  ATH_CHECK(m_spacePointsAuxKey.initialize());
   if (!m_monTool.empty())
     ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;

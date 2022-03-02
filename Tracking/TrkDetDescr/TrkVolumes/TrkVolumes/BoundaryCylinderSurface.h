@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ template <class Tvol>
 class BoundaryCylinderSurface final : virtual public BoundarySurface<Tvol>,
                                       public CylinderSurface {
   /** typedef the BinnedArray */
-  typedef BinnedArray<Tvol> VolumeArray;
+  typedef BinnedArray<const Tvol> VolumeArray;
 
  public:
   /** Default Constructor - needed for pool and inherited classes */

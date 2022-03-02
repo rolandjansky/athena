@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ####################################################################
 # SlimmingHelper.py
@@ -168,6 +168,7 @@ class SlimmingHelper:
                 if (self.IncludeJetTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__JetContainer_a4tcemsubjesFS")
+                        self.SmartCollections.append("HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf") # Run 3 jet collections
                         from DerivationFrameworkCore.JetTriggerFixContent import JetTriggerFixContent
                         for item in JetTriggerFixContent:
                                 Stream.AddItem(item)
@@ -223,7 +224,7 @@ class SlimmingHelper:
                 mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
 
                 # Add processed items to the stream
-                excludedAuxData = "-clusterAssociation"
+                excludedAuxData = "-clusterAssociation.-PseudoJet"
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
                 for item in mainEntries:
                         Stream.AddItem(item)
@@ -246,14 +247,17 @@ class SlimmingHelper:
                                 else:
                                         entry = "xAOD::AuxContainerBase!#"+item+"."
                                 for element in auxEntries[item]:
-                                        #Skip anything that shouldn't be written out to a DAOD for tracks 
+                                        #Skip anything that shouldn't be written out to a DAOD for tracks or jets
                                         if ('xAOD::TrackParticleContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
+                                        if ('xAOD::JetAuxContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
                                                 entry += element
                                         else:
                                                 entry += element+"."
                                 if ('xAOD::TrackParticleContainer' in theDictionary[item] and auxEntries[item]==""):
+                                        entry+=excludedAuxData
+                                if ('xAOD::JetAuxContainer' in theDictionary[item] and auxEntries[item]==""):
                                         entry+=excludedAuxData
                                 Stream.AddItem(entry)
 
@@ -608,7 +612,6 @@ class SlimmingHelper:
                 elif self.IncludeAdditionalTriggerContent is True:
                         from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
                         items.extend(AdditionalTriggerContent)
-
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)
@@ -633,6 +636,9 @@ class SlimmingHelper:
                 elif collectionName=="HLT_xAOD__TrigVertexCountsContainer_vertexcounts":
                         from DerivationFrameworkCore.MinBiasTriggerContent import MinBiasTriggerContent
                         items.extend(MinBiasTriggerContent)
+                elif collectionName=="HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf":
+                        from DerivationFrameworkCore.JetTriggerContentRun3 import JetTriggerContentRun3
+                        items.extend(JetTriggerContentRun3)
                 else:
                         raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
                 return items

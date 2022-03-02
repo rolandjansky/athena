@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # skeleton.EVGENtoRDO.py
 # skeleton file for running simulation+digi in one job for FastChain
 # currently using full simulation and digi, will swap in fast components later
@@ -831,6 +831,16 @@ from ISF_Example.ISF_Input import ISF_Input
 
 topSequence += CfgGetter.getAlgorithm("BeamEffectsAlg")
 
+# Note - here we should check whether xAOD::EventInfo is already
+# present in the EVNT file as is done in DigitizationReadMetadata ( 'LegacyEventInfo' in digitizationFlags.experimentalDigi())
+from Digitization.DigitizationFlags import digitizationFlags
+if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSequence += xAODMaker__EventInfoCnvAlg()
+    # Decorate zero pile-up
+    from PileUpComps.PileUpCompsConf import NoPileUpMuWriter
+    topSequence += NoPileUpMuWriter()
+
 #--------------------------------------------------------------
 # ISF kernel configuration
 #--------------------------------------------------------------
@@ -1086,9 +1096,8 @@ if DetFlags.pileup.any_on():
     fast_chain_log.info(" -----> Luminosity = %s cm^-2 s^-1", jobproperties.Beam.estimatedLuminosity())
     fast_chain_log.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
 
-# in any case we need the PileUpMergeSvc for the digitize algos
-if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
-    ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
+    if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
+        ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
 
 
 #--------------------------------------------------------------

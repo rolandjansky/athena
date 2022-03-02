@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """ Flags to control the L1 calo upgrade simulation  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 
 # get logger for this file
 from AthenaCommon.Logging import logging
@@ -185,16 +185,14 @@ class L1Phase1Perf(JobPropertyContainer):
     """ L1 Phase I simulation flags for L1Calo, L1Muon, L1Topo, CTP"""
     pass
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-tf.add_Container( L1Phase1Perf )
-tf.L1Phase1Perf.add_Container( Calo )
-tf.L1Phase1Perf.add_Container( Topo )
-tf.L1Phase1Perf.add_Container( CTP )
 
-CTPPhase1PerfFlags  = tf.L1Phase1Perf.CTP
-TopoPhase1PerfFlags  = tf.L1Phase1Perf.Topo
-L1CaloPhase1PerfFlags = tf.L1Phase1Perf.Calo
-L1Phase1PerfFlags = tf.L1Phase1Perf
+# add the L1Phase1Perf flags container to the top container and alias it:
+jobproperties.add_Container( L1Phase1Perf )
+L1Phase1PerfFlags = jobproperties.L1Phase1Perf
+
+L1Phase1PerfFlags.add_Container( Calo )
+L1Phase1PerfFlags.add_Container( Topo )
+L1Phase1PerfFlags.add_Container( CTP )
 
 for flag in _glflags:
     L1Phase1PerfFlags.add_JobProperty(flag)
@@ -207,9 +205,3 @@ for flag in _ctpflags:
 
 for flag in _topoflags:
     L1Phase1PerfFlags.Topo.add_JobProperty(flag)
-
-
-del _caloflags
-del _ctpflags
-del _topoflags
-del log

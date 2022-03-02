@@ -61,6 +61,8 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("SegmentCollection","MuGirlSegments")
     kwargs.setdefault("InDetCandidateLocation", 
                       "InDetCandidates" if  not muonCombinedRecFlags.doCombinedFit() else "InDetCandidatesSystemExtened")
+    kwargs.setdefault("TGCPrepDataLocation", 
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
@@ -79,6 +81,9 @@ def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
     kwargs.setdefault("CombinedTrackCollection", MuonCbKeys.MuGirlMuonsLargeD0())
     kwargs.setdefault("InDetCandidateLocation", MuonCbKeys.InDetTrackParticlesLargeD0() + 
                      ("" if not muonCombinedRecFlags.doCombinedFit() else "SystemExtended"))
+    kwargs.setdefault("TGCPrepDataLocation", 
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  )
+   
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
@@ -108,7 +113,7 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
     
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
-    kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit() or ConfigFlags.Muon.MuonTrigger)
+    kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit())
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
 
 def MuonInDetToMuonSystemExtensionAlg(name= "MuonInDetToMuonSystemExtensionAlg", **kwargs):
@@ -227,8 +232,8 @@ def MuonCreatorAlg_EMEO(name = "MuonCreatorAlg_EMEO", **kwargs):
     kwargs.setdefault("TagMaps", combined_maps)
     kwargs.setdefault("MuonCandidateLocation", muon_maps)
     kwargs.setdefault("MuonContainerLocation", "EMEO_Muons")
-    kwargs.setdefault("ExtrapolatedLocation", "EMEO_ExtraPolatedMuon")
-    kwargs.setdefault("MSOnlyExtrapolatedLocation", "EMEO_MSOnlyExtraPolatedMuon")   
+    kwargs.setdefault("ExtrapolatedLocation", "EMEO_ExtrapolatedMuon")
+    kwargs.setdefault("MSOnlyExtrapolatedLocation", "EMEO_MSOnlyExtrapolatedMuon")   
     kwargs.setdefault("CombinedLocation", "EMEO_CombinedMuon")
     kwargs.setdefault("SegmentContainerName", "EMEO_MuonSegments")
     kwargs.setdefault("TrackSegmentContainerName", "EMEO_TrkMuonSegments")
@@ -265,13 +270,14 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("MuonCandidateLocation",[])
     kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("TrackSegmentContainerName","TrkStauSegments")
-    kwargs.setdefault("BuildSlowMuon",1)
+    kwargs.setdefault("BuildSlowMuon", True)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
     if not ConfigFlags.Muon.MuonTrigger:
         recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
+
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
     def __init__(self,**kwargs):
@@ -336,3 +342,32 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
      
         if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")
+        
+        track_coll = ["ExtrapolatedMuonTrackParticles", 
+                      "CombinedMuonTrackParticles", 
+                      "MSOnlyExtrapolatedMuonTrackParticles" ]
+        stau_coll = ["CombinedStauTrackParticles",
+                    "ExtrapolatedStauTrackParticles"] if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta() else []
+
+        track_coll_lrt = ["CombinedMuonsLRTTrackParticles", 
+                          "ExtraPolatedMuonsLRTTrackParticles",
+                          "MSOnlyExtraPolatedMuonsLRTTrackParticles"] if InDetFlags.doR3LargeD0() else []
+        ### Decorate the muon tracks
+        for coll in track_coll + stau_coll + track_coll_lrt:
+            topSequence += CfgMgr.MuonTrkIDMSScatterDecorAlg("MuonCombIDMSScatterDecorAlg"+coll,
+                                                            TrackContainer=coll)
+            topSequence+= CfgMgr.MuonTrkAEOTDecorationAlg("MuonCombAEOTDecorAlg"+coll,
+                                                          TrackContainer = coll)
+        topSequence += CfgMgr.MuonPrecisionLayerDecorAlg("MuonCombPrecisionLayerDecorAlg",
+                                                         MuonContainer="Muons",
+                                                         TrackContainer=track_coll)
+        
+        if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta(): 
+            topSequence += CfgMgr.MuonPrecisionLayerDecorAlg("MuonCombStauPrecisionLayerDecorAlg",
+                                                            MuonContainer="Staus",
+                                                            TrackContainer=stau_coll)
+        if InDetFlags.doR3LargeD0():
+              topSequence += CfgMgr.MuonPrecisionLayerDecorAlg("MuonCombLRTPrecisionLayerDecorAlg",
+                                                         MuonContainer="MuonsLRT",
+                                                         TrackContainer=track_coll_lrt)
+            

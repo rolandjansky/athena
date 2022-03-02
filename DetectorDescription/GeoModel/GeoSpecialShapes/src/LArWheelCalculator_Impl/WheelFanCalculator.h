@@ -1,16 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 #define LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 
 #include "IFanCalculator.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
-
-#include "GaudiKernel/PhysicalConstants.h"
 
 #ifdef HARDDEBUG
 #undef HARDDEBUG
@@ -143,8 +139,7 @@ namespace LArWheelCalculator_Impl
   class WheelFanCalculator : public IFanCalculator
   {
     public:
-      WheelFanCalculator(LArWheelCalculator* lwc, IRDBAccessSvc* /*rdbAccess*/,
-                         const DecodeVersionKey & /*larVersionKey*/)
+      WheelFanCalculator(LArWheelCalculator* lwc)
         : m_lwc(lwc)
       {
       }
@@ -154,7 +149,7 @@ namespace LArWheelCalculator_Impl
 
       virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const
       {
-        using Gaudi::Units::halfpi;
+        static const double halfpi=M_PI/2.0;
         int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi_ForDetNeaFan) / lwc()->m_FanStepOnPhi);
         const double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi_ForDetNeaFan;
 #ifdef HARDDEBUG
@@ -214,7 +209,7 @@ namespace LArWheelCalculator_Impl
 
       virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const
       {
-        using Gaudi::Units::halfpi;
+	static const double halfpi=M_PI/2.0;
         CLHEP::Hep3Vector p1 = p;
 
         int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi) / lwc()->m_FanStepOnPhi);

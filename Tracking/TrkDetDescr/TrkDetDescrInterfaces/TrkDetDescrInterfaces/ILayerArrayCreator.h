@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,19 +52,19 @@ namespace Trk {
       static const InterfaceID& interfaceID() { return IID_ILayerArrayCreator; }
 
       /** LayerArrayCreator interface method - for Barrel-like layers */
-      virtual LayerArray* cylinderLayerArray(const std::vector< const CylinderLayer* >& layers,
+      virtual LayerArray* cylinderLayerArray(const std::vector< CylinderLayer* >& layers,
                                              double rmin,
                                              double rmax,
                                              BinningType btype = arbitrary) const = 0; 
       
       /** LayerArrayCreator interface method - for Endcap-like layers */
-      virtual LayerArray* discLayerArray(const std::vector< const DiscLayer* >& layers,
+      virtual LayerArray* discLayerArray(const std::vector< DiscLayer* >& layers,
                                          double zmin,
                                          double zmax,
                                          BinningType btype = arbitrary) const = 0; 
       
       /** LayerArrayCreator interface method - for Planar-like layers */
-      virtual LayerArray* planeLayerArray(const std::vector< const PlaneLayer* >& layers, 
+      virtual LayerArray* planeLayerArray(const std::vector< PlaneLayer* >& layers, 
                                           double min,
                                           double max,
                                           BinningType btype = arbitrary,

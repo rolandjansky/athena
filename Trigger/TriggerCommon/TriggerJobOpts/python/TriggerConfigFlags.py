@@ -34,14 +34,23 @@ def createTriggerFlags():
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
-    # Enable emulation tool for NSW-TGC coincidence in A-side
-    flags.addFlag('Trigger.L1MuonSim.EmulateNSWA', False)
+    # Enable emulation tool for NSW-TGC coincidence
+    flags.addFlag('Trigger.L1MuonSim.EmulateNSW', False)
 
-    # Enable emulation tool for NSW-TGC coincidence in C-side
-    flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
+    # Enable NSW MM trigger
+    flags.addFlag('Trigger.L1MuonSim.doMMTrigger', False)
+
+    # Enable NSW sTGC pad trigger
+    flags.addFlag('Trigger.L1MuonSim.doPadTrigger', False)
+
+    # Enable NSW sTGC strip trigger
+    flags.addFlag('Trigger.L1MuonSim.doStripTrigger', False)
 
     # Enable the veto mode of the NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
+
+    # Enable TGC-RPC BIS78 coincidence
+    flags.addFlag('Trigger.L1MuonSim.doBIS78', False)
 
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
     flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')
@@ -219,7 +228,7 @@ def createTriggerFlags():
 
     # Particle ID tune
     flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
-    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20210928/')
+    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20220103/')
     flags.addFlag('Trigger.egamma.ringerVersion', 'RingerSelectorTools/TrigL2_20210702_r4/')
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap

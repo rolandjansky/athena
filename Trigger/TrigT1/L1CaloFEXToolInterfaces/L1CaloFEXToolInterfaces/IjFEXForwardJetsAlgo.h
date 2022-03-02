@@ -29,12 +29,7 @@ namespace LVL1{
       
       virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int, int)  = 0;    
 
-      virtual float globalPhi(int) =0;
-      virtual float globalEta(int) =0;
-      virtual std::array<float,2> globalEtaPhi(int) =0;
-      virtual unsigned int localPhi(int) =0;
-      virtual unsigned int localEta(int) =0;
-      virtual unsigned int getTTowerET(int) =0;
+      virtual std::array<float,3> globalEtaPhiEt(int) =0;
       virtual std::unordered_map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() =0;
       virtual std::unordered_map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() =0;
       virtual std::unordered_map<int, jFEXForwardJetsInfo> calculateJetETs() =0;

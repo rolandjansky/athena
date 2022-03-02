@@ -52,6 +52,7 @@ public:
   virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId) const =0;
   virtual bool hasBSError(const IdentifierHash& elementHash, const EventContext& ctx) const =0;
   virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId, const EventContext& ctx) const =0;
+  virtual bool hasBSError(const IdentifierHash& elementHash, const EventContext& ctx, Identifier elementId) const =0;
   virtual uint64_t getBSErrorWord(const IdentifierHash& elementHash, const EventContext& ctx) const =0;
   virtual uint64_t getBSErrorWord(const IdentifierHash& elementHash, const int index, const EventContext& ctx) const =0;
 

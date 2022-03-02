@@ -8,8 +8,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
-from DerivationFrameworkFlavourTag.FtagCommon import flag_trackless
-from DerivationFrameworkFlavourTag.FtagCommon import flag_pseudotrack
 
 # for backward compatability
 def FtagJetCollection(jetcol, seq, pvCol='PrimaryVertices', OutputLevel=WARNING):
@@ -43,12 +41,10 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
     if 'AntiKt4EMTopoJets' in jetcols:
         acc.merge(RenameInputContainerEmTopoHacksCfg('oldAODVersion'))
 
-    if 'AntiKt4EMPFlowJets' in jetcols and flag_trackless == 1:
+    if 'AntiKt4EMPFlowJets' in jetcols and cfgFlags.BTagging.Trackless:
         acc.merge(RenameInputContainerEmPflowHacksCfg('tracklessAODVersion'))
 
     for jetcol,pvCol in zip(jetcols, pvCols):
-        if 'AntiKt4EMPFlowJets' in jetcols and flag_trackless == 1:
-            continue
         acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol, OutputLevel))
 
     Configurable.configurableRun3Behavior=0
@@ -76,7 +72,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     BTaggingCollection = cfgFlags.BTagging.OutputFiles.Prefix + jetcol_name_without_Jets
 
     track_collection = 'InDetTrackParticles'
-    if flag_pseudotrack == 1:
+    if cfgFlags.BTagging.Pseudotrack:
         track_collection = 'InDetPseudoTrackParticles'
     muon_collection = 'Muons'
 
@@ -88,7 +84,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     SecVertexers = [ 'JetFitter' , 'SV1']
 
     if cfgFlags.BTagging.RunFlipTaggers is True:
-        SecVertexersFlip = ['JetFitterFlip']
+        SecVertexersFlip = ['JetFitterFlip','SV1Flip']
         for ele in SecVertexersFlip:
             SecVertexers.append(ele)
 

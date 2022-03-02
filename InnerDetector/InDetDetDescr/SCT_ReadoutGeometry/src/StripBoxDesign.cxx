@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripBoxDesign.h"
@@ -94,19 +94,19 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
     int strip = static_cast<int>(std::floor(pos.xPhi() / m_pitch) + m_nStrips / 2);
     if (strip < 0 || strip >= m_nStrips) {
 
-        return SiCellId(); // return an invalid id
+        return {}; // return an invalid id
     }
     int row=0;
     if(m_nRows>1){
       row = static_cast<int>(std::floor(pos.xEta() / m_length) + m_nRows / 2);
       if (row < 0 || row >= m_nRows) {
 	
-        return SiCellId(); // return an invalid id
+        return {}; // return an invalid id
       }
     }
     int strip1D = strip1Dim(strip, row);
     
-    return SiCellId(strip1D, 0);
+    return {strip1D, 0};
 }
 
 SiLocalPosition StripBoxDesign::localPositionOfCell(SiCellId const &cellId) const {
@@ -196,11 +196,11 @@ SiLocalPosition StripBoxDesign::positionFromStrip(const int stripNumber) const {
 SiCellId StripBoxDesign::cellIdInRange(const SiCellId &cellId) const {
 
     if (!cellId.isValid()) {
-        return SiCellId(); // Invalid
+        return {}; // Invalid
     }
     auto [strip, row] = getStripRow(cellId);
     if (strip < 0 || row < 0 || row >= m_nRows || strip >= m_nStrips) {
-        return SiCellId(); // Invalid
+        return {}; // Invalid
     }
     return cellId;
 }

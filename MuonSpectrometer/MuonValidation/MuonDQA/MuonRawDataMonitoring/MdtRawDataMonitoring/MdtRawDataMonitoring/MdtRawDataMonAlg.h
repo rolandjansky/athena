@@ -38,11 +38,15 @@
 #include "xAODMuon/MuonContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonSegment.h"
+#include "xAODMuon/MuonSegmentContainer.h"
+
 #include "StoreGate/ReadHandleKey.h"
 //standard library includes
 #include <fstream> 
 #include <cstdlib>
 #include <iostream>
+#include <atomic>
 
 namespace Muon {
   class MdtPrepData;
@@ -123,7 +127,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   virtual void  fillMDTOverviewVects(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects) const;
   virtual void  fillMDTOverviewHistograms(const MDTOverviewHistogramStruct& vects) const;
-  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, std::array<MDTSummaryHistogramStruct,4096>* ) const;
+  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, std::array<MDTSummaryHistogramStruct,4096>*) const;
   virtual StatusCode  fillMDTSummaryHistograms( std::array<MDTSummaryHistogramStruct,4096>  *  vects, int lb) const;
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* ) const;//fill chamber by chamber histos
 
@@ -178,20 +182,11 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   std::map<Identifier::value_type,int> m_tubemax_map;
   std::map<Identifier::value_type,int> m_tubelayermax_map;
 
-  bool m_doMdtESD ; 
-
-  // to book or not bookMDTTDCplots -->   /Chambers/tmp/ directory
-  bool m_doChamberHists;
-  bool m_maskNoisyTubes;
-
   SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_l1RoiKey{this,"L1RoiKey","LVL1MuonRoIs","L1 muon ROIs"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"MuonKey","Muons","muons"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
-
-  //Define configurable adccut and TGC/RPC keys
-  float m_ADCCut;
 
   //Chamber by Chamber Plots
   std::vector< MDTChamber* >* m_hist_hash_list;
@@ -200,36 +195,24 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   std::string getChamberName(const Muon::MdtPrepData*) const;
   std::string getChamberName(Identifier) const;
   StatusCode getChamber(IdentifierHash id, MDTChamber* &chamber) const;
-  //Control for which histograms to add
-  bool m_do_mdtchamberstatphislice;
-  bool m_do_mdtChamberHits;
-  bool m_do_mdttdccut_sector;
-  //  bool m_do_mdttdc;
-  //  bool m_do_mdttdccut_ML1;
-  //  bool m_do_mdttdccut_ML2;
-  //  bool m_do_mdtadc_onSegm_ML1;
-  //  bool m_do_mdtadc_onSegm_ML2;
-  //  bool m_do_mdtadc;
-  //  bool m_do_mdttdcadc;
-  //  bool m_do_mdtlayer;
-  //  bool m_do_mdttube;
-  //  bool m_do_mdtmezz;
-  //  bool m_do_mdt_effEntries;
-  //  bool m_do_mdt_effCounts;
-  //  bool m_do_mdt_effPerTube;
-  //  bool m_do_mdt_DRvsDT;
-  //  bool m_do_mdt_DRvsDRerr;
-  //  bool m_do_mdt_DRvsSegD;
-  //
 
-  // NEW
-  float  m_nb_hits;        //minimum number of hits in segment
-  float  m_chi2_cut;       //track chi2 cut;
-  float  m_HighOccThreshold; //minimum number of hits to consider an event a possible noise burst
+  Gaudi::Property<bool> m_doMdtESD{this,"DoMdtEsd",false};
+  Gaudi::Property<bool> m_doChamberHists{this,"DoChamberHist",true};
+  Gaudi::Property<bool> m_maskNoisyTubes{this,"maskNoisyTubes",true};
+  Gaudi::Property<size_t> m_ADCCut{this,"ADCCut",50};
+  Gaudi::Property<size_t> m_nb_hits{this,"Eff_nHits",5};
+  Gaudi::Property<bool> m_chi2_cut{this,"Eff_chi2Cut",10};
+  Gaudi::Property<bool> m_do_mdtChamberHits{this,"do_mdtChamberHits",true};
+  Gaudi::Property<bool> m_do_mdttdccut_sector{this,"do_mdttdccut_sector",true};
+  Gaudi::Property<bool> m_do_mdtchamberstatphislice{this,"do_mdtchamberstatphislice",true};
+  Gaudi::Property<bool> m_do_run3Geometry{this,"do_Run3Geometry",false};
+  Gaudi::Property<size_t> m_HighOccThreshold{this,"nHits_NoiseThreshold",16000};
+  Gaudi::Property<size_t> m_adcScale{this,"ADCScale",1};
+
   bool   m_BMGpresent;
   int    m_BMGid;
   std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
-
+  mutable std::atomic<int>  m_firstEvent;
 };
     
 #endif

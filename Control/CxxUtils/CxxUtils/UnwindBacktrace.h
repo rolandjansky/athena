@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/UnwindBacktrace.h
@@ -52,7 +52,7 @@
  * For exception handling, this is no problem.  The program is anyway
  * off in the weeds of undefined behavior at this point, so in some
  * sense it doesn't matter what the unwinder does, but shutting things
- * down expediously is probably a good strategy.  But from the point
+ * down expeditiously is probably a good strategy.  But from the point
  * of view of trying to collect diagnostics after a crash, this is plus ungood,
  * as it ends up hiding the actual location of the error.
  *
@@ -70,7 +70,7 @@
  * in a vector obtained from malloc().  But we really want to avoid
  * doing memory allocation here (we may have crashed due to a corrupt
  * heap, and calling malloc will just crash again).  So after registering
- * the FDE, we diddle the correspoding data structures so that libgcc
+ * the FDE, we diddle the corresponding data structures so that libgcc
  * things the sorting has been done.  This bit is the naughtiest
  * part of the whole enterprise, as it relies entirely on knowing the
  * private internals of libgcc.
@@ -81,7 +81,7 @@
  *
  *  System V ABI, AMD64 Architecture Supplement 
  *  <https://github.com/hjl-tools/x86-psABI/wiki/x86-64-psABI-1.0.pdf>,
- *  particularly setion 6.2 `Unwind Libary Interface'.
+ *  particularly section 6.2 `Unwind Library Interface'.
  *
  *  The libgcc/ directory in the gcc distribution and unwind.h.
  */

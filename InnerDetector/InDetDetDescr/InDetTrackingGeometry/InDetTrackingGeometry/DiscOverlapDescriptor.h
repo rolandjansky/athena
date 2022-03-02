@@ -80,7 +80,7 @@ namespace InDet {
   public:
     
     /** Constructor */
-    DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array = 0,
+    DiscOverlapDescriptor(const Trk::BinnedArray<const Trk::Surface>* bin_array = 0,
                           std::vector<Trk::BinUtility*>* singleBinUtils = 0,
                           bool isPixel = false);
     
@@ -115,7 +115,7 @@ namespace InDet {
   private:
     bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
     
-    const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
+    const Trk::BinnedArray<const Trk::Surface>*           m_bin_array;
     std::vector<Trk::BinUtility*>*                  m_singleBinUtils;
     bool                                            m_pixelCase;    
   };

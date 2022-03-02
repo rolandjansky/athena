@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 TileGeoG4SDTool, TileGeoG4SDCalc=CompFactory.getComps("TileGeoG4SDTool","TileGeoG4SDCalc",)
@@ -36,7 +37,7 @@ def TileCTBGeoG4SDCfg(ConfigFlags, name="TileCTBGeoG4SD", **kwargs):
 def TileGeoG4SDCalcCfg(ConfigFlags, name="TileGeoG4SDCalc", **kwargs):
     result = ComponentAccumulator()
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.ReadTR:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.ReadTR:
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
     kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )

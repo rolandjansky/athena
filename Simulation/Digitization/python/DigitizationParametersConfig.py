@@ -2,6 +2,7 @@
 
 from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.Enums import FlagEnum
 logDigitizationWriteMetadata = logging.getLogger( 'DigitizationParametersConfig' )
 
 def writeDigitizationMetadata(ConfigFlags):
@@ -28,6 +29,8 @@ def writeDigitizationMetadata(ConfigFlags):
     for testKey, testFlag in digitMetaDataKeys.items():
         if ConfigFlags.hasFlag(testFlag):
             testValue = ConfigFlags._get(testFlag)
+            if isinstance(testValue, FlagEnum):
+                testValue = testValue.value
             if not isinstance(testValue, str):
                 testValue = str(testValue)
             dbFiller.addDigitParam(testKey, testValue)

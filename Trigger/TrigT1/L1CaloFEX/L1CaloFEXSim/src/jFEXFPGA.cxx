@@ -61,10 +61,9 @@ jFEXFPGA::~jFEXFPGA()
   
 StatusCode jFEXFPGA::initialize() {
 
-    ATH_CHECK(m_jFEXFPGA_jTowerContainerKey.initialize());
-    ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
+    ATH_CHECK(m_jTowerContainerKey.initialize());
     ATH_CHECK(m_l1MenuKey.initialize());
-    ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
+    ATH_CHECK(m_jFEXtauAlgoTool.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -93,17 +92,16 @@ void jFEXFPGA::reset() {
 
 StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     
-    
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXFPGA_jTowerContainer(m_jFEXFPGA_jTowerContainerKey/*,ctx*/);
-    if(!jk_jFEXFPGA_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
+
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey/*,ctx*/);
+    if(!jTowerContainer.isValid()) {
+        ATH_MSG_FATAL("Could not retrieve container " << m_jTowerContainerKey.key() );
         return StatusCode::FAILURE;
     }
-
-    ATH_CHECK( m_jFEXPileupAndNoiseTool->reset());
+    
     ATH_CHECK( m_jFEXPileupAndNoiseTool->safetyTest());
-
+    ATH_CHECK( m_jFEXPileupAndNoiseTool->reset());
     if(m_jfexid == 0 || m_jfexid == 5) {
         m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Wide);
     }
@@ -166,6 +164,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
         ATH_CHECK( m_jFEXsumETAlgoTool->reset());
         ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
         ATH_CHECK( m_jFEXmetAlgoTool->reset());
+        
         m_jFEXsumETAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         m_jFEXmetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
            
@@ -284,7 +283,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     
                     int meta_LM = meta;
                     int mphi_LM = mphi;
-                    if(check  && is_Jet_LM) {
+                    if(check && meta>8 && mphi>8) {
                         meta_LM = meta -1;
                         mphi_LM = mphi -1;
 
@@ -293,7 +292,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     //Creating SR TOB
                     uint32_t SRJet_tobword = formSmallRJetTOB(mphi_LM, meta_LM);
                     std::vector<uint32_t> SRtob_aux{SRJet_tobword,(uint32_t) m_jTowersIDs_Thin[mphi_LM][meta_LM]};
-                    m_SRJet_tobwords.push_back( SRtob_aux);
+                    if ( SRJet_tobword != 0 ) m_SRJet_tobwords.push_back( SRtob_aux);
                     
                     //Creating LR TOB
                     uint32_t LRJet_tobword = formLargeRJetTOB(mphi_LM, meta_LM);
@@ -312,9 +311,9 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     //calculates the 1st energy ring
                     m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
                     
-                    uint32_t tobword = formTauTOB(mphi, meta);
-                    std::vector<uint32_t> TAUtob_aux{tobword,(uint32_t) m_jTowersIDs_Thin[mphi][meta]};
-                    m_tau_tobwords.push_back(TAUtob_aux); 
+                    uint32_t jTau_tobword = formTauTOB(mphi, meta);
+                    std::vector<uint32_t> TAUtob_aux{jTau_tobword,(uint32_t) m_jTowersIDs_Thin[mphi][meta]};
+                    if ( jTau_tobword != 0 ) m_tau_tobwords.push_back(TAUtob_aux); 
                 }                
             }
         }
@@ -326,8 +325,8 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     if(m_jfexid ==0 || m_jfexid ==5) {
         
         //**********Forward Jets***********************
-        ATH_CHECK(m_jFEXForwardJetsAlgoTool->reset());
         ATH_CHECK(m_jFEXForwardJetsAlgoTool->safetyTest());
+        ATH_CHECK(m_jFEXForwardJetsAlgoTool->reset());
         m_jFEXForwardJetsAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         m_jFEXForwardJetsAlgoTool->setup(m_jTowersIDs_Wide,m_jfexid,m_id);
 
@@ -359,8 +358,8 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             
         }
         //********** Forward Electrons ***********************
-        ATH_CHECK(m_jFEXForwardElecAlgoTool->reset());
         ATH_CHECK(m_jFEXForwardElecAlgoTool->safetyTest());
+        ATH_CHECK(m_jFEXForwardElecAlgoTool->reset());
         m_jFEXForwardElecAlgoTool->setFPGAEnergy(m_map_EM_Etvalues_FPGA,m_map_HAD_Etvalues_FPGA);
         
         /* This is a work in progress, PLEASE DO NOT REMOVE IT YET
@@ -393,6 +392,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             }
         }
         ATH_MSG_DEBUG("============================ jFEXtauAlgo ============================");
+        ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
         m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         for(int mphi = 8; mphi < 24; mphi++) {
             for(int meta = 8; meta < max_meta; meta++) {
@@ -420,7 +420,6 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     }
                 }
 
-                ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
                 m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
                 m_jFEXtauAlgoTool->buildSeeds();
                 bool is_tau_LocalMax = m_jFEXtauAlgoTool->isSeedLocalMaxima();
@@ -431,9 +430,9 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     //calculates the 1st energy ring
                     m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
                     
-                    uint32_t tobword = formTauTOB(mphi, meta);
-                    std::vector<uint32_t> TAUtob_aux{tobword,(uint32_t) jTowersIDs[mphi][meta]};
-                    m_tau_tobwords.push_back(TAUtob_aux); 
+                    uint32_t jTau_tobword = formTauTOB(mphi, meta);
+                    std::vector<uint32_t> TAUtob_aux{jTau_tobword,(uint32_t) jTowersIDs[mphi][meta]};
+                    if ( jTau_tobword != 0 ) m_tau_tobwords.push_back(TAUtob_aux); 
                 }
             }
         }
@@ -522,7 +521,6 @@ std::vector <std::vector <uint32_t>> jFEXFPGA::getLargeRJetTOBs()
 
 uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
     uint32_t tobWord = 0;
-    const unsigned int jFEXETResolution = 200; //LSB is 200MeV
     unsigned int eta = 0;
     unsigned int phi = 0;
     unsigned int et = 0;
@@ -563,17 +561,23 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
         } 
     }
     
+    //Initializing Trigger menu
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    const TrigConf::L1ThrExtraInfo_jJ & thr_jJ = l1Menu->thrExtraInfo().jJ();
+    
+    // retrieving the jJ ET resolution for TOBs
+    const int jFEXETResolution = thr_jJ.resolutionMeV(); 
+    
     jFEXSmallRJetTOBEt = et/jFEXETResolution;
     if(jFEXSmallRJetTOBEt > 0x7ff) {
         jFEXSmallRJetTOBEt = 0x7ff;
         Sat = 1;
     }
     //create basic tobword with 32 bits
-    tobWord = tobWord + (Res << 21) + (eta << 16) + (phi << 12) + (jFEXSmallRJetTOBEt << 1)  + (Sat);
-    ATH_MSG_DEBUG("tobword smallRJet with et, phi, eta, res and sat : " << std::bitset<32>(tobWord) );
-     //Retrieve the L1 menu configuration
-    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-    const TrigConf::L1ThrExtraInfo_jJ & thr_jJ = l1Menu->thrExtraInfo().jJ();
+    tobWord = tobWord + (Res << FEXAlgoSpaceDefs::jJ_resBit) + (jFEXSmallRJetTOBEt << FEXAlgoSpaceDefs::jJ_etBit) + (eta << FEXAlgoSpaceDefs::jJ_etaBit) + (phi << FEXAlgoSpaceDefs::jJ_phiBit)  + (Sat);
+    ATH_MSG_DEBUG("tobword smallRJet with res, et, eta and phi: " << std::bitset<32>(tobWord) );
+    
+    // retrieving the threshold for the TOB Et
     std::string str_jfexname = m_jfex_string[m_jfexid];
     unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
     
@@ -584,7 +588,6 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
 uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
     
     uint32_t tobWord = 0;
-    const unsigned int jFEXETResolution = 200; //LSB is 200MeV
     unsigned int eta = 0;
     unsigned int phi = 0;
     unsigned int et = 0;
@@ -626,7 +629,11 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
             phi = iphi -8 ;
         }
     }
-
+    
+    // Retrieve the L1 menu configuration
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    const TrigConf::L1ThrExtraInfo_jLJ & thr_jLJ = l1Menu->thrExtraInfo().jLJ();
+    const int jFEXETResolution = thr_jLJ.resolutionMeV(); //LSB is 200MeV
 
     jFEXLargeRJetTOBEt = et/jFEXETResolution;
     if (jFEXLargeRJetTOBEt > 0x1fff) {
@@ -634,12 +641,10 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
         Sat = 1;
     }
     //create basic tobword with 32 bits
-    tobWord = tobWord + (Res << 23) + (eta << 18) + (phi << 14) + (jFEXLargeRJetTOBEt << 1) + (Sat);
-    ATH_MSG_DEBUG("tobword largeRJet with et, phi, eta, sub and sat : " << std::bitset<32>(tobWord) );
+    tobWord = tobWord + (Res << FEXAlgoSpaceDefs::jLJ_resBit) + (jFEXLargeRJetTOBEt << FEXAlgoSpaceDefs::jLJ_etBit) + (eta << FEXAlgoSpaceDefs::jLJ_etaBit) + (phi << FEXAlgoSpaceDefs::jLJ_phiBit) + (Sat);
+    ATH_MSG_DEBUG("tobword largeRJet with res, et, eta, phi: " << std::bitset<32>(tobWord) );
 
-    // Retrieve the L1 menu configuration
-    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-    const TrigConf::L1ThrExtraInfo_jLJ & thr_jLJ = l1Menu->thrExtraInfo().jLJ();
+    
     std::string str_jfexname = m_jfex_string[m_jfexid];
     unsigned int minEtThreshold = thr_jLJ.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
 
@@ -651,7 +656,11 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
 uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
 {
     uint32_t tobWord = 0;
-    const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+    
+    // Retrieve the L1 menu configuration
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    const TrigConf::L1ThrExtraInfo_jTAU & thr_jTAU = l1Menu->thrExtraInfo().jTAU();    
+    const int jFEXETResolution = thr_jTAU.resolutionMeV(); //LSB is 200MeV
 
     int eta = ieta-8; // needed to substract 8 to be in the FPGA core area
     int phi = iphi-8; // needed to substract 8 to be in the FPGA core area
@@ -668,13 +677,11 @@ uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
     if (iso > 0x7ff) iso = 0x7ff;  //0x7ff is 11 bits
 
     //create basic tobword with 32 bits
-    tobWord = tobWord + (eta << 27) + (phi << 23) + (et << 12) + (iso << 1) + sat ;
+    tobWord = tobWord + (iso << FEXAlgoSpaceDefs::jTau_isoBit) + (et << FEXAlgoSpaceDefs::jTau_etBit) + (eta << FEXAlgoSpaceDefs::jTau_etaBit) + (phi << FEXAlgoSpaceDefs::jTau_phiBit) + sat ;
 
-    ATH_MSG_DEBUG("tobword tau with eta, phi, et, iso and sat : " << std::bitset<32>(tobWord) );
+    ATH_MSG_DEBUG("tobword tau with iso, et, eta and phi: " << std::bitset<32>(tobWord) );
 
-    // Retrieve the L1 menu configuration
-    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-    const TrigConf::L1ThrExtraInfo_jTAU & thr_jTAU = l1Menu->thrExtraInfo().jTAU();
+
     std::string str_jfexname = m_jfex_string[m_jfexid];
     unsigned int minEtThreshold = thr_jTAU.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
 
@@ -711,31 +718,35 @@ std::vector <std::vector <uint32_t>> jFEXFPGA::getTauxTOBs()
 
 uint32_t jFEXFPGA::formSumETTOB(int ETlow, int EThigh )
 {
-  uint32_t tobWord = 0;
-  const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+    uint32_t tobWord = 0;
 
-  int satlow = 0;
-  int sathigh = 0; 
+    // Retrieve the L1 menu configuration
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    const TrigConf::L1ThrExtraInfo_jTE & thr_jTE = l1Menu->thrExtraInfo().jTE();
+    const int jFEXETResolution = thr_jTE.resolutionMeV(); //LSB is 200MeV
 
-  unsigned int etlow = ETlow/jFEXETResolution;
-  if (etlow > 0x7fff) { //0x7fff is 15 bits
-    ATH_MSG_DEBUG("sumEtlow saturated: " << etlow );
-    etlow = 0x7fff;
-    satlow=1;
-  }
+    int satlow = 0;
+    int sathigh = 0;
 
-  unsigned int ethigh = EThigh/jFEXETResolution;
-  if (ethigh > 0x7fff) { //0x7fff is 15 bits
-    ATH_MSG_DEBUG("sumEthigh saturated: " << ethigh );
-    ethigh = 0x7fff;
-    sathigh=1;
-  }
+    unsigned int etlow = ETlow/jFEXETResolution;
+    if (etlow > 0x7fff) { //0x7fff is 15 bits
+        ATH_MSG_DEBUG("sumEtlow saturated: " << etlow );
+        etlow = 0x7fff;
+        satlow=1;
+    }
 
-  //create basic tobword with 32 bits
-  tobWord = tobWord + (etlow << 17) + (satlow << 16) + (ethigh << 1) + sathigh ;
-  ATH_MSG_DEBUG("tobword SumET with ETlow, Satlow, EThigh and Sathigh : " << std::bitset<32>(tobWord) );
+    unsigned int ethigh = EThigh/jFEXETResolution;
+    if (ethigh > 0x7fff) { //0x7fff is 15 bits
+        ATH_MSG_DEBUG("sumEthigh saturated: " << ethigh );
+        ethigh = 0x7fff;
+        sathigh=1;
+    }
 
-  return tobWord;
+    //create basic tobword with 32 bits
+    tobWord = tobWord + (sathigh << FEXAlgoSpaceDefs::jTE_Sat_upperBit) + (ethigh << FEXAlgoSpaceDefs::jTE_Et_upperBit) + (etlow << FEXAlgoSpaceDefs::jTE_Et_lowerBit) + (satlow << FEXAlgoSpaceDefs::jTE_Sat_lowerBit) ;
+    ATH_MSG_DEBUG("tobword SumET with Sathigh, EThigh, ETlow and Satlow  : " << std::bitset<32>(tobWord) );
+
+    return tobWord;
 
 }
 
@@ -749,10 +760,16 @@ std::vector <uint32_t> jFEXFPGA::getSumEtTOBs() {
 
 uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
     uint32_t tobWord = 0;
-    const float_t jFEXETResolution = 200.0; //LSB is 200MeV
+
+    // Retrieve the L1 menu configuration
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    const TrigConf::L1ThrExtraInfo_jXE & thr_jXE = l1Menu->thrExtraInfo().jXE();
+    const int jFEXETResolution = thr_jXE.resolutionMeV(); //LSB is 200MeV
 
     int sat = 0;
     int res = 0;
+    
+    
 
     int metX = METX/jFEXETResolution;
     int metY = METY/jFEXETResolution;
@@ -772,8 +789,8 @@ uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
     }
 
     //create basic tobword with 32 bits
-    tobWord = tobWord + (res << 31) +((metX & 0x7fff) << 16) + (sat << 15) + (metY & 0x7fff)  ;
-    ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
+    tobWord = tobWord + (res << FEXAlgoSpaceDefs::jXE_ResBit) + ((metY & 0x7fff) << FEXAlgoSpaceDefs::jXE_Ey_Bit) + ((metX & 0x7fff) << FEXAlgoSpaceDefs::jXE_Ex_Bit) + (sat << FEXAlgoSpaceDefs::jXE_SatBit)  ;
+    ATH_MSG_DEBUG("tobword MET with Res, MET_Y, MET_X, Sat: " << std::bitset<32>(tobWord) );
 
     return tobWord;
 
@@ -853,8 +870,8 @@ int jFEXFPGA::getTTowerET_forMET(unsigned int TTID) {
 //Returns de ET of a given TT ID for Algorithm
 int jFEXFPGA::getTTowerET_SG(unsigned int TTID) {
 
-    SG::ReadHandle<jTowerContainer> jFEXFPGA_jTowerContainer(m_jFEXFPGA_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jFEXFPGA_jTowerContainer->findTower(TTID);
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey);
+    const LVL1::jTower * tmpTower = jTowerContainer->findTower(TTID);
     return tmpTower->getTotalET();
 }
 

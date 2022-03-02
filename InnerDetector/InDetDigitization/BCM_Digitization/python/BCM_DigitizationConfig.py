@@ -33,6 +33,11 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
         kwargs.setdefault("FirstXing", BCM_FirstXing() )
         kwargs.setdefault("LastXing",  BCM_LastXing()  )
 
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("MergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
+
     from AthenaCommon.GlobalFlags import globalflags
     if globalflags.isOverlay():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags

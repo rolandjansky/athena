@@ -83,6 +83,20 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
 
   std::map<const xAOD::Jet_v1*, TrigCompositeUtils::Decision*> jet_decisions;
 
+  //get primary vertex
+  const xAOD::Vertex_v1* primary_vertex = nullptr;
+
+  for(auto v: *vtxs){
+    if(v->vertexType()==xAOD::VxType::PriVtx){
+      primary_vertex = v;
+    }
+  }
+
+  if(primary_vertex == nullptr){
+    ATH_MSG_DEBUG("missing primary vertex");
+    return StatusCode::SUCCESS;
+  }
+
   //check if the max(jet-pt) is above the threshold
   double max_pt = 0.0;
   for(auto jet: *jets){
@@ -142,15 +156,6 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
     if(best_dr <= 0.4){
       //associate track to jet
       jets_to_tracks[best_jet].push_back(track);
-    }
-  }
-
-  //vertex stuff
-  const xAOD::Vertex_v1* primary_vertex = nullptr;
-
-  for(auto v: *vtxs){
-    if(v->vertexType()==xAOD::VxType::PriVtx){
-      primary_vertex = v;
     }
   }
 

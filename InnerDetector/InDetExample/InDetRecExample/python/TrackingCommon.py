@@ -338,21 +338,6 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
       createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
       createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
     else :
-
-      ######################################
-      # Temporary - pixel clustering setup #
-      ######################################
-      # Allow use of folder that exists but is not yet in global tag.
-      # Different names in different DB instances....
-      if not ('conddb' in dir()):
-        from IOVDbSvc.CondDB import conddb
-
-      if (conddb.dbmc == "OFLP200" or (conddb.dbdata=="OFLP200" and globalflags.DataSource=='data')) :
-        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-02")
-      if ((conddb.dbmc == "CONDBR2" and globalflags.DataSource!='data') or conddb.dbdata == "CONDBR2") :
-        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-02")
-      ## End of temporary code
-
       log.debug("Setting up lwtnn system")
       createAndAddCondAlg( getLWTNNCondAlg,                  'LWTNNCondAlg')
 

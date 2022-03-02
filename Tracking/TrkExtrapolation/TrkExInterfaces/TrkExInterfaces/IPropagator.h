@@ -190,7 +190,7 @@ public:
     ParticleHypothesis particle,
     std::vector<unsigned int>& solutions,
     std::vector<const Trk::TrackStateOnSurface*>*& matstates,
-    std::vector<std::pair<const Trk::TrackParameters*, int>>*& intersections,
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>* intersections,
     double& path,
     bool usePathLim = false,
     bool returnCurv = false,

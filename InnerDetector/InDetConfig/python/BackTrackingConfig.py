@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-import InDetConfig.TrackingCommonConfig         as   TC
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+import InDetConfig.TrackingCommonConfig as TC
 
 def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs):
     acc = ComponentAccumulator()
@@ -18,7 +19,7 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs
     kwargs.setdefault("RoadWidth", 35.)
     kwargs.setdefault("MaxStep", 20.)
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("RoadWidth", 50)
     # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
     if flags.InDet.Tracking.ActivePass.useSCT:
@@ -77,7 +78,7 @@ def TRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', Inp
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else "")
     kwargs.setdefault("NeighborSearch", True)
     kwargs.setdefault("LoadFull", False)
-    kwargs.setdefault("DoCosmics", flags.Beam.Type == "cosmics")
+    kwargs.setdefault("DoCosmics", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minSecondaryPt)
 
     InDetTRT_SeededSpacePointFinder = CompFactory.InDet.TRT_SeededSpacePointFinder_ATL(name = name, **kwargs)
@@ -126,7 +127,7 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     kwargs.setdefault("ConsistentSeeds", True)
     kwargs.setdefault("BremCorrection", False)
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("nWClustersMin", 0)
 
     InDetTRT_SeededTrackTool = CompFactory.InDet.TRT_SeededTrackFinder_ATL(name = name, **kwargs)
@@ -246,7 +247,7 @@ def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelec
     kwargs.setdefault("maxShared", flags.InDet.Tracking.ActivePass.maxSecondaryShared)
     kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
     kwargs.setdefault("UseParameterization", flags.InDet.Tracking.ActivePass.useParameterizedTRTCuts)
-    kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
+    kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("doPixelSplitting", flags.InDet.Tracking.doPixelClusterSplitting)
 
     acc.setPrivateTools(CompFactory.InDet.InDetAmbiTrackSelectionTool(name, **kwargs))
@@ -263,7 +264,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     #
     # --- set up special Scoring Tool for TRT seeded tracks
     #
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetCosmicScoringTool_TRTCfg(flags))
         InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolSharedHitsCfg(flags))
     else:
@@ -369,9 +370,7 @@ if __name__ == "__main__":
 
     if not flags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(flags,
-                                          useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type=="collisions",
-                                          usePhase = False))
+        top_acc.merge(TRTPreProcessingCfg(flags))
 
     ######################################## TRTSegmentFinding Configuration ###########################################
     InputCollections = []
@@ -380,8 +379,7 @@ if __name__ == "__main__":
     top_acc.merge(TRTSegmentFindingCfg( flags,
                                         extension = "",
                                         InputCollections = InputCollections,
-                                        BarrelSegments = 'TRTSegments', # InDetKeys.TRT_Segments
-                                        doPhase = False))
+                                        BarrelSegments = 'TRTSegments'))
 
     ########################################## BackTracking Configuration ##############################################
     TrackCollectionKeys = []

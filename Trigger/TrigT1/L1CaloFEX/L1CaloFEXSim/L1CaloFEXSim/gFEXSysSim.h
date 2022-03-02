@@ -23,6 +23,7 @@
 #include "xAODTrigger/gFexGlobalRoI.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 
 namespace LVL1 {
 
@@ -98,7 +99,6 @@ namespace LVL1 {
     ToolHandle<IgFEXSim> m_gFEXSimTool       {this, "gFEXSimTool",    "LVL1::gFEXSim",    "Tool that creates the gFEX Simulation"};
 
     SG::ReadHandleKey<LVL1::gTowerContainer> m_gTowerContainerSGKey {this, "MyGTowers", "gTowerContainer", "Input container for gTowers"};
-    SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexRhoOutKey {this,"Key_gFexRhoOutputContainer","L1_gFexRhoRoI","Output gFexRho (energy density) container"};
     SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexBlockOutKey {this,"Key_gFexSRJetOutputContainer","L1_gFexSRJetRoI","Output gFexBlock (small-R jet) container"};

@@ -1,11 +1,13 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
-from GaudiKernel.GaudiHandles import PrivateToolHandleArray
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from GaudiKernel.GaudiHandles import PrivateToolHandleArray
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
+
 
 def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
 
@@ -431,7 +433,7 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         ReplaceAllJointBoundaries=True,
         BuildBoundaryLayers=True,
         ExitVolumeName='InDet::Containers::InnerDetector',
-        RemoveHGTD=(flags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]),
+        RemoveHGTD=(flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]),
         ZminHGTD=3420.)
 
 
@@ -572,7 +574,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
             flags=flags,
             result=result,
             envelopeDefinitionSvc=atlas_env_def_service,
-            buildTrtStrawLayers=flags.Beam.Type == 'cosmics',
+            buildTrtStrawLayers=flags.Beam.Type is BeamType.Cosmics,
             namePrefix=namePrefix,
             nameSuffix=nameSuffix)
 

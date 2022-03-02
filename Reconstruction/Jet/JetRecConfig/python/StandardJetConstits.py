@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
  StandardJetConstits: A module defining standard definitions for jet inputs : external container and 
@@ -16,6 +16,7 @@
 ########################################################################
 from .JetDefinition import xAODType,  JetInputConstitSeq, JetInputExternal, JetConstitModifier, JetInputConstit
 from .StandardJetContext import inputsFromContext
+from AthenaConfiguration.Enums import BeamType
 
 # Prepare dictionnaries to hold all of our standard definitions.
 # They will be filled from the list below
@@ -101,24 +102,31 @@ _stdInputList = [
     # *****************************
     JetInputExternal("InDetTrackParticles",   xAODType.TrackParticle,
                      algoBuilder = standardReco("Tracks"),
-                     filterfn = lambda flags : (flags.Reco.EnableTracking, "Tracking is disabled") ,
+                     filterfn = lambda flags : (flags.Reco.EnableTracking or "InDetTrackParticles" in flags.Input.Collections, "Tracking is disabled and no InDetTrackParticles in input")
                      ),
 
     JetInputExternal("PrimaryVertices",   xAODType.Vertex,
                      prereqs = ["input:InDetTrackParticles"],
+                     filterfn = lambda flags : (flags.Beam.Type == BeamType.Collisions, f"No vertexing with {BeamType.Collisions}"), # should be changed when a reliable "EnableVertexing" flag exists
                      ),
-    
+    # No quality criteria are applied to the tracks, used for ghosts for example
     JetInputExternal("JetSelectedTracks",     xAODType.TrackParticle,
-                     prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
-                     algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context )
+                     prereqs= [ inputsFromContext("Tracks") ], # in std context, this is InDetTrackParticles (see StandardJetContext)
+                     algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context, trackSelOpt=False )
+                     ),
+    # Apply quality criteria defined via trackSelOptions in jdef.context (used e.g. for track-jets)
+    JetInputExternal("JetSelectedTracks_trackSelOpt",     xAODType.TrackParticle,
+                     prereqs= [ inputsFromContext("Tracks") ], # in std context, this is InDetTrackParticles (see StandardJetContext)  
+                     algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context, trackSelOpt=True )
                      ),
     JetInputExternal("JetTrackUsedInFitDeco", xAODType.TrackParticle,
-                     prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
+                     prereqs= [ inputsFromContext("Tracks") , # in std context, this is InDetTrackParticles (see StandardJetContext)
+                                inputsFromContext("Vertices")],
                      algoBuilder = inputcfg.buildJetTrackUsedInFitDeco
                      ),
     JetInputExternal("JetTrackVtxAssoc",      xAODType.TrackParticle,
                      algoBuilder = inputcfg.buildJetTrackVertexAssoc,
-                     prereqs = ["input:JetTrackUsedInFitDeco"]
+                     prereqs = ["input:JetTrackUsedInFitDeco", inputsFromContext("Vertices") ]
                      ),
 
     # *****************************
@@ -135,8 +143,7 @@ _stdInputList = [
     # *****************************
     JetInputExternal("MuonSegments", "MuonSegment", algoBuilder=standardReco("Muons"),
                      prereqs = ["input:InDetTrackParticles"], # most likely wrong : what exactly do we need to build muon segments ?? (and not necessarily full muons ...)
-                     filterfn = lambda flags : (flags.Reco.EnableCombinedMuon, "Muon reco is disabled") ,
-
+                     filterfn = lambda flags : (flags.Reco.EnableCombinedMuon or "MuonSegments" in flags.Input.Collections, "Muon reco is disabled"),
                      ),
 
 
@@ -144,16 +151,28 @@ _stdInputList = [
     # Truth particles from the hard scatter vertex prior to Geant4 simulation.
     # Neutrinos and muons are omitted; all other stable particles are included.
     JetInputExternal("JetInputTruthParticles",  xAODType.TruthParticle,
-                algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC ),
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC ),
 
     # Truth particles from the hard scatter vertex prior to Geant4 simulation.
     # Prompt electrons, muons and neutrinos are excluded, all other stable particles
     # are included, in particular leptons and neutrinos from hadron decays.
     JetInputExternal("JetInputTruthParticlesNoWZ",  xAODType.TruthParticle,
-                algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="NoWZ"),
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="NoWZ"),
+
+    # Truth particles from the hard scatter vertex prior to Geant4 simulation.
+    # Similar configuration as for JetInputTruthParticlesNoWZ but with slightly
+    # different photon dressing option
+    JetInputExternal("JetInputTruthParticlesDressedWZ", xAODType.TruthParticle,
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="DressedWZ"),
+
+    # Truth particles from the hard scatter vertex prior to Geant4 simulation.
+    # Only charged truth particles are used
+    JetInputExternal("JetInputTruthParticlesCharged", xAODType.TruthParticle,
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="Charged"),
+
 
     JetInputExternal("PV0JetSelectedTracks", xAODType.TrackParticle,
-            prereqs=["input:JetSelectedTracks", "input:JetTrackUsedInFitDeco"],
+                     prereqs=["input:JetSelectedTracks_trackSelOpt", "input:JetTrackUsedInFitDeco"],
                      algoBuilder = inputcfg.buildPV0TrackSel ),
 ]
 
@@ -221,27 +240,42 @@ _stdSeqList = [
     JetInputConstitSeq("EMPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
                   'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
 
+    # *****************************
+    # Tower (used only as ghosts atm)
+    JetInputConstit("Tower", xAODType.CaloCluster, "CaloCalFwdTopoTowers"),
 
     # *****************************
-    # Track constituents
+    # Track constituents (e.g. ghosts, no quality criteria, no TTVA)
     JetInputConstit("Track", xAODType.TrackParticle,'JetSelectedTracks'),
-    
-    # Track particles from the primary vertex
-    #JetInputConstitSeq("PV0Track", xAODType.TrackParticle,inputname='JetSelectedTracks',outputname= 'PV0JetSelectedTracks',
-    #              prereqs= ["input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc"], ),
-
+    # Track constituents (e.g. track-jets, trackSelOptions quality criteria, TTVA)
     JetInputConstit("PV0Track", xAODType.TrackParticle, 'PV0JetSelectedTracks'),
+
+    # LRT. Only used as ghosts
+    JetInputConstit("TrackLRT", xAODType.TrackParticle, "InDetLargeD0TrackParticles", 
+                    filterfn = lambda flags : (flags.InDet.Tracking.doR3LargeD0 and "InDetLargeD0TrackParticles" in flags.Input.Collections, "Large radius tracking did not run")),
 
     # *****************************
     # Muon segments. Only used as ghosts
     JetInputConstit("MuonSegment", "MuonSegment", "MuonSegments",                    ),
 
+    # *****************************
+    # VR track jets as ghosts for large-R jets
+    #  this could work : 
+    #JetInputConstit("AntiKtVR30Rmax4Rmin02PV0TrackJet", xAODType.Jet, "AntiKtVR30Rmax4Rmin02PV0TrackJets"),
+    # BUT a better solution is to call
+    # registerAsInputConstit(AntiKtVR30Rmax4Rmin02PV0Track) 
+    #  at the place where the jetdef 'AntiKtVR30Rmax4Rmin02PV0Track' is defined : see StandardSmallRJets.py 
     
     # *****************************
     # Truth particles (see JetInputExternal declarations above for more details)
     JetInputConstit("Truth", xAODType.TruthParticle, "JetInputTruthParticles" ),
     
     JetInputConstit("TruthWZ", xAODType.TruthParticle, "JetInputTruthParticlesNoWZ", jetinputtype="TruthWZ"),
+
+    JetInputConstit("TruthDressedWZ", xAODType.TruthParticle, "JetInputTruthParticlesDressedWZ", jetinputtype="TruthDressedWZ"),
+
+    JetInputConstit("TruthCharged", xAODType.TruthParticle, "JetInputTruthParticlesCharged", jetinputtype="TruthCharged"),
+
 ]
 
 for label in  _truthFlavours:    
@@ -275,19 +309,21 @@ _stdModList = [
     # JetConstitModifier( name , toolType, dictionnary_of_tool_properties )
     # (see JetDefinition.py for more details)
     
-    JetConstitModifier("Origin", "CaloClusterConstituentsOrigin", prereqs=inputsFromContext("Vertices")),
+    JetConstitModifier("Origin", "CaloClusterConstituentsOrigin", prereqs=[inputsFromContext("Vertices")]),
     JetConstitModifier("EM",     "ClusterAtEMScaleTool", ),
     JetConstitModifier("LC",     "", ),
     # Particle flow
     JetConstitModifier("CorrectPFO", "CorrectPFOTool",
                        # get the track properties from the context with wich jet will be configured with propFromContext
                        # See StandardJetContext.py for the default values.
+                       prereqs=[inputsFromContext("Vertices")],
                        properties=dict(VertexContainerKey=propFromContext("Vertices"),
                                        WeightPFOTool= _getPFOTool ) ), 
               
     JetConstitModifier("CHS",    "ChargedHadronSubtractionTool",
                        # get the track properties from the context with wich jet will be configured with propFromContext
                        # See StandardJetContext.py for the default values.
+                       prereqs=[inputsFromContext("Vertices")],
                        properties=dict(VertexContainerKey=propFromContext("Vertices"),
                                        TrackVertexAssociation=propFromContext("TVA"))),
     

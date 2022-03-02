@@ -1,20 +1,23 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-LArBadFebCondAlg=CompFactory.LArBadFebCondAlg
+from AthenaConfiguration.Enums import LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+
+LArBadFebCondAlg = CompFactory.LArBadFebCondAlg
+
 
 def LArKnownBadFebCfg(configFlags, tag=None):
     result=ComponentAccumulator()
 
-    if configFlags.GeoModel.Run == "RUN1":
+    if configFlags.GeoModel.Run is LHCPeriod.Run1:
         rekey=""
-    else:    
+    else:
         rekey="/LAR/BadChannels/KnownBADFEBs"
         result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/KnownBADFEBs",
                                            f"/LAR/BadChannelsOfl/KnownBADFEBs<key>{rekey}</key>",tag=tag,
-                                           className="AthenaAttributeList"))  
+                                           className="AthenaAttributeList"))
 
     result.addCondAlgo(LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey=rekey,WriteKey="LArKnownBadFEBs"))
     return result
@@ -22,13 +25,13 @@ def LArKnownBadFebCfg(configFlags, tag=None):
 def LArKnownMNBFebCfg(configFlags, tag=None):
     result=ComponentAccumulator()
 
-    if configFlags.GeoModel.Run == "RUN1":
+    if configFlags.GeoModel.Run is LHCPeriod.Run1:
         rekey=""
     else:
         rekey="/LAR/BadChannels/KnownMNBFEBs"
         result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/KnownMNBFEBs",
                                            f"/LAR/BadChannelsOfl/KnownMNBFEBs<key>{rekey}</key>",tag=tag,
-                                           className="AthenaAttributeList"))   
+                                           className="AthenaAttributeList"))
 
     result.addCondAlgo(LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey=rekey,WriteKey="LArKnownMNBFEBs"))
     return result
@@ -36,7 +39,7 @@ def LArKnownMNBFebCfg(configFlags, tag=None):
 
 
 if __name__=="__main__":
-    
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
@@ -49,10 +52,9 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
-    
+
     cfg.merge(LArKnownBadFebCfg(ConfigFlags))
     cfg.merge(LArKnownMNBFebCfg(ConfigFlags))
     f=open("LArBadFebCondAlgos.pkl","wb")
     cfg.store(f)
     f.close()
-    

@@ -9,6 +9,8 @@ class FlagEnum(Enum):
             raise TypeError(f"Invalid comparison of {self.__class__} with {type(other)}")
         return self is other
 
+    __hash__ = Enum.__hash__
+
 
 class Format(FlagEnum):
     BS = 'BS'
@@ -23,3 +25,17 @@ class ProductionStep(FlagEnum):
     Overlay = 'Overlay'
     FastChain = 'FastChain'
     Digitization = 'Digitization'
+    Reconstruction = 'Reconstruction'
+
+
+class LHCPeriod(FlagEnum):
+    Run1 = 'RUN1'
+    Run2 = 'RUN2'
+    Run3 = 'RUN3'
+    Run4 = 'RUN4'
+
+
+class BeamType(FlagEnum):
+    Collisions = 'collisions'
+    SingleBeam = 'singlebeam'
+    Cosmics = 'cosmics'

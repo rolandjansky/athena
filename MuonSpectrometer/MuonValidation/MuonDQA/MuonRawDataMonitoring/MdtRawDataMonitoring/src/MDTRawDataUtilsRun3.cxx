@@ -607,10 +607,13 @@ int MdtRawDataMonAlg::get_bin_for_LB_hist(int region, int layer, int phi, int et
 
   else{ //Endcap
     if(layer == 0){ //Inner
-      if(eta < 3) return 16*(eta-1) + phi;
-      else if(eta == 3) return 32 + phi/2;
-      else if(eta == 4) return 40 + phi/2;
-      else if(eta == 5) return 48 + phi/8;
+      int run3_offset=0;
+      if(m_do_run3Geometry) run3_offset=40;
+      if(eta < 3) return 16*(eta-1) + phi - run3_offset;
+      else if(eta == 3) return 32 + phi/2 - run3_offset;
+      else if(eta == 4) return 40 + phi/2 - run3_offset;
+      else if(eta == 5) return 48 + phi/8 - run3_offset;
+      
     }
     else if(layer == 1){ //Middle
       return 16*(eta-1) + phi;
@@ -1168,7 +1171,17 @@ int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EMS") binNum = 39 + 2*eta + (phi-2)/2-1;
 	else if(chamber.substr(0,3)=="EOL") binNum = 49 + 2*eta + (phi-1)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 61 + 2*eta + (phi-2)/2-1;
-	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex01");	
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex01");
+	if(m_do_run3Geometry){
+	  if(region == 2){
+	    if(binNum>8 && binNum<23)  binNum=binNum-2;
+	    else if(binNum>22 && binNum<30) binNum=binNum-8;
+	    else if(binNum>29) binNum=binNum-12;
+	  } else if(region == 3){
+	    if(binNum>22 && binNum<30) binNum=binNum-6;
+	    else if(binNum>29) binNum=binNum-10;
+	  }
+	}
 	return binNum - 1;
     } else if(crate == 2){//EA02, EC02
 	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-6)/2-1;
@@ -1183,6 +1196,17 @@ int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 47 + 2*eta + (phi-5)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 59 + 2*eta + (phi-6)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex02");
+	if(m_do_run3Geometry){
+	  if(region == 2){
+	    if(binNum>8 && binNum<22)  binNum=binNum-2;
+	    else if(binNum>21 && binNum<28) binNum=binNum-8;
+	    else if(binNum>27) binNum=binNum-12;
+	  }
+	  else if(region == 3){
+	    if(binNum>21 && binNum<28) binNum=binNum-6;
+	    else if(binNum>27) binNum=binNum-10;
+	  }
+	}
 	return binNum - 1;
     } else if(crate == 3){//EA03, EC03
 
@@ -1198,6 +1222,17 @@ int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 49 + 2*eta + (phi-9)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 61 + 2*eta + (phi-10)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex03");	
+	if(m_do_run3Geometry){
+	  if(region == 2){
+	    if(binNum>8 && binNum<23)  binNum=binNum-2;
+	    else if(binNum>22 && binNum<30) binNum=binNum-8;
+	    else if(binNum>29) binNum=binNum-12;
+	  }
+	  if(region == 3){
+	    if(binNum>22 && binNum<30) binNum=binNum-6;
+	    else if(binNum>29) binNum=binNum-10;
+	  }
+	}
 	return binNum - 1;
     } else if(crate == 4){//EA04, EC04
 	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-14)/2-1;
@@ -1211,6 +1246,18 @@ int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 48 + 2*eta + (phi-13)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 60 + 2*eta + (phi-14)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex04");	
+	if(m_do_run3Geometry){
+          if(region == 2){
+            if(binNum>8 && binNum<23)  binNum=binNum-2;
+            else if(binNum>22 && binNum<29) binNum=binNum-8;
+            else if(binNum>28) binNum=binNum-12;
+          }
+          if(region == 3){
+            if(binNum>22 && binNum<28) binNum=binNum-6;
+            else if(binNum>28) binNum=binNum-10;
+          }
+        }
+
 	return binNum - 1;
     }
   }  return -1;

@@ -19,6 +19,8 @@
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 
+#include "TrigConfData/L1Menu.h"
+
 class AtlasDetectorID;
 class Identifier;
 
@@ -58,35 +60,33 @@ namespace LVL1
       virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers) const override;
        
       /** Find RoIs in user-supplied map of input towers */
-      virtual void findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) const override;
+      virtual void findRoIs(const TrigConf::L1Menu* l1menu, const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) const override;
       
       /** Find RoIs in user-supplied DataVector of input towers */
-      virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) const override;
+      virtual void findRoIs(const TrigConf::L1Menu* l1menu, const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) const override;
      
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1) const override;
+      virtual void findCPMTobRoIs(const TrigConf::L1Menu* l1menu, const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1) const override;
      
       /** Form CPM results for specified crate/module using user-supplied vector of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1) const override;
-      
+      virtual void findCPMTobRoIs(const TrigConf::L1Menu* l1menu, const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1) const override;
+
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version adds to DataVector of CPMTobRoI and returns backplane data words*/
-      virtual void findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
+      virtual void findCPMResults(const TrigConf::L1Menu* l1menu, const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                   DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
                                   std::vector<unsigned int>& tauCMXData, int slice = -1) const override;
       
       /** Return RoI object for a specified location */
-      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  const override;
+      virtual CPMTobAlgorithm findRoI(const TrigConf::L1Menu* l1menu, double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  const override;
       
       /** Form cluster/isolation sums for a given RoI location */
-      virtual CPMTobAlgorithm formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
-      virtual CPMTobAlgorithm formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
+      virtual CPMTobAlgorithm formSums(const TrigConf::L1Menu* l1menu, double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
+      virtual CPMTobAlgorithm formSums(const TrigConf::L1Menu* l1menu, uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
             
     private:
-
-      const TrigConf::L1Menu * m_l1menu{nullptr};
 
       /** Utility for decoding RoI words */
       CPRoIDecoder m_conv;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # The file is obsolete and replaced by TriggerConfigFlags.py. Do not add any new flags!
@@ -24,43 +24,6 @@ class AODEDMSet(JobProperty):
 _flags.append(AODEDMSet)
 
 
-class ESDEDMSet(JobProperty):
-    """ Define which sets of object go to ESD (or derived ESD) """
-    statusOn=True
-    allowedType=['list']
-    StoredValue='ESD'
-    def _do_action(self):
-        log.warning("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
-
-_flags.append(ESDEDMSet)
-
-
-class configForStartup(JobProperty):
-    """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
-    statusOn=True
-    allowedType=['string']
-    StoredValue = None
-    def _do_action(self):
-        log.warning("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
-
-_flags.append(configForStartup)
-
-
-class triggerConfig(JobProperty):
-    statusOn=True
-    allowedType=['string']
-    StoredValue = None
-
-    def _do_action(self):
-        log.warning("TriggerFlags.triggerConfig is deprecated. Use ConfigFlags.Trigger.triggerConfig instead.")
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.triggerConfig = self.get_Value()
-
-_flags.append(triggerConfig)
-
-
 # the container of all trigger flags
 
 class Trigger(JobPropertyContainer):
@@ -78,10 +41,3 @@ del _flags
 
 ## make an alias for trigger flags which looks like old TriggerFlags class
 TriggerFlags = rec.Trigger
-
-def sync_Trigger2Reco():
-    from AthenaCommon.GlobalFlags  import globalflags
-
-    if globalflags.InputFormat() == 'bytestream':
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.readBS = True

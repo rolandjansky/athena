@@ -33,7 +33,7 @@ void Trig::FeatureContainer::append(const FeatureContainer& other)
 }
 
 
-HLT::TrigNavStructure*
+const HLT::TrigNavStructure*
 Trig::FeatureContainer::navigation() const {
   return const_cast<HLT::TrigNavStructure*>(m_cgm->navigation());
 }

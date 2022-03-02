@@ -37,6 +37,8 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
    m.MonTool.defineHistogram('TIME_makeResult', path='EXPERT', type='TH1F', title='makeResult() call time;Time [ms];Events',
                              xbins=200, xmin=0, xmax=50 )
+   m.MonTool.defineHistogram('TIME_makeResult_extRange', path='EXPERT', type='TH1F', title='makeResult() call time;Time [ms];Events',
+                             xbins=200, xmin=0, xmax=50, opt='kCanRebin' )
 
    return m
 

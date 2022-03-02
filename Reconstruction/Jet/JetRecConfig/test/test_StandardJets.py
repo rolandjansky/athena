@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 # should choose a better default ??
-DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
+#DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
+DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root"
 
 from argparse import ArgumentParser
 parser = ArgumentParser(prog="StandardTests: runs standard jet reconstruction from an ESD",
@@ -71,7 +72,16 @@ cfg=MainServicesCfg(ConfigFlags)
 # Prepare the JetDefinition to be tested
 if args.jetType=='smallR':
     from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth
-    jetdefs0 = [AntiKt4EMPFlow  , AntiKt4LCTopo, AntiKt4Truth]
+    jetdefs0 = []
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if IsInInputFile("xAOD::CaloClusterContainer","CaloCalFwdTopoTowers"):
+        jetdefs0 = [AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth]
+    else:
+        ghostdefs_PFlow_noTower = [g for g in AntiKt4EMPFlow.ghostdefs if g != "Tower"]
+        AntiKt4EMPFlow_noTower = AntiKt4EMPFlow.clone(ghostdefs=ghostdefs_PFlow_noTower)
+        ghostdefs_LC_noTower = [g for g in AntiKt4LCTopo.ghostdefs if g != "Tower"]
+        AntiKt4LCTopo_noTower = AntiKt4LCTopo.clone(ghostdefs=ghostdefs_LC_noTower)
+        jetdefs0 = [AntiKt4EMPFlow_noTower, AntiKt4LCTopo_noTower, AntiKt4Truth]
     # we add a suffix to avoid conflicts with in-file existing jets
     jetdefs =[ d.clone(prefix="New") for d in jetdefs0 ]
     alljetdefs = jetdefs0+jetdefs
@@ -92,8 +102,8 @@ elif args.jetType=='cssk':
     jetdefs = [AntiKt4LCTopoCSSK,AntiKt4EMPFlowCSSK]
     alljetdefs = jetdefs
 elif args.jetType=='VR':
-    from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0TrackJets
-    jetdefs = [AntiKtVR30Rmax4Rmin02PV0TrackJets]
+    from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0Track
+    jetdefs = [AntiKtVR30Rmax4Rmin02PV0Track]
     alljetdefs = jetdefs
 
 # ***********************************************
@@ -157,4 +167,5 @@ pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 cfg.getService("StoreGateSvc").Dump = args.dumpSG
 
 # Run the job
-cfg.run(maxEvents=args.nEvents)
+if args.nEvents>0:
+    cfg.run(maxEvents=args.nEvents)

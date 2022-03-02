@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -31,12 +31,12 @@ TRTGeometryManagerTool::TRTGeometryManagerTool(const std::string& type,
       const std::string& name,
       const IInterface * parent)
   : AthAlgTool(type,name,parent)
-      , m_trtDetManager(0)
+      , m_trtDetManager(nullptr)
       , m_idHelper()
       , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-      , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)0)
-      , m_alignParList(0)
-      , m_fullAlignParList(0)
+      , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)nullptr)
+      , m_alignParList(nullptr)
+      , m_fullAlignParList(nullptr)
 {
    declareInterface<IGeometryManagerTool>(this);
    declareProperty("AlignModuleTool",    m_alignModuleTool);
@@ -102,7 +102,7 @@ TRTGeometryManagerTool::TRTGeometryManagerTool(const std::string& type,
    declareProperty("DumpGeometry",       m_dumpGeometry = true);
 
    m_hashCounter = 0;
-   m_logStream = 0;
+   m_logStream = nullptr;
 }
 
 //________________________________________________________________________
@@ -363,7 +363,7 @@ void TRTGeometryManagerTool::buildL0()
    ATH_MSG_DEBUG("maxHash for the TRT "<<trtmaxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)(trtmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)(trtmaxHash),nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    // ================================================================
@@ -432,7 +432,7 @@ void TRTGeometryManagerTool::buildL1Barrel()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    // for L1 alignment the alignment frame is equal to the global frame
@@ -507,7 +507,7 @@ void TRTGeometryManagerTool::buildL1Endcaps()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    // for L1 alignment the alignment frame is equal to the global frame
@@ -598,7 +598,7 @@ void TRTGeometryManagerTool::buildL2Barrel()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    // for the alignment frame we would like to use something like
@@ -748,7 +748,7 @@ void TRTGeometryManagerTool::buildL2Endcaps()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    for (int iSide = 0; iSide < 2; iSide++) {
@@ -760,7 +760,7 @@ void TRTGeometryManagerTool::buildL2Endcaps()
       }
 
       int iRing(-1);
-      Trk::AlignModule * mod = 0;
+      Trk::AlignModule * mod = nullptr;
       for (unsigned int iWheel = 0; iWheel < m_trtDetManager->getNumerology()->getNEndcapWheels(); iWheel++) {
          ATH_MSG_DEBUG("Wheel : "<<iWheel);
          for (unsigned int iStrawLayer = 0; iStrawLayer < m_trtDetManager->getNumerology()->getNEndcapLayers(iWheel); iStrawLayer++) {
@@ -884,7 +884,7 @@ void TRTGeometryManagerTool::buildL2EndcapsOLD()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    for (int iSide = 0; iSide < 2; iSide++) {
@@ -973,7 +973,7 @@ void TRTGeometryManagerTool::buildL3Barrel()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
    for (unsigned int iPhiModule = 0; iPhiModule < m_trtDetManager->getNumerology()->getNBarrelPhi(); iPhiModule++) { // modules in phi
@@ -1079,7 +1079,7 @@ void TRTGeometryManagerTool::buildL3Endcap()
    ATH_MSG_DEBUG("maxHash for the TRT "<<maxHash);
 
    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-     m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,0);
+     m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)maxHash,nullptr);
    Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
 

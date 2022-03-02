@@ -28,6 +28,10 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
         # This should match the range for the RPC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", RPC_FirstXing() ) 
         kwargs.setdefault("LastXing",  RPC_LastXing() ) 
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
     if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():

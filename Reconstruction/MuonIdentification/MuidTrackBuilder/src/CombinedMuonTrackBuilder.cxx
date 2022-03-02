@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace Rec {
         AthAlgTool(type, name, parent),
         m_alignUncertTool_theta("Muon::MuonAlignmentUncertTool/MuonAlignmentUncertToolTheta"),
         m_alignUncertTool_phi("Muon::MuonAlignmentUncertTool/MuonAlignmentUncertToolPhi") {
-        m_messageHelper = std::make_unique<MessageHelper>(*this);
+        m_messageHelper = std::make_unique<MessageHelper>(*this, 50);
 
         declareInterface<ICombinedMuonTrackBuilder>(this);
 
@@ -81,7 +81,6 @@ namespace Rec {
 
         // fill WARNING messages
         m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
-        m_messageHelper->setNumberOfMessages(50);
         m_messageHelper->setMessage(0, "combinedFit:: missing MeasuredPerigee for indet track");
         m_messageHelper->setMessage(1, "combinedFit:: fail with MS removed by cleaner");
         m_messageHelper->setMessage(2, "combinedFit:: fail with perigee outside indet");
@@ -2605,7 +2604,7 @@ namespace Rec {
                 ATH_MSG_DEBUG("createExtrapolatedTrack() - Track parameters are not perigee " << (*trackParameters));
             }
             trackStateOnSurfaces.push_back(
-                new Trk::TrackStateOnSurface(nullptr, trackParameters->clone(), nullptr, nullptr, perigeeType));
+                new Trk::TrackStateOnSurface(nullptr, trackParameters->uniqueClone(), nullptr, nullptr, perigeeType));
         }
 
         // optionally append a pseudoMeasurement describing the vertex
@@ -2795,17 +2794,15 @@ namespace Rec {
                 std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
                 typePattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
 
-                const Trk::MaterialEffectsOnTrack* materialEffects =
-                    new Trk::MaterialEffectsOnTrack(0., caloEnergy, (**s).trackParameters()->associatedSurface(), typePattern);
+                auto materialEffects =
+                    std::make_unique<const Trk::MaterialEffectsOnTrack>(0., caloEnergy, (**s).trackParameters()->associatedSurface(), typePattern);
 
                 // create TSOS
-                const Trk::FitQualityOnSurface* fitQoS = nullptr;
-                const Trk::MeasurementBase* measurementBase = nullptr;
 
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
                 type.set(Trk::TrackStateOnSurface::CaloDeposit);
 
-                TSOS = new Trk::TrackStateOnSurface(measurementBase, (**s).trackParameters()->clone(), fitQoS, materialEffects, type);
+                TSOS = new Trk::TrackStateOnSurface(nullptr, (**s).trackParameters()->uniqueClone(), nullptr, std::move(materialEffects), type);
 
                 trackStateOnSurfaces.push_back(TSOS);
                 ++s;
@@ -3059,9 +3056,9 @@ namespace Rec {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> perigeeType;
         perigeeType.set(Trk::TrackStateOnSurface::Perigee);
 
-        const Trk::Perigee* perigee =
-            new Trk::Perigee(trackParameters->position(), trackParameters->momentum(), trackParameters->charge(), surface);
-        return new Trk::TrackStateOnSurface(nullptr, perigee, nullptr, nullptr, perigeeType);
+        auto perigee =
+            std::make_unique<const Trk::Perigee>(trackParameters->position(), trackParameters->momentum(), trackParameters->charge(), surface);
+        return new Trk::TrackStateOnSurface(nullptr, std::move(perigee), nullptr, nullptr, perigeeType);
     }
 
     std::unique_ptr<const Trk::TrackParameters> CombinedMuonTrackBuilder::extrapolatedParameters(

@@ -207,6 +207,7 @@ StatusCode LArSCL1Maker::initialize()
   CHECK( m_scidtool.retrieve() );
   CHECK( m_sLArDigitsContainerKey.initialize() );
   CHECK( m_hitMapKey.initialize() );
+  CHECK( m_bkgDigitsKey.initialize(!m_bkgDigitsKey.empty()) );
 
   
   // Incident Service: 
@@ -233,6 +234,24 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey,context);
   const LArHitEMap* hitmapPtr = hitmap.cptr();
 
+  bool addBkg(false);
+  const LArDigitContainer* bkgDigitsPtr = nullptr;
+  std::map<HWIdentifier,size_t> IDtoIndexMap;
+  if ( !m_bkgDigitsKey.empty() ){
+  addBkg = true;
+  SG::ReadHandle<LArDigitContainer> bkgDigits(m_bkgDigitsKey,context);
+  bkgDigitsPtr = bkgDigits.cptr();
+  unsigned int digitCount(0);
+  for( const auto bkgDigit : *bkgDigitsPtr ){
+        IDtoIndexMap.insert({bkgDigit->channelID(),digitCount});
+	digitCount++;
+  }
+  // check size compatibility with first LArDigit
+  if ( (unsigned int)bkgDigitsPtr->at(0)->nsamples() != m_nSamples ){
+     addBkg=false; // don't add background 
+     ATH_MSG_INFO("Uncompatible background and signal LArDigit size : Overlay requested but will not be performed");
+  }
+  } // end of check if the Key is empty
   //
   // .....get the trigger time if requested
   //
@@ -300,9 +319,9 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   alreadyThere.resize( nbSC );
   alreadyThere.assign( nbSC, false );
 
-   std::vector<float> truthE;
-   truthE.resize( nbSC );
-   truthE.assign( nbSC, 0 );
+  std::vector<float> truthE;
+  truthE.resize( nbSC );
+  truthE.assign( nbSC, 0 );
 
   std::vector<HWIdentifier> hwid;
   hwid.resize( nbSC );
@@ -314,7 +333,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   std::vector<float> samples;
   samples.resize( m_nSamples );
   std::vector<short> samplesInt;
-  samplesInt.resize( m_nSamples );
+  samplesInt.reserve( m_nSamples );
   CaloGain::CaloGain scGain = CaloGain::LARHIGHGAIN;
 
   for( ; it!=it_end;++it) {
@@ -362,7 +381,8 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   std::vector<float> zeroSamp; 
   zeroSamp.assign(m_nSamples,0); // for empty channels 
   ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, m_useLegacyRandomSeeds );
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, seedingmode );
   CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(context);
   for( ; it != it_end; ++it){
       std::vector< float > *vecPtr = &zeroSamp; 
@@ -371,42 +391,54 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
       std::vector<float>& vec = *vecPtr;
 
       const HWIdentifier id = hwid[it];
-       if ( id == 0 ) { dd++; continue; } 
+      if ( id == 0 ) { dd++; continue; } 
 
-         // reset noise
-         noise.assign(m_nSamples,0);
+      // Do I have Overlay
+      size_t backGroundIdx = 999999;
+      if ( addBkg && (IDtoIndexMap.find(id)!=IDtoIndexMap.end()) ) backGroundIdx = IDtoIndexMap.find(id)->second;
 
-         // noise definition
-         if ( m_NoiseOnOff ) {
-         float SigmaNoise = (larnoise->noise(id,0));
-         int index;
-         const std::vector<float>& CorrGen = (autoCorrNoise->autoCorrSqrt(id,0));
+      // reset noise
+      noise.assign(m_nSamples,0);
 
-         RandGaussZiggurat::shootArray(rndmEngine,static_cast<int>(m_nSamples),Rndm,0.,1.);
+      // noise definition
+      if ( m_NoiseOnOff && (backGroundIdx<999999) ) {
+      float SigmaNoise = (larnoise->noise(id,0));
+      int index;
+      const std::vector<float>& CorrGen = (autoCorrNoise->autoCorrSqrt(id,0));
 
-         for(int i=0;i<(int)m_nSamples;i++){
-         noise[i]=0.;
-         for(int j=0;j<=i;j++){
+      RandGaussZiggurat::shootArray(rndmEngine,static_cast<int>(m_nSamples),Rndm,0.,1.);
+
+      for(int i=0;i<(int)m_nSamples;i++){
+        noise[i]=0.;
+        for(int j=0;j<=i;j++){
                index = i* m_nSamples + j;
                noise[i] += Rndm[j] * (CorrGen)[index];
-         }
-         noise[i]=noise[i]*SigmaNoise;
-         }
-         }
+        }
+        noise[i]=noise[i]*SigmaNoise;
+        }
+      }
 
-         int ped = pedestal->pedestal(id,0);
-         samplesInt.assign( m_nSamples, 0 );
-         for(unsigned int i=0; i< vec.size(); i++) {
-               samplesInt[i]=rint(vec[i]+ped+noise[i]);
+      if ( backGroundIdx<999999 ) { // bkgDigits exist and have compatible sizes
+        // assuming compatible sizes, see above
+	const std::vector<short>& bkgSamples = bkgDigitsPtr->at(backGroundIdx)->samples();
+	samplesInt.insert(samplesInt.end(), bkgSamples.begin(), bkgSamples.end() );
+      } else {
+	int ped = pedestal->pedestal(id,0); // DB pedestal
+	samplesInt.assign( m_nSamples, ped );
+      }
+      for(unsigned int i=0; i< vec.size(); i++) {
+               samplesInt[i]+=rint(vec[i]+noise[i]);
                if ( samplesInt[i] >= MAXADC ) samplesInt[i]=MAXADC-1;
                if ( samplesInt[i] < 0 ) samplesInt[i]=0;
-         }
-         LArDigit* dig = new LArDigit(id, scGain, samplesInt );
-         scContainer->push_back(dig);
+      }
+      LArDigit* dig = new LArDigit(id, scGain, samplesInt );
+      scContainer->push_back(dig);
 
   }
   // record final output container
   ATH_CHECK( scContainerHandle.record( std::move(scContainer) ) );
+
+  if ( addBkg ) IDtoIndexMap.clear(); // clear event
 
   if(m_chronoTest) {
     m_chronSvc->chronoStop( "LArSCL1Mk hit loop " );

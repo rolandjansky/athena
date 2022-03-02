@@ -15,9 +15,8 @@ using namespace pool;
 using namespace std;
 
 RootTreeIndexContainer::RootTreeIndexContainer() :
-   m_indexBranch(nullptr), m_index_entries(0), m_index_multi( getpid() ), m_indexBump(0)
+   m_indexBranch(nullptr), m_index_entries(0), m_index_multi( getpid() ), m_index(0), m_indexBump(0)
 { }
-
 
 DbStatus RootTreeIndexContainer::open( DbDatabase& dbH, 
                                        const std::string& nam,
@@ -32,8 +31,14 @@ DbStatus RootTreeIndexContainer::open( DbDatabase& dbH,
 
 long long int RootTreeIndexContainer::nextRecordId()
 {
-   long long id = m_index_multi;
-   return (id << 32) + RootTreeContainer::nextRecordId() + m_indexBump;
+   long long int s = m_index_multi;
+   s = s << 32;
+   if (m_indexBranch == nullptr ) {
+      s += RootTreeContainer::nextRecordId();
+   } else {
+      s += std::max(m_index_entries + DbContainerImp::size(), RootTreeContainer::nextRecordId());
+   }
+   return s + m_indexBump;
 }
 
 void RootTreeIndexContainer::useNextRecordId(long long int nextID)

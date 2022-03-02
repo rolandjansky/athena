@@ -5,7 +5,7 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
@@ -19,13 +19,13 @@ def precisionTrackingSequence(ConfigFlags, ion=False, variant=''):
 
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
     TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
  
 
     InViewRoIs = "precisionTracking" + variant
     # EVCreator:
     precisionTrackingViewsMaker = EventViewCreatorAlgorithm("IM" + tag(ion) + variant)
-    precisionTrackingViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    precisionTrackingViewsMaker.mergeUsingFeature=True # Merge inputs based on their Precision Calo feature
     precisionTrackingViewsMaker.RoITool = ViewCreatorPreviousROITool()
     precisionTrackingViewsMaker.InViewRoIs = InViewRoIs
     precisionTrackingViewsMaker.Views = tag(ion) + "Views" + variant
@@ -49,20 +49,17 @@ def precisionTrackingMenuSequence(name, is_probe_leg=False, ion=False, variant='
     """ Creates precisionCalo MENU sequence """
     (sequence, precisionTrackingViewsMaker, caloClusters, trackParticles) = RecoFragmentsPool.retrieve(precisionTrackingSequence, ConfigFlags, ion=ion, variant=variant)
 
-    #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlg
-    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlg(name + tag(ion) + "Hypo" + variant)
-    thePrecisionTrackingHypo.CaloClusters = caloClusters
-
+    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg, TrigStreamerHypoTool
+    thePrecisionTrackingHypo = TrigStreamerHypoAlg(name + tag(ion) + "Hypo" + variant)
+    thePrecisionTrackingHypo.FeatureIsROI = False
+    def acceptAllHypoToolGen(chainDict):
+        return TrigStreamerHypoTool(chainDict["chainName"], Pass = True)
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTrackingViewsMaker, 
                          Hypo        = thePrecisionTrackingHypo,
-                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict,
+                         HypoToolGen = acceptAllHypoToolGen, # Note: TrigEgammaPrecisionTrackingHypoAlg does not use HypoTools
                          IsProbe     = is_probe_leg)
 
 
 def precisionTrackingMenuSequence_LRT(name, is_probe_leg=False):
     return precisionTrackingMenuSequence(name, is_probe_leg=is_probe_leg, ion=False, variant='_LRT')
-
-

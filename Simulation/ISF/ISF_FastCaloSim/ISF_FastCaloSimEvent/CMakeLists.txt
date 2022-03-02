@@ -57,6 +57,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h
                            ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h
+                           ISF_FastCaloSimEvent/TFCSPredictExtrapWeights.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
@@ -71,6 +72,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
+                           ISF_FastCaloSimEvent/TFCSLateralShapeTuning.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h

@@ -21,5 +21,5 @@ atlas_add_component( MuonCombinedBaseTools
                      MuonCombinedToolInterfaces muonEvent MuidEvent ParticleTruth RecoToolInterfaces TrackToCaloLib TrkGeometry TrkSurfaces 
                      TrkCaloExtension TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParametersIdentificationHelpers 
                      TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkDetDescrInterfaces TrkToolInterfaces BeamSpotConditionsData 
-                     MagFieldElements MagFieldConditions xAODMuonCnvLib MuonSegmentTaggerToolInterfaces AthContainers )
+                     MagFieldElements MagFieldConditions xAODMuonCnvLib MuonSegmentTaggerToolInterfaces AthContainers MuonDetDescrUtils)
 

@@ -148,7 +148,7 @@ def TrigEgammaFastPhotonHypoToolFromName( name, conf , tool=None):
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastPhotonHypoToolFromDict( decodedDict, tool=tool )
 

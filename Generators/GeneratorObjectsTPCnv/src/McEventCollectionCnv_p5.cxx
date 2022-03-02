@@ -606,7 +606,9 @@ McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
 
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
-  for ( unsigned int i = 0; i != nPartsIn; ++i ) {
+  /// Note: the reversed order is because of ATLASSIM-5525
+  //for ( unsigned int i = 0; i != nPartsIn; ++i ) {
+  for ( int i = nPartsIn - 1; i >= 0; i-- ) {
     createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]],
                        partToEndVtx,
                        datapools );

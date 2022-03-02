@@ -34,7 +34,7 @@ rdo2aod.type = 'Reco_tf'
 rdo2aod.input = ''
 rdo2aod.explicit_input = True
 rdo2aod.threads = 1
-rdo2aod.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
+rdo2aod.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
 rdo2aod.args += ' --preExec="setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'"'
 
 test = Test.Test()

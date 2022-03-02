@@ -34,6 +34,7 @@ def doOnlineMonForceCfg():
     doOnlineMonForce = False
     return doOnlineMonForce
 
+
 class TrigEgammaMonAlgBuilder:
   
   data_type = ''
@@ -601,12 +602,22 @@ class TrigEgammaMonAlgBuilder:
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_L1Calo', self.basePath+'/'+trigger+'/Distributions/L1Calo' )
     
-    self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.))
-    self.addHistogram(monGroup, TH1F("roi_et", "RoI word Cluster Energy; E [GeV] ; Count", 100, 0, 200))
-    self.addHistogram(monGroup, TH1F("emIso", "EM Isolation; E [GeV] ; Count", 50, -1., 20.))
-    self.addHistogram(monGroup, TH1F("hadCore", "HAD Isolation; E [GeV] ; Count", 50, -1., 20.))
-    self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.5, 2.5))
-    self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
+    if 'L1eEM' in trigger:
+
+      self.addHistogram(monGroup, TH1F("et"     , "Et; Et [GeV] ; Count", 100, 0., 200.))
+      self.addHistogram(monGroup, TH1F("eta"    , "eta; eta ; Count"    , 50, -2.5, 2.5))
+      self.addHistogram(monGroup, TH1F("phi"    , "phi; phi ; Count"    , 20, -3.2, 3.2))
+      self.addHistogram(monGroup, TH1F("Rhad"   , "Rhad; Rhad ; Count"  , 50, -1, 3))
+      self.addHistogram(monGroup, TH1F("Reta"   , "Reta; Reta ; Count"  , 50, -1, 3 ))
+      self.addHistogram(monGroup, TH1F("Wstot"  , "Wstot; Wstot ; Count", 50, -1, 3 ))
+
+    else: # L1Calo Legacy
+      self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.))
+      self.addHistogram(monGroup, TH1F("roi_et", "RoI word Cluster Energy; E [GeV] ; Count", 100, 0, 200))
+      self.addHistogram(monGroup, TH1F("emIso", "EM Isolation; E [GeV] ; Count", 50, -1., 20.))
+      self.addHistogram(monGroup, TH1F("hadCore", "HAD Isolation; E [GeV] ; Count", 50, -1., 20.))
+      self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.5, 2.5))
+      self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
 
 
 

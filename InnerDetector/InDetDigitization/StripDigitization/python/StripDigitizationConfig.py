@@ -5,7 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -37,7 +37,7 @@ def ITkStripDigitizationCommonCfg(flags, name="ITkStripDigitizationToolCommon", 
     kwargs.setdefault("EnableHits", True)
     kwargs.setdefault("BarrelOnly", False)
     # Set FixedTime for cosmics for use in SurfaceChargesGenerator
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("CosmicsRun", True)
         kwargs.setdefault("FixedTime", 10)
     if flags.Digitization.DoXingByXingPileUp:
@@ -57,8 +57,14 @@ def ITkStripDigitizationCommonCfg(flags, name="ITkStripDigitizationToolCommon", 
 def ITkStripDigitizationToolCfg(flags, name="ITkStripDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured ITkStrip digitization tool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(ITkStripRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(ITkStripRangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("MergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "ITkStripRDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "ITkStripSDO_Map")
@@ -75,7 +81,7 @@ def ITkStripDigitizationHSToolCfg(flags, name="ITkStripDigitizationHSTool", **kw
     """Return ComponentAccumulator with hard scatter configured SCT digitization tool"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkStripRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("OutputObjectName", "ITkStripRDOs")
     kwargs.setdefault("OutputSDOName", "ITkStripSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
@@ -88,7 +94,7 @@ def ITkStripDigitizationPUToolCfg(flags, name="ITkStripDigitizationPUTool",**kwa
     """Return ComponentAccumulator with pileup configured SCT digitization tool"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkStripRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("OutputObjectName", "ITkStrip_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "ITkStrip_PU_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 2)
@@ -113,7 +119,7 @@ def ITkStripDigitizationToolSplitNoMergePUCfg(flags, name="ITkStripDigitizationT
     """Return ComponentAccumulator with merged pileup configured SCT digitization tool"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkStripRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("InputObjectName", "PileupITkStripHits")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("OutputObjectName", "ITkStrip_PU_RDOs")

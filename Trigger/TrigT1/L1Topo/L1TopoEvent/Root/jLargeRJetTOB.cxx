@@ -1,4 +1,4 @@
-//  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/jLargeRJetTOB.h"
 
@@ -38,5 +38,5 @@ TCS::jLargeRJetTOB::clearHeap() {
 
 void
 TCS::jLargeRJetTOB::print(std::ostream &o) const {
-   o << "jet energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+   o << "jLargeJet energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
 }

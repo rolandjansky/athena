@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -124,7 +124,7 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 
 bool Trig::ExpertMethods::isHLTTruncated() const {
 
-  SG::ReadHandleKey<xAOD::TrigDecision>* trigDecRH = cgm()->xAODTrigDecisionKey();
+  const SG::ReadHandleKey<xAOD::TrigDecision>* trigDecRH = cgm()->xAODTrigDecisionKey();
   if (trigDecRH && !trigDecRH->empty()) {
     SG::ReadHandle<xAOD::TrigDecision> trigDec = SG::makeHandle(*trigDecRH);
     if(!trigDec.isValid()) {

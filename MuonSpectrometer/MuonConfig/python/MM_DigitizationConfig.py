@@ -36,11 +36,17 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitizationTool"""
     acc = ComponentAccumulator()
     acc.merge(MuonDetectorCondAlgCfg(flags))
-    rangetool = acc.popToolsAndMerge(MM_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.DoXingByXingPileUp:
-        kwargs.setdefault("FirstXing", MM_FirstXing())
-        kwargs.setdefault("LastXing", MM_LastXing())
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp:
+            kwargs.setdefault("FirstXing", MM_FirstXing())
+            kwargs.setdefault("LastXing", MM_LastXing())
+        else:
+            intervals += [acc.popToolsAndMerge(MM_RangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("MergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")

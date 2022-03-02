@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <typeinfo>
@@ -12,22 +12,11 @@ LArRawSC::LArRawSC()  {}
 
 LArRawSC::operator std::string() const{
 
- char * stSamples = new char[20] ;
- char * stNumberOfSamples = new char[30] ;
- char * classNameOfDigit = new char[48] ;
- 
- const char * stname = typeid( *this ).name() ; 
- int lname ; 
- sscanf( stname , "%80d%47s" , &lname , classNameOfDigit ) ;
+ //char stNumberOfSamples[30];
+ //sprintf( stNumberOfSamples , "# of samples = %d " , this->nsamples() ) ;
  
  
- sprintf( stNumberOfSamples , "# of samples = %d " , this->nsamples() ) ;
- 
- 
- std::string digitString = classNameOfDigit ;
- delete[] stSamples ;
- delete[] classNameOfDigit ;
- delete[] stNumberOfSamples ;
+ std::string digitString = typeid( *this ).name(); 
  
  return digitString ;
 

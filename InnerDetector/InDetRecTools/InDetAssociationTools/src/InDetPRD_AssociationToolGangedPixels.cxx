@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetAssociationTools/InDetPRD_AssociationToolGangedPixels.h"
@@ -228,7 +228,7 @@ std::vector< const Trk::PrepRawData* >
 InDet::InDetPRD_AssociationToolGangedPixels::getPrdsOnTrack(const Maps& maps,
                                                             const Trk::Track& track) const
 {
-  typedef std::vector<const Trk::PrepRawData*> PRDs_t;
+  using PRDs_t = std::vector<const Trk::PrepRawData *>;
 
   // test caching
   TrackPrepRawDataMap::const_iterator itvec = maps.m_trackPrepRawDataMap.find(&track);
@@ -240,7 +240,7 @@ InDet::InDetPRD_AssociationToolGangedPixels::getPrdsOnTrack(const Maps& maps,
 
   if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING("Track has no RoTs");
-    return PRDs_t(); // return vector optimization
+    return {}; // return vector optimization
    }
 
 

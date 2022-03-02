@@ -24,6 +24,6 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc Digi_tf.py"
+echo "art-result: $rc digiCA"
 
 exit $status

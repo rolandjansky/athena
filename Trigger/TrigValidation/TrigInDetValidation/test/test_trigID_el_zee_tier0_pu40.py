@@ -38,8 +38,8 @@ preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for
 
 Jobs = [] 
 
-Comp = [ ( "L2electron",   "L2electron",  "TIDA_T0.root",   " -b HLT/TRIDT/Egamma/Expert   -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-electron " ),
-         ( "EFelectron",   "EFelectron",  "TIDA_T0.root",   " -b HLT/TRIDT/Egamma/Expert   -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-electron " ) ]
+Comp = [ ( "L2electron",   "L2electron",  "data-hists-tier0.root",   " -b HLT/TRIDT/Egamma/Expert   -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-electron " ),
+         ( "EFelectron",   "EFelectron",  "data-hists-tier0.root",   " -b HLT/TRIDT/Egamma/Expert   -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-electron " ) ]
    
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

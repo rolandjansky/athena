@@ -81,14 +81,14 @@ namespace xAOD {
                                          setWord1 )
  
    /// Only calculable externally
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fCoreNumerator,
-                                         setFCoreNumerator )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fCoreDenominator,
-                                         setFCoreDenominator )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fHadNumerator,
-                                         setFHadNumerator )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fHadDenominator,
-                                         setFHadDenominator )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, rCoreNumerator,
+                                         setRCoreNumerator )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, rCoreDenominator,
+                                         setRCoreDenominator )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, rHadNumerator,
+                                         setRHadNumerator )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, rHadDenominator,
+                                         setRHadDenominator )
 
    /// Should be set for xTOB if there is a matching TOB
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, char, isTOB,
@@ -167,11 +167,11 @@ namespace xAOD {
    }
     
    /// Results of the 3 jet discriminant algorithms
-   unsigned int eFexTauRoI_v1::fCoreThresholds() const {
+   unsigned int eFexTauRoI_v1::rCoreThresholds() const {
      return (word0() >> s_veto1Bit) & s_veto1Mask;
    }
     
-   unsigned int eFexTauRoI_v1::fHadThresholds() const {
+   unsigned int eFexTauRoI_v1::rHadThresholds() const {
      return (word0() >> s_veto2Bit) & s_veto2Mask;
    }
     
@@ -197,8 +197,13 @@ namespace xAOD {
    /// Tau condition value. 
    /// Note that this is for convenience & intelligibility, but should
    /// not be used for bitwise-accurate menu studies
-   float eFexTauRoI_v1::fCore() const {
-     if (fCoreDenominator() > 0) return (static_cast<float>(fCoreNumerator())/static_cast<float>(fCoreDenominator()));
+   float eFexTauRoI_v1::rCore() const {
+     if (rCoreDenominator() > 0) return (static_cast<float>(rCoreNumerator())/static_cast<float>(rCoreDenominator()));
+     else         return 0.;
+   }
+
+   float eFexTauRoI_v1::rHad() const {
+     if (rHadDenominator() > 0) return (static_cast<float>(rHadNumerator())/static_cast<float>(rHadDenominator()));
      else         return 0.;
    }
 

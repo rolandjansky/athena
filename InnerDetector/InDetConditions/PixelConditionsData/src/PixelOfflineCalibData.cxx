@@ -84,8 +84,7 @@ std::vector<float> PixelOfflineCalibData::GetConstants() const {
   }
 
   std::vector<float> constants;
-  constants.resize(datasize+offset);
-
+  constants.reserve(datasize+offset);
   constants.push_back(v1);
   constants.push_back(v2);
   constants.push_back(v3); 

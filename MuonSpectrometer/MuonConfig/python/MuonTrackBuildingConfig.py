@@ -2,7 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterToolCfg
+from AthenaConfiguration.Enums import BeamType
 from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
@@ -37,7 +38,7 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     kwargs.setdefault("ReducedChi2Cut",  flags.Muon.Chi2NDofCut)
     
     momentum_estimator=""
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         momentum_estimator = MuonSegmentMomentum(DoCosmics = True)
     else:
         acc = MuonSegmentMomentumFromFieldCfg(flags)
@@ -47,7 +48,7 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(momentum_estimator)
     kwargs.setdefault("SegmentMomentum", momentum_estimator )
     
-    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
 
     acc = MuonTrackToSegmentToolCfg(flags)
     track_to_segment_tool =  acc.getPrimary()
@@ -113,7 +114,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     result.merge(acc)
     
     kwargs.setdefault("SLFitter", moo_sl_track_fitter)
-    kwargs.setdefault("RecalibrateMDTHitsOnTrack", ( (not flags.Muon.doSegmentT0Fit) and flags.Beam.Type == 'collisions') )
+    kwargs.setdefault("RecalibrateMDTHitsOnTrack", ( (not flags.Muon.doSegmentT0Fit) and flags.Beam.Type is BeamType.Collisions) )
     
     acc = MuonSeededSegmentFinderCfg(flags)
     muon_seeded_segment_finder = acc.getPrimary()
@@ -148,7 +149,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
     result.merge(acc)
     
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
 
     kwargs.setdefault('Extrapolator', result.popToolsAndMerge( MuonTrackExtrapolationToolCfg(flags) ) )
 
@@ -182,7 +183,7 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     
     kwargs.setdefault( "doThetaMatching", flags.Muon.useSegmentMatching)
     kwargs.setdefault( "doPhiMatching", False )
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("OverlapMatchAveragePhiHitPullCut",  200.)
         kwargs.setdefault( "ToroidOn", False ) # Was "not jobproperties.BField.allToroidOn()" but do not have access to Field here.
 
@@ -204,7 +205,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     result = ComponentAccumulator()
 
     # Won't explicitly configure MuonEDMHelperSvc
-    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
     acc = MuonSegmentMatchingToolCfg(flags, doPhiMatching = doSegmentPhiMatching)
@@ -218,7 +219,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     kwargs.setdefault("SegmentMatchingToolTight", muon_seg_matching_tight)
         
     kwargs.setdefault("DoTrackSegmentMatching", flags.Muon.useTrackSegmentMatching)
-    kwargs.setdefault("RequireSameSide", flags.Beam.Type != 'collisions')
+    kwargs.setdefault("RequireSameSide", flags.Beam.Type is not BeamType.Collisions)
     if flags.Muon.useAlignmentCorrections:
         kwargs.setdefault("AlignmentErrorPosX",   5.0)
         kwargs.setdefault("AlignmentErrorPosY",   0.2)
@@ -339,7 +340,7 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     else:
         kwargs.setdefault("CscRotCreator", "")
 
-    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
 
     from MuonConfig.MuonRecToolsConfig import MuPatHitToolCfg
     kwargs.setdefault("HitTool", result.getPrimaryAndMerge(MuPatHitToolCfg(flags)))
@@ -481,11 +482,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     return result
 
 def MuonTrackSelector(flags, name = "MuonTrackSelectorTool", **kwargs):
-    Muon__MuonTrackSelectorTool=CompFactory.Muon.MuonTrackSelectorTool
-    # In MooreTools this is:
-    # if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' or globalflags.DataSource() == 'data' :
-    # Hopefully this is good enough
-    if flags.Beam.Type == 'cosmics' or not flags.Input.isMC:
+    if flags.Beam.Type in [BeamType.Cosmics, BeamType.SingleBeam] or not flags.Input.isMC:
         kwargs.setdefault("UseRPCHoles", False) 
         kwargs.setdefault("UseTGCHoles", False) 
         kwargs.setdefault("MaxMdtHolesOnTwoStationTrack", 10) 
@@ -497,7 +494,7 @@ def MuonTrackSelector(flags, name = "MuonTrackSelectorTool", **kwargs):
         kwargs.setdefault("MaxMdtHolesOnTrack", 5) 
         kwargs.setdefault("CountMDTOutlierAsHoles", True)
     
-    return Muon__MuonTrackSelectorTool(name, **kwargs)
+    return CompFactory.Muon.MuonTrackSelectorTool(name, **kwargs)
 
 def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParticleCnvAlg", **kwargs):
     from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, TrackParticleCreatorToolCfg

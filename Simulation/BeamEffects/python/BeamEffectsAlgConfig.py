@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 
 # possible components from BeamEffectsConf
 # todo names required to copy function name? what are names used for?
@@ -42,12 +42,13 @@ def GenEventVertexPositionerCfg(flags, name="GenEventVertexPositioner", **kwargs
 
     acc = ComponentAccumulator()
 
-    readVtxPosFromFile = flags.Sim.Vertex.Source == "VertexOverrideFile.txt" or flags.Sim.Vertex.Source == "VertexOverrideEventFile.txt"
+    from G4AtlasApps.SimEnums import VertexSource
+    readVtxPosFromFile = flags.Sim.VertexSource in [VertexSource.VertexOverrideFile, VertexSource.VertexOverrideEventFile]
     if readVtxPosFromFile:
         kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(VertexPositionFromFileCfg(flags))])
-    elif flags.Sim.Vertex.Source == "CondDB":
+    elif flags.Sim.VertexSource is VertexSource.CondDB:
         kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(VertexBeamCondPositionerCfg(flags))])
-    elif flags.Sim.Vertex.Source == "LongBeamspotVertexPositioner":
+    elif flags.Sim.VertexSource is VertexSource.LongBeamspotVertexPositioner:
         kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(LongBeamspotVertexPositionerCfg(flags))])
 
     acc.setPrivateTools(CompFactory.Simulation.GenEventVertexPositioner(name, **kwargs))
@@ -110,7 +111,8 @@ def BeamEffectsAlgCfg(flags, name="BeamEffectsAlg", **kwargs):
     # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(acc.popToolsAndMerge(ValidityCheckerCfg(flags)))
-    if not flags.Beam.Type == "cosmics" and flags.Sim.CavernBG != "Read":
+    from G4AtlasApps.SimEnums import CavernBackground
+    if flags.Beam.Type is not BeamType.Cosmics and flags.Sim.CavernBackground is not CavernBackground.Read:
         manipulators.append(acc.popToolsAndMerge(GenEventVertexPositionerCfg(flags)))
     # manipulators.append(acc.popToolsAndMerge(GenEventBeamEffectBoosterCfg(flags))) # todo segmentation violation
     # manipulators.append(acc.popToolsAndMerge(VertexPositionFromFileCfg(flags))) # todo
@@ -187,9 +189,10 @@ if __name__ == "__main__":
     ConfigFlags.Output.HITSFileName = "myHITS.pool.root"
 
     #set the source of vertex positioning
-    #ConfigFlags.Sim.Vertex.Source = "VertexOverrideFile.txt"# Vertex.OverrideFile/Vertex.OverrideEventFile
-    ConfigFlags.Sim.Vertex.Source = "CondDB" # Vertex.FromCondD
-    #ConfigFlags.Sim.Vertex.Source = "LongBeamspotVertexPositioner"
+    from G4AtlasApps.SimEnums import VertexSource
+    #ConfigFlags.Sim.VertexSource = VertexSource.VertexOverrideFile
+    ConfigFlags.Sim.VertexSource = VertexSource.CondDB
+    #ConfigFlags.Sim.VertexSource = VertexSource.LongBeamspotVertexPositioner"
 
     #included to stop segmentation error - TODO see why it's failing
     ConfigFlags.Input.isMC = True

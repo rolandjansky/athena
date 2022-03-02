@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -27,7 +27,7 @@ namespace D3PD {
     {
       m_SaveHWid = true;
       m_SaveRawCh = false;
-      book().ignore(); // Avoid coverity warnings
+      TileRawChannelFillerTool::book().ignore(); // Avoid coverity warnings
 
       declareProperty("SaveHardwareInfo",   m_SaveHWid=true);
       declareProperty("SaveRawChannel",   m_SaveRawCh=false);

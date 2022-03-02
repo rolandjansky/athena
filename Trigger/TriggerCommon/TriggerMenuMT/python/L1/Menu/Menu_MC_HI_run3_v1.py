@@ -3,12 +3,13 @@
 # Run this file in order to print out the empty slots
 
 from TriggerMenuMT.L1.Base.L1MenuFlags import L1MenuFlags
+from TriggerMenuMT.L1.Base.Limits import Limits
 
 def print_available():
     import logging
     defineMenu()
-    available = list(set(range(509)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
-    freeItems = 512 - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
+    available = list(set(range(Limits.MaxTrigItems-3)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
+    freeItems = Limits.MaxTrigItems - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
     floatingItems = sorted(list(set(L1MenuFlags.items.value) - set(L1MenuFlags.CtpIdMap.value.keys()))) # these items get their CTPID assigned automatically
     unusedItemsWithCTPID = set(L1MenuFlags.CtpIdMap.value.keys()) - set(L1MenuFlags.items.value) # this should be empty, otherwise remove the items from the CtpIdMap
     available.sort()
@@ -80,6 +81,7 @@ def defineMenu():
         'L1_J12_BGRP12',
         'L1_J400', 'L1_J400_LAR',
         'L1_jJ500', 'L1_jJ500_LAR',
+        'L1_jJ20', 'L1_jJ30',
 
         # XE
         'L1_XE35', 'L1_XE40', 'L1_XE45', 'L1_XE50', 
@@ -158,21 +160,35 @@ def defineMenu():
 
         # AFP
         'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C', 'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_AFP_A_OR_C_J12', 'L1_AFP_A_AND_C_J12',
+        'L1_AFP_A_OR_C_jJ20', 'L1_AFP_A_AND_C_jJ20',
+        'L1_AFP_A_OR_C_jJ30', 'L1_AFP_A_AND_C_jJ30',
+     
+        'L1_AFP_A_AND_C_TOF_J20', 'L1_AFP_A_AND_C_TOF_T0T1_J20', 
+        'L1_AFP_A_AND_C_TOF_J30', 'L1_AFP_A_AND_C_TOF_T0T1_J30',
+        'L1_AFP_A_AND_C_TOF_J50', 'L1_AFP_A_AND_C_TOF_T0T1_J50',
+        'L1_AFP_A_AND_C_TOF_J75', 'L1_AFP_A_AND_C_TOF_T0T1_J75',
+
+        'L1_AFP_A_AND_C_TOF_jJ50', 'L1_AFP_A_AND_C_TOF_T0T1_jJ50', 
+        'L1_AFP_A_AND_C_TOF_jJ60', 'L1_AFP_A_AND_C_TOF_T0T1_jJ60',
+        'L1_AFP_A_AND_C_TOF_jJ90', 'L1_AFP_A_AND_C_TOF_T0T1_jJ90', 
+        'L1_AFP_A_AND_C_TOF_jJ125', 'L1_AFP_A_AND_C_TOF_T0T1_jJ125',
+
+        'L1_AFP_A_OR_C', 'L1_AFP_A_AND_C', 'L1_AFP_A', 'L1_AFP_C', 'L1_AFP_A_AND_C_TOF_T0T1',
         'L1_AFP_FSA_BGRP12', 'L1_AFP_FSC_BGRP12', 'L1_AFP_NSA_BGRP12', 'L1_AFP_NSC_BGRP12',
-        'L1_AFP_A_AND_C_TOF_J20', 'L1_AFP_A_AND_C_TOF_T0T1_J20', 'L1_AFP_A_AND_C_TOF_J30', 'L1_AFP_A_AND_C_TOF_T0T1_J30',
-        'L1_AFP_A_AND_C_TOF_J50', 'L1_AFP_A_AND_C_TOF_J75', 'L1_AFP_A_AND_C_TOF_jJ90', 'L1_AFP_A_AND_C_TOF_jJ125',
-        'L1_AFP_A_AND_C_TOF_T0T1_J50', 'L1_AFP_A_AND_C_TOF_T0T1_J75',
-        'L1_AFP_A_OR_C', 'L1_AFP_A_AND_C',
-        'L1_AFP_A_AND_C_TOF_jJ50', 'L1_AFP_A_AND_C_TOF_T0T1_jJ50', 'L1_AFP_A_AND_C_TOF_jJ60', 'L1_AFP_A_AND_C_TOF_T0T1_jJ60',
-        'L1_AFP_A_AND_C_TOF_T0T1_jJ90', 'L1_AFP_A_AND_C_TOF_T0T1_jJ125',
         'L1_AFP_FSA_TOF_T0_BGRP12', 'L1_AFP_FSA_TOF_T1_BGRP12', 'L1_AFP_FSA_TOF_T2_BGRP12', 'L1_AFP_FSA_TOF_T3_BGRP12',
         'L1_AFP_FSC_TOF_T0_BGRP12', 'L1_AFP_FSC_TOF_T1_BGRP12', 'L1_AFP_FSC_TOF_T2_BGRP12', 'L1_AFP_FSC_TOF_T3_BGRP12',
+        'L1_AFP_A_OR_C_UNPAIRED_ISO', 'L1_AFP_A_OR_C_UNPAIRED_NONISO',
+        'L1_AFP_A_OR_C_EMPTY', 'L1_AFP_A_OR_C_FIRSTEMPTY',
+        'L1_AFP_A_OR_C_MBTS_2', 'L1_AFP_A_AND_C_MBTS_2',
+       
 
-        # MBTS
-        'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
-        'L1_MBTS_2',
+        # MBTS (ATR-24701)
+        'L1_MBTS_1', 'L1_MBTS_1_1',  'L1_MBTS_2',
+        'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_A', 'L1_MBTS_C',
-
+ 
         #--------------------------------
         # TOPO items
         #--------------------------------
@@ -189,6 +205,11 @@ def defineMenu():
         'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L',
         'L1_ALFA_SYST9', 'L1_ALFA_SYST10', 'L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18',
 
+        # ATR-23602
+        'L1_MBTS_1_A_ALFA_C', 'L1_MBTS_1_C_ALFA_A', 'L1_EM3_ALFA_ANY', 'L1_J12_ALFA_ANY', 'L1_MU3V_ALFA_ANY', 'L1_TE5_ALFA_ANY',  
+        'L1_MU3V_ALFA_EINE', 'L1_EM3_ALFA_EINE','L1_2EM3_ALFA_EINE', 'L1_J12_ALFA_EINE', 'L1_TE5_ALFA_EINE',
+
+        'L1_TE5', # also for HMT triggers
         ]
 
 

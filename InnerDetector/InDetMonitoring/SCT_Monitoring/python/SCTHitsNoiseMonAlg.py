@@ -59,7 +59,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
     for isub in range(sctMon.N_REGIONS):
         for i in range(limits[isub]):
 
-            HitsMapName = "hitsmap" + abbreviations[isub] +  "_" + str(i/2) + "_" + str(i%2)
+            HitsMapName = "hitsmap" + abbreviations[isub] +  "_" + str(i//2) + "_" + str(i%2)
             HitsMapTitle = "SCT Hitmap for " + names[isub] + ": " + Title(i,isub)
             MonGroupArray.__getitem__(isub).defineHistogram(varname= "eta_"+HitsMapName+",phi_"+HitsMapName+";"+HitsMapName,
                                                             type= "TH2F", 
@@ -69,7 +69,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                             ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub]-0.5 , ymax=sctMon.l_phibin[isub]+0.5,
                                                             weight="numberOfStrips_"+HitsMapName )
                     
-            streamhitmap = "mapsOfHitsOnTracks" + abbreviations[isub] + "_" + "trackhitsmap_" + str(i/2) + "_" + str(i%2)
+            streamhitmap = "mapsOfHitsOnTracks" + abbreviations[isub] + "_" + "trackhitsmap_" + str(i//2) + "_" + str(i%2)
             histotitle = "SCT hits on tracks for " + names[isub] + " " + Title(i,isub)
             MonGroupArray.__getitem__(isub).defineHistogram(varname= "eta_"+streamhitmap + ",phi_"+streamhitmap + ";"+streamhitmap,
                                                             type= "TH2F", 
@@ -78,8 +78,8 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                             xbins=sctMon.n_etabins[isub], xmin=sctMon.f_etabin[isub]-0.5, xmax=sctMon.l_etabin[isub]+0.5,
                                                             ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub]-0.5 , ymax=sctMon.l_phibin[isub]+0.5 )
                     
-            occMap = "occupancymap" + abbreviations[isub] + "_" + str(i/2) + "_" + str(i%2)
-            hitoccupancy = "hitoccupancymap" + abbreviations[isub] + "_" + str(i/2) + "_" + str(i%2)
+            occMap = "occupancymap" + abbreviations[isub] + "_" + str(i//2) + "_" + str(i%2)
+            hitoccupancy = "hitoccupancymap" + abbreviations[isub] + "_" + str(i//2) + "_" + str(i%2)
             histotitleR  = "SCT Hit Occupancy map for " + names[isub] + ": " + Title(i,isub)
             MonGroupArray.__getitem__(isub).defineHistogram(varname= "eta_"+occMap + ",phi_"+occMap + ",HO_"+occMap+";" + hitoccupancy,
                                                             type= "TProfile2D", 
@@ -88,7 +88,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                             xbins=sctMon.n_etabins[isub], xmin=sctMon.f_etabin[isub]-0.5, xmax=sctMon.l_etabin[isub]+0.5,
                                                             ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub]-0.5, ymax=sctMon.l_phibin[isub]+0.5 )
         
-            noiseoccupancy = "noiseoccupancymaptrigger" + abbreviations[isub] + "_" + str(i/2) + "_" + str(i%2)
+            noiseoccupancy = "noiseoccupancymaptrigger" + abbreviations[isub] + "_" + str(i//2) + "_" + str(i%2)
             m_NOTriggerItem =  "L1_RD0_EMPTY"
             histotitletrigger = "SCT Noise Occupancy map for " + m_NOTriggerItem + " Trigger and " + names[isub] + ": " + Title(i,isub)
             MonGroupArray.__getitem__(isub).defineHistogram(varname= "eta_"+occMap + ",phi_"+occMap + ",NO_"+occMap+";" + noiseoccupancy,

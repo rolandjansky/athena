@@ -52,13 +52,18 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
   ATH_CHECK( vtxHandle.isValid() );
   const xAOD::VertexContainer* vtxs = vtxHandle.get();
 
-  //vertex stuff
+  //get the primary vertex
   const xAOD::Vertex_v1* primary_vertex = nullptr;
 
   for(auto v: *vtxs){
     if(v->vertexType()==xAOD::VxType::PriVtx){
       primary_vertex = v;
     }
+  }
+
+  if(primary_vertex == nullptr){
+    ATH_MSG_DEBUG("missing primary vertex");
+    return StatusCode::SUCCESS;
   }
 
   for(const TrigCompositeUtils::Decision* previousDecision: *previousDecisionsHandle){

@@ -46,7 +46,7 @@ LArHitFillerTool::LArHitFillerTool
         m_onlineid(0)
 {
   // declareProperty ("SelectedCells",    m_writeSelectedCells=true);
-  book().ignore();
+  LArHitFillerTool::book().ignore();
 }
 
 

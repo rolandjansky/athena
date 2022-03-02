@@ -126,7 +126,6 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
-      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -255,12 +254,16 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
    if(printdetail) {
       for ( const string & thrName : l1menu.thresholdNames() ) {
          cout << thrName << " threshold value: " << l1menu.threshold(thrName).thrValue() << endl;
       }
    }
+
+   cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
+   const auto & thrjXE = dynamic_cast<const TrigConf::L1Threshold_jXE&>(l1menu.threshold("jXESPARE1"));
+   if(thrjXE) cout << "jXESPARE1 cut [100 MeV]: " << thrjXE.thrValue100MeV() << endl;
+
 
    auto thrJET = dynamic_pointer_cast<TrigConf::L1Threshold_JET>(l1menu.thresholds("JET")[0]);
    if(thrJET) {
@@ -283,8 +286,8 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
 //   }
 
 
-   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM15M"));
-   cout << "eEM15M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM26M"));
+   cout << "eEM26M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
 
    const auto & threTAU = dynamic_cast<const TrigConf::L1Threshold_eTAU&>(l1menu.threshold("eTAU12"));
    if(threTAU) {
@@ -294,10 +297,10 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM15M"));
-   cout << "jEM15M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
+   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM20M"));
+   cout << "jEM20M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
 
-   const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ12p0ETA25"));
+   const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ30p0ETA25"));
    if(thrjJET) {
       cout << thrjJET.name() << ":" << endl;
       for(int eta  : {0, 20, 30, 40}) {
@@ -694,7 +697,7 @@ void usage() {
   cout << "[Input options]\n";
   cout << "  -f|--file             file1        ... input json file to test\n";
   cout << "  --smk                 smk          ... smk \n";
-  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDBDEV1) \n";
+  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDB_RUN3) \n";
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "\n";
@@ -705,7 +708,7 @@ int main(int argc, char** argv) {
    bool help { false };
    string filename{""};
    unsigned int smk{0};
-   std::string  dbalias {"TRIGGERDBDEV1"};
+   std::string  dbalias {"TRIGGERDB_RUN3"};
    std::vector<std::string> knownParameters { "file", "f", "smk", "db", "help", "h" };
 
    std::string currentParameter("");

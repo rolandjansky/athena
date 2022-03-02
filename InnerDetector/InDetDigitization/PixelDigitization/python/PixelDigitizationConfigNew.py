@@ -1,10 +1,10 @@
 """Define methods to construct configured Pixel Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -109,7 +109,7 @@ def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -126,7 +126,7 @@ def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -143,7 +143,7 @@ def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -159,7 +159,7 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -201,8 +201,14 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
 def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured BasicPixelDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(PixelRangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("RDOCollName", flags.Overlay.BkgPrefix + "PixelRDOs")
@@ -218,8 +224,14 @@ def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
 def PixelGeantinoTruthDigitizationToolCfg(flags, name="PixelGeantinoTruthDigitizationTool", **kwargs):
     """Return configured PixelDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(PixelRangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("ParticleBarcodeVeto", 0)
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
@@ -232,7 +244,7 @@ def PixelDigitizationHSToolCfg(flags, name="PixelDigitizationHSTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for Hard Scatter"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("HardScatterSplittingMode", 1)
     tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -243,7 +255,7 @@ def PixelDigitizationPUToolCfg(flags, name="PixelDigitizationPUTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for PileUp"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("HardScatterSplittingMode", 2)
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
     kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
@@ -256,7 +268,7 @@ def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationSplitNo
     """Return ComponentAccumulator with PixelDigitizationTool configured for PileUpPixelHits"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("InputObjectName", "PileupPixelHits")
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
@@ -272,6 +284,7 @@ def PixelOverlayDigitizationToolCfg(flags, name="PixelOverlayDigitizationTool", 
     kwargs.setdefault("RDOCollName", flags.Overlay.SigPrefix + "PixelRDOs")
     kwargs.setdefault("SDOCollName", flags.Overlay.SigPrefix + "PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("PileUpMergeSvc", '')
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
 

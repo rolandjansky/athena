@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfValidateRootFile
 # @brief Functionality to test a Root file for corruption
@@ -8,7 +8,7 @@
 # @todo The main() CLI should migrate to @c scripts and this module just implement functions
 
 
-import sys
+import sys, os
 import logging
 
 from PyUtils import RootUtils
@@ -116,6 +116,12 @@ def checkFile(fileName, the_type, requireTree):
 
     msg.info('Checking file %s.', fileName)
 
+    isIMTEnabled = ROOT.ROOT.IsImplicitMTEnabled()
+    if not isIMTEnabled and 'TRF_MULTITHREADED_VALIDATION' in os.environ and 'ATHENA_CORE_NUMBER' in os.environ:
+        nThreads = int(os.environ['ATHENA_CORE_NUMBER'])
+        msg.info(f"Setting the number of implicit ROOT threads to {nThreads}")
+        ROOT.ROOT.EnableImplicitMT(nThreads)
+
     file_handle=TFile.Open(fileName)
 
     if not file_handle:
@@ -143,6 +149,10 @@ def checkFile(fileName, the_type, requireTree):
 
     file_handle.Close()
     msg.info("File %s looks ok.", fileName)
+
+    if not isIMTEnabled:
+        ROOT.ROOT.DisableImplicitMT()
+
     return 0
 
 

@@ -216,7 +216,6 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         }
 
         if (addc_same.size() <= 8) continue;
-        else std::cout << "Going further in ADDC loop" << std::endl;
 
         // priority encode the hits by channel number; remember hits 8+
         to_erase.clear();
@@ -262,16 +261,16 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         slope.xmuon = road->countXHits(false);
         slope.age = bc - sm_bc;
         slope.mxl = road->mxl();
-        slope.xavg = road->avgSofX(); // defined as my in ATL-COM-UPGRADE-2015-033
+        slope.my = road->avgSofX(); // defined as my in ATL-COM-UPGRADE-2015-033
         slope.uavg = road->avgSofUV(2,4);
         slope.vavg = road->avgSofUV(3,5);
         slope.mx = (slope.uavg-slope.vavg)/(2.*std::tan(0.02618)); // The stereo angle is fixed and can be hardcoded
-        double theta = std::atan(std::sqrt(std::pow(slope.mx,2) + std::pow(slope.xavg,2)));
-        slope.theta = (slope.xavg > 0.) ? theta : M_PI - theta;
+        double theta = std::atan(std::sqrt(std::pow(slope.mx,2) + std::pow(slope.my,2)));
+        slope.theta = (slope.my > 0.) ? theta : M_PI - theta;
         slope.eta = -1.*std::log(std::tan(slope.theta/2.));
-        slope.dtheta = (slope.mxl - slope.xavg)/(1. + slope.mxl*slope.xavg);
-        slope.side = (slope.xavg > 0.) ? 'A' : 'C';
-        double phi = std::atan(slope.mx/slope.xavg), phiShifted = this->phiShift(this->getDiamond(iterator).stationPhi, phi, slope.side);
+        slope.dtheta = (slope.mxl - slope.my)/(1. + slope.mxl*slope.my);
+        slope.side = (slope.my > 0.) ? 'A' : 'C';
+        double phi = std::atan(slope.mx/slope.my), phiShifted = this->phiShift(this->getDiamond(iterator).stationPhi, phi, slope.side);
         slope.phi = phi;
         slope.phiShf = phiShifted;
         slope.lowRes = road->evaluateLowRes();
@@ -297,7 +296,7 @@ void MMT_Diamond::resetSlopes() {
 }
 
 slope_t::slope_t(int ev, int bc, unsigned int tC, unsigned int rC, int iX, int iU, int iV, unsigned int uvb, unsigned int xb, unsigned int uvm, unsigned int xm,
-                 int age, double mxl, double xavg, double uavg, double vavg, double mx, double th, double eta, double dth, char side, double phi, double phiS,
+                 int age, double mxl, double my, double uavg, double vavg, double mx, double th, double eta, double dth, char side, double phi, double phiS,
                  bool lowRes) :
   event(ev), BC(bc), totalCount(tC), realCount(rC), iRoad(iX), iRoadu(iU), iRoadv(iV), uvbkg(uvb), xbkg(xb), uvmuon(uvm), xmuon(xm),
-  age(age), mxl(mxl), xavg(xavg), uavg(uavg), vavg(vavg), mx(mx), theta(th), eta(eta), dtheta(dth), side(side), phi(phi), phiShf(phiS), lowRes(lowRes) {}
+  age(age), mxl(mxl), my(my), uavg(uavg), vavg(vavg), mx(mx), theta(th), eta(eta), dtheta(dth), side(side), phi(phi), phiShf(phiS), lowRes(lowRes) {}

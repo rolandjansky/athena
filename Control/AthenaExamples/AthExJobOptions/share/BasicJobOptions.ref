@@ -11,7 +11,6 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
-|-Atomic                         = False
 |-AuditAlgorithms                = False
 |-AuditExecute                   = False
 |-AuditFinalize                  = False
@@ -22,7 +21,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-AuditStop                      = False
 |-Blocking                       = False
 |-Cardinality                    = 0
-|-ContinueEventloopOnFPE         = False
 |-DetStore                       = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                         = True
 |-ErrorCounter                   = 0

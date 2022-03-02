@@ -20,6 +20,7 @@
 #   useTruth - Truth jets and association are enabled (for MC)
 #   useTopo  - Topocluster jets are enabled
 #   useTracks - Track jets and association are enabled
+#   useLargeD0Tracks - Large D0 track jets and association are enabled
 #   useVertices - Toggles whether PFlow jet reconstruction makes use of vertex information.
 #   useMuonSegmentss - Muon segemnt association is enabled
 #   usePFlow - PFlow jets and associations are enabled\
@@ -82,6 +83,14 @@ class useTopo(JobProperty):
 class useTracks(JobProperty):
   """ If true, tracks and vertices are present and used in jet reconstruction.
       The status is set on in JetRecStandardToolManager.
+  """
+  statusOn     = True
+  allowedTypes = ['bool']  # type
+  StoredValue  = True      # default value changed to False for Test by RL 
+
+class useLargeD0Tracks(JobProperty):
+  """ If true, large d0 tracks and vertices are present and used in jet
+      reconstruction.  The status is set on in JetRecStandardToolManager.
   """
   statusOn     = True
   allowedTypes = ['bool']  # type
@@ -264,6 +273,7 @@ jobproperties.JetRecFlags.add_JobProperty(useTruth)
 jobproperties.JetRecFlags.add_JobProperty(truthFlavorTags)
 jobproperties.JetRecFlags.add_JobProperty(useTopo)
 jobproperties.JetRecFlags.add_JobProperty(useTracks)
+jobproperties.JetRecFlags.add_JobProperty(useLargeD0Tracks)
 jobproperties.JetRecFlags.add_JobProperty(useVertices)
 jobproperties.JetRecFlags.add_JobProperty(useInDetTrackSelection)
 jobproperties.JetRecFlags.add_JobProperty(useMuonSegments)

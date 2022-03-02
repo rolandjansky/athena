@@ -1,0 +1,30 @@
+# 
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Separate blocks with ---
+#
+---
+Input: [ '(?P<LB>lb_\d*)/Pixel/LumiBlock/MapOfFEsStatusLB_(?P<sec>[IBL,BLayer,Layer1,Layer2]*)$' ]
+Output: [ '{LB}/Pixel/LumiBlock/DefectMap_IBL',
+          '{LB}/Pixel/LumiBlock/DefectMap_BLayer', 
+          '{LB}/Pixel/LumiBlock/DefectMap_Layer1', 
+          '{LB}/Pixel/LumiBlock/DefectMap_Layer2', 
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_BLayer_Layer1_Layer2', 
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_BLayer_Layer1',  
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_BLayer_Layer2',  
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_Layer1_Layer2',  
+          '{LB}/Pixel/LumiBlock/DefectMap_BLayer_Layer1_Layer2',  
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_BLayer',  
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_Layer1',  
+          '{LB}/Pixel/LumiBlock/DefectMap_IBL_Layer2',  
+          '{LB}/Pixel/LumiBlock/DefectMap_BLayer_Layer1',  
+          '{LB}/Pixel/LumiBlock/DefectMap_BLayer_Layer2',  
+          '{LB}/Pixel/LumiBlock/DefectMap_Layer1_Layer2',  
+          '{LB}/Pixel/LumiBlock/DefectMap_onlyIBL',  
+          '{LB}/Pixel/LumiBlock/DefectMap_onlyBLayer',  
+          '{LB}/Pixel/LumiBlock/DefectMap_onlyLayer1',  
+          '{LB}/Pixel/LumiBlock/DefectMap_onlyLayer2',  
+          'Pixel/Status/TotalDegradationPerLumi' 
+        ]
+Function: PixelMonitoring.PixelPostProcessing.badEtaPhi_forAllMaskPatterns
+Description: MakeAllEtaPhiPlots_perLB
+

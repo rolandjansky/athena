@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 import AthenaCommon.SystemOfUnits as Units
 #######################################################################
 
@@ -52,12 +53,7 @@ def PixelClusterNnWithTrackCondAlgCfg(flags, **kwargs):
 def LWTNNCondAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
     # Check for the folder
-    # TODO: not in global tag
-    # acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
-    if flags.Input.isMC:
-        acc.merge(addFolders(flags, "/PIXEL/PixelClustering/PixelNNCalibJSON", "PIXEL_OFL", className="CondAttrListCollection", tag="PixelNNCalibJSON-SIM-RUN2-000-02", db="OFLP200"))
-    else:
-        acc.merge(addFolders(flags, "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "PIXEL", className="CondAttrListCollection", tag="PixelNNCalibJSON-DATA-RUN2-000-02", db="CONDBR2"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
     # What we'll store it as
     kwargs.setdefault("WriteKey", 'PixelClusterNNJSON')
 
@@ -74,22 +70,22 @@ def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
         PixelLorentzAngleTool = PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs)
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
-    if flags.GeoModel.Run=="RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
         acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))
     else:
         acc.merge(LWTNNCondAlgCfg(flags, name="LWTNNCondAlg"))
 
-    kwargs.setdefault("doRunI", flags.GeoModel.Run=="RUN1")
+    kwargs.setdefault("doRunI", flags.GeoModel.Run is LHCPeriod.Run1)
     kwargs.setdefault("useToT", False)
-    kwargs.setdefault("useRecenteringNNWithoutTracks", flags.GeoModel.Run=="RUN1")
+    kwargs.setdefault("useRecenteringNNWithoutTracks", flags.GeoModel.Run is LHCPeriod.Run1)
     kwargs.setdefault("useRecenteringNNWithTracks", False)
     kwargs.setdefault("correctLorShiftBarrelWithoutTracks", 0)
-    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if flags.GeoModel.Run=="RUN1" else 0.000)
-    kwargs.setdefault("useTTrainedNetworks", flags.GeoModel.Run=="RUN1")
-    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.GeoModel.Run=="RUN1" else "")
-    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.GeoModel.Run=="RUN1" else "")
-    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.GeoModel.Run=="RUN1" else "PixelClusterNNJSON")
+    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if flags.GeoModel.Run is LHCPeriod.Run1 else 0.000)
+    kwargs.setdefault("useTTrainedNetworks", flags.GeoModel.Run is LHCPeriod.Run1)
+    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
+    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
+    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.GeoModel.Run is LHCPeriod.Run1 else "PixelClusterNNJSON")
 
     acc.setPrivateTools(CompFactory.InDet.NnClusterizationFactory(name, **kwargs))
     return acc
@@ -103,7 +99,7 @@ def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", *
     if not flags.InDet.Tracking.doDBMstandalone:
         acc.merge(PixelDistortionAlgCfg(flags))
 
-    if flags.Beam.Type == "cosmics" or flags.InDet.Tracking.doDBMstandalone:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
@@ -191,7 +187,7 @@ def InDetBroadPixelClusterOnTrackToolCfg(flags, name='InDetBroadPixelClusterOnTr
 def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAlg', **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.GeoModel.Run == "RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         error_scaling_type   = ["PixelRIO_OnTrackErrorScalingRun1"]
         error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
     else:  # Run 2 and 3
@@ -217,7 +213,7 @@ def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAl
 def LumiCondDataKeyForTRTMuScalingCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
     LuminosityOutputKey = ''
-    if not flags.Beam.Type == 'cosmics' and False: # InDetFlags.useMuForTRTErrorScaling()  "temporary value"
+    if flags.Beam.Type is not BeamType.Cosmics:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         LuminosityCondAlg = LuminosityCondAlgCfg (flags)
         acc.merge(LuminosityCondAlg)
@@ -677,10 +673,10 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
         kwargs.setdefault('OutlierCut', 10.0)
         kwargs.setdefault('TrackChi2PerNDFCut', 20)
 
-    if flags.InDet.Tracking.doRobustReco or flags.Beam.Type == 'cosmics':
+    if flags.InDet.Tracking.doRobustReco or flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault('MaxOutliers', 99)
 
-    if flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamGas:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault('Acceleration', False)
 
     if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn:
@@ -787,7 +783,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.InDet.Tracking.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamGas)
+    kwargs.setdefault("RecalculateDerivatives", flags.InDet.Tracking.doMinBias or flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
@@ -817,7 +813,7 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
     kwargs.setdefault("TrackChi2PerNDFCut", 999999)
     kwargs.setdefault("Momentum", 1000.*Units.MeV   if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn else  0)
     kwargs.setdefault("OutlierCut", 5)
-    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.Tracking.doRobustReco or flags.Beam.Type == 'cosmics' else 10)
+    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.Tracking.doRobustReco or flags.Beam.Type is BeamType.Cosmics else 10)
     kwargs.setdefault("ReintegrateOutliers", False)
 
     InDetGlobalChi2FitterBase = acc.popToolsAndMerge(InDetGlobalChi2FitterBaseCfg(flags, name=name, **kwargs))
@@ -1070,7 +1066,7 @@ def TRT_DetElementsRoadCondAlgCfg(flags, name="InDet__TRT_DetElementsRoadCondAlg
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
     if flags.InDet.Tracking.trtExtensionType == 'xk':
-        if flags.Beam.Type == "cosmics":
+        if flags.Beam.Type is BeamType.Cosmics:
             return InDetTRT_ExtensionToolCosmicsCfg(flags, **kwargs)
         else:
             return InDetTRT_TrackExtensionTool_xkCfg(flags, **kwargs)

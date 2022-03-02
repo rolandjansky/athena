@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 # 
 
-from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from ..Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
@@ -56,7 +56,7 @@ def muFastAlgSequence(ConfigFlags):
     
     ##### L2 mutli-track mode #####
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
-    from ..Menu.MenuComponentsNaming import CFNaming
+    from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
     MultiTrackChainFilter = MuonChainFilterAlg("SAFilterMultiTrackChains")
     MultiTrackChains = getMultiTrackChainNames()
     MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
@@ -164,7 +164,7 @@ def muCombAlgSequence(ConfigFlags):
  
     # for L2 multi-track SA
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
-    from ..Menu.MenuComponentsNaming import CFNaming
+    from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
     MultiTrackChainFilter = MuonChainFilterAlg("CBFilterMultiTrackChains")
     MultiTrackChains = getMultiTrackChainNames()
     MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
@@ -809,7 +809,7 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
 ##############################
 
 def getBphysChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Bphysics']]
     return chains
@@ -820,7 +820,7 @@ def getBphysChainNames():
 ############################################################
 
 def getInsideOutMuonChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2io" in chain.name]
     chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if not any(key in chain.name for key in ['noL2Comb','l2mt'])]
@@ -832,7 +832,7 @@ def getInsideOutMuonChainNames():
 ############################################################
 
 def getMultiTrackChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2mt" in chain.name]
     chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if "l2mt" in chain.name]

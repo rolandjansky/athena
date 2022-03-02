@@ -6,7 +6,7 @@ from AthenaCommon.Logging    import logging
 from egammaAlgs              import egammaAlgsConf
 from egammaRec.Factories     import AlgFactory
 from AthenaCommon.CFElements import parOR
-from TriggerMenuMT.HLT.Menu.MenuComponents        import RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents        import RecoFragmentsPool
 from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys      import getTrigEgammaKeys
 from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigEgammaRec, TrigEgammaSuperClusterBuilder 
 
@@ -43,7 +43,7 @@ def precisionCaloRecoSequence(flags, RoIs, ion=False):
     trigEgammaRec.egammaRecContainer        = TrigEgammaKeys.precisionCaloEgammaRecCollection # output
     precisionRecoSequence += trigEgammaRec
     
-    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    outputCaloClusters = TrigEgammaKeys.precisionPhotonCaloClusterContainer
     log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
 

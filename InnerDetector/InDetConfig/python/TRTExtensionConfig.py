@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-import InDetConfig.TrackingCommonConfig         as   TC
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+import InDetConfig.TrackingCommonConfig as TC
 
 #///////////////////////////////////////////////////////////////////////////////////////////////
 def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap="ExtendedTracksMap", TrackExtensionTool=None, **kwargs):
@@ -50,7 +51,7 @@ def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
     acc.setPrivateTools(CompFactory.Trk.DeterministicAnnealingFilter(name = name, **kwargs))
     return acc
 
-def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackCollection = None, ExtendedTracksMap = None, doPhase=True, **kwargs):
+def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackCollection = None, ExtendedTracksMap = None, **kwargs):
     acc = ComponentAccumulator()
 
     ForwardTrackCollection = ExtendedTrackCollection
@@ -80,7 +81,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     # --- load scoring for extension
     #
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         InDetExtenScoringTool = acc.popToolsAndMerge(TC.InDetCosmicExtenScoringToolCfg(flags))
         acc.addPublicTool(InDetExtenScoringTool)
     else:
@@ -103,15 +104,9 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", False)
     kwargs.setdefault("matEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
-    
-    if doPhase:
-        kwargs.setdefault("Cosmics", True)
+    kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
 
-        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor(name = "InDetExtensionProcessorPhase" + flags.InDet.Tracking.ActivePass.extension, **kwargs))
-    else:
-        kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
-
-        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.ActivePass.extension, **kwargs))
+    acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.ActivePass.extension, **kwargs))
 
     return acc
 
@@ -121,28 +116,22 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
 # ----------- Setup TRT Extension for New tracking
 #
 # ------------------------------------------------------------
-def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCollection = None, ExtendedTracksMap = None, doPhase = True):
+def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCollection = None, ExtendedTracksMap = None):
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
     acc = TRTPreProcessingCfg(flags)
     #
     # Track extension to TRT algorithm
     #
-    if doPhase:
-        acc.merge(TRT_TrackExtensionAlgCfg( flags,
-                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.ActivePass.extension,
-                                            SiTrackCollection=SiTrackCollection,
-                                            ExtendedTracksMap = ExtendedTracksMap))
-    else:
-        acc.merge(TRT_TrackExtensionAlgCfg( flags,  
-                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.ActivePass.extension,
-                                            SiTrackCollection=SiTrackCollection,
-                                            ExtendedTracksMap = ExtendedTracksMap,
-                                            TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
+    acc.merge(TRT_TrackExtensionAlgCfg(flags,
+                                       name = 'InDetTRT_Extension' + flags.InDet.Tracking.ActivePass.extension,
+                                       SiTrackCollection=SiTrackCollection,
+                                       ExtendedTracksMap = ExtendedTracksMap,
+                                       TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
+
     acc.merge(InDetExtensionProcessorCfg(flags,
                                             SiTrackCollection = SiTrackCollection,
                                             ExtendedTrackCollection = ExtendedTrackCollection,
-                                            ExtendedTracksMap = ExtendedTracksMap,
-                                            doPhase = doPhase))
+                                            ExtendedTracksMap = ExtendedTracksMap))
     return acc
 ##########################################################################################################################
 
@@ -227,17 +216,14 @@ if __name__ == "__main__":
     ################# TRTPreProcessing Configuration ######################
     if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
-                                          useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
-                                          usePhase = False))
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
 
     ################ TRTSegmentFinding Configuration ######################
     from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         extension = "",
                                         InputCollections = InputCollections,
-                                        BarrelSegments = 'TRTSegments',
-                                        doPhase = False))
+                                        BarrelSegments = 'TRTSegments'))
 
     ####################### TrackingSiPattern #############################
     from InDetConfig.TrackingSiPatternConfig import SiSPSeededTrackFinderCfg
@@ -259,8 +245,7 @@ if __name__ == "__main__":
     top_acc.merge(NewTrackingTRTExtensionCfg(ConfigFlags,
                                              SiTrackCollection=InDetSpSeededTracksKey,
                                              ExtendedTrackCollection = ExtendedTrackCollection, 
-                                             ExtendedTracksMap = ExtendedTracksMap,
-                                             doPhase = False))
+                                             ExtendedTracksMap = ExtendedTracksMap))
     #######################################################################
 
     iovsvc = top_acc.getService('IOVDbSvc')

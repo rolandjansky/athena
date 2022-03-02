@@ -139,6 +139,8 @@ class HLTJetMonTool : public IHLTMonTool {
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
     bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets;
+    // property to toggle noise burst filter
+    bool m_vetoNoiseBurst;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
@@ -195,6 +197,7 @@ class HLTJetMonTool : public IHLTMonTool {
     // SG retrieval method
     StatusCode retrieveContainers();
     int retrieveLumiBlock();
+    bool hasLArNoiseBurst();
 
     // book methods
     void bookJetHists();  // this method calls all other book methods

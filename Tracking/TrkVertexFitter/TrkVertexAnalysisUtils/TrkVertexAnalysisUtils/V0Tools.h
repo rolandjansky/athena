@@ -10,7 +10,6 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-#include "EventKernel/PdtPdg.h"
 
 /**
  *  @class V0Tools
@@ -374,7 +373,7 @@ namespace Trk
   double invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, const Amg::Vector3D& vertex) const;
   double invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses, const Amg::Vector3D& vertex) const;
 
-  static Amg::MatrixX * convertCovMatrix(const xAOD::Vertex * vxCandidate) ;
+  static Amg::MatrixX convertCovMatrix(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * pointer from a mass constrained (Kshort, Lambda or Lambdabar) V0 to the unconstrained one

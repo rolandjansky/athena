@@ -8,7 +8,7 @@ from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-from ..Menu.MenuComponents import MenuSequence
+from ..Config.MenuComponents import MenuSequence
 # ====================================================================================================
 #    Get MenuSequences
 # ====================================================================================================

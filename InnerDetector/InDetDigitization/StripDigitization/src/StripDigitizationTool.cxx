@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripDigitizationTool.h"
@@ -570,7 +570,7 @@ StatusCode StripDigitizationTool::processBunchXing(int bunchXing,
         m_HardScatterSplittingSkipper = true;
     }
 
-    typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+    using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
     TimedHitCollList hitCollList;
 
     if ((not (m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
@@ -816,7 +816,7 @@ std::unique_ptr<SCT_RDO_Collection> StripDigitizationTool::createRDO(SiChargedDi
 StatusCode StripDigitizationTool::getNextEvent(const EventContext& ctx) {
   ATH_MSG_DEBUG("StripDigitizationTool::getNextEvent");
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   // this is a list<pair<time_t, DataLink<SiHitCollection> >
 
   // In case of single hits container just load the collection using read handles
@@ -872,7 +872,7 @@ StatusCode StripDigitizationTool::getNextEvent(const EventContext& ctx) {
 // -----------------------------------------------------------------------------------------------
 void StripDigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const {
 
-  typedef SiTotalCharge::list_t list_t;
+  using list_t = SiTotalCharge::list_t;
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be
   // with pileup

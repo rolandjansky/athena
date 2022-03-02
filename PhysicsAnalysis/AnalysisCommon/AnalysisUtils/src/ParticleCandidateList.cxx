@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -13,35 +13,31 @@
 
 // Framework includes
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 
 // AnalysisUtils includes
 #include "AnalysisUtils/ParticleCandidateList.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
-/// Constructors
-////////////////
+ParticleCandidateList::ParticleCandidateList()
+  : AthMessaging (Athena::getMessageSvc(), "ParticleCandidateList")
+{}
 
-/// Destructor
-///////////////
+ParticleCandidateList::ParticleCandidateList( const ParticleCandidateList& rhs)
+  : AthMessaging (Athena::getMessageSvc(), "ParticleCandidateList"),
+    m_list(rhs.m_list)
+{}
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
+
 bool ParticleCandidateList::hasInList( const PDG::pidType& pdgID,
                                        const bool tightMatch ) const
 {
-  msg() << MSG::VERBOSE
-	<< "In ParticleCandidateList::hasInList( pdgID ) : " << this
-	<< endmsg
-	<< "Size of List = " << size() << endmsg;
+  ATH_MSG_VERBOSE( "In ParticleCandidateList::hasInList( pdgID ) : " << this
+                   << endmsg
+                   << "Size of List = " << size() );
   if ( size() <= unsigned(0) ) {
     static const std::string error( "List size <=0 !!" );
-    msg() << MSG::ERROR << error << endmsg;
+    ATH_MSG_ERROR( error );
     throw GaudiException( error, "ParticleCandidateList", 
 			  StatusCode::FAILURE );
   }
@@ -49,13 +45,10 @@ bool ParticleCandidateList::hasInList( const PDG::pidType& pdgID,
   for ( ParticleCandidateList::const_iterator itrPart = m_list.begin();
 	itrPart != m_list.end();
 	++itrPart ) {//> Loop over the list of intern particles
-    msg() << MSG::VERBOSE
-	  << "in loop over list of intern particle candidates" << endmsg
-	  << "\t>>>Comparing pid-s..." << endmsg;
+    ATH_MSG_VERBOSE( "in loop over list of intern particle candidates"
+                     << "\t>>>Comparing pid-s..." );
     if ( tightMatch && ( (*itrPart) == pdgID ) ) {
-      msg() << MSG::VERBOSE
-	    << ">>> " << pdgID << " is in list (" << (*itrPart) << ")"
-	    << endmsg;
+      ATH_MSG_VERBOSE( ">>> " << pdgID << " is in list (" << (*itrPart) << ")" );
       return true;
     } else if ( !tightMatch && 
 		std::abs( (*itrPart) ) == std::abs( pdgID ) ) {
@@ -68,17 +61,15 @@ bool ParticleCandidateList::hasInList( const PDG::pidType& pdgID,
 
 void ParticleCandidateList::dropList() const
 {
-  msg() << MSG::VERBOSE
-	<< "---------------------------------------------------" << endmsg
-	<< "Added those particles : " << endmsg;
+  ATH_MSG_VERBOSE("---------------------------------------------------\n"
+                  << "Added those particles : " );
   for ( ParticleCandidateList::const_iterator itrPart = m_list.begin();
 	itrPart != m_list.end();
 	++itrPart ) {
-    msg() << MSG::VERBOSE << "\tpdgID= " << (*itrPart) << endmsg;
+    ATH_MSG_VERBOSE( "\tpdgID= " << (*itrPart) );
   }
 
-  msg() << MSG::VERBOSE 
-	<< "---------------------------------------------------" << endmsg;
+  ATH_MSG_VERBOSE ("---------------------------------------------------" );
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -104,9 +95,6 @@ void ParticleCandidateList::addLeptons()
 
 void ParticleCandidateList::addLightJets()
 {
-  //MsgStream log( Athena::getMessageSvc(), "ParticleCandidateList" );
-  //log <<MSG::DEBUG << "pushing_back into list..." << endmsg;
-
   /// To cope with Full Reconstruction scheme :
   /// a light-jet, is a jet which could not have been tagged
   /// One has also to add PDG::null to the matching list
@@ -124,8 +112,6 @@ void ParticleCandidateList::addLightJets()
 
 void ParticleCandidateList::addLightQuarks()
 {
-  //MsgStream log( Athena::getMessageSvc(), "ParticleCandidateList" );
-  //log <<MSG::DEBUG << "pushing_back into list..." << endmsg;
   m_list.push_back( PDG::d      ); //> d
   m_list.push_back( PDG::anti_d ); //> d_bar
   m_list.push_back( PDG::u      ); //> u
@@ -138,8 +124,7 @@ void ParticleCandidateList::addLightQuarks()
 
 void ParticleCandidateList::add( const std::string& list )
 {
-  msg() << MSG::VERBOSE
-	<< "add( " << list << " )" << endmsg;
+  ATH_MSG_VERBOSE( "add( " << list << " )" );
   if ( list == "LightQuarks" )    addLightQuarks();
   else if ( list == "BQuark" )    addBQuark();
   else if ( list == "BbarQuark" ) addBbarQuark();
@@ -152,7 +137,7 @@ void ParticleCandidateList::add( const std::string& list )
   else if ( list == "Z0" )        addZBoson();
   else {
     static const std::string error( "Unknown Candidate List Name !!" );
-    msg() << MSG::ERROR << error << endmsg;
+    ATH_MSG_ERROR( error );
     throw GaudiException( error, "ParticleCandidateList", 
 			  StatusCode::FAILURE );
   }
@@ -161,13 +146,3 @@ void ParticleCandidateList::add( const std::string& list )
   }
 
 }
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-MsgStream& ParticleCandidateList::msg()
-{
-  static MsgStream msg(Athena::getMessageSvc(), "ParticleCandidateList");
-  return msg;
-}
-

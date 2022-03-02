@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetGeoModelUtils/GeoModelXmlTool.h"
+#include <GeoModelInterfaces/IGeoDbTagSvc.h>
+#include <GeoModelKernel/GeoPhysVol.h>
 #include <GeoModelUtilities/DecodeVersionKey.h>
+#include <GeoModelXml/Gmx2Geo.h>
+#include <GeoModelXml/GmxInterface.h>
+#include <PathResolver/PathResolver.h>
 #include <RDBAccessSvc/IRDBAccessSvc.h>
 #include <RDBAccessSvc/IRDBRecord.h>
 #include <RDBAccessSvc/IRDBRecordset.h>
-#include <GeoModelInterfaces/IGeoDbTagSvc.h>
-#include <GeoModelXml/GmxInterface.h>
-#include <PathResolver/PathResolver.h>
-#include <GeoModelXml/Gmx2Geo.h>
-#include <GeoModelKernel/GeoPhysVol.h>
 #include <fstream>
+#include <utility>
 
 GeoModelXmlTool::GeoModelXmlTool(const std::string &type,
                                  const std::string &name,
@@ -29,7 +30,7 @@ StatusCode GeoModelXmlTool::createBaseTool(){
   return StatusCode::SUCCESS;
 }
 
-int GeoModelXmlTool::createTopVolume(GeoPhysVol *world, GmxInterface & gmxInterface, std::string vNode, std::string tableName) const {
+int GeoModelXmlTool::createTopVolume(GeoPhysVol *world, GmxInterface & gmxInterface, const std::string& vNode, const std::string& tableName) const {
   
   int flags{};
   std::string gmxInput;
@@ -78,7 +79,7 @@ int GeoModelXmlTool::createTopVolume(GeoPhysVol *world, GmxInterface & gmxInterf
   return childIndex;
 }
 
-std::string GeoModelXmlTool::getBlob(std::string vNode, std::string tableName) const {
+std::string GeoModelXmlTool::getBlob(const std::string& vNode, const std::string& tableName) const {
   DecodeVersionKey versionKey(&*m_geoDbTagSvc, vNode);
   const std::string& versionTag  = versionKey.tag();
   const std::string& versionNode = versionKey.node();

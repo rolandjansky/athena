@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,8 +66,8 @@ Trk::TrackingVolume::TrackingVolume()
 // constructor: 1 a)
 Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
                                     VolumeBounds* volbounds,
-                                    const LayerArray* subLayers,
-                                    const TrackingVolumeArray* subVolumes,
+                                    LayerArray* subLayers,
+                                    TrackingVolumeArray* subVolumes,
                                     const std::string& volumeName)
   : Volume(htrans, volbounds)
   , Material()
@@ -94,8 +94,8 @@ Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
 // constructor: 2 a)
 Trk::TrackingVolume::TrackingVolume(const Volume& volume,
                                     const Material& matprop,
-                                    const LayerArray* subLayers,
-                                    const TrackingVolumeArray* subVolumes,
+                                    LayerArray* subLayers,
+                                    TrackingVolumeArray* subVolumes,
                                     const std::string& volumeName)
   : Volume(volume)
   , Material(matprop)
@@ -123,8 +123,8 @@ Trk::TrackingVolume::TrackingVolume(const Volume& volume,
 Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
                                     VolumeBounds* volbounds,
                                     const Material& matprop,
-                                    const LayerArray* subLayers,
-                                    const TrackingVolumeArray* subVolumes,
+                                    LayerArray* subLayers,
+                                    TrackingVolumeArray* subVolumes,
                                     const std::string& volumeName)
   : Volume(htrans, volbounds)
   , Material(matprop)
@@ -424,16 +424,15 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   // confined layers
   const Trk::BinnedArray<Trk::Layer>* confinedLayers = trVol.confinedLayers();
   if (confinedLayers) {
-    const std::vector<const Trk::Layer*>& layers =
-      confinedLayers->arrayObjects();
-    std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+    Trk::BinnedArraySpan<Trk::Layer const* const> layers = confinedLayers->arrayObjects();
+    std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     layerOrder.reserve(layers.size());
     for (unsigned int i = 0; i < layers.size(); i++) {
       const Trk::PlaneLayer* lay =
         dynamic_cast<const Trk::PlaneLayer*>(layers[i]);
       if (lay) {
         Trk::PlaneLayer* newlay = new Trk::PlaneLayer(*lay, transform);
-        layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(newlay));
+        layerOrder.push_back(Trk::SharedObject<Trk::Layer>(newlay));
       }
     }
     const Trk::NavBinnedArray1D<Trk::Layer>* confLays =
@@ -441,7 +440,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
     if (confLays)
       m_confinedLayers = new Trk::NavBinnedArray1D<Trk::Layer>(
         *confLays,
-        std::vector<Trk::SharedObject<const Trk::Layer>>(layerOrder),
+        std::vector<Trk::SharedObject<Trk::Layer>>(layerOrder),
         transform);
   }
 
@@ -485,24 +484,22 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   }
 
   // confined volumes
-  const Trk::BinnedArray<Trk::TrackingVolume>* confinedVolumes =
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confinedVolumes =
     trVol.confinedVolumes();
   if (confinedVolumes) {
     // retrieve array objects and apply the transform
-    const std::vector<const Trk::TrackingVolume*>& volumes =
+    Trk::BinnedArraySpan<Trk::TrackingVolume const * const > volumes =
       confinedVolumes->arrayObjects();
     std::vector<Trk::SharedObject<const Trk::TrackingVolume>> volOrder;
     volOrder.reserve(volumes.size());
     for (unsigned int i = 0; i < volumes.size(); i++) {
-      const Trk::TrackingVolume* vol =
-        new Trk::TrackingVolume(*(volumes[i]), transform);
-      volOrder.push_back(Trk::SharedObject<const TrackingVolume>(vol));
+      Trk::TrackingVolume* vol = new Trk::TrackingVolume(*(volumes[i]), transform);
+      volOrder.push_back(Trk::SharedObject<TrackingVolume>(vol));
     }
-    const Trk::NavBinnedArray1D<Trk::TrackingVolume>* confVols =
-      dynamic_cast<const Trk::NavBinnedArray1D<Trk::TrackingVolume>*>(
-        confinedVolumes);
+    const Trk::NavBinnedArray1D<const Trk::TrackingVolume>* confVols =
+      dynamic_cast<const Trk::NavBinnedArray1D<const Trk::TrackingVolume>*>(confinedVolumes);
     if (confVols)
-      m_confinedVolumes = new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
+      m_confinedVolumes = new Trk::NavBinnedArray1D<const Trk::TrackingVolume>(
         *confVols,
         std::vector<Trk::SharedObject<const Trk::TrackingVolume>>(volOrder),
         transform);
@@ -574,7 +571,7 @@ Trk::TrackingVolume::associatedLayer(const Amg::Vector3D& gp) const
 {
   // confined layers
   if (m_confinedLayers)
-    return (m_confinedLayers->object(gp));
+    return (confinedLayers()->object(gp));
   // confined arbitrary
   if (m_confinedArbitraryLayers) {
     for (unsigned int i = 0; i < m_confinedArbitraryLayers->size(); i++)
@@ -592,7 +589,7 @@ Trk::TrackingVolume::nextLayer(const Amg::Vector3D& gp,
 {
   const Trk::Layer* nextLayer = nullptr;
   if (m_confinedLayers)
-    nextLayer = (m_confinedLayers->nextObject(gp, mom, associatedResult));
+    nextLayer = (confinedLayers()->nextObject(gp, mom, associatedResult));
   // forward it in this case
   if (!skipNavLayer)
     return nextLayer;
@@ -603,7 +600,7 @@ Trk::TrackingVolume::nextLayer(const Amg::Vector3D& gp,
   // try to get the next layer that has either material or sub surfaces
   while (nextLayer && (!(nextLayer->layerMaterialProperties()) &&
                        !(nextLayer->surfaceArray())))
-    nextLayer = (m_confinedLayers->nextObject(gp, mom, associatedResult));
+    nextLayer = (confinedLayers()->nextObject(gp, mom, associatedResult));
   return nextLayer;
 }
 
@@ -776,8 +773,7 @@ ATLAS_NOT_THREAD_SAFE(GeometrySignature geoSig, int& offset) const
   // the static layers first
   // ------------------------------------------------------------------
   if (m_confinedLayers) {
-    const std::vector<const Trk::Layer*>& layers =
-      m_confinedLayers->arrayObjects();
+    Trk::BinnedArraySpan<Trk::Layer const * const> layers = confinedLayers()->arrayObjects();
     for (const Trk::Layer* layerptr : layers) {
       // only index the material layers & only those that have not yet been
       // singed
@@ -808,8 +804,7 @@ ATLAS_NOT_THREAD_SAFE(GeometrySignature geoSig, int& offset) const
   // step down the hierarchy to the contained volumes and index those
   // ------------------------
   if (confinedVolumes()) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-      confinedVolumes()->arrayObjects();
+    Trk::BinnedArraySpan<Trk::TrackingVolume const * const > volumes = confinedVolumes()->arrayObjects();
     for (const auto& volumesIter : volumes) {
       if (volumesIter)
         volumesIter->indexContainedStaticLayers(geoSig, offset);
@@ -824,31 +819,25 @@ ATLAS_NOT_THREAD_SAFE(GeometrySignature geoSig, int& offset) const
   // the static layers first and check if they have surfaces with material
   // layers that need index
   if (m_confinedLayers) {
-    const std::vector<const Trk::Layer*>& layers =
-      m_confinedLayers->arrayObjects();
-    for (const auto& layerIter : layers) {
+    Trk::BinnedArraySpan<Trk::Layer const * const> layers = confinedLayers()->arrayObjects();
+    for (const Trk::Layer* layerIter : layers) {
       // only index the material layers & only those that have not yet been
       // singed
       if (layerIter) {
         const Trk::SurfaceArray* surfArray = layerIter->surfaceArray();
         if (surfArray) {
-          const std::vector<const Trk::Surface*>& layerSurfaces =
-            surfArray->arrayObjects();
+          Trk::BinnedArraySpan<Trk::Surface const * const> layerSurfaces = surfArray->arrayObjects();
           // loop over the surfaces - there can be 0 entries
           for (const Trk::Surface* laySurf : layerSurfaces) {
-            const Trk::Layer* materialLayer =
-              laySurf ? laySurf->materialLayer() : nullptr;
+            const Trk::Layer* materialLayer = laySurf ? laySurf->materialLayer() : nullptr;
             if (materialLayer && materialLayer->layerIndex().value() < 0) {
               // sign only those with material properties - rest goes to 0
               Trk::LayerIndex layIndex =
                 materialLayer->layerMaterialProperties()
-                  ? Trk::LayerIndex(int(geoSig) *
-                                      TRKDETDESCR_GEOMETRYSIGNATUREWEIGHT +
-                                    (++offset))
+                  ? Trk::LayerIndex(int(geoSig) * TRKDETDESCR_GEOMETRYSIGNATUREWEIGHT + (++offset))
                   : Trk::LayerIndex(0);
               // now register the index
-              (const_cast<Trk::Layer*>(materialLayer))
-                ->registerLayerIndex(layIndex);
+              (const_cast<Trk::Layer*>(materialLayer))->registerLayerIndex(layIndex);
             }
           }
         }
@@ -859,9 +848,8 @@ ATLAS_NOT_THREAD_SAFE(GeometrySignature geoSig, int& offset) const
   // step down the hierarchy to the contained volumes and index those
   // ------------------------
   if (confinedVolumes()) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-      confinedVolumes()->arrayObjects();
-    for (const auto& volumesIter : volumes) {
+    Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes()->arrayObjects();
+    for (const Trk::TrackingVolume* volumesIter : volumes) {
       if (volumesIter)
         volumesIter->indexContainedMaterialLayers(geoSig, offset);
     }
@@ -898,11 +886,6 @@ Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact)
   dEdX += flin * mprop.dEdX;
 }
 
-void Trk::TrackingVolume::addMaterial
-ATLAS_NOT_THREAD_SAFE(const Material& mat, float fact) const
-{
-  const_cast<Trk::TrackingVolume*>(this)->addMaterial(mat, fact);
-}
 
 void Trk::TrackingVolume::sign
 ATLAS_NOT_THREAD_SAFE(Trk::GeometrySignature geosign,
@@ -914,10 +897,9 @@ ATLAS_NOT_THREAD_SAFE(Trk::GeometrySignature geosign,
   const_cast<Trk::GeometryType&>(m_geometryType) = geotype;
 
   // confined volumes
-  const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
   if (confVolumes) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-      confVolumes->arrayObjects();
+    Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confVolumes->arrayObjects();
     for (const auto& volumesIter : volumes)
       if (volumesIter)
         volumesIter->sign(geosign, geotype);
@@ -930,8 +912,7 @@ ATLAS_NOT_THREAD_SAFE(Trk::GeometrySignature geosign,
       if (volumesIter)
         volumesIter->sign(geosign, geotype);
   // confined dense volumes
-  const std::vector<const Trk::TrackingVolume*>* confDenseVolumes =
-    confinedDenseVolumes();
+  const std::vector<const Trk::TrackingVolume*>* confDenseVolumes = confinedDenseVolumes();
   if (confDenseVolumes)
     for (const auto& volumesIter : (*confDenseVolumes))
       if (volumesIter)
@@ -1107,21 +1088,19 @@ Trk::TrackingVolume::createLayerAttemptsCalculator()
   }
 }
 
-void Trk::TrackingVolume::interlinkLayers
-ATLAS_NOT_THREAD_SAFE()
+void Trk::TrackingVolume::interlinkLayers()
 {
   if (m_confinedLayers) {
-    const std::vector<const Trk::Layer*>& layers =
-      m_confinedLayers->arrayObjects();
+    BinnedArraySpan<Trk::Layer* const> layers = m_confinedLayers->arrayObjects();
     // forward loop
     const Trk::Layer* lastLayer = nullptr;
-    std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
+    BinnedArraySpan<Trk::Layer*>::const_iterator layerIter = layers.begin();
     for (; layerIter != layers.end(); ++layerIter) {
       if (*layerIter) {
         // register the layers
-        Trk::Layer& mutableLayer = const_cast<Trk::Layer&>(**layerIter);
-        mutableLayer.setBinUtility(m_confinedLayers->binUtility()
-                                     ? m_confinedLayers->binUtility()
+        Trk::Layer& mutableLayer = (**layerIter);
+        mutableLayer.setBinUtility(confinedLayers()->binUtility()
+                                     ? confinedLayers()->binUtility()
                                      : nullptr);
         mutableLayer.setPreviousLayer(lastLayer);
         // register the volume
@@ -1135,7 +1114,7 @@ ATLAS_NOT_THREAD_SAFE()
     --layerIter;
     for (;; --layerIter) {
       if (*layerIter) {
-        Trk::Layer& mutableLayer = const_cast<Trk::Layer&>(**layerIter);
+        Trk::Layer& mutableLayer = (**layerIter);
         mutableLayer.setNextLayer(lastLayer);
       }
       lastLayer = (*layerIter);
@@ -1190,7 +1169,7 @@ Trk::TrackingVolume::moveVolume(Amg::Transform3D& shift)
     std::make_unique<Amg::Vector3D>(m_transform->translation()));
 }
 
-const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV
+Trk::TrackingVolume* Trk::TrackingVolume::cloneTV
 ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
 {
   // clone the mother volume
@@ -1202,14 +1181,14 @@ ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
   const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers) {
     // retrieve array objects and apply the transform
-    const std::vector<const Trk::Layer*>& layers = confLayers->arrayObjects();
-    std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+    Trk::BinnedArraySpan<Trk::Layer const * const> layers = confLayers->arrayObjects();
+    std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     for (unsigned int i = 0; i < layers.size(); i++) {
       const Trk::PlaneLayer* lay =
         dynamic_cast<const Trk::PlaneLayer*>(layers[i]);
       if (lay) {
         Trk::PlaneLayer* newlay = new Trk::PlaneLayer(*lay, transform);
-        layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(newlay));
+        layerOrder.push_back(Trk::SharedObject<Trk::Layer>(newlay));
       }
     }
     // recreate LayerArray
@@ -1218,7 +1197,7 @@ ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
     if (confLaysNav)
       layerArray = new Trk::NavBinnedArray1D<Trk::Layer>(
         *confLaysNav,
-        std::vector<Trk::SharedObject<const Trk::Layer>>(layerOrder),
+        std::vector<Trk::SharedObject<Trk::Layer>>(layerOrder),
         transform);
   }
 
@@ -1263,25 +1242,22 @@ ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
 
   // cloning confined volumes
   Trk::TrackingVolumeArray* volumeArray = nullptr;
-  const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
   if (confVolumes) {
     // retrieve array objects and apply the transform
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-      confVolumes->arrayObjects();
+    Trk::BinnedArraySpan<Trk::TrackingVolume const* const> volumes = confVolumes->arrayObjects();
     std::vector<Trk::SharedObject<const TrackingVolume>> volOrder;
     for (unsigned int i = 0; i < volumes.size(); i++) {
-      const Trk::TrackingVolume* vol = volumes[i]->cloneTV(transform);
+      Trk::TrackingVolume* vol = volumes[i]->cloneTV(transform);
       volOrder.push_back(Trk::SharedObject<const TrackingVolume>(vol));
     }
     // recreate TrackingVolumeArray
-    const Trk::NavBinnedArray1D<Trk::TrackingVolume>* confVolsNav =
-      dynamic_cast<const Trk::NavBinnedArray1D<Trk::TrackingVolume>*>(
+    const Trk::NavBinnedArray1D<const Trk::TrackingVolume>* confVolsNav =
+      dynamic_cast<const Trk::NavBinnedArray1D<const Trk::TrackingVolume>*>(
         confVolumes);
     if (confVolsNav)
-      volumeArray = new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
-        *confVolsNav,
-        std::vector<Trk::SharedObject<const TrackingVolume>>(volOrder),
-        transform);
+      volumeArray = new Trk::NavBinnedArray1D<const Trk::TrackingVolume>(
+        *confVolsNav, std::vector<Trk::SharedObject<const TrackingVolume>>(volOrder), transform);
   }
 
   // cloning confined unordered volumes
@@ -1365,7 +1341,7 @@ ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
       (const_cast<Trk::Layer*>(calayIter))->moveLayer(transform);
 
   // confined volumes
-  const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
   if (confVolumes)
     // retrieve array objects and apply the transform
     for (const auto& cVolumesIter : confVolumes->arrayObjects())
@@ -1403,7 +1379,7 @@ ATLAS_NOT_THREAD_SAFE(MsgStream& msgstream, double envelope) const
                   << volumeName() << " ], indicates problem." << endmsg;
   }
   // case b : container volume -> step down
-  const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
   if (confVolumes) {
     for (const auto& cVolumesIter : confVolumes->arrayObjects())
       cVolumesIter->synchronizeLayers(msgstream, envelope);
@@ -1416,7 +1392,7 @@ ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces, size_t& tSurfaces) const
   // confined 'ordered' layers
   const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers) {
-    const std::vector<const Trk::Layer*>& layers = confLayers->arrayObjects();
+    Trk::BinnedArraySpan<Trk::Layer const * const> layers = confLayers->arrayObjects();
     for (const auto& clayIter : layers) {
       if (&(*clayIter) != nullptr)
         clayIter->compactify(cSurfaces, tSurfaces);
@@ -1438,10 +1414,9 @@ ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces, size_t& tSurfaces) const
     }
   }
   // confined volumes
-  const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
   if (confVolumes) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-      confVolumes->arrayObjects();
+    Trk::BinnedArraySpan<Trk::TrackingVolume const* const> volumes = confVolumes->arrayObjects();
     for (const auto& cVolumesIter : volumes)
       cVolumesIter->compactify(cSurfaces, tSurfaces);
   }

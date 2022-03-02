@@ -12,25 +12,6 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior = 1
 
-flags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
-
-flags.Detector.GeometryPixel = True
-flags.Detector.GeometrySCT = True
-flags.Detector.GeometryTRT = True
-flags.Detector.GeometryID = True
-flags.Detector.GeometryBpipe = True
-flags.Detector.GeometryCavern = False
-flags.Detector.GeometryPixel = True
-flags.Detector.GeometrySCT = True
-flags.Detector.GeometryTRT = True
-
-flags.Detector.GeometryLAr = True
-flags.Detector.GeometryTile = True
-flags.Detector.GeometryMDT = True
-flags.Detector.GeometryTGC = True
-flags.Detector.GeometryCSC = True
-flags.Detector.GeometryRPC = True
-
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
 flags.Trigger.EDMVersion = 3
@@ -59,6 +40,11 @@ flags.Trigger.enableL1MuonPhase1=True
 flags.Trigger.enableL1CaloPhase1=False
 flags.Trigger.enableL1CaloLegacy=True
 flags.Concurrency.NumThreads = 1
+
+if flags.Trigger.Online.isPartition:
+    flags.GeoModel.AtlasVersion = flags.Trigger.OnlineGeoTag
+# else rely on the auto-configuration from input file
+
 
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
@@ -95,7 +81,7 @@ else:
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags))
 
-from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
+from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # uncomment to obtain printout of menu (and associated components)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -233,6 +233,8 @@ unsigned int TileCalibUtils::getDefaultDrawerIdx(unsigned int drawerIdx) {
                        1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C-10: EBC57, EBC58
   };
   
+  // Without this check we get a cppcheck false positive.
+  if (drawerIdx >= std::size(OffsetEBC)) std::abort();
   return 12 + OffsetEBC[drawerIdx];
   
 }

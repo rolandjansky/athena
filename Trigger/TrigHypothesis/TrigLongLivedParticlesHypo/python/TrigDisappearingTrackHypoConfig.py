@@ -104,10 +104,10 @@ def TrigDisappearingTrackHypoToolFromDict( chainDict ):
 
     for cpart in cparts:
         if cpart['IDinfo'] =="loose":
-            bdt4l0  = [-0.105] * len(thresholds)
-            bdt4l1p = [-0.085] * len(thresholds)
-            bdt3l0  = [ 0.045] * len(thresholds)
-            bdt3l1p = [ 0.145] * len(thresholds)
+            bdt4l0  = [-0.100] * len(thresholds)
+            bdt4l1p = [-0.080] * len(thresholds)
+            bdt3l0  = [ 0.010] * len(thresholds)
+            bdt3l1p = [ 0.110] * len(thresholds)
             log.info("Loose BDT WP is set")
         elif cpart['IDinfo'] =="tight":
             bdt4l0  = [-0.100] * len(thresholds)
@@ -115,14 +115,20 @@ def TrigDisappearingTrackHypoToolFromDict( chainDict ):
             bdt3l0  = [ 0.040] * len(thresholds)
             bdt3l1p = [ 0.155] * len(thresholds)
             log.info("Tight BDT WP is set")
+        elif cpart['IDinfo'] =="vloose":
+            bdt4l0  = [-0.100] * len(thresholds)
+            bdt4l1p = [-0.180] * len(thresholds)
+            bdt3l0  = [ 0.010] * len(thresholds)
+            bdt3l1p = [ 0.040] * len(thresholds)
+            log.info("VeryLoose BDT WP is set")
         else:
-            bdt4l0  = [-0.105] * len(thresholds)
-            bdt4l1p = [-0.085] * len(thresholds)
-            bdt3l0  = [ 0.045] * len(thresholds)
+            bdt4l0  = [-0.100] * len(thresholds)
+            bdt4l1p = [-0.080] * len(thresholds)
+            bdt3l0  = [ 0.040] * len(thresholds)
             bdt3l1p = [ 0.145] * len(thresholds)
             if cpart['IDinfo'] =="medium":
                 log.info("Medium BDT WP is set")
-            else: 
+            else:
                 log.info("IDinfo not provided, setting medium BDT WP")
 
     tool.cutBDTPix4Sct0  = bdt4l0
@@ -131,14 +137,3 @@ def TrigDisappearingTrackHypoToolFromDict( chainDict ):
     tool.cutBDTPix3Sct1p = bdt3l1p
 
     return tool
-
-
-def TrigDisappearingTrackHypoToolFromName( name, conf ):
-    """ provides configuration of the hypo tool given the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-    
-    decodedDict = dictFromChainName(conf)
-    
-    return TrigDisappearingTrackHypoToolFromDict( decodedDict )

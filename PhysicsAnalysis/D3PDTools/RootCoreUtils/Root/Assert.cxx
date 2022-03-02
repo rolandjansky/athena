@@ -26,7 +26,7 @@ namespace RCU
 {
   namespace Check
   {
-    const char *typeLiteral [typeNum] =
+    const char * const typeLiteral [typeNum] =
       {
 	"assertion failed",
 	"assertion failed",
@@ -45,7 +45,7 @@ namespace RCU
 
 
 
-    bool typeAbort [typeNum] =
+    const bool typeAbort [typeNum] =
       {
 	false,
 	true,

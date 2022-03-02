@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
   Author: James Monk
 */
 
@@ -102,6 +102,7 @@ protected:
   // make these protected so that Pythia8B can access them
   std::unique_ptr<Pythia8::Pythia> m_pythia;
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
+  unsigned int m_maxFailures;
 
 private:
 
@@ -136,7 +137,6 @@ private:
   double m_sigmaTotal;
   double m_conversion;
   
-  unsigned int m_maxFailures;
   unsigned int m_failureCount;
   
   std::map<std::string, PDGID> m_particleIDs;

@@ -77,15 +77,10 @@ StatusCode LArAutoCorrTotalCondAlg::initialize() {
   if (m_Nminbias <= 0)
     m_NoPile = true;
 
-  if (!m_NoPile) {
-    if (m_isMC) {
-      ATH_CHECK(m_LArNoiseObjKey.initialize());
-    } else {
-      ATH_CHECK(m_LArPedestalObjKey.initialize());
-    }
-    ATH_CHECK(m_LArfSamplObjKey.initialize());
-    ATH_CHECK(m_LArMinBiasObjKey.initialize());
-  }
+  ATH_CHECK(m_LArNoiseObjKey.initialize(!m_NoPile && m_isMC));
+  ATH_CHECK(m_LArPedestalObjKey.initialize(!m_NoPile && !m_isMC));
+  ATH_CHECK(m_LArfSamplObjKey.initialize(!m_NoPile));
+  ATH_CHECK(m_LArMinBiasObjKey.initialize(!m_NoPile));
 
   // WriteCondHandle initialization
   if (m_condSvc->regHandle(this, m_LArAutoCorrTotalObjKey).isFailure()) {

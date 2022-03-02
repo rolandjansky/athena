@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTCMPhysWavePredictor.h"
@@ -184,10 +184,10 @@ StatusCode LArTCMPhysWavePredictor::stop()
 
   //retrieve Physics pulses either from database or from file
   // Files are self root files produced by emtb for debug purpose
-  LArPhysWaveContainer* physWaveContainer;
+  LArPhysWaveContainer* physWaveContainer = nullptr;
   if (!m_datafromfile) {
       // retrieve Physics pulses from database   
-      const LArPhysWaveContainer* constphysWaveContainer;
+      const LArPhysWaveContainer* constphysWaveContainer = nullptr;
       ATH_CHECK( detStore()->retrieve(constphysWaveContainer) );
       physWaveContainer = (LArPhysWaveContainer*) constphysWaveContainer;
       ATH_MSG_INFO ( "LArPhysWaveContainer found in StoreGate." );

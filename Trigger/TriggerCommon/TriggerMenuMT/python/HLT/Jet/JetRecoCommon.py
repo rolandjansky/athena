@@ -15,6 +15,15 @@ from . import TriggerJetMods
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+##########################################################################################
+### --- Extracting jet chain parts --- 
+
+def jetChainParts(chainParts):
+    jChainParts = []
+    for p in chainParts:
+        if p['trigType'] == 'j':
+            jChainParts.append(p)
+    return jChainParts
 
 ##########################################################################################
 ### --- General reco dict handling --- 

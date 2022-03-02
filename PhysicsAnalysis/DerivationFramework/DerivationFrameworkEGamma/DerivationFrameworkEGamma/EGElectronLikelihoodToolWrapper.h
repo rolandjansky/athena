@@ -20,6 +20,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 //
 #include "AsgTools/IAsgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -66,9 +67,13 @@ private:
     m_decoratorIsEM{ this, "decoratorIsEM", "", "" };
   SG::WriteDecorHandleKey<xAOD::EgammaContainer>
     m_decoratorResult{ this, "decoratorResult", "", "" };
+  SG::WriteDecorHandleKeyArray<xAOD::EgammaContainer, float>
+    m_decoratorMultipleOutputs{this, "decoratorMultipleOutputs", {}, ""};
   std::string m_cut;
   std::string m_sgName;
   bool m_storeTResult;
+  std::vector<std::string> m_sgMultipleNames;
+  bool m_storeMultipleOutputs;
 };
 }
 

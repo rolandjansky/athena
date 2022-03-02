@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -235,9 +235,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
   ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO.value() and m_doHitsOnTracks.value()) );
 
   // Read Cond Handle Key
-  if (m_fillCluster.value()) {
-    ATH_CHECK( m_SCTDetEleCollKey.initialize() );
-  }
+  ATH_CHECK( m_SCTDetEleCollKey.initialize( m_fillCluster.value() ) );
 
   return sc;
 }
@@ -329,7 +327,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
   }
 
   // RDO container
-  typedef SCT_RDORawData SCTRawDataType;
+  using SCTRawDataType = SCT_RDORawData;
   const SCT_RDO_Container* p_rdocontainer = nullptr;
   std::vector<Identifier> RDOsOnTracks;
   if (m_fillRDO.value()) {

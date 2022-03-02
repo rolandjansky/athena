@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #####
 # CI Reference Files Map
@@ -11,8 +11,9 @@
 # Format is "test-branch" : "version"
 references_map = {
     # Simulation
-    "s3759": "v1",
-    "s3779": "v1",
+    "s3759": "v3",
+    "s3760": "v1",
+    "s3779": "v2",
     # Overlay
     "d1590": "v1",
     "d1726": "v1",

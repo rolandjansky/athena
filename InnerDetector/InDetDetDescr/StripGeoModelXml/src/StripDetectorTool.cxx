@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "StripDetectorTool.h"
 #include "StripGmxInterface.h"
@@ -32,9 +32,9 @@ StatusCode StripDetectorTool::create()
   // Get the detector configuration.
   ATH_CHECK(m_geoModelSvc.retrieve());
 
-  GeoModelExperiment *theExpt;
+  GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
-  const SCT_ID *idHelper;
+  const SCT_ID *idHelper = nullptr;
   ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
 
   m_commonItems = std::make_unique<InDetDD::SiCommonItems>(idHelper);

@@ -161,6 +161,11 @@ JetChainParts = {
        'presel3j125',
        'presel3j150',
        'presel4j20',
+       'presel4c20',
+       'presel4c25',
+       'presel4c30',
+       'presel4c35',
+       'presel4c45',
        'presel4j25',
        'presel4c25',
        'presel4j40',
@@ -184,6 +189,10 @@ JetChainParts = {
        'preselc60XXj45XXf40',
        'preselj60XXj45XXf40',
        'presela60XXa40XX2a25',
+       'preseljHT350',
+       'preseljHT400',
+       'preselcHT400',
+       'preseljHT500',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -249,7 +258,8 @@ JetChainParts = {
                       'HT50XX30etXX010jvt', # example of a HT chain using only jets passing JVT
                       'HT100XX10et',
                       'HT50XX10etXX0eta320', # HT selection with explicit jet et/eta cuts
-                      'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
+                      'HT50XX10ptXX0eta320', # HT selection with explicit jet et/eta cuts
+                      'HT1000XX0eta240',
                       ],
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
@@ -262,13 +272,14 @@ JetChainParts = {
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
-      ['050momemfrac100','momhecfrac010','050momemfrac100XXmomhecfrac010'],
+      ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
     ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
      # jets by ordering by pt, and selecting those with indices in [X,Y]
      'PTRANGE0r1',
      'PTRANGE2r3'],
+    'bdips': ['95bdips','90bdips','85bdips','80bdips','77bdips'],
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -312,6 +323,7 @@ JetChainParts_Default = {
     'jvt'           : '',
     'momCuts'       : '',
     'prefilters'    : [],
+    'bdips'         : '',
     'hypoScenario'  : 'simple',
     'exotHypo'      : [],
     'smc'           : 'nosmc',
@@ -395,18 +407,22 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux','b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20',
+    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
     
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
+    'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX',
     # topoExtras
     'Lxy0','noos','nocut'
     #########Remove until here############
 
 ]
-AllowedTopos_Bphysics_topoVariant=['BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose']
-AllowedTopos_Bphysics_topoExtra=['Lxy0','noos','nocut']
+AllowedTopos_Bphysics_topoVariant = [
+    'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
+    'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX'
+]
+AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -458,8 +474,8 @@ TauChainParts_Default = {
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '20',
-    'preselection'  : 'tracktwoMVA',
-    'selection'     : 'mediumRNN',
+    'preselection'  : '',
+    'selection'     : '',
     'multiplicity'  :  '',
     'trigType'      : ['tau'],
     'trkInfo'       : [],
@@ -631,6 +647,7 @@ PhotonChainParts = {
     'reccalibInfo'   : [],
     'trkInfo'        : [],
     'caloInfo'       : [],
+    'L2IDAlg'        : ['ringer'],
     'hypoInfo'       : '',
     'recoAlg'        : [],
     'FSinfo'         : [],
@@ -655,6 +672,7 @@ PhotonChainParts_Default = {
     'reccalibInfo'   : '',
     'trkInfo'        : '',
     'caloInfo'       : '',
+    'L2IDAlg'        : '',
     'hypoInfo'       : '',
     'recoAlg'        : '',
     'FSinfo'         : '',
@@ -1061,7 +1079,7 @@ UnconventionalTrackingChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
-    'IDinfo'         : ['loose','medium','tight'],
+    'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk", "dispj"],
     'addInfo'        : [],

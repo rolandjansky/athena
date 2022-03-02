@@ -5,7 +5,7 @@ atlas_subdir( DataQualityInterfaces )
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core Hist Tree RIO )
+find_package( ROOT COMPONENTS Core Hist Tree RIO ROOTTPython )
 find_package( tdaq-common COMPONENTS dqm_core_io dqm_core dqm_dummy_io dqm_dummy )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase )
@@ -57,3 +57,6 @@ atlas_add_executable( han-config-print
    src/han_config_print.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} DataQualityInterfaces )
+
+atlas_install_python_modules( python/*.py
+POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,W1 --extend-ignore E731 )

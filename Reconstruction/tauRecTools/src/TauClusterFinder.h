@@ -39,7 +39,8 @@ class TauClusterFinder : public TauRecToolBase {
     
     Gaudi::Property<bool> m_skipNegativeEnergy {this, "SkipNegativeEnergy", true, "whether to skip negative energy clusters"};
 
-    Gaudi::Property<bool> m_doJetVertexCorrection {this, "JetVertexCorrection", true, "switch of jet vertex correction"};
+    Gaudi::Property<bool> m_useOrigCluster {this, "UseOriginalCluster", true, 
+	"Use original cluster object if jet constituent is a shallow copy"};
 };
 
 #endif // TAURECTOOLS_TAUCLUSTERFINDER_H

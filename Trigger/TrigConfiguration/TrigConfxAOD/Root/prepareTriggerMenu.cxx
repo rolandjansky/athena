@@ -24,7 +24,7 @@
 
 #include "TrigConfData/HLTChain.h"
 #include "TrigConfData/L1Item.h"
-
+#include <type_traits>
 // Local include(s):
 #include "TrigConfxAOD/tools/prepareTriggerMenu.h"
 
@@ -134,6 +134,7 @@ namespace TrigConf {
             }
             for( size_t sig = 0; sig < counters.size(); ++sig ) {
                std::vector< HLTTriggerElement* > outTEs;
+               outTEs.reserve(outputTEs[ sig ].size());
                for( size_t outTEcounter = 0;
                     outTEcounter< outputTEs[ sig ].size(); ++outTEcounter ) {
                   HLTTriggerElement* element =
@@ -141,7 +142,7 @@ namespace TrigConf {
                   outTEs.push_back( element );
                }
                HLTSignature* signature =
-                  new HLTSignature( counters[ sig ], logics[ sig ], outTEs );
+                  new HLTSignature( counters[ sig ], logics[ sig ], std::move(outTEs) );
                signatures.push_back( signature );
                if( msg.level() <= MSG::VERBOSE ) {
                   msg << MSG::VERBOSE << "prepared signature: "
@@ -162,7 +163,7 @@ namespace TrigConf {
                                          level,
                                          menu->chainParentNames()[ i ],
                                          -1, // Lower chain ID not important
-                                         signatures );
+                                         std::move(signatures) );
          if( menu->chainRerunPrescalesAvailable() ) {
             chain->set_rerun_prescale( menu->chainRerunPrescales()[ i ] );
          }
@@ -376,11 +377,12 @@ namespace TrigConf {
 
             for( size_t sig = 0; sig < counters.size(); ++sig ) {
                std::vector< HLTTriggerElement* > outTEs;
+               outTEs.reserve(outputTEs[ sig ].size());
                for( size_t outTEcounter = 0; outTEcounter< outputTEs[ sig ].size(); ++outTEcounter ) {
                   HLTTriggerElement* element = new HLTTriggerElement( outputTEs[ sig ][ outTEcounter ] );
                   outTEs.push_back( element );
                }
-               HLTSignature* signature = new HLTSignature( counters[ sig ], logics[ sig ], outTEs );
+               HLTSignature* signature = new HLTSignature( counters[ sig ], logics[ sig ], std::move(outTEs) );
                signatures.push_back( signature );
                if( msg.level() <= MSG::VERBOSE ) {
                   msg << MSG::VERBOSE << "prepared signature: " << *( signatures.back() ) << endmsg;
@@ -394,7 +396,7 @@ namespace TrigConf {
                                             level,
                                             loadedChain.l1item(), // L1 seeds (string)
                                             -1, // Lower chain ID not important
-                                            signatures ); // Empty for R3 JSONs
+                                            std::move(signatures) ); // Empty for R3 JSONs
  
             chain->set_rerun_prescale( -1.0 ); // Not used in R3
             chain->set_pass_through( -1.0 );  // Not used in R3
@@ -478,9 +480,9 @@ namespace TrigConf {
 
       }
 
-
+      static_assert(std::is_move_assignable<BunchGroupSet>::value);
       // Replace the current bunch-group set with the new one:
-      bgSet = bgSetNew;
+      bgSet = std::move(bgSetNew);
 
       // Return gracefully:
       return StatusCode::SUCCESS;

@@ -274,7 +274,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   ATH_CHECK(m_caloMgrKey.initialize());
 
   // retrieve specific servers and tools for selected processes
-  if (m_calculateSignificance)  { ATH_CHECK(m_noiseCDOKey.initialize()); }
+  ATH_CHECK(m_noiseCDOKey.initialize(m_calculateSignificance));
   if (m_calculateLArHVFraction) { ATH_CHECK(m_larHVFraction.retrieve()); } else { m_larHVFraction.disable(); }
 
   return StatusCode::SUCCESS;

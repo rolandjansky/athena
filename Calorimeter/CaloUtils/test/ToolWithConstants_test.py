@@ -20,6 +20,7 @@ import ROOT
 
 class TestAlg (Alg):
     def initialize (self):
+        ROOT.errorcheck.ReportMessage.hideFunctionNames(True)
         toolh = ROOT.ToolHandle(ROOT.CaloUtils.ToolWithConstantsTestTool)
         self.tool1 = toolh ('CaloUtils::ToolWithConstantsTestTool/tool1')
         if not self.tool1.retrieve():
@@ -86,6 +87,8 @@ def testCfg (configFlags):
     result.addEventAlgo (TestAlg ('TestAlg'))
     return result
 
+
+ROOT.errorcheck.ReportMessage.hideFunctionNames (True)
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1

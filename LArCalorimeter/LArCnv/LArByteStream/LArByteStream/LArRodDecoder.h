@@ -149,7 +149,9 @@ public:
 
   // fast decoding for trigger
   inline uint32_t fillCollectionHLT (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                     const uint32_t* p, uint32_t n, LArCellCollection& coll) const;
+                                     const uint32_t* p, uint32_t n, LArCellCollection& coll,
+				     LArRodBlockStructure*& providedRodBlockStructure, 
+				     uint16_t& rodMinorVersion, uint32_t& robBlockType) const;
 
   void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                       const uint32_t* p, uint32_t n, LArRawChannelContainer& coll, const CaloGain::CaloGain gain) const; 
@@ -183,14 +185,6 @@ public:
   void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                       const uint32_t* p, uint32_t n, LArFebHeaderContainer& coll, const CaloGain::CaloGain) const;
 
-  //fast convert ROD Data words to read the headers of the Feb
-  inline uint32_t fillCollectionHLTFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                       const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll) const;
-                                                      
-  //fast convert ROD Data words to read the headers of the Feb coming from ROS
-  inline uint32_t fillCollectionHLTROSFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                          const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll) const;
-                                                      
   //Send an error reported by the eformat package to a MsgStream.
   //inline void report_error (const ers::Issue& error, MsgStream& log);
   //Inputs: error: The eformat exception
@@ -205,7 +199,7 @@ public:
     
     
 private:
-  LArRodBlockStructure* prepareBlockStructure1(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const;
+  LArRodBlockStructure* prepareBlockStructure1(const uint16_t rodMinorVersion, const uint32_t robBlockType) const;
   LArRodBlockStructure* prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                               const uint32_t* p, uint32_t n, const CaloGain::CaloGain RequestedGain) const;
 
@@ -290,10 +284,13 @@ inline void LArRodDecoder::report_error (const ers::Issue& error, MsgStream& log
 */
 
 // fillCollection for HLT without automatic BS Cnv
-
+// default values
+static uint16_t rMV=99;
+static uint32_t rBT=99;
 uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                           const uint32_t* p, uint32_t n,
-                                          LArCellCollection& coll) const
+                                          LArCellCollection& coll, 
+					  LArRodBlockStructure*& providedRodBlockStructure, uint16_t& rodMinorVersion =  rMV , uint32_t& robBlockType = rBT ) const
 {
   LArCell *collElem=0; //Pointer to a new element to be added to the collection
   uint32_t error = 0;
@@ -314,12 +311,23 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
     return error;
   }
 
-  LArRodBlockStructure* BlStruct = prepareBlockStructure1 (robFrag);
+  //Get version and blocktype form header
+  eformat::helper::Version ver(robFrag.rod_version());
+  const uint16_t rMV_present=ver.minor_version();
+  const uint32_t rBT_present=robFrag.rod_detev_type()&0xff;
+
+  LArRodBlockStructure* BlStruct(nullptr);
+  if ( !providedRodBlockStructure || (rodMinorVersion!=rMV_present) || (robBlockType!=rBT_present) ){
+  BlStruct = prepareBlockStructure1 (rMV_present, rBT_present);
   if (!BlStruct) {
     // Second Bit is block empty or unknown
     error|= 0x2;
     return error;
   }
+  providedRodBlockStructure = BlStruct;
+  rodMinorVersion = rMV_present;
+  robBlockType = rBT_present;
+  } else BlStruct = providedRodBlockStructure;
 
   BlStruct->setFragment(p,n);
   for(LArCellCollection::iterator ii=coll.begin();ii!=coll.end();++ii)
@@ -393,115 +401,6 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
   if ( feb_number== 2 && collection_size !=256 ) error |= 0x20;
   return error;
 }
-
-
-uint32_t LArRodDecoder::fillCollectionHLTFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                             const uint32_t* p, uint32_t n,
-                                             LArFebEnergyCollection& coll) const
-{
-#ifndef NDEBUG
-  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragment of size " << n);
-#endif
-  if (n<2) //Avoid segmentation fault
-    {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
-     return 0;
-    }
-  const uint32_t blocksize=p[0]; //First word contains block size
-  if (blocksize>n)
-    {msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endmsg;
-     return 0;
-    }
-
-  LArRodBlockStructure* BlStruct = prepareBlockStructure1 (robFrag);
-  if (!BlStruct) {
-    return 0;
-  }
-  BlStruct->setFragment(p,n);
-
-  uint32_t NWtot=0;
-  //HWIdentifier FEBID;
-  unsigned int FEBID;
-  LArFebEnergy* febenergy;
-  do //Loop over FEB's
-    {
-      NWtot=BlStruct->getNumberOfWords();
-      FEBID=(unsigned int)(BlStruct->getFEBID());
-      // RL 20.09.2006 protection against 0 FebId
-      if (!FEBID)
-	{
-#ifndef NDEBUG
-	  ATH_MSG_DEBUG("Bad FebID=0x" << std::hex << BlStruct->getFEBID() << std::dec << " found for this FEB, skipping it!");
-#endif
-	  continue; 
-	}
-      // RL 05.11.2007 checksum
-      if(m_CheckSum) {
-	uint32_t onsum  = BlStruct->onlineCheckSum();
-	uint32_t offsum = BlStruct->offlineCheckSum();
-	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << std::dec << endmsg;
-	  continue;
-	}
-      }
-
-      if(m_febExchange) {
-        if(FEBID == m_febId1) FEBID = m_febId2;
-        else if(FEBID == m_febId2) FEBID = m_febId1;
-      }
-      if(NWtot<=5) continue;
-      febenergy = new LArFebEnergy(FEBID);
-      febenergy->setFebEx(BlStruct->getEx());
-      febenergy->setFebEy(BlStruct->getEy());
-      febenergy->setFebEz(BlStruct->getEz());
-      febenergy->setFebSumE(BlStruct->getSumE());
-#ifndef NDEBUG
-      if (msgLvl(MSG::DEBUG)){
-	msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb ID = " << febenergy->getFebId() << endmsg;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ex = " << febenergy->getFebEx() << endmsg;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ey = " << febenergy->getFebEy() << endmsg;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ez = " << febenergy->getFebEz() << endmsg;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb SumE = " << febenergy->getFebSumE() << endmsg;
-      }
-#endif
-      coll.push_back(febenergy);
-    }
-  while (BlStruct->nextFEB()); //Get NextFeb
-  return 0;
-}
-
-uint32_t LArRodDecoder::fillCollectionHLTROSFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                                const uint32_t* p, uint32_t n,
-                                                LArFebEnergyCollection& coll) const
-{
-#ifndef NDEBUG
-  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragment of size " << n);
-#endif
-  if (n<2) //Avoid segmentation fault
-    {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
-     return 0;
-    }
-
-  LArRodBlockStructure* BlStruct = prepareBlockStructure1 (robFrag);
-  if (!BlStruct) {
-    return 0;
-  }
-
-  LArFebEnergy* febenergy;
-  int nfebs = BlStruct->setFragmentVirtualROB(p,n);
-  if ( !nfebs ) return 0;
-  for(int i = 0; i<nfebs; i++) {
-      febenergy = new LArFebEnergy( BlStruct->getVROBFebId() );
-      febenergy->setFebEx(BlStruct->getVROBEx());
-      febenergy->setFebEy(BlStruct->getVROBEy());
-      febenergy->setFebEz(BlStruct->getVROBEz());
-      febenergy->setFebSumE(BlStruct->getVROBSumE());
-      coll.push_back(febenergy);
-  } // nfebs loop
-  return 0;
-}
-
 
 inline void LArRodDecoder:: setCellEnergy(
    LArCell* element, int energy, int time,

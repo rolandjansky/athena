@@ -175,7 +175,8 @@ private:
 
   /**  private method to be called from GeometryBuilder: return the world with
    * ownership */
-  const TrackingVolume* checkoutHighestTrackingVolume();
+  const TrackingVolume* checkoutHighestTrackingVolume() const;
+  TrackingVolume* checkoutHighestTrackingVolume();
 
   /** print VolumeInformation with Level */
   void printVolumeInformation(MsgStream& msgstream,

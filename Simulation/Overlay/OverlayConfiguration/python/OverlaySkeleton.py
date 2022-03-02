@@ -102,6 +102,10 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'triggerConfig') and runArgs.triggerConfig == 'NONE':
         ConfigFlags.Detector.EnableL1Calo = False
 
+    # Setup perfmon flags from runargs
+    from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
+
     # Special Configuration preInclude
     specialConfigPreInclude(ConfigFlags)
 

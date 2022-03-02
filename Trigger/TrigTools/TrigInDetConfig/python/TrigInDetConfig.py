@@ -259,7 +259,7 @@ class InDetCacheNames(object):
   PixRDOCacheKey     = "PixRDOCache"
   PixBSErrCacheKey   = "PixBSErrCache"
 
-def InDetIDCCacheCreatorCfg():
+def InDetIDCCacheCreatorCfg(flags):
   #Create IdentifiableCaches
   acc = ComponentAccumulator()
   InDet__CacheCreator=CompFactory.getComp("InDet::CacheCreator")
@@ -273,6 +273,8 @@ def InDetIDCCacheCreatorCfg():
                                               SCTFlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
                                               PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
+  if not flags.Detector.GeometryTRT:
+    InDetCacheCreatorTrig.disableTRT = True
 
   acc.addEventAlgo( InDetCacheCreatorTrig )
   return acc
@@ -711,7 +713,7 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
                                                                     ('SpacePointCache', 'PixelSpacePointCache'),
                                                                     ('SpacePointCache', 'SctSpacePointCache'),
                                                                     ('xAOD::EventInfo', 'EventInfo'),
-                                                                    ('TrigRoiDescriptorCollection', roisKey),
+                                                                    ('TrigRoiDescriptorCollection', str(roisKey)),
                                                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
     if flags.Input.isMC:
         verifier.DataObjects += [( 'PixelRDO_Container' , 'StoreGateSvc+PixelRDOs' ),
@@ -783,7 +785,7 @@ def TRTRIOMakerCfg(flags):
                                           TRTRDOLocation = TRT_RDO_Key,
                                           isRoI_Seeded = True,
                                           RoIs = flags.InDet.Tracking.ActivePass.roi,
-                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo=True, usePhase=False, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
+                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
   acc.addEventAlgo( alg )
   return acc
 

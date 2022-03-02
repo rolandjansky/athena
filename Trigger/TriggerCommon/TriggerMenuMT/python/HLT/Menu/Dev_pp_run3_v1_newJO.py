@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 
 def setupMenu():
     """
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu
     menu = generateMenu( ConfigFlags)
 
     acc.merge(menu)

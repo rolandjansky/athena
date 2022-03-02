@@ -6,8 +6,8 @@
 
 #include <TString.h>  // for Form
 
-#include <utility>
 #include <fstream>
+#include <utility>
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -39,7 +39,23 @@ namespace MuonGM {
     MuonDetectorManager::~MuonDetectorManager() {
         for (unsigned int p = 0; p < m_envelope.size(); ++p) { m_envelope[p]->unref(); }
     }
-
+    template <typename read_out, size_t N> void MuonDetectorManager::clearCache(std::array<std::unique_ptr<read_out>, N>& array) {
+        for (std::unique_ptr<read_out>& ele : array) {
+            if (ele) ele->clearCache();
+        }
+    }
+    template <typename read_out, size_t N> void MuonDetectorManager::fillCache(std::array<std::unique_ptr<read_out>, N>& array) {
+        for (std::unique_ptr<read_out>& ele : array) {
+            if (ele) ele->fillCache();
+        }
+    }
+    template <typename read_out, size_t N> void MuonDetectorManager::refreshCache(std::array<std::unique_ptr<read_out>, N>& array) {
+        for (std::unique_ptr<read_out>& ele : array) {
+            if (!ele) continue;
+            ele->clearCache();
+            ele->fillCache();
+        }
+    }
     void MuonDetectorManager::clearCache() {
         clearMdtCache();
         clearRpcCache();
@@ -54,90 +70,38 @@ namespace MuonGM {
         refreshCscCache();
     }
     void MuonDetectorManager::refreshMdtCache() {
-        clearMdtCache();  // NEED to fill since FillCacheInitTime = 1 is the default now.
-        fillMdtCache();
+        // NEED to fill since FillCacheInitTime = 1 is the default now.
+        refreshCache(m_mdtArray);
     }
-    void MuonDetectorManager::refreshRpcCache() {
-        clearRpcCache();
-        fillRpcCache();
-    }
-    void MuonDetectorManager::refreshTgcCache() {
-        clearTgcCache();
-        fillTgcCache();
-    }
+    void MuonDetectorManager::refreshRpcCache() { refreshCache(m_rpcArray); }
+    void MuonDetectorManager::refreshTgcCache() { refreshCache(m_tgcArray); }
     void MuonDetectorManager::refreshCscCache() {
-        clearCscCache();
-        fillCscCache();
+        if (nCscRE()) refreshCache(m_cscArray);
     }
     void MuonDetectorManager::refreshMMCache() {
-        clearMMCache();
-        fillMMCache();
+        if (nMMRE()) refreshCache(m_mmcArray);
     }
     void MuonDetectorManager::refreshsTgcCache() {
-        clearsTgcCache();
-        fillsTgcCache();
+        if (nsTgcRE()) refreshCache(m_stgArray);
     }
 
-    void MuonDetectorManager::clearMdtCache() {
-        for (unsigned int i = 0; i < NMdtStatType; ++i)
-            for (unsigned int j = 0; j < NMdtStatEta; ++j)
-                for (unsigned int k = 0; k < NMdtStatPhi; ++k)
-                    for (unsigned int l = 0; l < NMdtMultilayer; ++l) {
-                        if (m_mdtArray[i][j][k][l]) m_mdtArray[i][j][k][l]->clearCache();
-                    }
-    }
-    void MuonDetectorManager::clearRpcCache() {
-        for (std::unique_ptr<RpcReadoutElement>& read_out : m_rpcArray) {
-            if (read_out) read_out->clearCache();
-        }
-    }
-    void MuonDetectorManager::clearTgcCache() {
-        for (unsigned int i = 0; i < NTgcStatType; ++i)
-            for (unsigned int j = 0; j < NTgcStatEta; ++j)
-                for (unsigned int k = 0; k < NTgcStatPhi; ++k) {
-                    if (m_tgcArray[i][j][k]) m_tgcArray[i][j][k]->clearCache();
-                }
-    }
+    void MuonDetectorManager::clearMdtCache() { clearCache(m_mdtArray); }
+    void MuonDetectorManager::clearRpcCache() { clearCache(m_rpcArray); }
+    void MuonDetectorManager::clearTgcCache() { clearCache(m_tgcArray); }
     void MuonDetectorManager::clearCscCache() {
-        if (nCscRE() < 1) return;
-        for (unsigned int i = 0; i < NCscStatType; ++i)
-            for (unsigned int j = 0; j < NCscStatEta; ++j)
-                for (unsigned int k = 0; k < NCscStatPhi; ++k)
-                    for (unsigned int l = 0; l < NCscChamberLayer; ++l) {
-                        if (m_cscArray[i][j][k][l]) m_cscArray[i][j][k][l]->clearCache();
-                    }
+        if (nCscRE()) clearCache(m_cscArray);
     }
     void MuonDetectorManager::clearMMCache() {
-        if (nMMRE() < 1) return;
-        for (unsigned int j = 0; j < NMMcStatEta; ++j)
-            for (unsigned int k = 0; k < NMMcStatPhi; ++k)
-                for (unsigned int l = 0; l < NMMcChamberLayer; ++l) {
-                    if (m_mmcArray[j][k][l]) m_mmcArray[j][k][l]->clearCache();
-                }
+        if (nMMRE()) clearCache(m_mmcArray);
     }
     void MuonDetectorManager::clearsTgcCache() {
-        if (nsTgcRE() < 1) return;
-        for (unsigned int j = 0; j < NsTgStatEta; ++j)
-            for (unsigned int k = 0; k < NsTgStatPhi; ++k)
-                for (unsigned int l = 0; l < NsTgChamberLayer; ++l) {
-                    if (m_stgArray[j][k][l]) m_stgArray[j][k][l]->clearCache();
-                }
+        if (nsTgcRE()) clearCache(m_stgArray);
     }
     void MuonDetectorManager::fillMMCache() {
-        if (nMMRE() < 1) return;
-        for (unsigned int j = 0; j < NMMcStatEta; ++j)
-            for (unsigned int k = 0; k < NMMcStatPhi; ++k)
-                for (unsigned int l = 0; l < NMMcChamberLayer; ++l) {
-                    if (m_mmcArray[j][k][l]) m_mmcArray[j][k][l]->fillCache();
-                }
+        if (nMMRE()) fillCache(m_mmcArray);
     }
     void MuonDetectorManager::fillsTgcCache() {
-        if (nsTgcRE() < 1) return;
-        for (unsigned int j = 0; j < NsTgStatEta; ++j)
-            for (unsigned int k = 0; k < NsTgStatPhi; ++k)
-                for (unsigned int l = 0; l < NsTgChamberLayer; ++l) {
-                    if (m_stgArray[j][k][l]) m_stgArray[j][k][l]->fillCache();
-                }
+        if (nsTgcRE()) fillCache(m_stgArray);
     }
     void MuonDetectorManager::fillCache() {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -147,34 +111,11 @@ namespace MuonGM {
         fillTgcCache();
         fillCscCache();
     }
-    void MuonDetectorManager::fillMdtCache() {
-        for (unsigned int i = 0; i < NMdtStatType; ++i)
-            for (unsigned int j = 0; j < NMdtStatEta; ++j)
-                for (unsigned int k = 0; k < NMdtStatPhi; ++k)
-                    for (unsigned int l = 0; l < NMdtMultilayer; ++l) {
-                        if (m_mdtArray[i][j][k][l]) m_mdtArray[i][j][k][l]->fillCache();
-                    }
-    }
-    void MuonDetectorManager::fillRpcCache() {
-        for (std::unique_ptr<RpcReadoutElement>& read_out : m_rpcArray) {
-            if (read_out) read_out->fillCache();
-        }
-    }
-    void MuonDetectorManager::fillTgcCache() {
-        for (unsigned int i = 0; i < NTgcStatType; ++i)
-            for (unsigned int j = 0; j < NTgcStatEta; ++j)
-                for (unsigned int k = 0; k < NTgcStatPhi; ++k) {
-                    if (m_tgcArray[i][j][k]) m_tgcArray[i][j][k]->fillCache();
-                }
-    }
+    void MuonDetectorManager::fillMdtCache() { fillCache(m_mdtArray); }
+    void MuonDetectorManager::fillRpcCache() { fillCache(m_rpcArray); }
+    void MuonDetectorManager::fillTgcCache() { fillCache(m_tgcArray); }
     void MuonDetectorManager::fillCscCache() {
-        if (nCscRE() < 1) return;
-        for (unsigned int i = 0; i < NCscStatType; ++i)
-            for (unsigned int j = 0; j < NCscStatEta; ++j)
-                for (unsigned int k = 0; k < NCscStatPhi; ++k)
-                    for (unsigned int l = 0; l < NCscChamberLayer; ++l) {
-                        if (m_cscArray[i][j][k][l]) m_cscArray[i][j][k][l]->fillCache();
-                    }
+        if (nCscRE()) fillCache(m_cscArray);
     }
 
     unsigned int MuonDetectorManager::getNumTreeTops() const { return m_envelope.size(); }
@@ -222,7 +163,7 @@ namespace MuonGM {
             return nullptr;
     }
 
-    void MuonDetectorManager::addRpcReadoutElement(RpcReadoutElement* x, Identifier id) {
+    void MuonDetectorManager::addRpcReadoutElement(RpcReadoutElement* x, const Identifier& id) {
         // check if RE has id as identity
         if (id != x->identify()) {
             throw std::runtime_error(
@@ -232,7 +173,7 @@ namespace MuonGM {
         }
 
         // add RE to map by RE hash
-        IdentifierHash Idhash = x->detectorElementHash();
+        const IdentifierHash Idhash = x->detectorElementHash();
         if (Idhash >= RpcRElMaxHash) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - Trying to add RpcReadoutElement with "
@@ -260,7 +201,7 @@ namespace MuonGM {
         ++m_n_rpcRE;
 
         // add here the RpcDetectorElement and/or add this readoutElement to the DetectorElement
-        IdentifierHash idh = x->collectionHash();
+        const IdentifierHash idh = x->collectionHash();
         if (idh < RpcDetElMaxHash) {
             if (!(m_rpcDEArray[idh])) {
                 m_rpcDEArray[idh] = std::make_unique<RpcDetectorElement>(nullptr, this, m_rpcIdHelper->elementID(id), idh);
@@ -275,12 +216,12 @@ namespace MuonGM {
         }
     }
 
-    const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(const Identifier id) const {
+    const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(const Identifier& id) const {
         int idx = rpcIdentToArrayIdx(id);
         return m_rpcArray[idx].get();
     }
 
-    const MuonClusterReadoutElement* MuonDetectorManager::getMuonClusterReadoutElement(const Identifier id) const {
+    const MuonClusterReadoutElement* MuonDetectorManager::getMuonClusterReadoutElement(const Identifier& id) const {
         if (m_tgcIdHelper->is_tgc(id)) return getTgcReadoutElement(id);
         if (m_rpcIdHelper->is_rpc(id)) return getRpcReadoutElement(id);
         if (m_cscIdHelper->is_csc(id)) return getCscReadoutElement(id);
@@ -288,135 +229,42 @@ namespace MuonGM {
         if (m_stgcIdHelper->is_stgc(id)) return getsTgcReadoutElement(id);
         return nullptr;
     }
-
-    const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const {
-        int steta_index = stEta + NMMcStEtaOffset;
-        if (stEta > 0) steta_index = steta_index - 1;
-        int stphi_index = 2 * (stPhi - 1);
-        if (isSmall == 1) stphi_index = stphi_index + 1;  // small sectors
-        int ml_index = ml - 1;
-
-        if (steta_index < 0 || steta_index >= NMMcStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getMMRElement_fromIdFields() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NMMcStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NMMcStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getMMRElement_fromIdFields() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NMMcStatPhi - 1));
-        }
-        if (ml_index < 0 || ml_index >= NMMcChamberLayer) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getMMRElement_fromIdFields() - ml_index out of range %d 0-%d", __FILE__,
-                     __LINE__, ml_index, NMMcChamberLayer - 1));
-        }
-        return m_mmcArray[steta_index][stphi_index][ml_index].get();
-    }
-    void MuonDetectorManager::addMMReadoutElement_withIdFields(MMReadoutElement* x, int isSmall, int stEta, int stPhi, int ml) {
-        int steta_index = stEta + NMMcStEtaOffset;
-        if (stEta > 0) steta_index = steta_index - 1;
-        int stphi_index = 2 * (stPhi - 1);
-        if (isSmall == 1) stphi_index = stphi_index + 1;  // small sectors
-        int ml_index = ml - 1;
-
-        if (steta_index < 0 || steta_index >= NMMcStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - stEtaindex out of range %d 0-%d",
-                     __FILE__, __LINE__, steta_index, NMMcStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NMMcStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - stPhiindex out of range %d 0-%d",
-                     __FILE__, __LINE__, stphi_index, NMMcStatPhi - 1));
-        }
-        if (ml_index < 0 || ml_index >= NMMcChamberLayer) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - ml_index out of range %d 0-%d",
-                     __FILE__, __LINE__, ml_index, NMMcChamberLayer - 1));
-        }
-        if (m_mmcArray[steta_index][stphi_index][ml_index] != nullptr) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - this place is taken [%d][%d][%d] "
-                     "......... this RE cannot be added",
-                     __FILE__, __LINE__, steta_index, stphi_index, ml_index));
-        }
-        m_mmcArray[steta_index][stphi_index][ml_index] = std::unique_ptr<MMReadoutElement>(x);
-        m_n_mmcRE++;
-    }
-    void MuonDetectorManager::addsTgcReadoutElement_withIdFields(sTgcReadoutElement* x, int isSmall, int stEta, int stPhi, int ml) {
-        int steta_index = stEta + NsTgStEtaOffset;
-        if (stEta > 0) steta_index = steta_index - 1;
-        int stphi_index = 2 * (stPhi - 1);
-        if (isSmall == 1) stphi_index = stphi_index + 1;  // small sectors
-        int ml_index = ml - 1;
-
-        if (steta_index < 0 || steta_index >= NsTgStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - stEtaindex out of range %d 0-%d",
-                     __FILE__, __LINE__, steta_index, NsTgStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NsTgStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - stPhiindex out of range %d 0-%d",
-                     __FILE__, __LINE__, stphi_index, NsTgStatPhi - 1));
-        }
-        if (ml_index < 0 || ml_index >= NsTgChamberLayer) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - ml_index out of range %d 0-%d",
-                     __FILE__, __LINE__, ml_index, NsTgChamberLayer - 1));
-        }
-        if (m_stgArray[steta_index][stphi_index][ml_index] != nullptr) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - this place is taken [%d][%d][%d] "
-                     "......... this RE cannot be added",
-                     __FILE__, __LINE__, steta_index, stphi_index, ml_index));
-        }
-        m_stgArray[steta_index][stphi_index][ml_index] = std::unique_ptr<sTgcReadoutElement>(x);
-        m_n_stgRE++;
-    }
-    const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const {
-        int steta_index = stEta + NsTgStEtaOffset;
-        if (stEta > 0) steta_index = steta_index - 1;
-        int stphi_index = 2 * (stPhi - 1);
-        if (isSmall == 1) stphi_index = stphi_index + 1;  // small sectors
-        int ml_index = ml - 1;
-
-        if (steta_index < 0 || steta_index >= NsTgStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getsTgcRElement_fromIdFields() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NsTgStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NsTgStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getsTgcRElement_fromIdFields() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NsTgStatPhi - 1));
-        }
-        if (ml_index < 0 || ml_index >= NsTgChamberLayer) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getsTgcRElement_fromIdFields() - ml_index out of range %d 0-%d", __FILE__,
-                     __LINE__, ml_index, NsTgChamberLayer - 1));
-        }
-        return m_stgArray[steta_index][stphi_index][ml_index].get();
-    }
-
-    void MuonDetectorManager::addMMReadoutElement(MMReadoutElement* x, Identifier id) {
+    void MuonDetectorManager::addMMReadoutElement(MMReadoutElement* x, const Identifier& id) {
         if (id != x->identify()) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement() - Trying to add MMReadoutElement with id %s not "
                      "matching the id assigned to the MMReadoutElement %s",
                      __FILE__, __LINE__, m_mmIdHelper->show_to_string(id).c_str(), m_mmIdHelper->show_to_string(x->identify()).c_str()));
         }
+        const int array_idx = mmIdenToArrayIdx(id);
+        if (m_mmcArray[array_idx]) {
+            throw std::runtime_error(
+                Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - this place is taken [%d]"
+                     "......... this RE cannot be added",
+                     __FILE__, __LINE__, array_idx));
+        }
+        m_mmcArray[array_idx] = std::unique_ptr<MMReadoutElement>(x);
+        ++m_n_mmcRE;
     }
-    void MuonDetectorManager::addsTgcReadoutElement(sTgcReadoutElement* x, Identifier id) {
+    void MuonDetectorManager::addsTgcReadoutElement(sTgcReadoutElement* x, const Identifier& id) {
         if (id != x->identify()) {
             throw std::runtime_error(Form(
                 "File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement() - Trying to add sTgcReadoutElement with id %s not "
                 "matching the id assigned to the sTgcReadoutElement %s",
                 __FILE__, __LINE__, m_stgcIdHelper->show_to_string(id).c_str(), m_stgcIdHelper->show_to_string(x->identify()).c_str()));
         }
+        const int array_idx = stgcIdentToArrayIdx(id);
+        if (m_stgArray[array_idx]) {
+            throw std::runtime_error(
+                Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement() - this place is taken [%d] "
+                     "......... this RE cannot be added",
+                     __FILE__, __LINE__, array_idx));
+        }
+        m_stgArray[array_idx] = std::unique_ptr<sTgcReadoutElement>(x);
+        ++m_n_stgRE;
     }
-    void MuonDetectorManager::addMdtReadoutElement(MdtReadoutElement* x, Identifier id) {
+
+    void MuonDetectorManager::addMdtReadoutElement(MdtReadoutElement* x, const Identifier& id) {
         if (id != x->identify()) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - Trying to add MdtReadoutElement with id %s not "
@@ -424,22 +272,16 @@ namespace MuonGM {
                      __FILE__, __LINE__, m_mdtIdHelper->show_to_string(id).c_str(), m_mdtIdHelper->show_to_string(x->identify()).c_str()));
         }
 
-        int stName = m_mdtIdHelper->stationName(id);
-        int stEta = m_mdtIdHelper->stationEta(id);
-        int stPhi = m_mdtIdHelper->stationPhi(id);
-        int ml = m_mdtIdHelper->multilayer(id);
-
         // add here the MdtReadoutElement to the array by RE hash
         // use already known RE hash
-        IdentifierHash Idhash = 0;
-        Idhash = x->detectorElementHash();
+        const IdentifierHash Idhash = x->detectorElementHash();
         if (Idhash >= MdtRElMaxHash) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - Trying to add MdtReadoutElement with "
                      "detector-element-hash id %d outside boundaries 0-%d",
                      __FILE__, __LINE__, (unsigned int)Idhash, MdtRElMaxHash));
         } else {
-            if (m_mdtArrayByHash[Idhash] != nullptr) {
+            if (m_mdtArrayByHash[Idhash]) {
                 throw std::runtime_error(
                     Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - Trying to add MdtReadoutElement with "
                          "detector-element-hash id %d id = %s at location already taken by %s",
@@ -450,88 +292,40 @@ namespace MuonGM {
         }
         // add here the MdtDetectorElement and/or add this readoutElement to the DetectorElement
         // use already known data-collection hash
-        IdentifierHash idh = x->collectionHash();
+        const IdentifierHash idh = x->collectionHash();
         if (idh < MdtDetElMaxHash) {
             if (!(m_mdtDEArray[idh])) {
                 m_mdtDEArray[idh] = std::make_unique<MdtDetectorElement>(nullptr, this, m_mdtIdHelper->elementID(id), idh);
                 m_n_mdtDE++;
             }
-            m_mdtDEArray[idh]->addMdtReadoutElement(x, ml);
+            m_mdtDEArray[idh]->addMdtReadoutElement(x, m_mdtIdHelper->multilayer(id));
         } else {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - Trying to add MdtDetectorElement with "
                      "data-collection-hash id %d outside boundaries 0-%d",
                      __FILE__, __LINE__, (unsigned int)idh, MdtDetElMaxHash));
-        }
-
-        int stname_index = stName;
-        if (stName == 49) {
-            stname_index = NMdtStatType - 4;  // EIS
-        } else if (stName == 52) {
-            stname_index = NMdtStatType - 3;  // BIM
-        } else if (stName == 53) {
-            stname_index = NMdtStatType - 2;  // BME
-        } else if (stName == 54) {
-            stname_index = NMdtStatType - 1;  // BOE
-        }
-        int steta_index = stEta + NMdtStEtaOffset;
-        int stphi_index = stPhi - 1;
-        int ml_index = ml - 1;
-
-        if (stname_index < 0 || stname_index >= NMdtStatType) {
+        }       
+        const int arrayIdx = mdtIdentToArrayIdx(id);
+        if (m_mdtArray[arrayIdx]) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stname_index, NMdtStatType - 1));
-        }
-        if (steta_index < 0 || steta_index >= NMdtStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NMdtStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NMdtStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NMdtStatPhi - 1));
-        }
-        if (ml_index < 0 || ml_index >= NMdtMultilayer) {
-            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - ml_index out of range %d 0-%d",
-                                          __FILE__, __LINE__, ml_index, NMdtMultilayer - 1));
-        }
-        if (m_mdtArray[stname_index][steta_index][stphi_index][ml_index] != nullptr) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - this place is taken [%d][%d][%d][%d] current id is "
+                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - this place is taken %d current id is "
                      "%s stored id %s",
-                     __FILE__, __LINE__, stname_index, steta_index, stphi_index, ml_index, m_mdtIdHelper->show_to_string(id).c_str(),
-                     m_mdtIdHelper->show_to_string(m_mdtArray[stname_index][steta_index][stphi_index][ml_index]->identify()).c_str()));
+                     __FILE__, __LINE__, arrayIdx, m_mdtIdHelper->show_to_string(id).c_str(),
+                     m_mdtIdHelper->show_to_string(m_mdtArray[arrayIdx]->identify()).c_str()));
         }
-        m_mdtArray[stname_index][steta_index][stphi_index][ml_index] = std::unique_ptr<MdtReadoutElement>(x);
-
-        m_n_mdtRE++;
+        m_mdtArray[arrayIdx] = std::unique_ptr<MdtReadoutElement>(x);
+        ++m_n_mdtRE;
     }
 
-    const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(Identifier id) const {
-        int stName = m_mdtIdHelper->stationName(id);
-        int stEta = m_mdtIdHelper->stationEta(id);
-        int stPhi = m_mdtIdHelper->stationPhi(id);
-        int ml = m_mdtIdHelper->multilayer(id);
-
-        int stname_index = stName;
-        if (stName == 49)
-            stname_index = NMdtStatType - 4;
-        else if (stName == 52)
-            stname_index = NMdtStatType - 3;
-        else if (stName == 53)
-            stname_index = NMdtStatType - 2;
-        else if (stName == 54)
-            stname_index = NMdtStatType - 1;
-        int steta_index = stEta + NMdtStEtaOffset;
-        int stphi_index = stPhi - 1;
-        int ml_index = ml - 1;
-
-        return getMdtReadoutElement(stname_index, steta_index, stphi_index, ml_index);
+    const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(const Identifier& id) const {
+        const int arrayIdx = mdtIdentToArrayIdx(id);
+        return m_mdtArray[arrayIdx].get();
     }
-
-    void MuonDetectorManager::addCscReadoutElement(CscReadoutElement* x, Identifier id) {
+     MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(const Identifier& id) {
+        const int arrayIdx = mdtIdentToArrayIdx(id);
+        return m_mdtArray[arrayIdx].get();
+    }
+    void MuonDetectorManager::addCscReadoutElement(CscReadoutElement* x, const Identifier& id) {
         if (id != x->identify()) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - Trying to add CscReadoutElement with id %s not "
@@ -540,14 +334,14 @@ namespace MuonGM {
         }
 
         // add here RE to array by hash
-        IdentifierHash Idhash = x->detectorElementHash();
+        const IdentifierHash Idhash = x->detectorElementHash();
         if (Idhash >= CscRElMaxHash) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - Trying to add CscReadoutElement with "
                      "detector-element-hash id %d outside boundaries 0-%d",
                      __FILE__, __LINE__, (unsigned int)Idhash, CscRElMaxHash));
         } else {
-            if (m_cscArrayByHash[Idhash] != nullptr) {
+            if (m_cscArrayByHash[Idhash]) {
                 throw std::runtime_error(
                     Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - Trying to add CscReadoutElement with "
                          "detector-element-hash id %d id = %s at location already taken by %s",
@@ -558,7 +352,7 @@ namespace MuonGM {
         }
 
         // add here the CscDetectorElement and/or add this readoutElement to the DetectorElement
-        IdentifierHash idh = x->detectorElementHash();
+        const IdentifierHash idh = x->detectorElementHash();
         if (idh < CscDetElMaxHash) {
             if (!(m_cscDEArray[idh])) {
                 m_cscDEArray[idh] = std::make_unique<CscDetectorElement>(nullptr, this, m_cscIdHelper->elementID(id), idh);
@@ -572,63 +366,26 @@ namespace MuonGM {
                      __FILE__, __LINE__, (unsigned int)idh, CscDetElMaxHash));
         }
 
-        int stName = m_cscIdHelper->stationName(id);
-        int stEta = m_cscIdHelper->stationEta(id);
-        int stPhi = m_cscIdHelper->stationPhi(id);
-        int ml = m_cscIdHelper->chamberLayer(id);
-
-        int stname_index = stName + NCscStatTypeOff;
-        int steta_index = stEta + NCscStEtaOffset;
-        if (steta_index == 2) steta_index = 1;
-        int stphi_index = stPhi - 1;
-        int ml_index = ml - 1;
-
-        if (stname_index < 0 || stname_index >= NCscStatType) {
+        const int array_idx = cscIdentToArrayIdx(id);
+        if (m_cscArray[array_idx]) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stname_index, NCscStatType - 1));
-        }
-        if (steta_index < 0 || steta_index >= NCscStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NCscStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NCscStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NCscStatPhi - 1));
-        }
-        if (ml_index < 0 || ml_index >= NCscChamberLayer) {
-            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - ml_index out of range %d 0-%d",
-                                          __FILE__, __LINE__, ml_index, NCscChamberLayer - 1));
-        }
-        if (m_cscArray[stname_index][steta_index][stphi_index][ml_index] != nullptr) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - this place is taken [%d][%d][%d][%d] current id is "
+                Form("File: %s, Line: %d\nMuonDetectorManager::addCscReadoutElement() - this place is taken [%d] current id is "
                      "%s stored id %s",
-                     __FILE__, __LINE__, stname_index, steta_index, stphi_index, ml_index, m_cscIdHelper->show_to_string(id).c_str(),
-                     m_cscIdHelper->show_to_string(m_cscArray[stname_index][steta_index][stphi_index][ml_index]->identify()).c_str()));
+                     __FILE__, __LINE__, array_idx, m_cscIdHelper->show_to_string(id).c_str(),
+                     m_cscIdHelper->show_to_string(m_cscArray[array_idx]->identify()).c_str()));
         }
-        m_cscArray[stname_index][steta_index][stphi_index][ml_index] = std::unique_ptr<CscReadoutElement>(x);
-        m_n_cscRE++;
+        m_cscArray[array_idx] = std::unique_ptr<CscReadoutElement>(x);
+        ++m_n_cscRE;
     }
-
-    const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(Identifier id) const {
-        int stName = m_cscIdHelper->stationName(id);
-        int stEta = m_cscIdHelper->stationEta(id);
-        int stPhi = m_cscIdHelper->stationPhi(id);
-        int ml = m_cscIdHelper->chamberLayer(id);
-
-        int stname_index = stName + NCscStatTypeOff;
-        int steta_index = stEta + NCscStEtaOffset;
-        if (steta_index > 1) steta_index = 1;
-        int stphi_index = stPhi - 1;
-        int ml_index = ml - 1;
-
-        return getCscReadoutElement(stname_index, steta_index, stphi_index, ml_index);
+    const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(const Identifier& id) const {
+        const int array_idx = cscIdentToArrayIdx(id);
+        return m_cscArray[array_idx].get();
     }
-
-    void MuonDetectorManager::addTgcReadoutElement(TgcReadoutElement* x, Identifier id) {
+     CscReadoutElement* MuonDetectorManager::getCscReadoutElement(const Identifier& id) {
+        const int array_idx = cscIdentToArrayIdx(id);
+        return m_cscArray[array_idx].get();
+    }
+    void MuonDetectorManager::addTgcReadoutElement(TgcReadoutElement* x, const Identifier& id) {
         if (id != x->identify()) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - Trying to add TgcReadoutElement with id %s not "
@@ -637,7 +394,7 @@ namespace MuonGM {
         }
 
         // add RE to array by RE hash
-        IdentifierHash Idhash = x->detectorElementHash();
+        const IdentifierHash Idhash = x->detectorElementHash();
         if (Idhash >= TgcRElMaxHash) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - Trying to add TgcReadoutElement with "
@@ -655,7 +412,7 @@ namespace MuonGM {
         }
 
         // add here the TgcDetectorElement and/or add this readoutElement to the DetectorElement
-        IdentifierHash idh = x->collectionHash();
+        const IdentifierHash idh = x->collectionHash();
         if (idh < TgcDetElMaxHash) {
             if (!(m_tgcDEArray[idh])) {
                 m_tgcDEArray[idh] = std::make_unique<TgcDetectorElement>(nullptr, this, m_tgcIdHelper->elementID(id), idh);
@@ -669,150 +426,88 @@ namespace MuonGM {
                      __FILE__, __LINE__, (unsigned int)idh, TgcDetElMaxHash));
         }
 
-        int stname_index = m_tgcIdHelper->stationName(id) + NTgcStatTypeOff;
-        int zi = m_tgcIdHelper->stationEta(id);
-        int steta_index = zi + NTgcStEtaOffset;
-        if (zi > 0) steta_index--;
-        int stphi_index = m_tgcIdHelper->stationPhi(id) - 1;
-
-        if (stname_index < 0 || stname_index >= NTgcStatType) {
+        const int array_idx = tgcIdentToArrayIdx(id);
+        if (m_tgcArray[array_idx] != nullptr) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stname_index, NTgcStatType - 1));
-        }
-        if (steta_index < 0 || steta_index >= NTgcStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NTgcStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NTgcStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NTgcStatPhi - 1));
-        }
-        if (m_tgcArray[stname_index][steta_index][stphi_index] != nullptr) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - this place is taken [%d][%d][%d] current id is %s "
+                Form("File: %s, Line: %d\nMuonDetectorManager::addTgcReadoutElement() - this place is taken [%d] current id is %s "
                      "stored id %s",
-                     __FILE__, __LINE__, stname_index, steta_index, stphi_index, m_tgcIdHelper->show_to_string(id).c_str(),
-                     m_tgcIdHelper->show_to_string(m_tgcArray[stname_index][steta_index][stphi_index]->identify()).c_str()));
+                     __FILE__, __LINE__, array_idx, m_tgcIdHelper->show_to_string(id).c_str(),
+                     m_tgcIdHelper->show_to_string(m_tgcArray[array_idx]->identify()).c_str()));
         }
 
-        m_tgcArray[stname_index][steta_index][stphi_index] = std::unique_ptr<TgcReadoutElement>(x);
-
-        m_n_tgcRE++;
+        m_tgcArray[array_idx] = std::unique_ptr<TgcReadoutElement>(x);
+        ++m_n_tgcRE;
     }
 
-    const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(Identifier id) const {
-        int stname_index = m_tgcIdHelper->stationName(id) + NTgcStatTypeOff;
-        int zi = m_tgcIdHelper->stationEta(id);
-        int steta_index = zi + NTgcStEtaOffset;
-        if (zi > 0) steta_index--;
-        int stphi_index = m_tgcIdHelper->stationPhi(id) - 1;
-
-        return getTgcReadoutElement(stname_index, steta_index, stphi_index);
+    const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(const Identifier& id) const {
+        const int array_idx = tgcIdentToArrayIdx(id);
+        return m_tgcArray[array_idx].get();
     }
-
-    const MMReadoutElement* MuonDetectorManager::getMMReadoutElement(Identifier id) const {
-        return getMMRElement_fromIdFields(m_mmIdHelper->isSmall(id), m_mmIdHelper->stationEta(id), m_mmIdHelper->stationPhi(id),
-                                          m_mmIdHelper->multilayer(id));
+    TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(const Identifier& id) {
+        const int array_idx = tgcIdentToArrayIdx(id);
+        return m_tgcArray[array_idx].get();
+    }   
+    const MMReadoutElement* MuonDetectorManager::getMMReadoutElement(const Identifier& id) const {
+        const int array_idx = mmIdenToArrayIdx(id);
+        return m_mmcArray[array_idx].get();
     }
-
-    const sTgcReadoutElement* MuonDetectorManager::getsTgcReadoutElement(Identifier id) const {
-        return getsTgcRElement_fromIdFields(m_stgcIdHelper->isSmall(id), m_stgcIdHelper->stationEta(id), m_stgcIdHelper->stationPhi(id),
-                                            m_stgcIdHelper->multilayer(id));
+    const sTgcReadoutElement* MuonDetectorManager::getsTgcReadoutElement(const Identifier& id) const {
+        const int array_idx = stgcIdentToArrayIdx(id);
+        return m_stgArray[array_idx].get();
+    }   
+    int MuonDetectorManager::mmIdenToArrayIdx(const Identifier& id) const {
+        return mmIdenToArrayIdx(m_mmIdHelper->isSmall(id), m_mmIdHelper->stationEta(id), m_mmIdHelper->stationPhi(id),
+                                m_mmIdHelper->multilayer(id));
     }
+    int MuonDetectorManager::mmIdenToArrayIdx(const int isSmall, const int stEta, const int stPhi, const int ml) const {
+        const int steta_index = stEta + NMMcStEtaOffset - (stEta > 0);
+        const int stphi_index = 2 * (stPhi - 1) + (isSmall == 1);
+        const int ml_index = ml - 1;
 
-    const MdtReadoutElement* MuonDetectorManager::getMdtRElement_fromIdFields(int i1, int i2, int i3, int i4) const {
-        int stname_index = i1;
-        if (stname_index == 49) {
-            stname_index = NMdtStatType - 4;  // EIS
-        } else if (stname_index == 52) {
-            stname_index = NMdtStatType - 3;  // BIM
-        } else if (stname_index == 53) {
-            stname_index = NMdtStatType - 2;  // BME
-        } else if (stname_index == 54) {
-            stname_index = NMdtStatType - 1;  // BOE
+        if (steta_index < 0 || steta_index >= NMMcStatEta) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::mmIdenToArrayIdx() - stEtaindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, steta_index, NMMcStatEta - 1));
         }
-        //  if (stname_index == 49) stname_index = NMdtStatType-1;
-        int steta_index = i2 + NMdtStEtaOffset;
-        int stphi_index = i3 - 1;
-        int ml_index = i4 - 1;
-
-        return getMdtReadoutElement(stname_index, steta_index, stphi_index, ml_index);
+        if (stphi_index < 0 || stphi_index >= NMMcStatPhi) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::mmIdenToArrayIdx() - stPhiindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, stphi_index, NMMcStatPhi - 1));
+        }
+        if (ml_index < 0 || ml_index >= NMMcChamberLayer) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::mmIdenToArrayIdx() - ml_index out of range %d 0-%d",
+                                          __FILE__, __LINE__, ml_index, NMMcChamberLayer - 1));
+        }
+        constexpr int C = NMMcChamberLayer;
+        constexpr int BxC = NMMcStatPhi * C;
+        const int array_idx = steta_index * BxC + stphi_index * C + ml_index;
+        return array_idx;
     }
-
-    void MuonDetectorManager::checkMdtReadoutElementIndices(int i1, int i2, int i3, int i4) const {
-        if (i1 < 0 || i1 >= NMdtStatType) {
+    int MuonDetectorManager::stgcIdentToArrayIdx(const Identifier& id) const {
+        return stgcIdentToArrayIdx(m_stgcIdHelper->isSmall(id), m_stgcIdHelper->stationEta(id), m_stgcIdHelper->stationPhi(id),
+                                   m_stgcIdHelper->multilayer(id));
+    }
+    int MuonDetectorManager::stgcIdentToArrayIdx(const int isSmall, const int stEta, const int stPhi, const int ml) const {
+        /// Next the array indeces
+        const int steta_index = stEta + NsTgStEtaOffset - (stEta > 0);
+        const int stphi_index = 2 * (stPhi - 1) + (isSmall == 1);
+        const int ml_index = ml - 1;
+        if (steta_index < 0 || steta_index >= NsTgStatEta) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getMdtReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i1, NMdtStatType - 1));
+                Form("File: %s, Line: %d\nMuonDetectorManager::stgcIdentToArrayIdx() - stEtaindex out of range %d 0-%d", __FILE__, __LINE__,
+                     steta_index, NsTgStatEta - 1));
         }
-        if (i2 < 0 || i2 >= NMdtStatEta) {
+        if (stphi_index < 0 || stphi_index >= NsTgStatPhi) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getMdtReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i2, NMdtStatEta - 1));
+                Form("File: %s, Line: %d\nMuonDetectorManager::stgcIdentToArrayIdx() - stPhiindex out of range %d 0-%d", __FILE__, __LINE__,
+                     stphi_index, NsTgStatPhi - 1));
         }
-        if (i3 < 0 || i3 >= NMdtStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getMdtReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i3, NMdtStatPhi - 1));
+        if (ml_index < 0 || ml_index >= NsTgChamberLayer) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::stgcIdentToArrayIdx() - ml_index out of range %d 0-%d",
+                                          __FILE__, __LINE__, ml_index, NsTgChamberLayer - 1));
         }
-        if (i4 < 0 || i4 >= NMdtMultilayer) {
-            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getMdtReadoutElement() - ml_index out of range %d 0-%d",
-                                          __FILE__, __LINE__, i4, NMdtMultilayer - 1));
-        }
-    }
-
-    const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(int i1, int i2, int i3, int i4) const {
-        checkMdtReadoutElementIndices(i1, i2, i3, i4);
-        return m_mdtArray[i1][i2][i3][i4].get();
-    }
-    MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(int i1, int i2, int i3, int i4) {
-        checkMdtReadoutElementIndices(i1, i2, i3, i4);
-        return m_mdtArray[i1][i2][i3][i4].get();
-    }
-
-    const CscReadoutElement* MuonDetectorManager::getCscRElement_fromIdFields(int i1, int i2, int i3, int i4) const {
-        int stname_index = i1 + NCscStatTypeOff;
-        int steta_index = i2 + NCscStEtaOffset;
-        if (steta_index > 1) steta_index = 1;
-        int stphi_index = i3 - 1;
-        int ml_index = i4 - 1;
-
-        return getCscReadoutElement(stname_index, steta_index, stphi_index, ml_index);
-    }
-
-    void MuonDetectorManager::checkCscReadoutElementIndices(int i1, int i2, int i3, int i4) const {
-        if (i1 < 0 || i1 >= NCscStatType) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getCscReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i1, NCscStatType - 1));
-        }
-        if (i2 < 0 || i2 >= NCscStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getCscReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i2, NCscStatEta - 1));
-        }
-        if (i3 < 0 || i3 >= NCscStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getCscReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i3, NCscStatPhi - 1));
-        }
-        if (i4 < 0 || i4 >= NCscChamberLayer) {
-            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getCscReadoutElement() - ml_index out of range %d 0-%d",
-                                          __FILE__, __LINE__, i4, NCscChamberLayer - 1));
-        }
-    }
-
-    const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(int i1, int i2, int i3, int i4) const {
-        checkCscReadoutElementIndices(i1, i2, i3, i4);
-        return m_cscArray[i1][i2][i3][i4].get();
-    }
-
-    CscReadoutElement* MuonDetectorManager::getCscReadoutElement(int i1, int i2, int i3, int i4) {
-        checkCscReadoutElementIndices(i1, i2, i3, i4);
-        return m_cscArray[i1][i2][i3][i4].get();
+        constexpr int C = NsTgChamberLayer;
+        constexpr int BxC = NsTgStatPhi * C;
+        const int array_idx = steta_index * BxC + stphi_index * C + ml_index;
+        return array_idx;
     }
 
     int MuonDetectorManager::rpcIdentToArrayIdx(const Identifier& id) const {
@@ -847,28 +542,24 @@ namespace MuonGM {
 
         if (stname_index < 0 || stname_index >= NRpcStatType) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stname_index, NRpcStatType - 1));
+                Form("File: %s, Line: %d\nMuonDetectorManager::rpcIdentToArrayIdx() - stNameindex out of range %d 0-%d", __FILE__, __LINE__,
+                     stname_index, NRpcStatType - 1));
         }
         if (steta_index < 0 || steta_index >= NRpcStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NRpcStatEta - 1));
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::rpcIdentToArrayIdx() - stEtaindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, steta_index, NRpcStatEta - 1));
         }
         if (stphi_index < 0 || stphi_index >= NRpcStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NRpcStatPhi - 1));
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::rpcIdentToArrayIdx() - stPhiindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, stphi_index, NRpcStatPhi - 1));
         }
         if (dbr_index < 0 || dbr_index >= NDoubletR) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - dbr_index out of range %d 0-%d", __FILE__, __LINE__,
-                     dbr_index, NDoubletR - 1));
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::rpcIdentToArrayIdx() - dbr_index out of range %d 0-%d",
+                                          __FILE__, __LINE__, dbr_index, NDoubletR - 1));
         }
         if (dbz_index < 0 || dbz_index >= NDoubletZ) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - dbz_index out of range %d 0-%d", __FILE__, __LINE__,
-                     dbz_index, NDoubletZ - 1));
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::rpcIdentToArrayIdx() - dbz_index out of range %d 0-%d",
+                                          __FILE__, __LINE__, dbz_index, NDoubletZ - 1));
         }
         /// Unfold the array by
         /// [A][B][C][D][E]
@@ -880,42 +571,117 @@ namespace MuonGM {
         const int arrayIdx = stname_index * BxCxDxE + steta_index * CxDxE + stphi_index * DxE + dbr_index * E + dbz_index;
         return arrayIdx;
     }
-
-    const TgcReadoutElement* MuonDetectorManager::getTgcRElement_fromIdFields(int i1, int i2, int i3) const {
-        int stname_index = i1 + NTgcStatTypeOff;
-        int zi = i2;
-        int steta_index = zi + NTgcStEtaOffset;
-        if (zi > 0) steta_index--;
-        int stphi_index = i3 - 1;
-
-        return getTgcReadoutElement(stname_index, steta_index, stphi_index);
+    int MuonDetectorManager::mdtIdentToArrayIdx(const Identifier& id) const {
+        return mdtIdentToArrayIdx(m_mdtIdHelper->stationName(id), m_mdtIdHelper->stationEta(id), m_mdtIdHelper->stationPhi(id),
+                                  m_mdtIdHelper->multilayer(id));
     }
+    int MuonDetectorManager::mdtIdentToArrayIdx(const int stName, const int stEta, const int stPhi, const int ml) const {
+        int stname_index = stName;
+        if (stName == m_mdt_EIS_stName) {
+            stname_index = NMdtStatType - 4;
+        } else if (stName == m_mdt_BIM_stName) {
+            stname_index = NMdtStatType - 3;
+        } else if (stName == m_mdt_BME_stName) {
+            stname_index = NMdtStatType - 2;
+        } else if (stName == m_mdt_BMG_stName) {
+            stname_index = NMdtStatType - 1;
+        }
+        int steta_index = stEta + NMdtStEtaOffset;
+        int stphi_index = stPhi - 1;
+        int ml_index = ml - 1;
 
-    void MuonDetectorManager::checkTgcReadoutElementIndices(int i1, int i2, int i3) const {
-        if (i1 < 0 || i1 >= NTgcStatType) {
+        if (stname_index < 0 || stname_index >= NMdtStatType) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getTgcReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i1, NTgcStatType - 1));
+                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
+                     __LINE__, stname_index, NMdtStatType - 1));
         }
-        if (i2 < 0 || i2 >= NTgcStatEta) {
+        if (steta_index < 0 || steta_index >= NMdtStatEta) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getTgcReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i2, NTgcStatEta - 1));
+                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
+                     __LINE__, steta_index, NMdtStatEta - 1));
         }
-        if (i3 < 0 || i3 >= NTgcStatPhi) {
+        if (stphi_index < 0 || stphi_index >= NMdtStatPhi) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::getTgcReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i3, NTgcStatPhi - 1));
+                Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
+                     __LINE__, stphi_index, NMdtStatPhi - 1));
         }
-    }
+        if (ml_index < 0 || ml_index >= NMdtMultilayer) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMdtReadoutElement() - ml_index out of range %d 0-%d",
+                                          __FILE__, __LINE__, ml_index, NMdtMultilayer - 1));
+        }
 
-    const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(int i1, int i2, int i3) const {
-        checkTgcReadoutElementIndices(i1, i2, i3);
-        return m_tgcArray[i1][i2][i3].get();
+        /// Unfold the array by
+        /// [A][B][C][D]
+        /// a * BxCxD + b * CxD+ c*D +d
+        constexpr int D = NMdtMultilayer;
+        constexpr int CxD = NMdtStatPhi * D;
+        constexpr int BxCxD = NMdtStatEta * CxD;
+        const int arrayIdx = stname_index * BxCxD + steta_index * CxD + stphi_index * D + ml_index;
+        return arrayIdx;
     }
-    TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(int i1, int i2, int i3) {
-        checkTgcReadoutElementIndices(i1, i2, i3);
-        return m_tgcArray[i1][i2][i3].get();
+    int MuonDetectorManager::tgcIdentToArrayIdx(const Identifier& id) const {
+        return tgcIdentToArrayIdx(m_tgcIdHelper->stationName(id), m_tgcIdHelper->stationEta(id), m_tgcIdHelper->stationPhi(id));
+    }
+    int MuonDetectorManager::tgcIdentToArrayIdx(const int stationName, const int stationEta, const int stationPhi) const {
+        const int stname_index = stationName + NTgcStatTypeOff;
+        const int zi = stationEta;
+        const int steta_index = zi + NTgcStEtaOffset - (zi > 0);
+        const int stphi_index = stationPhi - 1;
+
+        if (stname_index < 0 || stname_index >= NTgcStatType) {
+            throw std::runtime_error(
+                Form("File: %s, Line: %d\nMuonDetectorManager::tgcIdentToArrayIdx() - stNameindex out of range %d 0-%d", __FILE__, __LINE__,
+                     stname_index, NTgcStatType - 1));
+        }
+        if (steta_index < 0 || steta_index >= NTgcStatEta) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::tgcIdentToArrayIdx() - stEtaindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, steta_index, NTgcStatEta - 1));
+        }
+        if (stphi_index < 0 || stphi_index >= NTgcStatPhi) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::tgcIdentToArrayIdx() - stPhiindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, stphi_index, NTgcStatPhi - 1));
+        }
+        /// NTgcStatType * NTgcStatEta * NTgcStatPhi
+        /// Unfold the array by
+        /// [A][B][C]
+        /// a * BxC + b * C + c
+        constexpr int C = NTgcStatPhi;
+        constexpr int BxC = NTgcStatEta * C;
+        return stname_index * BxC + steta_index * C + stphi_index;
+    }
+    int MuonDetectorManager::cscIdentToArrayIdx(const Identifier& id) const {
+        return cscIdentToArrayIdx(m_cscIdHelper->stationName(id), m_cscIdHelper->stationEta(id), m_cscIdHelper->stationPhi(id),
+                                  m_cscIdHelper->chamberLayer(id));
+    }
+    int MuonDetectorManager::cscIdentToArrayIdx(const int stName, const int stEta, const int stPhi, const int ml) const {
+        const int stname_index = stName + NCscStatTypeOff;
+        int steta_index = stEta + NCscStEtaOffset;
+        if (steta_index == 2) steta_index = 1;
+        const int stphi_index = stPhi - 1;
+        const int ml_index = ml - 1;
+
+        if (stname_index < 0 || stname_index >= NCscStatType) {
+            throw std::runtime_error(
+                Form("File: %s, Line: %d\nMuonDetectorManager::cscIdentToArrayIdx() - stNameindex out of range %d 0-%d", __FILE__, __LINE__,
+                     stname_index, NCscStatType - 1));
+        }
+        if (steta_index < 0 || steta_index >= NCscStatEta) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::cscIdentToArrayIdx() - stEtaindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, steta_index, NCscStatEta - 1));
+        }
+        if (stphi_index < 0 || stphi_index >= NCscStatPhi) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::cscIdentToArrayIdx() - stPhiindex out of range %d 0-%d",
+                                          __FILE__, __LINE__, stphi_index, NCscStatPhi - 1));
+        }
+        if (ml_index < 0 || ml_index >= NCscChamberLayer) {
+            throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::cscIdentToArrayIdx() - ml_index out of range %d 0-%d",
+                                          __FILE__, __LINE__, ml_index, NCscChamberLayer - 1));
+        }
+        constexpr int D = NCscChamberLayer;
+        constexpr int CxD = NCscStatPhi * D;
+        constexpr int BxCxD = NCscStatEta * CxD;
+        const int array_idx = stname_index * BxCxD + steta_index * CxD + stphi_index * D + ml_index;
+        return array_idx;
     }
 
     void MuonDetectorManager::initABlineContainers() {
@@ -1310,11 +1076,9 @@ namespace MuonGM {
             for (auto& ist : m_MuonStationMap) {
                 MuonStation* ms = ist.second.get();
                 std::string stType = ms->getStationType();
-                if (stType.substr(0, 1) != "C") continue;
+                if (stType[0] != 'C') continue;
 
-                int jff = ms->getPhiIndex();
-                int jzz = ms->getEtaIndex();
-                int job = 3;  // it's always like this for CSCs
+                int jff{ms->getPhiIndex()}, jzz{ms->getEtaIndex()}, job{3};  // it's always like this for CSCs
 
                 for (unsigned int wlay = 1; wlay < 5; ++wlay) {
                     CscInternalAlignmentPar newILine;
@@ -1354,15 +1118,11 @@ namespace MuonGM {
             log << MSG::INFO << "temporary CSC I-line container with size = " << ilineData.size() << endmsg;
 
         // loop over the container of the updates passed by the MuonAlignmentDbTool
-        unsigned int nLines = 0;
-        unsigned int nUpdates = 0;
+        unsigned int nLines{0}, nUpdates{0};
         for (const auto& [ILineId, ILine] : ilineData) {
             nLines++;
             std::string stType = "";
-            int jff = 0;
-            int jzz = 0;
-            int job = 0;
-            int jlay = 0;
+            int jff{0}, jzz{0}, job{0}, jlay{0};
             ILine.getAmdbId(stType, jff, jzz, job, jlay);
             if (!ILine.isNew()) {
                 log << MSG::WARNING << "CscInternalAlignmentPar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " "
@@ -1396,7 +1156,7 @@ namespace MuonGM {
                 }
 
                 CscInternalAlignmentPar& newILine = it->second;
-                float tras, traz, trat, rots, rotz, rott;
+                float tras{0.f}, traz{0.f}, trat{0.f}, rots{0.f}, rotz{0.f}, rott{0.f};
                 newILine.getParameters(tras, traz, trat, rots, rotz, rott);
                 int choice = CscIlinesFlag();
                 if (choice % 10 == 0) tras = 0.;
@@ -1444,14 +1204,11 @@ namespace MuonGM {
             log << MSG::INFO << "temporary As-Built container with size = " << asbuiltData.size() << endmsg;
 
         // loop over the container of the updates passed by the MuonAlignmentDbTool
-        unsigned int nLines = 0;
-        unsigned int nUpdates = 0;
+        unsigned int nLines{0}, nUpdates{0};
         for (const auto& [AsBuiltId, AsBuiltPar] : asbuiltData) {
             nLines++;
             std::string stType = "";
-            int jff = 0;
-            int jzz = 0;
-            int job = 0;
+            int jff{0}, jzz{0}, job{0};
             AsBuiltPar.getAmdbId(stType, jff, jzz, job);
             if (!AsBuiltPar.isNew()) {
                 if (log.level() <= MSG::DEBUG)
@@ -1502,10 +1259,7 @@ namespace MuonGM {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
 
         std::string stName = "XXX";
-        int jff = 0;
-        int jzz = 0;
-        int job = 0;
-        int wlayer = 0;
+        int jff{0}, jzz{0}, job{0}, wlayer{0};
         x.getAmdbId(stName, jff, jzz, job, wlayer);
         // chamberLayer is always 2 => job is always 3
         int chamberLayer = 2;
@@ -1524,9 +1278,7 @@ namespace MuonGM {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
 
         std::string stName = "XXX";
-        int jff = 0;
-        int jzz = 0;
-        int job = 0;
+        int jff{0}, jzz{0}, job{0};
         params.getAmdbId(stName, jff, jzz, job);
         Identifier id = mdtIdHelper()->elementID(stName, jzz, jff);
         if (!id.is_valid()) {
@@ -1547,7 +1299,7 @@ namespace MuonGM {
         return;
     }
 
-    const MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) const {
+    const MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(const Identifier& id) const {
         if (!MdtAsBuiltContainer()) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
             log << MSG::DEBUG << "No Mdt AsBuilt parameter container available" << endmsg;
@@ -1567,7 +1319,7 @@ namespace MuonGM {
     void MuonDetectorManager::setMMAsBuiltCalculator(const std::string& jsonPath) {
 #ifndef SIMULATIONBASE
         // for the moment we can only read as-built conditions from an external json file
-        m_MMAsBuiltCalculator.reset(); // unset any previous instance
+        m_MMAsBuiltCalculator.reset();  // unset any previous instance
         if (jsonPath.empty()) return;
 
         std::ifstream json_in(jsonPath.c_str());
@@ -1576,7 +1328,7 @@ namespace MuonGM {
             log << MSG::WARNING << "Unable to open Json file " << jsonPath << "for NswAsBuilt::StripCalculator" << endmsg;
         }
 
-        m_MMAsBuiltCalculator = std::make_unique<NswAsBuilt::StripCalculator>(); 
+        m_MMAsBuiltCalculator = std::make_unique<NswAsBuilt::StripCalculator>();
         m_MMAsBuiltCalculator->parseJSON(json_in);
         json_in.close();
 #else
@@ -1585,7 +1337,7 @@ namespace MuonGM {
 #endif
     }
 
-    const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(IdentifierHash id) const {
+    const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= MdtRElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1597,7 +1349,7 @@ namespace MuonGM {
         return m_mdtArrayByHash[id];
     }
 
-    const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(IdentifierHash id) const {
+    const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= RpcRElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1609,7 +1361,7 @@ namespace MuonGM {
         return m_rpcArrayByHash[id];
     }
 
-    const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(IdentifierHash id) const {
+    const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= TgcRElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1621,7 +1373,7 @@ namespace MuonGM {
         return m_tgcArrayByHash[id];
     }
 
-    const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(IdentifierHash id) const {
+    const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= CscRElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1633,7 +1385,7 @@ namespace MuonGM {
         return m_cscArrayByHash[id];
     }
 
-    const MdtDetectorElement* MuonDetectorManager::getMdtDetectorElement(IdentifierHash id) const {
+    const MdtDetectorElement* MuonDetectorManager::getMdtDetectorElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= MdtDetElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1645,7 +1397,7 @@ namespace MuonGM {
         return m_mdtDEArray[id].get();
     }
 
-    const TgcDetectorElement* MuonDetectorManager::getTgcDetectorElement(IdentifierHash id) const {
+    const TgcDetectorElement* MuonDetectorManager::getTgcDetectorElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= TgcDetElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1657,7 +1409,7 @@ namespace MuonGM {
         return m_tgcDEArray[id].get();
     }
 
-    const CscDetectorElement* MuonDetectorManager::getCscDetectorElement(IdentifierHash id) const {
+    const CscDetectorElement* MuonDetectorManager::getCscDetectorElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= CscDetElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1669,7 +1421,7 @@ namespace MuonGM {
         return m_cscDEArray[id].get();
     }
 
-    const RpcDetectorElement* MuonDetectorManager::getRpcDetectorElement(IdentifierHash id) const {
+    const RpcDetectorElement* MuonDetectorManager::getRpcDetectorElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= RpcDetElMaxHash) {
             MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
@@ -1722,5 +1474,67 @@ namespace MuonGM {
         m_rpcIdxToStat.insert(std::pair<int, int>(RpcStatType::BIL, m_rpcIdHelper->stationNameIndex("BIL")));
         m_rpcIdxToStat.insert(std::pair<int, int>(RpcStatType::BIS, m_rpcIdHelper->stationNameIndex("BIS")));
     }
+    int MuonDetectorManager::mdtStationName(const int stationIndex) const {
+        if (stationIndex == NMdtStatType - 4)
+            return m_mdt_EIS_stName;
+        else if (stationIndex == NMdtStatType - 3)
+            return  m_mdt_BIM_stName;
+        else if (stationIndex == NMdtStatType - 2)
+            return m_mdt_BME_stName ;
+        else if (stationIndex == NMdtStatType - 1)
+            return m_mdt_BMG_stName;
+        return stationIndex;
+    }
+    
+    void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) { m_NSWABLinesAsciiSideA = str; }
+    void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) { m_NSWABLinesAsciiSideC = str; }
+    void MuonDetectorManager::setCacheFillingFlag(int value) { m_cacheFillingFlag = value; }
+    void MuonDetectorManager::setCachingFlag(int value) { m_cachingFlag = value; }
+    void MuonDetectorManager::set_DBMuonVersion(const std::string& version) { m_DBMuonVersion = version; }
+    void MuonDetectorManager::setGeometryVersion(const std::string& version) { m_geometryVersion = std::move(version); }
+    void MuonDetectorManager::setMinimalGeoFlag(int flag) { m_minimalgeo = flag; }
+    void MuonDetectorManager::setCutoutsFlag(int flag) { m_includeCutouts = flag; }
+    void MuonDetectorManager::setCutoutsBogFlag(int flag) { m_includeCutoutsBog = flag; }
+    void MuonDetectorManager::setGenericTgcDescriptor(const GenericTGCCache& tc) {
+        m_genericTGC.frame_h = tc.frame_h;
+        m_genericTGC.frame_ab = tc.frame_ab;
+        m_genericTGC.nlayers = tc.nlayers;
+        for (unsigned int i = 0; i < (tc.materials).size(); i++) {
+            m_genericTGC.materials[i] = tc.materials[i];
+            m_genericTGC.positions[i] = tc.positions[i];
+            m_genericTGC.tck[i] = tc.tck[i];
+        }
+    }
+    void MuonDetectorManager::setGenericCscDescriptor(const GenericCSCCache& cc) {
+        m_genericCSC.dummy1 = cc.dummy1;
+        m_genericCSC.dummy2 = cc.dummy2;
+    }
+    void MuonDetectorManager::setGenericMdtDescriptor(const GenericMDTCache& mc) {
+        m_genericMDT.innerRadius = mc.innerRadius;
+        m_genericMDT.outerRadius = mc.outerRadius;
+    }
+    void MuonDetectorManager::setGenericRpcDescriptor(const GenericRPCCache& rc) {
+        m_genericRPC.stripSeparation = rc.stripSeparation;
+        m_genericRPC.stripPanelThickness = rc.stripPanelThickness;
+        m_genericRPC.rpcLayerThickness = rc.rpcLayerThickness;
+        m_genericRPC.centralSupPanelThickness = rc.centralSupPanelThickness;
+        m_genericRPC.GasGapThickness = rc.GasGapThickness;
+        m_genericRPC.frontendBoardWidth = rc.frontendBoardWidth;
+    }
+    void MuonDetectorManager::set_mdtIdHelper(const MdtIdHelper* idh) { 
+        m_mdtIdHelper = idh;
+        m_mdt_EIS_stName = m_mdtIdHelper->stationNameIndex("EIS");
+        m_mdt_BIM_stName = m_mdtIdHelper->stationNameIndex("BIM");
+        m_mdt_BME_stName = m_mdtIdHelper->stationNameIndex("BME");
+        m_mdt_BMG_stName = m_mdtIdHelper->stationNameIndex("BMG");
+    }
+    void MuonDetectorManager::set_cscIdHelper(const CscIdHelper* idh) { m_cscIdHelper = idh; }
+    void MuonDetectorManager::set_tgcIdHelper(const TgcIdHelper* idh) { m_tgcIdHelper = idh; }
+    void MuonDetectorManager::set_stgcIdHelper(const sTgcIdHelper* idh) { m_stgcIdHelper = idh; }
+    void MuonDetectorManager::set_mmIdHelper(const MmIdHelper* idh) { m_mmIdHelper = idh; }
+
+
+
+
 
 }  // namespace MuonGM

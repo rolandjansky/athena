@@ -38,10 +38,10 @@ namespace xAOD {
   private:
     
     std::vector< int > stationID;
-    std::vector< int > TrainID;
-    std::vector< float > TrainTime;
-    std::vector< int > TrainSize;
-    std::vector< int > TrainNSat;
+    std::vector< int > trainID;
+    std::vector< float > trainTime;
+    std::vector< int > trainSize;
+    std::vector< int > trainNSat;
     std::vector< std::vector<AFPToFTrack_v1::AFPToFHitLink_t> > bars;
     std::vector< int > algID;
     

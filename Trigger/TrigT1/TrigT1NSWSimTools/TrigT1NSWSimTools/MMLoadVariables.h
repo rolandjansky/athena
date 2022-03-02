@@ -78,52 +78,6 @@ namespace MuonGM {
 
         std::vector<int>   NSWMM_dig_stripForTrigger;
         std::vector<float> NSWMM_dig_stripTimeForTrigger;
-
-
-        std::vector<int>    NSWMM_trackId;
-        std::vector<int>    NSWMM_truthEl;
-        std::vector<double> NSWMM_globalTime;
-        std::vector<double> NSWMM_hitGlobalPositionX;
-        std::vector<double> NSWMM_hitGlobalPositionY;
-        std::vector<double> NSWMM_hitGlobalPositionZ;
-        std::vector<double> NSWMM_hitGlobalPositionR;
-        std::vector<double> NSWMM_hitGlobalPositionP;
-        std::vector<double> NSWMM_hitGlobalDirectionX;
-        std::vector<double> NSWMM_hitGlobalDirectionY;
-        std::vector<double> NSWMM_hitGlobalDirectionZ;
-
-        std::vector<double> NSWMM_detector_globalPositionX;
-        std::vector<double> NSWMM_detector_globalPositionY;
-        std::vector<double> NSWMM_detector_globalPositionZ;
-        std::vector<double> NSWMM_detector_globalPositionR;
-        std::vector<double> NSWMM_detector_globalPositionP;
-
-        std::vector<double> NSWMM_hitToDsurfacePositionX;
-        std::vector<double> NSWMM_hitToDsurfacePositionY;
-        std::vector<double> NSWMM_hitToDsurfacePositionZ;
-
-        std::vector<double> NSWMM_hitToRsurfacePositionX;
-        std::vector<double> NSWMM_hitToRsurfacePositionY;
-        std::vector<double> NSWMM_hitToRsurfacePositionZ;
-
-
-        std::vector<int> NSWMM_particleEncoding;
-        std::vector<double> NSWMM_kineticEnergy;
-        std::vector<double> NSWMM_depositEnergy;
-
-        std::vector<std::string> NSWMM_sim_stationName;
-        std::vector<int> NSWMM_sim_stationEta;
-        std::vector<int> NSWMM_sim_stationPhi;
-        std::vector<int> NSWMM_sim_multilayer;
-        std::vector<int> NSWMM_sim_layer;
-        std::vector<int> NSWMM_sim_side;
-
-        std::vector<std::string> NSWMM_off_stationName;
-        std::vector<int> NSWMM_off_stationEta;
-        std::vector<int> NSWMM_off_stationPhi;
-        std::vector<int> NSWMM_off_multiplet;
-        std::vector<int> NSWMM_off_gas_gap;
-        std::vector<int> NSWMM_off_channel;
     };
     histogramVariables histVars;
 

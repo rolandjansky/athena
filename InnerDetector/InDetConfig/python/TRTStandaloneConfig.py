@@ -1,7 +1,9 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-import InDetConfig.TrackingCommonConfig         as   TC
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+import InDetConfig.TrackingCommonConfig as TC
+
 
 def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', extension = "", **kwargs):
     acc = ComponentAccumulator()
@@ -155,7 +157,7 @@ def TRTStandaloneCfg( flags, extension = '', InputCollections = None, BarrelSegm
                                                   AssociationMapName = prd_to_track_map,
                                                   TracksName = list(InputCollections)))
     
-    if not flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is not BeamType.Cosmics:
         #
         # --- TRT standalone tracks algorithm
         #
@@ -217,7 +219,7 @@ if __name__ == "__main__":
     ############################# TRTPreProcessing configuration ############################
     if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
     ########################### TRTSegmentFindingCfg configuration ##########################
     # NewTracking collection keys
     InputCombinedInDetTracks = []

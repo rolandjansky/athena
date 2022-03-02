@@ -22,6 +22,10 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     if jobproperties.Digitization.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", MM_FirstXing() ) # this should match the range for the MM in Digitization/share/MuonDigitization.py
         kwargs.setdefault("LastXing",  MM_LastXing() )  # this should match the range for the MM in Digitization/share/MuonDigitization.py
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("MergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")

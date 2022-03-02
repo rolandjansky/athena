@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -64,7 +64,7 @@ def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositi
 
 
 def getPFCellLevelSubtractionTool(inputFlags,toolName):
-    PFCellLevelSubtractionToolFactory = CompFactory.PFCellLevelSubtractionTool
+    PFCellLevelSubtractionToolFactory = CompFactory.PFSubtractionTool
     PFCellLevelSubtractionTool = PFCellLevelSubtractionToolFactory(toolName)
 
     eflowCellEOverPTool_Run2_mc20_JetETMiss = CompFactory.eflowCellEOverPTool_Run2_mc20_JetETMiss
@@ -72,9 +72,9 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
 
     if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.CalcEOverP = True
-        PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
+        PFCellLevelSubtractionTool.nClusterMatchesToUse = -1
     else:
-        PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
+        PFCellLevelSubtractionTool.nClusterMatchesToUse = 1
 
     if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","CalObjBldMatchingTool")
@@ -87,15 +87,13 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags,toolName):
-    PFRecoverSplitShowersToolFactory = CompFactory.PFRecoverSplitShowersTool
+    PFRecoverSplitShowersToolFactory = CompFactory.PFSubtractionTool
     PFRecoverSplitShowersTool = PFRecoverSplitShowersToolFactory(toolName)
 
     eflowCellEOverPTool_Run2_mc20_JetETMiss = CompFactory.eflowCellEOverPTool_Run2_mc20_JetETMiss
     PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss("eflowCellEOverPTool_Run2_mc20_JetETMiss_Recover")
 
-    PFRecoverSplitShowersTool.RecoverIsolatedTracks = inputFlags.PF.recoverIsolatedTracks
-
-    PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = inputFlags.PF.useUpdated2015ChargedShowerSubtraction
+    PFRecoverSplitShowersTool.RecoverSplitShowers = True
 
     return PFRecoverSplitShowersTool
 
@@ -175,6 +173,7 @@ def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputNam
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedParticleFlowObjects"
+        FlowElementChargedCreatorAlgorithm.EOverPMode = True
 
     return FlowElementChargedCreatorAlgorithm
 
@@ -185,7 +184,7 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-        FlowElementNeutralCreatorAlgorithm.FEOutputName="EOverPNeutralParticleFlowObjects"
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 

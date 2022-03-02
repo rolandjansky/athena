@@ -223,7 +223,7 @@ TrigConf::L1Threshold_Calo::update()
 }
 
 namespace {
-   unsigned int gev2MeVThrVal(float gevVal) {
+   unsigned int gev2MeVThrVal(double gevVal) {
       unsigned int mev_i = std::lround( 1000 * gevVal );
       if( gevVal != (mev_i / 1000.) ) {
          std::runtime_error("Value conversion failed");
@@ -240,7 +240,7 @@ TrigConf::L1Threshold_Calo::load()
    if( type() == "internal" ) {
       return;
    }
-   m_thrValue = gev2MeVThrVal( getAttribute<float>("value", true, 0) );
+   m_thrValue = gev2MeVThrVal( getAttribute<double>("value", true, 0) );
    m_input = getAttribute("input", true, "");
    if( const auto & thrVs = data().get_child_optional("thrValues") ) {
       for( auto & x : thrVs.get() ) {

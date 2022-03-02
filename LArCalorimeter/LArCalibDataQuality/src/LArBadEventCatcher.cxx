@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibDataQuality/LArBadEventCatcher.h"
@@ -145,7 +145,7 @@ StatusCode LArBadEventCatcher::execute() {
 
 
  if (m_checkBSErrors) {
-    const LArFebErrorSummary* febErrSum;
+    const LArFebErrorSummary* febErrSum = nullptr;
     StatusCode sc=evtStore()->retrieve(febErrSum);
     if (sc.isFailure()) {
       ATH_MSG_ERROR ("Can't retrieve LArFEBErrorSummary");

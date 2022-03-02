@@ -130,6 +130,12 @@ atlas_add_test( sTGCSimHitCollectionCnv_p2_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv MuonSimEvent TestTools StoreGateLib GeoPrimitives MuonSimEventTPCnv )
 
+atlas_add_test( sTGCSimHitCollectionCnv_p3_test
+                SOURCES
+                test/sTGCSimHitCollectionCnv_p3_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv MuonSimEvent TestTools StoreGateLib GeoPrimitives MuonSimEventTPCnv )
+
 atlas_add_test( MMSimHitCollectionCnv_p1_test
                 SOURCES
                 test/MMSimHitCollectionCnv_p1_test.cxx

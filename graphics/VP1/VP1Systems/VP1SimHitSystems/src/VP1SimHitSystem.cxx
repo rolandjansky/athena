@@ -1,14 +1,50 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+ * Major updates:
+ * - 2022 Jan, Riccardo Maria Bianchi <riccardo.maria.bianchi@cern.ch>
+ *             Added visualization for Calorimeters' sim hits
+ *
+ */
 #include "VP1SimHitSystems/VP1SimHitSystem.h"
 #include "ui_simhitcontrollerform.h"
 
+#include "VP1Utils/VP1SGContentsHelper.h"
+#include "VP1UtilsCoinSoQt/VP1ColorUtils.h"
+
 #include "StoreGate/StoreGateSvc.h"
 
-#include <QMap>
-#include <QSet>
+#include "InDetSimEvent/SiHitCollection.h"
+#include "InDetSimEvent/TRTUncompressedHitCollection.h"
+#include "GeoAdaptors/GeoTRTUncompressedHit.h"
+#include "GeoAdaptors/GeoSiHit.h"
+#include "GeoAdaptors/GeoMuonHits.h"
+
+// Section of includes for global calo hits
+#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
+// Section of includes for LAr calo hits
+#include "LArSimEvent/LArHit.h"
+#include "LArSimEvent/LArHitContainer.h"
+
+// Section of includes for Tile calo hits
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "CaloIdentifier/TileID.h"
+#include "TileSimEvent/TileHit.h"
+#include "TileSimEvent/TileHitVector.h"
+
+#include "MuonSimEvent/MDTSimHitCollection.h"
+#include "MuonSimEvent/RPCSimHitCollection.h"
+#include "MuonSimEvent/TGCSimHitCollection.h"
+#include "MuonSimEvent/CSCSimHitCollection.h"
+#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+
+#include "ForwardRegion_SimEv/SimulationHitCollection.h"
+
+#include "GeoPrimitives/GeoPrimitives.h"
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoDrawStyle.h>
@@ -19,24 +55,8 @@
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/SbColor.h>
 
-
-#include "InDetSimEvent/SiHitCollection.h"
-#include "InDetSimEvent/TRTUncompressedHitCollection.h"
-#include "GeoAdaptors/GeoTRTUncompressedHit.h"
-#include "GeoAdaptors/GeoSiHit.h"
-#include "GeoAdaptors/GeoMuonHits.h"
-
-#include "MuonSimEvent/MDTSimHitCollection.h"
-#include "MuonSimEvent/RPCSimHitCollection.h"
-#include "MuonSimEvent/TGCSimHitCollection.h"
-#include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-
-#include "ForwardRegion_SimEv/SimulationHitCollection.h"
-
-#include "VP1Utils/VP1SGContentsHelper.h"
-
-#include "GeoPrimitives/GeoPrimitives.h"
+#include <QMap>
+#include <QSet>
 
 class VP1SimHitSystem::Clockwork
 {
@@ -47,10 +67,18 @@ public:
   QMap<QString,QCheckBox*>   checkBoxMap;
   QSet<QString>              hitsThisEvent;
   StoreGateSvc * sg = nullptr;
+
+  // Managers
+  const TileDetDescrManager* tile_dd_man{nullptr};
+  const CaloDetDescrManager* lar_dd_man{nullptr};
+
+  // ID helpers
+  const TileID*              tile_id{nullptr};
+
 };
 
 VP1SimHitSystem::VP1SimHitSystem()
-  :IVP13DSystemSimple("Sim Hits","Display simulation hits from trackers","Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>"),
+  :IVP13DSystemSimple("Sim Hits","Display simulation hits from trackers and calorimeters","Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>, Riccardo Maria Bianchi <Riccardo.Maria.Bianchi@cern.ch>"),
    m_clockwork(new Clockwork())
 {
 }
@@ -75,6 +103,11 @@ QWidget* VP1SimHitSystem::buildController()
   m_clockwork->checkBoxNamesMap.insert(ui.chbxRPCHits,"RPC");
   m_clockwork->checkBoxNamesMap.insert(ui.chbxTGCHits,"TGC");
   m_clockwork->checkBoxNamesMap.insert(ui.chbxCSCHits,"CSC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxLArEMBHits,"LArEMB");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxLArEMECHits,"LArEMEC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxLArFCALHits,"LArFCAL");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxLArHECHits,"LArHEC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxTileHits,"Tile");
   m_clockwork->checkBoxNamesMap.insert(ui.chbxGenericMuonHits,"Generic Muon");
   m_clockwork->checkBoxNamesMap.insert(ui.chbxForwardRegionHits,"Forward Region");
 
@@ -88,18 +121,46 @@ QWidget* VP1SimHitSystem::buildController()
   return controller;
 }
 
-void VP1SimHitSystem::systemcreate(StoreGateSvc* /*detstore*/)
+void VP1SimHitSystem::systemcreate(StoreGateSvc* detstore)
 {
   // Populate Color Map
   m_clockwork->colorMap.insert("Pixel",SbColor(0,0,1));
-  m_clockwork->colorMap.insert("SCT",SbColor(1,1,1));
-  m_clockwork->colorMap.insert("TRT",SbColor(1,0,0));
+  m_clockwork->colorMap.insert("SCT",SbColor(1,1,1)); // white
+  m_clockwork->colorMap.insert("TRT",SbColor(1,0,0)); // red
   m_clockwork->colorMap.insert("MDT",SbColor(.98,.8,.21));
   m_clockwork->colorMap.insert("RPC",SbColor(0,.44,.28));
   m_clockwork->colorMap.insert("TGC",SbColor(0,.631244,.748016));
   m_clockwork->colorMap.insert("CSC",SbColor(.21,.64,1.));
+  m_clockwork->colorMap.insert("LArEMB",SbColor(VP1ColorUtils::getSbColorFromRGB(247, 187, 109))); // Mellow Apricot 
+  m_clockwork->colorMap.insert("LArEMEC",SbColor(VP1ColorUtils::getSbColorFromRGB(230, 151, 48))); // Carrot Orange
+  m_clockwork->colorMap.insert("LArFCAL",SbColor(VP1ColorUtils::getSbColorFromRGB(212, 134, 32))); // Fulvous
+  m_clockwork->colorMap.insert("LArHEC",SbColor(VP1ColorUtils::getSbColorFromRGB(184, 114, 24))); // Copper
+  //m_clockwork->colorMap.insert("Tile",SbColor(VP1ColorUtils::getSbColorFromRGB(28, 162, 230))); // Carolina Blue --> Note: this is nice, but it disappears when superimposed to the azure Tile geometry default material
+  m_clockwork->colorMap.insert("Tile",SbColor(VP1ColorUtils::getSbColorFromRGB(164, 78, 207))); // Purple Plum
   m_clockwork->colorMap.insert("Generic Muon",SbColor(.21,.64,1.));
   m_clockwork->colorMap.insert("Forward Region",SbColor(.21,.64,1.));
+
+
+  // ------------- DD Managers and ID Helpers -------------
+  StatusCode status = detstore->retrieve(m_clockwork->tile_dd_man);
+  if(status.isFailure() || m_clockwork->tile_dd_man==nullptr) {
+      //m_clockwork->noCalo = true;
+      messageDebug("Unable to retrieve Tile DD Manager");
+      return;
+  }
+  m_clockwork->tile_id = m_clockwork->tile_dd_man->get_id();
+  if(m_clockwork->tile_id==nullptr) {
+      //m_clockwork->noCalo = true;
+      messageDebug("0 pointer to Tile ID Helper");
+      return;
+  }
+  status = detstore->retrieve(m_clockwork->lar_dd_man);
+  if(status.isFailure() || m_clockwork->lar_dd_man==nullptr) {
+      //m_clockwork->noCalo = true;
+      messageDebug("Unable to retrieve Calo (LAr) DD Manager");
+      return;
+  }
+
 }
 
 void VP1SimHitSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
@@ -257,6 +318,69 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
     else
       message("Unable to retrieve TRT Hits");
   }
+  else if(detector=="LArEMB" || detector=="LArEMEC" || detector=="LArFCAL" || detector=="LArHEC" )
+  {
+    //
+    // LAr:
+    //
+    // NOTE: to access additional LAr simHit data, see: 
+    // Simulation/Tools/HitAnalysis/src/CaloHitAnalysis.cxx
+    //
+    const DataHandle<LArHitContainer> lar_collection;
+
+    std::string collName{"LArHit"};
+    std::string suff{""};
+
+    if (detector=="LArEMB")
+         suff = "EMB";
+    else if (detector=="LArEMEC")
+         suff = "EMEC";
+    else if (detector=="LArFCAL")
+         suff = "FCAL";
+    else if (detector=="LArHEC")
+         suff = "HEC";
+    collName += suff; // e.g., we get 'LArHitEMB'
+
+    if(sg->retrieve(lar_collection, collName)==StatusCode::SUCCESS)
+        {
+            for (auto hi : *lar_collection ) {
+
+                const LArHit* larHit = hi;
+                const CaloDetDescrElement* ddElement = m_clockwork->lar_dd_man->get_element(larHit->cellID());
+                if (ddElement) 
+                    handleDetDescrElementHit(ddElement, hitVtxProperty, hitCount);
+                else
+                    message("Unable to retrieve the CaloDetDescrElement!");
+            }
+        }
+        else
+            message("Unable to retrieve " + QString::fromStdString(collName) );
+  }
+  else if(detector=="Tile")
+  {
+      //
+      // Tile:
+      //
+      // For more Tile simHits data, see:
+      // Simulation/Tools/HitAnalysis/src/CaloHitAnalysis.cxx
+      //
+      const DataHandle<TileHitVector> t_collection;
+
+      if(sg->retrieve(t_collection,"TileHitVec")==StatusCode::SUCCESS)
+      {
+          for (const auto& i_hit : *t_collection) {
+              Identifier pmt_id = (i_hit).identify();
+              Identifier cell_id = m_clockwork->tile_id->cell_id(pmt_id);
+              const CaloDetDescrElement* ddElement = (m_clockwork->tile_id->is_tile_aux(cell_id)) ? 0 : m_clockwork->tile_dd_man->get_cell_element(cell_id);
+              if (ddElement) 
+                  handleDetDescrElementHit(ddElement, hitVtxProperty, hitCount);
+              else
+                  message("Unable to retrieve the CaloDetDescrElement!");
+          }
+      }
+      else
+          message("Unable to retrieve Tile Hits");
+  }
   else if(detector=="MDT")
   {
     //
@@ -389,5 +513,14 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
   sw->addChild(hitPointSet);
   hitPointSet->enableNotify(TRUE);
   hitVtxProperty->enableNotify(TRUE);
+}
+
+
+void VP1SimHitSystem::handleDetDescrElementHit(const CaloDetDescrElement *hitElement, SoVertexProperty* hitVtxProperty, unsigned int &hitCount)
+{
+    float x = hitElement->x();
+    float y = hitElement->y();
+    double z = hitElement->z();
+    hitVtxProperty->vertex.set1Value(hitCount++,x,y,z);
 }
 
