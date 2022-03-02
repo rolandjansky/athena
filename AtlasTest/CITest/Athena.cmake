@@ -19,12 +19,6 @@ atlas_add_citest( G4ExHive
    SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
    PROPERTIES PROCESSORS 4 )
 
-atlas_add_citest( OverlayRun2MC
-   SCRIPT RunWorkflowTests_Run2.py --CI -o -w MCOverlay )
-
-atlas_add_citest( OverlayRun2Data
-   SCRIPT RunWorkflowTests_Run2.py --CI -o -w DataOverlay )
-
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
 
@@ -34,6 +28,15 @@ atlas_add_citest( SimulationRun2AF3
 atlas_add_citest( SimulationRun4FullSim
    SCRIPT RunWorkflowTests_Run4.py --CI -s -w FullSim -e '--maxEvents 5'
    LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4
+
+atlas_add_citest( PileUpPresamplingRun2
+   SCRIPT RunWorkflowTests_Run2.py --CI -p -w PileUpPresampling -e '--maxEvents 5' --no-output-checks )
+
+atlas_add_citest( OverlayRun2MC
+   SCRIPT RunWorkflowTests_Run2.py --CI -o -w MCOverlay )
+
+atlas_add_citest( OverlayRun2Data
+   SCRIPT RunWorkflowTests_Run2.py --CI -o -w DataOverlay )
 
 
 #################################################################################
@@ -61,6 +64,11 @@ atlas_add_citest( RecoRun2MC
 
 atlas_add_citest( RecoRun2MC_CAConfig
    SCRIPT RunWorkflowTests_Run2.py --CI -r -w MCReco -e '--CA --maxEvents 5' --no-output-checks )
+
+atlas_add_citest( RecoRun2MC_PileUp
+   SCRIPT RunWorkflowTests_Run2.py --CI -p -w MCPileUpReco -e '--maxEvents 5 --inputRDO_BKGFile=../../PileUpPresamplingRun2/run_d1730/myRDO.pool.root' --no-output-checks  # go two levels up as the test runs in a subfolder
+   PROPERTIES REQUIRED_FILES ../PileUpPresamplingRun2/run_d1730/myRDO.pool.root
+   DEPENDS PileUpPresamplingRun2 )
 
 atlas_add_citest( RecoRun3MC
    SCRIPT RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25' --no-output-checks )
