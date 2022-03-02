@@ -90,7 +90,7 @@ spgorders = ['pdgcode: constant 13',
 from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
 topSeq += ParticleGenerator()
 topSeq.ParticleGenerator.orders = sorted(spgorders)
-from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 

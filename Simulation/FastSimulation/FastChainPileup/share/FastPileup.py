@@ -93,7 +93,7 @@ randomSeed=0
 if hasattr(runArgs, "randomSeed"):
     randomSeed=runArgs.randomSeed
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc("AtRndmGenSvc")
 ServiceMgr.AtRndmGenSvc.Seeds = [ "PYTHIA8 OFFSET " + str(randomSeed) + " 14789899 989240512", "PYTHIA8_INIT 820021 2347532" ]
 

@@ -61,7 +61,7 @@ seed1 &= 0xfffffffe
 seed2 &= 0xfffffffe
 
 if not hasattr(svcMgr, 'AtRndmGenSvc'):
-    from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+    from RngComps.RngCompsConf import AtRndmGenSvc
     svcMgr += AtRndmGenSvc()
     
 svcMgr.AtRndmGenSvc.Seeds = \
