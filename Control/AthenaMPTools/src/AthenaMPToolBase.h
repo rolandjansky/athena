@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_ATHENAMPTOOLBASE_H
@@ -93,6 +93,8 @@ class AthenaMPToolBase : public AthAlgTool
   std::string                    m_fileMgrLog;
   std::shared_ptr<AthenaInterprocess::FdsRegistry> m_fdsRegistry;
   std::string                    m_randStr;
+
+  Gaudi::Property<bool> m_isPileup {this, "IsPileup", false, "Flag for configuring PileUpEventLoopMgr"};
 
  private:
   AthenaMPToolBase();

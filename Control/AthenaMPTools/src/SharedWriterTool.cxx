@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedWriterTool.h"
@@ -34,29 +34,9 @@ StatusCode SharedWriterTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
 
-  if( m_isPileup ) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job is running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job is running in non-pileup mode");
-  }
+  ATH_CHECK(AthenaMPToolBase::initialize());
+  ATH_CHECK(serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc));
 
-  StatusCode sc = AthenaMPToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
-
-//FIXME: AthenaPool dependent for now
-  sc = serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc);
-  if(sc.isFailure() || m_cnvSvc==0) {
-    ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SharedWriterTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
