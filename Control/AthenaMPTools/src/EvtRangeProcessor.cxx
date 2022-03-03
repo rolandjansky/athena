@@ -721,7 +721,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_WARNING("Unable to finalize AppMgr");
+      std::cout << "Unable to finalize AppMgr" << std::endl;
     }
   }
 
