@@ -44,8 +44,8 @@ if DetFlags.overlay.LVL1_on():
         from LArL1Sim.LArSCL1Getter import *
         theLArSCL1Getter = LArSCL1Getter()
         theLArSCL1Getter.BkgDigitKey="Bkg_LArDigitSCL2"
-        #from LArROD.LArSCellGetter import LArSCellGetter
-        #theLArSCellGetter = LArSCellGetter()
+        from LArROD.LArSCellGetter import LArSCellGetter
+        theLArSCellGetter = LArSCellGetter()
 
     if DetFlags.simulateLVL1.Tile_on():
         include("TileSimAlgs/TileTTL1_jobOptions.py")

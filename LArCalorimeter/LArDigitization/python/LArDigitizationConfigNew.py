@@ -281,7 +281,12 @@ def LArAutoCorrNoiseCondSCAlgCfg(flags, **kwargs):
 
 def LArSCL1MakerCfg(flags, **kwargs):
     """Return ComponentAccumulator for LArSCL1Maker"""
-    acc = LArDigitizationBasicCfg(flags)
+    acc = ComponentAccumulator()
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        acc.merge(LArOverlayDigitizationBasicCfg(flags))
+    else:
+        acc.merge(LArDigitizationBasicCfg(flags))
+
     kwargs.setdefault("LArHitEMapKey", "StoreGateSvc+LArHitEMap") # Provided by LArPileUpTool
 
     from LArRecUtils.LArADC2MeVSCCondAlgConfig import LArADC2MeVSCCondAlgCfg
@@ -309,6 +314,8 @@ def LArSCL1MakerCfg(flags, **kwargs):
                       acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("SCL1ContainerName",flags.Overlay.BkgPrefix + "LArDigitSCL2") # Output - why L2??
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        kwargs.setdefault("BkgDigitKey","Bkg_LArDigitSCL2")
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc
@@ -364,6 +371,15 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
 
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
+    return acc
+
+
+def LArSuperCellOverlayCfg(flags, **kwargs):
+    acc = LArSCL1MakerCfg(flags)
+    from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg,LArSuperCellBCIDAlgCfg
+    acc.merge(LArSuperCellBuilderAlgCfg(flags))
+    acc.merge(LArSuperCellBCIDAlgCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ["CaloCellContainer#SCell"]))
     return acc
 
 
