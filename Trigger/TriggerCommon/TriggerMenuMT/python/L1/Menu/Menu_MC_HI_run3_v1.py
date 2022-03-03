@@ -209,7 +209,7 @@ def defineMenu():
         'L1_MBTS_1_A_ALFA_C', 'L1_MBTS_1_C_ALFA_A', 'L1_EM3_ALFA_ANY', 'L1_J12_ALFA_ANY', 'L1_MU3V_ALFA_ANY', 'L1_TE5_ALFA_ANY',  
         'L1_MU3V_ALFA_EINE', 'L1_EM3_ALFA_EINE','L1_2EM3_ALFA_EINE', 'L1_J12_ALFA_EINE', 'L1_TE5_ALFA_EINE',
 
-        'L1_TE5', # also for HMT triggers
+        'L1_TE3', 'L1_TE5', 'L1_TE10', 'L1_TE40'# also for HMT triggers
         ]
 
 
