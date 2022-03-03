@@ -361,14 +361,14 @@ def CellWeightToolCfg(flags):
 
     # copied from CaloClusterCorrection/python/StandardCellWeightCalib
     H1WeightToolCSC12Generic = CompFactory.H1WeightToolCSC12Generic  # CaloClusterCorrection
-    isMC = flags.isMC 
+    isMC = flags.Input.isMC 
 
     finder = "Cone"
     mainparam = 0.4
     inputn = "Topo"
     onlyCellWeight = False
     from CaloClusterCorrection.StandardCellWeightCalib import H1Calibration, editParm
-    (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,inputn, onlyCellWeight, isMC,flags)
+    (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,inputn, onlyCellWeight, isMC)
     # H1Calibration.loadCaloFolder(result, flags, folder, tag, isMC)
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     if isMC:
@@ -418,9 +418,14 @@ def TauShotFinderCfg(flags):
     shotPtCut_1Photon = flags.Tau.shotPtCut_1Photon
     shotPtCut_2Photons = flags.Tau.shotPtCut_2Photons
 
+    
+    from CaloClusterCorrection.StandardCellWeightCalib import getCellWeightTool
+    CaloWeightTool = getCellWeightTool(flags=flags)
+
+
     TauShotFinder = CompFactory.getComp("TauShotFinder")
     TauShotFinder = TauShotFinder(name = _name,
-                                  CaloWeightTool = result.popToolsAndMerge(CellWeightToolCfg(flags)),
+                                  CaloWeightTool = result.popToolsAndMerge(CaloWeightTool),
                                   NCellsInEta           = 5,
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,
