@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondWriterExtAlg.h"
 
 #include "StoreGate/ReadHandle.h"
-#include "AthenaKernel/IOVTime.h"
-#include "AthenaKernel/IOVRange.h"
 
 #include <stdlib.h>
 
@@ -14,15 +12,13 @@ namespace DMTest {
 
 CondWriterExtAlg::CondWriterExtAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_iovSvc("IOVSvc", name),
-  m_iovDbSvc("IOVDbSvc", name)
+  m_iovSvc("IOVSvc", name)
 {
 }
 
 StatusCode CondWriterExtAlg::initialize()
 {
   ATH_CHECK( m_iovSvc.retrieve() );
-  ATH_CHECK( m_iovDbSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -46,12 +42,7 @@ StatusCode CondWriterExtAlg::execute()
 
     ATH_MSG_INFO("Resetting and dropping payload of folder " << m_attrListKey.value());
 
-    // Set IOV in the past to trigger reload in IOVSvc
-    IOVRange iov_range(IOVTime(0, 0), IOVTime(0, 0));
-    ATH_CHECK( m_iovSvc->setRange(detStore()->clid(m_attrListKey), m_attrListKey, iov_range, "StoreGateSvc") );
-
-    // Drop folder payload
-    ATH_CHECK( m_iovDbSvc->dropObject(m_attrListKey, /*resetCache=*/true), StatusCode::FAILURE );
+    ATH_CHECK( m_iovSvc->dropObjectFromDB(detStore()->clid(m_attrListKey), m_attrListKey, "StoreGateSvc") );
   }
 
   return StatusCode::SUCCESS;
