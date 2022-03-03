@@ -2,9 +2,9 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cstring>
 #include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/DataBucketBase.h"
+#include "CxxUtils/FPControl.h"
 #include "SGTools/DataProxy.h"
 #include "TrigSerializeResult/StringSerializer.h"
 #include "BareDataBucket.h"
@@ -25,6 +25,8 @@
 #include "TStreamerInfo.h"
 #include "PathResolver/PathResolver.h"
 
+#include <cstring>
+#include <regex>
 
 class TriggerEDMDeserialiserAlg::WritableAuxStore : public SG::AuxStoreInternal {
 public:
@@ -56,7 +58,9 @@ namespace  {
     return type.getTypeInfo();
   }
 
-  
+  /**
+   * Strip "std::vector" from type name
+   */
   std::string stripStdVec (const std::string& s_in) {
     std::string s = s_in;
     std::string::size_type pos{0};
@@ -64,6 +68,21 @@ namespace  {
       s.erase (pos, 5);
     }
     return s;
+  }
+
+  /**
+   * Detect if there is a version change between two types (e.g. v1, v2).
+   *
+   * Due to type-aliasing we cannot just compare the entire type name as e.g.
+   * 'DataVector<xAOD::MyType_v1>' and 'xAOD::MyTypeContainer_v1' should be
+   * considered the same version.
+   */
+  bool versionChange(const std::string& type1, const std::string& type2) {
+    static const std::regex re(".+(_v[0-9]+).*");  // find last _v in string
+    std::smatch m1, m2;
+    return ( std::regex_match(type1, m1, re) and
+             std::regex_match(type2, m2, re) and
+             m1.str(1) != m2.str(1) );  // number 0 is full match
   }
   
 }
@@ -191,8 +210,9 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
   while ( start != dataptr->end() )  {
     fragmentCount++;
     const CLID clid{ PayloadHelpers::collectionCLID( start ) };
-    std::string transientTypeName;
+    std::string transientTypeName, transientTypeInfoName;
     ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientTypeName ) );
+    ATH_CHECK( m_clidSvc->getTypeInfoNameOfID( clid, transientTypeInfoName ) ); // version
 
     const std::vector<std::string> descr{ PayloadHelpers::collectionDescription( start ) };
     ATH_CHECK( descr.size() == 2 );
@@ -200,7 +220,8 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
     const std::string key{ descr[1] };
     const size_t bsize{ PayloadHelpers::dataSize( start ) };
 
-    ATH_MSG_DEBUG( "fragment #" << fragmentCount << " type: "<< transientTypeName <<
+    ATH_MSG_DEBUG( "fragment #" << fragmentCount <<
+                   " type: "<< transientTypeName << " (" << transientTypeInfoName << ")" <<
                    " persistent type: " << persistentTypeName << " key: " << key << " size: " << bsize );
     resize( bsize );
     PayloadHelpers::toBuffer( start, buff.get() );
@@ -211,6 +232,16 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
     RootType classDesc = RootType::ByNameNoQuiet( persistentTypeName );
     ATH_CHECK( classDesc.IsComplete() );
     size_t usedBytes{ bsize };
+
+    // Many variables in this class were changed from double to float.
+    // However, we wrote data in the past which contained values
+    // that were valid doubles but which were out of range for floats.
+    // So we can get FPEs when we read them.
+    // Disable FPEs when we're reading an instance of this class.
+    CxxUtils::FPControl fpcontrol;
+    if (persistentTypeName == "xAOD::BTaggingTrigAuxContainer_v1") {
+      fpcontrol.holdExceptions();
+    }
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
 
     ATH_MSG_DEBUG( "Deserialised object of ptr: " << obj << " which used: " << usedBytes <<
@@ -227,15 +258,18 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
                                            transientTypeName.find("Aux") != std::string::npos);
     const bool isxAODDecoration	        = transientTypeName.find("vector") != std::string::npos;
     const bool isTPContainer	        = persistentTypeName.find("_p")	!= std::string::npos;
-    
+    const bool isVersionChange          = versionChange(persistentTypeName, transientTypeInfoName);
+
     ATH_CHECK( checkSanity( transientTypeName, isxAODInterfaceContainer,
                             isxAODAuxContainer, isxAODDecoration, isTPContainer ) );
     
-    if ( isTPContainer ) {
+    if ( isTPContainer or isVersionChange ) {
+      if ( isVersionChange ) ATH_MSG_DEBUG( "Version change detected from " << persistentTypeName << " to "
+                                            << transientTypeInfoName << ". Will invoke PT converter." );
+
       std::string decodedTransientName;
       void * converted = m_tpTool->convertPT( persistentTypeName, obj, decodedTransientName );
       ATH_CHECK( converted != nullptr );
-      ATH_CHECK( decodedTransientName == transientTypeName );      
       classDesc.Destruct( obj );
 
       // from now on in case of T/P class we deal with a new class, the transient one
@@ -369,8 +403,8 @@ void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
     inf->BuildCheck();
     TClass *cl = inf->GetClass();
     if (cl != nullptr) {
-      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
-		     << " checksum: " << std::hex << inf->GetCheckSum()  );
+      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName() <<
+                     " checksum: " << std::hex << inf->GetCheckSum() << std::dec );
     }
   }
 }
