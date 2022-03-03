@@ -323,7 +323,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::exec_func
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      std::cerr << "Unable to finalize AppMgr" << std::endl;
       all_ok=false;
     }
   }
