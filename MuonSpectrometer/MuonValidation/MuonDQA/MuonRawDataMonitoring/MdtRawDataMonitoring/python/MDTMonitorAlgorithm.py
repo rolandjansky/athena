@@ -65,6 +65,11 @@ def MdtMonitoringConfig(inputFlags):
     # Add a GMT for the other example monitor algorithm
     ### STEP 5 ###
     # Configure histograms
+
+    mdtGroup.defineHistogram('run3geo;GeometryFlag',  type='TH1F', cutmask='firstEvent',
+                             title='GeometryFlag;flag;',
+                             path='Overview',   xbins=5, xmin=0., xmax=5)
+
     mdtGroup.defineHistogram('mdt_tube_z_barrel,mdt_tube_perp_barrel;Number_of_BarrelMDTHits_inRZView_Global_ADCCut', type='TH2F',
                             title='Number_of_BarrelMDTHits_inRZView_Global_ADCCut;MDT-GlobalZ(mm);MDT-GlobalR(mm)',
                             path='Overview/Expert/Geometry',  xbins=250,xmin=-25000.,xmax=25000., ybins=120, ymin=0., ymax=12000.   

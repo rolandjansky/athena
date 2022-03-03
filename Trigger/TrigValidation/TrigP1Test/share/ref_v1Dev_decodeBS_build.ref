@@ -170,6 +170,14 @@ HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100:
   eventCount: 0
 HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1jLJ140:
   eventCount: 0
+HLT_2j120_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J50:
+  eventCount: 0
+HLT_2j120_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_jJ90:
+  eventCount: 0
+HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J75:
+  eventCount: 0
+HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_jJ125:
+  eventCount: 0
 HLT_2j20_0eta240_roiftf_2j20_0eta240_85bdips_roiftf_presel4c20_L14J15p0ETA25:
   eventCount: 0
 HLT_2j20_0eta240_roiftf_2j20_0eta240_85bdips_roiftf_presel4c20_L1J45p0ETA21_3J15p0ETA25:
@@ -4255,7 +4263,7 @@ HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVABDT_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVABDT_L1eTAU20M_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVABDT_L1cTAU20M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4265,7 +4273,7 @@ HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVA_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVA_L1eTAU20M_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVA_L1cTAU20M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4275,7 +4283,7 @@ HLT_mu26_ivarmedium_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau25_mediumRNN_tracktwoMVABDT_L1cTAU20M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4285,7 +4293,7 @@ HLT_mu26_ivarmedium_tau25_mediumRNN_tracktwoMVA_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau25_mediumRNN_tracktwoMVA_L1eTAU20M_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau25_mediumRNN_tracktwoMVA_L1cTAU20M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4295,7 +4303,7 @@ HLT_mu26_ivarmedium_tau25_perf_tracktwoMVABDT_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau25_perf_tracktwoMVABDT_L1eTAU20M_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau25_perf_tracktwoMVABDT_L1cTAU20M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4305,7 +4313,7 @@ HLT_mu26_ivarmedium_tau25_perf_tracktwoMVA_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau25_perf_tracktwoMVA_L1eTAU20M_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau25_perf_tracktwoMVA_L1cTAU20M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4315,7 +4323,7 @@ HLT_mu26_ivarmedium_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau35_mediumRNN_tracktwoMVABDT_L1eTAU30_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau35_mediumRNN_tracktwoMVABDT_L1cTAU30M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4325,7 +4333,7 @@ HLT_mu26_ivarmedium_tau35_mediumRNN_tracktwoMVA_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau35_mediumRNN_tracktwoMVA_L1eTAU30_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau35_mediumRNN_tracktwoMVA_L1cTAU30M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4335,7 +4343,7 @@ HLT_mu26_ivarmedium_tau40_mediumRNN_tracktwoMVABDT_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau40_mediumRNN_tracktwoMVABDT_L1eTAU35_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau40_mediumRNN_tracktwoMVABDT_L1cTAU35M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4345,7 +4353,7 @@ HLT_mu26_ivarmedium_tau40_mediumRNN_tracktwoMVA_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_tau40_mediumRNN_tracktwoMVA_L1eTAU35_03dRAB_L1MU14FCH:
+HLT_mu26_ivarmedium_tau40_mediumRNN_tracktwoMVA_L1cTAU35M_03dRAB_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1

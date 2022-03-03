@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CxxUtils/pointer_list.h
  * @author scott snyder <snyder@bnl.gov>
@@ -280,15 +278,13 @@ public:
    * @brief Forward iterator over the list.
    */
   class iterator
-    : public std::iterator<std::forward_iterator_tag, value_type>
   {
   public:
-    typedef typename std::iterator<std::forward_iterator_tag, value_type>
-      base;
-    typedef typename base::iterator_category iterator_category;
-    typedef typename base::difference_type   difference_type;
-    typedef typename base::pointer            pointer;
-    typedef typename base::reference          reference;
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = pointer_list::value_type;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
 
     /// Equality comparison.
     bool operator== (const iterator& other) const;

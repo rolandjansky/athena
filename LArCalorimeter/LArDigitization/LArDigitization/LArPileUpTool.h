@@ -231,7 +231,6 @@ class LArPileUpTool : public PileUpToolBase
   std::vector<double> m_Samples;
   std::vector<double> m_Samples_DigiHSTruth;
   std::vector<double> m_Noise;
-  double m_Rndm[32]{};
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
   std::vector<float> m_energySum_DigiHSTruth;

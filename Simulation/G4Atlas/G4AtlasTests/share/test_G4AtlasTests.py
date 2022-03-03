@@ -96,7 +96,7 @@ from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
 g4AtlasAlg = G4AtlasAlg()
 g4AtlasAlg.RandomGenerator = "athena"
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 atRndmGenSvc = AtRndmGenSvc()
 ServiceMgr += atRndmGenSvc
 atRndmGenSvc.Seeds += ["AtlasG4 1234 5678"]

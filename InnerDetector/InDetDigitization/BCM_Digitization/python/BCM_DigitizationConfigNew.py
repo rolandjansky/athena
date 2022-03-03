@@ -83,7 +83,7 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     else:
         kwargs.setdefault("MergeSvc", '')
     kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
-    tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name))
+    tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc
 
@@ -91,7 +91,9 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
 def BCM_OverlayDigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool", **kwargs):
     """Return ComponentAccumulator with BCM_DigitizationTool for Overlay"""
     acc = ComponentAccumulator()
-    tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name))
+    kwargs.setdefault("MergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", False)
+    tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc
 

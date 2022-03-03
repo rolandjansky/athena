@@ -129,12 +129,13 @@ struct MDTSegmentHistogramStruct {
 // ********************************************************************* 
 
 MdtRawDataMonAlg::MdtRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
- :AthMonitorAlgorithm(name,pSvcLocator),
- m_masked_tubes(nullptr),
- m_atlas_ready(0),
- m_hist_hash_list(nullptr),
- m_BMGpresent(false),
- m_BMGid(-1)
+  :AthMonitorAlgorithm(name,pSvcLocator),
+   m_masked_tubes(nullptr),
+   m_atlas_ready(0),
+   m_hist_hash_list(nullptr),
+   m_BMGpresent(false),
+   m_BMGid(-1), 
+   m_firstEvent(1)
 {}
 
 MdtRawDataMonAlg::~MdtRawDataMonAlg()
@@ -159,10 +160,6 @@ StatusCode MdtRawDataMonAlg::initialize()
   ATH_MSG_DEBUG("doMdtESD: " << m_doMdtESD );
   ATH_MSG_DEBUG("******************" );
 
-  //If Online ensure that lowStat histograms are made at the runLevel and that _lowStat suffix is suppressed
-
-  //If online monitoring turn off chamber by chamber hists
-
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
 
@@ -181,11 +178,8 @@ StatusCode MdtRawDataMonAlg::initialize()
   ATH_CHECK(m_muon_type.initialize());
 
   m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
-  //  m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
   if(m_BMGpresent){
     ATH_MSG_DEBUG("Processing configuration for layouts with BMG chambers.");
-    //conflict 
-    // m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
     m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
 
   // MuonDetectorManager from the Detector Store
@@ -299,6 +293,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   lumiblock = evt->lumiBlock();
 
   ATH_MSG_DEBUG("MdtRawDataMonAlg::MDT RawData Monitoring Histograms being filled");
+
+  //Making an histo to store the Run3 geo flag
+  auto run3geo = Monitored::Scalar<int>("run3geo", m_do_run3Geometry);
+  auto firstEvent = Monitored::Scalar<int>("firstEvent", (int) (m_firstEvent));      
+  fill("MdtMonitor", run3geo, firstEvent);
+  m_firstEvent=0;
+
+
   // Retrieve the LVL1 Muon RoIs:
   bool trig_BARREL = false;
   bool trig_ENDCAP = false;
@@ -445,7 +447,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
           hardware_name = getChamberName(*mdtCollection);
 
           if (hardware_name.substr(0, 3) == "BMG")
-            adc /= 4.;
+	    adc /= m_adcScale;
           if (adc > m_ADCCut)
           {
             nPrdcut++;
@@ -570,7 +572,7 @@ void MdtRawDataMonAlg::fillMDTOverviewVects( const Muon::MdtPrepData* mdtCollect
   if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
 
   float adc = mdtCollection->adc();
-  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+  if(hardware_name.substr(0,3) == "BMG") adc /= m_adcScale;
 
 
   if( adc>m_ADCCut ) {
@@ -649,10 +651,6 @@ void MdtRawDataMonAlg::fillMDTOverviewHistograms( const MDTOverviewHistogramStru
   auto adc_mon = Monitored::Collection("adc_mon", vects.adc_mon);
   fill("MdtMonitor", tdc_mon, adc_mon);
 
-  //auto tdc_mon_noiseBurst = Monitored::Collection("tdc_mon_noiseBurst", vects.tdc_mon_noiseBurst);
-  //auto adc_mon_noiseBurst = Monitored::Collection("adc_mon_noiseBurst", vects.adc_mon_noiseBurst);
-  //fill("MdtMonitor", tdc_mon_noiseBurst, adc_mon_noiseBurst, noiseBurst);
-
   auto adc_mon_noiseBurst_notNoisy = Monitored::Collection("adc_mon_noiseBurst_notNoisy", vects.adc_mon_noiseBurst_notNoisy);
   fill("MdtMonitor",adc_mon_noiseBurst_notNoisy);
   
@@ -712,7 +710,7 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(chambername.substr(0,3) == "BMG") adc /= 4.;
+  if(chambername.substr(0,3) == "BMG") adc /= m_adcScale;
 
   thisVects.sector.push_back(stationPhi+iregion*16);//here valgrind complains
 
@@ -967,7 +965,7 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+  if(hardware_name.substr(0,3) == "BMG") adc /= m_adcScale;
 
   int iregion = chamber->GetRegionEnum();
   
@@ -1059,7 +1057,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
         sc = getChamber(idHash, chamber);
         std::string chambername = chamber->getName();
         float adc = mrot->prepRawData()->adc();
-        if(chambername.substr(0,3)=="BMG") adc /= 4. ;
+	
+	if(chambername.substr(0,3)=="BMG") adc /= m_adcScale ;
 	/*DEV
         //if(m_overalladc_segm_Lumi) m_overalladc_segm_Lumi->Fill(adc);
 	 DEV */

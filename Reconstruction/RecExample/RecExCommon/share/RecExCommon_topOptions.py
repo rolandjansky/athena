@@ -889,7 +889,7 @@ if rec.doWriteESD():
                 raise Exception
             # Get an instance of the random number generator
             # The actual seeds are dummies since event reseeding is used
-            from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+            from RngComps.RngCompsConf import AtRanluxGenSvc
             if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
                 svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                           OutputLevel    = ERROR,
@@ -1020,7 +1020,7 @@ if rec.doDPD():
 
     # Get an instance of the random number generator
     # The actual seeds are dummies since event reseeding is used
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+    from RngComps.RngCompsConf import AtRanluxGenSvc
     if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
         svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                   OutputLevel    = ERROR,

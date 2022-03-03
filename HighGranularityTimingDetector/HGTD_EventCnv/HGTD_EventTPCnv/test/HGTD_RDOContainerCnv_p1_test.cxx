@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_EventTPCnv/test/HGTD_RDOContainerCnv_p1_test.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -20,8 +20,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-
-HGTD_ID* g_hgtd_idhelper;
 
 std::unique_ptr<HGTD_RDO> createRDO(int id, float time, int tot, int bcid,
                                     int lv1a, int lv1id) {
@@ -65,7 +63,7 @@ void compare(const HGTD_RDOContainer& p1,
   BOOST_CHECK(it1 == it1e && it2 == it2e);
 }
 
-std::unique_ptr<const HGTD_RDOContainer> makeRDOContainer() {
+std::unique_ptr<const HGTD_RDOContainer> makeRDOContainer(const HGTD_ID* hgtd_idhelper) {
   auto container = std::make_unique<HGTD_RDOContainer>(5);
 
   for (int hash = 2; hash <= 3; hash++) {
@@ -75,7 +73,7 @@ std::unique_ptr<const HGTD_RDOContainer> makeRDOContainer() {
     // fill it with RDOs
     for (int i = 1; i < 10; i++) {
 
-      Identifier id = g_hgtd_idhelper->wafer_id(2, 1, hash, i);
+      Identifier id = hgtd_idhelper->wafer_id(2, 1, hash, i);
 
       std::unique_ptr<HGTD_RDO> rdo =
           createRDO(id.get_compact(), 14.8348, 266, 1, 2, 3);
@@ -104,7 +102,7 @@ void registerIDHelperAndDetManager() {
   BOOST_CHECK(sg->record(std::move(hgtd_id), "HGTD_ID"));
 }
 
-bool retrieve() {
+HGTD_ID* retrieve() {
   std::cout << "retrieve \n";
 
   // Get Storegate, ID helpers, and so on
@@ -116,7 +114,7 @@ bool retrieve() {
   StatusCode sc = svc_locator->service("StoreGateSvc", storegate);
   if (sc.isFailure()) {
     std::cout << "StoreGate service not found !\n";
-    return false;
+    return nullptr;
   }
 
   // get DetectorStore service
@@ -124,19 +122,20 @@ bool retrieve() {
   sc = svc_locator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
     std::cout << "DetectorStore service not found !\n";
-    return false;
+    return nullptr;
   }
 
   // Get the sct helper from the detector store
-  sc = detStore->retrieve(g_hgtd_idhelper, "HGTD_ID");
+  HGTD_ID* hgtd_idhelper = nullptr;
+  sc = detStore->retrieve(hgtd_idhelper, "HGTD_ID");
   if (sc.isFailure()) {
     std::cout << "Could not get HGTD_ID helper !\n";
-    return false;
+    return nullptr;
   } else {
     std::cout << "[retrieve] HGTD_ID initialised\n";
   }
 
-  return true;
+  return hgtd_idhelper;
 }
 
 BOOST_AUTO_TEST_CASE(HGTD_RDOContainerCnv_p1_test) {
@@ -149,12 +148,13 @@ BOOST_AUTO_TEST_CASE(HGTD_RDOContainerCnv_p1_test) {
 
   registerIDHelperAndDetManager();
 
-  BOOST_CHECK(retrieve());
+  HGTD_ID* hgtd_idhelper = retrieve();
+  BOOST_CHECK(hgtd_idhelper != nullptr);
 
-  g_hgtd_idhelper->set_do_checks(true);
+  hgtd_idhelper->set_do_checks(true);
 
   std::unique_ptr<const HGTD_RDOContainer> trans_container =
-      makeRDOContainer();
+      makeRDOContainer(hgtd_idhelper);
   std::cout << "HGTD_RDOContainer created\n";
   // otherwise there is nothing to test
   BOOST_REQUIRE(trans_container->size() > 0);
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(HGTD_RDOContainerCnv_p1_test) {
   cnv.transToPers(trans_container.get(), &pers, log);
   std::cout << "HGTD_RDOContainer transToPers done\n";
 
-  HGTD_RDOContainer trans(g_hgtd_idhelper->wafer_hash_max());
+  HGTD_RDOContainer trans(hgtd_idhelper->wafer_hash_max());
 
   std::cout << "HGTD_RDOContainer persToTrans\n";
   cnv.persToTrans(&pers, &trans, log);

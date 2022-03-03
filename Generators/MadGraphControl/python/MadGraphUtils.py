@@ -246,13 +246,15 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
 
     mglog.info('Started process generation at '+str(time.asctime()))
 
+    plugin = '--mode=CVMFS_PATCH'
+
     # Note special handling here to explicitly print the process
     global MADGRAPH_COMMAND_STACK
     MADGRAPH_COMMAND_STACK += ['# All jobs should start in a clean directory']
     MADGRAPH_COMMAND_STACK += ['mkdir standalone_test; cd standalone_test']
-    MADGRAPH_COMMAND_STACK += [' '.join([python,madpath+'/bin/mg5_aMC << EOF\n'+process+'\nEOF\n'])]
+    MADGRAPH_COMMAND_STACK += [' '.join([python,madpath+'/bin/mg5_aMC '+plugin+' << EOF\n'+process+'\nEOF\n'])]
     global MADGRAPH_CATCH_ERRORS
-    generate = subprocess.Popen([python,madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    generate = subprocess.Popen([python,madpath+'/bin/mg5_aMC',plugin,card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
     error_check(err)
 
@@ -388,6 +390,10 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
 
     # Check if process is NLO or LO
     isNLO=is_NLO_run(process_dir=process_dir)
+
+    # temporary fix of makefile, needed for 3.3.1., remove in future
+    if isNLO:
+        fix_fks_makefile(process_dir=process_dir)
 
     # if f2py not available
     if get_reweight_card(process_dir=process_dir) is not None:
@@ -2469,3 +2475,17 @@ def ls_dir(directory):
 
 # Final import of some code used in these functions
 import MadGraphControl.MadGraphSystematicsUtils
+
+# To be removed once we moved past MG5 3.3.1
+def fix_fks_makefile(process_dir):
+    makefile_fks=process_dir+'/SubProcesses/makefile_fks_dir'
+    mglog.info('Fixing '+makefile_fks)
+    shutil.move(makefile_fks,makefile_fks+'_orig')
+    fin=open(makefile_fks+'_orig')
+    fout=open(makefile_fks,'w')
+    for line in fin:
+        fout.write(line.replace('FKSParams.mod','FKSParams.o'))
+        if 'BinothLHA.o:' in line:
+            fout.write('madfks_plot.o: mint_module.o\n')
+    fin.close()
+    fout.close()

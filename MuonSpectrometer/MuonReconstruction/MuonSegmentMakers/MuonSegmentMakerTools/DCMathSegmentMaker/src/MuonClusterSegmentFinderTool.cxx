@@ -1068,7 +1068,7 @@ namespace Muon {
 	  bool spacePoint = prd1->detectorElement()->spacePointPosition(id1,id2,gPos1,gPos2,gPos);
 	  
   	  if ( spacePoint ) phiStereo.push_back(gPos);
-  	  else ATH_MSG_INFO("Could not build phi measurement from MM stereo");
+  	  else ATH_MSG_VERBOSE("Could not build phi measurement from MM stereo");
 	  
   	}
       }

@@ -20,7 +20,7 @@ theApp.EvtMax = 10000
 #--------------------------------------------------------------
 # Algorithms Private Options
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 
 from AthenaCommon.AlgSequence import AlgSequence

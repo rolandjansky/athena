@@ -145,8 +145,8 @@ namespace MuonCombined {
 
     private:
         /** handle a single candidate */
-        void handleCandidate(const EventContext& ctx, const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks,
-                             Trk::SegmentCollection* segments) const;
+        void handleCandidate(const EventContext& ctx, const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap,
+                             TrackCollection* combTracks, Trk::SegmentCollection* segments) const;
 
         /** associate Hough maxima to intersection */
         void associateHoughMaxima(LayerData& layerData) const;

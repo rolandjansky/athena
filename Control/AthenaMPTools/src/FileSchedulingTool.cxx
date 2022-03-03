@@ -28,11 +28,9 @@ FileSchedulingTool::FileSchedulingTool(const std::string& type
   , m_debug(false)
   , m_sharedRankQueue(0)
   , m_sharedFinQueue(0)
-  , m_isPileup(false)
 {
   declareInterface<IAthenaMPTool>(this);
 
-  declareProperty("IsPileup",m_isPileup);
   declareProperty("Debug", m_debug);
 
   m_subprocDirPrefix = "worker_";
@@ -40,20 +38,6 @@ FileSchedulingTool::FileSchedulingTool(const std::string& type
 
 FileSchedulingTool::~FileSchedulingTool()
 {
-}
-
-StatusCode FileSchedulingTool::initialize()
-{
-  ATH_MSG_DEBUG("In initialize");
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job running in non-pileup mode");
-  }
-  
-  return AthenaMPToolBase::initialize();
 }
 
 StatusCode FileSchedulingTool::finalize()

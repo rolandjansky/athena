@@ -5,7 +5,7 @@
  **     @author  emil haines
  **     @date    Thu 29 Jul 2021
  **
-**     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+**     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #ifndef  VERTEXNEWMATCHER_H
@@ -17,18 +17,17 @@
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 
 #include "TrigInDetAnalysis/TIDAVertex.h"
-#include "TrigInDetAnalysis/TIDAVertexNew.h"
 
 
-class VertexNewMatcher : public BestMatcher<TIDA::VertexNew> {
+class VertexNewMatcher : public BestMatcher<TIDA::Vertex> {
 
 public:
 
-  VertexNewMatcher( const std::string& s, double d=0.5 ) : BestMatcher<TIDA::VertexNew>( s, d*d ) { }  
+  VertexNewMatcher( const std::string& s, double d=0.5 ) : BestMatcher<TIDA::Vertex>( s, d*d ) { }  
 
   ~VertexNewMatcher() { }
   
-  virtual double distance( const TIDA::VertexNew* v0, const TIDA::VertexNew* v1 ) const {
+  virtual double distance( const TIDA::Vertex* v0, const TIDA::Vertex* v1 ) const {
 
     // vectors of pointers to tracks belonging to ref and test vertices
     const std::vector<TIDA::Track*>& refTracks= v0->tracks();

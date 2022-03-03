@@ -38,6 +38,9 @@ namespace LVL1 {
       /** \brief calculates eta and phi from roiWord*/
       void CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const;
      
+      StatusCode fillEM(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode fillTau(TCS::TopoInputEvent& inputEvent) const;
+
       ServiceHandle<ITHistSvc> m_histSvc;
 
       mutable LockedHandle<TH1> m_hEmEt ATLAS_THREAD_SAFE;
@@ -60,8 +63,8 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hTauEtRCore ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtRHad ATLAS_THREAD_SAFE;
 
-     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEXEM EDM"};
-     SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "L1_eTauRoI", "L1_eTauRoI", "eFEXTau EDM"};
+     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "eFexEMRoIKey", "L1_eEMRoI", "eFEXEM EDM"};
+     SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "eFexTauRoIKey", "L1_eTauRoI", "eFEXTau EDM"};
    };
 }
 
