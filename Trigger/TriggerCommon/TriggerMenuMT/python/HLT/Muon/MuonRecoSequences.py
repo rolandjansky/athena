@@ -1006,6 +1006,7 @@ def efLateMuRoISequence():
   from AthenaCommon.CFElements import parOR
   efLateMuRoISequence = parOR("efLateMuRoIViewNode")
 
+  # TODO: Replace MuCTPI_RDO dependency with xAOD::MuonRoIContainer for BC+1, BC-1 candidates, ATR-25031
   import AthenaCommon.CfgMgr as CfgMgr
   efLateMuRoIVDV = CfgMgr.AthViews__ViewDataVerifier( "efLateMuRoIVDV" )
   efLateMuRoIVDV.DataObjects = [( 'MuCTPI_RDO' , 'StoreGateSvc+MUCTPI_RDO' )]

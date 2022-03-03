@@ -136,9 +136,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu10_l2mt_L1MU10BO', groups=MultiMuonGroup+SupportGroup),
         ChainProp(name='HLT_2mu4_l2mt_L1MU4BOM', groups=MultiMuonGroup+SupportGroup),
 
-        # LATE
-        ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_jJ90', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryPhIGroup),
-        ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_jXE70', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryPhIGroup),
+        # Late muons - disabled until ATR-25031 is fixed
+        # ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_jJ90', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryPhIGroup),
+        # ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_jXE70', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryPhIGroup),
 
         # Late stream for LLP
         ChainProp(name='HLT_3mu6_msonly_L1MU5VF_EMPTY', l1SeedThresholds=['MU5VF'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
