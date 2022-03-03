@@ -288,7 +288,7 @@ def regSelTool_CSC_Cfg(flags):
 
 def regSelTool_STGC_Cfg(flags):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
-    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg,
+    return regSelToolCfg(flags, "sTGC", CompFactory.sTGC_RegSelCondAlg,
                          conditions=MDTCablingConfigCfg(flags))  # FIXME: sTGC should not depend on MDT
 
 def regSelTool_MM_Cfg(flags):
