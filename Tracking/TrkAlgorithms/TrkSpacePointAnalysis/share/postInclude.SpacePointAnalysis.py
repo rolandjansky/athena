@@ -2,15 +2,17 @@
 # Algorithms
 #----------------------------
 from TrkSpacePointAnalysis.TrkSpacePointAnalysisConf import SpacePointAnalysis
-pixelSpacePointAnalysis = SpacePointAnalysis()
+pixelSpacePointAnalysis = SpacePointAnalysis(name="PixelSpacePointAnalysis")
 pixelSpacePointAnalysis.NtupleFileName = '/PixelSpacePointAnalysis/'
 pixelSpacePointAnalysis.HistPath = '/PixelSpacePointAnalysis/'
+pixelSpacePointAnalysis.InputKey = "PixelSpacePoints"
 pixelSpacePointAnalysis.UsePixel = True
 topSequence += pixelSpacePointAnalysis
 
-sctSpacePointAnalysis = SpacePointAnalysis()
+sctSpacePointAnalysis = SpacePointAnalysis(name="SCT_SpacePointAnalysis")
 sctSpacePointAnalysis.NtupleFileName = '/SCT_SpacePointAnalysis/'
 sctSpacePointAnalysis.HistPath = '/SCT_SpacePointAnalysis/'
+sctSpacePointAnalysis.InputKey = "SCT_SpacePoints"
 sctSpacePointAnalysis.UsePixel = False
 topSequence += sctSpacePointAnalysis
 

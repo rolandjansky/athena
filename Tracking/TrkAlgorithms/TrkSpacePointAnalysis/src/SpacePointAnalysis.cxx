@@ -18,7 +18,7 @@
 
 SpacePointAnalysis::SpacePointAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
-m_inputKey("PixelClusters"),
+m_inputKey("PixelSpacePoints"),
 m_pixelID(nullptr),
 m_barrelEndcap(nullptr),
 m_layerDisk(nullptr),
@@ -64,6 +64,7 @@ StatusCode SpacePointAnalysis::initialize() {
     ATH_CHECK( m_inputKey.initialize() );
 
     ATH_CHECK(detStore()->retrieve(m_pixelID, "PixelID"));
+    ATH_CHECK(detStore()->retrieve(m_stripID, "SCT_ID"));
 
     ATH_CHECK(m_thistSvc.retrieve());
 
@@ -178,6 +179,10 @@ StatusCode SpacePointAnalysis::execute() {
             }
         }
     }
+    else {
+        ATH_MSG_FATAL("Unable to get SpacePointContainer: " << m_inputKey.key());
+    }
+
 
     if (m_tree) {
         m_tree->Fill();
