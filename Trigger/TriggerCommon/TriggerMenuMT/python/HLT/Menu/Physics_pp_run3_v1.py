@@ -231,6 +231,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_L1BPH-7M14-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFL1MuGroup),
         ChainProp(name='HLT_2mu4_L1BPH-7M14-2MU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFL1MuGroup),
         
+        # ATR-24367 (express stream for ID)
+        ChainProp(name='HLT_mu14_mu14_idperf_50invmAB130_L12MU8F', l1SeedThresholds=['MU8F','MU8F'], stream=[PhysicsStream,'express'], groups=MultiMuonGroup+SupportGroup),
+        ChainProp(name='HLT_mu4_mu4_idperf_1invmAB5_L12MU3VF', l1SeedThresholds=['MU3VF','MU3VF'], stream=[PhysicsStream,'express'], groups=MultiMuonGroup+SupportGroup),
      ]
 
     chains['Egamma'] = [
@@ -1146,6 +1149,9 @@ def setupMenu():
         ChainProp(name="HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM", groups=SupportLegGroup+SingleTauGroup+['RATE:CPS_TAU20IM'], monGroups=['tauMon:t0']),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM", groups=SupportLegGroup+SingleTauGroup+['RATE:CPS_TAU20IM'], monGroups=['tauMon:t0']),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM", groups=SupportLegGroup+SingleTauGroup+['RATE:CPS_TAU20IM'], monGroups=['tauMon:t0']),
+
+        # ATR-24367 (express stream for ID)
+        ChainProp(name="HLT_tau80_idperf_tracktwoMVABDT_L1TAU60", stream=[PhysicsStream,'express'], groups=SingleTauGroup+SupportLegGroup+['RATE:CPS_TAU60']),
 
         #------ Phase-I
         ChainProp(name="HLT_tau0_ptonly_L1eTAU12", stream=[PhysicsStream], groups=SingleTauGroup+SupportPhIGroup),
