@@ -780,7 +780,7 @@ namespace Muon {
         // loop over cluster layer map and add the clusters to the state vector
         for (auto& cl_it : cluster_layer_map) {
             ATH_MSG_VERBOSE(" added hit " << m_idHelperSvc->toString(cl_it.second.clus->identify()));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(cl_it.second.clus.release(), cl_it.second.pars.release(),
+            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(std::move(cl_it.second.clus), std::move(cl_it.second.pars),
                                                                             Trk::TrackStateOnSurface::Measurement);
             states.emplace_back(tsos);
             ++nNewHits;
@@ -828,7 +828,7 @@ namespace Muon {
             if (!inBounds) { continue; }
 
             if (m_idHelperSvc->issTgc(id)) ATH_MSG_VERBOSE(" new hole sTgc measuresPhi " << (int)m_idHelperSvc->measuresPhi(id));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars.release());
+            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
             states.emplace_back(tsos);
             ++nholes;
             // break; // only add one hole per det el
@@ -982,7 +982,7 @@ namespace Muon {
                 if (!inBounds) { continue; }
 
                 Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(
-                    mdtROT.release(), exPars.release(),
+                    std::move(mdtROT), std::move(exPars),
                     (hitFlag != 0 || !m_addMeasurements) ? Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement);
                 states.emplace_back(tsos);
                 ++nstates;
@@ -1028,7 +1028,7 @@ namespace Muon {
                     continue;
                 }
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(hit) << " dist wire " << exPars->parameters()[Trk::locR]);
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars.release());
+                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
                 states.emplace_back(tsos);
                 ++nholes;
                 ++nstates;

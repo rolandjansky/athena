@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRefitTool.h"
@@ -760,7 +760,7 @@ namespace Muon {
                 if (pars == startPars) {
                     ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars));
                     std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars, ctx);
-                    newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release()));
+                    newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                     addedPerigee = true;
                     continue;
                 } else {
@@ -785,8 +785,8 @@ namespace Muon {
                 double theta = pars->momentum().theta();
                 double qoverp = pars->charge() / pars->momentum().mag();
                 Trk::PerigeeSurface persurf(perpos);
-                Trk::Perigee* perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
-                newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(perigee));
+                auto perigee = std::make_unique<const Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
+                newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                 addedPerigee = true;
                 ATH_MSG_DEBUG("Adding perigee in front of first measurement");
             }
@@ -910,8 +910,9 @@ namespace Muon {
                         if (std::abs(newMdt->driftRadius() - mdt->driftRadius()) > 0.1)
                             ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
                     }
-
-                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(**tsit, newMdt, pars->clone(), type);
+                    //the following is a cop-out until can sort out the unique_ptr magic for rot, mdt
+                    auto newUniqueMdt=std::unique_ptr<const MdtDriftCircleOnTrack>(newMdt);
+                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(**tsit, std::move(newUniqueMdt), pars->uniqueClone(), type);
                     newStates.emplace_back(true, tsos);
                 } else if (m_idHelperSvc->isCsc(id)) {
                     if (settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex)) {
@@ -1058,7 +1059,7 @@ namespace Muon {
                 if (pars == startPars) {
                     ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars));
                     std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars, ctx);
-                    newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release()));
+                    newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                     addedPerigee = true;
                     continue;
                 } else {
@@ -1083,8 +1084,8 @@ namespace Muon {
                 double theta = pars->momentum().theta();
                 double qoverp = pars->charge() / pars->momentum().mag();
                 Trk::PerigeeSurface persurf(perpos);
-                Trk::Perigee* perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
-                newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(perigee));
+                auto perigee = std::make_unique<const Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
+                newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                 addedPerigee = true;
                 ATH_MSG_DEBUG("Adding perigee in front of first measurement");
             }
@@ -1147,8 +1148,8 @@ namespace Muon {
                         if (std::abs(newMdt->driftRadius() - mdt->driftRadius()) > 0.1)
                             ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
                     }
-
-                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(**tsit, newMdt, pars->clone(), type);
+                    auto newUniqueMdt = std::unique_ptr<const MdtDriftCircleOnTrack>(newMdt);
+                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(**tsit, std::move(newUniqueMdt), pars->uniqueClone(), type);
                     newStates.emplace_back(true, tsos);
                 } else if (m_idHelperSvc->isCsc(id)) {
                     if (settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex)) {
@@ -1496,7 +1497,8 @@ namespace Muon {
         return true;
     }
 
-    std::unique_ptr<const Trk::Perigee> MuonRefitTool::createPerigee(const Trk::TrackParameters& pars, const EventContext& ctx) const {
+    std::unique_ptr<const Trk::Perigee> 
+    MuonRefitTool::createPerigee(const Trk::TrackParameters& pars, const EventContext& ctx) const {
         std::unique_ptr<const Trk::Perigee> perigee;
         if (m_muonExtrapolator.empty()) { return perigee; }
         Trk::PerigeeSurface persurf(pars.position());
