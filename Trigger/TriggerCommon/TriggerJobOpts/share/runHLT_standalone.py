@@ -37,7 +37,7 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
-    strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
+    strictDependencies = True         # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
     enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
@@ -195,10 +195,6 @@ ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
-
-# Enable strict dependency checking for data by default
-if 'strictDependencies' not in globals():
-    opt.strictDependencies = not ConfigFlags.Input.isMC
 
 # Set default doL1Sim option depending on input type (if not set explicitly)
 if 'doL1Sim' not in globals():

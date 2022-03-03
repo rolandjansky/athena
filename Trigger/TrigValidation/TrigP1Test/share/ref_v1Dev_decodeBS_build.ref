@@ -3745,10 +3745,6 @@ HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM:
   eventCount: 0
 HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU12BOM:
   eventCount: 0
-HLT_mu10_lateMu_L1LATE-MU8F_jJ90:
-  eventCount: 0
-HLT_mu10_lateMu_L1LATE-MU8F_jXE70:
-  eventCount: 0
 HLT_mu10_mu6_probe_PhysicsTLA_L1MU8F:
   eventCount: 0
   stepCounts:
