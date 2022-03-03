@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHandle.h
@@ -38,20 +38,19 @@
  **/
 template <typename DATA> 
 class ATLAS_NOT_THREAD_SAFE DataHandle :
-  public DataHandleBase,
-  public std::iterator<std::forward_iterator_tag, DATA> 
+  public DataHandleBase
 {
 public:
-  typedef std::iterator<std::forward_iterator_tag, DATA> base_t;
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = DATA;
+  using difference_type = std::ptrdiff_t;
+  using pointer = value_type*;
+  using reference = value_type&;
 
-  //FIXME this should come from iterator inheritance!
-  typedef typename base_t::iterator_category iterator_category;
-  typedef typename base_t::value_type value_type;
-  typedef typename base_t::difference_type difference_type;
-  typedef typename base_t::pointer pointer_type; 
-  typedef const DATA* const_pointer_type; 
-  typedef typename base_t::reference reference_type;
-  typedef const DATA& const_reference_type; 
+  using pointer_type = pointer;
+  using const_pointer_type = const DATA*;
+  using reference_type = reference;
+  using const_reference_type = const DATA&;
 
   typedef DataHandleBase::ID_type ID_type;
 
