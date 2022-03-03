@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATLASDETDESCR_ATLASDETECTORID_H
@@ -29,6 +29,7 @@
 #include "IdDict/IdDictFieldImplementation.h"
 #include "AtlasDetTechnology.h"
 #include "AthenaKernel/CLASS_DEF.h"
+
 #include <string>
 #include <vector>
 
@@ -42,7 +43,7 @@ class AtlasDetectorIDHelper;
 
 /**
  * @class AtlasDetectorID
- *   
+ *
  * @brief This class provides an interface to generate or decode an
  *   identifier for the upper levels of the detector element
  *   hierarchy, i.e. Atlas, the detector systems and detector
@@ -55,15 +56,15 @@ class AtlasDetectorIDHelper;
 class AtlasDetectorID : public IdHelper
 {
 public:
-    
+
     /// @name strutors
     //@{
     AtlasDetectorID();
     AtlasDetectorID(const AtlasDetectorID& other);
-    ~AtlasDetectorID(void);
+    virtual ~AtlasDetectorID();
     AtlasDetectorID& operator= (const AtlasDetectorID& other);
     //@}
-    
+
     /// @name Detector system ids
     //@{
     /// Detector systems:
@@ -80,6 +81,7 @@ public:
     Identifier          sct             (void) const;
     Identifier          trt             (void) const;
     Identifier          hgtd            (void) const;
+    Identifier          lumi            (void) const;
     //@}
 
     /// @name LAr subsystem ids
@@ -122,14 +124,14 @@ public:
     virtual int         get_id          (const IdentifierHash& hash_id,
                                          Identifier& id,
                                          const IdContext* context = 0) const;
-    
+
     /// Create hash id from compact id (return == 0 for OK)
-    virtual int         get_hash        (const Identifier& id, 
+    virtual int         get_hash        (const Identifier& id,
                                          IdentifierHash& hash_id,
                                          const IdContext* context = 0) const;
     //@}
 
-    /// @name Initialization and version name 
+    /// @name Initialization and version name
     //@{
     /// Initialization from the identifier dictionary
     virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr);
@@ -143,11 +145,11 @@ public:
     //@{
     /// Short print out of any identifier (optionally provide
     /// separation character - default is '.'):
-    void                show            (Identifier id, 
+    void                show            (Identifier id,
                                          const IdContext* context = 0,
                                          char sep = '.' ) const;
     /// or provide the printout in string form
-    std::string         show_to_string  (Identifier id, 
+    std::string         show_to_string  (Identifier id,
                                          const IdContext* context = 0,
                                          char sep = '.'  ) const;
 
@@ -172,13 +174,15 @@ public:
     bool                is_sct          (Identifier id) const;
     bool                is_trt          (Identifier id) const;
     bool                is_hgtd         (Identifier id) const;
+    bool                is_lumi         (Identifier id) const;
+    bool                is_plr          (Identifier id) const;
     bool                is_lar_em       (Identifier id) const;
     bool                is_lar_hec      (Identifier id) const;
     bool                is_lar_fcal     (Identifier id) const;
     bool                is_lar_minifcal (Identifier id) const;
     /// LAr/Tile dead material:
-    bool                is_lar_dm       (Identifier id) const; 
-    bool                is_tile_dm      (Identifier id) const; 
+    bool                is_lar_dm       (Identifier id) const;
+    bool                is_tile_dm      (Identifier id) const;
     bool                is_mdt          (Identifier id) const;
     bool                is_csc          (Identifier id) const;
     bool                is_tgc          (Identifier id) const;
@@ -204,6 +208,8 @@ public:
     bool                is_sct          (const ExpandedIdentifier& id) const;
     bool                is_trt          (const ExpandedIdentifier& id) const;
     bool                is_hgtd         (const ExpandedIdentifier& id) const;
+    bool                is_lumi         (const ExpandedIdentifier& id) const;
+    bool                is_plr          (const ExpandedIdentifier& id) const;
     bool                is_lar_em       (const ExpandedIdentifier& id) const;
     bool                is_lar_hec      (const ExpandedIdentifier& id) const;
     bool                is_lar_fcal     (const ExpandedIdentifier& id) const;
@@ -254,7 +260,7 @@ protected:
     void                setDictVersion  (const IdDictMgr& dict_mgr, const std::string& name);
 
     std::string         to_range        (const ExpandedIdentifier& id) const;
-    
+
     std::string         fix_barrel_ec   (const std::string& barrel_ec) const;
 
     /// Detector systems:
@@ -270,8 +276,9 @@ protected:
     ExpandedIdentifier          sct_exp             (void) const;
     ExpandedIdentifier          trt_exp             (void) const;
     ExpandedIdentifier          hgtd_exp            (void) const;
+    ExpandedIdentifier          lumi_exp           (void) const;
 
-    /// LAr 
+    /// LAr
     ExpandedIdentifier          lar_em_exp          (void) const;
     ExpandedIdentifier          lar_hec_exp         (void) const;
     ExpandedIdentifier          lar_fcal_exp        (void) const;
@@ -284,17 +291,19 @@ protected:
 
     /// Provide efficient access to individual field values, for
     /// subclass idhelpers
-    int                 indet_field_value        () const;     
-    int                 lar_field_value          () const;       
-    int                 tile_field_value         () const;       
-    int                 muon_field_value         () const;       
+    int                 indet_field_value        () const;
+    int                 lar_field_value          () const;
+    int                 tile_field_value         () const;
+    int                 muon_field_value         () const;
     int                 calo_field_value         () const;
-    int                 pixel_field_value        () const;     
-    int                 sct_field_value          () const;       
-    int                 trt_field_value          () const;       
+    int                 pixel_field_value        () const;
+    int                 sct_field_value          () const;
+    int                 trt_field_value          () const;
     int                 hgtd_field_value         () const;
-    int                 lar_em_field_value       () const;  
-    int                 lar_hec_field_value      () const; 
+    int                 lumi_field_value         () const;
+    int                 plr_field_value          () const;
+    int                 lar_em_field_value       () const;
+    int                 lar_hec_field_value      () const;
     int                 lar_fcal_field_value     () const;
     int                 mdt_field_value          () const;
     int                 csc_field_value          () const;
@@ -314,21 +323,21 @@ protected:
                                                   const std::string& dict_name);
 
     /// Test whether an idhelper should be reinitialized based on the
-    /// change of tags 
+    /// change of tags
     bool                reinitialize             (const IdDictMgr& dict_mgr);
 
     /// Flag for subclasses to know whether or not to perform
     /// checks. In general, this is set to false in optimized mode.
-    bool        m_do_checks;
+    bool        m_do_checks{};
     /// Flag for subclasses to know whether or not to perform
     /// neighbour initialization
-    bool        m_do_neighbours;
+    bool        m_do_neighbours{true};
 
     /// pointer to the message service
-    IMessageSvc*        m_msgSvc;
+    IMessageSvc*        m_msgSvc{};
 
     /// If true, suppress DEBUG/INFO messages.
-    bool m_quiet;
+    bool m_quiet{};
 
 
     /// List of dictionary names used by this helper
@@ -341,48 +350,50 @@ protected:
     std::vector<std::string>  m_dict_tags;
 private:
 
-    typedef Identifier::size_type                       size_type; 
-    
+    typedef Identifier::size_type                       size_type;
+
     // Identifiear numbering:
-    //   Temporary fixes - set LAR and MUON ids to single level 
+    //   Temporary fixes - set LAR and MUON ids to single level
     enum        ID   { ATLAS_ID		= static_cast<Identifier::value_type>(0),
 		       MAX_BIT 		= Identifier::MAX_BIT,
 		       // mask to distinguish a pixel id from lvl1 id (bit 1 set)
-		       PIXEL_MASK	= static_cast<Identifier::value_type>(0xFF),  
+		       PIXEL_MASK	= static_cast<Identifier::value_type>(0xFF),
 		       ALL_BITS		= Identifier::ALL_BITS };
 
     int                 initLevelsFromDict(const IdDictMgr& dict_mgr);
 
     // dictionary version
     std::string         m_dict_version;
-    bool                m_is_initialized_from_dict;
-    size_type           m_DET_INDEX;
-    size_type           m_SUBDET_INDEX;
-    size_type           m_MUON_SUBDET_INDEX;
-    int                 m_INDET_ID;     
-    int                 m_LAR_ID;       
-    int                 m_TILE_ID;      
-    int                 m_MUON_ID;      
-    int                 m_CALO_ID;
-    int                 m_PIXEL_ID;     
-    int                 m_SCT_ID;       
-    int                 m_TRT_ID;       
-    int                 m_HGTD_ID;
-    int                 m_LAR_EM_ID;  
-    int                 m_LAR_HEC_ID; 
-    int                 m_LAR_FCAL_ID;
-    int                 m_LAR_FCAL_MODULE_INDEX;
-    int                 m_MDT_ID;
-    int                 m_CSC_ID;
-    int                 m_RPC_ID;
-    int                 m_TGC_ID;
-    int                 m_STGC_ID;
-    int                 m_MM_ID;
-    int                 m_FWD_ID;
-    int                 m_ALFA_ID;
-    int                 m_BCM_ID;
-    int                 m_LUCID_ID;
-    int                 m_ZDC_ID;
+    bool                m_is_initialized_from_dict{};
+    size_type           m_DET_INDEX{999};
+    size_type           m_SUBDET_INDEX{999};
+    size_type           m_MUON_SUBDET_INDEX{999};
+    int                 m_INDET_ID{2};
+    int                 m_LAR_ID{4};
+    int                 m_TILE_ID{5};
+    int                 m_MUON_ID{7};
+    int                 m_CALO_ID{10};
+    int                 m_PIXEL_ID{1};
+    int                 m_SCT_ID{2};
+    int                 m_TRT_ID{3};
+    int                 m_HGTD_ID{4};
+    int                 m_LUMI_ID{3};
+    int                 m_LUMI_PLR_ID{1};
+    int                 m_LAR_EM_ID{1};
+    int                 m_LAR_HEC_ID{2};
+    int                 m_LAR_FCAL_ID{3};
+    int                 m_LAR_FCAL_MODULE_INDEX{999};
+    int                 m_MDT_ID{0};
+    int                 m_CSC_ID{1};
+    int                 m_RPC_ID{2};
+    int                 m_TGC_ID{3};
+    int                 m_STGC_ID{4};
+    int                 m_MM_ID{5};
+    int                 m_FWD_ID{13};
+    int                 m_ALFA_ID{1};
+    int                 m_BCM_ID{3};
+    int                 m_LUCID_ID{5};
+    int                 m_ZDC_ID{7};
 
     bool                m_isHighLuminosityLHC{};
 
@@ -390,14 +401,14 @@ private:
     Range::field        m_lvl1_onl_field;
     Range::field        m_lar_dm_field;
     Range::field        m_tile_dm_field;
-    IdDictDictionary*   m_atlas_dict;
-    IdDictDictionary*   m_indet_dict;
-    IdDictDictionary*   m_lar_dict;
-    IdDictDictionary*   m_tile_dict;
-    IdDictDictionary*   m_muon_dict;
-    IdDictDictionary*   m_calo_dict;
-    IdDictDictionary*   m_fwd_dict;
-    AtlasDetectorIDHelper* m_helper;
+    IdDictDictionary*   m_atlas_dict{};
+    IdDictDictionary*   m_indet_dict{};
+    IdDictDictionary*   m_lar_dict{};
+    IdDictDictionary*   m_tile_dict{};
+    IdDictDictionary*   m_muon_dict{};
+    IdDictDictionary*   m_calo_dict{};
+    IdDictDictionary*   m_fwd_dict{};
+    AtlasDetectorIDHelper*    m_helper{};
     IdDictFieldImplementation m_det_impl;
     IdDictFieldImplementation m_indet_part_impl;
     IdDictFieldImplementation m_calo_side_impl;
@@ -439,67 +450,67 @@ CLASS_DEF(AtlasDetectorID, 164875623, 1)
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 /////////////////////////////////////////////////////////////////////////////
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::indet_exp           (void) const
 {
     ExpandedIdentifier result;
     return (result << m_INDET_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::lar_exp             (void) const
 {
     ExpandedIdentifier result;
-    return (result << m_LAR_ID);  
+    return (result << m_LAR_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::tile_exp            (void) const
 {
     ExpandedIdentifier result;
-    return (result << m_TILE_ID); 
+    return (result << m_TILE_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::muon_exp            (void) const
 {
     ExpandedIdentifier result;
-    return (result << m_MUON_ID); 
+    return (result << m_MUON_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::calo_exp(void) const
 {
     ExpandedIdentifier result;
     return (result << m_CALO_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::fwd_exp             (void) const
 {
     ExpandedIdentifier result;
     return (result << m_FWD_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::pixel_exp           (void) const
 {
     ExpandedIdentifier result(indet_exp());
     return (result << m_PIXEL_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::sct_exp             (void) const
 {
     ExpandedIdentifier result(indet_exp());
-    return (result << m_SCT_ID);  
+    return (result << m_SCT_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::trt_exp             (void) const
 {
     ExpandedIdentifier result(indet_exp());
-    return (result << m_TRT_ID);  
+    return (result << m_TRT_ID);
 }
 
 inline ExpandedIdentifier
@@ -509,152 +520,165 @@ AtlasDetectorID::hgtd_exp           (void) const
     return (result << m_HGTD_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
+AtlasDetectorID::lumi_exp           (void) const
+{
+    ExpandedIdentifier result(indet_exp());
+    return (result << m_LUMI_ID);
+}
+
+inline ExpandedIdentifier
 AtlasDetectorID::lar_em_exp          (void) const
 {
     ExpandedIdentifier result(lar_exp());
-    return (result << m_LAR_EM_ID);  
+    return (result << m_LAR_EM_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::lar_hec_exp         (void) const
 {
     ExpandedIdentifier result(lar_exp());
-    return (result << m_LAR_HEC_ID); 
+    return (result << m_LAR_HEC_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::lar_fcal_exp        (void) const
 {
     ExpandedIdentifier result(lar_exp());
     return (result << m_LAR_FCAL_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::alfa_exp             (void) const
 {
     ExpandedIdentifier result(fwd_exp());
     return (result << m_ALFA_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::bcm_exp             (void) const
 {
     ExpandedIdentifier result(fwd_exp());
     return (result << m_BCM_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::lucid_exp           (void) const
 {
     ExpandedIdentifier result(fwd_exp());
     return (result << m_LUCID_ID);
 }
 
-inline ExpandedIdentifier          
+inline ExpandedIdentifier
 AtlasDetectorID::zdc_exp             (void) const
 {
     ExpandedIdentifier result(fwd_exp());
     return (result << m_ZDC_ID);
 }
 
-inline int                 
-AtlasDetectorID::indet_field_value        () const {return (m_INDET_ID);}     
+inline int
+AtlasDetectorID::indet_field_value        () const {return (m_INDET_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::lar_field_value          () const {return (m_LAR_ID);}
 
-inline int                 
-AtlasDetectorID::tile_field_value         () const {return (m_TILE_ID);}       
+inline int
+AtlasDetectorID::tile_field_value         () const {return (m_TILE_ID);}
 
-inline int                 
-AtlasDetectorID::muon_field_value         () const {return (m_MUON_ID);}       
+inline int
+AtlasDetectorID::muon_field_value         () const {return (m_MUON_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::calo_field_value         () const {return (m_CALO_ID);}
 
-inline int                 
-AtlasDetectorID::pixel_field_value        () const {return (m_PIXEL_ID);}     
+inline int
+AtlasDetectorID::pixel_field_value        () const {return (m_PIXEL_ID);}
 
-inline int                 
-AtlasDetectorID::sct_field_value          () const {return (m_SCT_ID);}       
+inline int
+AtlasDetectorID::sct_field_value          () const {return (m_SCT_ID);}
 
-inline int                 
-AtlasDetectorID::trt_field_value          () const {return (m_TRT_ID);}       
+inline int
+AtlasDetectorID::trt_field_value          () const {return (m_TRT_ID);}
 
 inline int
 AtlasDetectorID::hgtd_field_value         () const {return (m_HGTD_ID);}
 
-inline int                 
-AtlasDetectorID::lar_em_field_value       () const {return (m_LAR_EM_ID);}  
+inline int
+AtlasDetectorID::lumi_field_value         () const {return (m_LUMI_ID);}
 
-inline int                 
-AtlasDetectorID::lar_hec_field_value      () const {return (m_LAR_HEC_ID);} 
+inline int
+AtlasDetectorID::plr_field_value          () const {return (m_LUMI_PLR_ID);}
 
-inline int                 
+inline int
+AtlasDetectorID::lar_em_field_value       () const {return (m_LAR_EM_ID);}
+
+inline int
+AtlasDetectorID::lar_hec_field_value      () const {return (m_LAR_HEC_ID);}
+
+inline int
 AtlasDetectorID::lar_fcal_field_value     () const {return (m_LAR_FCAL_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::mdt_field_value          () const {return (m_MDT_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::csc_field_value          () const {return (m_CSC_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::rpc_field_value          () const {return (m_RPC_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::tgc_field_value          () const {return (m_TGC_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::stgc_field_value          () const {return (m_STGC_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::mm_field_value          () const {return (m_MM_ID);}
 
-inline int                 
+inline int
 AtlasDetectorID::forward_field_value      () const {return (m_FWD_ID);}
-inline int                 
+inline int
 AtlasDetectorID::alfa_field_value         () const {return (m_ALFA_ID);}
-inline int                 
+inline int
 AtlasDetectorID::bcm_field_value          () const {return (m_BCM_ID);}
-inline int                 
+inline int
 AtlasDetectorID::lucid_field_value        () const {return (m_LUCID_ID);}
-inline int                 
+inline int
 AtlasDetectorID::zdc_field_value          () const {return (m_ZDC_ID);}
 
 
-inline bool               
+inline bool
 AtlasDetectorID::is_indet       (Identifier id) const
 {
     return (m_det_impl.unpack(id) == m_INDET_ID);
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_lar                 (Identifier id) const
 {
     return (m_det_impl.unpack(id) == m_LAR_ID);
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_tile                (Identifier id) const
 {
     return (m_det_impl.unpack(id) == m_TILE_ID);
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_muon                (Identifier id) const
 {
     return (m_det_impl.unpack(id) == m_MUON_ID);
 }
 
-inline bool                
+inline bool
 AtlasDetectorID::is_calo(Identifier id) const
 {
     return (m_det_impl.unpack(id) == m_CALO_ID);
 }
 
-inline bool                
+inline bool
 AtlasDetectorID::is_lvl1_trig_towers(Identifier id) const
 {
     bool result = false;
@@ -665,7 +689,7 @@ AtlasDetectorID::is_lvl1_trig_towers(Identifier id) const
     return result;
 }
 
-inline bool                
+inline bool
 AtlasDetectorID::is_lvl1_online(Identifier id) const
 {
     bool result = false;
@@ -677,7 +701,7 @@ AtlasDetectorID::is_lvl1_online(Identifier id) const
 }
 
 
-inline bool                
+inline bool
 AtlasDetectorID::is_lar_dm(Identifier id) const
 {
     bool result = false;
@@ -689,7 +713,7 @@ AtlasDetectorID::is_lar_dm(Identifier id) const
 }
 
 
-inline bool                
+inline bool
 AtlasDetectorID::is_tile_dm(Identifier id) const
 {
     bool result = false;
@@ -701,7 +725,7 @@ AtlasDetectorID::is_tile_dm(Identifier id) const
 }
 
 
-inline bool               
+inline bool
 AtlasDetectorID::is_pixel       (Identifier id) const
 {
     bool result = false;
@@ -711,19 +735,19 @@ AtlasDetectorID::is_pixel       (Identifier id) const
     return result;
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_sct         (Identifier id) const
 {
     bool result = false;
     // Must check is_pixel to allow for special bits
     // (don't need this check for 64-bit identifier, but leave it in for now)
-    if(is_indet(id) && !is_pixel(id)) { 
+    if(is_indet(id) && !is_pixel(id)) {
 	result = (m_indet_part_impl.unpack(id) == m_SCT_ID);
     }
     return result;
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_trt         (Identifier id) const
 {
     bool result = false;
@@ -747,7 +771,19 @@ AtlasDetectorID::is_hgtd        (Identifier id) const
     return result;
 }
 
-inline bool               
+inline bool
+AtlasDetectorID::is_lumi         (Identifier id) const
+{
+    bool result = false;
+    // Must check is_pixel to allow for special bits
+    // (don't need this check for 64-bit identifier, but leave it in for now)
+    if(is_indet(id) && !is_pixel(id)) {
+        result = (m_indet_part_impl.unpack(id) == m_LUMI_ID);
+    }
+    return result;
+}
+
+inline bool
 AtlasDetectorID::is_lar_em      (Identifier id) const
 {
     bool result = false;
@@ -758,7 +794,7 @@ AtlasDetectorID::is_lar_em      (Identifier id) const
 }
 
 
-inline bool               
+inline bool
 AtlasDetectorID::is_lar_hec             (Identifier id) const
 {
     bool result = false;
@@ -768,7 +804,7 @@ AtlasDetectorID::is_lar_hec             (Identifier id) const
     return result;
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_lar_fcal            (Identifier id) const
 {
     bool result = false;
@@ -778,7 +814,7 @@ AtlasDetectorID::is_lar_fcal            (Identifier id) const
     return result;
 }
 
-inline bool               
+inline bool
 AtlasDetectorID::is_lar_minifcal            (Identifier id) const
 {
     bool result = false;
