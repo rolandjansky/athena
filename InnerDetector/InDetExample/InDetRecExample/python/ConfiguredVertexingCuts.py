@@ -206,6 +206,8 @@ class ConfiguredVertexingCuts :
    if mode == "HeavyIon":  
      self.__chi2CutMethod          = 1
      self.__enableMultipleVertices = False
+     self.__doMaxTracksCut = False
+     self.__maxVertices          = 1
 
 
 #------------------------------------------------------------------------- 
@@ -300,6 +302,9 @@ class ConfiguredVertexingCuts :
      
   def MaxTracks(self):
     return self.__MaxTracks
+
+  def maxVertices(self):
+    return self.__maxVertices
 
 #-------------------------------------------------------------------------
 #  Print method dumping the summary of the current cut configuration
