@@ -6,7 +6,7 @@
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 
-art.py download Tier0ChainTests test_q431.sh
+art.py download Tier0ChainTests test_q442.sh
 AODFILE=(./ref-*/myAOD.pool.root)
 Run3DQTestingDriver.py --inputFiles=${AODFILE} DQ.Environment=AOD DQ.Steering.doHLTMon=False > log.HIST_Creation 2>&1
 
