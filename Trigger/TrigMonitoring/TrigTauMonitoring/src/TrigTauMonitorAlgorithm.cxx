@@ -274,6 +274,9 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
       for ( const auto * const part : *offElec) 
       {
          if(part->p4().Pt()/1000 < info.electhr+1.) continue; 
+         // select offline electrons passing good quality cuts
+         if( ! ( part->passSelection("LHMedium") && part->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
+
          offElec_vec.push_back(part->p4());
       }
       for ( unsigned int i=0;i<offline_for_hlt_tau_vec_all.size();i++) {
@@ -298,7 +301,20 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
         ATH_MSG_WARNING("Failed to retrieve offline muons ");
         return;
       }
-      for( const auto * const part : *offMuon) offMuon_vec.push_back(part->p4());
+      for( const auto * const part : *offMuon) 
+      {
+         if(part->p4().Pt()/1000 < info.muthr+1.) continue;
+         // select offline muons passing good quality cuts
+         if( ! (part->quality()<= xAOD::Muon::Medium && part->passesIDCuts())) continue;
+
+         offMuon_vec.push_back(part->p4());
+      }
+      for ( unsigned int i=0;i<offline_for_hlt_tau_vec_all.size();i++) {
+         bool Ismatch = false;
+         Ismatch = HLTMatching(offline_for_hlt_tau_vec_all[i]->p4(),offMuon_vec,0.2);
+         if(Ismatch) offline_for_hlt_tau_vec_all.erase(offline_for_hlt_tau_vec_all.begin()+i);
+      }
+
       auto vec =  m_trigDecTool->features<xAOD::MuonContainer>(trigger,TrigDefs::Physics , "HLT_MuonsIso" );
       for( auto &featLinkInfo : vec ){
         const auto *feat = *(featLinkInfo.link);
@@ -579,6 +595,7 @@ void TrigTauMonitorAlgorithm::fillTAndPHLTEfficiencies(const EventContext& ctx, 
  
   auto monGroup = getGroup(monGroupName);
 
+  auto tauPt = Monitored::Scalar<float>(monGroupName+"_tauPt",0.0);
   auto dR = Monitored::Scalar<float>(monGroupName+"_dR",0.0);
   auto dEta = Monitored::Scalar<float>(monGroupName+"_dEta",0.0);
   auto dPhi = Monitored::Scalar<float>(monGroupName+"_dPhi",0.0);
@@ -591,13 +608,14 @@ void TrigTauMonitorAlgorithm::fillTAndPHLTEfficiencies(const EventContext& ctx, 
   bool tau1_match = HLTMatching(offline_tau_vec[0], online_tau_vec, 0.2);
   bool lep1_match = HLTMatching(offline_lep_vec[0], online_lep_vec, 0.2);
 
+  tauPt = offline_tau_vec[0]->p4().Pt()/1000;
   dR   = offline_tau_vec[0]->p4().DeltaR(offline_lep_vec[0]);
   dEta = std::abs(offline_tau_vec[0]->p4().Eta() - offline_lep_vec[0].Eta());
   dPhi = offline_tau_vec[0]->p4().DeltaPhi(offline_lep_vec[0]);
   averageMu = lbAverageInteractionsPerCrossing(ctx);
   HLT_match = hlt_fires && tau1_match && lep1_match;
 
-  fill(monGroup, dR, dEta, dPhi, averageMu, HLT_match);
+  fill(monGroup, tauPt, dR, dEta, dPhi, averageMu, HLT_match);
 
   ATH_MSG_DEBUG("After fill Tag and Probe HLT efficiencies: " << trigger);
   
