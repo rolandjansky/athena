@@ -29,7 +29,7 @@ def OverviewMonitoringConfig(inputFlags):
     myGroup = helper.addGroup(OverviewMonAlg, groupName , mainDir)
 
     # flag for online - different duration options required
-    isOnline=inputFlags.Trigger.Online.isPartition or inputFlags.Input.Format is Format.BS
+    isOnline=inputFlags.Trigger.Online.isPartition and inputFlags.Input.Format is Format.BS
 
     # global overview
     NumberOfGlobalErrors=15
@@ -63,7 +63,7 @@ def OverviewMonitoringConfig(inputFlags):
                             title='Events with Errors by Lumiblock;Lumi Block;Number of Events;',
                             path=trigPath,
                             duration='' if isOnline else 'lb',
-                            opt='kLive' if isOnline else '')
+                            opt='kLive=10' if isOnline else '')
 
     
     acc = helper.result()
