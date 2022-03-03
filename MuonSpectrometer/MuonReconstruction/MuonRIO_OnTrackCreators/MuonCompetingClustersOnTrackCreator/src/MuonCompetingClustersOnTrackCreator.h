@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace Muon {
 							const Trk::TrackParameters&,
 							const Trk::IWeightCalculator::AnnealingFactor ) const
       {
-	return 0;
+	     return 0;
       }
     
     /** method for the update of the assignment 
@@ -53,7 +53,8 @@ namespace Muon {
     }
     
     /** method to create a CompetingMuonClustersOnTrack using the PrepRawData hits and a scaled factor for the errors */
-    const CompetingMuonClustersOnTrack* createBroadCluster(const std::list< const Trk::PrepRawData * > &,   const double errorScaleFactor ) const;
+    std::unique_ptr<const CompetingMuonClustersOnTrack> 
+    createBroadCluster(const std::list< const Trk::PrepRawData * > &,   const double errorScaleFactor ) const;
 
 
   private:

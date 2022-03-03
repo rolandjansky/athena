@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,25 +43,25 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
   
-  const CompetingMuonClustersOnTrack* MuonCompetingClustersOnTrackCreator::createBroadCluster(const std::list< const Trk::PrepRawData * > & prds, const double errorScaleFactor ) const
+  std::unique_ptr<const CompetingMuonClustersOnTrack>
+  MuonCompetingClustersOnTrackCreator::createBroadCluster(const std::list< const Trk::PrepRawData * > & prds, const double errorScaleFactor ) const
   {
-    if (prds.size() == 0) return nullptr;
+    if (prds.empty()) return nullptr;
 
 // implement cluster formation
     std::vector <const Muon::MuonClusterOnTrack* >* rios = new std::vector <const Muon::MuonClusterOnTrack* >() ;
     std::vector < double >* assProbs = new std::vector < double >();
     std::list< const Trk::PrepRawData* >::const_iterator  it = prds.begin();
     std::list< const Trk::PrepRawData* >::const_iterator  it_end = prds.end();
+    const double prob = 1./(errorScaleFactor*errorScaleFactor);
     for( ;it!=it_end;++it ){
       Identifier id = (*it)->identify();
       const Trk::TrkDetElementBase* detEl = (*it)->detectorElement();
       const Amg::Vector3D gHitPos = detEl->center(id);
       const Muon::MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack( **it, gHitPos ); 
       rios->push_back( cluster );
-      double prob = 1./(errorScaleFactor*errorScaleFactor);
       assProbs->push_back( prob );
     }
-    const CompetingMuonClustersOnTrack* competingRio = new CompetingMuonClustersOnTrack( rios, assProbs );
-    return competingRio; 
+    return std::make_unique<const CompetingMuonClustersOnTrack>( rios, assProbs );
   }
 }
