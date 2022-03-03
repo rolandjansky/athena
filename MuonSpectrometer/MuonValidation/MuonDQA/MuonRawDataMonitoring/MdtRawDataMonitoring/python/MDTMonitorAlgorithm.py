@@ -4,7 +4,6 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
-#from MdtRawDataMonitoring.MdtRawMonLabels import *
 from .MdtMonUtils import getMDTLabel, getMDTLabelx
 from .MDTTubeMax import tubeMax
 from .MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
@@ -219,9 +218,9 @@ def MdtMonitoringConfig(inputFlags):
     crates  = ["01","02","03","04"]
   
     for iregion in bigRegions:
-        theTitle = "NumberOfHitsIn"+iregion+"PerChamber_ADCCut"
+        theTitle = "NumberOfHitsIn"+iregion+"PerChamber_ADCCut_forpp"
         theTitle_noise = "NumberOfHitsIn"+iregion+"PerChamber_ADCCutt_NoiseBurst"
-        theTitle_segs = "NumberOfHitsIn"+iregion+"PerChamber_onSegms_ADCCut"
+        theTitle_segs = "NumberOfHitsIn"+iregion+"PerChamber_onSegms_ADCCut_forpp"
         theTitle_eff = "effsIn"+iregion+"PerChamber_ADCCut"
         thisLabelx,thisLabely=getMDTLabel(theTitle+"_labelx",theTitle+"_labely")
         if iregion=="Barrel":
@@ -346,7 +345,7 @@ def MdtMonitoringConfig(inputFlags):
                                        path='Overview',   xbins=120, xmin=0., xmax=2000.)
 
         for ilayer in layers:
-            title_MDTNumberOfHitsPerML="NumberOfHitsIn"+iregion+ilayer+"PerMultiLayer_ADCCut"
+            title_MDTNumberOfHitsPerML="NumberOfHitsIn"+iregion+ilayer+"PerMultiLayer_ADCCut_forpp"
             thisLabelx,thisLabely=getMDTLabel(title_MDTNumberOfHitsPerML+"_labelx",title_MDTNumberOfHitsPerML+"_labely")
             phimaxML=phimax*2
             if (iregion=="BA" or iregion=="BC") and ilayer=="Extra": phimaxML=phimax//2
