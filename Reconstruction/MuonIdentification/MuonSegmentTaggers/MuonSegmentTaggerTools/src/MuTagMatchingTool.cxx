@@ -232,7 +232,6 @@ bool MuTagMatchingTool::phiMatch(const Trk::TrackParameters& atSurface, const Mu
     const Amg::Vector3D& segPos = segment.globalPosition();
 
     const double deltaPhi = exTrkPos.deltaPhi(segPos);
-    const Identifier id = m_edmHelperSvc->chamberId(segment);
 
     double sigma_phi = 0.;
     if (atSurface.associatedSurface().type() == Trk::SurfaceType::Cylinder) {
