@@ -176,7 +176,7 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
                     scphimax.apply(getHitPos(event, i).first,
                                    -getHitPos(event, i)
                                         .second);  //- coordsmaximum.first + sincosphimax[0] * getHitPos(event,i).first - sincosphimax[1] *
-                                                   //getHitPos(event,i).second; // phimax shoudl be in map, but there are rounding errors..
+                                                   // getHitPos(event,i).second; // phimax shoudl be in map, but there are rounding errors..
 
                 if (printlevel >= 3 || log.level() <= MSG::DEBUG) {
                     log << MSG::DEBUG << "MuonHoughTransformer_xyz::hitx: " << getHitPos(event, i).first

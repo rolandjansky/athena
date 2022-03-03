@@ -83,23 +83,18 @@ namespace CP {
     // Get full path of configuration files for MVA
     m_configFileCase1  = PathResolverFindCalibFile( m_configFileCase1 );
     m_configFileCase2  = PathResolverFindCalibFile( m_configFileCase2 );
-
+    
     // Setup MVAs
-    float sumPt2, sumPt, deltaPhi, deltaZ;
-
-    auto mva1 = new TMVA::Reader("!Silent:Color");
-    mva1->AddVariable("deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", &deltaZ         );
-    mva1->AddVariable("deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , &deltaPhi       );
-    mva1->AddVariable("logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , &sumPt          );
-    mva1->AddVariable("logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)"                          , &sumPt2         );
+    std::vector<std::string> var_names = { "deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", 
+                                           "deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , 
+                                           "logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , 
+                                           "logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)" }; 
+ 
+    auto mva1 = new TMVA::Reader(var_names, "!Silent:Color");
     mva1->BookMVA    ("MLP method"                                                                , m_configFileCase1 );
     m_mva1 = std::unique_ptr<TMVA::Reader>( std::move(mva1) );
     
-    auto mva2 = std::make_unique<TMVA::Reader>("!Silent:Color");
-    mva2->AddVariable("deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", &deltaZ        );
-    mva2->AddVariable("deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , &deltaPhi      );
-    mva2->AddVariable("logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , &sumPt         );
-    mva2->AddVariable("logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)"                          , &sumPt2        );
+    auto mva2 = std::make_unique<TMVA::Reader>(var_names, "!Silent:Color");
     mva2->BookMVA    ("MLP method"                                                                , m_configFileCase2);
     m_mva2 = std::unique_ptr<TMVA::Reader>( std::move(mva2) );
 
@@ -290,11 +285,11 @@ namespace CP {
         mlp = -9999.0;
       } else {
         // Get likelihood probability from MVA
-        std::vector<float> mvaInput = {deltaZ,deltaPhi,sumPt2,sumPt};
+        std::vector<float> mvaInput = {deltaZ,deltaPhi,sumPt,sumPt2};
         TString mvaMethod("MLP method");
         mlp = reader->EvaluateMVA(mvaInput,mvaMethod);
       }
-      ATH_MSG_VERBOSE("MVA output: " << mlp);
+      ATH_MSG_VERBOSE("MVA output: "  << (reader == m_mva1.get() ? "MVA1 ": "MVA2 ")<< mlp);
 
       vertexMLP.emplace_back(vertex, mlp);
 

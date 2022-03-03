@@ -3093,7 +3093,7 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
   cool::IObjectIteratorPtr objects = ttc_fld->browseObjects( since, until, ttc_id );
 
   //    int run=0;
-  unsigned long long fk;
+  unsigned long long fk = 0;
   while ( objects->goToNext() ) {
     const cool::IObject& obj = objects->currentRef();
     FromString(fk,obj.payloadValue("ttc_iovfk"));

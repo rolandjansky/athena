@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCID_HH
@@ -31,6 +31,7 @@ public:
   // 2. IdIndex
   // int station [0..3]
   // int sectorRO [0..11] 
+  // int srod [0..2] 
   // int octant  [0..7]
   // int sector  [0..47],[0..23]
   // int layer   [0..8]
@@ -46,6 +47,7 @@ public:
     NumberOfLayer   = 8,
     NumberOfOctant = 8,
     NumberOfReadoutSector = 12,
+    NumberOfSReadoutSector = 3,
     NumberOfForwardSector = 24,
     NumberOfInnerSector   = 24,
     NumberOfEndcapSector  = 48

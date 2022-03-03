@@ -26,17 +26,16 @@
 */
 
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "egammaBaseTool.h"
-
-#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IegammaIso.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
@@ -49,7 +48,7 @@ class CaloCellContainer;
 class IChronoStatSvc;
 class CaloDetDescrManager;
 
-class EMShowerBuilder
+class EMShowerBuilder final
   : public AthAlgTool
   , virtual public IEMShowerBuilder
 {

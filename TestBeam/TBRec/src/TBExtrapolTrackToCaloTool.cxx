@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -203,14 +203,13 @@ TBExtrapolTrackToCaloTool::CaloLocalPoint (const Trk::TrackParameters* parm,
 		 << " eta=" << pt_local->eta() << " phi=" << pt_local->phi());
 }
 
-bool  
-TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk, 
-				const CaloCell_ID::CaloSample sample,
-				const double offset, 
-				Amg::Vector3D* pt_ctb,
-                                Amg::Vector3D* pt_local)
+bool
+TBExtrapolTrackToCaloTool::TrackSeenByCalo(const Trk::Track* trk,
+                                           const CaloCell_ID::CaloSample sample,
+                                           const double offset,
+                                           Amg::Vector3D* pt_ctb,
+                                           Amg::Vector3D* pt_local)
 {
-
 
   if (!trk) {
     ATH_MSG_WARNING ("TrackSeenByCalo Trk called with null Trk::TrackParameters*" );
@@ -233,15 +232,18 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
   Trk::Surface* surf = 0;
   bool success = false;
   double trketa = 0.;
-
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
   // Take eta of the last measured hit as best guess and create surface :
-  const DataVector <const Trk::TrackParameters>* paramvec = trk->trackParameters();
+  const DataVector<const Trk::TrackParameters>* paramvec =
+    trk->trackParameters();
   if (paramvec) {
     for (const Trk::TrackParameters* params : *paramvec)
       trketa = params->eta();
-    surf = m_calosurf->CreateUserSurface (sample,offset,trketa);
-  } 
-  if (!surf) return success;
+    surf = m_calosurf->CreateUserSurface(sample, offset, trketa, caloDDMgr);
+  }
+  if (!surf)
+    return success;
 
   //std::cout << " here we go : " << std::endl;
   const Trk::TrackParameters* param = extrapolate(trk,surf);
@@ -256,14 +258,14 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
   delete surf;
 
   return success;
-} 
+}
 
 bool  
 TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::TrackParameters* parm, 
 				const CaloCell_ID::CaloSample sample,
 				const double offset, 
 				Amg::Vector3D* pt_ctb,
-                                Amg::Vector3D* pt_local)
+        Amg::Vector3D* pt_local)
 {
   bool success = false;
 
@@ -287,7 +289,9 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::TrackParameters* parm,
 
   // Take eta as best guess of track direction and create surface :
   double trketa = parm->eta();
-  Trk::Surface* surf = m_calosurf->CreateUserSurface (sample,offset,trketa);
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+  Trk::Surface* surf = m_calosurf->CreateUserSurface (sample,offset,trketa,caloDDMgr);
   if (!surf) return success;
 
   const Trk::TrackParameters* resparam = extrapolate(parm,surf);
@@ -311,7 +315,7 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
 					  const int sampling_or_module, 
 					  const double offset, 
 					  Amg::Vector3D* pt_ctb,
-                                          Amg::Vector3D* pt_local)
+            Amg::Vector3D* pt_local)
 {
 
 
@@ -327,7 +331,7 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::TrackParameters* parm,
 					  const int sampling_or_module, 
 					  const double offset, 
 					  Amg::Vector3D* pt_ctb,
-                                          Amg::Vector3D* pt_local)
+            Amg::Vector3D* pt_local)
 {
   CaloCell_ID::CaloSample sample;
   CaloDetDescrManager::build_sample ( subcalo, barrel ,sampling_or_module, sample);
@@ -339,7 +343,7 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
 					  const CaloCell_ID::CaloSample sample,
 					  const double offset, 
 					  Amg::Vector3D* pt_ctb,
-                                          Amg::Vector3D* pt_local,
+            Amg::Vector3D* pt_local,
 					  double& trketa_atcalo, double& trkphi_atcalo)
 {
 
@@ -364,21 +368,22 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
   double trketa = 0.;
   
   // Take eta of the last measured hit as best guess and create surface :
-  const DataVector <const Trk::TrackParameters>* paramvec = trk->trackParameters();
+  const DataVector<const Trk::TrackParameters>* paramvec =
+    trk->trackParameters();
   if (paramvec) {
-    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
-    if((*caloMgrHandle)->lar_geometry() == "H8") {
-      trketa = m_calo_tb_coord -> beam_local_eta();
-    }
-    else {
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+    if ((*caloMgrHandle)->lar_geometry() == "H8") {
+      trketa = m_calo_tb_coord->beam_local_eta();
+    } else {
       for (const Trk::TrackParameters* params : *paramvec)
-	trketa = params->eta();
+        trketa = params->eta();
     }
-    
-    surf = m_calosurf->CreateUserSurface (sample,offset,trketa);
-  } 
-  if (!surf) return success;
-  
+
+    surf = m_calosurf->CreateUserSurface(sample, offset, trketa, (*caloMgrHandle));
+  }
+  if (!surf)
+    return success;
+
   const Trk::TrackParameters* param = extrapolate(trk,surf);
   
 
@@ -437,9 +442,11 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::TrackParameters* parm,
       << (*surf));
 
   // for the moment use nonInteracting to avoid the navigation   
-  param = m_extrapolator->extrapolate( *parm, *surf,
-				       Trk::alongMomentum,
-				       true, Trk::nonInteracting);
+  param = m_extrapolator->extrapolate( 
+    Gaudi::Hive::currentContext(),
+    *parm, *surf,
+    Trk::alongMomentum,
+    true, Trk::nonInteracting).release();
   
   if (param)
     ATH_MSG_DEBUG ("Propagation successful ");
@@ -470,9 +477,11 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::Track* trk,
 
   ATH_MSG_DEBUG ("Trying to propagate to Surface ... " << (*surf) );
   
-  param = m_extrapolator->extrapolate( *trk, *surf,
-				       Trk::alongMomentum,
-				       true, Trk::nonInteracting);
+  param = m_extrapolator->extrapolate( 
+    Gaudi::Hive::currentContext(),
+    *trk, *surf,
+    Trk::alongMomentum,
+    true, Trk::nonInteracting).release();
   
   // the other way to do it:
   //
@@ -493,6 +502,7 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::Track* trk,
 
 Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex& vertex, bool /*reuse*/) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   Amg::Vector3D momentum(0., 0., 0.);  
   if (vertex.vxTrackAtVertexAvailable())
   {
@@ -533,7 +543,7 @@ Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex&
         ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
         continue;
       }
-      const Trk::TrackParameters* params = m_extrapolator->extrapolate(*tp, *surface, Trk::alongMomentum);
+      const Trk::TrackParameters* params = m_extrapolator->extrapolate(ctx, *tp, *surface, Trk::alongMomentum).release();
       if (!params)
         ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
       else

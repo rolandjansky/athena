@@ -79,22 +79,24 @@ bool TGCTriggerBWCWReader::readLUT(TGCTriggerLUTs* writeCdo){
   // loop over all files...
   for(int iSide = 0; iSide<TGCTriggerLUTs::N_SIDE; iSide++){
     for(int iOctant = 0; iOctant < TGCTriggerLUTs::N_OCTANT; iOctant++) {
+
+      uint32_t octaddr = ((iSide & TGCTriggerLUTs::SIDE_MASK)<<TGCTriggerLUTs::SIDE_SHIFT) +
+                         ((iOctant & TGCTriggerLUTs::OCTANT_MASK)<<TGCTriggerLUTs::OCTANT_SHIFT);
+
       for(int iModule=0; iModule<TGCTriggerLUTs::N_MODULETYPE; iModule+=1) {
+
+        uint32_t phimod2 = moduleName[iModule].find('b') != std::string::npos ? 1 : 0;
+        uint32_t modaddr = ((moduleNumber[iModule] & TGCTriggerLUTs::MODULE_MASK)<<TGCTriggerLUTs::MODULE_SHIFT) +
+                           ((phimod2 & TGCTriggerLUTs::PHIMOD2_MASK)<<TGCTriggerLUTs::PHIMOD2_SHIFT);
+
         for(int iCoinType=0; iCoinType!=numberOfCoincidenceType; iCoinType++){
 
-          int phimod2=moduleName[iModule].find("b")!=std::string::npos ? 1 : 0;
           std::string fn;
           if (fullCW) {
-            fn = "RPhiCoincidenceMapRun3_"
-              +sideName[iSide]
-              +octantName[iOctant]
-              +moduleName[iModule]
-              +coincidenceTypeName[iCoinType]+".db";
-          }
-          else{
-            fn = "RPhiCoincidenceMapRun3_"
-              +moduleName[iModule]
-              +coincidenceTypeName[iCoinType]+".db";
+            fn = "RPhiCoincidenceMapRun3_" + sideName[iSide] + octantName[iOctant]
+               + moduleName[iModule] + coincidenceTypeName[iCoinType] + ".db";
+          } else{
+            fn = "RPhiCoincidenceMapRun3_" + moduleName[iModule] + coincidenceTypeName[iCoinType] + ".db";
           }
 
           bool Forward_type1=(moduleName[iModule]=="2b"||moduleName[iModule]=="5a"||moduleName[iModule]=="8b");
@@ -110,56 +112,45 @@ bool TGCTriggerBWCWReader::readLUT(TGCTriggerLUTs* writeCdo){
 
           std::string buf,tag;
           char delimiter = '\n';
-          int ssId;
+          int roi;
 
           while(getline(stream,buf,delimiter)){
             std::istringstream header(buf);
             header>>tag;
             if(tag=="#") { // read header part.     
-              header>>ssId>>lDR>>hDR>>lDPhi>>hDPhi;
+              header >> roi >> lDR >> hDR >> lDPhi >> hDPhi;
               type = getType( lDR, hDR, lDPhi, hDPhi );
               if( type<0 ) {
                 break;
               }
 
-              // get window data
-              std::map<int, std::map<int, char> >  bWindow;//<R,<~>>
-              char pT;
-              for(int ir=0; ir<=hDR-lDR; ir++) {
-                getline(stream,buf,delimiter);
-                std::map<int, char> aWindow;//<Phi,pT>
-                for(int iphi=0; iphi<=hDPhi-lDPhi; iphi++){
-                  pT = buf[iphi];
-                  if (pT=='X'){continue;} // none of window is opened in this dR
-                  aWindow[iphi+TGCTriggerLUTs::DPhi_offset] = pT;
-                }
-                // Warning : no window 
-                if (aWindow.size()!=0){
-                  bWindow[ir+TGCTriggerLUTs::DR_offset]=aWindow;
+              uint32_t cwaddr = ((uint8_t(type) & TGCTriggerLUTs::TYPE_MASK)<<TGCTriggerLUTs::TYPE_SHIFT) + 
+                                ((roi & TGCTriggerLUTs::ROI_MASK)<<TGCTriggerLUTs::ROI_SHIFT);
+
+              for(uint8_t ir=lDR+TGCTriggerLUTs::DR_HIGH_RANGE; ir <= hDR+TGCTriggerLUTs::DR_HIGH_RANGE; ir++) {   // 0...31 or 7...23
+                uint32_t draddr = (ir & TGCTriggerLUTs::DR_MASK) << TGCTriggerLUTs::DR_SHIFT;
+
+                // get window data
+                getline(stream, buf, delimiter);
+
+                for(uint8_t iphi=lDPhi+TGCTriggerLUTs::DPHI_HIGH_RANGE; iphi <= hDPhi+TGCTriggerLUTs::DPHI_HIGH_RANGE; iphi++) {
+                  uint32_t theaddr = octaddr + modaddr + cwaddr + draddr + iphi;
+                  char pt = buf[iphi-lDPhi-TGCTriggerLUTs::DPHI_HIGH_RANGE];
+                  if (pt == 'X') continue;   // not opened
+                  writeCdo->m_ptmap_bw[theaddr] = pt;
                 }
               }
 
-              int addr = subSectorAdd(ssId,moduleNumber[iModule],phimod2,type);
-              if (writeCdo->m_mapDB_bw[iSide][iOctant].find(addr)!=writeCdo->m_mapDB_bw[iSide][iOctant].end()) {
-               log << MSG::DEBUG<<"This subsector was already reserved."<<endmsg;
-              } else {
-                writeCdo->m_mapDB_bw[iSide][iOctant][addr]=bWindow;
-              }
             }
           }
-
 
         }// coincidence type
       }// module
     }// octant
   }// side
 
-
   return true;
-
 }
-
-
 
 
 

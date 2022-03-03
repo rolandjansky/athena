@@ -2,47 +2,31 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+from AthenaCommon.Logging import logging
+
+from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GMT1
+from GaudiConfig2.Configurables import GenericMonitoringTool as _GMT2
 
 import json
-import six
-
-from AthenaConfiguration.ComponentFactory import isRun3Cfg
-
-if isRun3Cfg():
-    from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
-else:
-    from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 
 log = logging.getLogger(__name__)
 
-class GenericMonitoringTool(_GenericMonitoringTool):
-    """Configurable of a GenericMonitoringTool"""
 
-    __slots__ = ['_convention', '_defaultDuration']
+def GenericMonitoringTool(name='GenericMonitoringTool', **kwargs):
+    '''Create GenericMonitoringTool'''
+    if isRun3Cfg():
+        return GenericMonitoringTool_v2(name, **kwargs)
+    else:
+        return GenericMonitoringTool_v1(name, **kwargs)
 
-    def __init__(self, name=None, *args, **kwargs):
+class GenericMonitoringToolMixin:
+    '''Mixin class for GenericMonitoringTool'''
+
+    def __init__(self, name='GenericMonitoringTool', **kwargs):
         self._convention = ''
         self._defaultDuration = kwargs.pop('defaultDuration', None)
-        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
-
-    if not isRun3Cfg():
-        def __new__( cls, name=None, *args, **kwargs ):
-            if not Configurable.configurableRun3Behavior:
-                if name is None: name = cls.__name__
-
-            # GenericMonitoringTool is always private. To avoid the user having
-            # to ensure a unique instance name, always create a new instance.
-            b = Configurable.configurableRun3Behavior
-            Configurable.configurableRun3Behavior = 1
-            try:
-                conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
-            finally:
-                Configurable.configurableRun3Behavior = b
-
-            return conf
 
     @property
     def convention(self):
@@ -81,6 +65,20 @@ class GenericMonitoringTool(_GenericMonitoringTool):
     def defineTree(self, *args, **kwargs):
         self._coreDefine(defineTree, *args, **kwargs)
 
+class GenericMonitoringTool_v1(_GMT1, GenericMonitoringToolMixin):
+    '''Legacy Configurable'''
+    def __init__(self, name='GenericMonitoringTool', **kwargs):
+        # cannot use super() because configurable base classes don't use it either
+        _GMT1.__init__(self, name, **kwargs)
+        GenericMonitoringToolMixin.__init__(self, name, **kwargs)
+
+class GenericMonitoringTool_v2(_GMT2, GenericMonitoringToolMixin):
+    '''GaudiConfig2 Configurable'''
+    def __init__(self, name='GenericMonitoringTool', **kwargs):
+        _GMT2.__init__(self, name, **kwargs)
+        GenericMonitoringToolMixin.__init__(self, name, **kwargs)
+
+
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
     def __init__(self, name, dimensions, **kwargs):
@@ -117,7 +115,6 @@ class GenericMonitoringArray:
         if aliasBase is None:
             return
         if pattern is not None:
-            import six
             try:
                 iter(pattern)
             except TypeError:
@@ -126,7 +123,7 @@ class GenericMonitoringArray:
                 pattern = list(pattern)
             if len(pattern) == 0: # nothing to do
                 return
-            if isinstance(pattern[0], six.string_types + six.integer_types):
+            if isinstance(pattern[0], (str, int)):
                 # assume we have list of strings or ints; convert to list of 1-element tuples
                 pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
@@ -144,7 +141,7 @@ class GenericMonitoringArray:
                     aliased = unAliased+';'+aliasBase+postfix
                 else:
                     # if format call changed the alias, use custom
-                    aliased = aliasBaseFormatted
+                    aliased = unAliased+';'+aliasBaseFormatted
                 if title is not None:
                     kwargs['title'] = title.format(*accessors)
                 if path is not None:
@@ -231,6 +228,28 @@ def _alias(varname):
         log.warning(message.format(varname))
         return None, None
 
+## Validate user inputs for "opt" argument of defineHistogram
+#
+#  Check that the user-provided option for a specific "opt" argument exists in the
+#  default dictionary, and that it has the expected type.
+#  @param user the option dictionary provided by the user
+#  @param default the default dictionary of options
+def _validateOptions(user, default):
+    for key, userVal in user.items():
+        # (1) Check that the requested key exists
+        assert key in default,\
+            f'Unknown option {key} provided. Choices are [{", ".join(default)}].'
+        # (2) Check that the provided type is correct
+        userType = type(userVal)
+        defaultVal = default[key]
+        defaultType = type(defaultVal)
+        if isinstance(userVal, bool) or isinstance(defaultVal, bool):
+            assert isinstance(userVal, bool) and isinstance(defaultVal, bool),\
+                f'{key} provided {userType}, expected bool.'
+        else:
+            assert isinstance(defaultVal, userType),\
+                f'{key} provided {userType}, expected {defaultType}'
+
 ## Generate dictionary entries for opt strings
 #  @param opt string or dictionary specifying type
 #  @return dictionary full of options
@@ -253,13 +272,8 @@ def _options(opt):
         pass
     elif isinstance(opt, dict):
         # If the user provides a partial dictionary, update the default with user's.
-        # Check that each provided option is valid
-        keyValid = [option in settings for option in opt]
-        assert all(keyValid), 'Unknown option provided in opt dictionary. Choices are'+\
-            '['+', '.join(settings)+'].'
-        typeValid = [isinstance(opt[key], type(val)) for key, val in zip(settings.items())]
-        assert all(typeValid), 'An incorrect type was provided in opt dictionary.'
-        settings.update(opt)
+        _validateOptions(opt, settings) # check validity of user's options
+        settings.update(opt) # update the default dictionary
     elif isinstance(opt, str) and len(opt)>0:
         # If the user provides a comma- or space-separated string of options.
         from argparse import ArgumentParser # a module to parse a string of options
@@ -272,6 +286,8 @@ def _options(opt):
                 settingType = type(settingValue)
                 parser.add_argument('--'+settingName, default=settingValue, type=settingType)
         known, unknown = parser.parse_known_args(opt.replace(',',' ').split(' '))
+        assert len(unknown)==0,\
+            f'Unknown option(s) provided: {", ".join(unknown)}.'
         settings = vars(known)
     return settings
 
@@ -378,11 +394,11 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Bin counts and ranges
     # Possible types allowed for bin counts
-    binTypes = six.integer_types + (list, tuple)
+    binTypes = (int, list, tuple)
 
     # X axis count and range
     assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
-    if isinstance(xbins, six.integer_types): # equal x bin widths
+    if isinstance(xbins, int): # equal x bin widths
         settings['xbins'], settings['xarray'] = xbins, []
     else: # x bin edges are set explicitly
         settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
@@ -392,7 +408,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     # Y axis count and range
     if ybins is not None:
         assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
-        if isinstance(ybins, six.integer_types): # equal y bin widths
+        if isinstance(ybins, int): # equal y bin widths
             settings['ybins'], settings['yarray'] = ybins, []
         else: # y bin edges are set explicitly
             settings['ybins'], settings['yarray'] = len(ybins)-1, ybins

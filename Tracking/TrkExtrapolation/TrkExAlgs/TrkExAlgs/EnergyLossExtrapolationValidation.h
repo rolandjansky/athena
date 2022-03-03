@@ -75,7 +75,7 @@ namespace Trk
 
     private:
       /** private helper method to create a Transform */
-      std::unique_ptr<Amg::Transform3D> createTransform(double x,
+      static std::unique_ptr<Amg::Transform3D> createTransform(double x,
                                                         double y,
                                                         double z,
                                                         double phi = 0.,

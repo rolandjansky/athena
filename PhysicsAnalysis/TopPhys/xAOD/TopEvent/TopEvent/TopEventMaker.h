@@ -14,10 +14,10 @@
 #include "TopEvent/Event.h"
 #include "TopEvent/SystematicEvent.h"
 #include "TopEvent/SystematicEventContainer.h"
-#include "TopEvent/RCJetMC15.h"
+#include "TopEvent/RCJet.h"
 
 
-class RCJetMC15;
+class RCJet;
 
 namespace top {
   class TopConfig;
@@ -67,8 +67,8 @@ namespace top {
     void decorateTopEventSoftMuons(top::Event &event);
 
     std::shared_ptr<top::TopConfig> m_config;
-    std::unique_ptr<RCJetMC15> m_rc;
-    std::map<std::string, std::unique_ptr<RCJetMC15> > m_VarRC;
+    std::unique_ptr<RCJet> m_rc;
+    std::map<std::string, std::unique_ptr<RCJet> > m_VarRC;
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
 

@@ -9,9 +9,11 @@
 #include "../CVFAlg.h"
 #include "../CVFPrepAlg.h"
 #include "../PFOPrepAlg.h"
+#include "../FlowElementPrepAlg.h"
 #include "../ApproximateTrackToLayerTool.h"
 #include "../ExtendTrackToLayerTool.h"
 #include "../MHTPufitFex.h"
+#include "../NNHLTFex.h"
 
 DECLARE_COMPONENT(HLT::MET::TrkMHTFex)
 DECLARE_COMPONENT(HLT::MET::CellFex)
@@ -23,6 +25,8 @@ DECLARE_COMPONENT(HLT::MET::PUSplitPufitFex)
 DECLARE_COMPONENT(HLT::MET::CVFAlg)
 DECLARE_COMPONENT(HLT::MET::CVFPrepAlg)
 DECLARE_COMPONENT(HLT::MET::PFOPrepAlg)
+DECLARE_COMPONENT(HLT::MET::FlowElementPrepAlg)
 DECLARE_COMPONENT(ApproximateTrackToLayerTool)
 DECLARE_COMPONENT(ExtendTrackToLayerTool)
 DECLARE_COMPONENT(HLT::MET::MHTPufitFex)
+DECLARE_COMPONENT(HLT::MET::NNHLTFex)

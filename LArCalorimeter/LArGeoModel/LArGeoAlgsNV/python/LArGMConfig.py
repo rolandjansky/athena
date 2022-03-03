@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArGMCfg(configFlags):
@@ -10,7 +10,7 @@ def LArGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
     doAlignment=configFlags.LAr.doAlign
-
+    activateCondAlgs = configFlags.Common.Project != "AthSimulation"
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
     if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
         tool.GeometryConfig = "RECO"
@@ -20,8 +20,12 @@ def LArGMCfg(configFlags):
     if doAlignment:
         if configFlags.Input.isMC:
             #Monte Carlo case:
-            result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL",className="DetCondKeyTrans"))
-            result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL",className="CaloRec::CaloCellPositionShift"))
+            if activateCondAlgs:
+                result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL",className="DetCondKeyTrans"))
+                result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL",className="CaloRec::CaloCellPositionShift"))
+            else:
+                result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL"))
+                result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL"))
         else:
             if configFlags.Overlay.DataOverlay:
                 #Data overlay
@@ -32,17 +36,41 @@ def LArGMCfg(configFlags):
                 result.merge(addFolders(configFlags,"/LAR/Align","LAR_ONL",className="DetCondKeyTrans"))
                 result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_ONL",className="CaloRec::CaloCellPositionShift"))
 
-        if configFlags.Common.Project != 'AthSimulation':
+        if activateCondAlgs:
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
-            if configFlags.Detector.GeometryTile:
-                #Calo super cell building works only if both LAr and Tile are present
+            AthReadAlg_ExtraInputs = []
+            caloCellsInInput = "CaloCellContainer" in [i.split('#')[0] for i in configFlags.Input.TypedCollections]
+            sCellsInInput = False
+            caloCellKeys = []
+            if caloCellsInInput:
+                from SGComps.AddressRemappingConfig import AddressRemappingCfg
+                result.merge(AddressRemappingCfg())
+
+                caloCellKeys = [i.split('#')[1] for i in configFlags.Input.TypedCollections if "CaloCellContainer"==i.split('#')[0] ]
+                for key in caloCellKeys:
+                    if key != 'AllCalo':
+                        sCellsInInput = True
+
+            AthReadAlg_ExtraInputs.append(('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'))            
+            if configFlags.GeoModel.Run is LHCPeriod.Run3 and configFlags.Detector.GeometryTile or sCellsInInput:
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
+                AthReadAlg_ExtraInputs.append(('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager'))
+
+
+            if caloCellsInInput:
+                for key in caloCellKeys:
+                    AthReadAlg=CompFactory.AthReadAlg
+                    AthReadAlg_CaloCellCont = AthReadAlg (f'AthReadAlg_{key}',
+                                                          Key = f'CaloCellContainer/{key}',
+                                                          Aliases = [],
+                                                          ExtraInputs = AthReadAlg_ExtraInputs)
+                    result.addCondAlgo(AthReadAlg_CaloCellCont)
     else:
         # Build unalinged CaloDetDescrManager instance in the Condition Store
-        if configFlags.Common.Project != 'AthSimulation':
+        if activateCondAlgs:
             result.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
-            if configFlags.Detector.GeometryTile:
+            if configFlags.GeoModel.Run is LHCPeriod.Run3 and configFlags.Detector.GeometryTile:
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
             
     return result

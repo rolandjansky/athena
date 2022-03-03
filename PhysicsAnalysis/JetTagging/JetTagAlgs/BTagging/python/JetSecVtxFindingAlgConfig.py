@@ -5,7 +5,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.InDetImprovedJetFitterVxFinderConfig import InDetImprovedJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 
-Analysis__JetSecVtxFindingAlg=CompFactory.Analysis.JetSecVtxFindingAlg
 
 def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", TracksToTag="", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -20,10 +19,14 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
 
     if SVFinder == 'JetFitter':
         secVtxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder'))
+    elif SVFinder == 'JetFitterFlip': #Add the JetFitterFlip tagger (invert sign of signed track impact parameter)
+        secVtxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder', 'FLIP_SIGN'))
     elif SVFinder == 'SV1':
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalVxInJet"))
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalVxInJet"))
+    elif SVFinder == 'SV1Flip':
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalVxInJetFlip"))
     elif SVFinder == 'MSV':
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalMultiVxInJet", MSV = True))
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalMultiVxInJet", MSV = True))
     else:
         return acc
 
@@ -36,6 +39,6 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
     options['name'] = (JetCollection + '_' + SVFinder + '_secvtxfinding').lower()
 
     # -- create the association algorithm
-    acc.addEventAlgo(Analysis__JetSecVtxFindingAlg(**options))
+    acc.addEventAlgo(CompFactory.Analysis.JetSecVtxFindingAlg(**options))
 
     return acc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Connector.h"
@@ -14,7 +14,7 @@ TrigConf::L1Connector::L1Connector(const std::string & connName, const boost::pr
    : DataStructure(data)
 {
    m_name = connName;
-   update();
+   L1Connector::update();
 }
 
 TrigConf::L1Connector::~L1Connector()
@@ -42,34 +42,81 @@ TrigConf::L1Connector::update()
    }
 
    // triggerlines
-   bool hasMultipleFPGAs = ! hasChild("triggerlines.clock0"); // connector from merger board (no fpga)
-   if(m_type == ConnectorType::ELECTRICAL) {
-      m_maxClock = 2;
-      m_maxFpga = hasMultipleFPGAs ? 2 : 1;
-   }
-
-   for( size_t fpga = 0; fpga < m_maxFpga; ++fpga ) {
-      for( size_t clock = 0; clock < m_maxClock; ++clock ) {
-         std::string path = "triggerlines";
-         if( m_type == ConnectorType::ELECTRICAL ) {
-	    if(hasMultipleFPGAs) {
- 	       path += ".fpga";
-	       path += std::to_string(fpga);
-	    }
-            path += ".clock";
-            path += std::to_string(clock);
-         }
-         const auto & triggerlines = data().get_child(path);
-         m_triggerLines[fpga][clock].reserve(triggerlines.size());
-         for( auto & tl : triggerlines ) {
-            const std::string & name = tl.second.get_child("name").data();
-            m_triggerLines[fpga][clock].emplace_back( name,
-                                                      tl.second.get_child("startbit").get_value<unsigned int>(),
-                                                      tl.second.get_child("nbits").get_value<unsigned int>(),
-                                                      fpga, clock, m_name);
-            m_lineByName[name] = & m_triggerLines[fpga][clock].back();
-         }
-      }
+   bool oldConfiguration = hasChild("triggerlines.clock0") || hasChild("triggerlines.fpga0");
+   // old configuration
+   if(oldConfiguration){ 
+       bool hasMultipleFPGAs = ! hasChild("triggerlines.clock0"); // connector from merger board (no fpga)
+       if(m_type == ConnectorType::ELECTRICAL) {
+          m_maxClock = 2;
+          m_maxFpga = hasMultipleFPGAs ? 2 : 1;
+       }
+    
+       for( size_t fpga = 0; fpga < m_maxFpga; ++fpga ) {
+          for( size_t clock = 0; clock < m_maxClock; ++clock ) {
+             std::string path = "triggerlines";
+             if( m_type == ConnectorType::ELECTRICAL ) {
+    	        if(hasMultipleFPGAs) {
+     	           path += ".fpga";
+    	           path += std::to_string(fpga);
+    	        }
+                path += ".clock";
+                path += std::to_string(clock);
+             }
+             const auto & triggerlines = data().get_child(path);
+             m_triggerLines[fpga][clock].reserve(triggerlines.size());
+             for( auto & tl : triggerlines ) {
+                const std::string & name = tl.second.get_child("name").data();
+                m_triggerLines[fpga][clock].emplace_back( name,
+                                                          tl.second.get_child("startbit").get_value<unsigned int>(),
+                                                          tl.second.get_child("nbits").get_value<unsigned int>(),
+                                                          tl.second.get_child("startbit").get_value<unsigned int>(),
+                                                          fpga, clock, m_name);
+                m_lineByName[name] = & m_triggerLines[fpga][clock].back();
+             }
+          }
+       }
+   } 
+   // new configuration
+   else {
+       std::string path = "triggerlines";
+       int ntl[2][2] = {{0,0},{0,0}}; 
+       if(m_type == ConnectorType::ELECTRICAL) {
+          m_maxClock = 2;
+       }
+       const auto & triggerlines = data().get_child(path);
+       for( auto & tl : triggerlines ) {
+           unsigned int fpga  = 0;
+           unsigned int clock = 0;
+           if(m_type == ConnectorType::ELECTRICAL) {
+              if( m_name.find("MuCTPiEl") != std::string::npos || m_name.find("Topo2El") != std::string::npos || m_name.find("Topo3El") != std::string::npos || m_name.find("LegacyTopo0") != std::string::npos || m_name.find("LegacyTopo1") != std::string::npos){ 
+                 fpga = tl.second.get_child("fpga").get_value<unsigned int>();
+                 m_maxFpga = 2;
+              }
+              clock = tl.second.get_child("clock").get_value<unsigned int>();
+           }
+           ntl[fpga][clock] += 1;
+       }
+       for( size_t fpga = 0; fpga < m_maxFpga; ++fpga ) {
+          for( size_t clock = 0; clock < m_maxClock; ++clock ) {   
+             m_triggerLines[fpga][clock].reserve(ntl[fpga][clock]);          
+          }
+       }
+       for( auto & tl : triggerlines ) {
+           unsigned int fpga  = 0;
+           unsigned int clock = 0;
+           unsigned int flatindex = 0;
+           if(m_type == ConnectorType::ELECTRICAL) {
+              if(m_maxFpga==2) fpga = tl.second.get_child("fpga").get_value<unsigned int>();
+              clock = tl.second.get_child("clock").get_value<unsigned int>();
+           }
+           flatindex = tl.second.get_optional<unsigned int>("flatindex").get_value_or(0); 
+           const std::string & name = tl.second.get_child("name").data();
+           m_triggerLines[fpga][clock].emplace_back( name,
+                                                     tl.second.get_child("startbit").get_value<unsigned int>(),
+                                                     tl.second.get_child("nbits").get_value<unsigned int>(),
+                                                     flatindex, fpga, clock, m_name);
+           m_lineByName[name] = & m_triggerLines[fpga][clock].back();           
+       }
    }
    m_isLegacy = getAttribute<bool>("legacy", true, false);
 }

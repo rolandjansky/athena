@@ -7,7 +7,65 @@
 
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 
+#include "xAODParticleEvent/ParticleAuxContainer.h"
+#include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
+
 using namespace TrigCompositeUtils;
+
+
+// Particle Specialization
+// We transiently interact via the xAOD::IParticle interface.
+// There is code inside the TrigCompositeUtils::Decision to check
+// at runtime if this inheritance is possible.
+// But we copy into a xAOD::Particle object.
+template<>
+StatusCode TrigNavSlimmingMTAlg::doRepack(TrigCompositeUtils::Decision* decision,
+  SG::WriteHandle<xAOD::ParticleContainer>* writeHandle,
+  const std::string& edgeName) const
+{
+
+  if (not decision->hasObjectLink(edgeName, ClassID_traits<xAOD::IParticleContainer>::ID())) { // Note: IParticle
+    // Nothing to do
+    return StatusCode::SUCCESS;
+  }
+
+  ElementLink<xAOD::IParticleContainer> currentEL = decision->objectLink<xAOD::IParticleContainer>(edgeName); // Note: IParticle
+
+  if (!currentEL.isValid()) {
+    ATH_MSG_WARNING("Unable to repack '" << edgeName << "' of container type xAOD::IParticleContainer for '"
+      << decision->name() << "' node, the link is invalid.");
+    ATH_MSG_DEBUG("Dump of DecisionObject: " << *decision);
+    return StatusCode::SUCCESS;
+  }
+
+  (**writeHandle).push_back( new xAOD::Particle() ); // Need to do this before performing the copy to assign with the Aux store
+
+  const xAOD::IParticle* current = *currentEL;
+  xAOD::Particle* remapped = (**writeHandle).back();
+
+  remapped->setP4( current->p4() );
+
+  ElementLink<xAOD::ParticleContainer> remappedEL(**writeHandle, (**writeHandle).size()-1);
+  decision->setObjectLink<xAOD::ParticleContainer>(edgeName, remappedEL); // Overwrite the existing link
+
+  ATH_MSG_DEBUG("Repacked from index:" << currentEL.index() << " from key:" << currentEL.dataID() 
+    << ", to index:" << remappedEL.index() << " to key:" << remappedEL.key());
+
+  return StatusCode::SUCCESS;
+}
+
+
+// ROI Specialization.
+// Not an xAOD object, can use a direct copy constructor.
+template<>
+StatusCode TrigNavSlimmingMTAlg::doRepackCopy(const TrigRoiDescriptor* object,
+  SG::WriteHandle<TrigRoiDescriptorCollection>* writeHandle) const
+{
+  // Specialization for ROIs, utilize copy constructor (no Aux store here)
+  (**writeHandle).push_back( new TrigRoiDescriptor(*object) );
+  return StatusCode::SUCCESS;
+}
+
 
 TrigNavSlimmingMTAlg::TrigNavSlimmingMTAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
@@ -18,6 +76,17 @@ TrigNavSlimmingMTAlg::TrigNavSlimmingMTAlg(const std::string& name, ISvcLocator*
 StatusCode TrigNavSlimmingMTAlg::initialize() {
   ATH_CHECK( m_primaryInputCollection.initialize() );
   ATH_CHECK( m_outputCollection.initialize() );
+  ATH_CHECK( m_outputRepackedROICollectionKey.initialize(m_repackROIs) );
+  ATH_CHECK( m_outputRepackedFeaturesCollectionKey_Particle.initialize(m_repackFeatures) );
+  ATH_CHECK( m_outputRepackedFeaturesCollectionKey_MET.initialize(m_repackFeatures) );
+
+  const bool removeRoI = (std::find(m_edgesToDrop.begin(), m_edgesToDrop.end(), roiString()) != m_edgesToDrop.end());
+  const bool removeInitialRoI = (std::find(m_edgesToDrop.begin(), m_edgesToDrop.end(), initialRoIString()) != m_edgesToDrop.end());
+
+  if (m_repackROIs and (removeRoI or removeInitialRoI)) {
+    ATH_MSG_WARNING("Possible miss-configuration. Cannot repack ROIs in the navigation slimming if they are being dropped");
+  }
+
   if (not m_trigDec.empty()) {
     ATH_CHECK( m_trigDec.retrieve() );
   }
@@ -42,7 +111,25 @@ StatusCode TrigNavSlimmingMTAlg::initialize() {
 
 StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
 
-  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(m_outputCollection, ctx);
+  // Prepare IO
+  Outputs outputContainers;
+
+  SG::WriteHandle<TrigRoiDescriptorCollection> outputROIs;
+  SG::WriteHandle<xAOD::ParticleContainer> outputParticles; 
+  SG::WriteHandle<xAOD::TrigMissingETContainer> outputMETs;
+  if (m_repackROIs) {
+    outputROIs = createAndStoreNoAux(m_outputRepackedROICollectionKey, ctx);
+    outputContainers.rois = &outputROIs;
+  }
+  if (m_repackFeatures) {
+    outputParticles = createAndStoreWithAux<xAOD::ParticleContainer, xAOD::ParticleAuxContainer>(m_outputRepackedFeaturesCollectionKey_Particle, ctx);
+    outputMETs = createAndStoreWithAux<xAOD::TrigMissingETContainer, xAOD::TrigMissingETAuxContainer>(m_outputRepackedFeaturesCollectionKey_MET, ctx);
+    outputContainers.particles = &outputParticles;
+    outputContainers.mets = &outputMETs;
+  }
+
+  SG::WriteHandle<DecisionContainer> outputNavigation = createAndStore(m_outputCollection, ctx);
+  outputContainers.nav = &outputNavigation;
 
   SG::ReadHandle<DecisionContainer> primaryInputHandle = SG::ReadHandle(m_primaryInputCollection, ctx);
   ATH_CHECK(primaryInputHandle.isValid());
@@ -84,12 +171,12 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   // These branches do not connect to the terminusNode, so we have to go hunting them explicitly.
   // We need to pass in the evtStore as these nodes can be spread out over numerous collections.
   // Like with the terminus node, we can restrict this search to only nodes which were rejected by certain chains.
-  // We also want to restrict the search to exclue the output collections of any other TrigNavSlimminMTAlg instances
-  // and let the function know what the primary input collecion is - from the name of this we can tell if we need to search one or many containers.
+  // We also want to restrict the search to exclude the output collections of any other TrigNavSlimminMTAlg instances
+  // and let the function know what the primary input collection is - from the name of this we can tell if we need to search one or many containers.
   if (m_keepFailedBranches) {
     std::vector<const Decision*> rejectedNodes = TrigCompositeUtils::getRejectedDecisionNodes(&*evtStore(), m_primaryInputCollection.key(), chainIDs, m_allOutputContainersSet);
     for (const Decision* rejectedNode : rejectedNodes) {
-      // We do *not* enfoce that a member of chainIDs must be present in the starting node (rejectedNode)
+      // We do *not* enforce that a member of chainIDs must be present in the starting node (rejectedNode)
       // specifically because we know that at least one of chainIDs was _rejected_ here, but is active in the rejected
       // node's seeds.
       TrigCompositeUtils::recursiveGetDecisionsInternal(rejectedNode, 
@@ -111,7 +198,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   TrigTimeStamp stage4;
   const size_t nodesBefore = transientNavGraph.nodes();
   const size_t edgesBefore = transientNavGraph.edges();
-  std::set<const Decision*> thinnedInputNodes = transientNavGraph.thin();
+  std::vector<const Decision*> thinnedInputNodes = transientNavGraph.thin();
 
   // TODO - thinnedInputNodes will be dropped, these may link to "features", "roi", or other objects in other containers.
   // Need to let the slimming svc know that we no longer need the objects pointed to here, and hence they can be thinned.
@@ -127,15 +214,15 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   // Stage 5. Fill the transientNavGraph structure (with NavGraphNode* nodes) back into an xAOD::DecisionContainer (with xAOD::Decision* nodes).
   TrigTimeStamp stage5;
   IOCacheMap cache; // Used to keep a one-to-one relationship between the const input Decision* and the mutable output Decision*
-  // Do the terminus node first - such that it ends up at index 0 of the outputHandle (fast to locate in the future)
+  // Do the terminus node first - such that it ends up at index 0 of the outputNavigation (fast to locate in the future)
   Decision* terminusNodeOut = nullptr;
-  ATH_CHECK(inputToOutput(terminusNode, terminusNodeOut, cache, outputHandle, chainIDs, ctx));
+  ATH_CHECK(inputToOutput(terminusNode, terminusNodeOut, cache, outputContainers, chainIDs, ctx));
   // Don't have to walk the graph here, just iterate through the set of (thinned) nodes.
   // We won't end up with two terminus nodes because of this (it checks that the node hasn't already been processed)
-  const std::set<NavGraphNode*> allNodes = transientNavGraph.allNodes();
+  const std::vector<NavGraphNode*> allNodes = transientNavGraph.allNodes();
   for (const NavGraphNode* inputNode : allNodes) {
     Decision* outputNode = nullptr;
-    ATH_CHECK(inputToOutput(inputNode->node(), outputNode, cache, outputHandle, chainIDs, ctx));
+    ATH_CHECK(inputToOutput(inputNode->node(), outputNode, cache, outputContainers, chainIDs, ctx));
     // TODO - anything else to do here with outputNode? We cannot hook up its seeding yet, we may not yet have output nodes for all of its seeds.
   }
   // Now we have all of the new nodes in the output collection, can link them all up with their slimmed seeding relationships.
@@ -186,7 +273,7 @@ StatusCode TrigNavSlimmingMTAlg::inputToOutput(
   const TrigCompositeUtils::Decision* input, 
   TrigCompositeUtils::Decision* output,
   IOCacheMap& cache, 
-  SG::WriteHandle<DecisionContainer>& outputHandle,
+  Outputs& outputContainers,
   const DecisionIDContainer& chainIDs,
   const EventContext& ctx) const
 {
@@ -194,9 +281,10 @@ StatusCode TrigNavSlimmingMTAlg::inputToOutput(
   if (it != cache.end()) {
     output = it->second;
   } else {
-    output = newDecisionIn(outputHandle.ptr(), input, input->name(), ctx);
+    output = newDecisionIn(outputContainers.nav->ptr(), input, input->name(), ctx);
     ATH_CHECK(propagateLinks(input, output));
     ATH_CHECK(propagateDecisionIDs(input, output, chainIDs));
+    ATH_CHECK(repackLinks(output, outputContainers));
     cache[input] = output;
   }
   return StatusCode::SUCCESS;
@@ -274,6 +362,59 @@ StatusCode TrigNavSlimmingMTAlg::propagateDecisionIDs(
 
   // Set the DecisionIDs into the mutable output Decision* 
   insertDecisionIDs(toOutput, output);
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode TrigNavSlimmingMTAlg::repackLinks(
+  TrigCompositeUtils::Decision* output,
+  Outputs& outputContainers) const
+{
+  
+  if (m_repackROIs) {
+    ATH_CHECK( doRepack<TrigRoiDescriptorCollection>(output, outputContainers.rois, roiString()) );
+    ATH_CHECK( doRepack<TrigRoiDescriptorCollection>(output, outputContainers.rois, initialRoIString()) );
+  }
+
+
+  if (m_repackFeatures) {
+    // Debug printing. Look at the four-momentum of any feature before the repacking.
+    // Note: Transiently we interact with the IParticle interface.
+    if (msgLvl(MSG::DEBUG)) {
+      if (output->hasObjectLink(featureString(), ClassID_traits<xAOD::IParticleContainer>::ID())) {
+        ElementLink<xAOD::IParticleContainer> before = output->objectLink<xAOD::IParticleContainer>(featureString());
+        if (before.isValid()) {
+          const xAOD::IParticle& b = **before;
+          ATH_MSG_DEBUG("--- --- ---");
+          ATH_MSG_DEBUG("IParticle repacking debug. Before: "
+            << "(pt:" << b.pt() << ",eta:" << b.eta() << ",phi:" << b.phi() << ",m:" << b.m() << ",e:" << b.e() << ")"
+            << " from:" << before.dataID());
+        }
+      }
+    }
+
+    // Do any IParticle repacking
+    ATH_CHECK( doRepack<xAOD::ParticleContainer>(output, outputContainers.particles, featureString()) );
+
+    // Debug printing. Look at the four-momentum of any feature after the repacking (the stored link is re-written)
+    if (msgLvl(MSG::DEBUG)) {
+      if (output->hasObjectLink(featureString(), ClassID_traits<xAOD::IParticleContainer>::ID())) {
+        ElementLink<xAOD::IParticleContainer> after = output->objectLink<xAOD::IParticleContainer>(featureString());
+        if (after.isValid()) {
+          const xAOD::IParticle& a = **after;
+          ATH_MSG_DEBUG("IParticle repacking debug. After : " 
+            << "(pt:" << a.pt() << ",eta:" << a.eta() << ",phi:" << a.phi() << ",m:" << a.m() << ",e:" << a.e() << ")"
+            << " from:" << after.dataID());
+        }
+      }
+    }
+
+    // Some features do not support an IParticle interface. These need their own containers.
+    // TODO. Apply some thinning?
+    ATH_CHECK( doRepack<xAOD::TrigMissingETContainer>(output, outputContainers.mets, featureString()) );
+  }
+
 
   return StatusCode::SUCCESS;
 }

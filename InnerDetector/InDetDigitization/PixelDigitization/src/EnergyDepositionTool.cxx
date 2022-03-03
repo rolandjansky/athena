@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EnergyDepositionTool.h"
@@ -29,7 +29,58 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <cmath>
 #include <fstream>
-#include <algorithm> //for std::clamp
+#include <limits> //for numeric_limits min
+
+namespace{
+  //iBetaGamma function returning zero for the error case
+  double iBetaGammaFn(const double k){
+    double result(0.);
+    constexpr double me =0.51099906; //electron mass in MeV, directly from CLHEP file
+    if (auto subCalc = 2. * me + k; subCalc>0){
+      result = std::sqrt(k*subCalc)/me;
+    }
+    return result;
+  }
+  double iBetaGammaFn(const TLorentzVector & vec){
+    double result(0.);
+    double beta = vec.Beta();
+    //if beta >=1, bad things happen because 
+    //TLorentzVector::Gamma = 1./sqrt(1. - beta*beta)
+    if (beta <1.0) result = beta * vec.Gamma();
+    return result;
+  }
+  //=======================================
+  // TRF PDG
+  //=======================================
+  int 
+  trfPDG(int pdgId) {
+    if (std::fabs(pdgId) == 2212) return 1;                                              // proton
+
+    if (std::fabs(pdgId) == 211) return 2;                                              // pion
+
+    // alpha is skipped -- 3
+    if (std::fabs(pdgId) == 11) return 4;                                              // electron
+
+    if (std::fabs(pdgId) == 321) return 5;                                              // kaon
+
+    if (std::fabs(pdgId) == 13) return 6;                                              // muon
+
+    return -1;   // unsupported particle
+  }
+  
+  //==========================================
+  // S E T  F A I L U R E
+  //==========================================
+  void 
+  SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) {
+    rawHitRecord.clear();
+    std::pair<double, double> specialFlag;
+    specialFlag.first = -1.;
+    specialFlag.second = -1.;
+    rawHitRecord.push_back(specialFlag);
+    return;
+  }
+}
 
 // Constructor with parameters:
 EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -90,34 +141,17 @@ StatusCode EnergyDepositionTool::initialize() {
       ATH_MSG_INFO("-- File eof check : " << inputFile.eof());
 
       while (!inputFile.eof()) {
-        // check if this BetaGamma has already been stored
-        if ((iData.Array_BetaGammaLog10.empty()) || (iData.Array_BetaGammaLog10.back() != BetaGammaLog10)) { // a new
-                                                                                                                 // BetaGamma
-          if (!iData.Array_BetaGammaLog10.empty()) {
-            iData.Array_BetaGammaLog10_UpperBoundIntXLog10.push_back(iData.Array_BetaGammaLog10_IntXLog10.back().back());
-          }
-
-          iData.Array_BetaGammaLog10.push_back(BetaGammaLog10);
-          std::vector<double> new_ColELog10;
-          iData.Array_BetaGammaLog10_ColELog10.push_back(new_ColELog10);
-          std::vector<double> new_IntXLog10;
-          iData.Array_BetaGammaLog10_IntXLog10.push_back(new_IntXLog10);
-        }
-
-        iData.Array_BetaGammaLog10_ColELog10.back().push_back(ColELog10);
-        iData.Array_BetaGammaLog10_IntXLog10.back().push_back(IntXLog10);
-
+        iData.addEntry(BetaGammaLog10, ColELog10, IntXLog10);
         inputFile >> BetaGammaLog10;
         inputFile >> ColELog10;
         inputFile >> IntXLog10;
       }
-      iData.Array_BetaGammaLog10_UpperBoundIntXLog10.push_back(iData.Array_BetaGammaLog10_IntXLog10.back().back());
-
-      ATH_MSG_INFO("-- Array_BetaGammaLog10 size : " << iData.Array_BetaGammaLog10.size());
-      ATH_MSG_INFO("-- Array_BetaGammaLog10_ColELog10 size at 0 : " << iData.Array_BetaGammaLog10_ColELog10[0].size());
-      ATH_MSG_INFO("-- Array_BetaGammaLog10_IntXLog10 size at 0 : " << iData.Array_BetaGammaLog10_IntXLog10[0].size());
+      iData.updateAfterLastEntry();
+      ATH_MSG_INFO("-- logBetaGammaVector size : " << iData.size());
+      ATH_MSG_INFO("-- logCollisionEnergyVectorOfVector size at 0 : " << iData.logCollisionEnergyVectorOfVector[0].size());
+      ATH_MSG_INFO("-- logIntegratedCrossSectionsVectorOfVector size at 0 : " << iData.logIntegratedCrossSectionsVectorOfVector[0].size());
       ATH_MSG_INFO(
-        "-- Array_BetaGammaLog10_UpperBoundIntXLog10 : " << iData.Array_BetaGammaLog10_UpperBoundIntXLog10.size());
+        "-- logHighestCrossSectionsVector : " << iData.logHighestCrossSectionsVector.size());
 
       m_BichselData.push_back(iData);
       inputFile.close();
@@ -183,7 +217,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   double dEta = eta_f - eta_0;
   double dPhi = phi_f - phi_0;
   const double dDepth = depth_f - depth_0;
-  double pathLength = sqrt(dEta * dEta + dPhi * dPhi + dDepth * dDepth);
+  double pathLength = std::sqrt(dEta * dEta + dPhi * dPhi + dDepth * dDepth);
 
   //Scale steps and charge chunks
   const int nsteps = int(pathLength / stepsize) + 1;
@@ -191,13 +225,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
 
   //Store information
   initialConditions.clear();
-  initialConditions.push_back(eta_0);
-  initialConditions.push_back(phi_0);
-  initialConditions.push_back(depth_0);
-  initialConditions.push_back(dEta);
-  initialConditions.push_back(dPhi);
-  initialConditions.push_back(dDepth);
-  initialConditions.push_back(ncharges);
+  initialConditions = {eta_0, phi_0, depth_0, dEta, dPhi, dDepth, static_cast<double>(ncharges)};
 
   //////////////////////////////////////////////////////
   // ***                For Bichsel               *** //
@@ -209,22 +237,20 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   int ParticleType = -1;
   if (m_doBichsel and !(Module.isDBM()) and genPart) {
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : trfPDG(genPart->pdg_id());
-
-
     if (ParticleType != -1) { // this is a protection in case delta_hit == true (a delta ray)
       TLorentzVector genPart_4V;
 
       if (genPart) { // non-delta-ray
         genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(),
                                 genPart->momentum().phi(), genPart->momentum().m());
-        double iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
-        if (iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
+        if (iBetaGammaFn(genPart_4V) < m_doBichselBetaGammaCut){
+          ParticleType = -1;
+        }        
       } else { // delta-ray.
         double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV
-        double m = 0.511;                             // unit of MeV
-        double iBetaGamma = TMath::Sqrt(k * (2 * m + k)) / m;
-
-        if (iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
+        if (iBetaGammaFn(k) < m_doBichselBetaGammaCut){
+          ParticleType = -1;
+        } 
       }
 
       // In-time PU
@@ -240,22 +266,17 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   if (ParticleType != -1) { // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ...
     TLorentzVector genPart_4V;
-    double iBetaGamma;
-
-
+    double iBetaGamma=0.;
     if (genPart) {
       genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(),
                               genPart->momentum().phi(), genPart->momentum().m());
-      iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
+      iBetaGamma = iBetaGammaFn(genPart_4V);
     } else {
-      double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV
-      constexpr double m = 0.511;                             // unit of MeV
-      iBetaGamma = std::sqrt(k * (2 * m + k)) / m;
+      double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV                            // unit of MeV
+      iBetaGamma = iBetaGammaFn(k);
     }
 
     int iParticleType = ParticleType;
-    //double iTotalLength = pathLength*1000.;   // mm -> micrometer
-
     // begin simulation
     std::vector<std::pair<double, double> > rawHitRecord = BichselSim(iBetaGamma, iParticleType, iTotalLength,
                                                                       genPart ? (genPart->momentum().e() /
@@ -333,37 +354,42 @@ void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement* element
 // In case there is any abnormal in runtime, (-1,-1) will be returned indicating old deposition model should be used
 // instead
 //-----------------------------------------------------------
-std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType,
-                                                                         double TotalLength, double InciEnergy,
-                                                                         CLHEP::HepRandomEngine* rndmEngine) const {
+std::vector<std::pair<double, double> > 
+EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType,double TotalLength, 
+     double InciEnergy,CLHEP::HepRandomEngine* rndmEngine) const {
   ATH_MSG_DEBUG("Begin EnergyDepositionTool::BichselSim");
 
   // prepare hit record (output)
   std::vector<std::pair<double, double> > rawHitRecord;
   double TotalEnergyLoss = 0.;
   double accumLength = 0.;
+  
+  if (BetaGamma <= std::numeric_limits<double>::min()){
+    SetFailureFlag(rawHitRecord);
+    return rawHitRecord;
+  }
 
   // load relevant data
   BichselData iData = m_BichselData[ParticleType - 1];
   double BetaGammaLog10 = std::log10(BetaGamma);
-  std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
+  std::pair<int, int> indices_BetaGammaLog10 = iData.getBetaGammaIndices(BetaGammaLog10);
 
   // upper bound
-  double IntXUpperBound = GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
+  double IntXUpperBound = iData.interpolateCrossSection(indices_BetaGammaLog10, BetaGammaLog10);
   if (IntXUpperBound <= 0.) {
     ATH_MSG_WARNING("Negative IntXUpperBound in EnergyDepositionTool::BichselSim! (-1,-1) will be returned");
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
-
-  // mean-free path
-  double lambda = (1. / IntXUpperBound) * 1.E4;   // unit of IntX is cm-1. It needs to be converted to micrometer-1
-
-  // check nan lambda
-  if (std::isnan(lambda)) {
+  
+  if(IntXUpperBound<std::numeric_limits<double>::min()){
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
+  
+  // mean-free path
+  double lambda = (1. / IntXUpperBound) * 1.E4;   // unit of IntX is cm-1. It needs to be converted to micrometer-1
+
 
   // direct those hits with potential too many steps into nominal simulation
   int LoopLimit = m_LoopLimit;                         // limit assuming 1 collision per sampling
@@ -398,7 +424,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
     while (TossEnergyLoss <= 0.) { // we have to do this because sometimes TossEnergyLoss will be negative due to too
                                    // small TossIntX
       double TossIntX = CLHEP::RandFlat::shoot(rndmEngine, 0., IntXUpperBound);
-      TossEnergyLoss = GetColE(indices_BetaGammaLog10, std::log10(TossIntX), iData);
+      TossEnergyLoss = iData.interpolateCollisionEnergy(indices_BetaGammaLog10, std::log10(TossIntX));
     }
 
     // check if it is delta-ray -- delta-ray is already taken care of by G4 and treated as an independent hit.
@@ -485,178 +511,14 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::ClusterHits(std::v
     }
   }
 
-  ATH_MSG_DEBUG("Finsih EnergyDepositionTool::ClusterHits");
+  ATH_MSG_DEBUG("Finish EnergyDepositionTool::ClusterHits");
 
   return trfHitRecord;
 }
 
-///////////
-// Utils //
-///////////
 
-//=======================================
-// TRF PDG
-//=======================================
-int EnergyDepositionTool::trfPDG(int pdgId) {
-  if (std::fabs(pdgId) == 2212) return 1;                                              // proton
 
-  if (std::fabs(pdgId) == 211) return 2;                                              // pion
 
-  // alpha is skipped -- 3
-  if (std::fabs(pdgId) == 11) return 4;                                              // electron
 
-  if (std::fabs(pdgId) == 321) return 5;                                              // kaon
 
-  if (std::fabs(pdgId) == 13) return 6;                                              // muon
 
-  return -1;   // unsupported particle
-}
-
-//TODO: why is this implemented? We shuld use a std lib search
-//=======================================
-// C L U S T E R   H I T S
-//=======================================
-std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, double item) {
-  std::pair<int, int> output;
-
-  int index_low = 0;
-  int index_up = vec.size() - 1;
-
-  if ((item < vec[index_low]) || (item > vec[index_up])) {
-    output.first = -1;
-    output.second = -1;
-    return output;
-  } else if (item == vec[index_low]) {
-    output.first = index_low;
-    output.second = index_low;
-    return output;
-  } else if (item == vec[index_up]) {
-    output.first = index_up;
-    output.second = index_up;
-    return output;
-  }
-
-  while ((index_up - index_low) != 1) {
-    int index_middle = int(1.0 * (index_up + index_low) / 2.);
-    if (item < vec[index_middle]) index_up = index_middle;
-    else if (item > vec[index_middle]) index_low = index_middle;
-    else { // accurate hit. Though this is nearly impossible ...
-      output.first = index_middle;
-      output.second = index_middle;
-      return output;
-    }
-  }
-
-  output.first = index_low;
-  output.second = index_up;
-  return output;
-}
-
-//=======================================
-// B E T A   G A M M A   I N D E X
-//=======================================
-std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) {
-  std::pair<int, int> indices_BetaGammaLog10;
-  if (BetaGammaLog10 > iData.Array_BetaGammaLog10.back()) { // last one is used because when beta-gamma is very large,
-                                                            // energy deposition behavior is very similar
-    indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size() - 1;
-    indices_BetaGammaLog10.second = iData.Array_BetaGammaLog10.size() - 1;
-  } else {
-    indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
-  }
-
-  return indices_BetaGammaLog10;
-}
-
-//==========================================
-// G E T   C O L L I S I O N   E N E R G Y
-//==========================================
-//Interpolate collision energy
-double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10,
-                                     BichselData& iData) {
-  if ((indices_BetaGammaLog10.first == -1) && (indices_BetaGammaLog10.second == -1)) return -1.;
-
-  // BetaGammaLog10_2 then
-  std::pair<int,
-            int> indices_IntXLog10_x2 =
-    FastSearch(iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second], IntXLog10);
-  if (indices_IntXLog10_x2.first < 0) {
-    return -1;
-  }
-  if (indices_IntXLog10_x2.second < 0) {
-    return -1;
-  }
-  
-  double y21 = iData.Array_BetaGammaLog10_IntXLog10.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.first);
-  double y22 = iData.Array_BetaGammaLog10_IntXLog10.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.second);
-  const auto diff = y22 - y21;
-  if (diff<1e-300){
-    return -1;
-  }  
-  double Est_x2 =
-    ((y22 - IntXLog10) *
-     iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first] +
-     (IntXLog10 - y21) *
-     iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second]) / diff;
-  double Est = std::clamp(Est_x2,-300.,300.);
-  return std::pow(10., Est);
-}
-
-//===========================================
-// Overloaded C O L L I S I O N  E N E R G Y
-//===========================================
-double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) {
-  std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
-  return GetColE(indices_BetaGammaLog10, IntXLog10, iData);
-}
-
-//==========================================
-// G E T   U P P E R   B O U N D  BETA GAMMA
-//==========================================
-double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10,
-                                           BichselData& iData) {
-  if (indices_BetaGammaLog10.first < 0) {
-    return -1;
-  }
-  if (indices_BetaGammaLog10.second < 0) {
-    return -1;
-  }
-  double BetaGammaLog10_1 = iData.Array_BetaGammaLog10.at(indices_BetaGammaLog10.first);
-  double BetaGammaLog10_2 = iData.Array_BetaGammaLog10.at(indices_BetaGammaLog10.second);
-
-  // obtain estimation
-  double Est_1 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10.at(indices_BetaGammaLog10.first);
-  double Est_2 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10.at(indices_BetaGammaLog10.second);
-
-  // final estimation
-  const auto diff=BetaGammaLog10_2 - BetaGammaLog10_1;
-  if (diff<1e-300){
-    return -1;
-  } 
-  double Est = ((BetaGammaLog10_2 - BetaGammaLog10) * Est_1 + (BetaGammaLog10 - BetaGammaLog10_1) * Est_2) /diff;
-  Est = std::clamp(Est,-300.,300.);
-  return std::pow(10., Est);
-  
-  
-}
-
-//==========================================
-// overloaded G E T  U P P E R   B O U N D
-//==========================================
-double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) {
-  std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
-  return GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
-}
-
-//==========================================
-// S E T  F A I L U R E
-//==========================================
-void EnergyDepositionTool::SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) {
-  rawHitRecord.clear();
-  std::pair<double, double> specialFlag;
-  specialFlag.first = -1.;
-  specialFlag.second = -1.;
-  rawHitRecord.push_back(specialFlag);
-
-  return;
-}

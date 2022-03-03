@@ -18,7 +18,6 @@ from __future__ import print_function
 #==============================================================
 #
 
-# Set up PileupMergeSvc used by subdetectors
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon import CfgGetter
 

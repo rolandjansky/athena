@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,39 +19,42 @@ class MsgStream;
 
 namespace Trk {
 
-/** @class CompactBinnedArray2DT
+/** @class CompactBinnedArray2D
 
     2-dimensional binned array
 
    @author sarka.todorova@cern.ch
+   @author Christos Anastopoulos (Athena MT modifications)
    */
 
 template<class T>
-class CompactBinnedArray2DT final: public CompactBinnedArrayT<T>
+class CompactBinnedArray2D final : public CompactBinnedArray<T>
 {
 
 public:
   /**Default Constructor - needed for inherited classes */
-  CompactBinnedArray2DT()
-    : CompactBinnedArrayT<T>()
+  CompactBinnedArray2D()
+    : CompactBinnedArray<T>()
     , m_binUtility(nullptr)
   {}
 
   /**Constructor with std::vector and a BinUtility */
-  CompactBinnedArray2DT(const std::vector<T*>& tclassvector,
+  CompactBinnedArray2D(const std::vector<T*>& tclassvector,
                        const std::vector<std::vector<size_t>>& indexarray,
                        const BinUtility* bingen,
                        const std::vector<Trk::BinUtility*>& bVec)
-    : CompactBinnedArrayT<T>()
+    : CompactBinnedArray<T>()
     , m_array(indexarray)
     , m_arrayObjects(tclassvector)
     , m_binUtility(bingen)
     , m_buVec(bVec)
   {
     // check compatibility
-    // size of the index array must correspond to the number of bins in the BinUtility
+    // size of the index array must correspond to the number of bins in the
+    // BinUtility
     if (indexarray.size() != bingen->bins())
-      std::cout << " problem in construction of CompactBinnedArray2DT: index array not compatible with BinUtility:"
+      std::cout << " problem in construction of CompactBinnedArray2D: index "
+                   "array not compatible with BinUtility:"
                 << indexarray.size() << "!=" << bingen->bins() << std::endl;
     // maximal index must stay within the range of available objects
     size_t iMax = 0;
@@ -62,13 +65,14 @@ public:
       }
     }
     if (iMax > tclassvector.size() - 1)
-      std::cout << " problem in construction of CompactBinnedArray2DT:runaway index:" << iMax << ","
-                << tclassvector.size() << std::endl;
+      std::cout
+        << " problem in construction of CompactBinnedArray2D:runaway index:"
+        << iMax << "," << tclassvector.size() << std::endl;
   }
 
   /**Copy Constructor - copies only pointers !*/
-  CompactBinnedArray2DT(const CompactBinnedArray2DT& barr)
-    : CompactBinnedArrayT<T>()
+  CompactBinnedArray2D(const CompactBinnedArray2D& barr)
+    : CompactBinnedArray<T>()
     , m_array()
     , m_arrayObjects()
     , m_binUtility(nullptr)
@@ -81,7 +85,7 @@ public:
     m_buVec = barr.m_buVec;
   }
   /**Assignment operator*/
-  CompactBinnedArray2DT& operator=(const CompactBinnedArray2DT& barr)
+  CompactBinnedArray2D& operator=(const CompactBinnedArray2D& barr)
   {
     if (this != &barr) {
 
@@ -98,19 +102,21 @@ public:
     return *this;
   }
   /** Implicit Constructor */
-  CompactBinnedArray2DT* clone() const
+  CompactBinnedArray2D* clone() const
   {
-    return new CompactBinnedArray2DT(m_arrayObjects, m_array, m_binUtility->clone(), m_buVec);
+    return new CompactBinnedArray2D(
+      m_arrayObjects, m_array, m_binUtility->clone(), m_buVec);
   }
 
-  CompactBinnedArray2DT* clone(const std::vector<T*>& ptrs) const
+  CompactBinnedArray2D* clone(const std::vector<T*>& ptrs) const
   {
-    assert (ptrs.size() == m_arrayObjects.size());
-    return new CompactBinnedArray2DT(ptrs, m_array, m_binUtility->clone(), m_buVec);
+    assert(ptrs.size() == m_arrayObjects.size());
+    return new CompactBinnedArray2D(
+      ptrs, m_array, m_binUtility->clone(), m_buVec);
   }
 
   /**Virtual Destructor*/
-  ~CompactBinnedArray2DT()
+  ~CompactBinnedArray2D()
   {
     delete m_binUtility;
     for (unsigned int i = 0; i < m_buVec.size(); i++)
@@ -143,7 +149,8 @@ public:
     return nullptr;
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
+  /** Returns the pointer to the templated class object from the BinnedArray -
+   * entry point*/
   T* entryObject(const Amg::Vector3D& gp) const
   {
     if (m_binUtility) {
@@ -156,7 +163,9 @@ public:
 
   /** Returns the pointer to the templated class object from the BinnedArray
    */
-  T* nextObject(const Amg::Vector3D& gp, const Amg::Vector3D& mom, bool associatedResult = true) const
+  T* nextObject(const Amg::Vector3D& gp,
+                const Amg::Vector3D& mom,
+                bool associatedResult = true) const
   {
     if (!m_binUtility)
       return nullptr;
@@ -180,29 +189,43 @@ public:
   }
 
   /** Return all objects of the Array */
-  const std::vector<T*>& arrayObjects() const { return m_arrayObjects; }
+  BinnedArraySpan<T* const> arrayObjects()
+  {
+    return BinnedArraySpan<T* const>(&*m_arrayObjects.begin(), &*m_arrayObjects.end());
+  }
+
+
+  /** Return all objects of the Array const T*/
+  BinnedArraySpan<T const * const> arrayObjects() const
+  {
+    return BinnedArraySpan<const T* const>(&*m_arrayObjects.begin(), &*m_arrayObjects.end());
+  }
 
   /** Number of Entries in the Array */
-  unsigned int arrayObjectsNumber() const { return arrayObjects().size(); }
+  unsigned int arrayObjectsNumber() const { return m_arrayObjects.size(); }
 
   /** Return the BinUtility*/
   const BinUtility* binUtility() const { return (m_binUtility); }
 
   /** Return the BinUtility*/
-  const BinUtility* layerBinUtility(const Amg::Vector3D& pos) const { return (m_buVec[m_binUtility->bin(pos)]); }
+  const BinUtility* layerBinUtility(const Amg::Vector3D& pos) const
+  {
+    return (m_buVec[m_binUtility->bin(pos)]);
+  }
 
   /** Return the layer bin*/
-  size_t layerBin(const Amg::Vector3D& pos) const { return (layerBinUtility(pos)->bin(pos)); }
+  size_t layerBin(const Amg::Vector3D& pos) const
+  {
+    return (layerBinUtility(pos)->bin(pos));
+  }
 
 private:
   std::vector<std::vector<size_t>> m_array; //!< vector of indices to objects
-  const std::vector<T*> m_arrayObjects;     //!< objects
-  const BinUtility* m_binUtility;                 //!< binUtility
-  std::vector<BinUtility*> m_buVec;         //!< vector of bin utilities for 2nd dim
+  std::vector<T*> m_arrayObjects;           //!< objects
+  const BinUtility* m_binUtility;           //!< binUtility
+  std::vector<BinUtility*> m_buVec; //!< vector of bin utilities for 2nd dim
 };
 
-template<class T>
-using CompactBinnedArray2D = CompactBinnedArray2DT<const T>;
 } // end of namespace Trk
 
 #endif // TRKDETDESCRUTILS_COMPACTBINNEDARRAY2D_H

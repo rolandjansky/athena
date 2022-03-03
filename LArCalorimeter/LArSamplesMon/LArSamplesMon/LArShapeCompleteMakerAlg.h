@@ -29,11 +29,9 @@
 
 class MsgStream;
 class StoreGateSvc;
-class CaloDetDescrManager;
 class ILArShape;
 class HWIdentifier;
 class Identifier;
-class CaloDetDescrElement;
 class LArOnlineID;
 
 class LArShapeCompleteMakerAlg : public AthAlgorithm

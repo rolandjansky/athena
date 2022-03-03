@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PerfMonTests )
@@ -49,12 +49,15 @@ atlas_add_test( BaseLine
 
 atlas_add_test ( PerfMonMTSvc_serial
   SCRIPT test/test_perfMonMTSvc_serial.py
+  POST_EXEC_SCRIPT "nopost.sh"
   PROPERTIES TIMEOUT 300)
 
 atlas_add_test ( PerfMonMTSvc_mt1
   SCRIPT test/test_perfMonMTSvc_mt1.py
+  POST_EXEC_SCRIPT "nopost.sh"
   PROPERTIES TIMEOUT 300)
 
 atlas_add_test ( PerfMonMTSvc_mt8
   SCRIPT test/test_perfMonMTSvc_mt8.py
+  POST_EXEC_SCRIPT "nopost.sh"
   PROPERTIES TIMEOUT 300)

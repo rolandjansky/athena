@@ -16,7 +16,7 @@ StatusCode MonitorGlobal::newEvent(const CostData& data, const float weight) {
   const size_t incrementWalltime = ( data.liveTimeIsPerEvent() or !counterExists(ss.str()) ) ? 1 : 0;
 
   ATH_CHECK( getCounter(ss.str())->newEvent(data, incrementWalltime, weight) );
-  ATH_CHECK( getCounter("All")->newEvent(data, incrementWalltime, weight) );
+  ATH_CHECK( getCounter("Total")->newEvent(data, incrementWalltime, weight) );
 
   return StatusCode::SUCCESS;
 }

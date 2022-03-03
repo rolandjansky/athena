@@ -112,6 +112,9 @@ public:
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
+  // Needed to prevent ambiguities with c++20.
+  bool operator==(const CylinderSurface& cf) const;
+
   /**Implicit Constructor*/
   virtual CylinderSurface* clone() const override;
   
@@ -203,7 +206,7 @@ public:
     For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
     Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
    */
-  virtual const Amg::Vector3D& globalReferencePoint() const override;
+  virtual const Amg::Vector3D& globalReferencePoint() const override final;
 
   // using from the base class
   using Trk::Surface::normal;
@@ -227,7 +230,7 @@ public:
                             double tol2 = 0.) const override;
 
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override;
+                                 const BoundaryCheck& bchk) const override final;
 
   /** Specialized for CylinderSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(

@@ -14,12 +14,6 @@
 
 #include "TrkParameters/TrackParameters.h"
 
-// tools:
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
-#include "InDetCompetingRIOsOnTrackTool/ICompetingTRT_DriftCirclesOnTrackCreator.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
@@ -56,10 +50,7 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
             m_jo_simpleExtension(true),
             m_jo_maxGroupDistance(5.),
             m_jo_minGroupDistance(1.),
-            m_compROTcreator("InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool"),
             m_jo_annealingFactor(81.),
-            m_roadtool("InDet::TRT_DetElementsRoadMaker_xk/TRT_DetElementsRoadMaker"),
-            m_propagator("Trk::RungeKuttaPropagator/Propagator"),
             m_fieldmode("MapSolenoid"),
             m_trtID(nullptr)
 {
@@ -67,9 +58,6 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
     declareInterface<ITRT_TrackExtensionTool>(this);
 
     declareProperty("MagneticFieldMode",        m_fieldmode,          "field mode of the field tool");
-    declareProperty("PropagatorTool",           m_propagator,           "Propagator tool");
-    declareProperty("CompetingDriftCircleTool", m_compROTcreator,       "Tool for the creation of CompetingTRT_DriftCirclesOnTrack");
-    declareProperty("RoadTool",                 m_roadtool,             "TRT Road Tool for the search of Detector Elements");
     declareProperty("TRT_DriftCircleContainer", m_jo_trtcontainername,   "Name of the container of TRT measurements (TRT_DriftCircles)");
     declareProperty("InitialAnnealingFactor",   m_jo_annealingFactor,    "Annealing factor (temperature) used to calculate the initial assignment probabilities of a group of competing TRT measurements. Should be choosen identical to the first entry of the annealing schedule of the Deterministic Annealing Filter");
     declareProperty("SimpleElementWiseExtension", m_jo_simpleExtension,  "Do simple element wise extension or do sophisticated grouping of measurements?");
@@ -248,12 +236,15 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
     // loop over detElements    
     for(const auto & pThisDetectorElement: detElements) {
         // propagate without boundary checks to detElement
-        std::shared_ptr<const Trk::TrackParameters> nextTrkPar = m_propagator->propagateParameters(*previousTrkPar, pThisDetectorElement->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+        std::shared_ptr<const Trk::TrackParameters> nextTrkPar = m_propagator->propagateParameters(ctx,
+                                                                                                   *previousTrkPar, pThisDetectorElement->surface(), 
+                                                                                                   Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
         if(!nextTrkPar) {
             // propagate directly to this detElement and hope that the Fitter will do a better job:
             ATH_MSG_DEBUG("step by step propagation of track parameters to TRT detector element failed: Try direct propagation (this may cause problems for the Fitter)");
             ATH_MSG_DEBUG("Problem was in " << pThisDetectorElement->type() <<" at (" << pThisDetectorElement->center().x() <<", "<< pThisDetectorElement->center().y() <<", "<< pThisDetectorElement->center().z() << ")" );
-            nextTrkPar = m_propagator->propagateParameters(*event_data.m_siliconTrkParams, pThisDetectorElement->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+            nextTrkPar = m_propagator->propagateParameters(ctx,*event_data.m_siliconTrkParams, 
+                                                           pThisDetectorElement->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
             if (!nextTrkPar) {
                 ATH_MSG_WARNING("direct propagation of track parameters to TRT detector element failed:");
                 ATH_MSG_WARNING("   this detector element will be dropped and RIOs on the road may be lost!");
@@ -673,7 +664,9 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
         // get StraightLineSurface of the RIO closest to the prediction
         const Trk::Surface& RIOsurface = minDistanceRIO[groupIndex]->detectorElement()->surface(minDistanceRIO[groupIndex]->identify());
         // propagate to this surface
-        auto TrkPar = m_propagator->propagateParameters(*event_data.m_siliconTrkParams, RIOsurface, Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+        auto TrkPar = m_propagator->propagateParameters(Gaudi::Hive::currentContext(),
+                                                        *event_data.m_siliconTrkParams, RIOsurface, Trk::alongMomentum, 
+                                                        false, m_fieldprop, Trk::nonInteracting);
         if (!TrkPar) {
             ATH_MSG_WARNING("propagation of track parameters to the RIO surface failed:");
             ATH_MSG_WARNING("   this group of RIOs will skipped!");

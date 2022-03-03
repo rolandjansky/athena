@@ -4,6 +4,10 @@
 
 #include "ActsCompareTrackAlg.h"
 
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
+
+#include "TrkTrack/TrackCollection.h"
+
 #include "TROOT.h"
 #include "TTree.h"
 #include "TH1F.h"
@@ -18,10 +22,9 @@
 #include "xAODTracking/TrackParticle.h"
 
 // STL
-#include <memory>
 #include <vector>
 #include <fstream>
-#include <string>
+
 
 ActsCompareTrackAlg::ActsCompareTrackAlg(const std::string &name,
                                          ISvcLocator *pSvcLocator)

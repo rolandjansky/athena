@@ -491,7 +491,7 @@ void TopoSteering::propagateHardwareBitsToAlgos()
         outCon->decisionAlgorithm()->resetHardwareBits();
         unsigned int pos = 0; // for multi-output algorithms pos is the output index
         for(const TrigConf::TriggerLine &trigger : outCon->triggers()){
-	    unsigned int bitNumber = trigger.startbit() + 32*trigger.fpga() + 16*clock();
+	    unsigned int bitNumber = trigger.flatindex();
             outCon->decisionAlgorithm()->setHardwareBits(pos,
                                                          m_triggerHdwBits[bitNumber],
                                                          m_ovrflowHdwBits[bitNumber]);

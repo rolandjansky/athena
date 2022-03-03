@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../RatesAnalysis/RatesTrigger.h"
 #include "../RatesAnalysis/RatesScanTrigger.h"
 #include "../RatesAnalysis/RatesGroup.h"
 
-#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 #include "CxxUtils/ubsan_suppress.h"
 #include "TInterpreter.h"
@@ -16,7 +16,7 @@
 int main() {
   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
-  MsgStream log(nullptr, "RatesAnalysis_test");
+  IMessageSvc* log = nullptr;  // using cout
 
   RatesTrigger* triggerA1 = new RatesTrigger("TriggerA1", log, /*prescale*/1, /*XpressPrescale*/1, "SeedA", /*seedPrescale*/2);
   RatesTrigger* triggerA2 = new RatesTrigger("TriggerA2", log, /*prescale*/2, /*XpressPrescale*/1, "SeedA", /*seedPrescale*/2);

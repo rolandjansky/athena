@@ -42,7 +42,7 @@ void TrigConf::DBLoader::startSession()
    }
 }
 
-void TrigConf::DBLoader::commitSession() const
+void TrigConf::DBLoader::commitSession()
 {
    if ( m_session.transaction().isActive() && m_sessionOwner) {
       m_session.transaction().commit();

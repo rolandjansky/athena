@@ -3,7 +3,6 @@
 */
 
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
-//#include "FastCaloSim/TransportedHelixParticle.h"
 #include "FastCaloSim/ParticleEnergyParametrization.h"
 #include "FastCaloSim/TShape_Result.h"
 #include "FastCaloSim/TLateralShapeCorrection.h"
@@ -1479,7 +1478,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
         if(m_storeFastShowerInfo) delete fastshowerinfo;
 
         ATH_MSG_WARNING(" - skip particle...");
-        return StatusCode::FAILURE;
+        return StatusCode::SUCCESS; // See ATLASSIM-5434
       }
 
       /*
@@ -1721,15 +1720,11 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
 
         ATH_MSG_DEBUG("  n_cells=" <<n_cells);
 
-        std::vector< const CaloDetDescrElement* > theDDE;
-        std::vector< double > E_theDDE;
-        theDDE.reserve(n_cells);
-        E_theDDE.reserve(n_cells);
-
+        std::vector< const CaloDetDescrElement* > theDDE(n_cells, nullptr);
+        std::vector< double > E_theDDE(n_cells, 0.);
+       
         for(int icell=0;icell<n_cells;++icell) {
-          const CaloDetDescrElement* newcell=vec[icell].first;
-          theDDE[icell]=newcell;
-          E_theDDE[icell]=0;
+          theDDE[icell]=vec[icell].first;;
         }
 
         double elayertot=0;

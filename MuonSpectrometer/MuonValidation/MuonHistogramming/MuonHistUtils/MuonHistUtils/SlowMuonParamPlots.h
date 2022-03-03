@@ -13,7 +13,7 @@ namespace Muon{
 
 class BetaPlots: public PlotBase {
  public:
-  BetaPlots(PlotBase *pParent, std::string sDir, std::string sDetType);
+  BetaPlots(PlotBase *pParent, const std::string& sDir, std::string sDetType);
 
   void fill(const xAOD::SlowMuon& smu, float weight=1.0);
   
@@ -33,11 +33,11 @@ class BetaPlots: public PlotBase {
   
 class SlowMuonParamPlots: public PlotBase {
   public:
-    SlowMuonParamPlots(PlotBase *pParent, std::string sDir);
+    SlowMuonParamPlots(PlotBase *pParent, const std::string& sDir);
 
     void fill(const xAOD::SlowMuon& smu, float weight=1.0);
 
-    TH1* beta;
+    TH1* beta{nullptr};
     BetaPlots mdtBeta;
     BetaPlots rpcBeta;
     BetaPlots caloBeta;

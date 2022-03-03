@@ -74,10 +74,12 @@ StatusCode Muon::MM_RawDataProviderToolMT::convert(const std::vector<IdentifierH
   MM_RawDataContainer* rdoContainer{nullptr};
   ATH_CHECK(initRdoContainer(ctx, rdoContainer));
 
+  if (rdoIdhVect.empty()) return StatusCode::SUCCESS;
+  
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecRobf;
   m_robDataProvider->getROBData(m_allRobIds, vecRobf);
 
-  return rdoIdhVect.empty() ? StatusCode::SUCCESS : convertIntoContainer(vecRobf, rdoIdhVect, *rdoContainer);
+  return convertIntoContainer(vecRobf, rdoIdhVect, *rdoContainer);
 }
 
 

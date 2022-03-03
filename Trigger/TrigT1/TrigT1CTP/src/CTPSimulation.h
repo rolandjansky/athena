@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
 #include "StoreGate/DataHandle.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // monitoring from HLT
 #include "GaudiKernel/ITHistSvc.h"
@@ -37,7 +36,7 @@
 
 // new configuration data
 #include "TrigConfData/L1Menu.h"
-
+#include "TrigConfData/L1BunchGroupSet.h"
 
 // internal
 #include "./ItemMap.h"
@@ -135,7 +134,7 @@ namespace LVL1CTP {
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyJFexLJets{  this, "jFexLJetInput",  "jRoundLargeRJets", "Input list of jFEX large-R jets" };
       // gFEX
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyGFexJets    {  this, "gFexJetInput", "gL1Jets", "Input list of gFEX jets" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETPufit{  this, "gFexMETPufitInput", "gXEPUFIT_MET", "Input list of gFEX MET Pufit" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETNC   {  this, "gFexMETNCInput", "gXENOISECUTPerf", "Input list of gFEX MET NC" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHOPerf", "Input list of gFEX MET Rho" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJPerf", "Input list of gFEX MET JwoJ" };
       // eFEX
@@ -157,7 +156,7 @@ namespace LVL1CTP {
 
       Gaudi::Property<bool> m_muonRun2Format { this, "MuonMultiplicityRun2Format", false, "Interpret muon multiplicity in Run 2 format (bit 0 unused)" };
 
-
+      SG::ReadCondHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "L1BunchGroup", "L1BunchGroupSet key name"};
       // to decode the L1 Run-2 hardware ROIs from data
       LVL1::CPRoIDecoder * m_decoder { nullptr };
       LVL1::JEPRoIDecoder * m_jetDecoder { nullptr };

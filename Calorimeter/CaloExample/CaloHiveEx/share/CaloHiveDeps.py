@@ -38,9 +38,9 @@ topSequence.CaloTopoCluster.ExtraInputs =  [('CaloCalibrationHitContainer','Stor
                                             ('CaloCellContainer','StoreGateSvc+AllCalo')]
 topSequence.CaloTopoCluster.ExtraOutputs = [('xAOD::CaloClusterContainer','StoreGateSvc+CaloCalTopoClusters'),
                                             ('xAOD::CaloClusterAuxContainer','StoreGateSvc+CaloCalTopoClustersAux.'),
-                                            ('xAOD::CaloClusterContainer','StoreGateSvc+CaloTopoCluster'),
-                                            ('xAOD::CaloClusterAuxContainer','StoreGateSvc+CaloTopoClusterAux.'),
-                                            ('CaloClusterCellLinkContainer','StoreGateSvc+CaloTopoCluster_links'),
+                                            ('xAOD::CaloClusterContainer','StoreGateSvc+CaloTopoClusters'),
+                                            ('xAOD::CaloClusterAuxContainer','StoreGateSvc+CaloTopoClustersAux.'),
+                                            ('CaloClusterCellLinkContainer','StoreGateSvc+CaloTopoClusters_links'),
                                             ('CaloClusterCellLinkContainer','StoreGateSvc+CaloCalTopoClusters_links')]
 
 

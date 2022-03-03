@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -802,6 +802,8 @@ namespace VKalVrtAthena {
     // Additional ToolHandles
     declareProperty("VertexFitterTool",                m_fitSvc, " Private TrkVKalVrtFitter"                                );
     declareProperty("Extrapolator",                    m_extrapolator                                                       );
+    declareProperty("TrackToVertexTool",               m_trackToVertexTool                                                  );
+    declareProperty("TrackToVertexIPEstimatorTool",    m_trackToVertexIPEstimatorTool                                       );
     declareProperty("VertexMapper",                    m_vertexMapper                                                       );
     
   }
@@ -1098,9 +1100,10 @@ namespace VKalVrtAthena {
   VrtSecInclusive::ExtrapolatedPattern* VrtSecInclusive::extrapolatedPattern( const xAOD::TrackParticle* trk, enum Trk::PropDirection direction ) {
     
     auto* pattern = new ExtrapolatedPattern;
-    
-    std::vector<std::unique_ptr<const Trk::TrackParameters>> paramsVector = m_extrapolator->extrapolateBlindly( trk->perigeeParameters(), direction );
-    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    std::vector<std::unique_ptr<Trk::TrackParameters>> paramsVector =
+      m_extrapolator->extrapolateBlindly(ctx, trk->perigeeParameters(), direction);
+
     TVector3 prevPos( AlgConsts::invalidFloat, AlgConsts::invalidFloat, AlgConsts::invalidFloat );
     
     auto nDisabled = 0;
@@ -1122,19 +1125,19 @@ namespace VKalVrtAthena {
         enum { Pixel = 1, SCT = 2 };
         
         const auto& id = detElement->identify();
-  Flag good = false;
+        Flag good = false;
         
         if( m_atlasId->is_pixel(id) ) {
           
           auto idHash = m_pixelId->wafer_hash( id );
-    good = m_pixelCondSummaryTool->isGood( idHash );
+          good = m_pixelCondSummaryTool->isGood( idHash );
           
           pattern->emplace_back( std::make_tuple( position, Pixel, m_pixelId->barrel_ec(id), m_pixelId->layer_disk(id), good ) );
           
         } else if( m_atlasId->is_sct(id) ) {
           
           auto idHash = m_sctId->wafer_hash( id );
-    good = m_sctCondSummaryTool->isGood( idHash );
+          good = m_sctCondSummaryTool->isGood( idHash );
           
           pattern->emplace_back( std::make_tuple( position, SCT, m_sctId->barrel_ec(id), m_sctId->layer_disk(id), good ) );
           
@@ -2404,6 +2407,13 @@ namespace VKalVrtAthena {
       if( abs(truthVertex->incomingParticle(0)->pdgId()) != 50 )        return false;
       return true;
     };
+
+    auto selectHiggs = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( !truthVertex->incomingParticle(0) )                           return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) != 36 )        return false;
+      return true;
+    };
     
     auto selectKshort = [](const xAOD::TruthVertex* truthVertex ) -> bool {
       if( truthVertex->nIncomingParticles() != 1 )                      return false;
@@ -2450,6 +2460,7 @@ namespace VKalVrtAthena {
                                                             { "Bhadron", selectBhadron },
                                                             { "Rhadron", selectRhadron },
                                                             { "HNL",     selectHNL     },
+                                                            { "Higgs",   selectHiggs   },
                                                             { "HadInt",  selectHadInt  }  };
     
     

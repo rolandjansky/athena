@@ -18,7 +18,7 @@ Interface definition for gFEXJwoJAlgo
 
   static const InterfaceID IID_IgFEXJwoJAlgo("LVL1::IgFEXJwoJAlgo", 1, 0);
   typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
-  typedef  std::array<std::array<int, 7>, 32> gTowersForward;
+  typedef  std::array<std::array<int, 8>, 32> gTowersForward;
 
   class IgFEXJwoJAlgo : virtual public IAlgTool {
   public:
@@ -27,7 +27,7 @@ Interface definition for gFEXJwoJAlgo
 
     virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
                                  unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 int gblockThreshold) = 0;
+                                 int gXE_seedThrA, int gXE_seedThrB) = 0;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
                                                                             std::array<uint32_t, 4> & outTOB) = 0;

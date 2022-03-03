@@ -131,7 +131,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
       continue;
     }
     int stripNumberRDOId = detEl->stripNumber(localPos,layid);
-    ATH_MSG_DEBUG(" check strip nr RDOId " << stripNumberRDOId );
+    ATH_MSG_DEBUG(" strip number at the hit position (assuming the design readout geometry): " << stripNumberRDOId );
     Amg::Vector3D globalPos;
     bool getGlobalPos = detEl->stripGlobalPosition(prdId,globalPos);
     if ( !getGlobalPos ) {

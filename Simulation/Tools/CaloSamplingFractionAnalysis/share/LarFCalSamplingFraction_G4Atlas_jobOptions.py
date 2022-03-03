@@ -170,4 +170,4 @@ ServiceMgr.THistSvc.Output = [
     "AANT DATAFILE='LArFCalSamplingFraction.{}.{:g}GeV.aan.root' OPT='RECREATE'".format(module, params['pg_E']/1000)
 ]
 
-print topSeq
+print(topSeq)

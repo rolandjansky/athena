@@ -1,6 +1,6 @@
 """ComponentAccumulator BarcodeServices configurations
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,21 +8,23 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def BarcodeSvcCfg(ConfigFlags, **kwargs):
     """Return the MCxBarcodeSvcCfg config flagged by Sim.TruthStrategy"""
+    from G4AtlasApps.SimEnums import TruthStrategy
     stratmap = {
-        "MC12": MC12BarcodeSvcCfg,
-        "MC15": MC15BarcodeSvcCfg,
-        "MC12LLP": MC12LLPBarcodeSvcCfg,
-        "MC12Plus": MC12PlusBarcodeSvcCfg,
-        "MC15aPlus": MC15aPlusBarcodeSvcCfg,
-        "MC15aPlusLLP": MC15aPlusLLPBarcodeSvcCfg,
-        "MC15a": MC15aBarcodeSvcCfg,
-        "MC16": MC16BarcodeSvcCfg,
-        "MC16LLP": MC16LLPBarcodeSvcCfg,
-        "MC18": MC18BarcodeSvcCfg,
-        "MC18LLP": MC18LLPBarcodeSvcCfg,
-        "PhysicsProcess": PhysicsProcessBarcodeSvcCfg,
-        "Global": GlobalBarcodeSvcCfg,
-        "Validation": ValidationBarcodeSvcCfg,
+        TruthStrategy.MC12: MC12BarcodeSvcCfg,
+        TruthStrategy.MC12LLP: MC12LLPBarcodeSvcCfg,
+        TruthStrategy.MC12Plus: MC12PlusBarcodeSvcCfg,
+        TruthStrategy.MC15: MC15BarcodeSvcCfg,
+        TruthStrategy.MC15a: MC15aBarcodeSvcCfg,
+        TruthStrategy.MC15aPlus: MC15aPlusBarcodeSvcCfg,
+        TruthStrategy.MC15aPlusLLP: MC15aPlusLLPBarcodeSvcCfg,
+        TruthStrategy.MC16: MC16BarcodeSvcCfg,
+        TruthStrategy.MC16LLP: MC16LLPBarcodeSvcCfg,
+        TruthStrategy.MC18: MC18BarcodeSvcCfg,
+        TruthStrategy.MC18LLP: MC18LLPBarcodeSvcCfg,
+        TruthStrategy.PhysicsProcess: PhysicsProcessBarcodeSvcCfg,
+        TruthStrategy.Global: GlobalBarcodeSvcCfg,
+        TruthStrategy.Validation: ValidationBarcodeSvcCfg,
+        # TruthStrategy.Cosmic: CosmicBarcodeSvcCfg,
     }
     MCxCfg = stratmap[ConfigFlags.Sim.TruthStrategy]
     return MCxCfg(ConfigFlags, **kwargs)

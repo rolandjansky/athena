@@ -31,47 +31,47 @@ class TRTParametersOfWheelsB
     void DefineParameters();
     void PrintParameters(MsgStream& msg) const;
 
-    int m_numberOfWheelsB;
-    double m_distanceBetweenWheelsB;
-    double* m_positionsOfWheelsB;
+    int m_numberOfWheelsB = 0;
+    double m_distanceBetweenWheelsB = 0.0;
+    double* m_positionsOfWheelsB = nullptr;
 
-    double m_innerRadiusOfWheelB;
-    double m_outerRadiusOfWheelB;
-    double m_lengthOfWheelB;
+    double m_innerRadiusOfWheelB = 0.0;
+    double m_outerRadiusOfWheelB = 0.0;
+    double m_lengthOfWheelB = 0.0;
 
-    double m_innerRadiusOfInnerSupportB;
-    double m_outerRadiusOfInnerSupportB;
-    double m_lengthOfInnerSupportB;
+    double m_innerRadiusOfInnerSupportB = 0.0;
+    double m_outerRadiusOfInnerSupportB = 0.0;
+    double m_lengthOfInnerSupportB = 0.0;
 
-    double m_innerRadiusOfOuterSupportB;
-    double m_outerRadiusOfOuterSupportB;
-    double m_lengthOfOuterSupportB;
+    double m_innerRadiusOfOuterSupportB = 0.0;
+    double m_outerRadiusOfOuterSupportB = 0.0;
+    double m_lengthOfOuterSupportB = 0.0;
 
-    int m_numberOfStrawPlanesB;
-    int m_numberOfStrawsInPlaneB;
-    double* m_positionsOfStrawPlanesB;
-    double* m_rotationAnglesOfStrawPlanesB;
+    int m_numberOfStrawPlanesB = 0;
+    int m_numberOfStrawsInPlaneB = 0;
+    double* m_positionsOfStrawPlanesB = nullptr;
+    double* m_rotationAnglesOfStrawPlanesB = nullptr;
 
-    int m_numberOfMainRadiatorsB;
-    double* m_positionsOfMainRadiatorsB;
+    int m_numberOfMainRadiatorsB = 0;
+    double* m_positionsOfMainRadiatorsB = nullptr;
 
-    double m_innerRadiusOfMainRadiatorB;
-    double m_outerRadiusOfMainRadiatorB;
-    double m_lengthOfMainRadiatorB;
+    double m_innerRadiusOfMainRadiatorB = 0.0;
+    double m_outerRadiusOfMainRadiatorB = 0.0;
+    double m_lengthOfMainRadiatorB = 0.0;
 
-    int m_numberOfThinRadiatorsB;
-    double* m_positionsOfThinRadiatorsB;
+    int m_numberOfThinRadiatorsB = 0;
+    double* m_positionsOfThinRadiatorsB = nullptr;
 
-    double m_innerRadiusOfThinRadiatorB;
-    double m_outerRadiusOfThinRadiatorB;
-    double m_lengthOfThinRadiatorB;
+    double m_innerRadiusOfThinRadiatorB = 0.0;
+    double m_outerRadiusOfThinRadiatorB = 0.0;
+    double m_lengthOfThinRadiatorB = 0.0;
 
-    int m_numberOfMiddleRadiatorsB;
-    double* m_positionsOfMiddleRadiatorsB;
+    int m_numberOfMiddleRadiatorsB = 0;
+    double* m_positionsOfMiddleRadiatorsB = nullptr;
 
-    double m_innerRadiusOfMiddleRadiatorB;
-    double m_outerRadiusOfMiddleRadiatorB;
-    double m_lengthOfMiddleRadiatorB;
+    double m_innerRadiusOfMiddleRadiatorB = 0.0;
+    double m_outerRadiusOfMiddleRadiatorB = 0.0;
+    double m_lengthOfMiddleRadiatorB = 0.0;
 
     const TRTParameters* m_pParameters;
   

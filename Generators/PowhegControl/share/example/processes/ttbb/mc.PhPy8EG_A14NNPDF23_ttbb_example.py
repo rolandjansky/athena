@@ -28,3 +28,5 @@ PowhegConfig.generate()
 #--------------------------------------------------------------
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
 include("Pythia8_i/Pythia8_Powheg_Main31.py")
+# Setting the appropriate number of final state particles for the main31 routine
+genSeq.Pythia8.Commands += [ 'Powheg:NFinal = 4' ]

@@ -1,10 +1,10 @@
 from AthenaCommon.Logging import logging
 
 
-mlog = logging.getLogger( 'CombinedRec_config' )
+mlog = logging.getLogger('CombinedRec_config')
 
 
-from AthenaCommon.GlobalFlags  import globalflags
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -12,9 +12,9 @@ from RecExConfig.ObjKeyStore import objKeyStore
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
-#Import the new style config flags, for those domains using them.
-#Note they are locked at this stage and one cannot modify them.
-#Adjustments should be made before the locking in RecExCommon_topOptions.py
+# Import the new style config flags, for those domains using them.
+# Note they are locked at this stage and one cannot modify them.
+# Adjustments should be made before the locking in RecExCommon_topOptions.py
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # use to flag domain
@@ -24,32 +24,12 @@ from AODFix.AODFix import *
 AODFix_Init()
 
 from CaloRec.CaloRecFlags import jobproperties
-
-#
-# functionality : CaloExtensionBuilder setup
-# to be used  in tau, pflow, e/gamma
-#
-pdr.flag_domain('CaloExtensionBuilder')
-if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
-    try:
-        from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
-        CaloExtensionBuilder(False)
-    except Exception:
-        treatException("Cannot include CaloExtensionBuilder !")
-
-    #Now setup Large Radius Tracks version (LRT), only if LRT enabled    
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        #CaloExtensionBuilder was already imported above, and an exception would have been thrown
-        #if that had failed.
-        CaloExtensionBuilder(True)
-
-#
-# functionality : electron photon identification
-#
-#
 from InDetRecExample.InDetJobProperties import InDetFlags
- 
+#
+# functionality : electron photon Reconstruction
+#
+#
+
 pdr.flag_domain('egamma')
 if rec.doEgamma() and rec.doESD():
     from egammaConfig.egammaReconstructionConfig import (
@@ -60,6 +40,26 @@ if rec.doEgamma() and rec.doESD():
             egammaLRTReconstructionCfg)
         CAtoGlobalWrapper(egammaLRTReconstructionCfg, ConfigFlags)
 AODFix_postEgammaRec()
+
+#
+# functionality : CaloExtensionBuilder setup
+# to be used  in tau, pflow, e/gamma
+#
+pdr.flag_domain('CaloExtensionBuilder')
+if  (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doMuonCombined()):  # or rec.readESD()
+    try:
+        from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+        CaloExtensionBuilder(False)
+    except Exception:
+        treatException("Cannot include CaloExtensionBuilder !")
+
+    # Now setup Large Radius Tracks version (LRT), only if LRT enabled
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        # CaloExtensionBuilder was already imported above,
+        # and an exception would have been thrown
+        # if that had failed.
+        CaloExtensionBuilder(True)
 
 
 #
@@ -170,10 +170,11 @@ if (jetOK or rec.readESD()) and DetFlags.ID_on() and rec.doWriteAOD() and BTaggi
         treatException("Could not set up jet hit association")
 
 #
-# functionality : tau identification
+# functionality : tau reconstruction
 #
 pdr.flag_domain('tau')
-if jetOK and rec.doTau():
+from tauRec.tauRecFlags import tauFlags
+if (jetOK or tauFlags.isStandalone) and rec.doTau():
     protectedInclude ("tauRec/tauRec_config.py")    
 AODFix_posttauRec()
 
@@ -181,9 +182,10 @@ AODFix_posttauRec()
 # functionality: Flow element tau links
 #
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow():
+from eflowRec.eflowRecFlags import jobproperties
+if recAlgs.doEFlow() and jobproperties.eflowRecFlags.usePFFlowElementAssoc:
     try:
-        from eflowRec.PFRun3Config import PFTauFlowElementLinkingCfg
+        from eflowRec.PFCfg import PFTauFlowElementLinkingCfg
         CAtoGlobalWrapper(PFTauFlowElementLinkingCfg,ConfigFlags)        
     except Exception:
         treatException("Could not set up tau-FE links")

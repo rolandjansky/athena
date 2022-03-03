@@ -17,8 +17,9 @@ from DerivationFrameworkMuons import MuonsCommon
 InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addBadBatmanFlag, addDistanceInTrain
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
+from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addBadBatmanFlag, addDistanceInTrain, addDAODJets, addQGTaggerTool, getPFlowfJVT, addJetTruthLabel, addVRTrackJetMoments, addSidebandEventShape
+from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 
 ### Augmentation tools lists
@@ -59,34 +60,30 @@ if (DerivationFrameworkIsMonteCarlo):
 # JET/MET   
 #====================================================================
 
-# TODO: UFO jets to be added in the future
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" #, "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
-]
+jetList = [AntiKt4EMTopo,
+           AntiKt4EMPFlow,
+           AntiKtVR30Rmax4Rmin02PV0Track,
+           AntiKt10LCTopoTrimmed]
 
-OutputJets["PhysCommon"] = largeRJetCollections
-jetList = ["AntiKt4EMTopoJets",
-           "AntiKt4EMPFlowJets",
-           "AntiKt4EMPFlowJets_BTagging201903",
-           "AntiKtVR30Rmax4Rmin02PV0TrackJets",
-           "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
-
-if (DerivationFrameworkIsMonteCarlo):
-   OutputJets["PhysCommon"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-
-addDAODJets(jetList,DerivationFrameworkJob,"PhysCommon")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(DerivationFrameworkJob,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(DerivationFrameworkJob,"PhysCommon",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
+addDAODJets(jetList,DerivationFrameworkJob)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=DerivationFrameworkJob,labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=DerivationFrameworkJob,labelname="R10TruthLabel_R21Precision")
 
+# q/g tagging variables
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob)
 
 # fJVT
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob)
+
+# Special rho definition for PFlow jets
+addSidebandEventShape(sequence=DerivationFrameworkJob)
+
+# extra variables for VR jets
+addVRTrackJetMoments(jetalg="AntiKtVR30Rmax4Rmin02PV0Track",sequence=DerivationFrameworkJob)
 
 # Event cleaning flags
 addEventCleanFlags(sequence=DerivationFrameworkJob)
@@ -96,18 +93,6 @@ addBadBatmanFlag(sequence=DerivationFrameworkJob)
 addDistanceInTrain(sequence=DerivationFrameworkJob)
 
 scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociationAlg")
-
-#====================================================================
-# EGAMMA
-#====================================================================
-
-if DerivationFrameworkIsMonteCarlo:
-   # Schedule the two energy density tools for running after the pseudojets are created.
-   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-      if hasattr(DerivationFrameworkJob, alg):
-         edtalg = getattr(DerivationFrameworkJob, alg)
-         delattr(DerivationFrameworkJob, alg)
-         DerivationFrameworkJob += edtalg
 
 #====================================================================
 # Tau   
@@ -121,5 +106,5 @@ addDiTauLowPt(Seq=DerivationFrameworkJob)
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
-FtagJetCollections(['AntiKt4EMPFlowJets', 'AntiKtVR30Rmax4Rmin02TrackJets'],DerivationFrameworkJob)
+FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],DerivationFrameworkJob)
 

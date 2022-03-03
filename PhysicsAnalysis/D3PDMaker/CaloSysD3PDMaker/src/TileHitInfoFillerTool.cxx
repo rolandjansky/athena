@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -40,7 +40,7 @@ TileHitInfoFillerTool::TileHitInfoFillerTool
   declareProperty("TimeMax",m_timeMax =  12.5);
   declareProperty("TimeOut",m_timeOut =  99990.);
 
-  book().ignore(); // Avoid coverity warnings
+  TileHitInfoFillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 

@@ -268,7 +268,7 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
     for(int jMDT1=0;jMDT1<4;jMDT1++)// MDT Station1
       for(int jMDT2=0;jMDT2<4;jMDT2++)// MDT Station2
         for(int x=0;x<4;x++){
-          m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]=0;
+          m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]=nullptr;
         }
   
   nbins3D_1[0]=             2000; nbins3D_1[1]=              200; nbins3D_1[2]=             4096; nbins3D_1[3]=             1024;
@@ -308,13 +308,13 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
   for(int i=0;i<2;i++)// AC
     for(int jMDT1=0;jMDT1<4;jMDT1++){// MDT Station2
       for(int x=0;x<4;x++){// RhoEtaPhiThe
-        m_mdt_segmposdirsag[i][jMDT1][x]=0;
+        m_mdt_segmposdirsag[i][jMDT1][x]=nullptr;
       }
       for(int jMDT2=0;jMDT2<4;jMDT2++){
         for(int x=0;x<4;x++){
-          m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]=0;
+          m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]=nullptr;
           for(int v=0;v<2;v++){
-            m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]=0;
+            m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]=nullptr;
           }
         }
       }

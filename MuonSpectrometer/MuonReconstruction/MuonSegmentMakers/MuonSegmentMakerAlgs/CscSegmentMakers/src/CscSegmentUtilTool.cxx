@@ -166,7 +166,7 @@ MuonSegmentCombination* CscSegmentUtilTool::get2dMuonSegmentCombination(Identifi
 
     if (nGoodEta < 2 && nGoodPhi < 2) {
         ATH_MSG_DEBUG(" Not enough hits in either eta or phi to form a segment");
-        MuonSegmentCombination* pcol = 0;
+        MuonSegmentCombination* pcol = nullptr;
         return pcol;
     }
 
@@ -802,7 +802,7 @@ MuonSegment* CscSegmentUtilTool::build_segment(const ICscSegmentFinder::Segment&
     Trk::SurfaceBounds* pbnd = pro->bounds(chid).clone();
     Trk::TrapezoidBounds* pbnd_trap = dynamic_cast<Trk::TrapezoidBounds*>(pbnd);
     Trk::RotatedTrapezoidBounds* pbnd_rtrap = dynamic_cast<Trk::RotatedTrapezoidBounds*>(pbnd);
-    Trk::PlaneSurface* psrf = 0;
+    Trk::PlaneSurface* psrf = nullptr;
 
     ATH_MSG_VERBOSE("                Surface: ");
     if (pbnd_trap) {
@@ -1025,7 +1025,7 @@ MuonSegment* CscSegmentUtilTool::build_segment(const ICscSegmentFinder::Segment&
         ATH_MSG_DEBUG(" Segment dropped chisq " << (pseg->fitQuality())->chiSquared() << " cut value " << m_max_chisquare);
         delete pseg;
         delete pseg_ref;
-        return 0;
+        return nullptr;
     }
 
     const Trk::LocalParameters& l = pseg->localParameters();
@@ -1065,11 +1065,7 @@ void CscSegmentUtilTool::find_2dsegments(bool measphi, int station, int eta, int
         for (ICscSegmentFinder::TrkClusters::const_iterator icl2 = clus2.begin(); icl2 != clus2.end(); ++icl2) {
             for (ICscSegmentFinder::TrkClusters::const_iterator icl3 = clus3.begin(); icl3 != clus3.end(); ++icl3) {
                 for (ICscSegmentFinder::TrkClusters::const_iterator icl4 = clus4.begin(); icl4 != clus4.end(); ++icl4) {
-                    fitclus.clear();
-                    fitclus.push_back(*icl1);
-                    fitclus.push_back(*icl2);
-                    fitclus.push_back(*icl3);
-                    fitclus.push_back(*icl4);
+                    fitclus = {*icl1, *icl2, *icl3, *icl4};
 
                     Trk::ParamDefs ierr = Trk::loc1;
                     ATH_MSG_VERBOSE(" +++++++ find_2dsegments ++ Errors " << Amg::error((*icl1).cl->localCovariance(), ierr) << " "
@@ -1150,27 +1146,27 @@ void CscSegmentUtilTool::find_2dsegments(bool measphi, int station, int eta, int
 void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments& segs4, ICscSegmentFinder::Segments& segs3) const {
     // Limit number of segments
 
-    if (segs4.size() == 0 && segs3.size() == 0) return;
+    if (segs4.empty() and segs3.empty()) return;
 
     ATH_MSG_DEBUG(" Total Input seg4 segment size " << segs4.size());
     ATH_MSG_DEBUG(" Total Input seg3 segment size " << segs3.size());
 
     std::vector<int> isegs4OK(segs4.size(), 1);
     std::vector<int> isegs3OK(segs3.size(), 1);
-    ICscSegmentFinder::Segments segs4All;
+    ICscSegmentFinder::Segments segs4All{segs4};
 
     ICscSegmentFinder::Segments::const_iterator iseg;
     ICscSegmentFinder::Segments::const_iterator iseg2;
 
-    for (iseg = segs4.begin(); iseg != segs4.end(); iseg++) { segs4All.push_back(*iseg); }
-
     segs4.clear();
 
+
+
     int iiseg = -1;
-    for (iseg = segs4All.begin(); iseg != segs4All.end(); iseg++) {
+    for (iseg = segs4All.begin(); iseg != segs4All.end(); ++iseg) {
         iiseg++;
         int iiseg2 = iiseg;
-        for (iseg2 = iseg + 1; iseg2 != segs4All.end(); iseg2++) {
+        for (iseg2 = iseg + 1; iseg2 != segs4All.end(); ++iseg2) {
             int nhits_common = 0;
             iiseg2++;
             for (int iclus = 0; iclus < iseg->nclus; iclus++) {
@@ -1188,7 +1184,7 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments& segs4, ICsc
     }
 
     iiseg = -1;
-    for (iseg = segs4All.begin(); iseg != segs4All.end(); iseg++) {
+    for (iseg = segs4All.begin(); iseg != segs4All.end(); ++iseg) {
         iiseg++;
         const Muon::CscClusterOnTrack* cot = iseg->clus[0].cl;
         Identifier id = cot->identify();
@@ -1213,9 +1209,9 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments& segs4, ICsc
 
     if (segs4.size() == m_max_seg_per_chamber) { return; }
 
-    for (iseg = segs4.begin(); iseg != segs4.end(); iseg++) {
+    for (iseg = segs4.begin(); iseg != segs4.end(); ++iseg) {
         int iiseg2 = -1;
-        for (iseg2 = segs3.begin(); iseg2 != segs3.end(); iseg2++) {
+        for (iseg2 = segs3.begin(); iseg2 != segs3.end(); ++iseg2) {
             iiseg2++;
             int nhits_common = 0;
             for (int iclus = 0; iclus < iseg->nclus; iclus++) {
@@ -1233,10 +1229,10 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments& segs4, ICsc
     }
 
     iiseg = -1;
-    for (iseg = segs3.begin(); iseg != segs3.end(); iseg++) {
+    for (iseg = segs3.begin(); iseg != segs3.end(); ++iseg) {
         iiseg++;
         int iiseg2 = iiseg;
-        for (iseg2 = iseg + 1; iseg2 != segs3.end(); iseg2++) {
+        for (iseg2 = iseg + 1; iseg2 != segs3.end(); ++iseg2) {
             iiseg2++;
             int nhits_common = 0;
             for (int iclus = 0; iclus < iseg->nclus; iclus++) {
@@ -1255,7 +1251,7 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments& segs4, ICsc
 
     // As long as we don't exceed max size, add segments from segs3 to end of segs4
     iiseg = -1;
-    for (iseg = segs3.begin(); iseg != segs3.end(); iseg++) {
+    for (iseg = segs3.begin(); iseg != segs3.end(); ++iseg) {
         iiseg++;
         const Muon::CscClusterOnTrack* cot = iseg->clus[0].cl;
         Identifier id = cot->identify();
@@ -1300,16 +1296,16 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments& segs, ICscS
     std::vector<int> isegs2OK(segs2.size(), 1);
     ICscSegmentFinder::Segments::const_iterator iseg;
     ICscSegmentFinder::Segments::const_iterator iseg2;
-    ICscSegmentFinder::Segments segsAll;
-    for (iseg = segs.begin(); iseg != segs.end(); iseg++) { segsAll.push_back(*iseg); }
+    ICscSegmentFinder::Segments segsAll{segs};
+
     segs.clear();
 
     int iiseg = -1;
-    for (iseg = segs2.begin(); iseg != segs2.end(); iseg++) {
+    for (iseg = segs2.begin(); iseg != segs2.end(); ++iseg) {
         iiseg++;
         if (!isegs2OK[iiseg]) continue;
         int iiseg2 = iiseg;
-        for (iseg2 = iseg + 1; iseg2 != segs2.end(); iseg2++) {
+        for (iseg2 = iseg + 1; iseg2 != segs2.end(); ++iseg2) {
             int nhits_common = 0;
             iiseg2++;
             if (!isegs2OK[iiseg2]) continue;
@@ -1356,10 +1352,10 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments& segs, ICscS
         }
     }
     iiseg = -1;
-    for (iseg = segsAll.begin(); iseg != segsAll.end(); iseg++) {
+    for (iseg = segsAll.begin(); iseg != segsAll.end(); ++iseg) {
         iiseg++;
         int iiseg2 = -1;
-        for (iseg2 = segs2.begin(); iseg2 != segs2.end(); iseg2++) {
+        for (iseg2 = segs2.begin(); iseg2 != segs2.end(); ++iseg2) {
             int nhits_common = 0;
             iiseg2++;
             if (isegs2OK[iiseg2] == 0) continue;  // already rejected this segment
@@ -1387,7 +1383,7 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments& segs, ICscS
         }
     }
     iiseg = -1;
-    for (iseg = segs2.begin(); iseg != segs2.end(); iseg++) {
+    for (iseg = segs2.begin(); iseg != segs2.end(); ++iseg) {
         iiseg++;
         const Muon::CscClusterOnTrack* cot = iseg->clus[0].cl;
         Identifier id = cot->identify();
@@ -1410,15 +1406,15 @@ void CscSegmentUtilTool::find_2dseg3hit(bool measphi, int station, int eta, int 
     ATH_MSG_DEBUG("find_2dseg3hit called");
 
     // List of possible combinations for three hits.
-    const int maxcomb = 4;
-    int layAcomb[maxcomb] = {1, 2, 3, 0};
-    int layBcomb[maxcomb] = {2, 3, 0, 1};
-    int layCcomb[maxcomb] = {3, 0, 1, 2};
+    constexpr int maxcomb = 4;
+    constexpr std::array<int, maxcomb> layAcomb{1, 2, 3, 0};
+    constexpr std::array<int, maxcomb> layBcomb{2, 3, 0, 1};
+    constexpr std::array<int, maxcomb> layCcomb{3, 0, 1, 2};
 
     ATH_MSG_VERBOSE("station " << station << " eta " << eta << " phi " << phi);
 
     // Maximum number of hits per segment
-    const int maxhits = 3;
+    constexpr int maxhits = 3;
     ICscSegmentFinder::TrkClusters fitclus;
     fitclus.reserve(3);
     ICscSegmentFinder::Segment seg;
@@ -1427,20 +1423,21 @@ void CscSegmentUtilTool::find_2dseg3hit(bool measphi, int station, int eta, int 
     for (int icomb = 0; icomb < maxcomb; icomb++) {
         // iterator over clusters
         ICscSegmentFinder::TrkClusters::const_iterator icl[maxhits];
-
+        auto & pCluster1 = icl[0];
+        auto & pCluster2 = icl[1];
+        auto & pCluster3 = icl[2];
         // Select appropriate layer for first layer
         const ICscSegmentFinder::TrkClusters& clus1 = chclus[layAcomb[icomb]];
-        for (icl[0] = clus1.begin(); icl[0] != clus1.end(); ++icl[0]) {
+        for (pCluster1 = clus1.begin(); pCluster1 != clus1.end(); ++pCluster1) {
             // Select appropriate layer for second layer
             const ICscSegmentFinder::TrkClusters& clus2 = chclus[layBcomb[icomb]];
-            for (icl[1] = clus2.begin(); icl[1] != clus2.end(); ++icl[1]) {
+            for (pCluster2 = clus2.begin(); pCluster2 != clus2.end(); ++pCluster2) {
                 // Select appropriate layer for third layer
                 const ICscSegmentFinder::TrkClusters& clus3 = chclus[layCcomb[icomb]];
-                for (icl[2] = clus3.begin(); icl[2] != clus3.end(); ++icl[2]) {
-                    fitclus.clear();
+                for (pCluster3 = clus3.begin(); pCluster3 != clus3.end(); ++pCluster3) {
                     // Use these three clusters as a segment.
-                    for (int i = 0; i < maxhits; i++) { fitclus.push_back(*icl[i]); }
-
+                    fitclus = {*pCluster1, *pCluster2, *pCluster3};
+                    
                     // Check if these hits are used by any other segments
                     if (!unique_hits(fitclus, segs4hit)) {
                         ATH_MSG_VERBOSE(" hits already used by other segments ");
@@ -1454,7 +1451,7 @@ void CscSegmentUtilTool::find_2dseg3hit(bool measphi, int station, int eta, int 
                     // Count number of unspoiled clusters
                     int nunspoil = 0;
                     for (int i = 0; i < maxhits; i++) {
-                        seg.clus[i] = *icl[i];
+                        seg.clus[i] = *(icl[i]);
                         if (IsUnspoiled(seg.clus[i].cl->status())) ++nunspoil;
                     }
 
@@ -1470,7 +1467,7 @@ void CscSegmentUtilTool::find_2dseg3hit(bool measphi, int station, int eta, int 
                         local_max_chi = m_max_chisquare;
 
                     //  tighten chi2 cut
-                    if (m_TightenChi2) local_max_chi = 2. * m_max_chisquare / 3.;
+                    if (m_TightenChi2) local_max_chi = (2./3.) * m_max_chisquare ;
 
                     bool keep = true;
                     if (seg.chsq > local_max_chi) keep = false;
@@ -1545,7 +1542,7 @@ void CscSegmentUtilTool::find_2dseg2hit(bool measphi, int station, int eta, int 
             ATH_MSG_DEBUG("got 2 clusters for segment");
 
             ICscSegmentFinder::TrkClusters fitclus;
-            for (int i = 0; i < maxhits; i++) { fitclus.push_back(*icl[i]); }
+            for (int i = 0; i < maxhits; i++) { fitclus.push_back(*(icl[i])); }
 
             // Calculate chi2 for this segment.
             ICscSegmentFinder::Segment seg;
@@ -1556,7 +1553,7 @@ void CscSegmentUtilTool::find_2dseg2hit(bool measphi, int station, int eta, int 
             // Count number of unspoiled clusters
             int nunspoil = 0;
             for (int i = 0; i < maxhits; i++) {
-                seg.clus[i] = *icl[i];
+                seg.clus[i] = *(icl[i]);
                 if (IsUnspoiled(seg.clus[i].cl->status())) ++nunspoil;
             }
             seg.nunspoil = nunspoil;
@@ -1643,7 +1640,7 @@ MuonSegmentCombination* CscSegmentUtilTool::get4dMuonSegmentCombination(const Mu
     const ICscSegmentFinder::SegmentVec& rsegs = *insegs->stationSegments(0);
     const ICscSegmentFinder::SegmentVec& phisegs = *insegs->stationSegments(1);
 
-    MuonSegmentCombination* pcol = 0;
+    MuonSegmentCombination* pcol = nullptr;
 
     ATH_MSG_DEBUG("  Combination has r/phi segments " << rsegs.size() << " / " << phisegs.size());
     ATH_MSG_DEBUG("chamber has " << insegs->getNGoodCscLayers(1) << " good eta layers and " << insegs->getNGoodCscLayers(0)
@@ -1809,7 +1806,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
     Amg::Vector3D glop = etasrf.transform().translation();
     Amg::Transform3D xf(phisrf.transform().rotation());
     xf.pretranslate(glop);
-    Trk::PlaneSurface* psrf = 0;
+    Trk::PlaneSurface* psrf = nullptr;
     if (bnd_trap) {
         psrf = new Trk::PlaneSurface(xf, bnd_trap);
     } else if (bnd_rtrap) {
@@ -1955,7 +1952,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
                 ATH_MSG_DEBUG("eta hit in a 2-layer segment not matched, bailing");
                 delete rios;
                 delete psrf;
-                return 0;
+                return nullptr;
             }
         }
 
@@ -1977,7 +1974,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
                 ATH_MSG_DEBUG("phi hit in a 2-layer segment not matched, bailing");
                 delete rios;
                 delete psrf;
-                return 0;
+                return nullptr;
             }
         }
     } else {  // We should never get here!
@@ -2000,7 +1997,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
         ATH_MSG_WARNING("too few CSC hits collected, not making segment: rios " << rios->size());
         delete rios;
         delete psrf;
-        return 0;
+        return nullptr;
     }
     int ndof = rfq.numberDoF() + phifq.numberDoF();
     Trk::FitQuality* pfq = new Trk::FitQuality(chsq, ndof);
@@ -2088,13 +2085,13 @@ bool CscSegmentUtilTool::unique_hits(ICscSegmentFinder::TrkClusters& fitclus,
     ATH_MSG_VERBOSE(" unique_hits nclus " << nclus << " segs size " << segs.size());
     // Loop over segments
     ICscSegmentFinder::Segments::const_iterator iseg;
-    for (iseg = segs.begin(); iseg != segs.end(); iseg++) {
+    for (iseg = segs.begin(); iseg != segs.end(); ++iseg) {
         int nhits_common = 0;
         // Loop over hits in the 4-hit segment
         for (int iclus = 0; iclus < iseg->nclus; iclus++) {
             // Loop over hits in fitclus
             ICscSegmentFinder::TrkClusters::const_iterator ihit;
-            for (ihit = fitclus.begin(); ihit != fitclus.end(); ihit++) {
+            for (ihit = fitclus.begin(); ihit != fitclus.end(); ++ihit) {
                 // Increment number of common hits if the ids are the same.
                 const Muon::CscClusterOnTrack* cot = iseg->clus[iclus].cl;
                 const Muon::CscClusterOnTrack* hit = ihit->cl;
@@ -2116,7 +2113,7 @@ void CscSegmentUtilTool::getRios(const ICscSegmentFinder::Segment& seg, ICscSegm
     for (int iclu = 0; iclu < seg.nclus; ++iclu) {
         const CscClusterOnTrack* pclu = seg.clus[iclu].cl;
 
-        if (pclu != 0) {
+        if (pclu != nullptr) {
             // if this cluster is picked up as outlier cluster
             if (seg.outlierid == iclu) {  // && pclu->status() == Muon::CscStatusUnspoiled) {
                 Identifier id = pclu->identify();

@@ -43,10 +43,16 @@ class DynamicallyLoadMetadata:
     def __repr__(self):
         return repr(self.metadata)
 
+    def keys(self):
+        return self.metadata.keys()
+
 def GetFileMD(filenames):
+    if not filenames:
+        msg.info("Running an input-less job. Will have empty metadata.")
+        return {}
     if isinstance(filenames, str):
         filenames = [filenames]
-    if ['_ATHENA_GENERIC_INPUTFILE_NAME_'] == filenames:
+    if '_ATHENA_GENERIC_INPUTFILE_NAME_' in filenames:
         raise RuntimeError('Input file name not set, instead _ATHENA_GENERIC_INPUTFILE_NAME_ found. Cannot read metadata.')
     for filename in filenames:
         if filename not in _fileMetaData:
@@ -103,7 +109,7 @@ def getDefaultDetectors(geoTag):
     detectors = set()
     detectors.add('Bpipe')
 
-    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+    if DetDescrInfo(geoTag)['Common']['Run'] not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
         detectors.add('ITkPixel')
         detectors.add('ITkStrip')
         if DetDescrInfo(geoTag)['Luminosity']['BCMPrime']:
@@ -121,7 +127,7 @@ def getDefaultDetectors(geoTag):
     if DetDescrInfo(geoTag)['Common']['Run'] in ['RUN1', 'RUN2', 'RUN3'] and DetDescrInfo(geoTag)['Pixel']['DBM']:
         detectors.add('DBM')
 
-    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+    if DetDescrInfo(geoTag)['Common']['Run'] not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
         detectors.add('HGTD')
 
     detectors.add('LAr')
@@ -159,7 +165,7 @@ def getInitialTimeStampsFromRunNumbers(runNumbers):
     return timeStamps
 
 
-def getSpecialConfigurationMetadata(inputFiles):
+def getSpecialConfigurationMetadata(inputFiles, secondaryInputFiles):
     """Read in special simulation job option fragments based on metadata
     passed by the evgen stage
     """
@@ -180,9 +186,15 @@ def getSpecialConfigurationMetadata(inputFiles):
                                        'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballPreInclude',
                                        'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
                                        'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpPreInclude' }
+    specialConfigString = ''
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     if len(inputFiles)>0:
-        from AthenaConfiguration.AutoConfigFlags import GetFileMD
         specialConfigString = GetFileMD(inputFiles).get('specialConfiguration', '')
+    if (not len(specialConfigString) or specialConfigString == 'NONE') and len(secondaryInputFiles)>0:
+        # If there is no specialConfiguration metadata in the primary
+        # input try the secondary inputs (MC Overlay case)
+        specialConfigString = GetFileMD(secondaryInputFiles).get('specialConfiguration', '')
+    if len(specialConfigString)>0:
         ## Parse the specialConfiguration string
         ## Format is 'key1=value1;key2=value2;...'. or just '
         spcitems = specialConfigString.split(";")

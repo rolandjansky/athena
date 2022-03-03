@@ -50,7 +50,7 @@ public:
 private:
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputTopoCollection {this,
-      "InputTopoCollection", "CaloTopoCluster", "input topocluster collection"};
+      "InputTopoCollection", "CaloTopoClusters", "input topocluster collection"};
 
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputTopoCollectionShallow {this,
       "OutputTopoCollectionShallow", "tmp_egammaTopoCluster",

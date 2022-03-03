@@ -33,9 +33,11 @@ namespace xAOD {
 
       /// Object types
       enum ObjectType {
-         gBlock   = 0, ///< This object is a TOB (32 bit word)
-         gJet     = 1, ///< This object is a TOB (32 bit word)
-         gRho     = 2  ///< This object is a TOB (32 bit word)
+         gRho         = 0,
+         gBlockLead   = 1, ///< This object is a TOB (32 bit word)
+         gBlockSub    = 2, ///< This object is a TOB (32 bit word)
+         gJet         = 3, ///< This object is a TOB (32 bit word)
+           ///< This object is a TOB (32 bit word)
       };
 
       /// The "raw" 32-bit word describing the object candidate
@@ -55,6 +57,7 @@ namespace xAOD {
       uint8_t iEta() const;  /// getter for integer eta index (0-63) 
       void    setEta( uint8_t value); /// setter for the above 
       unsigned int unpackEtaIndex( ) const; /// retrieves the Eta index from the 32-bit word
+      float eta() const; /// Floating point 
       float etaMin() const; /// Floating point 
       float etaMax() const; /// Floating point 
 
@@ -62,30 +65,34 @@ namespace xAOD {
       uint8_t iPhi() const; /// Getter for integer phi index (0-32) --> check numbers for gFEX
       void  setPhi( uint8_t value); /// Setter for the above
       unsigned int unpackPhiIndex( ) const; /// retrieves the phi index from the 32-bit word
-      float phiMin() const; /// Minimum value of phi corresponding to phi index. Range is always 0.2
-      float phiMax() const; /// Minimum value of phi corresponding to phi index. Range is always 0.2
+      float phi_gFex() const; /// Central value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+      float phiMin_gFex() const; /// Minimum value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+      float phiMax_gFex() const; /// Minimum value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+
+      float phi() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
+      float phiMin() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
+      float phiMax() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
 
       /// TOB status: set to 1 if TOB Et exceeds TOB threshold (gBlocks & gJets). Status is set to 1 if Rho calculation is valid
-      char status() const;
-      void setStatus( char value ) ; 
+      uint8_t status() const;
+      void setStatus( uint8_t value ) ; 
       unsigned int unpackStatus( ) const; /// retrieves the Status info from the 32-bit word
       /// Energy saturation: if any gTower is saturated within gBlock and gJet, this bit is set. Always 0 for Rho.
-      char saturated() const;
-      void setSaturated( char value ) ; 
+      uint8_t saturated() const;
+      void setSaturated( uint8_t value ) ; 
       unsigned int unpackSaturated( ) const; /// retrieves the Saturated info from the 32-bit word
 
       int gFexType () const;
       void setgFexType ( int type) ;
       int unpackType( ) const;
       ///Identification of object type with flags
-      bool isgBlock() const;
-      //void setIsgBlock( char value);
+      bool isgBlockLead() const;
+      //void setIsgBlockLead( char value);
+      bool isgBlockSub() const;
+      //void setIsgBlockSub( char value);
       bool isgJet() const;
       //void setIsgJet( char value);
       bool isgRho() const;
-      //void setIsgRho( char value);
-      bool isLeadingJet() const;
-  
 
 
 
@@ -94,10 +101,13 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
+      static const float s_gRhotobEtScale;
+      static const float s_gJtobEtScale;
+      static const float s_gLJtobEtScale;
       static const float s_centralPhiWidth;
       static const float s_forwardPhiWidth;
-      static const std::vector<float> s_EtaPosition; 
+      static const std::vector<float> s_EtaEdge; 
+      static const std::vector<float> s_EtaCenter;
 
 
       /** Constants used in decoding TOB words

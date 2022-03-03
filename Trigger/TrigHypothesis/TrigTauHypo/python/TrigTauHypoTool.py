@@ -14,44 +14,29 @@ TauCuts = namedtuple('TauCuts','numTrackMax numTrackWideTrackMax EtCalibMin leve
 thresholdsEF = {
     ('looseRNN', 20): TauCuts(3, 1, 20000.0, 1),
     ('looseRNN', 25): TauCuts(3, 1, 25000.0, 1),
-    ('looseRNN', 29): TauCuts(3, 1, 29000.0, 1),
     ('looseRNN', 35): TauCuts(3, 1, 35000.0, 1),
-    ('looseRNN', 38): TauCuts(3, 1, 38000.0, 1),
-    ('looseRNN', 50): TauCuts(3, 1, 50000.0, 1),
+    ('looseRNN', 40): TauCuts(3, 1, 40000.0, 1),
     ('looseRNN', 60): TauCuts(3, 1, 60000.0, 1),
-    ('looseRNN', 80): TauCuts(3, 1, 80000.0, 1),
-    ('looseRNN', 115): TauCuts(3, 1, 115000.0, 1),
-    ('looseRNN', 125): TauCuts(3, 1, 125000.0, 1), 
+    ('looseRNN', 80): TauCuts(3, 1, 80000.0, 1), 
     ('looseRNN', 160): TauCuts(3, 1, 160000.0, 1),
     ('looseRNN', 200): TauCuts(3, 1, 200000.0, 1),
-    ('mediumRNN', 0): TauCuts(3, 1, 0000.0, 2), 
-    ('mediumRNN', 12): TauCuts(3, 1, 12000.0, 2),
     ('mediumRNN', 20): TauCuts(3, 1, 20000.0, 2),
     ('mediumRNN', 25): TauCuts(3, 1, 25000.0, 2),
-    ('mediumRNN', 29): TauCuts(3, 1, 29000.0, 2),
     ('mediumRNN', 35): TauCuts(3, 1, 35000.0, 2),
-    ('mediumRNN', 38): TauCuts(3, 1, 38000.0, 2),
     ('mediumRNN', 40): TauCuts(3, 1, 40000.0, 2),
     ('mediumRNN', 50): TauCuts(3, 1, 50000.0, 2),
     ('mediumRNN', 60): TauCuts(3, 1, 60000.0, 2),
     ('mediumRNN', 80): TauCuts(3, 1,  80000.0, 2),
     ('mediumRNN', 100): TauCuts(3, 1, 100000.0, 2),
-    ('mediumRNN', 115): TauCuts(3, 1, 115000.0, 2),
-    ('mediumRNN', 125): TauCuts(3, 1, 125000.0, 2), 
     ('mediumRNN', 160): TauCuts(3, 1, 160000.0, 2), 
     ('mediumRNN', 180): TauCuts(3, 1, 180000.0, 2), 
     ('mediumRNN', 200): TauCuts(3, 1, 200000.0, 2),
     ('tightRNN', 20): TauCuts(3, 1, 20000.0, 3),
     ('tightRNN', 25): TauCuts(3, 1, 25000.0, 3),
-    ('tightRNN', 29): TauCuts(3, 1, 29000.0, 3),
     ('tightRNN', 35): TauCuts(3, 1, 35000.0, 3),
-    ('tightRNN', 38): TauCuts(3, 1, 38000.0, 3),
     ('tightRNN', 40): TauCuts(3, 1, 40000.0, 3),
-    ('tightRNN', 50): TauCuts(3, 1, 50000.0, 3),
     ('tightRNN', 60): TauCuts(3, 1, 60000.0, 3),
     ('tightRNN', 80): TauCuts(3, 1, 80000.0, 3),
-    ('tightRNN', 115): TauCuts(3, 1, 115000.0, 3),
-    ('tightRNN', 125): TauCuts(3, 1, 125000.0, 3), 
     ('tightRNN', 160): TauCuts(3, 1, 160000.0, 3),
     ('tightRNN', 180): TauCuts(3, 1, 180000.0, 3),
     ('tightRNN', 200): TauCuts(3, 1, 200000.0, 3),
@@ -112,8 +97,12 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
            monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
            monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
            monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
-           monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
-           monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreAccepted_0p", path='EXPERT',type='TH1F',title=';RNN score Accepted for 0 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted_0p", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted for 0 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreAccepted_1p", path='EXPERT',type='TH1F',title=';RNN score Accepted for 1 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted_1p", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted for 1 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreAccepted_mp", path='EXPERT',type='TH1F',title=';RNN score Accepted for multi prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted_mp", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted for multi prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
            currentHypo.MonTool = monTool
 
  
@@ -123,12 +112,11 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         currentHypo.numTrackWideTrackMax = theThresh.numTrackWideTrackMax
         currentHypo.EtCalibMin  = theThresh.EtCalibMin
         currentHypo.level       = theThresh.level
-        currentHypo.method      = 3   
+        currentHypo.method      = 1   
      
         if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
-            currentHypo.numTrackMin = 0
             currentHypo.highptidthr = 280000.
-            currentHypo.method      = 3
+            currentHypo.method      = 1
         elif 'idperf' in criteria: 
             currentHypo.AcceptAll = True
         elif 'perf' in criteria:

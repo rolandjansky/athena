@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthDictLoaderSvc.h 
@@ -32,7 +32,7 @@ class ITPCnvSvc;
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
-class ATLAS_CHECK_THREAD_SAFETY AthDictLoaderSvc
+class AthDictLoaderSvc
   : virtual public ::IDictLoaderSvc,
             public ::AthService
 { 

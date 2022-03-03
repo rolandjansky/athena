@@ -103,8 +103,8 @@ namespace LVL1TGCTrigger {
   //TGC-NSW Eta-Phi Coincidence
   int TGCNSWCoincidenceMap::TGCNSW_pTcalcu_EtaPhi(const NSWTrigOut *nswOut,int roi) const
   {
-    std::vector<int> nswEta_vec=nswOut->getNSWeta();
-    std::vector<int> nswPhi_vec=nswOut->getNSWphi();
+    std::vector<uint8_t> nswEta_vec=nswOut->getNSWeta();
+    std::vector<uint8_t> nswPhi_vec=nswOut->getNSWphi();
     int highest_pT=0;
 
     for(unsigned int nswTrk_id=0;nswTrk_id!=nswEta_vec.size();nswTrk_id++){
@@ -117,16 +117,16 @@ namespace LVL1TGCTrigger {
 	highest_pT=m_EtaPhi_CW[eta_decode][phi_decode][roi];
       }
     }
-
-    return highest_pT;
+    
+    return 1; /// just for now. before we finalize the strategy, we always return the lowest pT value if we can find the NSW hit
   }
 
 
   //TGC-NSW Eta-DeltaTheta Coincidence
    int TGCNSWCoincidenceMap::TGCNSW_pTcalcu_EtaDtheta(const NSWTrigOut *nswOut,int roi) const
   {
-    std::vector<int> nswEta_vec=nswOut->getNSWeta();
-    std::vector<int> nswDtheta_vec=nswOut->getNSWDtheta();
+    std::vector<uint8_t> nswEta_vec=nswOut->getNSWeta();
+    std::vector<uint8_t> nswDtheta_vec=nswOut->getNSWDtheta();
     int highest_pT=0;
 
     for(unsigned int nswTrk_id=0;nswTrk_id!=nswEta_vec.size();nswTrk_id++){
@@ -138,7 +138,7 @@ namespace LVL1TGCTrigger {
       }
     }
 
-    return highest_pT;
+    return 1; /// just for now. before we finalize the strategy, we always return the lowest pT value if we can find the NSW hit
   }
 
 

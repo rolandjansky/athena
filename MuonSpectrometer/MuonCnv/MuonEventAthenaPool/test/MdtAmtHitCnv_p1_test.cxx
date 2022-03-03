@@ -34,7 +34,7 @@ void compare (const MdtAmtHit& p1,
 
 void testit (const MdtAmtHit& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MdtAmtHitCnv_p1 cnv;
   MdtAmtHit_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

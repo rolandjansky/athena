@@ -35,9 +35,9 @@ public:
    void SetEpsLengthMM(int EpsLengthMM);
    void SetEpsLengthCM(int EpsLengthCM);
    void SetEpsAngle   (int EpsAngle   );
-   void SetEpsLengthMM(std::string NameOfTheSet, int EpsLengthMM);
-   void SetEpsLengthCM(std::string NameOfTheSet, int EpsLengthCM);
-   void SetEpsAngle   (std::string NameOfTheSet, int EpsAngle   );
+   void SetEpsLengthMM(const std::string& NameOfTheSet, int EpsLengthMM);
+   void SetEpsLengthCM(const std::string& NameOfTheSet, int EpsLengthCM);
+   void SetEpsAngle   (const std::string& NameOfTheSet, int EpsAngle   );
    void Set(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
 
 private:
@@ -51,9 +51,9 @@ private:
    int m_EpsLengthCM ;
    int m_EpsAngle    ;
 
-   int GetEpsLengthMM(std::string NameOfTheSet) ;
-   int GetEpsLengthCM(std::string NameOfTheSet) ;
-   int GetEpsAngle   (std::string NameOfTheSet) ;
+   int GetEpsLengthMM(const std::string& NameOfTheSet) ;
+   int GetEpsLengthCM(const std::string& NameOfTheSet) ;
+   int GetEpsAngle   (const std::string& NameOfTheSet) ;
    
    void AMDC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void AGDD(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);

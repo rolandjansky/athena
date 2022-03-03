@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPFCLUSTERSELECTORTOOL_H
@@ -14,7 +14,7 @@ class IPFClusterSelectorTool : virtual public IAlgTool {
  public:
 
   /** Execute method to modify xAOD::CaloClusterContainer */
-  virtual StatusCode execute(eflowRecClusterContainer&,xAOD::CaloClusterContainer&) = 0;
+  virtual StatusCode execute(eflowRecClusterContainer&,xAOD::CaloClusterContainer&) const = 0;
 
   DeclareInterfaceID(IPFClusterSelectorTool,1,0);
 

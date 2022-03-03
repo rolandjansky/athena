@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -295,15 +295,23 @@ const EventContext& ProxyProviderSvc::contextFromStore (IProxyRegistry& ds) cons
 void 
 ProxyProviderSvc::providerNamesPropertyHandler( Gaudi::Details::PropertyBase& /*theProp*/ ) {
   //add declared providers to the list;
-  std::vector<std::string>::const_iterator iN(m_providerNames.value().begin());
-  std::vector<std::string>::const_iterator iEnd(m_providerNames.value().end());
-  while (iN != iEnd) {
+  std::vector<std::string> providerNames = m_providerNames.value();
+
+  // FIXME: AddressRemappingSvc needs to come at the end, if it's provided.
+  auto it = std::find (providerNames.begin(), providerNames.end(),
+                       "AddressRemappingSvc");
+  if (it != providerNames.end() &&  it != providerNames.end()-1) {
+    providerNames.erase (it);
+    providerNames.push_back ("AddressRemappingSvc");
+  }
+
+  for (const std::string& pName : providerNames) {
     IService *pIS(0);
     IAddressProvider *pAP(0);
-    ListItem tn(*iN);
+    ListItem tn(pName);
     if (!(service(tn.type(), tn.name(), pIS)).isSuccess() ||
 	0 == (pAP = dynamic_cast<IAddressProvider*>(pIS))) {
-      ATH_MSG_ERROR(" getting Address Provider "<< *iN);
+      ATH_MSG_ERROR(" getting Address Provider "<< pName);
       throw GaudiException("Failed to locate address provider",
 			   "ProxyProviderSvc::providerNamesPropertyHandle", 
 			   StatusCode::FAILURE);
@@ -311,8 +319,7 @@ ProxyProviderSvc::providerNamesPropertyHandler( Gaudi::Details::PropertyBase& /*
     } else {
       ATH_MSG_DEBUG(" added Address Provider "<< pIS->name());
     }
-    addProvider(pAP);
-    ++iN;
+    ProxyProviderSvc::addProvider(pAP);
   }
 
 }

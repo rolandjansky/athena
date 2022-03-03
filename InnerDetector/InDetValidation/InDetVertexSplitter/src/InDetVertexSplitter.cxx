@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -125,7 +125,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  const VxContainer* vtxTES=0;
+  const VxContainer* vtxTES=nullptr;
   sc=evtStore()->retrieve( vtxTES, m_vertexContainerName);
   if( sc.isFailure()  ||  !vtxTES ) {
     ATH_MSG_WARNING("No VxContainer container found in TDS tried " << m_vertexContainerName);
@@ -134,8 +134,8 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
  
   ATH_MSG_DEBUG("Vertex successfully retrieved");
 
-  const Rec::TrackParticleContainer* tpbTES=0;
-  const TrackCollection* trkTES=0;
+  const Rec::TrackParticleContainer* tpbTES=nullptr;
+  const TrackCollection* trkTES=nullptr;
 
   if (m_savetpb){
     sc=evtStore()->retrieve( tpbTES, m_tpbContainerName);
@@ -160,7 +160,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
 //  We need to create every container for each event, even if we don't write to them
 
   for (const auto & thisKey : m_trackKeys){
-    TrackCollection* tempTracks = 0;
+    TrackCollection* tempTracks = nullptr;
     trackmap[thisKey] = tempTracks;
     if (evtStore()->contains<TrackCollection>(thisKey) && (evtStore()->retrieve(trackmap[thisKey],thisKey)).isSuccess()){
       //nop
@@ -170,7 +170,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
   }  
 
   for (const auto & thisKey : m_trackKeys){
-    Trk::TrackParticleBaseCollection* tempTpbs = 0;
+    Trk::TrackParticleBaseCollection* tempTpbs = nullptr;
     tpbmap[thisKey] = tempTpbs;
     if (evtStore()->contains<Trk::TrackParticleBaseCollection>(thisKey) &&
   (evtStore()->retrieve(tpbmap[thisKey],thisKey)).isSuccess()){

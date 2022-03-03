@@ -39,10 +39,10 @@ StatusCode CSCcablingSvc::initialize() {
   ATH_CHECK( AthService::initialize() );
 
   // Retrieve geometry config information from the database (RUN1, RUN2, etc...)
-  IRDBAccessSvc* rdbAccess = 0;
+  IRDBAccessSvc* rdbAccess = nullptr;
   ATH_CHECK( service("RDBAccessSvc",rdbAccess) );
 
-  const IGeoModelSvc* geoModel = 0;
+  const IGeoModelSvc* geoModel = nullptr;
   StatusCode sc = service("GeoModelSvc", geoModel);
   if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not locate GeoModelSvc"  );

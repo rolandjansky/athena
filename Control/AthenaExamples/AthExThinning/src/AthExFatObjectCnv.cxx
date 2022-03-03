@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // FatObjectCnv.cxx 
@@ -62,7 +62,7 @@ AthExFatObject* AthExFatObjectCnv::createTransient()
 
    AthExFatObject *transObj = 0;
 
-   static pool::Guid p1_guid("C757B4CB-7C1F-4E79-895E-C77D76FB960B");
+   static const pool::Guid p1_guid("C757B4CB-7C1F-4E79-895E-C77D76FB960B");
 
    if ( compareClassGuid(p1_guid) ) {
 

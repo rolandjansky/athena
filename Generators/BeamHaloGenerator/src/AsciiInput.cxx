@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/AsciiInput.h"
 #include <iostream>
 #include <sstream>
 
-AsciiInput::AsciiInput(std::string fileName): m_fileName(fileName),
-					      m_file() {
+AsciiInput::AsciiInput(const std::string& fileName): m_fileName(fileName),
+                                                     m_file() {
   for(int i=0; i< MAX_LINE_LENGTH;i++ )
     m_lineBuffer[i]='\0';
 }

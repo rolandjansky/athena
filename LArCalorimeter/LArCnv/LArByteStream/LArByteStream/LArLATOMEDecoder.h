@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,6 +31,7 @@
 #include <string>
 #include <fstream>
 #include "eformat/index.h"
+
 
 /**
  * @brief Byte stream converter of LATOME.
@@ -109,6 +110,7 @@ private:
 		 LArLATOMEHeaderContainer* header_coll);
     
     /** @brief Execute decoding for an event*/
+
     void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB, const LArLATOMEMapping *map);
 
   private:

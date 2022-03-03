@@ -11,7 +11,7 @@
 
 // For the SD itself
 #include "HGTDSensorSD.h"
-
+#include "HGTDSensorGmxSD.h"
 // STL includes
 #include <exception>
 
@@ -24,6 +24,11 @@ G4VSensitiveDetector* HGTDSensorSDTool::makeSD() const
 {
   // Make sure the job has been set up properly
   ATH_MSG_DEBUG( "Initializing SD" );
-
-  return new HGTDSensorSD(name(), m_outputCollectionNames[0]);
+  // Create a fresh SD
+  if (!m_gmxSensor){
+    return new HGTDSensorSD(name(), m_outputCollectionNames[0]);
+  } else {
+    return new HGTDSensorGmxSD(name(), m_outputCollectionNames[0]);
+  }
+  
 }

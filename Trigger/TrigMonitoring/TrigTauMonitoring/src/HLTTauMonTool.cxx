@@ -34,9 +34,6 @@
 
 #include "TrigConfL1Data/PrescaleSet.h"
 
-#include "TrigTauEmulation/Level1EmulationTool.h"
-#include "TrigTauEmulation/HltEmulationTool.h"
-
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
@@ -99,7 +96,6 @@ const float TWOPI=2.0*PI;
 
 HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, const IInterface* parent)
   : IHLTMonTool(type, n, parent),
-    m_l1emulationTool(this),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") // offline mu
 {
     
@@ -119,11 +115,6 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("doRealZtautauEff",    m_RealZtautauEff=false);
     declareProperty("dodijetFakeTausEff",  m_dijetFakeTausEff=false);
     declareProperty("doBootstrap",         m_bootstrap=true);
-    declareProperty("doEmulation",         m_emulation=false, "boolean to switch on emulation");
-    declareProperty("emulation_l1_tau",    m_emulation_l1_tau, "List of L1 chains to emulate");    
-    declareProperty("emulation_hlt_tau",   m_emulation_hlt_tau, "List of HLT chains to emulate");
-    declareProperty("L1EmulationTool",     m_l1emulationTool, "Handle to the L1 emulation tool");
-    //declareProperty("HltEmulationTool",   m_hltemulationTool,  "Handle to the HLT emulation tool");
     declareProperty("doTrackCurves",       m_doTrackCurves=false, "Efficiency plots of track distributions");
     //declareProperty("doTestTracking",     m_doTestTracking=false);
     declareProperty("doTopoValidation",        m_doTopoValidation=false);
@@ -174,14 +165,6 @@ HLTTauMonTool::~HLTTauMonTool() {
 StatusCode HLTTauMonTool::init() {
  
   if(m_isData) m_truth=false;
-  
-
-  if (m_emulation) {
-    ATH_MSG_INFO("Initializing " << m_l1emulationTool->name());
-    ATH_CHECK(m_l1emulationTool.retrieve());
-    //ATH_MSG_INFO("Initializing " << m_hltemulationTool->name());
-    //ATH_CHECK(m_hltemulationTool.retrieve());
-  }
 
   ATH_CHECK(m_lumiBlockMuTool.retrieve());
   
@@ -576,11 +559,6 @@ StatusCode HLTTauMonTool::fill() {
     }
   }
 
-  if(m_emulation) {
-    sc = Emulation();
-    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed emulation"); } //return sc;}
-  }
-
   if(m_RealZtautauEff)
   {
           sc = RealZTauTauEfficiency("RNN");
@@ -597,7 +575,7 @@ StatusCode HLTTauMonTool::fill() {
     }
   else
     {
-      ATH_MSG_WARNING("Pileup Cut 40 was not passed. Skipped: TopoValidation, Emulation, RealZtautauEff, dijetFakeTausEff."); 
+      ATH_MSG_WARNING("Pileup Cut 40 was not passed. Skipped: TopoValidation, RealZtautauEff, dijetFakeTausEff."); 
     }  
 
 

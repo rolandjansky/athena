@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,7 +16,6 @@
 
 #include <stdint.h>
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "LArByteStream/RodRobIdMap.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -28,6 +27,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CxxUtils/CachedUniquePtr.h"
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
@@ -171,6 +171,9 @@ private:
 
   SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
   { this, "FebRodMappingKey", "LArFebRodMap", "LArFebRodMap" };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+  { this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 

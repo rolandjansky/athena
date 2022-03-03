@@ -20,6 +20,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 
@@ -266,8 +267,10 @@ void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
   // using a hard cast.  Check to see if this object has actually
   // been registered under the requested clid.
   if (m_proxy->transientID (clid)) {
+    // Ok --- DataProxy is thread-safe.
+    SG::DataProxy* proxy_nc ATLAS_THREAD_SAFE = m_proxy;
     DataBucketBase* db =
-      dynamic_cast<DataBucketBase*> (m_proxy->accessData());
+      dynamic_cast<DataBucketBase*> (proxy_nc->accessData());
 
     // Do a hard cast...
     if (db)

@@ -4,7 +4,7 @@
 
 #include "MuonTrackMonitoring/RecoMuonSegmentPlots.h"
 
-RecoMuonSegmentPlots::RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir, bool detail):PlotBase(pParent, sDir)
+RecoMuonSegmentPlots::RecoMuonSegmentPlots(PlotBase* pParent, const std::string& sDir, bool detail):PlotBase(pParent, sDir)
   ,  m_oMuonSegmentPlots(nullptr)
   ,  m_oMuonSegmentSlimPlots(nullptr)
   //declare the histograms
@@ -26,12 +26,12 @@ void RecoMuonSegmentPlots::fill(const xAOD::MuonContainer& muContainer){
 //get's the corresponding link and fill it
 //Tony 2015.9.21: fix to go around the segment link problem for now
 void RecoMuonSegmentPlots::fill(const xAOD::Muon& mu){
-  const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments = mu.muonSegmentLinks();
+  const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>>& Mu_Segments = mu.muonSegmentLinks();
   fill(Mu_Segments);
 }
 
 //use the link to fill
-void RecoMuonSegmentPlots::fill(const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments){
+void RecoMuonSegmentPlots::fill(const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>>& Mu_Segments){
 
   for(const auto& Mu_Segment : Mu_Segments){
     const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;

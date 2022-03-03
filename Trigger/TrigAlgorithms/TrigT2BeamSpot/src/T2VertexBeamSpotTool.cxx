@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
@@ -115,7 +115,7 @@ StatusCode T2VertexBeamSpotTool::initialize(){
 
    // Retrieve tools
    ATH_CHECK(m_trackFilterTool.retrieve());
-   ATH_CHECK(m_monTool.retrieve());
+   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
    ATH_CHECK( m_primaryVertexFitterTool.retrieve() );
 
    m_clusterTrackPerigee = T2TrackClusterer::trackPerigeeFromString(m_clusterPerigee);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseASDToPP.h"
@@ -31,7 +31,7 @@ TGCDatabaseASDToPP::TGCDatabaseASDToPP(const std::string& filename,
   }
 
   // read out ascii file and fill database
-  if(m_database.size()==0) readDB();
+  TGCDatabaseASDToPP::readDB();
 }
   
 TGCDatabaseASDToPP::TGCDatabaseASDToPP(const TGCDatabaseASDToPP& right, bool v_isCommon)
@@ -105,11 +105,9 @@ int  TGCDatabaseASDToPP::find(const std::vector<int>& channel) const
   return index;
 }
 
-int TGCDatabaseASDToPP::getIndexDBIn(int* indexIn) 
+int TGCDatabaseASDToPP::getIndexDBIn(int* indexIn) const
 {
   if(!indexIn) return -1;
-
-  if(m_database.size()==0) readDB();
 
   int converted = convertIndexDBIn(indexIn);
   if(converted<0 || converted>=m_NIndexDBIn) return -1;
@@ -141,11 +139,9 @@ void TGCDatabaseASDToPP::getminIndexIn(int* tmpminIndexIn) const
   }
 }
 
-int TGCDatabaseASDToPP::getIndexDBOut(int* indexOut) 
+int TGCDatabaseASDToPP::getIndexDBOut(int* indexOut) const
 {
   if(!indexOut) return -1;
-
-  if(m_database.size()==0) readDB();
 
   int converted = convertIndexDBOut(indexOut);
   if(converted<0 || converted>=m_NIndexDBOut) return -1;

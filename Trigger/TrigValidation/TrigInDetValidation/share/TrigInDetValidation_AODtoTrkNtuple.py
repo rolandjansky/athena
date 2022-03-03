@@ -14,47 +14,25 @@ import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POO
 svcMgr.EventSelector.InputCollections=FilesInput
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-# algseq += CfgMgr.WillAlg()                                 #adds an instance of your alg to it
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
-
-### old TDT configuration - LEAVE THIS HERE FOR TH TIME BEING
-### this will be removed once we kow that the nightly tests are 
-### all working again...
-### from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-### ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
-
-### from TrigEDMConfig.TriggerEDM import EDMLibraries
-### ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
-
-### from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-### myAlg.TrigDecisionTool = conf2toConfigurable(tdtAcc.getPrimary())
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
 Configurable.configurableRun3Behavior+=1
-tdtAcc = getTrigDecisionTool(ConfigFlags)
+tdtAcc = TrigDecisionToolCfg(ConfigFlags)
 Configurable.configurableRun3Behavior-=1
 appendCAtoAthena( tdtAcc )
 
 
-
-
 from AthenaCommon.AppMgr import topSequence
-
 
 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
 
 cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
 ToolSvc += cfgtool
-
-## tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-## tdt.ConfigTool = cfgtool
-## tdt.NavigationFormat = "TrigComposite"
-
-## tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
 
 jps.AthenaCommonFlags.FilesInput = FilesInput
@@ -72,6 +50,10 @@ doTier0Mon = False
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
 
+doNewTier0Mon = False
+
+if 'doNewTIDATier0' in locals():
+  doNewTier0Mon = doNewTIDATier0
 
 
 ############ TrigIDtrkMonitoring part ################################
@@ -82,23 +64,30 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if doTier0Mon :
+if doTier0Mon and not doNewTier0Mon:
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 
   montools = TrigIDtrkMonitoringTool()
 
-  #  print "\n\nMonTools\n"
-  #  print montools
-
   HLTMonManager.AthenaMonTools += montools
 
   from GaudiSvc.GaudiSvcConf import THistSvc
   ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='TIDA_T0.root' OPT='RECREATE'"]
+  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
   HLTMonManager.FileKey = "AANT"
 
 
+if doNewTier0Mon :   
+
+  # this is the new location ...
+  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  for git in TIDAMonitoring( "idtrigger" ):
+    algseq += git
+
+  from GaudiSvc.GaudiSvcConf import THistSvc
+  ServiceMgr += THistSvc()
+  ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
 
 
 
@@ -120,6 +109,14 @@ if ( True ) :
 
   if 'ptmin' in dir():
      TestMonTool.pTCutOffline = ptmin
+
+
+  if 'pdgid' in dir():
+     TestMonTool.SelectTruthPdgId=pdgid
+ 
+  if 'parentpdgid' in dir():
+     TestMonTool.SelectParentTruthPdgId=parentpdgid
+
 
   TestMonTool.KeepAllEvents = False
   # TestMonTool.TrigConfigTool = "TrigConf::xAODConfigTool"
@@ -210,13 +207,12 @@ if ( True ) :
     "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
     # double electron chains for tag and probe analysis
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=-1",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
 
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=-1",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=1",
+
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",

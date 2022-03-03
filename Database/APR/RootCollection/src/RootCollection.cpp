@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollection.h"
@@ -24,6 +24,8 @@
 #include "TSocket.h"
 #include "TMessage.h"
 #include "TDirectory.h"
+
+#include "boost/algorithm/string/predicate.hpp"
 
 #define corENDL coral::MessageStream::endmsg
 
@@ -68,13 +70,13 @@ namespace pool {
 	m_metadata( 0 ),
 	m_fileMgr( 0 )
     {
-       open();
+       RootCollection::open();
     }
 
      
      RootCollection::~RootCollection()
      {
-        if( m_open ) close();
+        if( m_open ) RootCollection::close();
         else cleanup();
      }
 
@@ -212,7 +214,7 @@ namespace pool {
       if( m_open ) close();
 
       if( !m_fileCatalog
-        && m_fileName.find("PFN:") == 0
+        && boost::starts_with (m_fileName, "PFN:")
         && m_description.connection().empty() )
       {
         // special case with no catalog and PFN specified
@@ -442,7 +444,7 @@ namespace pool {
     }
 
      
-    string  RootCollection::retrieveFID() const {
+    string  RootCollection::retrieveFID() {
 
       FileCatalog::FileID fid="";
       string fileType="";        
@@ -469,7 +471,7 @@ namespace pool {
     }
 
 
-   string RootCollection::retrieveUniquePFN(const FileCatalog::FileID& fid) const
+   string RootCollection::retrieveUniquePFN(const FileCatalog::FileID& fid)
    {
       IFileCatalog::Files       pfns;
       m_fileCatalog->start();

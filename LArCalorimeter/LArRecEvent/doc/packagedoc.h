@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,8 +13,6 @@ This package contains reconstruction data classes specific for LAr
 @section LArRecEvent_LArCell LArCell
   
 LArCell is a derived class that extends CaloCell for LAr readout cells.
-
-LArCellContainer : obsolete class.  LArCells are stored in CaloCellContainer.
 
 LArCellIDC :  IdentifiableContainer for LArCell. Only used in Event Filter
 

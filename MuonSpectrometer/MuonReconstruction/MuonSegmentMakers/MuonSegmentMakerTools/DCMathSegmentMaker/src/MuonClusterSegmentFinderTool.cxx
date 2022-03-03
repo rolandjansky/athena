@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinderTool.h"
@@ -16,6 +16,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkTrack/Track.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace Muon {
 
@@ -23,9 +24,6 @@ namespace Muon {
         AthAlgTool(type, name, parent) {
         declareInterface<IMuonClusterSegmentFinderTool>(this);
         //
-        declareProperty("IPConstraint", m_ipConstraint = true);
-        declareProperty("ClusterDistance", m_maxClustDist = 5);
-        declareProperty("NOfSeedLayers", m_nOfSeedLayers = 1);
     }
 
     StatusCode MuonClusterSegmentFinderTool::initialize() {
@@ -41,20 +39,20 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    MuonClusterSegmentFinderTool::~MuonClusterSegmentFinderTool() {}
+    MuonClusterSegmentFinderTool::~MuonClusterSegmentFinderTool() = default;
 
-    void MuonClusterSegmentFinderTool::find(std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
-                                            std::vector<Muon::MuonSegment*>& segments, Trk::SegmentCollection* segColl) const {
+    void MuonClusterSegmentFinderTool::find(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
+                                            std::vector<std::unique_ptr<Muon::MuonSegment>>& segments, Trk::SegmentCollection* segColl) const {
         ATH_MSG_DEBUG("Entering MuonClusterSegmentFinderTool with " << muonClusters.size() << " clusters to be fit");
         if (belowThreshold(muonClusters, 4)) return;
-        std::vector<Muon::MuonSegment*> etaSegs;
-        findPrecisionSegments(muonClusters, etaSegs);
-        if (etaSegs.size() == 0) { return; }
-        find3DSegments(muonClusters, etaSegs, segments, segColl);
+        std::vector<std::unique_ptr<Muon::MuonSegment>> etaSegs;
+        findPrecisionSegments(ctx, muonClusters, etaSegs);
+        if (etaSegs.empty()) { return; }
+        find3DSegments(ctx, muonClusters, etaSegs, segments, segColl);
     }
     // find the precision (eta) segments
-    void MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
-                                                             std::vector<Muon::MuonSegment*>& etaSegs) const {
+    void MuonClusterSegmentFinderTool::findPrecisionSegments(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
+                                                             std::vector<std::unique_ptr<Muon::MuonSegment>>& etaSegs) const {
         // clean the muon clusters -- select only the eta hits
         bool selectPhiHits(false);
         std::vector<const Muon::MuonClusterOnTrack*> clusters = cleanClusters(muonClusters, selectPhiHits);
@@ -64,7 +62,7 @@ namespace Muon {
         std::unique_ptr<TrackCollection> segTrkColl = std::make_unique<TrackCollection>();
         // std::vector< const Muon::MuonClusterOnTrack* > clusters = muonClusters;
         // order the muon clusters by layer
-        std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters);
+        std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters, false);
 
         // create segment seeds
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > seeds = segmentSeed(orderedClusters, false);
@@ -103,15 +101,15 @@ namespace Muon {
                 vec2.reserve(rioVec.size() + 2);
 
             // pseudo measurement for vtx
-            Trk::PseudoMeasurementOnTrack* pseudoVtx = nullptr;
+            std::unique_ptr<Trk::PseudoMeasurementOnTrack> pseudoVtx;
             if (m_ipConstraint) {
                 double errVtx = 100.;
                 Amg::MatrixX covVtx(1, 1);
                 covVtx(0, 0) = errVtx * errVtx;
                 Amg::Vector3D vtx(0., 0., 0.);
                 Trk::PerigeeSurface perVtx(vtx);
-                pseudoVtx = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locX)), covVtx, perVtx);
-                vec2.push_back(pseudoVtx);
+                pseudoVtx = std::make_unique<Trk::PseudoMeasurementOnTrack>(Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locX)), covVtx, perVtx);
+                vec2.push_back(pseudoVtx.get());
             }
 
             // create a pseudo phi hit
@@ -119,13 +117,13 @@ namespace Muon {
             if (nMM > 0) errPos = 1000.;
             Amg::MatrixX cov(1, 1);
             cov(0, 0) = errPos * errPos;
-            Trk::PseudoMeasurementOnTrack* pseudoSegPhi1 = new Trk::PseudoMeasurementOnTrack(
+            std::unique_ptr<Trk::PseudoMeasurementOnTrack> pseudoSegPhi1 = std::make_unique<Trk::PseudoMeasurementOnTrack>(
                 Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locY)), cov, rioVec.front()->associatedSurface());
-            Trk::PseudoMeasurementOnTrack* pseudoSegPhi2 = new Trk::PseudoMeasurementOnTrack(
+            std::unique_ptr<Trk::PseudoMeasurementOnTrack> pseudoSegPhi2 = std::make_unique<Trk::PseudoMeasurementOnTrack>(
                 Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locY)), cov, rioVec.back()->associatedSurface());
-            vec2.push_back(pseudoSegPhi1);
+            vec2.push_back(pseudoSegPhi1.get());
             std::copy(rioVec.begin(), rioVec.end(), std::back_inserter(vec2));
-            vec2.push_back(pseudoSegPhi2);
+            vec2.push_back(pseudoSegPhi2.get());
             ATH_MSG_VERBOSE("fitting 2D segment track with " << vec2.size() << " hits");
             for (unsigned int k = 0; k < rioVec.size(); ++k) {
                 ATH_MSG_VERBOSE(m_idHelperSvc->toString(rioVec[k]->identify())
@@ -133,7 +131,7 @@ namespace Muon {
                                 << m_idHelperSvc->measuresPhi(rioVec[k]->identify()));
             }
 
-            Trk::TrackParameters* startpar = 0;
+            std::unique_ptr<Trk::TrackParameters> startpar;
 
             const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*>(&rioVec.front()->associatedSurface());
             if (surf) {
@@ -151,7 +149,7 @@ namespace Muon {
 
                 Amg::Vector3D perpos = gp + -10 * gd.unit();
                 if (perpos.dot(gd) < 0) gd = -1 * gd;
-                startpar = new Trk::Perigee(perpos, gd, 0, perpos);
+                startpar = std::make_unique<Trk::Perigee>(perpos, gd, 0, perpos);
                 ATH_MSG_VERBOSE(" start parameter " << perpos << " pp " << startpar->position() << " gd " << gd.unit() << " pp "
                                                     << startpar->momentum().unit());
             }
@@ -161,14 +159,11 @@ namespace Muon {
                 double theta = seeds[i].second.theta();
                 double qoverp = 0;
                 Trk::PerigeeSurface persurf(vec2.front()->globalPosition());
-                startpar = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
+                startpar = std::make_unique<Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
             }
-            Trk::Track* segtrack = fit(vec2, *startpar);
-            delete startpar;
+            std::unique_ptr<Trk::Track> segtrack = fit(ctx, vec2, *startpar);
             if (segtrack) {
                 m_trackSummary->updateTrack(*segtrack);
-                segTrkColl->push_back(segtrack);
-
                 // Peter NEW calculate distance of segment to all muon clusters
                 if (msgLvl(MSG::VERBOSE)) {
                     Amg::Vector3D pos = segtrack->perigeeParameters()->position();
@@ -189,13 +184,12 @@ namespace Muon {
                         }
                     }
                 }
+                segTrkColl->push_back(std::move(segtrack));
+
 
             } else
                 ATH_MSG_DEBUG(" 2D segment fit failed");
             // delete the pseudo hits
-            delete pseudoSegPhi1;
-            delete pseudoSegPhi2;
-            if (m_ipConstraint) delete pseudoVtx;
         }
 
         if (msgLvl(MSG::DEBUG)) {
@@ -215,18 +209,18 @@ namespace Muon {
         // store the resolved segments
 
         for (const Trk::Track* trk : *resolvedTracks) {
-            MuonSegment* seg = m_trackToSegmentTool->convert(*trk);
+            MuonSegment* seg = m_trackToSegmentTool->convert(ctx, *trk);
             if (!seg) {
                 ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
             } else {
                 ATH_MSG_DEBUG(" adding " << m_printer->print(*seg) << std::endl << m_printer->print(seg->containedMeasurements()));
-                etaSegs.push_back(seg);
+                etaSegs.emplace_back(seg);
             }
         }
     }
 
-    void MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
-                                                      std::vector<Muon::MuonSegment*>& etaSegs, std::vector<Muon::MuonSegment*>& segments,
+    void MuonClusterSegmentFinderTool::find3DSegments(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
+                                                      std::vector<std::unique_ptr<Muon::MuonSegment>>& etaSegs, std::vector<std::unique_ptr<Muon::MuonSegment>>& segments,
                                                       Trk::SegmentCollection* segColl) const {
         bool selectPhiHits(true);
         std::vector<const Muon::MuonClusterOnTrack*> clusters = cleanClusters(muonClusters, selectPhiHits);
@@ -235,61 +229,101 @@ namespace Muon {
         if (belowThreshold(clusters, 4)) {
             ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
 
-            for (auto vsit : etaSegs) {
+            for (std::unique_ptr<Muon::MuonSegment>& vsit : etaSegs) {
                 if (segColl) {
-                    segColl->push_back(vsit);
+                    segColl->push_back(std::move(vsit));
                 } else {
-                    segments.push_back(vsit);
+                    segments.push_back(std::move(vsit));
                 }
             }
 
             etaSegs.clear();
             return;
         }
-        TrackCollection* segTrkColl = new TrackCollection;
+        std::unique_ptr<TrackCollection> segTrkColl = std::make_unique<TrackCollection>(SG::OWN_ELEMENTS);
+
+	//definition of the vector of seeds
+	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seeds_preOR;
+	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seeds;
+	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seedsMM;
+	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seedsWires;
+	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seedsPads;
+
+	std::vector<Amg::Vector3D> mmStereoMeasurements = getPhiFromStereo(etaClusters);
+	seedsMM = segmentSeedFromMM(mmStereoMeasurements);
+
+	if(seedsMM.empty()) ATH_MSG_DEBUG( "No MicroMegas seeds found" );
+
         // order the clusters by layer
         bool useWires(true);
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters, useWires);
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderedEtaClusters = orderByLayer(etaClusters, false);
-        if (orderedClusters.size() == 0) {
-            ATH_MSG_DEBUG("No phi wire hits found ... moving to pads");
-            useWires = false;
-            orderedClusters = orderByLayer(clusters, useWires);
-        } else {
-            ATH_MSG_DEBUG("phi wire hits found");
-        }
-        // get the segment seeds
-        std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > seeds;
-        if (useWires) {
-            seeds = segmentSeed(orderedClusters, true);
-            ATH_MSG_DEBUG("Found " << seeds.size() << " 3D seeds from Wires for phi direction");
-        }
+	seedsWires = segmentSeed(orderedClusters,useWires);
+
         // loop on the seeds and combine with the eta segments
-        for (std::vector<Muon::MuonSegment*>::const_iterator sit = etaSegs.begin(); sit != etaSegs.end(); ++sit) {
+        for (std::unique_ptr<Muon::MuonSegment> & sit :  etaSegs) {
             bool is3Dseg(false);
-            if (!useWires) seeds = segmentSeedFromPads(orderedClusters, *sit);
-            if (!useWires) ATH_MSG_DEBUG("Found " << seeds.size() << " 3D seeds from Pads for phi direction");
+
+	    seeds_preOR.clear();
+
+	    //If too many MM seeds are created, we dont use any of them to avoid memory problems. 
+	    //This case can occur when there are N clusters on the first stereo layer and 
+	    //M clusters on the second stereo layer, resulting in NxM combinations (i.e. NxM seeds).
+	    //the cut at 100 seeds needs to be adjusted
+	    if (seedsMM.size() < 100)
+	      seeds_preOR.insert(seeds_preOR.end(), seedsMM.begin(), seedsMM.end());
+	    else 
+	      ATH_MSG_DEBUG("Too many seeds created from the MM stereo layers. seedsMM size is " << seedsMM.size() << ". Not using MM seeds");
+
+	    if (seeds_preOR.empty() && std::abs((*sit).globalPosition().eta()) < 2.4)
+	      seeds_preOR.insert(seeds_preOR.end(), seedsWires.begin(), seedsWires.end());
+
+	    orderedClusters = orderByLayer(clusters,false); //clusters with the pads
+	    if (seeds_preOR.empty()) {
+	      seedsPads = segmentSeedFromPads(orderedClusters, sit.get());
+	      seeds_preOR.insert(seeds_preOR.end(), seedsPads.begin(), seedsPads.end());
+	    }
+
+	    //OR between same seeds
+	    seeds.clear();
+	    bool is_first_equal = false;
+	    bool is_second_equal = false;
+	    double phi1 = -999; //phi of the first hit used as seed
+	    double phi2 = -999; //phi of the second hit used as seed
+	    for (unsigned int s1 = 1; s1 < seeds_preOR.size(); ++s1) {
+	      is_first_equal = false;
+	      is_second_equal = false;
+	      phi1 = seeds_preOR[s1].first.phi();
+	      phi2 = (seeds_preOR[s1].first+seeds_preOR[s1].second).phi();
+	      for (unsigned int s2 = 0; s2 < s1; ++s2) {
+		if ( std::abs( phi1 - seeds_preOR[s2].first.phi() ) < 0.05 ) is_first_equal = true;
+		if ( std::abs( phi2 - (seeds_preOR[s2].first+seeds_preOR[s2].second).phi() ) < 0.05 ) is_second_equal = true;
+	      }
+	      if (!(is_first_equal && is_second_equal)) seeds.emplace_back(seeds_preOR[s1]);
+	    }
+	    
             std::vector<const Muon::MuonClusterOnTrack*> phiHitsPrevious;
             for (unsigned int i = 0; i < seeds.size(); ++i) {
+
                 std::pair<Amg::Vector3D, Amg::Vector3D> seed3D;
-                Trk::TrackParameters* startpar = 0;
+                std::unique_ptr<Trk::TrackParameters> startpar;
                 // calculate start parameters
-                const Trk::PlaneSurface& surf = (*sit)->associatedSurface();
+                const Trk::PlaneSurface& surf = sit->associatedSurface();
                 Amg::Vector3D posOnSeg = intersectPlane(surf, seeds[i].first, seeds[i].second);
                 Amg::Vector2D lpos;
                 surf.globalToLocal(posOnSeg, posOnSeg, lpos);
                 Trk::LocalDirection ldir;
                 surf.globalToLocalDirection(seeds[i].second, ldir);
 
-                Amg::Vector2D lp((*sit)->localParameters()[Trk::locX], lpos[Trk::locY]);
-                Trk::LocalDirection ld((*sit)->localDirection().angleXZ(), ldir.angleYZ());
+                Amg::Vector2D lp(sit->localParameters()[Trk::locX], lpos[Trk::locY]);
+                Trk::LocalDirection ld(sit->localDirection().angleXZ(), ldir.angleYZ());
                 Amg::Vector3D gd;
                 surf.localToGlobalDirection(ld, gd);
                 Amg::Vector3D gp;
                 surf.localToGlobal(lp, gp, gp);
                 Amg::Vector3D perpos = gp + -10 * (gd.unit());
                 if (perpos.dot(gd) < 0) gd = -1 * gd;
-                startpar = new Trk::Perigee(perpos, gd, 0, perpos);
+                startpar = std::make_unique<Trk::Perigee>(perpos, gd, 0, perpos);
                 seed3D = std::pair<Amg::Vector3D, Amg::Vector3D>(perpos, gd);
                 ATH_MSG_VERBOSE(" start parameter " << perpos << " pp " << startpar->position() << " gd " << gd.unit() << " pp "
                                                     << startpar->momentum().unit());
@@ -297,18 +331,17 @@ namespace Muon {
                 // old method as fall back
                 if (!startpar) {
                     double phi = seeds[i].second.phi();
-                    double theta = (*sit)->globalDirection().theta();
+                    double theta = sit->globalDirection().theta();
                     double qoverp = 0;
-                    Trk::PerigeeSurface persurf((*sit)->rioOnTrack(0)->globalPosition());
-                    startpar = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
+                    Trk::PerigeeSurface persurf(sit->rioOnTrack(0)->globalPosition());
+                    startpar = std::make_unique<Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
                     seed3D = seeds[i];
                 }
 
                 std::vector<const Muon::MuonClusterOnTrack*> phiHits = getClustersOnSegment(orderedClusters, seed3D);
                 std::vector<const Muon::MuonClusterOnTrack*> etaHits = getClustersOnSegment(orderedEtaClusters, seed3D);
-                if (phiHits.size() < 2) {
-                    delete startpar;
-                    continue;
+		if (phiHits.size() < 2) {
+		  continue;
                 }
                 // logic to reduce combinatorics
                 if (phiHits.size() == phiHitsPrevious.size()) {
@@ -318,16 +351,16 @@ namespace Muon {
                     }
                     if (sameContent) {
                         ATH_MSG_VERBOSE(" same clusters found for 3D seed " << i);
-                        delete startpar;
                         continue;
                     }
                 }
-                phiHitsPrevious.clear();
-                for (unsigned int k = 0; k < phiHits.size(); ++k) { phiHitsPrevious.push_back(phiHits[k]); }
+                phiHitsPrevious = phiHits;
                 ATH_MSG_VERBOSE(" new clusters for 3D seed " << i);
 
                 // interleave the phi hits
                 std::vector<const Trk::MeasurementBase*> vec2;
+
+
                 /// here get the new corrected set of eta hits
                 std::vector<const Muon::MuonClusterOnTrack*> etaHitsCalibrated;
                 etaHitsCalibrated = getCalibratedClusters(etaHits, seed3D);
@@ -341,7 +374,7 @@ namespace Muon {
                     vec2.reserve(phiHits.size() + netas);
 
                 // pseudo measurement for vtx
-                Trk::PseudoMeasurementOnTrack* pseudoVtx = nullptr;
+                std::unique_ptr<Trk::PseudoMeasurementOnTrack> pseudoVtx;
                 if (m_ipConstraint) {
                     ATH_MSG_DEBUG("add pseudo vertex");
                     double errVtx = 100.;
@@ -350,11 +383,12 @@ namespace Muon {
                     Amg::Vector3D vtx(0., 0., 0.);
                     Trk::PerigeeSurface perVtx(vtx);
                     pseudoVtx =
-                        new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locX)), covVtx, perVtx);
-                    vec2.push_back(pseudoVtx);
+                        std::make_unique<Trk::PseudoMeasurementOnTrack>(Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locX)), covVtx, perVtx);
+                    vec2.push_back(pseudoVtx.get());
                 }
                 unsigned int iEta(0), iPhi(0);
                 ATH_MSG_VERBOSE("There are " << etaHitsCalibrated.size() << " & " << phiHits.size() << " eta and phi hits");
+
                 while (true) {
                     float phiZ(999999.), etaZ(999999.);
                     if (iPhi < phiHits.size()) phiZ = std::abs(phiHits[iPhi]->globalPosition().z());
@@ -370,17 +404,16 @@ namespace Muon {
                 }
 
                 ATH_MSG_DEBUG("Fitting a 3D segment with " << phiHits.size() << " phi hits and " << vec2.size() << " total hits");
+
                 for (unsigned int k = 0; k < vec2.size(); ++k) {
                     Identifier id = m_edmHelperSvc->getIdentifier(*vec2[k]);
                     ATH_MSG_VERBOSE(m_idHelperSvc->toString(id)
                                     << " " << vec2[k]->globalPosition().perp() << ", " << vec2[k]->globalPosition().z());
                 }
-                Trk::Track* segtrack = fit(vec2, *startpar);
-                delete startpar;
+                std::unique_ptr<Trk::Track> segtrack {fit(ctx, vec2, *startpar)};
                 if (segtrack) {
                     m_trackSummary->updateTrack(*segtrack);
                     // store the track segment in track collection
-                    segTrkColl->push_back(segtrack);
                     is3Dseg = true;
 
                     // Peter NEW calculate distance of segment to all muon clusters
@@ -402,40 +435,35 @@ namespace Muon {
                                                         << m_idHelperSvc->toString(muonClusters[k]->identify()));
                             }
                         }
-                    }
-
+		    }
+                    segTrkColl->push_back(std::move(segtrack));
+                  
                 } else {
                     ATH_MSG_DEBUG("3D segment fit failed");
                 }
-                if (m_ipConstraint) delete pseudoVtx;
             }  // end loop on phi seeds
             if (!is3Dseg) {
                 if (!segColl)
-                    segments.push_back((*sit)->clone());
+                    segments.emplace_back(sit->clone());
                 else
-                    segColl->push_back((*sit)->clone());
+                    segColl->push_back(sit->clone());
             }
         }  // end loop on precision plane segments
 
-        std::unique_ptr<const TrackCollection> resolvedTracks(m_ambiTool->process(segTrkColl));
+        std::unique_ptr<const TrackCollection> resolvedTracks(m_ambiTool->process(segTrkColl.get()));
         ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size " << resolvedTracks->size());
         // store the resolved segments
         for (const Trk::Track* rtrk : *resolvedTracks) {
-            MuonSegment* seg = m_trackToSegmentTool->convert(*rtrk);
+            MuonSegment* seg = m_trackToSegmentTool->convert(ctx, *rtrk);
             if (!seg) {
                 ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
             } else {
                 if (!segColl)
-                    segments.push_back(seg);
+                    segments.emplace_back(seg);
                 else
                     segColl->push_back(seg);
             }
         }
-
-        // memory cleanup
-        delete segTrkColl;
-
-        for (std::vector<Muon::MuonSegment*>::iterator sit = etaSegs.begin(); sit != etaSegs.end(); ++sit) { delete *sit; }
     }
 
     std::vector<const Muon::MuonClusterOnTrack*> MuonClusterSegmentFinderTool::cleanClusters(
@@ -571,7 +599,7 @@ namespace Muon {
         int layer = 0;
         for (std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator cvecIt = clusters.begin(); cvecIt != clusters.end();
              ++cvecIt) {
-            const Muon::MuonClusterOnTrack* rio = 0;
+            const Muon::MuonClusterOnTrack* rio = nullptr;
             double bestDist(9999.);
 
             for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = (*cvecIt).begin(); cit != (*cvecIt).end(); ++cit) {
@@ -652,9 +680,8 @@ namespace Muon {
         return dist;
     }
 
-    Trk::Track* MuonClusterSegmentFinderTool::fit(const std::vector<const Trk::MeasurementBase*>& vec2,
+    std::unique_ptr<Trk::Track> MuonClusterSegmentFinderTool::fit(const EventContext& ctx, const std::vector<const Trk::MeasurementBase*>& vec2,
                                                   const Trk::TrackParameters& startpar) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         std::unique_ptr<Trk::Track> segtrack = m_slTrackFitter->fit(ctx, vec2, startpar, false, Trk::nonInteracting);
         if (segtrack) {
             ATH_MSG_VERBOSE("segment fit succeeded");
@@ -673,7 +700,7 @@ namespace Muon {
                 m_trackSummary->updateTrack(*segtrack);
             }
         }
-        return segtrack.release();
+        return segtrack;
     }
 
     std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > MuonClusterSegmentFinderTool::segmentSeedFromPads(
@@ -808,6 +835,35 @@ namespace Muon {
 
         ATH_MSG_DEBUG(" segmentSeedFromPads: seeds.size() " << seeds.size());
         return seeds;
+    }
+
+    std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> >
+    MuonClusterSegmentFinderTool::segmentSeedFromMM( std::vector< Amg::Vector3D >& phiStereo ) const {
+      
+      std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seeds;
+      if (phiStereo.size() < 2) return seeds;
+      
+      double dz = 0;
+      double dz_tmp = 0;
+      
+      std::vector<std::pair<unsigned int, unsigned int> > good_indices;
+      for( unsigned int ipoint = 0; ipoint < phiStereo.size(); ipoint++ ){
+        for( unsigned int jpoint = ipoint+1; jpoint < phiStereo.size(); jpoint++ ){
+	  dz_tmp = std::abs(phiStereo[jpoint].z()-phiStereo[ipoint].z());
+	  if ( dz_tmp > dz ) {
+	    dz = dz_tmp;
+            good_indices.clear();
+            good_indices.emplace_back(ipoint, jpoint);
+          } else if ( dz_tmp == dz ) {
+	    good_indices.emplace_back(ipoint, jpoint);
+          }
+        }//end jpoint                                                                                                                           
+      }//end ipoint 
+      for ( unsigned int i = 0; i < good_indices.size(); i++ ) {
+	const Amg::Vector3D segdir = phiStereo[good_indices[i].second] - phiStereo[good_indices[i].first];
+	seeds.emplace_back(phiStereo[good_indices[i].first],segdir);
+      }
+      return seeds;
     }
 
     std::vector<std::pair<double, double> > MuonClusterSegmentFinderTool::getPadPhiOverlap(
@@ -975,4 +1031,49 @@ namespace Muon {
         return calibratedClusters;
     }
 
+    std::vector<Amg::Vector3D>
+    MuonClusterSegmentFinderTool::getPhiFromStereo( std::vector<const Muon::MuonClusterOnTrack*>& clusters  ) const
+    {
+  
+      //vector of 3D points of all phi obtained from the stereo-stereo combination                                                                              
+      std::vector<Amg::Vector3D> phiStereo;
+      
+      /// loop on the clusters and look for the stereo                                                                                                       
+      for ( unsigned int iclu1 = 1; iclu1 <= clusters.size()-1; ++iclu1 ) {
+        Identifier id1 = clusters[iclu1]->identify();
+        if ( !m_idHelperSvc->isMM(id1) ) continue;
+        if ( !m_idHelperSvc->mmIdHelper().isStereo(id1) ) continue;
+  	// get the intersections of the stereo clusters with the other layers of the same multilayer                                                       
+	for ( unsigned int iclu2 = 0; iclu2 < iclu1; ++iclu2 ) {
+  	  Identifier id2 = clusters[iclu2]->identify();
+	  if ( !m_idHelperSvc->isMM(id2) ) continue;
+	  if ( !m_idHelperSvc->mmIdHelper().isStereo(id2) ) continue; //remove this if you want to use eta+stereo or stereo+stereo. Now use only stereo+stereo
+	  int lay1 = m_idHelperSvc->mmIdHelper().gasGap(id1);
+	  int ml1 = m_idHelperSvc->mmIdHelper().multilayer(id1);
+	  int lay2 = m_idHelperSvc->mmIdHelper().gasGap(id2);
+	  int ml2 = m_idHelperSvc->mmIdHelper().multilayer(id2);
+	  /// skip clusters if not in the same multilayer and if on the same layer                                                                         
+	  if ( ml1 != ml2 || lay1 == lay2 ) continue;
+	  const MMPrepData* prd1 = dynamic_cast<const MMPrepData*>(clusters[iclu1]->prepRawData());
+	  const MMPrepData* prd2 = dynamic_cast<const MMPrepData*>(clusters[iclu2]->prepRawData());
+	  /// get the local position of the clusters
+	  Trk::LocalParameters loc1(prd1->localPosition());
+  	  Trk::LocalParameters loc2(prd2->localPosition());
+  	  
+  	  //head Amg::Vector3D localToGlobal(const LocalParameters& locpars) const;
+  	  Amg::Vector3D gPos1 = clusters[iclu1]->associatedSurface().localToGlobal(loc1);
+  	  Amg::Vector3D gPos2 = clusters[iclu2]->associatedSurface().localToGlobal(loc2);
+  
+  	  Amg::Vector3D gPos;
+	  bool spacePoint = prd1->detectorElement()->spacePointPosition(id1,id2,gPos1,gPos2,gPos);
+	  
+  	  if ( spacePoint ) phiStereo.push_back(gPos);
+  	  else ATH_MSG_INFO("Could not build phi measurement from MM stereo");
+	  
+  	}
+      }
+  
+      return phiStereo;
+    }
+  
 }  // namespace Muon

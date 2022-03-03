@@ -19,20 +19,16 @@ if __name__=='__main__':
     from AthenaCommon.Constants import WARNING
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ###test input file: --filesInput='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root'
+    ###test input file format: --filesInput='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root'
 
     # Set the Athena configuration flags
-    ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root"]
+    #ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root"]
+    ConfigFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357772.physics_Main.recon.AOD.r13286/AOD.27654050._000557.pool.root.1"]
+
     ConfigFlags.Output.AODFileName = "outAOD.pool.root"
     ConfigFlags.Detector.GeometryLAr=True
     ConfigFlags.Detector.GeometryTile=True
-    # useful examples: test units based on them
-    #ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_mu4"])
-    #ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu6_2mu4","HLT_mu22"])
-#    ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_e5_lhvloose_nod0","HLT_e9_etcut","HLT_e26_lhtight_nod0","HLT_e28_lhtight_nod0"])
-    #ConfigFlags.addFlag("TestNavConversion.Collections",["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer","xAOD::TrigMissingET","xAOD::JetContainer"])
- #   ConfigFlags.addFlag("TestNavConversion.Collections",["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer","xAOD::CaloCluster","xAOD::CaloClusterContainer"])
-    ConfigFlags.Exec.MaxEvents = 1
+    ConfigFlags.Exec.MaxEvents = 1000
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
@@ -53,10 +49,18 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     alg = CompFactory.Run2ToRun3TrigNavConverterV2("TrigNavCnv", OutputLevel=DEBUG, TrigConfigSvc=confSvc)
     alg.doSelfValidation = False
-    alg.Collections = ["xAOD::TrigElectronContainer"]
     alg.doCompression = True
-    # alg.Chains = ["HLT_e26_lhtight_idperf", "HLT_e26_lhmedium_nod0_ivarloose"]
-#    alg.Chains = ["HLT_mu4_j80_xe80_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30"]
+    alg.addTauTracks = False
+
+    alg.Collections = ["xAOD::TrigEMCluster", "xAOD::TrigEMClusterContainer", "xAOD::TrigRingerRings", "xAOD::TrigRingerRingsContainer", "xAOD::TrigRNNOutput", "xAOD::TrigRNNOutputContainer", "xAOD::CaloClusterContainer", "xAOD::L2StandAloneMuonContainer", "xAOD::L2StandAloneMuonAuxContainer", "xAOD::L2CombinedMuonContainer", "xAOD::L2CombinedMuonAuxContainer","xAOD::L2IsoMuonContainer", "xAOD::MuonContainer", "xAOD::MuonAuxContainer","xAOD::TauJetContainer", "xAOD::ElectronContainer", "xAOD::PhotonContainer", "xAOD::JetContainer", "xAOD::BTaggingContainer", "xAOD::BTagVertexContainer", "xAOD::JetElementContainer", "xAOD::TrigMissingET", "xAOD::TrigBphysContainer"]
+    if (alg.addTauTracks):
+        alg.Collections.append("xAOD::TauTrackContainer")
+    
+    # simple mu test cases
+    alg.Chains = ["HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu6_2mu4","HLT_mu22"]
+
+    alg.Rois = ["initialRoI","forID","forID1","forID2","forMS","forSA","forTB","forMT","forCB"]
+
 
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

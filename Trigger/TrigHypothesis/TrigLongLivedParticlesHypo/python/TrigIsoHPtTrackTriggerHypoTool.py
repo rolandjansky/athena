@@ -123,23 +123,3 @@ def TrigIsoHPtTrackTriggerHypoToolFromDict( chainDict ):
     tool.MinIsoTrackPt = IsoPt
 
     return tool
-
-
-def TrigIsoHPtTrackTriggerHypoToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-
-    decodedDict = dictFromChainName(conf)
-        
-    return TrigIsoHPtTrackTriggerHypoToolFromDict( decodedDict )
-
-
-
-if __name__ == "__main__":
-    tool = TrigIsoHPtTrackTriggerHypoToolFromName("HLT_unconvtrk50_isohpttrack_imedium_L1XE50", "HLT_unconvtrk50_isohpttrack_imedium_L1XE50")
-    assert tool, "Not configured simple tool"
-
-
-    log.debug("ALL OK")

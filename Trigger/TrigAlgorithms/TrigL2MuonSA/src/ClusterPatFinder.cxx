@@ -681,12 +681,12 @@ void TrigL2MuonSA::ClusterPatFinder::setGroup(int& nGroup,
   nGroup = 1;
   crPatterns.at(0).group = 0; //initial index is defined as first group (No.0)
   if(crPatterns.size() > 1){
-    for(int iClus_start = 1; iClus_start < (int)crPatterns.size(); iClus_start++){
+    for(unsigned int iClus_start = 1; iClus_start < crPatterns.size(); iClus_start++){
       ATH_MSG_DEBUG("checked road : clusterID = {" << crPatterns.at(iClus_start).clustersID[0] << "," << crPatterns.at(iClus_start).clustersID[1] << "," << crPatterns.at(iClus_start).clustersID[2] << "," << crPatterns.at(iClus_start).clustersID[3] << "," << crPatterns.at(iClus_start).clustersID[4] << "," << crPatterns.at(iClus_start).clustersID[5] << "," << crPatterns.at(iClus_start).clustersID[6] << "," << crPatterns.at(iClus_start).clustersID[7] << "}");
       for(int igroup = 0; igroup < nGroup; igroup++){
         bool isDiffGroupFlag = false;
         int countDiffId_min = 9999;
-        for(int iClus_test = 0; iClus_test < (int)crPatterns.size(); iClus_test++){
+        for(unsigned int iClus_test = 0; iClus_test < crPatterns.size(); iClus_test++){
           if(crPatterns.at(iClus_test).group != igroup) continue;
           int countDiffId = 0;
           bool isDiffFlag = false;

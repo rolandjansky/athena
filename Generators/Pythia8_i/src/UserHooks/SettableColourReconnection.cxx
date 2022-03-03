@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8Plugins/ColourReconnectionHooks.h"
@@ -86,7 +86,7 @@ namespace Pythia8{
   private:
     
     Pythia8_UserHooks::UserSetting<int> m_modeIn;
-    Pythia8_UserHooks::UserSetting<int> m_strengthIn;
+    Pythia8_UserHooks::UserSetting<double> m_strengthIn;
     
   };
   

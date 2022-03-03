@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file PileUpMergeSvc.h
@@ -29,6 +29,7 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 
 #include "PileUpTools/IPileUpXingFolder.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <cassert>
 
@@ -37,7 +38,6 @@
 #include <utility> /*std::pair*/
 #include <mutex>
 
-class ActiveStoreSvc;
 class ISvcLocator;
 class StoreGateSvc;
 class ITriggerTime;
@@ -122,12 +122,11 @@ public:
 
 private:
   ServiceHandle<StoreGateSvc> p_overStore;      ///< overlaid SG (default)
-  ServiceHandle<ActiveStoreSvc> p_activeStore;  ///< current active store
   ToolHandleArray<IPileUpXingFolder> m_intervals; ///< Property: bunch xing intervals
 
   // Protect against multiple threads trying to make EventInfo
   // for the same slot.
-  mutable SG::SlotSpecificObj<std::mutex> m_slotMutex;
+  mutable SG::SlotSpecificObj<std::mutex> m_slotMutex ATLAS_THREAD_SAFE;
 
   template <typename DATA, typename KEY>
   bool isLive(const KEY& key, int iXing);   ///< is iXing live for DATA/key?

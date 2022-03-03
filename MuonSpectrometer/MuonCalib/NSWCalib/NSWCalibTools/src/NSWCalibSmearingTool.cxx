@@ -467,7 +467,7 @@ StatusCode NSWCalibSmearingTool::readHighVoltagesStatus()
 	    while(elem) {
 	      std::string subs_elem;
 	      elem >> subs_elem;
-	      if (subs_elem != "") elements.push_back(subs_elem);
+	      if (!subs_elem.empty()) elements.push_back(subs_elem);
 	    }
 	    
 	    gasGap = std::stoi(elements[0]);

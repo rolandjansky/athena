@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkToolInterfaces/IBoundaryCheckTool.h"
@@ -14,12 +14,10 @@ InDet::InDetBoundaryCheckTool::InDetBoundaryCheckTool(
 ):
     AthAlgTool(t, n, p),
     m_geoModelSvc("GeoModelSvc", n),
-    m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
     m_atlasId(nullptr)
 {
     declareInterface<IBoundaryCheckTool>(this);
     declareProperty("GeoModelService", m_geoModelSvc);
-    declareProperty("PixelLayerTool", m_pixelLayerTool);
 }
 
 StatusCode InDet::InDetBoundaryCheckTool::initialize() {

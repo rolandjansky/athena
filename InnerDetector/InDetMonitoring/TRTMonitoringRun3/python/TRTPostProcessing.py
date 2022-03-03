@@ -77,3 +77,44 @@ def hHitOnTrackVsAll(inputs):
                     else:
                         rh.SetBinContent(j + 1, 0)
     return [rh]
+
+def hEfficiency(inputs):
+    import ROOT
+    region = inputs[0][0]['region']
+    side = inputs[0][0]['side']
+    if region == 'Barrel':
+        name  = 'hEfficiencyBarrel' + str(side)
+    if region == 'Endcap':
+        name  = 'hEfficiencyEndCap' + str(side)
+    rh = ROOT.TH1F(name, 'Straw Efficiency (' + name[11:] + ')', 500, -0.01, 1.01)
+    rh.GetXaxis().SetTitle('Efficiency')
+    rh.GetYaxis().SetTitle('Number of Straws')
+    for i in range(len(inputs[0][1])):
+        plots = [_[1][i] for _ in inputs]
+        for plot in plots:
+            for nStraw in range(plot.GetXaxis().GetNbins()):
+                rh.Fill(plot.GetBinContent(nStraw + 1))
+    return [rh]
+
+def hEfficiencyIntegral(inputs):
+    import ROOT
+    region = inputs[0][0]['region']
+    side = inputs[0][0]['side']
+    if region == 'Barrel':
+        name  = 'hEfficiencyBarrel' + str(side)
+    if region == 'Endcap':
+        name  = 'hEfficiencyEndCap' + str(side)
+    rh = ROOT.TH1F(name, 'Straw Efficiency (' + name[11:] + ')', 500, -0.01, 1.01)
+    rh.GetXaxis().SetTitle('Efficiency')
+    rh.GetYaxis().SetTitle('Fraction of Straws')
+    for i in range(len(inputs[0][1])):
+        plots = [_[1][i] for _ in inputs]
+        for plot in plots:
+            for nStraw in range(plot.GetXaxis().GetNbins()):
+                rh.Fill(plot.GetBinContent(nStraw + 1))
+    totalEntries = 0.
+    entries = rh.GetEntries()
+    for nStraw in range(rh.GetXaxis().GetNbins()):
+        totalEntries += rh.GetBinContent(nStraw + 1)
+        rh.SetBinContent(nStraw + 1, totalEntries/float(entries))
+    return [rh]

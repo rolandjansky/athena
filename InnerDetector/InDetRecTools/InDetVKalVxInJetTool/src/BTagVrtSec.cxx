@@ -8,7 +8,6 @@
 //-------------------------------------------------
 // Other stuff
 #include  "AnalysisUtils/AnalysisMisc.h"
-#include  "TrkToolInterfaces/ITrackSummaryTool.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
 #include "TProfile.h"
@@ -67,10 +66,6 @@ namespace InDet{
   const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not coming from B,C-decays
 
 
-
-
-
-
   xAOD::Vertex* InDetVKalVxInJetTool::getVrtSec(const std::vector<const xAOD::TrackParticle*>& inpTrk,
                                                 const xAOD::Vertex                           & primVrt,
                                                 const TLorentzVector                         & jetDir,
@@ -82,6 +77,7 @@ namespace InDet{
   {
 
       ATH_MSG_DEBUG("getVrtSec() called with xAOD::TrackParticle=" <<inpTrk.size());
+      if( inpTrk.size() < 2 ) { return nullptr;} // 0,1 track => nothing to do!
 
       std::vector<double> errorMatrix,Impact,ImpactError;
       Amg::Vector3D          fitVertex;
@@ -94,9 +90,15 @@ namespace InDet{
       listSecondTracks.clear();
       nRefPVTrk=0;
 
-      if( inpTrk.size() < 2 ) { return nullptr;} // 0,1 track => nothing to do!
+      float evtWgt=1.;
+      const EventContext & ctx = Gaudi::Hive::currentContext();
+      SG::ReadHandle<xAOD::EventInfo> eventInfo{m_eventInfoKey, ctx};
+      if (eventInfo.isValid()) {
+        if(eventInfo->hasBeamSpotWeight()) evtWgt *= eventInfo->beamSpotWeight();
+      } else ATH_MSG_DEBUG("No event info object found!");
+
       nRefPVTrk = selGoodTrkParticle( inpTrk, primVrt, jetDir, selectedTracks);
-      if(m_fillHist){m_hb_ntrkjet->Fill( (double)selectedTracks.size(), m_w_1);
+      if(m_fillHist){m_hb_ntrkjet->Fill( (double)selectedTracks.size(), evtWgt);
                      m_pr_NSelTrkMean->Fill(jetDir.Pt(),(double)selectedTracks.size()); }
       long int NTracks = (int) (selectedTracks.size());
       if( NTracks < 2 ) { return nullptr;} // 0,1 selected track => nothing to do!
@@ -104,7 +106,7 @@ namespace InDet{
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks inside jet= " <<NTracks << endmsg;
       
       TLorentzVector MomentumJet = totalMom(selectedTracks);
-      if(m_fillHist){m_hb_jmom->Fill( MomentumJet.E(), m_w_1); }
+      if(m_fillHist){m_hb_jmom->Fill( MomentumJet.E(), evtWgt); }
 
 
 //--------------------------------------------------------------------------------------------
@@ -113,7 +115,7 @@ namespace InDet{
       std::vector<const xAOD::TrackParticle*>  tracksForFit;
       std::vector<double> inpMass(NTracks,m_massPi);
       int Vrt2TrackNumber = select2TrVrt(selectedTracks, tracksForFit, primVrt, jetDir, inpMass, nRefPVTrk,
-                   trkFromV0,listSecondTracks);
+                   trkFromV0,listSecondTracks,evtWgt);
 //
 //--- Cleaning
 // 
@@ -171,7 +173,7 @@ namespace InDet{
           if( hitIBL<=0 && hitBL<=0 ) continue;                  // No IBL and BL pixel hits => non-precise track
           Signif3DP = m_fitSvc->VKalGetImpact(i_ntrk, primVrt.position(), 1, Impact, ImpactError);
           if(Signif3DP<1.)continue;
-          if(m_fillHist){ m_hb_diffPS->Fill( Signif3DP-Signif3DS, m_w_1); }
+          if(m_fillHist){ m_hb_diffPS->Fill( Signif3DP-Signif3DS, evtWgt); }
           if(Signif3DP-Signif3DS>4.0) AdditionalTracks[Signif3DP-Signif3DS]=i_ntrk;
         }
       }
@@ -195,7 +197,7 @@ namespace InDet{
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Start Ntr=2 vertex check"<<endmsg;
         int Charge=0;
         for (const auto *i_ntrk : listSecondTracks) { Charge +=  (int) i_ntrk->charge();}
-	vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
+        vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
 // Check track pixel hit patterns vs vertex position.
         if(m_useVertexCleaningPix){
           if(!check2TrVertexInPixel(listSecondTracks[0],listSecondTracks[1],fitVertex,errorMatrix)) return nullptr;
@@ -210,7 +212,7 @@ namespace InDet{
         }
 //--------
 //
-        if(m_fillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),m_w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),m_w_1);} }
+        if(m_fillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),evtWgt);}else{m_hb_totmass2T0->Fill(Momentum.M(),evtWgt);} }
         if( !Charge && std::abs(Momentum.M()-m_massK0)<15. ) {       // Final rejection of K0
           trkFromV0.push_back(listSecondTracks[0]);
           trkFromV0.push_back(listSecondTracks[1]);
@@ -272,20 +274,32 @@ namespace InDet{
             trackPt=pTvsDir(Amg::Vector3D(jetDir.X(),jetDir.Y(),jetDir.Z()) , TrkAtVrt[tr]);
             if(trackPt>trackPtMax)trackPtMax=trackPt;
           }
-          m_hb_rNdc->Fill( fitVertex.perp(), m_w_1);
-          m_hb_trkPtMax->Fill( trackPtMax, m_w_1);
+          m_hb_rNdc->Fill( fitVertex.perp(), evtWgt);
+          m_hb_trkPtMax->Fill( trackPtMax, evtWgt);
           m_pr_effVrt->Fill((float)nRefPVTrk,1.);              
           m_pr_effVrtEta->Fill( jetDir.Eta(),1.);
-          m_hb_mom->Fill( MomentumJet.E(), m_w_1);
-          m_hb_ratio->Fill( results[1], m_w_1); 
-          m_hb_totmass->Fill( results[0], m_w_1); 
-          m_hb_nvrt2->Fill( results[2], m_w_1);
-          m_hb_sig3DTot->Fill( Signif3D, m_w_1);
-          m_hb_dstToMat->Fill( minDstMat, m_w_1);
+          m_hb_mom->Fill( MomentumJet.E(), evtWgt);
+          m_hb_ratio->Fill( results[1], evtWgt); 
+          m_hb_totmass->Fill( results[0], evtWgt); 
+          m_hb_nvrt2->Fill( results[2], evtWgt);
+          m_hb_sig3DTot->Fill( Signif3D, evtWgt);
+          m_hb_dstToMat->Fill( minDstMat, evtWgt);
           float R=jetDir.DeltaR(TLorentzVector(fitVertex.x()-primVrt.x(),fitVertex.y()-primVrt.y(),
                                                fitVertex.z()-primVrt.z(), 1.e4));
-          m_hb_deltaRSVPV->Fill( R, m_w_1);
-          if(m_curTup)m_curTup->TotM=Momentum.M();
+          m_hb_deltaRSVPV->Fill( R, evtWgt);
+          if(m_curTup){
+            m_curTup->TotM=Momentum.M();
+            if(!m_multiVertex){
+               m_curTup->nNVrt=1;
+               m_curTup->NVrtNT[0]     =listSecondTracks.size();
+               m_curTup->NVrtDist2D[0] =fitVertex.perp();
+               m_curTup->NVrtSig3D[0]  =Signif3D;
+               m_curTup->NVrtM[0]      =Momentum.M();
+               m_curTup->NVrtChi2[0]   =Chi2;
+               m_curTup->NVrtMaxW[0]   =eRatio;
+               m_curTup->NVrtDR[0]     =R;
+            }
+          }
        }
 
 //-------------------------------------------------------------------------------------
@@ -366,10 +380,13 @@ namespace InDet{
                            errorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
                            *state, true);
          if(sc.isFailure() ||  Chi2 > 1000000. ) { return -10000.;}    // No fit
-         sc=GetTrkFitWeights(trkFitWgt, *state);
-         if(sc.isFailure()){ return -10000.;}    // No weights
-	 Outlier=std::min_element(trkFitWgt.begin(),trkFitWgt.end())-trkFitWgt.begin();
-         //////Outlier = findMax( Chi2PerTrk, trkRank ); 
+         if(m_RobustFit){
+           sc=GetTrkFitWeights(trkFitWgt, *state);
+           if(sc.isFailure()){ return -10000.;}    // No weights
+	   Outlier=std::min_element(trkFitWgt.begin(),trkFitWgt.end())-trkFitWgt.begin();
+         }else{
+           Outlier = findMax( Chi2PerTrk, trkRank ); 
+         }
 	 FitProb=TMath::Prob( Chi2, 2*listSecondTracks.size()-3);
 	 if(listSecondTracks.size() == 2 )              break;         // Only 2 tracks left
 //////////////////////////////
@@ -430,7 +447,6 @@ namespace InDet{
       double Dist2D=std::sqrt(fitVertex.x()*fitVertex.x()+fitVertex.y()*fitVertex.y());
       if( listSecondTracks.size()==2  && (Dist2D > 20.) && Charge==0 ) {
         double mass_EE   =  massV0( TrkAtVrt,m_massE,m_massE);
-        if(m_fillHist){m_hb_totmassEE->Fill( mass_EE, m_w_1); }
         if( mass_EE < 40. ) return -40.;
       }
 //-- Test creation of Trk::Track
@@ -469,7 +485,8 @@ namespace InDet{
                                   std::vector<double>                  & inpMass, 
                                   int                                  & nRefPVTrk,
                                   std::vector<const Track*>   & trkFromV0,
-                                  std::vector<const Track*>   & listSecondTracks)
+                                  std::vector<const Track*>   & listSecondTracks,
+                                  float evtWgt)
     const
     {
       std::vector<double> Chi2PerTrk,VKPerigee,CovPerigee;
@@ -503,10 +520,10 @@ namespace InDet{
          //----
          trkScore[i]=m_trackClassificator->trkTypeWgts(selectedTracks[i], primVrt, jetDir);
          if(m_fillHist){
-            m_hb_impactR->Fill( SignifR, m_w_1); 
-            m_hb_impactZ->Fill( SignifZ, m_w_1); 
-            m_hb_impactRZ->Fill(SignifR, SignifZ, m_w_1); 
-            m_hb_impact->Fill( TrkSig3D[i], m_w_1);
+            m_hb_impactR->Fill( SignifR, evtWgt); 
+            m_hb_impactZ->Fill( SignifZ, evtWgt); 
+            m_hb_impactRZ->Fill(SignifR, SignifZ, evtWgt); 
+            m_hb_impact->Fill( TrkSig3D[i], evtWgt);
             if(i<DevTuple::maxNTrk && m_curTup){
                  m_curTup->etatrk[i]=selectedTracks[i]->eta();
                  m_curTup->p_prob[i]=rankBTrk(selectedTracks[i]->pt(),jetDir.Pt(),0.);
@@ -574,12 +591,13 @@ namespace InDet{
              if(std::abs(tmpVrt.fitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
              Dist2D=tmpVrt.fitVertex.perp(); 
              if(Dist2D    > 180. )             continue;  // can't be from B decay
-
              double vrErr  = vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix);
-             if(vrErr>1.5&&getVrtScore(i,j,trkScore) < 4.*m_cutBVrtScore) continue;
-
-             double mass_PiPi =  tmpVrt.momentum.M();  
-             if(mass_PiPi > m_Vrt2TrMassLimit)      continue;  // can't be from B decay
+             if(m_useWrongRadErrorCut){
+               if(vrErr>1.5&&getVrtScore(i,j,trkScore) < 4.*m_cutBVrtScore) continue;
+             }
+//---------------
+             double mass_PiPi =  tmpVrt.momentum.M();
+             if(mass_PiPi > m_vrt2TrMassLimit)      continue;  // can't be from B decay
              vrtVrtDist(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Signif3D);
              tmpVrt.signif3D=Signif3D;
              vrtVrtDist2D(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, tmpVrt.signif2D);
@@ -608,8 +626,8 @@ namespace InDet{
              tmpVrt.signif3DProj=signif3Dproj;
              if(m_fillHist){ 
                 double Signif3DSign=Signif3D; if(jetVrtDir<0) Signif3DSign=-Signif3D;
-                m_hb_signif3D->Fill( Signif3DSign, m_w_1);
-                m_hb_sig3DNtr->Fill(signif3Dproj,  m_w_1);
+                m_hb_signif3D->Fill( Signif3DSign, evtWgt);
+                m_hb_sig3DNtr->Fill(signif3Dproj,  evtWgt);
              }
 
              //if( m_multiWithPrimary || m_multiVertex) { // For multivertex
@@ -622,15 +640,16 @@ namespace InDet{
              if( Charge == 0 && Signif3D>8. && mass_PiPi<900.) {
                double mass_PPi  =  massV0( tmpVrt.trkAtVrt,m_massP,m_massPi);
                double mass_EE   =  massV0( tmpVrt.trkAtVrt,m_massE,m_massE);
-               if(m_fillHist && !m_multiVertex){m_hb_massEE->Fill( mass_EE, m_w_1);} 
+               if(m_fillHist && !m_multiVertex){m_hb_massEE->Fill( mass_EE, evtWgt);} 
                if(       mass_EE <  40.)  { 
                  badTracks = 3;
                }else{
-                 if(m_fillHist && !m_multiVertex){m_hb_massPiPi->Fill( mass_PiPi, m_w_1);} /* Total mass with input particles masses*/
-                 if(m_fillHist && !m_multiVertex){m_hb_massPPi->Fill( mass_PPi, m_w_1);} 
+                 if(m_fillHist && !m_multiVertex){m_hb_massPiPi->Fill( mass_PiPi, evtWgt);} /* Total mass with input particles masses*/
+                 if(m_fillHist && !m_multiVertex){m_hb_massPPi->Fill( mass_PPi, evtWgt);} 
                  if( std::abs(mass_PiPi-m_massK0) < 22. )  badTracks = 1;
                  if( std::abs(mass_PPi-m_massLam) <  8. )  badTracks = 2;
                }
+
 //
 //  Creation of V0 tracks
 //
@@ -672,7 +691,7 @@ namespace InDet{
                     if(sc.isSuccess()) {
                       const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee,*state); 
                       double ImpactSignifV0=m_fitSvc->VKalGetImpact(TT, primVrt.position(), 0, Impact, ImpactError, *state);
-                      if(m_fillHist){m_hb_impV0->Fill( ImpactSignifV0, m_w_1);}
+                      if(m_fillHist){m_hb_impV0->Fill( ImpactSignifV0, evtWgt);}
                       if(ImpactSignifV0>3.0 ) badTracks=0;
                       delete TT;
                     } else { badTracks=0;}
@@ -682,28 +701,29 @@ namespace InDet{
 //
 //  Check interactions on material layers
 //
-            float minWgtI = std::min(trkScore[i][2],trkScore[j][2]);
-            if( minWgtI >0.50 && Dist2D > m_beampipeR-vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix) ) badTracks = 4;
-            //if( (trkScore[i][2]>0.4 || trkScore[j][2]>0.4) 
-            //   && insideMatLayer(tmpVrt.fitVertex.x(),tmpVrt.fitVertex.y()) ) badTracks=5;
+	     if(m_useITkMaterialRejection){
+	       double xvt = tmpVrt.fitVertex.x(); double yvt = tmpVrt.fitVertex.y();
+	       float zvt = tmpVrt.fitVertex.z(); float Rvt = std::hypot(xvt,yvt);
+	       int bin = m_ITkPixMaterialMap->FindBin(zvt,Rvt);
+	       if(m_ITkPixMaterialMap->GetBinContent(bin)>0) badTracks = 4;
+	     }
+	     else{
+	       float minWgtI = std::min(trkScore[i][2],trkScore[j][2]);
+	       if(minWgtI >0.50 && Dist2D > m_beampipeR-vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix) ) badTracks = 4;
+	     }
+
 //
 //-----------------------------------------------
              tmpVrt.badVrt=badTracks;          //
              all2TrVrt.push_back(tmpVrt);      //
 //-----------------------------------------------
-             if(m_fillHist){  m_hb_r2d->Fill( tmpVrt.fitVertex.perp(), m_w_1); }
+             if(m_fillHist){  m_hb_r2d->Fill( tmpVrt.fitVertex.perp(), evtWgt); }
 //
 //  Creation of tracks from V0 list
 //
              if( badTracks ){
                 trkFromV0.push_back(selectedTracks[i]);
                 trkFromV0.push_back(selectedTracks[j]);
-             }else{
-                if( (Signif3D>m_sel2VrtSigCut) ) {
-                  if(std::abs(signif3Dproj)<m_sel2VrtSigCut)continue;
-                  listSecondTracks.push_back(selectedTracks[i]);
-                  listSecondTracks.push_back(selectedTracks[j]);
-                }
              }
          }
       } 
@@ -718,6 +738,7 @@ namespace InDet{
       for( auto it : trkHF) { listSecondTracks.push_back(selectedTracks[it.second]); }
 //-Debug
       if( m_fillHist && m_curTup ){ 
+         m_curTup->ewgt=evtWgt;
          for( auto &it : trkHF) { m_curTup->itHF[m_curTup->NTHF++]=it.second; }
          for( auto &vv : all2TrVrt){ m_curTup->nVrtT[vv.i]++; m_curTup->nVrtT[vv.j]++; }
          fillVrtNTup(all2TrVrt);

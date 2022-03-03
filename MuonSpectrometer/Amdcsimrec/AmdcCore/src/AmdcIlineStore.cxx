@@ -43,19 +43,19 @@ void AmdcIlineStore::Print() const
 }
 
 // Add a AmdcIline
-void AmdcIlineStore::Add(AmdcIline ToBeAdded){m_AmdcIlineSet.push_back(ToBeAdded);}
+void AmdcIlineStore::Add(const AmdcIline& ToBeAdded){m_AmdcIlineSet.push_back(ToBeAdded);}
  
 // Nber of AmdcIline
 int AmdcIlineStore::NberOfObjects() const{return m_AmdcIlineSet.size();}
  
 // Get a Pointer on a AmdcIline of Nber AmdcIlineNber
 const AmdcIline* AmdcIlineStore::GetAmdcIline(int AmdcIlineNber) const{
- const AmdcIline* ToBeReturned = 0 ;
+ const AmdcIline* ToBeReturned = nullptr ;
  if (AmdcIlineNber < 0 || AmdcIlineNber > NberOfObjects()) return ToBeReturned;
  return &m_AmdcIlineSet[AmdcIlineNber];
 }
 AmdcIline* AmdcIlineStore::GetAmdcIlineForUpdate(int AmdcIlineNber){
- AmdcIline* ToBeReturned = 0 ;
+ AmdcIline* ToBeReturned = nullptr ;
  if (AmdcIlineNber < 0 || AmdcIlineNber > NberOfObjects()) return ToBeReturned;
  return &m_AmdcIlineSet[AmdcIlineNber];
 }

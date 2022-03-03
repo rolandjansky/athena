@@ -26,7 +26,7 @@ RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, c
 
 RpcByteStreamDecoder::~RpcByteStreamDecoder()
 {
-  if( m_rpcpads != NULL ) { delete m_rpcpads; m_rpcpads = NULL; }
+  if( m_rpcpads != nullptr ) { delete m_rpcpads; m_rpcpads = nullptr; }
 }
 
 StatusCode RpcByteStreamDecoder::decodeByteStream()
@@ -166,7 +166,7 @@ RpcCoinMatrix* RpcByteStreamDecoder::decodeMatrix(MatrixReadOut* matrix, Identif
     {
       cm_hit = matrix->getCMAHit(j);
       assert(cm_hit.isBody());
-      RpcFiredChannel* firedChannel=0;
+      RpcFiredChannel* firedChannel=nullptr;
 
       if (cm_hit.ijk() < rpcRawHitWordLength )
 	{

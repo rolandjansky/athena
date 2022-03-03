@@ -75,8 +75,8 @@ class sTgcDigit : public MuonDigit {
   uint16_t  m_bcTag;
   float m_charge;
   float m_time;
-  bool m_isDead;
-  bool m_isPileup;
+  bool m_isDead = false;
+  bool m_isPileup = false;
 };
 
 #endif

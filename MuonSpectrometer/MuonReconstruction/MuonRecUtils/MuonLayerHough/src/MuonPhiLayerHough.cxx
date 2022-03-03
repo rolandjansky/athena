@@ -13,21 +13,20 @@
 namespace MuonHough {
 
     MuonPhiLayerHough::MuonPhiLayerHough(int nbins, float rangemin, float rangemax, Muon::MuonStationIndex::DetectorRegionIndex region) :
-        m_rangemin(rangemin), m_rangemax(rangemax), m_region(region), m_nbins(nbins), m_debug(false) {
+        m_rangemin(rangemin), m_rangemax(rangemax), m_region(region), m_nbins(nbins), m_histo{new unsigned int[m_nbins]} {
         // calculate the binsize
         m_binsize = (m_rangemax - m_rangemin) / m_nbins;
         m_invbinsize = 1. / m_binsize,
 
         // setup the histograms
-            m_histo = new unsigned int[m_nbins];
         reset();
     }
 
-    MuonPhiLayerHough::~MuonPhiLayerHough() { delete[] m_histo; }
+    MuonPhiLayerHough::~MuonPhiLayerHough() = default;
 
-    void MuonPhiLayerHough::reset() const { memset(m_histo, 0, sizeof(unsigned int) * m_nbins); }
+    void MuonPhiLayerHough::reset() const { memset(m_histo.get(), 0, sizeof(unsigned int) * m_nbins); }
 
-    void MuonPhiLayerHough::fillLayer2(const std::vector<PhiHit*>& hits, bool subtract) const {
+    void MuonPhiLayerHough::fillLayer2(const PhiHitVec& hits, bool subtract) const {
         if (hits.empty()) return;
 
         std::vector<int> layerCounts(m_nbins, 0);
@@ -38,8 +37,8 @@ namespace MuonHough {
         int prevlayer = hits.front()->layer;
 
         // inner loop over hits
-        std::vector<PhiHit*>::const_iterator it = hits.begin();
-        std::vector<PhiHit*>::const_iterator it_end = hits.end();
+        PhiHitVec::const_iterator it = hits.begin();
+        PhiHitVec::const_iterator it_end = hits.end();
         for (; it != it_end; ++it) {
             // if we get to the next layer process the current one and fill the Hough space
             if (prevlayer != (*it)->layer) {
@@ -92,15 +91,15 @@ namespace MuonHough {
         }
     }
 
-    void MuonPhiLayerHough::fillLayer(const std::vector<PhiHit*>& hits, bool subtract) const {
+    void MuonPhiLayerHough::fillLayer(const PhiHitVec& hits, bool subtract) const {
         if (hits.empty()) return;
         if (m_debug) std::cout << " filling layers, hits " << hits.size() << " subtract " << subtract << std::endl;
         int prevlayer = -1;
         int prevbinmin = 10000;
         int prevbinmax = -1;
         //  loop over hits
-        std::vector<PhiHit*>::const_iterator it = hits.begin();
-        std::vector<PhiHit*>::const_iterator it_end = hits.end();
+        PhiHitVec::const_iterator it = hits.begin();
+        PhiHitVec::const_iterator it_end = hits.end();
         for (; it != it_end; ++it) {
             std::pair<int, int> minMax = range((*it)->r, (*it)->phimin, (*it)->phimax);
             // if( m_debug ) std::cout << " filling: min " << minMax.first << "  max " << minMax.second << std::endl;
@@ -244,11 +243,11 @@ namespace MuonHough {
         return true;
     }
 
-    void MuonPhiLayerHough::associateHitsToMaximum(MuonPhiLayerHough::Maximum& maximum, const std::vector<PhiHit*>& hits) const {
+    void MuonPhiLayerHough::associateHitsToMaximum(MuonPhiLayerHough::Maximum& maximum, const PhiHitVec& hits) const {
         if (maximum.binposmax == -1 || maximum.binposmin == -1) return;
         // loop over hits and find those that are compatible with the maximum
-        std::vector<PhiHit*>::const_iterator it = hits.begin();
-        std::vector<PhiHit*>::const_iterator it_end = hits.end();
+        PhiHitVec::const_iterator it = hits.begin();
+        PhiHitVec::const_iterator it_end = hits.end();
         for (; it != it_end; ++it) {
             // calculate the bins associated with the hit and check whether any of they are part of the maximum
             std::pair<int, int> minMax = range((*it)->r, (*it)->phimin, (*it)->phimax);

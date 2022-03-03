@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -57,7 +57,7 @@ MuonSelector::MuonSelector():
   // EOC commented by Salva -- R22 test --
   unsigned int inst = ++m_uNumInstances;
   m_xSampleName     = "MuID_" + std::to_string(inst);
-  m_pxMuon = NULL;
+  m_pxMuon = nullptr;
   m_bLock  = false;
 
   
@@ -116,7 +116,7 @@ void MuonSelector::Init()
   IToolSvc* toolSvc;
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
 
-  if ( sc.isFailure() || toolSvc == 0 ) {
+  if ( sc.isFailure() || toolSvc == nullptr ) {
     (*m_msgStream) << MSG::ERROR << "  * MuonSelector::Init * Unable to retrieve ToolSvc " << endmsg;
     return;
   }
@@ -289,7 +289,7 @@ bool MuonSelector::passPtCuts()
   const xAOD::TrackParticle* pxMuonMS = m_pxMuon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
   const xAOD::TrackParticle* pxMuonCB = m_pxMuon->trackParticle(xAOD::Muon::CombinedTrackParticle);
 
-  double pt, ptID, ptMS,ptCB;
+  double pt = 0, ptID, ptMS,ptCB;
 
   if ( !(pxMuonID || pxMuonMS || pxMuonCB)){
          if(m_doDebug) std::cout << "    * MuonSelector::passPtCuts * NO inDetTrackParticle && muonSpectrometerTrackParticle && CombinedTrackParticle: " << std::endl;
@@ -301,7 +301,7 @@ bool MuonSelector::passPtCuts()
     ptID  = pxMuonID ? pxMuonID->pt() : 0.0 ;
     ptMS  = pxMuonMS ? pxMuonMS->pt() : 0.0 ;
     ptCB  = pxMuonCB ? pxMuonCB->pt() : 0.0 ;
-    double fMEta = fabs( m_pxMuon->eta() );
+    double fMEta = std::abs( m_pxMuon->eta() );
 
     if(m_doDebug) std::cout << "    * MuonSelector::passPtCuts * pt of each segments of this muon pxMuon: " << pt << std::endl
 			    << "                                                                    ptID: " << ptID << std::endl 
@@ -315,7 +315,7 @@ bool MuonSelector::passPtCuts()
 	 && (ptMS  > m_ptMSCut || !pxMuonMS)
 	 && (ptID  > m_ptMSCut || !pxMuonID)
 	 ){
-      // warning one can check also the difference of pt: fabs(ptMS - ptID) < m_diffPtCut
+      // warning one can check also the difference of pt: std::abs(ptMS - ptID) < m_diffPtCut
       if(m_doDebug) std::cout << "    * MuonSelector::passPtCuts * this muon is in eta range |eta|= " << fMEta << " < EtaCut(" << m_fEtaCut << ") " << std::endl 
 			      << "                                 and passed the PtCuts (" << m_combPtCut <<") "<< std::endl;
       return true;
@@ -395,7 +395,7 @@ bool MuonSelector::passIPCuts()
   }
 
   // retrieve the vertices  
-  const xAOD::VertexContainer *  vxContainer(0);
+  const xAOD::VertexContainer *  vxContainer(nullptr);
   vxContainer = PerfMonServices::getContainer <xAOD::VertexContainer> ( PerfMonServices::VTX_COLLECTION );
   if (!vxContainer){
     if(m_doDebug) std::cout << "   * MuonSelector::passIPCuts ** fails because NO vertex collection "<< std::endl;
@@ -427,16 +427,16 @@ bool MuonSelector::passIPCuts()
 	const xAOD::Vertex* thisVtx  = (*vxContainer)[ivtx];
 	// if ( (thisVtx->vertexType() == 1) && thisVtx->nTrackParticles()>2 ) {
 	if ( thisVtx->nTrackParticles()>2 ) {
-	  if (fabs(extz0 - thisVtx->position().z()) < minDeltaZ) minDeltaZ = fabs(extz0 - thisVtx->position().z());
+	  if (std::abs(extz0 - thisVtx->position().z()) < minDeltaZ) minDeltaZ = std::abs(extz0 - thisVtx->position().z());
 
 	  // check the vertex is in the accepted Z range and that the muon is not far from the vertex
 	  if (m_doDebug) {
-	    std::cout << "           testing vtx: " << ivtx << "  vtx.z= " << thisVtx->position().z() << " trk.z= " << extz0 << "   deltaZ= " << fabs(extz0 - thisVtx->position().z()) << "  minDeltaZ= " << minDeltaZ << std::endl;
+	    std::cout << "           testing vtx: " << ivtx << "  vtx.z= " << thisVtx->position().z() << " trk.z= " << extz0 << "   deltaZ= " << std::abs(extz0 - thisVtx->position().z()) << "  minDeltaZ= " << minDeltaZ << std::endl;
 	  }
-	  if (fabs(thisVtx->position().z()) < m_pVZCut && fabs(extz0 - thisVtx->position().z()) < m_diffZCut){
+	  if (std::abs(thisVtx->position().z()) < m_pVZCut && std::abs(extz0 - thisVtx->position().z()) < m_diffZCut){
 	    goodmuonIP = true;
 	    if(m_doDebug) std::cout << "    * MuonSelector::passIPCuts * this muon has passed the IPCuts for vertex " << ivtx+1
-				    << "  pVZcut= " << fabs(extz0 - thisVtx->position().z()) << " < " << m_diffZCut << std::endl
+				    << "  pVZcut= " << std::abs(extz0 - thisVtx->position().z()) << " < " << m_diffZCut << std::endl
 				    << "                                 vtx (x,y,z): " 
 				    << " (" << thisVtx->position().x()
 				    << ", " << thisVtx->position().y()

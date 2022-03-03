@@ -18,7 +18,7 @@ from DerivationFrameworkMuons import MuonsCommon
 InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addBadBatmanFlag, addDistanceInTrain
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
@@ -78,59 +78,6 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 
-
-#====================================================================
-# TRIGGER CONTENT   
-#====================================================================
-## See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
-## Get single and multi mu, e, photon triggers
-## Jet, tau, multi-object triggers not available in the matching code
-allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
-## Add cross-triggers for some sets
-trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-## Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
-#
-## Merge and remove duplicates
-trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
-trigger_names_full_tau = list(set(trig_tau+trig_txe))
-#
-## Now reduce the list...
-trigger_names_notau = []
-trigger_names_tau = []
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-if ConfigFlags.Trigger.EDMVersion == 3:
-   r_tau = re.compile("HLT_.*tau.*")
-   r_notau = re.compile("HLT_[1-9]*(e|mu|g).*") 
-   r_veto = re.compile("HLT_.*(LRT).*")   
-   for chain_name in GetFileMD(ConfigFlags.Input.Files)["TriggerMenu"]["HLTChains"]:
-      result_tau = r_tau.match(chain_name)
-      result_notau = r_notau.match(chain_name)
-      result_veto = r_veto.match(chain_name)
-      if result_tau is not None and result_veto is None: trigger_names_tau.append(chain_name)
-      if result_notau is not None and result_veto is None: trigger_names_notau.append(chain_name)
-   trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
-   trigger_names_notau = list(trigger_names_notau)
-else:
-   for chain_name in GetFileMD(ConfigFlags.Input.Files)["TriggerMenu"]["HLTChains"]:
-      if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
-      if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
-# Create trigger matching decorations
-HIGG1D1_trigmatching_helper_notau = TriggerMatchingHelper(name="HIGG1D1TriggerMatchingToolNoTau",
-        trigger_list = trigger_names_notau, add_to_df_job=True)
-HIGG1D1_trigmatching_helper_tau = TriggerMatchingHelper(name="HIGG1D1TriggerMatchingToolTau",
-        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
-
-
-
 #====================================================================
 # PV refitting after removing Z->ee tracks, for vertex studies
 #====================================================================
@@ -138,14 +85,20 @@ HIGG1D1_trigmatching_helper_tau = TriggerMatchingHelper(name="HIGG1D1TriggerMatc
 # Creates a vertex container (ZeeRefittedPrimaryVertices) where the type=1 vertex is refitted
 # after removing tracks that are associated with Z->ee decay candidates
 # Tool runs only for data and Zee MC samples (must be defined in the MCSamples list)
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__ZeeVertexRefittingTool
+from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__PrimaryVertexRefitter
+PrimaryVertexRefitter = Analysis__PrimaryVertexRefitter( TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator() )
+ToolSvc += PrimaryVertexRefitter
+
 HIGG1D1_ZeeVertexRefitterTool = DerivationFramework__ZeeVertexRefittingTool( name = "HIGG1D1_ZeeVertexRefitterTool",
                                     ObjectRequirements="(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 19.*GeV)",
                                     LowMassCut=50*Units.GeV,
                                     RefittedPVContainerName="ZeeRefittedPrimaryVertices",                                    
                                     ElectronContainerName="Electrons",
                                     PVContainerName="PrimaryVertices",
-                                    MCSamples = [361106] )
+                                    MCSamples = [361106],
+                                    PrimaryVertexRefitterTool = PrimaryVertexRefitter )
 ToolSvc += HIGG1D1_ZeeVertexRefitterTool
 SeqHIGG1D1 += CfgMgr.DerivationFramework__CommonAugmentation("ZeeVertexRefitKernel", AugmentationTools = [HIGG1D1_ZeeVertexRefitterTool])
 
@@ -294,7 +247,7 @@ if globalflags.DataSource()=="geant4":
     truth_cond_3 = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
     truth_cond_4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
     truth_cond_5 = "(abs(TruthParticles.pdgId) >=  1000000)" # BSM
-    truth_cond_finalState = "(TruthParticles.status == 1 && TruthParticles.barcode < 200000)" # stable particles
+    truth_cond_finalState = "(TruthParticles.status == 1 && TruthParticles.barcode < 200000 && (TruthParticles.pt > 1*GeV))" # stable particles
     truth_expression = "("+truth_cond_1+" || "+truth_cond_2 +" || "+truth_cond_3 +" || "+truth_cond_4+ " || "+truth_cond_5+") || ("+truth_cond_finalState+")"
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -374,6 +327,11 @@ getPFlowfJVT(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1)
 
 # Event cleaning flags
 addEventCleanFlags(sequence=SeqHIGG1D1)
+# Bad batman flag for events with large EMEC-IW Noise
+addBadBatmanFlag(sequence=SeqHIGG1D1)
+# Distance in train
+#addDistanceInTrain(sequence=SeqHIGG1D1)
+ 
 scheduleStandardMETContent(sequence=SeqHIGG1D1, algname="METAssociationAlg")
 
 
@@ -482,7 +440,7 @@ jtm += JetOriginCorrectionTool(
   OnlyAssignPV = True,
 )
 
-# Tools to correct PFO"s
+# Tools to correct PFOs
 ctm.add(CorrectPFOTool("correctPFOCustomVtx",   WeightPFOTool = jtm.pflowweighter, InputIsEM=True, CalibratePFO=True, CorrectNeutral=True,InputType = xAODType.FlowElement,VertexContainerKey=HggVertexContainerName ), alias="correctPFOCustomVtx")
 ctm.add(ChargedHadronSubtractionTool("pfoCHSCustomVtx", InputType = xAODType.FlowElement, VertexContainerKey=HggVertexContainerName, TrackVertexAssociation="JetTVACustomVtx"), alias="pfoCHSCustomVtx")
 
@@ -542,7 +500,6 @@ if not hasattr(SeqHIGG1D1, jtm.pflowcustomvtxget.name()):
 #EventShape (needed for calibration)  
 if not hasattr(SeqHIGG1D1, "EventDensityAlgEDTool4PFlowCustomVtx"):
     SeqHIGG1D1 += defineEDAlg(R=0.4, inputtype="PFlowCustomVtx")
-    SeqHIGG1D1 += defineEDAlg(R=0.4, inputtype="EMPFlow")
 
 # Get empflow_reduced getters but replace empflowget with pflowcustomvtxge
 myGetters=[jtm.pflowcustomvtxget if i==jtm.empflowget else i for i in jtm.gettersMap["empflow_reduced"]]  
@@ -592,8 +549,6 @@ fJVTToolCustomVtx = CfgMgr.JetForwardPFlowJvtTool("DFJetFJVTCustomVtx_" + jetalg
                                             includePV = False)
 print("ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: " + jetalg + "Jets")
 SeqHIGG1D1 += CfgMgr.JetDecorationAlg(fJVTAlgName, JetContainer=jetalg+"Jets", Decorators=[fJVTToolCustomVtx ])
-
-
 
 #MET associated to HggPrimaryVertices
 from DerivationFrameworkJetEtMiss import METCommon
@@ -758,9 +713,13 @@ HIGG1D1Stream.AddItem("xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers")
 HIGG1D1Stream.AddItem("xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepersAux.")
 HIGG1D1Stream.AddItem("ByteStreamMetadataContainer#ByteStreamMetadata")
 
-# Add trigger matching
-HIGG1D1_trigmatching_helper_notau.add_to_slimming(HIGG1D1SlimmingHelper)
-HIGG1D1_trigmatching_helper_tau.add_to_slimming(HIGG1D1SlimmingHelper)
+
+#====================================================================
+# TRIGGER CONTENT   
+#====================================================================
+from DerivationFrameworkPhys import PhysCommonTrigger
+PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(HIGG1D1SlimmingHelper)
+PhysCommonTrigger.trigmatching_helper_tau.add_to_slimming(HIGG1D1SlimmingHelper)
 
 # Final construction of output stream
 HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)

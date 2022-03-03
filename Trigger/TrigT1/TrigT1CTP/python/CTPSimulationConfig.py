@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 def CTPSimulationCfg(flags):
     from AthenaCommon.Logging import logging
     log = logging.getLogger("CTPMCSimulationCfg")
@@ -13,13 +14,14 @@ def CTPSimulationCfg(flags):
                                                         jFexJetInput = "",
                                                         jFexLJetInput = "",
                                                         gFexJetInput =  "",
-                                                        gFexMETPufitInput = "",
+                                                        gFexMETNCInput = "",
                                                         gFexMETRhoInput = "",
                                                         gFexMETJwoJInput = "",
                                                         eFexClusterInput = "",
                                                         eFexTauInput = "",
                                                         TopoInput = "L1TopoToCTPLocation",
-                                                        LegacyTopoInput = "L1TopoLegacyToCTPLocation"
+                                                        LegacyTopoInput = "L1TopoLegacyToCTPLocation",
+                                                        ForceBunchGroupPattern = False if flags.Beam.Type is BeamType.Cosmics else True #to allow simulation of cosmics triggers in MC
                                                         ))
     log.info("Not all part of CTP simulation are enabled yet")
     if flags.Trigger.enableL1CaloLegacy:

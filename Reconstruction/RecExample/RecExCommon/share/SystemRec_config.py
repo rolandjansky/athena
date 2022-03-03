@@ -18,16 +18,38 @@ wrap_indet = True
 
 #First do Calo-Reco
 pdr.flag_domain('calo')
-protectedInclude ("CaloRec/CaloRec_jobOptions.py")
+if DetFlags.detdescr.Calo_on() and rec.doESD():
+    try:
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        ca=CaloRecoCfg(ConfigFlags)
+    
+        for el in ca._allSequences:
+            el.name = "TopAlg"
+
+            appendCAtoAthena(ca)
+    except Exception:
+        treatException("Could translate CaloRecoCfg into athena")
+    finally:
+        Configurable.configurableRun3Behavior=0
+    pass
+
+    
+    #Move L1Calo Trigger tower decoration here for simplicity:
+    if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doTrigger():
+        include("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")
+
+
 AODFix_postCaloRec()
 
 #make the egammaTopoClusters containers, used for seeding
 if jobproperties.CaloRecFlags.doCaloTopoCluster():
-    from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-    try:
-        egammaTopoClusterCopier()
-    except Exception:
-        treatExeption("could not get handle to egammaTopoClusterCopier")
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+    CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags,**HIDict)
 
 #then run ID reco:
 
@@ -36,8 +58,8 @@ if DetFlags.detdescr.ID_on():
     if jobproperties.InDetJobProperties.useNewConfig():
         print('Wrapping InDet new configuration')
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
+        from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+        CAtoGlobalWrapper(InDetTrackRecoCfg,ConfigFlags)
     else:
         protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
         AODFix_postInDetRec()

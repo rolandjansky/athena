@@ -158,6 +158,10 @@ class Selector(object):
     def runAfterQuery(self, runlist):
         pass
 
+    # use this method for the selector to specify which data should be stored
+    def valueForStorage(self, condData, key):
+        return None
+
 
 class Condition(Selector):
     def __init__(self, name, dbfolderkey, channelKeys):
@@ -389,9 +393,9 @@ class RunLBBasedCondition(Condition):
         # for each key sort the data by IOV start time
         for k in self.ResultKey():
             condData[k].sort()
-            #if k.startswith('ofllumi'):
-            #    for x in condData[k]:
-            #        print (k,x)
+            # if k.startswith('Rele'):
+            #     for x in condData[k]:
+            #         print("TEST",k,x)
 
         condDataDict = {}
         for k in self.ResultKey():
@@ -417,14 +421,12 @@ class RunLBBasedCondition(Condition):
                     run.showDataIncomplete = True
 
                 for iov, data in datavec:
-                    #if k=="DQ":
-                    #    print ("CCCCCCCCCCCC",k,data)
                     self.selDataMissing = False
                     if self.ApplySelection(k) and not self.passes(data,k):
-                        run.addResult(k, self.prettyValue(data,k), iov, reject=True)
+                        run.addResult(k, self.prettyValue(data,k), iov, reject=True, valueForStorage=self.valueForStorage(data,k))
                         rejectSomething = True
                     else:
-                        run.addResult(k, self.prettyValue(data,k), iov)
+                        run.addResult(k, self.prettyValue(data,k), iov, valueForStorage=self.valueForStorage(data,k))
                         if self.selDataMissing:
                             run.selDataIncomplete = True
 

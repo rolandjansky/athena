@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -31,8 +31,20 @@
 //==================================================================================================
 ZdcRecV3::ZdcRecV3(const std::string& name, ISvcLocator* pSvcLocator) :
 
-	AthAlgorithm(name, pSvcLocator)
+	AthAlgorithm(name, pSvcLocator),
+	//m_storeGate("StoreGateSvc", name),
+	m_ownPolicy(static_cast<int> (SG::OWN_ELEMENTS))
+	//m_ttContainerName("ZdcTriggerTowers"),
+	//m_zdcModuleContainerName("ZdcModules"),
+	//m_zdcModuleAuxContainerName("ZdcModulesAux."),
+	//m_ttContainer(0),
+	//m_zdcTool("ZDC::ZdcAnalysisTool/ZdcAnalysisTool")
 {
+	declareProperty("OwnPolicy",m_ownPolicy) ;
+
+	//declareProperty("DigitsContainerName", m_ttContainerName, "ZdcTriggerTowers");
+	//declareProperty("ZdcModuleContainerName",    m_zdcModuleContainerName,    "ZdcModules");
+	//declareProperty("ZdcModuleAuxContainerName",    m_zdcModuleAuxContainerName,    "ZdcModulesAux.");
 }
 //==================================================================================================
 
@@ -43,60 +55,74 @@ ZdcRecV3::~ZdcRecV3() {}
 //==================================================================================================
 StatusCode ZdcRecV3::initialize()
 {
-  ATH_CHECK( m_ChannelTool.retrieve() );
-  ATH_CHECK( m_zdcTool.retrieve() );
+	MsgStream mLog(msgSvc(), name());
 
-  // Container output name
-  //TODO: change MESSAGE !!
-  ATH_MSG_DEBUG( " Output Container Name " << m_zdcModuleContainerName );
+	/*
+	// Look up the Storegate service
+	StatusCode sc = m_storeGate.retrieve();
+	if (sc.isFailure())
+	{
+		mLog << MSG::FATAL << "--> ZDC: Unable to retrieve pointer to StoreGateSvc" << endmsg;
+		return sc;
+	}
+	*/
 
-  ATH_CHECK( m_zdcModuleContainerName.initialize() );
-  ATH_CHECK( m_ttContainerName.initialize(SG::AllowEmpty) );
+	// Reconstruction Tool
+	ATH_CHECK( m_ChannelTool.retrieve() );
 
-  ATH_MSG_DEBUG( "--> ZDC: ZdcRecV3 initialization complete" );
+	// Reconstruction Tool
+	ATH_CHECK( m_zdcTool.retrieve() );
 
-  return StatusCode::SUCCESS;
+	ATH_CHECK( m_zdcModuleContainerName.initialize() );
+	ATH_CHECK( m_ttContainerName.initialize(SG::AllowEmpty) );
+
+	if (m_ownPolicy == SG::OWN_ELEMENTS)
+		mLog << MSG::DEBUG << "...will OWN its cells." << endmsg;
+	else
+		mLog << MSG::DEBUG << "...will VIEW its cells." << endmsg;
+
+
+	mLog << MSG::DEBUG << "--> ZDC: ZdcRecV3 initialization complete" << endmsg;
+
+	return StatusCode::SUCCESS;
 }
 //==================================================================================================
 
 //==================================================================================================
 StatusCode ZdcRecV3::execute()
 {
+
   const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG ("--> ZDC: ZdcRecV3 execute starting on "
                  << ctx.evt()
                  << "th event");
 
-	//Look for the container presence
-        if (m_ttContainerName.empty()) {
-	  return StatusCode::SUCCESS;
-	}
+  //Look for the container presence
+  if (m_ttContainerName.empty()) {
+    return StatusCode::SUCCESS;
+  }
 
-	// Look up the Digits "TriggerTowerContainer" in Storegate
-        SG::ReadHandle<xAOD::TriggerTowerContainer> ttContainer
-          (m_ttContainerName, ctx);
+  // Look up the Digits "TriggerTowerContainer" in Storegate
+  SG::ReadHandle<xAOD::TriggerTowerContainer> ttContainer    (m_ttContainerName, ctx);
+  
+  //Create the containers to hold the reconstructed information (you just pass the pointer and the converter does the work)	
+  std::unique_ptr<xAOD::ZdcModuleContainer> moduleContainer( new xAOD::ZdcModuleContainer());
+  std::unique_ptr<xAOD::ZdcModuleAuxContainer> moduleAuxContainer( new xAOD::ZdcModuleAuxContainer() );
+  moduleContainer->setStore( moduleAuxContainer.get() );
+  
+  // rearrange ZDC channels and perform fast reco on all channels (including non-big tubes)
+  int ncha = m_ChannelTool->convertTT2ZM(ttContainer.get(), moduleContainer.get() );
+  ATH_MSG_DEBUG("m_ChannelTool->convertTT2ZM returned " << ncha << " channels");
+  //msg( MSG::DEBUG ) << ZdcModuleToString(*moduleContainer) << endmsg;
+  
+  // re-reconstruct big tubes 
+  ATH_CHECK( m_zdcTool->recoZdcModules(*moduleContainer.get()) ); // passes by reference
 
-    	//Create the containers to hold the reconstructed information (you just pass the pointer and the converter does the work)	
-	std::unique_ptr<xAOD::ZdcModuleContainer> moduleContainer( new xAOD::ZdcModuleContainer());
-	std::unique_ptr<xAOD::ZdcModuleAuxContainer> moduleAuxContainer( new xAOD::ZdcModuleAuxContainer() );
-	moduleContainer->setStore( moduleAuxContainer.get() );
+  SG::WriteHandle<xAOD::ZdcModuleContainer> moduleContainerH (m_zdcModuleContainerName, ctx);
+  ATH_CHECK( moduleContainerH.record (std::move(moduleContainer),
+				      std::move(moduleAuxContainer)) );
 
-	// rearrange ZDC channels and perform fast reco on all channels (including non-big tubes)
-	int ncha = m_ChannelTool->convertTT2ZM(ttContainer.get(), moduleContainer.get() );
-	
-	msg( MSG::DEBUG ) << "Channel tool returns " << ncha << endmsg;
-	msg( MSG::DEBUG ) << ZdcModuleToString(*moduleContainer) << endmsg;
-
-	// re-reconstruct big tubes
-
-	ATH_CHECK( m_zdcTool->recoZdcModules(*moduleContainer) );
-
-        SG::WriteHandle<xAOD::ZdcModuleContainer> moduleContainerH
-          (m_zdcModuleContainerName, ctx);
-        ATH_CHECK( moduleContainerH.record (std::move(moduleContainer),
-                                            std::move(moduleAuxContainer)) );
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 
 }
 //==================================================================================================
@@ -104,7 +130,9 @@ StatusCode ZdcRecV3::execute()
 //==================================================================================================
 StatusCode ZdcRecV3::finalize()
 {
+
   ATH_MSG_DEBUG( "--> ZDC: ZdcRecV3 finalize complete" );
+
   return StatusCode::SUCCESS;
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,16 +13,11 @@
 
 namespace xAOD {
 
-  const float jFexSRJetRoI_v1::s_tobEtScale = 200.;
-  const float jFexSRJetRoI_v1::s_towerEtaWidth = 0.1;
-  const float jFexSRJetRoI_v1::s_towerPhiWidth = 0.1;   
-
-
   // globalEta/Phi calculation in the FCAL varies depending on position in eta space due to TT granularity change.
   //| Region          |      eta region     | TT (eta x phi)
   //---------------------------------------------------------
   // Region 1  EMB    |      |eta| <  25    | (1 x 1)
-  // Region 2  EMIE   | 25 < |eta|< 31      | (2 x 2)
+  // Region 2  EMIE   | 25 < |eta| < 31     | (2 x 2)
   // Region 3  TRANS  | 31 < |eta| < 32     | (1 x 2)
   // Region 4  FCAL   |      |eta| > 32     | (2 x 4)                 
 
@@ -39,7 +34,7 @@ namespace xAOD {
       : SG::AuxElement() {
    }
 
-   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord) {
+   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi) {
     
     
      setTobWord( tobWord );
@@ -51,8 +46,9 @@ namespace xAOD {
      setTobSat(unpackSaturationIndex());
      setGlobalEta(unpackGlobalEta());
      setGlobalPhi(unpackGlobalPhi()); 
-     setEta( (unpackGlobalEta()+unpackTTweightEta())/10 ); 
-     setPhi( (unpackGlobalPhi()+unpackTTweightPhi())/10 ); 
+     setEta( eta ); 
+     setPhi( phi ); 
+     setResolution( resolution ); 
           
    //include in future when xTOB in jFEX has been implemented.
 
@@ -85,7 +81,9 @@ namespace xAOD {
    ///global coordinates, stored for furture use but not sent to L1Topo    
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, float, eta, setEta)
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, float, phi, setPhi)
-       
+    
+   ///Setting the jFEX ET resolution
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, int  , tobEtScale, setResolution)      
   
    //-----------------
    /// Methods to decode data from the TOB/RoI and return to the user
@@ -128,7 +126,7 @@ namespace xAOD {
    /// ET on TOB scale
    unsigned int jFexSRJetRoI_v1::et() const {
        // Returns the TOB Et in a 1 MeV scale
-       return tobEt()*s_tobEtScale; 
+       return tobEt()*tobEtScale(); 
    }
 
   // Global coords
@@ -187,7 +185,7 @@ namespace xAOD {
                 globalPhi = (16*fpgaNumber()) + 2*(tobLocalPhi());
             }
             else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
-                globalPhi = (16*fpgaNumber()) + 4*(tobLocalPhi());
+                globalPhi = (16*fpgaNumber()) + 4*(tobLocalPhi())+1;
             }
         }
         else { //Modules 1-4
@@ -196,55 +194,6 @@ namespace xAOD {
 
         return globalPhi;
 
-    }
-    
-    
-    float jFexSRJetRoI_v1::unpackTTweightEta() const{
-        float weight = 0.0;
-        if(jFexNumber() == 0 || jFexNumber() == 5) {
-            
-            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
-                weight = 0.5;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
-                weight = 1.0;
-            }
-            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
-                weight = 0.5;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
-                weight = 0.5;
-            }
-        }
-        else { //Modules 1-4
-            weight = 0.5;
-        }
-        
-        return  weight;     
-    }
-    
-    float jFexSRJetRoI_v1::unpackTTweightPhi() const{
-        float weight = 0.0;
-        if(jFexNumber() == 0 || jFexNumber() == 5) {
-            
-            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
-                weight = 0.5;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
-                weight = 1.0;
-            }
-            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
-                weight = 1.0;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
-                weight = 2;
-            }
-        }
-        else { //Modules 1-4
-            weight = 0.5;
-        }
-        
-        return   weight;         
     }
 
 } // namespace xAOD

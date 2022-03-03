@@ -11,7 +11,7 @@
 
 class RecoVertexPlots:public PlotBase {
   public:
-    RecoVertexPlots(PlotBase *pParent, std::string sDir);
+    RecoVertexPlots(PlotBase *pParent, const std::string& sDir);
 
     void fill(const xAOD::Vertex& msVx);
 

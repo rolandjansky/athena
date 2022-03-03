@@ -28,12 +28,14 @@ class ITrigLArNoiseBurstHypoTool
 
   struct CaloCellNoiseInfo {
   CaloCellNoiseInfo( TrigCompositeUtils::Decision* d, 
+		     unsigned int& f,
                      const TrigRoiDescriptor* r,
                      const CaloCellContainer* c,
                      const std::set<unsigned int>* bf,
                      const std::vector<HWIdentifier>* MNBfeb,
                      const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
+    flag(f),
     roi( r ), 
     cells(c), 
     knownBadFEBs(bf), knownMNBFEBs(MNBfeb),
@@ -42,6 +44,7 @@ class ITrigLArNoiseBurstHypoTool
     {}
     
     TrigCompositeUtils::Decision* decision;
+    unsigned int& flag;
     const TrigRoiDescriptor* roi;
     const CaloCellContainer* cells;
     const std::set<unsigned int>* knownBadFEBs;

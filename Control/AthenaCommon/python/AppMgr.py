@@ -99,6 +99,10 @@ def iadd( self, tool ):
 GaudiCoreSvcConf.ToolSvc.__iadd__ = iadd
 del iadd
 
+# When adding tools to ToolSvc they are stil considered "private" and thus would
+# be copied. Overwrite the copyChild method to avoid this.
+GaudiCoreSvcConf.ToolSvc.copyChild = lambda self, child : child
+
 ### associator for services --------------------------------------------------
 class AthServiceManager( Configurable.Configurable ):
    def getHandle( self ):

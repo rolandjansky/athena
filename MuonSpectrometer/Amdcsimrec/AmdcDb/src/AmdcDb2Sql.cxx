@@ -60,7 +60,7 @@ void AmdcDb2Sql::DoIt(const std::string& TagFileName,const std::string& tag,IRDB
 
 }
 
-void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfTheSet,std::string tag, IRDBAccessSvc* pIRDBAccessSvc) {
+void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfTheSet,const std::string& tag, IRDBAccessSvc* pIRDBAccessSvc) {
 
   std::ofstream OutFile;
   std::string FileName = TagFileName + ".";
@@ -77,7 +77,7 @@ void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfT
 
   std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
   const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     OutFile << "No way to cast in AmdcDbRecord for " << NameOfTheSet << std::endl;
     return;
   } 
@@ -105,7 +105,7 @@ void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfT
   
   it = pIRDBRecordset->begin();
   pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     OutFile << "No way to cast in AmdcDbRecord for " << NameOfTheSet << std::endl;
     return;
   } 
@@ -161,7 +161,7 @@ void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfT
   it = pIRDBRecordset->begin();
   for ( ; it<pIRDBRecordset->end(); ++it){
     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-    if (pAmdcDbRecord == 0){
+    if (pAmdcDbRecord == nullptr){
       OutFile << "No way to cast in AmdcDbRecord for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -259,7 +259,7 @@ void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfT
     int Idone = 0 ;
     it = pIRDBRecordset->begin();
     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-    if (pAmdcDbRecord == 0){
+    if (pAmdcDbRecord == nullptr){
       OutFile << "No way to cast in AmdcDbRecord for " << NameOfTheSet << std::endl;
       return;
     } 
@@ -283,7 +283,7 @@ void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfT
   OutFile << "comment on column "<< NameOfTheSet <<"_data."<< NameOfTheSet <<"_data_id is 'Unique identifier';" << std::endl;
   it = pIRDBRecordset->begin();
   pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     OutFile << "No way to cast in AmdcDbRecord for " << NameOfTheSet << std::endl;
     return;
   } 

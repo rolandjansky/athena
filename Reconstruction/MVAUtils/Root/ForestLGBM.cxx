@@ -22,13 +22,23 @@ ForestLGBMSimple::ForestLGBMSimple(TTree* tree) : ForestLGBMBase<NodeLGBMSimple>
     tree->SetBranchAddress("vars", &vars);
     tree->SetBranchAddress("values", &values);
 
-    for (int i = 0; i < tree->GetEntries(); ++i)
+    int numEntries = tree->GetEntries();
+    for (int entry = 0; entry < numEntries; ++entry)
     {
         // each entry in the TTree is a decision tree
-        tree->GetEntry(i);
-        if (!vars) { throw std::runtime_error("vars pointer is null in ForestLGBMSimple constructor"); }
-        if (!values) { throw std::runtime_error("values pointers is null in ForestLGBMSimple constructor"); }
-        if (vars->size() != values->size()) { throw std::runtime_error("inconsistent size for vars and values in ForestLGBMSimple constructor"); }
+        tree->GetEntry(entry);
+        if (!vars) {
+          throw std::runtime_error(
+            "vars pointer is null in ForestLGBMSimple constructor");
+        }
+        if (!values) {
+          throw std::runtime_error(
+            "values pointers is null in ForestLGBMSimple constructor");
+        }
+        if (vars->size() != values->size()) {
+          throw std::runtime_error("inconsistent size for vars and values in "
+                                   "ForestLGBMSimple constructor");
+        }
 
         nodes.clear();
 
@@ -88,27 +98,44 @@ ForestLGBM::ForestLGBM(TTree* tree) : ForestLGBMBase<NodeLGBM>()
     tree->SetBranchAddress("vars", &vars);
     tree->SetBranchAddress("values", &values);
     tree->SetBranchAddress("default_left", &default_left);
+    int numEntries = tree->GetEntries();
+    for (int entry = 0; entry < numEntries; ++entry) {
+      // each entry in the TTree is a decision tree
+      tree->GetEntry(entry);
+      if (!vars) {
+        throw std::runtime_error(
+          "vars pointer is null in ForestLGBM constructor");
+      }
+      if (!values) {
+        throw std::runtime_error(
+          "values pointers is null in ForestLGBM constructor");
+      }
+      if (!default_left) {
+        throw std::runtime_error(
+          "default_left pointers is null in ForestLGBM constructor");
+      }
+      if (vars->size() != values->size()) {
+        throw std::runtime_error(
+          "inconsistent size for vars and values in ForestLGBM constructor");
+      }
+      if (default_left->size() != values->size()) {
+        throw std::runtime_error("inconsistent size for default_left and "
+                                 "values in ForestLGBM constructor");
+      }
 
-    for (int i = 0; i < tree->GetEntries(); ++i)
-    {
-        // each entry in the TTree is a decision tree
-        tree->GetEntry(i);
-        if (!vars) { throw std::runtime_error("vars pointer is null in ForestLGBM constructor"); }
-        if (!values) { throw std::runtime_error("values pointers is null in ForestLGBM constructor"); }
-        if (!default_left) { throw std::runtime_error("default_left pointers is null in ForestLGBM constructor"); }
-        if (vars->size() != values->size()) { throw std::runtime_error("inconsistent size for vars and values in ForestLGBM constructor"); }
-        if (default_left->size() != values->size()) { throw std::runtime_error("inconsistent size for default_left and values in ForestLGBM constructor"); }
+      nodes.clear();
 
-        nodes.clear();
+      std::vector<MVAUtils::index_t> right = detail::computeRight(*vars);
 
-        std::vector<MVAUtils::index_t> right = detail::computeRight(*vars);
-
-        for (size_t i = 0; i < vars->size(); ++i) {
-            nodes.emplace_back(vars->at(i), values->at(i), right[i], default_left->at(i));
-            if (vars->at(i) > m_max_var) { m_max_var = vars->at(i); }
+      for (size_t i = 0; i < vars->size(); ++i) {
+        nodes.emplace_back(
+          vars->at(i), values->at(i), right[i], default_left->at(i));
+        if (vars->at(i) > m_max_var) {
+          m_max_var = vars->at(i);
         }
-        newTree(nodes);
-    }  // end loop on TTree, all decision tree loaded
+      }
+      newTree(nodes);
+    } // end loop on TTree, all decision tree loaded
     delete vars;
     delete values;
     delete default_left;

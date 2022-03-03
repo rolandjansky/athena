@@ -21,7 +21,7 @@ class VBF_Z(PowhegV2):
         super(VBF_Z, self).__init__(base_directory, "VBF_W-Z", **kwargs)
 
         # Add algorithms to the sequence
-        self.add_algorithm(ExternalVBFNLO("Z", ["z > e+ e-", "z > mu+ mu-"]))
+        self.add_algorithm(ExternalVBFNLO("Z", ["z > e+ e-", "z > mu+ mu-", "z > tau+ tau-"]))
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bornktmin")
@@ -39,9 +39,9 @@ class VBF_Z(PowhegV2):
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fakevirt")
         self.add_keyword("flg_debug")
-        self.add_keyword("foldcsi")
-        self.add_keyword("foldphi")
-        self.add_keyword("foldy")
+        self.add_keyword("foldcsi", 2)
+        self.add_keyword("foldphi", 2)
+        self.add_keyword("foldy", 2)
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
@@ -55,13 +55,14 @@ class VBF_Z(PowhegV2):
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("manyseeds")
-        self.add_keyword("mll_gencut", 20)
+        self.add_keyword("mll_gencut", 40)
         self.add_keyword("ncall1", 1000000)
         self.add_keyword("ncall2", 3000000)
         self.add_keyword("nubound", 1500000)
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
         self.add_keyword("par_dijexp")
+        self.add_keyword("parallelstage")
         self.add_keyword("pdfreweight")
         self.add_keyword("Phasespace")
         self.add_keyword("ptj_gencut")

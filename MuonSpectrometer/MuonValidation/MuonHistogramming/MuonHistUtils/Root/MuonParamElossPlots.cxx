@@ -7,33 +7,7 @@
 
 namespace Muon{
 
-MuonParamElossPlots::MuonParamElossPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir)
-								   ,msInnerMatchChi2(NULL)
-								   ,msOuterMatchChi2(NULL)
-								   ,ELoss(NULL)
-								   ,ELossDiffTruth(NULL)
-								   ,ELossDiffTruthEta0_1p35(NULL)
-								   ,ELossDiffTruthEta1p35_1p55(NULL)
-								   ,ELossDiffTruthEta1p55_end(NULL)
-								   ,ELossSigma(NULL)
-								   ,paramELoss(NULL)
-								   ,paramELossDiff(NULL)
-   							           ,paramELossDiffTruth(NULL)
-								   ,paramELossDiffTruthEta0_1p35(NULL)
-								   ,paramELossDiffTruthEta1p35_1p55(NULL)
-								   ,paramELossDiffTruthEta1p55_end(NULL)
-								   ,measELoss(NULL)
-								   ,measELossDiff(NULL)
-								   ,measELossDiffTruth(NULL)
-								   ,measELossDiffTruthEta0_1p35(NULL)
-								   ,measELossDiffTruthEta1p35_1p55(NULL)
-								   ,measELossDiffTruthEta1p55_end(NULL)
-								   ,ELossType(NULL)
-								   ,ELossTypeParametrPt(NULL)
-								   ,ELossTypeNotIsoPt(NULL)
-								   ,ELossTypeTailPt(NULL)
-								   ,ELossTypeAllPt(NULL)
-{}
+MuonParamElossPlots::MuonParamElossPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir) {}
 
 void MuonParamElossPlots::initializePlots()
 {
@@ -111,23 +85,23 @@ void MuonParamElossPlots::initializePlots()
 	 !truthprt.isAvailable<float>("MuonEntryLayer_pz")) return;
 
      //workaround for missing caloentry
-     TVector3 vecCaloEntry(truthprt.auxdata<float>("px"),
+     Amg::Vector3D vecCaloEntry{truthprt.auxdata<float>("px"),
 			   truthprt.auxdata<float>("py"),
-			   truthprt.auxdata<float>("pz"));
+			   truthprt.auxdata<float>("pz")};
 
-     /* TVector3 vecCaloEntry(truthprt.auxdata<float>("CaloEntryLayer_px"),
+     /* Amg::Vector3D vecCaloEntry(truthprt.auxdata<float>("CaloEntryLayer_px"),
 			  truthprt.auxdata<float>("CaloEntryLayer_py"),
 			  truthprt.auxdata<float>("CaloEntryLayer_pz"));*/
 
-     TVector3 vecMuonExit(truthprt.auxdata<float>("MuonEntryLayer_px"),
+     Amg::Vector3D vecMuonExit{truthprt.auxdata<float>("MuonEntryLayer_px"),
 			truthprt.auxdata<float>("MuonEntryLayer_py"),
-			truthprt.auxdata<float>("MuonEntryLayer_pz"));
-     float dpTruth=vecCaloEntry.Mag()-vecMuonExit.Mag();
+			truthprt.auxdata<float>("MuonEntryLayer_pz")};
+     float dpTruth=vecCaloEntry.mag()-vecMuonExit.mag();
      hist_DiffTruth->Fill(scale*(fpar-dpTruth),weight); //scale to GeV, if needed
      //again in eta ranges
-     if (fabs(mu.eta())<1.35) hist_DiffTruthEta0_1p35->Fill(scale*(fpar-dpTruth),weight); 
+     if (std::abs(mu.eta())<1.35) hist_DiffTruthEta0_1p35->Fill(scale*(fpar-dpTruth),weight); 
      else  {
-       if (fabs(mu.eta())<1.55) hist_DiffTruthEta1p35_1p55->Fill(scale*(fpar-dpTruth),weight); 
+       if (std::abs(mu.eta())<1.55) hist_DiffTruthEta1p35_1p55->Fill(scale*(fpar-dpTruth),weight); 
        else hist_DiffTruthEta1p55_end->Fill(scale*(fpar-dpTruth),weight); 
      }
   }

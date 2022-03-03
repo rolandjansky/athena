@@ -33,12 +33,12 @@ private:
 
   int m_iLayer;
 
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_length;
-  double m_radialWidth;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_length = 0.0;
+  double m_radialWidth = 0.0;
 };
 
 #endif // SCT_GEOMODEL_SCT_FLANGE_H

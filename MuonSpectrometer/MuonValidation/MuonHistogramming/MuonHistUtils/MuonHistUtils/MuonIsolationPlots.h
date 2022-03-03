@@ -13,7 +13,7 @@ namespace Muon{
 #ifndef XAOD_ANALYSIS
 class IsoCorrPlots:public PlotBase {
  public:
-      IsoCorrPlots(PlotBase* pParent, std::string sDir, std::string sCorrType);
+      IsoCorrPlots(PlotBase* pParent, const std::string& sDir, std::string sCorrType);
 
       void fill(const xAOD::Muon& muon,
 		const xAOD::Iso::IsolationType &isoType_cone20,
@@ -26,11 +26,11 @@ class IsoCorrPlots:public PlotBase {
       void fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr, float weight=1.0);
       std::string m_sCorrType;
       
-      TH1* isocorr;
-      TH1* isocorr_relPt;
-      TH1* isocorr_relIsocone20;
-      TH1* isocorr_relIsocone30;
-      TH1* isocorr_relIsocone40;
+      TH1* isocorr{nullptr};
+      TH1* isocorr_relPt{nullptr};
+      TH1* isocorr_relIsocone20{nullptr};
+      TH1* isocorr_relIsocone30{nullptr};
+      TH1* isocorr_relIsocone40{nullptr};
       
  private:
       void initializePlots();
@@ -40,7 +40,7 @@ class IsoCorrPlots:public PlotBase {
 
 class IsoPlots:public PlotBase {
     public:
-      IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize);
+      IsoPlots(PlotBase* pParent, const std::string& sDir, std::string sConeSize);
       void fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType, float weight=1.0);
       void fill(float fIso, float fPt, float weight=1.0);
       std::string m_sConeSize;
@@ -56,16 +56,12 @@ class IsoPlots:public PlotBase {
  
 class MuonIsolationPlots:public PlotBase {
    public:
-     MuonIsolationPlots(PlotBase* pParent, std::string sDir);
+     MuonIsolationPlots(PlotBase* pParent, const std::string& sDir);
      void fill(const xAOD::Muon& muon, float weight=1.0);
      
      IsoPlots m_oPtCone20;
      IsoPlots m_oPtCone30;
      IsoPlots m_oPtCone40;
-
-     IsoPlots m_oEtCone20;
-     IsoPlots m_oEtCone30;
-     IsoPlots m_oEtCone40;
 
      IsoPlots m_oTopoEtCone20;
      IsoPlots m_oTopoEtCone30;
@@ -80,10 +76,8 @@ class MuonIsolationPlots:public PlotBase {
      IsoPlots m_oPtVarCone40;
 
 #ifndef XAOD_ANALYSIS
-     IsoCorrPlots m_oEtCone_coreCone;
      IsoCorrPlots m_oTopoEtCone_coreCone;
      IsoCorrPlots m_oNEFlowIso_coreCone;
-     IsoCorrPlots m_oEtCone_coreMuon;
 #endif // not XAOD_ANALYSIS
 	  
 };

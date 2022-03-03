@@ -56,7 +56,8 @@ namespace xAOD {
          }
          if( ( *ti != typeid( std::string ) ) &&
              ( *ti != typeid( float ) ) &&
-             ( *ti != typeid( char ) ) ) {
+             ( *ti != typeid( char ) ) &&
+             ( *ti != typeid( std::vector< uint32_t > ) ) ) {
             // We just ignore every other type. Still, this is strange, let's
             // warn the user about it.
             std::cerr << "xAOD::FileMetaData::operator==  WARNING  Unsupported "
@@ -99,7 +100,16 @@ namespace xAOD {
             if( value1 != value2 ) {
                return false;
             }
-
+         } else if ( *ti == typeid( std::vector<uint32_t> ) ) {
+            // One code to retrieve them
+            const std::vector<uint32_t>& value1 =
+               this->auxdata< std::vector<uint32_t> >(name);
+            const std::vector<uint32_t>& value2 =
+               rhs.auxdata< std::vector<uint32_t> >(name);
+            // and in simplicity compare them
+            if( value1 != value2 ) {
+               return false;
+            }
          } else {
             // We should really never end up here unless a coding mistake was
             // made upstream.
@@ -360,6 +370,35 @@ namespace xAOD {
 
       // We were successful:
       return true;
+   }
+
+   bool FileMetaData_v1::value(const std::string& type,
+                               std::vector< uint32_t >& val) const {
+     // Create an accessor object:
+     const Accessor<std::vector<uint32_t> > acc(type);
+
+     // Check if this variable is available:
+     if (!acc.isAvailable(*this)) {
+       return false;
+     }
+
+     // Read the value:
+     val = acc(*this);
+
+     // We were successful:
+     return true;
+   }
+
+   bool FileMetaData_v1::setValue(const std::string& type,
+                                  const std::vector< uint32_t >& val) {
+     // Create the accessor object:
+     const Accessor<std::vector<uint32_t> > acc(type);
+
+     // Set the value:
+     acc(*this) = val;
+
+     // We were successful:
+     return true;
    }
 
 /// Helper macro used to print MetaDataType values

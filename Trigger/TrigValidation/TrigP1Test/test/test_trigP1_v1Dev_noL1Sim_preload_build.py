@@ -8,4 +8,4 @@
 from TrigP1Test.PreloadTest import test_trigP1_preload
 import sys
 
-sys.exit(test_trigP1_preload('LS2_v1').run())
+sys.exit(test_trigP1_preload('Dev_pp_run3_v1').run())

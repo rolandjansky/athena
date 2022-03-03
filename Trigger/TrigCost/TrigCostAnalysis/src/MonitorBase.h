@@ -11,7 +11,7 @@
 #include "AsgMessaging/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "CostData.h"
 #include "CounterBase.h"

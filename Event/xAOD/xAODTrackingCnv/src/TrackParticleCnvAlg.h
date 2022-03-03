@@ -29,8 +29,7 @@
 // Local include(s):
 #include "xAODTrackingCnv/ITrackParticleMonitoring.h"
 
-
-
+class GenericMonitoringTool;
 
 namespace Trk {
   class ITrackParticleCreatorTool;
@@ -108,7 +107,10 @@ namespace xAODMaker {
     // Allow monitoring of track parameters during conversion
     bool m_doMonitoring;
     ToolHandle<ITrackParticleMonitoring>
-      m_trackMonitoringTool{ this, "MonTool", "", "Tracking Monitoring tool" };
+      m_trackMonitoringTool{ this, "TrkMonTool", "", "Tracking Monitoring tool" };
+
+    //for timing we need a handle to the MonTool in the alg 
+    ToolHandle<GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
     // Augment observed tracks with information from track observer tool map
     bool m_augmentObservedTracks;

@@ -1,7 +1,7 @@
 #include "TrkExSolenoidalIntersector/SolenoidalIntersector.h"
 #include "../SolenoidParametrizationCondAlg.h"
 
-typedef Trk::SolenoidalIntersector TrkSolenoidalIntersector;
+using TrkSolenoidalIntersector = Trk::SolenoidalIntersector;
 DECLARE_COMPONENT( TrkSolenoidalIntersector )
 DECLARE_COMPONENT( Trk::SolenoidParametrizationCondAlg )
 

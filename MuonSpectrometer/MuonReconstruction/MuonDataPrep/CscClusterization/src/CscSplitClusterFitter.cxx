@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscSplitClusterFitter.h"
@@ -21,8 +21,10 @@ typedef ICscClusterFitter::DataNames DataNames;
 using Result = ICscClusterFitter::Result;
 using Results = std::vector<Result>;
 
+namespace {
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
+}
 
 //******************************************************************************
 

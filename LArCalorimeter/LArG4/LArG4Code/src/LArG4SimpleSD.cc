@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/LArG4SimpleSD.h"
@@ -250,7 +250,7 @@ G4int LArG4SimpleSD::getTimeBin(G4double time) const
 void LArG4SimpleSD::EndOfAthenaEvent( LArHitContainer * hitContainer )
 {
   // For each time bin...
-  for(const auto i : m_timeBins) {
+  for(const auto& i : m_timeBins) {
     if (verboseLevel>5)
       G4cout << "EndOfEvent: time bin " << i.first << " - #hits = " << i.second->size() << G4endl;
       

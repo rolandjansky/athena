@@ -143,6 +143,7 @@ namespace DerivationFramework {
                               kNPixFloatDecor };
      std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_trackPixFloatDecorKeys;
      SG::WriteDecorHandleKey<xAOD::TrackParticleContainer>               m_trackTSOSMOSLinkDecorKey;
+     Gaudi::Property< std::vector<float> > m_pixelLayerRadii {this, "PixelLayerRadii", {29.5,50.5,88.5,122.5}, "Radii to extrapolate to for estimating track position on layers" };
 
 
   }; 

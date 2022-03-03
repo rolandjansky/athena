@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 *
 *
 *	AFPSiLayerAlgorithm
@@ -15,11 +15,8 @@
 
 #include <vector>
 
-std::vector<int> frontBCIDsVector;
-std::vector<int> middleBCIDsVector;
-std::vector<int> endBCIDsVector;
 
-
+namespace {
 bool isInListVector(const int bcid, const std::vector<int>&arr)
 {
 	return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
@@ -41,6 +38,7 @@ int reorganizePlanesInt(const int station, const int layer)
 		return (station*4)+3-(layer);
 	}
 	return 0;
+}
 }
 
 
@@ -84,13 +82,14 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto numberOfEventsPerLumiblockFront  = Monitored::Scalar<int>("numberOfEventsPerLumiblockFront", 0);
 	auto numberOfEventsPerLumiblockMiddle = Monitored::Scalar<int>("numberOfEventsPerLumiblockMiddle", 0);
 	auto numberOfEventsPerLumiblockEnd    = Monitored::Scalar<int>("numberOfEventsPerLumiblockEnd", 0);
-	
-	numberOfEventsPerLumiblockFront   = GetEventInfo(ctx)->lumiBlock();
-	numberOfEventsPerLumiblockMiddle  = GetEventInfo(ctx)->lumiBlock();
-	numberOfEventsPerLumiblockEnd     = GetEventInfo(ctx)->lumiBlock();
+
+	SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo(ctx);
+	numberOfEventsPerLumiblockFront   = eventInfo->lumiBlock();
+	numberOfEventsPerLumiblockMiddle  = eventInfo->lumiBlock();
+	numberOfEventsPerLumiblockEnd     = eventInfo->lumiBlock();
 
 	// BCX handler
-	unsigned int temp = GetEventInfo(ctx)->bcid();
+	const unsigned int bcid = eventInfo->bcid();
 	SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
 	if (!bcidHdl.isValid()) {
 		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object (SiT)" );
@@ -98,39 +97,31 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	const BunchCrossingCondData* bcData{*bcidHdl};
 
 	// Classifying bunches by position in train (Front, Middle, End)
-	if(bcData->isFilled(temp))
+        enum { FRONT, MIDDLE, END, NPOS } position = NPOS;
+	if(bcData->isFilled(bcid))
 	{
-		bcidAll = temp;
+		bcidAll = bcid;
 		fill("AFPSiLayerTool", bcidAll);
-		if(!bcData->isFilled(temp-1))
+		if(!bcData->isFilled(bcid-1))
 		{
-			if(!isInListVector(temp, frontBCIDsVector))
-			{
-				frontBCIDsVector.push_back(temp);
-			}
-			bcidFront = temp;
+                        position = FRONT;
+			bcidFront = bcid;
 			fill("AFPSiLayerTool", bcidFront);
 			fill("AFPSiLayerTool", numberOfEventsPerLumiblockFront);
 		}
 		else
 		{
-			if(bcData->isFilled(temp+1))
+			if(bcData->isFilled(bcid+1))
 			{
-				if(!isInListVector(temp, middleBCIDsVector))
-				{
-					middleBCIDsVector.push_back(temp);
-				}
-				bcidMiddle = temp;
+                                position = MIDDLE;
+				bcidMiddle = bcid;
 				fill("AFPSiLayerTool", bcidMiddle);
 				fill("AFPSiLayerTool", numberOfEventsPerLumiblockMiddle);
 			}
 			else
 			{
-				if(!isInListVector(temp, endBCIDsVector))
-				{
-					endBCIDsVector.push_back(temp);
-				}
-				bcidEnd = temp;
+                                position = END;
+				bcidEnd = bcid;
 				fill("AFPSiLayerTool", bcidEnd);
 				fill("AFPSiLayerTool", numberOfEventsPerLumiblockEnd);
 			}
@@ -198,10 +189,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 	auto clusterToT = Monitored::Scalar<int>("clusterToT", 0);
 	
-	lb        = GetEventInfo(ctx)->lumiBlock();
-	lbEvents  = GetEventInfo(ctx)->lumiBlock();
+	lb        = eventInfo->lumiBlock();
+	lbEvents  = eventInfo->lumiBlock();
 	muPerBX   = lbAverageInteractionsPerCrossing(ctx);
-	//run     = GetEventInfo(ctx)->runNumber();
 	fill("AFPSiLayerTool", lb, muPerBX);
 	fill("AFPSiLayerTool", lbEvents);
 	
@@ -224,10 +214,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
-		lb                  = GetEventInfo(ctx)->lumiBlock();
-		lbHits              = GetEventInfo(ctx)->lumiBlock();
-		lbEventsStations    = GetEventInfo(ctx)->lumiBlock();
-		lbEventsStationsAll = GetEventInfo(ctx)->lumiBlock();
+		lb                  = eventInfo->lumiBlock();
+		lbHits              = eventInfo->lumiBlock();
+		lbEventsStations    = eventInfo->lumiBlock();
+		lbEventsStationsAll = eventInfo->lumiBlock();
 		pixelRowIDChip      = hitsItr->pixelRowIDChip();
 		pixelColIDChip      = hitsItr->pixelColIDChip();
 		timeOverThreshold   = hitsItr->timeOverThreshold();
@@ -277,8 +267,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			
 			fill("AFPSiLayerTool", lbHits);
 			
-			lbHitsPerPlanes       = GetEventInfo(ctx)->lumiBlock();
-			lbHitsPerPlanes_full  = GetEventInfo(ctx)->lumiBlock();
+			lbHitsPerPlanes       = eventInfo->lumiBlock();
+			lbHitsPerPlanes_full  = eventInfo->lumiBlock();
 			weightHitsByMU = 1 / muPerBX;
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lbHitsPerPlanes, weightHitsByMU);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lbHitsPerPlanes_full);
@@ -389,17 +379,17 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		trackY = track.y * 1.0;
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(track.station))], trackY, trackX);
 		
-		if (isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
+		if (position == FRONT)
 		{
 			++totalTracksFront[track.station];
 			++totalTracksAll[track.station];
 		}
-		else if (isInListVector(GetEventInfo(ctx)->bcid(), middleBCIDsVector))
+		else if (position == MIDDLE)
 		{
 			++totalTracksMiddle[track.station];
 			++totalTracksAll[track.station];
 		}
-		else if (isInListVector(GetEventInfo(ctx)->bcid(), endBCIDsVector))
+		else if (position == END)
 		{
 			++totalTracksEnd[track.station];
 			++totalTracksAll[track.station];
@@ -426,20 +416,20 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto lbTracksMiddle_full  = Monitored::Scalar<int>("lbTracksMiddle_full", 0);
 	auto lbTracksEnd_full     = Monitored::Scalar<int>("lbTracksEnd_full", 0);
 	
-	lbTracksAll     = GetEventInfo(ctx)->lumiBlock();
-	lbTracksFront   = GetEventInfo(ctx)->lumiBlock();
-	lbTracksMiddle  = GetEventInfo(ctx)->lumiBlock();
-	lbTracksEnd     = GetEventInfo(ctx)->lumiBlock();
+	lbTracksAll     = eventInfo->lumiBlock();
+	lbTracksFront   = eventInfo->lumiBlock();
+	lbTracksMiddle  = eventInfo->lumiBlock();
+	lbTracksEnd     = eventInfo->lumiBlock();
 	
-	lbTracksAll_full      = GetEventInfo(ctx)->lumiBlock();
-	lbTracksFront_full    = GetEventInfo(ctx)->lumiBlock();
-	lbTracksMiddle_full   = GetEventInfo(ctx)->lumiBlock();
-	lbTracksEnd_full      = GetEventInfo(ctx)->lumiBlock();
+	lbTracksAll_full      = eventInfo->lumiBlock();
+	lbTracksFront_full    = eventInfo->lumiBlock();
+	lbTracksMiddle_full   = eventInfo->lumiBlock();
+	lbTracksEnd_full      = eventInfo->lumiBlock();
 	
-	lbTracksAll_full    = GetEventInfo(ctx)->lumiBlock();
-	lbTracksFront_full  = GetEventInfo(ctx)->lumiBlock();
-	lbTracksMiddle_full = GetEventInfo(ctx)->lumiBlock();
-	lbTracksEnd_full    = GetEventInfo(ctx)->lumiBlock();
+	lbTracksAll_full    = eventInfo->lumiBlock();
+	lbTracksFront_full  = eventInfo->lumiBlock();
+	lbTracksMiddle_full = eventInfo->lumiBlock();
+	lbTracksEnd_full    = eventInfo->lumiBlock();
 	
 	for(int i = 0; i < 4; i++)
 	{
@@ -487,8 +477,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		clusterToT = cluster.sumToT;
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterToT);
 		
-		lbClustersPerPlanes = GetEventInfo(ctx)->lumiBlock();
-		lbClustersPerPlanes_full = GetEventInfo(ctx)->lumiBlock();
+		lbClustersPerPlanes = eventInfo->lumiBlock();
+		lbClustersPerPlanes_full = eventInfo->lumiBlock();
 		weightClustersByMU = 1/muPerBX;
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], lbClustersPerPlanes, weightClustersByMU);
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], lbClustersPerPlanes_full);

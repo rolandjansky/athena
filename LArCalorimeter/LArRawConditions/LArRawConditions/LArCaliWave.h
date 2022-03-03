@@ -107,7 +107,7 @@ bool LArCaliWaveVec::isEmpty() const {
 
 inline
 LArCaliWave::LArCaliWave() 
-  : LArWaveCumul(), m_DAC(0)
+  : LArWaveCumul(), m_DAC(0), m_isPulsed(false)
 {}
 
 inline

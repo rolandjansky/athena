@@ -142,10 +142,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	TrackFilter*        truthFilter = &filter_etaPT;
 
-	//tau filtering done separately to include mothers
-	if ( m_TruthPdgId!=0 && m_TruthPdgId!=15 ) truthFilter = &filter_pdgIdpTeta;
-
-	TrigTrackSelector selectorTruth( truthFilter, m_fiducial_radius ); 
+	TrigTrackSelector selectorTruth( truthFilter, m_fiducial_radius, m_TruthPdgId, m_parentTruthPdgId); 
 
 	TrigTrackSelector selectorRef( &filter_etaPT ); 
 	TrigTrackSelector selectorTest( &filter ); 
@@ -287,8 +284,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 	m_provider->msg(MSG::DEBUG) << "MC Truth flag " << m_mcTruth << endmsg; 
 	const TrigInDetTrackTruthMap* truthMap = 0;
-	bool foundTruth = false;
-	if ( m_mcTruth && m_TruthPdgId!=15) { 
+
+	if ( m_mcTruth) { 
 		m_provider->msg(MSG::DEBUG) << "getting Truth" << endmsg; 
 		if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
 			m_hasTruthMap = false;
@@ -299,153 +296,27 @@ void AnalysisConfigMT_Ntuple::loop() {
 		if (m_provider->evtStore()->contains<TruthParticleContainer>("INav4MomTruthEvent")) {
 			//ESD
 			selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<TruthParticleContainer>("SpclMC")) {
 			/// AOD
 			selectTracks<TruthParticleContainer>( &selectorTruth, "SpclMC");
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<TruthParticleContainer>("")) {
 			/// anything else?
 			selectTracks<TruthParticleContainer>( &selectorTruth, "");
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("TruthParticles")) {
 			/// anything else?
 		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "TruthParticles" );
-			foundTruth = true;
 		}
 		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("")) {
 			/// anything else?
 		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "" );
-			foundTruth = true;
 		}
 		else { 
 			m_provider->msg(MSG::WARNING) << "Truth not found - none whatsoever!" << endmsg; 
 		}
 	}
-
-
-	/// No lovely truth particle collections, so will need to 
-	/// navigate through the egregious McTruthCollection, looking 
-	/// at the GenParticles on each GenVertex in the collection
-	/// lovely...
-
-	if ( m_mcTruth && !foundTruth ) { 
-
-		m_provider->msg(MSG::DEBUG) << "getting Truth" << endmsg; 
-
-		/// selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
-
-		const DataHandle<McEventCollection> mcevent;
-
-		/// now as a check go through the GenEvent collection
-
-		std::string collectionNames[4] = { "GEN_AOD", "TruthEvent", "", "G4Truth" };
-
-		std::string collectionName = "";
-
-		bool foundcollection = false;
-
-		for ( int ik=0 ; ik<4 ; ik++ ) { 
-
-			m_provider->msg(MSG::DEBUG) << "Try McEventCollection: " << collectionNames[ik] << endmsg;
-
-			if (!m_provider->evtStore()->contains<McEventCollection>(collectionNames[ik]) ) { 
-				m_provider->msg(MSG::DEBUG) << "No McEventCollection: " << collectionNames[ik] << endmsg;
-				continue;
-			}
-
-			m_provider->msg(MSG::DEBUG) << "evtStore()->retrieve( mcevent, " << collectionNames[ik] << " )" << endmsg;  
-
-			if ( m_provider->evtStore()->retrieve( mcevent, collectionNames[ik] ).isFailure() ) {     
-				m_provider->msg(MSG::DEBUG) << "Failed to get McEventCollection: " << collectionNames[ik] << endmsg;
-			}
-			else { 
-				// found this collectionName
-				collectionName = collectionNames[ik];
-				m_provider->msg(MSG::DEBUG) << "Found McEventCollection: " << collectionName << endmsg;
-				foundcollection = true;
-				break;
-			}
-		}
-
-		// not found any collection
-		if ( !foundcollection ) { 
-
-			m_provider->msg(MSG::WARNING) << "No MC Truth Collections of any sort, whatsoever!!!" << endmsg;
-
-			//    m_tree->Fill();
-
-			//    return StatusCode::FAILURE;
-
-			return;
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////
-		/// This is a nasty hack  to find the truth collections 
-		/// why, why, why, why, why oh why, is it sooooo 
-		/// difficult to navigate through this nonsense  
-		/// it's not at all tidy, and should be rewritten, 
-		/// but probably never will be
-
-		m_provider->msg(MSG::DEBUG) << "Found McEventCollection: " << collectionName << "\tNevents " << mcevent->size() << endmsg;
-
-		/// count the number of interactions of each sort
-		/// this is actually *very stupid*, there are a *lot*
-		/// of "processes" with *no* particles in them for some 
-		/// reason, whoever programed this f**cked up structure 
-		/// that needs this sort of fannying around to navigate 
-
-		McEventCollection::const_iterator evitr(mcevent->begin());
-		McEventCollection::const_iterator evend(mcevent->end());
-
-		unsigned ie = 0; /// count of "events" - or interactions
-		unsigned ip = 0; /// count of particles
-		
-		unsigned ie_ip = 0; /// count of "events with some particles"
-		
-		while ( evitr!=evend ) { 
-		  
-		  int _ip = 0; /// count of particles in this interaction 
-		  
-		  int pid = HepMC::signal_process_id((*evitr));
-		  
-		  if ( pid!=0  ) { /// hooray! actually found a sensible event
-		    for(auto  pitr: **evitr) { 
-		      if ( (m_TruthPdgId==15 && fromParent(m_TruthPdgId, pitr)!=0) || m_TruthPdgId!=15 ) {			
-			/// select the ones of interest 
-			selectorTruth.selectTrack( pitr );
-		      }
-		      ++_ip;
-		    }
-		  }
-		  
-		  ++ie;
-		  ++evitr;
-		  
-		  if ( _ip>0 ) {
-		    /// if there were some particles in this interaction ...
-		    //	m_provider->msg(MSG::INFO) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
-		    ++ie_ip;  
-		    ip += _ip;
-		  }
-		}
-		
-		m_provider->msg(MSG::DEBUG) << "Found " << ip << " TruthParticles (GenParticles) in " << ie_ip << " GenEvents out of " << ie << endmsg;
-		
-		m_provider->msg(MSG::DEBUG) << "selected " << selectorTruth.size() << " TruthParticles (GenParticles)" << endmsg;
-
-		////////////////////////////////////////////////////////////////////////////////////////
-
-		if ( !(ip>0) ) {    
-			m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
-			return; /// need to be careful here, if not requiring truth *only* should not return
-		}
-
-	}
-
 
 
 	// clear the ntuple TIDA::Event class

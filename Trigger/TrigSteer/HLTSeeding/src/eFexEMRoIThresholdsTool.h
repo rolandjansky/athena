@@ -4,20 +4,14 @@
 #ifndef HLTSEEDING_EFEXEMROITHRESHOLDSTOOL_H
 #define HLTSEEDING_EFEXEMROITHRESHOLDSTOOL_H
 
+#include "HLTSeedingRoIToolDefs.h"
 #include "HLTSeeding/IRoIThresholdsTool.h"
 #include "xAODTrigger/eFexEMRoI.h"
-#include "xAODTrigger/eFexEMRoIContainer.h"
 
-namespace eFexEMRoIThresholdsToolParams {
-  extern const char ContainerName[];
-  extern const char ThresholdType[];
-  using BaseClass = RoIThresholdsTool<xAOD::eFexEMRoI, xAOD::eFexEMRoIContainer, ContainerName, ThresholdType>;
-}
-
-class eFexEMRoIThresholdsTool : public eFexEMRoIThresholdsToolParams::BaseClass {
+class eFexEMRoIThresholdsTool : public HLTSeedingRoIToolDefs::eFexEM::ThresholdBaseClass {
 public:
   eFexEMRoIThresholdsTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : eFexEMRoIThresholdsToolParams::BaseClass(type, name, parent) {}
+  : HLTSeedingRoIToolDefs::eFexEM::ThresholdBaseClass(type, name, parent) {}
 
   virtual uint64_t getPattern(const xAOD::eFexEMRoI& roi,
                               const ThrVec& menuThresholds,

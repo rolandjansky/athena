@@ -47,7 +47,7 @@ StatusCode TGCTriggerDbAlg::execute()
   SG::ReadCondHandle<CondAttrListCollection> readHandle_bw(m_readKey_bw);
   const CondAttrListCollection* readCdo_bw(*readHandle_bw);
   
-  if (readCdo_bw == 0) {
+  if (readCdo_bw == nullptr) {
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   } 
@@ -67,7 +67,7 @@ StatusCode TGCTriggerDbAlg::execute()
   SG::ReadCondHandle<CondAttrListCollection> readHandle_eifi(m_readKey_eifi);
   const CondAttrListCollection* readCdo_eifi(*readHandle_eifi);
   
-  if (readCdo_eifi == 0) {
+  if (readCdo_eifi == nullptr) {
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   } 

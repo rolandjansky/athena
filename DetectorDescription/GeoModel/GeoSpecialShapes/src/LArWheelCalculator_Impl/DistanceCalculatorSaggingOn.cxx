@@ -2,10 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-
+#ifndef PORTABLE_LAR_SHAPE
+  #include "GaudiKernel/MsgStream.h"
+  #include "GaudiKernel/ISvcLocator.h"
+  #include "GaudiKernel/Bootstrap.h"
+#else
+  #include "PortableMsgStream/PortableMsgStream.h"
+#endif
 #include "DistanceCalculatorSaggingOn.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -14,35 +17,27 @@
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
-#include "AthenaKernel/Units.h"
+#include "GeoModelKernel/Units.h"
 
-using Athena::Units::mm;
+using GeoModelKernelUnits::mm;
 
 
 namespace LArWheelCalculator_Impl
 {
   DistanceCalculatorSaggingOn::DistanceCalculatorSaggingOn(const std::string& saggingOptions,
-                                                           LArWheelCalculator* lwc,
-                                                           IRDBAccessSvc* rdbAccess,
-                                                           const DecodeVersionKey& larVersionKey)
-    : parent(lwc, rdbAccess, larVersionKey),
+                                                           LArWheelCalculator* lwc)
+    : parent(lwc),
       m_saggingOptions(saggingOptions)
+
   {
-    // load sagging parameters
-    /*RDBParamReader rdbr(rdbAccess);
-      rdbr.
-      data( "EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node() ).
-      fallback_to( "EmecMagicNumbers","EMECMagigNumbers-00" ).
-      param(lwc()->m_ActiveLength, "ACTIVELENGTH", mm).
-      param(lwc()->m_dWRPtoFrontFace, "REFTOACTIVE", mm).
-      param(lwc()->m_StraightStartSection, "STRAIGHTSTARTSECTION", mm)
-      ;*/
     init_sagging_parameters();
   }
 	
   void DistanceCalculatorSaggingOn::init_sagging_parameters()
   {
+
     // Get pointer to the message service
+#ifndef PORTABLE_LAR_SHAPE
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     IMessageSvc* msgSvc;
     StatusCode status = svcLocator->service("MessageSvc", msgSvc);
@@ -51,7 +46,9 @@ namespace LArWheelCalculator_Impl
           cannot initialze message service");
     }
     MsgStream msg(msgSvc, "LArWheelCalculator_Impl::DistanceCalculatorSaggingOn");
-
+#else
+    PortableMsgStream msg("LArWheelCalculator_Impl::DistanceCalculatorSaggingOn");
+#endif
     std::string sagging_opt_value = m_saggingOptions;
     m_sagging_parameter.resize (lwc()->m_NumberOfFans, std::vector<double> (5, 0.));
     //	if(m_SaggingOn) {
@@ -111,7 +108,7 @@ namespace LArWheelCalculator_Impl
       }
     }
     //	}
-    msg << MSG::INFO  << "Sagging parameters        : " << m_sagging_parameter[0][0] << " " << m_sagging_parameter[0][1] << std::endl
+    msg << MSG::INFO  << "Sagging parameters        : " << m_sagging_parameter[0][0] << " " << m_sagging_parameter[0][1] << endmsg
         << "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << endmsg;
   }
 

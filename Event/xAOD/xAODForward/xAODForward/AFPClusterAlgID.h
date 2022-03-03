@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,14 +38,16 @@ namespace xAOD
  * | Station ID | variable name    | Algorithm Name      | Comment |
  * | :--------: | ---------------- | ------------------- | ---------------- |
  * |    0       | singleHit        | Single hit          | No clustering - each hit creates a separate cluster |
- * |    1       | nearestNeighbour | Nearest neighbour   | Pairs of adjacent pixels are combined in a cluster |
- * 
+ * |    1       | nearestNeighbour | Nearest neighbour   | Pairs of adjacent pixels are combined in a cluster  |
+ * |    2       | allNeighbours    | All neighbours      | All adjacent pixels are combined in a cluster       | 
+ *
  */
   class AFPClusterAlgID
   {
   public:
     static const int singleHit; ///< Single hit algorithm
     static const int nearestNeighbour; ///< Nearest neighbour algorithm
+    static const int allNeighbours; ///< All neighbours algorithm
   };
 
 }

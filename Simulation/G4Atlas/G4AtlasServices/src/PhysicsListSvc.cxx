@@ -54,10 +54,12 @@ void PhysicsListSvc::CreatePhysicsList()
     AtlasPhysListFactory Atlasfactory;
     if (factory.IsReferencePhysList(m_physicsListName.value()))
     {
+      ATH_MSG_INFO("Creating Geant4 PhysicsList: " << m_physicsListName.value());
       m_physicsList = factory.GetReferencePhysList(m_physicsListName.value());
     }
     else if (Atlasfactory.IsReferencePhysList(m_physicsListName.value()))
     {
+      ATH_MSG_INFO("Creating ATLAS PhysicsList: " << m_physicsListName.value());
       m_physicsList = Atlasfactory.GetReferencePhysList(m_physicsListName.value());
     }
   }

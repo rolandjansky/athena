@@ -66,7 +66,7 @@ from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 ExcludeList=[]
 #dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,ExcludeList)
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 from AthenaCommon.KeyStore import CfgKeyStore,CfgItemList
 outList = CfgItemList( 'PHOJET',

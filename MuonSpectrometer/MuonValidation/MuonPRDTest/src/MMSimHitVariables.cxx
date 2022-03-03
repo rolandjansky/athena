@@ -30,8 +30,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
   MM_SimIdToOfflineId simToOffline(m_MmIdHelper);
 
   if(!nswContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
-  for( auto it : *nswContainer ) {
-    const MMSimHit hit = it;
+  for( const MMSimHit& hit : *nswContainer ) {
 
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
        
@@ -41,13 +40,13 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
 
     m_NSWMM_globalTime.push_back(hit.globalTime());
   
-    const Amg::Vector3D globalPosition = hit.globalPosition();
+    const Amg::Vector3D& globalPosition = hit.globalPosition();
     m_NSWMM_hitGlobalPositionX.push_back(globalPosition.x());
     m_NSWMM_hitGlobalPositionY.push_back(globalPosition.y());
     m_NSWMM_hitGlobalPositionZ.push_back(globalPosition.z());
     m_NSWMM_hitGlobalPositionR.push_back(globalPosition.perp());
     m_NSWMM_hitGlobalPositionP.push_back(globalPosition.phi());
-    const Amg::Vector3D globalDirection = hit.globalDirection();
+    const Amg::Vector3D& globalDirection = hit.globalDirection();
     m_NSWMM_hitGlobalDirectionX.push_back(globalDirection.x());
     m_NSWMM_hitGlobalDirectionY.push_back(globalDirection.y());
     m_NSWMM_hitGlobalDirectionZ.push_back(globalDirection.z());

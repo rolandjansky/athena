@@ -38,6 +38,17 @@ class SharedWriterTool final : public AthenaMPToolBase
   SharedWriterTool(const SharedWriterTool&);
   SharedWriterTool& operator= (const SharedWriterTool&);
 
+  // Properties
+  Gaudi::Property<bool>  m_nMotherProcess{
+      this, "MotherProcess", false,
+      "Expect mother process to write event data. The default is false."};
+  Gaudi::Property<bool> m_isPileup{
+      this, "IsPileup", false,
+      "Are we running in pile-up mode? The default is false"};
+  Gaudi::Property<bool> m_debug{
+      this, "Debug", false,
+      "Are we running in debug mode? The default is false"};
+
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1)
   int  m_writer;          // Number of writer stream servers
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthLinks/test/GenericElementLinkBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -143,7 +142,7 @@ public:
   using Base::resetWithKeyAndIndex;
   using Base::proxyHolder;
 
-  // Keep coverity happy.
+  ElementLinkBaseT_test (const ElementLinkBaseT_test&) = default;
   ElementLinkBaseT_test& operator=(const ElementLinkBaseT_test&) = default;
 
   void setLink (SG::sgkey_t key,

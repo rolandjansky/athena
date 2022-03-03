@@ -160,10 +160,10 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
 
   //for Sector Hits histograms
 
-  int m_trigtype;
-  int m_event;
-  int m_lumiblock;
-  int m_BCID;
+  int m_trigtype = 0;
+  int m_event = 0;
+  int m_lumiblock = 0;
+  int m_BCID = 0;
 
   bool m_isMC;
 
@@ -176,9 +176,9 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   std::vector<CoincidenceData*> m_CoincidenceData;
 
   // Declare Histograms
-  TH2I* m_rpclv1_sectorhits_A[6];
-  TH2I* m_rpclv1_sectorhits_C[6];
-  TH2I* m_rpclv1_sectorhits_all[6];
+  TH2I* m_rpclv1_sectorhits_A[6]{};
+  TH2I* m_rpclv1_sectorhits_C[6]{};
+  TH2I* m_rpclv1_sectorhits_all[6]{};
 
 };
 

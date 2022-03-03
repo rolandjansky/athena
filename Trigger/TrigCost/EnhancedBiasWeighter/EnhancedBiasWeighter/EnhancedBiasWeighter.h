@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ENHANCEDBIASWEIGHTER_ENHANCEDBIASWEIGHTER_H
 #define ENHANCEDBIASWEIGHTER_ENHANCEDBIASWEIGHTER_H 1
 
 #include "AsgTools/AsgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "Gaudi/Accumulators.h"
 
 #include "EnhancedBiasWeighter/IEnhancedBiasWeighter.h"
 #include "EnhancedBiasWeighter/ReadLumiBlock.h"
@@ -198,11 +200,10 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     double m_mcModifiedCrossSection; //!< Product of xsec, filter & kfactor. In units of cm
     std::unordered_map<uint64_t, int32_t> m_eventNumberToIdMap; //!< Map event number to a weighting ID
 
-    mutable std::unordered_map<uint32_t, float> m_eventLivetime; //!< Cache of per-event livetime as a function of LB [LB -> effective walltime per event]
-    mutable double   m_lumiAverageNum; //!< The average instantaneous lumionosity over all events. Numerator
-    mutable double   m_muAverageNum; //!< The average mu over all events. Numerator
-    mutable uint32_t m_averageDenom; //!< The average over all events. Denominator
-    mutable std::mutex m_mutex; //!< Protect my mutable parts in a MT envirnment
+    mutable std::unordered_map<uint32_t, float> m_eventLivetime ATLAS_THREAD_SAFE; //!< Cache of per-event livetime as a function of LB [LB -> effective walltime per event]
+    mutable std::mutex m_mutex; //!< Protection for above map
+    mutable Gaudi::Accumulators::AveragingCounter<double> m_lumiAverage ATLAS_THREAD_SAFE; //!< The average instantaneous lumionosity over all events.
+    mutable Gaudi::Accumulators::AveragingCounter<double> m_muAverage ATLAS_THREAD_SAFE; //!< The average mu over all events.
 
     std::unordered_map<int32_t, double>    m_idToWeightMap; //!< Map a weighting ID to a Enhanced Bias event weight
     std::unordered_map<int32_t, uint8_t>   m_idToUnbiasedMap; //!< Map a weighting ID to a flag if this weight is from an unbiased (RD) trigger online

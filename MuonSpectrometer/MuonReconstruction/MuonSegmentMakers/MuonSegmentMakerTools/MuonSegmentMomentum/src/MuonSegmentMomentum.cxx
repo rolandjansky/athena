@@ -15,7 +15,7 @@ MuonSegmentMomentum::MuonSegmentMomentum(const std::string& type,const std::stri
   declareInterface<IMuonSegmentMomentumEstimator>(this);
 }
 
-void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Muon::MuonSegment*> segments, double & signedMomentum ) const
+void MuonSegmentMomentum::fitMomentumVectorSegments( const EventContext& ctx, const std::vector <const Muon::MuonSegment*> segments, double & signedMomentum ) const
 {
 
   /** Estimate signed momentum from vector of MDT/CSC segments
@@ -34,7 +34,7 @@ void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Mu
     for(it2 = it; it2 < it_end ; ++it2 )  {
       if (it == it2) continue;
       double smom;
-      fitMomentum2Segments(*it, *it2, smom);
+      fitMomentum2Segments(ctx, *it, *it2, smom);
       ATH_MSG_DEBUG(" Fit pair of segments signed momentum " << smom);
       if (fabs(smom) < fabs(pmin)) pmin = smom; 
     }
@@ -49,7 +49,7 @@ void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Mu
 
 
 
-void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const 
+void MuonSegmentMomentum::fitMomentum2Segments( const EventContext&, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const 
 {
   
   /** Estimate signed momentum for two segments

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  eTauSort.cxx
 //  TopoCore
@@ -24,10 +24,10 @@ TCS::eTauSort::eTauSort(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 120 ); // for FW
    defineParameter( "InputWidth1stStage", 30 ); // for FW
    defineParameter( "OutputWidth", 6);
-   defineParameter( "IsoMask", 0);
+   defineParameter( "RCoreMin", 0);
+   defineParameter( "RHadMin", 0);
    defineParameter( "MinEta", 0);
    defineParameter( "MaxEta", 63);
-   defineParameter( "DoIsoCut", 1);
 }
 
 
@@ -38,10 +38,10 @@ TCS::eTauSort::~eTauSort() {}
 TCS::StatusCode
 TCS::eTauSort::initialize() {
    m_numberOfeTaus = parameter("OutputWidth").value();
-   m_iso = parameter("IsoMask").value();
+   m_minRCore = parameter("RCoreMin").value();
+   m_minRHad = parameter("RHadMin").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doIsoCut = parameter( "DoIsoCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -52,17 +52,16 @@ TCS::eTauSort::sort(const InputTOBArray & input, TOBArray & output) {
    const eTauTOBArray & clusters = dynamic_cast<const eTauTOBArray&>(input);
 
    // fill output array with GenericTOB buildt from clusters
-   for(eTauTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
-      const GenericTOB gtob(**cl);
+   for(eTauTOBArray::const_iterator etau = clusters.begin(); etau!= clusters.end(); ++etau ) {
 
-      if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
-      if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;
-      // isolation cut
-      if (m_iso != 0 ) {
-          unsigned int isobit(0x1 << (m_iso-1));
-          if(m_doIsoCut && ((parType_t((*cl)->isolation()) & isobit) != isobit)) continue;
-      }
-      
+      if (parType_t(std::abs((*etau)-> eta())) < m_minEta) continue; 
+      if (parType_t(std::abs((*etau)-> eta())) > m_maxEta) continue;
+
+      // Isolation cut
+      if ( !isocut(m_minRCore, (*etau)-> rCore()) ) {continue;}
+      if ( !isocut(m_minRHad, (*etau)-> rHad()) ) {continue;}
+
+      const GenericTOB gtob(**etau);
       output.push_back( gtob );
    }
 

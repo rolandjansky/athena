@@ -95,11 +95,11 @@ MdtVsTgcRawDataValAlg::prepareTREarray(const MuonGM::MuonDetectorManager* MuonDe
       for(int stationPhi=0; stationPhi<=48; stationPhi++){// Station Phi
         // Exclude non-existent "zero" sectors included in the array for ease of use
         if(stationEta==0){
-          m_TREarray[stationNameIndex][0][absStationEta][stationPhi]=0;
-          m_TREarray[stationNameIndex][1][absStationEta][stationPhi]=0;
+          m_TREarray[stationNameIndex][0][absStationEta][stationPhi]=nullptr;
+          m_TREarray[stationNameIndex][1][absStationEta][stationPhi]=nullptr;
           continue;
         }
-        m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]=0;
+        m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]=nullptr;
         if(stationPhi==0)continue;
         
         // Exclude sectors known not to exist
@@ -131,7 +131,7 @@ MdtVsTgcRawDataValAlg::prepareTREarray(const MuonGM::MuonDetectorManager* MuonDe
         
         // Get TRE and put into to array
         m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = MuonDetMgrDS->getTgcReadoutElement(tgc_testId);
-        if(m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]==0){
+        if(m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]==nullptr){
           ATH_MSG_WARNING( "prepareTREarray: TgcReadoutElement==0 passed checks"  );
           continue;
         }

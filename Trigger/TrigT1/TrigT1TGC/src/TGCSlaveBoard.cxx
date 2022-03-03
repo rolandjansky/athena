@@ -267,40 +267,4 @@ void TGCSlaveBoard::setIdHighPtBoard(int idIn)
   m_idHighPtBoard = idIn;
 }
 
-
-TGCSlaveBoard::TGCSlaveBoard(const TGCSlaveBoard& right)
-{
-  m_coincidenceOut = 0;
-  m_slaveBoardOut = 0;
-  m_patchPanel = 0;
-  m_patchPanelOut = 0;
-  *this = right;
-}
-
-TGCSlaveBoard& TGCSlaveBoard::operator=(const TGCSlaveBoard& right)
-{
-  if(this!=&right){
-    m_id = right.m_id;
-    m_bid = right.m_bid;
-    m_idHighPtBoard = right.m_idHighPtBoard;
-    m_type = right.m_type;
-    m_region = right.m_region;
-    m_patchPanel = right.m_patchPanel;
-  
-    if(m_patchPanelOut!=0) delete m_patchPanelOut;
-    m_patchPanelOut=0;
-    if(right.m_patchPanelOut) m_patchPanelOut = new TGCPatchPanelOut(*right.m_patchPanelOut);
-
-    m_lengthOfCoincidenceOut = right.m_lengthOfCoincidenceOut;
-    if(m_coincidenceOut!=0) delete m_coincidenceOut;
-    m_coincidenceOut=0;
-    if(right.m_coincidenceOut) m_coincidenceOut = new TGCHitPattern(*right.m_coincidenceOut);
-
-    if(m_slaveBoardOut!=0) delete m_slaveBoardOut;
-    m_slaveBoardOut=0;
-    if(right.m_slaveBoardOut) m_slaveBoardOut = new TGCSlaveBoardOut(*right.m_slaveBoardOut);
-  }
-  return *this;
-}
-
-} //end of namespace bracket
+}  // namespace LVL1TGCTrigger

@@ -57,7 +57,7 @@ namespace MuonGM {
 
     Mdt::~Mdt() {
         delete layer;
-        layer = 0;
+        layer = nullptr;
     }
 
     GeoFullPhysVol *Mdt::build(const StoredMaterialManager& matManager,
@@ -77,12 +77,19 @@ namespace MuonGM {
                 log << MSG::VERBOSE << " mdt cutouts are on " << endmsg;
             }
 
-            bool cutoutsVsX = false;
-            bool cutoutsVsY = false;
+            bool cutoutsVsX {false}, cutoutsVsY{false};
             // first check whether there are several cutouts with different amdb x or y coordinates
-            float lastX(FLT_MAX);
-            float lastY(FLT_MAX);
+            float lastX{FLT_MAX}, lastY{FLT_MAX};
             for (int i = 0; i < Ncuts; ++i) {
+                log<<MSG::DEBUG<<__FILE__":"<<__LINE__
+                    <<" name: "<<name
+                    <<" logVolName: "<<logVolName
+                    <<" Ncuts: "<<Ncuts
+                    <<" lastX: "<<lastX
+                    <<" cutDef->dX "<<vcutdef[i]->dx
+                    <<" lastY: "<<lastY
+                    <<" dutDef->dY "<<vcutdef[i]->dy<<endmsg;
+              
                 if (lastX != FLT_MAX && lastX * vcutdef[i]->dx < 0)
                     cutoutsVsX = true;
                 lastX = vcutdef[i]->dx;
@@ -90,9 +97,9 @@ namespace MuonGM {
                     cutoutsVsY = true;
                 lastY = vcutdef[i]->dy;
             }
-            if (cutoutsVsX && cutoutsVsY) {
+            if (cutoutsVsX && cutoutsVsY) {               
                 throw std::runtime_error(
-                    Form("File: %s, Line: %d\nMdt::build() - Found more than one cutout in amdb-x direction and more than one cutout in amdb-y direction, currently not supported",
+                    Form("%s:%d \nMdt::build() - Found more than one cutout in amdb-x  direction and more than one cutout in amdb-y direction, currently not supported",
                          __FILE__, __LINE__));
             }
 
@@ -329,16 +336,9 @@ namespace MuonGM {
                 std::vector<std::pair<double, double>> nonCutoutYSteps;
 
                 // Order cutouts by increasing dx
-                for (int i = 0; i < Ncuts; i++) {
-                    for (int j = i + 1; j < Ncuts; j++) {
-                        if (vcutdef[j]->dx < vcutdef[i]->dx) {
-                            Cutout *c = vcutdef[i];
-                            vcutdef[i] = vcutdef[j];
-                            vcutdef[j] = c;
-                        }
-                    }
-                }
-
+                std::sort(vcutdef.begin(),vcutdef.end(),[](const Cutout *a ,const Cutout* b ){
+                    return a->dx < b->dx;
+                });
                 // in amdb-coordinates
                 double xminChamber = round(-width / 2, 2);
                 double xmaxChamber = round(width / 2, 2);
@@ -350,9 +350,19 @@ namespace MuonGM {
                 for (int i = 0; i < Ncuts; ++i) {
                     Cutout *c = vcutdef[i];
                     double lowerX = round(c->dx - c->widthXs / 2, 2);
-                    double xmin = (lowerX <= xminChamber) ? xminChamber : lowerX;
+                    double xmin = std::max(lowerX, xminChamber);
+                    log<<MSG::DEBUG<<__FILE__<<":"<<__LINE__
+                        <<" name: "<<name
+                        <<" logVolName: "<<logVolName
+                        <<" xminChamber: "<<xminChamber<<" xmaxChamber: "<<xmaxChamber
+                        <<" ymaxChamber: "<<ymaxChamber
+                        <<" yminChamber: "<<yminChamber
+                        <<" latestXMax: "<<latestXMax
+                        <<" c->dx: "<<c->dx
+                        <<" c->widthXs/2 "<<c->widthXs / 2<<endmsg;
                     if (xmin < latestXMax) {
-                        throw std::runtime_error(Form("File: %s, Line: %d\nMdt::build() - cannot have cutouts along amdb-x which overlap in amdb-x", __FILE__, __LINE__));
+                        throw std::runtime_error(Form("File: %s, Line: %d\nMdt::build() - cannot have cutouts along amdb-x which overlap in amdb-x %f > %f",
+                             __FILE__, __LINE__, latestXMax, xmin));
                     }
                     if (i == 0 && xmin > xminChamber) {
                         // we start with a full slice without cutout

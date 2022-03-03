@@ -20,8 +20,8 @@ class BPHYConversionFinderTools:
         from AthenaCommon.AppMgr import ToolSvc
 
         # set up extrapolator
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        self.Extrapolator = AtlasExtrapolator(name = prefix+"_AtlasExtrapolator")
+        from InDetRecExample import TrackingCommon
+        self.Extrapolator = TrackingCommon.getInDetExtrapolator()
         ToolSvc += self.Extrapolator
         print(self.Extrapolator)
 

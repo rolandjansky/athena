@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile HLTMuonMonTool.cxx
@@ -29,7 +29,7 @@
 #include "TrigMuonEvent/TrigMuonEFTrack.h"
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"

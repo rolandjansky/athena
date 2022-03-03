@@ -10,13 +10,14 @@ namespace xAOD{
   jFexMETRoIAuxContainer_v1::jFexMETRoIAuxContainer_v1()
       : AuxContainerBase() {
   
-      AUX_VARIABLE(word0);
+      AUX_VARIABLE(tobWord);
       AUX_VARIABLE(jFexNumber);
       AUX_VARIABLE(fpgaNumber);
-      AUX_VARIABLE(E_x);
-      AUX_VARIABLE(E_y); 
-      AUX_VARIABLE(Res);
-      AUX_VARIABLE(Sat);
+      AUX_VARIABLE(tobEx);
+      AUX_VARIABLE(tobEy); 
+      AUX_VARIABLE(tobRes);
+      AUX_VARIABLE(tobSat);
+      AUX_VARIABLE(tobEtScale);
   }
 
 }//end of namespace xAOD

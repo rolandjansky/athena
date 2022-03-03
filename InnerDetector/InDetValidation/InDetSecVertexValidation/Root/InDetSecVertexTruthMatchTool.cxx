@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaKernel/Units.h"
 
@@ -325,7 +325,7 @@ size_t indexOfMatchInfo( std::vector<VertexTruthMatchInfo> & matches, const Elem
       return i;
   }
   // This is the first time we've seen this truth vertex, so make a new entry
-  matches.push_back(  std::make_tuple( link, 0., 0. ) );
+  matches.emplace_back( link, 0., 0. );
   return matches.size() - 1;
 }
 
@@ -361,8 +361,6 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
   //weights from each TruthVertex
   //=============================================================================
   size_t vtxEntry = 0;
-  unsigned int n_bad_links = 0;
-  unsigned int n_links = 0;
   unsigned int n_vx_with_bad_links = 0;
 
   for ( const xAOD::Vertex* vtx : vtxContainer ) {
@@ -399,8 +397,6 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
     float totalWeight = 0.;
 
     float totalPt = 0; 
-    float otherPt = 0;
-    float fakePt = 0;
 
     unsigned vx_n_bad_links = 0;
     //loop over the tracks in the vertex
@@ -452,18 +448,14 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
           std::get<1>(matchinfo[matchIdx]) += trkWeights[t];
           std::get<2>(matchinfo[matchIdx]) += trk.pt();
         } else {
-          //truth particle failed cuts -> add to other
-          otherPt += trk.pt();
+          //truth particle failed cuts
         }
       } else {
-        //not valid or low matching probability -> add to fakes
+        //not valid or low matching probability
         ATH_MSG_DEBUG("Invalid or low prob truth link!");
-        fakePt += trk.pt();
       }
     }//end loop over tracks in vertex
 
-    n_links     += ntracks;
-    n_bad_links += vx_n_bad_links;
     if (vx_n_bad_links>0) {
        ++n_vx_with_bad_links;
     }
@@ -530,12 +522,12 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
         if (matchTypeDecor( *vtxContainer[j] ) == FAKE) continue;
         if (info2.size() > 0 && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
           //add split links; first between first one found and newest one
-          splitPartnerDecor( *vtxContainer[i] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, j ) );
-          splitPartnerDecor( *vtxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, i ) );
+          splitPartnerDecor( *vtxContainer[i] ).emplace_back( vtxContainer, j );
+          splitPartnerDecor( *vtxContainer[j] ).emplace_back( vtxContainer, i );
           //then between any others we found along the way
           for ( auto k : foundSplits ) { //k is a size_t in the vector of splits
-            splitPartnerDecor( *vtxContainer[k] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, j ) );
-            splitPartnerDecor( *vtxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, k ) );
+            splitPartnerDecor( *vtxContainer[k] ).emplace_back( vtxContainer, j );
+            splitPartnerDecor( *vtxContainer[j] ).emplace_back( vtxContainer, k );
           }
           //then keep track that we found this one
           foundSplits.push_back(j);

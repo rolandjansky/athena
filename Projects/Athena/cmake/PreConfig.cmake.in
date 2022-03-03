@@ -1,7 +1,12 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Pre-config script to propagate variables to downstream projects
 #
+
+# Use the -pthread flag for the build instead of the -lpthread linker option,
+# if the main project was set up in that way.
+set( THREADS_PREFER_PTHREAD_FLAG @THREADS_PREFER_PTHREAD_FLAG@ CACHE BOOL
+   "Prefer using the -pthread compiler flag over -lpthread" )
 
 # Set up the project's flake8 usage.
 set( ATLAS_FLAKE8 @ATLAS_FLAKE8@
@@ -28,6 +33,7 @@ find_package( Acts ${_quietFlag} COMPONENTS Core )
 find_package( nlohmann_json ${_quietFlag} )
 find_package( Qt5 ${_quietFlag} COMPONENTS Core OpenGL Gui PrintSupport Widgets
    Sql Network )
+find_package( GTest ${_quietFlag} )
 
 # Set the versions of the TDAQ projects:
 set( TDAQ_PROJECT_NAME "@TDAQ_PROJECT_NAME@" CACHE STRING

@@ -35,15 +35,23 @@ def sTGC_RangeCfg(flags, name="sTgcRange", **kwargs):
 def sTGC_DigitizationToolCfg(flags, name="sTgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured sTgcDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(sTGC_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.DoXingByXingPileUp:
-        kwargs.setdefault("FirstXing", sTGC_FirstXing())
-        kwargs.setdefault("LastXing", sTGC_LastXing())
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp:
+            kwargs.setdefault("FirstXing", sTGC_FirstXing())
+            kwargs.setdefault("LastXing", sTGC_LastXing())
+        else:
+            intervals += [acc.popToolsAndMerge(sTGC_RangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("MergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("doToFCorrection", True)
     kwargs.setdefault("doEfficiencyCorrection", False)
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "sTGC_SDO")
     else:
@@ -61,6 +69,8 @@ def sTGC_OverlayDigitizationToolCfg(flags, name="STGC_OverlayDigitizationTool", 
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "sTGC_SDO")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     sTgcDigitizationTool = CompFactory.sTgcDigitizationTool
     acc.setPrivateTools(sTgcDigitizationTool(name, **kwargs))
     return acc

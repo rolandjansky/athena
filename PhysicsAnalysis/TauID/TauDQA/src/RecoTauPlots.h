@@ -14,7 +14,7 @@ namespace Tau{
 
 class RecoTauPlots: public PlotBase {
   public:
-    RecoTauPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
+    RecoTauPlots(PlotBase *pParent, const std::string& sDir, const std::string& sTauJetContainerName);
     virtual ~RecoTauPlots();
 
     void fill(const xAOD::TauJet& tau, float weight);

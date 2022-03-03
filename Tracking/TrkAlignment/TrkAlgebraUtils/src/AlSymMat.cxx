@@ -121,8 +121,6 @@ void AlSymMat::copy(const AlSymMat& m)
   double * p = m_ptr_data + m_nele;
   double*  r = m.m_ptr_data + m_nele;
   while (p > m_ptr_data) *(--p) = *(--r);
-
-  return;
 }
 
 //______________________________________________________________________________
@@ -142,8 +140,7 @@ void AlSymMat::copy(const AlSpaMat& m)
     elemr(i,j) = pos->second;
   }
 
-  return;
-}
+  }
 
 //______________________________________________________________________________
 void AlSymMat::copy(const AlMat& m)
@@ -666,10 +663,7 @@ StatusCode AlSymMat::CheckMatVersion(const std::string filename, bool &StdUnits)
   float version=0.0;
   inmat.read((char*)&version, sizeof (version));
 
-  if (version>=2.0)
-    StdUnits = true;
-  else
-    StdUnits = false;
+  StdUnits = version>=2.0;
 
   inmat.close();
 

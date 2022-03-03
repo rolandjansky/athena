@@ -64,23 +64,14 @@ private:
   bool selectTrack(const EventContext& ctx,
                    const xAOD::CaloCluster* cluster,
                    const xAOD::TrackParticle* track,
-                   IEMExtrapolationTools::Cache& cache,
-                   bool trkTRT) const;
+                   bool trkTRT,
+                   const CaloDetDescrManager& caloDD) const;
 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool{ this,
                                                          "ExtrapolationTool",
                                                          "EMExtrapolationTools",
                                                          "Extrapolation tool" };
-
-  /** @brief Tool for extrapolation */
-  ToolHandle<IEMExtrapolationTools> m_extrapolationToolCommonCache{
-    this,
-    "ExtrapolationToolCommonCache",
-    "EMExtrapolationToolsCommonCache",
-    "Extrapolation tool using the ATLAS common cache"
-  };
-
   /** @brief Tool to filter the calo clusters */
   ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector{
     this,
@@ -164,19 +155,6 @@ private:
     0.1,
     "Value of the narrow cut for delta phi Rescale Brem"
   };
-
-  // For P->T converters of ID tracks with Pixel
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
-    m_pixelDetEleCollKey{ this,
-                          "PixelDetEleCollKey",
-                          "PixelDetectorElementCollection",
-                          "Key of SiDetectorElementCollection for Pixel" };
-  // For P->T converters of ID tracks with SCT
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
-    m_SCTDetEleCollKey{ this,
-                        "SCTDetEleCollKey",
-                        "SCT_DetectorElementCollection",
-                        "Key of SiDetectorElementCollection for SCT" };
 
   mutable Gaudi::Accumulators::Counter<> m_AllClusters;
   mutable Gaudi::Accumulators::Counter<> m_SelectedClusters;

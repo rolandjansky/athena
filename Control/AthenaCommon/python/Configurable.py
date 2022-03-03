@@ -322,7 +322,7 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
          ccjo = cc.getJobOptName()
          for c in self.__children:
             if c.getJobOptName() == ccjo:
-               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
+               log.debug( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
                break
          else:
             if index is None:
@@ -871,7 +871,11 @@ class ConfigurableService( Configurable ):
       return self                 # services are always shared
 
    def copyChild( self, child ):
-      return child                # full sharing
+       # Copy private tools but all else is shared
+       if isinstance(child, ConfigurableAlgTool) and not child.isPublic():
+           return copy.deepcopy( child )
+       else:
+           return child
 
    def getHandle( self ):
       try:
@@ -964,7 +968,7 @@ class ConfigurableAlgTool( Configurable ):
       return self.isInToolSvc()
 
    def isInToolSvc( self ):
-      return self.getDirectParent() == 'ToolSvc'
+      return self.getParent() == 'ToolSvc'
 
    def toStringProperty( self ):
     # called on conversion to a string property for the jocat

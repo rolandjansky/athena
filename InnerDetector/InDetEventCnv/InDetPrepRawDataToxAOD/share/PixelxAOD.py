@@ -210,7 +210,7 @@ fileName   = buildFileName( primDPD.WriteDAOD_PIXELVALIDStream )
 PIXELVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 PIXELVALIDStream.AcceptAlgs(["PixelxAOD_DF_KERN"])
 
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition.-definingParametersCovMatrix.-vertexLink.-msosLink.-trackLink"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition.-definingParametersCovMatrix.-vertexLink.-msosLink.-trackLink"
 
 # Add generic event information
 PIXELVALIDStream.AddItem("xAOD::EventInfo#*")

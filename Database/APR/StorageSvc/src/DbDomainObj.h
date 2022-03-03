@@ -46,7 +46,7 @@ namespace pool    {
     IDbDomain*      m_info;
   public:
     /// Constructor
-    DbDomainObj(const DbSession&  session, 
+    DbDomainObj(DbSession&  session, 
                 const DbType&     typ,
                 DbAccessMode      mode = pool::READ);
     /// Standard destructor
@@ -62,7 +62,7 @@ namespace pool    {
     /// Access the maximal age limit
     int        ageLimit()  const        {    return m_maxAge;   }
     /// Check for Database existence within domain
-    bool existsDbase(const std::string& nam) const;
+    bool existsDbase(const std::string& nam);
     /// Open domain with possible change of access mode
     DbStatus open(DbAccessMode mode);
     /// Open domain in default access mode

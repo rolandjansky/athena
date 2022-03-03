@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -117,7 +117,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEB+11, xmin=-0.5, xmax=lArDQGlobals.N_FEB+10+0.5)
     Group.defineHistogram('nbFEBpart,part;NbOfEvts2d', 
-                                  title='# of readout FEB/DSP header:Num. FEBs:Partition',
+                                  title='# of readout FEB/DSP header;Num. FEBs;Partition',
                                   type='TH2I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
@@ -132,13 +132,13 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
     Group.defineHistogram('dspThrADC;dspThresholdsADC', 
-                          title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
+                          title='DSP thresholds to readout samples;Number of cells;Cell threshold in ADC counts',
                           type='TH1I',
                           path=summary_hist_path,
                           xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5,
                           merge='identical')
     Group.defineHistogram('dspThrQT;dspThresholds_qfactortime', 
-                          title='DSP thresholds to readout (qfactor+time):Number of cells:Cell threshold in ADC counts',
+                          title='DSP thresholds to readout (qfactor+time);Number of cells;Cell threshold in ADC counts',
                           type='TH1I',
                           path=summary_hist_path,
                           xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5,
@@ -150,12 +150,12 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   xbins=lArDQGlobals.Evt_Bins, xmin=lArDQGlobals.Evt_Min, xmax=lArDQGlobals.Evt_Max,
                                   xlabels=lArDQGlobals.Evt_labels)
     Group.defineHistogram('LVL1Trig;TriggerWord', 
-                                  title='Number of Events per L1 trigger word (8 bits):L1 trigger word',
+                                  title='Number of Events per L1 trigger word (8 bits);L1 trigger word',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.L1Trig_Bins, xmin=lArDQGlobals.L1Trig_Min, xmax=lArDQGlobals.L1Trig_Max)
     Group.defineHistogram('LVL1TrigAllDSP;TriggerWordAllDSP', 
-                                  title='Number of L1 trigger word per DSP (8 bits):L1 trigger word',
+                                  title='Number of L1 trigger word per DSP (8 bits);L1 trigger word',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.L1Trig_Bins, xmin=lArDQGlobals.L1Trig_Min, xmax=lArDQGlobals.L1Trig_Max)
@@ -166,43 +166,43 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
     Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
-                                  title='Data corruption yield:Corruption type:Yield(%)',
+                                  title='Data corruption yield;Corruption type;Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
                                   xlabels=lArDQGlobals.EvtRejYield_labels)
     Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
-                                  title='Yield of corrupted events (DATACORRUPTED):Luminosity Block:Yield(%)',
+                                  title='Yield of corrupted events (DATACORRUPTED);Luminosity Block;Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     Group.defineHistogram('LB0,EvtRejYieldOut;RAW_YieldOfRejectedEventsVsLBout', 
-                                  title='Yield of corrupted events (DATACORRUPTED) not vetoed by time window:Luminosity Block:Yield(%)',
+                                  title='Yield of corrupted events (DATACORRUPTED) not vetoed by time window;Luminosity Block;Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     Group.defineHistogram('rejBits;rejectionBits', 
-                                  title='Errors at the origin of event rejection:Bits:Number of (rejected) events',
+                                  title='Errors at the origin of event rejection;Bits;Number of (rejected) events',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.rejBits_Bins, xmin=-0.5, xmax=lArDQGlobals.rejBits_Bins-0.5)
     Group.defineHistogram('LB0;NbOfEventsVsLB', 
-                                  title='Nb of events per LB:Luminosity Block',
+                                  title='Nb of events per LB;Luminosity Block',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     Group.defineHistogram('NbOfSweet2;NbOfSw2', 
-                                  title='# of cells with samples readout:Number of cells:Number of events',
+                                  title='# of cells with samples readout;Number of cells;Number of events',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=int(lArDQGlobals.N_Cells/10), xmin=-1000, xmax=lArDQGlobals.N_Cells-1000)
     Group.defineHistogram('LB0,LArEvSize;eventSizeVsLB', 
-                                  title='LAr event size (w/o ROS headers):Luminosity Block:Megabytes',
+                                  title='LAr event size (w/o ROS headers);Luminosity Block;Megabytes',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     Group.defineHistogram('NbOfSamp;NbOfSamples', 
-                                  title='# of samples (1st readout FEB):Samples:Number of events',
+                                  title='# of samples (1st readout FEB);Samples;Number of events',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.Samples_Bins, xmin=lArDQGlobals.Samples_Min, xmax=lArDQGlobals.Samples_Max)
@@ -244,139 +244,142 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet])
 
        darray.defineHistogram('slotPar,FTPar;RAW_Parity',
-                              title='Parity error:Slot:FT',
+                              title='Parity error;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotBcid,FTBcid;RAW_BCID',
-                              title='BCID mismatch betw. 2 halves of FEB:Slot:FT',
+                              title='BCID mismatch betw. 2 halves of FEB;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotRadd,FTRadd;RAW_RADD',
-                              title='Sample header mismatch betw. 2 halves of FEB:Slot:FT',
+                              title='Sample header mismatch betw. 2 halves of FEB;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotEvtid,FTEvtid;RAW_EVTID',
-                              title='EVTID mismatch betw. 2 halves of FEB:Slot:FT',
+                              title='EVTID mismatch betw. 2 halves of FEB;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotScac,FTScac;RAW_SCACStatus',
-                              title='Wrong SCAC status in one half of a FEB:Slot:FT',
+                              title='Wrong SCAC status in one half of a FEB;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotscout,FTscout;RAW_scaOutOfRange',
-                              title='Sca out of range:Slot:FT',
+                              title='Sca out of range;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotgain,FTgain;RAW_gainMismatch',
-                              title='Gain mismatch within time samples:Slot:FT',
+                              title='Gain mismatch within time samples;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slottype,FTtype;RAW_typeMismatch',
-                              title='Event type mismatch:Slot:FT',
+                              title='Event type mismatch;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotsmp,FTsmp;RAW_badNbOfSamp',
-                              title='Non uniform number of samples:Slot:FT',
+                              title='Non uniform number of samples;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotzero,FTzero;RAW_zeroSamp',
-                              title='Empty FEB data blocks:Slot:FT',
+                              title='Empty FEB data blocks;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotsum,FTsum;RAW_checkSum',
-                              title='Checksum / DSP block size:Slot:FT',
+                              title='Checksum / DSP block size;Slot;FT',
                               type='TH2I',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotmis,FTmis;RAW_missingHeader',
-                              title='Missing header :Slot:FT',
+                              title='Missing header ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotgain,FTgain;RAW_badGain',
-                              title='Bad gain :Slot:FT',
+                              title='Bad gain ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotabs,FTabs;RAW_LArFEBMonErrorsAbsolute',
-                              title='Nb of events with at least one error :Slot:FT',
+                              title='Nb of events with at least one error ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
         
        darray.defineHistogram('slotmist,FTmist;RAW_missingTriggerType',
-                              title='LVL1 trigger type missing or different from event type :Slot:FT',
+                              title='LVL1 trigger type missing or different from event type ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotnb,FTnb;RAW_nbOfEvts',
-                              title='Nb of events (DSP header check only) :Slot:FT',
+                              title='Nb of events (DSP header check only) ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotnb,FTnb,weightsweet1;RAW_NbOfSweet1PerFEB',
-                              title='Average # of cells with (qfactor+time) readout :Slot:FT',
+                              title='Average # of cells with (qfactor+time) readout ;Slot;FT',
                               type='TProfile2D',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotnb,FTnb,weightsweet2;RAW_NbOfSweet2PerFEB',
-                              title='Average # of cells with samples readout :Slot:FT',
+                              title='Average # of cells with samples readout ;Slot;FT',
                               type='TProfile2D',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('nbFEBpart;nbOfFebBlocks',
-                              title='# of readout FEBs (DSP header check only) :Slot:FT',
+                              title='# of readout FEBs (DSP header check only) ;Slot;FT',
                               type='TH1I',
                               path=hist_path,
                               xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5)
 
        darray.defineHistogram('slotMasked,FTMasked;RAW_knownFaultyFEB',
-                              title='FEB with known errors (1:err. ignored 2:FEB masked):Slot:FT',
+                              title='FEB with known errors (1:err. ignored 2:FEB masked);Slot;FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
@@ -384,7 +387,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               merge='identical')
 
        darray.defineHistogram('LB,LArEvSizePart;eventSizeVsLB',
-                              title='LAr event size per LB (w/o ROS headers):Luminosity Block',
+                              title='LAr event size per LB (w/o ROS headers);Luminosity Block',
                               type='TProfile',
                               path=hist_path,
                               xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
@@ -428,7 +431,6 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = True
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
 

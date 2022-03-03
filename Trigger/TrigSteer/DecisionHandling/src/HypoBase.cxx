@@ -111,8 +111,8 @@ StatusCode HypoBase::recursiveValidateGraph(const ElementLink<DecisionContainer>
   }
 
   // Continue upstream
-  const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
-  for (const ElementLink<DecisionContainer> seed : seeds) {
+  const std::vector<ElementLink<DecisionContainer>> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
+  for (const ElementLink<DecisionContainer>& seed : seeds) {
     if (fullyExploredFrom.count( (*seed) ) == 1) {
       continue; // Already fully explored from this seed and up
     }
@@ -134,7 +134,7 @@ StatusCode HypoBase::validateParentLinking(const ElementLink<DecisionContainer>&
   MsgStream& msg,
   bool runTwoConversion)
 {
-  const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
+  const std::vector<ElementLink<DecisionContainer>> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
   // All Decision object must have at least one parent, unless they are the initial set of objects created by the HLTSeeding
   const std::string& name = (*dEL)->name();
   if (seeds.size() == 0 && name != hltSeedingNodeName()) {
@@ -186,7 +186,7 @@ StatusCode HypoBase::validateParentLinking(const ElementLink<DecisionContainer>&
     return StatusCode::FAILURE;
   }
 
-  for (const ElementLink<DecisionContainer> seed : seeds) {
+  for (const ElementLink<DecisionContainer>& seed : seeds) {
     if (expectedParentsPtr->count( (*seed)->name() ) == 0) {
       printErrorHeader(dEL, msg);
       msg << MSG::ERROR << "! Invalid linking from node with name '" << name << "' to one with name '"<< (*seed)->name() << "'." << endmsg;
@@ -254,11 +254,11 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
   // Get all my passed DecisionIDs
   DecisionIDContainer decisionIDSet;
   decisionIDs(*dEL, decisionIDSet);
-  const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
+  const std::vector<ElementLink<DecisionContainer>> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
   for (const DecisionID id : decisionIDSet) {
     // For each chain that I'm passing, check how many of my parents were also passing the chain
     size_t parentsWithDecision = 0;  
-    for (const ElementLink<DecisionContainer> seed : seeds) {
+    for (const ElementLink<DecisionContainer>& seed : seeds) {
       if ( not seed.isValid() ) {
         msg << MSG::ERROR << "Invalid seed element link in recursiveValidateGraph" << endmsg;
         return StatusCode::FAILURE;
@@ -288,7 +288,7 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       msg << MSG::ERROR << "! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ) << endmsg;
       msg << MSG::ERROR << "! This chain's DecisionID can not be found in any parents of this Decision object:" << endmsg;
       size_t seed_n = 0;
-      for (const ElementLink<DecisionContainer> seed : seeds) {
+      for (const ElementLink<DecisionContainer>& seed : seeds) {
         msg << MSG::ERROR << "! Index:" << (*seed)->index() << " from collection:" << seed.dataID() << endmsg;
         msg << MSG::ERROR << "! " << **seed << endmsg;
         DecisionIDContainer objDecisions;      
@@ -313,7 +313,7 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       msg << MSG::ERROR << "! As this Decision object represents the output of a HypoAlg, it must respect logical flow on all " 
         << seeds.size() << " of its parent(s):" << endmsg;
       size_t seed_n = 0;
-      for (const ElementLink<DecisionContainer> seed : seeds) {
+      for (const ElementLink<DecisionContainer>& seed : seeds) {
         msg << MSG::ERROR << "! Index:" << (*seed)->index() << " from collection:" << seed.dataID() << endmsg;
         msg << MSG::ERROR << "! " << **seed << endmsg;
         DecisionIDContainer objDecisions;      
@@ -353,7 +353,13 @@ StatusCode HypoBase::validateHasLinks(const ElementLink<DecisionContainer>& dEL,
 
   } else if (name == inputMakerNodeName()) {
 
-    if (not (*dEL)->hasObjectLink( roiString() )) {
+    // This requirement is dropped for empty input makers to avoid unnecessary graph clutter.
+    bool exempt = false;
+    if ((*dEL)->hasDetail<int32_t>("isEmpty") and (*dEL)->getDetail<int32_t>("isEmpty") == 1) {
+      exempt = true;
+    }
+
+    if (not (*dEL)->hasObjectLink( roiString() ) and not exempt) {
       printErrorHeader(dEL, msg);
       msg << MSG::ERROR << "! Decision has no '" << roiString() << "' ElementLink." << endmsg;
       msg << MSG::ERROR << "! Every Decision created by a InputMaker must link to the ROI which reconstruction will run on for that Decision object in this Step." << endmsg;

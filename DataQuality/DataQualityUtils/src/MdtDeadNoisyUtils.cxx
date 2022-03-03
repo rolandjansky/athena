@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -942,36 +942,37 @@ namespace dqutils_mdtdeadnoisy {
     int tubeID = firstTubeInML;
 
     // int derived_tube = 1;
-    int derived_layer = 1;
+    // int derived_layer = 1;
     int derived_ML = 1;
 
     // Get Number of X
-    int derived_NumTubePerLayer = 1;
+    // int derived_NumTubePerLayer = 1;
     int derived_NumTubePerML = 1;
-    int derived_NumLayer = 1;
-    int derived_NumLayerPerML = 1;
+    // int derived_NumLayer = 1;
+    // int derived_NumLayerPerML = 1;
     int derived_NumML = 1;
     if( hardware_name(0,4) == "BIS8" /*&& hardware_name(5,2) == "12"*/ ) {
-      derived_NumLayerPerML = 3;
+      //derived_NumLayerPerML = 3;
       derived_NumML = 1;
     }
     else if( /*hardware_name(0,4) == "BIS8" ||*/ hardware_name(0,3) == "BEE" ) {
-      derived_NumLayerPerML = 4;
+      //derived_NumLayerPerML = 4;
       derived_NumML = 1;
     }
     else if( hardware_name(0,2) == "BI" || hardware_name(0,2) == "EI" ) {
-      derived_NumLayerPerML = 4;
+      //derived_NumLayerPerML = 4;
       derived_NumML = 2;
     }
     else {
-      derived_NumLayerPerML = 3;
+      //derived_NumLayerPerML = 3;
       derived_NumML = 2;
     }
 
-    derived_NumLayer = derived_NumLayerPerML * derived_NumML;
+    // derived_NumLayer = derived_NumLayerPerML * derived_NumML;
     derived_NumTubePerML = totalTubes / derived_NumML;
-    derived_NumTubePerLayer = totalTubes / derived_NumLayer;
+    //derived_NumTubePerLayer = totalTubes / derived_NumLayer;
 
+#if 0
     // Corrections for derived_NumTubePerLayer
     if( hardware_name(0,4) == "BMS4" || hardware_name(0,4) == "BMS6" )
       derived_NumTubePerLayer = 48;
@@ -989,12 +990,13 @@ namespace dqutils_mdtdeadnoisy {
     }
 //     if( hardware_name(0,4)=="EIL4" && ( hardware_name(5,2)=="09" || hardware_name(5,2)=="01" ) ) // possible MdtIdHelper problem
 //       derived_NumTubePerLayer = 54;
+#endif
 
     // Now get X
     derived_ML = (tubeID-1)/derived_NumTubePerML + 1;
-    derived_layer = (tubeID-1)/derived_NumTubePerLayer + 1;
+    // derived_layer = (tubeID-1)/derived_NumTubePerLayer + 1;
     // derived_tube = tubeID - (derived_layer - 1) * derived_NumTubePerLayer;
-    if(derived_ML==2) derived_layer -= derived_NumLayerPerML;
+    // if(derived_ML==2) derived_layer -= derived_NumLayerPerML;
 
     // final info  
     int lastTubeInML = -1;

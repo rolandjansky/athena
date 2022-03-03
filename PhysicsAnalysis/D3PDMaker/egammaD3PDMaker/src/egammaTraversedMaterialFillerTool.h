@@ -21,6 +21,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <string>
 
 class ICaloSurfaceBuilder;
@@ -97,6 +98,12 @@ private:
 
   /// Property: CaloSurfaceBuilder tool.
   ToolHandle<ICaloSurfaceBuilder> m_caloSurfaceBuilder;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager"
+  };
 
   /// Property: Minimum track pT to do the extrapolation.
   float m_minPt;

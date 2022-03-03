@@ -27,7 +27,7 @@ void AGDDMMSpacer::CreateSolid (const AGDDBuilder& /*builder*/)
 //	std::cout<<"this is AGDDMMSpacer::CreateSolid()"<<std::endl;
 }
 
-void AGDDMMSpacer::CreateVolume (const AGDDBuilder& builder)
+void AGDDMMSpacer::CreateVolume (AGDDBuilder& builder)
 {
 //    std::cout<<"this is AGDDMMSpacer::CreateVolume()"<<std::endl;
 	

@@ -23,8 +23,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <vector>
 #include <memory>
+#include <vector>
 
 xAODEgammaBuilder::xAODEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
@@ -39,8 +39,8 @@ xAODEgammaBuilder::initialize()
   // the data handle keys
   ATH_CHECK(m_electronClusterRecContainerKey.initialize(m_doElectrons));
   ATH_CHECK(m_photonClusterRecContainerKey.initialize(m_doPhotons));
-  ATH_CHECK(m_electronOutputKey.initialize());
-  ATH_CHECK(m_photonOutputKey.initialize());
+  ATH_CHECK(m_electronOutputKey.initialize(m_doElectrons));
+  ATH_CHECK(m_photonOutputKey.initialize(m_doPhotons));
   ATH_CHECK(m_caloDetDescrMgrKey.initialize());
 
   // retrieve tools
@@ -57,15 +57,15 @@ xAODEgammaBuilder::initialize()
   m_doOQ = !m_egammaOQTool.empty();
   if (m_doOQ) {
     ATH_CHECK(m_egammaOQTool.retrieve());
-  }else{
+  } else {
     m_egammaOQTool.disable();
   }
 
-  //do we actually do ambiguity
+  // do we actually do ambiguity
   m_doAmbiguity = !m_ambiguityTool.empty();
   if (m_doElectrons && m_doPhotons && m_doAmbiguity) {
     ATH_CHECK(m_ambiguityTool.retrieve());
-  }else{
+  } else {
     m_ambiguityTool.disable();
   }
   m_doDummyElectrons = !(m_dummyElectronOutputKey.empty());
@@ -88,30 +88,39 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
   xAOD::ElectronContainer* electrons = nullptr;
   xAOD::PhotonContainer* photons = nullptr;
   /*
-   * From here one if a Read/Write handle is retrieved the above will be !=
+   * From here on if a Read/Write handle
+   * is retrieved the above will be !=
    * nullptr for electron or photons or both
    */
+  std::optional<SG::WriteHandle<xAOD::ElectronContainer>> electronContainer;
+  std::optional<SG::WriteHandle<xAOD::PhotonContainer>> photonContainer;
+
   if (m_doElectrons) {
-    SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronClusterRecContainerKey, ctx);
+    SG::ReadHandle<EgammaRecContainer> electronSuperRecs(
+      m_electronClusterRecContainerKey, ctx);
     inputElRecs = electronSuperRecs.ptr();
+
+    electronContainer.emplace(m_electronOutputKey, ctx);
+    ATH_CHECK(electronContainer->record(
+      std::make_unique<xAOD::ElectronContainer>(),
+      std::make_unique<xAOD::ElectronAuxContainer>()));
+
+    electrons = electronContainer->ptr();
+    electrons->reserve(inputElRecs->size());
   }
   if (m_doPhotons) {
-    SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonClusterRecContainerKey, ctx);
+    SG::ReadHandle<EgammaRecContainer> photonSuperRecs(
+      m_photonClusterRecContainerKey, ctx);
     inputPhRecs = photonSuperRecs.ptr();
+
+    photonContainer.emplace(m_photonOutputKey, ctx);
+    ATH_CHECK(
+      photonContainer->record(std::make_unique<xAOD::PhotonContainer>(),
+                              std::make_unique<xAOD::PhotonAuxContainer>()));
+
+    photons = photonContainer->ptr();
+    photons->reserve(inputPhRecs->size());
   }
-
-  SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
-
-  ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
-                                     std::make_unique<xAOD::ElectronAuxContainer>()));
-
-  SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey,ctx);
-
-  ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
-                                   std::make_unique<xAOD::PhotonAuxContainer>()));
-
-  electrons = electronContainer.ptr();
-  photons = photonContainer.ptr();
 
   /*
    * Now fill the electrons and photons
@@ -194,18 +203,20 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
     }
   }
 
-  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
   ATH_CHECK(caloDetDescrMgrHandle.isValid());
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // Shower Shapes
   if (m_doElectrons) {
-    for (xAOD::Electron* electron : *electronContainer) {
+    for (xAOD::Electron* electron : *electrons) {
       ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, electron));
     }
   }
   if (m_doPhotons) {
-    for (xAOD::Photon* photon : *photonContainer) {
+    for (xAOD::Photon* photon : *photons) {
       ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, photon));
     }
   }
@@ -213,63 +224,63 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
   // Object Quality
   if (m_doOQ) {
     if (m_doElectrons) {
-      for (xAOD::Electron* electron : *electronContainer) {
+      for (xAOD::Electron* electron : *electrons) {
         ATH_CHECK(m_egammaOQTool->execute(ctx, *calodetdescrmgr, *electron));
       }
     }
     if (m_doPhotons) {
-      for (xAOD::Photon* photon : *photonContainer) {
+      for (xAOD::Photon* photon : *photons) {
         ATH_CHECK(m_egammaOQTool->execute(ctx, *calodetdescrmgr, *photon));
       }
     }
   }
 
   // Calibration
-  if (m_clusterTool->contExecute(ctx,electrons, photons)
-        .isFailure()) {
+  if (m_clusterTool->contExecute(ctx, electrons, photons).isFailure()) {
     ATH_MSG_ERROR("Problem executing the " << m_clusterTool << " tool");
     return StatusCode::FAILURE;
   }
 
   // Tools for ToolHandleArrays
   // First common photon/electron tools*/
-  for (const auto & tool : m_egammaTools) {
+  for (const auto& tool : m_egammaTools) {
     ATH_CHECK(CallTool(ctx, tool, electrons, photons));
   }
   // Tools for only electrons
   if (m_doElectrons) {
-    for (const auto & tool : m_electronTools) {
+    for (const auto& tool : m_electronTools) {
       ATH_CHECK(CallTool(ctx, tool, electrons, nullptr));
     }
   }
   // Tools for only photons
   if (m_doPhotons) {
-    for (const auto & tool : m_photonTools) {
+    for (const auto& tool : m_photonTools) {
       ATH_CHECK(CallTool(ctx, tool, nullptr, photons));
     }
   }
   // Do the ambiguity Links
   if (m_doElectrons && m_doPhotons) {
-    ATH_CHECK(doAmbiguityLinks(ctx,electrons, photons));
+    ATH_CHECK(doAmbiguityLinks(ctx, electrons, photons));
   }
 
-  if (m_doDummyElectrons){
-    SG::WriteHandle<xAOD::ElectronContainer> dummyElectronContainer(m_dummyElectronOutputKey, ctx);
-    ATH_CHECK(dummyElectronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
-                                     std::make_unique<xAOD::ElectronAuxContainer>()));
+  if (m_doDummyElectrons) {
+    SG::WriteHandle<xAOD::ElectronContainer> dummyElectronContainer(
+      m_dummyElectronOutputKey, ctx);
+    ATH_CHECK(dummyElectronContainer.record(
+      std::make_unique<xAOD::ElectronContainer>(),
+      std::make_unique<xAOD::ElectronAuxContainer>()));
 
-    xAOD::Electron* dummy= new xAOD::Electron();
+    xAOD::Electron* dummy = new xAOD::Electron();
     dummyElectronContainer->push_back(dummy);
-}
+  }
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-xAODEgammaBuilder::doAmbiguityLinks(
-  const EventContext& ctx,
-  xAOD::ElectronContainer* electronContainer,
-  xAOD::PhotonContainer* photonContainer) 
+xAODEgammaBuilder::doAmbiguityLinks(const EventContext& ctx,
+                                    xAOD::ElectronContainer* electronContainer,
+                                    xAOD::PhotonContainer* photonContainer)
 {
 
   /// Needs the same logic as the ambiguity after building the objects (make
@@ -298,8 +309,8 @@ xAODEgammaBuilder::doAmbiguityLinks(
 
       if (caloClusterLinks(*(electron->caloCluster())).at(0) ==
           caloClusterLinks(*(photon->caloCluster())).at(0)) {
-        ElementLink<xAOD::EgammaContainer> link(*electronContainer,
-                                                electronIndex,ctx);
+        ElementLink<xAOD::EgammaContainer> link(
+          *electronContainer, electronIndex, ctx);
         ELink(*photon) = link;
         break;
       }
@@ -365,7 +376,7 @@ xAODEgammaBuilder::getElectron(const egammaRec* egRec,
                                const uint8_t type) const
 {
 
-  if (!egRec || !electronContainer){
+  if (!egRec || !electronContainer) {
     return false;
   }
 
@@ -447,7 +458,7 @@ xAODEgammaBuilder::getPhoton(const egammaRec* egRec,
                              const unsigned int author,
                              const uint8_t type) const
 {
-  if (!egRec || !photonContainer){
+  if (!egRec || !photonContainer) {
     return false;
   }
 

@@ -39,7 +39,7 @@ double CaloSwCalibHitsShowerDepth::depth (const float aeta,
                                           const CaloRec::Array<2>& sampling_depth,
                                           const float etamax,
                                           const xAOD::CaloCluster* cluster,
-                                          MsgStream& log) const
+                                          MsgStream& log) 
 {
   float R[4];
   int si;
@@ -92,7 +92,7 @@ double CaloSwCalibHitsShowerDepth::depth (const float aeta,
  * @param R[out] The set of coefficients per layer.
  */
 void CaloSwCalibHitsShowerDepth::barrelCoefs (const float aeta,
-                                              float R[4]) const
+                                              float R[4]) 
 {
 //----------------------------------------------------------------------
 //     APPROXIMATE Longitudinal segmentation of the EM Barrel
@@ -168,7 +168,7 @@ void CaloSwCalibHitsShowerDepth::barrelCoefs (const float aeta,
 bool CaloSwCalibHitsShowerDepth::endcapCoefs (const float aeta,
                                               const CaloRec::Array<2>& sampling_depth,
                                               const float etamax,
-                                              float R[4]) const
+                                              float R[4]) 
 {
   unsigned int ibin = (static_cast<unsigned int> (aeta / etamax * 100)) ;
   if (ibin >= sampling_depth.size())

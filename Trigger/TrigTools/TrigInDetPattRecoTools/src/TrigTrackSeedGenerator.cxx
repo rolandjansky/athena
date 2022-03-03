@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -195,8 +195,6 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 
 	//    const std::pair<IdentifierHash, IdentifierHash>& deIds = spm->offlineSpacePoint()->elementIdList();
 	
-	int nSP=0;
-
 	m_nInner = 0;
 	m_nOuter = 0;
 
@@ -235,7 +233,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	  int nI = m_nInner;
 	  int nO = m_nOuter;
 	      
-	  nSP += processSpacepointRange(layerJ, spm, checkPSS, delta, roiDescriptor);
+	  processSpacepointRange(layerJ, spm, checkPSS, delta, roiDescriptor);
 
 	  if(m_nInner > nI) m_innerMarkers.push_back(m_nInner);
 	  if(m_nOuter > nO) m_outerMarkers.push_back(m_nOuter);
@@ -330,7 +328,6 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 	  for(const auto zVertex : vZv) {//loop over zvertices
 
-	    int nSP=0;
 	    m_nInner = 0;
 	    m_nOuter = 0;
 
@@ -360,7 +357,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 		if(!getSpacepointRange(layerJ, spVec, delta)) continue;
 	      
-		nSP += processSpacepointRangeZv(spm, checkPSS, delta, checkWidth, minTau, maxTau);
+		processSpacepointRangeZv(spm, checkPSS, delta, checkWidth, minTau, maxTau);
 	      }//loop over phi bins
 
 	    }//loop over inner/outer layers
@@ -727,6 +724,12 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
   if(nInner==0 || nOuter==0) return;
 
+  /// NB: the EDM classes store variuables as floats, therefore the double to float conversion
+  ///     looses precision and as float(M_PI))>M_PI in the 7th decimal place we get problems 
+  ///     at the pi boundary
+  /// prefer std::fabs here for explicit double precision
+  bool fullPhi = ( roiDescriptor->isFullscan() || ( std::fabs( roiDescriptor->phiPlus() - roiDescriptor->phiMinus()  - 2*M_PI ) < 1e-6 ) ); 
+
   int nSP = nInner + nOuter;
 
   const double pS_r = pS->r();
@@ -879,7 +882,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       //5. phi0 cut
 
-      if (!roiDescriptor->isFullscan()) {
+      if ( !fullPhi ) { 
         const double uc = 2*B*pS_r - A;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
@@ -919,6 +922,10 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 					       std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
 
   if(nInner==0 || nOuter==0) return;
+
+  /// prefer std::fabs here for explicit double precision 
+  bool fullPhi = ( roiDescriptor->isFullscan() || ( std::fabs( roiDescriptor->phiPlus() - roiDescriptor->phiMinus()  - 2*M_PI ) < 1e-6 ) ); 
+
 
   int nSP = nInner + nOuter;
   output.reserve(m_settings.m_maxTripletBufferLength);
@@ -1137,8 +1144,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
       //5. phi0 cut
 
-      if (!roiDescriptor->isFullscan()) {
-
+      if ( !fullPhi ) {
         const double uc = 2*d0_partial;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
@@ -1202,6 +1208,10 @@ void TrigTrackSeedGenerator::createConfirmedTriplets(const TrigSiSpacePointBase*
 
   if(nInner==0 || nOuter==0) return;
   
+  /// prefer std::fabs here for explicit double precision
+  bool fullPhi = ( roiDescriptor->isFullscan() || ( std::fabs( roiDescriptor->phiPlus() - roiDescriptor->phiMinus()  - 2*M_PI ) < 1e-6 ) ); 
+
+
   int nSP = nInner + nOuter;
 
   const double pS_r = pS->r();
@@ -1348,7 +1358,7 @@ void TrigTrackSeedGenerator::createConfirmedTriplets(const TrigSiSpacePointBase*
       
       //5. phi0 cut
 
-      if (!roiDescriptor->isFullscan()) {
+      if ( !fullPhi ) {
         const double uc = 2*B*pS_r - A;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 

@@ -48,19 +48,19 @@ private:
 
   int m_ringType;
   int m_spineSide;
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
 
-  double m_thickness1;
-  double m_width1;
-  double m_length1;
+  double m_thickness1 = 0.0;
+  double m_width1 = 0.0;
+  double m_length1 = 0.0;
 
-  double m_thickness2;
-  double m_width2;
-  double m_length2;
+  double m_thickness2 = 0.0;
+  double m_width2 = 0.0;
+  double m_length2 = 0.0;
 
-  double m_thickness3;
-  double m_width3;
-  double m_length3;
+  double m_thickness3 = 0.0;
+  double m_width3 = 0.0;
+  double m_length3 = 0.0;
 
 };
 

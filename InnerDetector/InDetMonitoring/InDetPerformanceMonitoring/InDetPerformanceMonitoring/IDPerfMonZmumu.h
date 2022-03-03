@@ -170,7 +170,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   std::string m_truthLinkVecName;   /// link vector to map HepMC onto xAOD truth
 
   // cut flow histogram
-  TH1F*                           m_h_cutflow;
+  TH1F*                           m_h_cutflow = nullptr;
   //!< Root Validation Tree
   TTree*                          m_commonTree;
   TTree*                          m_defaultTree;
@@ -186,7 +186,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   unsigned int  m_evtNumber{};
   unsigned int  m_lumi_block{};
   unsigned int  m_event_mu{};
-  int           m_triggerPrescale;
+  int           m_triggerPrescale = 0;
   unsigned int  m_nVertex{};
 
   double m_positive_px{};

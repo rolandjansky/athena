@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODEVENTINFO_XAODEVENTINFODICT_H
 #define XAODEVENTINFO_XAODEVENTINFODICT_H
@@ -12,6 +12,7 @@
 #include "xAODEventInfo/versions/EventInfo_v1.h"
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"
 #include "xAODEventInfo/versions/EventAuxInfo_v2.h"
+#include "xAODEventInfo/versions/EventAuxInfo_v3.h"
 #include "xAODEventInfo/versions/EventInfoContainer_v1.h"
 #include "xAODEventInfo/versions/EventInfoAuxContainer_v1.h"
 

@@ -32,7 +32,7 @@
 
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
-          m_calo_dd_man(nullptr),
+	  m_calo_dd_man(nullptr),
           m_onlineID(nullptr),
 	  m_larPhysWaveBin(nullptr),
 	  m_groupingType("SubDetector") // SubDetector, Single, FeedThrough
@@ -140,8 +140,10 @@ StatusCode LArOFCAlg::initialize(){
     }
   }
   
-  ATH_CHECK( m_cablingKey.initialize() );
-  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+  ATH_CHECK( m_cablingKeySC.initialize(m_isSC) );
+  ATH_CHECK( m_caloSuperCellMgrKey.initialize(m_isSC) );
+  ATH_CHECK( m_cablingKey.initialize(!m_isSC) );
+  ATH_CHECK( m_caloMgrKey.initialize(!m_isSC) );
 
   ATH_MSG_INFO( "Number of wave points needed : " << m_nPoints  ) ;
   if (m_computeV2) {
@@ -164,52 +166,28 @@ StatusCode LArOFCAlg::stop()
   ATH_MSG_INFO( "Spacing between two phases   : " << m_dPhases  ) ;
 
   
-  const LArOnOffIdMapping* cabling(0);
-  if( m_isSC ){
+  const LArOnOffIdMapping* cabling{nullptr};
+  if(m_isSC) {
     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
-    cabling = {*cablingHdl};
-    if(!cabling) {
-      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
-      return StatusCode::FAILURE;
-    }
-        
-  }else{
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-    cabling = {*cablingHdl};
-    if(!cabling) {
-      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
-      return StatusCode::FAILURE;
+    ATH_CHECK(cablingHdl.isValid());
+    cabling = *cablingHdl;
+
+    if (m_useDelta == 3 || m_useDeltaV2==3){
+      SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
+      ATH_CHECK(caloSuperCellMgrHandle.isValid());
+      m_calo_dd_man = *caloSuperCellMgrHandle;
     }
   }
+  else {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    ATH_CHECK(cablingHdl.isValid());
+    cabling = *cablingHdl;
 
-
-
-  StatusCode sc;
-  if (m_useDelta == 3 || m_useDeltaV2==3){
-    if ( m_isSC ) {
-      const CaloSuperCellDetDescrManager* ll;
-      sc = detStore()->retrieve(ll, "CaloSuperCellDetDescrManager");
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not get CaloSuperCellDetDescrManager helper !" << endmsg;
-	return StatusCode::FAILURE;
-      }
-      else {
-	m_calo_dd_man = (const CaloDetDescrManager_Base*)ll;
-	ATH_MSG_DEBUG("Found the CaloSuperCellDetDescrManager helper");
-      }
-    } else { // m_isSC
-      const CaloDetDescrManager* ll;
-      sc = detStore()->retrieve(ll, "CaloDetDescrManager");
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not get CaloDetDescrManager helper !" << endmsg;
-	return StatusCode::FAILURE;
-      }
-      else {
-	m_calo_dd_man = (const CaloDetDescrManager_Base*)ll;
-	ATH_MSG_DEBUG(" Found the CaloDetDescrManager helper. ");
-      }
+    if (m_useDelta == 3 || m_useDeltaV2==3){
+      SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+      ATH_CHECK(caloMgrHandle.isValid());
+      m_calo_dd_man = *caloMgrHandle;
     }
-    
   }
 
   if ( m_timeShift ) {
@@ -220,39 +198,28 @@ StatusCode LArOFCAlg::stop()
     }
   }
   
-
   if (m_larPhysWaveBinKey.size()) {
-    sc=detStore()->retrieve(m_larPhysWaveBin,m_larPhysWaveBinKey);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve LArOFCBinComplete object with key " << m_larPhysWaveBinKey );
-      return sc;
-    }
+    ATH_CHECK(detStore()->retrieve(m_larPhysWaveBin,m_larPhysWaveBinKey));
   }
 
   if (m_readCaliWave) {
-    sc=this->initCaliWaveContainer();
+    ATH_CHECK(this->initCaliWaveContainer());
   }
   else {
-    sc=this->initPhysWaveContainer(cabling);
+    ATH_CHECK(this->initPhysWaveContainer(cabling));
   }
 
   if (m_readDSPConfig) {
-     const AthenaAttributeList* attrList=0;
-     sc=detStore()->retrieve(attrList, m_DSPConfigFolder);
-     if (sc.isFailure()) {
-         ATH_MSG_ERROR( "Failed to retrieve AthenaAttributeList with key " << m_DSPConfigFolder );
-         return sc;
-     }
-
-     const coral::Blob& blob = (attrList->coralList())["febdata"].data<coral::Blob>();
-     if (blob.size()<3) {
-        ATH_MSG_INFO( "Found empty blob, nothing to do");
-     } else {
-        m_DSPConfig = std::make_unique<LArDSPConfig>(attrList);
-     }
+    const AthenaAttributeList* attrList=nullptr;
+    ATH_CHECK(detStore()->retrieve(attrList, m_DSPConfigFolder));
+    
+    const coral::Blob& blob = (attrList->coralList())["febdata"].data<coral::Blob>();
+    if (blob.size()<3) {
+      ATH_MSG_INFO( "Found empty blob, nothing to do");
+    } else {
+      m_DSPConfig = std::make_unique<LArDSPConfig>(attrList);
+    }
   }
-
-  if (sc.isFailure()) return sc;
 
   if (m_allChannelData.size()==0) {
     ATH_MSG_ERROR( "No input waves found" );
@@ -298,7 +265,7 @@ StatusCode LArOFCAlg::stop()
 
   // OFC persistent object
   std::unique_ptr<LArOFCComplete> larOFCComplete=std::make_unique<LArOFCComplete>();
-  sc = larOFCComplete->setGroupingType(m_groupingType,msg());
+  StatusCode sc = larOFCComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to set groupingType for LArOFCComplete object" );
     return sc;
@@ -920,7 +887,7 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
 
 }
 
- bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag, const LArOnOffIdMapping* cabling) const {
+bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag, const LArOnOffIdMapping* cabling) const {
 
   if (jobOFlag==2){
       return true;
@@ -974,7 +941,6 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
 
   return false;
 }
-
 
 
 bool LArOFCAlg::verify(const HWIdentifier chid, const std::vector<float>& OFCa, const std::vector<float>& OFCb, 

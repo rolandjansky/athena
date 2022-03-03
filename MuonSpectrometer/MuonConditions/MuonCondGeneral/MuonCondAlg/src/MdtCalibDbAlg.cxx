@@ -335,7 +335,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
                     al.extend("file", "string");
                     al.extend("data", "blob");
                     al["tech"].data<int>() = jt.value()[1];
-                    al["file"].data<std::string>() = jt.value()[2];
+                    al["file"].data<std::string>() = static_cast<std::string>(jt.value()[2]);
                     std::string data = jt.value()[3];
                     if (!CoralUtilities::writeBlobFromString(data, al["data"].data<coral::Blob>())) {
                         ATH_MSG_FATAL("Cannot compress BLOB!");
@@ -781,7 +781,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
                     al.extend("file", "string");
                     al.extend("data", "blob");
                     al["tech"].data<int>() = jt.value()[1];
-                    al["file"].data<std::string>() = jt.value()[2];
+                    al["file"].data<std::string>() = static_cast<std::string>(jt.value()[2]);
                     std::string data = jt.value()[3];
                     if (!CoralUtilities::writeBlobFromString(data, al["data"].data<coral::Blob>())) {
                         ATH_MSG_FATAL("Cannot compress BLOB!");

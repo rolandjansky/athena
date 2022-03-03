@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATTOOL_H
@@ -14,7 +14,6 @@
 
 class InDetServMatAthenaComps;
 class IGeoDbTagSvc;
-class IRDBAccessSvc;
 class IGeometryDBSvc;
 class IInDetServMatBuilderTool;
 
@@ -35,7 +34,6 @@ class InDetServMatTool final : public GeoModelTool {
 
  private:
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
-  ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
   ToolHandle<IInDetServMatBuilderTool> m_builderTool;
 

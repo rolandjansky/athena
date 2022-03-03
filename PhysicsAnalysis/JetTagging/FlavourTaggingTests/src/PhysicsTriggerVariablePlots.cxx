@@ -31,7 +31,6 @@ namespace FTAGValidation {
     ATH_CHECK( FTAGValidationAlgorithm::initialize() );
 
     ATH_MSG_INFO( "Properties declaration:" );
-    ATH_MSG_INFO( "   -- " << m_trigJetKey      );
     ATH_MSG_INFO( "   -- " << m_trigVertexKey   );
     ATH_MSG_INFO( "   -- " << m_trigTrackKey    );
     ATH_MSG_INFO( "   -- " << m_offJetKey   );
@@ -42,7 +41,6 @@ namespace FTAGValidation {
     ATH_MSG_INFO( "   -- " << m_maxJetEta );
     ATH_MSG_INFO( "   -- " << m_minJetPt  );
 
-    ATH_CHECK( m_trigJetKey.initialize() );
     ATH_CHECK( m_trigVertexKey.initialize() );
     ATH_CHECK( m_trigTrackKey.initialize() );
     ATH_CHECK( m_offJetKey.initialize() );
@@ -121,7 +119,7 @@ namespace FTAGValidation {
       int nJetsWithMuon = 0;
       int nJetsWithSV   = 0;
 
-      std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlineJets = m_trigDec->features<xAOD::JetContainer>(chain, TrigDefs::Physics, m_trigJetKey.key());
+      std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlineJets = m_trigDec->features<xAOD::JetContainer>(chain, TrigDefs::Physics);
       ATH_MSG_DEBUG("onlineJets.size(): " << onlineJets.size() );
       int n_qualityJets = 0;
       for( const auto& jetLinkInfo : onlineJets ) {
@@ -133,8 +131,8 @@ namespace FTAGValidation {
 
         ATH_MSG_DEBUG( "JET KINEMATICS:" );
         ATH_MSG_DEBUG( "  ** pt=" << jet->p4().Et() / Gaudi::Units::GeV << " eta=" << jet->eta() << " phi=" << jet->phi() );
-        ATH_CHECK( fillHistogram( chain + "_jet_E"   , jet->e()   ) );
-        ATH_CHECK( fillHistogram( chain + "_jet_pT"  , jet->pt()  ) );
+        ATH_CHECK( fillHistogram( chain + "_jet_E"   , jet->e()  / Gaudi::Units::GeV ) );
+        ATH_CHECK( fillHistogram( chain + "_jet_pT"  , jet->pt() / Gaudi::Units::GeV ) );
         ATH_CHECK( fillHistogram( chain + "_jet_eta" , jet->eta() ) );
         ATH_CHECK( fillHistogram( chain + "_jet_phi" , jet->phi() ) );
 

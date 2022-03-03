@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,9 +28,11 @@ class LayerMaterialProperties;
  @author Sarka.Todorova@cern.ch
  */
 
-class SubtractedPlaneLayer final : virtual public SubtractedPlaneSurface,
-                                   public Layer {
- public:
+class SubtractedPlaneLayer final
+  : public SubtractedPlaneSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   SubtractedPlaneLayer() {}
 
@@ -75,7 +77,6 @@ class SubtractedPlaneLayer final : virtual public SubtractedPlaneSurface,
   virtual void resizeAndRepositionLayer(const VolumeBounds&,
                                         const Amg::Vector3D&,
                                         double) override final {}
-
 };
 
 }  // namespace Trk

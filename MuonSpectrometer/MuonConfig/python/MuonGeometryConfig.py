@@ -44,7 +44,7 @@ def MuonDetectorToolCfg(flags):
             detTool.EnableMdtDeformations = 3
 
         # here define if I-lines (CSC internal alignment) are enabled
-        if flags.Muon.Align.UseILines:
+        if flags.Muon.Align.UseILines and flags.Detector.GeometryCSC:
             if 'HLT' in flags.IOVDb.GlobalTag:
                 #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
                 detTool.UseIlinesFromGM = True
@@ -99,7 +99,8 @@ def MuonDetectorToolCfg(flags):
 
 
 def MuonAlignmentCondAlgCfg(flags):
-    acc = MuonIdHelperSvcCfg(flags)
+    acc = MuonGeoModelToolCfg(flags)
+    acc.merge(MuonIdHelperSvcCfg(flags))
 
     # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
@@ -150,6 +151,8 @@ def MuonAlignmentCondAlgCfg(flags):
             acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
             pass
+
+    MuonAlign.DoCSCs = flags.Detector.GeometryCSC
     acc.addCondAlgo(MuonAlign)
 
     if flags.IOVDb.DatabaseInstance != 'COMP200' and \
@@ -169,12 +172,17 @@ def MuonDetectorCondAlgCfg(flags):
     return acc
 
 
-def MuonGeoModelCfg(flags, forceDisableAlignment=False):
-    acc=GeoModelCfg(flags)
-    gms=acc.getPrimary()
+def MuonGeoModelToolCfg(flags):
+    acc = GeoModelCfg(flags)
+    gms = acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     detTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
     gms.DetectorTools += [ detTool ]
+    return acc
+
+
+def MuonGeoModelCfg(flags, forceDisableAlignment=False):
+    acc = MuonGeoModelToolCfg(flags)
 
     if flags.Muon.enableAlignment and not forceDisableAlignment:
         acc.merge(MuonDetectorCondAlgCfg(flags))

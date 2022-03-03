@@ -18,8 +18,11 @@ StatusCode JetTrackSelectionAlg::initialize() {
   ATH_CHECK(m_input.initialize());
   ATH_CHECK(m_output.initialize());
 
+  ATH_CHECK(m_decorDeps.initialize(m_input, m_output));
+  
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode JetTrackSelectionAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG(" execute() ... ");
@@ -30,7 +33,7 @@ StatusCode JetTrackSelectionAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
 
-  
+  // create and fill the VIEW container of selected tracks 
   using OutContType = ConstDataVector<xAOD::TrackParticleContainer>;
   auto selectedTracks = std::make_unique<OutContType>(SG::VIEW_ELEMENTS);
 
@@ -41,11 +44,15 @@ StatusCode JetTrackSelectionAlg::execute(const EventContext& ctx) const {
   }
 
 
+  // Write out in the event store 
   auto handle_out =  SG::makeHandle(m_output, ctx);
   
-  if (!handle_out.record(std::move(selectedTracks)) ){
+  std::unique_ptr<const xAOD::TrackParticleContainer> selectedTracks_tc(selectedTracks.release()->asDataVector());
+  if (handle_out.put(std::move(selectedTracks_tc))==nullptr ){
     ATH_MSG_ERROR("Can't record output track container "<< m_output.key());
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK(m_decorDeps.linkDecors (m_input, ctx));
   return StatusCode::SUCCESS;  
 }

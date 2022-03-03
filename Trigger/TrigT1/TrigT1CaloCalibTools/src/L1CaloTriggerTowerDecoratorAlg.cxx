@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 728363 2016-03-08 12:45:29Z amazurov $
 
 // TrigT1 common definitions
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
@@ -12,19 +11,6 @@
 
 // EDM include(s):
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
-
-namespace {
-xAOD::TriggerTower::Decorator<float>* caloCellEnergyDecorator;
-xAOD::TriggerTower::Decorator<float>* caloCellETDecorator;
-xAOD::TriggerTower::Decorator<float>* caloCellsQualityDecorator;
-xAOD::TriggerTower::Decorator<std::vector<float>>*
-    caloCellEnergyByLayerDecorator;
-xAOD::TriggerTower::Decorator<std::vector<float>>* caloCellETByLayerDecorator;
-xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>*
-    caloCellEnergyByLayerByReceiverDecorator;
-xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>*
-    caloCellETByLayerByReceiverDecorator;
-}
 
 namespace LVL1 {
 
@@ -68,61 +54,45 @@ StatusCode L1CaloTriggerTowerDecoratorAlg::initialize() {
   CHECK(m_ttTools.retrieve());
 
   if (!m_caloCellEnergy.empty()) {
-    caloCellEnergyDecorator =
-        new xAOD::TriggerTower::Decorator<float>(m_caloCellEnergy);
+    m_caloCellEnergyDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<float>>(m_caloCellEnergy);
   }
 
   if (!m_caloCellET.empty()) {
-    caloCellETDecorator =
-        new xAOD::TriggerTower::Decorator<float>(m_caloCellET);
+    m_caloCellETDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<float>>(m_caloCellET);
   }
 
   if (!m_caloCellsQuality.empty()) {
-    caloCellsQualityDecorator =
-        new xAOD::TriggerTower::Decorator<float>(m_caloCellsQuality);
+    m_caloCellsQualityDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<float>>(m_caloCellsQuality);
   }
 
   if (!m_caloCellEnergyByLayer.empty()) {
-    caloCellEnergyByLayerDecorator =
-        new xAOD::TriggerTower::Decorator<std::vector<float>>(
+    m_caloCellEnergyByLayerDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<std::vector<float>>>(
             m_caloCellEnergyByLayer);
   }
 
   if (!m_caloCellETByLayer.empty()) {
-    caloCellETByLayerDecorator =
-        new xAOD::TriggerTower::Decorator<std::vector<float>>(
+    m_caloCellETByLayerDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<std::vector<float>>>(
             m_caloCellETByLayer);
   }
 
   if (!m_caloCellEnergyByLayerByReceiver.empty()) {
-    caloCellEnergyByLayerByReceiverDecorator =
-        new xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>(
+    m_caloCellEnergyByLayerByReceiverDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>>(
             m_caloCellEnergyByLayerByReceiver);
   }
 
   if (!m_caloCellETByLayerByReceiver.empty()) {
-    caloCellETByLayerByReceiverDecorator =
-        new xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>(
+    m_caloCellETByLayerByReceiverDecorator =
+        std::make_unique<xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>>(
             m_caloCellETByLayerByReceiver);
   }
 
   CHECK( m_triggerTowerContainerKey.initialize(SG::AllowEmpty) );
-
-  // Return gracefully:
-  return StatusCode::SUCCESS;
-}
-
-StatusCode L1CaloTriggerTowerDecoratorAlg::finalize() {
-  ATH_MSG_INFO(
-      "TrigT1CaloCalibTools/L1CaloTriggerTowerDecoratorAlg::finalize()");
-
-  delete caloCellEnergyDecorator;
-  delete caloCellETDecorator;
-  delete caloCellsQualityDecorator;
-  delete caloCellEnergyByLayerDecorator;
-  delete caloCellETByLayerDecorator;
-  delete caloCellEnergyByLayerByReceiverDecorator;
-  delete caloCellETByLayerByReceiverDecorator;
 
   // Return gracefully:
   return StatusCode::SUCCESS;
@@ -138,23 +108,23 @@ StatusCode L1CaloTriggerTowerDecoratorAlg::execute() {
     const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<xAOD::TriggerTowerContainer> tts (m_triggerTowerContainerKey, ctx);
     for (const auto x : *tts) {
-      if (caloCellEnergyDecorator)
-        (*caloCellEnergyDecorator)(*x) = m_ttTools->caloCellsEnergy(*x);
-      if (caloCellETDecorator)
-        (*caloCellETDecorator)(*x) = m_ttTools->caloCellsET(*x);
-      if (caloCellEnergyByLayerDecorator)
-        (*caloCellEnergyByLayerDecorator)(*x) =
+      if (m_caloCellEnergyDecorator)
+        (*m_caloCellEnergyDecorator)(*x) = m_ttTools->caloCellsEnergy(*x);
+      if (m_caloCellETDecorator)
+        (*m_caloCellETDecorator)(*x) = m_ttTools->caloCellsET(*x);
+      if (m_caloCellEnergyByLayerDecorator)
+        (*m_caloCellEnergyByLayerDecorator)(*x) =
             m_ttTools->caloCellsEnergyByLayer(*x);
-      if (caloCellETByLayerDecorator)
-        (*caloCellETByLayerDecorator)(*x) = m_ttTools->caloCellsETByLayer(*x);
-      if (caloCellsQualityDecorator)
-        (*caloCellsQualityDecorator)(*x) = m_ttTools->caloCellsQuality(*x);
-      if (caloCellEnergyByLayerByReceiverDecorator) {
-        (*caloCellEnergyByLayerByReceiverDecorator)(*x) =
+      if (m_caloCellETByLayerDecorator)
+        (*m_caloCellETByLayerDecorator)(*x) = m_ttTools->caloCellsETByLayer(*x);
+      if (m_caloCellsQualityDecorator)
+        (*m_caloCellsQualityDecorator)(*x) = m_ttTools->caloCellsQuality(*x);
+      if (m_caloCellEnergyByLayerByReceiverDecorator) {
+        (*m_caloCellEnergyByLayerByReceiverDecorator)(*x) =
             m_ttTools->caloCellsEnergyByLayerByReceiver(*x);
       }
-      if (caloCellETByLayerByReceiverDecorator) {
-        (*caloCellETByLayerByReceiverDecorator)(*x) =
+      if (m_caloCellETByLayerByReceiverDecorator) {
+        (*m_caloCellETByLayerByReceiverDecorator)(*x) =
             m_ttTools->caloCellsETByLayerByReceiver(*x);
       }
     }

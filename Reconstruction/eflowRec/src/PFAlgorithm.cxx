@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "eflowRec/PFAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
-PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_IPFSubtractionTools(this), m_IPFBaseTools(this)  
+PFAlgorithm::PFAlgorithm(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
+  , m_IPFSubtractionTools(this)
+  , m_IPFBaseTools(this)
 {
-  declareProperty( "SubtractionToolList",  m_IPFSubtractionTools, "List of Private Subtraction IPFSubtractionTools" );
-  declareProperty( "BaseToolList",  m_IPFBaseTools, "List of Private IPFBaseTools" );
+  declareProperty("SubtractionToolList", m_IPFSubtractionTools, "List of Private Subtraction IPFSubtractionTools");
+  declareProperty("BaseToolList", m_IPFBaseTools, "List of Private IPFBaseTools");
 }
 
 StatusCode PFAlgorithm::initialize(){
@@ -29,33 +32,34 @@ StatusCode PFAlgorithm::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFAlgorithm::execute(){
+StatusCode PFAlgorithm::execute(const EventContext& ctx) const{
   // Define monitored quantities
   auto t_exec = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute" );
+	Monitored::ScopedTimer execution_time(t_exec); 
   auto t_subtract = Monitored::Timer<std::chrono::milliseconds>( "TIME_subtract" );
-  auto N_efrTracks = Monitored::Scalar( "N_efrTracks", 0 );
   auto N_efrClusters = Monitored::Scalar( "N_efrClusters", 0 );
 
   ATH_MSG_DEBUG("Executing");
 
-  SG::WriteHandle<eflowCaloObjectContainer> eflowCaloObjectsWriteHandle(m_eflowCaloObjectsWriteHandleKey);
+  SG::WriteHandle<eflowCaloObjectContainer> eflowCaloObjectsWriteHandle(m_eflowCaloObjectsWriteHandleKey, ctx);
   ATH_CHECK(eflowCaloObjectsWriteHandle.record(std::make_unique<eflowCaloObjectContainer>()));
   eflowCaloObjectContainer* theElowCaloObjectContainer = eflowCaloObjectsWriteHandle.ptr();
 
-  SG::WriteHandle<xAOD::CaloClusterContainer> caloClustersWriteHandle(m_caloClustersWriteHandleKey);
-  ATH_CHECK(caloClustersWriteHandle.record(std::make_unique<xAOD::CaloClusterContainer>(),std::make_unique<xAOD::CaloClusterAuxContainer>()));
+  SG::WriteHandle<xAOD::CaloClusterContainer> caloClustersWriteHandle(m_caloClustersWriteHandleKey, ctx);
+  ATH_CHECK(caloClustersWriteHandle.record(std::make_unique<xAOD::CaloClusterContainer>(),
+                                           std::make_unique<xAOD::CaloClusterAuxContainer>()));
   ATH_MSG_DEBUG("CaloClusterWriteHandle has container of size" << caloClustersWriteHandle->size());
 
-  SG::ReadHandle<eflowRecTrackContainer> eflowRecTracksReadHandle(m_eflowRecTracksReadHandleKey);
+  SG::ReadHandle<eflowRecTrackContainer> eflowRecTracksReadHandle(m_eflowRecTracksReadHandleKey, ctx);
   eflowRecTrackContainer localEFlowRecTrackContainer(*eflowRecTracksReadHandle.ptr());
 
   /* Record the eflowRecCluster output container */
-  SG::WriteHandle<eflowRecClusterContainer> eflowRecClustersWriteHandle(m_eflowRecClustersWriteHandleKey);
+  SG::WriteHandle<eflowRecClusterContainer> eflowRecClustersWriteHandle(m_eflowRecClustersWriteHandleKey, ctx);
   ATH_CHECK(eflowRecClustersWriteHandle.record(std::make_unique<eflowRecClusterContainer>()));
   eflowRecClusterContainer& theEFlowRecClusterContainerReference = *(eflowRecClustersWriteHandle.ptr());
-  
+
   xAOD::CaloClusterContainer& theCaloClusterContainerReference = *(caloClustersWriteHandle.ptr());
-  ATH_CHECK(m_IPFClusterSelectorTool->execute(theEFlowRecClusterContainerReference,theCaloClusterContainerReference));
+  ATH_CHECK(m_IPFClusterSelectorTool->execute(theEFlowRecClusterContainerReference, theCaloClusterContainerReference));
 
   // Explicitly start/stop the timer around the subtraction tool calls
   t_subtract.start();
@@ -65,17 +69,20 @@ StatusCode PFAlgorithm::execute(){
   }
   t_subtract.stop();
 
-  if(msgLvl(MSG::DEBUG)) {
-    for (auto thisEFTrack : localEFlowRecTrackContainer){
-      msg() << "This efRecTrack has E,pt,eta and phi of " << thisEFTrack->getTrack()->e() << ", " << thisEFTrack->getTrack()->pt() << ", " << thisEFTrack->getTrack()->eta() << " and " << thisEFTrack->getTrack()->phi() << endmsg;
+  if (msgLvl(MSG::DEBUG)) {
+    for (auto thisEFTrack : localEFlowRecTrackContainer) {
+      msg() << "This efRecTrack has E,pt,eta and phi of " << thisEFTrack->getTrack()->e() << ", "
+            << thisEFTrack->getTrack()->pt() << ", " << thisEFTrack->getTrack()->eta() << " and "
+            << thisEFTrack->getTrack()->phi() << endmsg;
     }
 
-    for (auto thisEFCluster : *(eflowRecClustersWriteHandle.ptr()) ){
-      msg() << "This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << "," << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and " << thisEFCluster->getCluster()->phi() << endmsg;
+    for (auto thisEFCluster : *(eflowRecClustersWriteHandle.ptr())) {
+      msg() << "This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << ","
+            << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and "
+            << thisEFCluster->getCluster()->phi() << endmsg;
     }
   }
 
-  N_efrTracks = localEFlowRecTrackContainer.size();
   N_efrClusters = theEFlowRecClusterContainerReference.size();
 
   /* Run the other AglTools */
@@ -83,7 +90,7 @@ StatusCode PFAlgorithm::execute(){
     thisIPFBaseTool->execute(*theElowCaloObjectContainer);
   }
 
-  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract, N_efrTracks, N_efrClusters);
+  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract, N_efrClusters);
   return StatusCode::SUCCESS;
 }
 

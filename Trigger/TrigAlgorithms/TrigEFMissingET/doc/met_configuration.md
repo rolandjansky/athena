@@ -37,17 +37,17 @@ standardised). Therefore before the chain is passed to the individual slice
 configurations it is broken up into a 'chain dictionary'.
 
 This is done (mostly) by the
-`TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName.analyseChainName` function.
+`TriggerMenuMT.HLT.Config.Utility.DictFromChainName.analyseChainName` function.
 
 > Note that I am not describing the full process done by this function, just the
 > most relevant parts. This is also not an official documentation of this
 > function, just based on what I understand it to be doing.
 
 The L1 item and `HLT_` prefix are stripped from the name, then a `regex` defined
-by the `TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts.getBasePattern` function
+by the `TriggerMenuMT.HLT.Menu.SignatureDicts.getBasePattern` function
 is used to split the chain name into parts. Each part begins with one of the
 trigger type identifiers are defined by
-`TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts.SliceIDDict` and, at the time
+`TriggerMenuMT.HLT.Menu.SignatureDicts.SliceIDDict` and, at the time
 of writing, are
 
 | Slice        | Identifier  |
@@ -77,7 +77,7 @@ identifiers and run to the next. So our example becomes
 `[xe110_tcpufit_lcw, xe70_cell]`.
 
 Each of these chains is then interpreted using the appropriate dictionary in the
-`TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts` module. For us `xe` uses the
+`TriggerMenuMT.HLT.Menu.SignatureDicts` module. For us `xe` uses the
 `METChainParts` dictionary but each signature has its own. 
 
 The chain part is split on underscores and each individual piece is checked
@@ -130,7 +130,7 @@ it's doing
 | `chainName`          | `HLT_xe110_tcpufit_lcw_xe70_cell_L1XE50` | The full chain name |
 
 The entry point to the signature configuration is then
-`TriggerMenuMT.HLTMenuConfig.<sigFolder>.Generate<sig>ChainDefs.generateChainConfigs`
+`TriggerMenuMT.HLT.<sigFolder>.Generate<sig>ChainDefs.generateChainConfigs`
 where `sigFolder` and `sig` are determined by the `signatures` and will be `MET`
 for us. This master chain dict is broken up into pieces that share a signature
 (so an electron+MET chain would be split into those parts for example) and each
@@ -138,7 +138,7 @@ signature's code only sees the parts that it knows how to deal with.
 
 ### Decoding the chain dict in the MET code
 
-The `TriggerMenuMT.HLTMenuConfig.MET.GenerateMETChainDefs.generateChainConfigs`
+The `TriggerMenuMT.HLT.MET.GenerateMETChainDefs.generateChainConfigs`
 function receives the dict described above. It first breaks it down one step
 further, producing a copy per `chainPart`. The only difference between these
 copies and the full dict is that the value referenced by the `chainParts` key is
@@ -149,7 +149,7 @@ This `chainParts` dictionary contains all the relevant information for the
 sequence configuration. In fact, it contains **more** information than is
 necessary for this. For this purpose, we construct a subset of this called
 `recoDict` using the
-`TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers.extractMETRecoDict` function. The
+`TriggerMenuMT.HLT.MET.ConfigHelpers.extractMETRecoDict` function. The
 configuration of the MET reco sequences is *completely* determined by the
 information in this dict.
 
@@ -172,14 +172,14 @@ motivates running CPU intensive reconstruction in later steps.
 
 The 'difficult' part of this is the first part - the reco sequence. The MET code
 uses a helper class
-`TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences.AlgConfig`.
+`TriggerMenuMT.HLT.MET.METRecoSequences.AlgConfig`.
 These are split by `EFrecoAlg`, which allows the code to select the correct
 config class, which then knows how to interpret the rest of the `recoDict` to
 correctly configure the sequence. (In fact this class is used to configure all
 stages).
 
 These then further use helper classes based on
-`TriggerMenuMT.HLTMenuConfig.MET.AlgInputConfig.AlgInputConfig`
+`TriggerMenuMT.HLT.MET.AlgInputConfig.AlgInputConfig`
 to provide the input sequences (e.g. clusters, tracks).
 
 In our example, `xe110_tcpufit_lcw` gets converted into the `recoDict`
@@ -207,9 +207,9 @@ structure).
 Each unique `recoDict` should define a unique configuration and therefore needs
 to have a unique name. This is achieved by joining together the values from this
 dictionary with underscores. This is done by the
-`TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers.metRecoDictToString` function and
+`TriggerMenuMT.HLT.MET.ConfigHelpers.metRecoDictToString` function and
 the order in which this happens is determined by the
-`TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers.recoKeys` list.
+`TriggerMenuMT.HLT.MET.ConfigHelpers.recoKeys` list.
 Any values that are equal to the defaults will be skipped.
 
 The naming conventions are then as follows (where 'suffix' represents the string
@@ -258,7 +258,7 @@ mapping from the trigger names to athena configurations).
 Typically this will involve adding new values to the existing `METChainParts`
 dictionary. In the simplest cases you will not have to add any new keys to this
 dictionary. If you do however, make sure that you add them to
-`TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers.recoKeys` or your chain will
+`TriggerMenuMT.HLT.MET.ConfigHelpers.recoKeys` or your chain will
 likely not be configured properly. Try to think carefully about how you add them
 to this list - it defines the order in which they appear in all the object
 names.
@@ -281,7 +281,7 @@ to make sure you've followed the steps for adding new configurations.
 #### Creating a new `AlgConfig` class
 
 New `AlgConfig` classes should be added to the
-`TriggerMenuMT.HLTMenuConfig.MET.AlgConfigs` module. The reason for this is that
+`TriggerMenuMT.HLT.MET.AlgConfigs` module. The reason for this is that
 this module is imported in the `ConfigHelpers` module (where `AlgConfig` is
 defined) so it's guaranteed that your class will be known to python when
 `AlgConfig.fromRecoDict` is called.
@@ -301,8 +301,8 @@ Look at the other classes in that module for inspiration and consult the
 
 You may require a new input config as well (i.e. something which calculates
 an input object for one of the MET calculations). In order to do this, read the
-documentation in `TriggerMenuMT.HLTMenuConfig.MET.AlgInputConfig` and check the
-existing versions in `TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences`.
+documentation in `TriggerMenuMT.HLT.MET.AlgInputConfig` and check the
+existing versions in `TriggerMenuMT.HLT.MET.METRecoSequences`.
 
 #### Creating a new C++ class
 

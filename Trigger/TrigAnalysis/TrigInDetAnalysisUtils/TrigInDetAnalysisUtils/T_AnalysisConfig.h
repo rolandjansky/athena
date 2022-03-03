@@ -386,7 +386,7 @@ protected:
       return false;
     }
 
-    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first)
+    m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first)
 			       << "\t:" << key << endmsg;
 
     return select( vertices, vtx_itrpair.first, vtx_itrpair.second );
@@ -595,6 +595,27 @@ protected:
 
 
 
+  template<class Collection>
+  bool selectTracksNotEmpty( TrigTrackSelector* selector, const std::string& key ) {
+    const Collection* collection = nullptr;
+    if ( key.empty() ) return false;
+    if ( !m_provider->evtStore()->template contains<Collection>( key ) ) return false;
+
+    StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
+    m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endmsg;
+
+    if ( !( sc.isSuccess() && collection ) ) return false;
+  
+    // added to fix muon samples bug
+    if ( collection->size() == 0 ) {
+      m_provider->msg(MSG::WARNING) << "no particles in collection" << endmsg;
+      return false;
+    }	   	  	    	
+         		             		        	  
+      selector->selectTracks( collection );
+      return true;   
+    }
+
 
 
 
@@ -681,7 +702,7 @@ protected:
 #                            endif
 			     )  {
 
-    m_provider->msg(MSG::INFO) << " Fetching offline electrons: " << containerName << endmsg;
+    m_provider->msg(MSG::DEBUG) << "Fetching offline electrons: " << containerName << endmsg;
 
     selectorRef.clear();
 
@@ -705,7 +726,7 @@ protected:
       return 0;
     }
 
-    m_provider->msg(MSG::INFO) << "Event with " <<  container->size() << " Electron object(s) " << endmsg;
+    m_provider->msg(MSG::DEBUG) << "Event with " <<  container->size() << " Electron object(s) " << endmsg;
 
     Container::const_iterator elec     = container->begin();
     Container::const_iterator elec_end = container->end();

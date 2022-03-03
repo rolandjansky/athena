@@ -42,27 +42,17 @@ public:
   /** initialize */
   virtual StatusCode initialize() override final;
 
-  /** LayerBuilder interface method - returning the layers at negative side */
-  virtual std::pair<EventIDRange, const std::vector<Layer*>> negativeLayers(
-    const EventContext& ctx) const override final;
+  /** LayerBuilder interface method - returning the layers in the endcaps */
+  virtual std::tuple<EventIDRange, const std::vector<Layer*>, const std::vector<Layer*> > endcapLayer(const EventContext& ctx) const override final;
 
   /** LayerBuilder interface method - returning the central layers */
   virtual std::pair<EventIDRange, const std::vector<Layer*>> centralLayers(
-    const EventContext& ctx) const override final;
-
-  /** LayerBuilder interface method - returning the layers at negative side */
-  virtual std::pair<EventIDRange, const std::vector<Layer*>> positiveLayers(
     const EventContext& ctx) const override final;
 
   /** Name identification */
   virtual const std::string& identification() const override final;
 
 private:
-  /** LayerBuilder interface method - returning the layers at negative side */
-  std::pair<EventIDRange, const std::vector<Layer*>> discLayers(
-    const EventContext& ctx,
-    int posneg) const;
-
   ToolHandle<ILayerBuilderCond> m_layerBuilder;
 };
 

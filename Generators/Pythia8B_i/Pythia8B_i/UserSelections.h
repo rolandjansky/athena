@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -528,6 +528,27 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 		}
 
 	} // end of Bs->J/psiphi
+        else if(userString == "BD_BPLUS_TAUCUT"){
+                const double correctionfactor = 0.299792458;
+                bool pass = true;
+                int eventSize = event.size();
+                int foundcount=0;
+                for (int i = 0; i < eventSize; i++) {
+                        int pID = event[i].id();
+                        if (pID == 511) {
+                            const double Bdtau = event[i].tau() / correctionfactor;
+                            pass &= Bdtau > userVars[0] && Bdtau < userVars[1];
+                            foundcount++;
+                        }
+                        if (pID == 521) {
+                            const double Bptau = event[i].tau() / correctionfactor;
+                            pass &= Bptau > userVars[0] && Bptau < userVars[1];
+                            foundcount++;
+                        }
+                }
+                accept = (foundcount > 0) & pass;
+        }
+        
 	else if ((userString == "BDJPSIKSTAR_TRANS") && event.size() > 0) {
 		const bool debug = false;
 		bool flat;

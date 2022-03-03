@@ -30,6 +30,7 @@
 #include <sstream>
 
 #include "boost/bind/bind.hpp"
+#include "boost/algorithm/string/predicate.hpp"
 
 //________________________________________________________________________________
 MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::AthService(name, pSvcLocator),
@@ -212,14 +213,13 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
             ATH_MSG_ERROR("Could not get DataHeader, will not read Metadata");
             return(StatusCode::FAILURE);
          }
-         for (std::vector<DataHeaderElement>::const_iterator dhIter = dataHeader->begin(),
-		         dhLast = dataHeader->end(); dhIter != dhLast; dhIter++) {
-            const CLID clid = dhIter->getPrimaryClassID();
+         for (const DataHeaderElement& dhe : *dataHeader) {
+            const CLID clid = dhe.getPrimaryClassID();
             if (clid != ClassID_traits<DataHeader>::ID()) {
-               SG::VersionedKey myVersObjKey(dhIter->getKey(), verNumber);
-               std::string key = dhIter->getKey();
+               SG::VersionedKey myVersObjKey(dhe.getKey(), verNumber);
+               std::string key = dhe.getKey();
                if (verNumber != 0) key = myVersObjKey;
-               tads.push_back(dhIter->getAddress(key));
+               tads.push_back(dhe.getAddress(key));
             }
          }
       }
@@ -242,7 +242,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    const std::string guid = fileInc->fileGuid();
    const std::string fileName = fileInc->fileName();
    m_allowMetaDataStop = false;
-   if (fileName.find("BSF:") != 0) {
+   if (!boost::starts_with (fileName, "BSF:")) {
       if (!m_clearedInputDataStore) {
          if (!m_inputDataStore->clearStore().isSuccess()) {
             ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
@@ -548,7 +548,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
       ATH_MSG_DEBUG("MetaDataSvc called without MetaDataContainer set.");
       return(StatusCode::SUCCESS);
    }
-   if (fileName.find("BSF:") == 0) {
+   if (boost::starts_with (fileName, "BSF:")) {
       ATH_MSG_DEBUG("MetaDataSvc called for non ROOT file.");
    } else if (fileName.compare(0, 3, "SHM")==0) {
       ATH_MSG_DEBUG("MetaDataSvc called for shared memory.");

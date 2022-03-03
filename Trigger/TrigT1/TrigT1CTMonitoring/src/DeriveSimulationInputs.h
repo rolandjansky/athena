@@ -16,7 +16,6 @@
 #include "TrigT1Result/CTP_RDO.h"
 
 // Forward includes:
-class IAtRndmGenSvc;
 class IMonitorToolBase;
 class MuCTPI_RDO;
 

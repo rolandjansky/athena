@@ -330,7 +330,11 @@ float PixelChargeCalibCondData::getToT(const int chanNum, const int FE, const In
   float paramA = getQ2TotA(chanNum,FE, type);
   float paramE = getQ2TotE(chanNum,FE, type);
   float paramC = getQ2TotC(chanNum,FE, type);
-  return paramA*(paramE+Q)/(paramC+Q);
+  float tot = 0.0;
+  if (paramC+Q!=0.0) {
+    tot = paramA*(paramE+Q)/(paramC+Q);
+  }
+  return tot;
 }
 
 float PixelChargeCalibCondData::getCharge(const int chanNum, const int FE, const InDetDD::PixelDiodeType type, float ToT) const {

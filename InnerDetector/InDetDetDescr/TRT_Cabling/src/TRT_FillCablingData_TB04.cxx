@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -12,7 +12,7 @@
  *    We need to map between phi sector index used in the offline and
  *       the Source IDs programmed in the hardware.
  *
- * The m_identfier* and m_collID vectors are indexed by ROB source ID - 1.
+ * The m_identifier* and m_collID vectors are indexed by ROB source ID - 1.
  * The magic mapping between ROB source IDs and phi sector indices is in 
  * getRobID() and in fillCollID().  Everything else should just fall 
  * through and gets the Right Answer.
@@ -47,7 +47,7 @@ static const InterfaceID IID_ITRT_FillCablingData_TB04
   // Constructor
 TRT_FillCablingData_TB04::TRT_FillCablingData_TB04( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-				  m_TRTHelper(0)
+				  m_TRTHelper(nullptr)
 {
   declareInterface< TRT_FillCablingData_TB04 >( this );   
 }
@@ -166,10 +166,10 @@ void TRT_FillCablingData_TB04::defineTables()
      for (int i = 0; i < 8*13*16; i++){
        Identifier id(0);
        tempbuff.push_back(id);
-       tempbuff2.push_back(0);
+       tempbuff2.emplace_back(0);
      }
-     m_cabling->zero_identfierForAllStraws(rod, tempbuff);
-     m_cabling->zero_identfierHashForAllStraws(rod, tempbuff2);
+     m_cabling->zero_identifierForAllStraws(rod, tempbuff);
+     m_cabling->zero_identifierHashForAllStraws(rod, tempbuff2);
      
      std::ostringstream ssFile;
      ssFile << rod;
@@ -264,13 +264,13 @@ void TRT_FillCablingData_TB04::defineTables()
 	  // Construct an Identifier and put it in the list
         strawID = m_TRTHelper->straw_id(barrelId, phiModuleId, moduleId, 
           strawLayerId, strawInLayerId);
-	m_cabling->set_identfierForAllStraws(0x310000 + rodSourceId, BufferLocation, strawID);
+	m_cabling->set_identifierForAllStraws(0x310000 + rodSourceId, BufferLocation, strawID);
 
        	  // Construct Hash and put it in the list
         IdLayer = m_TRTHelper->layer_id(strawID);
         if ( !m_TRTHelper->get_hash(IdLayer, hashId, &m_cntx) )
-	   m_cabling->set_identfierHashForAllStraws(0x310000 + rodSourceId,
-						    BufferLocation, hashId);
+	   m_cabling->set_identifierHashForAllStraws(0x310000 + rodSourceId,
+					 	    BufferLocation, hashId);
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << IdLayer );
 
@@ -404,7 +404,7 @@ std::vector<IdentifierHash> & ids)
  * Input : Straw ID
  * Output: list of ROB Source IDs
  */
-std::vector<uint32_t> TRT_FillCablingData_TB04::getRobID(Identifier id) 
+std::vector<uint32_t> TRT_FillCablingData_TB04::getRobID(Identifier id) const
 {
   std::vector<uint32_t> v;
 

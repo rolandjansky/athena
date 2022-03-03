@@ -36,6 +36,15 @@ inline long long int get_ll_event_number(const HepMC3::GenEvent* e){
   return at?at->value():e->event_number();
 }
 
+inline std::map<std::string, std::size_t> weights_map(const HepMC3::GenEvent* e) {
+  std::map<std::string, std::size_t>  ret;
+  auto run = e->run_info();
+  if (!run) return ret;
+  std::vector<std::string> names = run->weight_names();
+  for (const auto& name: names) ret[name] = run->weight_index(name);
+  return ret;
+}
+
 inline std::vector<HepMC3::GenParticlePtr>::const_iterator  begin(HepMC3::GenEvent& e) { return e.particles().begin(); }
 inline std::vector<HepMC3::GenParticlePtr>::const_iterator  end(HepMC3::GenEvent& e) { return e.particles().end(); }
 inline std::vector<HepMC3::ConstGenParticlePtr>::const_iterator  begin(const HepMC3::GenEvent& e) { return e.particles().begin(); }

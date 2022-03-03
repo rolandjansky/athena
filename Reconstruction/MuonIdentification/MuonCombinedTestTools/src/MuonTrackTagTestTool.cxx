@@ -37,11 +37,10 @@ namespace MuonCombined {
 
     StatusCode MuonTrackTagTestTool::initialize() {
         ATH_CHECK(m_extrapolator.retrieve());
-        if (m_trackingGeometryReadKey.empty()) {
-            ATH_CHECK(m_trackingGeometrySvc.retrieve());
-            ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
-        } else {
+        if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
+        } else {
+            ATH_MSG_ERROR("Could not retrieve a valid tracking geometry");
         }
 
         ATH_MSG_INFO("Initialized successfully");

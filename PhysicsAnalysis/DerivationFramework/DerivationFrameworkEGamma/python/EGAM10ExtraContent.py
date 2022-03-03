@@ -3,7 +3,7 @@
 #Content included in addition to the Smart Slimming Content
 ExtraContentElectrons=["Electrons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"] + ["egammaClusters.PHI2CALOFRAME.ETA2CALOFRAME.phi_sampl"]
 
-ExtraContentPhotons=["Photons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.f3.f3core.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.neflowisol20.neflowisol30.neflowisol40.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection.core57cellsEnergyCorrection"] + ["egammaTopoSeededClusters.calE.calEta.calPhi.e_sampl.eta_sampl.ETACALOFRAME.PHICALOFRAME.eta"]
+ExtraContentPhotons=["Photons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.f3.f3core.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.neflowisol20.neflowisol30.neflowisol40.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection.core57cellsEnergyCorrection"]
 
 ExtraContentVtx=["PrimaryVertices.x.y.z.covariance.trackWeights.vertexType.sumPt2.EGAM10_sumPt.EGAM10_sumPt2.EGAM10_pt.EGAM10_eta.EGAM10_phi"]
 
@@ -13,12 +13,10 @@ ExtraContentJets=[]
 #ExtraContentJets=["AntiKt4EMPFlowJets.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000.EnergyPerSampling.GhostTrack.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.FracSamplingMax.FracSamplingMaxIndex.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF"]
 
 ExtraContentEventShape=[
-    "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
-    "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
-    "NeutralParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
-    "NeutralParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma",
-    "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
-    "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"
+    "TopoClusterIsoCentralEventShape.Density",
+    "TopoClusterIsoForwardEventShape.Density",
+    "NeutralParticleFlowIsoCentralEventShape.Density",
+    "NeutralParticleFlowIsoForwardEventShape.Density"
 ]
 
 ExtraContentAll=ExtraContentElectrons+ExtraContentPhotons+ExtraContentVtx+ExtraContentTrk+ExtraContentJets+ExtraContentEventShape

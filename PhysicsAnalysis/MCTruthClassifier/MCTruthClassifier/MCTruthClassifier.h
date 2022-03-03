@@ -43,6 +43,7 @@ CREATED:  Sep 2007
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -199,12 +200,13 @@ private:
   /* Private functions */
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Athena Only*/
   bool genPartToCalo(const EventContext& ctx,
-                     const xAOD::CaloCluster*,
-                     const xAOD::TruthParticle*,
-                     bool,
-                     double&,
-                     bool&,
-                     Cache* cache) const;
+                     const xAOD::CaloCluster* clus,
+                     const xAOD::TruthParticle* thePart,
+                     bool isFwrdEle,
+                     double& dRmatch,
+                     bool& isNarrowCone,
+                     const CaloDetDescrManager& caloDDMgr) const;
+
   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*,
                                              bool,
                                              Info* info) const;
@@ -245,10 +247,17 @@ private:
   ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
     this,
     "ParticleCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
+    ""
   };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{
+    this,
+    "CaloDetDescrManager",
+    ""
+  };
+
   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool{
-this,
+    this,
     "TruthInConeTool",
     "xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"
   };

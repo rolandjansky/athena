@@ -16,14 +16,12 @@ namespace MuonCombined {
 
     class SortInDetCandidates {
     public:
-        bool operator()(std::pair<const InDetCandidate*, std::vector<const TagBase*> > c1,
-                        std::pair<const InDetCandidate*, std::vector<const TagBase*> > c2) const {
-            if (c1.second.empty()) {
-                if (c2.second.empty()) return false;
-                return true;
+        bool operator()(const std::pair<const InDetCandidate*, std::vector<const TagBase*> >& c1,
+                        const std::pair<const InDetCandidate*, std::vector<const TagBase*> >& c2) const {
+            if (c1.second.empty() || c2.second.empty()) {
+                return c1.second.empty();
             }
-            if (c2.second.empty()) return false;
-
+         
             const TagBase& t1 = *c1.second.front();
             const TagBase& t2 = *c2.second.front();
             // compare based on author/type

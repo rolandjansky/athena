@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Run tests on BCM_DigitizationConfigNew.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
-import os
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
@@ -18,7 +17,7 @@ from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.lock()

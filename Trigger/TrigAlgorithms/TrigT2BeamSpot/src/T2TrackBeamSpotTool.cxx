@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -99,9 +99,11 @@ void MonitoredLSMatrices::update(T2TrackBeamSpotTool::TrackData const& seed, dou
 
 void MonitoredLSMatrices::publish(ToolHandle<GenericMonitoringTool> const& monTool)
 {
-    auto matrices = Monitored::Collection("BeamLSMatrices", beamLSMatrices);
-    auto matricesBCID = Monitored::Collection("BeamLSMatricesBCID", beamLSMatricesBCID);
-    auto mon = Monitored::Group(monTool, matrices, matricesBCID);
+    if (not beamLSMatrices.empty()) {
+        auto matrices = Monitored::Collection("BeamLSMatrices", beamLSMatrices);
+        auto matricesBCID = Monitored::Collection("BeamLSMatricesBCID", beamLSMatricesBCID);
+        auto mon = Monitored::Group(monTool, matrices, matricesBCID);
+    }
 }
 
 } // namespace
@@ -122,7 +124,7 @@ StatusCode T2TrackBeamSpotTool::initialize()
 
     // Retrieve tools
     ATH_CHECK(m_trackFilterTool.retrieve());
-    ATH_CHECK( m_monTool.retrieve());
+    if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
     return StatusCode::SUCCESS;
 }
@@ -167,8 +169,10 @@ void T2TrackBeamSpotTool::updateBS(std::vector<const Trk::Track*>&& tracks, unsi
             auto const& cov = track->perigeeParameters()->covariance();
             llpoly.update(par[Trk::z0], par[Trk::d0], par[Trk::phi0], (*cov)(Trk::d0, Trk::d0), poly_coeff);
         }
-        auto coeff = Monitored::Collection("TrackLLPolyCoeff", poly_coeff);
-        auto mon = Monitored::Group(m_monTool, coeff);
+        if (not poly_coeff.empty()) {
+            auto coeff = Monitored::Collection("TrackLLPolyCoeff", poly_coeff);
+            auto mon = Monitored::Group(m_monTool, coeff);
+        }
     }
     auto mon = Monitored::Group(m_monTool, timer);
 }

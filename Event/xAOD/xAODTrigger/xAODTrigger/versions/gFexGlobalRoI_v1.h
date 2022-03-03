@@ -63,15 +63,15 @@ namespace xAOD {
       
 
       /// TOB status: set to 0 if values are null
-      char statusOne() const;
-      void setStatusOne( char value ) ; 
-      char statusTwo() const;
-      void setStatusTwo( char value ) ; 
+      uint8_t statusOne() const;
+      void setStatusOne( uint8_t value ) ; 
+      uint8_t statusTwo() const;
+      void setStatusTwo( uint8_t value ) ; 
       unsigned int unpackStatusOne( ) const; /// retrieves the Status info for Quantity 1 from the 32-bit word
       unsigned int unpackStatusTwo( ) const; /// retrieves the Status info for Quantity 2 from the 32-bit word
       /// Energy saturation in tthe global TOB values
-      char saturated() const;
-      void setSaturated( char value ) ; 
+      uint8_t saturated() const;
+      void setSaturated( uint8_t value ) ; 
       unsigned int unpackSaturated( ) const; /// retrieves the energy saturation status from the 32-bit word
 
       int globalType () const;
@@ -90,7 +90,7 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
+      static const float s_globaltobEtScale;
 
 
       // Constants used in decoding TOB words

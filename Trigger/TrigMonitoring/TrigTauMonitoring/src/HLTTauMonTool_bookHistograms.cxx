@@ -723,25 +723,6 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     }
   }
     
-  if(m_emulation){
-    addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-    if(!m_emulation_l1_tau.empty()) {
-      addProfile(new TProfile("hL1Emulation", " L1 Emulation-TDT Mismatched events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
-    }
-
-    if(!m_emulation_hlt_tau.empty()) {
-      addProfile(new TProfile("hHLTEmulation", " HLT Emulation-TDT Mismatched events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
-    }
-
-    for(unsigned int i=0; i < m_emulation_l1_tau.size(); ++i){
-      profile("hL1Emulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
-    }
-        
-    for(unsigned int i=0; i < m_emulation_hlt_tau.size(); ++i){
-      profile("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
-    }
-  }
   const int nbin_pt = 13;
   double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,60.,70.,80.,100.,150.,200.};
   double hbins_pt[nbin_pt] = {20.,30.,50.,70.,100.,150.,200., 250., 300., 350.,  400., 500., 600.};

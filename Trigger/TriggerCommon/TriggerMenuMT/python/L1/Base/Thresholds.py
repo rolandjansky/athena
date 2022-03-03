@@ -914,7 +914,7 @@ class gLJetThreshold( Threshold ):
 class XEThreshold( Threshold ):
 
     def __init__(self, name, ttype, mapping = -1):
-        super(XEThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype.startswith('gXE') or ttype.startswith('jXE') else 2)
+        super(XEThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype.startswith('gXE') or ttype.startswith('gMHT') or ttype.startswith('jXE') else 2)
         self.xe = None
 
     def setXE(self, xe):

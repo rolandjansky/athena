@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODEventInfoAthenaPool )
@@ -16,7 +16,6 @@ atlas_add_poolcnv_library( xAODEventInfoAthenaPoolPoolCnv
       xAODEventInfo )
 
 # Install files from the package.
-atlas_install_joboptions( share/*.py )
 atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Find the T/P test CMake code.
@@ -30,6 +29,8 @@ endif()
 # Set up the T/P converter test(s).
 if( NOT GENERATIONBASE )
    run_tpcnv_test( xAODEventInfoAthenaPool_20.0.0.3 AOD-20.0.0.3-full
+      REQUIRED_LIBRARIES xAODEventInfoAthenaPoolPoolCnv )
+   run_tpcnv_test( xAODEventInfoAthenaPool_22.0.48 AOD-22.0.48-full
       REQUIRED_LIBRARIES xAODEventInfoAthenaPoolPoolCnv )
 endif()
 # TPCnv unit tests disabled for AthGeneration project due to a dependency on DetDescrCnvSvc

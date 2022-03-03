@@ -87,7 +87,7 @@ class TrigJetEJsHypoTool: public AthAlgTool{
     double m_trackEtaCut_Trackless      = 2.4;
     // Track pT cuts for exotics hypos
     double m_trackPtCut_Exotics         = 1.0*Gaudi::Units::GeV;
-    double m_trackPtCut_Trackless       = 1.0*Gaudi::Units::GeV;
+    double m_trackPtCut_Trackless       = 2.0*Gaudi::Units::GeV;
     // Jet pT cut for promptTrackFrac definition (studies only
     // done down to a 50 GeV cut)
     double m_jetPtCut_Exotics           = 50.0*Gaudi::Units::GeV;

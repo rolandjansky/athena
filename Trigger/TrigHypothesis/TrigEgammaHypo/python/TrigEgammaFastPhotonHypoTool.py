@@ -24,7 +24,7 @@ class TrigEgammaFastPhotonHypoToolConfig:
     self.__log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
     self.__name       = name
     self.__threshold  = float(cpart['threshold']) 
-    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__sel        = 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
     self.__monGroups  = monGroups
 
     if not tool:
@@ -87,7 +87,7 @@ class TrigEgammaFastPhotonHypoToolConfig:
   # Compile the chain
   #
   def compile(self):
-    if 'etcut' == self.pidname() or 'ion' in self.pidname():       
+    if self.pidname() in ('etcut', 'ion'):
         self.etcut()
     elif 'noalg' == self.pidname():
         self.nocut()
@@ -148,7 +148,7 @@ def TrigEgammaFastPhotonHypoToolFromName( name, conf , tool=None):
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastPhotonHypoToolFromDict( decodedDict, tool=tool )
 

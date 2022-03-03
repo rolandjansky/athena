@@ -1,16 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: CorrectionCode.h 719663 2016-01-25 20:27:50Z krumnack $
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef PATINTERFACES_CORRECTIONCODE_H
 #define PATINTERFACES_CORRECTIONCODE_H
 
 #include "CxxUtils/nodiscard.h"
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
 
 namespace CP {
 
@@ -44,40 +39,33 @@ namespace CP {
       };
 
       /// Constructor with a correction code
-      CorrectionCode( ErrorCode code = Ok );
-      /// Copy constructor
-      CorrectionCode( const CorrectionCode& parent );
-      /// Destructor
-      ~CorrectionCode();
-
-      /// Assignment operator
-      CorrectionCode& operator= ( const CorrectionCode& rhs );
+      CorrectionCode( ErrorCode code = Ok ) noexcept : m_code( code ) { }
 
       /// The code stored internally
-      ErrorCode code() const;
+      ErrorCode code() const noexcept {return m_code;}
 
       /// Automatic conversion to the enumeration value
-      operator ErrorCode() const { return code(); }
+      operator ErrorCode() const noexcept { return code(); }
 
       /// Ordering operator. To make it possible to use this type as an
       /// STL container key
-      bool operator < ( const CorrectionCode& rhs ) const {
+      bool operator < ( const CorrectionCode& rhs ) const noexcept {
          return m_code < rhs.m_code;
       }
 
-      /// Mark the correction code as checked, ignoring its value
-      void setChecked() const { m_checked = true; }
-      /// Ignore the correction code, marking it as checked
-      void ignore() const { setChecked(); }
+      /// Ignore the correction code
+      void ignore() const noexcept { }
 
-      /// Enable failure (with a backtrace) on an unchecked correction code
-      static void enableFailure();
-      /// Disable failure (no backtrace) on an unchecked correction code
-      static void disableFailure();
+      /// Older functions for backward compatibility with the
+      /// pre-nondiscard version of this class in which we tracked
+      /// in the object itself whether the content was checked.  These
+      /// may go away at some point.
+      void setChecked() const noexcept { }
+      static void enableFailure() noexcept {}
+      static void disableFailure() noexcept {}
 
    private:
       ErrorCode m_code; ///< The stored correction code
-      mutable bool m_checked; ///< Checked status of the object
 
    }; // class CorrectionCode
 

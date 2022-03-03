@@ -10,9 +10,9 @@ namespace Muon {
   void MuonValidationBlockBase::clear() {
     
     // clear entries
-    for( auto entry : intBlocks ) entry.first.get()->clear();
-    for( auto entry : unsignedIntBlocks ) entry.first.get()->clear();
-    for( auto entry : floatBlocks ) entry.first.get()->clear();
+    for( const auto& entry : intBlocks ) entry.first.get()->clear();
+    for( const auto& entry : unsignedIntBlocks ) entry.first.get()->clear();
+    for( const auto& entry : floatBlocks ) entry.first.get()->clear();
     for( auto entry : subBlocks )   entry.first->clear();
 
   }
@@ -25,10 +25,10 @@ namespace Muon {
 
  
 
-  void MuonValidationBlockBase::init( std::string prefix, TTree* tree, bool write ) {
+  void MuonValidationBlockBase::init( const std::string& prefix, TTree* tree, bool write ) {
     
 
-     for( auto entry : intBlocks ) {
+     for( const auto& entry : intBlocks ) {
        if( tree ){
          if( write ){
            entry.first.get() = new std::vector<int>();
@@ -39,7 +39,7 @@ namespace Muon {
        }
      }
 
-    for( auto entry : unsignedIntBlocks ) {
+    for( const auto& entry : unsignedIntBlocks ) {
       if( tree ){
         if( write ){
           entry.first.get() = new std::vector<unsigned int>();
@@ -50,7 +50,7 @@ namespace Muon {
       }
     }
 
-    for( auto entry : floatBlocks ) {
+    for( const auto& entry : floatBlocks ) {
       if( tree ){
         if( write ){
           entry.first.get() = new std::vector<float>();

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -347,13 +347,12 @@ class HistoSpec(ToolSpec):
                          ybins = bins[3],ymin = bins[4], ymax=bins[5], 
                          type='TH2F' if not self.isProfile else 'TProfile',                         
             )
-            hargs.setdefault('opt', 'colz')
             if self.nVar==3:
                 hargs.type = 'TProfile2D'
         hargs.update( **self.hargs) # overwrite by user-given args if any
         
         # we create one group for each histoFiller : self.groupName() are unique within a JetMonitoringAlg
-        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
+        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName.Path
         group = monhelper.addGroup(parentAlg, self.groupName(), self.topLevelDir+bottomLevelDir)
 
         # define the variables used by this tool
@@ -419,7 +418,7 @@ class EventHistoSpec(ToolSpec):
                      type='TH1F', )
         hargs.update( **self.hargs)
         # we create one group for each histoFiller : self.name() are unique within a JetMonitoringAlg
-        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
+        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName.Path
         group = monhelper.addGroup(parentAlg, self.name, self.topLevelDir+bottomLevelDir)
         group.defineHistogram(self.histName()+";"+self.name, path=path, **hargs) #give a recognisable histogram name in case of SelectSpec usage
 

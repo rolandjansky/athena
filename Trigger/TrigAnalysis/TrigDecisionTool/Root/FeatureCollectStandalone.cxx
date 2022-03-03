@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -65,7 +65,7 @@ namespace Trig{
     void typelessCollect( const HLT::TriggerElement* te, HLT::class_id_type clid,
         std::vector<Trig::TypelessFeature>& data,
         const std::string& label, unsigned int condition,
-        HLT::TrigNavStructure* navigation ){
+        const HLT::TrigNavStructure* navigation ){
       //collect recursively features for this trigger element
       if (condition == TrigDefs::Physics && !te->getActiveState() ) return;   
 

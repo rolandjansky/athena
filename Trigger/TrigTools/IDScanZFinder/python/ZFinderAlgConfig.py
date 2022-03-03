@@ -7,30 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def MinBiasZFinderCfg(flags):
     acc = ComponentAccumulator()
     TrigZFinder = CompFactory.TrigZFinder
-    tools = [TrigZFinder("default")] # default
-    postfix=-1
-    def tool_name():
-        nonlocal postfix
-        postfix += 1
-        return "ZFindersLike"+str(postfix)
-    # Default: TripletMode=0, MinZBinSize=0.2, PhiBinSize=0.20, NumberOfPeaks=1, UseOnlyPixels=False, MaxLayer=?
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=0.2, PhiBinSize=0.20, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=0.2, PhiBinSize=0.30, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=0.2, PhiBinSize=0.40, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=0.2, PhiBinSize=0.50, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=0.5, PhiBinSize=0.20, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=1.5, PhiBinSize=0.20, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=2.5, PhiBinSize=0.20, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=3.5, PhiBinSize=0.20, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=0.5, PhiBinSize=0.50, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=1.5, PhiBinSize=0.50, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=2.5, PhiBinSize=0.50, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=3.5, PhiBinSize=0.50, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=3.5, PhiBinSize=0.30, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
-    tools += [TrigZFinder(tool_name(), TripletMode=1, MinZBinSize=3.5, PhiBinSize=0.40, NumberOfPeaks=5, UseOnlyPixels=True, MaxLayer=3)]
+    tools = [TrigZFinder("HMT_TripletPixOnly", TripletMode=1, MinZBinSize=3.5, PhiBinSize=0.50, UseOnlyPixels=True, MaxLayer=3)]
 
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool

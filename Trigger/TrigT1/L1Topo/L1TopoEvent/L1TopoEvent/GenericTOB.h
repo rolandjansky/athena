@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef GENERICTOB_H
 #define GENERICTOB_H
@@ -109,9 +109,6 @@ namespace TCS {
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
 
-      //eTau
-      unsigned int fcore() const { return m_fcore; }
-
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
       int innerCoin() const { return m_innerCoin; }
@@ -154,8 +151,6 @@ namespace TCS {
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
 
-      unsigned int m_fcore {0};
-      
       inputTOBType_t   m_tobType { NONE };
 
       static thread_local  Heap<TCS::GenericTOB> fg_heap;

@@ -40,7 +40,7 @@ def EfieldInterpolator(name="EfieldInterpolator", **kwargs):
     return CfgMgr.EfieldInterpolator(name, **kwargs)
 
 def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
-    kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("DeltaRayCut", 80.7687)  
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
@@ -54,12 +54,14 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
     kwargs.setdefault("doRadDamage", digitizationFlags.doPixelPlanarRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamageTemplate", digitizationFlags.doPixelPlanarRadiationDamageTemplate.get_Value())
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("doRadDamage", digitizationFlags.doPixel3DRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamageTemplate", digitizationFlags.doPixel3DRadiationDamageTemplate.get_Value())
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
@@ -386,7 +388,7 @@ def PixelConfigCondAlg_MC():
 
     #====================================================================================
     # ITK
-    alg.BarrelToTThresholdITK       = [     3,     3,     3,     3,     3]
+    alg.BarrelToTThresholdITK       = [ -1, -1, -1, -1, -1]
     alg.BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06]
     alg.BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8]
     alg.BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3]
@@ -400,7 +402,7 @@ def PixelConfigCondAlg_MC():
                                "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
                                "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"]
 
-    alg.EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3]
+    alg.EndcapToTThresholdITK       = [ -1, -1, -1, -1, -1,  -1, -1,  -1, -1, -1, -1, -1, -1, -1]
     alg.EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
@@ -569,6 +571,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
     return CfgMgr.PixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):

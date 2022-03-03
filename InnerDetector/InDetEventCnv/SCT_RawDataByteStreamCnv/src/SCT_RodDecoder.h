@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
@@ -125,10 +125,12 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
 
   /** Struct to hold data shared in methods used in fillCollection method */
   struct SharedData {
+    static constexpr int INVALID_STRIP = N_STRIPS_PER_SIDE;
+
     bool condensedMode{true}; // Condensed mode or Expanded mode for each link if superCondensedMode is false
 
     // Variables necessary for makeRDO
-    int strip{0};
+    int strip {INVALID_STRIP};
     int groupSize{0};
     int timeBin{0};
     IdentifierHash linkIDHash; // Determined from header and changed for links using Rx redundancy (waferHash)
@@ -137,9 +139,9 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     CacheHelper cache; // For the trigger
     std::vector<int> errorHit;
 
-    int side{0};
-    int oldSide{-1};
-    int oldStrip{-1};
+    int side {-1};
+    int oldSide  {-1};
+    int oldStrip {INVALID_STRIP};
     int linkNumber{0}; // Determined from header and may be changed for links using Rx redundancy
 
     std::array<bool, N_STRIPS_PER_SIDE*N_SIDES> saved;
@@ -147,15 +149,22 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     // For MissingLinkHeaderError
     bool foundMissingLinkHeaderError{false};
     std::unordered_set<IdentifierHash> foundHashes;
-
-    std::unordered_map<IdentifierHash, std::unique_ptr<SCT_RDO_Collection>> rdoCollMap; // If SCT_RDO_Collection* is nullptr, it means the collection is already present in the container.
-    std::unordered_map<IdentifierHash, SCT_RDO_Container::IDC_WriteHandle> writeHandleMap;
+    struct Hasher {
+         std::size_t operator()(const IdentifierHash &hash) const { return hash.value();}
+    };
+    std::unordered_map<IdentifierHash, std::unique_ptr<SCT_RDO_Collection>, Hasher> rdoCollMap; // If SCT_RDO_Collection* is nullptr, it means the collection is already present in the container.
+    std::unordered_map<IdentifierHash, SCT_RDO_Container::IDC_WriteHandle, Hasher> writeHandleMap;
 
     bool foundHeader{false};
 
+    SharedData() {
+      writeHandleMap.reserve( 72);
+      rdoCollMap.reserve( 72 );
+    }
+
     void reset() {
-      strip = 0;
-      oldStrip = -1;
+      strip = INVALID_STRIP;
+      oldStrip = INVALID_STRIP;
       oldSide = -1;
       groupSize = 0;
       errors = 0;
@@ -169,19 +178,30 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     }
     void setSaved(const bool isOld, const int code) {
       if (isOld) {
-        saved[oldSide*N_STRIPS_PER_SIDE + oldStrip] = code;
+        saved.at(oldSide*N_STRIPS_PER_SIDE + oldStrip) = code;
       }
       else {
-        saved[   side*N_STRIPS_PER_SIDE +    strip] = code;
+        saved.at(   side*N_STRIPS_PER_SIDE +    strip) = code;
       }
     }
     bool isSaved(const bool isOld) {
       if (isOld) {
-        return saved[oldSide*N_STRIPS_PER_SIDE + oldStrip];
+        unsigned int idx = static_cast<std::size_t>(oldSide*N_STRIPS_PER_SIDE + oldStrip);
+        return idx  < saved.size() ? saved[idx] : true;
       }
       else {
-        return saved[   side*N_STRIPS_PER_SIDE +    strip];
+        const unsigned int  idx = static_cast<unsigned int>(side*N_STRIPS_PER_SIDE +    strip);
+        return idx < saved.size() ? saved[idx] : true;
       }
+    }
+    bool isStripValid() const {
+       return static_cast<unsigned int>(strip) < N_STRIPS_PER_SIDE;
+    }
+    bool isOldStripValid() const {
+       return static_cast<unsigned int>(oldStrip) < N_STRIPS_PER_SIDE;
+    }
+    void setStripInvalid()  {
+       strip = INVALID_STRIP;
     }
     void setCollection(const SCT_ID* sctID,
                        const IdentifierHash& waferHash,

@@ -23,7 +23,7 @@ StatusCode MuEntryVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
   const TrackRecordCollection* trackRecordCollection = nullptr;
   CHECK( m_evtStore->retrieve(trackRecordCollection, m_ContainerName.c_str()) );
 
-  for(auto it : *trackRecordCollection ) {
+  for(const auto& it : *trackRecordCollection ) {
 
     const CLHEP::Hep3Vector momentum = it.GetMomentum();
     const CLHEP::Hep3Vector position = it.GetPosition();

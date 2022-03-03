@@ -83,9 +83,9 @@ class TimerStats:
 
 
 @contextmanager
-def timer(name):
+def timer(name, disabled = False):
     "A context manager which spits out how long the block took to execute"
-    if False: #not environ.has_key("ARQDEBUG"):
+    if disabled: #not environ.has_key("ARQDEBUG"):
         yield
         return
 

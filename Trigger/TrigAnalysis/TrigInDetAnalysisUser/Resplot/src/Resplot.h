@@ -639,18 +639,18 @@ private:
 
   std::string m_name;
 
-  TH1D* m_Nentries;
-  TH1D* m_mean;
-  TH1D* m_sigma;
-  TH1D* m_chi2;
+  TH1D* m_Nentries = 0;
+  TH1D* m_mean = 0;
+  TH1D* m_sigma = 0;
+  TH1D* m_chi2 = 0;
 
-  TH2D* m_h2d;
-  TH1D* m_h1d;
+  TH2D* m_h2d = 0;
+  TH1D* m_h1d = 0;
 
   StatVal  g_mean;
   StatVal  g_sigma;
 
-  TDirectory* m_dir;
+  TDirectory* m_dir = 0;
 
   int     n_primary;
   //  double  a_primary, b_primary;
@@ -665,7 +665,7 @@ private:
   std::string        m_fitname;
 
   bool        m_finalised;
-  TDirectory* m_slicedir;
+  TDirectory* m_slicedir = 0;
 
   bool        m_uniform;
 

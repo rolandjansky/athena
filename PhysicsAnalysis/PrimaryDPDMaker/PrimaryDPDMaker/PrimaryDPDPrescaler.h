@@ -29,7 +29,7 @@ public:
   
   // Private data members
 private: 
-  /// handle to the @c IAtRndmGenSvc we want to test
+  /// handle to the @c IAthRNGSvc we want to test
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};   
   
     Gaudi::Property<double> m_prescale{this , "Prescale", 1.};

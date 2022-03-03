@@ -86,28 +86,28 @@ namespace xAOD {
     /// @{
 
     /// @brief The transverse momentum (\f$p_T\f$) of the particle
-    virtual double           pt() const  final;
+    virtual double           pt() const  override final;
 
     /// @brief The pseudorapidity (\f$\eta\f$) of the particle
-    virtual double           eta() const final;
+    virtual double           eta() const override final;
 
     /// @brief The azimuthal angle (\f$\phi\f$) of the particle
-    virtual double           phi() const final;
+    virtual double           phi() const override final;
 
     /// @brief The invariant mass of the particle
-    virtual double           m() const final;
+    virtual double           m() const override final;
 
     /// The total energy of the particle
-    virtual double           e() const  final;
+    virtual double           e() const  override final;
 
     /// @brief The true rapidity (y) of the particle
-    virtual double           rapidity() const final;
+    virtual double           rapidity() const override final;
 
     /// @brief Definition of the 4-momentum type
     typedef IParticle::FourMom_t FourMom_t;
 
     /// @brief The full 4-momentum of the particle as a TLoretzVector
-    virtual FourMom_t         p4() const final;
+    virtual FourMom_t         p4() const override final;
 
     /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
     virtual Type::ObjectType type() const override =0 ;

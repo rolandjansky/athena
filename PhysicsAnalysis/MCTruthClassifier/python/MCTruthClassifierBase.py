@@ -1,17 +1,26 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+from MCTruthClassifier.MCTruthClassifierConf import (
+    MCTruthClassifier as classifierTool)
 from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Logging import logging
+import AthenaCommon.CfgMgr as CfgMgr
 
 
 mlog = logging.getLogger('MCTruthClassifierBase.py::configure:')
-mlog.info('entering')
 
 
-def getMCTruthClassifierExtrapolator():
+MCTruthClassifier = classifierTool(
+    name='MCTruthClassifier',
+    barcodeG4Shift=firstSimCreatedBarcode(),
+    ParticleCaloExtensionTool='')
+
+ToolSvc += MCTruthClassifier
+
+
+def getMCTruthClassifierCaloExtensionTool():
     # Configure the extrapolator, starting from the ATLAS one
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
     theAtlasExtrapolator = AtlasExtrapolator(
@@ -40,16 +49,26 @@ def getMCTruthClassifierExtrapolator():
     theAtlasExtrapolator.MaterialEffectsUpdators = MyUpdators
     theAtlasExtrapolator.SubMEUpdators = MySubUpdators
 
-    return theAtlasExtrapolator
+    ClassifierCaloDepthTool = CfgMgr.CaloDepthTool(
+        name="ClassifierCaloDepthTool",
+        DepthChoice="middle"
+    )
+
+    ClassifierCaloSurfaceBuilder = CfgMgr.CaloSurfaceBuilder(
+        name="ClassifierCaloSurfaceBuilder",
+        CaloDepthTool=ClassifierCaloDepthTool
+    )
+
+    ClassifierParticleCaloExtensionTool = Trk__ParticleCaloExtensionTool(
+        name="ClassifierParticleCaloExtensionTool",
+        Extrapolator=theAtlasExtrapolator,
+        CaloSurfaceBuilder=ClassifierCaloSurfaceBuilder
+    )
+    return ClassifierParticleCaloExtensionTool
 
 
-ClassifierParticleCaloExtensionTool = Trk__ParticleCaloExtensionTool(
-    name="ClassifierParticleCaloExtensionTool",
-    Extrapolator=getMCTruthClassifierExtrapolator())
-
-MCTruthClassifier = MCTruthClassifier(
-    name='MCTruthClassifier',
+MCTruthClassifierCalo = classifierTool(
+    name='MCTruthClassifierCalo',
     barcodeG4Shift=firstSimCreatedBarcode(),
-    ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
-
-ToolSvc += MCTruthClassifier
+    ParticleCaloExtensionTool=getMCTruthClassifierCaloExtensionTool(),
+    CaloDetDescrManager="CaloDetDescrManager")

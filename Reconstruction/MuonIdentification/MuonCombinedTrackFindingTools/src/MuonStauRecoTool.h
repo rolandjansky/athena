@@ -83,8 +83,7 @@ namespace MuonCombined {
             RpcTimeMeasurementVec rpcTimeMeasurements;
             std::vector<BetaSeed> betaSeeds;
         };
-        typedef std::vector<std::shared_ptr<MaximumData>> MaximumDataVec;
-
+        using MaximumDataVec = std::vector<std::shared_ptr<MaximumData>>;
         struct LayerData {
             LayerData(const Muon::MuonSystemExtension::Intersection& intersection_) : intersection(intersection_) {}
             Muon::MuonSystemExtension::Intersection intersection;

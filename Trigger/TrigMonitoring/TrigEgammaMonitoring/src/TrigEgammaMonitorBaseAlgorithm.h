@@ -29,6 +29,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"

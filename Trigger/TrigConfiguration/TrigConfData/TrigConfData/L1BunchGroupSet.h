@@ -77,7 +77,7 @@ namespace TrigConf {
       /** Constructor */
       L1BunchGroupSet();
 
-      L1BunchGroupSet(const L1BunchGroupSet &) = delete;
+      L1BunchGroupSet(const L1BunchGroupSet &) = default;
       L1BunchGroupSet& operator=(const L1BunchGroupSet&) = delete;
       L1BunchGroupSet(L1BunchGroupSet&&) = delete;
 

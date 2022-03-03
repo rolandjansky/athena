@@ -64,19 +64,13 @@ void VP1CaloCellManager::add(VP1CaloCell* cell)
     energy = cell->energyToTransverse(energy);
 
   // We need to choose which map to add the new cell to according to its energy sign
-  VP1CCMultimap* useMap = 0;
-
-  if(energy < 0)
-    useMap = &m_negativeCells;
-  else
-    useMap = &m_positiveCells;
+  VP1CCMultimap& useMap = energy < 0 ? m_negativeCells : m_positiveCells;
 
   // This is going to be the new key in the map
   double ccKey = fabs(energy);
 
   // Add new element to the map
-//  VP1CCMultimapIterator newElement = useMap->insert(std::pair<double,VP1CaloCell*>(ccKey,cell)); // example of returned object, but it gives warning about unused variable
-  useMap->insert(std::pair<double,VP1CaloCell*>(ccKey,cell)); // version without warning
+  useMap.emplace(ccKey,cell);
 }
 
 // ----------------- Slots --------------------------

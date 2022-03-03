@@ -29,7 +29,3 @@ atlas_add_component( Geo2G4
                      src/components/*.cxx
                      LINK_LIBRARIES Geo2G4Lib )
 
-atlas_add_dictionary( LArWheelSolidCheckerDict
-                      src/LArWheelSolidDDProxy.h
-                      src/lcg_dict/selection.xml
-                      LINK_LIBRARIES Geo2G4Lib )

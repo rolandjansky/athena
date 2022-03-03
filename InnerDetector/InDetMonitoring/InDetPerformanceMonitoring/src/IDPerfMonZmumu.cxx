@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -81,14 +81,14 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   m_FourMuTreeFolder ("/ZmumuValidation/fourmu"),
 
   m_commonTree (nullptr),
-  m_defaultTree(0),
-  m_IDTree(0),
-  m_refit1Tree(0),
-  m_refit2Tree(0),
-  m_truthTree(0),
-  m_combTree(0),
-  m_MSTree(0),
-  m_FourMuTree(0),
+  m_defaultTree(nullptr),
+  m_IDTree(nullptr),
+  m_refit1Tree(nullptr),
+  m_refit2Tree(nullptr),
+  m_truthTree(nullptr),
+  m_combTree(nullptr),
+  m_MSTree(nullptr),
+  m_FourMuTree(nullptr),
   m_doRemoval(true),
   m_doDebug(false),
   m_Trk2VtxAssociationTool("CP::TrackVertexAssociationTool", this)
@@ -336,7 +336,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_commonTree->Branch("numberOfTRTHits"     , &m_nTRThits);
   }
 
-  if ( m_defaultTree == 0){
+  if ( m_defaultTree == nullptr){
     ATH_MSG_INFO("initialize() ** defining m_defaultTree with name: " << m_defaultTreeName.c_str());    
     m_defaultTree = new TTree((m_defaultTreeName).c_str(), m_ValidationTreeDescription.c_str());
 
@@ -388,7 +388,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
   
   
-  if ( m_IDTree == 0 ){
+  if ( m_IDTree == nullptr ){
     ATH_MSG_INFO("initialize() ** defining m_IDTree with name: " << m_IDTreeName.c_str());    
     m_IDTree = new TTree((m_IDTreeName).c_str(), m_ValidationTreeDescription.c_str());
     
@@ -439,7 +439,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }
   }
   
-  if( m_doRefit && m_refit1Tree == 0){
+  if( m_doRefit && m_refit1Tree == nullptr){
     ATH_MSG_INFO("initialize() ** defining m_refit1Tree with name: " << m_refit1TreeName.c_str());    
     m_refit1Tree = new TTree((m_refit1TreeName).c_str(), m_ValidationTreeDescription.c_str()); 
     
@@ -491,7 +491,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }    
   }
 
-  if( m_doRefit && m_refit2Tree == 0){
+  if( m_doRefit && m_refit2Tree == nullptr){
     ATH_MSG_INFO("initialize() ** defining m_refit2Tree with name: " << m_refit2TreeName.c_str());
     m_refit2Tree = new TTree((m_refit2TreeName).c_str(), m_ValidationTreeDescription.c_str());
 
@@ -546,7 +546,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }    
   }
   
-  if( m_combTree == 0){
+  if( m_combTree == nullptr){
     ATH_MSG_INFO("initialize() ** defining m_combTree with name: " << m_combTreeName.c_str());
     m_combTree = new TTree((m_combTreeName).c_str(), m_ValidationTreeDescription.c_str());
 
@@ -600,7 +600,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
 
   
-  if( m_MSTree == 0){
+  if( m_MSTree == nullptr){
     ATH_MSG_INFO("initialize() ** defining MSTree ");
 
     m_MSTree = new TTree(m_MSTreeName.c_str(), m_ValidationTreeDescription.c_str());
@@ -635,7 +635,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_MSTree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
   }
 
-  if( m_isMC && m_truthTree == 0){
+  if( m_isMC && m_truthTree == nullptr){
     m_truthTree = new TTree(m_truthTreeName.c_str(), m_ValidationTreeDescription.c_str());
 
     m_truthTree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
@@ -668,7 +668,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_truthTree->Branch("Positive_parent",  &m_positive_parent,  "Positive_parent/I");
   }
 
-  if (m_doFourMuAnalysis && m_FourMuTree == 0) {
+  if (m_doFourMuAnalysis && m_FourMuTree == nullptr) {
     ATH_MSG_INFO("initialize() ** defining m_FourMuTree ");
     m_FourMuTree = new TTree((m_FourMuTreeName).c_str(), "Four Muon monitoring");
 
@@ -765,7 +765,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   
   // now register the Trees
   ATH_MSG_INFO("initialize() Going to register the mu+mu- trees");
-  ITHistSvc* tHistSvc = 0;
+  ITHistSvc* tHistSvc = nullptr;
   if (service("THistSvc",tHistSvc).isFailure()){
     ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
     m_validationMode = false;
@@ -776,7 +776,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
   else {
     ATH_MSG_ERROR("initialize() Could not register the validation commonTree -> Switching ValidationMode Off !");
-    delete m_commonTree; m_commonTree = 0;
+    delete m_commonTree; m_commonTree = nullptr;
     m_validationMode = false;
   }
 
@@ -785,7 +785,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
   else {
     ATH_MSG_ERROR("initialize() Could not register the validation IDTree -> Switching ValidationMode Off !");
-    delete m_IDTree; m_IDTree = 0;
+    delete m_IDTree; m_IDTree = nullptr;
     m_validationMode = false;
   }
   
@@ -794,7 +794,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
   else {
     ATH_MSG_ERROR("initialize() Could not register the validation combTree -> Switching ValidationMode Off !");
-    delete m_combTree; m_combTree = 0;
+    delete m_combTree; m_combTree = nullptr;
     m_validationMode = false;
   }
   
@@ -803,7 +803,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
   else {
     ATH_MSG_ERROR("initialize() Could not register the validation MSTree -> Switching ValidationMode Off !");
-    delete m_MSTree; m_MSTree = 0;
+    delete m_MSTree; m_MSTree = nullptr;
     m_validationMode = false;
   }
 
@@ -813,7 +813,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }
     else{
       ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
-      delete m_refit1Tree; m_refit1Tree = 0;
+      delete m_refit1Tree; m_refit1Tree = nullptr;
       m_validationMode = false;
     }
 
@@ -822,7 +822,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }
     else {
       ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
-      delete m_refit2Tree; m_refit2Tree = 0;
+      delete m_refit2Tree; m_refit2Tree = nullptr;
       m_validationMode = false;
     }
   }
@@ -833,7 +833,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }
     else {
       ATH_MSG_ERROR("initialize() Could not register the validation truth Tree -> Switching ValidationMode Off !");
-      delete m_truthTree; m_truthTree = 0;
+      delete m_truthTree; m_truthTree = nullptr;
       m_validationMode = false;
     }
   }
@@ -844,7 +844,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     }
     else {
       ATH_MSG_ERROR("initialize() Could not register the validation FourMu Tree -> Switching ValidationMode Off !");
-      delete m_FourMuTree; m_FourMuTree = 0;
+      delete m_FourMuTree; m_FourMuTree = nullptr;
       m_validationMode = false;
     }
   }
@@ -1587,7 +1587,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     iPandSigma = m_trackToVertexIPEstimator->estimate(trackp_for_unbias, trackp, vertex, m_doRemoval);
     ATH_MSG_DEBUG("return from the trackToVertexIPEstimator->estimate()");
     
-    if( iPandSigma == NULL ){
+    if( iPandSigma == nullptr ){
       ATH_MSG_WARNING ("FillRecParametersTP::trackToVertexIPEstimator failed !");
       return StatusCode::FAILURE;
     }
@@ -1665,7 +1665,6 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
     ATH_MSG_DEBUG("* FillRecParameters * Empty Track: trackp_for_unbias. Skipping.");
     return StatusCode::FAILURE;
   }
-
   const Trk::Perigee* trkPerigee = track->perigeeParameters();
   const Trk::Perigee* trk_for_unbiasPerigee = &(trackp_for_unbias->perigeeParameters());
 
@@ -1688,12 +1687,12 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
   
   
 
-  if (trkPerigee != NULL){
+  if (trkPerigee != nullptr){
     double qOverP   = trkPerigee->parameters()[Trk::qOverP];
     if (qOverP) {
       px = trkPerigee->momentum().x();
       py = trkPerigee->momentum().y();
-      pt = std::fabs(trkPerigee->pT()); 
+      pt = std::abs(trkPerigee->pT()); 
       pz = trkPerigee->momentum().z();
       phi= trkPerigee->parameters()[Trk::phi];
       eta= trkPerigee->eta();
@@ -1716,7 +1715,7 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
     if(qOverP){
       px = atBL->momentum().x();
       py = atBL->momentum().y();
-      pt = std::fabs(atBL->pT());
+      pt = std::abs(atBL->pT());
       pz = atBL->momentum().z();
       eta= trkPerigee->eta();
       phi= trkPerigee->parameters()[Trk::phi];
@@ -1733,9 +1732,9 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
   }
   
   if(m_doIP && vertex && track->perigeeParameters()){ //I assume that the vertex is the same of the original track
-    const Trk::ImpactParametersAndSigma* iPandSigma(NULL);
+    const Trk::ImpactParametersAndSigma* iPandSigma(nullptr);
     iPandSigma = m_trackToVertexIPEstimator->estimate(trk_for_unbiasPerigee,trkPerigee,vertex,m_doRemoval);
-    if( iPandSigma==0 ){
+    if( iPandSigma==nullptr ){
       ATH_MSG_WARNING ("FillRecParameters::trackToVertexIPEstimator failed !");
       return StatusCode::FAILURE;
     }
@@ -1803,6 +1802,9 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
 //==================================================================================
 StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackParticle)
 {
+
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!trackParticle ){//|| !trackParticle->vertex()){
     ATH_MSG_WARNING("-- FillTruthParameters -- Empty Trackparticle. Skipping.");
     return StatusCode::FAILURE;
@@ -1834,7 +1836,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   } 
 
   const Amg::Vector3D momentum(particle->px(), particle->py(), particle->pz());  
-  const xAOD::TruthVertex * ptruthVertex(0);
+  const xAOD::TruthVertex * ptruthVertex(nullptr);
   ptruthVertex=particle->prodVtx();
   if (!ptruthVertex){
     ATH_MSG_DEBUG("A production vertex pointer was retrieved, but it is NULL");
@@ -1873,7 +1875,8 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   Trk::PerigeeSurface persf( beamSpotHandle->beamPos() );
 
-  const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters,persf, Trk::anyDirection, false);
+  const Trk::TrackParameters* tP = m_extrapolator->extrapolate(ctx,
+                                                               cParameters,persf, Trk::anyDirection, false).release();
 
 
   double px = 0;
@@ -1916,7 +1919,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
       ATH_MSG_DEBUG("cand perig HEP particle (truth) pz : "<< tP->momentum().z());
       ATH_MSG_DEBUG("cand perig HEP particle (truth) d0 : "<< tP->parameters()[Trk::d0]);
       ATH_MSG_DEBUG("cand perig HEP particle (truth) z0 : "<< tP->parameters()[Trk::z0]);
-      delete tP;tP=0;
+      delete tP;tP=nullptr;
     }
   }
 
@@ -1992,18 +1995,18 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
 //==================================================================================
 const xAOD::TruthParticle* IDPerfMonZmumu::getTruthParticle( const xAOD::IParticle& p ) {
   /// A convenience type declaration
-  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
+  using Link_t = ElementLink<xAOD::TruthParticleContainer>;
   /// A static accessor for the information
   static const SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
   // Check if such a link exists on the object:
   if( ! acc.isAvailable( p ) ) {
-    return 0;
+    return nullptr;
   }
   // Get the link:
   const Link_t& link = acc( p );
   // Check if the link is valid:
   if( ! link.isValid() ) {
-    return 0;
+    return nullptr;
   }
   // Everything has passed, let's return the pointer:
   return *link;
@@ -2073,8 +2076,8 @@ StatusCode IDPerfMonZmumu::CheckTriggerStatusAndPrescale ()
 //==================================================================================
 const xAOD::Vertex* IDPerfMonZmumu::GetDiMuonVertex(const xAOD::TrackParticle* muon1, const xAOD::TrackParticle* muon2) {
   
-  const xAOD::VertexContainer* vxContainer(0);
-  const xAOD::Vertex* myVtx(0);
+  const xAOD::VertexContainer* vxContainer(nullptr);
+  const xAOD::Vertex* myVtx(nullptr);
   vxContainer = PerfMonServices::getContainer<xAOD::VertexContainer> (PerfMonServices::VTX_COLLECTION);
   if (!vxContainer) { 
     return myVtx;
@@ -2427,7 +2430,7 @@ StatusCode IDPerfMonZmumu::RunFourLeptonAnalysis()
 	// Obtain MET 
 	std::string metName = "MET_Reference_AntiKt4LCTopo";
 	std::string metRefFinalName = "FinalClus";
-	const xAOD::MissingETContainer* final_met = 0;
+	const xAOD::MissingETContainer* final_met = nullptr;
 
 	m_met = -1; // default value
 	m_metphi = -1;

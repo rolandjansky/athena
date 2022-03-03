@@ -68,16 +68,13 @@ namespace Muon {
 
     private:
         /** helper functions to print summary output for the different stages */
-        void printStage(std::string stageTag) const;
-        void printSummary(std::string stageTag, const MuonSegmentCombinationCollection* col) const;
-        void printSummary(std::string stageTag, const MuonPatternCombinationCollection* col) const;
-        void printSummary(std::string stageTag, const Trk::SegmentCollection* col) const;
-
-        /** helper functions to write out intermediate results */
-        void postProcess(MuonSegmentCombinationCollection* col, MuonSegmentCombPatternCombAssociationMap& segmentPatternMap) const;
-
+        void printStage( const std::string& stageTag) const;
+        void printSummary(const std::string& stageTag, const MuonSegmentCombinationCollection& col) const;
+        void printSummary(const std::string& stageTag, const MuonPatternCombinationCollection& col) const;
+        void printSummary(const std::string& stageTag, const Trk::SegmentCollection& col) const;
+       
         /** extract a segment collection from a segment combination collection */
-        void extractSegmentCollection(const MuonSegmentCombinationCollection* combiCol, Trk::SegmentCollection& segments) const;
+        void extractSegmentCollection(MuonSegmentCombinationCollection& combiCol, Trk::SegmentCollection& segments) const;
 
         /** select segment on quality */
         bool goodSegment(const MuonSegment& segment) const;
@@ -92,7 +89,7 @@ namespace Muon {
                                                              "Run segment combination cleaning"};
         Gaudi::Property<bool> m_cloneSegments{this, "CloneSegments", false, ""};
 
-        ToolHandle<MuonEDMPrinterTool> m_edmPrinter{"Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_edmPrinter{"Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

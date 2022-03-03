@@ -6,7 +6,7 @@
 
 namespace Tau{
 
-Had3ProngPlots::Had3ProngPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+Had3ProngPlots::Had3ProngPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTauJetContainerName):
    PlotBase(pParent, sDir),
    m_oGeneralTauPlots(this, "", sTauJetContainerName),
    m_tauCoreFrac(nullptr),

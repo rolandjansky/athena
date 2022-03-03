@@ -50,70 +50,78 @@ function( _add_test testName toExecute )
 endfunction( _add_test )
 
 # Test(s) in the package:
+# ---------------------------
+set( TEST_IGNORE_STR "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|DEBUG Failed to find TTree:.*to set POOL property|DEBUG.*failed process POOL.*attributes.|metadataItemList|Creating branch for new dynamic" )
+
 # Write 'Hits', with multistreamand
 _add_test( AthenaPoolExample_Write 
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList|Creating branch for new dynamic"
+   IGNORE ${TEST_IGNORE_STR}
    PRE_EXEC test/pre_check.sh )
+
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Append_ctest
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Write_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
+   IGNORE ${TEST_IGNORE_STR} )
+
 # Read all output
 _add_test( AthenaPoolExample_Read
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
+   IGNORE ${TEST_IGNORE_STR} )
+
 # Copy 'Hits' file without extending provenance
 _add_test( AthenaPoolExample_Copy
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Read_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
+   IGNORE ${TEST_IGNORE_STR} )
+
 # Read copied 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWriteAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Copy_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
+   IGNORE ${TEST_IGNORE_STR} )
 _add_test( AthenaPoolExample_ReWriteNext
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteAgain_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
+   IGNORE ${TEST_IGNORE_STR} )
+
 # Read all
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteNext_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
+   IGNORE ${TEST_IGNORE_STR} )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
 _add_test( AthenaPoolExample_Concat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadAgain_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList"
+   IGNORE ${TEST_IGNORE_STR}
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadConcat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Concat_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
+   IGNORE ${TEST_IGNORE_STR} )
 
 # Testing 'Conditions' I/O
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
+   IGNORE ${TEST_IGNORE_STR} )
+
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
+   IGNORE ${TEST_IGNORE_STR} )
 
 # Testing 'Metadata' I/O
 _add_test( AthenaPoolExample_WMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RCond_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList"
+   IGNORE ${TEST_IGNORE_STR}
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
+   IGNORE ${TEST_IGNORE_STR} )

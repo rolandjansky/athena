@@ -125,7 +125,7 @@ namespace MuonGM {
         std::map<std::string, Station *> m_stations;
         std::map<std::string, Technology *> m_technologies;
         std::map<std::string, TgcReadoutParams *> m_tgcReadouts;
-        TgcReadoutParams *m_tgcReadout[NTgcReadouts];
+        TgcReadoutParams *m_tgcReadout[NTgcReadouts]{};
         std::string m_geometry_version; // from our job-option
         std::string m_layout_name;      // from nova
         std::string m_DBMuonVersion;    // name of the MuonVersion table-collection in Oracle

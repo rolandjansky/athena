@@ -2,11 +2,13 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "EfficiencyPtPlots.h"
                        
 namespace Tau{
 
-  EfficiencyPtPlots::EfficiencyPtPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+  EfficiencyPtPlots::EfficiencyPtPlots(PlotBase* pParent, const std::string& sDir, std::string sTauJetContainerName):
     PlotBase(pParent, sDir),
     m_eff_pt_jetRNNloose(nullptr),
     m_eff_pt_jetRNNmed(nullptr),
@@ -14,7 +16,7 @@ namespace Tau{
     m_eff_jetRNNloose(nullptr),
     m_eff_jetRNNmed(nullptr),
     m_eff_jetRNNtight(nullptr),
-    m_sTauJetContainerName(sTauJetContainerName)
+    m_sTauJetContainerName(std::move(sTauJetContainerName))
   {	
   }
 

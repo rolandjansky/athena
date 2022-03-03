@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # D3PDMaker
@@ -9,23 +9,23 @@
 # 
 from __future__ import print_function
 import AthenaPython.PyAthena as PyAthena
-from ROOT import TFile, TTree 
+import ROOT 
 from array import array
-import os
 
 class HECNoiseD3PDMaker(PyAthena.Alg):
     def __init__ ( self, name, **kw ) :
         PyAthena.Alg.__init__(self,name)
         self.name = name
         self.det = None
-        self.ped = None
+        self.cond = None
 
         ## cell cuts
         self.MinDigitADC      = kw.get('MinDigitADC',     20)
         self.MaxDeltaT        = kw.get('MaxDeltaT',        5)
         self.NtupleFileName   = kw.get('NtupleFileName', 'HECNoiseD3PD.root')
-        self.TriggerLines     = kw.get('TriggerLines',   ['L1_J5',
-                                                          'L1_J10',
+        self.RequireTrigger   = kw.get('RequireTrigger', False)
+        self.TriggerLines     = kw.get('TriggerLines',   ['HLT_noalg_L1EM20A',
+                                                          'HLT_noalg_L1EM20C',
                                                           'L1_J12',
                                                           'L1_J30',
                                                           'L1_TAU5',
@@ -48,17 +48,17 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         print ("MinDigitADC:     ", self.MinDigitADC)
         print ("MaxDeltaT:       ", self.MaxDeltaT)
         print ("NtupleFileName:  ", self.NtupleFileName)
+        print ("RequireTrigger:  ", self.RequireTrigger)
         print ("TriggerLines:    ", self.TriggerLines)
         #
         self.sg = PyAthena.py_svc("StoreGateSvc")
-        self.det = PyAthena.StoreGate.pointer("DetectorStore")
+        self.cond = PyAthena.py_svc('StoreGateSvc/ConditionStore')
+        self.det = PyAthena.py_svc("StoreGateSve/DetectorStore")
         self.LArOID = self.det.retrieve("LArOnlineID","LArOnlineID")
-        self.lcs = PyAthena.py_tool('LArCablingService')
-        self.cdd = PyAthena.CaloDetDescrManager.instance()
-        self.cid = self.cdd.getCaloCell_ID()
+        self.cid = self.det.retrieve("CaloCell_ID","CaloCell_ID")
         self.tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
-        self.ntfile =  TFile(self.NtupleFileName,"RECREATE")
-        self.hectree = TTree("HECNoise","HECNoise")
+        self.ntfile =  ROOT.TFile(self.NtupleFileName,"RECREATE")
+        self.hectree = ROOT.TTree("HECNoise","HECNoise")
         self.iRun = array('i',[0])
         self.iEvent = array('L',[0])            
         self.iEventCount = array('i',[0])            
@@ -129,11 +129,13 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         return True
 
     def execute(self):
-        #for some obscure reason, we need run dump before we can retrieve the flat objects using their abstract interface
-        garbagedump = open(os.devnull, 'w')
-        self.det.dump(garbagedump)
-        garbagedump.close()
-        self.ped = self.det.retrieve("ILArPedestal","Pedestal")
+        eid=ROOT.Gaudi.Hive.currentContext().eventID()
+        lcsCont = self.cond.retrieve("CondCont<LArOnOffIdMapping>","LArOnOffIdMap")
+        lcs=lcsCont.find(eid)
+        pedCont = self.cond.retrieve("CondCont<ILArPedestal>","LArPedestal")
+        ped=pedCont.find(eid)
+        cddCont = self.cond.retrieve("CondCont<CaloDetDescrManager>","CaloDetDescrManager")
+        cdd=cddCont.find(eid)
         # filter low gain cells
         passedTrigger = False
         foundLowCell = False
@@ -147,7 +149,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                 self.iTrigger[tl][0] = 0
                 pass
             pass
-        if passedTrigger or not passedTrigger: # take all events with LG Cells
+        if passedTrigger or not self.RequireTrigger: # take only triggered events or all if RequireTrigger is False (default)
             self.iEventCount[0] = 0
             ldc = self.sg.retrieve("LArDigitContainer","LArDigitContainer_Thinned")
             for ld in ldc:
@@ -175,21 +177,21 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                         pass
                     if sigmax > self.MinDigitADC and sigmin < -self.MinDigitADC and ( (imin-imax) < self.MaxDeltaT or imin < imax):
                         foundLowCell = True
-                        ei = self.sg.retrieve("EventInfo","ByteStreamEventInfo")
+                        ei = self.sg.retrieve("xAOD::EventInfo","EventInfo")
                         cc = self.sg.retrieve("CaloCellContainer","AllCalo")
-                        self.iRun[0] = ei.event_ID().run_number()
-                        self.iEvent[0] = ei.event_ID().event_number()
+                        self.iRun[0] = ei.runNumber()
+                        self.iEvent[0] = ei.eventNumber()
                         self.iEventCount[0] = self.iEventCount[0]+1
-                        self.iTime[0] = ei.event_ID().time_stamp()
-                        self.iLB[0] = ei.event_ID().lumi_block()
-                        self.iBCID[0] = ei.event_ID().bunch_crossing_id()
+                        self.iTime[0] = ei.timeStamp()
+                        self.iLB[0] = ei.lumiBlock()
+                        self.iBCID[0] = ei.bcid()
                         self.avgMu[0] = ei.averageInteractionsPerCrossing()
                         self.actMu[0] = ei.actualInteractionsPerCrossing()
                         self.iGain[0] = ld.gain()
-                        oid = self.lcs.cnvToIdentifier(hid)
+                        oid = lcs.cnvToIdentifier(hid)
                         self.iOID[0] = ld.channelID().get_compact()
-                        self.Ped[0] = self.ped.pedestal(ld.channelID(),ld.gain())
-                        self.PedRMS[0] = self.ped.pedestalRMS(ld.channelID(),ld.gain())
+                        self.Ped[0] = ped.pedestal(ld.channelID(),ld.gain())
+                        self.PedRMS[0] = ped.pedestalRMS(ld.channelID(),ld.gain())
                         self.iSide[0] = self.cid.pos_neg(oid)
                         self.iSamp[0] = self.cid.sampling(oid)
                         self.iReg[0] = self.cid.region(oid)
@@ -210,7 +212,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                             self.t[0] = rcell.time()
                             self.iQuality[0] = rcell.quality()
                             pass
-                        cdde = self.cdd.get_element(oid)
+                        cdde = cdd.get_element(oid)
                         self.eta[0] = cdde.eta()
                         self.phi[0] = cdde.phi()
                         self.z[0] = cdde.z()

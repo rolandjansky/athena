@@ -1,9 +1,7 @@
 #Matt A's custom python accumulator for R22 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from pprint import pprint
-
     
 
 def MyAlgConfigNeutral(inputFlags,**kwargs,):
@@ -77,9 +75,10 @@ if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
+    from AthenaConfiguration.Enums import Format
     
     cfgFlags.Input.isMC=True
-    cfgFlags.Input.Format="AOD"
+    cfgFlags.Input.Format=Format.POOL
 
     cfgFlags.Input.Files=["/scratch/anthony/GPF_CODE/TCC_STUDIES/CustomAlg/myAOD.root"]
     cfgFlags.Output.AODFileName="/scratch/anthony/GPF_CODE/TCC_STUDIES/CustomAlg/output_AOD.root"

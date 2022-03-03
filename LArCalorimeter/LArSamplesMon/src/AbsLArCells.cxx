@@ -24,7 +24,7 @@ AbsLArCells::AbsLArCells():
 
 AbsLArCells::~AbsLArCells()
 {
-  resetCache();
+  AbsLArCells::resetCache();
   resetCellInfoCache();
 }
 

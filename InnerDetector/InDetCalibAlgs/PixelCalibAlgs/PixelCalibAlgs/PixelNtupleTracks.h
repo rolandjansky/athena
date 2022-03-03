@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 #include <string>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <TROOT.h>
 #include <TChain.h>
 
@@ -702,11 +703,10 @@ void PixelNtupleTracks::Loop()
 
    Long64_t nentries = fChain->GetEntriesFast();
 
-   Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+      fChain->GetEntry(jentry);
       // if (Cut(ientry) < 0) continue;
    }
 }

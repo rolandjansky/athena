@@ -24,8 +24,8 @@
 
 namespace MuonGM {
 
-    DriftTube::DriftTube(const MYSQL& mysql, std::string n)
-        : DetectorElement(std::move(n)),
+    DriftTube::DriftTube(const MYSQL& mysql, const std::string& n)
+        : DetectorElement(n),
           gasMaterial ("muo::ArCO2"),
           tubeMaterial ("std::Aluminium"),
           plugMaterial ("std::Bakelite"),

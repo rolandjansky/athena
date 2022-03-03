@@ -61,7 +61,7 @@ namespace Muon {
             @param hitList the list to be filled
             @return true if creation succeded
         */
-        bool create(const MuonSegment& seg, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const;
+        bool create(const EventContext& ctx, const MuonSegment& seg, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const;
 
         /** @brief create a MuPatHitList from a Track
             @param track the input track
@@ -76,7 +76,7 @@ namespace Muon {
             @param hitList the list to be filled
             @return true if creation succeded
         */
-        bool create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec, MuPatHitList& hitList,
+        bool create(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec, MuPatHitList& hitList,
                     GarbageContainer& hitsToBeDeleted) const;
 
         /** @brief merge two MuPatHitLists into a new one
@@ -85,14 +85,14 @@ namespace Muon {
             @param outList  the resulting list
             @return true if merge succeded
         */
-        bool merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const;
+        bool merge(const EventContext& ctx, const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const;
 
         /** @brief merge two MuPatHitLists into a new one. The first list will be added to the second
             @param hitList1 the first  list
             @param hitList2 the second list
             @return true if merge succeded
         */
-        bool merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const;
+        bool merge(const EventContext& ctx, const MuPatHitList& hitList1, MuPatHitList& hitList2) const;
 
         /** @brief extract a sorted vector of MeasurementBase objects
             @param hitList the input  list
@@ -181,7 +181,7 @@ namespace Muon {
             "ResidualPullCalculator",
             "Trk::ResidualPullCalculator/ResidualPullCalculator",
         };  //<! tool to calculate residuals and pulls
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

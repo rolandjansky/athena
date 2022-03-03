@@ -30,12 +30,9 @@ StatusCode ChargedHadronSubtractionTool::initialize() {
                   << m_inputType);
     return StatusCode::FAILURE;
   }
-  // Only initialise the DataHandle we will use, to avoid superfluous dependencies
-  if(m_useTrackToVertexTool && !m_ignoreVertex) {
-    ATH_CHECK( m_trkVtxAssoc_key.initialize() );
-  } else {
-    ATH_CHECK( m_vertexContainer_key.initialize() );
-  }
+
+  ATH_CHECK( m_trkVtxAssoc_key.initialize(m_useTrackToVertexTool && !m_ignoreVertex) );
+  ATH_CHECK( m_vertexContainer_key.initialize(!(m_useTrackToVertexTool && !m_ignoreVertex)) );
 
   return StatusCode::SUCCESS;
 }
@@ -141,7 +138,13 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
       }
       if(trkVtxAssoc) { // Use TrackVertexAssociation
         const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
-        matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+	if(thisTracksVertex==nullptr) {
+	  ATH_MSG_DEBUG("No vertex associated to track " << ptrk->index() << "! So it cannot be associated to the primary vertex");
+	  matchedToPrimaryVertex = false;
+	}
+	else {
+	  matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+	}
       } else { // Use Primary Vertex
         if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
           matchedToPrimaryVertex = true; // simply match all cPFOs in this case
@@ -208,7 +211,13 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::FlowElementC
       }
       if(trkVtxAssoc) { // Use TrackVertexAssociation
         const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
-        matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+	if(thisTracksVertex==nullptr) {
+	  ATH_MSG_DEBUG("No vertex associated to track " << ptrk->index() << "! So it cannot be associated to the primary vertex");
+	  matchedToPrimaryVertex = false;
+	}
+	else {
+	  matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+	}
       } else { // Use Primary Vertex
         if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
           matchedToPrimaryVertex = true; // simply match all cPFOs in this case

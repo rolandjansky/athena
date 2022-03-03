@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_MULTIPLEEVENTLOOPMGR_H
@@ -10,6 +10,9 @@
     @author Paolo Calafiura - ATLAS Collaboration
     $Id: MultipleEventLoopMgr.h,v 1.3 2007-06-16 00:55:22 calaf Exp $
 */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 
 #include <string>
 

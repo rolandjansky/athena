@@ -349,7 +349,7 @@ namespace Muon
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       
       /* TGC Cabling service */
-      const ITGCcablingSvc* m_tgcCabling;
+      const ITGCcablingSvc* m_tgcCabling = nullptr;
 
       /** TgcPrepRawData container key for current BC */ 
       std::string m_outputCollectionLocation;      

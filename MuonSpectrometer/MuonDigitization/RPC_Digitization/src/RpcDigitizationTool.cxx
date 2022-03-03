@@ -274,7 +274,7 @@ StatusCode RpcDigitizationTool::initialize() {
     // fill the taginfo information
     ATH_CHECK(fillTagInfo());
 
-    if (m_RPCInfoFromDb) { ATH_CHECK(m_readKey.initialize()); }
+    ATH_CHECK(m_readKey.initialize(m_RPCInfoFromDb));
 
     if (m_PrintCalibrationVector) { ATH_CHECK(PrintCalibrationVector()); }
 
@@ -1284,10 +1284,10 @@ Amg::Vector3D RpcDigitizationTool::posInPanel(
 }
 
 //--------------------------------------------
-int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, const Identifier& digitId, double& posinstrip) const {
+int RpcDigitizationTool::findStripNumber(const Amg::Vector3D& posInGap, const Identifier& digitId, double& posinstrip) const {
     const RpcReadoutElement* ele = m_GMmgr->getRpcReadoutElement(digitId);
 
-    Amg::Vector3D posInElement = ele->SDtoModuleCoords(std::move(posInGap), digitId);
+    Amg::Vector3D posInElement = ele->SDtoModuleCoords(posInGap, digitId);
 
     // extract from digit id the relevant info
 

@@ -13,9 +13,9 @@ def createxAODSlimmedContainer(container_name,prefiltSeq):
             from GeneratorFilters.GeneratorFiltersConf import xAODTruthParticleSlimmerMuon
             prefiltSeq += xAODTruthParticleSlimmerMuon('xAODTruthParticleSlimmerMuon')
     elif container_name=="TruthTaus":
-        if not hasattr(prefiltSeq, "TauTruthParticleSlimmer"):
-            from GeneratorFilters.GeneratorFiltersConf import TauTruthParticleSlimmer
-            prefiltSeq += TauTruthParticleSlimmer('TauTruthParticleSlimmer')
+        if not hasattr(prefiltSeq, "xAODTruthParticleSlimmerTau"):
+            from GeneratorFilters.GeneratorFiltersConf import xAODTruthParticleSlimmerTau
+            prefiltSeq += xAODTruthParticleSlimmerTau('xAODTruthParticleSlimmerTau')
     elif container_name=="TruthPhotons":
         if not hasattr(prefiltSeq, "xAODTruthParticleSlimmerPhoton"):
             from GeneratorFilters.GeneratorFiltersConf import xAODTruthParticleSlimmerPhoton

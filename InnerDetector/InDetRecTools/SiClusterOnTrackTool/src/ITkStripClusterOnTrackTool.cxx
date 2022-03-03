@@ -121,6 +121,8 @@ ITk::StripClusterOnTrackTool::correct
   const Trk::SurfaceBounds *bounds = &trackPar.associatedSurface().bounds();
   Trk::SurfaceBounds::BoundsType boundsType = bounds->type();
 
+  auto designShape = EL->design().shape();
+
   // Get local position of track
   //
   Amg::Vector2D loct = trackPar.localPosition();
@@ -231,7 +233,7 @@ ITk::StripClusterOnTrackTool::correct
     }
 
     // rotation for endcap ITkStrip
-    if (EL->design().shape() == InDetDD::Trapezoid || EL->design().shape() == InDetDD::Annulus) {
+    if (designShape == InDetDD::Trapezoid || designShape == InDetDD::Annulus) {
       double sn = EL->sinStereoLocal(SC->localPosition());
       double sn2 = sn * sn;
       double cs2 = 1. - sn2;
@@ -245,9 +247,12 @@ ITk::StripClusterOnTrackTool::correct
     }
     oldcov = mat;
   }
+  // else if (designShape == InDetDD::PolarAnnulus) {// polar rotation for endcap}
 
   Amg::MatrixX cov(oldcov);
-  if (EL->design().shape() != InDetDD::Trapezoid && EL->design().shape()!=InDetDD::Annulus) {                     // barrel
+  // barrel
+  // if (designShape != InDetDD::Trapezoid && designShape!=InDetDD::Annulus && designShape != InDetDD::PolarAnnulus) { 
+  if (designShape == InDetDD::Box) {
     Trk::DefinedParameter lpos1dim(SC->localPosition().x(), Trk::locX);
     locpar = (m_option_make2dimBarrelClusters)       ?
              Trk::LocalParameters(SC->localPosition()) :// PRDformation does 2-dim
@@ -261,9 +266,8 @@ ITk::StripClusterOnTrackTool::correct
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_stripErrorScalingKey );
       cov = check_cast<SCTRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  false, 0.0);
     }
-  } 
-
-  else {                                           // endcap
+  // } else if (designShape == InDetDD::PolarAnnulus) { // polar specialisation
+  } else {                                           // endcap
     locpar = Trk::LocalParameters(SC->localPosition());
     if (!m_stripErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_stripErrorScalingKey );

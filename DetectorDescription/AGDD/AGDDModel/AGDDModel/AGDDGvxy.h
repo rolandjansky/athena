@@ -29,7 +29,7 @@ public:
 	int NrOfPoints() const {return m_points.size();}
 	TwoPoint GetPoint(int i) const {return m_points[i];}
 	double GetDz() const {return m_dz;}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:
 	double m_dz;

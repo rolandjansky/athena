@@ -56,11 +56,11 @@ namespace Muon {
         StatusCode initialize();
 
         /** @brief convert track to segment */
-        MuonSegment* convert(const Trk::Track& track) const;
+        MuonSegment* convert(const EventContext& ctx, const Trk::Track& track) const;
 
     private:
         /** @brief calculate holes */
-        std::vector<Identifier> calculateHoles(const Identifier& chid, const Trk::TrackParameters& pars, const MeasVec& measurements) const;
+        std::vector<Identifier> calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars, const MeasVec& measurements) const;
 
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};
@@ -72,7 +72,7 @@ namespace Muon {
             this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
             "Handle to the service providing the IMuonEDMHelperSvc interface"};  //<! multipurpose helper tool
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "helper to nicely print out tracks"};
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
 

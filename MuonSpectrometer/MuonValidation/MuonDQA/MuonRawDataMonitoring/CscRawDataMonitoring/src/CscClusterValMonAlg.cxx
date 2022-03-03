@@ -188,7 +188,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
       // if cluster is okay get Qmax, Qleft, Qright and Qsum = (Qmax + Qleft + Qright)
       if(eta_cluster_status || phi_cluster_status ) {
-        const CscStripPrepDataCollection* pcol(0);
+        const CscStripPrepDataCollection* pcol(nullptr);
         bool found_id = true;
         std::vector <const CscStripPrepData*> stripVec;
         std::vector <float> fStripIDs;
@@ -259,7 +259,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         if(found_id && size_ids_coll ) {
           // store results of three strips (Qmax, Qleft, Qright)
           std::vector<ICscStripFitter::Result> res;
-          res.reserve(3);
+          res.resize(3);
           bool range_check = (mxIdx > -1) && (mxIdx < int(noStrips));
 
           ATH_MSG_DEBUG ( " Range check = (" << mxIdx  << " > -1 ) && (" << mxIdx << " < " << noStrips << " ) = " << range_check

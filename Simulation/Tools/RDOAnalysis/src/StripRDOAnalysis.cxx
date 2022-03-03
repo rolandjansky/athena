@@ -211,7 +211,7 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_phiModule->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_phiModule->GetName(), m_h_phiModule));
 
-  m_h_etaModule = new TH1F("h_etaModule", "Eta module", 100, -7, 7);
+  m_h_etaModule = new TH1F("h_etaModule", "Eta module", 121, -60, 60);
   m_h_etaModule->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_etaModule->GetName(), m_h_etaModule));
 
@@ -243,7 +243,7 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_brlPhiMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_brlPhiMod->GetName(), m_h_brlPhiMod));
 
-  m_h_brlEtaMod = new TH1F("h_brlEtaMod", "Barrel eta module", 100, -7, 7);
+  m_h_brlEtaMod = new TH1F("h_brlEtaMod", "Barrel eta module", 121, -60, 60);
   m_h_brlEtaMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_brlEtaMod->GetName(), m_h_brlEtaMod));
 
@@ -271,7 +271,7 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_ecPhiMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ecPhiMod->GetName(), m_h_ecPhiMod));
 
-  m_h_ecEtaMod = new TH1F("h_ecEtaMod", "Endcap eta module", 100, -7, 7);
+  m_h_ecEtaMod = new TH1F("h_ecEtaMod", "Endcap eta module", 21, 0, 20);
   m_h_ecEtaMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ecEtaMod->GetName(), m_h_ecEtaMod));
 
@@ -311,7 +311,7 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_phiModule_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_phiModule_sdo->GetName(), m_h_phiModule_sdo));
 
-  m_h_etaModule_sdo = new TH1F("h_etaModule_sdo", "Eta module (SDO)", 100, -7, 7);
+  m_h_etaModule_sdo = new TH1F("h_etaModule_sdo", "Eta module (SDO)", 121, -60, 60);
   m_h_etaModule_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_etaModule_sdo->GetName(), m_h_etaModule_sdo));
 

@@ -24,9 +24,9 @@ PLRGmxInterface::PLRGmxInterface(PixelDetectorManager *detectorManager,
 {}
 
 
-void PLRGmxInterface::addSensorType(std::string clas,
-                                    std::string typeName,
-                                    std::map<std::string, std::string> parameters)
+void PLRGmxInterface::addSensorType(const std::string& clas,
+                                    const std::string& typeName,
+                                    const std::map<std::string, std::string>& parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
   // only load the sensor type that the PLR will use
@@ -116,7 +116,7 @@ void PLRGmxInterface::makePLRModule(const std::string &typeName,
 
   ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << " " <<design->rows() << " " << design->columns());
 
-  m_detectorManager->addDesign(std::move(design));
+  [[maybe_unused]] auto observedPtr = m_detectorManager->addDesign(std::move(design));
 
   // Add to map for addModule routine
   m_geometryMap[typeName] = m_detectorManager->numDesigns() - 1;

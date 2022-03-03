@@ -57,12 +57,14 @@ namespace LVL1 {
 protected:
 
   private:
-        SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXmetAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandle<jTowerContainer> m_jTowerContainer;
+        
         std::vector<std::vector<int>> m_FPGA;
         std::vector<std::vector<int>> m_FPGA_phi02;
         std::vector<std::vector<int>> m_FPGA_fcal;
         std::vector<int> m_met;
-        std::vector<int> m_met_angle;
+        std::vector<float> m_met_angle;
         std::vector<int> m_met_Xcoord;
         std::vector<int> m_met_Ycoord;
         int m_Totalmet_Xcoord;

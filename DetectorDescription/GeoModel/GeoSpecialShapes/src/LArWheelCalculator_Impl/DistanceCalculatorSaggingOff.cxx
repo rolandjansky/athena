@@ -5,7 +5,6 @@
 #include "DistanceCalculatorSaggingOff.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
-#include "GaudiKernel/PhysicalConstants.h"
 #include<cassert>
 
 //#define LWC_PARAM_ANGLE
@@ -16,14 +15,11 @@
 
 #include<signal.h>
 
-using namespace Gaudi::Units;
 
 namespace LArWheelCalculator_Impl
 {
 
-  DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c,
-                                                             IRDBAccessSvc* /*rdbAccess*/,
-                                                             const DecodeVersionKey & /*larVersionKey*/)
+  DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c)
     : m_lwc(c)
   {
     m_EndQuarterWave = lwc()->m_ActiveLength - lwc()->m_QuarterWaveLength;

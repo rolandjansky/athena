@@ -7,12 +7,12 @@ class HLTMenuAccess(TriggerConfigAccess):
     this class provides access to the HLT menu
     the methods are self-explanatory for people with knowledge of the configuration
     """
-    def __init__(self, filename = None, dbalias = None, smkey = None ):
+    def __init__(self, filename = None, jsonString=None, dbalias = None, smkey = None ):
         """
         accessor needs to be initialized with either a filename or the dbalias and smkey
         """
         super(HLTMenuAccess,self).__init__( ConfigType.HLTMENU, mainkey = "chains",
-                                            filename = filename, dbalias = dbalias, dbkey = smkey )
+                                            filename = filename, jsonString=jsonString, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
             "SELECT HMT.HTM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_MENU HMT WHERE HMT.HTM_ID=SMT.SMT_HLT_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
             "SELECT HMT.HMT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_MASTER_TABLE HMT WHERE HMT.HMT_ID=SMT.SMT_HLT_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
@@ -51,12 +51,12 @@ class HLTPrescalesSetAccess(TriggerConfigAccess):
     this class provides access to the HLT prescales set
     the methods are self-explanatory for people with knowledge of the configuration
     """
-    def __init__(self, filename = None, dbalias = None, hltpskey = None ):
+    def __init__(self, filename = None, jsonString=None, dbalias = None, hltpskey = None ):
         """
         accessor needs to be initialized with either a filename or the dbalias and hlpskey
         """
         super(HLTPrescalesSetAccess,self).__init__( ConfigType.HLTPS, mainkey = "prescales",
-                                                    filename = filename, dbalias = dbalias, dbkey = hltpskey )
+                                                    jsonString=jsonString, filename = filename, dbalias = dbalias, dbkey = hltpskey )
         self.loader.setQuery([
             "SELECT HPS_DATA FROM {schema}.HLT_PRESCALE_SET WHERE HPS_ID={dbkey}" # for current and new db schema
         ])
@@ -118,12 +118,12 @@ class HLTMonitoringAccess(TriggerConfigAccess):
     """
     this class provides access to the HLT monitoring json
     """
-    def __init__(self, filename = None, dbalias = None, monikey = None ):
+    def __init__(self, filename = None, jsonString=None, dbalias = None, monikey = None ):
         """
         accessor needs to be initialized with either a filename or the dbalias and hlpskey
         """
         super(HLTMonitoringAccess,self).__init__( ConfigType.HLTMON, mainkey = "signatures",
-                                                    filename = filename, dbalias = dbalias, dbkey = monikey )
+                                                  jsonString = jsonString, filename = filename, dbalias = dbalias, dbkey = monikey )
 
         #self.loader.setQuery() # TODO when database will be ready
         self.load()

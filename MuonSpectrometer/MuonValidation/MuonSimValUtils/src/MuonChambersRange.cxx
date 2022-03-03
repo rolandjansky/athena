@@ -4,19 +4,19 @@
 #include "MuonSimValUtils/MuonChambersRange.h"
 #include <cstdlib>
 
-bool selectChambersRange(std::string f_hardware_name, std::string f_chamberName, 
+bool selectChambersRange(const std::string& f_hardware_name, const std::string& f_chamberName, 
 			 int f_stationEta, int f_StationEta, 
 			 int f_stationPhi, int f_StationPhi,
-			 std::string f_StationSize)
+			 const std::string& f_StationSize)
 {
   bool pass=false;
   std::string size="XXX";
   int f_StationPhi_check=f_StationPhi;
   int f_StationEta_check=f_StationEta;	
-  std::string::size_type small_chamber = f_hardware_name.find( "S", 0 );
-  std::string::size_type feet_chamber = f_hardware_name.find( "F", 0 );
-  std::string::size_type ground_chamber = f_hardware_name.find( "G", 0 );
-  std::string::size_type large_chamber = f_hardware_name.find( "L", 0 );	
+  std::string::size_type small_chamber = f_hardware_name.find( 'S', 0 );
+  std::string::size_type feet_chamber = f_hardware_name.find( 'F', 0 );
+  std::string::size_type ground_chamber = f_hardware_name.find( 'G', 0 );
+  std::string::size_type large_chamber = f_hardware_name.find( 'L', 0 );	
   ///BIM and BIR still not in!!!!
 
   if (small_chamber != std::string::npos) {

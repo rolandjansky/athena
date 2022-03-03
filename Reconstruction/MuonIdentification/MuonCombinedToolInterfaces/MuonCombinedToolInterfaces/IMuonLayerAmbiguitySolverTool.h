@@ -25,7 +25,7 @@ namespace Muon {
         }
 
         /** @brief resolve ambiguities and return a set of unique combinations */
-        virtual void resolveOverlaps(const std::vector<Muon::MuonLayerRecoData>& allLayers,
+        virtual void resolveOverlaps(const EventContext& ctx, const std::vector<Muon::MuonLayerRecoData>& allLayers,
                                      std::vector<MuonCandidate>& resolvedCandidates) const = 0;
 
         virtual ~IMuonLayerAmbiguitySolverTool() = default;

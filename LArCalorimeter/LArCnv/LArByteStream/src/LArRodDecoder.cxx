@@ -537,8 +537,8 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   int bitShift; 
   uint32_t FirstGoodFEB=1;
   int fcNb;
-  std::vector< uint32_t > samplesSum;   
-  std::vector< uint32_t > samples2Sum;   
+  std::vector< uint64_t > samplesSum;   
+  std::vector< uint64_t > samples2Sum;   
 
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
@@ -659,8 +659,8 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   uint32_t gain, ntrigger;
   //int NStep=-1, StepIndex=-1;
   int fcNb;
-  std::vector<uint32_t> sampleSum;   
-  std::vector< uint32_t > sampleSquare;   
+  std::vector<uint64_t> sampleSum;   
+  std::vector< uint64_t > sampleSquare;   
 
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
@@ -842,38 +842,33 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 
 
 LArRodBlockStructure*
-LArRodDecoder::prepareBlockStructure1 (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const
+LArRodDecoder::prepareBlockStructure1 (const uint16_t rodMinorVersion, const uint32_t robBlockType) const
 { 
-  //Get version and blocktype form header
-  eformat::helper::Version ver(robFrag.rod_version());
-  const uint16_t rodMinorVersion=ver.minor_version();
-  const uint32_t rodBlockType=robFrag.rod_detev_type()&0xff;
-
   const unsigned MAXMINOR = 12;
   const unsigned MAXTYPE = 10;
 
-  if (rodMinorVersion > MAXMINOR || rodBlockType > MAXTYPE) {
-    msg(MSG::ERROR) << "Bad Rod block type " <<  rodBlockType
+  if (rodMinorVersion > MAXMINOR || robBlockType > MAXTYPE) {
+    msg(MSG::ERROR) << "Bad Rod block type " <<  robBlockType
                     << " / " << rodMinorVersion << endmsg;
     return nullptr;
   }
   std::vector<std::unique_ptr<LArRodBlockStructure> >& blstructs =
     *m_blstructs.get();
-  unsigned int index = rodBlockType * (MAXMINOR+1) + rodMinorVersion;
+  unsigned int index = robBlockType * (MAXMINOR+1) + rodMinorVersion;
   if (blstructs.empty()) {
     blstructs.resize ((MAXMINOR+1)*(MAXTYPE+1));
   }
   if (!blstructs[index]) {
-    blstructs[index] = makeBlockStructure (rodBlockType, rodMinorVersion);
+    blstructs[index] = makeBlockStructure (robBlockType, rodMinorVersion);
   }
   if (!blstructs[index]) {
-    msg(MSG::ERROR) << "Bad Rod block type " <<  rodBlockType
+    msg(MSG::ERROR) << "Bad Rod block type " <<  robBlockType
                     << " / " << rodMinorVersion << endmsg;
     return nullptr;
   }
 
 #ifndef NDEBUG
-  ATH_MSG_DEBUG("Found version " << rodMinorVersion << " of Rod block type " << rodBlockType);
+  ATH_MSG_DEBUG("Found version " << rodMinorVersion << " of Rod block type " << robBlockType);
 #endif
 
   return blstructs[index].get();
@@ -888,7 +883,11 @@ LArRodDecoder::prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragm
   ATH_MSG_DEBUG("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
 
-  LArRodBlockStructure* BlStruct = prepareBlockStructure1 (robFrag);
+  //Get version and blocktype form header
+  eformat::helper::Version ver(robFrag.rod_version());
+  const uint16_t rodMinorVersion=ver.minor_version();
+  const uint32_t rodBlockType=robFrag.rod_detev_type()&0xff;
+  LArRodBlockStructure* BlStruct = prepareBlockStructure1 (rodMinorVersion, rodBlockType);
   if (!BlStruct) {
     return nullptr;
   }

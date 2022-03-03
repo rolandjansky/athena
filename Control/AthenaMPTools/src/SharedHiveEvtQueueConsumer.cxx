@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedHiveEvtQueueConsumer.h"
@@ -403,6 +403,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedHiveEvtQueueConsumer::e
   if(!hybridHelper) {
     ATH_MSG_FATAL("Failed to acquire IHybridProcessorHelper interface");
     all_ok = false;
+    return std::unique_ptr<AthenaInterprocess::ScheduledWork>();
   }
   // Reset the application return code.
   hybridHelper->resetAppReturnCode();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,9 +7,8 @@
 ///////////////////////////////////////////////////////////////////
 // Calo
 #include "CaloTrackingGeometry/CaloTrackingGeometryBuilderCond.h"
-#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
 // Trk
-#include "TrkDetDescrInterfaces/ITrackingVolumeBuilder.h"
+#include "TrkDetDescrInterfaces/ICaloTrackingVolumeBuilder.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
@@ -64,7 +63,6 @@ Calo::CaloTrackingGeometryBuilderCond::CaloTrackingGeometryBuilderCond(const std
   m_exitVolume("Calo::Container"),
   m_mbtsNegLayers(nullptr),
   m_mbtsPosLayers(nullptr)
-  //m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
 {
   declareInterface<Trk::IGeometryBuilderCond>(this);
   // declare the properties via Python
@@ -109,7 +107,8 @@ Calo::CaloTrackingGeometryBuilderCond::~CaloTrackingGeometryBuilderCond()
 // initialize
 StatusCode Calo::CaloTrackingGeometryBuilderCond::initialize()
 {
-  
+
+    ATH_CHECK(m_caloMgrKey.initialize());  
     // retrieve envelope definition service --------------------------------------------------
     if ( m_enclosingEnvelopeSvc.retrieve().isFailure() ){
       ATH_MSG_FATAL( "Could not retrieve EnvelopeDefinition service. Abort.");
@@ -192,7 +191,7 @@ StatusCode Calo::CaloTrackingGeometryBuilderCond::finalize()
 
 std::pair<EventIDRange, Trk::TrackingGeometry*>
 Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
-  const EventContext&,
+  const EventContext& ctx, 
   std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
 {
 
@@ -210,8 +209,8 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
   double enclosedInnerSectorRadius = 0.;
    
    // dummy objects
-   const Trk::LayerArray* dummyLayers = nullptr;
-   const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+   Trk::LayerArray* dummyLayers = nullptr;
+   Trk::TrackingVolumeArray* dummyVolumes = nullptr;
   
   //TODO/FIXME: just passing on range, no Calo IOV range used
   EventIDRange range=IOVInfiniteRange::infiniteMixed();
@@ -352,7 +351,10 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
     
   // PART 1 : Liquid Argon Volumes ===========================================================================================
   // get the Tracking Volumes from the LAr Builder 
-  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
+  //
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey, ctx };
+  const CaloDetDescrManager* caloDDM = *caloMgrHandle;
+  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes(*caloDDM);
 
   ATH_MSG_INFO( lArVolumes->size() << " volumes retrieved from " << m_lArVolumeBuilder.name() );   
   if (msgLvl(MSG::VERBOSE)){
@@ -387,7 +389,7 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
 
   // PART 2 : Tile Volumes ===========================================================================================
   // get the Tracking Volumes from the Tile Builder 
-  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes(*caloDDM);
 
   ATH_MSG_INFO( tileVolumes->size() << " volumes retrieved from " << m_tileVolumeBuilder.name() );   
   if (msgLvl(MSG::INFO)){
@@ -464,9 +466,6 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
 
    double lArPositiveOuterBoundary     = lArPositiveFcal->center().z();
           lArPositiveOuterBoundary    += lArPositiveFcalBounds->halflengthZ();
-
-   double lArNegativeOuterBoundary     = lArNegativeFcal->center().z();
-          lArNegativeOuterBoundary    -= lArNegativeFcalBounds->halflengthZ();
 
    Trk::Material* mAr = new Trk::Material(140.036, 856.32, 39.948, 18., 0.0014);
    Trk::Material* mAl = new Trk::Material(88.93, 388.62, 26.98, 13., 0.0027);
@@ -1468,9 +1467,9 @@ void Calo::CaloTrackingGeometryBuilderCond::registerInLayerIndexCaloSampleMap(
   const Trk::LayerArray* confinedLayers = vol.confinedLayers();
   if (!confinedLayers) return;
   
-  const std::vector<const Trk::Layer*>& layerObjects = confinedLayers->arrayObjects();
-  std::vector<const Trk::Layer*>::const_iterator layerObjIter = layerObjects.begin();
-  std::vector<const Trk::Layer*>::const_iterator layerObjEnd  = layerObjects.end();
+  Trk::BinnedArraySpan<Trk::Layer const * const > layerObjects = confinedLayers->arrayObjects();
+  Trk::BinnedArraySpan<Trk::Layer const * const >::const_iterator layerObjIter = layerObjects.begin();
+  Trk::BinnedArraySpan<Trk::Layer const * const >::const_iterator layerObjEnd  = layerObjects.end();
   
   // now pick out the material layers (and skip the navigation ones)
   std::vector<const Trk::Layer*> materialLayers;
@@ -1513,8 +1512,8 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
   outerRadius = 0.;
 
   // dummy objects
-  const Trk::LayerArray* dummyLayers = nullptr;
-  const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+  Trk::LayerArray* dummyLayers = nullptr;
+  Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   // beam pipe thickness along the z distance
   if (m_bpCutouts.empty()) {

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/MdtHitIdHelper.h"
 
 #include <iostream>
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 MdtHitIdHelper* MdtHitIdHelper::m_help = nullptr;
 
@@ -105,7 +106,7 @@ int MdtHitIdHelper::GetTube(const int& hid) const
 }
 
 //packing method
-int MdtHitIdHelper::BuildMdtHitId(const std::string statName, const int phiSect,
+int MdtHitIdHelper::BuildMdtHitId(const std::string& statName, const int phiSect,
                                   const int zSect, const int multiLayer, const int layer, const int tube) const
 {
   int theID(0);

@@ -165,9 +165,6 @@ def queryHLTPrescaleTableRun2(connection,psk):
 def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
     from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales
 
-    mutelog = logging.getLogger(__name__)
-    mutelog.setLevel(logging.ERROR) #avoid the spam from TrigConfigSvcUtils
-
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
     chainsHLT = getChainsWithL1seed('TRIGGERDB', info['smk']) # returns map HLT ID => (HLT name, L1 seed)
     chainsHLT = {k:v for (k,v) in six.iteritems (chainsHLT) if "L1" in v[1]}
@@ -300,18 +297,10 @@ def getHLTmap_fromTM(period, release):
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
 
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    mutelog = logging.getLogger(__name__)
-    mutelog.setLevel(logging.WARNING) #avoid spam from Menu.L1.L1MenuConfig
-
-    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
-    generateL1Menu(ConfigFlags)
-    createL1PrescalesFileFromMenu(ConfigFlags)
-    
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
-    menu.getChainsFromMenu()
+    menu.getChainsFromMenu(ConfigFlags)
 
     if not period & TriggerPeriod.future: return {}, 0
     hltMap = {}

@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUSELECTIONTOOL_H
@@ -17,14 +15,19 @@
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "PATCore/IAsgSelectionTool.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 // Local include(s):
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/HelperFunctions.h"
 
+// EDM include(s):
+#include "xAODMuon/MuonContainer.h"
+
 // ROOT include(s):
 #include "TH1F.h"
+#include "TFile.h"
 
 namespace TauAnalysisTools
 {
@@ -35,33 +38,26 @@ class SelectionCutPt;
 class SelectionCutAbsEta;
 class SelectionCutAbsCharge;
 class SelectionCutNTracks;
-class SelectionCutBDTJetScore;
-class SelectionCutBDTJetScoreSigTrans;
 class SelectionCutJetIDWP;
 class SelectionCutRNNJetScoreSigTrans;
-class SelectionCutBDTEleScore;
-class SelectionCutEleBDTWP;
-class SelectionCutEleOLR;
-class SelectionCutMuonVeto;
+class SelectionCutRNNEleScore;
+class SelectionCutEleIDWP;
 class SelectionCutMuonOLR;
 
 enum SelectionCuts
 {
-  NoCut           = 0,   	// 000000000000
-  CutPt           = 1,   	// 000000000001
-  CutAbsEta       = 1<<1,	// 000000000010
-  CutPhi          = 1<<2,	// 000000000100
-  CutNTrack       = 1<<3,	// 000000001000
-  CutAbsCharge    = 1<<4,	// 000000010000
-  CutJetBDTScore  = 1<<5,	// 000000100000
-  CutJetIDWP      = 1<<6,	// 000001000000
-  CutEleBDTScore  = 1<<7,	// 000010000000
-  CutEleBDTWP     = 1<<8,	// 000100000000
-  CutMuonVeto     = 1<<9,	// 001000000000
-  CutEleOLR       = 1<<10,    // 010000000000
-  CutMuonOLR      = 1<<11,    // 100000000000
-  CutJetBDTScoreSigTrans = 1<<12, // 1000000000000
-  CutJetRNNScoreSigTrans = 1<<13  // 10000000000000
+  // FIXME: harmonise names for RNN score cuts: "CutEleRNNScore" vs "CutJetRNNScoreSigTrans"
+  NoCut           = 0,   	 // 000000000000
+  CutPt           = 1,   	 // 000000000001
+  CutAbsEta       = 1<<1,	 // 000000000010
+  CutPhi          = 1<<2,	 // 000000000100
+  CutNTrack       = 1<<3,	 // 000000001000
+  CutAbsCharge    = 1<<4,	 // 000000010000
+  CutJetIDWP      = 1<<5,	 // 000000100000
+  CutEleRNNScore  = 1<<6,	 // 000001000000
+  CutEleIDWP      = 1<<7,	 // 000010000000
+  CutMuonOLR      = 1<<8,        // 000100000000
+  CutJetRNNScoreSigTrans = 1<<9  // 001000000000
 };
   
 class TauSelectionTool : public virtual IAsgSelectionTool,
@@ -75,15 +71,10 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutAbsEta;
   friend class SelectionCutAbsCharge;
   friend class SelectionCutNTracks;
-  friend class SelectionCutBDTJetScore;
-  friend class SelectionCutBDTJetScoreSigTrans;
-  friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutJetIDWP;
   friend class SelectionCutRNNJetScoreSigTrans;
-  friend class SelectionCutBDTEleScore;
-  friend class SelectionCutEleBDTWP;
-  friend class SelectionCutEleOLR;
-  friend class SelectionCutMuonVeto;
+  friend class SelectionCutRNNEleScore;
+  friend class SelectionCutEleIDWP;
   friend class SelectionCutMuonOLR;
 
   /// Create a proper constructor for Athena
@@ -124,15 +115,15 @@ private:
   virtual StatusCode beginEvent() override;
 
   template<typename T, typename U>
-  void FillRegionVector(std::vector<T>& vRegion, U tMin, U tMax);
+  void FillRegionVector(std::vector<T>& vRegion, U tMin, U tMax) const;
   template<typename T, typename U>
-  void FillValueVector(std::vector<T>& vRegion, U tVal);
+  void FillValueVector(std::vector<T>& vRegion, U tVal) const;
   template<typename T>
-  void PrintConfigRegion(const std::string& sCutName, std::vector<T>& vRegion);
+  void PrintConfigRegion(const std::string& sCutName, std::vector<T>& vRegion) const;
   template<typename T>
-  void PrintConfigValue(const std::string& sCutName, std::vector<T>& vRegion);
+  void PrintConfigValue(const std::string& sCutName, std::vector<T>& vRegion) const;
   template<typename T>
-  void PrintConfigValue(const std::string& sCutName, T& sVal);
+  void PrintConfigValue(const std::string& sCutName, T& sVal) const;
 
   // bitmask of tau selection cuts
   int m_iSelectionCuts;
@@ -144,29 +135,18 @@ private:
   std::vector<int> m_vAbsCharges;
   // vector of number of track requirements
   std::vector<unsigned> m_vNTracks;
-  // vector of JetBDT cut regions
-  std::vector<float> m_vJetBDTRegion;
-  // vector of JetBDTSigTrans cut regions
-  std::vector<float> m_vJetBDTSigTransRegion;
   // vector of JetRNNSigTrans cut regions
   std::vector<float> m_vJetRNNSigTransRegion;
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
-  // vector of EleBDT cut regions
-  std::vector<float> m_vEleBDTRegion;
-  // EleBDT working point
-  std::string m_sEleBDTWP;
-  int m_iEleBDTWP;
-  // do electron overlap removal
-  bool m_bEleOLR;
-  // do muon veto
-  bool m_bMuonVeto;
+  // vector of EleRNN cut regions
+  std::vector<float> m_vEleRNNRegion;
+  // EleID working point
+  std::string m_sEleIDWP;
+  int m_iEleIDWP;
   // do muon OLR
   bool m_bMuonOLR;
-  // ignore AODFix check and re-calculate electron OLR 
-  bool m_bIgnoreAODFixCheck;
-  bool m_bRecalcEleOLR;
 
   float m_dPtMin;
   float m_dPtMax;
@@ -174,14 +154,10 @@ private:
   float m_dAbsEtaMax;
   float m_iAbsCharge;
   float m_iNTrack;
-  float m_dJetBDTMin;
-  float m_dJetBDTMax;
-  float m_dJetBDTSigTransMin;
-  float m_dJetBDTSigTransMax;
   float m_dJetRNNSigTransMin;
   float m_dJetRNNSigTransMax;
-  float m_dEleBDTMin;
-  float m_dEleBDTMax;
+  float m_dEleRNNMin;
+  float m_dEleRNNMax;
 
 protected:
   TFile* m_fOutFile;//!
@@ -189,24 +165,21 @@ protected:
 
 private:
   std::string m_sConfigPath;
-  std::string m_sEleOLRFilePath;
-  std::string m_sElectronContainerName;
-  std::string m_sMuonContainerName;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey {this, "MuonContainerName", "Muons", "Muon container read handle key"};
 
   std::map<SelectionCuts, std::unique_ptr<TauAnalysisTools::SelectionCut>> m_cMap;
 
   void setupCutFlowHistogram();
-  int convertStrToJetIDWP(const std::string& sJetIDWP);
-  int convertStrToEleBDTWP(const std::string& sEleBDTWP);
-  std::string convertJetIDWPToStr(int iJetIDWP);
-  std::string convertEleBDTWPToStr(int iEleBDTWP);
+  int convertStrToJetIDWP(const std::string& sJetIDWP) const;
+  int convertStrToEleIDWP(const std::string& sEleIDWP) const;
+  std::string convertJetIDWPToStr(int iJetIDWP) const;
+  std::string convertEleIDWPToStr(int iEleIDWP) const;
 
 protected:
   bool m_bCreateControlPlots;
 
   /// Object used to store selection information.
   asg::AcceptInfo m_aAccept;
-
 
 
 }; // class TauSelectionTool

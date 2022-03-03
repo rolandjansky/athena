@@ -97,7 +97,6 @@ Stream1 = AthenaPoolOutputStream( "Stream1" )
 theApp.Dlls   += [ "LArAthenaPoolPoolCnv" ]
 theApp.Dlls   += [ "TileEventAthenaPoolPoolCnv" ]
 Stream1.ItemList+=["LArClusterContainer#*"]
-Stream1.ItemList+=["LArCellContainer#*"]
 Stream1.ItemList+=["EventInfo#*"]
 Stream1.ItemList+=["CaloCellContainer#AllCalo"]
 #Stream1.ItemList+=["CaloTowerContainer#LArTowerEM"]

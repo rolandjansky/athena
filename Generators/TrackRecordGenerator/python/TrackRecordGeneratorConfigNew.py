@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ############## Input: Reading Particles from TrackRecord Input File ###############
 def Input_TrackRecordGeneratorCfg(ConfigFlags,name="TrackRecordGenerator", **kwargs):
@@ -12,7 +12,8 @@ def Input_TrackRecordGeneratorCfg(ConfigFlags,name="TrackRecordGenerator", **kwa
     TrackRecordGenerator=CompFactory.TrackRecordGenerator
 
     kwargs = {}
-    if ConfigFlags.Sim.CavernBG == "Read":
+    from G4AtlasApps.SimEnums import CavernBackground
+    if ConfigFlags.Sim.CavernBackground is CavernBackground.Read:
         kwargs.setdefault('TRSmearing', -1) #in millimeters, e.g. 10
         kwargs.setdefault('TRPSmearing', -1) #in radians, e.g. 0.01
         kwargs.setdefault('TRCollection', "NeutronBG")

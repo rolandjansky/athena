@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 #include "eflowRec/PFTrackSelector.h"
@@ -21,9 +21,6 @@ StatusCode PFTrackSelector::initialize(){
 
   ATH_CHECK(m_tracksReadHandleKey.initialize());
   ATH_CHECK(m_vertexKey.initialize());
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  ATH_CHECK(m_trtDetEleContKey.initialize());
 
   // Optional readhandlekeys for electrons and muons
   if(!m_electronsReadHandleKey.key().empty()) {
@@ -44,6 +41,7 @@ StatusCode PFTrackSelector::initialize(){
 StatusCode PFTrackSelector::execute(){
   // Monitor the time taken to execute the alg
   auto t_exec = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute" );
+	Monitored::ScopedTimer execution_time(t_exec);
   auto N_tracks = Monitored::Scalar( "N_tracks", 0 );
   auto eta_track = Monitored::Scalar( "eta_track", 0. );
   auto pt_track = Monitored::Scalar( "pt_track", 0. );
@@ -81,12 +79,14 @@ StatusCode PFTrackSelector::execute(){
     if (!rejectTrack) {
       // Monitor the time per selected track
       auto t_track = Monitored::Timer<std::chrono::microseconds>( "TIME_track" );
+      eta_track = thisTrack->eta();
+      pt_track = thisTrack->pt() * invGeV;
+
       /* Create the eflowRecCluster and put it in the container */
       std::unique_ptr<eflowRecTrack> thisEFRecTrack  = std::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*tracksReadHandle, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
       eflowRecTracksWriteHandle->push_back(std::move(thisEFRecTrack));
-      eta_track = thisTrack->eta();
-      pt_track = thisTrack->pt() * invGeV;
+
       // Fill histogram
       auto mon_trk = Monitored::Group(m_monTool, t_track, eta_track, pt_track);
     }

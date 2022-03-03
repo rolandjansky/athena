@@ -13,3 +13,9 @@ atlas_add_component( AnalysisTriggerAlgs
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+atlas_add_test( RoIBResultToxAODCATest
+   SCRIPT python -m AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig
+   POST_EXEC_SCRIPT nopost.sh )
+
+

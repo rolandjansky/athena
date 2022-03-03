@@ -9,6 +9,7 @@ def main():
     log.setLevel(logging.INFO)
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Trigger.triggerMenuSetup = "Physics_pp_run3_v1"
 
     TriggerAPI.setRelease("current")

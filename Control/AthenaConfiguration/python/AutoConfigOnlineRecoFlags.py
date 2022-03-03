@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV, TeV
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.Enums import BeamType, Format
+
 log = logging.getLogger('OnlineRecoDefaults')
 
 
@@ -22,10 +24,10 @@ def setDefaultOnlineRecoFlags(flags):
     flags.Input.LumiBlockNumber = [-1]
     flags.Input.TimeStamp = [-1]
     flags.Input.ProjectName = 'data_test'
-    flags.Input.Format = 'BS'
+    flags.Input.Format = Format.BS
     flags.Input.ProcessingTags = []
 
-    flags.Beam.Type = 'collisions'
+    flags.Beam.Type = BeamType.Collisions
     flags.Beam.Energy = 7*TeV
 
     flags.IOVDb.GlobalTag = 'CONDBR2-HLTP-2018-01'
@@ -80,7 +82,7 @@ def trySetFlagsFromIS(flags, partition=None):
         # Beam type
         beam_type_num = tryReadFromISObject(runparams, 'beam_type')
         if beam_type_num is not None:
-            flags.Beam.Type = 'collisions' if beam_type_num > 0 else 'cosmics'
+            flags.Beam.Type = BeamType.Collisions if beam_type_num > 0 else BeamType.Cosmics
         # Beam energy
         beam_energy = tryReadFromISObject(runparams, 'beam_energy')
         if beam_energy is not None:
@@ -97,7 +99,7 @@ def trySetFlagsFromIS(flags, partition=None):
         hltpsk = tryReadFromISObject(hltpsk_is, 'HltPrescaleKey')
         bgk = tryReadFromISObject(bgk_is, 'L1BunchGroupKey')
         if all([v is not None for v in [smk, l1psk, hltpsk, bgk]]):
-            dbname = 'TRIGGERDBDEV1_I8'  # Temporary DB to be replaced for Run 3
+            dbname = 'TRIGGERDB_RUN3'  # Run3 DB name (not listed in IS)
             flags.Trigger.triggerConfig = 'DB:{:s}:{:d},{:d},{:d},{:d}'.format(
                 dbname, smk, l1psk, hltpsk, bgk)
 

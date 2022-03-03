@@ -12,7 +12,7 @@ def same( val , tool):
 #
 def createTrigEgammaForwardPrecisionElectronHypoAlg(name, sequenceOut):
     # make the Hypo
-    #from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaForwardPrecisionElectronLHSelectors
+    #from TriggerMenuMT.HLT.Egamma.TrigEgammaDefs import createTrigEgammaForwardPrecisionElectronLHSelectors
 
     from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionElectronHypoAlg
     thePrecisionElectronHypo = TrigEgammaForwardPrecisionElectronHypoAlg(name)
@@ -134,6 +134,6 @@ def TrigEgammaForwardPrecisionElectronHypoToolFromDict( d ):
                    
     
 def TrigEgammaForwardPrecisionElectronHypoToolFromName(name, conf):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return  TrigEgammaForwardPrecisionElectronHypoToolFromDict( decodedDict )

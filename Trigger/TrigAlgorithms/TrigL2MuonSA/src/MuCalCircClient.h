@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUCALCIRCCLIENT_H
@@ -30,7 +30,7 @@ namespace TrigL2MuonSA
     MuCalCircClient (unsigned short port, std::string &buffer_name, unsigned int buffer_size);
     virtual ~MuCalCircClient ();
 
-    bool dumpToCirc (LVL2_MUON_CALIBRATION::CalibEvent &event);
+    bool dumpToCirc (LVL2_MUON_CALIBRATION::CalibEvent &event) const;
 
    private:
     int m_cid;

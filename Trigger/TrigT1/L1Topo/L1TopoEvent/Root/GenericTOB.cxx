@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/GenericTOB.h"
 
@@ -147,7 +147,6 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_EtDouble(etau.EtDouble())
    , m_etaDouble(etau.etaDouble())
    , m_phiDouble(etau.phiDouble())
-   , m_fcore(etau.isolation())
    , m_tobType(etau.tobType())
 {}
 
@@ -160,9 +159,6 @@ TCS::GenericTOB::GenericTOB(const cTauTOB & ctau) :
    , m_EtDouble(ctau.EtDouble())
    , m_etaDouble(ctau.etaDouble())
    , m_phiDouble(ctau.phiDouble())
-   , m_reta(ctau.Reta())
-   , m_rhad(ctau.Rhad())
-   , m_wstot(ctau.Wstot())
    , m_tobType(ctau.tobType())
 {}
 

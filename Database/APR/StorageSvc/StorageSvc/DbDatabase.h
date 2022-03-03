@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -118,7 +118,7 @@ namespace pool  {
     const DbDomain& containedIn()    const;
           DbDomain& containedIn();
     /// Check for existence of Database within domain
-    bool exist(const DbDomain& domH, const std::string& nam) const;
+    bool exist(DbDomain& domH, const std::string& nam) const;
     /// Open Database using given domain
     /** @param   domH      [IN]  Valid handle to domain object.
       * @param   pfn       [IN]  Physical file name of the database.
@@ -190,8 +190,8 @@ namespace pool  {
     /// Access local container token (if container exists)
     const Token* cntToken(const std::string& cntName);
     /// Allow access to all known containers
-    DbStatus containers(std::vector<const Token*>& conts, 
-                        bool intern=false);
+    DbStatus containers(std::vector<const Token*>& conts, bool intern=false);
+    DbStatus containers(std::vector<IDbContainer*>& conts, bool intern=false);
     /// Allow access to all known associations between containers
     DbStatus associations(std::vector<const Token*>& assocs);
     /// Allow access to all known shapes used by the database

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentHashmapImpl.h
@@ -85,7 +85,7 @@ bool CHMTableIterator<ENTRIES_PER_CACHELINE>::next()
   if ((m_nprobes & ENTRIES_PER_CACHELINE_MASK) == 0) {
     // Move to a different cacheline.  
     // cf knuth AOCP exercise 6.4.20.
-    // By contruction, the low bits (within the cacheline) of
+    // By construction, the low bits (within the cacheline) of
     // m_bucket, m_nprobes, and m_stride should all be 0.
     m_bucket = (m_bucket + m_nprobes + m_stride) & m_mask;
   }

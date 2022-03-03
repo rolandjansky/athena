@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def getNewConfigFlags():
     """Create new ConfigFlags from old-style jobproperties. Usage:
@@ -56,7 +56,7 @@ def getNewConfigFlags():
     geom_flag_map.update({ 'MM':'Micromegas', 'sTGC':'sTGC'})
 
     # Geometry - Forward
-    # TODO
+    geom_flag_map.update({'Lucid':'Lucid', 'ZDC':'ZDC', 'ALFA':'ALFA', 'AFP':'AFP'})
 
     # Now set Geometry i.e. do equivalent of : 
     # ConfigFlags.Detector.GeometryBpipe = DetFlags.geometry.bpipe_on()
@@ -77,13 +77,22 @@ def getNewConfigFlags():
 
     # miscellaneous settings
     from InDetRecExample.InDetJobProperties import InDetFlags
-    ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+    ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+
+    from LArConditionsCommon.LArCondFlags import larCondFlags 
+    ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
+
+    # data overlay
+    from AthenaCommon.GlobalFlags import globalflags
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    ConfigFlags.Overlay.DataOverlay = globalflags.isOverlay() and overlayFlags.isDataOverlay()
 
     if rec.doDPD():
         # flags for Physics Validation (ATLASRECTS-6636)
         ConfigFlags.BTagging.SaveSV1Probabilities = True
         ConfigFlags.BTagging.RunJetFitterNN = True
+        ConfigFlags.BTagging.RunFlipTaggers = True
 
     return ConfigFlags
 

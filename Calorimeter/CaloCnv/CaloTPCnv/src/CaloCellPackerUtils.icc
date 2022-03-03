@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloCellPackerUtils.icc,v 1.1 2007-11-08 18:14:20 ssnyder Exp $
 /**
  * @file CaloCellPackerUtils.icc
  * @author scott snyder
  * @date Nov 2007
  * @brief Utilities for compacting calorimeter cells.
  */
+
+
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 
 namespace CaloCellPackerUtils {
@@ -47,9 +48,9 @@ inline
 unsigned int Floatfield::in (double x) const
 {
   // Handle over/underflow.
-  if (UNLIKELY(x >= m_xmax))
+  if (ATH_UNLIKELY(x >= m_xmax))
     return Bitfield::in (m_mask);
-  else if (UNLIKELY(x <= m_xmin))
+  else if (ATH_UNLIKELY(x <= m_xmin))
     return 0;
 
   // Convert to an int, and pack.
@@ -70,7 +71,7 @@ double Floatfield::out (unsigned int x, int& underflow) const
   unsigned int xx = Bitfield::out(x);
 
   // Did we underflow?
-  if (UNLIKELY(!xx)) {
+  if (ATH_UNLIKELY(!xx)) {
     underflow = 1;
     return m_xmin;
   }
@@ -92,9 +93,9 @@ inline
 unsigned int Floatfield2::in (double x) const
 {
   // Handle over/underflow.
-  if (UNLIKELY(x >= m_xmax))
+  if (ATH_UNLIKELY(x >= m_xmax))
     return Bitfield::in (m_mask);
-  else if (UNLIKELY(x <= 0))
+  else if (ATH_UNLIKELY(x <= 0))
     return 0;
 
   // Convert to an int, and pack.
@@ -115,7 +116,7 @@ double Floatfield2::out (unsigned int x) const
 
   // Did we underflow?
   // (The branch hint here gives a small but measureable improvement.)
-  if (UNLIKELY(xx == 0)) return 0;
+  if (ATH_UNLIKELY(xx == 0)) return 0;
 
   // Convert back to a float.
   // Note: the cast to int here is important for performance: converting

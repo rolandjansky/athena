@@ -39,7 +39,7 @@ namespace MuonCalib {
         bool WriteT0Chamber(const NtupleStationId &id, const MdtTubeFitContainer *t0, std::vector<int> &validation_flag, int head_id,
                             const std::string &site_name);
         // read for storage in a conditinos database
-        bool ReadForConditions(std::string site_name, int head_id, IConditionsStorage &storage);
+        bool ReadForConditions(const std::string& site_name, int head_id, IConditionsStorage &storage);
 
     private:
         //=====================private data members====================================

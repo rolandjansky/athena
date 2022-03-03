@@ -18,6 +18,8 @@
 class TH1;
 
 namespace MuonHough {
+    using HitVec = std::vector<std::shared_ptr<MuonHough::Hit>>;
+    
 
     /** struct containing all information to build a Hough transform for a given chamber index */
     struct RegionDescriptor {
@@ -33,64 +35,44 @@ namespace MuonHough {
             yBinSize(yBinSize_),
             thetaStep(thetaStep_),
             nthetaSamples(nthetaSamples_) {}
-        RegionDescriptor() :
-            sector(0),
-            region(Muon::MuonStationIndex::DetectorRegionUnknown),
-            chIndex(Muon::MuonStationIndex::ChUnknown),
-            referencePosition(0),
-            yMinRange(0),
-            yMaxRange(0),
-            yBinSize(1),
-            thetaStep(1),
-            nthetaSamples(1) {}
+        RegionDescriptor() = default;
 
-        int sector;
-        Muon::MuonStationIndex::DetectorRegionIndex region;
-        Muon::MuonStationIndex::ChIndex chIndex;
-        float referencePosition;
-        float yMinRange;
-        float yMaxRange;
-        float yBinSize;
-        float thetaStep;
-        unsigned int nthetaSamples;
+        int sector{0};
+        Muon::MuonStationIndex::DetectorRegionIndex region{Muon::MuonStationIndex::DetectorRegionUnknown};
+        Muon::MuonStationIndex::ChIndex chIndex{Muon::MuonStationIndex::ChUnknown};
+        float referencePosition{0};
+        float yMinRange{0};
+        float yMaxRange{0};
+        float yBinSize{0};
+        float thetaStep{0};
+        unsigned int nthetaSamples{1};
     };
-    typedef std::vector<RegionDescriptor> RegionDescriptionVec;
+    
+    using RegionDescriptionVec =  std::vector<RegionDescriptor>;
 
+    
     struct MuonLayerHough {
         /// struct representing the maximum in the hough space
         struct Maximum {
-            Maximum() :
-                max(0.),
-                pos(0.),
-                theta(0.),
-                refpos(0.),
-                refregion(0),
-                refchIndex(0),
-                binpos(-1),
-                binposmin(-1),
-                binposmax(-1),
-                binsize(0.),
-                bintheta(-1),
-                triggerConfirmed(0),
-                hough(0) {}
+            Maximum() = default;
 
-            float max;    // value of the maximum
-            float pos;    // spacial position
-            float theta;  // angle
+            float max{0.};    // value of the maximum
+            float pos{0.};    // spacial position
+            float theta{0.};  // angle
 
-            float refpos;    // reference position
-            int refregion;   // reference region
-            int refchIndex;  // reference chamber index
+            float refpos{0.};   // reference position
+            int refregion{0};   // reference region
+            int refchIndex{0};  // reference chamber index
 
-            int binpos;              // position bin
-            int binposmin;           // lower edge of the maximum
-            int binposmax;           // upper edge of the maximu
-            float binsize;           // size of bin
-            int bintheta;            // theta bin
-            int triggerConfirmed;    // number of in time trigger hits associated with the maximum
-            std::vector<Hit*> hits;  // vector of associated hits
+            int binpos{-1};           // position bin
+            int binposmin{-1};        // lower edge of the maximum
+            int binposmax{-1};        // upper edge of the maximu
+            float binsize{0.};        // size of bin
+            int bintheta{-1};         // theta bin
+            int triggerConfirmed{0};  // number of in time trigger hits associated with the maximum
+            HitVec hits;   // vector of associated hits
 
-            const MuonLayerHough* hough;  // pointer to the corresponding hough
+            const MuonLayerHough* hough{nullptr};  // pointer to the corresponding hough
 
             bool isEndcap() const {
                 // refers to the chamber orientation!!!! so BEE is a barell in this def
@@ -158,7 +140,7 @@ namespace MuonHough {
         bool findMaximum(Maximum& maximum, const MuonLayerHoughSelector& selector) const;
 
         /// associates the list of input hits to the provided maximum
-        void associateHitsToMaximum(Maximum& maximum, const std::vector<Hit*>& hits) const;
+        void associateHitsToMaximum(Maximum& maximum, const HitVec& hits) const;
 
         /// calculates the first and last bin the hit should be filled in for a given theta bin
         std::pair<int, int> range(const float x, const float y1, const float y2, const int bintheta) const;
@@ -173,26 +155,26 @@ namespace MuonHough {
         void fill(float x, float y, float weight);
 
         /// fill the hough space with a vector of hits using the layer mode
-        void fillLayer(const std::vector<Hit*>& hits, bool substract = false);
+        void fillLayer(const HitVec& hits, bool substract = false);
 
         //  fill the hough space with a vector of hits using the layer mode
-        void fillLayer2(const std::vector<Hit*>& hits, bool subtract = false);
+        void fillLayer2(const HitVec& hits, bool subtract = false);
 
         /// returns a vector with all the histograms of the hough as TH1*
         std::vector<TH1*> rootHistos(const std::string& prefix, const float* rmin = 0, const float* rmax = 0) const;
 
         // members
 
-        float m_binsize;     /// binsize
-        float m_invbinsize;  /// inverse binsize
+        float m_binsize{0};     /// binsize
+        float m_invbinsize{0};  /// inverse binsize
 
         // unsigned int m_nthetasamples;
-        int m_nbins;
+        int m_nbins{-1};
 
-        unsigned int max;
-        int maxhist;
-        int maxbin;
-        bool m_debug;
+        unsigned int max{0};
+        int maxhist{-1};
+        int maxbin{-1};
+        bool m_debug{false};
         std::vector<std::unique_ptr<unsigned int[]> > m_histos;  // the maximum contents of all the histograms, overlayed
         RegionDescriptor m_descriptor;
     };

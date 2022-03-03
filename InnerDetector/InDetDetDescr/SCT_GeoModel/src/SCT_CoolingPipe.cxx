@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_CoolingPipe.h"
@@ -23,7 +23,7 @@ SCT_CoolingPipe::SCT_CoolingPipe(const std::string & name, double length,
     m_length(length)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_CoolingPipe::build();
 }
 
 

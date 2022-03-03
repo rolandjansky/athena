@@ -97,7 +97,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   int m_diskFrontBack;
 
   // number or general service elements
-  int m_barrelInFrames, m_endcapInFrames;
+  int m_barrelInFrames = 0, m_endcapInFrames = 0;
 
   // flag to build also the services
   bool m_servicesOnLadder;
@@ -120,7 +120,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   bool m_dbm;
 
   // Flag set to true if no parts are listed in placement table - ie indicates actully all are present.
-  bool m_allPartsPresent;
+  bool m_allPartsPresent = false;
 
   // Class holding items that only one instance is needed for all detector elements.
   InDetDD::SiCommonItems * m_commonItems;
@@ -129,11 +129,11 @@ class OraclePixGeoManager : public PixelGeometryManager {
   InDetDD::PixelDetectorManager *m_pDDmgr;
 
   //the material manager
-  InDetMaterialManager * m_pMatMgr;
+  InDetMaterialManager * m_pMatMgr = nullptr;
 
   // Distorted material manager. Access to tables for distorting
   // the material. Extra volumes, modified volumes, etc
-  const InDetDD::DistortedMaterialManager * m_distortedMatManager;
+  const InDetDD::DistortedMaterialManager * m_distortedMatManager = nullptr;
 
   // Legacy tables
   PixelLegacyManager * m_legacyManager;
@@ -142,13 +142,13 @@ class OraclePixGeoManager : public PixelGeometryManager {
   std::string m_versionTag;
 
   // top level placements
-  TopLevelPlacements * m_placements;
+  TopLevelPlacements * m_placements = nullptr;
 
   // material map
-  PixelMaterialMap * m_materialMap;
+  PixelMaterialMap * m_materialMap = nullptr;
 
   // Stave types
-  PixelStaveTypes * m_pixelStaveTypes; 
+  PixelStaveTypes * m_pixelStaveTypes = nullptr; 
 
   // ganged pixel index map 
   std::map<int,std::vector<int> > * m_gangedIndexMap;

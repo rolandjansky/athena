@@ -51,16 +51,17 @@ StatusCode JpsiAlg::execute() {
 
 
   ATH_MSG_DEBUG("in execute()");
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   // Increment counter
   ++m_eventCntr;
 
   // Jpsi container and its auxilliary store
-  xAOD::VertexContainer*    jpsiContainer = NULL;
-  xAOD::VertexAuxContainer* jpsiAuxContainer = NULL;
-  
+  std::unique_ptr<xAOD::VertexContainer> jpsiContainer = std::make_unique<xAOD::VertexContainer>();
+  std::unique_ptr<xAOD::VertexAuxContainer> jpsiAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+  jpsiContainer->setStore(jpsiAuxContainer.get());
   // call Jpsi finder
-  if( !m_jpsiFinder->performSearch(jpsiContainer, jpsiAuxContainer).isSuccess() ) {
+  if( !m_jpsiFinder->performSearch(ctx, *jpsiContainer).isSuccess() ) {
     ATH_MSG_FATAL("Jpsi finder (" << m_jpsiFinder << ") failed.");
     return StatusCode::FAILURE;
   }
@@ -72,7 +73,7 @@ StatusCode JpsiAlg::execute() {
   ATH_MSG_DEBUG("Recording to StoreGate: " << m_jpsiContainerName.key() << " size:" <<jpsiContainer->size());
   
   SG::WriteHandle<xAOD::VertexContainer> whandle (m_jpsiContainerName);
-  ATH_CHECK(whandle.record(std::unique_ptr<xAOD::VertexContainer>(jpsiContainer), std::unique_ptr<xAOD::VertexAuxContainer>(jpsiAuxContainer)));
+  ATH_CHECK(whandle.record(std::move(jpsiContainer), std::move(jpsiAuxContainer)));
   // END OF ANALYSIS
   return StatusCode::SUCCESS;
 }

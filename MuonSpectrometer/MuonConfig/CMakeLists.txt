@@ -40,15 +40,15 @@ if( NOT SIMULATIONBASE )
 
    atlas_add_test( MuonCablingConfigTest
                    SCRIPT python -m MuonConfig.MuonCablingConfig
-                   POST_EXEC_SCRIPT nopost.sh )
+                   POST_EXEC_SCRIPT noerror.sh )
 
    atlas_add_test( MuonReconstructionConfigTest
                    SCRIPT python -m MuonConfig.MuonReconstructionConfig --run
                    PROPERTIES TIMEOUT 1200
-                   POST_EXEC_SCRIPT nopost.sh )
+                   POST_EXEC_SCRIPT noerror.sh )
 
    atlas_add_test( MuonSegmentFindingConfigTest
                    SCRIPT python -m MuonConfig.MuonSegmentFindingConfig --run
                    PROPERTIES TIMEOUT 300
-                   POST_EXEC_SCRIPT nopost.sh )
+                   POST_EXEC_SCRIPT noerror.sh )
 endif()

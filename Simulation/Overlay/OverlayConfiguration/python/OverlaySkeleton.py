@@ -4,6 +4,7 @@ import sys
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
+from SimuJobTransforms.CommonSimulationSteering import specialConfigPreInclude, specialConfigPostInclude
 
 
 def defaultOverlayFlags(configFlags):
@@ -101,6 +102,13 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'triggerConfig') and runArgs.triggerConfig == 'NONE':
         ConfigFlags.Detector.EnableL1Calo = False
 
+    # Setup perfmon flags from runargs
+    from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
+
+    # Special Configuration preInclude
+    specialConfigPreInclude(ConfigFlags)
+
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -120,6 +128,9 @@ def fromRunArgs(runArgs):
     # Special message service configuration
     from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
     cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
+
+    # Special Configuration postInclude
+    specialConfigPostInclude(ConfigFlags, cfg)
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

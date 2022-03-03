@@ -38,6 +38,7 @@ class CaloCell_ID;
 
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloDetDescr/CaloDepthTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -122,6 +123,13 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   bool m_twoGaussianNoise;
 
   ToolHandle<CaloDepthTool> m_caloDepthTool;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager"
+  };
+
 
   /** @brief Key of the CaloNoise Conditions data object. Typical values 
       are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */

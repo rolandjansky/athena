@@ -52,7 +52,7 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, const 
     result = (not condData->isBadStrip(m_pHelper->wafer_hash(m_pHelper->wafer_id(elementId)),
                                        m_pHelper->strip(elementId)));
     // If strip itself is not bad, check if it's in a bad module
-    if (result and m_checkStripsInsideModules) result = (not isStripInBadModule(elementId, ctx));
+    if (result and m_checkStripsInsideModules) result = (not isStripInBadModule(elementId, condData));
   } else if (h == InDetConditions::SCT_MODULE) {
     result = (not condData->isBadModuleId(elementId));
   } else if (h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT) {
@@ -121,8 +121,7 @@ bool SCT_ConfigurationConditionsTool::isGoodChip(const Identifier& stripId, cons
 }
 
 // Check if a strip is within a bad module
-bool SCT_ConfigurationConditionsTool::isStripInBadModule(const Identifier& stripId, const EventContext& ctx) const {
-  const SCT_ConfigurationCondData* condData{getCondData(ctx)};
+bool SCT_ConfigurationConditionsTool::isStripInBadModule(const Identifier& stripId, const SCT_ConfigurationCondData* condData) const {
   if (condData==nullptr) {
     ATH_MSG_ERROR("In isStripInBadModule, SCT_ConfigurationCondData pointer cannot be retrieved");
     return true;

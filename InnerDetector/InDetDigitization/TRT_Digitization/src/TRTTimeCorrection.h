@@ -138,11 +138,11 @@ private:
   const double m_notInitVal;
 
   //Digitization parameters
-  double m_signalPropagationSpeed;
-  double m_lengthDeadRegion;
-  double m_maxVertexDisplacement;
-  bool m_timeShiftPhiSectSymmetry;
-  bool m_getT0FromData;
+  double m_signalPropagationSpeed = 0.0;
+  double m_lengthDeadRegion = 0.0;
+  double m_maxVertexDisplacement = 0.0;
+  bool m_timeShiftPhiSectSymmetry = false;
+  bool m_getT0FromData = false;
 
   const ITRT_CalDbTool* m_trtcaldbtool;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
@@ -6,6 +6,7 @@ from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
@@ -56,7 +57,7 @@ def _setupMdtCondDB(flags):
     offline_folders = ['/MDT/RT' + mdt_folder_name_appendix, '/MDT/T0' + mdt_folder_name_appendix]
 
     if flags.Muon.Calib.mdtCalibrationSource=="MDT":
-        if flags.GeoModel.Run == 'RUN4':
+        if flags.GeoModel.Run is LHCPeriod.Run4:
             # TODO: temporary conditions override until we get a global tag
             from IOVDbSvc.IOVDbSvcConfig import addFolders
             result.merge(addFolders(flags, '/MDT/RT' + mdt_folder_name_appendix, 'MDT_OFL', className='CondAttrListCollection', tag='MDTRT_Sim-Run4-01', db="OFLP200"))
@@ -81,7 +82,7 @@ def MdtCalibrationToolCfg(flags, **kwargs):
     kwargs.setdefault("DoSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("DoTemperatureCorrection", flags.Muon.Calib.applyRtScaling)
     kwargs.setdefault("DoWireSagCorrection", flags.Muon.Calib.correctMdtRtWireSag)
-    kwargs.setdefault("DoTofCorrection",  flags.Beam.Type == 'collisions' ) # No TOF correction if not collisions
+    kwargs.setdefault("DoTofCorrection", flags.Beam.Type is BeamType.Collisions) # No TOF correction if not collisions
     
     acc = MagneticFieldSvcCfg(flags)
     result.merge(acc)
@@ -132,6 +133,8 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     kwargs.setdefault("CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("AthRNGSvc", result.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     MdtCalibDbAlg=CompFactory.MdtCalibDbAlg
     alg = MdtCalibDbAlg (name, **kwargs)

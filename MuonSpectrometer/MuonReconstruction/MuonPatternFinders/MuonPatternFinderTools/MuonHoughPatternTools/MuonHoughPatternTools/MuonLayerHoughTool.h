@@ -8,13 +8,13 @@
 #include <set>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonClusterization/RpcHitClustering.h"
 #include "MuonClusterization/TgcHitClustering.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
-#include "MuonHoughPatternTools/HoughDataPerSec.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonLayerHough/HitNtuple.h"
 #include "MuonLayerHough/MuonLayerHough.h"
@@ -26,17 +26,16 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 #include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
+#include "TFile.h"
+#include "TTree.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-
 namespace Trk {
     class PrepRawData;
 }
-
-class TFile;
-class TTree;
 
 namespace MuonGM {
     class MuonDetectorManager;
@@ -45,8 +44,6 @@ namespace MuonHough {
     class HitDebugInfo;
 }
 
-static const InterfaceID IID_MuonLayerHoughTool("Muon::MuonLayerHoughTool", 1, 0);
-
 namespace Muon {
 
     class MuonLayerHoughTool : virtual public IMuonHoughPatternFinderTool, public AthAlgTool {
@@ -54,14 +51,12 @@ namespace Muon {
         typedef std::vector<IdentifierHash> HashVec;
         typedef std::vector<HashVec> RegionHashVec;
         typedef std::vector<RegionHashVec> TechnologyRegionHashVec;
-        typedef RegionHashVec::const_iterator RegionHashVecCit;
 
         struct CollectionsPerSector {
             int sector;
             TechnologyRegionHashVec technologyRegionHashVecs;
         };
         typedef std::vector<CollectionsPerSector> CollectionsPerSectorVec;
-        typedef CollectionsPerSectorVec::const_iterator CollectionsPerSectorCit;
 
         typedef HoughDataPerSec::HitVec HitVec;
         typedef HoughDataPerSec::RegionHitVec RegionHitVec;
@@ -75,26 +70,23 @@ namespace Muon {
 
         typedef HoughDataPerSec HoughDataPerSector;
 
-        typedef Muon::HoughDataPerSectorVec HoughDataPerSectorVec;
+        using HoughDataPerSectorVec = Muon::HoughDataPerSectorVec;
 
         class Road {
         public:
-            Road(MuonHough::MuonLayerHough::Maximum& seed_) :
-                neighbouringRegion(MuonStationIndex::DetectorRegionUnknown), neighbouringSector(-1), seed(&seed_) {
-                add(seed);
-            }
-            Road() : neighbouringRegion(MuonStationIndex::DetectorRegionUnknown), neighbouringSector(-1), seed(0) {}
-            MuonStationIndex::DetectorRegionIndex neighbouringRegion;
-            int neighbouringSector;
-            MuonHough::MuonLayerHough::Maximum* seed;
-            void add(MuonHough::MuonLayerHough::Maximum* max) {
-                maxima.push_back(max);
+            Road(std::shared_ptr<MuonHough::MuonLayerHough::Maximum> seed_) : seed(seed_) { add(seed_); }
+            Road() = default;
+            MuonStationIndex::DetectorRegionIndex neighbouringRegion{MuonStationIndex::DetectorRegionUnknown};
+            int neighbouringSector{-1};
+            std::shared_ptr<MuonHough::MuonLayerHough::Maximum> seed{nullptr};
+            void add(std::shared_ptr<MuonHough::MuonLayerHough::Maximum> max) {
+                maxima.emplace_back(max);
                 maximumSet.insert(max);
             }
-            void add(MuonHough::MuonPhiLayerHough::Maximum* max) { phiMaxima.push_back(max); }
+            void add(std::shared_ptr<MuonHough::MuonPhiLayerHough::Maximum> max) { phiMaxima.emplace_back(max); }
             MaximumVec maxima;
             PhiMaximumVec phiMaxima;
-            std::set<MuonHough::MuonLayerHough::Maximum*> maximumSet;
+            std::set<std::shared_ptr<MuonHough::MuonLayerHough::Maximum>> maximumSet;
 
             std::vector<MuonHough::MuonPhiLayerHough::Maximum> mergedPhiMaxima;
         };
@@ -105,17 +97,14 @@ namespace Muon {
         /** Destructor */
         virtual ~MuonLayerHoughTool() = default;
 
-        /** @brief access to tool interface */
-        static const InterfaceID& interfaceID() { return IID_MuonLayerHoughTool; }
-
         virtual StatusCode initialize() override;
 
         virtual StatusCode finalize() override;
 
-        std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(
+        virtual std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> find(
             const MdtPrepDataContainer* mdtCont, const CscPrepDataContainer* cscCols, const TgcPrepDataContainer* tgcCont,
             const RpcPrepDataContainer* rpcCont, const sTgcPrepDataContainer* stgcCont, const MMPrepDataContainer* mmCont,
-            const EventContext& ctx) const;
+            const EventContext& ctx) const override;
 
         /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
         virtual std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> find(
@@ -147,18 +136,23 @@ namespace Muon {
 
         std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;
 
-        void fillHitsPerSector(std::set<Identifier>& truthHits, std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
-                               const CollectionsPerSector& hashes, const MdtPrepDataContainer* mdtCont,
-                               const CscPrepDataContainer* /*cscCont*/, const TgcPrepDataContainer* tgcCont,
-                               const RpcPrepDataContainer* rpcCont, const sTgcPrepDataContainer* stgcCont,
-                               const MMPrepDataContainer* mmCont, HoughDataPerSector& houghData) const;
+        void fillHitsPerSector(const EventContext& ctx, State& state, const int sector, const CollectionsPerSector& hashes,
+                               const MdtPrepDataContainer* mdtCont, const CscPrepDataContainer* cscCont,
+                               const TgcPrepDataContainer* tgcCont, const RpcPrepDataContainer* rpcCont,
+                               const sTgcPrepDataContainer* stgcCont, const MMPrepDataContainer* mmCont) const;
 
-        void fill(std::set<Identifier>& truthHits, const MdtPrepDataCollection& mdts, HitVec& hits) const;
-        void fill(std::set<Identifier>& truthHits, std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
-                  const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector) const;
-        void fill(std::set<Identifier>& truthHits, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits) const;
-        void fill(std::set<Identifier>& truthHits, const MMPrepDataCollection& mdts, HitVec& hits) const;
-        void fill(std::set<Identifier>& truthHits, const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector) const;
+        void fill(const EventContext& ctx, std::set<Identifier>& truthHits, const MdtPrepDataCollection& mdts, HitVec& hits) const;
+        void fill(const EventContext& ctx, std::set<Identifier>& truthHits,
+                  std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs, const TgcPrepDataCollection& tgcs, HitVec& hits,
+                  PhiHitVec& phiHits, int sector) const;
+        void fill(const EventContext& ctx, std::set<Identifier>& truthHits, const RpcPrepDataCollection& rpcs, HitVec& hits,
+                  PhiHitVec& phiHits) const;
+        void fill(const EventContext& ctx, std::set<Identifier>& truthHits, const MMPrepDataCollection& mdts, HitVec& hits) const;
+        void fill(const EventContext& ctx, std::set<Identifier>& truthHits, const sTgcPrepDataCollection& stgcs, HitVec& hits,
+                  PhiHitVec& phiHits, int sector) const;
+
+        void fill(const EventContext& ctx, std::set<Identifier>& truthHits, const CscPrepDataCollection& cscs, HitVec& hits,
+                  PhiHitVec& phiHits) const;
 
         bool findMaxima(std::set<Identifier>& truthHits, std::set<Identifier>& foundTruthHits, MaximumVec& seedMaxima,
                         MuonHough::MuonLayerHough& hough, HitVec& hits, MaximumVec& maxima) const;
@@ -204,15 +198,15 @@ namespace Muon {
         Gaudi::Property<bool> m_useSeeds{this, "UseSeeds", true};
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
         std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
         std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;
         Gaudi::Property<bool> m_doNtuple{this, "DoNtuple", false};
-        TFile* m_file{};
-        TTree* m_tree{};
-        mutable MuonHough::HitNtuple* m_ntuple
-            ATLAS_THREAD_SAFE = {};  // Marked as thread-safe because it's disabled when running multi-threaded
+        std::unique_ptr<TFile> m_file{};
+        std::unique_ptr<TTree> m_tree{};
+        mutable std::unique_ptr<MuonHough::HitNtuple> m_ntuple
+            ATLAS_THREAD_SAFE{};  // Marked as thread-safe because it's disabled when running multi-threaded
 
         SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_truthNames{this, "TruthNames", {}};
         SG::ReadHandleKey<xAOD::TruthParticleContainer> m_MuonTruthParticlesKey{this, "MuonTruthParticlesKey", "MuonTruthParticles"};
@@ -227,9 +221,8 @@ namespace Muon {
                                                          true};  // if true, do parabolic; if false, do linear extrapolation
         Gaudi::Property<float> m_extrapolationDistance{this, "ExtrapolationDistance", 1500.};  // default value is 1500
         Gaudi::Property<bool> m_addSectors{this, "AddSectors", false};                         // default false
-
-        unsigned int m_ntechnologies;
-        std::map<unsigned int, unsigned int> m_techToTruthNameIdx;  // mapping the muon technology to the index of the m_truthNames vector
+        unsigned int m_ntechnologies{UINT_MAX};
+        std::map<unsigned int, unsigned int> m_techToTruthNameIdx{};  // mapping the muon technology to the index of the m_truthNames vector
         CollectionsPerSectorVec m_collectionsPerSector;
 
         MuonSectorMapping m_sectorMapping;

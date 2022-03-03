@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -325,7 +325,7 @@ TConvertingBranchElement::~TConvertingBranchElement()
   
   // Try to delete the object, if requested.
   if (fgDoDel)
-    ResetAddress();
+    TConvertingBranchElement::ResetAddress();
 }
 
 
@@ -938,7 +938,17 @@ Int_t TConvertingBranchElement::GetEntry(Long64_t entry, Int_t getall)
       TBasket* basket = (TBasket*)GetBasket(GetReadBasket());
       TBuffer* buffer = basket->GetBufferRef();
       Int_t bufbegin = buffer->Length();
+
+      // Suppress false positive seen wth gcc11.
+#if __GNUC__ == 11
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
       (this->*fReadLeaves) (*buffer);
+#if __GNUC__ == 11
+# pragma GCC diagnostic pop
+#endif
+
       nb = buffer->Length() - bufbegin;
     }
     else

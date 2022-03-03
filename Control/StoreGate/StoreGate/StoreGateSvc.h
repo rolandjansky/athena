@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATESVC_H
@@ -103,7 +103,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ActiveStoreSvc;
 class CondSvc;
 namespace SG { 
   class VarHandleBase; 
@@ -484,7 +483,7 @@ public:
   template <typename T>
   void
   keys(std::vector<std::string>& vkeys, 
-       bool includeAlias = false, bool onlyValid = true); 
+       bool includeAlias = false, bool onlyValid = true) const;
  
   /** provide list of all StoreGate keys associated with an object.
    *  usage: p_store->keys(CLID, vkeys, optionalFlags);
@@ -495,7 +494,7 @@ public:
    */
   void
   keys(const CLID& id, std::vector<std::string>& vkeys, 
-       bool includeAlias = false, bool onlyValid = true); 
+       bool includeAlias = false, bool onlyValid = true) const;
 
   //@}
 
@@ -505,6 +504,9 @@ public:
   virtual ::IProxyDict* hiveProxyDict() override final {
     return StoreGateSvc::currentStore();
   }
+
+  ///get current StoreGate
+  static StoreGateSvc* currentStoreGate();
 
 
   ///////////////////////////////////////////////////////////////////////
@@ -821,13 +823,17 @@ public:
                         IOpaqueAddress* addr,
                         DataObject*& refpObject) override;
 
+  /// The current store is becoming the active store.  Switch the
+  /// allocation arena, and call SG::CurrentEventStore::setStore
+  /// NOTE: No longer only intended to be called by ActiveStoreSvc.
+  void makeCurrent();
+
 
 private:
 
   SGImplSvc* m_defaultStore;
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
-  ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; ///< property
 
 
   friend class SG::TestHiveStoreSvc;
@@ -937,13 +943,7 @@ private:
                         const std::type_info* tinfo,
                         bool warn_nobib = true);
 
-  friend class ActiveStoreSvc;
-  /// The current store is becoming the active store.  Switch the
-  /// allocation arena, if needed.
-  /// Only intended to be called by ActiveStoreSvc.
-  void makeCurrent();
-
-  bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent 
+  bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent
   bool m_ActivateHistory; ///< property: activate the history service
 
   /// Cache store type in the facade class.
@@ -1061,11 +1061,11 @@ public:
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector
-  SG_DEPRECATED keys(bool allKeys = false); 
+  SG_DEPRECATED keys(bool allKeys = false) const;
  
   /// DEPRECATED, use version taking ref to vector
   std::vector<std::string> //FIXME inefficient. Should take ref to vector 
-  SG_DEPRECATED keys(const CLID& id, bool allKeys = false);
+  SG_DEPRECATED keys(const CLID& id, bool allKeys = false) const;
 
   /// DEPRECATED:  use recordAddress instead
   StatusCode SG_DEPRECATED createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true) {

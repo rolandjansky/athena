@@ -16,10 +16,14 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 // Local include(s):
 #include "TrackParticleCnvAlg.h"
 #include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
 #include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
+
 
 namespace xAODMaker {
 TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
@@ -56,7 +60,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
   declareProperty("RecTrackParticleContainerCnvTool",
                   m_RecTrackParticleContainerCnvTool);
   declareProperty("DoMonitoring", m_doMonitoring = false);
-  declareProperty("TrackMonTool", m_trackMonitoringTool);
   declareProperty("AugmentObservedTracks", m_augmentObservedTracks = false, "augment observed tracks");
   declareProperty("TracksMapName", m_tracksMap, "name of observed tracks map saved in store");
 }
@@ -94,8 +97,9 @@ TrackParticleCnvAlg::initialize()
     m_aodTruth.initialize(m_addTruthLink && m_convertAODTrackParticles));
   ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
 
-  // Retrieve monitoring tool if provided
+  // Retrieve monitoring tools if provided
   ATH_CHECK(m_trackMonitoringTool.retrieve(DisableTool{ !m_doMonitoring }));
+  ATH_CHECK(m_monTool.retrieve(DisableTool{ !m_doMonitoring }));
 
   ATH_CHECK(m_tracksMap.initialize(m_augmentObservedTracks));
 
@@ -114,6 +118,9 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
   const TrackTruthCollection* trackTruth = nullptr;
   const ObservedTrackMap* tracksMap = nullptr;
 
+  //timer object for total execution time
+  auto mnt_timer_Total  = Monitored::Timer<std::chrono::milliseconds>("TIME_Total");
+  
   // Retrieve the AOD particles:
   if (m_convertAODTrackParticles) {
     SG::ReadHandle<Rec::TrackParticleContainer> rh_aod(m_aod, ctx);
@@ -210,6 +217,9 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
             truthLinks);
   }
 
+  //extra scope needed to trigger the monitoring
+  {auto monTime = Monitored::Group(m_monTool, mnt_timer_Total);}
+  
   return StatusCode::SUCCESS;
 }
 

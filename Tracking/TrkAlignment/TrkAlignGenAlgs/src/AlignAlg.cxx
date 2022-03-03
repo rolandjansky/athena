@@ -279,7 +279,7 @@ StatusCode AlignAlg::execute()
   StatusCode sc = m_trackCollectionProvider->trackCollection(originalTracks);
   if (!originalTracks || sc.isFailure()) return sc;
 
-  if(originalTracks->size()==0) {
+  if(originalTracks->empty()) {
     ATH_MSG_DEBUG("found no tracks");
     return StatusCode::SUCCESS;
   }
@@ -292,7 +292,7 @@ StatusCode AlignAlg::execute()
   alignTracks = m_alignTrackPreProcessor->processTrackCollection(originalTracks);
 
   // method returns zero or empty collection
-  if (!alignTracks || alignTracks->size()==0) {
+  if (!alignTracks || alignTracks->empty()) {
     ATH_MSG_DEBUG("processTrackCollection() returned empty Track collection.");
     return StatusCode::SUCCESS;
   }

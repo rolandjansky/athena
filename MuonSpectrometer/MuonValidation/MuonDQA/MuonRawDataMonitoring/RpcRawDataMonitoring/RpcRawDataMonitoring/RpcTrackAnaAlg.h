@@ -101,8 +101,8 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     ServiceHandle<Muon::IMuonIdHelperSvc>         m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     SG::ReadHandleKey<xAOD::EventInfo>            m_eventInfo {this,"EventInfo","EventInfo","event info"};
     
-    const RpcIdHelper                             *m_rpcIdHelper;
-    const MuonGM::MuonDetectorManager             *m_muonMgr;
+    const RpcIdHelper                             *m_rpcIdHelper = nullptr;
+    const MuonGM::MuonDetectorManager             *m_muonMgr = nullptr;
 
     ToolHandle<Trk::IExtrapolator>                m_extrapolator{this,"TrackExtrapolator","Trk::Extrapolator/AtlasExtrapolator","Track extrapolator"};
     SG::ReadHandleKey<xAOD::MuonRoIContainer>     m_MuonRoIContainerKey {this, "MuonRoIContainerName", "LVL1MuonRoIs", "Key for L1 ROIs" };

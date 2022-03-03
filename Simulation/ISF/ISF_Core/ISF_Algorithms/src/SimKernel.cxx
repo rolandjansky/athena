@@ -175,6 +175,11 @@ StatusCode ISF::SimKernel::initialize()
   // record current memory usage
   if (m_doMemMon) m_memMon->recordCurrent("at end of ISF SimKernel initialize()");
 
+  ATH_CHECK ( m_inputHardScatterEvgen.initialize() );
+  ATH_CHECK ( m_inputPileupEvgen.initialize( !m_inputPileupEvgen.key().empty() ) );
+  ATH_CHECK ( m_outputHardScatterTruth.initialize() );
+  ATH_CHECK ( m_outputPileupTruth.initialize( !m_outputPileupTruth.key().empty() ) );
+
   // intialziation successful
   return StatusCode::SUCCESS;
 }

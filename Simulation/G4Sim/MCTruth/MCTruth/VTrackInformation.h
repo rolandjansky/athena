@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VTrackInformation_H
@@ -29,7 +29,7 @@ public:
   virtual void SetReturnedToISF(bool) ;
   virtual void Print() const {}
   void SetClassification(TrackClassification tc) {m_classify=tc;}
-  TrackClassification GetClassification() {return m_classify;}
+  TrackClassification GetClassification() const {return m_classify;}
 private:
   TrackClassification m_classify;
   HepMC::ConstGenParticlePtr m_thePrimaryParticle{};

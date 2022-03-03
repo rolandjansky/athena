@@ -137,7 +137,7 @@ private:
     //LB
     unsigned int m_current_LB{};
 };
-    //cppcheck-ignore ctuOneDefinitionRuleViolation
+    //cppcheck-suppress ctuOneDefinitionRuleViolation
     class deltat_data{
     public: 
       unsigned int bcid;

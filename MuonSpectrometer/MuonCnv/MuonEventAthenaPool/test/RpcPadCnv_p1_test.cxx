@@ -64,7 +64,7 @@ void compare (const RpcPad& p1,
 
 void testit (const RpcPad& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   RpcPadCnv_p1 cnv;
   RpcPad_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

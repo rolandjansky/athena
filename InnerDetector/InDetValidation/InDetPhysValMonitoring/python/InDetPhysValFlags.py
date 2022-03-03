@@ -22,9 +22,11 @@ def createIDPVMConfigFlags():
     icf.addFlag("IDPVM.doTruthOriginPlots", False )
     icf.addFlag("IDPVM.doPerAuthorPlots", False )
     icf.addFlag("IDPVM.doHitLevelPlots", False )
+    icf.addFlag("IDPVM.runDecoration", True )
     icf.addFlag("IDPVM.setTruthStrategy", "HardScatter" )
     icf.addFlag("IDPVM.validateExtraTrackCollections", [] ) # List of extra track collection names to be validated in addition to Tracks.
     icf.addFlag("IDPVM.ancestorIDs", [] )
+    icf.addFlag("IDPVM.requiredSiHits", 1)
     icf.addFlag("IDPVM.hardScatterStrategy", 0 ) # The hard-scatter vertex selection strategy to use when running hard-scatter efficiency / performance plots in IDPVM. 0 corresponds to sumPt^2, 1 corresponds to sumPt
     
     return icf

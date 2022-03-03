@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_STGC_RawDataCOLLECTION_H
@@ -11,11 +11,13 @@
 
 namespace Muon {
   class STGC_RawDataContainerCnv_p1;
+  class STGC_RawDataContainerCnv_p2;
     
   class STGC_RawDataCollection : public DataVector<STGC_RawData>
   {
   public:
     friend class Muon::STGC_RawDataContainerCnv_p1;
+    friend class Muon::STGC_RawDataContainerCnv_p2;
     
     STGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
 

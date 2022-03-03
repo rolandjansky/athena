@@ -11,7 +11,6 @@ Modified SCT_DetectorElementCondAlg
 |-AuditStart                 = False
 |-AuditStop                  = False
 |-Blocking                   = False
-|-Cardinality                = 0
 |-CondSvc                    = ServiceHandle('CondSvc')
 |-DetManagerName             = 'SCT'
 |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
@@ -19,18 +18,16 @@ Modified SCT_DetectorElementCondAlg
 |-ErrorCounter               = 0
 |-ErrorMax                   = 1
 |-EvtStore                   = ServiceHandle('StoreGateSvc')
-|-ExtraInputs                = []  (default: [])
-|-ExtraOutputs               = []  (default: [])
 |-FilterCircularDependencies = True
 |-MonitorService             = 'MonitorSvc'
-|-MuonManagerKey             = []  (default: [])
-|-NeededResources            = []  (default: [])
+|-MuonManagerKey             = DataHandle('','R','MuonGM::MuonDetectorManager')  (default: 'ConditionStore+')
 |-OutputLevel                = 0
-|-PixelAlignmentStore        = ['PixelAlignmentStore']  (default: [])
+|-PixelAlignmentStore        = DataHandle('PixelAlignmentStore','R','GeoAlignmentStore')
+|                            (default: 'ConditionStore+')
 |-ReadKey                    = DataHandle('ConditionStore+SCTAlignmentStore','R','GeoAlignmentStore')
 |-RegisterForContextService  = False
-|-TRT_DetEltContKey          = []  (default: [])
-|-Timeline                   = True
+|-TRT_DetEltContKey          = DataHandle('','R','InDetDD::TRT_DetElementContainer')
+|                            (default: 'ConditionStore+')
 |-WriteKey                   = DataHandle('ConditionStore+SCT_DetectorElementCollection','W','InDetDD::SiDetectorElementCollection')
 \----- (End of Algorithm SCT_DetectorElementCondAlg/SCT_DetectorElementCondAlg) --------------------
 Modified PixelDetectorElementCondAlg
@@ -44,7 +41,6 @@ Modified PixelDetectorElementCondAlg
 |-AuditStart                 = False
 |-AuditStop                  = False
 |-Blocking                   = False
-|-Cardinality                = 0
 |-CondSvc                    = ServiceHandle('CondSvc')
 |-DetManagerName             = 'Pixel'
 |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
@@ -52,19 +48,17 @@ Modified PixelDetectorElementCondAlg
 |-ErrorCounter               = 0
 |-ErrorMax                   = 1
 |-EvtStore                   = ServiceHandle('StoreGateSvc')
-|-ExtraInputs                = []  (default: [])
-|-ExtraOutputs               = []  (default: [])
 |-FilterCircularDependencies = True
 |-MonitorService             = 'MonitorSvc'
-|-MuonManagerKey             = []  (default: [])
-|-NeededResources            = []  (default: [])
+|-MuonManagerKey             = DataHandle('','R','MuonGM::MuonDetectorManager')  (default: 'ConditionStore+')
 |-OutputLevel                = 0
 |-PixelAlignmentStore        = DataHandle('ConditionStore+PixelAlignmentStore','R','GeoAlignmentStore')
 |-ReadKey                    = DataHandle('ConditionStore+PixelAlignmentStore','R','GeoAlignmentStore')
 |-RegisterForContextService  = False
-|-SCTAlignmentStore          = ['SCTAlignmentStore']  (default: [])
-|-TRT_DetEltContKey          = []  (default: [])
-|-Timeline                   = True
+|-SCTAlignmentStore          = DataHandle('SCTAlignmentStore','R','GeoAlignmentStore')
+|                            (default: 'ConditionStore+')
+|-TRT_DetEltContKey          = DataHandle('','R','InDetDD::TRT_DetElementContainer')
+|                            (default: 'ConditionStore+')
 |-WriteKey                   = DataHandle('ConditionStore+PixelDetectorElementCollection','W','InDetDD::SiDetectorElementCollection')
 \----- (End of Algorithm PixelDetectorElementCondAlg/PixelDetectorElementCondAlg) ------------------
 [ TrackingGeometryCondAlg ]     base material tag :  AtlasLayerMat_v21_

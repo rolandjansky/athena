@@ -19,4 +19,4 @@ atlas_install_scripts( test/*.py )
 # Test(s) in the package:
 atlas_add_test( SCT_GMConfig_test
                 SCRIPT test/SCT_GMConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )

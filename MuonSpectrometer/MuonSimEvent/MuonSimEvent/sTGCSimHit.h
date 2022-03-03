@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMEVENT_sTGCSimHit_H
@@ -22,8 +22,9 @@ class sTGCSimHit {
 
   // Destructor:
   virtual ~sTGCSimHit();
-   sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const int trackNumber);
-   sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink hmpl);
+  sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const int trackNumber);
+  sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink& hmpl);
+  sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink& hmpl, const double kineticEnergy, const Amg::Vector3D& preposition);
  
   //
   // member functions
@@ -37,6 +38,8 @@ class sTGCSimHit {
   int particleEncoding() const { return m_particleEncoding; }
   const Amg::Vector3D& globalDirection() const { return m_globalDirection; }
   double depositEnergy() const { return (double) m_depositEnergy; }
+  double kineticEnergy() const { return static_cast<double>(m_kineticEnergy); }
+  const Amg::Vector3D& globalPrePosition() const { return m_globalPrePosition; }
     
   HitID  sTGCId() const { return m_sTGCId; }
   std::string  print() const;
@@ -72,6 +75,10 @@ class sTGCSimHit {
   float m_depositEnergy;
 	
   HepMcParticleLink m_partLink;
+
+  //float m_stepLength;
+  float m_kineticEnergy;
+  Amg::Vector3D m_globalPrePosition;
 };
 
 //inline methods

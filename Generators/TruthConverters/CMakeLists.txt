@@ -6,17 +6,18 @@
 # Set the name of the package:
 atlas_subdir( TruthConverters )
 
-# External(s) needed by the package:
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_library( TruthConvertersLib
    TruthConverters/*.h Root/*.cxx
    SHARED
-	PUBLIC_HEADERS TruthConverters
-	INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-	LINK_LIBRARIES ${HEPMC_LIBRARIES} AsgTools xAODEventInfo xAODTruth GenInterfacesLib )
+   PUBLIC_HEADERS TruthConverters
+   LINK_LIBRARIES AsgTools  xAODEventInfo xAODTruth GenInterfacesLib )
 
-atlas_add_component( TruthConverters 
-	src/components/*.cxx
-	LINK_LIBRARIES TruthConvertersLib GaudiKernel GenInterfacesLib )
+atlas_add_component( TruthConverters
+   src/components/*.cxx
+   LINK_LIBRARIES TruthConvertersLib )
+
+atlas_add_dictionary( TruthConvertersDict
+   TruthConverters/xAODtoHepMCDict.h TruthConverters/selection.xml
+   LINK_LIBRARIES TruthConvertersLib )

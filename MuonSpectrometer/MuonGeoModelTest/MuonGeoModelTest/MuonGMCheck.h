@@ -8,31 +8,27 @@
  ***************************************************************************/
 
 #ifndef MUONGEOMODEL_MUONGMCHECK_H
-# define MUONGEOMODEL_MUONGMCHECK_H
+#define MUONGEOMODEL_MUONGMCHECK_H
+
+#include <cmath>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include <cmath>
+namespace MuonGM {
+    class MuonReadoutElement;
+    class MuonDetectorManager;
+    class RpcReadoutElement;
+}  // namespace MuonGM
 
-namespace MuonGM
-{    
-  class MuonReadoutElement;
-  class MuonDetectorManager;
-  class RpcReadoutElement;
-}
-
-class MuonGMCheck: public AthAlgorithm
-{
+class MuonGMCheck : public AthAlgorithm {
 public:
-    
     MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator);
-    ~MuonGMCheck()=default;
-    
+    ~MuonGMCheck() = default;
+
     StatusCode initialize();
     StatusCode execute();
     void clearCache() const;
@@ -41,7 +37,7 @@ private:
     // User setable properties
     int m_event_loop;
     int m_minimal_checks;
-    
+
     int m_check_mdt;
     int m_check_rpc;
     int m_check_tgc;
@@ -58,7 +54,7 @@ private:
     int m_testRpcCache;
     int m_testTgcCache;
     int m_testCscCache;
-    
+
     int m_testMdtDetectorElementHash;
     int m_testRpcDetectorElementHash;
     int m_testTgcDetectorElementHash;
@@ -77,12 +73,12 @@ private:
 
     MuonGM::MuonDetectorManager* p_MuonMgr;
 
-    ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool{this,"idTool","MuonCalib::IdToFixedIdTool"};
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool{this, "idTool", "MuonCalib::IdToFixedIdTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    int m_mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
-    int m_cpu[2]; //<! counter for cpu time read from /proc/<pid>/cpu
-    void showVmemCpu(std::string message);
+    int m_mem;       //<! counter for memory allocated VmSize values read from /proc/<pid>/status
+    int m_cpu[2]{};  //<! counter for cpu time read from /proc/<pid>/cpu
+    void showVmemCpu(const std::string& message);
     void getVmemCpu(int& dVmem, int& duCpu, int& dsCpu);
 
     void testMdtCache();
@@ -93,35 +89,25 @@ private:
     void testRpcCache_here();
     void testTgcCache_here();
     void testCscCache_here();
-    
+
     void test_MM_IdHelpers();
     void test_sTGC_IdHelpers();
-    
-    void getEtaPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
-				  double& etamin, double& etamax,
-				  double& phimin, double& phimax);
-    void getZPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
-				double& zmin, double& zmax,
-				double& phimin, double& phimax);
-    void getEtaPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
-					double& etamin, double& etamax,
-					double& phimin, double& phimax);
-    void getZPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
-				      double& zmin, double& zmax,
-				      double& phimin, double& phimax);
-    void getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
-			    double& etamin, double& etamax,
-			    double& phimin, double& phimax,
-			    double& zmin, double& zmax);
-    void getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
-				  double& etamin, double& etamax,
-				  double& phimin, double& phimax,
-				  double& zmin,   double& zmax);
-    void getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
-			    double& xC, double& yC, double& zC , 
-			    double& xFirstPhiS, double& yFirstPhiS, double& zFirstPhiS, 
-			    double& xLastPhiS, double& yLastPhiS, double& zLastPhiS);  
-      
+
+    void getEtaPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& etamin, double& etamax, double& phimin,
+                                  double& phimax);
+    void getZPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& zmin, double& zmax, double& phimin,
+                                double& phimax);
+    void getEtaPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& etamin, double& etamax,
+                                        double& phimin, double& phimax);
+    void getZPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& zmin, double& zmax, double& phimin,
+                                      double& phimax);
+    void getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& etamin, double& etamax, double& phimin,
+                            double& phimax, double& zmin, double& zmax);
+    void getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& etamin, double& etamax, double& phimin,
+                                  double& phimax, double& zmin, double& zmax);
+    void getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, double& xC, double& yC, double& zC, double& xFirstPhiS,
+                            double& yFirstPhiS, double& zFirstPhiS, double& xLastPhiS, double& yLastPhiS, double& zLastPhiS);
+
     void buildCscRegionSelectorMap();
     void buildRpcRegionSelectorMap();
     void buildMdtRegionSelectorMap();
@@ -137,9 +123,16 @@ private:
     void testRpcDetectorElementHash();
     void testTgcDetectorElementHash();
     void testCscDetectorElementHash();
-    
-    void coercePositivePhi(double& phi);
-};
-inline void MuonGMCheck::coercePositivePhi(double& phi){ if (phi<0) phi += 2*M_PI; }
 
-#endif // MUONGEOMODEL_MUONGMCHECK_H
+    void coercePositivePhi(double& phi);
+
+    Identifier getMdtIdentifier(const int sname_index, const int seta_index, const int sphi_index, const int dbr_index, bool& valid) const;
+
+    Identifier getCscIdentifier(const int sname_index, const int seta_index, const int sphi_index, const int ml, bool& valid) const;
+    Identifier getTgcIdentifier(const int sname_index, const int seta_index, const int sphi_index, bool& valid) const;
+};
+inline void MuonGMCheck::coercePositivePhi(double& phi) {
+    if (phi < 0) phi += 2 * M_PI;
+}
+
+#endif  // MUONGEOMODEL_MUONGMCHECK_H

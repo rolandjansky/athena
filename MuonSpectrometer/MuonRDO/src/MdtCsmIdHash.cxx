@@ -31,8 +31,8 @@ MdtCsmIdHash::MdtCsmIdHash( )
 
   log << MSG::DEBUG << " MdtCsmIdHash Constructor "<<endmsg; 
 
-  const MdtIdHelper* mdtHelper=0;
-  StoreGateSvc* detStore=0;
+  const MdtIdHelper* mdtHelper=nullptr;
+  StoreGateSvc* detStore=nullptr;
   sc = svcLoc->service("DetectorStore", detStore);
 
   if (sc.isSuccess()) {

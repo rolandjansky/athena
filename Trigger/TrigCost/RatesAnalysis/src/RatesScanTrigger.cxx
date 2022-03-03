@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesScanTrigger.h"
@@ -8,13 +8,13 @@
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
-                                    const MsgStream& log,
+                                    IMessageSvc* msgSvc,
                                     const double thresholdMin, const double thresholdMax, const uint32_t thresholdBins,  
                                     const TriggerBehaviour_t behaviour,
                                     const double prescale,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
-  RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, /*base histograms*/false, extrapolation),
+  RatesTrigger(name, msgSvc, prescale, -1, seedName, seedPrescale, /*base histograms*/false, extrapolation),
   m_rateScanHist(nullptr), m_rateScanHistCachedPtr(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
   {
     m_rateScanHist = std::make_unique<TH1D>("", TString(name + ";Threshold;Rate [Hz]"), thresholdBins, thresholdMin, thresholdMax);
@@ -24,17 +24,17 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
   }
 
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
-                                    const MsgStream& log,
+                                    IMessageSvc* msgSvc,
                                     const std::vector<double>& thresholdBinEdged,  
                                     const TriggerBehaviour_t behaviour,
                                     const double prescale,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
-  RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, false, extrapolation),
+  RatesTrigger(name, msgSvc, prescale, -1, seedName, seedPrescale, false, extrapolation),
   m_rateScanHist(nullptr), m_rateScanHistCachedPtr(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
   {
     if (thresholdBinEdged.size() < 2) {
-      m_log << MSG::ERROR << "Need more than one entry in thresholdBinEdged to define histogram binning." << endmsg;
+      ATH_MSG_ERROR("Need more than one entry in thresholdBinEdged to define histogram binning.");
       return;
     }
     size_t nBins = thresholdBinEdged.size() - 1;

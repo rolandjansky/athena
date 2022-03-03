@@ -45,7 +45,7 @@ void AdjustableT0Map::DumpT0Shift(){
 void AdjustableT0Map::DumpT0Shift( const Identifier& id ) {
   DumpT0Shift( GetIdentSta(id) );
 }
-void AdjustableT0Map::DumpT0Shift( std::string stationNameString, int stationEta, int stationPhi ) {
+void AdjustableT0Map::DumpT0Shift( const std::string& stationNameString, int stationEta, int stationPhi ) {
   DumpT0Shift( GetIdentSta(stationNameString,stationEta,stationPhi) );
 }
 void AdjustableT0Map::DumpT0Shift( int stationName, int stationEta, int stationPhi ) {
@@ -69,7 +69,7 @@ void AdjustableT0Map::DumpT0Shift( int IdentSta ) {
 
 
 
-void AdjustableT0Map::SetStatTShift( std::string stationNameString, int stationEta, int stationPhi, double TShift ){
+void AdjustableT0Map::SetStatTShift( const std::string& stationNameString, int stationEta, int stationPhi, double TShift ){
   SetStatTShift( GetIdentSta(stationNameString,stationEta,stationPhi) , TShift ) ;
 }
 void AdjustableT0Map::SetStatTShift( int stationName, int stationEta, int stationPhi, double TShift ){
@@ -83,7 +83,7 @@ void AdjustableT0Map::SetStatTShift( int IdentSta , double TShift ){
 double AdjustableT0Map::GetT0Shift( const Identifier& id) const{
   return GetT0Shift( GetIdentSta(id) ) ;
 }
-double AdjustableT0Map::GetT0Shift( std::string stationNameString, int stationEta, int stationPhi ) const{
+double AdjustableT0Map::GetT0Shift( const std::string& stationNameString, int stationEta, int stationPhi ) const{
   return GetT0Shift( GetIdentSta(stationNameString,stationEta,stationPhi) );
 }
 double AdjustableT0Map::GetT0Shift( int stationName, int stationEta, int stationPhi ) const{
@@ -129,7 +129,7 @@ void AdjustableT0Map::GetData(int Irank, int& stationName, int& stationEta, int&
 int AdjustableT0Map::GetIdentSta( const Identifier& id) const{
   return GetIdentSta( m_mdtIdHelper->stationName(id) , m_mdtIdHelper->stationEta(id) , m_mdtIdHelper->stationPhi(id) ) ;
 }
-int AdjustableT0Map::GetIdentSta( std::string stationNameString, int stationEta, int stationPhi ) const{
+int AdjustableT0Map::GetIdentSta( const std::string& stationNameString, int stationEta, int stationPhi ) const{
   return GetIdentSta( m_mdtIdHelper->stationNameIndex(stationNameString), stationEta, stationPhi ) ;
 }
 int AdjustableT0Map::GetIdentSta( int stationName, int stationEta, int stationPhi) const{

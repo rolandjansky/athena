@@ -33,6 +33,7 @@ namespace xAOD{
     std::vector<uint>       globalPhi;
     std::vector<float>      eta;
     std::vector<float>      phi;
+    std::vector<int>        tobEtScale;
 
  }; // class jFexLRJetRoIAuxContainer_v1
 

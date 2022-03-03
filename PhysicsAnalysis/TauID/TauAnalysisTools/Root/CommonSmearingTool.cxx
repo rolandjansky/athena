@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -13,7 +13,10 @@
 #include "xAODEventInfo/EventInfo.h"
 
 // ROOT include(s)
+#include "TROOT.h"
 #include "TF1.h"
+#include "TClass.h"
+#include "TKey.h"
 
 // tauRecTools include(s)
 #include "tauRecTools/TauCombinedTES.h"
@@ -69,19 +72,17 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   : asg::AsgMetadataTool( sName )
-  , m_mSF(0)
-  , m_sSystematicSet(0)
+  , m_sSystematicSet(nullptr)
   , m_fX(&finalTauPt)
   , m_fY(&finalTauEta)
   , m_bIsData(false)
   , m_bIsConfigured(false)
   , m_tTauCombinedTES("TauCombinedTES", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
-  , m_bNoMultiprong(false)
 {
-  declareProperty("InputFilePath",       m_sInputFilePath       = "" );
-  declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
-  declareProperty("ApplyFading",         m_bApplyFading         = true );
+  declareProperty("InputFilePath",           m_sInputFilePath           = "" );
+  declareProperty("SkipTruthMatchCheck",     m_bSkipTruthMatchCheck     = false );
+  declareProperty("ApplyFading",             m_bApplyFading             = true );
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = false );
   declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
 }
@@ -91,10 +92,8 @@ CommonSmearingTool::CommonSmearingTool(const std::string& sName)
 */
 CommonSmearingTool::~CommonSmearingTool()
 {
-  if (m_mSF)
-    for (auto mEntry : *m_mSF)
-      delete mEntry.second;
-  delete m_mSF;
+  for (auto& mEntry : m_mSF)
+    delete mEntry.second;
 }
 
 /*
@@ -108,26 +107,20 @@ StatusCode CommonSmearingTool::initialize()
 {
   ATH_MSG_INFO( "Initializing CommonSmearingTool" );
 
+  // FIXME: do we expect initialize() to be called several times?
   // only read in histograms once
-  if (m_mSF==nullptr)
+  if (m_mSF.empty())
   {
     std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
-
-    m_mSF = new SFMAP();
-    TFile* fSF = TFile::Open(sInputFilePath.c_str(), "READ");
-    if(!fSF)
-    {
+    std::unique_ptr<TFile> fSF( TFile::Open(sInputFilePath.c_str()) );
+    if(fSF == nullptr) {
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
       return StatusCode::FAILURE;
     }
-    ReadInputs(fSF, m_mSF);
+    ReadInputs(fSF.get(), m_mSF);
     fSF->Close();
-    delete fSF;
   }
 
-  std::vector<std::string> vInputFilePath;
-  split(m_sInputFilePath,'/',vInputFilePath);
-  m_sInputFileName = vInputFilePath.back();
   generateSystematicSets();
 
   // load empty systematic variation by default
@@ -138,10 +131,9 @@ StatusCode CommonSmearingTool::initialize()
   if (m_bApplyMVATESQualityCheck) 
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
-    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5.root"));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5_v2.root"));
     ATH_CHECK(m_tTauCombinedTES.initialize());
   }
-
 
   return StatusCode::SUCCESS;
 }
@@ -152,36 +144,36 @@ StatusCode CommonSmearingTool::initialize()
   non-const tau.
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
+CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau ) const
 {
   // optional consistency check between calo-only pt ("ptTauEnergyScale") and MVA pt ("ptFinalCalib" i.e. "pt", MVA TES is the default calibration)
   // not recommended until validated in R22: MVA TES always has better resolution than calo-only TES for true taus
   // in practice this check mostly discards muons faking taus with large track momentum but little energy deposit in the calorimeter:
   // when enforcing calo-only pt, the muon will likely fail the tau pt cut applied by TauSelectionTool
-  if (m_bApplyMVATESQualityCheck) 
-    {
-      bool useCaloPt = false;     
-      if(xTau.isAvailable<float>("ptTauEnergyScale")) {
-	auto combinedTEStool = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get());
-	useCaloPt = combinedTEStool->getUseCaloPtFlag(xTau);	
-	if (useCaloPt) {
-	  // only override pt, keep eta and phi from substructure as it has likely better angular resolution than calo-only
-	  ATH_MSG_DEBUG("overriding MVA pt with calo pt");
-	  xTau.setP4(xAOD::TauJetParameters::FinalCalib, xTau.ptTauEnergyScale(), xTau.eta(), xTau.phi(), xTau.m()); 
-	  xTau.setP4(xTau.ptTauEnergyScale(), xTau.eta(), xTau.phi(), xTau.m()); 
-	}
+
+  // WARNING: overwriting ptFinalCalib would lead to irreproducibilities upon re-calibration (re-apply in-situ TES on already-calibrated PHYSLITE)
+  if (m_bApplyMVATESQualityCheck) {
+    bool useCaloPt = false;     
+    if(xTau.isAvailable<float>("ptTauEnergyScale")) {
+      const auto combinedTEStool = dynamic_cast<const TauCombinedTES*>(m_tTauCombinedTES.get());
+      useCaloPt = combinedTEStool->getUseCaloPtFlag(xTau);	
+      if (useCaloPt) {
+	// only override pt, keep eta and phi from substructure as it has likely better angular resolution than calo-only
+	ATH_MSG_DEBUG("overriding MVA pt with calo pt");
+	xTau.setP4(xAOD::TauJetParameters::FinalCalib, xTau.ptTauEnergyScale(), xTau.eta(), xTau.phi(), xTau.m()); 
+	xTau.setP4(xTau.ptTauEnergyScale(), xTau.eta(), xTau.phi(), xTau.m()); 
       }
-      static const SG::AuxElement::Accessor<char> accUseCaloPt("useCaloPt");
-      accUseCaloPt(xTau) = char(useCaloPt);
     }
+    static const SG::AuxElement::Accessor<char> accUseCaloPt("useCaloPt");
+    accUseCaloPt(xTau) = char(useCaloPt);
+  }
 
   // step out here if we run on data
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
 
-  // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
-  {
+  // check which true state is requested
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth) {
     return CP::CorrectionCode::Ok;
   }
 
@@ -194,20 +186,20 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   {
     // get standard scale factor
     tmpCorrectionCode = getValue("sf"+sProng,
-                                                    xTau,
-                                                    dCorrection);
+				 xTau,
+				 dCorrection);
     // return correction code if histogram is not available
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
       return tmpCorrectionCode;
   }
 
   // skip further process if systematic set is empty
-  if (m_sSystematicSet->size() > 0)
+  if (!m_sSystematicSet->empty())
   {
     // get uncertainties summed in quadrature
     double dTotalSystematic2 = 0.;
     double dDirection = 0.;
-    for (auto syst : *m_sSystematicSet)
+    for (auto& syst : *m_sSystematicSet)
     {
       // check if systematic is available
       auto it = m_mSystematicsHistNames.find(syst.basename());
@@ -239,7 +231,9 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   }
 
   // finally apply correction
-  xTau.setP4( xTau.pt() * dCorrection,
+  // in-situ TES is applied w.r.t. ptFinalCalib, use explicit calibration for pt to avoid irreproducibility upon re-calibration (PHYSLITE)
+  // not required for eta/phi/m that we don't correct (only ptFinalCalib and etaFinalCalib are stored in DAODs)
+  xTau.setP4( xTau.ptFinalCalib() * dCorrection,
               xTau.eta(), xTau.phi(), xTau.m());
   return CP::CorrectionCode::Ok;
 }
@@ -250,7 +244,7 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
  */
 //______________________________________________________________________________
 CP::CorrectionCode CommonSmearingTool::correctedCopy( const xAOD::TauJet& xTau,
-    xAOD::TauJet*& xTauCopy )
+    xAOD::TauJet*& xTauCopy ) const
 {
 
   // A sanity check:
@@ -274,8 +268,8 @@ CP::CorrectionCode CommonSmearingTool::correctedCopy( const xAOD::TauJet& xTau,
 //______________________________________________________________________________
 bool CommonSmearingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
-  CP::SystematicSet sys = affectingSystematics();
-  return sys.find (systematic) != sys.end ();
+  const CP::SystematicSet& sys = affectingSystematics();
+  return sys.find(systematic) != sys.end();
 }
 
 /*
@@ -308,7 +302,7 @@ CP::SystematicSet CommonSmearingTool::recommendedSystematics() const
       e.g. TOTAL=(SYST^2 + STAT^2)^0.5
 */
 //______________________________________________________________________________
-StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet )
 {
   // first check if we already know this systematic configuration
   auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
@@ -321,7 +315,7 @@ StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSe
   // sanity checks if systematic set is supported
   double dDirection = 0.;
   CP::SystematicSet sSystematicSetAvailable;
-  for (auto sSyst : sSystematicSet)
+  for (auto& sSyst : sSystematicSet)
   {
     // check if systematic is available
     auto it = m_mSystematicsHistNames.find(sSyst.basename());
@@ -330,7 +324,6 @@ StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSe
       ATH_MSG_VERBOSE("unsupported systematic variation: "<< sSyst.basename()<<"; skipping this one");
       continue;
     }
-
 
     if (sSyst.parameter() * dDirection < 0)
     {
@@ -359,9 +352,9 @@ StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSe
 
 //=================================PRIVATE-PART=================================
 /*
-  Executed at the beginning of each event. Checks if the tool is used on data or
-  MC, which is necessary in some cases, wher taus on data are corrected as
-  well. (e.g. when using the MVA TES)
+  Executed at the beginning of each event, checks if the tool is used on data or MC.
+  This tool is mostly for MC (in-situ TES correction).
+  But the TES compatibility requirement is applied to both data and MC (when ApplyMVATESQualityCheck=true).
 */
 //______________________________________________________________________________
 StatusCode CommonSmearingTool::beginEvent()
@@ -372,7 +365,7 @@ StatusCode CommonSmearingTool::beginEvent()
   const xAOD::EventInfo* xEventInfo = nullptr;
   ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
   m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
-  m_bIsConfigured=true;
+  m_bIsConfigured = true;
 
   return StatusCode::SUCCESS;
 }
@@ -382,7 +375,7 @@ StatusCode CommonSmearingTool::beginEvent()
   fProngness==1, i.e. for 0, 2, 3, 4, 5...
  */
 //______________________________________________________________________________
-std::string CommonSmearingTool::ConvertProngToString(const int& fProngness)
+std::string CommonSmearingTool::ConvertProngToString(const int fProngness) const
 {
   std::string prong = "";
   if (fProngness == 0)
@@ -393,7 +386,7 @@ std::string CommonSmearingTool::ConvertProngToString(const int& fProngness)
 
 //______________________________________________________________________________
 template<class T>
-void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap)
+void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>& mMap)
 {
   // initialize function pointer
   m_fX = &finalTauPt;
@@ -439,7 +432,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
       continue;
     T tObj = (T)kKey->ReadObj();
     tObj->SetDirectory(0);
-    (*mMap)[sKeyName] = tObj;
+    mMap[sKeyName] = tObj;
   }
   ATH_MSG_INFO("data loaded from " << fFile->GetName());
 }
@@ -447,23 +440,26 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
 //______________________________________________________________________________
 void CommonSmearingTool::generateSystematicSets()
 {
+  std::vector<std::string> vInputFilePath;
+  split(m_sInputFilePath,'/',vInputFilePath);
+  std::string sInputFileName = vInputFilePath.back();
+
   // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_SME_TES_"
   std::vector<std::string> vSplitInputFilePath = {};
-  split(m_sInputFileName,'_',vSplitInputFilePath);
+  split(sInputFileName,'_',vSplitInputFilePath);
   std::string sEfficiencyType = vSplitInputFilePath.at(0);
   std::string sTruthType = vSplitInputFilePath.at(1);
   std::transform(sEfficiencyType.begin(), sEfficiencyType.end(), sEfficiencyType.begin(), toupper);
   std::transform(sTruthType.begin(), sTruthType.end(), sTruthType.begin(), toupper);
-  std::string sSystematicBaseString = "TAUS_"+sTruthType+"_SME_"+sEfficiencyType+"_";
+  std::string sSystematicBaseString = "TAUS_" + sTruthType + "_SME_" + sEfficiencyType + "_";
 
   // set truth type to check for in truth matching
   if (sTruthType=="TRUEHADTAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicTau;
   if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
   if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
   if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
-  if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
 
-  for (auto mSF : *m_mSF)
+  for (auto& mSF : m_mSF)
   {
     // parse for nuisance parameter in histogram name
     std::vector<std::string> vSplitNP = {};
@@ -473,7 +469,7 @@ void CommonSmearingTool::generateSystematicSets()
     if (vSplitNP.size() > 2)
     {
       sNP = vSplitNP.at(0)+'_'+vSplitNP.at(1);
-      sNPUppercase = vSplitNP.at(0)+'_'+vSplitNP.at(1);
+      sNPUppercase = vSplitNP.at(0) + '_' + vSplitNP.at(1);
     } else {
       sNP = vSplitNP.at(0);
       sNPUppercase = vSplitNP.at(0);
@@ -491,7 +487,7 @@ void CommonSmearingTool::generateSystematicSets()
 
     // make sNP uppercase and build final NP entry name
     std::transform(sNPUppercase.begin(), sNPUppercase.end(), sNPUppercase.begin(), toupper);
-    std::string sSystematicString = sSystematicBaseString+sNPUppercase;
+    std::string sSystematicString = sSystematicBaseString + sNPUppercase;
 
     // add all found systematics to the AffectingSystematics
     m_sAffectingSystematics.insert(CP::SystematicVariation (sSystematicString, 1));
@@ -503,7 +499,7 @@ void CommonSmearingTool::generateSystematicSets()
       m_sRecommendedSystematics.insert(CP::SystematicVariation (sSystematicString, -1));
     }
 
-    ATH_MSG_DEBUG("connected histogram base name " << sNP << " with systematic " <<sSystematicString);
+    ATH_MSG_DEBUG("connected histogram base name " << sNP << " with systematic " << sSystematicString);
     m_mSystematicsHistNames.insert({sSystematicString,sNP});
   }
 }
@@ -513,10 +509,10 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor) const
 {
-  TH1* hHist = (*m_mSF)[sHistName];
-  if (!hHist)
+  TH1* hHist = m_mSF.at(sHistName);
+  if (hHist == nullptr)
   {
-    ATH_MSG_ERROR("Histogram with name "<<sHistName<<" was not found in input file.");
+    ATH_MSG_ERROR("Histogram with name " << sHistName << " was not found in input file.");
     return CP::CorrectionCode::Error;
   }
 
@@ -536,7 +532,7 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
   if (m_bApplyFading)
   {
     std::string sTitle = hHist->GetTitle();
-    if (sTitle.size()>0)
+    if (!sTitle.empty())
     {
       TF1 f("",sTitle.c_str(), 0, 1000);
       if (sHistName.find("sf_") != std::string::npos)

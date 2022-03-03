@@ -5,8 +5,8 @@
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMSTEERING_H
 #define MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMSTEERING_H
 
-#include "MuonHoughPatternEvent/MuonHoughPatternCollection.h"
 #include "MuonHoughPatternEvent/MuonHoughHisto2DContainer.h"
+#include "MuonHoughPatternEvent/MuonHoughPatternCollection.h"
 #include "MuonHoughPatternEvent/MuonHoughTransformer.h"
 
 class MuonHoughPattern;
@@ -16,7 +16,7 @@ class MuonHoughTransformSteering {
 
 public:
     /** constructor */
-    MuonHoughTransformSteering(MuonHoughTransformer*);
+    MuonHoughTransformSteering(std::unique_ptr<MuonHoughTransformer>&);
     /** destructor */
     ~MuonHoughTransformSteering();
 
@@ -50,14 +50,12 @@ public:
     /** access to histograms */
     const MuonHoughHisto2DContainer& histos() const { return m_houghtransformer->histos(); }
 
-    const MuonHoughTransformer* transformer() const { return m_houghtransformer; }
+    const MuonHoughTransformer* transformer() const { return m_houghtransformer.get(); }
 
 private:
     /** the actual houghtransform */
-    MuonHoughTransformer* m_houghtransformer;
+    std::unique_ptr<MuonHoughTransformer> m_houghtransformer;
 
-    /** maximum residu for hit to be associated to pattern */
-    bool m_maximum_residu_mm;
 };
 
 #endif  // MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMSTEERING_H

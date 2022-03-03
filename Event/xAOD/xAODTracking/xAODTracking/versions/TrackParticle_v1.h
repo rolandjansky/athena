@@ -56,23 +56,23 @@ namespace xAOD {
       /// @name IParticle functions
       /// @{
         /// The transverse momentum (\f$p_T\f$) of the particle.
-        virtual double           pt() const;
+        virtual double           pt() const override final;
         /// The pseudorapidity (\f$\eta\f$) of the particle.
-        virtual double           eta() const;
+        virtual double           eta() const override final;
         /// The azimuthal angle (\f$\phi\f$) of the particle (has range \f$-\pi\f$ to \f$+\pi\f$.)
-        virtual double           phi() const;
+        virtual double           phi() const override final;
         /// The invariant mass of the particle..
-        virtual double           m() const;
+        virtual double           m() const override final;
         /// The total energy of the particle.
-        virtual double           e() const;
+        virtual double           e() const override final;
         /// The true rapidity (y) of the particle.
-        virtual double           rapidity() const;
+        virtual double           rapidity() const override final;
 
         /// Definition of the 4-momentum type.
         typedef IParticle::FourMom_t FourMom_t;
 
         /// The full 4-momentum of the particle.
-        virtual FourMom_t p4() const;
+        virtual FourMom_t p4() const override final;
 
         /// Base 4 Momentum type for TrackParticle
         typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > GenVecFourMom_t;
@@ -81,7 +81,7 @@ namespace xAOD {
         GenVecFourMom_t genvecP4() const;
 
         /// The type of the object as a simple enumeration
-        virtual Type::ObjectType type() const;
+        virtual Type::ObjectType type() const override final;
       /// @}
 
       /// @name Defining parameters functions

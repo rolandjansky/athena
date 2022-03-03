@@ -26,7 +26,7 @@ class MM_ROD_Decoder : virtual public IMM_ROD_Decoder, public AthAlgTool
     virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&, const std::vector<IdentifierHash>&, MM_RawDataContainer&) const override;
 
   protected:
-    const MmIdHelper* m_MmIdHelper;    
+    const MmIdHelper* m_MmIdHelper = nullptr;    
 };
 
 }

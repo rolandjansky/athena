@@ -7,24 +7,56 @@ from pathlib import Path
 from sys import exit
 from typing import List
 
-from .Checks import FailedOrPassedCheck, SimpleCheck, WarningsCheck
+from .Checks import FailedOrPassedCheck, FPECheck, SimpleCheck, WarningsComparisonCheck
 from .Inputs import references_CVMFS_path
-from .Test import TestSetup, WorkflowCheck, WorkflowTest
+from .Test import TestSetup, WorkflowCheck, WorkflowTest, WorkflowType
 
 
 def setup_logger(name: str) -> logging.Logger:
+    # Add level for plain printing
+    printLevel = logging.INFO + 5
+    printName = 'PRINT'
+    printMethodName = 'print'
+
+    def logForLevel(self, message, *args, **kwargs):
+        if self.isEnabledFor(logging.PRINT):
+            self._log(logging.PRINT, message, args, **kwargs)
+    def logToRoot(message, *args, **kwargs):
+        logging.log(logging.PRINT, message, *args, **kwargs)
+
+    logging.addLevelName(printLevel, printName)
+    setattr(logging, printName, printLevel)
+    setattr(logging.getLoggerClass(), printMethodName, logForLevel)
+    setattr(logging, printMethodName, logToRoot)
+    logging.addLevelName(logging.INFO + 1, 'PRINT')
+
     # Setup global logging
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s %(levelname)-8s %(message)s",
-                        datefmt="%m-%d %H:%M",
-                        filename=f"./{name}.log",
-                        filemode="w")
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(levelname)-8s %(message)s")
-    console.setFormatter(formatter)
-    logger = logging.getLogger("")
-    logger.addHandler(console)
+    class CustomFormatter(logging.Formatter):
+        """Custom formatter."""
+        def __init__(self, fmt):
+            self._default_fmt = fmt
+            super().__init__(fmt, datefmt="%m-%d %H:%M")
+
+        def format(self, record):
+            if record.levelno == logging.PRINT:
+                self._style._fmt = "%(message)s"
+            else:
+                self._style._fmt = self._default_fmt
+            return super().format(record)
+
+    fileFormatter = CustomFormatter("%(asctime)s %(levelname)-8s %(message)s")
+    fileHandler = logging.FileHandler(f"./{name}.log", mode="w")
+    fileHandler.setFormatter(fileFormatter)
+
+    streamFormatter = CustomFormatter("%(levelname)-8s %(message)s")
+    streamHandler = logging.StreamHandler()
+    streamHandler.setFormatter(streamFormatter)
+
+    logger = logging.getLogger()
+    logger.addHandler(fileHandler)
+    logger.addHandler(streamHandler)
+    logger.setLevel(logging.INFO)
+
     return logger
 
 
@@ -50,6 +82,8 @@ def setup_parser() -> ArgumentParser:
     advanced = parser.add_argument_group("advanced")
     advanced.add_argument("--CI", action="store_true", dest="ci_mode", default=False,
                           help="Will not setup Athena - only for CI tests!")
+    advanced.add_argument("--threads", type=int, dest="threads", default=None,
+                          help="Override the number of threads to run the test with.")
     advanced.add_argument("--ref", type=str, dest="reference_release", default=None,
                           help="Define a particular reference release.")
     advanced.add_argument("--val", type=str, dest="validation_release", default=None,
@@ -60,12 +94,16 @@ def setup_parser() -> ArgumentParser:
                           help="""Specify the directory that contains the lists of variables that will be omitted
                                 while comparing the outputs. The default is ./ and the format of the files is
                                 ${q-test}_${format}_diff-exclusion-list.txt, e.g. q431_AOD_diff-exclusion-list.txt.""")
+    advanced.add_argument("--no-output-checks", action="store_true", dest="disable_output_checks", default=False,
+                          help="Disable output checks")
 
     tests = parser.add_argument_group("tests")
     tests.add_argument("-t", "--test", type=str, dest="test", default=None,
-                       help="Specify a test to run. Supported options are: ")
+                       help="Specify a test to run. Supported options are: sim, overlay, pileup, reco")
     tests.add_argument("-a", "--tag", type=str, dest="ami_tag", default=None,
                        help="Override the AMI tag of the test.")
+    tests.add_argument("-w", "--workflow", type=WorkflowType, dest="workflow", choices=list(WorkflowType), default=None,
+                       help="Specify the workflow that is being run (required for AMI tags or if you want to run only one workflow)")
     # shortcuts
     tests.add_argument("-s", "--sim", action="store_true", dest="simulation", default=False,
                        help="Run simulation test using Sim_tf.py")
@@ -90,6 +128,8 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
         setup.checks_only = True
         setup.unique_ID = options.unique_ID
     setup.parallel_execution = options.fast_mode
+    setup.disable_output_checks = options.disable_output_checks
+    setup.custom_threads = options.threads
     # not in global setup:
     # options.extra_args
 
@@ -121,12 +161,12 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
         exit(1)
 
     # Is an ATLAS release setup?
-    if 'AtlasPatchVersion' not in environ and 'AtlasArea' not in environ and 'AtlasBaseDir' not in environ and 'AtlasVersion' not in environ:
+    if "AtlasPatchVersion" not in environ and "AtlasArea" not in environ and "AtlasBaseDir" not in environ and "AtlasVersion" not in environ:
         log.error("Exit. Please setup the an ATLAS release")
         exit(3)
 
 
-    if 'AtlasPatchVersion' not in environ and 'AtlasArea' not in environ and 'AtlasBaseDir' in environ and 'AtlasVersion' not in environ:
+    if "AtlasPatchVersion" not in environ and "AtlasArea" not in environ and "AtlasBaseDir" in environ and "AtlasVersion" not in environ:
         log.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
     # setup reference path
@@ -148,22 +188,22 @@ def parse_test_string(setup: TestSetup, options: Namespace) -> None:
     test_string = options.test.lower()
 
     # simulation
-    if test_string in ['s', 'sim', 'simulation', 'Sim_tf', 'Sim_tf.py']:
+    if test_string in ["s", "sim", "simulation"]:
         options.simulation = True
         return
 
     # overlay
-    if test_string in ['o', 'overlay', 'Overlay_tf', 'Overlay_tf.py']:
+    if test_string in ["o", "overlay"]:
         options.overlay = True
         return
 
     # pile-up
-    if test_string in ['p', 'pileup', 'pile-up']:
+    if test_string in ["p", "pileup", "pile-up"]:
         options.pileup = True
         return
 
     # reco
-    if test_string in ['r', 'reco', 'reconstruction', 'Reco_tf', 'Reco_tf.py']:
+    if test_string in ["r", "reco", "reconstruction"]:
         options.reco = True
         return
 
@@ -174,7 +214,7 @@ def get_standard_performance_checks(setup: TestSetup) -> List[WorkflowCheck]:
         SimpleCheck(setup, "Physical Memory", "VmRSS",            "kBytes",       4, 0.2),
         SimpleCheck(setup, "Virtual Memory" , "VmSize",           "kBytes",       4, 0.2),
         SimpleCheck(setup, "Memory Leak"    , "leakperevt_evt11", "kBytes/event", 7, 0.05),
-        WarningsCheck(setup),
+        WarningsComparisonCheck(setup),
     ]
 
 
@@ -215,9 +255,10 @@ def run_checks(setup: TestSetup, tests: List[WorkflowTest], performance_checks: 
     all_passed = True
     # define common checks
     main_check = FailedOrPassedCheck(setup)
+    fpe_check = FPECheck(setup)
     # run checks
     for test in tests:
-        all_passed = all_passed and test.run_checks(main_check, performance_checks)
+        all_passed = test.run_checks(main_check, fpe_check, performance_checks) and all_passed
     return all_passed
 
 

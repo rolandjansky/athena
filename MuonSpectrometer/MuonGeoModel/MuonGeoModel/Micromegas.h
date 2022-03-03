@@ -22,7 +22,7 @@ namespace MuonGM {
       public:
         double width;
         double length;
-        double thickness;
+        double thickness = 0.0;
         double longWidth; // for trapezoidal layers
         int index;
 

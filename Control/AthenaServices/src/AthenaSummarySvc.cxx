@@ -54,15 +54,9 @@ public:
     add(a,(string)b);
   }
   void add(const string& a, const string& b) {
-    if (m_dat.find(a) == m_dat.end()) {
-      m_dat[a] = vector<string>();
-    }
     m_dat[a].push_back( b );
   }
   void add(const string& a, const PD& p) { 
-    if (m_dat.find(a) == m_dat.end()) {
-      m_dat[a] = vector<string>();
-    }
     m_dat[a].push_back(  p.dump() );
   }
   template <typename T>
@@ -73,9 +67,6 @@ public:
 
     m_ofs << II << t;
 
-    if (m_dat.find(a) == m_dat.end()) {
-      m_dat[a] = vector<string>();
-    }
     m_dat[a].push_back( m_ofs.str() );
   }
 
@@ -121,12 +112,9 @@ ostringstream PD::m_ofs("nothing");
 
 inline void tolower(std::string &s)
 {
-    std::string::iterator it=s.begin();
-    while(it != s.end())
-    {
-        *it = tolower(*it);
-        it++;
-    }
+  // cf https://en.cppreference.com/w/cpp/string/byte/tolower
+  std::transform(s.begin(), s.end(), s.begin(), 
+                 [](unsigned char c){ return std::tolower(c); } );
 }
 	 
 //
@@ -135,9 +123,9 @@ inline void tolower(std::string &s)
 
 AthenaSummarySvc::AthenaSummarySvc( const std::string& name, ISvcLocator* svc )
   : base_class( name, svc ),
-    p_incSvc("IncidentSvc",name)
+    p_incSvc("IncidentSvc",name),
+    m_new (std::set_new_handler( &AthenaSummarySvc::newHandler ))
 {
-  m_new = std::set_new_handler( &AthenaSummarySvc::newHandler );
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

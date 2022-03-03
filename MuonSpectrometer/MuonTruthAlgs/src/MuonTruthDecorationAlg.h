@@ -52,7 +52,7 @@ namespace Muon {
         void addHitCounts(const EventContext& ctx, xAOD::TruthParticle& truthParticle, ChamberIdMap& ids) const;
         void addHitIDVectors(xAOD::TruthParticle& truthParticle, const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
         void createSegments(const EventContext& ctx, const ElementLink<xAOD::TruthParticleContainer>& truthLink,
-                            SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+                            SG::WriteHandle<xAOD::MuonSegmentContainer>& segmentContainer,
                             const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
 
         SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerName{this, "TruthParticleContainerName", "TruthParticles"};

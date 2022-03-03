@@ -1,9 +1,11 @@
 """ComponentAccumulator service configuration for ISF
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+from G4AtlasApps.SimEnums import CavernBackground, TruthStrategy
 from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     ParticleFinalStateFilterCfg, ParticlePositionFilterDynamicCfg,
     EtaPhiFilterCfg, GenParticleInteractingFilterCfg,
@@ -17,7 +19,7 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     TruthStrategyGroupIDCfg,
     TruthStrategyGroupIDHadIntCfg,
     TruthStrategyGroupCaloMuBremCfg,
-    ParticleSimWhiteListCfg,
+    ParticleSimWhiteList_ExtraParticlesCfg,
 )
 from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
@@ -36,14 +38,12 @@ def GenParticleFiltersToolCfg(ConfigFlags):
     acc = ParticleFinalStateFilterCfg(ConfigFlags)
     genParticleFilterList += [result.popToolsAndMerge(acc)]
     if "ATLAS" in ConfigFlags.GeoModel.Layout or "atlas" in ConfigFlags.GeoModel.Layout:
-        if ConfigFlags.Beam.Type != "cosmics":
+        if ConfigFlags.Beam.Type is not BeamType.Cosmics:
             acc = ParticlePositionFilterDynamicCfg(ConfigFlags)
             genParticleFilterList += [result.popToolsAndMerge(acc)]
-            if not (ConfigFlags.Detector.GeometryAFP or
-               ConfigFlags.Detector.GeometryALFA or
-               ConfigFlags.Detector.GeometryFwdRegion) and \
-               ((ConfigFlags.Sim.CavernBG in ("Off", "Signal")) and
-               (not ConfigFlags.Detector.GeometryCavern)):
+            if not (ConfigFlags.Detector.GeometryAFP or ConfigFlags.Detector.GeometryALFA or ConfigFlags.Detector.GeometryFwdRegion) \
+                and not ConfigFlags.Detector.GeometryCavern \
+                and ConfigFlags.Sim.CavernBackground in [CavernBackground.Off, CavernBackground.Signal]:
                 acc = EtaPhiFilterCfg(ConfigFlags)
                 genParticleFilterList += [result.popToolsAndMerge(acc)]
     acc = GenParticleInteractingFilterCfg(ConfigFlags)
@@ -53,27 +53,29 @@ def GenParticleFiltersToolCfg(ConfigFlags):
 
 
 def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
-    result = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeSvc", result.getPrimary())
+    result = ComponentAccumulator()
+    kwargs.setdefault("BarcodeSvc", result.getPrimaryAndMerge(BarcodeSvcCfg(ConfigFlags)).name)
     kwargs.setdefault("UseGeneratedParticleMass", False)
     if "GenParticleFilters" not in kwargs:
         acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
         kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
-    result.addService(CompFactory.ISF.InputConverter(name, **kwargs))
+    result.addService(CompFactory.ISF.InputConverter(name, **kwargs), primary = True)
     return result
 
 
 def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", **kwargs):
     result = ComponentAccumulator()
     gpfilt = [
-        result.popToolsAndMerge(ParticleSimWhiteListCfg(ConfigFlags)),
+        result.popToolsAndMerge(ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags)),
         result.popToolsAndMerge(ParticlePositionFilterDynamicCfg(ConfigFlags)),
         result.popToolsAndMerge(EtaPhiFilterCfg(ConfigFlags)),
         result.popToolsAndMerge(GenParticleInteractingFilterCfg(ConfigFlags)),
     ]
     kwargs.setdefault("GenParticleFilters", gpfilt)
     kwargs.setdefault("QuasiStableParticlesIncluded", True)
-    return InputConverterCfg(ConfigFlags, name, **kwargs)
+    inptCnv = result.getPrimaryAndMerge(InputConverterCfg(ConfigFlags, name, **kwargs))
+    result.addService(inptCnv, primary = True)
+    return result
 
 
 def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
@@ -82,27 +84,26 @@ def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrd
         tool = result.popToolsAndMerge(EntryLayerToolCfg(ConfigFlags))
         result.addPublicTool(tool)
         kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
-        kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
+        kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc").name) # FIXME
     # assume "GeoIDSvc" has been set alongside "EntryLayerTool"
     kwargs.setdefault("AlwaysUseGeoIDSvc", False)
     kwargs.setdefault("ValidateGeoIDs", ConfigFlags.Sim.ISF.ValidationMode)
     kwargs.setdefault("ValidationOutput", ConfigFlags.Sim.ISF.ValidationMode)
     kwargs.setdefault("ValidationStreamName", "ParticleBroker")
 
-    baracc = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeService", baracc.getPrimary())
-    result.merge(baracc)
+    kwargs.setdefault("BarcodeService", result.getPrimaryAndMerge(BarcodeSvcCfg(ConfigFlags)).name)
 
-    result.addService(CompFactory.ISF.ParticleBrokerDynamicOnReadIn(name, **kwargs))
+    result.addService(CompFactory.ISF.ParticleBrokerDynamicOnReadIn(name, **kwargs), primary = True)
     return result
 
 
 def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
     # comment copied from old config
     #kwargs.setdefault("ParticleOrderingTool", "ISF_InToOutSubDetOrderingTool")
-    result = ParticleOrderingToolCfg(ConfigFlags)
-    kwargs.setdefault("ParticleOrderingTool", result.popPrivateTools())
-    result.merge(ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name, **kwargs))
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParticleOrderingTool", result.popToolsAndMerge(ParticleOrderingToolCfg(ConfigFlags)))
+    pbsvc = result.getPrimaryAndMerge(ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name, **kwargs))
+    result.addService(pbsvc, primary = True)
     return result
 
 
@@ -112,8 +113,9 @@ def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kw
     result.addPublicTool(tool)
 
     kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
-    kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
-    result.merge(ParticleBrokerSvcCfg(ConfigFlags, name, **kwargs))
+    kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc").name) # FIXME
+    pbsvc = result.getPrimaryAndMerge(ParticleBrokerSvcCfg(ConfigFlags, name, **kwargs))
+    result.addService(pbsvc, primary = True)
     return result
 
 
@@ -121,19 +123,21 @@ def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kw
 def TruthServiceCfg(ConfigFlags, **kwargs):
     """Return the TruthService config flagged by Sim.TruthStrategy"""
     stratmap = {
-        "": BlankTruthServiceCfg,
-        "MC12": MC12TruthServiceCfg,
-        "MC12LLP": MC12LLPTruthServiceCfg,
-        "MC12Plus": MC12PlusTruthServiceCfg,
-        "MC15": MC15TruthServiceCfg,
-        "MC15a": MC15aTruthServiceCfg,
-        "MC15aPlus": MC15aPlusTruthServiceCfg,
-        "MC15aPlusLLP": MC15aPlusLLPTruthServiceCfg,
-        "MC16": MC16TruthServiceCfg,
-        "MC16LLP": MC16LLPTruthServiceCfg,
-        "MC18": MC18TruthServiceCfg,
-        "MC18LLP": MC18LLPTruthServiceCfg,
-        "Validation": ValidationTruthServiceCfg,
+        TruthStrategy.MC12: MC12TruthServiceCfg,
+        TruthStrategy.MC12LLP: MC12LLPTruthServiceCfg,
+        TruthStrategy.MC12Plus: MC12PlusTruthServiceCfg,
+        TruthStrategy.MC15: MC15TruthServiceCfg,
+        TruthStrategy.MC15a: MC15aTruthServiceCfg,
+        TruthStrategy.MC15aPlus: MC15aPlusTruthServiceCfg,
+        TruthStrategy.MC15aPlusLLP: MC15aPlusLLPTruthServiceCfg,
+        TruthStrategy.MC16: MC16TruthServiceCfg,
+        TruthStrategy.MC16LLP: MC16LLPTruthServiceCfg,
+        TruthStrategy.MC18: MC18TruthServiceCfg,
+        TruthStrategy.MC18LLP: MC18LLPTruthServiceCfg,
+        # TruthStrategy.PhysicsProcess: PhysicsProcessTruthServiceCfg,
+        # TruthStrategy.Global: GlobalTruthServiceCfg,
+        TruthStrategy.Validation: ValidationTruthServiceCfg,
+        # TruthStrategy.Cosmic: CosmicTruthServiceCfg,
     }
     xCfg = stratmap[ConfigFlags.Sim.TruthStrategy]
     return xCfg(ConfigFlags, **kwargs)
@@ -141,19 +145,13 @@ def TruthServiceCfg(ConfigFlags, **kwargs):
 
 def GenericTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
     result = ComponentAccumulator()
-    tmpAcc = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeSvc", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
+    kwargs.setdefault("BarcodeSvc", result.getPrimaryAndMerge(BarcodeSvcCfg(ConfigFlags)).name)
 
     kwargs.setdefault("SkipIfNoChildren", True)
     kwargs.setdefault("SkipIfNoParentBarcode", True)
     kwargs.setdefault("ForceEndVtxInRegions", [])
 
-    # Mimics old configuration, which is marked as `#FIXME this should be set in a nicer way."
-    long_lived_simulators = ["LongLived", "longLived", "QS"]
-    simulator = ConfigFlags.Sim.ISF.Simulator
-    is_long_lived_simulation = any(x in simulator for x in long_lived_simulators)
-    if is_long_lived_simulation:
+    if ConfigFlags.Sim.ISF.Simulator.isQuasiStable():
         kwargs.setdefault("QuasiStableParticlesIncluded", True)
 
     svc = CompFactory.ISF.TruthSvc(name, **kwargs)
@@ -197,17 +195,9 @@ def MC12TruthServiceCfg(ConfigFlags, name="ISF_MC12TruthService", **kwargs):
         kwargs.setdefault("TruthStrategies", truthStrats)
     kwargs.setdefault("IgnoreUndefinedBarcodes", False)
     kwargs.setdefault("PassWholeVertices", True)
-    truthService = GenericTruthServiceCfg(ConfigFlags, name, **kwargs)
-    result.addService(truthService.getPrimary(), primary=True)
-    result.merge(truthService)
+    truthService = result.getPrimaryAndMerge(GenericTruthServiceCfg(ConfigFlags, name, **kwargs))
+    result.addService(truthService, primary=True)
     return result
-
-
-def BlankTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
-    if ConfigFlags.ISF.ValidationMode:
-        return ValidationTruthServiceCfg(ConfigFlags, name, **kwargs)
-    else:
-        return MC12TruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs):
@@ -220,7 +210,8 @@ def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs
     ]
     truthStrats = [result.popToolsAndMerge(cfg(ConfigFlags)) for cfg in truthCfgs]
     kwargs.setdefault("TruthStrategies", truthStrats)
-    result.merge(MC12TruthServiceCfg(ConfigFlags, name, **kwargs))
+    truthService = result.getPrimaryAndMerge(MC12TruthServiceCfg(ConfigFlags, name, **kwargs))
+    result.addService(truthService, primary = True)
     return result
 
 
@@ -262,9 +253,8 @@ def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
     kwargs.setdefault("IgnoreUndefinedBarcodes", False)
     kwargs.setdefault("PassWholeVertices", False) # new for MC15 - can write out partial vertices.
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID])
-    truthService = GenericTruthServiceCfg(ConfigFlags, name, **kwargs)
-    result.addService(truthService.getPrimary(), primary=True)
-    result.merge(truthService)
+    truthService = result.getPrimaryAndMerge(GenericTruthServiceCfg(ConfigFlags, name, **kwargs))
+    result.addService(truthService, primary=True)
     return result
 
 
@@ -277,8 +267,7 @@ def MC15aPlusTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusTruthService", **kw
     AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID])
-    result = MC15TruthServiceCfg(ConfigFlags, name, **kwargs)
-    return result
+    return MC15TruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 def MC15aPlusLLPTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusLLPTruthService", **kwargs):
@@ -294,7 +283,9 @@ def MC15aPlusLLPTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusLLPTruthService"
     ]
     truthStrats = [result.popToolsAndMerge(cfg(ConfigFlags)) for cfg in truthCfgs]
     kwargs.setdefault("TruthStrategies", truthStrats)
-    return MC15aPlusTruthServiceCfg(ConfigFlags, name, **kwargs)
+    truthService = result.getPrimaryAndMerge(MC15aPlusTruthServiceCfg(ConfigFlags, name, **kwargs))
+    result.addService(truthService, primary = True)
+    return result
 
 
 # MC16 Truth Service Configurations

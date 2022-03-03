@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-//  $Header: /cvs/PF/pool/StorageSvc/src/Transaction.cpp,v 1.7 2007/11/20 16:43:10 frankb Exp $
 //  ====================================================================
 //  Transaction.cpp
 //  --------------------------------------------------------------------
@@ -29,4 +28,17 @@ Transaction& Transaction::operator=(const Transaction& c)  {
 /// No equals operator
 bool Transaction::operator==(const Transaction& /* c */ ) const  {
   return false;
+}
+
+/// Translate Action to string
+const char* Transaction::actionAsString(Action action) {
+   switch(action) {
+    case TRANSACT_START    : return "START";
+    case TRANSACT_ACTIVE   : return "ACTIVE";
+    case TRANSACT_COMMIT   : return "COMMIT";
+    case TRANSACT_FLUSH    : return "FLUSH";
+    case TRANSACT_ROLLBACK : return "ROLLBACK";
+    case TRANSACT_ENDED    : return "ENDED";
+   }
+   return "UNDEFINED";
 }

@@ -48,12 +48,12 @@ protected:
   void prependTestEvent();
 
   template <class TYPE>
-  StatusCode getAndFillArrayOfContainers(nlohmann::json &event, const SG::ReadHandleKeyArray<TYPE> &keys, const std::string jsonType);
+  StatusCode getAndFillArrayOfContainers(nlohmann::json &event, const SG::ReadHandleKeyArray<TYPE> &keys, const std::string& jsonType);
 
   template <class TYPE>
   StatusCode getAndFillContainer(nlohmann::json &event,
                                  const SG::ReadHandleKey<TYPE> &key,
-                                 const std::string jsonType);
+                                 const std::string& jsonType);
   template <class TYPE>
   nlohmann::json getData(const TYPE &object);
 

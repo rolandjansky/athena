@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run MC20e pile-up pre-mixing with 2018 geometry and conditions, 25ns pile-up, MT output containers
 # art-type: grid
 # art-athena-mt: 8
+# art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 # art-output: mc20e_presampling_SP.RDO.pool.root
 # art-output: mc20e_presampling_MP_fork_evt0.RDO.pool.root
@@ -30,9 +31,9 @@ Digi_tf.py \
 --jobNumber 38 \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileNameSP} \
---digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' "HITtoRDO:ServiceMgr.PileUpEventLoopMgr.AllowSerialAndMPToDiffer=False" \
---postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
+--postExec 'HITtoRDO:ServiceMgr.PileUpEventLoopMgr.AllowSerialAndMPToDiffer=False' \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20e.py' \
 --skipEvents 0
 
@@ -52,9 +53,9 @@ Digi_tf.py \
 --jobNumber 38 \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileNameMP0} \
---digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' "HITtoRDO:ServiceMgr.PileUpEventLoopMgr.AllowSerialAndMPToDiffer=False" \
---postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
+--postExec 'HITtoRDO:ServiceMgr.PileUpEventLoopMgr.AllowSerialAndMPToDiffer=False' \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20e.py' \
 --skipEvents 0
 
@@ -76,20 +77,20 @@ Digi_tf.py \
 --jobNumber 38 \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileNameMP1} \
---digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' "HITtoRDO:ServiceMgr.PileUpEventLoopMgr.AllowSerialAndMPToDiffer=False" \
---postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
+--postExec 'HITtoRDO:ServiceMgr.PileUpEventLoopMgr.AllowSerialAndMPToDiffer=False' \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20e.py' \
 --skipEvents 0
 
 rc3=$?
-if [ $status -eq 0 ]; then
-  status=$rc3
+if [[ $status -eq 0 ]]; then
+    status=$rc3
 fi
 echo "art-result: $rc3 Digi_tf.py MP fork after 1"
 
 rc4=-9999
-if [ $status -eq 0 ] && [ $rc -eq 0 ] && [ $rc2 -eq 0 ]
+if [[ $status -eq 0 ]] && [[ $rc -eq 0 ]] && [[ $rc2 -eq 0 ]]
 then
     acmd.py diff-root ${DigiOutFileNameSP} ${DigiOutFileNameMP0} \
         --mode=semi-detailed --error-mode resilient --order-trees \
@@ -100,7 +101,7 @@ fi
 echo "art-result: $rc4 SP vs MP fork after 0"
 
 rc5=-9999
-if [ $status -eq 0 ] && [ $rc -eq 0 ] && [ $rc3 -eq 0 ]
+if [[ $status -eq 0 ]] && [[ $rc -eq 0 ]] && [[ $rc3 -eq 0 ]]
 then
     acmd.py diff-root ${DigiOutFileNameSP} ${DigiOutFileNameMP1} \
         --mode=semi-detailed --error-mode resilient --order-trees \

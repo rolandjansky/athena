@@ -54,6 +54,13 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 ## Write out runArgs configuration
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
@@ -75,11 +82,6 @@ if hasattr(runArgs, "preInclude"):
 
 ## Include common skeleton after the preExec/preInclude
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
-
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 try:
     from ISF_Config import FlagSetters
@@ -154,7 +156,7 @@ if hasattr(runArgs, 'physicsList'):
 if hasattr(runArgs, "randomSeed"):
     simFlags.RandomSeedOffset = int(runArgs.randomSeed)
 else:
-    atlasG4log.warning('randomSeed not set')
+    atlasG4log.info('randomSeed not set')
 ## Don't use the SeedsG4 override
 simFlags.SeedsG4.set_Off()
 
@@ -297,10 +299,8 @@ if DetFlags.AFP_on():
 svcMgr.StoreGateSvc.Dump = True #FIXME remove this line
 
 ## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 # Set AutoFlush to 10 as per ATLASSIM-4274
 # These outputs are meant to be read sequentially

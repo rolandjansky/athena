@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -507,12 +507,12 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
               prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),std::nullopt).release();
             }
             const std::vector< const Trk::TrackStateOnSurface * >* collectedTSOS = m_extrapolator->extrapolateM(
-                        *prevPar,
-                        measurement->associatedSurface(),
-                        Trk::alongMomentum,
-                        false,
-                        partHypo
-
+                Gaudi::Hive::currentContext(),
+                *prevPar,
+                measurement->associatedSurface(),
+                Trk::alongMomentum,
+                false,
+                partHypo
             );
             if (trajectory.back().referenceParameters()->covariance()) delete prevPar; // balance CREATE_PARS from a few lines earlier
             if (collectedTSOS) {
@@ -549,13 +549,14 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
         } // end if trajectory.size()>0
         if (!trkPar) {
             /// extrapolate to first state in trajectory
-            trkPar = m_extrapolator->extrapolate(   *initialParameters,
-                                                    measurement->associatedSurface(),
-                                                    Trk::alongMomentum,
-                                                    false,
-                                                    partHypo
-                                                 
-                                                );
+            trkPar = m_extrapolator->extrapolate(   
+              Gaudi::Hive::currentContext(),
+              *initialParameters,
+              measurement->associatedSurface(),
+              Trk::alongMomentum,
+              false,
+              partHypo
+              ).release();
             if (!trkPar) {
                 std::cout << "TrackFitInputPreparator: WARNING, extrapolation problem." << std::endl;
             }

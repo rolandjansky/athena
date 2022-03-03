@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,14 +12,14 @@
  * @brief Regression test for CaloTowerStore.
  */
 
-
 #ifndef CALOUTILS_CALOTOWERSTORETESTALG_H
 #define CALOUTILS_CALOTOWERSTORETESTALG_H
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloUtils/CaloTowerStore.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloTowerStoreTestAlg
   : public AthAlgorithm
@@ -31,6 +31,10 @@ public:
   CaloTowerStoreTestAlg (const std::string& name,
                          ISvcLocator* pSvcLocator);
 
+  /**
+   * @brief Standard Gaudi initialize method.
+   */
+  virtual StatusCode initialize() override;
 
   /** 
    * @brief Standard Gaudi execute method.
@@ -49,10 +53,16 @@ private:
                        const CaloTowerSeg::SubSeg& subseg,
                        test_tows_t& tows);
 
-  void test_subseg_iter (const CaloTowerStore&,
+  void test_subseg_iter (const CaloDetDescrManager*,
+			 const CaloTowerStore&,
                          const std::vector<CaloCell_ID::SUBCALO>&,
                          const CaloTowerSeg::SubSeg&);
   void test1();
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 

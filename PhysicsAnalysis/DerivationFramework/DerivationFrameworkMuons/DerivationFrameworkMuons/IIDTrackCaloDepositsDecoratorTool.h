@@ -1,26 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-/*
- * IIDTrackCaloDepositsDecoratorTool.h
- *
- *  Created on: Oct 29, 2015
- *      Author: mbellomo
- */
-
 #ifndef IIDTRACKCALODEPOSITSDECORATORTOOL_H_
 #define IIDTRACKCALODEPOSITSDECORATORTOOL_H_
 
-
-#include "AsgTools/IAsgTool.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "xAODBase/IParticle.h"
 
-
-class IIDTrackCaloDepositsDecoratorTool : virtual public asg::IAsgTool {
-  ASG_TOOL_INTERFACE(IIDTrackCaloDepositsDecoratorTool)
+class IIDTrackCaloDepositsDecoratorTool : virtual public IAlgTool {
 public:
-    virtual StatusCode decorate (const xAOD::IParticle* part) const = 0;
-};
+    static const InterfaceID& interfaceID() {
+        static const InterfaceID IID("IIDTrackCaloDepositsDecoratorTool", 1, 0);
+        return IID;
+    }
+    virtual ~IIDTrackCaloDepositsDecoratorTool() = default;
 
+    virtual StatusCode decorate(const xAOD::IParticle* part) const = 0;
+};
 
 #endif /* IIDTRACKISOLATIONDECORATORTOOL_H_ */

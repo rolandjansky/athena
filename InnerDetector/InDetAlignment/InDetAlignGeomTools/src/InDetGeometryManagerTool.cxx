@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -35,9 +35,9 @@ namespace InDet {
                                      const std::string& name,
                                      const IInterface * parent)
     : AthAlgTool(type,name,parent)
-    , m_pixelDetManager(0)
-    , m_sctDetManager(0)
-    , m_trtDetManager(0)
+    , m_pixelDetManager(nullptr)
+    , m_sctDetManager(nullptr)
+    , m_trtDetManager(nullptr)
     , m_pixHelper()
     , m_sctHelper()
     , m_siHelper()
@@ -45,9 +45,9 @@ namespace InDet {
     , m_siGeoManager("")
     , m_trtGeoManager("")
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)0)
-    , m_alignParList(0)
-    , m_fullAlignParList(0)
+    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)nullptr)
+    , m_alignParList(nullptr)
+    , m_fullAlignParList(nullptr)
   {
     declareInterface<IGeometryManagerTool>(this);
     declareProperty("AlignModuleTool",    m_alignModuleTool);
@@ -86,7 +86,7 @@ namespace InDet {
     m_alignLevelEndcaps = -1;
 
     m_hashCounter = 0;
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -345,7 +345,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel: "<<pixelmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(pixelmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(pixelmaxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     // ==================================================================
@@ -393,7 +393,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT: "<<sctmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(sctmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(sctmaxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     // ================================================================
@@ -436,7 +436,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the TRT "<<trtmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)(trtmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT) = new Trk::AlignModuleList((size_t)(trtmaxHash),nullptr);
     Trk::AlignModuleList * trtIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::TRT);
 
     // ================================================================

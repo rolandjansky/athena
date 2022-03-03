@@ -17,6 +17,9 @@
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODMuon/MuonSegmentContainer.h"
+#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
+
 
 namespace MuonCombined {
 
@@ -30,10 +33,10 @@ namespace MuonCombined {
         /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
         virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                             TrackCollection& outputTracks, const EventContext& ctx) const override;
+
     private:
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-        ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder{this, "TrackBuilder",
-                                                                  "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
+        ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder{this, "TrackBuilder", "", ""};
         ToolHandle<Muon::IMuonTrackExtrapolationTool> m_trackExtrapolationTool{this, "TrackExtrapolationTool",
                                                                                "ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool"};
         ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor{this, "AmbiguityProcessor",
@@ -44,7 +47,16 @@ namespace MuonCombined {
 
         SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
+        /// Retrieve the segment container to perform the segment association offline
+        SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segmentKey{this, "SegmentContainer", "" };
+        PublicToolHandle<MuonCombined::IMuonTrackToSegmentAssociationTool> m_trackSegmentAssociationTool{
+            this, "TrackSegmentAssociationTool", "MuonCombined::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
+
+
         Gaudi::Property<unsigned int> m_extrapolationStrategy{this, "ExtrapolationStrategy", 0};
+
+        Gaudi::Property<bool> m_comissioning{this, "Commissioning", false,
+                                             "Flag deciding whether the candidate belongs to the comissioning."};
     };
 
 }  // namespace MuonCombined

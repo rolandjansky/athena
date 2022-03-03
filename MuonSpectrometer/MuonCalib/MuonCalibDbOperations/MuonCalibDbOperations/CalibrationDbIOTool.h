@@ -50,7 +50,7 @@ namespace MuonCalib {
         //! path to calibration directory - job option
         std::string m_calib_dir;
         //! if true use validated - jo
-        bool m_use_validated_t0, m_use_validated_rt;
+        bool m_use_validated_t0, m_use_validated_rt = false;
         // url of oracle data-base
         std::string m_db_ConnectionString;
         std::string m_writer_connection_string;
@@ -63,15 +63,15 @@ namespace MuonCalib {
         int m_headid;
         std::string m_sitename;
         /** pointer to region selection service */
-        RegionSelectionSvc *p_reg_sel_svc;
+        RegionSelectionSvc *p_reg_sel_svc = nullptr;
         std::vector<MuonCalib::NtupleStationId> m_region_ids;
         /** pointer to db connection */
         std::unique_ptr<CalibDbConnection> m_connection;
         std::array<std::unique_ptr<CalibDbConnection>, 2> m_data_connections;
         std::unique_ptr<CalibHeadOperations> m_head_ops;
         /** convert rt and resolution to points */
-        void fillRtPoints(std::shared_ptr<const IRtRelation> rt_relation, std::vector<SamplePoint> &points);
-        void fillResPoints(std::shared_ptr<const IRtResolution> rt_resolution, std::vector<SamplePoint> &points);
+        void fillRtPoints(const std::shared_ptr<const IRtRelation>& rt_relation, std::vector<SamplePoint> &points);
+        void fillResPoints(const std::shared_ptr<const IRtResolution>& rt_resolution, std::vector<SamplePoint> &points);
         CalibDbConnection *get_connection(int write);
     };
 

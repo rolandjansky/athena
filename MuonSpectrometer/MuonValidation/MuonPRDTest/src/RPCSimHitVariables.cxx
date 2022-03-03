@@ -29,8 +29,7 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
   RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper();
 
   if(!rpcContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
-  for( auto it : *rpcContainer ) {
-    const RPCSimHit hit = it;
+  for( const RPCSimHit& hit : *rpcContainer ) {
 
     HitID hitid = hit.RPCid();
 
@@ -77,7 +76,7 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     
     m_RPC_globalTime.push_back(hit.globalTime());
 
-    const Amg::Vector3D localPosition = hit.localPosition();
+    const Amg::Vector3D& localPosition = hit.localPosition();
     m_RPC_hitLocalPositionX.push_back(localPosition.x());
     m_RPC_hitLocalPositionY.push_back(localPosition.y());
     m_RPC_hitLocalPositionZ.push_back(localPosition.z());

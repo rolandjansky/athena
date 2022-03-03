@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/InDetGeoModelTool.h"
@@ -56,7 +56,7 @@ namespace JiveXML {
     // check if SLHC geo is used (TRT not implemented)
     // if not SLHC, get the TRT Det Descr manager
     bool isSLHC = false;
-    const IdDictManager* idDictMgr;
+    const IdDictManager* idDictMgr = nullptr;
     if (detStore()->retrieve(idDictMgr, "IdDict").isFailure()) {
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get IdDictManager !" << endmsg;
       return StatusCode::RECOVERABLE;

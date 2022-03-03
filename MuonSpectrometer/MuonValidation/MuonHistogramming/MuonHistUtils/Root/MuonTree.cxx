@@ -9,7 +9,7 @@
 
 namespace Muon{
 
-  MuonTree::MuonTree(PlotBase* pParent, std::string sDir, bool mcFlag):
+  MuonTree::MuonTree(PlotBase* pParent, const std::string& sDir, bool mcFlag):
   	PlotBase(pParent, sDir),
     	m_tree(nullptr),
      m_isMC(mcFlag),
@@ -21,7 +21,7 @@ namespace Muon{
   {
   }
 
-  MuonTree::MuonTree(PlotBase* pParent, std::string sDir):
+  MuonTree::MuonTree(PlotBase* pParent, const std::string& sDir):
     PlotBase(pParent, sDir),
     m_tree(nullptr),
     m_isMC(true),
@@ -82,7 +82,6 @@ namespace Muon{
     m_tree->Branch("Quality", &m_Quality);
     
     //isolation
-    m_tree->Branch("iso_etcone20",    &m_iso_etcone20);
     m_tree->Branch("iso_ptcone20",    &m_iso_ptcone20);
     m_tree->Branch("iso_topoetcon20", &m_iso_topoetcon20);
     m_tree->Branch("iso_ptvarcon20",  &m_iso_ptvarcon20);
@@ -199,8 +198,6 @@ namespace Muon{
 	m_Quality.push_back(mu.quality());
 
 	//isolation
-     if( !(mu.isolation(value, xAOD::Iso::IsolationType::etcone20)) ) value=-999.;
-	m_iso_etcone20.push_back(value);
      if( !(mu.isolation(value, xAOD::Iso::IsolationType::ptcone20)) ) value=-999.;
 	m_iso_ptcone20.push_back(value);
      if( !(mu.isolation(value, xAOD::Iso::IsolationType::topoetcone20)) ) value=-999.;
@@ -375,7 +372,6 @@ namespace Muon{
     m_Quality.clear();
     
     //isolation
-    m_iso_etcone20.clear();
     m_iso_ptcone20.clear();
     m_iso_topoetcon20.clear();
     m_iso_ptvarcon20.clear();

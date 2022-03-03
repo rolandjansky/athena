@@ -23,7 +23,7 @@ public:
 		m_z=v[2];
 	}
 	void SetProfile(double p0,double dp) {m_phi0=p0;m_dphi=dp;}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	double rin() const {return m_rin;}
 	double rou() const {return m_rou;}

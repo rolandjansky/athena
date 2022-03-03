@@ -1,6 +1,6 @@
 """ComponentAccumulator configuration utilities for LArRecUtils
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
     print ('--- LArOFCCondAlg 1')
     flags1 = ConfigFlags.clone()
-    flags1.Input.Files = defaultTestFiles.RDO
+    flags1.Input.Files = defaultTestFiles.RDO_RUN2
     flags1.lock()
     acc1 = LArOFCCondAlgCfg (flags1)
     acc1.printCondAlgs(summariseProps=True)
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
     print ('--- LArAutoCorrTotalCondAlg')
     flags4 = ConfigFlags.clone()
-    flags4.Input.Files = defaultTestFiles.RDO
+    flags4.Input.Files = defaultTestFiles.RDO_RUN2
     flags4.LAr.ROD.nSamples = 32
     flags4.lock()
     acc4 = LArAutoCorrTotalCondAlgCfg (flags4)
@@ -228,7 +228,7 @@ if __name__ == "__main__":
 
     print ('--- LArRoIMapCondAlg')
     flags5 = ConfigFlags.clone()
-    flags5.Input.Files = defaultTestFiles.RDO
+    flags5.Input.Files = defaultTestFiles.RDO_RUN2
     flags5.lock()
     acc5 = LArRoIMapCondAlgCfg (flags5)
     acc5.printCondAlgs(summariseProps=True)

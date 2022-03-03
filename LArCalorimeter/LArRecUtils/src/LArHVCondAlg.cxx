@@ -298,7 +298,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     for (unsigned i=0;i<MAX_LAR_CELLS;++i) {
       IdentifierHash hash(i);
       const CaloDetDescrElement* dde= calodetdescrmgr->get_element(hash); 
-      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i]);
+      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i],msg());
       if(onlHVCorr) { // undo the online one
 	const float hvonline = onlHVCorr->HVScaleCorr(cabling->createSignalChannelIDFromHash(hash));
 	if (hvonline>0. && hvonline<100.) vScale[i]=vScale[i]/hvonline;
@@ -813,7 +813,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 	    for (unsigned int ielec=0;ielec<32;ielec++) { //use hvMod->getNumElectrodes when bug is corrected
 	      const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
 
-	      double hv[2];
+	      double hv[2]={0.,0.};
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
 		unsigned int hvline = electrode.hvLineNo(iGap,hvCabling);
 		auto hvIt=voltage.find(hvline);

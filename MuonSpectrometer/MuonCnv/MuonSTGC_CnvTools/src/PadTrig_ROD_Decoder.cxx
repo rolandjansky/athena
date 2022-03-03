@@ -229,7 +229,7 @@ uint8_t PadTrig_ROD_Decoder::extractByte(OFFLINE_FRAGMENTS_NAMESPACE::PointerTyp
   {
     uint32_t u32;
     uint8_t u8[4];
-  } c;
+  } c{};
   c.u32 = data[index / 4];
   return c.u8[index % 4];
 }

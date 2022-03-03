@@ -46,7 +46,7 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   }
 
   G4VPhysicalVolume*  physVolPostStep = aStep->GetPostStepPoint()->GetPhysicalVolume();
-  if (0 == physVolPostStep)  return true;
+  if (nullptr == physVolPostStep)  return true;
 
   // hit information to be recorded
   double     globalTime;

@@ -104,7 +104,7 @@ class L1MenuConfig(object):
                 log.error("No topo output %s is registered. Make sure it is defined in L1/Config/TopoAlgoDef.py", name)
             else:
                 isLegacy = any(filter(lambda x: name.startswith(x), ["EM", "TAU", "J", "XE", "TE", "XS"]))
-                log.error("No threshold %s is registered. Make sure it is defined in L1/Config/ThresholdDef%s.py", (name,"Legacy" if isLegacy else ""))
+                log.error("No threshold %s is registered. Make sure it is defined in L1/Config/ThresholdDef%s.py", name,"Legacy" if isLegacy else "")
             raise ex
 
     def getDefinedThresholds(self):
@@ -126,7 +126,7 @@ class L1MenuConfig(object):
         if algo.name in self._registeredTopoAlgos[self.currentAlgoDef]:
             raise RuntimeError('%s algo %s is already registered as such' % (self.currentAlgoDef.desc, algo.name))
         self._registeredTopoAlgos[self.currentAlgoDef][algo.name] = algo
-        log.debug("Added in the %s type the algo: %s ID:%s", self.currentAlgoDef.desc, algo.name)
+        log.debug("Added in the %s type the algo: %s", self.currentAlgoDef.desc, algo.name)
 
         return algo
 
@@ -257,7 +257,7 @@ class L1MenuConfig(object):
         Menu.defineMenu() defines the menu via L1MenuFlags "items", "thresholds", 
         """
 
-        # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
+        # we apply a hack here. menu group is working on Dev_pp_run3_v1, until ready we will use MC_pp_run3_v1
         log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[0])
         menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[0], globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
@@ -614,7 +614,7 @@ class L1MenuConfig(object):
                 if thrName not in self.l1menu.thresholds:
                     isLegacyThr = any(filter(lambda x: thrName.startswith(x), ["R2TOPO_", "EM", "HA", "J", "XE", "TE", "XS"]))
 
-                    msg = "L1 item {item} has been added to the menu L1/Menu/Menu_{menu}.py, but the required threshold {thr} is not listed as input in L1/Menu/Menu_{menu}.py".format(item=itemName, thr=thrName, menu=self.menuFilesToLoad[2] if isLegacyThr else self.menuFilesToLoad[1])
+                    msg = "L1 item {item} has been added to the menu L1/Menu/Menu_{menu}.py, but the required threshold {thr} is not listed as input in L1/Menu/Menu_{menu_inputs}.py".format(item=itemName, thr=thrName, menu=self.menuFilesToLoad[0], menu_inputs=self.menuFilesToLoad[2] if isLegacyThr else self.menuFilesToLoad[1])
                     log.error(msg)
                     raise RuntimeError(msg)
 
@@ -633,6 +633,8 @@ class L1MenuConfig(object):
                 item.setTriggerType( item.trigger_type | TT.phys )
             # assign ctp IDs to items that don't have one
             if item.ctpid == -1:
+                if len(available_ctpids)==0:
+                    raise RuntimeError("No more CTP IDs available at L1!!")
                 item.setCtpid( available_ctpids.pop() )
             # add the items into the menu
             self.l1menu.addItem( item )
@@ -681,8 +683,12 @@ class L1MenuConfig(object):
 
         self.l1menu.check()
 
+        # check that no L1 items are defined with BGRP0 only
+        self.l1menu.checkBGRP()
+
         # check that only the minimal set of legacy and detector thresholds is used
-        self.l1menu.checkLegacyThresholds()   
+        if 'pp' in self.l1menu.menuName:
+           self.l1menu.checkLegacyThresholds()   
 
         # check for the topo multiplicity algorithms and CTP inputs
         # TOPO1
@@ -691,9 +697,14 @@ class L1MenuConfig(object):
         # check #number of CTP inputs and outputs <=512
         self.l1menu.checkCountCTPInputsOutput()
 
+        # check #number of inputs on the CTPIN connectors
+        self.l1menu.checkCTPINconnectors()
+
         # check that performance thresholds are not used in the physics L1 menu
         self.l1menu.checkPerfThresholds()
 
+        # check that the minimum thresholds of the TOBs sent to TOPO are below the min thresholds used in menu (ATR-15450)
+        self.l1menu.checkPtMinToTopo()
 
     def mapThresholds(self):
         """

@@ -20,7 +20,7 @@ class TGCCableInPP : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableInPP(std::string filename);
+  TGCCableInPP(const std::string& filename);
 
   virtual ~TGCCableInPP(void);
   
@@ -33,7 +33,7 @@ private:
 				     bool orChannel=false) const;
   virtual TGCChannelId* getChannelOut(const TGCChannelId* ppin,
 				      bool orChannel=false) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType]{};
 };
   
 } // end of namespace

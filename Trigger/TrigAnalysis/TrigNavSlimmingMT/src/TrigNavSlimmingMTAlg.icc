@@ -1,0 +1,47 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
+template< typename CONTAINER >
+StatusCode TrigNavSlimmingMTAlg::doRepack(TrigCompositeUtils::Decision* decision,
+  SG::WriteHandle<CONTAINER>* writeHandle,
+  const std::string& edgeName) const
+{
+
+  if (not decision->hasObjectLink(edgeName, ClassID_traits<CONTAINER>::ID())) {
+    // Nothing to do
+    return StatusCode::SUCCESS;
+  }
+
+  ElementLink<CONTAINER> current = decision->objectLink<CONTAINER>(edgeName);
+  if (!current.isValid()) {
+    ATH_MSG_WARNING("Unable to repack '" << edgeName << "' of container type '"<< ClassID_traits<CONTAINER>::typeName() <<"' for '"
+      << decision->name() << "' node, the link is invalid.");
+    ATH_MSG_DEBUG("Dump of DecisionObject: " << *decision);
+    return StatusCode::SUCCESS;
+  }
+
+  // ROIs have a specialization here w.r.t. xAOD
+  // Actually - due to having template issues, this call is not currently templated.
+  ATH_CHECK( doRepackCopy(*current, writeHandle) );
+
+  ElementLink<CONTAINER> remapped(**writeHandle, (**writeHandle).size()-1);
+  decision->setObjectLink<CONTAINER>(edgeName, remapped); // Overwrite the existing link
+
+  ATH_MSG_DEBUG("Repacked from index:" << current.index() << " from key:" << current.dataID() 
+    << ", to index:" << remapped.index() << " to key:" << remapped.key());
+
+  return StatusCode::SUCCESS;
+}
+
+template< typename CONTAINER >
+StatusCode TrigNavSlimmingMTAlg::doRepackCopy(const typename CONTAINER::base_value_type* object,
+  SG::WriteHandle<CONTAINER>* writeHandle) const
+{
+  // Note: writeHandle* de-references to writeHandle which de-references to CONTAINER a.k.a. DataVector<CONTAINER::base_value_type>
+  // We call .back() on the CONTAINER to obtain CONTAINER::base_value_type*, this de-references to CONTAINER::base_value_type
+  // We end up with CONTAINER::base_value_type = CONTAINER::base_value_type, an assignment operator copy operation duplicates the data.
+  (**writeHandle).push_back( new typename CONTAINER::base_value_type() ); 
+  *((**writeHandle).back()) = *object;
+  return StatusCode::SUCCESS;
+}

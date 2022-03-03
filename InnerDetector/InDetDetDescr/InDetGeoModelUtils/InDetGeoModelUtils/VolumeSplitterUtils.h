@@ -60,8 +60,8 @@ namespace InDetDD {
 
     bool  m_valid;
     bool  m_found;
-    bool  m_horizontal;
-    bool  m_vertical;
+    bool  m_horizontal = false;
+    bool  m_vertical = false;
     Point m_start;
     Point m_end;
   };

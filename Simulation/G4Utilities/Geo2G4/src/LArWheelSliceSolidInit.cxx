@@ -1,13 +1,33 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
 #include <stdexcept>
 #include <iostream>
 
+#ifndef  PORTABLE_LAR_SHAPE
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoSpecialShapes/toEMECData.h"
+
+
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IMessageSvc.h"
+#endif
+
+#include "GeoSpecialShapes/EMECData.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#ifndef PORTABLE_LAR_SHAPE
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
+#endif
 #include "G4GeometryTolerance.hh"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
@@ -29,16 +49,22 @@ LArWheelSliceSolid::LArWheelSliceSolid(
     const G4String& name,
     pos_t pos, type_t type, size_t slice,
     G4int zside,
-    const LArWheelCalculator *calc
+    const LArWheelCalculator *calc,
+    const EMECData           *emecData
 ) : G4VSolid(name), m_Pos(pos), m_Type(type),
-    m_Calculator(calc),
-    m_msg("LArWSS")
+    m_Calculator(calc)
+#ifndef PORTABLE_LAR_SHAPE    
+  ,m_msg("LArWSS")
+#endif
 {
-    createSolid(name, zside, slice);
+  createSolid(name, zside, slice, emecData);
 }
 
-LArWheelSliceSolid::LArWheelSliceSolid(const G4String& name)
-  : G4VSolid(name), m_Calculator(0), m_msg("LArWSS")
+LArWheelSliceSolid::LArWheelSliceSolid(const G4String& name, const EMECData *emecData)
+  : G4VSolid(name), m_Calculator(0)
+#ifndef PORTABLE_LAR_SHAPE    
+  , m_msg("LArWSS")
+#endif
 {
     if(name.find("::Inner") != G4String::npos) m_Pos = Inner;
     else if(name.find("::Outer") != G4String::npos) m_Pos = Outer;
@@ -72,13 +98,15 @@ LArWheelSliceSolid::LArWheelSliceSolid(const G4String& name)
         "LArWheelSliceSolid", "NoSide", FatalException,
         (std::string("Constructor: can't get zSide from ") + name).c_str()
     );
-    createSolid(name, zside, slice);
+    createSolid(name, zside, slice, emecData);
 }
 
-void LArWheelSliceSolid::createSolid(const G4String& name, G4int zside, size_t slice)
+void LArWheelSliceSolid::createSolid(const G4String& name, G4int zside, size_t slice, const EMECData *emecData)
 {
+#ifndef PORTABLE_LAR_SHAPE
     m_f_area = m_f_vol = m_f_area_on_pc = m_f_length = m_f_side_area = 0;
-
+#endif
+    
     LArG4::LArWheelCalculator_t calc_type = LArG4::LArWheelCalculator_t(0);
     switch(m_Pos){
     case Inner:
@@ -98,7 +126,10 @@ void LArWheelSliceSolid::createSolid(const G4String& name, G4int zside, size_t s
         }
         break;
     }
-    if(m_Calculator == 0) m_Calculator = new LArWheelCalculator(calc_type, zside);
+    if(m_Calculator == 0) {
+      m_Calculator = new LArWheelCalculator(*emecData, calc_type, zside);
+
+    }
     else if(m_Calculator->type() != calc_type){
         G4Exception(
             "LArWheelSliceSolid", "WrongCalculatorType", FatalException,
@@ -129,6 +160,7 @@ void LArWheelSliceSolid::createSolid(const G4String& name, G4int zside, size_t s
     case Inner: inner_solid_init(bs_name, slice); break;
     case Outer: outer_solid_init(bs_name, slice); break;
     }
+#ifndef PORTABLE_LAR_SHAPE
     ATH_MSG_DEBUG(m_BoundingShape->GetName() + " is the m_BoundingShape");
 
     init_tests();
@@ -136,8 +168,11 @@ void LArWheelSliceSolid::createSolid(const G4String& name, G4int zside, size_t s
     clean_tests();
 
     ATH_MSG_DEBUG("slice " << m_Pos << " "  << m_Type
-        << " " << slice << " initialized" << endmsg);
-#ifdef DEBUG_LARWHEELSLICESOLID
+		  << " " << slice << " initialized" << endmsg);
+
+#endif
+    
+ #ifdef DEBUG_LARWHEELSLICESOLID
     std::cout << "LArWSS(" << m_Pos << ", " << m_Type
               << "): slice " << slice << ", Zmin = " << m_Zmin
               << ", Zmax = " << m_Zmax << std::endl

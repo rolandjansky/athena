@@ -37,7 +37,6 @@ run_settings = {'event_norm':'average',
                 'drjj':0.0,
                 'lhe_version':'3.0',
                 'cut_decays':'F',
-                'pdgs_for_merging_cut': '1, 2, 3, 4, 21', # Terrible default in MG
                 'ickkw':0,
                 'xqcut':0} # use CKKW-L merging (yes, this is a weird setting)
 # Set up default PDF and systematic settings (note: action in import module)
@@ -57,6 +56,18 @@ fixEventWeightsForBridgeMode=False
 
 # In case you want to keep lifetimes in the LHE files
 add_lifetimes_lhe = False
+
+# Do we want to use PDG defaults?
+usePMGSettings = True
+
+# Do we want 4FS or 5FS? 4 is default
+# * 5-flavor scheme always should use nQuarksMerge=5 [5FS -> nQuarksMerge=5]
+# * 4-flavor scheme with light-flavor MEs (p p > go go j , with j = g d u s c)
+#       should use nQuarksMerge=4 [4FS -> nQuarksMerge=4]
+# * 4-flavor scheme with HF MEs (p p > go go j, with j = g d u s c b) should
+#       use nQuarksMerge=5 [4FS + final state b -> nQuarksMerge=5]
+flavourScheme = 4
+finalStateB = False
 
 from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
 phys_short = get_physics_short()

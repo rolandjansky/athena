@@ -1,5 +1,5 @@
 /*
-   Copyrightf (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyrightf (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/TopConfig.h"
@@ -197,6 +197,8 @@ namespace top {
     m_electronIsolationLoose("SetMe"),
     m_electronIsolationSF("SetMe"),
     m_electronIsolationSFLoose("SetMe"),
+    m_electron_d0SigCut(5.0),
+    m_electron_delta_z0(0.5),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
@@ -1093,6 +1095,8 @@ namespace top {
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
     this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
     this->electronPtcut(std::stof(settings->value("ElectronPt")));
+    this->electrond0Sigcut(std::stof(settings->value("Electrond0Sig")));
+    this->electrondeltaz0cut(std::stof(settings->value("Electrondeltaz0")));
     this->enablePromptLeptonImprovedVetoStudies(settings->value("EnablePromptLeptonImprovedVetoStudies"));
 
 
@@ -1174,6 +1178,8 @@ namespace top {
     // Muon configuration
     this->muonPtcut(std::stof(settings->value("MuonPt")));
     this->muonEtacut(std::stof(settings->value("MuonEta")));
+    this->muond0Sigcut(std::stof(settings->value("Muond0Sig")));
+    this->muondeltaz0cut(std::stof(settings->value("Muondeltaz0")));
     this->muonQuality(settings->value("MuonQuality"));
     this->muonQualityLoose(settings->value("MuonQualityLoose"));
     {
@@ -1258,12 +1264,10 @@ namespace top {
     this->tauEtaRegions(settings->value("TauEtaRegions"));
     this->tauJetIDWP(settings->value("TauJetIDWP"));
     this->tauJetIDWPLoose(settings->value("TauJetIDWPLoose"));
-    this->tauEleBDTWP(settings->value("TauEleBDTWP"));
-    this->tauEleBDTWPLoose(settings->value("TauEleBDTWPLoose"));
+    this->tauEleIDWP(settings->value("TauEleIDWP"));
+    this->tauEleIDWPLoose(settings->value("TauEleIDWPLoose"));
     this->tauMuOLR((settings->value("TauMuOLR") == "True"));
     this->tauMuOLRLoose((settings->value("TauMuOLRLoose") == "True"));
-    this->tauSFDoRNNID((settings->value("TauSFDoRNNID") == "True"));
-    this->tauSFDoBDTID((settings->value("TauSFDoBDTID") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
     if (settings->value("ApplyTauMVATES") != "True") throw std::runtime_error {
@@ -1720,14 +1724,6 @@ namespace top {
 
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
-
-    /************************************************************
-    *
-    * Muon trigger SF configuration
-    * see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#How_to_retrieve_the_SF
-    * for the various trigger strings allowed
-    *
-    ************************************************************/
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 

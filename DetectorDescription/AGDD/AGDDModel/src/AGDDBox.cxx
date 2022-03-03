@@ -11,7 +11,7 @@ void AGDDBox::CreateSolid (const AGDDBuilder& builder)
 	builder.CreateBox(this);
 }
 
-void AGDDBox::CreateVolume (const AGDDBuilder& builder)
+void AGDDBox::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

@@ -10,6 +10,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
@@ -57,7 +58,9 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
                                                                                     unsigned int condition=TrigDefs::Physics ) const;
         
         // access the feature from the container
-        const xAOD::EmTauRoI* getL1Feature( const TrigCompositeUtils::Decision * ) const;
+        const xAOD::EmTauRoI*  getL1Feature( const TrigCompositeUtils::Decision * ) const;
+        const xAOD::eFexEMRoI* getL1eEMFeature( const TrigCompositeUtils::Decision * ) const;
+
         // access the feature from the container
         const xAOD::TrigRingerRings* getRingsFeature( const TrigCompositeUtils::Decision * ) const;
         // get the container key
@@ -73,8 +76,8 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
         bool matchL2Calo(     const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
         bool matchL1(         const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
       
-        template<class T> bool closestObject( const xAOD::Egamma *, const TrigCompositeUtils::Decision *&, std::string trigger, std::string key,
-                                              unsigned int condition=TrigDefs::Physics ) const;
+        template<class T> bool closestObject( const xAOD::Egamma *, const TrigCompositeUtils::Decision *&, const std::string &trigger, 
+                                              const std::string &key, float dR_value, unsigned int condition=TrigDefs::Physics ) const;
         
 
         inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const

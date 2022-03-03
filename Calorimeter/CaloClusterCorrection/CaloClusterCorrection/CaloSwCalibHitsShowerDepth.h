@@ -46,13 +46,13 @@ public:
    * Parameters for the barrel are hardcoded. (FIXME!)
    * Parameters are passed by reference to allow them to be changed.
    */
-  double depth (const float aeta,
+  static double depth (const float aeta,
                 const float start_crack,
                 const float end_crack,
                 const CaloRec::Array<2>& sampling_depth,
                 const float etamax,
                 const xAOD::CaloCluster* cluster,
-                MsgStream& log) const;
+                MsgStream& log) ;
 
 
 private:
@@ -61,7 +61,7 @@ private:
    * @param aeta abs(eta) of the cluster.
    * @param R[out] The set of coefficients per layer.
    */
-  void barrelCoefs (const float aeta, float R[4]) const;
+  static void barrelCoefs (const float aeta, float R[4]) ;
 
 
   /**
@@ -71,10 +71,10 @@ private:
    * @param etamax Maximum eta value in @a sampling_depth.
    * @param R[out] The set of coefficients per layer.
    */
-  bool endcapCoefs (const float aeta,
+  static bool endcapCoefs (const float aeta,
                     const CaloRec::Array<2>& sampling_depth,
                     const float etamax,
-                    float R[4]) const;
+                    float R[4]) ;
 };
 
 

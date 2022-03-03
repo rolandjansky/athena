@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -99,6 +99,19 @@ if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetGhostLabelTool
 
+# Setting flags
+useVertices = True
+if not jetFlags.useVertices:
+  useVertices = False
+
+if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+  useChargedWeights = True
+else:
+  useChargedWeights = False
+
+useTrackVertexTool = False
+if jetFlags.useTrackVertexTool:
+  useTrackVertexTool = True
 
 #--------------------------------------------------------------
 # Track selection.
@@ -160,6 +173,7 @@ else:
 from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
 jtm += getTTVAToolForReco("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0, TrackContName=jtm.trackContainer, VertexContName=jtm.vertexContainer)
 jtm += getTTVAToolForReco("trackjetTVAtool", WorkingPoint="Nonprompt_All_MaxWeight", TrackContName="JetSelectedTracks_LooseTrackJets", VertexContName=jtm.vertexContainer)
+jtm += getTTVAToolForReco("jetLooseTVAtoolNew",    WorkingPoint="Nonprompt_All_MaxWeight",    TrackContName=jtm.trackContainer, VertexContName=jtm.vertexContainer)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
@@ -168,6 +182,15 @@ jtm += TrackVertexAssociationTool(
   VertexContainer         = jtm.vertexContainer,
   TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
+
+jtm += TrackVertexAssociationTool(
+  "ttvaassocNew",
+  TrackParticleContainer  = jtm.trackContainer,
+  TrackVertexAssociation  = "JetTrackVtxAssoc_Nonprompt_All_MaxWeight",
+  VertexContainer         = jtm.vertexContainer,
+  TrackVertexAssoTool     = jtm.jetLooseTVAtoolNew,
+)
+
 
 from TrackVertexAssociationTool.TrackVertexAssociationToolConf import PV0TrackSelectionAlg
 
@@ -299,6 +322,15 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+if jetFlags.useLargeD0Tracks():
+  jtm += PseudoJetAlgorithm(
+    "gtracklrtget",
+    InputContainer = "InDetLargeD0TrackParticles",
+    Label = "GhostTrackLRT",
+    OutputContainer = "PseudoJetGhostTrackLRT",
+    SkipNegativeEnergy = True,
+  )
+
 # Muon segments
 jtm += MuonSegmentPseudoJetAlgorithm(
   "gmusegget",
@@ -313,21 +345,8 @@ jtm += PseudoJetAlgorithm(
   "gtowerget",
   InputContainer = "CaloCalFwdTopoTowers",
   Label = "GhostTower",
-  OutputContainer = "PseduoJetGhostTower"
+  OutputContainer = "PseudoJetGhostTower"
 )
-
-useVertices = True
-if not jetFlags.useVertices:
-  useVertices = False
-
-if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
-  useChargedWeights = True
-else:
-  useChargedWeights = False
-
-useTrackVertexTool = False
-if jetFlags.useTrackVertexTool:
-  useTrackVertexTool = True
 
 # Weight tool for charged pflow objects.
 jtm += WeightPFOTool("pflowweighter")
@@ -355,8 +374,13 @@ ctm.add( CorrectPFOTool("CorrectPFOTool",
          alias = 'correctPFO' )
 
 # this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
-ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.FlowElement),
-         alias = 'chsPFO' )
+# keep option to run the CHS tool without  the TVA tool so that the one can run it and create the PU sidebands
+if useTrackVertexTool:
+  ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.FlowElement, UseTrackToVertexTool=True, TrackVertexAssociation=jtm.ttvaassocNew.TrackVertexAssociation),
+             alias = 'chsPFO' )
+else:
+  ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.FlowElement),
+             alias = 'chsPFO' )
 
 # Options to disable dependence on primary vertex container
 # for PFO corrections (e.g. when running cosmics)

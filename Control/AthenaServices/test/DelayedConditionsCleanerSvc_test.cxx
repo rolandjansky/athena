@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthenaServices/test/DelayedConditionsCleanerSvc_test.cxx
@@ -87,7 +87,7 @@ public:
     default:
       std::abort();
     }
-    assert (typelessInsert (r, nullptr));
+    assert (CondContTest::typelessInsert (r, nullptr));
   }
   
   virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override
@@ -303,6 +303,7 @@ public:
   {
   }
 };
+// cppcheck-suppress unknownMacro
 DECLARE_COMPONENT( DummyIncidentSvc )
 
 

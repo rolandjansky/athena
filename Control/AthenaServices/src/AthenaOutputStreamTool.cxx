@@ -25,6 +25,7 @@
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModel/TokenAddress.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace {
 
@@ -48,26 +49,11 @@ AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
 	m_clidSvc("ClassIDSvc", name),
 	m_decSvc("DecisionSvc/DecisionSvc", name),
 	m_dataHeader(nullptr),
-	m_dataHeaderKey(name),
 	m_connectionOpen(false),
 	m_extendProvenanceRecord(false) {
    // Declare IAthenaOutputStreamTool interface
    declareInterface<IAthenaOutputStreamTool>(this);
 
-   // Remove "ToolSvc." from m_dataHeaderKey.
-   if (m_dataHeaderKey.find("ToolSvc.") == 0) {
-      m_dataHeaderKey = m_dataHeaderKey.substr(8);
-      // Remove "Tool" from m_dataHeaderKey.
-      if (m_dataHeaderKey.find("Tool") == m_dataHeaderKey.size() - 4) {
-         m_dataHeaderKey = m_dataHeaderKey.substr(0, m_dataHeaderKey.size() - 4);
-      }
-   } else {
-      const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent);
-      if (parentAlg != 0) {
-         m_dataHeaderKey = parentAlg->name();
-      }
-   }
-   m_processTag = m_dataHeaderKey;
    declareProperty("SaveDecisions",         m_extend = false, "Set to true to add streaming decisions to an attributeList");
 }
 //__________________________________________________________________________
@@ -79,6 +65,27 @@ StatusCode AthenaOutputStreamTool::initialize() {
 
    ATH_CHECK( m_clidSvc.retrieve() );
    ATH_CHECK( m_conversionSvc.retrieve() );
+
+   // Autoconfigure
+   if (m_dataHeaderKey.empty()) {
+      m_dataHeaderKey.setValue(name());
+      // Remove "ToolSvc." from m_dataHeaderKey.
+      if (boost::starts_with (m_dataHeaderKey.value(), "ToolSvc.")) {
+         m_dataHeaderKey.setValue(m_dataHeaderKey.value().substr(8));
+         // Remove "Tool" from m_dataHeaderKey.
+         if (m_dataHeaderKey.value().find("Tool") == m_dataHeaderKey.size() - 4) {
+            m_dataHeaderKey.setValue(m_dataHeaderKey.value().substr(0, m_dataHeaderKey.size() - 4));
+         }
+      } else {
+         const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
+         if (parentAlg != 0) {
+            m_dataHeaderKey.setValue(parentAlg->name());
+         }
+      }
+   }
+   if (m_processTag.empty()) {
+      m_processTag.setValue(m_dataHeaderKey);
+   }
 
    { // handle the AttrKey overwite
      const std::string keyword = "[AttributeListKey=";
@@ -203,15 +210,14 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    const DataHeader* dh = nullptr;
    std::vector<std::string> dhKeys;
    m_store->keys<DataHeader>(dhKeys);
-   for (std::vector<std::string>::const_iterator dhKey = dhKeys.begin(), dhKeyEnd = dhKeys.end();
-	   dhKey != dhKeyEnd; dhKey++) {
+   for (const std::string& dhKey : dhKeys) {
       bool primaryDH = false;
-      if (!m_store->transientContains<DataHeader>(*dhKey)) {
-         if (*dhKey == "EventSelector") primaryDH = true;
-         ATH_MSG_DEBUG("No transientContains DataHeader with key " << *dhKey);
+      if (!m_store->transientContains<DataHeader>(dhKey)) {
+         if (dhKey == "EventSelector") primaryDH = true;
+         ATH_MSG_DEBUG("No transientContains DataHeader with key " << dhKey);
       }
-      if (m_store->retrieve(dh, *dhKey).isFailure()) {
-         ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << *dhKey);
+      if (m_store->retrieve(dh, dhKey).isFailure()) {
+         ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << dhKey);
       }
       SG::DataProxy* dhProxy = m_store->proxy(dh);
       if (dh->isInput() || hasInputAlias (*dhProxy) || primaryDH) {
@@ -219,11 +225,10 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
          if (m_extendProvenanceRecord) {
             std::string pTag;
             SG::TransientAddress* dhTransAddr = 0;
-            for (std::vector<DataHeaderElement>::const_iterator i = dh->begin(), iEnd = dh->end();
-                i != iEnd; i++) {
-               if (i->getPrimaryClassID() == ClassID_traits<DataHeader>::ID()) {
-                  pTag = i->getKey();
-                  delete dhTransAddr; dhTransAddr = i->getAddress(0);
+            for (const DataHeaderElement& dhe : *dh) {
+               if (dhe.getPrimaryClassID() == ClassID_traits<DataHeader>::ID()) {
+                  pTag = dhe.getKey();
+                  delete dhTransAddr; dhTransAddr = dhe.getAddress(0);
                }
             }
             // Update dhTransAddr to handle fast merged files.
@@ -240,9 +245,8 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
               delete dhTransAddr; dhTransAddr = 0;
             }
          }
-         for (std::vector<DataHeaderElement>::const_iterator i = dh->beginProvenance(),
-	      iEnd = dh->endProvenance(); i != iEnd; i++) {
-            m_dataHeader->insertProvenance(*i);
+         for(auto iter=dh->beginProvenance(), iEnd=dh->endProvenance(); iter != iEnd; ++iter) {
+            m_dataHeader->insertProvenance(*iter);
          }
       }
    }
@@ -414,23 +418,22 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    // Check that the DataHeader is still valid
    DataObject* dataHeaderObj = m_store->accessData(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey);
    std::map<DataObject*, IOpaqueAddress*> written;
-   for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
-	   doIter != doLast; doIter++) {
+   for (DataObject* dobj : dataObjects) {
       // Do not write the DataHeader via the explicit list
-      if ((*doIter)->clID() == ClassID_traits<DataHeader>::ID()) {
-         ATH_MSG_DEBUG("Explicit request to write DataHeader: " << (*doIter)->name() << " - skipping it.");
+      if (dobj->clID() == ClassID_traits<DataHeader>::ID()) {
+         ATH_MSG_DEBUG("Explicit request to write DataHeader: " << dobj->name() << " - skipping it.");
       // Do not stream out same object twice
-      } else if (written.find(*doIter) != written.end()) {
+      } else if (written.find(dobj) != written.end()) {
          // Print warning and skip
-         ATH_MSG_DEBUG("Trying to write DataObject twice (clid/key): " << (*doIter)->clID() << " " << (*doIter)->name());
+         ATH_MSG_DEBUG("Trying to write DataObject twice (clid/key): " << dobj->clID() << " " << dobj->name());
          ATH_MSG_DEBUG("    Skipping this one.");
       } else {
          // Write object
-         IOpaqueAddress* addr = new TokenAddress(0, (*doIter)->clID(), outputConnectionString);
-         if (m_conversionSvc->createRep(*doIter, addr).isSuccess()) {
-            written.insert(std::pair<DataObject*, IOpaqueAddress*>(*doIter, addr));
+         IOpaqueAddress* addr = new TokenAddress(0, dobj->clID(), outputConnectionString);
+         if (m_conversionSvc->createRep(dobj, addr).isSuccess()) {
+            written.insert(std::pair<DataObject*, IOpaqueAddress*>(dobj, addr));
          } else {
-            ATH_MSG_ERROR("Could not create Rep for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
+            ATH_MSG_ERROR("Could not create Rep for DataObject (clid/key):" << dobj->clID() << " " << dobj->name());
             return(StatusCode::FAILURE);
          }
       }
@@ -445,15 +448,14 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
          return(StatusCode::FAILURE);
       }
    }
-   for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
-	   doIter != doLast; doIter++) {
+   for (DataObject* dobj : dataObjects) {
       // call fillRepRefs of persistency service
-      SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
-      if (proxy != nullptr && written.find(*doIter) != written.end()) {
-         IOpaqueAddress* addr(written.find(*doIter)->second);
-         if ((m_conversionSvc->fillRepRefs(addr, *doIter)).isSuccess()) {
-            if ((*doIter)->clID() != 1 || addr->par()[0] != "\n") {
-               if ((*doIter)->clID() != ClassID_traits<DataHeader>::ID()) {
+      SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dobj->registry());
+      if (proxy != nullptr && written.find(dobj) != written.end()) {
+         IOpaqueAddress* addr(written.find(dobj)->second);
+         if ((m_conversionSvc->fillRepRefs(addr, dobj)).isSuccess()) {
+            if (dobj->clID() != 1 || addr->par()[0] != "\n") {
+               if (dobj->clID() != ClassID_traits<DataHeader>::ID()) {
                   m_dataHeader->insert(proxy, addr);
                   if (m_store->storeID() != StoreID::EVENT_STORE) proxy->setAddress(addr);
                } else {
@@ -464,11 +466,11 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
                }
             }
          } else {
-            ATH_MSG_ERROR("Could not fill Object Refs for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
+            ATH_MSG_ERROR("Could not fill Object Refs for DataObject (clid/key):" << dobj->clID() << " " << dobj->name());
             return(StatusCode::FAILURE);
          }
       } else {
-         ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
+         ATH_MSG_WARNING("Could cast DataObject " << dobj->clID() << " " << dobj->name());
       }
    }
    m_dataHeader->addHash(&*m_store);

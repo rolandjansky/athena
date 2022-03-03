@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -15,7 +15,7 @@ def getEnvelopeMap(ConfigFlags):
                      simFlags.LArFarUpstreamMaterial.get_Value() ):
                     envelopeMap.update({'LARFARUPSTREAMMATERIAL::LARFARUPSTREAMMATERIAL':
                                         'LArFarUpstreamMaterialExitLayer'})
-                if ConfigFlags.Beam.Type == 'cosmics':
+                if ConfigFlags.Beam.Type is BeamType.Cosmics:
                     ## First filter volume
                     if simFlags.CosmicFilterVolumeName == "TRT_Barrel":
                         envelopeMap['TRT::BarrelOuterSupport'] = 'TRTBarrelEntryLayer'

@@ -3,6 +3,7 @@
 #include "../CpmSimMonitorAlgorithm.h"
 #include "../PprMonitorAlgorithm.h"
 #include "../JepJemMonitorAlgorithm.h"
+#include "../JepCmxMonitorAlgorithm.h"
 
 // Run 2
 #include "../CPMon.h"
@@ -27,6 +28,7 @@ DECLARE_COMPONENT( CpmMonitorAlgorithm )
 DECLARE_COMPONENT( CpmSimMonitorAlgorithm )
 DECLARE_COMPONENT( PprMonitorAlgorithm )
 DECLARE_COMPONENT( JepJemMonitorAlgorithm )
+DECLARE_COMPONENT( JepCmxMonitorAlgorithm )
 
 // Run 2
 DECLARE_COMPONENT( LVL1::OverviewMon )

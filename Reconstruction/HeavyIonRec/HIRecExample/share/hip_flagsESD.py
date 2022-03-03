@@ -2,7 +2,7 @@ include.block("HIRecExample/hip_flagsESD.py")
 
 # put here HeavyIon-proton specific ESD configuration
 if rec.doESD :
-     print "Applying HIP ESD flags mods"
+     print("Applying HIP ESD flags mods")
 
      from RecExConfig.RecFlags import rec
      rec.Commissioning.set_Value_and_Lock(True)

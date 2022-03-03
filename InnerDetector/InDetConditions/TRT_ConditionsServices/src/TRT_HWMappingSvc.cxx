@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*---------------------------------------------------------
@@ -444,7 +444,7 @@ void TRT_HWMappingSvc::DumpMaps() {
 
 
   // Create txt file of HV Line name and x,y / phi,z of straws on line
-  const InDetDD::TRT_DetectorManager* detMan;
+  const InDetDD::TRT_DetectorManager* detMan = nullptr;
   StatusCode sc = m_detStore->retrieve(detMan);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Couldn't get TRT Detector Manager. Can't ouput text file for monitoring.");

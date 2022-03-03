@@ -96,7 +96,7 @@ namespace IDPVM {
     /** helper to report bin and fraction of under-/over- flow events,
      * as accumulated by top-level pull or resolution histogram 
      **/
-    std::string reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal);
+    static std::string reportUOBinVal(const std::string& p_histName, const std::vector< std::pair<unsigned int,double> >& p_vecBinVal);
     ///return accumulated messages
     //@{
     std::vector<std::string> getDebugs() { return m_debugs; };
@@ -132,7 +132,7 @@ namespace IDPVM {
     std::vector<std::string> m_infos;
     std::vector<std::string> m_warnings;
     std::vector<std::string> m_errors;
-    void cloneHistogram(TH1D* h, TH1* hcopy);
+    static void cloneHistogram(TH1D* h, TH1* hcopy);
     //@}
     
     //helpers 

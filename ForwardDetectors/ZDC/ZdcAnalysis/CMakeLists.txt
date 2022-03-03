@@ -17,3 +17,5 @@ atlas_add_library( ZdcAnalysisLib
 atlas_add_component( ZdcAnalysis
 		             src/components/*.cxx
 		             LINK_LIBRARIES ZdcAnalysisLib )
+
+atlas_install_data( data/* )

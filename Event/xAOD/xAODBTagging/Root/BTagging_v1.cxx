@@ -12,10 +12,43 @@
 #include "BTaggingAccessors_v1.h"
 #include "xAODBTagging/BTaggingEnums.h"
 
+// This macro is a hack to deal with clients that are accessing unset
+// values in the EDM.
+//
+// This had to be added when we moved some aux variables from static
+// to dynamic: as static variables _something_ was defined when a
+// BTagging object was initialized; with dynamic variables access to
+// an unset varaible throws an exception.
+//
+// Properly cleaning this up will take removing calls to any accessor
+// that uses this macro.
+//
+namespace {
+  // we might want different defaults for different types
+  template <typename T>
+  struct default_value {
+    static constexpr T value = T();
+    // build a (probably) impossible assertion if this template is called
+    static_assert(sizeof(T) == -1, "No default value defined for this type");
+  };
+  template <>
+  struct default_value<float> { static constexpr float value = 0.0; };
+}
+#define SETTER_AND_DEFAULT_GETTER( CL, TYPE, NAME, SETTER)  \
+  TYPE CL::NAME() const {                                   \
+    static const Accessor<TYPE> acc(#NAME);                 \
+    if (acc.isAvailable(*this)) return acc(*this);          \
+    return default_value<TYPE>::value;                      \
+  }                                                         \
+  void CL::SETTER(TYPE value) {                             \
+    static const Accessor<TYPE> acc(#NAME);                 \
+    acc(*this) = value;                                     \
+  }
+
 namespace xAOD {
 
    BTagging_v1::BTagging_v1(){
-      
+
 
    }
 
@@ -24,7 +57,7 @@ namespace xAOD {
    //              Implementation of the SV0 accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float,
                                          SV0_significance3D,
                                          setSV0_significance3D )
 
@@ -93,13 +126,9 @@ namespace xAOD {
    //
    //              Implementation of the SV1 accessor functions
    //
-
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, SV1_pb,
-                                         setSV1_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, SV1_pu,
-                                         setSV1_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, SV1_pc,
-                                         setSV1_pc )
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, SV1_pb, setSV1_pb)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, SV1_pu, setSV1_pu)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, SV1_pc, setSV1_pc)
 
    // The accessor object(s):
    static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
@@ -167,11 +196,11 @@ namespace xAOD {
    //              Implementation of the IP2D accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, IP2D_pb,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, IP2D_pb,
                                          setIP2D_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, IP2D_pu,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, IP2D_pu,
                                          setIP2D_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, IP2D_pc,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, IP2D_pc,
                                          setIP2D_pc )
 
    // The accessor object(s):
@@ -241,12 +270,9 @@ namespace xAOD {
    //              Implementation of the IP3D accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, IP3D_pb,
-                                         setIP3D_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, IP3D_pu,
-                                         setIP3D_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, IP3D_pc,
-                                         setIP3D_pc )
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, IP3D_pb, setIP3D_pb)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, IP3D_pu, setIP3D_pu)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, IP3D_pc, setIP3D_pc)
 
    // The accessor object(s):
    static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
@@ -315,12 +341,9 @@ namespace xAOD {
    //              Implementation of the JetFitter accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, JetFitter_pb,
-                                         setJetFitter_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, JetFitter_pu,
-                                         setJetFitter_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, JetFitter_pc,
-                                         setJetFitter_pc )
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, JetFitter_pb, setJetFitter_pb)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, JetFitter_pu, setJetFitter_pu)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, JetFitter_pc, setJetFitter_pc)
 
    /////////////////////////////////////////////////////////////////////////////
    //
@@ -334,10 +357,10 @@ namespace xAOD {
                                          const std::string& signal,
                                          const std::string& bckgd ) const {
      value = -1.; // default value if tagger is undefined
-     ftagfloat_t pu = 1.;
-     ftagfloat_t pb = 1.;
-     bool puvalid = variable<ftagfloat_t>(taggername, bckgd , pu);
-     bool pbvalid = variable<ftagfloat_t>(taggername, signal, pb);
+     float pu = 1.;
+     float pb = 1.;
+     bool puvalid = variable<float>(taggername, bckgd , pu);
+     bool pbvalid = variable<float>(taggername, signal, pb);
      if( !pbvalid || !puvalid ) return false;
      if("IP3D"==taggername&&pb==1.&&pu==1.e9) {
        value = 0.;
@@ -348,8 +371,8 @@ namespace xAOD {
    }
 
 
-   ftagfloat_t BTagging_v1::calcLLR(double numerator, double denominator) const {
-     ftagfloat_t val = 0.;
+   float BTagging_v1::calcLLR(double numerator, double denominator) const {
+     float val = 0.;
      if(numerator<=0.) {
        val = -30.;
      } else if(denominator<=0.) {
@@ -361,29 +384,29 @@ namespace xAOD {
    }
    
    bool BTagging_v1::pu(const std::string& taggername, double &value) const {
-     ftagfloat_t tmp = 0.;
-     bool output = variable<ftagfloat_t>(taggername, "pu", tmp);
+     float tmp = 0.;
+     bool output = variable<float>(taggername, "pu", tmp);
      if ( output ) value = tmp;
      return output;
    } 
 
    bool BTagging_v1::pb(const std::string& taggername, double &value) const {
-     ftagfloat_t tmp = 0.;
-     bool output = variable<ftagfloat_t>(taggername, "pb", tmp);
+     float tmp = 0.;
+     bool output = variable<float>(taggername, "pb", tmp);
      if ( output ) value = tmp;
      return output;
    }
  
    bool BTagging_v1::pc(const std::string& taggername, double &value) const {
-     ftagfloat_t tmp = 0.;
-     bool output = variable<ftagfloat_t>(taggername, "pc", tmp);
+     float tmp = 0.;
+     bool output = variable<float>(taggername, "pc", tmp);
      if ( output ) value = tmp;
      return output;
    }
  
    bool BTagging_v1::MVx_discriminant(const std::string& taggername, double &value) const {
-     ftagfloat_t tmp = 0.;
-     bool output = variable<ftagfloat_t>(taggername, "discriminant", tmp);
+     float tmp = 0.;
+     bool output = variable<float>(taggername, "discriminant", tmp);
      if ( output ) value = tmp;
      return output;
    }
@@ -392,7 +415,7 @@ namespace xAOD {
   /////////////////////////////////////////////////////////////////////////////
 
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, ftagfloat_t, MV1_discriminant,
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, MV1_discriminant,
 					setMV1_discriminant )
 
 

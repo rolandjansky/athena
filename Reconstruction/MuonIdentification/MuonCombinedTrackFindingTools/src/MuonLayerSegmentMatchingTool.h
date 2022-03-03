@@ -36,7 +36,7 @@ namespace Muon {
         /** match segment to intersection */
         bool match(const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment) const;
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolation/AtlasExtrapolator"};
         ToolHandle<IMuTagMatchingTool> m_matchingTool{this, "MatchTool", "MuTagMatchingTool/MuTagMatchingTool"};
     };

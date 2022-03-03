@@ -74,9 +74,9 @@ int PixelGmxInterface::sensorId(std::map<std::string, int> &index) const
 }
 
 
-void PixelGmxInterface::addSensorType(std::string clas,
-                                      std::string typeName,
-                                      std::map<std::string, std::string> parameters)
+void PixelGmxInterface::addSensorType(const std::string& clas,
+                                      const std::string& typeName,
+                                      const std::map<std::string, std::string>& parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
@@ -175,14 +175,14 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
 
   ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << " " <<design->rows() << " " << design->columns());
 
-  m_detectorManager->addDesign(std::move(design));
+  [[maybe_unused]] auto observePtr = m_detectorManager->addDesign(std::move(design));
 
   // Add to map for addModule routine
   m_geometryMap[typeName] = m_detectorManager->numDesigns() - 1;
 }
 
 
-void PixelGmxInterface::addSensor(std::string typeName,
+void PixelGmxInterface::addSensor(const std::string& typeName,
                                   std::map<std::string, int> &index,
                                   int /*sensitiveId*/,
                                   GeoVFullPhysVol *fpv)

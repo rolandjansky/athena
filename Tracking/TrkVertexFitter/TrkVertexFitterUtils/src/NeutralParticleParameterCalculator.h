@@ -66,7 +66,7 @@ namespace Trk
                                                                                 const AmgMatrix(3,3) & vrt_cov,
                                                                                 const AmgMatrix(3,3) & vrt_weight) const;
    
-    AmgMatrix(3,3) getPhiThetaQOverPToPxPyPzJacobian(double qOverP,double theta,double phi) const;
+    static AmgMatrix(3,3) getPhiThetaQOverPToPxPyPzJacobian(double qOverP,double theta,double phi) ;
 
     ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory;
     bool m_linearizedTrackFactoryIsAvailable;

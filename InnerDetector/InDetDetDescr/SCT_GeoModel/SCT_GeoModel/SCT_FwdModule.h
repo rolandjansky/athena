@@ -68,27 +68,27 @@ private:
 //  const std::string & m_name;
   int    m_ringType;
   
-  double m_stereoAngle;      // Magnitude of stereo angle
-  double m_length;
-  double m_widthOuter;
-  double m_widthInner;
-  double m_thickness;
-  double m_moduleShift;
-  double m_glueThickness;
-  double m_distBtwMountPoints;
-  double m_mountPointToCenter;
-  bool   m_hybridIsOnInnerEdge;
-  int    m_upperSide;
+  double m_stereoAngle = 0.0;      // Magnitude of stereo angle
+  double m_length = 0.0;
+  double m_widthOuter = 0.0;
+  double m_widthInner = 0.0;
+  double m_thickness = 0.0;
+  double m_moduleShift = 0.0;
+  double m_glueThickness = 0.0;
+  double m_distBtwMountPoints = 0.0;
+  double m_mountPointToCenter = 0.0;
+  bool   m_hybridIsOnInnerEdge = false;
+  int    m_upperSide = 0;
   
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_powerTapeStart;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_powerTapeStart = 0.0;
 
-  double m_mainMountPoint;
-  double m_secMountPoint;
-  double m_endLocator;
+  double m_mainMountPoint = 0.0;
+  double m_secMountPoint = 0.0;
+  double m_endLocator = 0.0;
 
-  bool   m_connectorPresent;
+  bool   m_connectorPresent = false;
 
 public:	  
   // Child detector elements

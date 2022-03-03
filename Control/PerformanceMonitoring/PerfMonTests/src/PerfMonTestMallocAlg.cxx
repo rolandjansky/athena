@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestMallocAlg.cxx 
@@ -15,7 +15,6 @@
 
 // FrameWork includes
 #include "Gaudi/Property.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -95,7 +94,7 @@ StatusCode MallocAlg::execute()
       if ( evtnbr >= 2*m_evtNbr ) {
         std::vector<ElemType> c2_array(nmax);
         for ( std::size_t i = 0; i!=nmax; ++i ) {
-          c2_array[i] =  -1*i;
+          c2_array[i] =  -1*static_cast<int>(i);
         }
       }
       
@@ -109,7 +108,7 @@ StatusCode MallocAlg::execute()
       if ( evtnbr >= 2*m_evtNbr ) {
         ElemType c2_array[nmax];
         for ( std::size_t i = 0; i!=nmax; ++i ) {
-          c2_array[i] =  -1*i;
+          c2_array[i] =  -1*static_cast<int>(i);
         }
         // dummy stuff to silence gcc-warning.
         if (c2_array[0] > c1_array[0]) { 

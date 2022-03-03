@@ -18,7 +18,8 @@ SiCharge::SiCharge(const SiCharge &charge) :
   m_charge(charge.m_charge),
   m_time(charge.m_time),
   m_processType(charge.m_processType),
-  m_partLink(charge.m_partLink)
+  m_partLink(charge.m_partLink),
+  m_trackDistance(charge.m_trackDistance)
 {}
 
 // Constructor with parameters:
@@ -27,7 +28,8 @@ SiCharge::SiCharge(const double& charge,const double& time,
   m_charge(charge),
   m_time(time),
   m_processType(processType),
-  m_partLink(PL)
+  m_partLink(PL),
+  m_trackDistance(SiTrackDistance())
 {}
 
 SiCharge::SiCharge(const double& charge,const double& time,
@@ -35,7 +37,21 @@ SiCharge::SiCharge(const double& charge,const double& time,
   m_charge(charge),
   m_time(time),
   m_processType(processType),
-  m_partLink(HepMcParticleLink())
+  m_partLink(HepMcParticleLink()),
+  m_trackDistance(SiTrackDistance())
+{}
+
+// Constructor with parameters:
+SiCharge::SiCharge(const double& charge,
+                   const double& time,
+                   const Process& processType,
+                   const HepMcParticleLink& PL,
+                   const SiTrackDistance& trackDistance) :
+  m_charge(charge),
+  m_time(time),
+  m_processType(processType),
+  m_partLink(PL),
+  m_trackDistance(trackDistance)
 {}
 
 
@@ -47,6 +63,7 @@ SiCharge &SiCharge::operator=(const SiCharge &charge)
     m_time=charge.m_time;
     m_processType=charge.m_processType;
     m_partLink=charge.m_partLink;
+    m_trackDistance=charge.m_trackDistance;
   } else {}
   return *this;
 }

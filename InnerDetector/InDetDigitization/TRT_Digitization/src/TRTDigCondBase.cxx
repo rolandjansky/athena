@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondBase.h"
@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <utility>
 
 #include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
@@ -38,7 +39,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
     m_crosstalk_noiselevel_other_end(-1.0),
     m_msg ("TRTDigCondBase"),
     m_UseGasMix(UseGasMix),
-    m_sumTool(sumTool)
+    m_sumTool(std::move(sumTool))
 {
   m_crosstalk_noiselevel = m_settings->crossTalkNoiseLevel();
   m_crosstalk_noiselevel_other_end = m_settings->crossTalkNoiseLevelOtherEnd();
@@ -115,7 +116,7 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
       //Get info about the straw conditions, then create and fill the strawstate
       double noiselevel, relative_noiseamplitude;
       setStrawStateInfo( strawId, strawLength, noiselevel, relative_noiseamplitude, rndmEngine );
-      StrawState strawstate;
+      StrawState strawstate{};
       strawstate.noiselevel = noiselevel; // same for all gas types
       strawstate.lowthreshold = ( !(hitid & 0x00200000) ) ? m_settings->lowThresholdBar(strawGasType) : m_settings->lowThresholdEC(strawGasType);
       strawstate.noiseamplitude= relative_noiseamplitude; // These two are later regulated noise code

@@ -20,18 +20,12 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerBuilderCond.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/BinnedArray.h"
 // STL
 #include <vector>
 
 class HGTD_ID;
 class HGTD_DetectorManager;
-
-#ifndef TRKDETDESCR_TAKESMALLERBIGGER
-#define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
-#endif
 
 namespace Trk {
   class Surface;
@@ -87,7 +81,7 @@ public AthAlgTool, virtual public Trk::ILayerBuilderCond {
     const Trk::BinnedLayerMaterial discLayerMaterial(double rMin, double rMax) const;
 
     //!< layer association
-    void registerSurfacesToLayer( const std::vector<const Trk::Surface*>& surfaces,const Trk::Layer& layer) const;
+    void registerSurfacesToLayer( Trk::BinnedArraySpan<Trk::Surface const * const>& surfaces,const Trk::Layer& layer) const;
 
     static void evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
                              std::vector<float>& rBins,

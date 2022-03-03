@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H
 #define MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H
 
+#include <TFile.h>
+#include <TH2.h>
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
-#include "MuonHoughPatternTools/IMuonHoughPatternTool.h"
+#include "MuonRecToolInterfaces/IMuonHoughPatternTool.h"
 
 class MuonHoughTransformSteering;
 class MuonHoughTransformer;
-class TFile;
-class TH2F;
 
 class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlgTool {
 public:
@@ -22,34 +23,32 @@ public:
     virtual ~MuonHoughPatternTool() = default;
 
     /** method that builds the patterns */
-    virtual void makePatterns(const MuonHoughHitContainer* hitcontainer, MuonHoughPatternContainerShip& houghpatterns) const;
+    virtual void makePatterns(const MuonHoughHitContainer& hitcontainer, MuonHoughPatternContainerShip& houghpatterns) const override;
 
     /** initiates private members */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** deletes private members */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** returns phipattern container in EDM */
-    virtual MuonPrdPatternCollection* getPhiMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const;
+    virtual std::unique_ptr<MuonPrdPatternCollection> getPhiMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const override;
     /** returns etapattern container in EDM */
-    virtual MuonPrdPatternCollection* getEtaMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const;
+    virtual std::unique_ptr<MuonPrdPatternCollection> getEtaMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const override;
 
-    /** resets houpattern vector, called once per event from FinderTool*/
-    void reset(MuonHoughPatternContainerShip& houghpattern) const;
     /** creates houghpatterns, called from FinderTool */
-    MuonHoughPatternContainerShip emptyHoughPattern() const;
+    virtual MuonHoughPatternContainerShip emptyHoughPattern() const override;
 
 private:
     /** method that builds the patterns */
-    virtual void makePatterns(int id_number, double weightmdt, const MuonHoughHitContainer* event,
-                              MuonHoughPatternContainerShip& houghpatterns) const;
+    void makePatterns(int id_number, double weightmdt, const MuonHoughHitContainer& event,
+                      MuonHoughPatternContainerShip& houghpatterns) const;
 
     /** returns curvedpattern container in EDM */
-    MuonPrdPatternCollection* getCurvedMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const;
+    std::unique_ptr<MuonPrdPatternCollection> getCurvedMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const;
 
     /** reset association flag of hits in m_event */
-    static void resetAssociation(const MuonHoughHitContainer* event);
+    static void resetAssociation(const MuonHoughHitContainer& event);
 
     /** reduces Detector sizes for Hough Histograms to find patterns from muons from the Interaction Point (default on) */
     void useIPMuons();
@@ -70,41 +69,38 @@ private:
      * @param[in] event_to_analyse The hitcontainer which will be associated to the pattern
      * @param[in] houghtransform The HoughTransform
      */
-    bool analyseHisto(int id_number, int level, const MuonHoughHitContainer* event_to_analyse, MuonHoughTransformSteering* houghtransform,
-                      MuonHoughPatternContainerShip& houghpatterns) const;
-
-    /** method to analyse the pattern build, currently nothing implemented */
-    void analyseTrack(int id_number, const MuonHoughHitContainer* event_to_analyse, MuonHoughTransformSteering* houghtransform) const;
+    bool analyseHisto(int id_number, int level, const std::unique_ptr<MuonHoughHitContainer>& event_to_analyse,
+                      std::unique_ptr<MuonHoughTransformSteering>& houghtransform, MuonHoughPatternContainerShip& houghpatterns) const;
 
     /** returns if there are hits left */
-    static bool hitsLeft(const MuonHoughHitContainer* event);
+    static bool hitsLeft(const MuonHoughHitContainer& event);
 
     /** returns number of hits left (unused) */
-    int numberOfHits(const MuonHoughHitContainer* event) const;
+    int numberOfHits(const MuonHoughHitContainer& event) const;
 
     /** checks if hit is already in one of the found houghpatterns (unused) */
     bool hitInHoughPattern(MuonHoughHit* hit, const MuonHoughPatternContainer& houghpattern) const;
 
     /** returns a hitcontainer with hits not yet used in pattern */
-    static MuonHoughHitContainer* hitsNotInPattern(const MuonHoughHitContainer* event, int id_number);
+    static std::unique_ptr<MuonHoughHitContainer> hitsNotInPattern(const MuonHoughHitContainer& event, int id_number);
 
     /** rescales hits per iteration to reduce number of patterns when already some have been found */
-    void weightRescaling(const MuonHoughHitContainer* event, int id_number, int level) const;
+    void weightRescaling(const MuonHoughHitContainer& event, int id_number, int level) const;
 
     /** calculates new weights based on rejection factor (1-origweight) and number of hits in event, only done for MDTs */
-    void calculateWeights(const MuonHoughHitContainer* event, double weightmdt) const;
+    void calculateWeights(const MuonHoughHitContainer& event, double weightmdt) const;
 
     /** returns number of hits that are in both hough patterns */
-    int overlapHoughPatterns(const MuonHoughPattern* houghpattern1, const MuonHoughPattern* houghpattern2) const;
+    int overlapHoughPatterns(const MuonHoughPattern& houghpattern1, const MuonHoughPattern& houghpattern2) const;
 
     /** selects the hitcontainer to be used for filling the histograms */
-    MuonHoughHitContainer* whichEventHough(int id, const MuonHoughHitContainer* event, double weightmdt) const;
+    std::unique_ptr<MuonHoughHitContainer> whichEventHough(int id, const MuonHoughHitContainer& event, double weightmdt) const;
 
     /** selects the hitcontainer to be used to associate to the maxima */
-    MuonHoughHitContainer* whichEventAssociation(int id, const MuonHoughHitContainer* event) const;
+    std::unique_ptr<MuonHoughHitContainer> whichEventAssociation(int id, const MuonHoughHitContainer& event) const;
 
     /** returns the Houghtransform for the id */
-    MuonHoughTransformSteering* whichHoughTransform(int id) const;
+    std::unique_ptr<MuonHoughTransformSteering> whichHoughTransform(int id) const;
 
     /** returns the maximum iteration, not in use */
     std::vector<int> maxLevelHoughPattern(const MuonHoughPatternContainerShip& houghpattern) const;
@@ -117,15 +113,17 @@ private:
     void transformCoordsMaximum(std::pair<double, double>& coordsmaximum, double r0_true) const;
 
     /** converts hough pattern to EDM eta patterns */
-    Muon::MuonPrdPattern* houghPatternToEtaPattern(MuonHoughPattern* houghpattern) const;
+    std::unique_ptr<Muon::MuonPrdPattern> houghPatternToEtaPattern(const MuonHoughPattern& houghpattern) const;
     /** converts hough pattern to EDM phi patterns */
-    Muon::MuonPrdPattern* houghPatternToPhiPattern(MuonHoughPattern* houghpattern) const;
+    std::unique_ptr<Muon::MuonPrdPattern> houghPatternToPhiPattern(const MuonHoughPattern& houghpattern) const;
     /** converts and combines two hough patterns to one EDM phi pattern */
-    Muon::MuonPrdPattern* houghPatternsToOneEtaPattern(MuonHoughPattern* houghpattern1, MuonHoughPattern* houghpattern2) const;
+    std::unique_ptr<Muon::MuonPrdPattern> houghPatternsToOneEtaPattern(const MuonHoughPattern& houghpattern1,
+                                                                       const MuonHoughPattern& houghpattern2) const;
     /** converts and combines two hough patterns to one EDM phi pattern */
-    Muon::MuonPrdPattern* houghPatternsToOnePhiPattern(MuonHoughPattern* houghpattern1, MuonHoughPattern* houghpattern2) const;
+    std::unique_ptr<Muon::MuonPrdPattern> houghPatternsToOnePhiPattern(const MuonHoughPattern& houghpattern1,
+                                                                       const MuonHoughPattern& houghpattern2) const;
     /** converts hough pattern to EDM phi patterns and cleans it from outliers */
-    Muon::MuonPrdPattern* houghPatternToCleanPhiPattern(MuonHoughPattern* houghpattern) const;
+    std::unique_ptr<Muon::MuonPrdPattern> houghPatternToCleanPhiPattern(MuonHoughPattern& houghpattern) const;
 
     /** returns minimum number of hits a hough pattern can contain */
     unsigned int getThresholdHoughPattern(int id_number) const;
@@ -133,13 +131,13 @@ private:
     double getThresholdHisto(int id_number) const;
 
     /** calculates the mdt weight cut value */
-    void setWeightMdtCutValue(const MuonHoughHitContainer* event, double& weightmdt) const;
+    void setWeightMdtCutValue(const MuonHoughHitContainer& event, double& weightmdt) const;
 
     /** hit through weight cut? */
     bool hitThroughCut(MuonHoughHit* hit, double weightmdt) const;
 
     /** pointer to the file name for the hough histograms */
-    TFile* m_file{};
+    std::unique_ptr<TFile> m_file;
     /** object for use of mathematical formulas for trackmodels */
     MuonHoughMathUtils m_muonhoughmathutils;
 
@@ -157,7 +155,7 @@ private:
     Gaudi::Property<bool> m_use_curvedhough{this, "UseCurvedHough", true};
 
     /** number of hough transforms currently supported (7) */
-    int m_number_of_ids;
+    int m_number_of_ids{7};
 
     /** number of iterations (5) */
     Gaudi::Property<int> m_number_of_maxima{this, "NumberOfMaximaPerIterations", 5};
@@ -165,9 +163,9 @@ private:
     /** use rpc phi strips in phi-patterns (true) */
     // const bool m_use_rpc_measures_phi;
     /** use rpc eta strips in eta-patterns (true) */
-    const bool m_use_rpc_measures_eta;
+    static constexpr bool m_use_rpc_measures_eta{true};
     /** use interaction point constraint (true) */
-    bool m_use_ip;
+    bool m_use_ip{false};
 
     /** minimal size for a phi pattern (1) */
     Gaudi::Property<unsigned int> m_thresholdpattern_xyz{this, "SetThresholdPatternRPhi", 1};
@@ -177,85 +175,82 @@ private:
     // hittosegment association:
 
     /** distance hits are associated with pattern in mm */
-    const double m_maximum_residu_mm;
+    static constexpr double m_maximum_residu_mm{500.};
     /** distance hits are associated with pattern in mm for cosmics */
-    const double m_maximum_residu_mm_cosmics;
+    static constexpr double m_maximum_residu_mm_cosmics{2000.};
     /** distance hits are associated with pattern in degrees */
-    const double m_maximum_residu_angle;
+    static constexpr double m_maximum_residu_angle{3.};
 
     /** // number of maximum iterations over houghtransform */
-    const int m_maximum_level;
-
+    static constexpr int m_maximum_level{5};
     // for hough_correction:
-
     /** use hough correction
      * to correct the maximum found in rz-plane slightly as there is a bias in the houghtransform
      */
     // const bool m_use_hough_correction;
     /** constant 1 for z for hough correction */
-    const double m_z_cor_constant;
+    static constexpr double m_z_cor_constant{-10000.};
     /** constant 2 for z for hough correction */
-    const double m_z_cor_constant2;
+    static constexpr double m_z_cor_constant2{6000.};
     /** constant 1 for theta for hough correction */
-    const double m_theta_cor_constant;
+    static constexpr double m_theta_cor_constant{-0.042};
     /** constant 2 for theta for hough correction */
-    const double m_theta_cor_constant2;
+    static constexpr double m_theta_cor_constant2{4000.};
 
     // detectorsizes:
 
     /** acceptancy of patterns in xy (phi) in mm */
-    double m_detectorsize_xy;
+    double m_detectorsize_xy{0.};
     /** acceptancy of patterns in yz (not used) in mm */
-    double m_detectorsize_yz;
+    double m_detectorsize_yz{0.};
     /** acceptancy of patterns in rz (eta) in mm */
-    double m_detectorsize_rz;
-
+    double m_detectorsize_rz{0.};
     /** size of full detector in xy (phi) in mm, used as acceptancy for cosmics */
-    const double m_detectorsize_xy_full;
+    static constexpr double m_detectorsize_xy_full{15000.};
     /** size of full detector in yz (not used) in mm, used as acceptancy for cosmics */
-    const double m_detectorsize_yz_full;
+    static constexpr double m_detectorsize_yz_full{25000.};
     /** size of full detector in rz (eta) in mm, used as acceptancy for cosmics */
-    const double m_detectorsize_rz_full;
+    static constexpr double m_detectorsize_rz_full{27750.};
 
     /** acceptancy of patterns for ip in xy (phi) in mm */
-    const double m_detectorsize_xy_ip;
+    static constexpr double m_detectorsize_xy_ip{600.};
     /** acceptancy of patterns for ip in yz (not used) in mm */
-    const double m_detectorsize_yz_ip;
+    static constexpr double m_detectorsize_yz_ip{1000.};
     /** acceptancy of patterns for ip in rz (eta) in mm */
-    const double m_detectorsize_rz_ip;
+    static constexpr double m_detectorsize_rz_ip{1500.};
 
     /** max range of angle in xyz in degrees (360) */
-    const double m_detectorsize_angle_xyz;
+    static constexpr double m_detectorsize_angle_xyz{360.};
     /** max range of angle in rz in degrees (180) */
-    const double m_detectorsize_angle_rz;
+    static constexpr double m_detectorsize_angle_rz{180.};
     /** max range of 1/sqrt(curvature) for curved transform, corresponds to 0.02 ~ 2,5m ~ 1.6GeV */
     // const double m_detectorsize_inv_sqrt_curvature;
 
     // properties of histograms:
 
     /** bin width for xy */
-    const double m_stepsize_xy;
+    static constexpr double m_stepsize_xy{75.};
     /** bin width for yz */
-    const double m_stepsize_yz;
+    static constexpr double m_stepsize_yz{250.};
     /** bin width for rz */
-    const double m_stepsize_rz;
+    static constexpr double m_stepsize_rz{75.};
     /** bin width for xy cosmics */
-    const double m_stepsize_xy_cosmics;
+    static constexpr double m_stepsize_xy_cosmics{150.};
     /** bin width for rzcosmics */
-    const double m_stepsize_rz_cosmics;
+    static constexpr double m_stepsize_rz_cosmics{150.};
     /** bin width for angle in xyz */
-    const double m_stepsize_per_angle_xyz;
+    static constexpr double m_stepsize_per_angle_xyz{0.25};
     /** bin width for angle in rz */
-    const double m_stepsize_per_angle_rz;
+    static constexpr double m_stepsize_per_angle_rz{0.25};
     /** bin width for angle in xy cosmics */
-    const double m_stepsize_per_angle_xy_cosmics;
+    static constexpr double m_stepsize_per_angle_xy_cosmics{1.};
     /** bin width for angle in rzcosmics */
-    const double m_stepsize_per_angle_rz_cosmics;
+    static constexpr double m_stepsize_per_angle_rz_cosmics{2.};
     /** bin width for 1/sqrt(curvature) */
     // const double m_stepsize_per_inv_sqrt_curvature;
 
     /** new curved properties */
-    const int m_nbins_curved;
+    static constexpr int m_nbins_curved{160};
 
     /** weight_cut for hits in hough */
     Gaudi::Property<bool> m_weightcut{this, "ApplyWeightCut", true};
@@ -277,7 +272,7 @@ private:
     /** number of sectors (different regions in which patterns can be found in the same iteration) in rz */
     Gaudi::Property<int> m_number_of_sectors_rz{this, "SetNumberOfSectorsREta", 16};
     /** number of sectors (different regions in which patterns can be found in the same iteration) in rzcosmics */
-    int m_number_of_sectors_rz_cosmics;
+    int m_number_of_sectors_rz_cosmics{12};
 
     /** output level (range 0-10) (default 0) */
     Gaudi::Property<int> m_printlevel{this, "Printlevel", 0};

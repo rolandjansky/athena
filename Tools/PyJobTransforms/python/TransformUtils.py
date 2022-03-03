@@ -1,8 +1,17 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+from AthenaCommon.Logging import logging
 
 
 def executeFromFragment(fragment_string, flags, cfg=None):
     """Execute a function from a pre/post include fragment."""
+    # detect legacy job options in the transition period:
+    if fragment_string.endswith('.py'):
+        log = logging.getLogger('PyJobTransforms')
+        log.warning(f'Trying to load legacy job options {fragment_string}. This should NOT be used in production!')
+        fragment_string = fragment_string[:-3]
+        fragment_string = fragment_string.replace('/', '.')
+        log.warning(f'Resolved to {fragment_string}')
+
     parts = fragment_string.split('.')
     if len(parts) < 2:
         raise ValueError('Pre/post include should be of the form Package.Module.Function or Package.Function if defined in __init__.py')
@@ -71,7 +80,6 @@ def UseFrontier(flags):
     in simulation ATN and KV jobs
     """
     from os import environ
-    from AthenaCommon.Logging import logging
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
 

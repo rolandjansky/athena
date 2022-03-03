@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -117,7 +117,7 @@ class RDBRecord final : public IRDBRecord
   /// @param attList [IN] pointer to the attribute list, source of the Record object
   /// @param cursor [IN] need to check if the field values are NULL
   /// @param tableName [IN] data table name in the database
-  RDBRecord(const coral::AttributeList& attList, std::string tableName);
+  RDBRecord(const coral::AttributeList& attList, const std::string& tableName);
 
  private:
   typedef std::map<std::string, unsigned int, std::less<std::string> > FieldName2ListIndex;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 #include "GeneratorFilters/xAODTauFilter.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -7,15 +7,6 @@
 
 #include "TMath.h"
 #include <vector>
-
-// Helper macro for retrieving containers from the event
-#define CHECK_RETRIEVE( container , name ) { \
-    if (!evtStore()->retrieve( container , name ).isSuccess()){ \
-      ATH_MSG_ERROR("Could not load event from the file! "<< name); \
-      throw; \
-    } \
-  }
-
 
 
 xAODTauFilter::xAODTauFilter( const std::string& name, ISvcLocator* pSvcLocator)
@@ -123,12 +114,8 @@ StatusCode xAODTauFilter::filterEvent() {
   double weight = 1;
 
 
-  const xAOD::TruthParticleContainer* vtruth;
-  CHECK_RETRIEVE(vtruth, "TruthTaus");
-  if (! vtruth) {
-    ATH_MSG_WARNING("No tau truth particles");
-    return StatusCode::SUCCESS;
-  }
+  const xAOD::TruthParticleContainer* vtruth = nullptr;
+  ATH_CHECK( evtStore()->retrieve( vtruth, "TruthTaus" ) );
 
 //get the weight of the event from McEventCollection
 
@@ -318,7 +305,12 @@ for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       if (!(*mec)[i]) continue;
       double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
       if ((*mec)[i]->weights().size()>0) {
-	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
+        for (unsigned int iw = 0; iw < (*mec)[i]->weights().size(); ++iw) {
+           double existWeight = (*mec)[i]->weights()[iw];
+           (*mec)[i]->weights()[iw] = existWeight*extra_weight;
+        }
+// in case modification of a nominal weight is only needed uncomment the line below
+//	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
       } else {
 	(*mec)[i]->weights().push_back( existingWeight*extra_weight );
       }

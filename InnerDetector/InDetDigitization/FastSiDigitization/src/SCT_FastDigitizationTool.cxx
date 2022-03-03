@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastSiDigitization/SCT_FastDigitizationTool.h"
@@ -169,7 +169,7 @@ StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
@@ -216,7 +216,7 @@ StatusCode SCT_FastDigitizationTool::createOutputContainers()
 
   // --------------------------------------
   // symlink the SCT Container
-  InDet::SiClusterContainer* symSiContainer=0;
+  InDet::SiClusterContainer* symSiContainer=nullptr;
   CHECK(evtStore()->symLink(m_sctClusterContainer.ptr(),symSiContainer));
   ATH_MSG_DEBUG( "[ hitproc ] SCT_ClusterContainer symlinked to SiClusterContainer in StoreGate" );
   // --------------------------------------
@@ -240,7 +240,7 @@ StatusCode SCT_FastDigitizationTool::processAllSubEvents(const EventContext& ctx
   CHECK(this->createOutputContainers());
 
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
 
   //this is a list<pair<time_t, DataLink<SCTUncompressedHitCollection> > >
   TimedHitCollList hitCollList;
@@ -292,7 +292,7 @@ StatusCode SCT_FastDigitizationTool::mergeEvent(const EventContext& ctx)
 {
   CHECK(this->createOutputContainers());
 
-  if (m_thpcsi != 0)
+  if (m_thpcsi != nullptr)
     {
       CHECK(this->digitize(ctx));
     }
@@ -410,7 +410,6 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
           // path length statistics
           double potentialClusterPath_Geom  = localDirection.mag();    // geometrical path length
           double potentialClusterPath_Step  = 0.;                      // path calculated through stepping
-          double potentialClusterPath_Drift = 0.;                      // path calculated through drift charge
           double potentialClusterPath_Used  = 0.;                      // path used (contains smearing & cut if applied)
 
           // relational slope
@@ -753,8 +752,6 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
             {
               // get the (effective) path length in the strip
               double chargeWeight = (weightIter)->second;
-              // path statistics
-              potentialClusterPath_Drift += chargeWeight;
               const Identifier chargeId = (weightIter)->first;
               // charge smearing if set : 2 possibilities landau/gauss
               // two options fro charge smearing: landau / gauss
@@ -940,7 +937,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
             }
 
 
-          for(HepMcParticleLink p: hit_vector){
+          for(const HepMcParticleLink& p: hit_vector){
             m_sctPrdTruth->insert(std::make_pair(potentialCluster->identify(), p ));
           }
 

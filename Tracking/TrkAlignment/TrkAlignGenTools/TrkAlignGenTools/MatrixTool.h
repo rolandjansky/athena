@@ -132,7 +132,7 @@ namespace Trk {
     int solveLocal();
 
     StatusCode spuriousRemoval();
-    int        fillVecMods();
+    static int        fillVecMods();
     void       postSolvingLapack(AlVec * dChi2, AlSymMat * d2Chi2, AlVec &w, AlMat &z, int size);
 
     void writeHitmap();

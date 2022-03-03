@@ -28,7 +28,7 @@ TBBeamQualityMC::TBBeamQualityMC(const std::string & name, ISvcLocator * pSvcLoc
    declareProperty("CheckVetoScint",m_check_veto=true);
    declareProperty("CheckClusters",m_check_clus=false);
    declareProperty("CheckTrackReco",m_check_trackreco=false);
-   declareProperty("ClusterCollectionName",m_clusterCollName="CaloTopoCluster");
+   declareProperty("ClusterCollectionName",m_clusterCollName="CaloTopoClusters");
 }
 
 StatusCode TBBeamQualityMC::initialize() {

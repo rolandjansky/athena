@@ -196,28 +196,50 @@ class JobOptionsTemplate(object):
                 if self._exe._athenaMP:
                     print(os.linesep, '# AthenaMP Options. nprocs = %d' % self._exe._athenaMP, file=runargsFile)
                     # Proxy for both options
-                    print(os.linesep.join((os.linesep,
-                                                         'from AthenaMP.AthenaMPFlags import jobproperties as AthenaMPJobProps',
-                                                         'AthenaMPJobProps.AthenaMPFlags.WorkerTopDir="{0}"'.format(self._exe._athenaMPWorkerTopDir),
-                                                         'AthenaMPJobProps.AthenaMPFlags.OutputReportFile="{0}"'.format(self._exe._athenaMPFileReport),
-                                                         'AthenaMPJobProps.AthenaMPFlags.EventOrdersFile="{0}"'.format(self._exe._athenaMPEventOrdersFile),
-                                                         'AthenaMPJobProps.AthenaMPFlags.CollectSubprocessLogs=True'
-                                                         )), file=runargsFile)
+                    if self._exe._isCAEnabled():
+                        # do not edit flags directly in this case
+                        print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPWorkerTopDir', self._exe._athenaMPWorkerTopDir), file=runargsFile)
+                        print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPOutputReportFile', self._exe._athenaMPFileReport), file=runargsFile)
+                        print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPEventOrdersFile', self._exe._athenaMPEventOrdersFile), file=runargsFile)
+                        print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPCollectSubprocessLogs', True), file=runargsFile)
+                    else:
+                        print(os.linesep.join((os.linesep,
+                                               'from AthenaMP.AthenaMPFlags import jobproperties as AthenaMPJobProps',
+                                               'AthenaMPJobProps.AthenaMPFlags.WorkerTopDir="{0}"'.format(self._exe._athenaMPWorkerTopDir),
+                                               'AthenaMPJobProps.AthenaMPFlags.OutputReportFile="{0}"'.format(self._exe._athenaMPFileReport),
+                                               'AthenaMPJobProps.AthenaMPFlags.EventOrdersFile="{0}"'.format(self._exe._athenaMPEventOrdersFile),
+                                               'AthenaMPJobProps.AthenaMPFlags.CollectSubprocessLogs=True'
+                                              )), file=runargsFile)
                     if self._exe._athenaMPStrategy:
-                        # Beware of clobbering a non default value (a feature used by EventService)
-                        print('if AthenaMPJobProps.AthenaMPFlags.Strategy.isDefault():', file=runargsFile)
-                        print('\tAthenaMPJobProps.AthenaMPFlags.Strategy="{0}"'.format(self._exe._athenaMPStrategy), file=runargsFile)
+                        if self._exe._isCAEnabled():
+                            print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPStrategy', self._exe._athenaMPStrategy), file=runargsFile)
+                        else:
+                            # Beware of clobbering a non default value (a feature used by EventService)
+                            print('if AthenaMPJobProps.AthenaMPFlags.Strategy.isDefault():', file=runargsFile)
+                            print('\tAthenaMPJobProps.AthenaMPFlags.Strategy="{0}"'.format(self._exe._athenaMPStrategy), file=runargsFile)
                     if self._exe._athenaMPReadEventOrders:
                         if os.path.isfile(self._exe._athenaMPEventOrdersFile):
-                            print('AthenaMPJobProps.AthenaMPFlags.ReadEventOrders=True', file=runargsFile)
+                            if self._exe._isCAEnabled():
+                                print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPReadEventOrders', True), file=runargsFile)
+                            else:
+                                print('AthenaMPJobProps.AthenaMPFlags.ReadEventOrders=True', file=runargsFile)
                         else:
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
-                        print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
+                        if self._exe._isCAEnabled():
+                            print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'athenaMPEventsBeforeFork', self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
+                        else:
+                            print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
                     if 'sharedWriter' in self._exe.conf.argdict:
-                        print(f"AthenaMPJobProps.AthenaMPFlags.UseSharedWriter={self._exe.conf.argdict['sharedWriter'].value}", file=runargsFile)
+                        if self._exe._isCAEnabled():
+                            print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'sharedWriter', self._exe.conf.argdict['sharedWriter'].value), file=runargsFile)
+                        else:
+                            print(f"AthenaMPJobProps.AthenaMPFlags.UseSharedWriter={self._exe.conf.argdict['sharedWriter'].value}", file=runargsFile)
                     if 'parallelCompression' in self._exe.conf.argdict:
-                        print(f"AthenaMPJobProps.AthenaMPFlags.UseParallelCompression={self._exe.conf.argdict['parallelCompression'].value}", file=runargsFile)
+                        if self._exe._isCAEnabled():
+                            print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'parallelCompression', self._exe.conf.argdict['parallelCompression'].value), file=runargsFile)
+                        else:
+                            print(f"AthenaMPJobProps.AthenaMPFlags.UseParallelCompression={self._exe.conf.argdict['parallelCompression'].value}", file=runargsFile)
 
                 # Executor substeps
                 print(os.linesep, '# Executor flags', file=runargsFile)
@@ -235,9 +257,12 @@ class JobOptionsTemplate(object):
                 # CA
                 if self._exe._isCAEnabled():
                     print(os.linesep, '# Threading flags', file=runargsFile)
-                    #Pass the number of threads
+                    # Pass the number of threads and processes
+                    nprocs = self._exe._athenaMP
                     threads = self._exe._athenaMT
                     concurrentEvents = self._exe._athenaConcurrentEvents
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('nprocs', nprocs))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'nprocs', nprocs), file=runargsFile)
                     msg.debug('Adding runarg {0!s}={1!r}'.format('threads', threads))
                     print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'threads', threads), file=runargsFile)
                     msg.debug('Adding runarg {0!s}={1!r}'.format('concurrentEvents', concurrentEvents))

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file TrackD3PDMaker/python/TrackParticleImpactParameters.py
@@ -10,6 +10,7 @@
 
 import TrackD3PDMaker
 from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation
+from InDetRecExample.TrackingCommon import getInDetTrackToVertexTool
 
 def TrackParticleImpactParameters (TPD3PDObject,
                                    prefix = 'track',
@@ -33,7 +34,8 @@ arguments."""
                      (TPD3PDObject,
                       TrackD3PDMaker.TrackParticlePerigeeAtBSAssociationTool,
                       blockname = prefix + 'BSPerigeeAssoc',
-                      prefix = prefix)
+                      prefix = prefix,
+                      TrackToVertexTool = getInDetTrackToVertexTool())
     BSPerigeeAssoc.defineBlock (1, prefix + 'Impact' + beam_suffix,
                                 TrackD3PDMaker.PerigeeFillerTool,
                                 FillThetaAndQoverP = False,
@@ -55,7 +57,8 @@ arguments."""
                      (TPD3PDObject,
                       TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
                       blockname = prefix + 'PVPerigeeAssoc',
-                      prefix = prefix)
+                      prefix = prefix,
+                      TrackToVertexTool = getInDetTrackToVertexTool())
     PVPerigeeAssoc.defineBlock (1, prefix + 'Impact' + pv_suffix,
                                 TrackD3PDMaker.PerigeeFillerTool,
                                 FillThetaAndQoverP = False,

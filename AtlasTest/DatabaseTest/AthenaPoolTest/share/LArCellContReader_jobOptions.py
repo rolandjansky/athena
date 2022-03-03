@@ -4,7 +4,7 @@
 #
 ## @file LArCellContReader_jobOptions.py
 ##
-## @brief For Athena POOL test: read back LArCellContainers
+## @brief For Athena POOL test: read back CaloCellContainers
 ##
 ## @author RD Schaffer <R.D.Schaffer@cern.ch>
 #

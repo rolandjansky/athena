@@ -104,7 +104,7 @@ StatusCode LArLATOMEDecoder::convert(const RawEvent* re, const LArLATOMEMapping 
   return StatusCode::SUCCESS;
 }
 
-LArLATOMEDecoder::EventProcess::EventProcess(const LArLATOMEDecoder* decoderInput, const LArLATOMEMapping */*map*/,
+LArLATOMEDecoder::EventProcess::EventProcess(const LArLATOMEDecoder* decoderInput, const LArLATOMEMapping *,
                                              LArDigitContainer* adc_coll, 
                                              LArDigitContainer* adc_bas_coll,
 					     LArRawSCContainer* et_coll,
@@ -263,6 +263,7 @@ unsigned int LArLATOMEDecoder::EventProcess::decodeHeader(const uint32_t* p, uns
 }
 
 int LArLATOMEDecoder::EventProcess::signEnergy(unsigned int energy){
+
   if( energy & (1<<17) )return energy-pow(2,18); else return energy;
 }
 

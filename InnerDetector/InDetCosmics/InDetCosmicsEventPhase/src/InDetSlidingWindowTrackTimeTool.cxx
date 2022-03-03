@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Track const* track
   }
 
 
-  TRTCond::RtRelation const* rtr = 0;
+  TRTCond::RtRelation const* rtr = nullptr;
 
   double timeresidualsum = 0;
   size_t ntrthits = 0;
@@ -102,16 +102,16 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Track const* track
       Trk::TrackParameters const* tparp = state->trackParameters();
       if (!tparp) continue;
       double trkdistance = tparp->parameters()[Trk::driftRadius];
-      double trkdrifttime = rtr->drifttime(fabs(trkdistance));
+      double trkdrifttime = rtr->drifttime(std::abs(trkdistance));
       double timeresidual = rawdrifttime - t0 + aT0 - trkdrifttime;
       ATH_MSG_DEBUG("trkdistance=" << trkdistance
                                    << "  trkdrifttime=" << trkdrifttime
                                    << "  timeresidual=" << timeresidual
                                    << " rawdrifttime=" << rawdrifttime);
       if (timeresidual < 2000
-          && std::fabs(trkdistance) < 2.8) {
+          && std::abs(trkdistance) < 2.8) {
         if (itr == 0
-            || std::fabs(timeresidual - windowCenter) < m_windowSize) {
+            || std::abs(timeresidual - windowCenter) < m_windowSize) {
           timeresidualsum += timeresidual;
           ++ntrthits;
         }
@@ -137,7 +137,7 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Segment const* seg
   int nhits = segment->numberOfMeasurementBases();
 
   std::vector<double> data{0., 0.1, -0.00087,0.};
-  TRTCond::RtRelation const* rtr = 0;
+  TRTCond::RtRelation const* rtr = nullptr;
 
   for (int i = 0; i < nhits; ++i) {
     Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(segment->measurement(i));

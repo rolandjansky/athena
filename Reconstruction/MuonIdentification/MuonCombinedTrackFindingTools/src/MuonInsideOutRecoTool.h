@@ -26,6 +26,8 @@
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "xAODTracking/VertexContainer.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
 namespace Muon {
     struct MuonCandidate;
     struct MuonLayerPrepRawData;
@@ -75,17 +77,18 @@ namespace MuonCombined {
                     Trk::SegmentCollection* segments) const;
 
         /** access data in layer */
-        bool getLayerData(int sector, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
-                          Muon::MuonStationIndex::LayerIndex layerIndex, Muon::MuonLayerPrepRawData& layerPrepRawData,
+        bool getLayerData(const Muon::MuonLayerSurface& surf, Muon::MuonLayerPrepRawData& layerPrepRawData,
                           IMuonCombinedInDetExtensionTool::MuonPrdData prdData) const;
 
         /** access data in layer for a given technology */
         template <class COL>
-        bool getLayerDataTech(int sector, Muon::MuonStationIndex::TechnologyIndex technology,
-                              Muon::MuonStationIndex::DetectorRegionIndex regionIndex, Muon::MuonStationIndex::LayerIndex layerIndex,
+        bool getLayerDataTech(Muon::MuonStationIndex::TechnologyIndex technology,
+                              const Muon::MuonLayerSurface& surf,
                               const Muon::MuonPrepDataContainer<COL>* input, std::vector<const COL*>& output) const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+                                                              "Handle to the service providing the IMuonEDMHelperSvc interface"};
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<Muon::IMuonLayerSegmentFinderTool> m_segmentFinder{this, "MuonLayerSegmentFinderTool",
                                                                       "Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"};

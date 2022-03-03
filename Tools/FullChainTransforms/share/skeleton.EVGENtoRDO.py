@@ -84,6 +84,15 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
@@ -120,14 +129,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
     import AthenaMP.EventService
-
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
@@ -209,12 +210,6 @@ try:
 except:
     fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator = runArgs.simulator
-else:
-    ISF_Flags.Simulator = 'FullG4'
-
 #### *********** import ISF_Example code here **************** ####
 
 include("ISF_Config/ISF_ConfigJobInclude.py")
@@ -225,11 +220,9 @@ if 'AthSequencer/EvgenGenSeq' in topSeq.getSequence():
     fast_chain_log.info("Pileup emulation enabled - setup GenEventStackFiller")
     include("FastChainPileup/FastPileupSimConfig.py")
 
-## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 ### Changing to post-sim include/exec
 ## Post-include

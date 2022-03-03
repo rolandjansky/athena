@@ -81,8 +81,8 @@ MuonSegmentPairMatchingTool::matchResult(const MuonSegment& seg1, const MuonSegm
     // MuonStationIndex::StIndex station_a = station1;
     // MuonStationIndex::StIndex station_b = station2;
 
-    const MuonSegment* pSeg_a = 0;
-    const MuonSegment* pSeg_b = 0;
+    const MuonSegment* pSeg_a = nullptr;
+    const MuonSegment* pSeg_b = nullptr;
 
     // bool swapped = false;
     if (station1 < station2) {
@@ -298,7 +298,7 @@ MuonSegmentPairMatchingTool::matchResult(const MuonSegment& seg1, const MuonSegm
 std::pair<Amg::Vector3D, Amg::Vector3D>
 MuonSegmentPairMatchingTool::getShortestTubePos(const Muon::MuonSegment& seg) const
 {
-    const Muon::MdtDriftCircleOnTrack* shortestMdt  = 0;
+    const Muon::MdtDriftCircleOnTrack* shortestMdt  = nullptr;
     double                             storedLength = 999999;
 
     // loop over hits, cast each hit to drift circle

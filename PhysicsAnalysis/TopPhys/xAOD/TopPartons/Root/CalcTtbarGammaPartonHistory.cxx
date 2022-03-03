@@ -6,7 +6,9 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopPartons/PartonHistoryUtils.h"
 
+
 namespace top {
+  using PartonHistoryUtils::decorateWithMPtPhi;
   CalcTtbarGammaPartonHistory::CalcTtbarGammaPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
 
   void CalcTtbarGammaPartonHistory::ttbarGammaHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
@@ -271,9 +273,8 @@ namespace top {
       } // undefined
 
 //------------------------------------------------------------------------------------------
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ph_m") = ph.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ph_pt") = ph.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ph_phi") = ph.Phi();
+     
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_ph", ph);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_ph_eta", ph);
 
       ttbarGammaPartonHistory->auxdecor< int >("MC_branchtype_t") = branchtype_t;
@@ -284,49 +285,33 @@ namespace top {
 //------------------------------------------------------------------------------------------
 
       TLorentzVector temp = t_before + tbar_before;
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ttbar_beforeFSR_m") = temp.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ttbar_beforeFSR_pt") = temp.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ttbar_beforeFSR_phi") = temp.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_ttbar_beforeFSR", temp);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_ttbar_beforeFSR_eta", temp);
 
       temp = WmDecay1 + WmDecay2 + b + WpDecay1 + WpDecay2 + bbar + ph;
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_m") = temp.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_pt") = temp.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_phi") = temp.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_ttbar_afterFSR", temp);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_ttbar_afterFSR_eta", temp);
     }
 
 //------------------------------------------------------------------------------------------
     if (event_top) {
-      ttbarGammaPartonHistory->auxdecor< float >("MC_t_beforeFSR_m") = t_before.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_t_beforeFSR_pt") = t_before.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_t_beforeFSR_phi") = t_before.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_t_beforeFSR", t_before);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_t_beforeFSR_eta", t_before);
-
-      ttbarGammaPartonHistory->auxdecor< float >("MC_t_afterFSR_m") = t_after.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_t_afterFSR_pt") = t_after.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_t_afterFSR_phi") = t_after.Phi();
+      
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_t_afterFSR", t_after);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_t_afterFSR_eta", t_after);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_W_from_t_m") = Wp.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_W_from_t_pt") = Wp.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_W_from_t_phi") = Wp.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_W_from_t", Wp);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_W_from_t_eta", Wp);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_b_from_t_m") = b.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_b_from_t_pt") = b.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_b_from_t_phi") = b.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_b_from_t", b);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_b_from_t_eta", b);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay1_from_t_m") = WpDecay1.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay1_from_t_pt") = WpDecay1.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay1_from_t_phi") = WpDecay1.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_Wdecay1_from_t", WpDecay1);
       ttbarGammaPartonHistory->auxdecor< int >("MC_Wdecay1_from_t_pdgId") = WpDecay1_pdgId;
       fillEtaBranch(ttbarGammaPartonHistory, "MC_Wdecay1_from_t_eta", WpDecay1);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_m") = WpDecay2.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_pt") = WpDecay2.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_phi") = WpDecay2.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_Wdecay2_from_t", WpDecay2);
       ttbarGammaPartonHistory->auxdecor< int >("MC_Wdecay2_from_t_pdgId") = WpDecay2_pdgId;
       fillEtaBranch(ttbarGammaPartonHistory, "MC_Wdecay2_from_t_eta", WpDecay2);
     }
@@ -334,35 +319,23 @@ namespace top {
 
 //-------------------------------------------------------------------------------------------
     if (event_topbar) {
-      ttbarGammaPartonHistory->auxdecor< float >("MC_tbar_beforeFSR_m") = tbar_before.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_tbar_beforeFSR_pt") = tbar_before.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_tbar_beforeFSR_phi") = tbar_before.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_tbar_beforeFSR", tbar_before);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_tbar_beforeFSR_eta", tbar_before);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_tbar_afterFSR_m") = tbar_after.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_tbar_afterFSR_pt") = tbar_after.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_tbar_afterFSR_phi") = tbar_after.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_tbar_afterFSR", tbar_after);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_tbar_afterFSR_eta", tbar_after);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_W_from_tbar_m") = Wm.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_W_from_tbar_pt") = Wm.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_W_from_tbar_phi") = Wm.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_W_from_tbar", Wm);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_W_from_tbar_eta", Wm);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_b_from_tbar_m") = bbar.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_b_from_tbar_pt") = bbar.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_b_from_tbar_phi") = bbar.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_b_from_tbar", bbar);
       fillEtaBranch(ttbarGammaPartonHistory, "MC_b_from_tbar_eta", bbar);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay1_from_tbar_m") = WmDecay1.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay1_from_tbar_pt") = WmDecay1.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay1_from_tbar_phi") = WmDecay1.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_Wdecay1_from_tbar", WmDecay1);
       ttbarGammaPartonHistory->auxdecor< int >("MC_Wdecay1_from_tbar_pdgId") = WmDecay1_pdgId;
       fillEtaBranch(ttbarGammaPartonHistory, "MC_Wdecay1_from_tbar_eta", WmDecay1);
 
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay2_from_tbar_m") = WmDecay2.M();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay2_from_tbar_pt") = WmDecay2.Pt();
-      ttbarGammaPartonHistory->auxdecor< float >("MC_Wdecay2_from_tbar_phi") = WmDecay2.Phi();
+      decorateWithMPtPhi(ttbarGammaPartonHistory,"MC_Wdecay2_from_tbar", WmDecay2);
       ttbarGammaPartonHistory->auxdecor< int >("MC_Wdecay2_from_tbar_pdgId") = WmDecay2_pdgId;
       fillEtaBranch(ttbarGammaPartonHistory, "MC_Wdecay2_from_tbar_eta", WmDecay2);
     }
@@ -378,7 +351,7 @@ namespace top {
     std::unique_ptr<xAOD::PartonHistoryAuxContainer> partonAuxCont(new xAOD::PartonHistoryAuxContainer());
     std::unique_ptr<xAOD::PartonHistoryContainer> partonCont(new xAOD::PartonHistoryContainer());
     partonCont->setStore(partonAuxCont.release());
-
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistory* ttbarGammaPartonHistory = new xAOD::PartonHistory {};
     partonCont->push_back(ttbarGammaPartonHistory);
 

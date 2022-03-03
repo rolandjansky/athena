@@ -61,13 +61,13 @@ class CaloClusterTopoGetter ( Configured )  :
     _outputType = "CaloClusterContainer" # the main (AOD) object type
     if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib() or jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
         _outputKey = "CaloCalTopoClusters" # the main (AOD) object key
-        _output = { _outputType : ["CaloCalTopoClusters","CaloTopoCluster"],
+        _output = { _outputType : ["CaloCalTopoClusters","CaloTopoClusters"],
                     "xAOD::CaloClusterAuxContainer" : ["CaloTopoClusterAux.","CaloCalTopoClustersAux."],
                     "CaloClusterCellLinkContainer" : ["CaloCalTopoClusters_links","CaloTopoCluster_links"]
                     }
     else:
-        _outputKey = "CaloTopoCluster" # the main (AOD) object key
-        _output = { _outputType : "CaloTopoCluster",
+        _outputKey = "CaloTopoClusters" # the main (AOD) object key
+        _output = { _outputType : "CaloTopoClusters",
                     "xAOD::CaloClusterAuxContainer" : "CaloTopoClusterAux.",
                     "CaloClusterCellLinkContainer" : "CaloTopoCluster_links"
                     }
@@ -338,7 +338,7 @@ class CaloClusterTopoGetter ( Configured )  :
 
 
 
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoClusters",SetCrossLinks=True)
 
             
         # maker tools
@@ -431,7 +431,7 @@ class CaloClusterTopoGetter ( Configured )  :
         if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
             CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         else:
-            CaloTopoCluster.ClustersOutputName="CaloTopoCluster"
+            CaloTopoCluster.ClustersOutputName="CaloTopoClusters"
         CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
             
         from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr

@@ -34,6 +34,14 @@ StatusCode SharedWriterTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
 
+  if( m_isPileup ) {
+    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
+    ATH_MSG_INFO("The job is running in pileup mode");
+  }
+  else {
+    ATH_MSG_INFO("The job is running in non-pileup mode");
+  }
+
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess()) return sc;
 
@@ -153,6 +161,27 @@ AthenaMP::AllWorkerOutputs_ptr SharedWriterTool::generateOutputReport()
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_func()
 {
+  // It's possible to debug SharedWriter just like any other AthenaMP worker.
+  // The following procedure provides a minimal explanation on how this can be achieved:
+  //
+  // Terminal #1:
+  // * Run athena w/ debugging enabled, e.g. athena.py --debugWorker --stdcmalloc --nprocs=8 [...]
+  // * In this mode, workers will be stopped after fork(), waiting for SIGUSR1 to be resumed
+  // * Find the PID of the worker to be debugged (printed by the job in stdout)
+  //
+  // Terminal #2:
+  // * Attach gdb to the relevant worker, i.e. gdb python PID
+  // * Once the symbols are loaded, one can perform any gdb action such as setting breakpoints etc.
+  // * Once ready, send SIGUSR1 to the worker to resume work, i.e. signal SIGUSR1 (in gdb)
+  //
+  // Terminal #3:
+  // * Send SIGUSR1 to the remaining workers (easiest to use htop)
+  //
+  // However, note that sometimes Shared I/O infrastructure struggles with timing problems,
+  // such as server/client(s) starting/stopping too early/later. Debugging can change this
+  // behavior so please keep this in mind.
+  if(m_debug) waitForSignal();
+
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
   *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
@@ -181,11 +210,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
     return outwork;
   }
 
-  // Redirect logs
-  if(redirectLog(writer_rundir.string()))
-    return outwork;
+  // __________ Redirect logs unless we want to attach debugger ____________
+  if(!m_debug) {
+    if(redirectLog(writer_rundir.string()))
+      return outwork;
 
-  ATH_MSG_INFO("Logs redirected in the AthenaMP Shared Writer PID=" << getpid());
+    ATH_MSG_INFO("Logs redirected in the AthenaMP Shared Writer PID=" << getpid());
+  }
 
   // Update Io Registry
   if(updateIoReg(writer_rundir.string()))
@@ -250,7 +281,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   if(sc.isFailure() || sharedWriterSvc==0) {
     ATH_MSG_ERROR("Error retrieving AthenaRootSharedWriterSvc");
     all_ok=false;
-  } else if(!sharedWriterSvc->share(m_nprocs).isSuccess()) {
+  } else if(!sharedWriterSvc->share(m_nprocs, m_nMotherProcess.value()).isSuccess()) {
     ATH_MSG_ERROR("Exec function could not share data");
     all_ok=false;
   }

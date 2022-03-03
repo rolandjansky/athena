@@ -445,7 +445,7 @@ namespace Muon {
                         addSegment = false;
                         break;
                     } else if (overlapResult == CompareMuonSegmentKeys::SuperSet) {
-                        key_pair.first = std::move(key);
+                        key_pair.first = key;
                         key_pair.second = seg.get();
                         addSegment = false;
                         break;

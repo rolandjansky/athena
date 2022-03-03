@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file StoreGateSvc.icc
@@ -629,7 +629,7 @@ StoreGateSvc::transientContains(const CLID& id, const TKEY& key) const
 template <typename T>
 void
 StoreGateSvc::keys(std::vector<std::string>& vkeys, 
-                   bool includeAlias, bool onlyValid) {
+                   bool includeAlias, bool onlyValid) const {
   return this->keys(ClassID_traits<T>::ID(), vkeys, includeAlias, onlyValid);
 } 
 
@@ -1085,7 +1085,7 @@ StoreGateSvc::fromStorable(DataObject* pObject, T*& pData) {
 /// DEPRECATED, use version taking ref to vector
 template <typename T>
 std::vector<std::string> //FIXME inefficient. Should take ref to vector
-StoreGateSvc::keys(bool allKeys) {
+StoreGateSvc::keys(bool allKeys) const {
   return this->keys(ClassID_traits<T>::ID(), allKeys);
 }
 

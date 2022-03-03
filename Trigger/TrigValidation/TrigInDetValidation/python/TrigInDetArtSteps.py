@@ -98,22 +98,14 @@ class TrigInDetReco(ExecStep):
                 # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH',"
                 chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e5_idperf_loose_L1EM3',"
+                chains += "'HLT_e26_idperf_loose_L1EM22VHI',"
                 chains += "'HLT_e5_idperf_tight_L1EM3',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron-tnp') :
-                chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e5_idperf_loose_L1EM3',"
-                chains += "'HLT_e5_idperf_tight_L1EM3',"
-                chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
-                chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
@@ -128,7 +120,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
+                flags  += "doMinBiasSlice=True;setMenu='PhysicsP1_pp_lowMu_run3_v1';"
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU3V'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
@@ -142,6 +134,8 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+        # disable CPS which may otherwise conflict with the selectChains option (ATR-24744)
+        self.preexec_trig += ';from AthenaConfiguration.AllConfigFlags import ConfigFlags;ConfigFlags.Trigger.disableCPS=True'
         
         AVERSION = ""
         # temporary hack until we get to the bottom of why the tests are really failing
@@ -297,7 +291,8 @@ class TrigInDetCompStep(RefComparisonStep):
         os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-tier0.dat &> /dev/null' )
-    
+        os.system( 'get_files -data TIDAhisto-tier0-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-tier0-TnP.dat &> /dev/null' )    
 
     def configure(self, test):
         RefComparisonStep.configure(self, test)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def ListRemaps():
     #function to get all of the remapped names needed in PFRun3Config.py
@@ -34,7 +34,8 @@ def ListRemaps():
         InputRenameCfg ('xAOD::TauJetContainer','TauJets.chargedFELinks','TauJets.chargedFELinks_renamed'),
         InputRenameCfg ('xAOD::FlowElementContainer','JetETMissChargedFlowElements.FE_TauLinks','JetETMissChargedFlowElements.FE_TauLinks_renamed'),
         InputRenameCfg ('xAOD::FlowElementContainer','JetETMissNeutralFlowElements.FE_TauLinks','JetETMissNeutralFlowElements.FE_TauLinks_renamed'),
-        #Remap the origin corrected topoclusters
+        #Remap the calibrated and origin corrected topoclusters
+        InputRenameCfg ('xAOD::CaloClusterContainer','CaloCalTopoClusters','CaloCalTopoClusters_renamed'),
         InputRenameCfg ('xAOD::CaloClusterContainer','LCOriginTopoClusters','LCOriginTopoClusters_renamed'),
         InputRenameCfg ('xAOD::CaloClusterContainer','EMOriginTopoClusters','EMOriginTopoClusters_renamed'),
         #Remap the muon cluster links to topoclusters

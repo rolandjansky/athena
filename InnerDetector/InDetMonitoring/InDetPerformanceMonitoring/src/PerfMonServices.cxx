@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
@@ -7,12 +7,11 @@
 #include "GaudiKernel/StatusCode.h"
 
 // NULL the static pointers
-ISvcLocator*    PerfMonServices::s_pxSvcLocator   = NULL;
-ITHistSvc*      PerfMonServices::s_pxTHistSvc     = NULL;
-IMessageSvc*    PerfMonServices::s_pxMessageSvc   = NULL;
-StoreGateSvc*   PerfMonServices::s_pxStoreGateSvc = NULL;
-INTupleSvc*     PerfMonServices::s_pxNtupleSvc    = NULL;
-IAtRndmGenSvc*  PerfMonServices::s_pxAtRndmGenSvc = NULL;
+ISvcLocator*    PerfMonServices::s_pxSvcLocator   = nullptr;
+ITHistSvc*      PerfMonServices::s_pxTHistSvc     = nullptr;
+IMessageSvc*    PerfMonServices::s_pxMessageSvc   = nullptr;
+StoreGateSvc*   PerfMonServices::s_pxStoreGateSvc = nullptr;
+INTupleSvc*     PerfMonServices::s_pxNtupleSvc    = nullptr;
 
 // Names of the various containers.
 const std::string PerfMonServices::s_sContainerNames[NUM_CONTAINERS] = { "MuidMuonCollection",
@@ -59,7 +58,6 @@ StatusCode PerfMonServices::InitialiseServices( ISvcLocator* pxSvcLocator )
   bRegisterSuccess &= InitialiseStoreGate();
   bRegisterSuccess &= InitialiseRootTuple();
   bRegisterSuccess &= InitialiseHistograms();
-  bRegisterSuccess &= InitialiseRandom();
 
   //MsgStream log( s_pxMessageSvc, "Services" );
   if ( !bRegisterSuccess )
@@ -99,12 +97,6 @@ bool PerfMonServices::InitialiseHistograms()
 {
   StatusCode xStatus = s_pxSvcLocator->service( "THistSvc", s_pxTHistSvc);
   return CheckServiceInit( xStatus, !s_pxTHistSvc /* , "Histogram" */ );
-}
-
-bool PerfMonServices::InitialiseRandom()
-{
-  StatusCode xStatus = s_pxSvcLocator->service( "AtRndmGenSvc", s_pxAtRndmGenSvc, true);
-  return CheckServiceInit( xStatus, !s_pxAtRndmGenSvc /* , "random number" */ );
 }
 
 // Small status check utility function for the initialisers above

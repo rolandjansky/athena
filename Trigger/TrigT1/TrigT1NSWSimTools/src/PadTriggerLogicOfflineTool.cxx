@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadTriggerLogicOfflineTool.h"
@@ -25,7 +25,6 @@
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 

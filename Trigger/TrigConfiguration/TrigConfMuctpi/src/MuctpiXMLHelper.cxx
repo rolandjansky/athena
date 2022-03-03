@@ -64,7 +64,7 @@ std::string
 MuctpiXMLHelper::getAttribute(const ptree & tree, const string & attr) {
    if( ! hasAttribute(tree, attr) ) {
       TRG_MSG_WARNING("attribute " << attr << " does not exist");
-      return 0;
+      return "";
    }
    return readAttribute(tree,attr);
 }

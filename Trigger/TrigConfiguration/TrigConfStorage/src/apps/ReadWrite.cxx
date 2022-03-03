@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -378,7 +378,7 @@ int main( int argc, char* argv[] ) {
       errf = new ofstream(errfn.c_str());
    }
    ostream& log = (outf==0?cout:*outf);
-   ostream& logerr = (outf==0?cerr:*errf);
+   ostream& logerr = (errf==0?cerr:*errf);
    ostream& (*lineend) ( ostream& os ) = &endl;
 
    string check = gConfig.CheckForCompleteSetup();

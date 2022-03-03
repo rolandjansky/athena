@@ -8,16 +8,7 @@
 #include "CxxUtils/sincos.h"
 #include "GaudiKernel/MsgStream.h"
 
-MuonHoughPattern::MuonHoughPattern(int id_number, bool ownhits) :
-    MuonHoughHitContainer(ownhits),
-    m_id_number(id_number),
-    m_whichsegment(false),
-    m_ephi(-M_PI / 2.),
-    m_erphi(0.),
-    m_etheta(M_PI / 2.),
-    m_ertheta(0.),
-    m_ecurvature(1.),
-    m_maximumhistogram(0.) {}
+MuonHoughPattern::MuonHoughPattern(int id_number, bool ownhits) : MuonHoughHitContainer(ownhits), m_id_number(id_number) {}
 
 void MuonHoughPattern::resetTracksegment() {
     for (unsigned int i = 0; i < m_hit.size(); i++) {
@@ -38,7 +29,6 @@ bool MuonHoughPattern::hitInHoughPattern(MuonHoughHit* hit) const  // adviced no
 }
 
 double MuonHoughPattern::patternLength() const {
-    MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::patternLength");
     // takes the first 2 hits and calculates distance and then takes next hit, and calculates from previous 2 hits which 2 are farthest
     // away, etc.. also possible to calculate point closest to IP and determine if left/ right to pattern, app. just as fast.
 
@@ -49,22 +39,15 @@ double MuonHoughPattern::patternLength() const {
         int hitno1 = 0;
         int hitno2 = 1;
 
-        std::vector<double> diff(3);
-        diff[0] = m_hit[hitno1]->getHitx() - m_hit[hitno2]->getHitx();
-        diff[1] = m_hit[hitno1]->getHity() - m_hit[hitno2]->getHity();
-        diff[2] = m_hit[hitno1]->getHitz() - m_hit[hitno2]->getHitz();
-        max_patternlength = m_muonhoughmathutils.abs(diff);
+        Amg::Vector3D diff = m_hit[hitno1]->getPosition() - m_hit[hitno2]->getPosition();
+        max_patternlength = diff.mag();
 
         for (unsigned int i = 2; i < m_hit.size(); i++) {
-            diff[0] = m_hit[hitno1]->getHitx() - m_hit[i]->getHitx();
-            diff[1] = m_hit[hitno1]->getHity() - m_hit[i]->getHity();
-            diff[2] = m_hit[hitno1]->getHitz() - m_hit[i]->getHitz();
-            pattern_length1 = m_muonhoughmathutils.abs(diff);
+            diff = m_hit[hitno1]->getPosition() - m_hit[i]->getPosition();
+            pattern_length1 = diff.mag();
 
-            diff[0] = m_hit[hitno2]->getHitx() - m_hit[i]->getHitx();
-            diff[1] = m_hit[hitno2]->getHity() - m_hit[i]->getHity();
-            diff[2] = m_hit[hitno2]->getHitz() - m_hit[i]->getHitz();
-            pattern_length2 = m_muonhoughmathutils.abs(diff);
+            diff = m_hit[hitno2]->getPosition() - m_hit[i]->getPosition();
+            pattern_length2 = diff.mag();
 
             if (pattern_length1 <= max_patternlength && pattern_length2 <= max_patternlength) {
                 // nothing happens..
@@ -77,6 +60,7 @@ double MuonHoughPattern::patternLength() const {
             }
         }
     } else {
+        MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::patternLength");
         if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "MuonHoughPattern::pattern_size <2" << endmsg;
     }
 
@@ -124,7 +108,6 @@ void MuonHoughPattern::printHoughPattern() const {
 }
 
 double MuonHoughPattern::getEAngle() const {
-    MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::getEAngle");
     double eangle = 0;
     switch (m_id_number) {
         case MuonHough::hough_xy: eangle = m_ephi; break;
@@ -134,13 +117,13 @@ double MuonHoughPattern::getEAngle() const {
         case MuonHough::hough_rz_mdt:
         case MuonHough::hough_curved_at_a_cylinder: eangle = m_etheta; break;
         default:
+            MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::getEAngle");
             if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
     return eangle;
 }
 
 double MuonHoughPattern::getER() const {
-    MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::getER");
     double er = 0;
     switch (m_id_number) {
         case MuonHough::hough_xy: er = m_erphi; break;
@@ -150,13 +133,13 @@ double MuonHoughPattern::getER() const {
         case MuonHough::hough_rz_mdt:
         case MuonHough::hough_curved_at_a_cylinder: er = m_ertheta; break;
         default:
+            MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::getER");
             if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
     return er;
 }
 
 void MuonHoughPattern::setEAngle(double eangle) {
-    MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::setEAngle");
     switch (m_id_number) {
         case MuonHough::hough_xy: m_ephi = eangle; break;
         case MuonHough::hough_rz:
@@ -165,12 +148,12 @@ void MuonHoughPattern::setEAngle(double eangle) {
         case MuonHough::hough_rz_mdt:
         case MuonHough::hough_curved_at_a_cylinder: m_etheta = eangle; break;
         default:
+            MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::setEAngle");
             if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
 }
 
 void MuonHoughPattern::setER(double er) {
-    MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::setER");
     switch (m_id_number) {
         case MuonHough::hough_xy: m_erphi = er; break;
         case MuonHough::hough_rz:
@@ -179,18 +162,19 @@ void MuonHoughPattern::setER(double er) {
         case MuonHough::hough_rz_mdt:
         case MuonHough::hough_curved_at_a_cylinder: m_ertheta = er; break;
         default:
+            MsgStream log(Athena::getMessageSvc(), "MuonHoughPattern::setER");
             if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
 }
 
-std::vector<double> MuonHoughPattern::getEPos() const {
+Amg::Vector3D MuonHoughPattern::getEPos() const {
     // similar to StandardAlgs::shortestPointOfLineToOrigin3D
 
     // should be maybe really shortest point, but
 
     // problem is that there is no starting point on the line (well this calc. pos could be available)
 
-    std::vector<double> pos(3);
+    Amg::Vector3D pos;
 
     pos[0] = m_erphi * std::sin(m_ephi);
     pos[1] = -m_erphi * std::cos(m_ephi);
@@ -203,13 +187,11 @@ std::vector<double> MuonHoughPattern::getEPos() const {
     return pos;
 }
 
-std::vector<double> MuonHoughPattern::getEDir() const {
-    std::vector<double> dir(3);
-
-    dir[0] = std::cos(m_ephi) * std::sin(m_etheta);
-    dir[1] = std::sin(m_ephi) * std::sin(m_etheta);
-    dir[2] = std::cos(m_etheta);
-
+Amg::Vector3D MuonHoughPattern::getEDir() const {
+    ///
+    CxxUtils::sincos scphi(m_ephi);
+    CxxUtils::sincos sctheta(m_etheta);
+    const Amg::Vector3D dir{scphi.cs * sctheta.sn, scphi.sn * sctheta.sn, sctheta.cs};
     return dir;
 }
 

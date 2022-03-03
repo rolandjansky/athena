@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EvtIdModifierSvc.cxx 
@@ -42,7 +42,6 @@ EvtIdModifierSvc::EvtIdModifierSvc( const std::string& name,
                                     ISvcLocator* pSvcLocator ) : 
   ::AthService( name, pSvcLocator ),
   m_evtCounter (1),
-  m_activeStore("ActiveStoreSvc", name),
   m_current()
 {
   //
@@ -136,10 +135,6 @@ StatusCode EvtIdModifierSvc::initialize()
   }
   m_evtCounter = 1;
 
-  if (!m_activeStore.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("could not retrieve ActiveStoreSvc");
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -265,9 +260,9 @@ void
 EvtIdModifierSvc::modify_evtid(EventID*& evt_id, bool consume_stream)
 {
   // only when consuming stream is required do we check for a matching
-  // active-store name (ie: typically the case of being called from a T/P cnv)
+  // current StoreGate name (ie: typically the case of being called from a T/P cnv)
   if (consume_stream) {
-    StoreGateSvc *active = m_activeStore->activeStore();
+    StoreGateSvc *active = StoreGateSvc::currentStoreGate();
     if (!active) {
       ATH_MSG_INFO("could not retrieve the active evtstore - bailing out");
       return;

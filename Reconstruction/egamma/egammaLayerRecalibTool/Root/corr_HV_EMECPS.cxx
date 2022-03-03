@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cmath>
 #include <string>
+#include <utility>
 
 #include <TH2D.h>
 #include <TFile.h>
@@ -49,10 +50,10 @@ float corr_HV_EMECPS::getCorr(int run, float eta,float phi) const
    if (!m_HV[iside]) {
       std::cerr << " cannot find histogram to apply correction " << std::endl;
    } else {
-      int ibin = m_HV[iside]->GetXaxis()->FindBin(((Double_t)(run+0.1)));
+     int ibin = std::as_const(*m_HV[iside]).GetXaxis()->FindFixBin(((Double_t)(run+0.1)));
       if (ibin<1 || ibin>7) return newCorr;
       if (phi>3.14159) phi=phi-6.283185;
-      int jbin = m_HV[iside]->GetYaxis()->FindBin(phi);
+      int jbin = std::as_const(*m_HV[iside]).GetYaxis()->FindFixBin(phi);
       if (jbin<1 || jbin>2048) return newCorr;
       newCorr =  m_HV[iside]->GetBinContent(ibin,jbin); 
    }

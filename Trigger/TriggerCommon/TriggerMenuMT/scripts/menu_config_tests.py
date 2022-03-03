@@ -4,7 +4,7 @@
 Tests to verify generated menus are valid.
 
 Ported from TrigConfStorage/ConfigurationCheck.cxx and
-HLTMenuConfig/Menu/TriggerConfigHLT.py, see [ATR-19830].
+HLT/Config/Utility/HLTMenuConfig.py, see [ATR-19830].
 
 Designed to be used by the `verify_menu_config.py` script.
 '''
@@ -14,7 +14,7 @@ from enum import Enum
 from collections import Counter
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Combined' )
+log = logging.getLogger( 'TriggerMenuMT.HLT.Combined' )
 logging.getLogger().info("Importing %s",__name__)
 
 class TriggerLevel(Enum):
@@ -180,7 +180,7 @@ class PartialEventBuildingChecks(MenuVerification):
             description='Config consistency of Partial Event Building')
 
     def run(self, config):
-        from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+        from TriggerMenuMT.HLT.Menu import EventBuildingInfo
         eb_identifiers = EventBuildingInfo.getAllEventBuildingIdentifiers()
 
         for chain_name, chain_config in config['chains'].items():

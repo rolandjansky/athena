@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
@@ -18,17 +18,18 @@
 
 namespace TrkDriftCircleMath {
 
-    SegmentFinder::SegmentFinder() {
-        m_fitter = std::make_shared<DCSLFitter>();
-
+    SegmentFinder::SegmentFinder()
+      : m_fitter (std::make_shared<DCSLFitter>())
+    {
         // update the cached directions
         updateDirections();
     }
 
     SegmentFinder::SegmentFinder(double roadWidth, double deltaCut, bool fullScan) :
-        m_deltaCut{deltaCut}, m_roadWidth{roadWidth}, m_fullScan{fullScan} {
-        m_fitter = std::make_shared<DCSLFitter>();
-
+        m_deltaCut{deltaCut}, m_roadWidth{roadWidth},
+        m_fitter (std::make_shared<DCSLFitter>()),
+        m_fullScan{fullScan}
+    {
         // update the cached directions
         updateDirections();
     }
@@ -251,7 +252,7 @@ namespace TrkDriftCircleMath {
         return selectedSegments;
     }
 
-    std::pair<DCVec, DCVec> SegmentFinder::splitInMulitlayers(const DCVec& dcs) const {
+    std::pair<DCVec, DCVec> SegmentFinder::splitInMulitlayers(const DCVec& dcs) {
         DCVec ml1, ml2;
         ml1.reserve(dcs.size());
         ml2.reserve(dcs.size());
@@ -264,7 +265,7 @@ namespace TrkDriftCircleMath {
         return std::make_pair(std::move(ml1), std::move(ml2));
     }
 
-    DCVec SegmentFinder::selectSeeds(const DCVec& dcs, int maxSerie) const {
+    DCVec SegmentFinder::selectSeeds(const DCVec& dcs, int maxSerie) {
         // this algorithm assumes a sorted collection!!
         if (dcs.size() <= 2) return dcs;
 
@@ -364,7 +365,7 @@ namespace TrkDriftCircleMath {
                             std::cout << " after fit " << std::endl;
                             std::cout << result << std::endl;
                         }
-                        resultSeg = std::move(result);
+                        resultSeg = result;
 
                         // update match parameters
                         updateMatch(resultSeg, matchWithLine);
@@ -548,7 +549,7 @@ namespace TrkDriftCircleMath {
                             matchWithLine.set(result.line(), 0.7 * m_deltaCut, MatchDCWithLine::Pull, tubeRadius());
                             usePrecise = result.hasT0Shift();
                             hitsOnLine = matchWithLine.match(result.dcs(), &selection, m_recoverMdtHits, usePrecise);
-                            newSegment = std::move(result);
+                            newSegment = result;
                             // reset DCOnTracks
                             newSegment.dcs(hitsOnLine);
                             if (m_debugLevel >= 5) std::cout << " redid refit " << newSegment << std::endl;
@@ -682,7 +683,7 @@ namespace TrkDriftCircleMath {
                     }
 
                     // reject segment if slected has clusters and current doesn't
-                    if (sit->clusters().size() > 0 && it->clusters().size() == 0) {
+                    if (!sit->clusters().empty() && it->clusters().empty()) {
                         addSeg = false;
                         break;
                     }
@@ -718,7 +719,7 @@ namespace TrkDriftCircleMath {
                                        MatchDCWithLine& matchWithLine,
                                        ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments) const {
         // create tangent lines
-        TangentToCircles::LineVec lines = m_tanCreator.tangentLines(seed1, seed2);
+        TangentToCircles::LineVec lines = TrkDriftCircleMath::TangentToCircles::tangentLines(seed1, seed2);
 
         // loop over tangent lines match dcs with line
         for (TangentToCircles::LineVec::const_iterator lit = lines.begin(); lit != lines.end(); ++lit) {
@@ -837,7 +838,7 @@ namespace TrkDriftCircleMath {
         }
     }
 
-    void SegmentFinder::updateMatch(Segment& seg, MatchDCWithLine& matchWithLine) const {
+    void SegmentFinder::updateMatch(Segment& seg, MatchDCWithLine& matchWithLine) {
         seg.deltas(matchWithLine.deltas());
         seg.hitsOutOfTime(matchWithLine.hitsOutOfTime());
         seg.hitsOnTrack(matchWithLine.hitsOnTrack());
@@ -884,7 +885,7 @@ namespace TrkDriftCircleMath {
         }
     }
 
-    DCVec SegmentFinder::removeDCOnSegments(const DCVec& dcs, const SegVec& segs) const {
+    DCVec SegmentFinder::removeDCOnSegments(const DCVec& dcs, const SegVec& segs) {
         if (segs.empty()) return dcs;
 
         DCVec newdcs;

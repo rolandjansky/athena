@@ -37,7 +37,6 @@
 
 #include <vector>
 
-#include "xAODEventInfo/EventInfo.h"
 #include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"

@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+# Minimum CMake requirement for the package.
+cmake_minimum_required( VERSION 3.21 )
+
 # Declare the package name:
 atlas_subdir( QGSJet_i )
 
@@ -33,6 +36,7 @@ atlas_install_runtime( share/file/qgsjet_crmc.param )
 
 # Install files from Crmc.
 foreach( _file "sectnu-II-04" "qgsdat-II-04.lzma" )
+   unset( _datFile )
    find_file( _datFile "${_file}"
       PATHS "${CRMC_LCGROOT}"
       PATH_SUFFIXES "tabs" "share/crmc"

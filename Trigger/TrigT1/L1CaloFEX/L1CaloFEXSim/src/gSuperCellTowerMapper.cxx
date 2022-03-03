@@ -44,14 +44,14 @@ StatusCode gSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<gTowe
   static constexpr float delta_phi = M_PI/32;
   static constexpr float delta_eta = 0.1;
 
-  SG::ReadHandle<xAOD::TriggerTowerContainer> jk_triggerTowerCollection(m_triggerTowerCollectionSGKey/*,ctx*/);
-  if(!jk_triggerTowerCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_triggerTowerCollection " << m_triggerTowerCollectionSGKey.key() );
+  SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowerCollection(m_triggerTowerCollectionSGKey/*,ctx*/);
+  if(!triggerTowerCollection.isValid()){
+    ATH_MSG_FATAL("Could not retrieve triggerTowerCollection " << m_triggerTowerCollectionSGKey.key() );
     return StatusCode::FAILURE;
   }
 
 
-  for(auto eachTower : *jk_triggerTowerCollection) {
+  for(auto eachTower : *triggerTowerCollection) {
     if(fabs(eachTower->eta())<1.5 && eachTower->sampling()==1) {
       int tile_iphi = int(eachTower->phi()/delta_phi);
       int tower_iphi = tile_iphi/2;
@@ -79,7 +79,7 @@ StatusCode gSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<gTowe
       if((targetTower = my_gTowerContainerRaw->findTower(towerid)))
       {
         // Set the ET to the gTower, with layer 1 to specify this comes from the HAD
-        targetTower->setET(static_cast<int>(eachTower->jepET()) * 1000., 1);
+        targetTower->addET(static_cast<int>(eachTower->jepET()) * 1000., 1);
       } else
       {
         ATH_MSG_WARNING("\n==== gSuperCellTowerMapper ============ Tower id is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
@@ -98,9 +98,9 @@ StatusCode gSuperCellTowerMapper::AssignSuperCellsToTowers(std::unique_ptr<gTowe
 {
   bool doPrint = true;
 
-  SG::ReadHandle<CaloCellContainer> jk_scellsCollection(m_scellsCollectionSGKey/*,ctx*/);
-  if(!jk_scellsCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_scellsCollection " << m_scellsCollectionSGKey.key() );
+  SG::ReadHandle<CaloCellContainer> scellsCollection(m_scellsCollectionSGKey/*,ctx*/);
+  if(!scellsCollection.isValid()){
+    ATH_MSG_FATAL("Could not retrieve scellsCollection " << m_scellsCollectionSGKey.key() );
     return StatusCode::FAILURE;
   }
 
@@ -108,7 +108,7 @@ StatusCode gSuperCellTowerMapper::AssignSuperCellsToTowers(std::unique_ptr<gTowe
   const CaloCell_Base_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
 
-  for (const auto& cell : * jk_scellsCollection){
+  for (const auto& cell : * scellsCollection){
 
     const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
     const Identifier ID = (cell)->ID(); // super cell unique ID
@@ -124,7 +124,15 @@ StatusCode gSuperCellTowerMapper::AssignSuperCellsToTowers(std::unique_ptr<gTowe
     // Since in any case the SC assignment won't be regular, the eta and phi bins are combined directly in the FindAndConnectTower
     FindAndConnectTower(my_gTowerContainerRaw,sample,region,pos_neg,eta_index,phi_index,ID,et,prov,doPrint);
 
+    
   }
+
+  for (auto gTower : *my_gTowerContainerRaw)
+  {
+    gTower->setET();
+
+  }
+
 
   return StatusCode::SUCCESS;
 
@@ -137,14 +145,15 @@ void gSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<gTowerContai
 
   if(tmpTower){
     tmpTower->setSCID(ID);
-    tmpTower->setET(et, 0); // layer is always 0 (EM) for SuperCells
+    tmpTower->addET(et, 0); // layer is always 0 (EM) for SuperCells
+ 
   }
 
 }
 
 int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> & my_gTowerContainerRaw,CaloSampling::CaloSample sample,const int region, const int pos_neg, const int eta_index, const int phi_index, Identifier ID, float et, int prov,bool doPrint) const
 {
-  // bool as a flag to enable or disable the connection of supercells to towers according to their location and identities
+
   bool validcell = true;
 
   // We tell the gTower which supercell unique ID is in each tower
@@ -233,7 +242,9 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
     case CaloSampling::PreSamplerE: {
 
       nphi = 32;
-      towereta = 7 + std::ceil(eta_index / 2.); //This is a special case, as there are only 3 cells in eta 1.56 (gFEX bin 7), 1.66 (gFEX bin 8), 1.76 (gFEX bin 8)
+      // towereta = 7 + std::ceil(eta_index / 2.); //This is a special case, as there are only 3 cells in eta 1.56 (gFEX bin 7), 1.66 (gFEX bin 8), 1.76 (gFEX bin 8)
+      if (eta_index < 1) {towereta = 7;}
+        else {towereta = 8;}
       towerphi = phi_index / 2; // phi is 32 for gTowers
 
 
@@ -270,15 +281,16 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
       }
       case 3: {
 
-        // calc ID
-        towereta = 9;
+        if (eta_index < 11) {towereta = 8;}
+        else {towereta = 9;}
         towerphi = phi_index/2;
         break;
 
       }
       case 4: {
 
-        towereta = 10 + (eta_index / 8);
+        if (eta_index < 8) {towereta = 10;}
+        else {towereta = 11;}
         towerphi = phi_index/2;
 
         break;
@@ -326,13 +338,11 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           }
           else if (eta_index == 1){
             towereta = 13;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if (eta_index == 2){
             towereta = 14;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
         }
         break;
@@ -347,9 +357,8 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           else if (eta_index < 43) {towereta = 11;}
         }
         else if(abs(pos_neg) == 3){
-          towerphi = phi_index/2;
-          towereta = 14;
-          nphi = 16;
+          towerphi = phi_index;
+          towereta = 15;
         }
         break;
       }
@@ -365,11 +374,11 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
         if(pos_neg < 0){ towerID_Modifier = 300000; }
         else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
-      else if ((towereta == 13) || (towereta == 14)){
+      else if (towereta == 12 || towereta == 13 || towereta == 14 || towereta == 15){
         if(pos_neg < 0){ towerID_Modifier = 700000; }
         else if(pos_neg > 0){ towerID_Modifier = 800000; }
       }
-      else {//else if (towereta < 13)
+      else {
         if(pos_neg < 0){ towerID_Modifier = 500000; }
         else if(pos_neg > 0){ towerID_Modifier = 600000; }
       }
@@ -407,21 +416,18 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           }
           else if (eta_index == 1){
             towereta = 13;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if (eta_index == 2){
             towereta = 14;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
         }
         break;
       }
       case 1: { // we only have the case: abs(pos_neg) = 3
-        towerphi = phi_index/2;
-        towereta = 14;
-        nphi = 16;
+        towerphi = phi_index;
+        towereta = 15;
         break;
       }
       default: {
@@ -435,16 +441,14 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
         if(pos_neg < 0){ towerID_Modifier = 300000; }
         else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
-      else if (towereta < 13){
-        if(pos_neg < 0){ towerID_Modifier = 500000; }
-        else if(pos_neg > 0){ towerID_Modifier = 600000; }
-      }
-      else { //if towereta = 13, 14
+      else if (towereta == 12 || towereta == 13 || towereta == 14 || towereta == 15){
         if(pos_neg < 0){ towerID_Modifier = 700000; }
         else if(pos_neg > 0){ towerID_Modifier = 800000; }
       }
-
-
+      else {
+        if(pos_neg < 0){ towerID_Modifier = 500000; }
+        else if(pos_neg > 0){ towerID_Modifier = 600000; }
+      }
       break;
     }
       // Hadronic End-cap (HEC)
@@ -479,22 +483,18 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           if (eta_index == 0){
             towereta = 12;
             towerphi = phi_index;
-            nphi = 32;
           }
           else if(eta_index == 1){
             towereta = 13;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if(eta_index == 2){
             towereta = 14;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if(eta_index == 3){
             towereta = 15;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
         }
         break;
@@ -514,21 +514,16 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
         if(pos_neg < 0){ towerID_Modifier = 300000; }
         else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
-      else if (towereta < 13){
+      else if (towereta == 12 || towereta == 13 || towereta == 14 || towereta == 15){
+        if(pos_neg < 0){ towerID_Modifier = 700000; }
+        else if(pos_neg > 0){ towerID_Modifier = 800000; }
+      }
+      else {
         nphi = 32;
         if(pos_neg < 0){ towerID_Modifier = 500000; }
         else if(pos_neg > 0){ towerID_Modifier = 600000; }
       }
-      else if ((towereta == 13) || (towereta == 14)){
-        nphi = 16;
-        if(pos_neg < 0){ towerID_Modifier = 700000; }
-        else if(pos_neg > 0){ towerID_Modifier = 800000; }
-      }
-      else if (towereta == 15){
-        nphi = 16;
-        if(pos_neg < 0){ towerID_Modifier = 900000; }
-        else if(pos_neg > 0){ towerID_Modifier = 1000000; }
-      }
+      
       break;
     }
     case CaloSampling::TileBar0:
@@ -556,47 +551,38 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
     case CaloSampling::FCAL0:{
       nphi = 16;
       towerphi = phi_index;
-      if (eta_index == 0){
-        towereta = 14;
-      }
-      else if(eta_index < 6){
-        towereta = 15;
-      }
-      else if(eta_index < 8){
+      if(eta_index < 5){
         towereta = 16;
       }
-      else if(eta_index < 10){
+      else if(eta_index < 8){
         towereta = 17;
+      }
+      else if(eta_index < 10){
+        towereta = 18;
         }
       else if(eta_index < 12){
-        towereta = 18;
+        towereta = 19;
       }
 
-      if (towereta == 14){
-        if(pos_neg < 0){ towerID_Modifier = 700000; }
-        else if(pos_neg > 0){ towerID_Modifier = 800000; }
-      }
-      else{
-        if(pos_neg < 0){ towerID_Modifier = 900000; }
+      if(pos_neg < 0){ towerID_Modifier = 900000; }
         else if(pos_neg > 0){ towerID_Modifier = 1000000; }
-      }
 
       break;
     }
     case CaloSampling::FCAL1:{
       nphi = 16;
       towerphi = phi_index;
-      if (eta_index < 5){
-        towereta = 15;
-      }
-      else if(eta_index < 6){
+      if (eta_index < 4){
         towereta = 16;
       }
-      else if(eta_index < 7){
+      else if(eta_index < 6){
         towereta = 17;
       }
-      else if(eta_index < 8){
+      else if(eta_index < 7){
         towereta = 18;
+      }
+      else if(eta_index < 8){
+        towereta = 19;
       }
 
       if(pos_neg < 0){ towerID_Modifier = 900000; }
@@ -607,14 +593,14 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
     case CaloSampling::FCAL2:{
       nphi = 16;
       towerphi = phi_index;
-      if (eta_index < 2){
-        towereta = 15;
-      }
-      else if(eta_index < 3){
+      if (eta_index < 1){
         towereta = 16;
       }
-      else if(eta_index < 4){
+      else if(eta_index < 3){
         towereta = 17;
+      }
+      else if(eta_index < 4){
+        towereta = 18;
       }
 
       if(pos_neg < 0){ towerID_Modifier = 900000; }
@@ -718,6 +704,7 @@ int gSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi, i
 		        << "\tProvenance:       " << prov
 		        << "\tID:               " << ID
             << " ");
+
 
   return;
 }

@@ -73,50 +73,17 @@ class MaterialEffectsUpdator : public AthAlgTool,
      * The concrete cache class for this specialization of the IMaterialEffectsUpdator
      */
     typedef IMaterialEffectsUpdator::ICache ICache;
-    class Cache : public ICache
-    {
-    public:
-      Cache()
-        : validationLayer{ nullptr }
-        , validationSteps{ 0 }
-        , validationPhi{ 0. }
-        , validationEta{ 0. }
-        , accumulatedElossSigma{ 0. }
-      {}
-      virtual MaterialCacheType type() const override final
-      {
-        return ICache::MaterialEffects;
-      }
-      //!< layer in the current validation step
-      const Trk::Layer* validationLayer{ nullptr };
-      int validationSteps{ 0 };   //!< number of validation steps
-      double validationPhi{ 0. }; //!< theta
-      double validationEta{ 0. }; //!< eta
-      //!< Sigma of the eloss accumulated so far in the extrapolation. Used in Landau mode
-      double accumulatedElossSigma{ 0. };
-    };
-
-    virtual std::unique_ptr<ICache> getCache() const override final
-    {
-      return std::make_unique<Cache>();
-    }
-
     /** Updator interface (full update for a layer)
       ---> ALWAYS  pointer to new TrackParameters is returned
       */
     virtual std::unique_ptr<TrackParameters> update(
-      ICache& icache,
+      ICache& cache,
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir=alongMomentum,
       ParticleHypothesis particle=pion,
       MaterialUpdateMode matupmode=addNoise
     ) const override {
-      if(icache.type()!=ICache::MaterialEffects){
-         ATH_MSG_WARNING("Wrong cache Type");
-         return nullptr;
-      }
-      Cache& cache= static_cast<Cache&> (icache);
       return updateImpl(cache,parm,sf,dir,particle,matupmode);
     }
     /** Updator interface (full update for a layer) according to user
@@ -124,17 +91,12 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ---> ALWAYS pointer to new TrackParameters is returned
       */
     virtual std::unique_ptr<TrackParameters> update(
-      ICache& icache,
+      ICache& cache,
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
       Trk::ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override {
-      if (icache.type() != ICache::MaterialEffects) {
-        ATH_MSG_WARNING("Wrong cache Type");
-        return nullptr;
-      }
-      Cache& cache = static_cast<Cache&>(icache);
       return updateImpl(cache, parm, meff, particle, matupmode);
     }
 
@@ -142,18 +104,13 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ---> ALWAYS pointer to new TrackParameters is returned
       */
     virtual std::unique_ptr<TrackParameters> preUpdate(
-      ICache& icache,
+      ICache& cache,
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override {
-      if (icache.type() != ICache::MaterialEffects) {
-        ATH_MSG_WARNING("Wrong cache Type");
-        return nullptr;
-      }
-      Cache& cache = static_cast<Cache&>(icache);
       return preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
@@ -162,23 +119,18 @@ class MaterialEffectsUpdator : public AthAlgTool,
       if no postUpdate is to be done : return nullptr
       */
     virtual std::unique_ptr<TrackParameters> postUpdate(
-      ICache& icache,
+      ICache& cache,
       const TrackParameters& parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
-      if (icache.type() != ICache::MaterialEffects) {
-        ATH_MSG_WARNING("Wrong cache Type");
-        return nullptr;
-      }
-      Cache& cache = static_cast<Cache&>(icache);
       return postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
     /** Dedicated Updator interface:-> create new track parameters*/
     virtual std::unique_ptr<TrackParameters> update(
-      ICache& icache,
+      ICache& cache,
       const TrackParameters& parm,
       const MaterialProperties& mprop,
       double pathcorrection,
@@ -186,34 +138,20 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
-      if (icache.type() != ICache::MaterialEffects) {
-        ATH_MSG_WARNING("Wrong cache Type");
-        return nullptr;
-      }
-      Cache& cache = static_cast<Cache&>(icache);
       return updateImpl(cache, parm, mprop, pathcorrection, dir, particle, matupmode);
     }
 
     /** Validation Action - calls the writing and resetting of the TTree variables */
-    virtual void validationAction(ICache& icache) const override final
+    virtual void validationAction(ICache& cache) const override final
     {
-      if (icache.type() != ICache::MaterialEffects) {
-        ATH_MSG_WARNING("Wrong cache Type");
-      }
-      Cache& cache = static_cast<Cache&>(icache);
       validationActionImpl(cache);
     }
 
     /** Only has an effect if m_landauMode == true.
       Resets mutable variables used for non-local calculation of energy loss if
       parm == 0. Otherwise, modifies parm with the final update of the covariance matrix*/
-    virtual void modelAction(ICache& icache, const TrackParameters* parm = nullptr) const override final
+    virtual void modelAction(ICache& cache, const TrackParameters* parm = nullptr) const override final
     {
-
-      if (icache.type() != ICache::MaterialEffects) {
-        ATH_MSG_WARNING("Wrong cache Type");
-      }
-      Cache& cache = static_cast<Cache&>(icache);
       modelActionImpl(cache, parm);
     }
 
@@ -229,7 +167,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
 
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       return updateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
@@ -239,7 +177,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       Trk::ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       return updateImpl(cache, parm, meff, particle, matupmode);
     }
 
@@ -250,7 +188,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       return preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
@@ -261,7 +199,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       return postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
     }
 
@@ -273,20 +211,20 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise
     ) const override final {
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       return updateImpl(cache, parm, mprop, pathcorrection, dir, particle, matupmode);
     }
 
     virtual void validationAction() const override final
     {
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       validationActionImpl(cache);
     }
 
     virtual void modelAction(
       const TrackParameters* parm = nullptr) const override final
     {
-      Cache& cache = getTLSCache();
+      ICache& cache = getTLSCache();
       modelActionImpl(cache, parm);
     }
 
@@ -294,7 +232,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /* The acutal implementation methods using the tool's
      * concrete  Cache*/
     std::unique_ptr<TrackParameters> updateImpl(
-      Cache& cache,
+      ICache& cache,
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -303,7 +241,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ) const;
 
     std::unique_ptr<TrackParameters> updateImpl(
-      Cache& cache,
+      ICache& cache,
       const TrackParameters* parm,
       const MaterialEffectsOnTrack& meff,
       Trk::ParticleHypothesis particle = pion,
@@ -311,7 +249,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ) const;
 
     std::unique_ptr<TrackParameters> preUpdateImpl(
-      Cache& cache,
+      ICache& cache,
       const TrackParameters* parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -320,7 +258,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ) const;
 
     std::unique_ptr<TrackParameters> postUpdateImpl(
-      Cache& cache,
+      ICache& cache,
       const TrackParameters& parm,
       const Layer& sf,
       PropDirection dir = alongMomentum,
@@ -329,7 +267,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ) const;
 
     std::unique_ptr<TrackParameters> updateImpl(
-      Cache& cache,
+      ICache& cache,
       const TrackParameters* parm,
       const MaterialProperties& mprop,
       double pathcorrection,
@@ -339,7 +277,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ) const;
 
     std::unique_ptr<TrackParameters> updateImpl(
-      Cache& cache,
+      ICache& cache,
       const TrackParameters& parm,
       const MaterialProperties& mprop,
       double pathcorrection,
@@ -348,9 +286,9 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    static void validationActionImpl(Cache& cache) ;
+    static void validationActionImpl(ICache& cache) ;
 
-    static void modelActionImpl(Cache& cache, const TrackParameters* parm = nullptr) ;
+    static void modelActionImpl(ICache& cache, const TrackParameters* parm = nullptr) ;
 
     /** A simple check method for the 'removeNoise' update model */
     bool checkCovariance(AmgSymMatrix(5)& updated) const ;
@@ -393,11 +331,11 @@ class MaterialEffectsUpdator : public AthAlgTool,
      * Done here via boost::thread_specific_ptr
      */
 
-    mutable boost::thread_specific_ptr<Cache> m_cache_tls;
-    Cache& getTLSCache() const{
-      Cache* cache = m_cache_tls.get();
+    mutable boost::thread_specific_ptr<ICache> m_cache_tls;
+    ICache& getTLSCache() const{
+      ICache* cache = m_cache_tls.get();
       if (!cache) {
-        cache = new Cache();
+        cache = new ICache();
         m_cache_tls.reset( cache );
       }
       return *cache;

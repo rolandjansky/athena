@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // RatesAnalysis includes
@@ -53,7 +53,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
   }
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
-  m_scanTriggers.emplace(name, std::make_unique<RatesScanTrigger>(name, msg(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, e));
+  m_scanTriggers.emplace(name, std::make_unique<RatesScanTrigger>(name, msgSvc(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, e));
   RatesScanTrigger* newScanTrigger = m_scanTriggers.at(name).get();
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -77,7 +77,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
 
-  m_scanTriggers.emplace(name, std::make_unique<RatesScanTrigger>(name, msg(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, e));
+  m_scanTriggers.emplace(name, std::make_unique<RatesScanTrigger>(name, msgSvc(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, e));
   RatesScanTrigger* newScanTrigger = m_scanTriggers.at(name).get();
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -114,7 +114,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   const Method_t method,
   const ExtrapStrat_t extrapolation) {
 
-  if (m_eventCounter > 0) { // All triggers must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All triggers must be defined before we start looping over the sample
     ATH_MSG_FATAL("Too late to call newTrigger. All emulated triggers must be registered during ratesInitialize().");
     return StatusCode::FAILURE;
   }
@@ -129,7 +129,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
 
-  m_triggers.emplace(name, std::make_unique<RatesTrigger>(name, msg(), prescale, expressPrescale, seedName, seedPrecale, m_doHistograms, e));
+  m_triggers.emplace(name, std::make_unique<RatesTrigger>(name, msgSvc(), prescale, expressPrescale, seedName, seedPrecale, m_doHistograms, e));
   RatesTrigger* newTriggerPtr = m_triggers.at(name).get();
 
   if (isRandomSeed(name, seedName)) newTriggerPtr->setSeedsFromRandom(true);
@@ -153,7 +153,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
       // Ignore BW and PS groups
       if (group.find("BW") == 0 || group.find("PS") == 0) continue;
       if (m_groups.count(group) == 0) {
-        m_groups.emplace(group, std::make_unique<RatesGroup>(group, msg(), m_doHistograms, m_enableLumiExtrapolation));
+        m_groups.emplace(group, std::make_unique<RatesGroup>(group, msgSvc(), m_doHistograms, m_enableLumiExtrapolation));
         // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
         m_activeGroups.insert( m_groups.at(group).get() );
       }
@@ -312,11 +312,12 @@ StatusCode RatesAnalysisAlg::checkGotTDT() {
     ATH_MSG_ERROR("TriggerDecisionTool is not available!");
     return StatusCode::FAILURE;
   }
-  static bool printed = false;
-  if (!printed) ATH_MSG_INFO("TDT contains: " << m_tdt->getListOfTriggers().size() << " triggers, " 
-    << m_tdt->getListOfStreams().size() << " streams and " 
-    << m_tdt->getListOfGroups().size() << " groups.");
-  printed = true;
+  [[maybe_unused]] static std::atomic<bool> printed = [&]() {
+    ATH_MSG_INFO("TDT contains: " << m_tdt->getListOfTriggers().size() << " triggers, "
+                 << m_tdt->getListOfStreams().size() << " streams and "
+                 << m_tdt->getListOfGroups().size() << " groups.");
+    return true;
+  }();
   return StatusCode::SUCCESS;
 }
 
@@ -391,11 +392,11 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
   ATH_MSG_INFO("Initializing User's Triggers (note: we are actually now in the event loop)");
 
   if (m_doGlobalGroups) {
-    m_globalGroups.emplace(m_l1GroupName,      std::make_unique<RatesGroup>(m_l1GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation));
-    m_globalGroups.emplace(m_l2GroupName,      std::make_unique<RatesGroup>(m_l2GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation));
+    m_globalGroups.emplace(m_l1GroupName,      std::make_unique<RatesGroup>(m_l1GroupName, msgSvc(),      m_doHistograms, m_enableLumiExtrapolation));
+    m_globalGroups.emplace(m_l2GroupName,      std::make_unique<RatesGroup>(m_l2GroupName, msgSvc(),      m_doHistograms, m_enableLumiExtrapolation));
     m_globalGroups.at(m_l2GroupName)->setDoCachedWeights( m_doUniqueRates ); // This extra sub-weight caching is only utilised by unique-rate groups
     if (m_doExpressRates) {
-      m_globalGroups.emplace(m_expressGroupName, std::make_unique<RatesGroup>(m_expressGroupName, msg(), m_doHistograms, m_enableLumiExtrapolation));
+      m_globalGroups.emplace(m_expressGroupName, std::make_unique<RatesGroup>(m_expressGroupName, msgSvc(), m_doHistograms, m_enableLumiExtrapolation));
       m_globalGroups.at(m_expressGroupName)->setExpressGroup( true );
     }
   }
@@ -417,7 +418,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     const RatesGroup* l1GroupPtr = m_globalGroups.at(m_l1GroupName).get(); // The finalised list of all L1 chains
     for (const auto& trigger : m_triggers) {
       const uint32_t level = getLevel(trigger.first);
-      m_uniqueGroups.emplace(trigger.first, std::make_unique<RatesGroup>(trigger.first, msg(), false, m_enableLumiExtrapolation)); // Each trigger gets its own unique group. No hist needed
+      m_uniqueGroups.emplace(trigger.first, std::make_unique<RatesGroup>(trigger.first, msgSvc(), false, m_enableLumiExtrapolation)); // Each trigger gets its own unique group. No hist needed
       RatesTrigger* triggerPtr = m_triggers.at(trigger.first).get();
       RatesGroup* uniqueGroupPtr = m_uniqueGroups.at(trigger.first).get();
       triggerPtr->setUniqueGroup( uniqueGroupPtr ); // Create two-way links
@@ -586,7 +587,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
 
 StatusCode RatesAnalysisAlg::execute() {  
   ATH_MSG_DEBUG("Executing " << name() << " on event " << m_eventCounter << "...");
-  if (m_eventCounter == 0) { // First time in execute loop - cannot access TDT before this.
+  if (m_eventCounter++ == 0) { // First time in execute loop - cannot access TDT before this.
     ATH_CHECK( populateTriggers() );
   }
 
@@ -643,7 +644,7 @@ StatusCode RatesAnalysisAlg::execute() {
   }
 
   // Some debug info
-  if (++m_eventCounter % 1000 == 0) {
+  if (m_eventCounter % 1000 == 0) {
     ATH_MSG_INFO( "Event " << m_eventCounter << " " << m_weightingValues.print() << " currentWallTime:" << m_ratesDenominator );
   }
 
@@ -710,7 +711,7 @@ StatusCode RatesAnalysisAlg::finalize() {
 }
 
 void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
-  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiMu. Do this during ratesInitialize().");
     return;
   }
@@ -730,7 +731,7 @@ void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
 }
 
 void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bunches) {
-  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiBunches. Do this during ratesInitialize().");
     return;
   }
@@ -747,7 +748,7 @@ void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bun
 
 
 void RatesAnalysisAlg::setTargetMuBunches(const double mu, const int32_t bunches) {
-  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetMuBunches. Do this during ratesInitialize().");
     return;
   }

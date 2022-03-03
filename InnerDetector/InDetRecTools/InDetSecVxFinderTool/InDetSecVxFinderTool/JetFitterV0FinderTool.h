@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration  
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration  
 */
 
 #ifndef JETFITTER_V0FINDER_TOOL_H
@@ -13,6 +13,14 @@
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "InDetSecVxFinderTool/InDetJetFitterUtils.h"    
 #include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
+
+#include <TH2D.h>
+
+class BeamPipeDetectorManager;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 namespace InDet {
 
@@ -99,6 +107,12 @@ namespace InDet {
 	Gaudi::Property< double > m_cutIPD0SingleTrackForBSecondSelection {this,"cutIPD0SingleTrackForBSecondSelection",1.5,""};
 	Gaudi::Property< double > m_cutIPZ0SingleTrackForBSecondSelection {this,"cutIPZ0SingleTrackForBSecondSelection",3.,""};
 	Gaudi::Property< double > m_cutPtSingleTrackForBSecondSelection {this,"cutPtSingleTrackForBSecondSelection",750,""};
+
+	Gaudi::Property< bool > m_useITkMaterialRejection {this,"useITkMaterialRejection",false,"Reject vertices from hadronic interactions in detector material using ITk layout"};
+	const BeamPipeDetectorManager*       m_beamPipeMgr = nullptr;
+	const InDetDD::PixelDetectorManager* m_pixelManager = nullptr;
+	std::unique_ptr<TH2D> m_ITkPixMaterialMap;
+
     };
 
 }

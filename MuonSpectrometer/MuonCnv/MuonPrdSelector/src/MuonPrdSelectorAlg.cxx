@@ -9,8 +9,8 @@
 // Constructor with parameters:
 MuonPrdSelectorAlg::MuonPrdSelectorAlg(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name,pSvcLocator),
-    m_mdtPRDs_in(0), m_rpcPRDs_in(0), m_tgcPRDs_in(0), m_cscPRDs_in(0),
-    m_mdtPRDs_out(0), m_rpcPRDs_out(0), m_tgcPRDs_out(0), m_cscPRDs_out(0)
+    m_mdtPRDs_in(nullptr), m_rpcPRDs_in(nullptr), m_tgcPRDs_in(nullptr), m_cscPRDs_in(nullptr),
+    m_mdtPRDs_out(nullptr), m_rpcPRDs_out(nullptr), m_tgcPRDs_out(nullptr), m_cscPRDs_out(nullptr)
 {
   declareProperty("MDT_PRDinputContainer"      , m_inputContainer_mdt  = "MDT_DriftCircles_unfiltered"  );
   declareProperty("MDT_PRDoutputContainer"     , m_outputContainer_mdt = "MDT_DriftCircles"             );
@@ -88,10 +88,10 @@ StatusCode MuonPrdSelectorAlg::retrieveContainers() {
   ATH_MSG_DEBUG( "retrieveContainers() called"  );
   
   //resetting the inputcollections.
-  m_mdtPRDs_in = 0;
-  m_rpcPRDs_in = 0;
-  m_tgcPRDs_in = 0;
-  m_cscPRDs_in = 0;
+  m_mdtPRDs_in = nullptr;
+  m_rpcPRDs_in = nullptr;
+  m_tgcPRDs_in = nullptr;
+  m_cscPRDs_in = nullptr;
 
   StatusCode sc = evtStore()->retrieve( m_mdtPRDs_in, m_inputContainer_mdt );
   if( sc.isFailure() ) {

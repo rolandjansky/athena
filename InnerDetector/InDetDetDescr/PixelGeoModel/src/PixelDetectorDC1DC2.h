@@ -52,12 +52,12 @@ class GeoVPixelFactory {
   virtual GeoVPhysVol* Build()=0;
      
  protected:
-  PixelGeometryManager* m_gmt_mgr;
-  const StoredMaterialManager* m_mat_mgr;
-  InDetDD::PixelDetectorManager* m_DDmgr;
-  const double m_epsilon;
+  PixelGeometryManager* m_gmt_mgr{};
+  const StoredMaterialManager* m_mat_mgr{};
+  InDetDD::PixelDetectorManager* m_DDmgr{};
+  const double m_epsilon{};
 
- private:
+
 };
 
 
@@ -128,7 +128,7 @@ class GeoPixelDisk : public GeoVPixelFactory {
   double RMax();
   double RMin();
  private:
-  const GeoLogVol* m_theDisk;
+  const GeoLogVol* m_theDisk{};
   int getPhiId();
 };
 
@@ -320,8 +320,8 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
   inline Identifier getID();
  private:
   Identifier m_id;
-  InDetDD::SiDetectorDesign* m_design;
-  bool m_isBLayer;
+  const InDetDD::SiDetectorDesign* m_design{};
+  bool m_isBLayer{};
 };
 //
 // Add this method to store the ID in the factory. This is used by the
@@ -689,7 +689,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   const StoredMaterialManager* m_pMatMgr;
 
   // The Transient Detector Store Service
-  StoreGateSvc* m_pDetStore;   
+  StoreGateSvc* m_pDetStore = nullptr;   
 
   // The name of the collections in the det store
   std::string m_elementsObjectName;

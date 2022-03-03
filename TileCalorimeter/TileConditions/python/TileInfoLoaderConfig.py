@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile info loader service"""
 
@@ -6,7 +6,7 @@
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 @AccumulatorCache
@@ -70,6 +70,25 @@ def TileInfoLoaderCfg(flags, **kwargs):
             EmScaleA = kwargs['EmScaleA']
 
         msg.info("Using 1/s.f. = %s for %s physics list and G4version %s (%s)", EmScaleA, physicsList, G4V, G4Version)
+
+        # new sampling fraction for gap/crack scintillators in Run 3
+        # see https://indico.cern.ch/event/1084901/contributions/4616550/attachments/2349654/4007529/TileGap3_SamplingFraction.pdf
+        # RUN2 values:         125 107 97 75
+        # RUN3 EM scale:       109  89 74 61
+        # RUN3 EM+nonEM scale: 123  85 69 62
+        if flags.GeoModel.Run in [LHCPeriod.Run3, LHCPeriod.Run3] and G4V >= 10.05:
+
+            if 'EmScaleE1' not in kwargs:
+                kwargs['EmScaleE1'] = 109.0
+            if 'EmScaleE2' not in kwargs:
+                kwargs['EmScaleE2'] = 89.0
+            if 'EmScaleE3' not in kwargs:
+                kwargs['EmScaleE3'] = 74.0
+            if 'EmScaleE4' not in kwargs:
+                kwargs['EmScaleE4'] = 61.0
+
+            msg.info("Using 1/s.f. = %s %s %s %s for E-cells in %s",
+                     kwargs['EmScaleE1'], kwargs['EmScaleE2'], kwargs['EmScaleE3'], kwargs['EmScaleE4'], flags.GeoModel.Run.value )
 
         kwargs.setdefault('TileNoise', flags.Digitization.DoCaloNoise)
         if kwargs['TileNoise']:

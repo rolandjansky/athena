@@ -174,11 +174,11 @@ class InDetAlignCog : public AthAlgorithm {
   Amg::Transform3D m_grot_z;
 
   // Center-of-gravity 
-  double         m_cog[6];
+  double         m_cog[6]{};
   Amg::Transform3D m_CoG;
 
   // residual global transformation
-  double         m_resglob[6];
+  double         m_resglob[6]{};
   Amg::Transform3D m_ResGlob;
 
   // Chi2 specific stuff:

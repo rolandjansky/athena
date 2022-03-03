@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file EventCommonD3PDMaker/src/DRAssociationTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -44,7 +42,7 @@ DRAssociationTool::DRAssociationTool (const std::string& type,
   declareProperty ("DRCut", m_drcut = 999,
                    "DR cut for the association");
 
-  book().ignore();  // Avoid coverity warnings.
+  DRAssociationTool::book().ignore();  // Avoid coverity warnings.
 }
 
 

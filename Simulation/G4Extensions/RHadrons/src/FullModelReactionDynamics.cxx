@@ -269,7 +269,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
   G4int nuclearExcitationCount = Poisson( xtarg );
   if(atomicWeight<1.0001) nuclearExcitationCount = 0;
   G4int extraNucleonCount = 0;
-  G4double extraNucleonMass = 0.0;
   if( nuclearExcitationCount > 0 )
     {
       const G4double nucsup[] = { 1.00, 0.7, 0.5, 0.4, 0.35, 0.3 };
@@ -296,7 +295,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
               pVec->SetSide( -2 );                // -2 means backside nucleon
               ++extraNucleonCount;
               backwardEnergy += pVec->GetMass()/CLHEP::GeV;
-              extraNucleonMass += pVec->GetMass()/CLHEP::GeV;
             }
           else
             {
@@ -375,7 +373,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
                   if( vec[i]->GetSide() == -2 )
                     {
                       --extraNucleonCount;
-                      extraNucleonMass -= vec[i]->GetMass()/CLHEP::GeV;
                       backwardEnergy -= vec[i]->GetTotalEnergy()/CLHEP::GeV;
                     }
                   backwardEnergy += vec[i]->GetTotalEnergy()/CLHEP::GeV;
@@ -681,7 +678,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
             if( vec[i]->GetSide() == -2 )
               {
                 --extraNucleonCount;
-                extraNucleonMass -= vecMass;
                 backwardEnergy -= vecMass;
               }
             --backwardCount;
@@ -1530,14 +1526,12 @@ G4bool FullModelReactionDynamics::TwoCluster(
   G4int forwardCount = 1;            // number of particles in forward hemisphere
   currentParticle.SetSide( 1 );
   G4double forwardMass = currentParticle.GetMass()/CLHEP::GeV;
-  G4double cMass = forwardMass;
 
   // target is always in backward hemisphere
   G4int backwardCount = 1;           // number of particles in backward hemisphere
   G4int backwardNucleonCount = 1;    // number of nucleons in backward hemisphere
   targetParticle.SetSide( -1 );
   G4double backwardMass = targetParticle.GetMass()/CLHEP::GeV;
-  G4double bMass = backwardMass;
 
   for( i=0; i<vecLen; ++i )
     {
@@ -1570,8 +1564,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
   G4int nuclearExcitationCount = Poisson( xtarg );
   if(atomicWeight<1.0001) nuclearExcitationCount = 0;
   G4int extraNucleonCount = 0;
-  G4double extraMass = 0.0;
-  G4double extraNucleonMass = 0.0;
+  //G4double extraMass = 0.0;
   if( nuclearExcitationCount > 0 )
     {
       G4int momentumBin = std::min( 4, G4int(pOriginal/3.0) );
@@ -1593,7 +1586,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
                 pVec->SetDefinition( aNeutron );
               ++backwardNucleonCount;
               ++extraNucleonCount;
-              extraNucleonMass += pVec->GetMass()/CLHEP::GeV;
             }
           else
             {                                       // add a pion
@@ -1606,15 +1598,13 @@ G4bool FullModelReactionDynamics::TwoCluster(
                 pVec->SetDefinition( aPiMinus );
             }
           pVec->SetSide( -2 );    // backside particle
-          extraMass += pVec->GetMass()/CLHEP::GeV;
+          //extraMass += pVec->GetMass()/CLHEP::GeV;
           pVec->SetNewlyAdded( true );
           vec.SetElement( vecLen++, pVec );
           // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
         }
     }
   // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
-  G4double forwardEnergy = (centerofmassEnergy-cMass-bMass)/2.0 +cMass - forwardMass;
-  G4double backwardEnergy = (centerofmassEnergy-cMass-bMass)/2.0 +bMass - backwardMass;
   G4double eAvailable = centerofmassEnergy - (forwardMass+backwardMass);
   G4bool secondaryDeleted;
   G4double pMass;
@@ -1628,7 +1618,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
               pMass = vec[i]->GetMass()/CLHEP::GeV;
               for( G4int j=i; j<(vecLen-1); ++j )*vec[j] = *vec[j+1];     // shift up
               --forwardCount;
-              forwardEnergy += pMass;
               forwardMass -= pMass;
               secondaryDeleted = true;
               break;
@@ -1638,7 +1627,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
               pMass = vec[i]->GetMass()/CLHEP::GeV;
               for( G4int j=i; j<(vecLen-1); ++j )*vec[j] = *vec[j+1];    // shift up
               --backwardCount;
-              backwardEnergy += pMass;
               backwardMass -= pMass;
               secondaryDeleted = true;
               break;
@@ -1663,7 +1651,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
               targetParticle = *vec[0];
               for( G4int j=0; j<(vecLen-1); ++j )*vec[j] = *vec[j+1];    // shift up
               --backwardCount;
-              backwardEnergy += pMass;
               backwardMass -= pMass;
               secondaryDeleted = true;
             }
@@ -1673,7 +1660,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
               targetParticle = *vec[0];
               for( G4int j=0; j<(vecLen-1); ++j )*vec[j] = *vec[j+1];    // shift up
               --forwardCount;
-              forwardEnergy += pMass;
               forwardMass -= pMass;
               secondaryDeleted = true;
             }
@@ -1692,7 +1678,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
                   currentParticle = *vec[0];
                   for( G4int j=0; j<(vecLen-1); ++j )*vec[j] = *vec[j+1];    // shift up
                   --backwardCount;
-                  backwardEnergy += pMass;
                   backwardMass -= pMass;
                   secondaryDeleted = true;
                 }
@@ -1702,7 +1687,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
                   currentParticle = *vec[0];
                   for( G4int j=0; j<(vecLen-1); ++j )*vec[j] = *vec[j+1];    // shift up
                   --forwardCount;//This line can cause infinite loop
-                  forwardEnergy += pMass;
                   forwardMass -= pMass;
                   secondaryDeleted = true;
                 }
@@ -2620,14 +2604,12 @@ G4double FullModelReactionDynamics::GenerateNBodyEvent(
   //for( i=0; i<3; ++i )pcm[i] = new G4double [vecLen];
 
   G4double totalMass = 0.0;
-  G4double extraMass = 0;
   G4double sm[18];
   //G4double *sm = new G4double [vecLen];
 
   for( i=0; i<vecLen; ++i )
     {
       mass[i] = vec[i]->GetMass()/CLHEP::GeV;
-      if(vec[i]->GetSide() == -2) extraMass+=vec[i]->GetMass()/CLHEP::GeV;
       vec[i]->SetMomentum( 0.0, 0.0, 0.0 );
       pcm[0][i] = 0.0;      // x-momentum of i-th particle
       pcm[1][i] = 0.0;      // y-momentum of i-th particle
@@ -3236,7 +3218,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(
   G4int i;
   G4double pp;
   // G4double totalQ = 0;
-  G4double kinCreated = 0;
+  // G4double kinCreated = 0;
   G4double cfa = 0.025*((atomicWeight-1.0)/120.0) * std::exp(-(atomicWeight-1.0)/120.0);
   if( npnb > 0)  // first add protons and neutrons
     {
@@ -3270,7 +3252,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(
           G4double phi = CLHEP::twopi * G4UniformRand();
           vec[vecLen]->SetNewlyAdded( true );
           vec[vecLen]->SetKineticEnergy( kinetic*CLHEP::GeV );
-          kinCreated+=kinetic;
+          // kinCreated+=kinetic;
           pp = vec[vecLen]->GetTotalMomentum()/CLHEP::MeV;
           vec[vecLen]->SetMomentum( pp*sint*std::sin(phi)*CLHEP::MeV,
                                     pp*sint*std::cos(phi)*CLHEP::MeV,
@@ -3338,7 +3320,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(
           vec.SetElement( vecLen, p2 );
           vec[vecLen]->SetNewlyAdded( true );
           vec[vecLen]->SetKineticEnergy( kinetic*CLHEP::GeV );
-          kinCreated+=kinetic;
+          // kinCreated+=kinetic;
           pp = vec[vecLen]->GetTotalMomentum()/CLHEP::MeV;
           vec[vecLen++]->SetMomentum( pp*sint*std::sin(phi)*CLHEP::MeV,
                                       pp*sint*std::cos(phi)*CLHEP::MeV,
@@ -3346,7 +3328,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(
           // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
         }
     }
-  // G4double delta = epnb+edta - kinCreated;
+   // G4double delta = epnb+edta - kinCreated;
 }
 
 void FullModelReactionDynamics::MomentumCheck(

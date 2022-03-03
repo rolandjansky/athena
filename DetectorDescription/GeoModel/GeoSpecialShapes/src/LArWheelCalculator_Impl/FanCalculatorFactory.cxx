@@ -11,17 +11,16 @@ namespace LArWheelCalculator_Impl
 {
 
   IFanCalculator* FanCalculatorFactory::Create(bool isSaggingOn, bool isModule,
-                                               LArWheelCalculator* lwc,
-                                               IRDBAccessSvc* rdbAccess,
-                                               const DecodeVersionKey& larVersionKey)
+                                               LArWheelCalculator* lwc)
+
   {
     if (isModule) {
-      return new ModuleFanCalculator(lwc, rdbAccess, larVersionKey);
+      return new ModuleFanCalculator(lwc);
     }
     if (isSaggingOn) {
-      return new WheelFanCalculator<SaggingOn_t>(lwc, rdbAccess, larVersionKey);
+      return new WheelFanCalculator<SaggingOn_t>(lwc);
     } else {
-      return new WheelFanCalculator<SaggingOff_t>(lwc, rdbAccess, larVersionKey);
+      return new WheelFanCalculator<SaggingOff_t>(lwc);
     }
   }
 

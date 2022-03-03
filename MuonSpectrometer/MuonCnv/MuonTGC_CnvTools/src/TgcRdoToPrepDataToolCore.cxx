@@ -578,7 +578,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
 						       tgcHashId, // Readout ID -> Element ID -> Hash 
 						       hitPos, // determined from channelId
 						       identifierList, // holds channelId only
-						       std::move(errHitPosAllBcs), // determined from channelId
+						       errHitPosAllBcs, // determined from channelId
 						       descriptor,
 						       bcBitMap);
       newPrepDataAllBcs->setHashAndIndex(collectionAllBcs->identifyHash(), collectionAllBcs->size());

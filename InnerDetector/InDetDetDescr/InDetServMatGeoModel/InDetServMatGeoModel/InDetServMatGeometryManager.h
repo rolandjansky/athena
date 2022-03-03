@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetServMatGeometryManager_H
@@ -8,6 +8,7 @@
 #include "CxxUtils/checker_macros.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include <utility>
 
 class IGeometryDBSvc;
 class InDetMaterialManager;
@@ -26,7 +27,7 @@ public:
   InDetServMatGeometryManager(const InDetServMatGeometryManager &) = delete;
   
   // Access to geometry database
-  const IGeometryDBSvc * db() const {return m_athenaComps->geomDB();}
+  const IGeometryDBSvc * db() const {return std::as_const(*m_athenaComps).geomDB();}
 
   // Access to material manager 
   InDetMaterialManager * matMgr() {return m_matMgr;}
@@ -35,7 +36,7 @@ public:
   // Access to message stream
   MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
 
-  // Message strean verbosity level
+  // Message stream verbosity level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
 

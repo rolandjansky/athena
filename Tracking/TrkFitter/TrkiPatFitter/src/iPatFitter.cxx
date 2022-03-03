@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -41,7 +41,7 @@ namespace Trk
     :   AthAlgTool(type, name, parent),
     m_globalFit(globalFit),
     m_stepField(Trk::MagneticFieldProperties(Trk::FullField)) {
-    m_messageHelper = std::make_unique<MessageHelper>(*this);
+    m_messageHelper = std::make_unique<MessageHelper>(*this, 26);
     declareInterface<ITrackFitter>(this);
   }
 
@@ -65,7 +65,6 @@ namespace Trk
 
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
-    m_messageHelper->setNumberOfMessages(26);
     m_messageHelper->setMessage(0, "fit (Track): outlier removal not implemented");
     m_messageHelper->setMessage(1, "fit (Track): track without perigee");
     m_messageHelper->setMessage(2, "fit (Track): track without trackStateOnSurfaces");

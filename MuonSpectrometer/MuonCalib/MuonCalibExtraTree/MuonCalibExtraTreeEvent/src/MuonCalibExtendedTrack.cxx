@@ -250,7 +250,7 @@ namespace MuonCalib {
     }
 
     std::string MuonCalibExtendedTrack::dumpIntersects() const {
-        MuonFixedIdPrinter printer;
+        MuonFixedIdPrinter printer{};
         MuonFixedIdManipulator idManip;
 
         const StationIndexHitsMap& mdtStHitMap = mdtStationIndexHitsMap();

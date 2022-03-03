@@ -36,8 +36,9 @@ class TGCHighPtBoard
   static constexpr int s_NumberOfTSBOut = 2;
   static constexpr int s_NumberOfDSBOut = 3; //look at the HighPt Board
 
-
  public:
+  virtual ~TGCHighPtBoard();
+
   void clockIn(int bidIn);
   TGCHighPtChipOut* getOutput();
   void eraseOutput();
@@ -56,16 +57,12 @@ class TGCHighPtBoard
 
   void showResult() const;
 
-protected:
+ protected:
   TGCHighPtBoard();  // use derived class only
+  TGCHighPtBoard(const TGCHighPtBoard& right) = delete;
+  TGCHighPtBoard& operator=(const TGCHighPtBoard& right) = delete;
 
-public:
-  TGCHighPtBoard(const TGCHighPtBoard& right);
-  TGCHighPtBoard& operator=(const TGCHighPtBoard& right);
-
-  virtual ~TGCHighPtBoard();
-
-protected:
+ protected:
   void collectInput();
   void createHighPtChipOut();
   void createHighPtBoardOut();

@@ -19,7 +19,7 @@ class CSCRDOVariables : public ValAlgVariables
 		            const MuonGM::MuonDetectorManager* detManager,
 		            const MuonIdHelper* idhelper,
                 TTree* tree,
-                std::string containername,
+                const std::string& containername,
                 MSG::Level msglvl,     
                 const Muon::ICSC_RDO_Decoder* rdo_decoder);
   

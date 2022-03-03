@@ -99,8 +99,8 @@ namespace MuonGM {
         // Apply cutouts to mother volume
 
         if (cutoutson && vcutdef.size() > 0) {
-            Cutout *cut = 0;
-            GeoShape *cutoutShape = 0;
+            Cutout *cut = nullptr;
+            GeoShape *cutoutShape = nullptr;
             GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
             for (unsigned i = 0; i < vcutdef.size(); i++) {
                 cut = vcutdef[i];
@@ -145,9 +145,9 @@ namespace MuonGM {
 
             // Apply cutouts
             if (cutoutson && vcutdef.size() > 0) {
-                GeoPhysVol *tempPhys = 0;
-                Cutout *cut = 0;
-                GeoShape *cutoutShape = 0;
+                GeoPhysVol *tempPhys = nullptr;
+                Cutout *cut = nullptr;
+                GeoShape *cutoutShape = nullptr;
                 GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
                 for (unsigned i = 0; i < vcutdef.size(); i++) {
                     cut = vcutdef[i];
@@ -215,9 +215,9 @@ namespace MuonGM {
 
             // Apply cutouts
             if (cutoutson && vcutdef.size() > 0) {
-                GeoPhysVol *tempPhys = 0;
-                Cutout *cut = 0;
-                GeoShape *cutoutShape = 0;
+                GeoPhysVol *tempPhys = nullptr;
+                Cutout *cut = nullptr;
+                GeoShape *cutoutShape = nullptr;
                 GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
                 for (unsigned i = 0; i < vcutdef.size(); i++) {
                     cut = vcutdef[i];
@@ -340,8 +340,8 @@ namespace MuonGM {
             // release memory allocated for the builders
             delete ru;
             delete rl;
-            ru = 0;
-            rl = 0;
+            ru = nullptr;
+            rl = nullptr;
         }
 
         return prpc;

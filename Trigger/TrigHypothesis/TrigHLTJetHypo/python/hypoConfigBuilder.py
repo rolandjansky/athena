@@ -39,6 +39,8 @@ logger.setLevel(DEBUG)
 
 # Dictionary to interpret / map scenario aliases into actual scenario strings that can be understood by scenario_XX.py
 aliasesDict = {
+  'DJMASS200j20'                 : 'DIJET20j12ptXX200djmass',
+  'DJMASS350j20'                 : 'DIJET20j12ptXX350djmass',
   'DJMASS500j35'                 : 'DIJET35j12ptXX500djmass',
   'DJMASS700j35'                 : 'DIJET35j12ptXX700djmass',
   'DJMASS1000j35'                : 'DIJET35j12ptXX1000djmass',

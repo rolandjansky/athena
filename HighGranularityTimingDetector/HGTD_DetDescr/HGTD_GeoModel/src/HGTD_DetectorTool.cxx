@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // includes
@@ -43,7 +43,7 @@ StatusCode HGTD_DetectorTool::create() {
     ATH_CHECK(detStore()->retrieve(idHelper, "HGTD_ID"));
     m_athenaComps.setIdHelper(idHelper);
 
-    GeoModelExperiment *theExpt;
+    GeoModelExperiment *theExpt = nullptr;
     ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
     // The * converts a ConstPVLink to a ref to a GeoVPhysVol, the & takes the address of the GeoVPhysVol

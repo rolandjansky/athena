@@ -98,11 +98,11 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
   if (m_selectSCTs) {
     ATH_CHECK(detStore()->retrieve(m_idHelper,"SCT_ID"));
-
-    // Initialize the key of input SiElementPropertiesTable and SiDetectorElementCollection for SCT
-    ATH_CHECK(m_SCTPropertiesKey.initialize());
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
   }
+
+  // Initialize the key of input SiElementPropertiesTable and SiDetectorElementCollection for SCT
+  ATH_CHECK(m_SCTPropertiesKey.initialize(m_selectSCTs));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(m_selectSCTs));
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
   ATH_CHECK(m_beamSpotKey.initialize(!m_overrideBS));

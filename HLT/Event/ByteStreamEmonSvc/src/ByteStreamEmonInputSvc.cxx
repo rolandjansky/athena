@@ -28,6 +28,7 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "CxxUtils/checker_macros.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "./extract_histogram_tag.h"
 
 #include <cstdlib>
 #include <csignal>
@@ -213,6 +214,11 @@ StatusCode ByteStreamEmonInputSvc::initialize()
     ATH_CHECK(m_l1MenuKey.initialize(not m_l1names.value().empty()));
 
     signal(SIGTERM, handle_terminate);
+
+    // Read run parameters from the partition
+    if (m_readDetectorMask) {
+        get_runparams();
+    }
 
     ATH_MSG_INFO("initialized for: " << m_partition << " " << m_key << "/" << m_value);
 
@@ -536,7 +542,8 @@ void ByteStreamEmonInputSvc::check_publish()
             TH1 *h = nullptr;
             if(m_histSvc->getHist(name, h)) {
                 // might throw...
-                m_provider->publish(*h, name);
+                auto name_tag = detail::extract_histogram_tag(name);
+                m_provider->publish(*h, name_tag.first, name_tag.second);
             };
         }
         for(const std::string& name : m_histSvc->getEfficiencies()) {
@@ -559,8 +566,9 @@ void ByteStreamEmonInputSvc::check_publish()
                         p = create2DProfile(h);
                     }
                     // might throw...
-                    m_provider->publish(*p, name);
-                    //m_provider->publish(*h, name);
+                    auto name_tag = detail::extract_histogram_tag(name);
+                    m_provider->publish(*p, name_tag.first, name_tag.second);
+                    //m_provider->publish(*h, name_tag.first, name_tag.second);
                 } // tdaq doesn't currently support publishing efficiencies, will change in the future
             };
         }
@@ -613,10 +621,6 @@ void ByteStreamEmonInputSvc::get_runparams()
 // start of run
 StatusCode ByteStreamEmonInputSvc::start()
 {
-    if(m_readDetectorMask) {
-        get_runparams();
-    }
-
     if(m_clearHistograms) {
         ATH_MSG_INFO("Resetting histograms...");
         for(const std::string& name : m_histSvc->getHists()) {

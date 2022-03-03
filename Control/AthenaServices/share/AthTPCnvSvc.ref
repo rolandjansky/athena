@@ -9,19 +9,6 @@ AthTPCnvSvc       WARNING could not load converter for transient CLID [20394825]
 AthTPCnvSvc       WARNING could not load converter for transient CLID [20394825] (AthenaServicesTestConverters::TBTRIG)
 AthTPCnvSvc       WARNING could not load converter for transient CLID [20394824] (AthenaServicesTestConverters::TBTRIG)
 AthTPCnvSvc       WARNING could not load converter for transient CLID [20394824] (AthenaServicesTestConverters::TBTRIG)
-Py:Configurable     ERROR attempt to add a duplicate (AthBeginSeq.BeginIncFiringAlg) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthBeginSeq.IncidentProcAlg1) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthEndSeq.EndIncFiringAlg) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthEndSeq.IncidentProcAlg2) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthAllAlgSeq.AthCondSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthAllAlgSeq.AthAlgSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthBeginSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthAllAlgSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthEndSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthAlgEvtSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthOutSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.EndAlgorithmsFiringAlg) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.IncidentProcAlg3) ... dupe ignored
 ClassIDSvc           INFO RE-initializing ClassIDSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===

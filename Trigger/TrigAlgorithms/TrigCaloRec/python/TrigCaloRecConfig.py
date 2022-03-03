@@ -707,6 +707,23 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
     acc.addEventAlgo(cellMaker, primary=True)
     return acc
 
+def hltCaloCellSeedlessMakerCfg(flags, roisKey='UNSPECIFIED'):
+    acc = ComponentAccumulator()
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg, CaloDataAccessSvcDependencies
+    acc.merge(trigCaloDataAccessSvcCfg(flags))
+
+    hltCaloCellSeedLessMaker = CompFactory.HLTCaloCellMaker("CaloCellSeedLessFS", ExtraInputs = CaloDataAccessSvcDependencies,
+                                                            RoIs = roisKey,
+                                                            CellsName ="SeedLessFS")
+
+    acc.addEventAlgo(hltCaloCellSeedLessMaker, primary=True)
+
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    acc.merge(CaloNoiseCondAlgCfg(flags, noisetype="electronicNoise"))
+    acc.addCondAlgo(CompFactory.CaloNoiseSigmaDiffCondAlg())
+
+    return acc
+
 def hltTopoClusterMakerCfg(flags, name, clustersKey, cellsKey="CaloCells"):
     acc = ComponentAccumulator()
     from CaloRec.CaloTopoClusterConfig import (

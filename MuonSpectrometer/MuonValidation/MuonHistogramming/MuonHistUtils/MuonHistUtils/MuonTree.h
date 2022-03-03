@@ -19,8 +19,8 @@ namespace Muon{
 
   class MuonTree:public PlotBase {
   public:
-    MuonTree(PlotBase* pParent, std::string sDir, bool mcFlag);
-    MuonTree(PlotBase* pParent, std::string sDir);
+    MuonTree(PlotBase* pParent, const std::string& sDir, bool mcFlag);
+    MuonTree(PlotBase* pParent, const std::string& sDir);
     ~MuonTree();
 
     void initializePlots();

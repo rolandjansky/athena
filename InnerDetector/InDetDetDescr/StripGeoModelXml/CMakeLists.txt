@@ -4,7 +4,7 @@
 atlas_subdir( StripGeoModelXml )
 
 find_package( XercesC )
-find_package( GeoModel COMPONENTS GeoModelKernel GeoModelXml )
+find_package( GeoModel COMPONENTS GeoModelKernel GeoModelXml ExpressionEvaluator )
 
 # Component(s) in the package:
 atlas_add_component( StripGeoModelXml
@@ -22,4 +22,4 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 # Test(s) in the package:
 atlas_add_test( ITkStripGMConfig_test
                 SCRIPT test/ITkStripGMConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )

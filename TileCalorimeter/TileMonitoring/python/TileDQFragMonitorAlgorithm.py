@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -36,7 +36,9 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
         result.merge( TileDCSCondAlgCfg(flags) )
 
     rawChannelContainer = flags.Tile.RawChannelContainer
-    if flags.Input.Format.lower() == 'pool':
+
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format is Format.POOL:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
         if rawChannelContainer not in flags.Input.Collections:
             rawChannelContainer = ''

@@ -29,7 +29,7 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
 
 StatusCode ConstituentSubtractorTool::initialize() {
 
-  if(m_inputType==xAOD::Type::ParticleFlow) {
+  if(m_inputType==xAOD::Type::ParticleFlow || m_inputType==xAOD::Type::FlowElement) {
     if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
       ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
 		    <<  "will set all cPFOs to zero");
@@ -113,7 +113,10 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
  
   // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
   subtractor.set_ghost_area(m_ghostArea);
- 
+
+  // This is added to fix ATR-23552. It has no effect on the performance. Once the bug is fixed in fastjet-contrib, it can be removed.
+  subtractor.set_use_nearby_hard(-1,-1);
+
   // prepare PseudoJet input
   std::vector<PseudoJet> inputs_to_correct, inputs_to_not_correct;
   inputs_to_correct.reserve(cont->size());
@@ -132,9 +135,15 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     // For PFlow we would only want to apply the correction to neutral PFOs,
     // because charged hadron subtraction handles the charged PFOs.
     // However, we might still want to use the cPFOs for the min pt calculation
-    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
-      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
-      accept &= fabs(pfo->charge())<FLT_MIN;
+    if(m_ignoreChargedPFOs){
+      if(m_inputType==xAOD::Type::ParticleFlow){
+        xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
+        accept &= fabs(pfo->charge())<FLT_MIN;
+      }
+      else if(m_inputType==xAOD::Type::FlowElement){
+        xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
+        accept &= !(fe->isCharged());
+      }
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);

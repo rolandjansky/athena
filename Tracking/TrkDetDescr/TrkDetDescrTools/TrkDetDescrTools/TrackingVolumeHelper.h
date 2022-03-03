@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -160,12 +160,12 @@ namespace Trk {
         void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
           const TrackingVolume& tvol,
           BoundarySurfaceFace face,
-          BinnedArray<TrackingVolume>* insidevolarray) const;
+          BinnedArray<const TrackingVolume>* insidevolarray) const;
 
         void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
           const TrackingVolume& tvol,
           BoundarySurfaceFace face,
-          SharedObject<BinnedArray<TrackingVolume>> insidevolarray) const;
+          SharedObject<BinnedArray<const TrackingVolume>> insidevolarray) const;
 
         /** protected method to set outside Volume of a BoundarySurface:
             input:
@@ -188,16 +188,16 @@ namespace Trk {
         void setOutsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
           const TrackingVolume& tvol,
           BoundarySurfaceFace face,
-          BinnedArray<TrackingVolume>* outsidevolarray) const;
+          BinnedArray<const TrackingVolume>* outsidevolarray) const;
 
         void setOutsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
           const TrackingVolume& tvol,
           BoundarySurfaceFace face,
-          SharedObject<BinnedArray<TrackingVolume>> outsidevolarray) const;
+          SharedObject<BinnedArray<const TrackingVolume>> outsidevolarray) const;
 
       private:
 
-        const Trk::LayerMaterialProperties* layerMaterialProperties(const Trk::Surface& sf) const;  //!< helper method to construct barrel material
+        Trk::LayerMaterialProperties* layerMaterialProperties(const Trk::Surface& sf) const;  //!< helper method to construct barrel material
 
 
         /** Private method - it takes the full vector of given volumes to create the supervolume,

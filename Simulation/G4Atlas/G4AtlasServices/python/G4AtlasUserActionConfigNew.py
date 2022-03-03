@@ -1,37 +1,62 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon.SystemOfUnits import MeV
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaCommon.SystemOfUnits import MeV
-from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
+from G4AtlasApps.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
+from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
     AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg,
-    LooperKillerToolCfg, G4SimTimerToolCfg, G4TrackCounterToolCfg,
-    StoppedParticleActionToolCfg, HitWrapperToolCfg
-)
-from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
-from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
-from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
-from ISF_Services.ISF_ServicesConfigNew import (
-    TruthServiceCfg, ParticleBrokerSvcCfg, AFIIParticleBrokerSvcCfg
+    G4SimTimerToolCfg, G4TrackCounterToolCfg, HitWrapperToolCfg,
+    LooperKillerToolCfg, StoppedParticleActionToolCfg
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
-from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
+from ISF_Services.ISF_ServicesCoreConfigNew import AFIIGeoIDSvcCfg, GeoIDSvcCfg
+from ISF_Services.ISF_ServicesConfigNew import (
+    AFIIParticleBrokerSvcCfg, ParticleBrokerSvcCfg, TruthServiceCfg
+)
+from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
+from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
+
+
+def OptionalUserActionCfg(flags):
+    """ flags.Sim.OptionalUserActionList = ['G4UserActions.G4UserActionsConfigNew.FixG4CreatorProcessToolCfg']"""
+    result = ComponentAccumulator()
+    optionalUserActions = []
+    for userActionString in flags.Sim.OptionalUserActionList:
+        optionalUserActions += [result.popToolsAndMerge(getOptionalUACfg(flags, userActionString))]
+    result.setPrivateTools(optionalUserActions)
+    return result
+
+
+def getOptionalUACfg(flags, userActionString):
+    """Execute a function to configure and optional UserAction"""
+    parts = userActionString.split('.')
+    if len(parts) < 2:
+        raise ValueError('OptionalUserAction strings should be of the form Package.Module.Function or Package.Function if defined in __init__.py')
+    function = parts[-1]
+    module = '.'.join(parts[:-1])
+    from importlib import import_module
+    loaded_module = import_module(module)
+    function_def = getattr(loaded_module, function)
+    return function_def(flags)
+
 
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ['FullG4MT', 'FullG4MT_QS']:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.FullG4MT, SimulationFlavour.FullG4MT_QS]:
         tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
     else:
         tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))
     result.addPublicTool(tool)
     kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
-    result.merge(GeoIDSvcCfg(flags))
-    kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
+    kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name)
     if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
-    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'])
+    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3])
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
 
@@ -44,9 +69,7 @@ def PhysicsValidationUserActionToolCfg(flags, name="ISFG4PhysicsValidationUserAc
 
 def MCTruthUserActionToolCfg(flags, name="ISFMCTruthUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    truthacc = TruthServiceCfg(flags)
-    kwargs.setdefault("TruthRecordSvc", truthacc.getPrimary())
-    result.merge(truthacc)
+    kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
     result.setPrivateTools(CompFactory.G4UA.iGeant4.MCTruthUserActionTool(name, **kwargs))
     return result
 
@@ -54,29 +77,25 @@ def MCTruthUserActionToolCfg(flags, name="ISFMCTruthUserActionTool", **kwargs):
 def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
     if "ParticleBroker" not in kwargs:
-        result.merge(ParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_ParticleBrokerSvc"))
-    result.merge(GeoIDSvcCfg(flags))
-    kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(ParticleBrokerSvcCfg(flags)).name)
+    kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name)
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionPassBackTool(name, **kwargs))
     return result
 
 
 def PassBackG4TrackProcessorUserActionToolCfg(flags, name="PassBackG4TrackProcessorUserActionTool", **kwargs):
-    if flags.Sim.ISF.Simulator in ["PassBackG4MT"]:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.PassBackG4MT]:
         kwargs.setdefault("ParticleBroker", "")
     return TrackProcessorUserActionToolCfg(flags, name, **kwargs)
 
 
 def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
+    if flags.Sim.ISF.Simulator in [SimulationFlavour.PassBackG4MT, SimulationFlavour.ATLFASTIIMT, SimulationFlavour.ATLFAST3MT, SimulationFlavour.ATLFAST3MT_QS]:
         kwargs.setdefault("ParticleBroker", "")
-    if flags.Sim.ISF.Simulator in ["ATLFASTIIF_G4MS"]:
-        result.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
-    result.merge(AFIIGeoIDSvcCfg(flags))
-    kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
+    elif flags.Sim.ISF.Simulator in [SimulationFlavour.ATLFASTIIF_G4MS, SimulationFlavour.ATLFAST3F_G4MS]:
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
+    kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name)
     kwargs.setdefault("PassBackEkinThreshold", 0.05*MeV)
     kwargs.setdefault("KillBoundaryParticlesBelowThreshold", True)
     tool = result.popToolsAndMerge(PassBackG4TrackProcessorUserActionToolCfg(flags, name, **kwargs))
@@ -102,22 +121,22 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge(G4TrackCounterToolCfg(ConfigFlags))]
 
     # Cosmic Perigee action
-    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG == "Off":
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and ConfigFlags.Sim.CavernBackground is CavernBackground.Off:
         actions += [CompFactory.G4UA.CosmicPerigeeActionTool()]
     # Cosmic filter
-    if ConfigFlags.Beam.Type == "cosmics" and not ConfigFlags.Sim.ISFRun:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and not ConfigFlags.Sim.ISFRun:
         actions += [result.popToolsAndMerge(CosmicFilterToolCfg(ConfigFlags))]
     if ConfigFlags.Sim.StoppedParticleFile:
         actions += [result.popToolsAndMerge(StoppedParticleFilterToolCfg(ConfigFlags)),
                     result.popToolsAndMerge(StoppedParticleActionToolCfg(ConfigFlags))]
     # Hit wrapper action
-    if ConfigFlags.Sim.CavernBG == "Read":
+    if ConfigFlags.Sim.CavernBackground is CavernBackground.Read:
         actions += [result.popToolsAndMerge(HitWrapperToolCfg(ConfigFlags))]
     # Photon killer
     if ConfigFlags.Sim.PhysicsList == "QGSP_BERT_HP":
         actions += [CompFactory.G4UA.PhotonKillerTool()]
     # Calo calibration default processing
-    if ConfigFlags.Sim.CalibrationRun == "LAr+Tile":
+    if ConfigFlags.Sim.CalibrationRun is CalibrationRun.LArTile:
         actions += [result.popToolsAndMerge(CalibrationDefaultProcessingToolCfg(ConfigFlags))]
 
     actions += [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))]
@@ -137,7 +156,7 @@ def UserActionSvcCfg(ConfigFlags, name="G4UA::UserActionSvc", **kwargs):
     kwargs.setdefault("UserActionTools", result.popToolsAndMerge(getDefaultActions(ConfigFlags)))
 
     # placeholder for more advanced config, if needed
-    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs))
+    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs), primary = True)
 
     return result
 
@@ -162,7 +181,7 @@ def CTBUserActionSvcCfg(ConfigFlags, name="G4UA::CTBUserActionSvc", **kwargs):
     kwargs.setdefault("UserActionTools", generalActions)
 
     # placeholder for more advanced config, if needed
-    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs))
+    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs), primary = True)
     return result
 
 
@@ -177,46 +196,44 @@ def ISFUserActionSvcCfg(ConfigFlags, name="G4UA::ISFUserActionSvc", **kwargs):
     MCTruthUserAction = kwargs.pop("MCTruthUserAction",
                                    [result.popToolsAndMerge(MCTruthUserActionToolCfg(ConfigFlags))])
 
-    # FIXME migrate an alternative to this
-    #from G4AtlasApps.SimFlags import simFlags
-    #optActions = simFlags.OptionalUserActionList.get_Value()
-
-    generalActions = (
-        TrackProcessorUserAction + MCTruthUserAction +
-        result.popToolsAndMerge(getDefaultActions(ConfigFlags)) +
-        PhysicsValidationUserAction
-    )
+    generalActions = ( TrackProcessorUserAction + MCTruthUserAction +
+                       result.popToolsAndMerge(getDefaultActions(ConfigFlags)) +
+                       result.popToolsAndMerge(OptionalUserActionCfg(ConfigFlags)) +
+                       PhysicsValidationUserAction )
 
     # New user action tools
     kwargs.setdefault("UserActionTools", generalActions)
-    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs))
+    result.addService(CompFactory.G4UA.UserActionSvc(name, **kwargs), primary = True)
     return result
 
 
 def ISFFullUserActionSvcCfg(ConfigFlags, name="G4UA::ISFFullUserActionSvc", **kwargs):
     # this configuration needs ISFMCTruthUserAction
     # and FullG4TrackProcessorUserAction
-    result = FullG4TrackProcessorUserActionToolCfg(ConfigFlags)
-    kwargs.setdefault("TrackProcessorUserAction", [result.popPrivateTools()])
-    result.merge(ISFUserActionSvcCfg(ConfigFlags, name, **kwargs))
+    tpAcc = FullG4TrackProcessorUserActionToolCfg(ConfigFlags)
+    kwargs.setdefault("TrackProcessorUserAction", [tpAcc.popPrivateTools()])
+    result = ISFUserActionSvcCfg(ConfigFlags, name, **kwargs)
+    result.merge(tpAcc)
     return result
 
 
 def ISFPassBackUserActionSvcCfg(ConfigFlags, name="G4UA::ISFPassBackUserActionSvc", **kwargs):
     # this configuration needs ISFMCTruthUserAction and
     # PassBackG4TrackProcessorUserAction
-    result = ComponentAccumulator()
+    tpAcc = ComponentAccumulator()
     kwargs.setdefault("TrackProcessorUserAction",
-                      [result.popToolsAndMerge(PassBackG4TrackProcessorUserActionToolCfg(ConfigFlags))])
-    result.merge(ISFUserActionSvcCfg(ConfigFlags, name, **kwargs))
+                      [tpAcc.popToolsAndMerge(PassBackG4TrackProcessorUserActionToolCfg(ConfigFlags))])
+    result = ISFUserActionSvcCfg(ConfigFlags, name, **kwargs)
+    result.merge(tpAcc)
     return result
 
 
 def ISF_AFIIUserActionSvcCfg(ConfigFlags, name="G4UA::ISF_AFIIUserActionSvc", **kwargs):
     # this configuration needs ISFMCTruthUserAction and
     # AFII_G4TrackProcessorUserAction
-    result = ComponentAccumulator()
+    tpAcc = ComponentAccumulator()
     kwargs.setdefault("TrackProcessorUserAction",
-                      [result.popToolsAndMerge(AFII_G4TrackProcessorUserActionToolCfg(ConfigFlags))])
-    result.merge(ISFUserActionSvcCfg(ConfigFlags, name, **kwargs))
+                      [tpAcc.popToolsAndMerge(AFII_G4TrackProcessorUserActionToolCfg(ConfigFlags))])
+    result = ISFUserActionSvcCfg(ConfigFlags, name, **kwargs)
+    result.merge(tpAcc)
     return result

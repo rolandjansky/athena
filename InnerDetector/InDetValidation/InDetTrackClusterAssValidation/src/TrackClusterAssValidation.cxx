@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IPartPropSvc.h"
@@ -49,7 +49,7 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_useOutliers            = false                            ;
   m_pdg                    = 0                                ;
   m_tcut                   = 0.                               ;
-  m_particleDataTable      = 0                                ;
+  m_particleDataTable      = nullptr                                ;
 
   declareProperty("TracksLocation"        ,m_tracklocation         );
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
@@ -103,7 +103,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 
   // get the Particle Properties Service
   //
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
@@ -169,7 +169,7 @@ StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) co
   std::vector<SG::ReadHandle<PRD_MultiTruthCollection> > read_handle;
   read_handle.reserve(3);
   if(m_usePIX) {
-    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationPixel,ctx));
+    read_handle.emplace_back(m_truth_locationPixel,ctx);
     if (not read_handle.back().isValid()) {
       ATH_MSG_FATAL( "Could not find TruthPIX" );
       return StatusCode::FAILURE;
@@ -178,7 +178,7 @@ StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) co
   }
 
   if(m_useSCT) {
-    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationSCT,ctx));
+    read_handle.emplace_back(m_truth_locationSCT,ctx);
     if (not read_handle.back().isValid()) {
       ATH_MSG_FATAL( "Could not find TruthSCT" );
       return StatusCode::FAILURE;
@@ -187,7 +187,7 @@ StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) co
   }
 
   if(m_clcutTRT > 0) {
-    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationTRT,ctx));
+    read_handle.emplace_back(m_truth_locationTRT,ctx);
     if (not read_handle.back().isValid()) {
       ATH_MSG_FATAL( "Could not find TruthTRT" );
       return StatusCode::FAILURE;
@@ -439,7 +439,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     double ef2[6]; for(int i=0; i!=6; ++i) ef2[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][2])/ne;
 
 
-    typedef std::array<double, 6> EffArray_t;
+    using EffArray_t = std::array<double, 6>;
     //
     auto makeEffArray = [](const auto & threeDimArray, const size_t secondIdx, const size_t thirdIdx, const double denom){
       EffArray_t result{};
@@ -888,7 +888,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(const EventContext& c
   int Kine[1000];
 
   if(m_usePIX && !m_spacepointsPixelname.key().empty()) {
-    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsPixelname,ctx));
+    event_data.m_spacePointContainer.emplace_back(m_spacepointsPixelname,ctx);
     if (!event_data.m_spacePointContainer.back().isValid()) {
       ATH_MSG_DEBUG( "Invalid Pixels space points container read handle for key " << m_spacepointsPixelname.key()  );
     }
@@ -916,7 +916,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(const EventContext& c
   // Get sct space points containers from store gate
   //
   if(m_useSCT && !m_spacepointsSCTname.key().empty()) {
-    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsSCTname,ctx));
+    event_data.m_spacePointContainer.emplace_back(m_spacepointsSCTname,ctx);
     if (!event_data.m_spacePointContainer.back().isValid()) {
       ATH_MSG_DEBUG( "Invalid SCT space points container read handle for key " << m_spacepointsSCTname.key() );
     }
@@ -1100,7 +1100,7 @@ void InDet::TrackClusterAssValidation::tracksComparison(const EventContext& ctx,
     if(++nc >= 100) return;
     event_data.m_tracks[nc].clear();
 
-    event_data.m_trackcontainer.push_back( SG::ReadHandle<TrackCollection>(track_key,ctx) );
+    event_data.m_trackcontainer.emplace_back(track_key,ctx );
     if (!event_data.m_trackcontainer.back().isValid()) {
       continue;
     }
@@ -1302,7 +1302,7 @@ int InDet::TrackClusterAssValidation::kine
 
     // Rapidity cut
     //
-    double           t  = fabs(pz)/pt;
+    double           t  = std::abs(pz)/pt;
     if( t  > m_tcut ) continue;
 
     // Radius cut

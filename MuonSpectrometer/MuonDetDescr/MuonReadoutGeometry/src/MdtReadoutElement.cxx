@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -1540,12 +1540,12 @@ namespace MuonGM {
 #endif
 
 #ifndef NDEBUG
-        Trk::PlaneSurface* tmpSurface = (Trk::PlaneSurface*)&surface();  //<! filling m_associatedSurface
-        Trk::SurfaceBounds* tmpBounds = nullptr;                         //<! filling m_associatedBounds
+        const Trk::PlaneSurface* tmpSurface = dynamic_cast<const Trk::PlaneSurface*>(&surface());  //<! filling m_associatedSurface
+        const Trk::SurfaceBounds* tmpBounds = nullptr;                         //<! filling m_associatedBounds
         if (MuonReadoutElement::barrel())
-            tmpBounds = (Trk::RectangleBounds*)&bounds();
+            tmpBounds = dynamic_cast<const Trk::RectangleBounds*>(&bounds());
         else
-            tmpBounds = (Trk::TrapezoidBounds*)&bounds();
+            tmpBounds = dynamic_cast<const Trk::TrapezoidBounds*>(&bounds());
         if (log.level() <= MSG::VERBOSE) {
             log << MSG::VERBOSE << "global Surface / Bounds pointers " << tmpSurface << " " << tmpBounds << endmsg;
             log << MSG::VERBOSE << "global Normal " << normal() << endmsg;

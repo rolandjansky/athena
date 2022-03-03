@@ -23,6 +23,7 @@ class TGCDatabaseManager;
 class TGCSector;
 class TGCTMDB;
 class TGCNSW;
+class TGCBIS78;
 
 class TGCElectronicsSystem
 {
@@ -44,6 +45,7 @@ class TGCElectronicsSystem
   TGCTMDB* getTMDB() {return m_tmdb;}
   const TGCTMDB* getTMDB() const {return m_tmdb;}
   std::shared_ptr<TGCNSW>  getNSW() const {return m_nsw;}
+  std::shared_ptr<TGCBIS78> getBIS78() const {return m_bis78;}
 
   TGCElectronicsSystem(TGCArguments*, TGCDatabaseManager* database);
   ~TGCElectronicsSystem();
@@ -62,6 +64,7 @@ class TGCElectronicsSystem
   TGCSector* m_sector[NumberOfSide][NumberOfOctant][NumberOfModule];
   TGCTMDB*   m_tmdb;
   std::shared_ptr<TGCNSW>   m_nsw;
+  std::shared_ptr<TGCBIS78>   m_bis78;
 
   TGCArguments* m_tgcArgs;
 };

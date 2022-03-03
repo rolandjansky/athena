@@ -126,7 +126,6 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
-      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -255,12 +254,16 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
    if(printdetail) {
       for ( const string & thrName : l1menu.thresholdNames() ) {
          cout << thrName << " threshold value: " << l1menu.threshold(thrName).thrValue() << endl;
       }
    }
+
+   cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
+   const auto & thrjXE = dynamic_cast<const TrigConf::L1Threshold_jXE&>(l1menu.threshold("jXESPARE1"));
+   if(thrjXE) cout << "jXESPARE1 cut [100 MeV]: " << thrjXE.thrValue100MeV() << endl;
+
 
    auto thrJET = dynamic_pointer_cast<TrigConf::L1Threshold_JET>(l1menu.thresholds("JET")[0]);
    if(thrJET) {
@@ -283,8 +286,8 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
 //   }
 
 
-   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM15M"));
-   cout << "eEM15M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM26M"));
+   cout << "eEM26M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
 
    const auto & threTAU = dynamic_cast<const TrigConf::L1Threshold_eTAU&>(l1menu.threshold("eTAU12"));
    if(threTAU) {
@@ -294,10 +297,10 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM18M"));
-   cout << "jEM18M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
+   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM20M"));
+   cout << "jEM20M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
 
-   const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ12p0ETA25"));
+   const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ30p0ETA25"));
    if(thrjJET) {
       cout << thrjJET.name() << ":" << endl;
       for(int eta  : {0, 20, 30, 40}) {
@@ -466,6 +469,32 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV("1A") << endl;
       cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts("1A") << endl;
    }
+   {  
+      auto & ex = l1menu.thrExtraInfo().gLJ();
+      cout << "  gLJ" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    ptMinToTopo (eta range "<<std::to_string(1)<<") in GeV " << ex.ptMinToTopo(1) << endl; 
+      cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV(1) << endl; 
+      cout << "    ptMinToTopo (counts) " << ex.ptMinToTopoCounts(1) << endl;
+      cout << "    seedThr(A) " << ex.seedThr('A') << endl; 
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV('A') << endl; 
+      cout << "    rhoTowerMin(B) " << ex.rhoTowerMin('B') << endl;   
+      cout << "    rhoTowerMin(B) (MeV) " << ex.rhoTowerMinMeV('B') << endl;  
+      cout << "    rhoTowerMax(C) " << ex.rhoTowerMax('C') << endl;
+      cout << "    rhoTowerMax(C) (MeV) " << ex.rhoTowerMaxMeV('C') << endl;
+   }
+   {
+      auto & ex = l1menu.thrExtraInfo().gXE();
+      cout << "  gXE" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    seedThr(A) " << ex.seedThr('A') << endl;
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV('A') << endl;
+      cout << "    XERHO_sigmaPosA " << ex.XERHO_param('A',true) << endl;
+      cout << "    XERHO_sigmaNegB " << ex.XERHO_param('B',false) << endl;
+      cout << "    XEJWOJ_a_C " << ex.JWOJ_param('C','a') << endl;
+      cout << "    XEJWOJ_b_B " << ex.JWOJ_param('B','b') << endl;
+      cout << "    XEJWOJ_c_A " << ex.JWOJ_param('A','c') << endl;
+   }
    {
       auto & ex = l1menu.thrExtraInfo().eTAU();
       cout << "  eTAU" << endl;
@@ -557,6 +586,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    cout << endl << "    known pt values for tgc ";
    for(auto pt : exMU.knownTgcPtValues()) cout << pt << " ";
    cout << endl;
+   cout << " RPC pt value for index 2: "<< exMU.ptForRpcIdx(2) << endl;
+   cout << " TGC pt value for index 2: "<< exMU.ptForTgcIdx(2) << endl;
+   cout << " TGC index for RPC index 2: "<< exMU.tgcIdxForRpcIdx(2) << endl;
    if( const auto & list = exMU.exclusionListNames(); std::find(list.begin(), list.end(), "rpcFeet")!=list.end() ) {
       cout << "    exclusionList 'rpcFeet'" << endl;
       for(auto & x : exMU.exclusionList("rpcFeet")) {
@@ -665,18 +697,18 @@ void usage() {
   cout << "[Input options]\n";
   cout << "  -f|--file             file1        ... input json file to test\n";
   cout << "  --smk                 smk          ... smk \n";
-  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDBDEV1) \n";
+  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDB_RUN3) \n";
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "\n";
-  cout << "If no input is specified, the default LS2_v1 menu file will be taken from the release\n\n";
+  cout << "If no input is specified, the default Dev_pp_run3_v1 menu file will be taken from the release\n\n";
 }
 
 int main(int argc, char** argv) {
    bool help { false };
    string filename{""};
    unsigned int smk{0};
-   std::string  dbalias {"TRIGGERDBDEV1"};
+   std::string  dbalias {"TRIGGERDB_RUN3"};
    std::vector<std::string> knownParameters { "file", "f", "smk", "db", "help", "h" };
 
    std::string currentParameter("");
@@ -742,7 +774,7 @@ int main(int argc, char** argv) {
          string xmlpath(env_xmlpath);
          boost::algorithm::split(paths, xmlpath, boost::is_any_of(":"));
          for( const string & p : paths) {
-            string testFN = p + "/TriggerMenuMT/L1Menu_LS2_v1_" + string(env_AV) + ".json";
+            string testFN = p + "/TriggerMenuMT/L1Menu_Dev_pp_run3_v1_" + string(env_AV) + ".json";
             struct stat buffer;
             if (stat (testFN.c_str(), &buffer) == 0) {
                filename = testFN;

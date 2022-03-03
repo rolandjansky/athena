@@ -67,13 +67,12 @@ def main( runNum=None, projectName='' ):
     #--- Detector mask
     mask= int (DetectorMask,16)
 
-    if (year > 13):
-        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( True )
+    if (year < 12):
+        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( 1 )
+    elif (year < 21):
+        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( 2 )
     else:
-        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( False )
-
-    #InitDetectorMaskDecoder() receives now a False(True) argument for runI(runII)
-    #dName, NotInAll, vetoedbits = InitDetectorMaskDecoder()
+        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( 3 )
 
     res=''
     found = False

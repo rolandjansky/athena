@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonJiveXML/CSCClusterRetriever.h"
-#include "MuonJiveXML/MuonFullIDHelper.h"
+#include "CSCClusterRetriever.h"
+#include "MuonFullIDHelper.h"
 
 namespace JiveXML {
 

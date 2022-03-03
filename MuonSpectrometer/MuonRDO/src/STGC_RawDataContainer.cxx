@@ -6,7 +6,7 @@
 #include <iostream>
 
 Muon::STGC_RawDataContainer::STGC_RawDataContainer()
-  : IdentifiableContainer<STGC_RawDataCollection>(0) 
+  : IdentifiableContainer<STGC_RawDataCollection>(nullptr) 
 {
 }
 

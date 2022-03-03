@@ -232,7 +232,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcWeightedSumHit(TrigL2MuonSA::Trac
 StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::StgcHits& stgcHits) const
 {
   if(stgcHits.size() < 9) {
-    ATH_MSG_WARNING("Number of STGC hits is too small, at least 9 hits required : "<<stgcHits.size()<<" hits");
+    ATH_MSG_INFO("Number of STGC hits is too small, at least 9 hits required : "<<stgcHits.size()<<" hits");
     return StatusCode::SUCCESS;
     } else if(stgcHits.size() > 100) {
     ATH_MSG_WARNING("Number of STGC hits is too large, at most (2^16 - 1) hits allowed : "<<stgcHits.size()<<" hits");
@@ -1019,7 +1019,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
 StatusCode TrigL2MuonSA::NswStationFitter::findMmHitsInSegment(TrigL2MuonSA::MmHits& mmHits) const
 {
   if(mmHits.size() < 6) {
-    ATH_MSG_WARNING("Number of MM hits is too small, at least 6 hits required : "<<mmHits.size()<<" hits");
+    ATH_MSG_INFO("Number of MM hits is too small, at least 6 hits required : "<<mmHits.size()<<" hits");
     return StatusCode::SUCCESS;
     } else if(mmHits.size() > 100) {
     ATH_MSG_WARNING("Number of MM hits is too large, at most (2^16 - 1) hits allowed : "<<mmHits.size()<<" hits");

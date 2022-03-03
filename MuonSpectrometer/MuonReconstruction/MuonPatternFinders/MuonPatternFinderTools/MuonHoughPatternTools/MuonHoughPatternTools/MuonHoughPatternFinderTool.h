@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
 #define MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
+
+#include <TFile.h>
+#include <TH1.h>
 
 #include <iostream>
 #include <string>
@@ -12,18 +15,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonHoughPatternTools/IMuonHoughPatternTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPattern/MuonPatternCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
 #include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
+#include "MuonRecToolInterfaces/IMuonHoughPatternTool.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
-
-class TH1F;
-class TFile;
 
 class MuonHoughHitContainer;
 
@@ -35,31 +35,35 @@ namespace Muon {
         MuonHoughPatternFinderTool(const std::string&, const std::string&, const IInterface*);
 
         /** destructor */
-        virtual ~MuonHoughPatternFinderTool() = default;
+        virtual ~MuonHoughPatternFinderTool();
 
         /** initialize */
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
         /** finalize */
-        virtual StatusCode finalize();
+        virtual StatusCode finalize() override;
 
         /** find patterns for a give set of MuonPrepData collections + optionally CSC
          * segment combinations */
         std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec>> find(
             const std::vector<const MdtPrepDataCollection*>& mdtCols, const std::vector<const CscPrepDataCollection*>& cscCols,
             const std::vector<const TgcPrepDataCollection*>& tgcCols, const std::vector<const RpcPrepDataCollection*>& rpcCols,
-            const MuonSegmentCombinationCollection* cscSegmentCombis, const EventContext& ctx) const;
+            const MuonSegmentCombinationCollection* cscSegmentCombis, const EventContext& ctx) const override;
+
+        std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> find(
+            const MdtPrepDataContainer* mdtCont, const CscPrepDataContainer* cscCols, const TgcPrepDataContainer* tgcCont,
+            const RpcPrepDataContainer* rpcCont, const sTgcPrepDataContainer* stgcCont, const MMPrepDataContainer* mmCont,
+            const EventContext& ctx) const override;
 
     private:
+        template <class T> std::vector<const T*> stdVec(const MuonPrepDataContainer<T>* cont) const;
+
         /** retrieves all hits and converts them into internal EDM */
-        const MuonHoughHitContainer* getAllHits(
+        std::unique_ptr<MuonHoughHitContainer> getAllHits(
             const std::vector<const MdtPrepDataCollection*>& mdtCols, const std::vector<const CscPrepDataCollection*>& cscCols,
             const std::vector<const TgcPrepDataCollection*>& tgcCols, const std::vector<const RpcPrepDataCollection*>& rpcCols,
             const MuonSegmentCombinationCollection* cscSegmentCombis, std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
             std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap,
-            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const;
-
-        /** possibility to skip events, nothing implemented */
-        static bool cut();
+            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const;
 
         /** analyse hits */
         MuonPatternCombinationCollection* analyse(
@@ -70,28 +74,27 @@ namespace Muon {
     private:
         /** record patterncollection to storegate or deletes collection when
          * m_recordAllOutput is false */
-        void record(MuonPrdPatternCollection* patCol, const SG::WriteHandleKey<MuonPrdPatternCollection>& key,
+        void record(std::unique_ptr<MuonPrdPatternCollection>& patCol, const SG::WriteHandleKey<MuonPrdPatternCollection>& key,
                     const EventContext& ctx) const;
 
         /** convert and add rpc preprawdata collection (1 chamber) */
         void addRpcCollection(
-            Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end,
-            MuonHoughHitContainer* hitcontainer, std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
-            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const;
+            const RpcPrepDataCollection* rpc_coll, MuonHoughHitContainer& hitcontainer,
+            std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
+            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const;
         /** convert and add mdt preprawdata collection (1 chamber) */
-        void addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end,
-                              MuonHoughHitContainer* hitcontainer, std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
+        void addMdtCollection(const MdtPrepDataCollection* mdt_coll, MuonHoughHitContainer& hitcontainer,
+                              std::map<int, std::vector<std::pair<int, int>>>& rpcmdtstationmap,
                               std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap) const;
         /** convert and add csc preprawdata collection (1 chamber) */
         void addCscCollection(
-            Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end,
-            MuonHoughHitContainer* hitcontainer,
-            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const;
+            const CscPrepDataCollection* csc_coll, MuonHoughHitContainer& hitcontainer,
+            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const;
         /** convert and add tgc preprawdata collection (1 chamber) */
         void addTgcCollection(
-            Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end,
-            MuonHoughHitContainer* hitcontainer, std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap,
-            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phietahitassociation) const;
+            const Muon::TgcPrepDataCollection*, MuonHoughHitContainer& hitcontainer,
+            std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap,
+            std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& phietahitassociation) const;
 
         /** finds best segment for given driftcircle vector (nl1/2 = number of dc's in
          * ml 1 and 2, angledif is difference between angle of segment and
@@ -170,20 +173,24 @@ namespace Muon {
         /** pointer to the CSC segment combination collection */
         // const MuonSegmentCombinationCollection* m_csc_segments;
 
-        /** histogram file for studies on weighting (only in use, when m_use_histos is
-         * true) */
-        TFile* m_file{};
-        /** all hits histograms for studies on weighting (only in use, when
-         * m_use_histos is true) */
-        TH1F* m_weighthistogram{};
-        /** mdt histogram */
-        TH1F* m_weighthistogrammdt{};
-        /** rpc histogram */
-        TH1F* m_weighthistogramrpc{};
-        /** tgc histogram */
-        TH1F* m_weighthistogramtgc{};
-        /** csc histogram */
-        TH1F* m_weighthistogramcsc{};
+        struct Hists {
+          /** histogram file for studies on weighting (only in use, when m_use_histos is
+           * true) */
+          std::unique_ptr<TFile> m_file{};
+          /** all hits histograms for studies on weighting (only in use, when
+           * m_use_histos is true) */
+          std::unique_ptr<TH1> m_weighthistogram{};
+          /** mdt histogram */
+          std::unique_ptr<TH1> m_weighthistogrammdt{};
+          /** rpc histogram */
+          std::unique_ptr<TH1> m_weighthistogramrpc{};
+          /** tgc histogram */
+          std::unique_ptr<TH1> m_weighthistogramtgc{};
+          /** csc histogram */
+          std::unique_ptr<TH1> m_weighthistogramcsc{};
+        };
+        std::unique_ptr<Hists> m_h;
+        Hists& getHists() const;
 
         SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey{this, "CosmicPhiKey", "CosmicPhiPatterns"};
         SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey{this, "CosmicEtaPatterns", "CosmicEtaPatterns"};

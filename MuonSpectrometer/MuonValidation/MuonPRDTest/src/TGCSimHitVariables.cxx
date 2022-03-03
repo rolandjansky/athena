@@ -29,8 +29,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 	TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
 
 	if (!tgcContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
-	for (auto it : *tgcContainer) {
-		const TGCSimHit hit = it;
+	for (const TGCSimHit& hit : *tgcContainer) {
 
 		HitID hitid = hit.TGCid();
 
@@ -71,7 +70,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		
 		m_TGC_globalTime.push_back(hit.globalTime());
 
-		const Amg::Vector3D localPosition = hit.localPosition();
+		const Amg::Vector3D& localPosition = hit.localPosition();
 
 		m_TGC_hitLocalPositionX.push_back(localPosition.x());
 		m_TGC_hitLocalPositionY.push_back(localPosition.y());

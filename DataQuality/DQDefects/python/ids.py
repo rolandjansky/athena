@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.defect_ids")
 
-from ctypes import Union, Structure, c_uint
+from ctypes import Structure, c_uint, Union as cUnion
 
 from DQUtils.channel_mapping import get_channel_ids_names
 
@@ -10,10 +10,8 @@ from .exceptions import (DefectUnknownError,
                          InvalidLogicTagError)
 
 import six
-if six.PY2:
-    def _decode (s): return s.decode('utf-8')
-else:
-    def _decode (s): return s
+from typing import Set, Iterable, Tuple, Union, List
+from collections.abc import Mapping, MutableMapping
 
 
 class DefectIDBitfield(Structure):
@@ -26,7 +24,7 @@ class DefectIDBitfield(Structure):
         return "(is_virtual=%s, defect=%i)" % args
 
 
-class DefectID(Union):
+class DefectID(cUnion):
     _fields_ = [("as_int", c_uint),
                 ("as_bitfield", DefectIDBitfield)]
     
@@ -47,7 +45,8 @@ class DefectID(Union):
         args = self.as_int, self.as_bitfield
         return '<DefectID value=0x%08x fields=%r>' % args
 
-def choose_new_defect_id(existing_map, defect_name, virtual=False):
+def choose_new_defect_id(existing_map: Mapping[Union[str, int], Union[str,int]], 
+                         defect_name: str, virtual: bool = False) -> int:
     """
     Function to create a new defect ID.
 
@@ -77,14 +76,18 @@ class DefectsDBIDsNamesMixin(object):
     Contains the logic for storing knowledge of which defects exist, and their
     channel names and IDs
     """
-    def __init__(self):
-        self._defect_id_map = self._defect_ids = self._defect_names = None
-        self._virtual_defect_id_map = None
-        self._virtual_defect_ids = None
-        self._virtual_defect_names = None
+    def __init__(self) -> None:
+        self._initialized = False
+        self._virtual_initialized = False
+        self._defect_id_map: MutableMapping[Union[str,int], Union[str,int]] = {}
+        self._defect_ids: Set[int] = set()
+        self._defect_names: Set[str] = set()
+        self._virtual_defect_id_map: MutableMapping[Union[str,int], Union[str,int]] = {}
+        self._virtual_defect_ids: Set[int] = set()
+        self._virtual_defect_names: Set[str] = set()
         super(DefectsDBIDsNamesMixin, self).__init__()
     
-    def _populate_defect_ids(self):
+    def _populate_defect_ids(self) -> None:
         """
         Called the first time any of defect_{ids,names,id_map,etc} is called,
         and populates internal variables to store the channel ids/names for the
@@ -95,13 +98,13 @@ class DefectsDBIDsNamesMixin(object):
         self._defect_names = set(names)
         self._defect_id_map = mapping
         
-    def _populate_virtual_defect_ids(self):
+    def _populate_virtual_defect_ids(self) -> None:
         """
         Called the first time any of virtual_defect_{ids,names,id_map,etc} is called,
         and populates internal variables to store the channel ids/names for the
         life of the DefectsDB instance.
         """
-        ids, names, mapping = get_channel_ids_names(self.defect_logic_folder)
+        _, _, mapping = get_channel_ids_names(self.defect_logic_folder)
         try:
             self._virtual_defect_names = set(self.virtual_defect_logics.keys())
             self._virtual_defect_ids = set(mapping[name] for name in self._virtual_defect_names)
@@ -115,7 +118,7 @@ class DefectsDBIDsNamesMixin(object):
             self._virtual_defect_ids = set()
             self._virtual_defect_map = {}
     
-    def _new_defect(self, did, dname):
+    def _new_defect(self, did: int, dname: str) -> None:
         """
         Internal function used to keep defect IDs/names uptodate.
         """
@@ -124,7 +127,7 @@ class DefectsDBIDsNamesMixin(object):
         self.defect_id_map[did] = dname
         self.defect_id_map[dname] = did
         
-    def _new_virtual_defect(self, did, dname):
+    def _new_virtual_defect(self, did: int, dname: str) -> None:
         """
         Internal function used to keep defect IDs/names uptodate.
         """
@@ -136,55 +139,68 @@ class DefectsDBIDsNamesMixin(object):
         self._virtual_defect_logics = None
     
     @property
-    def defect_ids(self):
+    def defect_ids(self) -> Set[int]:
         """
         Gives the set of defect IDs that exist in COOL
         """
-        if self._defect_ids is None: self._populate_defect_ids()
+        if not self._initialized: 
+            self._populate_defect_ids()
+            self._initialized = True
         return self._defect_ids
     
     @property
-    def defect_names(self):
+    def defect_names(self) -> Set[str]:
         """
         Gives the set of defect names that exist in COOL
         """
-        if self._defect_names is None: self._populate_defect_ids()
+        if not self._initialized: 
+            self._populate_defect_ids()
+            self._initialized = True
+        assert self._defect_names is not None, self._initialized
         return self._defect_names
     
     @property
-    def defect_id_map(self):
+    def defect_id_map(self) -> MutableMapping[Union[str,int], Union[str,int]]:
         """
         Gives the dictionary relating COOL channel ids to defect names and vice
         versa, retrieving them from the database if necessary.
         """
-        if self._defect_id_map is None: self._populate_defect_ids()
+        if not self._initialized: 
+            self._populate_defect_ids()
+            self._initialized = True
         return self._defect_id_map
         
     @property
-    def virtual_defect_ids(self):
+    def virtual_defect_ids(self) -> Set[int]:
         """
         Returns the set of existing virtual defect IDs
         """
-        if self._virtual_defect_ids is None: self._populate_virtual_defect_ids()
+        if not self._virtual_initialized: 
+            self._populate_virtual_defect_ids()
+            self._virtual_initialized = True
         return self._virtual_defect_ids
     
     @property
-    def virtual_defect_names(self):
+    def virtual_defect_names(self) -> Set[str]:
         """
         Returns the set of existing virtual defect names
         """
-        if self._virtual_defect_names is None: self._populate_virtual_defect_ids()
+        if not self._virtual_initialized: 
+            self._populate_virtual_defect_ids()
+            self._virtual_initialized = True
         return self._virtual_defect_names
     
     @property
-    def virtual_defect_id_map(self):
+    def virtual_defect_id_map(self) -> MutableMapping[Union[str,int], Union[str,int]]:
         """
         Returns a dict() mapping virtual defect names to IDs and vice-versa.
         """
-        if self._virtual_defect_id_map is None: self._populate_virtual_defect_ids()
+        if not self._virtual_initialized: 
+            self._populate_virtual_defect_ids()
+            self._virtual_initialized = True
         return self._virtual_defect_id_map
         
-    def defect_chan_as_id(self, channel, primary_only=False):
+    def defect_chan_as_id(self, channel: Union[str, int], primary_only: bool = False) -> int:
         """
         Returns the defect ID for a virtual defect.
         Accepts a `channel` as an integer/string and returns it as an integer.
@@ -209,44 +225,44 @@ class DefectsDBIDsNamesMixin(object):
         raise RuntimeError("Invalid `channel` type, got %s, expected integer"
                               " or string" % type(channel))
     
-    def defect_names_as_ids(self, channels):
+    def defect_names_as_ids(self, channels: Iterable[Union[str, int]]) -> List[int]:
         """
         Returns a list of channels as IDs
         """
         return [self.defect_chan_as_id(chan) for chan in channels]
     
-    def get_channels(self):
+    def get_channels(self) -> Tuple[Set[int], Set[str], Mapping[Union[str, int], Union[str, int]]]:
         """
         Return channel IDs, names, and dict relating the two
         """
         return self.defect_ids, self.defect_names, self.defect_id_map
     
-    def get_virtual_channels(self):
+    def get_virtual_channels(self) -> Tuple[Set[int], Set[str], Mapping[Union[str, int], Union[str, int]]]:
         """
         Return channel IDs, names, and dict relating the two
         """
         return self.virtual_defect_ids, self.virtual_defect_names, self.virtual_defect_id_map
     
-    def get_channel_descriptions(self, channels):
+    def get_channel_descriptions(self, channels: Iterable[Union[str, int]]) -> MutableMapping[Union[str, int], str]:
         """
         For the list of channel IDs "channels", return dict mapping ID to
         description
         """
         get_desc = self.defects_folder.channelDescription
-        return dict((channel, _decode (get_desc(self.defect_chan_as_id(channel))))
-                     for channel in channels)
+        return {channel: get_desc(self.defect_chan_as_id(channel))
+                     for channel in channels}
                      
-    def get_virtual_channel_descriptions(self, channels):
+    def get_virtual_channel_descriptions(self, channels: Iterable[Union[str, int]]) -> MutableMapping[Union[str, int], str]:
         """
         For the list of channel IDs "channels", return dict mapping ID to
         descriptiondefect_id
         """
         get_desc = self.defect_logic_folder.channelDescription
-        return dict((channel, _decode(get_desc(self.defect_chan_as_id(channel))))
-                    for channel in channels)
+        return {channel: get_desc(self.defect_chan_as_id(channel))
+                    for channel in channels}
 
     @property
-    def all_defect_descriptions(self):
+    def all_defect_descriptions(self) -> Mapping[Union[str, int], str]:
         """
         A dictionary of all (virtual and primary) defect descriptions
         """
@@ -255,7 +271,7 @@ class DefectsDBIDsNamesMixin(object):
         result.update(gvcd(self.virtual_defect_names))
         return result
     
-    def set_channel_description(self, channel, description):
+    def set_channel_description(self, channel: Union[str, int], description: str) -> None:
         """
         Set a defect description
         """
@@ -264,9 +280,9 @@ class DefectsDBIDsNamesMixin(object):
             folder = self.defect_logic_folder
         else:
             folder = self.defects_folder
-        folder.setChannelDescription(chan_id, description)
+        folder.setChannelDescription(chan_id, description.encode('utf-8'))
     
-    def defect_is_virtual(self, defect_id):
+    def defect_is_virtual(self, defect_id: Union[str, int]) -> bool:
         """
         Returns True if the `defect_id` represents a virtual defect, False if it 
         is not and raises if it doesn't exist
@@ -289,7 +305,7 @@ class DefectsDBIDsNamesMixin(object):
         
         raise DefectUnknownError(defect_id)
 
-    def normalize_defect_names(self, defect_id):
+    def normalize_defect_names(self, defect_id: Union[str, Iterable[str]]) -> Union[str, List[str]]:
         """
         Returns correct name(s) of defects, given name(s) that possibly differ
         from the correct ones by case.  Raises if an input name doesn't map to

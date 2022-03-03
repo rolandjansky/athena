@@ -47,7 +47,7 @@ MmDigitContainer* MmDigitContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "MmDigitContainerCnv" );
     static pool::Guid   p1_guid("444DEE03-9A1D-44BA-8880-968C78EA51D1"); 
     log<<MSG::INFO<<"createTransient(): main converter"<<endmsg;
-    MmDigitContainer* p_collection(0);
+    MmDigitContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
         std::unique_ptr< Muon::MM_DigitContainer_p1 >  p_coll( poolReadObject< Muon::MM_DigitContainer_p1 >() );

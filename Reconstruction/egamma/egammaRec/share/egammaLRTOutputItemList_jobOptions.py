@@ -13,7 +13,7 @@ from RecExConfig.RecFlags import rec
 
 
 # List for of keys to be written to AOD.
-# All egammaKeys.outputs but EgammaRec and TopoSeededCellLink
+# All egammaKeys.outputs but EgammaRec and Large clusters
 
 AOD_outputs = [i for i, j in egammaKeysDict.outputs.items()
                if i not in ('EgammaRec',
@@ -21,7 +21,6 @@ AOD_outputs = [i for i, j in egammaKeysDict.outputs.items()
                             'EgammaLargeClusters',
                             'EgammaLargeClustersCellLink',
                             'CellLink',
-                            'TopoSeededCellLink',
                             'EgammaLargeClusters',
                             'EgammaLargeClustersCellLink',
                             'Photon',
@@ -38,7 +37,6 @@ ESD_outputs = [i for i, j in egammaKeysDict.outputs.items()
                             'ElectronSuperRec',
                             'EgammaLargeClusters',
                             'EgammaLargeClustersCellLink',
-                            'TopoSeededCellLink',
                             'CellLink',
                             'EgammaLargeClusters',
                             'EgammaLargeClustersCellLink',
@@ -100,8 +98,6 @@ for i in ESD_outputs:
 egammaLRTESDList.append(getItem(
     egammaKeys.outputTrackType(),
     egammaKeys.outputTrackKey()).replace('#', '#LRT'))
-egammaLRTESDList.append(getItem(egammaKeys.outputTopoSeededCellLinkType(
-), egammaKeys.outputTopoSeededCellLinkKey()).replace('#', '#LRT'))
 
 logEgammaLRTOutputItemList_jobOptions = logging.getLogger(
     'egammaLRTOutputItemList_jobOptions')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,10 +142,9 @@ namespace AtlasCLHEP_RandomGenerators {
   //_________________________________________________________________________
   StatusCode AtlasCLHEP_RandomGenerators_test::execute()
   {
-    static int ievent=0;
     int ntest=m_ntest;
     
-    msg(MSG::DEBUG)<<"event="<<ievent<<" ntest="<<ntest<<endmsg;
+    msg(MSG::DEBUG)<<"event="<<m_ievent<<" ntest="<<ntest<<endmsg;
     
     m_chrono -> chronoStart("flat");
     double sum_flat=0;
@@ -292,7 +291,7 @@ namespace AtlasCLHEP_RandomGenerators {
     
     */
     
-    ++ievent;
+    ++m_ievent;
 
     return StatusCode::SUCCESS;
   }

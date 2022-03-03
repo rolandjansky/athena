@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/MomentumTruthPullPlots.h"
 #ifndef XAOD_ANALYSIS
 #include "xAODTracking/TrackingPrimitives.h"
@@ -10,21 +12,9 @@
 namespace Muon{
 
 
-MomentumTruthPullPlots::MomentumTruthPullPlots(PlotBase* pParent, std::string sDir, std::string sType):
+MomentumTruthPullPlots::MomentumTruthPullPlots(PlotBase* pParent, const std::string& sDir, std::string sType):
     PlotBase(pParent, sDir),
-    m_sType(sType),
-    dp_CB_truthIP(NULL),
-    dp_ME_truthIP(NULL),
-    dp_ME_truthIP_MS_truthMS(NULL),
-    dp_eloss(NULL),
-    dp_CB_truthIP_vs_pt(NULL),
-    dp_ME_truthIP_vs_pt(NULL),
-    dp_ME_truthIP_MS_truthMS_vs_pt(NULL),
-    dp_eloss_vs_pt(NULL),
-    dp_CB_truthIP_vs_eta(NULL),
-    dp_ME_truthIP_vs_eta(NULL),
-    dp_ME_truthIP_MS_truthMS_vs_eta(NULL),
-    dp_eloss_vs_eta(NULL)
+    m_sType(std::move(sType))
 {}
   
 MomentumTruthPullPlots::~MomentumTruthPullPlots(){}
@@ -62,21 +52,11 @@ void MomentumTruthPullPlots::initializePlots()
   const xAOD::TrackParticle* muPrimaryTrk = muon.trackParticle(xAOD::Muon::Primary);
   if (!muPrimaryTrk) return;
 
-  //muon extrapolated to IP
-  ////////////////// @@@ sorting out the mess with the link to the extrapolated muon
-  //for 20.1.0...
-  /// const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); // points to the ExtrapolatedMuonSpectrometerTrackParticle, the ExtrapolatedMuonSpectrometerTrackParticle link doesn't exist
+  const xAOD::TrackParticle* msExtrapTrk = muon.trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+  if (!msExtrapTrk) msExtrapTrk = muon.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
 
-  //for 20.1.3...
-  //const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
-
-  //trying to accomodate both in a way that the code compiles in both releases
-  int correctEnum = (int) xAOD::Muon::MuonSpectrometerTrackParticle;
-  if (muon.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (muon.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; //check correct numbering in Muon.h
-  const xAOD::TrackParticle* msExtrapTrk = muon.trackParticle((xAOD::Muon::TrackParticleType) correctEnum);
-  
-  float eta = truthMu.p4().Eta();
-  float pt = 0.001*truthMu.p4().Pt();
+  float eta = truthMu.eta();
+  float pt = 0.001*truthMu.pt();
   
   float pTruth = truthMu.p4().P();
   float pCB = muPrimaryTrk->p4().P();
@@ -86,17 +66,15 @@ void MomentumTruthPullPlots::initializePlots()
   if (msTrk) pMS = msTrk->p4().P(); //at muon spectrometer entry//@@@
   
   float eloss = 0;
-#ifndef XAOD_ANALYSIS
   if (muon.parameter(eloss,xAOD::Muon::MeasEnergyLoss)) {;}
-#endif
   float pTruthMS = 0; //p truth at MS entry
   if (truthMu.isAvailable<float>("MuonEntryLayer_px") &&
       truthMu.isAvailable<float>("MuonEntryLayer_py") &&
       truthMu.isAvailable<float>("MuonEntryLayer_pz") ) {
-    TVector3 pvecTruthMS(truthMu.auxdata<float>("MuonEntryLayer_px"),
+    Amg::Vector3D pvecTruthMS{truthMu.auxdata<float>("MuonEntryLayer_px"),
 			 truthMu.auxdata<float>("MuonEntryLayer_py"),
-			 truthMu.auxdata<float>("MuonEntryLayer_pz"));
-    pTruthMS = pvecTruthMS.Mag();
+			 truthMu.auxdata<float>("MuonEntryLayer_pz")};
+    pTruthMS = pvecTruthMS.mag();
   }
 
   if (muon.muonType()!=xAOD::Muon::SegmentTagged) {
