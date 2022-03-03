@@ -360,6 +360,7 @@ class TrigTauMonAlgBuilder:
                                 title='TAndP HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
                                 type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
 
+    defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('dR',' dR(#tau,lep)',20,0,4)
     defineEachStepHistograms('dEta',' dEta(#tau,lep)',20,0,4)
     defineEachStepHistograms('dPhi',' dPhi(#tau,lep)',8, -3.2, 3.2)
