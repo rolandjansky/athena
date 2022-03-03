@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import BeamType
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 
 
 def TauBuildAlgCfg(flags):
@@ -61,6 +61,11 @@ def TauBuildAlgCfg(flags):
                                  MaxNTracks = flags.Tau.MaxNTracks,
                                  CellMakerTool = result.popToolsAndMerge(tauTools.TauCellFinalizerCfg(flags)) )
 
+    if flags.GeoModel.Run is LHCPeriod.Run4:
+        BuildAlg.PixelDetEleCollKey=""
+        BuildAlg.SCTDetEleCollKey=""
+        BuildAlg.TRTDetEleContKey=""
+
     BuildAlg.Tools = tools
 
     result.addEventAlgo(BuildAlg)  
@@ -108,6 +113,15 @@ def TauCaloAlgCfg(flags):
                                                         result.popToolsAndMerge(tauTools.TauCaloDMCalibCfg(flags))]
 
     result.addEventAlgo(CaloTopoForTausMaker)
+
+    relinkAlg = CompFactory.ClusterCellRelinkAlg('ClusterCellRelinkAlg',
+                                                 Cells = 'AllCalo',
+                                                 ClustersInput = CaloTopoForTausMaker.ClustersOutputName,
+                                                 ClustersOutput = 'TauPi0Clusters',
+                                                 CellLinksOutput = 'TauPi0Clusters_links')
+    result.addEventAlgo(relinkAlg)
+
+
     return result
 
 def TauRunnerAlgCfg(flags):
@@ -137,6 +151,7 @@ def TauRunnerAlgCfg(flags):
         import PanTauAlgs.JobOptions_Main_PanTau_New as pantau
         tools.append( result.popToolsAndMerge(pantau.PanTauCfg(flags)) )
         # tools.append( result.popToolsAndMerge(tauTools.PanTauCfg(flags)) )
+        tools.append(result.popToolsAndMerge(tauTools.TauCombinedTESCfg(flags)) )
 
     # these tools need pantau info
     if flags.Beam.Type is not BeamType.Cosmics:

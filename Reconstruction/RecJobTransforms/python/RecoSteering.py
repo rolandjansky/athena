@@ -111,6 +111,16 @@ def RecoSteering(flags):
         log.info("---------- Configured btagging")
 
     # Tau
+    if flags.Reco.EnableTau:
+        from tauRec.TauConfig import TauBuildAlgCfg, TauCaloAlgCfg, TauRunnerAlgCfg
+        tauBuildAlg = TauBuildAlgCfg(flags)
+        acc.merge(tauBuildAlg)
+
+        caloAlg = TauCaloAlgCfg(flags)
+        acc.merge(caloAlg)
+
+        tauRunnerAlg = TauRunnerAlgCfg(flags)
+        acc.merge(tauRunnerAlg)
 
     # HI
     if flags.Reco.EnableHI:
@@ -155,8 +165,7 @@ def RecoPostProcessingCfg(flags):
     if flags.Reco.PostProcessing.TRTAloneThinning:
         from ThinningUtils.ThinTRTStandaloneConfig import (
             ThinTRTStandaloneCfg)
-        # TODO remove doTau=False when Tau are added
-        acc.merge(ThinTRTStandaloneCfg(flags, doTau=False))
+        acc.merge(ThinTRTStandaloneCfg(flags))
     if flags.Reco.PostProcessing.GeantTruthThinning:
         from ThinningUtils.ThinGeantTruthConfig import (
             ThinGeantTruthCfg)
