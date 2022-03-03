@@ -17,12 +17,22 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // STL includes
 #include <string>
+#include <regex>
+#include <unordered_map>
 
 /**
 * @class ExclMinBiasTrkMonAlg
 * @brief
 **/
 class ExclMinBiasTrkMonAlg : public AthMonitorAlgorithm {
+  private:
+    /// Track number/pT cut parameters.
+    struct CutParameters {
+      int minTrk;
+      int maxTrk;
+      float minPt;
+    };
+
 public:
   ExclMinBiasTrkMonAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~ExclMinBiasTrkMonAlg() override = default;
@@ -41,5 +51,7 @@ private:
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList", {}, "Add triggers to this to be monitored"};
   Gaudi::Property<std::vector<std::string>> m_refTriggerList{this, "refTriggerList", {}, "List of reference triggers used in efficiency calculation"};
   Gaudi::Property<float> m_minPt{this, "minPt", 100.0, "Consider offline tracks only if above this threshold (in MeV)"};
+
+  std::unordered_map<std::string, CutParameters> m_cuts;
 };
 #endif // TRIGMINBIASMONITORING_ExclMinBiasTrkMonAlg_H
