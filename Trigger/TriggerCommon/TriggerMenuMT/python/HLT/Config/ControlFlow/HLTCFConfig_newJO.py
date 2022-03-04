@@ -16,19 +16,14 @@ from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 
 log = logging.getLogger( __name__ )
 
-def resetDF(acc):
+def resetDataFlow(acc):
     """
     Find all algorithms involved in HLT decision DF and reset properties to empty (lists), unset
     """
     for alg in acc.getEventAlgos():
-        # if isHypoAlg(alg):
-        #     log.verbose("Resetting IO for %s Hypo", alg.name )
-        #     alg.HypoInputDecisions  = ""
-        #     alg.HypoOutputDecisions = ""
         if isInputMakerBase(alg):
             log.verbose("Resetting IO for %s Input Maker", alg.name )
             alg.InputMakerInputDecisions = []
-            # alg.InputMakerOutputDecisions = ""
         if isFilterAlg(alg):
             log.verbose("Resetting IO for %s Filter", alg.name )
             alg.Input = []
@@ -42,9 +37,10 @@ def resetDF(acc):
 
 
 def setupIMAndHypo(im, hypo):
+    """Setup Input and Output of Hypo and IM according to the naming convention"""
     im.InputMakerInputDecisions = []
     im.InputMakerOutputDecisions = CFNaming.inputMakerOutName(im.name)
-    hypo.HypoInputDecisions = im.InputMakerOutputDecisions
+    hypo.HypoInputDecisions = im.InputMakerOutputDecisions # connect the two
     hypo.HypoOutputDecisions =  CFNaming.hypoAlgOutName(hypo.name)
 
 @lru_cache
@@ -71,7 +67,7 @@ def chainDictForSequence(chainName, sequences):
         assert False, "Chain {} has missmatching number of chain legs {} in dictionary to the number of sequences {}".format(chainName, len(chainDictLegs), len(sequences))
 
 
-def traverseDF(acc, startCollectionName, functor):
+def traverseDataFlow(acc, startCollectionName, functor):
     """
     Function to traverse DF collections path starting from an arbitrary one
     For each checked algorithm visited the functor is called with the collection name through which traversing arrived to it, and the algorithm itself.
@@ -122,32 +118,40 @@ def traverseDF(acc, startCollectionName, functor):
         __dive(startCollectionName, outputs[startCollectionName])
 
 
-def commonWithOtherOutput(acc, newInputColl, filterAlg, comboHypo ):
+def commonWithOtherOutput(acc, newInputColl, filterAlg ):
     """
-    For a new input collection that is meant to be added to the filter algorithm check
-    if any hypo connected to it has the same input as any other input to that filter
+    Finds the filter input that can be shared (returns None if not found)
+    To be called with combo output collection. 
     """
     if len(filterAlg.Output) == 0: # there can not be any commonality if there is no output
         return None
     colls = []
-    # functor to collect filters output
+    # functor to collect filters output (see traverseDataFlow)
     def __collectFilterInputs( outColl, alg ):
         if isFilterAlg(alg):
             idx = alg.Output.index(outColl)
             colls.append(alg.Input[idx])
     
     colls = []
-    traverseDF( acc, newInputColl, __collectFilterInputs)
+    traverseDataFlow( acc, newInputColl, __collectFilterInputs)
     newInputHistory = set(colls)
     for existingOutput in filterAlg.Output:
         colls = []
-        traverseDF( acc, existingOutput, __collectFilterInputs)
+        traverseDataFlow( acc, existingOutput, __collectFilterInputs)
         if len(set(colls).intersection(newInputHistory)) != 0:
             return existingOutput
     return None
 
 
 def generateDecisionTree(flags, chains):
+    """Creates CF algorithms
+    
+    The implementation relies of functions that build a small element of it.
+    Each function generates whatever is needed in the decision tree before (potentially in a recursive way). 
+    All functions are cached, so each element is created only once.
+
+    The functions check the global boolean theCFisFixed - and if set to True no CF algorithms are further constructed (assertion error is generated).
+    """
     acc = ComponentAccumulator()
     mainSequence = seqOR('HLTAllSteps')
     acc.addSequence( mainSequence )
@@ -156,8 +160,9 @@ def generateDecisionTree(flags, chains):
     @lru_cache(None)
     def getFiltersStepSeq( stepNumber ):
         """
-        Returns sequence containing all filters for a step
+        Returns sequence to hold filters for a step
         """
+        assert stepNumber >= 1, "No filter step <1 should be created"
         assert not theCFisFixed, "Can not create further sequences at this stage"
         name = 'Step{}{}'.format(stepNumber, CFNaming.FILTER_POSTFIX)
         if stepNumber > 1:
@@ -169,7 +174,7 @@ def generateDecisionTree(flags, chains):
     @lru_cache(None)
     def getRecosStepSeq( stepNumber ):
         """
-        Returns sequence containing all reconstruction algorithms
+        Returns sequence to hold reconstruction algorithms
         """
         assert not theCFisFixed, "Can not create further sequences at this stage"
         getFiltersStepSeq( stepNumber ) # make sure there is always filters step before reco
@@ -180,6 +185,7 @@ def generateDecisionTree(flags, chains):
 
     @lru_cache(None)
     def getDecisionDumper( stepNumber ):
+        """Configure DumpDecision algorithm for a step"""
         assert not theCFisFixed, "Can not create further algorithms at this stage"
         seq = getFiltersStepSeq( stepNumber )
         algo = CompFactory.DumpDecisions("DecisionSummaryStep{}".format(stepNumber))
@@ -190,6 +196,7 @@ def generateDecisionTree(flags, chains):
     @lru_cache(None)
     def getSingleMenuSeq( stepNumber, stepName ):
         """
+        Creates basic decision taking unit, the menu sequence
         """
         assert not theCFisFixed, "Can not create further sequences at this stage"
         assert stepNumber > 0, "Incorrect step number, has to be bigger than 0"
@@ -276,6 +283,7 @@ def generateDecisionTree(flags, chains):
 
 
     def addAndAssureUniqueness( prop, toadd, context="" ):
+        """Given list of strings (DF input/outputs of an alg) adds the 'toadd' if not there already. Returns updated list."""
         if isinstance(toadd, str):
             toadd = [toadd]
         missing = []
@@ -286,7 +294,7 @@ def generateDecisionTree(flags, chains):
 
     def assureUnsetOrTheSame(prop, toadd, context):
         """
-        Central function setting string like properties (collection keys). Assures that valid names are not overwritten.
+        Central function setting string like properties (collection keys). Assures that valid names are not overwritten.        
         """
         if prop == "" or prop == [] or prop == toadd:
             return toadd
@@ -347,7 +355,7 @@ def generateDecisionTree(flags, chains):
         return output
 
     def printChainsConfig():
-        # debugging printout
+        """Info about the chains config printout"""
         for chain in chains:
             log.info("CF algorithms for chain %s", chain.name)
             for stepCounter, step in enumerate( chain.steps, 1 ):
@@ -380,7 +388,11 @@ def generateDecisionTree(flags, chains):
             log.info("-"*50)
         log.info("")
 
-    def validateConnections():
+    def validateDataFlowConnections():
+        """Checks basic connections corectness
+        
+        The implementation is suboptimal at the moment because the checks are done for all chains (that means repetitively for the same algs)
+        """
         for chain in chains:
             for stepCounter, step in enumerate( chain.steps, 1 ):
                 filterAlg = getFilterAlg( stepCounter, step.name, isEmpty(step))
@@ -394,8 +406,8 @@ def generateDecisionTree(flags, chains):
     #########################################################################################################
 
     # CF construction
-    # creates all sequences and filter algs, merge CAs from signatures
-    def constructCF():
+    def constructControlFlow():
+        """Creates all sequences and filter algs, for all configured chains. Merges CAs from signatures """
         maxStep = 0
         for chain in chains:
             for stepCounter, step in enumerate( chain.steps, 1 ):
@@ -425,6 +437,7 @@ def generateDecisionTree(flags, chains):
             acc.printConfig()
     
     def setupHypoTools():
+        """Configures hypo tools (the actual selection) for all configured chains"""
         for chain in chains:
             for stepCounter, step in enumerate(chain.steps, 1):
                 comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
@@ -438,20 +451,19 @@ def generateDecisionTree(flags, chains):
                         hypoTool = sequence._hypoToolConf.confAndCreate( chainLegDict )
                         assert isinstance(hypoTool, GaudiConfig2._configurables.Configurable), "The Hypo Tool for {} is not Configurable2".format(chain.name)
                         sequence.hypo.Alg.HypoTools.append( hypoTool )
-                        # if the chain requires special combo tools
-                        for comboToolConf in step.comboToolConfs:
-                            comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( HLTMenuConfig.getChainDictFromChainName( chain.name ) ) )
+                        # # if the chain requires special combo tools
+                        # for comboToolConf in step.comboToolConfs:
+                        #     comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( HLTMenuConfig.getChainDictFromChainName( chain.name ) ) )
 
-    def wireDF():
-        # continue DF setting using chains info
+    def constructDataFlow():
+        """ Complete connecting (and naming) Data Flow collections"""
         for chain in chains:
             for stepCounter, step in enumerate( chain.steps, 1 ):
                 if isEmpty(step):
                     continue
 
                 prevComboOut, prevComboName = prevStepComboHypoOutput(stepCounter, chain)
-                comboHypo = findComboHypoAlg( stepCounter, step.name )
-                def __setup(sequence, chainDict):
+                def __constructDataFlowForLeg(sequence, chainDict):
                     """
                     Local function to setup filter/input makers/hypo algs IO
                     For combined chains when the there is more than one sequence per step this function is called as many times as many combinations of sequence, chainDict for a leg there is
@@ -460,7 +472,7 @@ def generateDecisionTree(flags, chains):
                     filterAlg = getFilterAlg(stepCounter, step.name, isEmpty(step))
                     comboOut = prevComboOut[sequenceCounter]
                     if comboOut not in filterAlg.Input: # input is not yet connected to filter
-                        commonWithOutput = commonWithOtherOutput(acc, comboOut, filterAlg, comboHypo )
+                        commonWithOutput = commonWithOtherOutput(acc, comboOut, filterAlg )
                         if commonWithOutput: # this input has commonalities with other input, appropriate output is returned
                             filterOut = commonWithOutput
                             filterAlg.IOMapping[ filterAlg.Output.index(commonWithOutput) ].append( len(filterAlg.Input) )
@@ -488,8 +500,9 @@ def generateDecisionTree(flags, chains):
                     pass
 
                 for sequence, chainLegDict in chainDictForSequence(chain.name, step.sequences):
-                    __setup( sequence, chainLegDict )
+                    __constructDataFlowForLeg( sequence, chainLegDict )
 
+                comboHypo = findComboHypoAlg( stepCounter, step.name )
                 if comboHypo:
                     elementaryHyposOutputs = stepHypoOutput( stepCounter, chain )
                     rawInputsToCombo = []
@@ -514,7 +527,7 @@ def generateDecisionTree(flags, chains):
                     ###
                     comboHypo.MultiplicitiesMap[chain.name] = chainLegDict['chainMultiplicities']
                     comboHypo.LegToInputCollectionMap[chain.name] = legToInputCollectionMapping
-            # connect dumpers
+                # connect dumper
                 if flags.Trigger.doRuntimeNaviVal:
                     dumper = getDecisionDumper(stepCounter)
                     filters = getFiltersStepSeq(stepCounter)
@@ -523,17 +536,17 @@ def generateDecisionTree(flags, chains):
                             dumper.Decisions = addAndAssureUniqueness( dumper.Decisions, alg.Output, context="Settings of decision dumper" )
 
 
-    constructCF()
+    constructControlFlow()
     theCFisFixed=True
     log.debug("CF constructed")
-    resetDF(acc)    
-    wireDF()
+    resetDataFlow(acc)    
+    constructDataFlow()
     log.debug("DF connected")
     setupHypoTools()
     log.debug("Configured (Combo) Hypos")
 
 
-    validateConnections()
+    validateDataFlowConnections()
 
     printChainsConfig()
     return acc
@@ -595,23 +608,23 @@ if __name__ == "__main__":
             colls.append(alg.HypoInputDecisions.Path)
             colls.append(alg.HypoOutputDecisions.Path)
 
-    traverseDF(acc,  "CHa2_O", hypoInOut) # start from ComboHypo  output
+    traverseDataFlow(acc,  "CHa2_O", hypoInOut) # start from ComboHypo  output
     log.info(colls)
     assert set(colls) == set(['Ha2_O', 'IMa2_O', 'Ha1_O', 'IMa1_O']), "Traversing could not find hypo outpus & outputs for branch 'a'"
 
     colls = []
-    traverseDF(acc,  "Fb3_O", hypoInOut) # start from ComboHypo  output
+    traverseDataFlow(acc,  "Fb3_O", hypoInOut) # start from ComboHypo  output
     log.info(colls)
     assert set(colls) == set(['Hb1_O', 'IMb1_O', 'Hb2_O', 'IMb2_O']), "Traversing could not find hypo output & input for branch 'b'"
 
     colls = []
-    traverseDF(acc,  "CHa2altmerged_O", hypoInOut) # start from ComboHypo  output
+    traverseDataFlow(acc,  "CHa2altmerged_O", hypoInOut) # start from ComboHypo  output
     log.info(colls)
     assert 'Ha1_O' in colls
     assert 'Hb2_0' not in colls, "This is another arm of selection 'b'"
 
     colls = []
-    traverseDF(acc,  "CHb2altmerged_O", hypoInOut) # start from ComboHypo  output from where 2nd setup hypo is not reachable
+    traverseDataFlow(acc,  "CHb2altmerged_O", hypoInOut) # start from ComboHypo  output from where 2nd setup hypo is not reachable
     log.info(colls)
     assert 'Hb1_O' in colls
     assert 'Hb2_0' not in colls, "Due to empty step, this should nto be reachable"
@@ -623,9 +636,9 @@ if __name__ == "__main__":
             idx = alg.Output.index(outColl)
             colls.append(alg.Input[idx])
 
-    traverseDF(acc, "CHa2_O", collectFilterInputs)
+    traverseDataFlow(acc, "CHa2_O", collectFilterInputs)
     assert  set(colls) == set(["CHa1_O", "CHa1merged_O", "Fa1_I"])
     colls = []
-    traverseDF(acc, "CHb2merged_O", collectFilterInputs)
+    traverseDataFlow(acc, "CHb2merged_O", collectFilterInputs)
     assert  set(colls) == set(["CHb1_O", "CHb1merged_O", "Fb1_I"])
     log.info("All ok")
