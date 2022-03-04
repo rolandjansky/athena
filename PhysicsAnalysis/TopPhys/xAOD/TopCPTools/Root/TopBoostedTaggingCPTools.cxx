@@ -68,7 +68,7 @@ namespace top {
       if (taggerType == "JSSWTopTaggerDNN") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
                                                                          JSSWTopTaggerDNN),
                                                        "Failed to make " + origName);
-      else if (taggerType == "SmoothedWZTagger") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
+      else if (taggerType == "SmoothedWZTagger" or taggerType == "SmoothedWZTaggerCNN") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
                                                                               SmoothedWZTagger),
                                                             "Failed to make " + origName);
 
@@ -117,16 +117,18 @@ namespace top {
     // Calib areas
     m_taggersCalibAreas["JSSWTopTaggerDNN"] = "JSSWTopTaggerDNN/Rel21/";
     m_taggersCalibAreas["SmoothedWZTagger"] = "SmoothedWZTaggers/Rel21/";
+    m_taggersCalibAreas["SmoothedWZTaggerCNN"] = "Local"; // this is needed only until configs will be on cvmf
     
     // Supported tagger types
     m_taggersTypes = {
-      "JSSWTopTaggerDNN", "SmoothedWZTagger"
+      "JSSWTopTaggerDNN", "SmoothedWZTagger", "SmoothedWZTaggerCNN"
     };
     
     // Supported jet collections
     m_jetCollections = {
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-      "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
+      "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+      "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
     };
     
     
@@ -150,13 +152,50 @@ namespace top {
       setConfig(taggerType,"SmoothZContained50","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201216.dat");
       setConfig(taggerType,"SmoothZContained80","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201216.dat");
 
-    } else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
+    } 
+    else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
       // WZ taggers
       std::string taggerType="SmoothedWZTagger";
       setConfig(taggerType,"SmoothWContained2VarMaxSig","SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190809.dat");
       setConfig(taggerType,"SmoothZContained2VarMaxSig","SmoothedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190809.dat");
       setConfig(taggerType,"SmoothW3VarMaxSig","SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
       setConfig(taggerType,"SmoothZ3VarMaxSig","SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+    }
+    else if (m_config->sgKeyLargeRJets() == "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets") {
+      // WZ taggers
+      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendationFullRun2#UFO_jets
+      m_taggersCalibAreas["SmoothedWZTagger"] = "SmoothedWZTaggers/Rel21/February2022/";
+      m_taggersCalibAreas["JSSWTopTaggerDNN"] = "JSSWTopTaggerDNN/Rel21/February2022/";
+
+      // 3-Var
+      std::string taggerType="SmoothedWZTagger";
+      setConfig(taggerType,"SmoothWContained50","SmoothedContainedWTagger_AntiKt10UFOCSSKSoftDrop_FixedSignalEfficiency50_20220221.dat");
+      setConfig(taggerType,"SmoothWContained80","SmoothedContainedWTagger_AntiKt10UFOCSSKSoftDrop_FixedSignalEfficiency80_20220221.dat");
+      setConfig(taggerType,"SmoothZContained50","SmoothedContainedZTagger_AntiKt10UFOCSSKSoftDrop_FixedSignalEfficiency50_20220221.dat");
+      setConfig(taggerType,"SmoothZContained80","SmoothedContainedZTagger_AntiKt10UFOCSSKSoftDrop_FixedSignalEfficiency80_20220221.dat");
+      
+      // ANN
+      taggerType="JSSWTopTaggerANN";
+      setConfig(taggerType,"JSSANN50","JSSANN50Tagger_AntiKt10UFOCSSKSoftDrop_Jan22.dat");
+      setConfig(taggerType,"JSSANN80","JSSANN80Tagger_AntiKt10UFOCSSKSoftDrop_Jan22.dat");
+
+      // DNN
+      taggerType="JSSWTopTaggerDNN";
+      setConfig(taggerType,"JSSDNNW50","JSSDNN50Tagger_AntiKt10UFOCSSKSoftDrop_Jan22.dat");
+      setConfig(taggerType,"JSSDNNW80","JSSDNN50Tagger_AntiKt10UFOCSSKSoftDrop_Jan22.dat");
+
+      // CNN
+      taggerType="SmoothedWZTaggerCNN";
+      setConfig(taggerType,"SmoothWContained50_3VarCNN_mX", "SmoothedContainedWTagger_AntiKt10VanillaSD_FixedSignalEfficiency50_3VarCNN_mX_v1.dat");
+      setConfig(taggerType,"SmoothWContained80_3VarCNN_mX", "SmoothedContainedWTagger_AntiKt10VanillaSD_FixedSignalEfficiency80_3VarCNN_mX_v1.dat");
+      setConfig(taggerType,"SmoothZContained50_3VarCNN_mX", "SmoothedContainedZTagger_AntiKt10VanillaSD_FixedSignalEfficiency50_3VarCNN_mX_v1.dat");
+      setConfig(taggerType,"SmoothZContained80_3VarCNN_mX", "SmoothedContainedZTagger_AntiKt10VanillaSD_FixedSignalEfficiency80_3VarCNN_mX_v1.dat");
+
+      setConfig(taggerType,"SmoothWContained50_3VarCNN_RZoom", "SmoothedContainedWTagger_AntiKt10VanillaSD_FixedSignalEfficiency50_3VarCNN_RZoom_v1.dat");
+      setConfig(taggerType,"SmoothWContained80_3VarCNN_RZoom", "SmoothedContainedWTagger_AntiKt10VanillaSD_FixedSignalEfficiency80_3VarCNN_RZoom_v1.dat");
+      setConfig(taggerType,"SmoothZContained50_3VarCNN_RZoom", "SmoothedContainedZTagger_AntiKt10VanillaSD_FixedSignalEfficiency50_3VarCNN_RZoom_v1.dat");
+      setConfig(taggerType,"SmoothZContained80_3VarCNN_RZoom", "SmoothedContainedZTagger_AntiKt10VanillaSD_FixedSignalEfficiency80_3VarCNN_RZoom_v1.dat");
+
     }
 
   }
