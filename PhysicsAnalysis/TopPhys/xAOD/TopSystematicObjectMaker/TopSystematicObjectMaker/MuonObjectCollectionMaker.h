@@ -80,9 +80,9 @@ namespace top {
     std::unordered_map<std::string, ToolHandle<CP::IIsolationSelectionTool>> m_muonIsolationTools;
 
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto,m_muonSelectionTool,m_muonSelectionToolLoose;
 
-    bool m_isFirstEvent;
+    bool m_isFirstCheckForLowPtMVA;
   };
 } // namespace
 #endif
