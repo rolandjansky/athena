@@ -9,12 +9,16 @@ from typing import List, Dict, Tuple, Optional
 import logging
 log = logging.getLogger('DataQualityInterfaces')
 
-def copyMetadata(newgroup, oldgroup, input=None):
+def copyMetadata(newgroup: dqi.HanConfigAssessor, oldgroup: dqi.HanConfigAssessor,
+                input: str=None, algrefname: str=None) -> None:
     """Copy the configuration of an old algorithm to a new one, but without the
     tree structure"""
     newgroup.SetAlgName(oldgroup.GetAlgName())
     newgroup.SetAlgLibName(oldgroup.GetAlgLibName())
-    newgroup.SetAlgRefName(oldgroup.GetAlgRefName())
+    if algrefname is None:
+        newgroup.SetAlgRefName(oldgroup.GetAlgRefName())
+    else:
+        newgroup.SetAlgRefName(algrefname)
     for par in oldgroup.GetAllAlgPars():
         newgroup.AddAlgPar(par)
     for lim in oldgroup.GetAllAlgLimits():
@@ -49,7 +53,7 @@ def Initialize( configName: str, inputFileName: str, prefix: str ) -> Optional[d
     return FixRegion(top_level, inputFile.Get(prefix))
 
 
-def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConfigGroup:
+def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConfigGroup:
     """Main code to translate the configuration given by 'top_level' into the
     final configuration by expanding the regexes using the objects in 'td'"""
     log.info('Translating regexes...')
@@ -76,6 +80,7 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
         for h in l:
             m = pre.match(h)
             if m:
+                log.debug(f'match {p} with {h}')
                 tokenized_path = path.split('/')
                 orig_fullpath = []
                 new_fullpath = []
@@ -106,10 +111,24 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
                 new_fullpath.append(hname)
                 orig = '/'.join(orig_fullpath)
                 target = '/'.join(new_fullpath)
+                log.debug(f'Map from {orig} to {target}')
 
                 newass = dqi.HanConfigAssessor()
                 newass.SetName(h + hextra)
-                copyMetadata(newass, mapping_regex[orig][0], input=h)
+                algrefname = a.GetAlgRefName()
+                # patch up reference if it's embedded in a TMap
+                if a.GetAlgRefName() != "":
+                    ref = config.Get(a.GetAlgRefName())
+                    if not ref:
+                        log.error('Unable to find references for', orig)
+                    else:
+                        if isinstance(ref, ROOT.TMap):
+                            algrefname = ref.GetValue(h)
+                            if algrefname:
+                                algrefname = algrefname.GetString().Data()
+                if algrefname and isinstance(config.Get(algrefname), ROOT.TMap):
+                    log.error(f'Reference for {newass} is somehow still a TMap')
+                copyMetadata(newass, mapping_regex[orig][0], input=h, algrefname=algrefname)
                 mapping_assessors_final[target] = (newass, newass.GetHistPath())
                 log.debug(f'change {orig} to {target}')
 
