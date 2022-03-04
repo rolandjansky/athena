@@ -122,7 +122,7 @@ def TrigMETMonConfig(inputFlags):
                  "HLT_xe110_pfsum_L1XE50",
                  "HLT_xe110_pfsum_cssk_L1XE50",
                  "HLT_xe110_pfsum_vssk_L1XE50"]
-    HLTChainsVal = ["HLT_noalg_L1XE50"]
+    HLTChainsVal = []
     HLTChainsT0 = ["HLT_xe65_cell_xe110_tcpufit_L1XE50"]
     if mt_chains == 0:
       L1Chains = ["L1_XE50"]
