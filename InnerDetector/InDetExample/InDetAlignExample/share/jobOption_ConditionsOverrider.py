@@ -130,26 +130,6 @@ if loadInDetRec_Options["lorentzAngleTag"] and not loadInDetRec_Options["Cosmics
   conddb.addOverride('/PIXEL/LorentzAngleScale',loadInDetRec_Options["lorentzAngleTag"])
   
 from AthenaCommon.AppMgr import ToolSvc
-from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackErrorScalingTool
-InDetRotErrorScalingTool = Trk__RIO_OnTrackErrorScalingTool( name = 'RIO_OnTrackErrorScalingTool',
-                                                             overrideDatabaseID = False,
-                                                             overrideScalePixBarX = 1,
-                                                             overrideScalePixBarY = 1,
-                                                             overrideScalePixECsX = 1,
-                                                             overrideScalePixECsY = 1,
-                                                             overrideScaleSCTBar = 1,
-                                                             overrideScaleSCTECs = 1,
-                                                             overrideScaleTRTBar = 1,
-                                                             overrideScaleTRTECs = 1,
-                                                             OutputLevel = INFO )
-#InDetRotErrorScalingTool.overrideDatabaseID=False
-#InDetRotErrorScalingTool.overrideScaleTRT=3
-#InDetRotErrorScalingTool.overrideScaleSCT=3
-#InDetRotErrorScalingTool.overrideScalePix=30
-
-ToolSvc += InDetRotErrorScalingTool
-printfunc (InDetRotErrorScalingTool)
-
   
 # Correct TRT calibration for cosmics
 if loadInDetRec_Options["TRTCalibTextFile"] and loadInDetRec_Options["Cosmics"]:
