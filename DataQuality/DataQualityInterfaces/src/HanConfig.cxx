@@ -49,6 +49,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/pointer_cast.hpp>
 #include <boost/regex.hpp>
@@ -277,40 +278,33 @@ std::string
 SplitReference(std::string refPath, const std::string& refName )
 {
   // this will never be run in a multithread environment
-  static std::unordered_set<std::string> badPaths;
-  //Split comma sepated inputs into individual file names
-  std::string delimiter = ",";
-  std::vector<std::string> refFileList;
-  size_t pos = 0;
-  std::string token;
-  while ((pos = refPath.find(delimiter)) != std::string::npos) {
-    token = refPath.substr(0, pos);
-    refFileList.push_back(token);
-    refPath.erase(0, pos + delimiter.length());
-  }
-  refFileList.push_back(refPath);
+  static std::map<std::string, std::string> mappingCache;
 
-  //Try to open each file in the list
-  for(std::size_t i=0; i<refFileList.size(); i++){
-    std::string fileName=refFileList.at(i)+refName;
-    size_t first = fileName.find_first_not_of(' ');
-    fileName.erase(0, first);
-    if (badPaths.find(fileName) != badPaths.end()) continue;
-    if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
-      return fileName;
-    }
-    else {
-      if(TFile::Open(fileName.c_str())){
-	return fileName;
-      }
-      else{
-        badPaths.insert(fileName);
-	std::cerr << "Unable to open " << fileName << ", trying next reference file option" << std::endl;
-      }
-    }
+  //Split comma sepated inputs into individual file names
+  std::vector<std::string> refFileDirList;
+  boost::split(refFileDirList, refPath, boost::is_any_of(","));
+
+  // construct vector of files (& clean up leading/trailing spaces)
+  std::vector<std::string> refFileList;
+  for (const auto& dir : refFileDirList ) {
+    refFileList.push_back(boost::algorithm::trim_copy(dir+refName));
   }
-  std::cerr << "Unable to open any reference file, reference will not be included" << std::endl;
-  return "";
+
+  // Use TFile::Open | syntax to try opening the files in sequence
+  std::string tfilestring = boost::algorithm::join(refFileList, "|");
+  // have we already resolved?
+  const auto& cachehit = mappingCache.find(tfilestring);
+  if (cachehit != mappingCache.end()) {
+    return cachehit->second;
+  }
+  // if not, do lookup
+  if (const auto* f = TFile::Open(tfilestring.c_str())) {
+    mappingCache[tfilestring] = f->GetName();
+  } else {
+  	std::cerr << "Unable to open any reference files in " << tfilestring << ", reference will not be included" << std::endl;
+    mappingCache[tfilestring] = "";
+  }
+  return mappingCache[tfilestring];
 }
 
 const HanConfigAssessor*
