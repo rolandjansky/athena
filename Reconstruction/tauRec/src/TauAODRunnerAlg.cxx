@@ -65,7 +65,6 @@ StatusCode TauAODRunnerAlg::execute() {
 		return StatusCode::FAILURE;
 	}
 	const xAOD::TauJetContainer *pTauContainer = tauInputHandle.cptr();
-
 	// Write the output tau jets, which is a deep copy of the input ones
 	SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutContainer);
 	ATH_CHECK(outputTauHandle.record(std::make_unique<xAOD::TauJetContainer>(), std::make_unique<xAOD::TauJetAuxContainer>()));
@@ -75,7 +74,6 @@ StatusCode TauAODRunnerAlg::execute() {
 		newTauCon->push_back(newTau);
 		*newTau = *tau;
 	}
-
 	// READ IN THE official TauTrack container
 	SG::ReadHandle<xAOD::TauTrackContainer> tauTrackInputHandle(m_tauTrackInputContainer);
 	if (!tauTrackInputHandle.isValid()) {
@@ -92,7 +90,6 @@ StatusCode TauAODRunnerAlg::execute() {
 		newTauTrkCon->push_back(newTauTrk);
 		*newTauTrk = *tauTrk;
 	}
-
 	//relink the tautrack to the taujet
 	for (xAOD::TauJet *newTau : *newTauCon) {
 		auto oldlinks =  newTau->allTauTrackLinksNonConst();
@@ -109,7 +106,6 @@ StatusCode TauAODRunnerAlg::execute() {
 			}
 		}
 	}
-
 	// Read the CaloClusterContainer
 	SG::ReadHandle<xAOD::CaloClusterContainer> pi0ClusterInHandle( m_pi0ClusterInputContainer );
 	if (!pi0ClusterInHandle.isValid()) {
@@ -117,32 +113,26 @@ StatusCode TauAODRunnerAlg::execute() {
 		return StatusCode::FAILURE;
 	}
 	const xAOD::CaloClusterContainer * pi0ClusterContainer = pi0ClusterInHandle.cptr();
-
 	// write charged PFO container
 	SG::WriteHandle<xAOD::PFOContainer> chargedPFOHandle( m_chargedPFOOutputContainer );
 	ATH_CHECK(chargedPFOHandle.record(std::make_unique<xAOD::PFOContainer>(), std::make_unique<xAOD::PFOAuxContainer>()));
 	xAOD::PFOContainer* chargedPFOContainer = chargedPFOHandle.ptr();
-
 	// write neutral PFO container
 	SG::WriteHandle<xAOD::PFOContainer> neutralPFOHandle( m_neutralPFOOutputContainer );
 	ATH_CHECK(neutralPFOHandle.record(std::make_unique<xAOD::PFOContainer>(), std::make_unique<xAOD::PFOAuxContainer>()));
 	xAOD::PFOContainer* neutralPFOContainer = neutralPFOHandle.ptr();
-
 	// write pi0 container
 	SG::WriteHandle<xAOD::ParticleContainer> pi0Handle(m_pi0Container);
 	ATH_CHECK(pi0Handle.record(std::make_unique<xAOD::ParticleContainer>(), std::make_unique<xAOD::ParticleAuxContainer>()));
 	xAOD::ParticleContainer *pi0Container = pi0Handle.ptr();
-
 	// write hadronic cluster PFO container
 	SG::WriteHandle<xAOD::PFOContainer> hadronicPFOHandle( m_hadronicPFOOutputContainer );
 	ATH_CHECK(hadronicPFOHandle.record(std::make_unique<xAOD::PFOContainer>(), std::make_unique<xAOD::PFOAuxContainer>()));
 	xAOD::PFOContainer* hadronicClusterPFOContainer = hadronicPFOHandle.ptr();
-
 	// write secondary vertices
 	SG::WriteHandle<xAOD::VertexContainer> vertOutHandle( m_vertexOutputContainer );
 	ATH_CHECK(vertOutHandle.record(std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()));
 	xAOD::VertexContainer* pSecVtxContainer = vertOutHandle.ptr();
-
 	int n_tau_modified = 0;
 	for (xAOD::TauJet *pTau : *newTauCon) {
 		// Loop stops when Failure indicated by one of the tools
@@ -171,7 +161,7 @@ StatusCode TauAODRunnerAlg::execute() {
 			if (sc.isFailure()) break;
 		}
 		if (sc.isSuccess()) ATH_MSG_VERBOSE("The tau candidate has been modified successfully by the invoked modification tools.");
-		// if tau is not modified by the above tools, never mind running the tool afterward
+		// if tau is not modified by the above tools, never mind running the tools afterward
 		if (isTauModified(pTau)) {
 			n_tau_modified++;
 			for (ToolHandle<ITauToolBase> &tool : m_officialTools) {

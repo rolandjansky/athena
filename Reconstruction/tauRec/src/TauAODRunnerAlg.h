@@ -40,8 +40,8 @@ class TauAODRunnerAlg: public AthAlgorithm {
 		virtual StatusCode execute() override;
 	private:
 		//Tool handle array
-		ToolHandleArray<ITauToolBase>  m_modificationTools{this, 	"modificationTools", {}, "Tools for modifying the taus"};
-		ToolHandleArray<ITauToolBase>  m_officialTools		{this,  "officialTools", 		 {}, "Official Reconstruction tools for taus after the modifications"};
+		ToolHandleArray<ITauToolBase>  m_modificationTools{this, "modificationTools", {}, "Tools for modifying the taus"};
+		ToolHandleArray<ITauToolBase>  m_officialTools	  {this, "officialTools",     {}, "Official Reconstruction tools for taus after the modifications"};
 		//Read and write keys
 		SG::ReadHandleKey<xAOD::TauJetContainer>        m_tauContainer              {this,"Key_tauContainer",                   "TauJets",                      "input tau key"};
 		SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_pi0ClusterInputContainer  {this,"Key_Pi0ClusterInputContainer",       "TauPi0Clusters",               "input pi0 cluster"};

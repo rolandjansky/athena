@@ -17,8 +17,8 @@ TauAODLeptonRemovalTool::TauAODLeptonRemovalTool(const std::string& name):
 }
 
 StatusCode TauAODLeptonRemovalTool::initialize() {
-	ATH_CHECK(m_elec_input_container.initialize());
-	ATH_CHECK(m_muon_input_container.initialize());
+	ATH_CHECK(m_elecInputContainer.initialize());
+	ATH_CHECK(m_muonInputContainer.initialize());
 	m_ElecWpStr = m_StrElecIdWpPrefix + m_StrMinElecIdWp;
 	m_MuonWpUi  = m_mapMuonIdWp.at(m_StrMinMuonIdWp);
 	return StatusCode::SUCCESS;
@@ -26,12 +26,12 @@ StatusCode TauAODLeptonRemovalTool::initialize() {
 
 StatusCode TauAODLeptonRemovalTool::execute(xAOD::TauJet& tau) const {
 	// Read in elec and muon container
-	SG::ReadHandle<xAOD::ElectronContainer> elec_input_handle(m_elec_input_container);
-	SG::ReadHandle<xAOD::MuonContainer> muon_input_handle(m_muon_input_container);
+	SG::ReadHandle<xAOD::ElectronContainer> elec_input_handle(m_elecInputContainer);
+	SG::ReadHandle<xAOD::MuonContainer> muon_input_handle(m_muonInputContainer);
 	if (bool fail_elec = !elec_input_handle.isValid(), fail_muon = !muon_input_handle.isValid(); fail_elec || fail_muon) {
-		ATH_MSG_ERROR((fail_elec ? "Could not retrieve Electron container with key " + elec_input_handle.key() : "") +
-                	(fail_muon ? "\tCould not retrieve Muon container with key " + muon_input_handle.key() : "")
-    );
+		ATH_MSG_ERROR(	(fail_elec ? "Could not retrieve Electron container with key " + elec_input_handle.key() : "") +
+                		(fail_muon ? "\tCould not retrieve Muon container with key " + muon_input_handle.key() : "")
+	);
 		return StatusCode::FAILURE;
 	}
 	auto elec_container = elec_input_handle.cptr();
@@ -70,7 +70,7 @@ StatusCode TauAODLeptonRemovalTool::execute(xAOD::TauJet& tau) const {
 	removed_elecs.insert(removed_elecs.end(), cls_removed_elecs.begin(), cls_removed_elecs.end());
 	auto removed_muons_set = std::set(removed_muons.begin(), removed_muons.end());
 	auto removed_elecs_set = std::set(removed_elecs.begin(), removed_elecs.end());
-  //set link to the removed lepton
+	//set link to the removed lepton
 	for (auto muon : removed_muons_set ){
 		ElementLink<xAOD::MuonContainer> link;
 		link.toContainedElement(*muon_container, muon);
@@ -81,7 +81,7 @@ StatusCode TauAODLeptonRemovalTool::execute(xAOD::TauJet& tau) const {
 		link.toContainedElement(*elec_container, elec);
 		acc_removed_elecs(tau).push_back(link);
 	}
-  //notify the runner alg that the tau was modified
+	//notify the runner alg that the tau was modified
 	if (!acc_removed_elecs(tau).empty() || !acc_removed_muons(tau).empty())
 	{
 		const SG::AuxElement::Accessor<bool> acc_modified("ModifiedInAOD");
@@ -154,7 +154,7 @@ std::vector<std::pair<const xAOD::CaloCluster*, const xAOD::Electron*>> TauAODLe
 			}
 		}
 	);
-    return ret;
+	return ret;
 }
 
 std::vector<std::pair<const xAOD::TrackParticle*, const xAOD::Muon*>> TauAODLeptonRemovalTool::getMuonAndTrk(const xAOD::TauJet& tau, const xAOD::MuonContainer& muon_container) const {
