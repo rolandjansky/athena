@@ -326,7 +326,7 @@ namespace MuonGM {
       double tan_phi2 = ( tan_angles - std::sqrt(tan_angles*tan_angles - B*B + A*A) ) / (A+B);
 
       //ad hoc change for the sector at PI/2
-      if ( std::abs( std::abs(phi) ) - M_PI_2 < 0.01) {
+      if ( std::abs( std::abs(phi) - M_PI_2 ) < 0.01) {
 	A = ( gpos_id1.y() - gpos_id2.y() ) / ( gpos_id1.y() + gpos_id2.y() );
 	tan_phi2 = ( A - std::sqrt(A*A - B*B + tan_angles*tan_angles ) ) / (B-tan_angles);
       }
@@ -336,7 +336,7 @@ namespace MuonGM {
       else dphi = 2*std::atan(tan_phi2);
 
       //ad hoc change for the sector at PI/2
-      if ( std::abs( std::abs(phi) ) - M_PI_2 < 0.01) {
+      if ( std::abs( std::abs(phi) - M_PI_2 ) < 0.01) {
 	if (dphi*phi < 0) dphi += phi;
 	else dphi -= phi;
       }
