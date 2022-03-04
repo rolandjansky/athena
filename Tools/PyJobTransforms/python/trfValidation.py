@@ -326,7 +326,7 @@ class athenaLogFileReport(logFileReport):
                     # Add the python exception parser
                     if 'Shortened traceback (most recent user call last)' in line:
                         msg.warning('Detected python exception - activating python exception grabber')
-                        self.pythonExceptionParser(myGen, line, lineCounter)
+                        self.pythonExceptionParser(log, myGen, line, lineCounter)
                         continue
                     # Add parser for missed bad_alloc
                     if 'terminate called after throwing an instance of \'std::bad_alloc\'' in line:
@@ -450,6 +450,49 @@ class athenaLogFileReport(logFileReport):
 
         return {'level': firstName, 'nLevel': firstLevel, 'firstError': firstError}
 
+
+    def moreDetails(self, log, firstline, firstLineCount, knowledgeFile):
+        # Look for "abnormal" and "last normal" line(s)
+        # Make a list of last e.g. 50 lines before core dump
+        abnormalLinesList = self.knowledgeFileHandler(knowledgeFile)
+        linesToBeScanned = 50
+        seenAbnormalLines = []
+        abnormalLinesReport = {}
+        lastNormalLineReport = {}
+
+        linesList = [] 
+        myGen = trfUtils.lineByLine(log)
+        for line, linecounter in myGen:
+            if linecounter in range(firstLineCount - linesToBeScanned, firstLineCount):
+                linesList.append([linecounter, line])
+            elif linecounter == firstLineCount:
+                break
+
+        for linecounter, line in reversed(linesList):
+            if re.findall(r'|'.join(abnormalLinesList), line):
+                seenLine = False
+                for dic in seenAbnormalLines:
+                    # count repetitions or similar (e.g. first 15 char) abnormal lines
+                    if dic['message'] == line or dic['message'][0:15] == line[0:15]:
+                        dic['count'] += 1
+                        seenLine = True
+                        break
+                if seenLine is False:
+                    seenAbnormalLines.append({'message': line, 'firstLine': linecounter, 'count': 1})
+            else:
+                if line != '':
+                    lastNormalLineReport = {'message': line, 'firstLine': linecounter, 'count': 1}
+                    break
+                else:
+                    continue
+        
+        for a in range(len(seenAbnormalLines)):
+            abnormalLinesReport.update({'message{0}'.format(a): seenAbnormalLines[a]['message'], 'firstLine{0}'.format(a): seenAbnormalLines[a]['firstLine'],
+                                        'count{0}'.format(a): seenAbnormalLines[a]['count']})
+
+        return {'abnormalLines': abnormalLinesReport, 'lastNormalLine': lastNormalLineReport}
+
+
     ## @brief Attempt to suck a core dump report from the current logfile
     # This function scans logs in two different directions:
     # 1) downwards, to exctract information after CoreDrmpSvc; and 2) upwards, to find abnormal lines
@@ -457,7 +500,7 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, log, lineGenerator, firstline, firstLineCount):
-        abnormalLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
+        abnormalLinesList = self.knowledgeFileHandler('knowledgeFile.db')
         _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
         linesToBeScaned = 50
@@ -609,7 +652,8 @@ class athenaLogFileReport(logFileReport):
             self._levelCounter['FATAL'] += 1
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
 
-    def pythonExceptionParser(self, lineGenerator, firstline, firstLineCount):
+
+    def pythonExceptionParser(self, log, lineGenerator, firstline, firstLineCount):
         pythonExceptionReport = ""
         lastLine = firstline
         lastLine2 = firstline
@@ -633,9 +677,17 @@ class athenaLogFileReport(logFileReport):
             lastLine = line
             pyLines += 1
 
+        pythonExceptionDetailsReport = self.moreDetails(log, firstline, firstLineCount, 'knowledgeFile.db')
+        abnormalLines = pythonExceptionDetailsReport['abnormalLines']
+
+        # concatenate an extract of first seen abnormal line to pythonExceptionReport
+        if 'message0' in abnormalLines.keys():
+            pythonExceptionReport += '; Abnormal line seen just before python exception: ' + abnormalLines['message0'][0:30] + '...[truncated] ' + '(see the jobReport)'
+
         msg.debug('Identified python exception - adding to error detail report')
         self._levelCounter['FATAL'] += 1
-        self._errorDetails['FATAL'].append({'message': pythonExceptionReport, 'firstLine': pythonErrorLine, 'count': 1})
+        self._errorDetails['FATAL'].append({'moreDetails': pythonExceptionDetailsReport, 'message': pythonExceptionReport, 'firstLine': pythonErrorLine, 'count': 1})
+
 
     def badAllocExceptionParser(self, lineGenerator, firstline, firstLineCount):
         badAllocExceptionReport = 'terminate after \'std::bad_alloc\'.'
