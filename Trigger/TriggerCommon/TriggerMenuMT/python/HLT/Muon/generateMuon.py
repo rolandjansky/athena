@@ -10,12 +10,9 @@ from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict, TrigmuCo
 from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
 from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Muon.MuonRecoSequences import muonDecodeCfg
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_Cfg, regSelTool_MDT_Cfg, regSelTool_CSC_Cfg
-
-from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg, TgcBytestreamDecodeCfg, MdtBytestreamDecodeCfg, CscBytestreamDecodeCfg
-from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, MdtRDODecodeCfg, CscRDODecodeCfg, CscClusterBuildCfg
 
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
@@ -134,17 +131,6 @@ def MuIsoViewDataVerifierCfg():
     result.addEventAlgo(alg)
     return result
 
-def MuDataPrepViewDataVerifierCfg(flags):
-    result = ComponentAccumulator()
-    dataobjects = [( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
-                   ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ),
-                   ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
-    if flags.Detector.GeometryCSC:
-                       dataobjects += ( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' )
-    alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuDataPrep",
-                                                 DataObjects = dataobjects)
-    result.addEventAlgo(alg)
-    return result
 
 #Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here
 #until a better location can be found
@@ -208,84 +194,6 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     result.addEventAlgo( trackcnv, primary=True )
     return result
 
-@AccumulatorCache
-def decodeCfg(flags, RoIs):
-    acc = ComponentAccumulator()
-
-    RegSelTool_RPC = acc.popToolsAndMerge(regSelTool_RPC_Cfg(flags))
-    RegSelTool_TGC = acc.popToolsAndMerge(regSelTool_TGC_Cfg(flags))
-    RegSelTool_MDT = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
-    if flags.Detector.GeometryCSC:
-        RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
-
-    doSeededDecoding =True
-    if 'FS' in RoIs:
-        doSeededDecoding = False
-
-    if flags.Input.isMC:
-        acc.merge(MuDataPrepViewDataVerifierCfg(flags))
-    # Get RPC BS decoder
-    if not flags.Input.isMC:
-        rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
-        rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
-        rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-        rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
-        acc.merge( rpcAcc )
-
-    # Get RPC BS->RDO convertor
-    rpcAcc = RpcRDODecodeCfg( flags, name= "RpcRdoToRpcPrepData_"+RoIs )
-    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData_"+RoIs).RoIs = RoIs
-    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
-    acc.merge( rpcAcc )
-
-    # Get TGC BS decoder
-    if not flags.Input.isMC:
-        tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
-        tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
-        tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-        tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
-        acc.merge( tgcAcc )
-
-    # Get TGC BS->RDO convertor
-    tgcAcc = TgcRDODecodeCfg( flags, name="TgcRdoToTgcPrepData_"+RoIs )
-    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData_"+RoIs).RoIs = RoIs
-    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
-    acc.merge( tgcAcc )
-
-    # Get MDT BS decoder
-    if not flags.Input.isMC:
-        mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
-        mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
-        mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-        mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
-        acc.merge( mdtAcc )
-
-    # Get MDT BS->RDO convertor
-    mdtAcc = MdtRDODecodeCfg( flags, name="MdtRdoToMdtPrepData_"+RoIs )
-    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData_"+RoIs).RoIs = RoIs
-    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
-    acc.merge( mdtAcc )
-
-    # Get CSC BS decoder
-    if flags.Detector.GeometryCSC:
-        if not flags.Input.isMC:
-            cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
-            cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
-            cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-            cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
-            acc.merge( cscAcc )
-
-        # Get CSC BS->RDO convertor
-        cscAcc = CscRDODecodeCfg( flags, name="CscRdoToCscPrepData_"+RoIs )
-        cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).RoIs = RoIs
-        cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
-        acc.merge( cscAcc )
-
-        # Get CSC cluster builder
-        cscAcc = CscClusterBuildCfg( flags, name="CscThresholdClusterBuilder_"+RoIs )
-        acc.merge( cscAcc )
-
-    return acc
 
 
 def efMuHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
@@ -311,7 +219,7 @@ def _muFastStepSeq(flags):
     reco.mergeReco( MuFastViewDataVerifier(flags) )
 
     # decoding
-    decodeAcc = decodeCfg(flags, selAcc.name+"RoIs")
+    decodeAcc = muonDecodeCfg(flags, selAcc.name+"RoIs")
     reco.mergeReco(decodeAcc)
 
     #L2 SA alg
@@ -391,7 +299,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
     recoMS.mergeReco(EFMuonViewDataVerifierCfg(flags, name))
 
     # decoding
-    recoMS.mergeReco(decodeCfg(flags, selAccMS.name+"RoIs"))
+    recoMS.mergeReco(muonDecodeCfg(flags, selAccMS.name+"RoIs"))
 
     #Reco
     recoMS.mergeReco( MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder_"+name,UseTGCNextBC=False, UseTGCPriorBC=False))
