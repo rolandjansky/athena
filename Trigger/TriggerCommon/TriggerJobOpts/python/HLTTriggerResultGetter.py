@@ -111,17 +111,6 @@ class HLTTriggerResultGetter(Configured):
         else:
             raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
-        # Temporary hack to add Run-3 navigation to ESD and AOD
-        if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMVersion == 3:
-            # The hack with wildcards is needed for BS->ESD because we don't know the exact keys
-            # of HLT navigation containers before unpacking them from the BS event.
-            objKeyStore._store['streamESD'].allowWildCard(True)
-            objKeyStore._store['streamAOD'].allowWildCard(True)
-            objKeyStore.addManyTypesStreamESD(['xAOD::TrigCompositeContainer#HLTNav*',
-                                               'xAOD::TrigCompositeAuxContainer#HLTNav*'])
-            objKeyStore.addManyTypesStreamAOD(['xAOD::TrigCompositeContainer#HLTNav*',
-                                               'xAOD::TrigCompositeAuxContainer#HLTNav*'])
-
         # TrigJetRec additions
         if rec.doWriteESD():
             objKeyStore.addStreamESD("JetKeyDescriptor","JetKeyMap")
