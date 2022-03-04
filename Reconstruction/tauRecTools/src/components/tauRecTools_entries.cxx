@@ -29,7 +29,7 @@
 #include "tauRecTools/TauDecayModeNNClassifier.h"
 #include "tauRecTools/TauVertexedClusterDecorator.h"
 #include "tauRecTools/TauAODSelector.h"
-#include "tauRecTools/LeptonRemoval.h"
+#include "tauRecTools/TauAODLeptonRemovalTool.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetSeedBuilder )
@@ -63,4 +63,4 @@ DECLARE_COMPONENT( TauJetRNNEvaluator )
 DECLARE_COMPONENT( TauDecayModeNNClassifier )
 DECLARE_COMPONENT( TauVertexedClusterDecorator )
 DECLARE_COMPONENT( TauAODSelector )
-DECLARE_COMPONENT( LeptonRemoval )
+DECLARE_COMPONENT( TauAODLeptonRemovalTool )
