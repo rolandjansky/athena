@@ -460,6 +460,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             preProcessor.TrackSelectorTool = trackSelectorNew
     else :
         print (" == InDetAlign_setup == Using new preProcessor") 
+        from InDetRecExample import TrackingCommon
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
         print (' == InDetAlign_setup == setting BeamspotVertexPreProcessor ')
         preProcessor = Trk__BeamspotVertexPreProcessor("BeamspotVertexPreProcessor",
@@ -467,6 +468,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
                                                        RefitTracks           = newInDetAlignAlg_Options["refitTracks"],
                                                        TrackFitter           = trackFitter,
                                                        AlignModuleTool       = alignModuleTool,
+                                                       TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(), 
                                                        UseSingleFitter       = True,
                                                        ParticleNumber        = newInDetAlignAlg_Options["particleNumber"],
                                                        RunOutlierRemoval     = newInDetAlignAlg_Options["runOutlier"],
