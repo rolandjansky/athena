@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 #
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone_newJO')
 
@@ -62,7 +65,6 @@ flags.lock()
 # ComponentAccumulator.debugMode = "trackCA trackEventAlog ... and so on"
 
 
-from AthenaCommon.Constants import DEBUG, INFO, WARNING
 acc = MainServicesCfg(flags)
 
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
@@ -110,20 +112,6 @@ generateL1Menu(flags)
 createL1PrescalesFileFromMenu(flags)
 
 
-acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
-
-
-logging.getLogger('forcomps').setLevel(DEBUG)
-acc.foreach_component("*/HLTSeeding").OutputLevel = INFO
-acc.foreach_component("*/HLTSeeding/*Tool").OutputLevel = INFO # tools
-acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = INFO # hypo algs
-acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
-acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
-acc.foreach_component("*/FPrecisionCalo").OutputLevel = INFO# filters
-acc.foreach_component("*/CHElectronFTF").OutputLevel = INFO# filters
-acc.foreach_component("*HLTTop/*Input*").OutputLevel = INFO # input makers
-acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = INFO # messaging from the EDM creators
-acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silence mon tools (addressing by type)
 
 if log.getEffectiveLevel() <= logging.DEBUG:
     acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
