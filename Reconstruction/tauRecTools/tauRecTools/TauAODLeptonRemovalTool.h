@@ -25,17 +25,17 @@ class TauAODLeptonRemovalTool : public TauRecToolBase
 		virtual StatusCode initialize() override;
 		virtual StatusCode execute(xAOD::TauJet&) const override;
 	private:
-		bool 						m_DoMuonTrkRm 		= false;
-		bool 						m_DoElecTrkRm 		= false;
-		bool 						m_DoMuonClsRm 		= false;
-		bool 						m_DoElecClsRm 		= false;
-		std::string 					m_StrMinElecIdWp 	= "Medium";   
-		std::string 					m_StrMinMuonIdWp 	= "Medium";   
-		std::string 					m_StrElecIdWpPrefix 	= "DFCommonElectronsLH";
-		double 						m_LepRemovalConeSize 	= 0.6;
+		bool 						m_doMuonTrkRm 		= false;
+		bool 						m_doElecTrkRm 		= false;
+		bool 						m_doMuonClsRm 		= false;
+		bool 						m_doElecClsRm 		= false;
+		std::string 					m_strMinElecIdWp 	= "Medium";   
+		std::string 					m_strMinMuonIdWp 	= "Medium";   
+		std::string 					m_strElecIdWpPrefix 	= "DFCommonElectronsLH";
+		double 						m_lepRemovalConeSize 	= 0.6;
 		const std::map<std::string, uint> 		m_mapMuonIdWp 		= {{"Tight", 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose",3}};
-		std::string 					m_ElecWpStr;
-		uint 						m_MuonWpUi;
+		std::string 					m_elecWpStr;
+		uint 						m_muonWpUi;
 		SG::ReadHandleKey<xAOD::MuonContainer>     	m_muonInputContainer{this, "Key_MuonInputContainer", "Muons",	  "input xAOD muons"};
 		SG::ReadHandleKey<xAOD::ElectronContainer> 	m_elecInputContainer{this, "Key_ElecInputContainer", "Electrons", "input xAOD electrons"};
 		//helpers
