@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCMPRIMEGEOMODELXML_BCMPRIMEGMXINTERFACE_H
@@ -18,14 +18,16 @@ class BCMPrimeDetectorManager;
 class BCMPrimeGmxInterface: public GmxInterface, public AthMessaging
 {
 public:
-  BCMPrimeGmxInterface(InDetDD::BCMPrimeDetectorManager *detectorManager);
+  BCMPrimeGmxInterface(BCMPrimeDetectorManager *detectorManager);
 
   virtual int sensorId(std::map<std::string, int> &index) const override final;
-  virtual void addAlignable(int /*level*/, std::map<std::string, int> &index,
-                            GeoVFullPhysVol *fpv, GeoAlignableTransform *transform) override final;
+  virtual void addAlignable(int level,
+                            std::map<std::string, int> &index,
+                            GeoVFullPhysVol *fpv,
+                            GeoAlignableTransform *transform) override final;
 
 private:
-  InDetDD::BCMPrimeDetectorManager *m_detectorManager{};
+  BCMPrimeDetectorManager *m_detectorManager{};
 };
 
 } // namespace InDetDD

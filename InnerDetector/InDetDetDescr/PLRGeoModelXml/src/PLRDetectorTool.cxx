@@ -3,15 +3,14 @@
 */
 
 #include "PLRDetectorTool.h"
-#include "PixelGeoModelXml/PixelGmxInterface.h"
+#include "PLRGmxInterface.h"
+
 #include <PixelReadoutGeometry/PixelDetectorManager.h>
 
 #include <DetDescrConditions/AlignableTransformContainer.h>
-#include <GeoModelUtilities/GeoModelExperiment.h>
-#include <GeoModelUtilities/DecodeVersionKey.h>
 #include <GeoModelKernel/GeoPhysVol.h>
+#include <GeoModelUtilities/GeoModelExperiment.h>
 #include <SGTools/DataProxy.h>
-#include <StoreGate/StoreGateSvc.h>
 
 
 PLRDetectorTool::PLRDetectorTool(const std::string &type,
@@ -24,10 +23,8 @@ PLRDetectorTool::PLRDetectorTool(const std::string &type,
 
 StatusCode PLRDetectorTool::create()
 {
- //retrieve the common stuff
+  // retrieve the common stuff
   ATH_CHECK(createBaseTool());
-  // Get the detector configuration.
-  ATH_CHECK(m_geoModelSvc.retrieve());
 
   GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
@@ -37,40 +34,42 @@ StatusCode PLRDetectorTool::create()
   m_commonItems = std::make_unique<InDetDD::SiCommonItems>(idHelper);
 
   //
-  // Get the version
+  // Check the availability
   //
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "InnerDetector");
-  if (versionKey.tag() == "AUTO"){
-    ATH_MSG_ERROR("Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00.");
+  std::string node{"InnerDetector"};
+  std::string table{"PLRXDD"};
+  if (!isAvailable(node, table)) {
+    ATH_MSG_ERROR("No PLR geometry found. PLR can not be built.");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO((versionKey.custom() ? "Building custom " : "Building ")
-               << "PLR with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() );
   //
-  // Get the Database Access Service and from there the pixel version tag
-  //
-  std::string plrVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-  ATH_MSG_INFO("PLR Version: " << plrVersionTag);
-  //
-  // Check if pixel version tag is empty. If so, then the pixel cannot be built.
-  // This may or may not be intentional. We just issue an INFO message.
-  //
-  if (plrVersionTag.empty()) {
-    ATH_MSG_INFO("No PLR Version. PLR will not be built.");
-    return StatusCode::SUCCESS;
-  }
-  //
-  // Create the PixelDetectorFactory
+  // Create the detector manager
   //
   // The * converts a ConstPVLink to a ref to a GeoVPhysVol
   // The & takes the address of the GeoVPhysVol
   GeoPhysVol *world = &*theExpt->getPhysVol();
-  m_detManager  = createManager(world);
+  auto *manager = new InDetDD::PixelDetectorManager(&*detStore(), m_detectorName);
+  manager->addFolder(m_alignmentFolderName);
 
-  if (!m_detManager) {
-    ATH_MSG_ERROR("PLRDetectorManager not found");
+  InDetDD::PLRGmxInterface gmxInterface(manager, m_commonItems.get(), &m_moduleTree);
+
+  // Load the geometry, create the volume,
+  // and then find the volume index within the world to allow it to be added
+  // last two arguments are the location in the DB to look for the clob
+  // (may want to make those configurables)
+  int childIndex = createTopVolume(world, gmxInterface, node, table);
+  if (childIndex != -1) { //-1 represents an error state from the above method
+    manager->addTreeTop(&*world->getChildVol(childIndex));
+    // if it were implemented, we would do Numerology here
+    // doNumerology(manager);
+    manager->initNeighbours();
+  } else {
+    ATH_MSG_FATAL("Could not find the Top Volume!!!");
     return StatusCode::FAILURE;
   }
+
+  // set the manager
+  m_detManager = manager;
 
   ATH_CHECK(detStore()->record(m_detManager, m_detManager->getName()));
   theExpt->addManager(m_detManager);
@@ -95,31 +94,6 @@ StatusCode PLRDetectorTool::clear()
 
 }
 
-InDetDD::PixelDetectorManager * PLRDetectorTool::createManager(GeoPhysVol * theWorld){
-
-  InDetDD::PixelDetectorManager * theManager = new InDetDD::PixelDetectorManager(&*detStore(), m_detectorName);
-  //in the factory we would set the version here and write it to the mgr... is it really necessary???
-  //Leave it out for now until we find we need it...
-
-  theManager->addFolder(m_alignmentFolderName);
-
-  InDetDD::ITk::PixelGmxInterface gmxInterface(theManager, m_commonItems.get(), &m_moduleTree);
-
-  //Load the geometry, create the volume, 
-  //and then find the volume index within the world to allow it to be added
-  //last two arguments are the location in the DB to look for the clob
-  //(may want to make those configurables)
-  int childIndex = createTopVolume(theWorld,gmxInterface, "PLR", "PLRXDD");
-  if(childIndex != -1){ //-1 represents an error state from the above method
-   theManager->addTreeTop(&*theWorld->getChildVol(childIndex));
-   //if it were implemented, we would do Numerology here
-   //doNumerology(theManager);
-   theManager->initNeighbours();
-  }
-  else ATH_MSG_FATAL("Could not find the Top Volume!!!");
- 
-  return theManager;
-}
 
 StatusCode PLRDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
@@ -165,10 +139,10 @@ StatusCode PLRDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys))
   }
 }
 
+
 void PLRDetectorTool::doNumerology()
 {
   InDetDD::SiNumerology n;
 
   ATH_MSG_INFO("\n\nPLR Numerology:\n===============\n\nNumber of parts is " << m_moduleTree.nParts());
 }
-
