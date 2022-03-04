@@ -31,13 +31,9 @@ class TauRecAODRunner (TauRecAODRunConfigured):
     def configure(self):
         mlog = logging.getLogger('TauRecAODRunner.py::configure:')
         mlog.info('entering')
-
         import tauRec.TauAlgorithmsHolder as taualgs
-
         tools_mod = []
-
-        tools_mod.append(taualgs.getMuonRemoval())
-
+        tools_mod.append(taualgs.getTauAODMuonRemovalTool())
         tools_after = []
         tools_after.append(taualgs.getTauVertexedClusterDecorator())
         tools_after.append(taualgs.getTauTrackRNNClassifier())
@@ -49,7 +45,6 @@ class TauRecAODRunner (TauRecAODRunConfigured):
         tools_after.append(taualgs.getPi0ScoreCalculator())         
         tools_after.append(taualgs.getPi0Selector())
         tools_after.append(taualgs.getTauVertexVariables())
-
         import PanTauAlgs.JobOptions_Main_PanTau as pantau
         tools_after.append(pantau.getPanTau())                      
         tools_after.append(taualgs.getTauCombinedTES())             
@@ -61,8 +56,5 @@ class TauRecAODRunner (TauRecAODRunConfigured):
         tools_after.append(taualgs.getTauEleRNNEvaluator())         
         tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
         tools_after.append(taualgs.getTauDecayModeNNClassifier())
-
         TauRecAODRunConfigured.WrapTauRecToolExecHandle(self, tools_mod=tools_mod, tools_after=tools_after)
         return True
-
-# end

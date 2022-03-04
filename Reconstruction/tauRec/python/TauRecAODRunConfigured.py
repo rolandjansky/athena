@@ -23,23 +23,13 @@ class TauRecAODRunConfigured ( Configured ) :
     """Re-Reconstruct TauJets on AOD level. 
     IMPORTANT: the results may deviate from official Tau reconstruction
     """
-
     def __init__(self, name = "TauRecAODRunConfigured", msglevel=3, ignoreExistingDataObject=True) :
         self.name = name
         self.msglevel = msglevel
         from tauRec.tauRecConf import TauAODRunnerAlg
-        self._TauAODRunnerAlgHandle = TauAODRunnerAlg( name=self.name+'Alg', 
-                                                        Key_tauContainer="TauJets",
-                                                        Key_tauOutputContainer="TauJets_AODReco",
-                                                        Key_pi0OutputContainer="TauFinalPi0s_AODReco",
-                                                        Key_neutralPFOOutputContainer="TauNeutralPFOs_AODReco",
-                                                        Key_chargedPFOOutputContainer="TauChargedPFOs_AODReco",
-                                                        Key_hadronicPFOOutputContainer="TauHadronicPFOs_AODReco",
-                                                        OutputLevel = msglevel
-                                                    )
-                                                                                                
+        self._TauAODRunnerAlgHandle = TauAODRunnerAlg(  name=self.name+'Alg', 
+                                                        OutputLevel = msglevel )
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
-
 
     def WrapTauRecToolExecHandle(self, tools_mod=None, tools_after=None):
         from tauRec.tauRecFlags import tauFlags
@@ -49,13 +39,10 @@ class TauRecAODRunConfigured ( Configured ) :
         for atool in tools_after:
             atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             atool.inAOD = True
-
-        self.TauAODRunnerAlgHandle().Tools_mod = tools_mod
-        self.TauAODRunnerAlgHandle().Tools_after = tools_after
+        self.TauAODRunnerAlgHandle().modificationTools = tools_mod
+        self.TauAODRunnerAlgHandle().officialTools = tools_after
         from AthenaCommon.AlgSequence import AlgSequence
-
         topSequence = AlgSequence()
-        
         topSequence += self.TauAODRunnerAlgHandle()
 
     def TauAODRunnerAlgHandle(self):

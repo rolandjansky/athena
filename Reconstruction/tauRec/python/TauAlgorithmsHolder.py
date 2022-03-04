@@ -700,22 +700,21 @@ def getTauAODSelector():
 
 ########################################################################
 # muon removal tool
-def getMuonRemoval():
+def getTauAODMuonRemovalTool():
     _name = sPrefix + '_MuonRemoval'
-    from tauRecTools.tauRecToolsConf import LeptonRemoval
-    myMuonRemoval = LeptonRemoval(  name                   = _name,
-                                    Key_MuonInputContainer = 'Muons',
-                                    doMuonTrkRm            = True,
-                                    doMuonClsRm            = True,
-                                    muonIDWP               = 'Medium'
+    from tauRecTools.tauRecToolsConf import TauAODLeptonRemovalTool
+    myMuonRemoval = TauAODLeptonRemovalTool(    name                   = _name,
+                                                Key_MuonInputContainer = 'Muons',
+                                                doMuonTrkRm            = True,
+                                                doMuonClsRm            = True,
+                                                muonIDWP               = 'Medium'
     )
-
     return myMuonRemoval
 ########################################################################
 
 ########################################################################
 # elec removal tool
-def getElecRemoval():
+def getTauAODElecRemovalTool():
     _name = sPrefix + '_ElecRemoval'
     from tauRecTools.tauRecToolsConf import LeptonRemoval
     myElecRemoval = LeptonRemoval(  name                   = _name,
@@ -724,6 +723,5 @@ def getElecRemoval():
                                     doElecClsRm            = True,
                                     elecIDWP               = 'Medium'
     )
-
     return myElecRemoval
 ########################################################################

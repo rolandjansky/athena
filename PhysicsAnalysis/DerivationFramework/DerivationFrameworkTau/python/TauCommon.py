@@ -197,22 +197,18 @@ def addDiTauLowPt(Seq=None):
                                      Rcore=0.1,
                                      Tools=ditauTools)
     Seq += DiTauLowPtBuilder
+
 #=======================================
 # tauJet Muon RM Re-Reconstruction 
 #=======================================
 def addMuonRemovalTauReReco(Seq=None):
-
     if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
         print("Muon removal TauJets re-reconstruction will not be scheduled")
         return
-
     print ("Adding Muon removal TauJets re-reconstruction")
-
     import tauRec.TauAlgorithmsHolder as taualgs
-    
     tools_mod = []
-    tools_mod.append(taualgs.getMuonRemoval())
-
+    tools_mod.append(taualgs.getTauAODMuonRemovalTool())
     tools_after = []
     tools_after.append(taualgs.getTauVertexedClusterDecorator())
     tools_after.append(taualgs.getTauTrackRNNClassifier())
@@ -235,7 +231,6 @@ def addMuonRemovalTauReReco(Seq=None):
     tools_after.append(taualgs.getTauEleRNNEvaluator())         
     tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
     tools_after.append(taualgs.getTauDecayModeNNClassifier())
-
     from tauRec.tauRecFlags import tauFlags
     for atool in tools_mod:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
@@ -243,18 +238,17 @@ def addMuonRemovalTauReReco(Seq=None):
     for atool in tools_after:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
         atool.inAOD = True
-
     from tauRec.tauRecConf import TauAODRunnerAlg
     MuonRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "MuonRemovalTauReReco_"+Seq.name(), 
-                                                Key_tauContainer                = "TauJets",
                                                 Key_tauOutputContainer          = "TauJets_MuonRM",
                                                 Key_pi0OutputContainer          = "TauFinalPi0s_MuonRM",
                                                 Key_neutralPFOOutputContainer   = "TauNeutralPFOs_MuonRM",
                                                 Key_chargedPFOOutputContainer   = "TauChargedPFOs_MuonRM",
                                                 Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_MuonRM",
                                                 Key_tauTrackOutputContainer     = "TauTracks_MuonRM",
-                                                Tools_mod                       = tools_mod,
-                                                Tools_after                     = tools_after
+                                                Key_vertexOutputContainer       = "TauSecondaryVertices_MuonRM",
+                                                modificationTools               = tools_mod,
+                                                officialTools                   = tools_after
     )
     Seq += MuonRemovalAODReRecoAlg
 
@@ -262,18 +256,13 @@ def addMuonRemovalTauReReco(Seq=None):
 # tauJet Electron RM Re-Reconstruction 
 #=======================================
 def addElecRemovalTauReReco(Seq=None):
-
     if not Seq or hasattr(Seq,"ElecRemovalTauReReco_"+Seq.name()):
         print("Elec removal TauJets re-reconstruction will not be scheduled")
         return
-
     print ("Adding Elec removal TauJets re-reconstruction")
-
     import tauRec.TauAlgorithmsHolder as taualgs
-    
     tools_mod = []
-    tools_mod.append(taualgs.getElecRemoval())
-
+    tools_mod.append(taualgs.getTauAODElecRemovalTool())
     tools_after = []
     tools_after.append(taualgs.getTauVertexedClusterDecorator())
     tools_after.append(taualgs.getTauTrackRNNClassifier())
@@ -303,17 +292,16 @@ def addElecRemovalTauReReco(Seq=None):
     for atool in tools_after:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
         atool.inAOD = True
-
     from tauRec.tauRecConf import TauAODRunnerAlg
     ElecRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "ElecRemovalTauReReco_"+Seq.name(), 
-                                                Key_tauContainer                = "TauJets",
                                                 Key_tauOutputContainer          = "TauJets_ElecRM",
                                                 Key_pi0OutputContainer          = "TauFinalPi0s_ElecRM",
                                                 Key_neutralPFOOutputContainer   = "TauNeutralPFOs_ElecRM",
                                                 Key_chargedPFOOutputContainer   = "TauChargedPFOs_ElecRM",
                                                 Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_ElecRM",
                                                 Key_tauTrackOutputContainer     = "TauTracks_ElecRM",
-                                                Tools_mod                       = tools_mod,
-                                                Tools_after                     = tools_after
+                                                Key_vertexOutputContainer       = "TauSecondaryVertices_ElecRM",
+                                                modificationTools               = tools_mod,
+                                                officialTools                   = tools_after
     )
     Seq += ElecRemovalAODReRecoAlg
