@@ -68,7 +68,7 @@ bool setNameGeneral(TObject* obj, const std::string& name) {
       if (! klm) {
 	std::cerr << "Error: attempt to change object name to " << name << " failed as its name is not settable" << std::endl;
       } else {
-	std::cout << "Manually doing cast for " << kl->GetName() << std::endl;
+	std::cout << "Manually doing cast for " << name << " of class " << kl->GetName() << std::endl;
 	obj->Execute("SetName", ("\""+name+"\"").c_str());
 	return true;
       }
