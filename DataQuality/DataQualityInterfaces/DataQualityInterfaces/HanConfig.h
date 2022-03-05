@@ -111,7 +111,12 @@ protected:
     mutable std::map<std::string, std::shared_ptr<TFile> > m_filecache;
     // following is so we can skip repeated attempts to open nonexistent files
     mutable std::unordered_set<std::string> m_badPaths;
+    // following is a cache of the set of keys in each TFile
+    // vector since we are going to iterate through them
+    mutable std::map<std::string, std::vector<std::string>> m_keycache;
     std::shared_ptr<TFile> GetROOTFile(std::string& fname) const;
+    void PopulateKeyCache(std::string& fname, std::shared_ptr<TFile> file) const;
+    void EnsureKeyCache(std::string& fname) const;
   };
 
 
