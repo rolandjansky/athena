@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMASSHAPECALIBRATION
@@ -77,8 +77,6 @@ class EgammaSshapeCalibration :
   friend class Builder;
 
  private:
-  MsgStream* m_log;
-  
   /// Calibration constant: tabulated arrays of function parameters.
   /// Index 0: energy
   /// Index 1: region

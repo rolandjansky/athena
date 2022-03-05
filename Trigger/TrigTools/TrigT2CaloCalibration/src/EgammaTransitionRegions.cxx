@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -43,9 +43,8 @@ const CaloSampling::CaloSample samps[2][4] =
 StatusCode EgammaTransitionRegions::initialize(){
 
     CHECK (base_class::initialize());
-    m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
-    (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
+    ATH_MSG_DEBUG( "Initialize Tool : " << name() );
 
 
 
@@ -55,8 +54,7 @@ StatusCode EgammaTransitionRegions::initialize(){
 }
 
 StatusCode EgammaTransitionRegions::finalize(){
-    (*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endmsg;
-    delete m_log;
+    ATH_MSG_DEBUG( "Finalize Tool : " << name() );
     return StatusCode::SUCCESS;
 }
 
@@ -70,9 +68,9 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
     //if (the_aeta >= m_etamax) return; 
 
 #ifndef NDEBUG
-    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;
-    (*m_log) << MSG::DEBUG <<  " USING TRANSITION REGION " << endmsg;
-    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;       
+    ATH_MSG_DEBUG(  "************************************************************************************************" );
+    ATH_MSG_DEBUG(  " USING TRANSITION REGION " );
+    ATH_MSG_DEBUG(  "************************************************************************************************" );
 #endif
 
     CxxUtils::Array<2> correction = m_correction();
@@ -80,8 +78,8 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
     CaloRec::Array<1> tr08	= correction[1];
 
 #ifndef NDEBUG
-    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;
-    (*m_log) << MSG::DEBUG <<  "the_aeta ::::: " << the_aeta << endmsg;
+    ATH_MSG_DEBUG(  "************************************************************************************************"  );
+    ATH_MSG_DEBUG(  "the_aeta ::::: " << the_aeta  );
 #endif
     double corr = 1.0;
 
@@ -91,15 +89,15 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
     if (the_aeta < m_etamax_TR00() && the_aeta > m_etamin_TR00() ) {
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (loose) " << endmsg;
-	(*m_log) << MSG::DEBUG << tr00[0] << " " <<  tr00[1] << " " <<  tr00[2] << endmsg;
+        ATH_MSG_DEBUG( "Applying correction for eta = 0 (loose) "  );
+	ATH_MSG_DEBUG( tr00[0] << " " <<  tr00[1] << " " <<  tr00[2]  );
 #endif
 	corr = ( tr00[0] - tr00[1] / (exp( tr00[2] - the_aeta ) + exp( tr00[3]*( the_aeta - tr00[4]))+tr00[5]));
     }
     else if ( the_aeta < m_etamin_TR00() ) {
 	corr = tr00[6];
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (tight) " << endmsg;
+	ATH_MSG_DEBUG( "Applying correction for eta = 0 (tight) "  );
 #endif
     }
 
@@ -109,8 +107,8 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
     if (the_aeta < m_etamax_TR08() && the_aeta > m_etamin_TR08() ) {
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0.8 (loose) " << endmsg;
-	(*m_log) << MSG::DEBUG << tr08[0] << " " <<  tr08[1] << " " <<  tr08[2] << endmsg;
+        ATH_MSG_DEBUG( "Applying correction for eta = 0.8 (loose) "  );
+	ATH_MSG_DEBUG( tr08[0] << " " <<  tr08[1] << " " <<  tr08[2]  );
 #endif
 	corr = (tr08[0] - tr08[1] / (exp( tr08[2] - the_aeta ) +
 			exp( tr08[3] *( the_aeta - tr08[4] )) + tr08[5] )); 
@@ -118,8 +116,8 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
 
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "EgammaTransitionRegions::Energy before correction --> " << clus->energy()
-		<< " Correction --> " << corr << endmsg;
+      ATH_MSG_DEBUG( "EgammaTransitionRegions::Energy before correction --> " << clus->energy()
+                     << " Correction --> " << corr  );
 #endif
     if ( corr == 1 ) return;
 

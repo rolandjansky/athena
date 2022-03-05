@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EgammaSshapeCalibration.h"
@@ -15,9 +15,8 @@
 // initialize
 //====================================================================
 StatusCode EgammaSshapeCalibration::initialize(){
-  m_log = new MsgStream(AthAlgTool::msgSvc(), name() ); 
   CHECK(base_class::initialize());
-  (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
+  ATH_MSG_DEBUG( "Initialize Tool : " << name()  );
   return StatusCode::SUCCESS;
 }
 
@@ -25,7 +24,6 @@ StatusCode EgammaSshapeCalibration::initialize(){
 // finalize
 //====================================================================
 StatusCode EgammaSshapeCalibration::finalize(){
-  delete m_log;
   return StatusCode::SUCCESS;  
 }
 
@@ -41,38 +39,36 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     bool isRange_barrel = m_isRange_barrel();
 
 #ifndef NDEBUG    
-    (*m_log) << MSG::DEBUG << "caloDDE->descriptor()->is_lar_em_barrel() = " 
-	     << caloDDE->descriptor()->is_lar_em_barrel() << endmsg;
-    (*m_log) << MSG::DEBUG << "caloDDE->descriptor()->is_lar_em_endcap() = " 
-	     << caloDDE->descriptor()->is_lar_em_endcap() << endmsg;
+    ATH_MSG_DEBUG( "caloDDE->descriptor()->is_lar_em_barrel() = " 
+                   << caloDDE->descriptor()->is_lar_em_barrel()  );
+    ATH_MSG_DEBUG( "caloDDE->descriptor()->is_lar_em_endcap() = " 
+                   << caloDDE->descriptor()->is_lar_em_endcap()  );
 
-    (*m_log) << MSG::DEBUG << "m_isRange_barrel=" << isRange_barrel << endmsg;
+    ATH_MSG_DEBUG( "m_isRange_barrel=" << isRange_barrel  );
 
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::PreSamplerB) = " 
-	     << clus->energy(CaloSampling::PreSamplerB) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EMB1)        = " 
-	     << clus->energy(CaloSampling::EMB1) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EMB2)        = " 
-	     << clus->energy(CaloSampling::EMB2) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EMB3)        = " 
-	     << clus->energy(CaloSampling::EMB3) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::PreSamplerE) = " 
-	     << clus->energy(CaloSampling::PreSamplerE) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME1)        = " 
-	     << clus->energy(CaloSampling::EME1) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME2)        = " 
-	     << clus->energy(CaloSampling::EME2) << endmsg;
-    (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME3)        = " 
-	     << clus->energy(CaloSampling::EME3) << endmsg;
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::PreSamplerB) = " 
+                   << clus->energy(CaloSampling::PreSamplerB)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::EMB1)        = " 
+                   << clus->energy(CaloSampling::EMB1)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::EMB2)        = " 
+                   << clus->energy(CaloSampling::EMB2)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::EMB3)        = " 
+                   << clus->energy(CaloSampling::EMB3)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::PreSamplerE) = " 
+                   << clus->energy(CaloSampling::PreSamplerE)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::EME1)        = " 
+                   << clus->energy(CaloSampling::EME1)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::EME2)        = " 
+                   << clus->energy(CaloSampling::EME2)  );
+    ATH_MSG_DEBUG( "clus->energy(CaloSampling::EME3)        = " 
+                   << clus->energy(CaloSampling::EME3)  );
 
     if((caloDDE->descriptor()->is_lar_em_barrel() &&  isRange_barrel) ||
        (caloDDE->descriptor()->is_lar_em_endcap() && !isRange_barrel))
-      (*m_log) << MSG::DEBUG 
-	       << "[GOOD]: seedCell location and selected eta range agree" << endmsg;
+      ATH_MSG_DEBUG( "[GOOD]: seedCell location and selected eta range agree"  );
     else if((caloDDE->descriptor()->is_lar_em_barrel() && !isRange_barrel) ||
 	    (caloDDE->descriptor()->is_lar_em_endcap() &&  isRange_barrel))
-      (*m_log) << MSG::DEBUG 
-	       << "[BAD]: seedCell location and selected eta range disagree !!" << endmsg;
+      ATH_MSG_DEBUG( "[BAD]: seedCell location and selected eta range disagree !!"  );
 #endif
   
     // check if seedCell is in barrel or end-cap for correct range selection
@@ -103,12 +99,12 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     double aeta = fabs(eta - elt_eta + elt_eta_raw);
 
 #ifndef NDEBUG    
-    (*m_log) << MSG::DEBUG << "eta         = " << eta         << endmsg;
-    (*m_log) << MSG::DEBUG << "elt_eta     = " << elt_eta     << endmsg;
-    (*m_log) << MSG::DEBUG << "elt_deta    = " << elt_deta    << endmsg;
-    (*m_log) << MSG::DEBUG << "elt_eta_raw = " << elt_eta_raw << endmsg;
-    (*m_log) << MSG::DEBUG << "u           = " << u           << endmsg; 
-    (*m_log) << MSG::DEBUG << "aeta        = " << aeta        << endmsg; 
+    ATH_MSG_DEBUG( "eta         = " << eta          );
+    ATH_MSG_DEBUG( "elt_eta     = " << elt_eta      );
+    ATH_MSG_DEBUG( "elt_deta    = " << elt_deta     );
+    ATH_MSG_DEBUG( "elt_eta_raw = " << elt_eta_raw  );
+    ATH_MSG_DEBUG( "u           = " << u            );
+    ATH_MSG_DEBUG( "aeta        = " << aeta         );
 #endif
     
     // Find the appropriate region 
@@ -205,9 +201,9 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     clus->setEta(eta+offs);  
 
 #ifndef NDEBUG     
-    (*m_log) << MSG::DEBUG << "Before correction : " << eta << endmsg;
-    (*m_log) << MSG::DEBUG << "offset =" << offs << endmsg;
-    (*m_log) << MSG::DEBUG << "After correction : " << eta+offs << endmsg;
+    ATH_MSG_DEBUG( "Before correction : " << eta  );
+    ATH_MSG_DEBUG( "offset =" << offs  );
+    ATH_MSG_DEBUG( "After correction : " << eta+offs  );
 #endif
     
     delete builder;
