@@ -152,7 +152,7 @@ void HGTD_DetectorFactory::readDbParameters() {
 
     // let's first read the box volumes
     IRDBRecordset_ptr hgtdBoxes = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDBox", detectorKey, detectorNode);
-    for (IRDBRecordset::const_iterator it = hgtdBoxes->begin(); it != hgtdBoxes->end(); it++) {
+    for (IRDBRecordset::const_iterator it = hgtdBoxes->begin(); it != hgtdBoxes->end(); ++it) {
         std::string name = (*it)->getString("BOX");
         m_boxVolPars[name] = { name,
             (*it)->getDouble("DX"),
@@ -173,7 +173,7 @@ void HGTD_DetectorFactory::readDbParameters() {
 
     // now the tubs
     IRDBRecordset_ptr hgtdTubs = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDTubs", detectorKey, detectorNode);
-    for (IRDBRecordset::const_iterator it = hgtdTubs->begin(); it != hgtdTubs->end(); it++) {
+    for (IRDBRecordset::const_iterator it = hgtdTubs->begin(); it != hgtdTubs->end(); ++it) {
         std::string name = (*it)->getString("TUBE");
         m_cylVolPars[name] = { name,
                    (*it)->getDouble("RMIN"),
@@ -1149,6 +1149,7 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
         }
         // the rest of the modules follow sequential, radius-dependent placement rules
         else {
+            // cppcheck-suppress containerOutOfBounds; false positive
             ModulePosition prev = modulePositions.back();
             double spacing = m_hgtdPars.moduleSpaceInner;
             // if the previous module was completely outside rMid, increase the spacing
