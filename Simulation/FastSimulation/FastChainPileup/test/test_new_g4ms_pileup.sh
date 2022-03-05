@@ -24,12 +24,12 @@ FastChain_tf.py \
     --digiSeedOffset1 '1' \
     --digiSeedOffset2 '2' \
     --inputEVNTFile ${inputfile} \
-    --outputRDOFile RDO.pool.root \
+    --outputRDOFile ${rdoFile} \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
-    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.UseTrackingGeometryCond=False' \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
     --postExec 'ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
@@ -44,13 +44,13 @@ rc1=$?
 echo  "art-result: ${rc1} EVNTtoRDO"
 
 # RDO -> AOD and AOD -> NTUP stages
-rc1_1=999 # Return code for Reco stage 1
-rc1_2=999 # Return code for Reco stage 2
+rc1_1=999 
+rc1_2=999
 if [ ${rc1} -eq 0 ]
 then
     echo "Running Reco_tf.py:  RDO to AOD"
     Reco_tf.py --inputRDOFile ${rdoFile} --maxEvents '-1' \
-               --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-16' \
+               --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
                --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
                --outputAODFile ${aodFile} \
                --steering 'doRDO_TRIG' \
@@ -59,7 +59,7 @@ then
      rc1_1=$?
      if [ ${rc1_1} -eq 0 ]
      then
-	 echo "Running Reco_tf.py:  AOD to "
+	 echo "Running Reco_tf.py:  AOD to NTUP"
          # NTUP prod.
          Reco_tf.py --inputAODFile ${aodFile} --maxEvents '-1' \
                     --outputNTUP_PHYSVALFile ${ntupFile} \

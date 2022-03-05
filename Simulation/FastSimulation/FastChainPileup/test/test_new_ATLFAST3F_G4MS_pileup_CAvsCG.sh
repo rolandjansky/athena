@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: CA vs Legacy code diff (AFII_G4MS with pileup profile)
+# art-description: CA vs Legacy code diff (ATLFAST3F_G4MS with pileup profile)
 # art-type: grid
 # art-include: master/Athena
 # art-output: run_*
@@ -13,7 +13,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 
 mkdir ./run_cg_pkl; cd run_cg_pkl
 FastChain_tf.py \
-    --simulator ATLFASTIIF_G4MS \
+    --simulator 'ATLFAST3F_G4MS' \
     --useISF True \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --randomSeed 123 \
@@ -27,7 +27,7 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --conditionsTag default:OFLCOND-MC16-SDR-16 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
@@ -49,7 +49,7 @@ echo "art-result: $cgpkl EVNTtoRDO_CG_PKL"
 
 cd ..; mkdir ./run_cg; cd run_cg
 FastChain_tf.py \
-    --simulator ATLFASTIIF_G4MS \
+    --simulator 'ATLFAST3F_G4MS' \
     --useISF True \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --randomSeed 123 \
@@ -63,7 +63,7 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --conditionsTag default:OFLCOND-MC16-SDR-16 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
@@ -81,7 +81,7 @@ echo "art-result: $cg EVNTtoRDO_CG"
 cd ../; mkdir run_ca; cd run_ca
 FastChain_tf.py \
     --CA \
-    --simulator ATLFASTIIF_G4MS \
+    --simulator 'ATLFAST3F_G4MS' \
     --useISF True \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --randomSeed 123 \
@@ -95,7 +95,7 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --conditionsTag default:OFLCOND-MC16-SDR-16 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preInclude 'Campaigns.MC16a' \
     --postInclude='PyJobTransforms.UseFrontier' \

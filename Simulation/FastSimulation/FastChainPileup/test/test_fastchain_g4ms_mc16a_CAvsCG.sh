@@ -22,8 +22,8 @@ FastChain_tf.py \
     --outputRDOFile RDO_CG.pool.root \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
-    --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+    --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
     --preSimExec 'from AthenaCommon.DetFlags import DetFlags;DetFlags.simulate.BCM_setOff();from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
     --DataRunNumber '284500' \
@@ -51,10 +51,9 @@ FastChain_tf.py \
     --outputRDOFile RDO_CA.pool.root \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
-    --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+    --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
-    --preExec 'import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
     --DataRunNumber '284500' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
