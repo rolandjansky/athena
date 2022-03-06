@@ -19,7 +19,6 @@ JetTagMonitorAlgorithm::JetTagMonitorAlgorithm( const std::string& name, ISvcLoc
   declareProperty("SoftMuonPtMin", m_SoftMuonPtMin);
   declareProperty("SoftMuonPtMax", m_SoftMuonPtMax);
 
-  declareProperty("TrackSelectionTool",m_TrackSelectionTool);
   declareProperty("MinGoodTrackCut", m_MinGoodTrackCut);
   declareProperty("TrackPtCut", m_TrackPtCut);
   declareProperty("Trackd0Cut", m_Trackd0Cut);
