@@ -34,6 +34,11 @@ class LHCPeriod(FlagEnum):
             raise TypeError(f"Invalid comparison of {self.__class__} with {type(other)}")
         else:
             return self.value < other.value
+    def __le__(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError(f"Invalid comparison of {self.__class__} with {type(other)}")
+        else:
+            return self.value <= other.value
 
     Run1 = 'RUN1'
     Run2 = 'RUN2'

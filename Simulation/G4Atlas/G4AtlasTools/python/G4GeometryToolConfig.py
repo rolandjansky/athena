@@ -239,7 +239,7 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     kwargs.setdefault("DetectorName", "ITK")
     kwargs.setdefault("InnerRadius", 28.8*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
         # ITk should include the HGTD (3420 mm < |z| < 3545 mm) for now
         kwargs.setdefault("dZ", 354.5*cm)
     else:
@@ -299,7 +299,7 @@ def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
         # Make room for HGTD (3420 mm < |z| < 3545 mm)
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     else:
