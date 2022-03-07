@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/Propagator.h"
@@ -15,10 +15,10 @@ extern const vkalMagFld  myMagFld;
 
 extern double d_sign(double, double);
 extern void cfnewp(long int *, double *, double *, double *, double *, double *);
-extern void vkgrkuta_(double *, double *, double *, double *, const VKalVrtControlBase* =nullptr );
+extern void vkgrkuta_(double *, double *, double *, double *, VKalVrtControlBase* =nullptr );
 
 
-void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint, const VKalVrtControlBase * CONTROL)
+void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint, VKalVrtControlBase * CONTROL)
 {
     double d__1, d__2,dist_left;
     double vect[7], stmg, vout[7]={0.}, dpar0[5];

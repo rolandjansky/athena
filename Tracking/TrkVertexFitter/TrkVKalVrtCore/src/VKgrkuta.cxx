@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -12,7 +12,7 @@ namespace Trk {
 
 extern const vkalMagFld  myMagFld;
 
-void vkgrkuta_(double *charge, double *step, double *vect, double *vout, const VKalVrtControlBase* CONTROL)
+void vkgrkuta_(double *charge, double *step, double *vect, double *vout, VKalVrtControlBase* CONTROL)
 {
     double equiv_2[3], equiv_5[3];
     long int iter, ncut, j;

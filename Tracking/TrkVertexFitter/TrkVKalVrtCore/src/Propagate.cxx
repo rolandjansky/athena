@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Creates interface vkalPropagator object which contains pointers to real 
@@ -22,7 +22,7 @@ extern const vkalMagFld      myMagFld;
 
 extern void cfnewp(long int*, double*, double*, double*, double*, double*);
 extern void cferpr(long int*, double*, double*, double*, double*, double*);
-extern void cfnewpm (double*, double*, double*, double*, double*, double*, const VKalVrtControlBase * =nullptr);
+extern void cfnewpm (double*, double*, double*, double*, double*, double*, VKalVrtControlBase * =nullptr);
 
 //------------------------------------------------------------------------
 //  Old propagator functions:
@@ -51,7 +51,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //
    void PropagateSTD(long int, long int Charge, 
                      double *ParOld, double *CovOld, double *RefStart,
-                     double *RefEnd, double *ParNew, double *CovNew, const VKalVrtControlBase * CONTROL) 
+                     double *RefEnd, double *ParNew, double *CovNew, VKalVrtControlBase * CONTROL) 
    {
       double Way,closePoint[3],Goal[3];
       Goal[0]=RefEnd[0]-RefStart[0];
@@ -80,7 +80,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //   Runge-Kutta propagator in nonuniform field
 //
    void PropagateRKM(long int Charge, double *ParOld, double *CovOld, double *RefStart, 
-                                      double *RefEnd, double *ParNew, double *CovNew, const VKalVrtControlBase * CONTROL)
+                                      double *RefEnd, double *ParNew, double *CovNew, VKalVrtControlBase * CONTROL)
    {
       double Way;
       double closePoint[3],Goal[3];
@@ -144,7 +144,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
    }
  
    void vkalPropagator::Propagate(long int TrkID, long int Charge, double *ParOld, double *CovOld, double *RefOld, 
-                                  double *RefNew, double *ParNew, double *CovNew, const VKalVrtControlBase * FitControl) const
+                                  double *RefNew, double *ParNew, double *CovNew, VKalVrtControlBase * FitControl) const
    {
 //std::cout<<"Core: propagator control="<<FitControl<<" oldX,Y="<<RefOld[0]<<","<<RefOld[1]<<" newX,Y="<<RefNew[0]<<","<<RefNew[1]<<'\n';
      if( RefOld[0]==RefNew[0] && RefOld[1]==RefNew[1] && RefOld[2]==RefNew[2]){
@@ -184,7 +184,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 
 
    void vkalPropagator::Propagate( VKTrack * trk, double *RefOld, double *RefNew, double *ParNew, double *CovNew,
-                      const VKalVrtControlBase * FitControl) const
+                      VKalVrtControlBase * FitControl) const
    {
      if( RefOld[0]==RefNew[0] && RefOld[1]==RefNew[1] && RefOld[2]==RefNew[2]){
        for (int i=0; i<5;  i++) ParNew[i]=trk->refPerig[i];

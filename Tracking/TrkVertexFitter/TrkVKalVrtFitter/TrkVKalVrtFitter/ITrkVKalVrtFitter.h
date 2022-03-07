@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrkVKalVrtFitter.h  - old VKalVrtInterface
@@ -113,13 +113,13 @@ class IExtrapolator;
 
       virtual Track* CreateTrkTrack(const std::vector<double>& VKPerigee,
                                     const std::vector<double>& VKCov,
-                                    const IVKalState& istate) const = 0;
+                                    IVKalState& istate) const = 0;
 
       virtual StatusCode VKalGetTrkWeights(std::vector<double>& Weights,
                                            const IVKalState& istate) const = 0;
 
       virtual StatusCode VKalGetFullCov(long int, std::vector<double>& CovMtx,
-                                        const IVKalState& istate, bool = false) const =0;
+                                        IVKalState& istate, bool = false) const =0;
 
       virtual StatusCode VKalGetMassError(double& Mass, double& MassError,
                                           const IVKalState& istate) const =0;
