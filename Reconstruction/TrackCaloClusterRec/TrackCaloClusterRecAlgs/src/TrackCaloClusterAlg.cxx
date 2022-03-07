@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackCaloClusterAlgs includes
@@ -23,12 +23,15 @@ TrackCaloClusterAlg::TrackCaloClusterAlg( const std::string& name, ISvcLocator* 
   
 // *****************************************************
 StatusCode TrackCaloClusterAlg::initialize() {
-  ATH_MSG_DEBUG ("Initializing " << name() << "...");    
+  ATH_MSG_INFO ("Initializing " << name() << "...");    
   ATH_CHECK(m_tccTools.retrieve());
+  ATH_MSG_VERBOSE("TCCAlg::init got tcc tools");
   ATH_CHECK(m_tccInfoHandle.initialize());
+  ATH_MSG_VERBOSE("TCCAlg::init got tcc info handle");
   ATH_CHECK(m_outputTCCHandle.initialize());
+  ATH_MSG_VERBOSE("TCCAlg::init got output tcc handle");
   ATH_CHECK(m_copiedTCCHandle.initialize(! m_copiedTCCHandle.empty()) );
-
+  ATH_MSG_VERBOSE("TCCAlg::init got copied tcc handle");
   return StatusCode::SUCCESS;
 }
 
