@@ -3,6 +3,7 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Configurable import Configurable
 from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
@@ -159,12 +160,16 @@ def generateEmuEvents():
 
 
 ###########################################################################    
-def generateChainsManually():
-    log.info("generateChainsManually")
+def generateChainsManually(maskbit=0x7):
+    """
+    generates chains without menu, directly adding Chain configuration to HLTConfig
+    maskbits used to enable signature-lke group of chains
+    """
+    log.info("generateChainsManually mask=0x%d",maskbit)
     from DecisionHandling.TestUtils import makeChain, makeChainStep    
-    doMuon     = True
-    doElectron = True
-    doCombo    = True
+    doMuon     = maskbit & 0x1
+    doElectron = maskbit>>1 & 0x1
+    doCombo    = maskbit>>2 & 0x1
 
     HLTChains = []
 
@@ -195,10 +200,14 @@ def generateChainsManually():
 
         MuChains  = [
             makeChain(name='HLT_TestChain8_muv1step_L1MU5VF', L1Thresholds=["MU5VF"],    ChainSteps=[step_mu11]),
-            makeChain(name='HLT_TestChain8_muv1_L1MU8F',    L1Thresholds=["MU8F"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
-            makeChain(name='HLT_TestChain20_muv1_L1MU8F',   L1Thresholds=["MU8F"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
-            makeChain(name='HLT_TestChain10_muv2_L1MU8F',   L1Thresholds=["MU8F"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ), 
-            makeChain(name='HLT_TestChain6_muEmpty2_L1MU5VF', L1Thresholds=["MU5VF"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ), 
+            makeChain(name='HLT_TestChain8_muv1_L1MU8F',    L1Thresholds=["MU8F"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] )
+            ]
+
+        if Configurable.configurableRun3Behavior != 1:
+            MuChains += [
+                makeChain(name='HLT_TestChain20_muv1_L1MU8F',   L1Thresholds=["MU8F"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
+                makeChain(name='HLT_TestChain10_muv2_L1MU8F',   L1Thresholds=["MU8F"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ), 
+                makeChain(name='HLT_TestChain6_muEmpty2_L1MU5VF', L1Thresholds=["MU5VF"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ), 
             ]
             
 
@@ -221,10 +230,13 @@ def generateChainsManually():
         ElChains  = [
             makeChain(name='HLT_TestChain5_ev1_L1EM3', L1Thresholds=["EM3"], ChainSteps=[ makeChainStep("Step1_em11", [el11]), makeChainStep("Step2_em21",  [el21]), makeChainStep("Step3_em31",  [el31])] ),
             makeChain(name='HLT_TestChain8_ev1_L1EM3', L1Thresholds=["EM3"], ChainSteps=[ makeChainStep("Step1_em11", [el11]), makeChainStep("Step2_em21",  [el21]), makeChainStep("Step3_em31",  [el31]) ] ),
-            makeChain(name='HLT_TestChain5_ev2_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ makeChainStep("Step1_em11", [el11]), makeChainStep("Step2_em22",  [el22]) ] ),
-            makeChain(name='HLT_TestChain5_ev3_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ makeChainStep("Step1_em11", [el11]), makeChainStep("Step2_em23",  [el23]) ] ),
-            makeChain(name='HLT_TestChain5_gv1_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ makeChainStep("Step1_gam11", [gamm11]) ] )
+            makeChain(name='HLT_TestChain5_ev2_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ makeChainStep("Step1_em11", [el11]), makeChainStep("Step2_em22",  [el22]) ] )
         ]
+        if Configurable.configurableRun3Behavior != 1:
+            ElChains += [
+                makeChain(name='HLT_TestChain5_ev3_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ makeChainStep("Step1_em11", [el11]), makeChainStep("Step2_em23",  [el23]) ] ),
+                makeChain(name='HLT_TestChain5_gv1_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ makeChainStep("Step1_gam11", [gamm11]) ] )
+            ]
 
         HLTChains += ElChains
         
@@ -321,8 +333,7 @@ def generateChainsManually():
 
 ########################## L1 #################################################        
 def emulateHLTSeeding(topSequence):
-    log.info("emulateHLTSeeding")
-    
+    log.info("emulateHLTSeeding")    
     # modify hltSeeding already in the Tree
     hltSeeding=topSequence.HLTTop.HLTBeginSeq.HLTSeeding    
     
@@ -341,4 +352,49 @@ def emulateHLTSeeding(topSequence):
     hltSeeding.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
 
 
+def emulateHLTSeedingCfg(flags, seqName = None):
+    """
+    copy of HLTSeeding/python/HLTSeedingConfig.py to allow seeding with emulated data with CA
+    """
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior += 1
+
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentAccumulator import CompFactory
+    acc = ComponentAccumulator()
+    
+    decoderAlg = CompFactory.HLTSeeding()
+    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1 else ""
+    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1 else ""
+    decoderAlg.HLTSeedingSummaryKey = "HLTSeedingSummary" # Transient, consumed by DecisionSummaryMakerAlg
+    ## emulate CTP:
+    decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
+
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection, createKeyWriterTool
+    decoderAlg.RoIBRoIUnpackers += [
+        CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
+                                        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
+    
+
+    # emulate prescaler:
+    decoderAlg.prescaler = CompFactory.PrescalingEmulationTool()
+    decoderAlg.KeyWriterTool = createKeyWriterTool()
+    decoderAlg.DoCostMonitoring = False
+
+    # emulate L1 Unpackers
+    emUnpacker = CompFactory.RoIsUnpackingEmulationTool("EMRoIsEmuUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs=mapThresholdToL1RoICollection("EM"), Decisions=mapThresholdToL1DecisionCollection("EM"), ThresholdPrefix="EM" )
+    muUnpacker = CompFactory.RoIsUnpackingEmulationTool("MURoIsEmuUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs=mapThresholdToL1RoICollection("MU"), Decisions=mapThresholdToL1DecisionCollection("MU"), ThresholdPrefix="MU" )
+    decoderAlg.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
+
+    acc.addEventAlgo( decoderAlg, sequenceName = seqName )
+
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
+    acc.merge( TrigConfigSvcCfg( flags ) )
+    acc.merge( HLTPrescaleCondAlgCfg( flags ) )
+
+    Configurable.configurableRun3Behavior -= 1
+
+    return acc
 

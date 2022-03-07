@@ -9,6 +9,7 @@
 #   - emuMenuTest: chains are generated in the menu framework as HLT_TestChain**, and run on emulated data 
 #   - emuManual: chains are genrated manually and run on emulated data
 
+
 class testopt:
     menuType  = 'menuManual' # use either menu or manual chain building
 
@@ -62,6 +63,7 @@ else:
 
 
 # set DEBUG flag on the control-flow builder (before building)
+
 import TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig
 TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig.log.setLevel(DEBUG)
 
