@@ -51,14 +51,13 @@ namespace Muon {
         virtual std::unique_ptr<TrackCollection> extrapolate(const TrackCollection &tracks, const EventContext &ctx) const override;
 
     private:
-
-        double estimateDistanceToEntryRecord(const EventContext& ctx, const Trk::TrackParameters &pars) const;
+        double estimateDistanceToEntryRecord(const EventContext &ctx, const Trk::TrackParameters &pars) const;
         const Trk::TrackParameters *checkForSecondCrossing(const Trk::TrackParameters &firstCrossing, const Trk::Track &track) const;
-        const Trk::TrackParameters *findClosestParametersToMuonEntry(const EventContext& ctx, const Trk::Track &track) const;
+        const Trk::TrackParameters *findClosestParametersToMuonEntry(const EventContext &ctx, const Trk::Track &track) const;
 
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets
          * ownership of the new parameters */
-        const Trk::TrackParameters *extrapolateToMuonEntryRecord(const EventContext& ctx, const Trk::TrackParameters &pars,
+        const Trk::TrackParameters *extrapolateToMuonEntryRecord(const EventContext &ctx, const Trk::TrackParameters &pars,
                                                                  Trk::ParticleHypothesis particleHypo = Trk::muon) const;
 
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets
@@ -88,7 +87,7 @@ namespace Muon {
         Gaudi::Property<bool> m_keepOldPerigee{this, "KeepInitialPerigee", true};
         Gaudi::Property<std::string> m_msEntranceName{this, "MuonSystemEntranceName", "MuonSpectrometerEntrance"};
 
-        inline const Trk::TrackingVolume *getVolume(const std::string &vol_name, const EventContext& ctx) const {
+        inline const Trk::TrackingVolume *getVolume(const std::string &vol_name, const EventContext &ctx) const {
             SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
             if (!handle.isValid()) {
                 ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");

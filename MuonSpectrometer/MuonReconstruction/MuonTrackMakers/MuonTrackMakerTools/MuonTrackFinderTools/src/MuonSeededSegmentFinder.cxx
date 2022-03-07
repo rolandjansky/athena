@@ -153,7 +153,8 @@ namespace Muon {
         return mdtPrds;
     }
 
-    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs) const {
+    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const EventContext& ctx,
+                                                                         const std::set<IdentifierHash>& chIdHs) const {
         SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt, ctx);
         const Muon::MdtPrepDataContainer* mdtPrdContainer;
         if (h_mdtPrdCont.isValid()) {
@@ -355,7 +356,8 @@ namespace Muon {
         }
     }
 
-    void MuonSeededSegmentFinder::selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
+    void MuonSeededSegmentFinder::selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                     const std::vector<const MdtPrepData*>& mdtPrdCols,
                                                      std::vector<const MdtDriftCircleOnTrack*>& mdtROTs, bool& doHoleSearch) const {
         ATH_MSG_VERBOSE(" in selectAndCalibrate, get PRDs  " << mdtPrdCols.size());
 
@@ -375,8 +377,8 @@ namespace Muon {
         ATH_MSG_VERBOSE(" calibrated " << mdtROTs.size() << " prds out of " << mdtPrdCols.size());
     }
 
-    const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd,
-                                                                       bool& doHoleSearch) const {
+    const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                                       const MdtPrepData& mdtPrd, bool& doHoleSearch) const {
         // skip noise hits
         if (mdtPrd.adc() < m_adcCut) return nullptr;
 
