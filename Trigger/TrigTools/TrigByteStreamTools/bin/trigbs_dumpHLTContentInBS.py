@@ -250,11 +250,11 @@ def my_dump(bsfile):
   event_count = max(l2_event_count, ef_event_count)   
   if args.sizeSummary:
     print('... '+20*'-'+'sizes by type')
-    for f,s in sorted(featureSizes.iteritems(),key=operator.itemgetter(1),reverse=True):
+    for f,s in sorted(featureSizes.items(),key=operator.itemgetter(1),reverse=True):
       if '#' not in f:
         print(".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count))
     print('... '+20*'-'+'sizes by type#key')        
-    for f,s in sorted(featureSizes.iteritems(),key=operator.itemgetter(1),reverse=True):
+    for f,s in sorted(featureSizes.items(),key=operator.itemgetter(1),reverse=True):
       if '#' in f:
         print(".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count))        
 
