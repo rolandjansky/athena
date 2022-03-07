@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q431, RAWtoALL in MT and AODtoDAOD in MP
+# art-description: Reco_tf.py q442, RAWtoALL in MT and AODtoDAOD in MP
 # art-type: grid
+# art-include: master/Athena
 # art-athena-mt: 8
 
 export ATHENA_CORE_NUMBER=8
 Reco_tf.py \
-  --AMI q431 \
-  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' \
+  --AMI q442 \
   --sharedWriter True \
   --steering doRAWtoALL \
   --outputDAODFile art.pool.root \
@@ -17,7 +17,7 @@ Reco_tf.py \
   --maxEvents -1
 
 rc1=$?
-echo "art-result: ${rc1} Reco_tf_q431_phys_physlite_mt_mp" 
+echo "art-result: ${rc1} Reco_tf_q442_phys_physlite_mt_mp" 
 
 # Check for FPEs in the logiles
 test_trf_check_fpe.sh
