@@ -716,12 +716,12 @@ def getTauAODMuonRemovalTool():
 # elec removal tool
 def getTauAODElecRemovalTool():
     _name = sPrefix + '_ElecRemoval'
-    from tauRecTools.tauRecToolsConf import LeptonRemoval
-    myElecRemoval = LeptonRemoval(  name                   = _name,
-                                    Key_ElecInputContainer = 'Electrons',
-                                    doElecTrkRm            = True,
-                                    doElecClsRm            = True,
-                                    elecIDWP               = 'Medium'
+    from tauRecTools.tauRecToolsConf import TauAODLeptonRemovalTool
+    myElecRemoval = TauAODLeptonRemovalTool(    name                   = _name,
+                                                Key_ElecInputContainer = 'Electrons',
+                                                doElecTrkRm            = True,
+                                                doElecClsRm            = True,
+                                                elecIDWP               = 'Medium'
     )
     return myElecRemoval
 ########################################################################
