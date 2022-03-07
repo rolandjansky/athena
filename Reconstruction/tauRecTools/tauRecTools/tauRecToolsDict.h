@@ -21,5 +21,6 @@
 #include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauDecayModeNNClassifier.h"
 #include "tauRecTools/TauAODSelector.h"
+#include "tauRecTools/TauAODLeptonRemovalTool.h"
 
 #endif // TAURECTOOLS_TAURECTOOLSDICT_H
