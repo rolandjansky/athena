@@ -28,7 +28,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\';doWriteBS=True;doWriteRDOTrigger=False;"'
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\';doWriteBS=True;doWriteRDOTrigger=False;doRuntimeNaviVal=True"'
 
 checkBS = Step.Step("CheckBS")
 checkBS.executable = 'trigbs_dumpHLTContentInBS_run3.py'

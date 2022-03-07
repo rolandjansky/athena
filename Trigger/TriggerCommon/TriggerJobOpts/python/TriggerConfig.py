@@ -669,7 +669,7 @@ def triggerRunCfg( flags, menu=None ):
 
         if flags.Trigger.doOnlineNavigationCompactification:
             from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
-            onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+            onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig(flags)
             acc.addEventAlgo( onlineSlimAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc

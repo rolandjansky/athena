@@ -11,7 +11,7 @@ from AthenaCommon.Logging import logging
 #
 # Returns a single alg with no dependencies, no need to make this function return a ComponentAccumulator.
 #
-def getTrigNavSlimmingMTOnlineConfig():
+def getTrigNavSlimmingMTOnlineConfig(ConfigFlags):
   onlineSlim = CompFactory.TrigNavSlimmingMTAlg('TrigNavSlimmingMTAlg_Online')
   onlineSlim.TrigDecisionTool = "" # We do NOT filter on chains online, no additional tools/services required.
   onlineSlim.OutputCollection = "HLTNav_Summary_OnlineSlimmed"
@@ -21,6 +21,7 @@ def getTrigNavSlimmingMTOnlineConfig():
   onlineSlim.EdgesToDrop = []
   onlineSlim.NodesToDrop = []
   onlineSlim.ChainsFilter = []
+  onlineSlim.RuntimeValidation = ConfigFlags.Trigger.doRuntimeNaviVal
   return onlineSlim
 
 #

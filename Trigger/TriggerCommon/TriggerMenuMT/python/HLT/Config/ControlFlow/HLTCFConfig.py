@@ -234,7 +234,7 @@ def makeHLTTree(flags, newJO=False, hltMenuConfig = None):
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
     if flags.Trigger.doOnlineNavigationCompactification:
-        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig(flags)
         hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
 
     hltEndSeq += hltFinalizeSeq
