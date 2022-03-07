@@ -2,72 +2,68 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "BCMPrimeDetectorFactory.h"
 #include "BCMPrimeDetectorTool.h"
-#include "BCMPrimeOptions.h"
+#include "BCMPrimeGmxInterface.h"
+
+#include <BCMPrimeReadoutGeometry/BCMPrimeDetectorManager.h>
 
 #include <DetDescrConditions/AlignableTransformContainer.h>
+#include <GeoModelKernel/GeoPhysVol.h>
 #include <GeoModelUtilities/GeoModelExperiment.h>
-#include <SGTools/DataProxy.h>
-#include <StoreGate/StoreGateSvc.h>
 
 
 BCMPrimeDetectorTool::BCMPrimeDetectorTool(const std::string &type,
                                            const std::string &name,
                                            const IInterface *parent)
-  : GeoModelTool(type, name, parent)
+  : GeoModelXmlTool(type, name, parent)
 {
 }
 
 
 StatusCode BCMPrimeDetectorTool::create()
 {
-  //
-  //   Retrieve all services
-  //
-  // Get the detector configuration.
-  ATH_CHECK(m_geoDbTagSvc.retrieve());
-  ATH_CHECK(m_rdbAccessSvc.retrieve());
+  // retrieve the common stuff
+  ATH_CHECK(createBaseTool());
+
   GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
   //
-  //  Get their interfaces to pass to the DetectorFactory
+  // Check the availability
   //
-  auto athenaComps = std::make_unique<InDetDD::AthenaComps>("BCMPrimeGeoModelXml");
-  athenaComps->setDetStore(&*(detStore()));
-  athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-  athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
-
+  std::string node{"InnerDetector"};
+  std::string table{"BCMPrimeXDD"};
+  if (!isAvailable(node, table)) {
+    ATH_MSG_ERROR("No BCMPrime geometry found. BCMPrime can not be built.");
+    return StatusCode::FAILURE;
+  }
   //
-  //  Get options from python
-  //
-  InDetDD::BCMPrimeOptions options;
-  options.setAlignable(m_alignable);
-  options.setGmxFilename(m_gmxFilename);
-  options.setDetectorName(m_detectorName);
-
-  //
-  // Create the BCMPrimeDetectorFactory
+  // Create the detector manager
   //
   // The * converts a ConstPVLink to a ref to a GeoVPhysVol
   // The & takes the address of the GeoVPhysVol
   GeoPhysVol *world = &*theExpt->getPhysVol();
-  InDetDD::BCMPrimeDetectorFactory bcmPrime(athenaComps.get(), options);
-  bcmPrime.create(world);
+  auto *manager = new InDetDD::BCMPrimeDetectorManager(&*detStore(), m_detectorName);
 
-  //
-  // Get the manager from the factory and store it in the detector store.
-  //
-  m_manager = bcmPrime.getDetectorManager();
+  InDetDD::BCMPrimeGmxInterface gmxInterface(manager);
 
-  if (!m_manager) {
-    ATH_MSG_ERROR( "PixelDetectorManager not found; not created in BCMPrimeDetectorFactory?" );
+  // Load the geometry, create the volume,
+  // and then find the volume index within the world to allow it to be added
+  // last two arguments are the location in the DB to look for the clob
+  // (may want to make those configurables)
+  int childIndex = createTopVolume(world, gmxInterface, node, table);
+  if (childIndex != -1) { //-1 represents an error state from the above method
+    manager->addTreeTop(&*world->getChildVol(childIndex));
+  } else {
+    ATH_MSG_FATAL("Could not find the Top Volume!!!");
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(detStore()->record(m_manager, m_manager->getName()));
-  theExpt->addManager(m_manager);
+  // set the manager
+  m_detManager = manager;
+
+  ATH_CHECK(detStore()->record(m_detManager, m_detManager->getName()));
+  theExpt->addManager(m_detManager);
 
   return StatusCode::SUCCESS;
 }
@@ -75,10 +71,10 @@ StatusCode BCMPrimeDetectorTool::create()
 
 StatusCode BCMPrimeDetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::BCMPrimeDetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::BCMPrimeDetectorManager>::ID(), m_detManager->getName());
   if (proxy) {
     proxy->reset();
-    m_manager = nullptr;
+    m_detManager = nullptr;
   }
   return StatusCode::SUCCESS;
 }
@@ -111,17 +107,18 @@ StatusCode BCMPrimeDetectorTool::registerCallback()
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode BCMPrimeDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys))
 {
   //
   //  The call-back routine, which just calls the real call-back routine from the manager.
   //
-  if (!m_manager) {
+  if (!m_detManager) {
     ATH_MSG_WARNING( "Manager does not exist" );
     return StatusCode::FAILURE;
   }
   if (m_alignable) {
-    return m_manager->align(I, keys);
+    return m_detManager->align(I, keys);
   } else {
     ATH_MSG_DEBUG( "Alignment disabled. No alignments applied" );
     return StatusCode::SUCCESS;
