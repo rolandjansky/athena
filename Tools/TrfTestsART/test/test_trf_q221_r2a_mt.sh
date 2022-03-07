@@ -1,9 +1,7 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q431 HITStoRDO and RAWtoALL/TRIGtoALL in MT mode, RDOtoRDOTrigger in 21.0
+# art-description: Reco_tf.py q221 HITStoRDO and RAWtoALL/TRIGtoALL in MT mode, RDOtoRDOTrigger in 21.0
 # art-type: grid
-# art-include: master/Athena
-# art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
 Reco_tf.py \

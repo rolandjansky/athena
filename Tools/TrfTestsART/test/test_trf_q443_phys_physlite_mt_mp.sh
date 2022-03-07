@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q221, HITtoRDO/RDOtoRDOTrigger/RAWtoALL in MT and AODtoDAOD in MP
+# art-description: Reco_tf.py q443, HITtoRDO/RDOtoRDOTrigger/RAWtoALL in MT and AODtoDAOD in MP
 # art-type: grid
+# art-include: master/Athena
 # art-athena-mt: 8
 
 export ATHENA_CORE_NUMBER=8
 Reco_tf.py \
-  --AMI q221 \
-  --conditionsTag 'all:OFLCOND-MC16-SDR-RUN2-09' \
+  --AMI q443 \
   --sharedWriter True \
   --steering 'doRDO_TRIG' 'doTRIGtoALL' \
   --outputDAODFile art.pool.root \
@@ -17,7 +17,7 @@ Reco_tf.py \
   --maxEvents -1
 
 rc1=$?
-echo "art-result: ${rc1} Reco_tf_q221_phys_physlite_mt_mp" 
+echo "art-result: ${rc1} Reco_tf_q443_phys_physlite_mt_mp" 
 
 # Check for FPEs in the logiles
 test_trf_check_fpe.sh
