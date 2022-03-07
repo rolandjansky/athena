@@ -14,6 +14,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 #include "PathResolver/PathResolver.h"
@@ -50,6 +51,7 @@ class PixelAthMVAMonAlg : public PixelAthMonitoringBase {
 
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
+  ToolHandle<Trk::IExtrapolator> m_trkextrapolator;
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   const AtlasDetectorID* m_atlasid;  //tracks only

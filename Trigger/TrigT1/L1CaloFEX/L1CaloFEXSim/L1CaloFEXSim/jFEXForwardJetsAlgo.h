@@ -43,13 +43,7 @@ namespace LVL1 {
     virtual StatusCode reset() override;
 
     virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int jfex, int fpga) override;
-    //virtual int realValue(int ID, int eta) override;
-    virtual float globalPhi(int TTID)  override;
-    virtual float globalEta(int TTID)  override;   
-    virtual std::array<float,2> globalEtaPhi(int) override;
-    virtual unsigned int localPhi(int TTID)  override;
-    virtual unsigned int localEta(int TTID)  override;
-    virtual unsigned int getTTowerET(int TTID) override; 
+    virtual std::array<float,3> globalEtaPhiEt(int) override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> calculateJetETs() override;

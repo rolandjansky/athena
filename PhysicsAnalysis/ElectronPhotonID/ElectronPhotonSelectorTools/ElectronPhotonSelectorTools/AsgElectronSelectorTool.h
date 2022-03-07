@@ -55,7 +55,7 @@ public:
   }
 
   /** The main accept method: the actual cuts are applied here */
-  asg::AcceptData accept(const EventContext& ctx, const xAOD::Egamma* eg ) const override {
+  asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* eg ) const override {
     return accept (ctx, eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
@@ -87,6 +87,10 @@ public:
   /** The main result method: the actual mva score is calculated here */
   double calculate( const EventContext &ctx, const xAOD::Egamma* eg, double mu ) const override;
 
+
+  /** The result method for multiple outputs: can return multiple outputs of the MVA */
+  std::vector<float> calculateMultipleOutputs( const EventContext &ctx, const xAOD::Electron *eg, double mu = -99) const override;
+
   virtual std::string getOperatingPointName() const override;
 
   // Private methods
@@ -98,10 +102,10 @@ private:
   bool isForwardElectron( const xAOD::Egamma* eg, const float eta ) const;
 
   /** Applies a logit transformation to the score returned by the underlying MVA tool*/
-  double transformMLOutput( double score ) const;
+  double transformMLOutput( float score ) const;
 
   /** Combines the six output nodes of a multiclass model into one discriminant. */
-  double combineOutputs(const Eigen::Matrix<float, -1, 1>& mvaScores, double eta) const;
+  double combineOutputs(const std::vector<float>& mvaScores, double eta) const;
 
   /** Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta*/
   unsigned int getDiscEtaBin( double eta ) const;
@@ -174,6 +178,8 @@ private:
   /// The position of the MVA cut bit in the AcceptInfo return object
   int m_cutPosition_MVA{};
 
+  /// Default vector to return if calculation fails
+  std::vector<float> m_defaultVector;
 
   /// number of discrimintants vs Et
   static const unsigned int s_fnDiscEtBins = 10;

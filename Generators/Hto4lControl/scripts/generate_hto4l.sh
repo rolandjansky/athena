@@ -1,0 +1,2 @@
+export MYINDS="TXT.18724546._000001.tar.gz.1,TXT.18724546._000002.tar.gz.1,TXT.18724546._000003.tar.gz.1,TXT.18724546._000004.tar.gz.1,TXT.18724546._000005.tar.gz.1,TXT.18724546._000006.tar.gz.1"; export MYOUTDS=EVNT.18724546._000001.pool.root.1; export IRANDOM=1; export IRANDOM=1075${IRANDOM}; 
+Gen_tf.py --ecmEnergy=13000 --jobConfig=/afs/cern.ch/work/s/schaffer/public/work-21.prophecy4f_mig/runHto4l_ZH/PhPy8EG_Hto4l/JobOptions/346704 --maxEvents=500 --randomSeed=${IRANDOM} --outputEVNTFile=$MYOUTDS --inputGeneratorFile=$MYINDS 

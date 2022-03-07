@@ -23,7 +23,8 @@ from .Physics_pp_run3_v1 import (
     JetStreamersGroup,
     METStreamersGroup,
     TauStreamersGroup,
-    EgammaStreamersGroup
+    EgammaStreamersGroup,
+    SupportGroup
 )
 
 def setupMenu():
@@ -45,6 +46,9 @@ def setupMenu():
         # idperf ATR-24675
         ChainProp(name='HLT_mu4_idperf_L1MU3V', l1SeedThresholds=['MU3V'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
 
+        # ATR-24977 - LRT muon chains
+        ChainProp(name='HLT_mu24_LRT_d0loose_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu6_LRT_idperf_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
     ]
 
     chains['Egamma'] = [

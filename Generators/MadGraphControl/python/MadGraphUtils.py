@@ -23,6 +23,32 @@ MADGRAPH_COMMAND_STACK = []
 from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short,is_version_or_newer
 from MadGraphControl.MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
+# Fix copy-from-cvfms issue resulting in "no space left on device" error
+if hasattr(os, 'listxattr'):                                                                                                                     
+    import errno                                                                                                                                   
+    def _copyxattr(src, dst, *, follow_symlinks=True):                                                                         
+        """Copy extended filesystem attributes from `src` to `dst`.
+        Overwrite existing attributes.
+        If `follow_symlinks` is false, symlinks won't be followed.
+        """
+        try:
+            names = os.listxattr(src, follow_symlinks=follow_symlinks)
+        except OSError as e:
+            if e.errno not in (errno.ENOTSUP, errno.ENODATA, errno.EINVAL):
+                raise
+            return
+        for name in names:
+            try:
+                value = os.getxattr(src, name, follow_symlinks=follow_symlinks)
+                os.setxattr(dst, name, value, follow_symlinks=follow_symlinks)
+            except OSError as e:
+                if e.errno not in (errno.EPERM, errno.ENOTSUP, errno.ENODATA,errno.EINVAL, errno.ENOSPC):
+                    raise
+else:
+    def _copyxattr(*args, **kwargs):
+        pass
+
+shutil._copyxattr = _copyxattr
 
 def stack_subprocess(command,**kwargs):
     global MADGRAPH_COMMAND_STACK
@@ -246,13 +272,15 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
 
     mglog.info('Started process generation at '+str(time.asctime()))
 
+    plugin = '--mode=CVMFS_PATCH'
+
     # Note special handling here to explicitly print the process
     global MADGRAPH_COMMAND_STACK
     MADGRAPH_COMMAND_STACK += ['# All jobs should start in a clean directory']
     MADGRAPH_COMMAND_STACK += ['mkdir standalone_test; cd standalone_test']
-    MADGRAPH_COMMAND_STACK += [' '.join([python,madpath+'/bin/mg5_aMC << EOF\n'+process+'\nEOF\n'])]
+    MADGRAPH_COMMAND_STACK += [' '.join([python,madpath+'/bin/mg5_aMC '+plugin+' << EOF\n'+process+'\nEOF\n'])]
     global MADGRAPH_CATCH_ERRORS
-    generate = subprocess.Popen([python,madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    generate = subprocess.Popen([python,madpath+'/bin/mg5_aMC',plugin,card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
     error_check(err)
 
@@ -388,6 +416,10 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
 
     # Check if process is NLO or LO
     isNLO=is_NLO_run(process_dir=process_dir)
+
+    # temporary fix of makefile, needed for 3.3.1., remove in future
+    if isNLO:
+        fix_fks_makefile(process_dir=process_dir)
 
     # if f2py not available
     if get_reweight_card(process_dir=process_dir) is not None:
@@ -2469,3 +2501,28 @@ def ls_dir(directory):
 
 # Final import of some code used in these functions
 import MadGraphControl.MadGraphSystematicsUtils
+
+# To be removed once we moved past MG5 3.3.1
+def fix_fks_makefile(process_dir):
+    makefile_fks=process_dir+'/SubProcesses/makefile_fks_dir'
+    mglog.info('Fixing '+makefile_fks)
+    shutil.move(makefile_fks,makefile_fks+'_orig')
+    fin=open(makefile_fks+'_orig')
+    fout=open(makefile_fks,'w')
+    edit=False
+    for line in fin:
+        if 'FKSParams.mod' in line:
+            fout.write(line.replace('FKSParams.mod','FKSParams.o'))
+            edit=True
+        elif edit and 'driver_mintFO' in line:
+            fout.write('driver_mintFO.o: weight_lines.o mint_module.o FKSParams.o\n')
+        elif edit and 'genps_fks.o' in line:
+            fout.write('genps_fks.o: mint_module.o FKSParams.o\n')
+        elif edit and 'test_soft_col_limits' in line:
+            fout.write(line)
+            fout.write('madfks_plot.o: mint_module.o\n')
+            fout.write('cluster.o: weight_lines.o\n')
+        else:
+            fout.write(line)
+    fin.close()
+    fout.close()

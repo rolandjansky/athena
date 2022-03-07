@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Sun  9 Aug 2015 00:02:23 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -15,7 +15,7 @@
 #include <iostream>
 
 #include "TrigInDetAnalysis/VertexAnalysis.h"
-#include "TrigInDetAnalysis/TIDAVertexNew.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
 
@@ -35,17 +35,13 @@ public:
 	      const std::vector<TIDA::Vertex*>& vtx1,
 	      const TIDA::Event* tevt=0 );
 
-  void execute(const std::vector<TIDA::VertexNew*>& vtx0,
-	      const std::vector<TIDA::VertexNew*>& vtx1,
-	      const TIDA::Event* tevt=0 );
-
   void finalise();
 
 private:
 
-  template<typename Vertex, typename Matcher>
-  void execute_internal(const std::vector<Vertex*>& vtx0,
-	      const std::vector<Vertex*>& vtx1,
+  template<typename Matcher>
+  void execute_internal(const std::vector<TIDA::Vertex*>& vtx0,
+	      const std::vector<TIDA::Vertex*>& vtx1,
               Matcher& m, 
 	      const TIDA::Event* tevt=0);
 

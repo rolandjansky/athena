@@ -15,7 +15,9 @@
 
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
-
+#include <algorithm>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/erase.hpp>
 using namespace std;
 using namespace TrigConf;
 
@@ -31,32 +33,18 @@ TrigConf::split(const std::string& line, const std::string& del) {
 // helper method: removing all spaces at beginning and end of a string
 void
 TrigConf::strip(std::string& str) {
-  std::string::size_type pos = str.find_last_not_of(' ');
-  if(pos != std::string::npos) {
-    str.erase(pos + 1);
-    pos = str.find_first_not_of(' ');
-    if(pos != std::string::npos) str.erase(0, pos);
-  }
-  else str.erase(str.begin(), str.end());
+  boost::algorithm::trim(str);
 }
 
 // helper method: remove all spaces in string
 void TrigConf::removeAllSpaces(std::string& str) {
-   std::string::size_type pos;
-   while ((pos = str.find_first_of(' ')) != std::string::npos) {
-      str.erase(pos,1);
-   }
+   boost::algorithm::erase_all(str, " ");
 }
 
 
 // helper method: replace tabs by single space
 void TrigConf::replaceTabs(std::string& str) {
-  std::string::size_type old_pos = 0, pos = str.find('\t',0);
-  while ( pos != std::string::npos) {
-    str.replace(pos,1," ");
-    old_pos = pos;
-    pos = str.find('\t',old_pos);
-  }
+  std::replace(str.begin(), str.end(), '\t', ' ');
 }
 
 

@@ -4,7 +4,7 @@
 
 #include "MuonTrackExtrapolationTool.h"
 
-#include <map>
+
 
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -18,6 +18,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkVolumes/BoundarySurface.h"
+#include <memory>
+#include <map>
 
 namespace Muon {
 
@@ -280,7 +282,7 @@ namespace Muon {
         // extrapolate to muon entry record
         Trk::ParticleHypothesis particleHypo = track.info().particleHypothesis();
         if (isSL) particleHypo = Trk::nonInteracting;
-        const Trk::TrackParameters *exPars = extrapolateToMuonEntryRecord(ctx, *firstPars, particleHypo);
+        auto exPars = std::unique_ptr<const Trk::TrackParameters>(extrapolateToMuonEntryRecord(ctx, *firstPars, particleHypo));
 
         bool atIP = false;
         if (!exPars) {
@@ -288,7 +290,7 @@ namespace Muon {
 
             // for cosmics also try extrapolate to IP
             if (m_cosmics) {
-                exPars = extrapolateToIP(*firstPars, particleHypo);
+                exPars.reset(extrapolateToIP(*firstPars, particleHypo));
                 atIP = true;
             }
         }
@@ -314,10 +316,10 @@ namespace Muon {
         ATH_MSG_DEBUG(" first pars:       " << m_printer->print(*firstPars) << endmsg << " extrapolated pars " << m_printer->print(*exPars)
                                             << endmsg);
         // create new perigee
-        const Trk::Perigee *perigee = dynamic_cast<const Trk::Perigee *>(exPars);
+        auto perigee = dynamic_cast<const Trk::Perigee *>(exPars.get());
+        
         if (!perigee) {
             perigee = createPerigee(*exPars);
-            delete exPars;
         }
 
         // double check
@@ -395,9 +397,9 @@ namespace Muon {
                     const Amg::VectorX &ppars = pp->parameters();
                     Amg::Transform3D ptrans = Amg::Transform3D(pp->associatedSurface().transform());
                     Trk::StraightLineSurface slSurf(ptrans);
-                    Trk::AtaStraightLine *slPars = new Trk::AtaStraightLine(ppars[Trk::locR], ppars[Trk::locZ], ppars[Trk::phi],
+                    auto slPars = std::make_unique<Trk::AtaStraightLine>(ppars[Trk::locR], ppars[Trk::locZ], ppars[Trk::phi],
                                                                             ppars[Trk::theta], ppars[Trk::qOverP], slSurf);
-                    trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(slPars));
+                    trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(slPars)));
                 }
                 continue;
             }
@@ -453,8 +455,9 @@ namespace Muon {
 
                         ATH_MSG_VERBOSE(" perigee points away from IP, inserting perigee ");
 
-                        // first add perigee
-                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+                        // first add perigee; cop out here on the unique_ptr magic
+                        auto uniquePerigee=std::unique_ptr<const Trk::Perigee>(perigee);
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(uniquePerigee)));
                         perigeeWasInserted = true;
 
                         // 	    // now look whether there are measurements upstream of this point add add material if needed
@@ -481,7 +484,8 @@ namespace Muon {
 
                 // check whether we did not insert the perigee, if not insert
                 if (!perigeeWasInserted) {
-                    trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+                    auto uniquePerigee=std::unique_ptr<const Trk::Perigee>(perigee);
+                    trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(uniquePerigee)));
                     perigeeWasInserted = true;
                     ATH_MSG_VERBOSE(" inserting perigee ");
                 }
@@ -526,7 +530,8 @@ namespace Muon {
                         ATH_MSG_VERBOSE(" perigee points away from IP, inserting perigee ");
 
                         // first add perigee
-                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
+                        std::unique_ptr<const Trk::Perigee> uniquePerigee(secondPerigee);
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(uniquePerigee)));
                         secondPerigeeWasInserted = true;
 
                         // 	    // now look whether there are measurements upstream of this point add add material if needed
@@ -551,7 +556,8 @@ namespace Muon {
 
                     // check whether we did not insert the perigee, if not insert
                     if (!secondPerigeeWasInserted) {
-                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
+                        std::unique_ptr<const Trk::Perigee> uniquePerigee(secondPerigee);
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(uniquePerigee)));
                         secondPerigeeWasInserted = true;
                         ATH_MSG_VERBOSE(" inserting second perigee ");
                     }
@@ -587,7 +593,8 @@ namespace Muon {
                 }
             }
             ATH_MSG_VERBOSE(" inserting perigee ");
-            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+            std::unique_ptr<const Trk::Perigee> uniquePerigee(perigee);
+            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(uniquePerigee)));
         }
         if (secondPerigee && !secondPerigeeWasInserted) {
             // check whether the previous state is a measurement, else we will assume the material is there
@@ -610,7 +617,8 @@ namespace Muon {
                 }
             }
             ATH_MSG_VERBOSE(" inserting second perigee ");
-            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
+            auto secondPerigeeUnique=std::unique_ptr<const Trk::Perigee>(secondPerigee);
+            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(secondPerigeeUnique)));
         }
 
         // create new track

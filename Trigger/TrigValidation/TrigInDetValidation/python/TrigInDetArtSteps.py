@@ -113,7 +113,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
-                chains += "'HLT_j45_ftf_L1J15',"
+                chains += "'HLT_j45_pf_ftf_preselj20_L1J15',"
                 flags  += 'doJetSlice=True;'
             if (i=='beamspot') :
                 chains += "'HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15','HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',"

@@ -270,6 +270,15 @@ StatusCode AsgElectronSelectorTool::initialize()
   }
   ///-----------End of text config----------------------------
 
+  // define a default vector to return in the calculateMultipleOutputs methods
+  // depending on the number of expected outputs
+  if (m_multiClass){
+    m_defaultVector = {-999., -999., -999., -999., -999., -999.};
+  }
+  else{
+    m_defaultVector = {-999.};
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -455,7 +464,27 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
 //=============================================================================
 double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::Electron* eg, double mu ) const
 {
-  ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::calculate( &ctx, *eg, mu= "<<(&ctx)<<", "<<eg<<", "<<mu<<" )");
+  // Get all outputs of the mva tool
+  std::vector<float> mvaOutputs = calculateMultipleOutputs(ctx, eg, mu);
+
+  double discriminant = 0;
+  // If a binary model is used, vector will have one entry, if multiclass is used vector will have six entries
+  if (!m_multiClass){
+    discriminant = transformMLOutput(mvaOutputs.at(0));
+  }
+  else{
+    const xAOD::CaloCluster* cluster = eg->caloCluster();
+    const float eta = cluster->etaBE(2);
+    // combine the six output nodes into one discriminant to cut on, any necessary transformation is applied within combineOutputs()
+    discriminant = combineOutputs(mvaOutputs, eta);
+  }
+
+  return discriminant;
+}
+
+std::vector<float> AsgElectronSelectorTool::calculateMultipleOutputs(const EventContext &ctx, const xAOD::Electron *eg, double mu) const
+{
+  ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::calculateMultipleOutputs( &ctx, *eg, mu= "<<(&ctx)<<", "<<eg<<", "<<mu<<" )");
   if (!eg){
     throw std::runtime_error("AsgElectronSelectorTool: Failed, no electron object was passed" );
   }
@@ -463,12 +492,14 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if (!cluster){
     ATH_MSG_DEBUG("Failed, no cluster.");
-    return -999.;
+    // Return a default value
+    return m_defaultVector;
   }
 
   if (!cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2)){
     ATH_MSG_DEBUG("Failed, cluster is missing samplings EMB2 and EME2.");
-    return -999.;
+    // Return a default value
+    return m_defaultVector;
   }
 
   const double energy = cluster->e();
@@ -476,13 +507,15 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
 
   if (isForwardElectron(eg, eta)){
     ATH_MSG_DEBUG("Failed, this is a forward electron! The AsgElectronSelectorTool is only suitable for central electrons!");
-    return -999.;
+    // Return a default value
+    return m_defaultVector;
   }
 
   const xAOD::TrackParticle* track = eg->trackParticle();
   if (!track){
     ATH_MSG_DEBUG("Failed, no track.");
-    return -999.;
+    // Return a default value
+    return m_defaultVector;
   }
 
   // transverse energy of the electron (using the track eta)
@@ -657,17 +690,13 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
 
   Eigen::Matrix<float, -1, 1> mvaScores = m_mvaTool->calculate(vars);
 
-  double discriminant = 0;
-  // If a binary model is used, vector will have one entry, if multiclass is used vector will have six entries
-  if (!m_multiClass){
-    discriminant = transformMLOutput(mvaScores(0, 0));
-  }
-  else{
-    // combine the six output nodes into one discriminant to cut on, any necessary transformation is applied within combineOutputs()
-    discriminant = combineOutputs(mvaScores, eta);
+  // Return a vector of all outputs of the MVA
+  std::vector<float> mvaOutputs;
+  for (int i = 0; i < mvaScores.rows(); i++){
+    mvaOutputs.push_back(mvaScores(i, 0));
   }
 
-  return discriminant;
+  return mvaOutputs;
 }
 
 //=============================================================================
@@ -702,6 +731,7 @@ double AsgElectronSelectorTool::calculate( const xAOD::IParticle* part ) const
 {
   return calculate(Gaudi::Hive::currentContext(), part);
 }
+
 double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::IParticle* part ) const
 {
   ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::calculate( &ctx, *part"<<(&ctx)<<", "<<part<<" )");
@@ -744,7 +774,6 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   }
 }
 
-
 bool AsgElectronSelectorTool::isForwardElectron( const xAOD::Egamma* eg, const float eta ) const
 {
   static const SG::AuxElement::ConstAccessor< uint16_t > accAuthor( "author" );
@@ -769,8 +798,7 @@ bool AsgElectronSelectorTool::isForwardElectron( const xAOD::Egamma* eg, const f
 }
 
 
-
-double AsgElectronSelectorTool::transformMLOutput( double score ) const
+double AsgElectronSelectorTool::transformMLOutput( float score ) const
 {
   // returns transformed or non-transformed output
   constexpr double oneOverTau = 1. / 10;
@@ -782,32 +810,35 @@ double AsgElectronSelectorTool::transformMLOutput( double score ) const
   return score;
 }
 
-double AsgElectronSelectorTool::combineOutputs( const Eigen::Matrix<float, -1, 1>& mvaScores, double eta ) const{
+
+double AsgElectronSelectorTool::combineOutputs( const std::vector<float>& mvaScores, double eta ) const
+{
   unsigned int etaBin = getDiscEtaBin(eta);
   double disc = 0;
 
   if (m_cfSignal){
     // Put cf node into numerator
-    disc = (mvaScores(0, 0) * (1 - m_fractions.at(5 * etaBin + 0)) +
-            (mvaScores(1, 0) * m_fractions.at(5 * etaBin + 0))) /
-           ((mvaScores(2, 0) * m_fractions.at(5 * etaBin + 1)) +
-            (mvaScores(3, 0) * m_fractions.at(5 * etaBin + 2)) +
-            (mvaScores(4, 0) * m_fractions.at(5 * etaBin + 3)) +
-            (mvaScores(5, 0) * m_fractions.at(5 * etaBin + 4)));
+    disc = (mvaScores.at(0) * (1 - m_fractions.at(5 * etaBin + 0)) +
+            (mvaScores.at(1) * m_fractions.at(5 * etaBin + 0))) /
+           ((mvaScores.at(2) * m_fractions.at(5 * etaBin + 1)) +
+            (mvaScores.at(3) * m_fractions.at(5 * etaBin + 2)) +
+            (mvaScores.at(4) * m_fractions.at(5 * etaBin + 3)) +
+            (mvaScores.at(5) * m_fractions.at(5 * etaBin + 4)));
   }
   else{
     // Put cf node in denominator
-    disc = mvaScores(0, 0) /
-           ((mvaScores(1, 0) * m_fractions.at(5 * etaBin + 0)) +
-            (mvaScores(2, 0) * m_fractions.at(5 * etaBin + 1)) +
-            (mvaScores(3, 0) * m_fractions.at(5 * etaBin + 2)) +
-            (mvaScores(4, 0) * m_fractions.at(5 * etaBin + 3)) +
-            (mvaScores(5, 0) * m_fractions.at(5 * etaBin + 4)));
+    disc = mvaScores.at(0) /
+           ((mvaScores.at(1) * m_fractions.at(5 * etaBin + 0)) +
+            (mvaScores.at(2) * m_fractions.at(5 * etaBin + 1)) +
+            (mvaScores.at(3) * m_fractions.at(5 * etaBin + 2)) +
+            (mvaScores.at(4) * m_fractions.at(5 * etaBin + 3)) +
+            (mvaScores.at(5) * m_fractions.at(5 * etaBin + 4)));
   }
 
   // Log transform to have values in reasonable range
   return std::log(disc);
 }
+
 
 // Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta
 unsigned int AsgElectronSelectorTool::getDiscEtaBin( double eta ) const

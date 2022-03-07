@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypoUnitTests/RandomSignalHypoJetVectorGenerator.h"
@@ -96,6 +96,6 @@ RandomSignalHypoJetVectorGenerator::get() {
     }
   }
 
-  std::random_shuffle(result.begin(), result.end());
+  std::shuffle(result.begin(), result.end(), m_shuffle_re);
   return result;
 }

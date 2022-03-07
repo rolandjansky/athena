@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLT.Config.MenuComponents import Chain, ChainStep, MenuSequenceCA, SelectionCA, InViewRecoCA, EmptyMenuSequence
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
@@ -13,7 +13,7 @@ def generateChains( flags, chainDict ):
         recoAcc = InViewRecoCA('CaloTauReco')
         from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
         recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
-                                                                  DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
+                                                                  DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs.Path),
                                                                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI'),
                                                                                ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage'),
                                                                                ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing'),

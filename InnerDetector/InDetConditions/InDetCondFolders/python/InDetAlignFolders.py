@@ -85,15 +85,16 @@ import os
 if "AthSimulation_DIR" in os.environ: # Protection for AthSimulation builds
     AthSimBuild = True
 
+useMuonAlign = DetFlags.Muon_on() and not (DetFlags.simulate.Muon_on() or DetFlags.digitize.Muon_on() or DetFlags.overlay.Muon_on())
 #artificial dependencies of conditions in sync with PixelDetectorElementCondAlgCfg
-if DetFlags.Muon_on() and ((not DetFlags.simulate.Muon_on()) or DetFlags.overlay.Muon_on()) and not AthSimBuild:
+if useMuonAlign and not AthSimBuild:
     #schedule MuonCondAlg needed for DetectorElementCondAlgs
     from MuonRecExample import MuonAlignConfig  # noqa: F401
 
 SCTAlignmentStore=""
 PixelAlignmentStore = ""
 
-MuonManagerKey = "MuonDetectorManager" if DetFlags.Muon_on() else ""
+MuonManagerKey = "MuonDetectorManager" if useMuonAlign else ""
 TRT_DetEltContKey = "TRT_DetElementContainer" if DetFlags.TRT_on() else ""
 if DetFlags.SCT_on() and (not DetFlags.simulate.SCT_on()):
     SCTAlignmentStore="SCTAlignmentStore"

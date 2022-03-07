@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import glob
 import os
@@ -254,9 +254,12 @@ def __run_executable(executable):
         raise OSError("MadSpin executable {} not found!".format(executable))
     logger.info("MadSpin executable: {}".format(executable))
     with open("madspin_runcard.txt", "r") as runcard_input:
-        processes = [SingleProcessThread([executable], stdin=runcard_input, ignore_output=["INFO:", "MadSpin>"],
-                                         error_output=["Command \"launch\" interrupted with error:", "MadSpinError"],
-                                         info_output=["generating the production square matrix element"])]
+        processes = [SingleProcessThread([executable], stdin=runcard_input, ignore_output=["INFO:","MadSpin>"],
+                                         error_output=["Command \"launch\" interrupted with error:","MadSpinError"],
+                                         info_output=["generating the production square matrix element"],
+                                         warning_output=["stty: standard input: Invalid argument",
+                                                         "no version information available",
+                                                         "CRITICAL: Branching ratio larger than one for"])]
         manager = ProcessManager(processes)
         while manager.monitor():
             pass

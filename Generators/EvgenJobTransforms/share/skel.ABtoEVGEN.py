@@ -50,7 +50,7 @@ perfmonjp.PerfMonFlags.doMonitoring = True
 perfmonjp.PerfMonFlags.doSemiDetailedMonitoring = True
 
 ## Random number services
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc, AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc, AtRanluxGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr += AtRanluxGenSvc()
 

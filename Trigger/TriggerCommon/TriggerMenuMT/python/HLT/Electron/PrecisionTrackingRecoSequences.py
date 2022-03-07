@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR
@@ -24,7 +24,7 @@ def precisionTracking(RoIs, ion=False, variant=''):
     # TrackCollection="TrigFastTrackFinder_Tracks_Electron"
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier"+ variant + tag)
     
-    ViewVerifyTrk.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
+    ViewVerifyTrk.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' )]

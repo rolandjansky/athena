@@ -14,12 +14,10 @@
 
 namespace xAOD {
 
-    const float jFexSumETRoI_v1::s_tobEtScale = 200.;
-
     jFexSumETRoI_v1::jFexSumETRoI_v1()
         : SG::AuxElement() {
     }
-    void jFexSumETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord) {
+    void jFexSumETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution) {
 
         setTobWord     ( tobWord           );
         setjFexNumber  ( jFexNumber        );
@@ -28,7 +26,8 @@ namespace xAOD {
         setTobEt_upper ( unpackEt_upper()  );
         setTobSat_lower( unpackSat_lower() );
         setTobSat_upper( unpackSat_upper() );
-
+        setResolution  ( resolution        );
+        
         //include in future when xTOB in jFEX has been implemented.
 
         // If the object is a TOB then the isTOB should be true.
@@ -53,7 +52,9 @@ namespace xAOD {
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint16_t, tobEt_upper , setTobEt_upper )
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t , tobSat_lower, setTobSat_lower)
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t , tobSat_upper, setTobSat_upper)
-    
+   
+   ///Setting the jFEX ET resolution
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, int  , tobEtScale, setResolution)    
     
 
     //-----------------
@@ -91,12 +92,12 @@ namespace xAOD {
 
     /// Et_lower in 1 MeV scale
     int jFexSumETRoI_v1::Et_lower() const {
-        return tobEt_lower()*s_tobEtScale;
+        return tobEt_lower()*tobEtScale();
     }
 
     /// Et_upper in 1 MeV scale
     int jFexSumETRoI_v1::Et_upper() const {
-        return tobEt_upper()*s_tobEtScale;
+        return tobEt_upper()*tobEtScale();
     }
 
 

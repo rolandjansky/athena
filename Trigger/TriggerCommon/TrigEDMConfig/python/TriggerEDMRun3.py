@@ -175,6 +175,13 @@ for var in DisTrkBDTSelToKeepBase:
     DisTrkBDTSelToKeep.append('disTrk_'+var)
 DisTrkBDTSelVars = '.'.join(DisTrkBDTSelToKeep)
 
+VSIVarsToKeep = ['vsi_mass', 'vsi_pT', 'vsi_charge', 'vsi_isFake',
+                 'vsi_twoCirc_dr', 'vsi_twoCirc_dphi', 'vsi_twoCirc_int_r', 'vsi_vrtFast_r', 'vsi_vrtFast_eta', 'vsi_vrtFast_phi',
+                 'vsi_vrtFast_trkd0', 'vsi_vrtFast_trkz0',
+                 'vsi_vrtFit_r', 'vsi_vrtFit_chi2', 'vsi_vPos', 'vsi_vPosMomAngT', 'vsi_dphi1', 'vsi_dphi2',
+                 'vsi_isPassMMV', 'vsi_trkd0cut', 'vsi_twoCircErrcut', 'vsi_twoCircRcut', 'vsi_fastErrcut', 'vsi_fastRcut', 'vsi_fitErrcut', 'vsi_chi2cut']
+VSIVars = '.'.join(VSIVarsToKeep)
+
 L1TopoErrorFlagVars = '.'.join(['hasGenericRoiError', 'hasGenericDaqError', 'hasCrcTobError', 'hasCrcFibreError',
                                 'hasCrcDaqError', 'hasRoibDaqDifference', 'hasRoibCtpDifference', 'hasDaqCtpDifference'])
 
@@ -398,7 +405,7 @@ TriggerHLTListRun3 = [
 
     # hipTRT
     ('xAOD::TrigRNNOutputContainer#HLT_TrigTRTHTCounts',            'BS ESD AODFULL', 'Egamma', 'inViews:TRTHitGeneratorViews'),
-    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'), 
+    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'),
 
     # CaloCluster object written by EMClusterTool
     ('xAOD::CaloClusterContainer#HLT_TrigEMClusters',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews,precisionElectronViews_LRT,precisionElectronViews_GSF,precisionPhotonViews'),
@@ -707,6 +714,12 @@ TriggerHLTListRun3 = [
     #FSLRT PT
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FSLRT_IDTrig',                  'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FSLRT_IDTrigAux.',          'BS ESD AODFULL', 'Jet'),
+
+    #TrigVSI
+    ('xAOD::VertexContainer#HLT_TrigVSIVertex',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexAuxContainer#HLT_TrigVSIVertexAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexContainer#HLT_TrigVSITrkPair',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexAuxContainer#HLT_TrigVSITrkPairAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
 
     # HI event shape
     ('xAOD::HIEventShapeContainer#HLT_HIEventShapeEG',          'BS ESD AODFULL',   'Egamma'),

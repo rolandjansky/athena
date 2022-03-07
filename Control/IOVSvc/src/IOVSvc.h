@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVSVC_H
@@ -125,7 +125,11 @@ public:
   virtual StatusCode setRangeInDB(const CLID& clid, const std::string& key, 
                                   const IOVRange& range, 
                                   const std::string &tag) override;
-  
+
+  /// Drop the associated object from the db and trigger reload
+  virtual StatusCode dropObjectFromDB(const CLID& clid, const std::string& key,
+                                      const std::string& storeName) override;
+
   /// supply a list of TADs whose proxies will be preloaded
   virtual StatusCode preLoadTAD( const SG::TransientAddress *,
                                  const std::string& storeName ) override;

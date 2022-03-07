@@ -9,16 +9,19 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "TrkSurfaces/CylinderSurface.h"
 
 PixelAthMVAMonAlg::PixelAthMVAMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
+  m_trkextrapolator("Trk::Extrapolator/InDetExtrapolator"),
   m_atlasid(nullptr),
   m_pixelid(nullptr)
 {
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);
+  declareProperty("Extrapolator", m_trkextrapolator);
   declareProperty("calibFolder", m_calibFolder = "mva01022022");
   declareProperty("dumpTree", m_dumpTree = false);
 }
@@ -36,6 +39,7 @@ StatusCode PixelAthMVAMonAlg::initialize() {
   ATH_CHECK( m_pixelRDOName.initialize() );
   if ( !m_holeSearchTool.empty() ) ATH_CHECK( m_holeSearchTool.retrieve() );
   if ( !m_trackSelTool.empty() ) ATH_CHECK( m_trackSelTool.retrieve() );
+  if (!m_trkextrapolator.empty()) ATH_CHECK(m_trkextrapolator.retrieve());
 
   ATH_CHECK( m_tracksKey.initialize() );
   ATH_CHECK( m_clustersKey.initialize() );
@@ -45,7 +49,7 @@ StatusCode PixelAthMVAMonAlg::initialize() {
     std::string partitionLabel("Disks");
     if (ii>1) partitionLabel = pixLayersLabel[ii];
 
-    //std::string fullPathToTrainingFile = partitionLabel + "_training.root"; //TEST
+    //    std::string fullPathToTrainingFile = partitionLabel + "_training.root"; //TEST
     std::string fullPathToTrainingFile = PathResolverFindCalibFile("PixelDQMonitoring/" + m_calibFolder + "/" + partitionLabel + "_training.root");
     
     std::unique_ptr<TFile> calibFile(TFile::Open(fullPathToTrainingFile.c_str(), "READ"));
@@ -178,7 +182,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	if (trkParameters) {
 	  surfaceID = trkParameters->associatedSurface().associatedDetectorElementIdentifier();
 	} else {
-	  ATH_MSG_INFO("Pixel MVAMon: can't obtain track parameters for TSOS.");
+	  ATH_MSG_DEBUG("Pixel MVAMon: can't obtain track parameters for TSOS.");
 	  continue;
 	}
       }
@@ -193,7 +197,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       int indexModule = static_cast<int>( m_pixelid->wafer_hash(surfaceID) ); // [0,2047]
 
       const InDetDD::SiDetectorElement *sde = dynamic_cast<const InDetDD::SiDetectorElement *>(trkParameters->associatedSurface().associatedDetectorElement());
-      const InDetDD::SiLocalPosition trkLocalPos = trkParameters->localPosition();
+      const InDetDD::SiLocalPosition& trkLocalPos = trkParameters->localPosition();
       Identifier locPosID;
 
       if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Outlier)) 
@@ -274,20 +278,47 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     } // end of TSOS loop
     eventHasPixHits = eventHasPixHits || (nPixelHits > 0);
 
-    if (!hasIBLTSOS && (*itrack)->trackSummary()->get(Trk::expectInnermostPixelLayerHit))
+    if (!hasIBLTSOS && 	(*itrack)->trackSummary()->get(Trk::expectInnermostPixelLayerHit) && (*itrack)->trackSummary()->get(Trk::numberOfPixelHoles)==0 )
       {
 	const Trk::Perigee *perigee = (*itrack)->perigeeParameters();
-	float eta = perigee->eta();
-	float phi = perigee->parameters()[Trk::phi0];
+	Amg::Transform3D transSurf;
+	transSurf.setIdentity();
+	const Trk::CylinderSurface BiggerThanIBLSurface(transSurf, 40.0, 400.0);
+	std::vector<std::unique_ptr<Trk::TrackParameters> > iblTrkParameters = 
+	  m_trkextrapolator->extrapolateStepwise(ctx, *perigee, BiggerThanIBLSurface, Trk::alongMomentum, false);
+	Identifier sensorPosID, chipPosID;
+	bool foundIBLElem(false); //more than one IBL element possible, only the last one is considered
 
-	std::pair<int, int> iblFEidxs = getIBLFEIdxsfromTrackEtaPhi(eta, phi);
-	if (iblFEidxs.first==-1) continue;
-	else holes[iblFEidxs.first+MAXHASH*iblFEidxs.second] += 1;
+	for (auto& tp: iblTrkParameters) {
+	  const InDetDD::SiDetectorElement *sde = dynamic_cast<const InDetDD::SiDetectorElement *>(tp->associatedSurface().associatedDetectorElement());
+	  if (!(sde != nullptr && sde->identify() != 0)) {
+	    continue;
+	  }
+	  sensorPosID = sde->identify();
+	  if (!m_atlasid->is_pixel(sensorPosID) || !m_pixelid->is_barrel(sensorPosID) || m_pixelid->layer_disk(sensorPosID)!= 0) {
+	    ATH_MSG_DEBUG("Pixel MVAMon: found non-IBL element: "<< sensorPosID);
+	    continue;
+	  }
+	  const InDetDD::SiLocalPosition& trkLocalPos = tp->localPosition();
+	  chipPosID = sde->identifierOfPosition(trkLocalPos);
+	  if ( !(chipPosID.is_valid()) ) {
+	    foundIBLElem=false;
+	    ATH_MSG_DEBUG("Pixel MVAMon: got invalid track local position on surface for an expected IBL hit.");
+	    continue;
+	  } else foundIBLElem=true;
+	}
+	if (!foundIBLElem) {
+	  ATH_MSG_DEBUG("Pixel MVAMon: couldn't find IBL pos ID: "<< sensorPosID);
+	  continue;
+	}
+	int indexModule = static_cast<int>( m_pixelid->wafer_hash(sensorPosID) );
+	int iFE = m_pixelReadout->getFE(chipPosID, chipPosID);
+	holes[indexModule+MAXHASH*iFE] += 1;
       }
   } // end of track loop
 
   if (!eventHasPixHits) {
-    ATH_MSG_INFO("Pixel MVAMon: event doesn't contain any pixel hits on tracks, skipping evaluation.");
+    ATH_MSG_DEBUG("Pixel MVAMon: event doesn't contain any pixel hits on tracks, skipping evaluation.");
     return StatusCode::SUCCESS;
   }
 

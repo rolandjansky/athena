@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 import ast
@@ -71,6 +71,10 @@ def parse_args():
     )
     parser.add_argument("--knownDifferencesFile", 
         help="Ignore differences enlisted in file (to be used only with diffing)")
+        
+    parser.add_argument("--color",
+        help="Use colored output even for file output (usefull when piping to less -R to to HTML conversion", 
+        action="store_true")
 
     args = parser.parse_args()
     main(args)
@@ -81,7 +85,7 @@ def main(args):
     if args.ignoreIrrelevant:
         print(f"Components to ignore: {args.ignore}")
     color = fullColor()
-    if not sys.stdout.isatty(): #Remove colors when writing to a file
+    if not sys.stdout.isatty() and not args.color: #Remove colors when writing to a file unless forced
         color = noColor()
     if args.printComps:
         for fileName in args.file:
@@ -116,8 +120,11 @@ def main(args):
             sys.exit(
                 "ERROR, can diff exactly two files at a time, got: %s"
                 % args.file
-            )
+            )        
+        # renaming only applied on the "reference/1st" file
         configRef = loadConfigFile(args.file[0], args)
+        args.renameComps=None 
+        args.renameCompsFile=None
         configChk = loadConfigFile(args.file[1], args)
         global knownDifferences
         if args.knownDifferencesFile:
@@ -182,9 +189,13 @@ def _compareConfig(configRef, configChk, args, color):
             if args.printIdenticalComponents:
                 print("Component", _componentDescription(component), "identical")
         else:
-            print(f"{color.difference} Component", _componentDescription(component), f"differ {color.reset}")
+            print(f"{color.difference}Component", _componentDescription(component), f"may differ{color.reset}")
             if not args.allComponentPrint:
-                _compareComponent(refValue, chkValue, "\t", args, component, color)
+                countDifferent = _compareComponent(refValue, chkValue, "\t", args, component, color)
+                if countDifferent == 0:
+                    print("   but all are suppressed by renaming/known differences/...") 
+                else:
+                    print(f"  {color.difference} {countDifferent} relevant differences{color.reset}") 
             else:
                 print(
                     f"\t{color.first}Ref{color.reset}\t",
@@ -238,7 +249,7 @@ def _handleComponentsReanaming( refVal ):
     return updatedRef if isinstance(refVal, list) else updatedRef[0]
 
 def _compareComponent(compRef, compChk, prefix, args, component, color):
-
+    countDifferent=0
     if isinstance(compRef, dict):
 
         allProps = list(set(compRef.keys()) | set(compChk.keys()))
@@ -248,6 +259,7 @@ def _compareComponent(compRef, compChk, prefix, args, component, color):
             if prop not in compRef.keys(): 
                 if not _knownDifference(component, prop, compChk[prop], None):
                     print(f"{prefix}{color.property}{prop} = {color.second}{compChk[prop]} {color.reset} only in 2nd file {color.reset}")
+                    countDifferent += 1
                 else:
                     print(f"{prefix}known difference in: {prop}")
                 continue
@@ -255,6 +267,7 @@ def _compareComponent(compRef, compChk, prefix, args, component, color):
             if prop not in compChk.keys():
                 if not _knownDifference(component, prop, compRef[prop], None):
                     print(f"{prefix}{color.property}{prop} = {color.first}{compRef[prop]} {color.reset} only in 1st file {color.reset}")
+                    countDifferent += 1
                 else:
                     print(f"{prefix}known difference in: {prop}")
                 continue
@@ -289,9 +302,9 @@ def _compareComponent(compRef, compChk, prefix, args, component, color):
 
             if refVal and ( isinstance(refVal, list) or isinstance(refVal, dict) ):
                 if component == "IOVDbSvc" and prop == "Folders":
-                    _compareIOVDbFolders(refVal, chkVal, "\t", args, color)
+                    countDifferent += _compareIOVDbFolders(refVal, chkVal, "\t", args, color)
                 else:
-                    _compareComponent(
+                    countDifferent += _compareComponent(
                         refVal, chkVal, "\t" + prefix + ">> ", args, component, color
                     )
 
@@ -308,22 +321,25 @@ def _compareComponent(compRef, compChk, prefix, args, component, color):
 
         if diffRef:
             print(f"{prefix} {color.reset}only in 1st file : {color.first} {diffRef} {color.reset}")
+            countDifferent += 1
         if diffChk:
             print(f"{prefix} {color.reset}only in 2nd file :  {color.second} {diffChk} {color.reset}")
+            countDifferent += 1
 
         if len(compRef) == len(compChk):
             if sorted(compRef) == sorted(compChk):
                 print(
                     f"{prefix} : {color.difference} ^^ Different order ^^ {color.reset}"
                 )
+                countDifferent += 1
             else:
                 for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
                     if refVal != chkVal:
                         print(f"{prefix} : {color.first} {refVal} {color.reset} vs {color.second} {chkVal} {color.reset} {color.difference}<< at index {i} {color.reset}")
-                        _compareComponent(
-                            refVal, chkVal, "\t" + prefix + ">> ", args, ""
+                        countDifferent += _compareComponent(
+                            refVal, chkVal, "\t" + prefix + ">> ", args, "", color
                         )
-
+    return countDifferent
 
 def _parseIOVDbFolder(definition):
     result = {}

@@ -79,9 +79,9 @@ namespace MuonCombined {
         ATH_MSG_DEBUG(" ID track: pt " << indetTrackParticle.pt() << " eta " << indetTrackParticle.eta() << " phi "
                                        << indetTrackParticle.phi() << " layers " << layerIntersections.size());
 
-        for (const Muon::MuonSystemExtension::Intersection& layer_intersect: layerIntersections) {
+        for (const Muon::MuonSystemExtension::Intersection& layer_intersect : layerIntersections) {
             // vector to store segments
-            std::vector<std::shared_ptr<const Muon::MuonSegment> > segments;
+            std::vector<std::shared_ptr<const Muon::MuonSegment>> segments;
 
             // find segments for intersection
             Muon::MuonLayerPrepRawData layerPrepRawData;
@@ -94,11 +94,11 @@ namespace MuonCombined {
 
             // fill validation content
             if (!m_recoValidationTool.empty()) {
-                for (const std::shared_ptr<const Muon::MuonSegment> & seg : segments) m_recoValidationTool->add(layer_intersect, *seg, 0);
+                for (const std::shared_ptr<const Muon::MuonSegment>& seg : segments) m_recoValidationTool->add(layer_intersect, *seg, 0);
             }
 
             // match segments to intersection
-            std::vector<std::shared_ptr<const Muon::MuonSegment> > selectedSegments;
+            std::vector<std::shared_ptr<const Muon::MuonSegment>> selectedSegments;
             m_segmentMatchingTool->select(layer_intersect, segments, selectedSegments);
             if (selectedSegments.empty()) continue;
 
@@ -120,7 +120,8 @@ namespace MuonCombined {
         }
 
         // find best candidate and exit if none found
-        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> bestCandidate = findBestCandidate(ctx, indetTrackParticle, allLayers);
+        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> bestCandidate =
+            findBestCandidate(ctx, indetTrackParticle, allLayers);
         if (!bestCandidate.first) { return; }
 
         // add candidate to indet candidate
@@ -128,8 +129,8 @@ namespace MuonCombined {
     }
 
     std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> MuonInsideOutRecoTool::findBestCandidate(
-        const EventContext& ctx,
-        const xAOD::TrackParticle& indetTrackParticle, const std::vector<Muon::MuonLayerRecoData>& allLayers) const {
+        const EventContext& ctx, const xAOD::TrackParticle& indetTrackParticle,
+        const std::vector<Muon::MuonLayerRecoData>& allLayers) const {
         // resolve ambiguities
         std::vector<Muon::MuonCandidate> resolvedCandidates;
         m_ambiguityResolver->resolveOverlaps(ctx, allLayers, resolvedCandidates);
@@ -138,15 +139,13 @@ namespace MuonCombined {
         TrackCollection tracks(SG::VIEW_ELEMENTS);
         typedef std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<const Muon::MuonCandidate>> candidatePair;
         std::vector<candidatePair> trackCandidateLookup;
-        for ( Muon::MuonCandidate & candidate : resolvedCandidates) {
+        for (Muon::MuonCandidate& candidate : resolvedCandidates) {
             std::unique_ptr<Trk::Track> track = m_candidateTrackBuilder->buildCombinedTrack(ctx, *indetTrackParticle.track(), candidate);
             /// Check if the fit succeeded and whether there are TSOS & a fitQuality
-            if (!track || !track->isValid()|| !track->fitQuality()->numberDoF()) continue;
-            
+            if (!track || !track->isValid() || !track->fitQuality()->numberDoF()) continue;
 
             tracks.push_back(track.get());
             trackCandidateLookup.emplace_back(std::move(track), std::make_unique<Muon::MuonCandidate>(std::move(candidate)));
-            
         }
 
         ATH_MSG_DEBUG("found " << tracks.size() << " combined tracks");
@@ -154,7 +153,7 @@ namespace MuonCombined {
         // first handle easy cases of zero or one track
         if (tracks.empty()) return {nullptr, nullptr};
 
-        Trk::Track* selectedTrack = nullptr;        
+        Trk::Track* selectedTrack = nullptr;
         if (tracks.size() == 1) {
             selectedTrack = tracks.front();
         } else {
@@ -174,13 +173,11 @@ namespace MuonCombined {
             }
         }
         // get candidate
-        std::vector<candidatePair>::iterator look_itr = std::find_if(trackCandidateLookup.begin(),
-                                                                     trackCandidateLookup.end(),
-                                                                     [selectedTrack](candidatePair& ele){
-                                                                         return ele.first.get() == selectedTrack;
-                                                                     });
-        
-        if (look_itr ==trackCandidateLookup.end() || !look_itr->second) {
+        std::vector<candidatePair>::iterator look_itr =
+            std::find_if(trackCandidateLookup.begin(), trackCandidateLookup.end(),
+                         [selectedTrack](candidatePair& ele) { return ele.first.get() == selectedTrack; });
+
+        if (look_itr == trackCandidateLookup.end() || !look_itr->second) {
             ATH_MSG_WARNING("candidate lookup failed, this should not happen");
             return {nullptr, nullptr};
         }
@@ -191,8 +188,8 @@ namespace MuonCombined {
     }
 
     void MuonInsideOutRecoTool::addTag(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
-                                       const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack, TrackCollection* combTracks,
-                                       TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
+                                       const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack,
+                                       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
         const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
         float bs_x{0.}, bs_y{0.}, bs_z{0.};
 
@@ -202,7 +199,7 @@ namespace MuonCombined {
             if (!vertices.isValid()) {
                 ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
             } else {
-                for (const auto *const vx : *vertices) {
+                for (const auto* const vx : *vertices) {
                     for (const auto& tpLink : vx->trackParticleLinks()) {
                         if (*tpLink == &idTrackParticle) {
                             matchedVertex = vx;
@@ -248,32 +245,31 @@ namespace MuonCombined {
             segLinks.push_back(std::move(sLink));
         }
         /// Sort the segments here
-            
-        std::sort(segLinks.begin(),segLinks.end(), [this](const SegLink_t&a, const SegLink_t& b)->bool {
-            using chamIdx = Muon::MuonStationIndex::ChIndex;      
+
+        std::sort(segLinks.begin(), segLinks.end(), [this](const SegLink_t& a, const SegLink_t& b) -> bool {
+            using chamIdx = Muon::MuonStationIndex::ChIndex;
             const Muon::MuonSegment* seg_a = dynamic_cast<const Muon::MuonSegment*>(*a);
-            const Muon::MuonSegment* seg_b = dynamic_cast<const Muon::MuonSegment*>(*b);            
+            const Muon::MuonSegment* seg_b = dynamic_cast<const Muon::MuonSegment*>(*b);
             chamIdx ch_a = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*seg_a));
             chamIdx ch_b = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*seg_b));
-            Muon::MuonStationIndex::StIndex st_a = Muon::MuonStationIndex::toStationIndex(ch_a);  
+            Muon::MuonStationIndex::StIndex st_a = Muon::MuonStationIndex::toStationIndex(ch_a);
             Muon::MuonStationIndex::StIndex st_b = Muon::MuonStationIndex::toStationIndex(ch_b);
             if (st_a != st_b) return st_a < st_b;
             /// Sort the CSC segments at the first giving priority to the small sectors
-            if (ch_a == chamIdx::CSL || ch_a == chamIdx::CSS || ch_b == chamIdx::CSS || ch_b == chamIdx::CSL) 
-                return (ch_a == chamIdx::CSL) + 2*(ch_a == chamIdx::CSS) > (ch_b == chamIdx::CSL) + 2*(ch_b == chamIdx::CSS);
+            if (ch_a == chamIdx::CSL || ch_a == chamIdx::CSS || ch_b == chamIdx::CSS || ch_b == chamIdx::CSL)
+                return (ch_a == chamIdx::CSL) + 2 * (ch_a == chamIdx::CSS) > (ch_b == chamIdx::CSL) + 2 * (ch_b == chamIdx::CSS);
             return ch_a < ch_b;
         });
 
-        if (msgLevel(MSG::DEBUG)){
+        if (msgLevel(MSG::DEBUG)) {
             std::stringstream sstr;
             for (const SegLink_t& seg : segLinks) {
                 const Muon::MuonSegment* muo_seg = dynamic_cast<const Muon::MuonSegment*>(*seg);
                 auto chIdx = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*muo_seg));
                 auto thIdx = m_idHelperSvc->technologyIndex(m_edmHelperSvc->chamberId(*muo_seg));
-                sstr<<Muon::MuonStationIndex::chName(chIdx)
-                    <<"  ("<<Muon::MuonStationIndex::technologyName(thIdx)<<"), ";
+                sstr << Muon::MuonStationIndex::chName(chIdx) << "  (" << Muon::MuonStationIndex::technologyName(thIdx) << "), ";
             }
-            ATH_MSG_DEBUG("Selected segments " << segLinks.size()<<" "<<sstr.str());  
+            ATH_MSG_DEBUG("Selected segments " << segLinks.size() << " " << sstr.str());
         }
 
         // perform standalone refit
@@ -300,41 +296,35 @@ namespace MuonCombined {
         Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::toStationIndex(surf.regionIndex, surf.layerIndex);
         std::vector<Muon::MuonStationIndex::TechnologyIndex> technologiesInStation =
             Muon::MuonStationIndexHelpers::technologiesInStation(stIndex);
-        if (msgLevel(MSG::DEBUG)){
+        if (msgLevel(MSG::DEBUG)) {
             std::string techString;
-            for (const Muon::MuonStationIndex::TechnologyIndex& tech : technologiesInStation) techString += " " + Muon::MuonStationIndex::technologyName(tech);
-                ATH_MSG_DEBUG("getLayerData: sector " << surf.sector << " " << Muon::MuonStationIndex::regionName(surf.regionIndex) << " "
-                                              << Muon::MuonStationIndex::layerName(surf.layerIndex) << " technologies " << techString);
+            for (const Muon::MuonStationIndex::TechnologyIndex& tech : technologiesInStation)
+                techString += " " + Muon::MuonStationIndex::technologyName(tech);
+            ATH_MSG_DEBUG("getLayerData: sector " << surf.sector << " " << Muon::MuonStationIndex::regionName(surf.regionIndex) << " "
+                                                  << Muon::MuonStationIndex::layerName(surf.layerIndex) << " technologies " << techString);
         }
-        
+
         bool isok{false};
         // loop over technologies and get data
-        for (const Muon::MuonStationIndex::TechnologyIndex& it: technologiesInStation) {
+        for (const Muon::MuonStationIndex::TechnologyIndex& it : technologiesInStation) {
             // get collections, keep track of failures
             if (it == Muon::MuonStationIndex::MDT)
-              isok |= getLayerDataTech<Muon::MdtPrepDataCollection>(it,surf, prdData.mdtPrds,
-                                                                    layerPrepRawData.mdts);
-                          
+                isok |= getLayerDataTech<Muon::MdtPrepDataCollection>(it, surf, prdData.mdtPrds, layerPrepRawData.mdts);
+
             else if (it == Muon::MuonStationIndex::RPC)
-              isok |= getLayerDataTech<Muon::RpcPrepDataCollection>(it, surf, prdData.rpcPrds,
-                                                                      layerPrepRawData.rpcs);
-                        
+                isok |= getLayerDataTech<Muon::RpcPrepDataCollection>(it, surf, prdData.rpcPrds, layerPrepRawData.rpcs);
+
             else if (it == Muon::MuonStationIndex::TGC)
-              isok |= getLayerDataTech<Muon::TgcPrepDataCollection>(it, surf, prdData.tgcPrds,
-                                                                      layerPrepRawData.tgcs);
-                         
+                isok |= getLayerDataTech<Muon::TgcPrepDataCollection>(it, surf, prdData.tgcPrds, layerPrepRawData.tgcs);
+
             else if (it == Muon::MuonStationIndex::CSCI)
-              isok |= getLayerDataTech<Muon::CscPrepDataCollection>(it, surf, prdData.cscPrds,
-                                                                      layerPrepRawData.cscs);
-                        
+                isok |= getLayerDataTech<Muon::CscPrepDataCollection>(it, surf, prdData.cscPrds, layerPrepRawData.cscs);
+
             else if (it == Muon::MuonStationIndex::STGC)
-               isok |= getLayerDataTech<Muon::sTgcPrepDataCollection>(it, surf, prdData.stgcPrds,
-                                                                       layerPrepRawData.stgcs);
-                          
+                isok |= getLayerDataTech<Muon::sTgcPrepDataCollection>(it, surf, prdData.stgcPrds, layerPrepRawData.stgcs);
+
             else if (it == Muon::MuonStationIndex::MM)
-                isok |= getLayerDataTech<Muon::MMPrepDataCollection>(it, surf, prdData.mmPrds,
-                                                                     layerPrepRawData.mms);
-                          
+                isok |= getLayerDataTech<Muon::MMPrepDataCollection>(it, surf, prdData.mmPrds, layerPrepRawData.mms);
         }
 
         if (msgLvl(MSG::DEBUG)) {
@@ -352,15 +342,14 @@ namespace MuonCombined {
     }
 
     template <class COL>
-    bool MuonInsideOutRecoTool::getLayerDataTech(Muon::MuonStationIndex::TechnologyIndex technology,
-                                                 const Muon::MuonLayerSurface& surf,
+    bool MuonInsideOutRecoTool::getLayerDataTech(Muon::MuonStationIndex::TechnologyIndex technology, const Muon::MuonLayerSurface& surf,
                                                  const Muon::MuonPrepDataContainer<COL>* input, std::vector<const COL*>& output) const {
         if (!input || input->size() == 0) return false;
         // get technologies in the given layer
         unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash(surf.regionIndex, surf.layerIndex);
 
         // get hashes
-        const Muon::MuonLayerHashProviderTool::HashVec hashes = m_layerHashProvider->getHashes(surf.sector,technology, sectorLayerHash);
+        const Muon::MuonLayerHashProviderTool::HashVec hashes = m_layerHashProvider->getHashes(surf.sector, technology, sectorLayerHash);
 
         // skip empty inputs
         if (hashes.empty()) return false;
@@ -368,7 +357,7 @@ namespace MuonCombined {
         // loop over hashes
         for (Muon::MuonLayerHashProviderTool::HashVec::const_iterator it = hashes.begin(); it != hashes.end(); ++it) {
             // skip if not found
-            const auto *colIt = input->indexFindPtr(*it);
+            const auto* colIt = input->indexFindPtr(*it);
             if (!colIt) { continue; }
             ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(colIt->identify()) << " size " << colIt->size());
             // else add

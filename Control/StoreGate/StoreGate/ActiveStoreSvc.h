@@ -34,7 +34,8 @@ public:
 
   ///returns pointer to the active store as StoreGateSvc
   inline StoreGateSvc* activeStore() const {
-    if (p_activeStore) return p_activeStore;
+    // Can't just `return StoreGateSvc::currentStoreGate()` due to
+    // a circular dependency
     return activeStoreOOL();
   }
 

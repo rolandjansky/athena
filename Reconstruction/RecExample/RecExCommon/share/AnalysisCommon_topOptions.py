@@ -331,7 +331,7 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
     # Get an instance of the random number generator
     # The actual seeds are dummies since event reseeding is used
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+    from RngComps.RngCompsConf import AtRanluxGenSvc
     if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
         svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                   OutputLevel    = ERROR,

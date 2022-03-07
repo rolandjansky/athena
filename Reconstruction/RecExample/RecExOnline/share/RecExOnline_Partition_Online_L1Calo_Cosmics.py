@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## Job options for Running the L1Calo Athena Online Monitoring
 ## A few notes:
@@ -21,7 +21,7 @@ useEmon           = True
 
 import os
 
-# set partition name (default is ATLAS)
+# set partition name (default is ATLAS)  
 partitionName = os.getenv("TDAQ_PARTITION","ATLAS")
 
 # Debug for ATLASDQ-853: Crash with traceback instead of printing errors and continuing (May 2021)
@@ -29,25 +29,26 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.AllowIgnoreConfigError = False # This will force Athena to crash in case of errors (for debugging)
 athenaCommonFlags.BSRDOInput.set_Value_and_Lock([]) # Fix from ATLASDQ-853 (June 2021)
 
+# New config flags (Feb. 2022)  
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 # Fix for ID monitoring errors (ATLASDQ-853; Sept. 2021)
-from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-NewConfigFlags=getNewConfigFlags()
-ID = NewConfigFlags.DQ.Steering.InDet
+ID = ConfigFlags.DQ.Steering.InDet
 ID.doGlobalMon=False
 ID.doAlignMon=False
 
 # Enable L1Topo monitoring (Oct. 2021 pilot beams)
-NewConfigFlags.DQ.Steering.doLVL1InterfacesMon=True
+ConfigFlags.DQ.Steering.doLVL1InterfacesMon=True
 
 ## ------------------------------------------- set online defaults for new config flags
 # Fix for autoconfig problem ATR-22872 (April 2021)
 from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
-NewConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
-autoConfigOnlineRecoFlags(NewConfigFlags, partitionName)
+ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
+autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
 
 # Fix for unavailable LBLB info (ATR-23464)
-NewConfigFlags.DQ.enableLumiAccess = False
-NewConfigFlags.DQ.Environment = "online"
+ConfigFlags.DQ.enableLumiAccess = False
+ConfigFlags.DQ.Environment = "online"
 
 # Fix for missing output file ATR-22872 (May 2021)
 from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -57,11 +58,15 @@ DQMonFlags.doHLTMon.set_Value_and_Lock(False)
 DQMonFlags.monManFileKey.set_Value_and_Lock('') # Set top-level path 
 DQMonFlags.histogramFile.set_Value_and_Lock('monitoring.root')
 
-# To get rid of rogue DQT, PFO, and TopoCluster monitoring plots (ATLASDQ-888)
+# Don't use the trigger decision tool (ATR-24589, Nov. 2021)
+DQMonFlags.useTrigger.set_Value_and_Lock(False)
+ConfigFlags.DQ.triggerDataAvailable = True # KW test Nov. 22, doesn't work
+
+# To get rid of rogue DQT, PFO, and TopoCluster monitoring plots
 DQMonFlags.doJetInputsMon=False
 DQMonFlags.doDataFlowMon=False
 
-# set name of this publisher as it will appear in IS
+# set name of this publisher as it will appear in IS (default is "l1calo-athenaHLT"; change to something sensible for testing)
 publishName       = "l1calo-athenaHLT-cosmics"
 
 # name of the stream type (physics,express, etc.)
@@ -70,6 +75,7 @@ streamType = os.getenv("L1CALO_PTIO_STREAM_TYPE","physics")
 # name of the stream (Egamma,JetTauEtmiss,MinBias,Standby, etc.)
 # this can be a colon(:) separated list of streams that use
 # the 'streamLogic' to combine
+# stream for 2016 HI run
 streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:Standby")
 
 # logic used to combine multiple streams
@@ -192,7 +198,7 @@ doAllReco   = False
 
 #doCommissioning = False
 
-doTrigger = False
+doTrigger = False  
 
 ################
 ## -- flags set in: RecExOnline_monitoring.py (from RecExOnline_jobOptions.py)
@@ -231,6 +237,14 @@ recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
 
+# Don't forget to lock the config flags
+ConfigFlags.lock() #KW test Feb. 22 
+ConfigFlags.dump()
+
+# Fix for beamspot conditions bug, Feb. 2022 (ATR-25008)
+from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+CAtoGlobalWrapper(BeamSpotCondAlgCfg, ConfigFlags)
 
 
 printfunc (' ')
@@ -261,7 +275,7 @@ printfunc ('| doTile             = ',doTile)
 printfunc ('| doLucid            = ',doLucid)
 #printfunc ('| doTrigger          = ',doTrigger)
 #printfunc ('| doHist             = ',doHist)
-#print '| doJiveXML          = ',doJiveXML
+#printfunc ('| doJiveXML          = ',doJiveXML)
 printfunc ('| doEgammaTau        = ',doEgammaTau)
 printfunc ('| doCommissioning    = ',doCommissioning)
 printfunc ('-------------------------------------------------------------')
@@ -393,7 +407,6 @@ printfunc ('--------------------------------------------------------------')
 if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS") >= 0) :
 #if (partitionName.find("L1CaloStandalone") >= 0) :
   printfunc ("L1Calo Monitoring is overriding the run number and lumiblock number.")
-  #svcMgr.IOVDbSvc.forceRunNumber=313285 #312649 #312424(HI) #309640 #271733 #182519 #238735 # KW comment out 15/10/21
   import ispy   ## this should retrieve the run number automatically as done in RecExOnline_globalconfig.py
   from ispy import *
   from ipc import IPCPartition
@@ -402,8 +415,8 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
   obj = ispy.ISObject(p2, 'RunParams.RunParams', 'RunParams')
   obj.checkout()
   is_run_number = obj.run_number
-  svcMgr.IOVDbSvc.forceRunNumber = is_run_number # KW added to match physics app 15/10/21
-
+  svcMgr.IOVDbSvc.forceRunNumber = is_run_number
+  #svcMgr.IOVDbSvc.forceRunNumber=313285 #313063 #312649(HI) #312424(HI) #309640 #271733 #182519 #238735
   svcMgr.IOVDbSvc.forceLumiblockNumber=1
   printfunc ("L1Calo Monitoring set run to ",svcMgr.IOVDbSvc.forceRunNumber,"and lumi block to",svcMgr.IOVDbSvc.forceLumiblockNumber)
 
@@ -469,12 +482,4 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
    #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels<tag>HEAD</tag>")
    #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
 
-
-#M6
-#rec.doTau=False;
-#rec.doEgamma=False;
-#rec.doJetMissingETTag=False;
-#from CaloRec.CaloCellFlags import jobproperties
-#jobproperties.CaloCellFlags.doLArHVCorr=False
-#jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);  
 

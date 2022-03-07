@@ -10,6 +10,37 @@ from AthenaCommon.Logging import log as msg
 
 import os, shutil
 
+
+def athenaMPRunArgsToFlags(runArgs, flags):
+    """Fill MP configuration flags from run arguments."""
+    if hasattr(runArgs, "athenaMPWorkerTopDir"):
+        flags.MP.WorkerTopDir = runArgs.athenaMPWorkerTopDir
+
+    if hasattr(runArgs, "athenaMPOutputReportFile"):
+        flags.MP.OutputReportFile = runArgs.athenaMPOutputReportFile
+
+    if hasattr(runArgs, "athenaMPCollectSubprocessLogs"):
+        flags.MP.CollectSubprocessLogs = runArgs.athenaMPCollectSubprocessLogs
+
+    if hasattr(runArgs, "athenaMPStrategy"):
+        flags.MP.Strategy = runArgs.athenaMPStrategy
+
+    if hasattr(runArgs, "athenaMPReadEventOrders"):
+        flags.MP.ReadEventOrders = runArgs.athenaMPReadEventOrders
+
+    if hasattr(runArgs, "athenaMPEventOrdersFile"):
+        flags.MP.EventOrdersFile = runArgs.athenaMPEventOrdersFile
+
+    if hasattr(runArgs, "athenaMPEventsBeforeFork"):
+        flags.MP.EventsBeforeFork = runArgs.athenaMPEventsBeforeFork
+
+    if hasattr(runArgs, "sharedWriter"):
+        flags.MP.UseSharedWriter = runArgs.sharedWriter
+
+    if hasattr(runArgs, "parallelCompression"):
+        flags.MP.UseParallelCompression = runArgs.parallelCompression
+
+
 def AthenaMPCfg(configFlags):
 
     os.putenv('XRD_ENABLEFORKHANDLERS','1')
@@ -119,7 +150,8 @@ def AthenaMPCfg(configFlags):
 
         if use_shared_writer:
             shared_writer = CompFactory.SharedWriterTool(MotherProcess=(mpevtloop.EventsBeforeFork>0),
-                                                         IsPileup=mpevtloop.IsPileup)
+                                                         IsPileup=mpevtloop.IsPileup,
+                                                         Debug=debug_worker)
             mpevtloop.Tools += [ shared_writer ]
 
     elif configFlags.MP.Strategy=='FileScheduling':

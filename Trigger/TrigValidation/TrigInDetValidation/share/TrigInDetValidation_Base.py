@@ -1,4 +1,4 @@
-###  #!/usr/bin/env python
+#!/Usr/bin/env python
 
 # Slices = ['fsjet']
 # Events = 10
@@ -12,11 +12,10 @@ import re
 from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigCostStep, TrigInDetRdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
-
 import os,sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lcxptrmn:",["local","config"])
+    opts, args = getopt.getopt(sys.argv[1:],"lcxptirmn:",["local","config"])
 except getopt.GetoptError:
     print("Usage:  ")
     print("-l | --local   run locally with input file from art eos grid-input")
@@ -26,6 +25,7 @@ except getopt.GetoptError:
     print("-n  N          run only on N events per job")
     print("-c | --config  run with config_only and print to a pkl file")
     print("-t             test steering, dry run for all steps")
+    print("-i             force the dry AbortDryRun flag to be False")
     print("")
     sys.exit(1)
 
@@ -37,10 +37,13 @@ postproc      = False
 testconfig    = False
 dry_run       = False
 runstuff      = True
+abort_dry_run = True
+
 
 if "Art_type"  not in locals(): Art_type = 'grid'
 if "GridFiles" not in locals(): GridFiles=False
 if "Malloc" not in locals(): Malloc=False
+if "AbortDryRun" in locals(): abort_dry_run=AbortDryRun
 
 for opt,arg in opts:
     if opt in ("-l", "--local"):
@@ -59,6 +62,8 @@ for opt,arg in opts:
         testconfig = True
     if opt=="-t":
         dry_run=True
+    if opt=="-i":
+        abort_dry_run=False
 
 vdry_run = os.environ.get('TRIGVALSTEERING_DRY_RUN')
 
@@ -142,6 +147,8 @@ aod_to_ntup = TrigInDetAna(extraArgs = ExtraAna)
 rdo_to_cost = TrigCostStep()
 
 if dry_run:
+    if abort_dry_run:
+        sys.exit(0)
     test.dry_run = True
 if (not exclude):
     if runstuff:

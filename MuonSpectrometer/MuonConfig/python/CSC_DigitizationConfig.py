@@ -85,6 +85,7 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CscOverlayDigitizationTool", **k
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "CSC_DIGITS")
     kwargs.setdefault("CSCSimDataCollectionOutputName", flags.Overlay.SigPrefix + "CSC_SDO")
+    kwargs.setdefault("PileUpMergeSvc", '')
     return CSC_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 

@@ -83,17 +83,14 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
         protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
         protectedInclude("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
-    else: 
-        if overlayFlags.isDataOverlay():
-            #Shape taken from real-data DB has a different SG key
-            kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value())
     if isOverlay():
         # Some noise needs to be added during MC Overlay
         # No noise should be added during Data Overlay
         kwargs.setdefault('NoiseOnOff', not overlayFlags.isDataOverlay())
-    kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() ) # For other jobs go with the noise flag setting.
+    else:
+        kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() ) # For other jobs go with the noise flag setting.
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
     if digitizationFlags.doXingByXingPileUp():
@@ -104,19 +101,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         kwargs.setdefault("PileUpMergeSvc", '')
         kwargs.setdefault("OnlyUseContainerName", False)
 
-    from LArDigitization.LArDigitizationFlags import jobproperties
-    # check if using high gain for Fcal or not
-    if  (not jobproperties.LArDigitizationFlags.useFcalHighGain()) and (not isOverlay()):
-        mlog.info("do not use high gain in Fcal digitization ")
-        kwargs.setdefault('HighGainThreshFCAL', 0 )
-    else:
-        mlog.info("use high gain in Fcal digitization or overlay job")
-
-    # check if using high gain for EMEC IW or not
-    if (not jobproperties.LArDigitizationFlags.useEmecIwHighGain()) and (not isOverlay()):
-       mlog.info("do not use high gain in EMEC IW digitization ")
-       kwargs.setdefault('HighGainThreshEMECIW',0)
-
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
 
     if useLArFloat():
@@ -124,42 +108,22 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     else:
         kwargs.setdefault("LArHitFloatContainers",[])
 
-    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
-    else:
-        kwargs.setdefault('DigitContainer', 'LArDigitContainer_MC') ##FIXME - should not be hard-coded
-
     # if doing MC+MC overlay 
     from AthenaCommon.GlobalFlags import globalflags
     if isOverlay() and globalflags.DataSource() == 'geant4':
           kwargs.setdefault('isMcOverlay',True)
-
 
     from LArROD.LArRODFlags import larRODFlags
     kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
     kwargs.setdefault('firstSample', larRODFlags.firstSample() )
 
     if isOverlay() :
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
         if overlayFlags.isOverlayMT():
             kwargs.setdefault("OnlyUseContainerName", False)
             kwargs.setdefault('InputDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
         else:
             kwargs.setdefault('InputDigitContainer', 'LArDigitContainer_MC' )
 
-    # ADC2MeVCondAlgo
-    from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
-    LArADC2MeVCondAlgDefault()
-
-
-    # AutoCorrNoiseCondAlgo
-    if not isOverlay():
-        from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
-        LArAutoCorrNoiseCondAlgDefault()
-
-    # bad channel masking
-    kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
     # CosmicTriggerTimeTool for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
@@ -195,6 +159,77 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     LArXTalkWeightCondAlgDefault()
 
     return CfgMgr.LArPileUpTool(name, **kwargs)
+
+def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    from AthenaCommon.Logging import logging
+    mlog = logging.getLogger( 'LArHitEMapToDigitAlgDefault:' )
+    mlog.info(" ---- in getLArHitEMapToDigitAlg " )
+    # the LAr and Calo detector description package
+    ## FIXME includes to be replaced by confGetter configuration.
+    if not isOverlay():
+        from AthenaCommon.Resilience import protectedInclude
+        protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
+        protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
+        protectedInclude("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
+    else:
+        if overlayFlags.isDataOverlay():
+            #Shape taken from real-data DB has a different SG key
+            kwargs.setdefault('ShapeKey',"LArShape")
+    from Digitization.DigitizationFlags import digitizationFlags
+    kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value())
+    if isOverlay():
+         # Some noise needs to be added during MC Overlay
+         # No noise should be added during Data Overlay
+         kwargs.setdefault('NoiseOnOff', not overlayFlags.isDataOverlay() )
+    else :
+         kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
+    kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
+
+    from LArDigitization.LArDigitizationFlags import jobproperties
+    # check if using high gain for Fcal or not
+    if  (not jobproperties.LArDigitizationFlags.useFcalHighGain()) and (not isOverlay()):
+        mlog.info("do not use high gain in Fcal digitization ")
+        kwargs.setdefault('HighGainThreshFCAL', 0 ) ## commented out for now
+    else:
+        mlog.info("use high gain in Fcal digitization or overlay job")
+
+    # check if using high gain for EMEC IW or not
+    if (not jobproperties.LArDigitizationFlags.useEmecIwHighGain()) and (not isOverlay()):
+       mlog.info("do not use high gain in EMEC IW digitization ")
+       kwargs.setdefault('HighGainThreshEMECIW',0) ## commeted out for now
+
+    kwargs.setdefault('RndmEvtOverlay', isOverlay() )
+
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
+    else:
+        kwargs.setdefault('DigitContainer', 'LArDigitContainer_MC') ##FIXME - should not be hard-coded
+
+    # if doing MC+MC overlay
+    from AthenaCommon.GlobalFlags import globalflags
+    if isOverlay() and globalflags.DataSource() == 'geant4':
+          kwargs.setdefault('isMcOverlay',True)
+
+    from LArROD.LArRODFlags import larRODFlags
+    kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
+    kwargs.setdefault('firstSample', larRODFlags.firstSample() )
+
+    # ADC2MeVCondAlgo
+    from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+    LArADC2MeVCondAlgDefault()
+
+    # AutoCorrNoiseCondAlgo
+    if not isOverlay():
+        from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
+        LArAutoCorrNoiseCondAlgDefault()
+
+    # bad channel masking
+    kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
+    # CosmicTriggerTimeTool for cosmics digitization
+
+    return CfgMgr.LArHitEMapToDigitAlg(name, **kwargs)
 
 def getLArDigitMaker(name="digitmaker1" , **kwargs):
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')

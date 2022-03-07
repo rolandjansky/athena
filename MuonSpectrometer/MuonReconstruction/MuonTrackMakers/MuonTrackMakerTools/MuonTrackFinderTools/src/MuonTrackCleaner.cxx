@@ -745,12 +745,12 @@ namespace Muon {
                     // layer not recoverable, drop the outliers: but if RPC, TGC, or CSC, expect track to go through all layers, so add a
                     // hole instead
                     if (m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id))
-                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->uniqueClone()));
                 } else {
                     ++removedOutOfBoundsHits;
                     // if RPC, TGC, or CSC, expect track to go through all layers: add a hole to replace lost outlier
                     if (m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id))
-                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->uniqueClone()));
                     ATH_MSG_DEBUG("   removing out of bounds outlier " << m_idHelperSvc->toString(hit.id) << " pull " << std::setw(7)
                                                                        << hit.pull);
                 }
@@ -1126,7 +1126,7 @@ namespace Muon {
                             if (prdList.empty()) {
                                 ATH_MSG_WARNING("No clusters selected during comprot cleaning, keeping old cluster");
                             } else {
-                                updatedCompRot.reset(m_compRotCreator->createBroadCluster(prdList, 0.));
+                                updatedCompRot=m_compRotCreator->createBroadCluster(prdList, 0.);
                                 ++state.numberOfCleanedCompROTs;
                             }
                         }

@@ -37,7 +37,7 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
-    strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
+    strictDependencies = True         # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
     enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
@@ -187,7 +187,6 @@ ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
 ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
-jobproperties.Beam.bunchSpacing = 25
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
@@ -196,10 +195,6 @@ ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
-
-# Enable strict dependency checking for data by default
-if 'strictDependencies' not in globals():
-    opt.strictDependencies = not ConfigFlags.Input.isMC
 
 # Set default doL1Sim option depending on input type (if not set explicitly)
 if 'doL1Sim' not in globals():
@@ -256,6 +251,7 @@ setModifiers = ['noLArCalibFolders',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
                 'useOracle',
+                'BunchSpacing25ns',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -375,7 +371,7 @@ rec.doTruth = False
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.preSetup()
+    mod.preSetup(ConfigFlags)
 
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
@@ -402,6 +398,11 @@ if opt.strictDependencies:
 # Always enable magnetic field
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
+# But don't make the job think it is doing any sim+digi
+DetFlags.simulate.all_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
+
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
@@ -667,7 +668,7 @@ if ConfigFlags.Input.isMC:
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.postSetup()
+    mod.postSetup(ConfigFlags)
 
 #-------------------------------------------------------------
 # Print top sequence

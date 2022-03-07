@@ -37,7 +37,6 @@ def defineMenu():
     L1MenuFlags.ItemMap = {
 
         # non-primary EM
-        'L1_EM12':'', 
         'L1_EM8VH':'', 
         'L1_EM18VHI':'',
         'L1_EM20VHI':'',
@@ -54,18 +53,12 @@ def defineMenu():
         'L1_3eEM12L':'',
 
         # non-primary TAU
-        'L1_eTAU12':'',
         'L1_jTAU20':'',
         'L1_jTAU30':'',
         'L1_jTAU30M':'',
-        'L1_cTAU20M':'',
         'L1_eTAU20L':'',
-        'L1_cTAU30M':'',
         'L1_eTAU35':'',
-        'L1_cTAU35M':'',
         'L1_eTAU40HM':'',
-        'L1_eTAU60':'',
-        'L1_eTAU80':'',
         'L1_2TAU8':'',
         'L1_EM15VHI_2TAU12IM':'',
         'L1_MU8F_TAU12IM':'',

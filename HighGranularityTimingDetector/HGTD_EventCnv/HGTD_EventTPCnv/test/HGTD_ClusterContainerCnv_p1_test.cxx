@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_EventTPCnv/test/HGTD_ClusterContainerCnv_p1_test.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -28,7 +28,6 @@
 
 #include "HGTD_EventTPCnv_testfunctions.cxx"
 
-HGTD_ID* g_hgtd_idhelper;
 
 void compare(const HGTD_ClusterContainer& p1,
              const HGTD_ClusterContainer& p2) {
@@ -53,10 +52,11 @@ void compare(const HGTD_ClusterContainer& p1,
 std::unique_ptr<HGTD_Cluster>
 createCluster(int endcap, int layer, int phi_module, int eta_module, float locx,
               float locy, float colx, float coly, float phi, float rz,
-              float toa, std::vector<int> tot) {
+              float toa, const std::vector<int>& tot,
+              const HGTD_ID* hgtd_idhelper) {
 
   Identifier id =
-      g_hgtd_idhelper->wafer_id(endcap, layer, phi_module, eta_module);
+      hgtd_idhelper->wafer_id(endcap, layer, phi_module, eta_module);
   Amg::Vector2D locpos(locx, locy);
   std::vector<Identifier> rdoList{Identifier(id)};
   InDet::SiWidth width(Amg::Vector2D(colx, coly), Amg::Vector2D(phi, rz));
@@ -73,7 +73,7 @@ createCluster(int endcap, int layer, int phi_module, int eta_module, float locx,
       toa, 0.035, tot);
 }
 
-std::unique_ptr<const HGTD_ClusterContainer> makeClusters() {
+std::unique_ptr<const HGTD_ClusterContainer> makeClusters(HGTD_ID* hgtd_idhelper) {
   auto cont = std::make_unique<HGTD_ClusterContainer>(5);
 
   std::vector<int> n_coll_per_layer = {2, 1, 3};
@@ -90,7 +90,7 @@ std::unique_ptr<const HGTD_ClusterContainer> makeClusters() {
         int phi_module = layer + i_clus;
         int eta_module = i_clus + 2;
         float locx = 1.3 * i_clus;
-        float locy = 1.3 * i_clus;
+        float locy = locx;
         float colx = static_cast<int>(locx / 1.3) + 15;
         float coly = static_cast<int>(locy / 1.3) + 7;
         float phi = 0;  // dummy
@@ -112,7 +112,8 @@ std::unique_ptr<const HGTD_ClusterContainer> makeClusters() {
         std::cout << "toa " << toa << '\n';
         std::cout << "tot " << tot.at(0) << '\n';
         auto cluster = createCluster(endcap, layer, phi_module, eta_module,
-                                     locx, locy, colx, coly, phi, rz, toa, tot);
+                                     locx, locy, colx, coly, phi, rz, toa, tot,
+                                     hgtd_idhelper);
         coll->push_back(std::move(cluster));
       }
     }
@@ -139,7 +140,7 @@ void registerIDHelperAndDetManager() {
   BOOST_CHECK(sg->record(std::move(hgtd_det_mgr), "HGTD"));
 }
 
-bool retrieve() {
+HGTD_ID* retrieve() {
   std::cout << "retrieve \n";
 
   // Get Storegate, ID helpers, and so on
@@ -151,7 +152,7 @@ bool retrieve() {
   StatusCode sc = svc_locator->service("StoreGateSvc", storegate);
   if (sc.isFailure()) {
     std::cout << "StoreGate service not found !\n";
-    return false;
+    return nullptr;
   }
 
   // get DetectorStore service
@@ -159,19 +160,20 @@ bool retrieve() {
   sc = svc_locator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
     std::cout << "DetectorStore service not found !\n";
-    return false;
+    return nullptr;
   }
 
   // Get the sct helper from the detector store
-  sc = detStore->retrieve(g_hgtd_idhelper, "HGTD_ID");
+  HGTD_ID* hgtd_idhelper = nullptr;
+  sc = detStore->retrieve(hgtd_idhelper, "HGTD_ID");
   if (sc.isFailure()) {
     std::cout << "Could not get HGTD_ID helper !\n";
-    return false;
+    return nullptr;
   } else {
     std::cout << "[retrieve] HGTD_ID initialised\n";
   }
 
-  return true;
+  return hgtd_idhelper;
 }
 
 BOOST_AUTO_TEST_CASE(HGTD_ClusterContainerCnv_p1_test) {
@@ -183,22 +185,23 @@ BOOST_AUTO_TEST_CASE(HGTD_ClusterContainerCnv_p1_test) {
   //register the relevant helper classe
   registerIDHelperAndDetManager();
 
-  BOOST_CHECK(retrieve());
+  HGTD_ID* hgtd_idhelper = retrieve();
+  BOOST_CHECK(hgtd_idhelper != nullptr);
 
-  g_hgtd_idhelper->set_do_checks(true);
+  hgtd_idhelper->set_do_checks(true);
 
-  Identifier id = g_hgtd_idhelper->wafer_id(2, 1, 5, 10);
-  Identifier id2 = g_hgtd_idhelper->wafer_id(-2, 5, 1, 1);
+  Identifier id = hgtd_idhelper->wafer_id(2, 1, 5, 10);
+  Identifier id2 = hgtd_idhelper->wafer_id(-2, 5, 1, 1);
 
-  IdentifierHash id_hash = g_hgtd_idhelper->wafer_hash(id);
+  IdentifierHash id_hash = hgtd_idhelper->wafer_hash(id);
   //
   std::cout << "id " << id.get_compact() << '\n';
   std::cout << "id_hash " << id_hash << '\n';
 
   std::cout << "id2 " << id2.get_compact() << '\n';
-  std::cout << "id2 " << g_hgtd_idhelper->wafer_hash(id2) << '\n';
+  std::cout << "id2 " << hgtd_idhelper->wafer_hash(id2) << '\n';
 
-  std::unique_ptr<const HGTD_ClusterContainer> trans1 = makeClusters();
+  std::unique_ptr<const HGTD_ClusterContainer> trans1 = makeClusters(hgtd_idhelper);
   BOOST_REQUIRE(trans1->size() > 0); // otherwise there is nothing to test
   //
   MsgStream log(0, "test");

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 """ ComponentAccumulator equivalents for the functions in JetRecoSequences """
@@ -134,7 +134,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
             acc.addEventAlgo(alg)
 
     pj_alg = JetRecConfig.getConstitPJGAlg(jetDef.inputdef)
-    pj_name = pj_alg.OutputContainer
+    pj_name = pj_alg.OutputContainer.Path
     acc.addEventAlgo(pj_alg)
 
     if use_tracking:
@@ -146,8 +146,9 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
             OutputContainer=f"{pj_name}MergedWithGhostTracks",
         )
         # update the pseudo jet name
-        pj_name = merge_alg.OutputContainer
+        pj_name = merge_alg.OutputContainer.Path
         acc.addEventAlgo(merge_alg)
+
     jetDef._internalAtt["finalPJContainer"] = pj_name
 
 

@@ -92,8 +92,6 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
                                 "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
                                 "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
-                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
 
                                 "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
                                 "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
@@ -385,7 +383,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidabjet.ntupleChainNames += [
                                 "Offline",
-                                "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+                                "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                                 "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig"

@@ -14,24 +14,14 @@ class TrigTauMonAlgBuilder:
   activate_tau = False
   tauList = []
 
-  # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath']
-  emulation = False
-  derivation = False
-  detailedHistograms = False
   basePath = 'HLT/TauMon'
 
-
-  def __init__(self, helper, runflag, **kwargs):
+  def __init__(self, helper):
  
     from AthenaCommon.Logging import logging
     self.__logger = logging.getLogger( 'TrigTauMonAlgBuilder' )
-    self.runFlag = runflag
     self.helper = helper
     if not self._configured:
-      for key,value in kwargs.items():
-        if key in self.__acceptable_keys_list:
-          setattr(self,key,value)
       self.configureMode()
   
   def configureMode(self):
@@ -43,16 +33,7 @@ class TrigTauMonAlgBuilder:
     else:
       self.__logger.info("Configuring for %s", self.data_type)
 
-    # Since we load the tools by name below 
-    # Need to ensure the correct tools are configured 
-    # for each monitoring mode
-    if self.mc_mode is True or self.pp_mode is True:
-      if(self.derivation is True or self.emulation is True):
-        self.activate_tau = True
-      else:
-        self.activate_tau=True
-    else:
-        self.activate_tau=True 
+    self.activate_tau=True 
 
     
   def configure(self):
@@ -100,12 +81,9 @@ class TrigTauMonAlgBuilder:
         l1seed = ''
         splits = self.chain().split("_")
         for split in splits:
-            if split.startswith('L1TAU') or split.startswith('L1eTAU'):
+            if split.startswith('L1TAU') or split.startswith('L1eTAU') or split.startswith('L1cTAU'):
                 l1seed = split
         return l1seed
-
-      def isRNN(self):
-        return True if "RNN" in self.chain() else False
 
       def isDiTau(self):
         return True if ( self.chain().count('tau') == 2 and '03dRAB' in self.chain()) else False
@@ -382,6 +360,7 @@ class TrigTauMonAlgBuilder:
                                 title='TAndP HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
                                 type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
 
+    defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('dR',' dR(#tau,lep)',20,0,4)
     defineEachStepHistograms('dEta',' dEta(#tau,lep)',20,0,4)
     defineEachStepHistograms('dPhi',' dPhi(#tau,lep)',8, -3.2, 3.2)

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -84,7 +84,7 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
 
     histoGroupName = 'HitToT'
     title = 'Hit ToT'
-    define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# hits', xbins=[300]*5+[20], xmins=[-0.5]*6, binsizes=[1.0]*6)
+    define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# hits', xbins=[300]*5+[20]*2, xmins=[-0.5]*7, binsizes=[1.0]*7)
 
     histoGroupName = 'HitMap' 
     title = 'hit map'

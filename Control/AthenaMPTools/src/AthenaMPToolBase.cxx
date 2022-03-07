@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMPToolBase.h"
@@ -54,6 +54,15 @@ AthenaMPToolBase::~AthenaMPToolBase()
 StatusCode AthenaMPToolBase::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
+
+  if(m_isPileup) {
+    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
+    ATH_MSG_INFO("The job running in pileup mode");
+  }
+  else {
+    ATH_MSG_INFO("The job running in non-pileup mode");
+  }
+
   ATH_CHECK(m_evtProcessor.retrieve());
   ATH_CHECK(m_appMgr.retrieve());
 

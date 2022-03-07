@@ -21,7 +21,8 @@ constexpr auto initAccessors(U... names) {
 
 auto boolAccessors = initAccessors<bool>(
   "hasGenericRoiError", "hasGenericDaqError", "hasCrcTobError", "hasCrcFibreError",
-  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference");
+  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference",
+  "vsi_isFake", "vsi_isPassMMV", "vsi_trkd0cut", "vsi_twoCircErrcut", "vsi_twoCircRcut", "vsi_fastErrcut", "vsi_fastRcut", "vsi_fitErrcut", "vsi_chi2cut");
 
 auto charAccessors = initAccessors<char>(
   "IP2D_isDefaults", "IP3D_isDefaults", "SV1_isDefaults", "rnnip_isDefaults",
@@ -108,7 +109,7 @@ auto floatAccessors = initAccessors<float>(
   "DetectorEta", "DetectorPhi",
   "EMFrac", "HECFrac", "JVFCorr", "seed_eta", "seed_phi", "trk_a0beam",
   "btagIp_d0", "btagIp_d0Uncertainty", "btagIp_z0SinTheta", "btagIp_z0SinThetaUncertainty",
-  "EOverP", "RErr", "etConeCore", "muonScore", "ptCone20", "trackIso", "trkPtFraction", 
+  "EOverP", "RErr", "etConeCore", "muonScore", "ptCone20", "trackIso", "trkPtFraction",
   "zfinder_vtx_z", "zfinder_vtx_weight", "caloIso", "calE", "calEta", "calPhi",
   "hitDV_seed_pt","hitDV_seed_eta","hitDV_seed_phi","hitDV_ly0_sp_frac","hitDV_ly1_sp_frac","hitDV_ly2_sp_frac",
   "hitDV_ly3_sp_frac","hitDV_ly4_sp_frac","hitDV_ly5_sp_frac","hitDV_ly6_sp_frac","hitDV_ly7_sp_frac","hitDV_bdt_score",
@@ -134,7 +135,10 @@ auto floatAccessors = initAccessors<float>(
   "disTrkCand_refit_chi2sum_br_sct1","disTrkCand_refit_chi2sum_br_sct2","disTrkCand_refit_chi2sum_br_sct3","disTrkCand_refit_chi2sum_br_sct4",
   "disTrkCand_refit_ndofsum_br_ibl","disTrkCand_refit_ndofsum_br_pix1","disTrkCand_refit_ndofsum_br_pix2","disTrkCand_refit_ndofsum_br_pix3",
   "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4",
-  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing"
+  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing",
+  "vsi_mass", "vsi_pT", "vsi_charge",
+  "vsi_twoCirc_dr", "vsi_twoCirc_dphi", "vsi_twoCirc_int_r", "vsi_vrtFast_r", "vsi_vrtFast_eta", "vsi_vrtFast_phi",
+  "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2"
   );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
@@ -156,7 +160,8 @@ auto vfloatAccessors = initAccessors<std::vector<float>>(
   "IP3D_sigZ0wrtPVofTracks", "IP3D_valD0wrtPVofTracks", "IP3D_valZ0wrtPVofTracks",
   "JetFitter_fittedCov", "JetFitter_fittedPosition", "JetFitter_tracksAtPVchi2", "JetFitter_tracksAtPVndf",
   "EnergyPerSampling", "SumPtChargedPFOPt500", "SumPtTrkPt1000", "SumPtTrkPt500", "TrackWidthPt1000",
-  "pTcuts", "z0cuts", "btagIp_trackMomentum", "btagIp_trackDisplacement");
+  "pTcuts", "z0cuts", "btagIp_trackMomentum", "btagIp_trackDisplacement",
+  "vsi_vrtFast_trkd0", "vsi_vrtFast_trkz0");
 
 auto elroiAccessors = initAccessors<ElementLink<TrigRoiDescriptorCollection>>("viewIndex");
 

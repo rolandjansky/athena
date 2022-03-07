@@ -32,8 +32,6 @@
 #include <string>
 
 using std::make_pair;
-using std::bind1st;
-using std::mem_fun;
 using std::string;
 
 /// Standard Constructor

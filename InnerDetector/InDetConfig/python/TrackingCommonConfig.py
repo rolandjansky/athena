@@ -213,7 +213,7 @@ def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAl
 def LumiCondDataKeyForTRTMuScalingCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
     LuminosityOutputKey = ''
-    if flags.Beam.Type is not BeamType.Cosmics and False: # InDetFlags.useMuForTRTErrorScaling()  "temporary value"
+    if flags.Beam.Type is not BeamType.Cosmics:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         LuminosityCondAlg = LuminosityCondAlgCfg (flags)
         acc.merge(LuminosityCondAlg)

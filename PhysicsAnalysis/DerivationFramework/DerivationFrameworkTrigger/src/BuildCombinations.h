@@ -30,15 +30,17 @@ namespace DerivationFramework { namespace TriggerMatchingUtils {
     std::vector<typename T::value_type> sorted(T begin, T end);
 
   /**
-   * @brief Get all valid, unique combinations of distinct elements from the
+   * @brief Get all valid combinations of distinct elements from the
    * input ranges.
-   * @param inputs The ranges over vectors of possible elements.
+   * @param inputs The ranges over vectors of possible elements
+   * @param distinct If true, only return distinct combinations
    */
   // First, a note on the type of the argument. This is essentially a way of
   // passing a vector of vectors but only with iterators over the vectors.
   template <typename T>
-    std::vector<std::vector<T>> getAllDistinctCombinations(
-        std::vector<RangedItr<typename std::vector<T>::const_iterator>>& inputs);
+    std::vector<std::vector<T>> getAllCombinations(
+        std::vector<RangedItr<typename std::vector<T>::const_iterator>>& inputs,
+        bool distinct=true);
 
 }} //> end namespace DerivationFramework::TriggerMatchingUtils
 #include "BuildCombinations.icc"

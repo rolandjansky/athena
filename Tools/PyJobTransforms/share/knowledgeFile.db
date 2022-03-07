@@ -1,0 +1,19 @@
+# A knowledge file consist of abnormal lines  
+#
+# The main goal of reporting abnormal line(s) is to 
+# introduce more detail in error reporting
+# 
+# These abnormal lines do not normally appear in successful jobs
+# and do not have the standard logging structure
+#
+# List of abnormal lines:
+warn\s+\[frontier(.*)
+TBufferFile::CheckObject:0:\s(.*)
+Error\s+in\s<TExMap::Remove>:\s(.*)
+G4GDecay3::GetThreeBodyMomenta:\s(.*)
+generateSCMmuonAbsorption:\sGetThreeBodyMomenta\(\)\sfailed(.*)
+Failed\sretrieving\stool!!
+Warning:\spTpythia\swas\snegative
+tcmalloc:\slarge\salloc(.*)
+Cannot\sfind\sa\svalid\sfrontier\sconnection(.*)
+

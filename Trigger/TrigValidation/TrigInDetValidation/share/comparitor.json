@@ -51,17 +51,14 @@
     "EFbjet":{
         "chains" : "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig"
     },
-    "L2FS":{
-        "chains" : "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet"
-    },
     "L2fsjet":{
-        "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet"
+        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet"
     },
     "L2fsjetvtx":{
-        "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS/HLT_IDVertex_FS HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet/HLT_IDVertex_FSJet"
+        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS/HLT_IDVertex_FS HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet/HLT_IDVertex_FSJet"
     },
     "L2fst0vtx":{
-        "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
+        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
     },
     "L2minbias":{
         "chains" : "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig"
@@ -82,10 +79,10 @@
 	"chains" : "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF  HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig"
     },
     "L2electronTnP":{
-	"chains" : "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1"
+	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1"
     },
     "EFelectronTnP":{
-	"chains" : "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:1"
+	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:1"
     },
     "L2electronTier0TnP":{
        "chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el2_probe:HLT_Roi_FastElectron:1"

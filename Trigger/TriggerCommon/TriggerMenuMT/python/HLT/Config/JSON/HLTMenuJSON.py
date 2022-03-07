@@ -49,7 +49,7 @@ def __getFilterChains(filterAlg):
 
 def __isChainInFilter(chainName, filterAlg):
     for fChain in __getFilterChains(filterAlg):
-        if chainName in fChain:
+        if (fChain.startswith('leg') and chainName == fChain[7:]) or chainName == fChain:
             return True
     return False
 
@@ -178,12 +178,12 @@ def __validateGlobalAlgs(menuDict):
 
 def generateJSON(flags):
     __log.info("Generating HLT Menu JSON in the rec-ex-common job")
-    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.CFElements import findSubSequence
 
-    return __generateJSON( TriggerConfigHLT.dictsList(), 
-                           TriggerConfigHLT.configsList(), 
+    return __generateJSON( HLTMenuConfig.dictsList(), 
+                           HLTMenuConfig.configsList(), 
                            findSubSequence(AlgSequence(), "HLTAllSteps"),
                            flags.Trigger.triggerMenuSetup,
                            getHLTMenuFileName(flags) )

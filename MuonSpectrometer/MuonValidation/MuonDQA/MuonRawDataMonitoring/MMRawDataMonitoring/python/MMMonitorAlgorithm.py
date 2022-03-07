@@ -3,7 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from .MMMonUtils import getMMLabel
+from .MMMonUtils import getMMLabel, getMMLabelY
 
 def MMMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
@@ -75,25 +75,25 @@ def MMMonitoringConfig(inputFlags):
 
     thisLabelx,thisLabely=getMMLabel("x_lab_occ_etaminus1","y_lab_occ_etaminus1")
 
-    mmGroup.defineHistogram('sector_CSide_eta1,stationPhi_CSide_eta1;Occupancy_CSide_eta1_PCB', type='TH2F', title='Occupancy CSide eta1 PCB; Gap; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx)
+    mmGroup.defineHistogram('sector_CSide_eta1,stationPhi_CSide_eta1;Occupancy_CSide_eta1_PCB', type='TH2F', title='Occupancy CSide eta1 PCB; ; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx)
 
-    mmGroup.defineHistogram('sector_CSide_eta1_ontrack,stationPhi_CSide_eta1_ontrack;Occupancy_CSide_eta1_PCB_ontrack', type='TH2F', title='Occupancy CSide eta1 PCB ontrack; Gap; Sector ;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx)
+    mmGroup.defineHistogram('sector_CSide_eta1_ontrack,stationPhi_CSide_eta1_ontrack;Occupancy_CSide_eta1_PCB_ontrack', type='TH2F', title='Occupancy CSide eta1 PCB ontrack; ; Sector ;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx)
 
     thisLabelx1,thisLabely1=getMMLabel("x_lab_occ_etaminus2","y_lab_occ_etaminus2")
 
-    mmGroup.defineHistogram('sector_CSide_eta2,stationPhi_CSide_eta2;Occupancy_CSide_eta2_PCB', type='TH2F', title='Occupancy CSide eta2 PCB; Gap; Sector ;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx1)
+    mmGroup.defineHistogram('sector_CSide_eta2,stationPhi_CSide_eta2;Occupancy_CSide_eta2_PCB', type='TH2F', title='Occupancy CSide eta2 PCB; ; Sector ;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx1)
 
-    mmGroup.defineHistogram('sector_CSide_eta2_ontrack,stationPhi_CSide_eta2_ontrack;Occupancy_CSide_eta2_PCB_ontrack', type='TH2F', title='Occupancy CSide eta2 PCB ontrack; Gap; Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx1)
+    mmGroup.defineHistogram('sector_CSide_eta2_ontrack,stationPhi_CSide_eta2_ontrack;Occupancy_CSide_eta2_PCB_ontrack', type='TH2F', title='Occupancy CSide eta2 PCB ontrack; ; Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx1)
 
     thisLabelx2,thisLabely2=getMMLabel("x_lab_occ_eta1","y_lab_occ_eta1")
 
-    mmGroup.defineHistogram('sector_ASide_eta1,stationPhi_ASide_eta1;Occupancy_ASide_eta1_PCB', type='TH2F', title='Occupancy ASide eta1 PCB; Gap; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx2)
+    mmGroup.defineHistogram('sector_ASide_eta1,stationPhi_ASide_eta1;Occupancy_ASide_eta1_PCB', type='TH2F', title='Occupancy ASide eta1 PCB; ; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx2)
 
-    mmGroup.defineHistogram('sector_ASide_eta1_ontrack,stationPhi_ASide_eta1_ontrack;Occupancy_ASide_eta1_PCB_ontrack', type='TH2F', title='Occupancy ASide eta1 PCB ontrack; Gap; Sector;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx2)
+    mmGroup.defineHistogram('sector_ASide_eta1_ontrack,stationPhi_ASide_eta1_ontrack;Occupancy_ASide_eta1_PCB_ontrack', type='TH2F', title='Occupancy ASide eta1 PCB ontrack; ; Sector;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx2)
 
     thisLabelx3,thisLabely3=getMMLabel("x_lab_occ_eta2","y_lab_occ_eta2")
 
-    mmGroup.defineHistogram('sector_ASide_eta2,stationPhi_ASide_eta2;Occupancy_ASide_eta2_PCB', type='TH2F', title='Occupancy ASide eta2 PCB; Gap; Sector;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx3)
+    mmGroup.defineHistogram('sector_ASide_eta2,stationPhi_ASide_eta2;Occupancy_ASide_eta2_PCB', type='TH2F', title='Occupancy ASide eta2 PCB; ; Sector;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx3)
 
     mmGroup.defineHistogram('sector_ASide_eta2_ontrack,stationPhi_ASide_eta2_ontrack;Occupancy_ASide_eta2_PCB_ontrack', type='TH2F', title='Occupancy ASide eta2 PCB ontrack; Gap; Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx3)
 
@@ -123,12 +123,13 @@ def MMMonitoringConfig(inputFlags):
                 elif (isector=="MML"):
                     phi16=2*phi
 
+
                 title_MMSummary="Number of strips per cluster,"+iside+" "+isector+" stPhi "+str(phi)   
                 var="sector_strip_"+iside+"_"+isector+"_phi"+str(phi)+",strip_number_"+iside+"_"+isector+"_phi"+str(phi)+";Strip_number_pergap_"+iside+"_"+isector+"stPhi"+str(phi)
                 mmSideGroup.defineHistogram(var, type='TH2F', title=title_MMSummary+"; ;Strip Number",      
                                             path='Number_of_strips_percluster_perPhiSector',   xbins=16, xmin=0, xmax=16, xlabels=thisLabelx11, ybins=5120, ymin=0., ymax=5120.)
-
-                mmSideGroup.defineHistogram('lb_mon,sector_lb_'+iside+'_phi'+str(phi16)+';Occupancy_lb_'+iside+'_phi'+str(phi16), type='TH2F', title="Occupancy wrt lb per PCB", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically',  ybins=63, ymin=0., ymax=63.)# , opt='kAddBinsDynamically')                      
+                thisLabely=getMMLabelY("y_lab_occ_lb")
+                mmSideGroup.defineHistogram('lb_mon,sector_lb_'+iside+'_phi'+str(phi16)+';Occupancy_lb_'+iside+'_phi'+str(phi16), type='TH2F', title="Occupancy wrt lb per PCB; LB; ", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically',  ybins=64, ymin=0., ymax=64,  ylabels=thisLabely)
 
                 for eta in etasector:
                     maxpcb=5

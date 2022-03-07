@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+from JetRecConfig.JetRecConfig import registerAsInputConstit
 from .JetDefinition import  JetDefinition
 
 
@@ -58,6 +59,8 @@ AntiKtVR30Rmax4Rmin02PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
                                               VRMassSc = 30000,
                                               lock = True)
 
+# These jets are used as ghost, so they also need to be defined as constituents : 
+registerAsInputConstit(AntiKtVR30Rmax4Rmin02PV0Track)
 
 
 AntiKt4PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,

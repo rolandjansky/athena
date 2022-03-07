@@ -40,19 +40,8 @@ EMTauInputProviderFEX::initialize() {
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
 
-   auto is_eEM_EDMvalid = m_eEM_EDMKey.initialize();
-
-   //Temporarily check EDM status by hand to avoid the crash!
-   if (is_eEM_EDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for eFEX..");
-   }
-
-   auto is_eTau_EDMvalid = m_eTau_EDMKey.initialize();
-
-   //Temporarily check EDM status by hand to avoid the crash!
-   if (is_eTau_EDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for eFEX..");
-   }
+   CHECK(m_eEM_EDMKey.initialize(SG::AllowEmpty));
+   CHECK(m_eTau_EDMKey.initialize(SG::AllowEmpty));
 
    return StatusCode::SUCCESS;
 }
@@ -237,16 +226,14 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
 
 StatusCode
-EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
-
-  //eEM
-  SG::ReadHandle<xAOD::eFexEMRoIContainer> eEM_EDM(m_eEM_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!eEM_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eEM_EDMKey.key() << ". No eFEX input for L1Topo");
-    
+EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
+  if (m_eEM_EDMKey.empty()) {
+    ATH_MSG_DEBUG("eFex EM input disabled, skip filling");
     return StatusCode::SUCCESS;
   }
+
+  SG::ReadHandle<xAOD::eFexEMRoIContainer> eEM_EDM(m_eEM_EDMKey);
+  ATH_CHECK(eEM_EDM.isValid());
 
   for(const auto it : * eEM_EDM){
     const xAOD::eFexEMRoI* eFexRoI = it;
@@ -301,15 +288,20 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
   }
 
-  //eTau
-  SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!eTau_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eTau_EDMKey.key() << ". No eFEX input for L1Topo");
-    
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
+  if (m_eTau_EDMKey.empty()) {
+    ATH_MSG_DEBUG("eFex Tau input disabled, skip filling");
     return StatusCode::SUCCESS;
   }
-  
+
+  SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
+  ATH_CHECK(eTau_EDM.isValid());
+
   // TODO: read eTau isolation variables from eTau RoI
   for(const auto it : * eTau_EDM){
     const xAOD::eFexTauRoI* eFexTauRoI = it;
@@ -358,6 +350,13 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     m_hTauEtRHad->Fill(etau.rHad(),etau.EtDouble());
   }
 
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+  ATH_CHECK(fillEM(inputEvent));
+  ATH_CHECK(fillTau(inputEvent));
   return StatusCode::SUCCESS;
 }
 

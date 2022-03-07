@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Package : MMRawDataMonAlg
@@ -107,14 +107,8 @@ namespace {
 // ********************************************************************* 
 
 MMRawDataMonAlg::MMRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
-  :AthMonitorAlgorithm(name,pSvcLocator),
-   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-   m_MMContainerKey("MM_Measurements")
-{
-  //Declare the property 
-  declareProperty("MMPrepDataContainerName",m_MMContainerKey);
-  declareProperty("do_stereoCorrection", m_do_stereoCorrection);
-}
+  :AthMonitorAlgorithm(name,pSvcLocator)
+{ }
 
 /*---------------------------------------------------------*/
 StatusCode MMRawDataMonAlg::initialize()

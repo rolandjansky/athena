@@ -89,12 +89,9 @@ if MuonGeometryFlags.hasSTGC():
   if not hasattr( condseq, "MuonDetectorCondAlg" ):
     import MuonRecExample.MuonAlignConfig
 
-  if not hasattr( condseq, "RegSelCondAlg_sTGC" ):
-    condseq += sTGC_RegSelCondAlg(name = "RegSelCondAlg_sTGC", ManagerName = "sTGC", PrintTable  = False, RegSelLUT = "RegSelLUTCondData_sTGC")
-    tool = CompFactory.RegSelTool(name="RegSelTool_sTGC")
-    tool.RegSelLUT = "RegSelLUTCondData_sTGC"
-    tool.Initialised = True
-
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
+  tool =  makeRegSelTool_sTGC()
+  
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
 #-----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_TRIGGERCHAMBERCLUSTERONTRACKCREATOR_H
@@ -62,7 +62,8 @@ public:
 	}
     
     /** method to create a CompetingMuonClustersOnTrack using the PrepRawData hits and a scaled factor for the errors */
-    const CompetingMuonClustersOnTrack* createBroadCluster(const std::list<const Trk::PrepRawData*>&,
+    std::unique_ptr<const CompetingMuonClustersOnTrack>
+    createBroadCluster(const std::list<const Trk::PrepRawData*>&,
 							   const double) const;
 
 

@@ -61,7 +61,7 @@ InDetDetailedTrackSelector_Default = InDet__InDetDetailedTrackSelectorTool(name 
                                                                            TrackSummaryTool = InDetTrackSummaryTool,
                                                                            Extrapolator     = InDetExtrapolator)
 
-#ToolSvc += InDetDetailedTrackSelector_Default
+ToolSvc += InDetDetailedTrackSelector_Default
 
 
 # All tracks selection
@@ -73,7 +73,7 @@ allSelection = InDetAlignMon__TrackSelectionTool(
 )
 
 
-
+ToolSvc+= allSelection
 
 # Tracks For LoosePrimary Selection
 
@@ -91,9 +91,7 @@ m_TrackSelectorTool_LoosePrimary = InDet__InDetTrackSelectionTool(name         =
 
 
 
-
-
-#ToolSvc +=  m_TrackSelectorTool_LoosePrimary
+ToolSvc +=  m_TrackSelectorTool_LoosePrimary
 
 
 LPSelection = InDetAlignMon__TrackSelectionTool(
@@ -104,9 +102,7 @@ LPSelection = InDetAlignMon__TrackSelectionTool(
     #TrackSelectorTool    = InDetDetailedTrackSelector_Default
     )
 
-
-#ToolSvc += allSelection
-#ToolSvc += LPSelection
+ToolSvc += LPSelection
 
 #Track selector: Defined in NewInDetAlignAlgSetup
 #trackSelector = The cuts are:
@@ -135,7 +131,7 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
                             IDTrackSelectionTool = trackSelectorNew,
                             UseIDTrackSelectionTool = True
                             )
-    #ToolSvc += alignTrackSelection
+    ToolSvc += alignTrackSelection
 
 
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonResiduals
@@ -184,6 +180,7 @@ for trackCollection in trackCollections:
         d0Range = 5,
         z0Range = 200,
         #NTracksRange = 10,
+        TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
         VxPrimContainerName = InDetKeys.PrimaryVertices()
     )
     if Cosmics:
@@ -245,6 +242,7 @@ if True:
         d0Range = 5,
         z0Range = 200,
         #NTracksRange = 10,
+        TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
         VxPrimContainerName = InDetKeys.PrimaryVertices()
         )
     #ToolSvc += InDetAlignMonGenericTracks
@@ -307,7 +305,8 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
         useExtendedPlots = True,
         triggerChainName = "alignSelection",
         #doIPmaps = True,
-        VxPrimContainerName = InDetKeys.PrimaryVertices()
+        VxPrimContainerName = InDetKeys.PrimaryVertices(),
+        TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator()
     )
     #ToolSvc += InDetAlignMonGenericTracks
     InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
@@ -329,7 +328,6 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
 if not Cosmics:
     from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
     InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name                           = "InDetAlignMonBeamSpot_noTrig",
-                                                          extrapolator                   = InDetExtrapolator,
                                                           vxContainerName                = InDetKeys.PrimaryVertices(),
                                                           vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
     #ToolSvc += InDetAlignMonBeamSpot_noTrig
@@ -469,7 +467,7 @@ if Cosmics:
                                                                                 nSharedSct     = 0,
                                                                                 TrackSummaryTool = InDetTrackSummaryTool,
                                                                                 Extrapolator     = InDetExtrapolator))
-        #ToolSvc += m_alignMonTrackSelectorTool[i]
+        ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
             printfunc (m_alignMonTrackSelectorTool[i])
     
@@ -480,7 +478,7 @@ if Cosmics:
                                                                               #DoEventPhaseCut  = True,
                                                                               TrackSelectorTool   = m_alignMonTrackSelectorTool[i]))
 
-        #ToolSvc += m_alignMonTrackSelectionTool[i]
+        ToolSvc += m_alignMonTrackSelectionTool[i]
         if (InDetFlags.doPrintConfigurables()):
             printfunc (" <NewInDetAlignMonitoring> m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i])
             printfunc (m_alignMonTrackSelectionTool[i])
@@ -518,7 +516,7 @@ if Cosmics:
                                                              OutputLowerTracksName = m_lowerTracksName[i],
                                                              OutputLevel = WARNING))
        
-        #ToolSvc += m_trackSplitter[i]
+        ToolSvc += m_trackSplitter[i]
         if (InDetFlags.doPrintConfigurables()):
             printfunc (m_trackSplitter[i])
             printfunc (" <NewInDetAlignMonitoring> step ",i," -> defined track segment monitoring for",m_trackSegmentsUpLowName[i],"using", m_upperTracksName[i],"and",  m_lowerTracksName[i], "   2*i+1=",2*i+1," m_alignMonTrackSelectionTool ? length=",len(m_alignMonTrackSelectionTool))
@@ -540,7 +538,7 @@ if Cosmics:
                                                             D0Range             = m_d0Range[i],
                                                             OutputLevel = WARNING))
 
-        #ToolSvc += m_trackSegmentsUpLow[i]
+        ToolSvc += m_trackSegmentsUpLow[i]
         InDetAlignMonManager.AthenaMonTools += [ m_trackSegmentsUpLow[i] ]
         printfunc (" <NewInDetAlignMonitoring> step ",i, m_trackSegmentsUpLowName[i]," added to the ToolSvc")
 
@@ -572,7 +570,7 @@ if Cosmics:
             OutputLevel = WARNING
             )
     
-        #ToolSvc += InDetAlignMonResiduals
+        ToolSvc += InDetAlignMonResiduals
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
         printfunc (InDetAlignMonResiduals)
 
@@ -595,7 +593,7 @@ if Cosmics:
             InDetAlignMonGenericTracks.d0Range = 500
             InDetAlignMonGenericTracks.z0Range = 1000
         
-        #ToolSvc += InDetAlignMonGenericTracks
+        ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
         printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonSelectedTracksEfficiencies for track collection: ",trackCollection)
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
@@ -610,7 +608,7 @@ if Cosmics:
             TRT_Manager = InDetKeys.TRT_Manager()
             )
 
-        #ToolSvc += InDetAlignMonSelectedTracksEfficiencies
+        ToolSvc += InDetAlignMonSelectedTracksEfficiencies
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonSelectedTracksEfficiencies ]
         
         # Lower track segments
@@ -640,7 +638,7 @@ if Cosmics:
             OutputLevel = WARNING
             )
     
-        #ToolSvc += InDetAlignMonResiduals
+        ToolSvc += InDetAlignMonResiduals
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
         printfunc (InDetAlignMonResiduals)
 
@@ -663,7 +661,7 @@ if Cosmics:
             InDetAlignMonGenericTracks.d0Range = 500
             InDetAlignMonGenericTracks.z0Range = 1000
         
-        #ToolSvc += InDetAlignMonGenericTracks
+        ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
         printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonSelectedTracksEfficiencies for track collection: ",trackCollection)
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
@@ -678,7 +676,7 @@ if Cosmics:
             TRT_Manager = InDetKeys.TRT_Manager()
             )
 
-        #ToolSvc += InDetAlignMonSelectedTracksEfficiencies
+        ToolSvc += InDetAlignMonSelectedTracksEfficiencies
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonSelectedTracksEfficiencies ]
 
         # ^^^
@@ -720,7 +718,7 @@ if Cosmics:
                                                            DeltaQoverPtRange2D   = m_deltaQoverPt2D_Sub[i],
                                                            D0Range               = m_d0Range_Sub[i]))
 
-        #ToolSvc += m_trackSegments_Sub[i]
+        ToolSvc += m_trackSegments_Sub[i]
         if (InDetFlags.doPrintConfigurables()):
             printfunc (m_trackSegments_Sub[i])
     

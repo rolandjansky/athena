@@ -4,73 +4,57 @@
  **     @author  emil haines
  **     @date    Wed 18 Aug 2021
  **
- **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include "TrigInDetAnalysisUtils/TIDAVertexBuilder.h"
-#include "TrigInDetAnalysisUtils/Filters.h"
-#include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
-
-// useful typedef
-typedef std::pair< std::vector<TIDA::Vertex>, std::vector<TrackTrigObject> > VerticesTracksPair_t;
 
 
 std::vector<TIDA::Vertex> TIDAVertexBuilder::select( 
-    const xAOD::VertexContainer* v, 
+    const xAOD::VertexContainer* xAODVertices,
+    const std::vector<TIDA::Track*>* trackCollection, 
     bool require_tracks ) {
 
   std::vector<TIDA::Vertex> vertices;
   
-  xAOD::VertexContainer::const_iterator vtxitr = v->begin();
+  xAOD::VertexContainer::const_iterator vtxitr = xAODVertices->begin();
   
-  for ( ; vtxitr != v->end(); ++vtxitr ) {
+  for ( ; vtxitr != xAODVertices->end(); ++vtxitr ) {
   
       if ( require_tracks && (*vtxitr)->nTrackParticles()==0 ) continue;
   
       if ( (*vtxitr)->vertexType()!=0 ) { 
-          vertices.push_back( selectVertex( *vtxitr ) );
+          TIDA::Vertex vertex = selectVertex( *vtxitr );
+          
+          if( trackCollection ) {
+            std::vector< unsigned long > trackIds;
+
+            const std::vector< ElementLink< xAOD::TrackParticleContainer > >& xAODtracks = (*vtxitr)->trackParticleLinks();
+
+            for( const auto& track : xAODtracks ) {
+              unsigned long id = getTrackId( *track );
+              trackIds.push_back( id );
+            }
+
+            vertex.selectTracks( *trackCollection, trackIds );
+          }
+
+          vertices.push_back( vertex );
       }
   }
 
-return vertices;
+  return vertices;
 }
 
 
-VerticesTracksPair_t TIDAVertexBuilder::select( 
-    const xAOD::VertexContainer* v, 
-    TrackFilter* filter, 
-    bool require_tracks ) {
-
-  std::vector<TIDA::Vertex> vertices;
-  std::vector<TrackTrigObject> tracks;
-
-  xAOD::VertexContainer::const_iterator vtxitr = v->begin();
-  
-  for ( ; vtxitr != v->end(); ++vtxitr ) {
-  
-      if ( require_tracks && (*vtxitr)->nTrackParticles()==0 ) continue;
-      
-      if ( (*vtxitr)->vertexType()!=0 ) { 
-          vertices.push_back( selectVertex( *vtxitr ) );
-          tracks.push_back( selectTracks( *vtxitr, filter ) );
-      }
-  }
-  
-  VerticesTracksPair_t verticesTracksPair( vertices, tracks );
-  
-  return verticesTracksPair;
-}
-
-
-VerticesTracksPair_t TIDAVertexBuilder::select( 
+std::vector<TIDA::Vertex> TIDAVertexBuilder::select( 
     xAOD::VertexContainer::const_iterator itr,
     xAOD::VertexContainer::const_iterator enditr,
-    TrackFilter* filter,
+    const std::vector<TIDA::Track*>* trackCollection,
     bool require_tracks ) {
 
   std::vector<TIDA::Vertex> vertices;
-  std::vector<TrackTrigObject> tracks;
-  
+
   xAOD::VertexContainer::const_iterator vtxitr = itr;
   
   for ( ; vtxitr!=enditr; ++vtxitr ) {
@@ -78,15 +62,27 @@ VerticesTracksPair_t TIDAVertexBuilder::select(
       if ( require_tracks && (*vtxitr)->nTrackParticles()==0 ) continue; 
   
       if ( (*vtxitr)->vertexType()!=0 ) {
-          vertices.push_back( selectVertex( *vtxitr ) );
-          tracks.push_back( selectTracks( *vtxitr, filter ) );
+
+          TIDA::Vertex vertex = selectVertex( *vtxitr );
+          
+          if( trackCollection ) {
+            std::vector< unsigned long > trackIds;
+
+            const std::vector< ElementLink< xAOD::TrackParticleContainer > >& xAODtracks = (*vtxitr)->trackParticleLinks();
+
+            for( const auto& track : xAODtracks ) {
+              unsigned long id = getTrackId( *track );
+              trackIds.push_back( id );
+            }
+
+            vertex.selectTracks( *trackCollection, trackIds );
+          }
+
+          vertices.push_back( vertex );
       }
   }
-  
-  VerticesTracksPair_t verticesTracksPair( vertices, tracks );
-  
-  return verticesTracksPair;
-
+    
+  return vertices;
 }
 
 
@@ -106,26 +102,10 @@ TIDA::Vertex TIDAVertexBuilder::selectVertex( const xAOD::Vertex* v ) {
                       v->numberDoF() );
   
   return tidav;
-
 }
 
 
-TrackTrigObject TIDAVertexBuilder::selectTracks( const xAOD::Vertex* v, TrackFilter* filter ) {
-
-  // get tracks associated to vertex
-  const std::vector< ElementLink< xAOD::TrackParticleContainer > >& xAODtracks = v->trackParticleLinks();
-  
-  // convert from xAOD into TIDA::Track
-  TrigTrackSelector selector( filter ); 
-  selector.selectTracks( xAODtracks );
-  const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
-  
-  // Store ids of tracks belonging to vertex in TrackTrigObject
-  TrackTrigObject tracks = TrackTrigObject();
-  for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
-      tracks.addChild( (*trkitr)->id() );
-  }
-  
-  return tracks;
-
+unsigned long TIDAVertexBuilder::getTrackId( const xAOD::TrackParticle* track ) {
+  unsigned long id = (unsigned long)track;
+  return id;
 }

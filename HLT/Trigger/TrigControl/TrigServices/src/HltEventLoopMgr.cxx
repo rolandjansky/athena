@@ -841,6 +841,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   Gaudi::Hive::setCurrentContext(eventContext);
 
   auto drainAllAndProceed = [&]() -> StatusCode {
+    resetEventTimer(eventContext, /*processing=*/ false); // stop the timeout monitoring for the failed slot
     ATH_CHECK(drainAllSlots()); // break the event loop on failure
     if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("The number of tolerable framework errors for this HltEventLoopMgr instance, which is "
@@ -1007,6 +1008,11 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   // The output has been sent out, the ByteStreamAddress can be deleted
   delete addr;
 
+  //------------------------------------------------------------------------
+  // Reset the timeout flag and the timer, and mark the slot as idle
+  //------------------------------------------------------------------------
+  resetEventTimer(eventContext, /*processing=*/ false);
+
   //----------------------------------------------------------------------------
   // Clear the event data slot
   //----------------------------------------------------------------------------
@@ -1057,15 +1063,25 @@ void HltEventLoopMgr::runEventTimer()
         EventContext ctx(0,i); // we only need the slot number for Athena::Timeout instance
         // don't duplicate the actions if the timeout was already reached
         if (!Athena::Timeout::instance(ctx).reached()) {
-          auto procTime = now - m_eventTimerStartPoint.at(i);
-          auto procTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(procTime);
-          ATH_MSG_ERROR("Soft timeout in slot " << i << ". Processing time = " << procTimeMillisec.count() << " ms");
+          ATH_MSG_ERROR("Soft timeout in slot " << i << ". Processing time exceeded the limit of " << m_softTimeoutValue.count() << " ms");
           setTimeout(Athena::Timeout::instance(ctx));
         }
       }
     }
   }
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+}
+
+// =============================================================================
+void HltEventLoopMgr::resetEventTimer(const EventContext& eventContext, bool processing) {
+  if (!eventContext.valid()) {return;}
+  {
+    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+    m_eventTimerStartPoint[eventContext.slot()] = std::chrono::steady_clock::now();
+    m_isSlotProcessing[eventContext.slot()] = processing;
+    resetTimeout(Athena::Timeout::instance(eventContext));
+  }
+  m_timeoutCond.notify_all();
 }
 
 // =============================================================================
@@ -1175,15 +1191,9 @@ StatusCode HltEventLoopMgr::startNextEvent(EventLoopStatus& loopStatus)
   }
 
   //------------------------------------------------------------------------
-  // Set event processing start time for timeout monitoring and reset timeout flag
+  // Reset the timeout flag and the timer, and mark the slot as busy
   //------------------------------------------------------------------------
-  {
-    std::unique_lock<std::mutex> lock(m_timeoutMutex);
-    m_eventTimerStartPoint[eventContext->slot()] = std::chrono::steady_clock::now();
-    m_isSlotProcessing[eventContext->slot()] = true;
-    resetTimeout(Athena::Timeout::instance(*eventContext));
-  }
-  m_timeoutCond.notify_all();
+  resetEventTimer(*eventContext, /*processing=*/ true);
 
   //------------------------------------------------------------------------
   // Load event proxies and get event info
@@ -1555,16 +1565,10 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::processFinishedEvent(
   delete l1addr;
   delete l1addrLegacy;
 
-  //--------------------------------------------------------------------------
-  // Flag idle slot to the timeout thread and reset the timer
-  //--------------------------------------------------------------------------
-  {
-    std::unique_lock<std::mutex> lock(m_timeoutMutex);
-    m_eventTimerStartPoint[eventContext->slot()] = std::chrono::steady_clock::now();
-    m_isSlotProcessing[eventContext->slot()] = false;
-    resetTimeout(Athena::Timeout::instance(*eventContext));
-  }
-  m_timeoutCond.notify_all();
+  //------------------------------------------------------------------------
+  // Reset the timeout flag and the timer, and mark the slot as idle
+  //------------------------------------------------------------------------
+  resetEventTimer(*eventContext, /*processing=*/ false);
 
   //--------------------------------------------------------------------------
   // Clear the slot

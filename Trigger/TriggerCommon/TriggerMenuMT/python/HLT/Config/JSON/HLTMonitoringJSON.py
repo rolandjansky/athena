@@ -20,13 +20,14 @@ def __getMenuBaseName(menuName):
 
 def generateDefaultMonitoringJSON(flags):
     __log.info("Generating HLT Monitoring JSON in the rec-ex-common job")
-    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+
+    from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 
     __log.debug("[HLTMonitoring::generateJSON] HLTMenuFileName =  %s"        , getHLTMenuFileName(flags)        )
     __log.debug("[HLTMonitoring::generateJSON] HLTMonitoringFileName =  %s"  , getHLTMonitoringFileName(flags)  )
 
     return generateMonitoringJSON(flags.Trigger.triggerMenuSetup,
-                                  TriggerConfigHLT.dictsList(), 
+                                  HLTMenuConfig.dictsList(), 
                                   getHLTMonitoringFileName(flags))
 
 def generateMonitoringJSON(menuName, chainDicts, fileName):

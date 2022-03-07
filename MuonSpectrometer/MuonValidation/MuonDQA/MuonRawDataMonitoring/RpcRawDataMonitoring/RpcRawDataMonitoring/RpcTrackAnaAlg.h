@@ -48,6 +48,8 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     typedef std::pair<ExResult, const std::shared_ptr<GasGapData>> GasGapResult;
 
   private:
+    enum BarrelDL { BI = 1, BM1, BM2, BO1, BO2, OUT}; // Barrel doublet: BM_dbR
+
     StatusCode initRpcPanel();
     StatusCode initTrigTag();
     StatusCode initArrayHistosMap();
@@ -57,8 +59,13 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     
     StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 
-    StatusCode extrapolate2RPC(const xAOD::TrackParticle *track, const Trk::PropDirection direction, std::vector<GasGapResult>& results) const;
-    StatusCode computeTrackIntersectionWithGasGap(ExResult &result, const xAOD::TrackParticle* track_particle, const std::shared_ptr<GasGapData> &gap ) const;
+    StatusCode extrapolate2RPC(const xAOD::TrackParticle *track, const Trk::PropDirection direction, std::vector<GasGapResult>& results, BarrelDL barrelDL) const;
+    Trk::TrackParameters* computeTrackIntersectionWithGasGap(ExResult &result, const xAOD::TrackParticle* track_particle, const std::shared_ptr<GasGapData> &gap) const;
+    
+    StatusCode extrapolate2RPC(const Trk::TrackParameters* trackParam, const Trk::PropDirection direction, std::vector<GasGapResult>& results, BarrelDL barrelDL) const;
+    Trk::TrackParameters* computeTrackIntersectionWithGasGap(ExResult &result, const Trk::TrackParameters * trackParam, const std::shared_ptr<GasGapData> &gap) const;
+    
+    
     StatusCode readHitsPerGasgap(const EventContext& ctx, std::vector<GasGapResult>& results) const;
     StatusCode fillClusterSize(std::vector<const Muon::RpcPrepData*> &view_hits, const int panel_index, int isPhi) const;
     bool       IsNearbyHit(const std::vector<const Muon::RpcPrepData*> &cluster_hits, const Muon::RpcPrepData* hit) const;
@@ -87,9 +94,7 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     DoubleProperty   m_isolationWindow{this,"IsolationWindow",0.1,"Window size in R for isolation with other muons"};
     DoubleProperty   m_l1trigMatchWindow{this,"L1TrigMatchingWindow",0.3,"Window size in R for L1 trigger matching"};
     StringProperty   m_MuonEFContainerName{this,"MuonEFContainerName","HLT_MuonsCBOutsideIn","HLT RoI-based muon track container"};
-
-    DoubleProperty   m_minDRTrackToGasGap{this, "minDRTrackToGasGap", 0.5, "minimum of DR between track and gasgap"};
-    DoubleProperty   m_minDRTrackToReadoutElement{this, "minDRTrackToReadoutElement", 1.0, "minimum of DR between track and ReadoutElement"};
+    DoubleProperty   m_minDRTrackToGasGap{this, "minDRTrackToGasGap", 0.02, "minimum of DR between track and gasgap"};
 
     DoubleProperty   m_boundsToleranceReadoutElement{this, "boundsToleranceReadoutElement", 100.0, "boundsToleranceReadoutElement"};
     DoubleProperty   m_boundsToleranceReadoutElementTight{this, "boundsToleranceReadoutElementTight", 20.0, "boundsToleranceReadoutElementTight"};
@@ -112,7 +117,11 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     RpcPanelMap              m_rpcPanelMap;
 
     std::vector<TagDef>                           m_trigTagDefs;
-    std::vector<std::shared_ptr<GasGapData>>      m_gasGapData;
+
+    std::map<std::pair<int, int>, std::vector<std::shared_ptr<GasGapData>>> m_gasGapData;
+
+    // 2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
+    std::map<BarrelDL, std::vector<int>>          m_StationNames;
 };
 
 #endif

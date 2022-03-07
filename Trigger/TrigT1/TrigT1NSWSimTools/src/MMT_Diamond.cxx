@@ -216,7 +216,6 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         }
 
         if (addc_same.size() <= 8) continue;
-        else std::cout << "Going further in ADDC loop" << std::endl;
 
         // priority encode the hits by channel number; remember hits 8+
         to_erase.clear();

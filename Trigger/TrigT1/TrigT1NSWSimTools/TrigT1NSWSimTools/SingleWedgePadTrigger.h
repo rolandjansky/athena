@@ -67,6 +67,7 @@ namespace NSWL1 {
      */
     bool isInTransitionRegion() const;
     bool is4outOf4Layers() const { return (m_pads.size()==4); }
+    bool is3outOf4Layers() const { return (m_pads.size()==3); }
     SingleWedgePadTrigger& setCombined() { m_alreadyCombined=true; return *this;}
     bool alreadyCombined() const { return m_alreadyCombined; }
     const std::vector<std::shared_ptr<PadOfflineData>>& pads() const {return m_pads;}

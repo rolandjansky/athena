@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
@@ -9,10 +9,9 @@ atlas_install_python_modules( python/*.py
                               python/HLT
                               python/TriggerAPI
                               python/CFtest
-                              POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateL1MenuRun3.py
-                       scripts/trigCompareOldandNewL1Menus.py
                        scripts/verify_menu_config.py
                        scripts/generateBunchGroupSetFromOldKey.py
                        scripts/trigmenu_modify_prescale_json.py

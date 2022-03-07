@@ -26,13 +26,10 @@ StatusCode PprMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("Package Name "<< m_packageName);
   ATH_MSG_DEBUG("m_xAODTriggerTowerContainerName "<< m_xAODTriggerTowerContainerName); 
   ATH_MSG_DEBUG("m_TT_ADC_HitMap_Thresh " << m_TT_ADC_HitMap_Thresh);
-
-  // we initialise all the containers that we need
+  
+  // We initialise all the containers that we need
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
   ATH_CHECK( m_xAODTriggerTowerContainerName.initialize() );
- 
-  // retrieve any tools if needed
-  //ATH_CHECK(myTool.retrieve());
  
   // Initialize the groups for GenericMonitoringArrays
   std::vector<std::string> partitionsEM = {"LArFCAL1C", "LArEMECC", "LArOverlapC", "LArEMBC", "LArEMBA", "LArOverlapA", "LArEMECA", "LArFCAL1A"};
@@ -112,7 +109,6 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     // Layer-dependent LUT-CP plots (EM or HAD)
     groupName = "groupLUTCP_";
     groupName.append(layerName);
-    ATH_MSG_DEBUG("Filling group: " << groupName);   
  
     // Fill LUT-CP eta and ET distributions
     // ppm_em_1d_tt_lutcp_Eta, ppm_had_1d_tt_lutcp_Eta
@@ -131,10 +127,21 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
     }
 
+    // LUT hitmaps per threshold 
+    // ppm_em_2d_etaPhi_tt_lutcp_Threshold, ppm_had_2d_etaPhi_tt_lutcp_Threshold
+    
+    for (int th : m_TT_HitMap_ThreshVec) {
+      groupName = "groupLUTCP_"+layerName+"_"+std::to_string(th)+"_LB";
+      ATH_MSG_DEBUG("Filling group " << groupName);
+      ATH_MSG_DEBUG("cpET > " << th << " ? " << (cpET > th));  
+      if (cpET > th) {
+        ATH_CHECK( fillPPMEtaVsPhi(myTower, groupName, "", 1.) );
+      }
+    }
+              
     // LUT-JEP  
     groupName = "groupLUTJEP_";
     groupName.append(layerName);
-    ATH_MSG_DEBUG("Filling group: " << groupName); 
    
     // Fill LUT-JEP eta and ET distributions
     // ppm_em_1d_tt_lutjep_Eta, ppm_had_1d_tt_lutjep_Eta
@@ -153,13 +160,23 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
     }
 
+    // LUT hitmaps per threshold 
+    // ppm_em_2d_etaPhi_tt_lutjep_Threshold, ppm_had_2d_etaPhi_tt_lutcp_Threshold
+
+    for (int th : m_TT_HitMap_ThreshVec) {
+      groupName = "groupLUTJEP_"+layerName+"_"+std::to_string(th)+"_LB";
+      ATH_MSG_DEBUG("Filling group " << groupName);
+      ATH_MSG_DEBUG("jepET > " << th << " ? " << (jepET > th));
+      if (jepET > th) {
+        ATH_CHECK( fillPPMEtaVsPhi(myTower, groupName, "", 1.) );
+      }
+
+    }
 
     // -------- ADC hitmaps per timeslice --------
     unsigned int tslice = (myTower.tower)->adcPeak();
     unsigned int adcSize = ((myTower.tower)->adc()).size();
     
-    ATH_MSG_DEBUG("tslice: " << tslice << " adcSize: " << adcSize);
-
     // Number of triggered timeslice
     groupName = "groupTimeslice_";
     groupName.append(layerName);    
@@ -174,7 +191,6 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       if (ADC > m_TT_ADC_HitMap_Thresh) {
         // Fills both ppm_em_2d_etaPhi_tt_adc_HitMap (unweighted) and ppm_em_2d_etaPhi_tt_adc_ProfileHitMap (weighted) at the same time
         ATH_CHECK(fillPPMEtaVsPhi(myTower, groupName, "adcTT", ADC));
-        ATH_MSG_DEBUG("ADC: " << ADC);
       }
     }
   
@@ -305,7 +321,7 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
 {
   // Geometry
   const int layer = tt->layer(); // 0 = EM, 1 = HAD
-  const double eta = tt->eta();
+  //const double eta = tt->eta();
   const double phi = tt->phi();
   double phiMod = phi * m_phiScaleTT;
   
@@ -327,7 +343,6 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
   vecMonTT.push_back(monTT);
   if (layer == 0) vecMonTT_EM.push_back(monTT);
   if (layer == 1) vecMonTT_HAD.push_back(monTT);
-  ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " max: " << max);
    
   return StatusCode::SUCCESS; 
 }
@@ -421,7 +436,7 @@ std::string PprMonitorAlgorithm::getPartition(int layer, double eta) const {
 StatusCode PprMonitorAlgorithm::fillPPMEtaVsPhi( MonitorTT &monTT, 
                                            const std::string& groupName, 
                                            const std::string& weightName,
-                                           double weight) const {
+                                           double weight/*=1.*/) const {
   
   // Number of bins filled in phi depends on eta due to electronics coverage
  
@@ -448,17 +463,14 @@ StatusCode PprMonitorAlgorithm::fillPPMEtaVsPhi( MonitorTT &monTT,
     offset = {0.};
   }
 
-  ATH_MSG_DEBUG("absEta: " << absEta << "offset.size(): " << offset.size());
- 
   // Fill the histograms 
   for (auto phiOffset : offset)  {
 
     auto etaTT_2D = Monitored::Scalar<double>("etaTT_2D", etaMod);
     auto phiTT_2D = Monitored::Scalar<double>("phiTT_2D", phiMod + phiOffset);
     auto weight_2D = Monitored::Scalar<double>(weightName, weight); // Weight for filling 2D profile histograms; name must be included in python histogram definition
-   
     ATH_MSG_DEBUG("etaTT_2D: " << etaTT_2D << " phiTT_2D: " << phiTT_2D << " weight_2D: " << weight_2D);    
-
+    ATH_MSG_DEBUG("groupName: " << groupName); 
     fill(groupName, etaTT_2D, phiTT_2D, weight_2D);
     
   }      

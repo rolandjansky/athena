@@ -4,7 +4,8 @@ from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 from .JetDefinition import  JetDefinition
 from .JetGrooming import  JetTrimming, JetSoftDrop
 
-
+# needed to ensure the smallR VR jets are defined
+import JetRecConfig.StandardSmallRJets # noqa: F401
 
 # *********************************************************
 # Ghost-associated particles for the standard large R jets 
@@ -48,7 +49,7 @@ lctopo_trimmed_mods = ("planarflow","angularity","comshapes","ktdr","TrackSumMom
 
 
 AntiKt10LCTopo = JetDefinition("AntiKt",1.0,cst.LCTopoOrigin,
-                               ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJet"] ,
+                               ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJets"] ,
                                modifiers = ("Sort", "Filter:50000","TrackMoments"),
                                standardRecoMode = True,                               
                                lock = True

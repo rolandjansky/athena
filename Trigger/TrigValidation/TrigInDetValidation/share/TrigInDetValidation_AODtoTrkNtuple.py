@@ -50,7 +50,7 @@ doTier0Mon = False
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
 
-doTier0Mon = False
+doNewTier0Mon = False
 
 if 'doNewTIDATier0' in locals():
   doNewTier0Mon = doNewTIDATier0
@@ -64,14 +64,11 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if doTier0Mon :
+if doTier0Mon and not doNewTier0Mon:
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 
   montools = TrigIDtrkMonitoringTool()
-
-  #  print "\n\nMonTools\n"
-  #  print montools
 
   HLTMonManager.AthenaMonTools += montools
 
@@ -81,20 +78,16 @@ if doTier0Mon :
   HLTMonManager.FileKey = "AANT"
 
 
-if doNewTier0Mon :
+if doNewTier0Mon :   
 
-# this is the new location ...
-#  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
-#  for git in TIDAMonitoring( "idtrigger" ):
-# but until then ... 
-  from TrigInDetAnalysisExample.TIDAMonTool import monitoring
-  for git in monitoring( "idtrigger" ):
+  # this is the new location ...
+  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  for git in TIDAMonitoring( "idtrigger" ):
     algseq += git
 
   from GaudiSvc.GaudiSvcConf import THistSvc
   ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-new-tier0.root' OPT='RECREATE'"]
-  HLTMonManager.FileKey = "AANT"
+  ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
 
 
 
@@ -179,8 +172,8 @@ if ( True ) :
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_IDTrig",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
-    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
-    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
+    "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+    "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
 
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
@@ -214,13 +207,12 @@ if ( True ) :
     "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
     # double electron chains for tag and probe analysis
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=-1",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
 
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=-1",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=1",
+
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",

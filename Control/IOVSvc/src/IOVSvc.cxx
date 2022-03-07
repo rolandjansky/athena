@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -22,6 +22,8 @@
 #include "GaudiKernel/IConversionSvc.h"
 
 #include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/IAddressProvider.h"
+#include "AthenaKernel/IIOVDbSvc.h"
 #include "IOVSvc/IIOVSvcTool.h"
 
 using SG::DataProxy;
@@ -355,7 +357,7 @@ IOVSvc::setRange(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    ATH_MSG_ERROR( "setRange: no IOVSvcTool assocaited with store \"" 
+    ATH_MSG_ERROR( "setRange: no IOVSvcTool associated with store \""
                    << storeName << "\" and failed to create one."  );
     return StatusCode::FAILURE;
   }
@@ -378,6 +380,44 @@ IOVSvc::setRange(const CLID& clid, const std::string& key,
 
   return ist->setRange( clid, key, iovr );
 
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+StatusCode
+IOVSvc::dropObjectFromDB(const CLID& clid, const std::string& key,
+                         const std::string& storeName) {
+
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+  IIOVSvcTool *ist = getTool( clid, key );
+  if (ist == nullptr) {
+    ATH_MSG_ERROR( "dropObjectFromDB: no IOVSvcTool associated with store "
+                   << storeName << " and failed to create one."  );
+    return StatusCode::FAILURE;
+  }
+
+  DataProxy* proxy = p_detStore->proxy(clid, key);
+  if (proxy == nullptr) {
+    ATH_MSG_DEBUG("Proxy for (clid: " << clid << " key: " << key << ") in store " << storeName
+                  << " does not exist. Cannot drop associated object.");
+    return StatusCode::SUCCESS;
+  }
+
+  // Set IOV in the past to trigger reload on next range check
+  IOVRange iovr(IOVTime(0, 0), IOVTime(0, 0));
+  ATH_CHECK( ist->setRange(clid, key, iovr) );
+
+  IIOVDbSvc *iovDB = dynamic_cast<IIOVDbSvc*>(proxy->provider());
+  if (iovDB != nullptr) {
+    ATH_MSG_DEBUG("Dropping " << key << "via IOVDBSvc");
+    ATH_CHECK( iovDB->dropObject(key, /*resetCache=*/true) );
+  } else {
+    ATH_MSG_ERROR("dropObjectFromDB: Provider for " << key << " is not an IIOVDbSvc.");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 

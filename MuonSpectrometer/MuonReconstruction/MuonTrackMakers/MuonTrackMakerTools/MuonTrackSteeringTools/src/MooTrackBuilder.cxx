@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackBuilder.h"
@@ -693,13 +693,13 @@ namespace Muon {
                         ATH_MSG_WARNING(" Measurement with MDT identifier that is not a MdtDriftCircleOnTrack ");
                         continue;
                     }
-                    const Trk::RIO_OnTrack* newMdt = m_mdtRotCreator->correct(*mdt->prepRawData(), *pars);
+                    std::unique_ptr<const Trk::RIO_OnTrack> newMdt(m_mdtRotCreator->correct(*mdt->prepRawData(), *pars));
                     if (!newMdt) {
                         ATH_MSG_WARNING(" Failed to recalibrate MDT ");
                         continue;
                     }
                     Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(
-                        **tsit, newMdt, pars->clone(),
+                        **tsit, std::move(newMdt), pars->uniqueClone(),
                         (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? Trk::TrackStateOnSurface::Outlier
                                                                          : Trk::TrackStateOnSurface::Measurement);
                     newStates.push_back(std::make_pair(true, tsos));
@@ -844,53 +844,51 @@ namespace Muon {
 
         // now that we have the lists of prds we can create the competing rots
         if (!etaPrds.empty()) {
-            const CompetingMuonClustersOnTrack* etaCompRot = m_compRotCreator->createBroadCluster(etaPrds, 0.);
+            std::unique_ptr<const CompetingMuonClustersOnTrack> etaCompRot = m_compRotCreator->createBroadCluster(etaPrds, 0.);
             if (!etaCompRot) {
                 ATH_MSG_WARNING(" Failed to create CompetingMuonClustersOnTrack for eta hits! ");
             } else {
-                const Trk::TrackParameters* etaPars = nullptr;
+                std::unique_ptr<const Trk::TrackParameters> etaPars;;
                 // check whether original parameters are on surface, if so clone original parameters
                 if (etaCompRot->associatedSurface() == pars->associatedSurface()) {
-                    etaPars = pars->clone();
+                    etaPars = pars->uniqueClone();
                 } else {
                     // ownership relinquished, should be treated in createMeasTSOS
                     etaPars =
-                        m_propagator->propagate(ctx,
-                                                *pars, etaCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
-                            .release();
+                        m_propagator->propagate(ctx,*pars, 
+                          etaCompRot->associatedSurface(), 
+                          Trk::anyDirection, false, m_magFieldProperties);
                 }
                 if (!etaPars) {
                     ATH_MSG_WARNING(" Failed to calculate TrackParameters for eta hits! ");
-                    delete etaCompRot;
                 } else {
                     Trk::TrackStateOnSurface* tsos =
-                        MuonTSOSHelper::createMeasTSOS(etaCompRot, etaPars, Trk::TrackStateOnSurface::Measurement);
+                        MuonTSOSHelper::createMeasTSOS(std::move(etaCompRot), std::move(etaPars), Trk::TrackStateOnSurface::Measurement);
                     newStates.push_back(std::make_pair(true, tsos));
                 }
             }
         }
 
         if (!phiPrds.empty()) {
-            const CompetingMuonClustersOnTrack* phiCompRot = m_compRotCreator->createBroadCluster(phiPrds, 0.);
+            std::unique_ptr<const CompetingMuonClustersOnTrack> phiCompRot = m_compRotCreator->createBroadCluster(phiPrds, 0.);
             if (!phiCompRot) {
                 ATH_MSG_WARNING(" Failed to create CompetingMuonClustersOnTrack for phi hits! ");
             } else {
-                const Trk::TrackParameters* phiPars = nullptr;
+                std::unique_ptr<const Trk::TrackParameters> phiPars;
                 // check whether original parameters are on surface, if so clone original parameters
                 if (phiCompRot->associatedSurface() == pars->associatedSurface()) {
-                    phiPars = pars->clone();
+                    phiPars = pars->uniqueClone();
                 } else {
                     // ownership relinquished, handled in createMeasTSOS
                     phiPars =
-                        m_propagator->propagate(ctx, *pars, phiCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
-                            .release();
+                        m_propagator->propagate(ctx, *pars, phiCompRot->associatedSurface(), 
+                        Trk::anyDirection, false, m_magFieldProperties);
                 }
                 if (!phiPars) {
                     ATH_MSG_WARNING(" Failed to calculate TrackParameters for phi hits! ");
-                    delete phiCompRot;
                 } else {
                     Trk::TrackStateOnSurface* tsos =
-                        MuonTSOSHelper::createMeasTSOS(phiCompRot, phiPars, Trk::TrackStateOnSurface::Measurement);
+                        MuonTSOSHelper::createMeasTSOS(std::move(phiCompRot), std::move(phiPars), Trk::TrackStateOnSurface::Measurement);
                     newStates.push_back(std::make_pair(true, tsos));
                 }
             }

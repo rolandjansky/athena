@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 #include "GeneratorFilters/xAODTauFilter.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -305,7 +305,12 @@ for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       if (!(*mec)[i]) continue;
       double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
       if ((*mec)[i]->weights().size()>0) {
-	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
+        for (unsigned int iw = 0; iw < (*mec)[i]->weights().size(); ++iw) {
+           double existWeight = (*mec)[i]->weights()[iw];
+           (*mec)[i]->weights()[iw] = existWeight*extra_weight;
+        }
+// in case modification of a nominal weight is only needed uncomment the line below
+//	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
       } else {
 	(*mec)[i]->weights().push_back( existingWeight*extra_weight );
       }

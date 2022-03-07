@@ -51,7 +51,7 @@ class LArWheelCalculator;
 class TF1;
 class LArFanSections;
 class G4Polyhedra;
-class EMECData;
+struct EMECData;
 
 #include "LArWheelSolid_type.h"
 

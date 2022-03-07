@@ -121,12 +121,12 @@ def createCFTree(CFseq):
 ## CORE of Decision Handling
 #######################################
 
-def makeHLTTree(flags, newJO=False, triggerConfigHLT = None):
+def makeHLTTree(flags, newJO=False, hltMenuConfig = None):
     """ Creates the full HLT tree, main function called from GenerateMenu.py"""
 
-    # Check if triggerConfigHLT exits, if yes, derive information from this
-    if triggerConfigHLT is None:
-        raise Exception("[makeHLTTree] triggerConfigHLT is set to None, please check!")
+    # Check if hltMenuConfig exits, if yes, derive information from this
+    if hltMenuConfig is None:
+        raise Exception("[makeHLTTree] hltMenuConfig is set to None, please check!")
 
     # get topSequnece
     topSequence = AlgSequence()
@@ -147,7 +147,7 @@ def makeHLTTree(flags, newJO=False, triggerConfigHLT = None):
     log.debug("[makeHLTTree] will now make the DF and CF tree from chains")
 
     # make DF and CF tree from chains
-    finalDecisions = decisionTreeFromChains(flags, steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
+    finalDecisions = decisionTreeFromChains(flags, steps, hltMenuConfig.configsList(), hltMenuConfig.dictsList(), newJO)
 
     successful_scan = sequenceScanner( steps )
     
@@ -188,7 +188,7 @@ def makeHLTTree(flags, newJO=False, triggerConfigHLT = None):
     appendCAtoAthena( summaryAcc )
 
     # Add end-of-event sequences executed conditionally on the DecisionSummaryMakerAlg filter status
-    acceptedEventChainDicts = [cd for cd in triggerConfigHLT.dictsList() \
+    acceptedEventChainDicts = [cd for cd in hltMenuConfig.dictsList() \
                                if 'Calib' in cd['signatures'] \
                                and 'acceptedevts' in cd['chainParts'][0]['purpose']]
     if flags.Trigger.endOfEventProcessing.Enabled and acceptedEventChainDicts:
