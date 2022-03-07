@@ -5,6 +5,10 @@ import json
 import six
 import xml.etree.ElementTree as ET
 from collections import OrderedDict as odict
+import coral
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TriggerConfigAccessBase.py')
 
 def getFileType(filename):
     filetype = "unknown"
@@ -138,58 +142,91 @@ class ConfigDBLoader(ConfigLoader):
             if count>1:
                 raise RuntimeError("More than 1 connection found in %s for service %s" % (authFile, svc))
         return credentials
+
     @staticmethod
-    def getConnection(credentials):
-        for connSvc, userpw in credentials.items():
-            try:
-                if connSvc.startswith("oracle:"):
-                    from cx_Oracle import connect
-                    [tns,schema] = connSvc.split("/")[-2:]
-                    cursor = connect(userpw["user"], userpw["password"], tns, threaded=False).cursor()
-                    return cursor, schema
-                if connSvc.startswith("frontier:"):
-                    import re, os
-                    pattern = r"frontier://ATLF/\(\)/(.*)"
-                    m = re.match(pattern,connSvc)
-                    if not m:
-                        raise RuntimeError("connection string '%s' doesn't match the pattern '%s'?" % (connSvc, pattern))
-                    (schema, ) = m.groups()
+    def getSchema(connStr):
+        if connStr.startswith("oracle:"):
+            [_, schema] = connStr.split("/")[-2:]
+            return schema
 
-                    from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
-                    cursor = getFrontierCursor(urls = os.getenv('FRONTIER_SERVER', None), schema = schema, loglevel=2)
-                    cursor.encoding = "latin-1"
-                    return cursor, schema
-                if connSvc.startswith("sqlite_file:"):
-                    raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
-            except Exception as e:
-                raise RuntimeError(e)
+        if connStr.startswith("frontier:"):
+            import re
+            pattern = r"frontier://ATLF/\(\)/(.*)"
+            m = re.match(pattern, connStr)
+            if not m:
+                raise RuntimeError("connection string '%s' doesn't match the pattern '%s'?" % (connStr, pattern))
+            (schema, ) = m.groups()
+            return schema
 
+        if connStr.startswith("sqlite_file:"):
+            raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
+
+    @staticmethod
+    def getCoralQuery(session, queryStr):
+        ''' Parse output, tables and contidion from the query string into coral query object'''
+        query = session.nominalSchema().newQuery()
+
+        output = queryStr.split("SELECT")[1].split("FROM")[0]
+        query.addToOutputList(output)
+
+        for table in queryStr.split("FROM")[1].split("WHERE")[0].split(","):
+            tableSplit = list(filter(None, table.split(" ")))
+            query.addToTableList(tableSplit[0].split(".")[1], tableSplit[1])
+
+        query.setCondition(queryStr.split("WHERE")[1], coral.AttributeList())
+        return query
 
     def load(self):
-        from cx_Oracle import DatabaseError
         credentials = ConfigDBLoader.getConnectionParameters(self.dbalias)
-        cursor, self.schema = ConfigDBLoader.getConnection(credentials)
-        qdict = { "schema" : self.schema, "dbkey" : self.dbkey }
-        failures = []
-        config = None
+
+        svc = coral.ConnectionService() 
+        svcconfig = svc.configuration()
+        svcconfig.disablePoolAutomaticCleanUp()
+        svcconfig.setConnectionTimeOut(0)
+
         for q in self.query:
-            try:
-                cursor.execute( q.format(**qdict) )
-            except DatabaseError as e:
-                failures += [ (q.format(**qdict), str(e)) ]
-            else:
-                configblob = cursor.fetchall()[0][0]
-                # Decode oracle result
-                if type(configblob) != str:
-                    configblob = configblob.read().decode("utf-8")
-                config = json.loads(configblob, object_pairs_hook = odict)
-                break
-        if not config:
-            for q,f in failures:
-                print("Failed query: %s\nFailure: %s" % (q,f))
-            raise RuntimeError("Query failed")
-        self.confirmConfigType(config)
-        return config
+            for credential in credentials:
+                log.info("Trying credentials {0}".format(credential))
+                try: 
+                    session = svc.connect(credential, coral.access_ReadOnly)
+                except Exception as e:
+                    log.warning("Failed to establish connection: {0}".format(e))
+                    continue
+
+                try:
+                    # Check that the FRONTIER_SERVER is set properly, if not reduce the retrial period and time out values
+                    if not ('FRONTIER_SERVER' in os.environ and os.environ['FRONTIER_SERVER']):
+                        svcconfig.setConnectionRetrialPeriod(1)
+                        svcconfig.setConnectionRetrialTimeOut(1)
+                    else:
+                        svcconfig.setConnectionRetrialPeriod(300)
+                        svcconfig.setConnectionRetrialTimeOut(3600)
+
+                    session.transaction().start(True) # readOnly
+                    schema = ConfigDBLoader.getSchema(credential)
+
+                    qdict = { "schema" : schema, "dbkey" : self.dbkey }
+                    query = ConfigDBLoader.getCoralQuery(session, q.format(**qdict))
+
+                    cursor = query.execute()
+
+                    # Read query result
+                    cursor.next()
+                    configblob = cursor.currentRow()[0].data()
+                    if type(configblob) != str:
+                        configblob = configblob.readline()
+                    config = json.loads(configblob, object_pairs_hook = odict)
+                    session.transaction().commit()
+                    
+                    self.confirmConfigType(config)
+                    return config
+                except Exception as e:
+                    log.warning("Failed to execute query: {0}".format(e))
+                    session.transaction().commit()
+
+
+        raise RuntimeError("Query failed")
+
     # proposed filename when writing config to file
     def getWriteFilename(self):
         return "{basename}_{schema}_{dbkey}.json".format(basename = self.configType.basename, schema = self.schema, dbkey = self.dbkey)
@@ -247,12 +284,11 @@ class TriggerConfigAccess(object):
 
     def printSummary(self):
         """ print summary info, should be overwritten by derived classes """
-        print("Configuration name: %s" % self.name())
-        print("Configuration size: %s" % len(self))
-
+        log.info("Configuration name: {0}".format(self.name()))
+        log.info("Configuration size: {0}".format(len(self)))
     def writeFile(self, filename = None):
         if filename is None:
             filename = self.loader.getWriteFilename()
         with open(filename, 'w') as fh:
             json.dump(self.config(), fh, indent = 4, separators=(',', ': '))
-            print("Wrote file %s" % filename)
+            log.info("Wrote file {0}".format(filename))
