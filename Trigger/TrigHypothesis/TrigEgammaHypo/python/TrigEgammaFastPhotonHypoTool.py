@@ -2,7 +2,7 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
-
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 #
 # For photons
@@ -99,11 +99,11 @@ class TrigEgammaFastPhotonHypoToolConfig:
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
-      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
-      doOnlineMonAllChains = doOnlineMonForceCfg()
+      
+      doValidationMonitoring = ConfigFlags.Trigger.doValidationMonitoring # True to monitor all chains for validation purposes
       monGroups = self.__monGroups
 
-      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+      if (any('egammaMon:online' in group for group in monGroups) or doValidationMonitoring):
         self.addMonitoring()
 
 
@@ -117,9 +117,14 @@ class TrigEgammaFastPhotonHypoToolConfig:
     monTool = GenericMonitoringTool("MonTool"+self.chain())
     monTool.Histograms = [
       defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="FastPhoton Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
-      defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="FastPhoton Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-      defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="FastPhoton Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
-      defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="FastPhoton Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2),
+      defineHistogram('Et', type='TH1F', path='EXPERT', title="FastPhoton Hypo E_{T}^{EM};E_{T}^{EM} [MeV]",xbins=50, xmin=-2000, xmax=100000),
+      defineHistogram('Eta', type='TH1F', path='EXPERT', title="FastPhoton Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
+      defineHistogram('Phi', type='TH1F', path='EXPERT', title="FastPhoton Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2),
+      defineHistogram('Rcore', type='TH1F', path='EXPERT', title="FastPhoton Hypo R_{core};E^{3x7}/E^{7x7} in sampling 2",xbins=48, xmin=-0.1, xmax=1.1),
+      defineHistogram('Eratio', type='TH1F', path='EXPERT',title="FastPhoton Hypo E_{ratio};E^{max1}-E^{max2}/E^{max1}+E^{max2} in sampling 1 (excl.crack)",xbins=64, xmin=-0.1, xmax=1.5),
+      defineHistogram('Et_had', type='TH1F', path='EXPERT', title="FastPhoton Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]",xbins=50, xmin=-2000, xmax=100000),
+      defineHistogram('F1', type='TH1F', path='EXPERT', title="FastPhoton Hypo f_{1};f_{1}", xbins=34, xmin=-0.5, xmax=1.2),
+
     ]
     monTool.HistPath = 'FastPhotonHypo/'+self.chain()
     self.__tool.MonTool = monTool

@@ -55,15 +55,18 @@ bool TrigEgammaPrecisionCaloHypoTool::decide( const ITrigEgammaPrecisionCaloHypo
 
   bool pass = false;
 
-  auto dEta_mon         = Monitored::Scalar( "dEta", -1. ); 
-  auto dPhi_mon         = Monitored::Scalar( "dPhi", -1. );
-  auto eT_Cluster_mon   = Monitored::Scalar( "Et_em"   , -1.0 );
-  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
-  auto monitorIt    = Monitored::Group( m_monTool, 
-					dEta_mon, dPhi_mon, eT_Cluster_mon,
-                                        PassedCuts );
+  auto mon_dEta         = Monitored::Scalar( "dEta", -1. ); 
+  auto mon_dPhi         = Monitored::Scalar( "dPhi", -1. );
+  auto mon_eta          = Monitored::Scalar( "Eta", -99. ); 
+  auto mon_phi          = Monitored::Scalar( "Phi", -99. );
+  auto mon_eT_Cluster   = Monitored::Scalar( "Et_em"   , -1.0 );
+  auto PassedCuts       = Monitored::Scalar<int>( "CutCounter", -1 );  
+  auto monitorIt        = Monitored::Group( m_monTool, mon_dEta, mon_dPhi, mon_eta, mon_phi, mon_eT_Cluster,PassedCuts );
+
  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
+
+  float dEta(0), dPhi(0), eta(0), phi(0), eT_Cluster(0);
 
   auto roiDescriptor = input.roi;
 
@@ -81,20 +84,23 @@ bool TrigEgammaPrecisionCaloHypoTool::decide( const ITrigEgammaPrecisionCaloHypo
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
   double phiRef = roiDescriptor->phi();
+
   // correct phi the to right range ( probably not needed anymore )   
   if ( fabs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
 
 
   auto pClus = input.cluster;
-  
+  eta = pClus->eta();
+  phi = pClus->phi();
+
   float absEta = fabs( pClus->eta() );
   const int cutIndex = findCutIndex( absEta );
   
-  float dEta =  pClus->eta() - etaRef;
+  dEta =  pClus->eta() - etaRef;
   //  Deal with angle diferences greater than Pi
-  float dPhi =  fabs( pClus->phi() - phiRef );
+  dPhi =  fabs( pClus->phi() - phiRef );
   dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
-  float eT_Cluster  = pClus->et();
+  eT_Cluster  = pClus->et();
   // apply cuts: DeltaEta( clus-ROI )
   ATH_MSG_DEBUG( "CaloCluster: eta="  << pClus->eta()
   		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
@@ -104,7 +110,8 @@ bool TrigEgammaPrecisionCaloHypoTool::decide( const ITrigEgammaPrecisionCaloHypo
     ATH_MSG_DEBUG("REJECT Cluster dEta cut failed");
     return pass;
   }
-  dEta_mon = dEta;
+  mon_eta  = eta;
+  mon_dEta = dEta;
   PassedCuts = PassedCuts + 1; //Deta
   
   // DeltaPhi( clus-ROI )
@@ -116,7 +123,8 @@ bool TrigEgammaPrecisionCaloHypoTool::decide( const ITrigEgammaPrecisionCaloHypo
     ATH_MSG_DEBUG("REJECT Clsuter dPhi cut failed");
     return pass;
   }
-  dPhi_mon = dPhi;
+  mon_dPhi = dPhi;
+  mon_phi  = phi;
   PassedCuts = PassedCuts + 1; //DPhi
 
   // eta range
@@ -134,7 +142,8 @@ bool TrigEgammaPrecisionCaloHypoTool::decide( const ITrigEgammaPrecisionCaloHypo
     ATH_MSG_DEBUG("REJECT et cut failed");
     return pass;
   }
-  eT_Cluster_mon = eT_Cluster;
+  mon_eT_Cluster  = eT_Cluster;
+
   // got this far => passed!
   pass = true;
 

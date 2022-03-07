@@ -223,11 +223,11 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     
 
     if hasattr(self.tool(), "MonTool"):
-      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
-      doOnlineMonAllChains = doOnlineMonForceCfg()
+      
+      doValidationMonitoring = ConfigFlags.Trigger.doValidationMonitoring # True to monitor all chains for validation purposes
       monGroups = self.__monGroups
 
-      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+      if (any('egammaMon:online' in group for group in monGroups) or doValidationMonitoring):
         self.addMonitoring()
 
 
@@ -251,6 +251,14 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
 
     monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionElectron Hypo Passed Cuts;Cut",
                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts) ]
+
+
+    if ConfigFlags.Trigger.doValidationMonitoring:
+      monTool.defineHistogram('ptcone20',type='TH1F',path='EXPERT',title= "PrecisionElectron Hypo ptcone20; ptcone20;", xbins=50, xmin=0, xmax=5.0),
+      monTool.defineHistogram('relptcone20',type='TH1F',path='EXPERT',title= "PrecisionElectron Hypo; ptcone20/pt;", xbins=50, xmin=0, xmax=1),
+      monTool.defineHistogram('ptvarcone20',type='TH1F',path='EXPERT',title= "PrecisionElectron Hypo ptvarcone20; ptvarcone20;", xbins=50, xmin=0, xmax=5.0),
+      monTool.defineHistogram('relptvarcone20',type='TH1F',path='EXPERT',title= "PrecisionElectron Hypo; ptvarcone20/pt;", xbins=50, xmin=0, xmax=0.5)
+      monTool.defineHistogram('trk_d0', type="TH1F", path='EXPERT', title="PrecisionElectron Hypo Track d0; d0 [mm]", xbins=100, xmin=-1, xmax=1)
 
     monTool.HistPath = 'PrecisionElectronHypo/'+self.chain()
     self.tool().MonTool = monTool
