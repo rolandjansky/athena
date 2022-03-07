@@ -43,23 +43,28 @@ namespace Muon {
         StatusCode initialize();
 
         /** @brief find segments in a set of chambers starting from seeding TrackParameters */
-        std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars, const std::set<Identifier>& chIds) const;
+        std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                     const std::set<Identifier>& chIds) const;
 
         /** @brief find segments in a set of chambers starting from seeding TrackParameters (version with Hashes) */
-        std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs) const;
+        std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                     const std::set<IdentifierHash>& chIdHs) const;
 
         /** @brief find segments in a set of MdtPrepData starting from seeding TrackParameters */
         std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                      const std::vector<const MdtPrepData*>& mdtPrds) const;
 
         /** @brief retrieve MDT PRD collections for the given hashes */
-        void extractMdtPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const MdtPrepDataCollection*>& target) const;
+        void extractMdtPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
+                               std::vector<const MdtPrepDataCollection*>& target) const;
 
         /** @brief retrieve RPC PRD collections for the given hashes */
-        void extractRpcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const RpcPrepDataCollection*>& target) const;
+        void extractRpcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
+                               std::vector<const RpcPrepDataCollection*>& target) const;
 
         /** @brief retrieve TGC PRD collections for the given hashes */
-        void extractTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const TgcPrepDataCollection*>& target) const;
+        void extractTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
+                               std::vector<const TgcPrepDataCollection*>& target) const;
 
         /** @brief retrieve CSC PRD collections for the given hashes */
         void extractCscPrdCols(const std::set<IdentifierHash>& chIdHs, std::vector<const CscPrepDataCollection*>& target) const;
@@ -67,7 +72,8 @@ namespace Muon {
         // New Small Wheel
 
         /** @brief retrieve STGC PRD collections for the given hashes */
-        void extractsTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const sTgcPrepDataCollection*>& target) const;
+        void extractsTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
+                                std::vector<const sTgcPrepDataCollection*>& target) const;
 
         /** @brief retrieve MM PRD collections for the given hashes */
         void extractMMPrdCols(const std::set<IdentifierHash>& chIdHs, std::vector<const MMPrepDataCollection*>& target) const;
@@ -80,11 +86,13 @@ namespace Muon {
         std::vector<const MdtPrepData*> extractPrds(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs) const;
 
         /** @brief select a set of Mdt hits and calibrate them */
-        void selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
-                                std::vector<const MdtDriftCircleOnTrack*>& mdtROTs, bool& doHoleSearch) const;
+        void selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                const std::vector<const MdtPrepData*>& mdtPrdCols, std::vector<const MdtDriftCircleOnTrack*>& mdtROTs,
+                                bool& doHoleSearch) const;
 
         /** @brief select and calibrate a single MdtPrepData */
-        const MdtDriftCircleOnTrack* handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd, bool& doHoleSearch) const;
+        const MdtDriftCircleOnTrack* handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd,
+                                                  bool& doHoleSearch) const;
 
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};

@@ -13,7 +13,10 @@
 #ifndef MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 #define MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 
-
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -51,11 +54,6 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
 
 class IRoiDescriptor;
 
@@ -146,9 +144,8 @@ namespace Muon {
                                                                    "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
         ToolHandle<IMuonTrackSegmentMatchingTool> m_trackSegmentMatchingTool{this, "TrackSegmentMatchingTool",
                                                                              "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
-       
-        ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{
-            this, "ChamberHoleRecoveryTool", "", "hit-based hole search"};
+
+        ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{this, "ChamberHoleRecoveryTool", "", "hit-based hole search"};
         ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};
         ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", ""};
         ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBSLFitter"};
@@ -171,8 +168,7 @@ namespace Muon {
         Gaudi::Property<bool> m_useFitterOutlierLogic{this, "UseFitterOutlierLogic", true};
 
         Gaudi::Property<bool> m_recoverMM{this, "RecoverMM", true, "Pick up dropped micromega chambers"};
-        Gaudi::Property<bool> m_recoverSTGC{this, "RecoverSTGC", true, "Pick up dropped sTGC chambers" };
-
+        Gaudi::Property<bool> m_recoverSTGC{this, "RecoverSTGC", true, "Pick up dropped sTGC chambers"};
     };
 }  // namespace Muon
 
