@@ -76,8 +76,8 @@ def TileInfoLoaderCfg(flags, **kwargs):
         # RUN2 values:         125 107 97 75
         # RUN3 EM scale:       109  89 74 61
         # RUN3 EM+nonEM scale: 123  85 69 62
-        if flags.GeoModel.Run in [LHCPeriod.Run3, LHCPeriod.Run3] and G4V >= 10.05:
 
+        if flags.GeoModel.Run >= LHCPeriod.Run3 and G4V >= 10.05:
             if 'EmScaleE1' not in kwargs:
                 kwargs['EmScaleE1'] = 109.0
             if 'EmScaleE2' not in kwargs:

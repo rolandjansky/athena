@@ -433,7 +433,7 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         ReplaceAllJointBoundaries=True,
         BuildBoundaryLayers=True,
         ExitVolumeName='InDet::Containers::InnerDetector',
-        RemoveHGTD=(flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]),
+        RemoveHGTD=(flags.GeoModel.Run >= LHCPeriod.Run4),
         ZminHGTD=3420.)
 
 

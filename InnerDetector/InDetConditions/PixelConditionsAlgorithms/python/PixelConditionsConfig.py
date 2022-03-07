@@ -282,7 +282,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
-        if flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:  # RUN4 and beyond
+        if flags.GeoModel.Run >= LHCPeriod.Run4:  # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
             if flags.GeoModel.Type == "BrlIncl4.0_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
@@ -292,7 +292,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
             elif flags.GeoModel.Type == "BrlExt3.2_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif flags.GeoModel.Run is LHCPeriod.Run2 or flags.GeoModel.Run is LHCPeriod.Run3:
+        elif flags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
             # Planar IBL
             if flags.GeoModel.IBLLayout == "planar":
                 if flags.GeoModel.Run is LHCPeriod.Run2:
@@ -519,7 +519,7 @@ def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
         return acc
     if flags.IOVDb.DatabaseInstance == "CONDBR2":
         acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
-    elif flags.Input.isMC and (flags.GeoModel.Run is LHCPeriod.Run2 or flags.GeoModel.Run is LHCPeriod.Run3):
+    elif flags.Input.isMC and flags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
         acc.merge(addFoldersSplitOnline(flags,"PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList"))
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/HitDiscCnfg")
