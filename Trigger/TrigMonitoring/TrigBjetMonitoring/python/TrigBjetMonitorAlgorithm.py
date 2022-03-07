@@ -105,6 +105,7 @@ def TrigBjetMonConfig(inputFlags):
         log.info (" ==> BeamType is collision: %s", BeamTypeFlag)
     else:
         log.info (" ==> BeamType is not collision: %s", BeamTypeFlag)
+    trigBjetMonAlg.CollisionRun = CollisionRun
 
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
