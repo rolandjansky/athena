@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: G4MS test with pile-up profile
+# art-description: ATLFAST3F_G4MS test with pile-up profile
 # art-type: grid
 # art-include: master/Athena
 
@@ -12,9 +12,9 @@ rdoFile="RDO.pool.root"
 aodFile="AOD.pool.root"
 ntupFile="physval_g4ms.root"
 
-
 FastChain_tf.py \
-    --simulator ATLFAST3 \
+    --CA \
+    --simulator 'ATLFAST3F_G4MS' \
     --useISF True \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --randomSeed 123 \
@@ -30,9 +30,8 @@ FastChain_tf.py \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
     --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
-    --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
-    --postInclude='PyJobTransforms/UseFrontier.py' \
-    --postExec 'ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
+    --preInclude 'Campaigns.MC16a' \
+    --postInclude='PyJobTransforms.UseFrontier' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
     --pileupFinalBunch '6' \
@@ -44,8 +43,8 @@ rc1=$?
 echo  "art-result: ${rc1} EVNTtoRDO"
 
 # RDO -> AOD and AOD -> NTUP stages
-rc1_1=999
-rc1_2=999
+rc1_1=999 
+rc1_2=999 
 if [ ${rc1} -eq 0 ]
 then
     echo "Running Reco_tf.py:  RDO to AOD"
@@ -71,7 +70,6 @@ then
 fi
 echo "art-result: ${rc1_1} RDOtoAOD"
 echo "art-result: ${rc1_2} AODtoNTUP"
-
 
 rc2=999
 if [ ${rc1_1} -eq 0 ]

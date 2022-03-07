@@ -23,11 +23,11 @@ rc1=999
 rc2=999
 rc3=999
 rc4=999
-Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
+Sim_tf.py --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
     --physicsList 'FTFP_BERT' \
     --truthStrategy 'MC15aPlus' \
     --simulator 'FullG4' \
-    --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' \
+    --postInclude 'default:RecJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' \
     --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
     --DataRunNumber '222525' \
     --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' \
@@ -52,7 +52,7 @@ then
         --maxEvents=50 \
         --skipEvents='0' \
         --geometryVersion 'ATLAS-R2-2015-03-01-00' \
-        --conditionsTag 'OFLCOND-RUN12-SDR-19' \
+        --conditionsTag 'OFLCOND-MC16-SDR-RUN2-09' \
         --imf False
     echo "art-result: $? HITSMerge"
 
@@ -66,18 +66,17 @@ then
         --digiSeedOffset2 '2345678' \
         --postInclude 'PyJobTransforms/UseFrontier.py' \
         --AddCaloDigi 'False' \
-        --conditionsTag 'OFLCOND-RUN12-SDR-31' \
+        --conditionsTag 'OFLCOND-MC16-SDR-RUN2-09' \
         --imf False
     echo "art-result: $? HITStoRDO"
     
     Reco_tf.py --maxEvents '-1' \
         --skipEvents '0' \
         --geometryVersion ATLAS-R2-2015-03-01-00 \
-        --conditionsTag OFLCOND-RUN12-SDR-31 \
+        --conditionsTag OFLCOND-MC16-SDR-RUN2-09 \
         --inputRDOFile ${rdoFile} \
         --outputAODFile ${aodFile} \
-        --steering 'doRDO_TRIG' \
-        --athenaopts "all:--threads=1" \
+        --preExec "all:rec.doTrigger.set_Value_and_Lock(False)" \
         --imf False
     rc1=$?
     if [ ${rc1} -eq 0 ]
