@@ -30,7 +30,7 @@ atlas_add_dictionary( MuonMomentumCorrectionsDict
    MuonMomentumCorrections/selection.xml
    LINK_LIBRARIES MuonMomentumCorrectionsLib )
 
-if (NOT XAOD_STANDALONE)
+if (XAOD_STANDALONE)
 # Executable(s) in the package:
 atlas_add_executable( MCAST_Tester
    util/MCAST_Tester.cxx
