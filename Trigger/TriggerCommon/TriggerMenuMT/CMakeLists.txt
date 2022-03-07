@@ -39,6 +39,11 @@ foreach(test manual_menu_cf emu_step_processing_cf emu_step_menu_processing_cf)
                    PRIVATE_WORKING_DIRECTORY )
 endforeach()
 
+atlas_add_test( emu_step_processing_cf_newJO
+                SCRIPT python -m TriggerMenuMT.CFtest.test_menu_cf_newJO
+                POST_EXEC_SCRIPT nopost.sh
+                PRIVATE_WORKING_DIRECTORY  )
+
 # Unit tests:
 atlas_add_test( ViewCFTest
                 SCRIPT python -m unittest -v TriggerMenuMT.HLT.Test.ViewCFTest
