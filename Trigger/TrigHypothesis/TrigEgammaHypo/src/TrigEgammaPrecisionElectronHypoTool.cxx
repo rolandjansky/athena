@@ -52,25 +52,27 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
 
   bool pass = true;
 
-  auto ET           = Monitored::Scalar( "Et_em"   , -1.0 );
-  auto dEta         = Monitored::Scalar( "dEta", -1. );
-  auto dPhi         = Monitored::Scalar( "dPhi", -1. );
-  auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
-  auto monEta       = Monitored::Scalar( "Eta", -99. );
-  auto monPhi       = Monitored::Scalar( "Phi", -99. );
-  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto mon_lhval    = Monitored::Scalar("LikelihoodRatio",   -99.);
-  auto mon_mu       = Monitored::Scalar("mu",   -1.);
-  auto mon_ptvarcone20 = Monitored::Scalar("ptvarcone20",   -99.);
-  auto mon_relptvarcone20 = Monitored::Scalar("ptvarcone20",   -99.);
-  auto mon_ptcone20 = Monitored::Scalar("ptcone20",   -99.);
-  auto mon_relptcone20 = Monitored::Scalar("ptcone20",   -99.);
-  auto trk_d0       = Monitored::Scalar("trk_d0",   -1.);
-  auto monitorIt    = Monitored::Group( m_monTool, dEta, dPhi, 
-                                        etaBin, monEta,
-                                        monPhi,PassedCuts,mon_lhval,mon_mu, 
+  auto mon_ET             = Monitored::Scalar( "Et_em"   , -1.0 );
+  auto mon_dEta           = Monitored::Scalar( "dEta", -1. );
+  auto mon_dPhi           = Monitored::Scalar( "dPhi", -1. );
+  auto mon_etaBin         = Monitored::Scalar( "EtaBin", -1. );
+  auto mon_Eta            = Monitored::Scalar( "Eta", -99. );
+  auto mon_Phi            = Monitored::Scalar( "Phi", -99. );
+  auto PassedCuts         = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto mon_lhval          = Monitored::Scalar("LikelihoodRatio",   -99.);
+  auto mon_mu             = Monitored::Scalar("mu",   -1.);
+  auto mon_ptvarcone20    = Monitored::Scalar("ptvarcone20",   -99.);
+  auto mon_relptvarcone20 = Monitored::Scalar("relptvarcone20",   -99.);
+  auto mon_ptcone20       = Monitored::Scalar("ptcone20",   -99.);
+  auto mon_relptcone20    = Monitored::Scalar("relptcone20",   -99.);
+  auto mon_trk_d0         = Monitored::Scalar("trk_d0",   -1.);
+  auto monitorIt          = Monitored::Group( m_monTool, mon_ET, mon_dEta, mon_dPhi, 
+                                        mon_etaBin, mon_Eta,
+                                        mon_Phi,PassedCuts,mon_lhval,mon_mu, 
                                         mon_ptvarcone20, mon_relptvarcone20,
-                                        mon_ptcone20, mon_relptcone20, trk_d0);
+                                        mon_ptcone20, mon_relptcone20, mon_trk_d0);
+
+  float ET(0), dEta(0), dPhi(0), eta(0), phi(0), lhval(0), mu(0), trk_d0(0);
 
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
@@ -114,6 +116,8 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      dPhi =  fabs( pClus->phi() - phiRef );
      dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
      ET  = pClus->et();
+     eta = pClus->eta();
+     phi = pClus->phi();
 
      trk_d0 = std::abs(input.electron->trackParticle()->d0());
 
@@ -124,9 +128,11 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
 
   
      if ( fabs( pClus->eta() - etaRef ) > m_detacluster ) {
-       ATH_MSG_DEBUG("REJECT Electron a cut failed");
+       ATH_MSG_DEBUG("REJECT Electron dEta cut failed");
        return pass;
      }
+     mon_Eta = eta;
+     mon_dEta = dEta; 
      PassedCuts = PassedCuts + 1; //Deta
   
      // DeltaPhi( clus-ROI )
@@ -138,6 +144,8 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
         ATH_MSG_DEBUG("REJECT Clsuter dPhi cut failed");
         return pass;
      }
+     mon_Phi = phi; 
+     mon_dPhi = dPhi;
      PassedCuts = PassedCuts + 1; //DPhi
 
      // eta range
@@ -147,6 +155,7 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      } else { 
        ATH_MSG_DEBUG( "eta bin used for cuts " << cutIndex );
      }
+     mon_etaBin = m_etabin[cutIndex]; 
      PassedCuts = PassedCuts + 1; // passed eta cut
   
      // ET_em
@@ -155,6 +164,7 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
        ATH_MSG_DEBUG("REJECT et cut failed");
        return pass;
      }
+     mon_ET = ET; 
      PassedCuts = PassedCuts + 1; // ET_em
   
      // d0 for LRT
@@ -167,13 +177,14 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
        }
        PassedCuts = PassedCuts + 1; // d0
      }
-
+     mon_trk_d0 = trk_d0; 
  
      // This is the last step. So pass is going to be the result of LH
      // get average luminosity information to calculate LH
      if(input.valueDecorator.count("avgmu")){
-        mon_mu = input.valueDecorator.at("avgmu");
+        mu = input.valueDecorator.at("avgmu");
      }
+     mon_mu = mu;
 
      float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
         Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
@@ -263,22 +274,24 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      ATH_MSG_DEBUG( " topoetcone30 " << topoetcone30 ) ;
      ATH_MSG_DEBUG( " topoetcone40 " << topoetcone40 ) ;
      // Monitor showershapes
-     mon_ptcone20 = ptcone20;
+     
      relptcone20 = ptcone20/input.electron->pt();
-     ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
-     mon_relptcone20 = relptcone20;
-   
-     mon_ptvarcone20 = ptvarcone20;
      relptvarcone20 = ptvarcone20/input.electron->pt();
-     ATH_MSG_DEBUG("relptvarcone20 = " <<relptvarcone20  );
-     mon_relptvarcone20 = relptvarcone20;
+
+     mon_ptvarcone20 = ptvarcone20; 
+     mon_relptvarcone20 = relptvarcone20; 
+     mon_ptcone20 = ptcone20; 
+     mon_relptcone20 = relptcone20;  
+
+     ATH_MSG_DEBUG("relptvarcone20 = " << relptvarcone20  );
+     ATH_MSG_DEBUG("relptcone20 = " << relptcone20  );
      ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
    
      // Only for LH
      if( input.valueDecorator.count(m_pidName+"LHValue")){
-        mon_lhval = input.valueDecorator.at(m_pidName+"LHValue");
+        lhval = input.valueDecorator.at(m_pidName+"LHValue");
      }
-
+     mon_lhval = lhval; 
      // Should works for DNN and LH
      if( input.pidDecorator.count(m_pidName) )
      {
@@ -303,7 +316,6 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      }
      // Then, It will pass if relptcone20 is less than cut:
      pass = (relptvarcone20 < m_RelPtConeCut);
-     //
 
   }  // end of if(!m_acceptAll) 
   ATH_MSG_DEBUG( "pass = " << pass );

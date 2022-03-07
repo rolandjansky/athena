@@ -77,20 +77,20 @@ bool TrigEgammaFastElectronHypoTool::decide_cb ( const ITrigEgammaFastElectronHy
   }
 
   auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );  
-  auto ptCalo     = Monitored::Scalar( "PtCalo", -999. );
-  auto ptTrack    = Monitored::Scalar( "PtTrack", -999. );
-  auto dEtaCalo   = Monitored::Scalar( "CaloTrackEta", -1. );
-  auto dPhiCalo   = Monitored::Scalar( "CaloTrackPhi", -1. );
-  auto eToverPt   = Monitored::Scalar( "CaloTrackEoverP", -1. );
-  auto caloEta    = Monitored::Scalar( "CaloEta", -100. );
-  auto caloPhi    = Monitored::Scalar( "CaloPhi", -100. );
-  auto trk_d0    = Monitored::Scalar( "d0 value", -1. );
+  auto mon_ptCalo     = Monitored::Scalar( "PtCalo", -999. );
+  auto mon_ptTrack    = Monitored::Scalar( "PtTrack", -999. );
+  auto mon_dEtaCalo   = Monitored::Scalar( "CaloTrackdEta", -1. );
+  auto mon_dPhiCalo   = Monitored::Scalar( "CaloTrackdPhi", -1. );
+  auto mon_eToverPt   = Monitored::Scalar( "CaloTrackEoverP", -1. );
+  auto mon_caloEta    = Monitored::Scalar( "CaloEta", -100. );
+  auto mon_caloPhi    = Monitored::Scalar( "CaloPhi", -100. );
+  auto mon_trk_d0     = Monitored::Scalar( "d0Value", -1. );
   auto monitorIt  = Monitored::Group( m_monTool, 
                                       cutCounter,
-                                      ptCalo, ptTrack,    
-                                      dEtaCalo, dPhiCalo,   
-                                      eToverPt,   
-                                      caloEta, caloPhi, trk_d0);
+                                      mon_ptCalo, mon_ptTrack,    
+                                      mon_dEtaCalo, mon_dPhiCalo,   
+                                      mon_eToverPt,   
+                                      mon_caloEta, mon_caloPhi, mon_trk_d0);
 
   auto electron = input.electron;
 
@@ -98,6 +98,8 @@ bool TrigEgammaFastElectronHypoTool::decide_cb ( const ITrigEgammaFastElectronHy
     ATH_MSG_DEBUG("disconsider candidates without electron");
     return false;
   }
+
+  float ptCalo(0), dEtaCalo(0), dPhiCalo(0), eToverPt(0), caloEta(0), caloPhi(0), trk_d0(0); 
 
   const xAOD::TrackParticle* trkIter = electron->trackParticle();
 
@@ -124,19 +126,25 @@ bool TrigEgammaFastElectronHypoTool::decide_cb ( const ITrigEgammaFastElectronHy
     ATH_MSG_DEBUG( "Fails pt cut" << ptCalo << " < " << m_trackPt );
     return  false;
   }
+  mon_ptCalo    = ptCalo;
+  mon_ptTrack   = m_trackPt;
   cutCounter++;
 
   if ( dEtaCalo > m_caloTrackDEta ) {
     ATH_MSG_DEBUG( "Fails dEta cut " << dEtaCalo << " < " << m_caloTrackDEta );
     return  false;
   }
-
+  mon_dEtaCalo  = dEtaCalo;
+  mon_caloEta   = caloEta; 
+   
   cutCounter++;
   if ( dPhiCalo > m_caloTrackDPhi ) {
     ATH_MSG_DEBUG( "Fails dPhi cut " << dPhiCalo << " < " << m_caloTrackDPhi );
     return  false;
   }
-
+   
+  mon_dPhiCalo  = dPhiCalo;
+  mon_caloPhi   = caloPhi;
   cutCounter++;
   if( eToverPt <  m_caloTrackdEoverPLow ) {
     ATH_MSG_DEBUG( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow );
@@ -149,7 +157,7 @@ bool TrigEgammaFastElectronHypoTool::decide_cb ( const ITrigEgammaFastElectronHy
     ATH_MSG_DEBUG( "Fails eoverp high cut " << eToverPt << " < " << m_caloTrackdEoverPHigh );
     return false;
   }
-
+  mon_eToverPt  = eToverPt;
 
   cutCounter++;
   if ( TRTHitRatio < m_trtRatio ){
@@ -168,6 +176,8 @@ bool TrigEgammaFastElectronHypoTool::decide_cb ( const ITrigEgammaFastElectronHy
       return false;
     }
   }
+  mon_trk_d0    = trk_d0;
+
   ATH_MSG_DEBUG( "Passed selection" );
   return  true;
 
@@ -186,34 +196,37 @@ bool TrigEgammaFastElectronHypoTool::decide_ringer ( const ITrigEgammaFastElectr
   } else {
      ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
   }
-  auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );  
-  auto ptCalo     = Monitored::Scalar( "PtCalo", -999. );
-  auto ptTrack    = Monitored::Scalar( "PtTrack", -999. );
-  auto dEtaCalo   = Monitored::Scalar( "CaloTrackEta", -1. );
-  auto dPhiCalo   = Monitored::Scalar( "CaloTrackPhi", -1. );
-  auto eToverPt   = Monitored::Scalar( "CaloTrackEoverP", -1. );
-  auto caloEta    = Monitored::Scalar( "CaloEta", -100. );
-  auto caloPhi    = Monitored::Scalar( "CaloPhi", -100. );
-  auto trk_d0     = Monitored::Scalar( "d0 value", -1. );
-  auto nnOutput   = Monitored::Scalar("NNOutput",-100);
+  auto cutCounter     = Monitored::Scalar<int>( "CutCounter", -1 );  
+  auto mon_ptCalo     = Monitored::Scalar( "PtCalo", -999. );
+  auto mon_ptTrack    = Monitored::Scalar( "PtTrack", -999. );
+  auto mon_dEtaCalo   = Monitored::Scalar( "CaloTrackdEta", -1. );
+  auto mon_dPhiCalo   = Monitored::Scalar( "CaloTrackdPhi", -1. );
+  auto mon_eToverPt   = Monitored::Scalar( "CaloTrackEoverP", -1. );
+  auto mon_caloEta    = Monitored::Scalar( "CaloEta", -100. );
+  auto mon_caloPhi    = Monitored::Scalar( "CaloPhi", -100. );
+  auto mon_trk_d0     = Monitored::Scalar( "d0Value", -1. );
+  auto mon_nnOutput   = Monitored::Scalar("NNOutput",-100);
 
   auto mon        = Monitored::Group( m_monTool, 
                                       cutCounter,
-                                      ptCalo, 
-                                      ptTrack,    
-                                      dEtaCalo, 
-                                      dPhiCalo,   
-                                      eToverPt,   
-                                      caloEta, 
-                                      caloPhi, 
-                                      trk_d0,
-                                      nnOutput);
+                                      mon_ptCalo, 
+                                      mon_ptTrack,    
+                                      mon_dEtaCalo, 
+                                      mon_dPhiCalo,   
+                                      mon_eToverPt,   
+                                      mon_caloEta, 
+                                      mon_caloPhi, 
+                                      mon_trk_d0,
+                                      mon_nnOutput);
 
   auto el = input.electron;
 
   if(!el){
     return false;
   }
+
+  float ptCalo(0), dEtaCalo(0), dPhiCalo(0), eToverPt(0), caloEta(0), caloPhi(0), trk_d0(0), nnOutput(0); 
+
   cutCounter++;
 
   const xAOD::TrackParticle* trk = el->trackParticle();
@@ -233,10 +246,11 @@ bool TrigEgammaFastElectronHypoTool::decide_ringer ( const ITrigEgammaFastElectr
   trk_d0      = std::abs(trk->d0());
 
  
- if ( ptCalo < m_trackPt ){ 
+  if ( ptCalo < m_trackPt ){ 
     ATH_MSG_DEBUG( "Fails pt cut" << ptCalo << " < " << m_trackPt );
     return  false;
   }
+  mon_ptCalo    = ptCalo;
   cutCounter++;
 
   auto rings = input.rings;
@@ -260,6 +274,17 @@ bool TrigEgammaFastElectronHypoTool::decide_ringer ( const ITrigEgammaFastElectr
     pass = input.pidDecorator.at(m_pidName);
     ATH_MSG_DEBUG( "Get the decision for " << m_pidName << ": " << (pass?"Yes":"No") );
   }
+
+  
+  mon_ptTrack   = m_trackPt;
+  mon_dEtaCalo  = dEtaCalo; 
+  mon_dPhiCalo  = dPhiCalo;
+  mon_eToverPt  = eToverPt;
+  mon_caloEta   = caloEta; 
+  mon_caloPhi   = caloPhi; 
+  mon_trk_d0    = trk_d0;
+  mon_nnOutput  = nnOutput;
+
 
   return pass;
 }
