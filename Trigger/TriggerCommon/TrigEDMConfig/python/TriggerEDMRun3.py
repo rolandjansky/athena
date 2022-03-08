@@ -91,8 +91,13 @@ HIJetVarsToKeep = JetVarsToKeep + ['HLT_HIClusters_DR8Assoc']
 HIJetVars = '.'.join(HIJetVarsToKeep)
 
 BTagOutput = ['jetLink','BTagTrackToJetAssociator','Muons',]
-BTagOutput_IP2D = ['IP2D_TrackParticleLinks','IP2D_nTrks','IP2D_isDefaults','IP2D_cu','IP2D_bu','IP2D_bc',]
-BTagOutput_IP3D = ['IP3D_TrackParticleLinks','IP3D_nTrks','IP3D_isDefaults','IP3D_cu','IP3D_bu','IP3D_bc',]
+BTagOutput_IPxD = [
+    'IP{x}D_TrackParticleLinks','IP{x}D_nTrks','IP{x}D_isDefaults',
+    'IP{x}D_cu','IP{x}D_bu','IP{x}D_bc',
+    'IP{x}D_pu','IP{x}D_pc','IP{x}D_pb',
+]
+BTagOutput_IP2D = [f.format(x=2) for f in BTagOutput_IPxD]
+BTagOutput_IP3D = [f.format(x=3) for f in BTagOutput_IPxD]
 BTagOutput_SV1 = ['SV1_TrackParticleLinks','SV1_vertices','SV1_isDefaults','SV1_NGTinSvx','SV1_masssvx','SV1_N2Tpair','SV1_efracsvx','SV1_deltaR','SV1_Lxy','SV1_L3d','SV1_significance3d','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_badTracksIP','SV1_normdist',]
 BTagOutput_JetFitter = [
     'JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR',
