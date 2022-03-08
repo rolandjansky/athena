@@ -73,6 +73,7 @@ _all_streams = [
     StreamInfo('L1TopoMismatches', 'calibration', False, True),
     StreamInfo('ZDCCalib', 'calibration', False, False),
     StreamInfo('IDCalib', 'calibration', False, False),
+    StreamInfo('AFPCalib', 'calibration', False, False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
