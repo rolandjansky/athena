@@ -37,11 +37,15 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    ATH_CHECK(m_cscDataPreparator.retrieve(DisableTool{m_cscDataPreparator.empty()}));
    ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
 
-   ATH_CHECK(m_stgcDataPreparator.retrieve(DisableTool{m_stgcDataPreparator.empty()}));
-   ATH_MSG_DEBUG("Retrieved service " << m_stgcDataPreparator);
+   if (m_use_stgc) {
+     ATH_CHECK(m_stgcDataPreparator.retrieve(DisableTool{m_stgcDataPreparator.empty()}));
+     ATH_MSG_DEBUG("Retrieved service " << m_stgcDataPreparator);
+   }
 
-   ATH_CHECK(m_mmDataPreparator.retrieve(DisableTool{m_mmDataPreparator.empty()}));
-   ATH_MSG_DEBUG("Retrieved service " << m_mmDataPreparator);
+   if (m_use_mm) {
+     ATH_CHECK(m_mmDataPreparator.retrieve(DisableTool{m_mmDataPreparator.empty()}));
+     ATH_MSG_DEBUG("Retrieved service " << m_mmDataPreparator);
+   }
 
    ATH_CHECK(m_rpcRoadDefiner.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcRoadDefiner);
@@ -609,7 +613,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
   }
 
-  if(!m_stgcDataPreparator.empty()){
+  if(m_use_stgc && !m_stgcDataPreparator.empty()){
     sc = m_stgcDataPreparator->prepareData(p_roids,
 					   stgcHits);
     if (!sc.isSuccess()) {
@@ -619,7 +623,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     ATH_MSG_DEBUG("nr of sTGC hits=" << stgcHits.size());
   }
 
-  if(!m_mmDataPreparator.empty()){
+  if(m_use_mm && !m_mmDataPreparator.empty()){
     sc = m_mmDataPreparator->prepareData(p_roids,
 					 mmHits);
     if (!sc.isSuccess()) {
@@ -696,7 +700,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
     ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
   }
 
-  if(!m_stgcDataPreparator.empty()){
+  if(m_use_stgc && !m_stgcDataPreparator.empty()){
     sc = m_stgcDataPreparator->prepareData(p_roids,
 					   stgcHits);
     if (!sc.isSuccess()) {
@@ -706,7 +710,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
     ATH_MSG_DEBUG("nr of sTGC hits=" << stgcHits.size());
   }
 
-  if(!m_mmDataPreparator.empty()){
+  if(m_use_mm && !m_mmDataPreparator.empty()){
     sc = m_mmDataPreparator->prepareData(p_roids,
 					 mmHits);
     if (!sc.isSuccess()) {
