@@ -13,8 +13,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input
 run = ExecStep.ExecStep('athena')
 run.type = 'other'
 run.input = 'ttbar'
-run.executable = 'python'
-run.args = 'runHLT_standalone_newJO.py'
+run.executable = 'runHLT_standalone_newJO.py'
 run.args += ' --filesInput='+Input.get_input(run.input).paths[0]
 run.args += ' Trigger.triggerMenuSetup="Dev_pp_run3_v1"'
 run.args += ' Trigger.doRuntimeNaviVal=True'
