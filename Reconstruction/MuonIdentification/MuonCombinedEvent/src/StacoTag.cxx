@@ -16,7 +16,7 @@ namespace MuonCombined {
   StacoTag::~StacoTag() = default;
 
   std::string StacoTag::name() const { return "StacoTag"; }
-  bool StacoTag::isComissioning() const { return muonCandidate().isComissioning(); }
+  bool StacoTag::isCommissioning() const { return muonCandidate().isCommissioning(); }
   std::string StacoTag::toString() const { 
     std::ostringstream sout;
     sout << name() << " match chi2 " << matchChi2(); 
