@@ -197,7 +197,9 @@ elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
 if run<222222 or 'COMP200' in schema:
     cabling = 'RUN1'
 else:
-    if ('OFLP200' in schema and run>=310000) or run>=343000:
+    if   ('OFLP200' in schema and run>=330000) or run>=400000:
+        cabling = 'RUN3'
+    elif ('OFLP200' in schema and run>=310000) or run>=342550:
         cabling = 'RUN2a'
     else:
         cabling = 'RUN2'
