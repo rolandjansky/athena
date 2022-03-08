@@ -35,7 +35,8 @@ StatusCode Muon::MuonEventCnvTool::initialize() {
     ATH_CHECK(m_rpcPrdKey.initialize());
     ATH_CHECK(m_tgcPrdKey.initialize());
     ATH_CHECK(m_mdtPrdKey.initialize());
-    ATH_CHECK(m_DetectorManagerKey.initialize());
+    ATH_CHECK(detStore()->retrieve(m_muonDetMgr));
+    ATH_CHECK(m_DetectorManagerKey.initialize(m_useAlignedGeo));
     ATH_CHECK(m_cscPrdKey.initialize(!m_cscPrdKey.empty()));    // check for layouts without CSCs
     ATH_CHECK(m_mmPrdKey.initialize(!m_mmPrdKey.empty()));      // check for layouts without MicroMegas
     ATH_CHECK(m_stgcPrdKey.initialize(!m_stgcPrdKey.empty()));  // check for layouts without STGCs
@@ -164,14 +165,18 @@ const Trk::TrkDetElementBase* Muon::MuonEventCnvTool::getDetectorElement(const I
 }
 
 const Trk::TrkDetElementBase* Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id) const {
-    const EventContext& ctx = Gaudi::Hive::currentContext();
-    SG::ReadCondHandle muonMgr{m_DetectorManagerKey, ctx};
-    if (!muonMgr.isValid()) {
-        ATH_MSG_ERROR("Failed to retrieve the Muon detector manager from the conditions store");
-        return nullptr;
-    }
+    const EventContext& ctx = Gaudi::Hive::currentContext();    
+    const MuonGM::MuonDetectorManager* muonMgr{nullptr};    
+    if (m_useAlignedGeo) {
+        SG::ReadCondHandle muonMgrHandle{m_DetectorManagerKey, ctx};
+        if (!muonMgrHandle.isValid()) {
+            ATH_MSG_ERROR("Failed to retrieve the Muon detector manager from the conditions store");
+            return nullptr;
+        }
+        muonMgr = muonMgrHandle.cptr();
+    } else muonMgr = m_muonDetMgr;
+    
     const Trk::TrkDetElementBase* detEl = nullptr;
-
     // TODO Check that these are in the most likely ordering, for speed. EJWM.
     if (m_idHelperSvc->isRpc(id)) {
         detEl = muonMgr->getRpcReadoutElement(id);
