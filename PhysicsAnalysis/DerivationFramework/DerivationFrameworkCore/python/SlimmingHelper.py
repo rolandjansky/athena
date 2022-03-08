@@ -327,12 +327,18 @@ class SlimmingHelper:
                 elif collectionName=="Electrons":
                         from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
+                elif collectionName=="LRTElectrons":
+                        from DerivationFrameworkEGamma.LargeD0ElectronsCPContent import LargeD0ElectronsCPContent
+                        items.extend(LargeD0ElectronsCPContent)
                 elif collectionName=="Photons":
                         from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
                         items.extend(PhotonsCPContent)
                 elif collectionName=="Muons":
                         from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
                         items.extend(MuonsCPContent)
+                elif collectionName=="MuonsLRT":
+                        from DerivationFrameworkMuons.LargeD0MuonsCPContent import LargeD0MuonsCPContent
+                        items.extend(LargeD0MuonsCPContent)
                 elif collectionName=="TauJets":
                         from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
                         items.extend(TauJetsCPContent)
@@ -606,6 +612,9 @@ class SlimmingHelper:
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
+                elif collectionName=="InDetLargeD0TrackParticles":
+                        from DerivationFrameworkInDet.InDetLargeD0TrackParticlesCPContent import InDetLargeD0TrackParticlesCPContent
+                        items.extend(InDetLargeD0TrackParticlesCPContent)
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
