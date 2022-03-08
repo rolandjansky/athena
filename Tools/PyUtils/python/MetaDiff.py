@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 import logging
+import re
 
 from PyUtils.MetaReader import read_metadata
 
@@ -51,8 +52,13 @@ def truncateDict(value):
     )
 
 
-def print_diff(parent_key, obj1, obj2, diff_format):
+def print_diff(parent_key, obj1, obj2, diff_format, filter_key, key_only):
     """build comparison string for two non-dictionary objects"""
+    
+    if filter_key is not None and filter_key(parent_key) is False:
+        # skip this key
+        return
+    
     result = "\n"
 
     if diff_format == "simple":
@@ -61,33 +67,45 @@ def print_diff(parent_key, obj1, obj2, diff_format):
         elif not obj2:
             result += "{} has been deleted".format(parent_key)
         else:
-            result += "{} has changed from '{}' to '{}'".format(
-                parent_key, obj1, obj2
-            )
+            if key_only:
+                result += "{} has changed".format( parent_key )
+            else:
+                result += "{} has changed from '{}' to '{}'".format(
+                    parent_key, obj1, obj2
+                )
         result += "\n"
     else:
+        
         if parent_key is not None:
-            result += "{}:\n".format(parent_key)
-        try:
-            overlap = set(obj1).intersection(set(obj2))
-            for item in overlap:
-                obj1.remove(item)
-                obj2.remove(item)
-        except (AttributeError, TypeError,):
-            pass
-        result += """\
-        > {}
-        ----------
-        < {}
-        """.format(
-            summary(obj1), summary(obj2)
-        )
+            if key_only:
+                result += "{}".format(parent_key)
+            else:
+                result += "{}:\n".format(parent_key)
+                try:
+                    overlap = set(obj1).intersection(set(obj2))
+                    for item in overlap:
+                        obj1.remove(item)
+                        obj2.remove(item)
+                except (AttributeError, TypeError,):
+                    pass
+                result += """\
+                < {}
+                ----------
+                > {}
+                """.format(
+                    summary(obj1), summary(obj2)
+                )
 
     return result
 
 
-def print_diff_type(parent_key, obj1, obj2, diff_format):
+def print_diff_type(parent_key, obj1, obj2, diff_format, filter_key, key_only):
     """Build diff string for objet of different type"""
+    
+    if filter_key is not None and filter_key(parent_key) is False:
+        # skip this key
+        return
+        
     result = "\n"
 
     if diff_format == "simple":
@@ -96,29 +114,42 @@ def print_diff_type(parent_key, obj1, obj2, diff_format):
         elif obj2 is None:
             result += "{} has been deleted".format(parent_key)
         else:
-            result += (
-                "{} has changed changed type from {} (value: '{}') to "
-                "{} (value: '{}')"
-            ).format(parent_key,
-                     type(obj1), obj1,
-                     type(obj2), obj2)
+            if key_only:
+                result += (
+                    "{} has changed changed type from {} to {}"
+                ).format(parent_key, type(obj1), type(obj2))
+            else:
+                result += (
+                    "{} has changed changed type from {} (value: '{}') to "
+                    "{} (value: '{}')"
+                ).format(parent_key,
+                         type(obj1), obj1,
+                         type(obj2), obj2)
         result += "\n"
     else:
         if parent_key is not None:
-            result += "{}:\n".format(parent_key)
-        result += """\
-        > {} (type: {})
-        ----------
-        < {} (type: {})
-        """.format(
-            summary(obj1), type(obj1), summary(obj2), type(obj2)
-        )
+            if key_only:
+                result += "{}".format(parent_key)   
+            else:
+                result += "{}:\n".format(parent_key)
+                result += """\
+                < {} (type: {})
+                ----------
+                > {} (type: {})
+                """.format(
+                    summary(obj1), type(obj1), summary(obj2), type(obj2)
+                )
 
     return result
 
 
-def print_diff_dict_keys(parent_key, obj1, obj2, diff_format):
+def print_diff_dict_keys(parent_key, obj1, obj2, diff_format, filter_key, key_only):
     """build diff style string for dictionary objects"""
+    
+    if filter_key is not None and filter_key(parent_key) is False:
+        # skip this key
+        return
+    
     result = '\n'
     if diff_format != 'simple':
         shared_keys = set(obj1.keys()).intersection(obj2.keys())
@@ -136,28 +167,33 @@ def print_diff_dict_keys(parent_key, obj1, obj2, diff_format):
         elif obj2 is None:
             result += "{} has been deleted".format(parent_key)
         else:
-            value1 = truncateDict(obj1)
-            value2 = truncateDict(obj2)
-            result += "{} has changed from '{}' to '{}'".format(
-                parent_key, value1, value2
-            )
+            
+            if key_only:
+                result += "{} has changed".format(parent_key)
+            else:
+                value1 = truncateDict(obj1)
+                value2 = truncateDict(obj2)
+                result += "{} has changed from '{}' to '{}'".format(
+                    parent_key, value1, value2
+                )
     else:
         if parent_key is not None:
-            result += "{}:\n".format(parent_key)
-        result += """\
-        > {}
-        ----------
-        < {}
-        """.format(
-            summary(obj1), summary(obj2)
-        )
+            if key_only:
+                result += "{}".format(parent_key)   
+            else:
+                result += "{}:\n".format(parent_key)    
+                result += """\
+                < {}
+                ----------
+                > {}
+                """.format( summary(obj1), summary(obj2) )
 
     result += "\n"
 
     return result
 
 
-def compare(obj1, obj2, parent_key=None, ordered=False, diff_format="simple"):
+def compare(obj1, obj2, parent_key=None, ordered=False, diff_format="simple", filter_key=None, key_only=False):
     """Caclulate difference between two objects
 
     Keyword arguments:
@@ -183,7 +219,7 @@ def compare(obj1, obj2, parent_key=None, ordered=False, diff_format="simple"):
 
             if sorted(obj1.keys()) != sorted(obj2.keys()):
                 result += [
-                    print_diff_dict_keys(parent_key, obj1, obj2, diff_format)
+                    print_diff_dict_keys(parent_key, obj1, obj2, diff_format, filter_key, key_only)
                 ]
             else:
                 for key in sorted(set(obj1.keys()) | set(obj2.keys())):
@@ -192,19 +228,19 @@ def compare(obj1, obj2, parent_key=None, ordered=False, diff_format="simple"):
                     else:
                         child_key = key
                     result += compare(
-                        obj1[key], obj2[key], child_key, ordered, diff_format
+                        obj1[key], obj2[key], child_key, ordered, diff_format, filter_key, key_only
                     )
 
         else:
-            result += [print_diff(parent_key, obj1, obj2, diff_format)]
+            result += [print_diff(parent_key, obj1, obj2, diff_format, filter_key, key_only)]
 
     else:
-        result += [print_diff_type(parent_key, obj1, obj2, diff_format)]
+        result += [print_diff_type(parent_key, obj1, obj2, diff_format, filter_key, key_only)]
 
     return result
 
 
-def compare_dicts(test, reference, ordered=False, diff_format="simple"):
+def compare_dicts(test, reference, ordered=False, diff_format="simple", filter_key = None, key_only = False):
     """Show the differences between two dictionaries
 
     Args:
@@ -217,6 +253,7 @@ def compare_dicts(test, reference, ordered=False, diff_format="simple"):
 
     keys = set(test.keys()).union(reference.keys())
     for key in keys:
+        
         try:
             val1 = test[key]
         except KeyError:
@@ -231,40 +268,11 @@ def compare_dicts(test, reference, ordered=False, diff_format="simple"):
             obj2=val2,
             parent_key=key,
             ordered=ordered,
-            diff_format=diff_format
+            diff_format=diff_format,
+            filter_key=filter_key,
+            key_only=key_only
         )
     return result
-
-
-# This function perform recursive key removal. The key to remove is
-# provided in the current_path as a list of tokens
-# The dict to altered in-place using the payload command
-# An * match any key
-def recursive_key_remove(current_path, payload):
-    
-    if isinstance(payload, dict):
-    
-        if len(current_path) > 1:
-        
-            current_token = current_path[0]
-            new_path = current_path[1:]
-            
-            for k, v in payload.items():
-                if (current_token == k or current_token == '*') and isinstance(v, dict):
-                    recursive_key_remove(new_path, v)
-                
-        elif len(current_path) == 1:
-        
-            current_token = current_path[0]
-            keys_to_remove = []
-            
-            for k, v in payload.items():
-                if current_token == k or current_token == '*':
-                    keys_to_remove.append(k)
-            
-            for k in keys_to_remove:
-                del payload [ k ]
-    
 
 def meta_diff(
         files,
@@ -276,6 +284,8 @@ def meta_diff(
         file_type=None,
         promote=False,
         diff_format="simple",
+        regex=False,
+        key_only=False
 ):
     """
     Compare the in-file metadata in two given files. Uses PyUtils.MetaReader
@@ -294,6 +304,8 @@ def meta_diff(
     file_type    -- Type of files, POOL or BS (default: auto-configure)
     promote      -- MetaReader argument (default: False)
     diff_format  -- Return 'simple' or 'diff' style string (default: 'simple')
+    regex        -- Use regex for the drop filter (default: False)
+    key_only     -- Show only the keys instead of their value (default: False)
     """
     if len(files) != 2:
         raise ValueError("Wrong number of files passes, need two")
@@ -314,19 +326,37 @@ def meta_diff(
         promote=promote,
     )
 
-    if drop is not None:
-        for drop_key in drop:
-            for filename, content in metadata.items():
-                recursive_key_remove(list([ k for k in drop_key.split('/') if k ]), content)
+    if drop is not None and regex:
+        for i in range(len(drop)):
+            drop[i] = re.compile( drop[i] )
+
+    def filter_key(key):
         
+        if drop is not None:
+            for drop_key in drop:
+                if not regex:
+                    if key.startswith(drop_key):
+                        return False
+                else:
+                    if drop_key.match(key):
+                        return False
+
+        return True
+
     result = compare_dicts(
         metadata[files[0]],
         metadata[files[1]],
         ordered=ordered,
         diff_format=diff_format,
+        filter_key=filter_key,
+        key_only=key_only
     )
 
     if not result:
         msg.info("No differences found")
 
-    return result
+
+    
+             
+           
+    return list(sorted([r for r in result if r is not None ]))
