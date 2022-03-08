@@ -202,17 +202,6 @@ def TrigEgammaFastElectronHypoToolFromDict( d , tool=None):
     return _IncTool( name, monGroups, cparts[0] , tool=tool)
 
 
-
-def TrigEgammaFastElectronHypoToolFromName( name, conf, tool=None ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-
-    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastElectronHypoToolFromDict( decodedDict, tool=tool )
-
-
 if __name__ == "__main__":
     pass
 
