@@ -21,7 +21,6 @@ NswCalibDbAlg::initialize(){
 
 	// retrievals
 	ATH_MSG_DEBUG( "initializing " << name() );                
-	ATH_CHECK(m_condSvc    .retrieve());
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
     // read keys
@@ -41,16 +40,6 @@ NswCalibDbAlg::initialize(){
 	// write keys	
 	ATH_CHECK(m_writeKey_tdopdo.initialize());
 	ATH_CHECK(m_writeKey_vmm   .initialize());
-
-	// register write handles
-    if(m_condSvc->regHandle(this, m_writeKey_tdopdo).isFailure()) {
-      ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey_tdopdo.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-    if(m_condSvc->regHandle(this, m_writeKey_vmm   ).isFailure()) {
-      ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey_vmm   .fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }

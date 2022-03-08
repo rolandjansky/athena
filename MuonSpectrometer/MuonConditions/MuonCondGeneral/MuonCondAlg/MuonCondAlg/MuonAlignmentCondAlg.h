@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/CondHandleKeyArray.h"
 #include "StoreGate/ReadCondHandleKey.h"
 // typedefs for A/BLineMapContainer
@@ -65,7 +64,6 @@ private:
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     const MuonGM::MuonDetectorManager* m_muonDetMgrDS{};
-    ServiceHandle<ICondSvc> m_condSvc;
     std::string m_geometryVersion;
 
     Gaudi::Property<bool> m_doCSC{this, "DoCSCs", true};
