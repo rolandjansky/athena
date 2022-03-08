@@ -62,9 +62,9 @@ namespace MuonCombined {
         const Trk::Track* primaryTrack() const override;
         
         /** Sets ths comissioning flag */
-        void setComissioning(bool b);
+        void setCommissioning(bool b);
         /** Returns whether the muon belongs to the comissioning chain **/
-        bool isComissioning() const override;
+        bool isCommissioning() const override;
 
     private:
         /** block copy and assignment */
@@ -76,7 +76,7 @@ namespace MuonCombined {
         ElementLink<TrackCollection> m_meLink;
         std::vector<ElementLink<Trk::SegmentCollection> > m_segments;  /// list of segments
 
-        bool m_isComissioning{false};
+        bool m_isCommissioning{false};
     };
     bool operator<(const MuGirlTag& t1, const MuGirlTag& t2);
 }  // namespace MuonCombined
