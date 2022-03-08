@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // GenEvent_p6.h 
@@ -59,11 +59,11 @@ class GenEvent_p6
 	       unsigned int verticesEnd,
 	       unsigned int particlesBegin,
 	       unsigned int particlesEnd 
-          ,std::vector<int>         e_attribute_id =  std::vector<int>()    
-          ,std::vector<std::string> e_attribute_name = std::vector<std::string>() 
-          ,std::vector<std::string> e_attribute_string = std::vector<std::string>() 
-          ,std::vector<std::string> r_attribute_name = std::vector<std::string>()   
-          ,std::vector<std::string> r_attribute_string = std::vector<std::string>() 
+          ,const std::vector<int>&         e_attribute_id =  std::vector<int>()    
+          ,const std::vector<std::string>& e_attribute_name = std::vector<std::string>() 
+          ,const std::vector<std::string>& e_attribute_string = std::vector<std::string>() 
+          ,const std::vector<std::string>& r_attribute_name = std::vector<std::string>()   
+          ,const std::vector<std::string>& r_attribute_string = std::vector<std::string>() 
 	       );
 
   /////////////////////////////////////////////////////////////////// 
@@ -214,11 +214,11 @@ inline GenEvent_p6::GenEvent_p6( int signalProcessId,
 				 unsigned int verticesEnd,
 				 unsigned int particlesBegin,
 				 unsigned int particlesEnd
-                ,std::vector<int>         e_attribute_id
-                ,std::vector<std::string> e_attribute_name 
-                ,std::vector<std::string> e_attribute_string 
-                ,std::vector<std::string> r_attribute_name   
-                ,std::vector<std::string> r_attribute_string 
+                ,const std::vector<int>&         e_attribute_id
+                ,const std::vector<std::string>& e_attribute_name 
+                ,const std::vector<std::string>& e_attribute_string 
+                ,const std::vector<std::string>& r_attribute_name   
+                ,const std::vector<std::string>& r_attribute_string 
 				  ) :
   m_signalProcessId  ( signalProcessId ),
   m_eventNbr         ( eventNbr ),

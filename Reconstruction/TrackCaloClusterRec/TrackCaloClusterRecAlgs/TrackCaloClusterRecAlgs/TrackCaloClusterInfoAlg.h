@@ -14,7 +14,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
@@ -83,12 +83,12 @@ protected:
   virtual StatusCode fillInfo(SG::WriteHandle<TrackCaloClusterInfo> & tccInfo) const override;
 
 
-  SG::ReadHandleKey< xAOD::PFOContainer > m_inputPFOHandle {this, "InputPFO", "", ""};
-  SG::ReadDecorHandleKey<xAOD::PFOContainer> m_orig_pfo{this, "OriginPFO", "Origin_pfo", "Key to access original un-modified pfo"};
+  SG::ReadHandleKey< xAOD::FlowElementContainer > m_inputPFOHandle {this, "InputPFO", "JetEtMissChargedParticleFlowObjects_DEFAULT", "Key"};
+  SG::ReadDecorHandleKey<xAOD::FlowElementContainer> m_orig_pfo{this, "OriginPFO", "Origin_pfo", "Key to access original un-modified pfo"};
 
   
   /// cluster with E below this cut won't be considered in the TCC alg. WARNING cut must be configured as in UFOTool
-  Gaudi::Property<float> m_clusterEcut{this , "ClusterECut", 0, " Impotant !! : must be the same value as in UFOTool"};
+  Gaudi::Property<float> m_clusterEcut{this , "ClusterECut", 0, " Important !! : must be the same value as in UFOTool"};
 
   ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssoTool {this, "TrackVertexAssoTool", "" };
 

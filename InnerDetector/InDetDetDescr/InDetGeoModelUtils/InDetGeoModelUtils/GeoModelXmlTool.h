@@ -5,10 +5,10 @@
 #ifndef GEOMODELSVC_GEOMODELXMLTOOL_H
 #define GEOMODELSVC_GEOMODELXMLTOOL_H
 
-#include<GeoModelUtilities/GeoModelTool.h>
+#include <GeoModelInterfaces/IGeoDbTagSvc.h>
+#include <GeoModelUtilities/GeoModelTool.h>
+#include <RDBAccessSvc/IRDBAccessSvc.h>
 
-class IGeoDbTagSvc;
-class IRDBAccessSvc;
 class GeoPhysVol;
 class GmxInterface;
 
@@ -16,15 +16,14 @@ class GeoModelXmlTool : public GeoModelTool
 {
 
 public:
-  
-  GeoModelXmlTool( const std::string& type, const std::string& name, const IInterface* parent );
+  GeoModelXmlTool(const std::string& type, const std::string& name, const IInterface* parent);
 
 protected:
-
+  bool isAvailable(const std::string& versionNode, const std::string& tableNode) const;
   std::string getBlob(const std::string& versionNode, const std::string& tableNode) const;
   //returns a position in the world volume hierarchy
   // -1 represents the volume named by m_detectorName not being found
-  int createTopVolume(GeoPhysVol * worldVol, GmxInterface & interface,const std::string& versionNode, const std::string& tableNode) const; 
+  int createTopVolume(GeoPhysVol* worldVol, GmxInterface& interface, const std::string& versionNode, const std::string& tableNode) const;
   //method for derived classes to initialize the services needed here
   StatusCode createBaseTool();
 
@@ -33,7 +32,7 @@ protected:
   ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc{this, "RDBAccessSvc", "RDBAccessSvc", ""};
   ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc{this, "GeoDbTagSvc", "GeoDbTagSvc", ""};
 
-private: 
+private:
 
   Gaudi::Property<std::string> m_clobOutputFileName{this, "ClobOutputName", "", "Name of file to dump CLOB content to"};
 

@@ -827,10 +827,10 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
 
     if (stationName[0] == 'C') {
         const int cscEtaSt = eta - MuonGM::MuonDetectorManager::NCscStEtaOffset;    
-        const Identifier readout_id = m_muonMgr->cscIdHelper()->elementID(stationName, cscEtaSt, phi+1, 1);
+        const Identifier readout_id = m_muonMgr->cscIdHelper()->channelID(stationName, cscEtaSt, phi+1, 1, 1, 0, 1);
         const MuonGM::CscReadoutElement* cscRE = m_muonMgr->getCscReadoutElement(readout_id);
         if (!cscRE) {
-            const Identifier id_lay1 = m_muonMgr->cscIdHelper()->channelID(stationName,eta, phi+1, 1, 1, 1, 1);         
+            const Identifier id_lay1 = m_muonMgr->cscIdHelper()->channelID(stationName, cscEtaSt, phi+1, 2, 1, 0, 1);         
             cscRE = m_muonMgr->getCscReadoutElement(id_lay1);
         }
         if (cscRE) {

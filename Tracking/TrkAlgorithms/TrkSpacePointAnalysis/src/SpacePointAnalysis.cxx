@@ -25,6 +25,8 @@ StatusCode SpacePointAnalysis::initialize() {
 
     ATH_CHECK( m_inputKey.initialize() );
 
+    ATH_CHECK( m_inputOverlapKey.initialize(not m_usePixel and m_useOverlap) );
+
     if (m_usePixel)
         ATH_CHECK(detStore()->retrieve(m_pixelID, "PixelID"));
     else
@@ -44,6 +46,7 @@ StatusCode SpacePointAnalysis::initialize() {
         m_tree->Branch("sideModule", &m_sideModule);
         m_tree->Branch("isInnermost", &m_isInnermost);
         m_tree->Branch("isNextToInnermost", &m_isNextToInnermost);
+        m_tree->Branch("isOverlap", &m_isOverlap);
         m_tree->Branch("eta", &m_eta);
         m_tree->Branch("globalX", &m_globalX);
         m_tree->Branch("globalY", &m_globalY);
@@ -68,6 +71,9 @@ StatusCode SpacePointAnalysis::initialize() {
     m_h_etaSpacePoint = new TH1F("m_h_etaSpacePoint","m_h_etaSpacePoint; space point #eta",100, -5, 5);
     ATH_CHECK(m_thistSvc->regHist(m_path.value() + m_h_etaSpacePoint->GetName(), m_h_etaSpacePoint));
 
+    if (m_usePixel and m_useOverlap)
+        ATH_MSG_INFO("No overlap collection when enabled for pixel space points! Check your configuration if needed.");
+
     return StatusCode::SUCCESS;
 }
 
@@ -81,6 +87,7 @@ StatusCode SpacePointAnalysis::execute() {
     m_sideModule->clear();
     m_isInnermost->clear();
     m_isNextToInnermost->clear();
+    m_isOverlap->clear();
     m_eta->clear();
     m_globalX->clear();
     m_globalY->clear();
@@ -119,6 +126,7 @@ StatusCode SpacePointAnalysis::execute() {
                 m_sideModule->push_back(side);
                 m_isInnermost->push_back(int(isInnermost));
                 m_isNextToInnermost->push_back(int(isNextToInnermost));
+                m_isOverlap->push_back(0);
 
                 auto globalPos = spacePoint->globalPosition();
                 auto globalCov = spacePoint->globCovariance();
@@ -142,6 +150,60 @@ StatusCode SpacePointAnalysis::execute() {
                 m_h_etaSpacePoint->Fill(globalPos.eta());
 
             }
+        }
+    }  else {
+        ATH_MSG_FATAL("Unable to get SpacePointContainer: " << m_inputKey.key());
+    }
+
+    if (not m_usePixel and m_useOverlap) {
+        SG::ReadHandle<SpacePointOverlapCollection> spCollection{m_inputOverlapKey, ctx};
+        if (spCollection.isValid()) {
+            for( const Trk::SpacePoint* spacePoint : *spCollection) {
+                const IdentifierHash hashId(spacePoint->elementIdList().first);
+                const Identifier idColl = m_stripID->wafer_id(hashId);
+
+                const int brlEc(m_stripID->barrel_ec(idColl));
+                const int layerDisk(m_stripID->layer_disk(idColl));
+                const int phiMod(m_stripID->phi_module(idColl));
+                const int etaMod(m_stripID->eta_module(idColl));
+                const int side(m_stripID->side(idColl));
+
+                const bool isInnermost(false);
+                const bool isNextToInnermost(false);
+
+                m_barrelEndcap->push_back(brlEc);
+                m_layerDisk->push_back(layerDisk);
+                m_phiModule->push_back(phiMod);
+                m_etaModule->push_back(etaMod);
+                m_sideModule->push_back(side);
+                m_isInnermost->push_back(int(isInnermost));
+                m_isNextToInnermost->push_back(int(isNextToInnermost));
+                m_isOverlap->push_back(1);
+
+                auto globalPos = spacePoint->globalPosition();
+                auto globalCov = spacePoint->globCovariance();
+
+                m_eta->push_back(globalPos.eta());
+                m_globalX->push_back(globalPos.x());
+                m_globalY->push_back(globalPos.y());
+                m_globalZ->push_back(globalPos.z());
+
+                m_globalCovXX->push_back(globalCov(0,0));
+                m_globalCovYY->push_back(globalCov(1,1));
+                m_globalCovZZ->push_back(globalCov(2,2));
+                m_globalCovXY->push_back(globalCov(0,1));
+                m_globalCovXZ->push_back(globalCov(0,2));
+                m_globalCovYX->push_back(globalCov(1,0));
+                m_globalCovYZ->push_back(globalCov(1,2));
+                m_globalCovZX->push_back(globalCov(2,0));
+                m_globalCovZY->push_back(globalCov(2,1));
+
+                m_h_globalZR->Fill(globalPos.z(), globalPos.perp());
+                m_h_etaSpacePoint->Fill(globalPos.eta());
+
+            }
+        } else {
+            ATH_MSG_FATAL("Unable to get SpacePointContainer: " << m_inputOverlapKey.key());
         }
     }
 

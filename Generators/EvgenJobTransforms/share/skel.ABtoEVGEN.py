@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -136,6 +136,13 @@ postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
 postSeq.CountHepMC.CorrectRunNumber = False
+
+if hasattr(runArgs,"inputEVNT_PreFile"):
+   from AthenaCommon.AppMgr import ServiceMgr
+   #fix iov metadata
+   if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+      ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+   ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runArgs.jobConfig, runArgs.jobConfig+1]
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args

@@ -163,7 +163,7 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         else:
             # print CI helper directly to avoid logger decorations
             self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            self.logger.print()
+            self.logger.print("")
 
             self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
@@ -229,13 +229,13 @@ class AODContentCheck(WorkflowCheck):
         else:
             # print CI helper directly to avoid logger decorations
             self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            self.logger.print()
+            self.logger.print("")
 
             self.logger.error(f"Your change modifies the output in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
             self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
             if diff_output:
-                self.logger.print()
+                self.logger.print("")
                 self.logger.print(diff_output)
             if diff_error:
                 self.logger.print(diff_error)
@@ -302,13 +302,13 @@ class AODDigestCheck(WorkflowCheck):
         else:
             # print CI helper directly to avoid logger decorations
             self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            self.logger.print()
+            self.logger.print("")
 
             self.logger.error(f"Your change breaks the digest in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
             self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
             if diff_output:
-                self.logger.print()
+                self.logger.print("")
                 self.logger.print(diff_output)
             if diff_error:
                 self.logger.print(diff_error)

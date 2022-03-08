@@ -291,6 +291,8 @@ StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
     ATH_MSG_ERROR("Exception: " << e.what());
   }
 
+  ATH_CHECK( updateMagField(pt) );  // update magnetic field
+
   return StatusCode::SUCCESS;
 }
 
@@ -298,14 +300,12 @@ StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
 // =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
-StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
+StatusCode HltEventLoopMgr::prepareForRun(const ptree& /*pt*/)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   try
   {
-    ATH_CHECK( updateMagField(pt) );                     // update magnetic field
-
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginRun, m_currentRunCtx));
 
     // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)

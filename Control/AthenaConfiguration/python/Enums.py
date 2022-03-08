@@ -28,12 +28,26 @@ class ProductionStep(FlagEnum):
     Reconstruction = 'Reconstruction'
 
 
+def validrunformat(lhcperiod):
+    import re
+    for item in lhcperiod.__members__.values():
+        if not re.match("^RUN[0-9]$", item.value):
+            raise ValueError("Value not in a format RUN+single digit %s", item.value)
+    return lhcperiod
+
+
+@validrunformat
 class LHCPeriod(FlagEnum):
-    def __lt__(self, other):
+    def __lt__(self, other):      #operator specific to validrunformat
         if not isinstance(other, self.__class__):
             raise TypeError(f"Invalid comparison of {self.__class__} with {type(other)}")
         else:
             return self.value < other.value
+    def __le__(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError(f"Invalid comparison of {self.__class__} with {type(other)}")
+        else:
+            return self.value <= other.value
 
     Run1 = 'RUN1'
     Run2 = 'RUN2'

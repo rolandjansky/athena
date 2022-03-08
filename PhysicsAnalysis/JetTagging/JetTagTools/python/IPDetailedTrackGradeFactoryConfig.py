@@ -29,7 +29,7 @@ def IPDetailedTrackGradeFactoryCfg( flags, name = 'IPDetailedTrackGradeFactory',
                      'useRun2TrackGrading'    : btagrun23,
                      'useInnerLayers0HitInfo' : btagrun23,
                      'useDetailSplitHitInfo'  : btagrun23,
-                     'useITkTrackGrading'     : flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3],
+                     'useITkTrackGrading'     : flags.GeoModel.Run >= LHCPeriod.Run4,
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])

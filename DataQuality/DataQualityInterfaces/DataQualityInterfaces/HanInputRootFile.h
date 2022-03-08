@@ -40,8 +40,6 @@ protected:
   std::vector<std::string> m_histNames;
   bool                     m_histNamesBuilt;
 
-  static void dolsr(const TDirectory* dir, std::vector<std::string>& hists, const TDirectory* topdir = NULL);
-
 };
 
 } // namespace dqi

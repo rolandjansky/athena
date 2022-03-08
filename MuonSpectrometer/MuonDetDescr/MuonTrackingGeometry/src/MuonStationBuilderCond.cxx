@@ -840,8 +840,12 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
     
     if (m_idHelperSvc->hasCSC() && stationStr[0] == 'C') {
         const int cscEtaSt = eta - MuonGM::MuonDetectorManager::NCscStEtaOffset;    
-        const Identifier readout_id = muonMgr->cscIdHelper()->elementID(stationStr, cscEtaSt, phi+1, 1);
+        const Identifier readout_id = muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 1, 1, 0, 1);
         const MuonGM::CscReadoutElement* cscRE = muonMgr->getCscReadoutElement(readout_id);
+        if (!cscRE){
+            const Identifier backup_id =  muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 2, 1, 0, 1);
+            cscRE =  muonMgr->getCscReadoutElement(backup_id);
+        }
         if (cscRE) {
             for (int gasgap = 0; gasgap < cscRE->Ngasgaps(); gasgap++) {
                 Identifier idi = m_idHelperSvc->cscIdHelper().channelID(cscRE->identify(), cscRE->ChamberLayer(), gasgap + 1, 0, 1);

@@ -101,26 +101,28 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
   
   bool pass = false;
 
-  auto dEta         = Monitored::Scalar( "dEta", -1. ); 
-  auto dPhi         = Monitored::Scalar( "dPhi", -1. );
-  auto eT_T2Calo    = Monitored::Scalar( "Et_em"   , -1.0 );
-  auto hadET_T2Calo = Monitored::Scalar( "Et_had", -1.0 );
-  auto rCore        = Monitored::Scalar( "RCore"       , -1.0 );
-  auto energyRatio  = Monitored::Scalar( "ERatio" , -1.0 );
-  auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
-  auto monEta       = Monitored::Scalar( "Eta", -99. ); 
-  auto monPhi       = Monitored::Scalar( "Phi", -99. );
-  auto F1           = Monitored::Scalar( "F1"          , -1.0 );  
-  auto Weta2        = Monitored::Scalar( "Weta2"       , -1.0 );
-  auto Wstot        = Monitored::Scalar( "Wstot"       , -1.0 );
-  auto F3           = Monitored::Scalar( "F3"          , -1.0 );
-  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
-  auto monitorIt    = Monitored::Group( m_monTool, 
-                                        dEta, dPhi, eT_T2Calo, hadET_T2Calo,
-					                              rCore, energyRatio, etaBin, monEta,
-					                              monPhi, F1, Weta2, Wstot, F3, PassedCuts );
+  auto mon_dEta         = Monitored::Scalar( "dEta",   -1.0 ); 
+  auto mon_dPhi         = Monitored::Scalar( "dPhi",   -1.0 );
+  auto mon_eT_T2Calo    = Monitored::Scalar( "Et_em",  -1.0 );
+  auto mon_hadET_T2Calo = Monitored::Scalar( "Et_had", -1.0 );
+  auto mon_rCore        = Monitored::Scalar( "RCore",  -1.0 );
+  auto mon_energyRatio  = Monitored::Scalar( "Eratio", -1.0 );
+  auto mon_etaBin       = Monitored::Scalar( "EtaBin", -1.0 );
+  auto mon_Eta          = Monitored::Scalar( "Eta",    -99. ); 
+  auto mon_Phi          = Monitored::Scalar( "Phi",    -99. );
+  auto mon_F1           = Monitored::Scalar( "F1",     -1.0 );  
+  auto mon_Weta2        = Monitored::Scalar( "Weta2",  -1.0 );
+  auto mon_Wstot        = Monitored::Scalar( "Wstot",  -1.0 );
+  auto mon_F3           = Monitored::Scalar( "F3",     -1.0 );
+  auto PassedCuts       = Monitored::Scalar<int>( "CutCounter", -1 );  
+  auto monitorIt        = Monitored::Group( m_monTool, 
+                                        mon_dEta, mon_dPhi, mon_eT_T2Calo, mon_hadET_T2Calo,
+					                              mon_rCore, mon_energyRatio, mon_etaBin, mon_Eta,
+					                              mon_Phi, mon_F1, mon_Weta2, mon_Wstot, mon_F3, PassedCuts );
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
+
+  float dEta(0), dPhi(0), eT_T2Calo(0), rCore(0), hadET_T2Calo(0), energyRatio(0), eta(0), phi(0), F1(0), Weta2(0), Wstot(0), F3(0);
 
   if ( m_acceptAll ) {
     pass = true;
@@ -150,9 +152,9 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
   
   auto pClus = input.cluster;
   float absEta = fabs( pClus->eta() );
-  etaBin = -1;
-  monEta = pClus->eta();
-  monPhi = pClus->phi();
+  
+  eta = pClus->eta();
+  phi = pClus->phi();
   const int cutIndex = findCutIndex( absEta );
   
   // find if electron is in calorimeter crack
@@ -198,6 +200,8 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
        ATH_MSG_DEBUG("REJECT Cluster dEta cut failed");
        return pass;
     }
+  mon_dEta         = dEta; 
+  mon_Eta          = eta;
   PassedCuts = PassedCuts + 1; //Deta
   
   // DeltaPhi( clus-ROI )
@@ -209,6 +213,8 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
     ATH_MSG_DEBUG("REJECT Clsuter dPhi cut failed");
     return pass;
   }
+  mon_dPhi         = dPhi;
+  mon_Phi          = phi;
   PassedCuts = PassedCuts + 1; //DPhi
 
   // eta range
@@ -219,6 +225,7 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
   else { 
     ATH_MSG_DEBUG( "eta bin used for cuts " << cutIndex );
   }
+  mon_etaBin = m_etabin[cutIndex];
   PassedCuts = PassedCuts + 1; // passed eta cut
   
   // Rcore
@@ -228,6 +235,7 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
     ATH_MSG_DEBUG("REJECT rCore cut failed");
     return pass;
   }
+  mon_rCore = rCore;
   PassedCuts = PassedCuts + 1; //Rcore
 
   // Eratio
@@ -243,13 +251,15 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
   }
   PassedCuts = PassedCuts + 1; //Eratio
   if( inCrack ) energyRatio = -1; //Set default value in crack for monitoring.
-  
+  mon_energyRatio  = energyRatio;
+
   // ET_em
   ATH_MSG_DEBUG( "TrigEMCluster: ET_em=" << eT_T2Calo << " cut: >"  << m_eTthr[cutIndex] );
   if ( eT_T2Calo < m_eTthr[cutIndex] ) {
     ATH_MSG_DEBUG("REJECT et cut failed");
     return pass;
   }
+  mon_eT_T2Calo    = eT_T2Calo;
   PassedCuts = PassedCuts + 1; // ET_em
  
   float hadET_cut = 0.0;  
@@ -269,10 +279,12 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
     ATH_MSG_DEBUG("REJECT et had cut failed");
     return pass;
   }
+  mon_hadET_T2Calo = hadET_T2Calo;
   PassedCuts = PassedCuts + 1; //ET_had
   
   // F1
   ATH_MSG_DEBUG ( "TrigEMCluster: F1=" << F1 << " cut: >"  << m_F1thr[0] );
+  mon_F1 = F1; 
   PassedCuts = PassedCuts + 1; //F1
 
   //Weta2
@@ -281,6 +293,7 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
     ATH_MSG_DEBUG("REJECT weta 2 cut failed");
     return pass;
   }
+  mon_Weta2 = Weta2;
   PassedCuts = PassedCuts + 1; //Weta2
 
   //Wstot
@@ -289,6 +302,7 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
     ATH_MSG_DEBUG("REJECT wstot cut failed");
     return pass;
   }
+  mon_Wstot = Wstot;
   PassedCuts = PassedCuts + 1; //Wstot
 
   //F3
@@ -297,6 +311,7 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
     ATH_MSG_DEBUG("REJECT F3 cut failed");
     return pass;
   }
+  mon_F3 = F3;
   PassedCuts = PassedCuts + 1; //F3
 
   // got this far => passed!
@@ -304,6 +319,8 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
 
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );
+
+
 
   return pass;
 
@@ -314,12 +331,14 @@ bool TrigEgammaFastCaloHypoTool::decide_cutbased( const ITrigEgammaFastCaloHypoT
 bool TrigEgammaFastCaloHypoTool::decide_ringer ( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input) const
 {
 
-  auto etMon          = Monitored::Scalar("Et",-100);
-  auto monEta         = Monitored::Scalar("Eta",-100);
-  auto monPhi         = Monitored::Scalar("Phi",-100); 
-  auto monNNOutput    = Monitored::Scalar("NNOutput",-100);
+  auto mon_et          = Monitored::Scalar("Et",-100);
+  auto mon_eta         = Monitored::Scalar("Eta",-100);
+  auto mon_phi         = Monitored::Scalar("Phi",-100); 
+  auto mon_NNOutput    = Monitored::Scalar("NNOutput",-100);
 
-  auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi,monNNOutput);
+  auto mon = Monitored::Group(m_monTool,mon_et,mon_eta,mon_phi,mon_NNOutput);
+
+  float et(0), eta(0), phi(0), NNOutput(0);
    
   if ( m_acceptAll ) {
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
@@ -344,26 +363,28 @@ bool TrigEgammaFastCaloHypoTool::decide_ringer ( const ITrigEgammaFastCaloHypoTo
   }
 
 
-  float et = emCluster->et();
+  et = emCluster->et();
+  eta = emCluster->eta();
+  phi = emCluster->phi();
  
   if(et < m_emEtCut){
     ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut/Gaudi::Units::GeV);
     return false;
   }
-
-  monEta = emCluster->eta();
-  etMon  = et;
-  monPhi = emCluster->phi();
+  mon_et  = et;
+  mon_eta = eta;
+  mon_phi = phi;
 
   bool pass = false;
   if( input.pidDecorator.count(m_pidName)){
-    monNNOutput = input.valueDecorator.at(m_pidName+"NNOutput");
+    NNOutput = input.valueDecorator.at(m_pidName+"NNOutput");
     pass = input.pidDecorator.at(m_pidName);
     ATH_MSG_DEBUG( "ET Cut " << m_emEtCut <<" Get the decision for " << m_pidName << ": " << (pass?"Yes":"No") );
   }else{
     ATH_MSG_DEBUG( "Pid name " << m_pidName << " not found into the decorator. Probably this decision was not computed by the hypo alg." );
   }
- 
+  mon_NNOutput = NNOutput;
+
   return pass;
 }
 

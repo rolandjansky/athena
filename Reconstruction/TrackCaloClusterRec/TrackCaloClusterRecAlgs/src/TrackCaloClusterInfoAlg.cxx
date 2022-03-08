@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackCaloClusterInfoAlgs includes
@@ -112,7 +112,7 @@ namespace TCCHelpers{
 
     const xAOD::IParticle::FourMom_t nullV = {0,0,0,0};
     
-    virtual void processPFO(const xAOD::TrackParticle* trk, const xAOD::PFO* pfo) {
+      virtual void processPFO(const xAOD::TrackParticle* trk, const xAOD::FlowElement* pfo) {
       /// collect pfo momentum and register the pair (trk,pfo) in the relevant tccInfo map 
       pfoToTracksMap.insert(std::make_pair(pfo, trk));
       // get the total p4 for this track, creating it from nullV  if not existing.
@@ -134,23 +134,59 @@ TrackCaloClusterInfoUFOAlg::TrackCaloClusterInfoUFOAlg( const std::string& name,
 StatusCode TrackCaloClusterInfoUFOAlg::initialize() {
   ATH_CHECK(m_trackVertexAssoTool.retrieve() );
   ATH_CHECK(m_inputPFOHandle.initialize() );
+  ATH_MSG_DEBUG("TCC_INFO_UFO_ALG_INIT");
+  //ATH_MSG_INFO(m_trackVertexAssoTool.get()->name());
+  ATH_CHECK(m_orig_pfo.initialize());
+  // ATH_CHECK(m_clusterECut.initialize());
+  ATH_MSG_DEBUG("END INIT BLOCK");
+  ATH_MSG_DEBUG("m_orig_pfo "+m_orig_pfo.key());
+  ATH_MSG_DEBUG("m_inputPFOHandle"+m_inputPFOHandle.key());
+  ATH_MSG_DEBUG("m_trackVertexAssoTool "+m_trackVertexAssoTool.name());
+  ATH_MSG_DEBUG(m_clusterEcut);
+  ATH_MSG_DEBUG("DEBUG OF VarHandleInits");
+  ATH_MSG_DEBUG("TCC DIAGNOSTIC");
+  
+  ATH_MSG_DEBUG("inputTracksHandle "+m_inputTracksHandle.key());
+  ATH_MSG_DEBUG("assoClustersKey "+m_assoClustersKey.key());
+  ATH_MSG_DEBUG("inputClustersHandle "+m_inputClustersHandle.key());
+  ATH_MSG_DEBUG("inputVertexHandle "+m_inputVertexHandle.key());
+  ATH_MSG_DEBUG("useEnergy? "+m_useEnergy);
+  ATH_MSG_DEBUG("END TCC READLHANDLE DIAGNOSTIC");
+  ATH_MSG_DEBUG(m_tccInfoHandle.key());
+  ATH_MSG_DEBUG("WRITEHANDLE DIAGNOSTIC");
+
+  ATH_MSG_DEBUG("TCC INITS FROM PARENT CLASS");
+  ATH_CHECK(m_inputClustersHandle.initialize() );
+  ATH_CHECK(m_inputTracksHandle.initialize() );
+  ATH_CHECK(m_inputVertexHandle.initialize());
+  ATH_CHECK(m_tccInfoHandle.initialize());  
+  ATH_CHECK(m_assoClustersKey.initialize());
+  ATH_MSG_DEBUG("TCC INITS DONE");
+
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrackCaloClusterInfoUFOAlg::fillInfo(SG::WriteHandle<TrackCaloClusterInfo> & tccInfo) const {
+    ATH_MSG_VERBOSE("TCC_UFO_ALG fillInfo start");
 
 
+  SG::ReadHandle<xAOD::FlowElementContainer> pfos(m_inputPFOHandle);
 
-  SG::ReadHandle<xAOD::PFOContainer> pfos(m_inputPFOHandle);
 
-  // We use a dedicated helper to collect the weights mapping tracks to PFO.  
+  ATH_MSG_VERBOSE("GOT FE");
+  // We use a dedicated helper to collect the weights mapping tracks to FlowElement.  
   TCCHelpers::WeightsCollector wcoll;
   wcoll.m_orig_pfoK = m_orig_pfo.key();
-  wcoll.m_clustersLinkK = m_assoClustersKey.key();
+  ATH_MSG_VERBOSE("GOT ORIG PFO");
+ 
+  wcoll.m_clustersLinkK="AssoClustersUFO"; //removing the container name from the assoClustersKey is required for the accessor to work. hardcode until a better solution is available
+
   wcoll.m_trackVertexAssoTool = m_trackVertexAssoTool.get();
   wcoll.m_clusterEcut = m_clusterEcut;
   wcoll.m_useEnergy = m_useEnergy;
   wcoll.tccInfo_nonconst = tccInfo.ptr();
+
 
   // perform the weight collection : this populates tccInfo.trackTotalClusterPt and tccInfo.pfoToTracksMap maps
   wcoll.combinedUFOLoop(tccInfo.cptr(), pfos.cptr());

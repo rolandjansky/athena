@@ -14,12 +14,12 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 
-#include "TagEvent/RawInfoSummaryForTag.h"
 #include "LArRecEvent/LArCollisionTime.h"
 #include "TileEvent/MBTSCollisionTime.h"
 #include "TileEvent/TileContainer.h"
 #include "LUCID_RawEvent/LUCID_RawDataContainer.h"
 #include "RecBackgroundEvent/BeamBackgroundData.h"
+#include "TrkSpacePoint/SpacePointContainer.h" 
 
 class DQTBackgroundMon : public AthMonitorAlgorithm {
 public:
@@ -36,13 +36,15 @@ private:
     GP<bool> m_doMuons {this, "Muons", true};
 
     // StoreGate keys
-    RHK<RawInfoSummaryForTag> m_RawInfoSummaryForTagKey{this, "RawInfoSummaryForTagKey", "RawInfoSummaryForTag", ""};
     RHK<LArCollisionTime> m_LArCollisionTimeKey {this, "LArCollisionTimeKey", "LArCollisionTime", ""};
     RHK<MBTSCollisionTime> m_MBTSCollisionTimeKey {this, "MBTSCollisionTimeKey", "MBTSCollisionTime", ""};
     RHK<TileCellContainer> m_TileCellContainerKey {this, "MBTSContainerName", "MBTSContainer", ""};
     RHK<LUCID_RawDataContainer> m_LUCID_RawDataContainerKey {this, "Lucid_RawDataKey","Lucid_RawData", ""};
     RHK<BeamBackgroundData> m_BeamBackgroundDataKey {this, "BeamBackgroundDataKey", "BeamBackgroundData", ""};
     RHK<xAOD::VertexContainer> m_VertexContainerKey {this, "PrimaryVerticesKey", "PrimaryVertices", ""};
+    RHK<SpacePointContainer> m_sctSpacePointKey{this,"SCT_SpacePointKey","SCT_SpacePoints",""};
+    RHK<SpacePointContainer> m_pixSpacePointKey{this,"Pixel_SpacePointKey","PixelSpacePoints",""};
+
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoDecorKey{this,"eventInfoDecorKey",
                                                                "EventInfo.backgroundWord",
                                                                "Key to enforce scheduling"};
