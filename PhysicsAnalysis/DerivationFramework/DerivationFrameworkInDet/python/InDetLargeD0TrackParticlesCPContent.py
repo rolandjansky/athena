@@ -1,0 +1,6 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+InDetLargeD0TrackParticlesCPContent = [
+"InDetLargeD0TrackParticles",
+"InDetLargeD0TrackParticlesAux.phi.theta.qOverP.chiSquared.numberDoF.numberOfInnermostPixelLayerHits.numberOfPixelHits.numberOfPixelHoles.numberOfPixelSharedHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTSharedHits.numberOfSCTDeadSensors.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag"
+]
