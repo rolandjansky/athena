@@ -11,6 +11,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
 #include <string>
 #include <vector>
@@ -33,6 +34,7 @@ public:
 
 private:
   SG::ReadHandleKey<SpacePointContainer> m_inputKey;
+  SG::ReadHandleKey<SpacePointOverlapCollection> m_inputOverlapKey;
   const PixelID *m_pixelID;
   const SCT_ID *m_stripID;
 
@@ -43,6 +45,7 @@ private:
   std::vector<int>* m_sideModule;
   std::vector<int>* m_isInnermost;
   std::vector<int>* m_isNextToInnermost;
+  std::vector<int>* m_isOverlap;
   std::vector<double>* m_eta;
   std::vector<double>* m_globalX;
   std::vector<double>* m_globalY;
@@ -68,6 +71,7 @@ private:
   ServiceHandle<ITHistSvc> m_thistSvc;
 
   bool m_usePixel;
+  bool m_useOverlap;
 
 };
 
