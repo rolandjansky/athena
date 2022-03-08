@@ -1,6 +1,4 @@
-################################################################################
-# Package: MdtCalibSvc
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MdtCalibSvc )
@@ -9,7 +7,7 @@ atlas_subdir( MdtCalibSvc )
 atlas_add_library( MdtCalibSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS MdtCalibSvc
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel MuonReadoutGeometry Identifier GaudiKernel MuonMDT_CablingLib MdtCalibData MuonCalibIdentifier MuonPrepRawData StoreGateLib MuonIdHelpersLib PathResolver MagFieldElements MagFieldConditions MuonCablingData MdtCalibInterfacesLib MuonCalibEvent )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel MuonReadoutGeometry Identifier GaudiKernel MdtCalibData MuonCalibIdentifier MuonPrepRawData StoreGateLib MuonIdHelpersLib PathResolver MagFieldElements MagFieldConditions MuonCablingData MdtCalibInterfacesLib MuonCalibEvent )
 
 atlas_add_component( MdtCalibSvc
                      src/components/*.cxx

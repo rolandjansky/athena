@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonMDT_Cabling/MuonMDT_CablingAlg.h"
+#include "MuonMDT_CablingAlg.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
