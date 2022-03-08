@@ -142,7 +142,8 @@ if hasattr(runArgs,"inputEVNT_PreFile"):
    #fix iov metadata
    if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
       ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-   ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runArgs.jobConfig, runArgs.jobConfig+1]
+   runNum = int(runArgs.jobConfig[0])
+   ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runNum, runNum+1]
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
