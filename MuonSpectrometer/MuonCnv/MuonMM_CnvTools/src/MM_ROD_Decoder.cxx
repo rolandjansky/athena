@@ -76,7 +76,7 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
     unsigned int station_phi  = (unsigned int)elink->elinkId()->station_phi();
     unsigned int multi_layer  = (unsigned int)elink->elinkId()->multi_layer();
     unsigned int gas_gap      = (unsigned int)elink->elinkId()->gas_gap();
-    Identifier   module_ID    = m_MmIdHelper->elementID(station_name, station_eta, station_phi, true, &is_validID);
+    Identifier   module_ID    = m_MmIdHelper->elementID(station_name, station_eta, station_phi, is_validID);
     if(!is_validID) { 
       ++nerr_stationID;
       continue;
@@ -96,7 +96,7 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
     for (auto channel : channels) {
        unsigned int channel_number = channel->channel_number();
        if (channel_number == 0) continue; // skip disconnected vmm channels
-       Identifier channel_ID = m_MmIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_number, true, &is_validID);
+       Identifier channel_ID = m_MmIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_number, is_validID);
        if (!is_validID) { 
          ++nerr_channelID; 
          continue; 

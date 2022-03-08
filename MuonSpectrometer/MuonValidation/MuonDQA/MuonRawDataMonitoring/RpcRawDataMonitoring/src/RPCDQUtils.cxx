@@ -42,9 +42,8 @@ void RpcPanel::FillRpcId(Identifier id, const RpcIdHelper &rpcIdHelper)
 			                              doubletZ,
 			                              doubletPhi,
 			                              gasGap,
-                                    measPhi,
-			                              true,
-			                              &panel_valid);
+                                          measPhi,
+			                              panel_valid);
 
   // panel_index = stationName*6144 + stationPhi*768 + (stationEta+9)*48 + doubletR*24 + doubletPhi*12 + doubletZ*4 + gasGap*2 + measPhi;
 }
@@ -84,9 +83,8 @@ RpcPanel::RpcPanel( const Muon::IMuonIdHelperSvc    &idHelperSvc,
 			                          doubletZ,
 			                          doubletPhi,
 			                          gasGap,
-                                measPhi,
-			                          true,
-			                          &panel_valid);
+                                      measPhi,
+			                          panel_valid);
   if(panel_valid) {
     panel_str = idHelperSvc.toString(panelId);
     // Only _doubletPhi maybe different with rpcIdHelper.doubletPhi(readEl_id)
@@ -254,8 +252,7 @@ GasGapData::GasGapData(const Muon::IMuonIdHelperSvc    &idHelperSvc,
 			                      doubletZ,
 			                      doubletPhi,
 			                      gasgap,
-			                      true,
-			                      &gapid_valid);
+			                      gapid_valid);
 
   if(gapid_valid) {
     gapid_str = idHelperSvc.toString(gapid);
@@ -311,11 +308,11 @@ void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const xAOD::Trac
     - do this before expensive call to extrapolator
    */
 
-  const double deta1 = std::fabs(minStripEta - track.eta());
-  const double deta2 = std::fabs(maxStripEta - track.eta());
+  const double deta1 = std::abs(minStripEta - track.eta());
+  const double deta2 = std::abs(maxStripEta - track.eta());
 
-  const double dphi1 = std::fabs(xAOD::P4Helpers::deltaPhi(minStripPhi, track.phi()));
-  const double dphi2 = std::fabs(xAOD::P4Helpers::deltaPhi(maxStripPhi, track.phi()));
+  const double dphi1 = std::abs(xAOD::P4Helpers::deltaPhi(minStripPhi, track.phi()));
+  const double dphi2 = std::abs(xAOD::P4Helpers::deltaPhi(maxStripPhi, track.phi()));
 
   result.minTrackGasGapDEta = std::min<double>(deta1, deta2);
   result.minTrackGasGapDPhi = std::min<double>(dphi1, dphi2);
@@ -342,11 +339,11 @@ void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const Trk::Track
     - do this before expensive call to extrapolator
    */
 
-  const double deta1 = std::fabs(minStripEta - trackParam->position().eta());
-  const double deta2 = std::fabs(maxStripEta - trackParam->position().eta());
+  const double deta1 = std::abs(minStripEta - trackParam->position().eta());
+  const double deta2 = std::abs(maxStripEta - trackParam->position().eta());
 
-  const double dphi1 = std::fabs(xAOD::P4Helpers::deltaPhi(minStripPhi, trackParam->position().phi()));
-  const double dphi2 = std::fabs(xAOD::P4Helpers::deltaPhi(maxStripPhi, trackParam->position().phi()));
+  const double dphi1 = std::abs(xAOD::P4Helpers::deltaPhi(minStripPhi, trackParam->position().phi()));
+  const double dphi2 = std::abs(xAOD::P4Helpers::deltaPhi(maxStripPhi, trackParam->position().phi()));
 
   result.minTrackGasGapDEta = std::min<double>(deta1, deta2);
   result.minTrackGasGapDPhi = std::min<double>(dphi1, dphi2);

@@ -48,7 +48,7 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     // &bool isValid -> reference to boolean, which will be false in case of invalid identifier
     // the channelID() function of the RpcIdHelper needs also a stripNumber, but the RpcHitIdHelper 
     // does not seem to return this, so we just give stripNumber=1 for now
-    Identifier offid = m_RpcIdHelper->channelID(stname, steta, stphi,dbr,dbz,dbp,gg,mfi,1,true,&isValid);
+    Identifier offid = m_RpcIdHelper->channelID(stname, steta, stphi,dbr,dbz,dbp,gg,mfi,1, isValid);
     if (!isValid) {
        ATH_MSG_WARNING("Cannot build a valid Identifier for RPC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", doubletR="<<dbr<<", doubletZ="<<dbz<<", doubletPhi="<<dbp<<", gasGap="<<gg<<", measuresPhi="<<mfi<<"; skipping...");
        continue;

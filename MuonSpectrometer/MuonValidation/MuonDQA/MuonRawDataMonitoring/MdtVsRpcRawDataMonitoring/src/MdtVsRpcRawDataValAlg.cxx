@@ -286,7 +286,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  }
 		  for(int eta=0; eta < MuonGM::MuonDetectorManager::NMdtStatEta; ++eta) {
 			const int stEta = eta - MuonGM::MuonDetectorManager::NMdtStEtaOffset;
-			const Identifier mdt_id = MuonDetMgr->mdtIdHelper()->elementID(mdtStatName, stEta, irpcstationPhi, imdt_multi_near);
+			const Identifier mdt_id = MuonDetMgr->mdtIdHelper()->channelID(mdtStatName, stEta, irpcstationPhi, imdt_multi_near, 1, 1);
 		    const MuonGM::MdtReadoutElement* lastdescr = MuonDetMgr->getMdtReadoutElement(mdt_id);
 		    if(!lastdescr) continue;
 		
@@ -391,7 +391,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			    //booking if necessary 
 			    imdt_station = MuonDetMgr->mdtStationName(irpcstationName);
 				if (imdt_station <0)  continue;
-				const Identifier mdt_id = MuonDetMgr->mdtIdHelper()->elementID(imdt_station,irpcstationEta,irpcstationPhi, imdt_multi_near);
+				const Identifier mdt_id = MuonDetMgr->mdtIdHelper()->channelID(imdt_station,irpcstationEta,irpcstationPhi, imdt_multi_near, 1 , 1);
 			    imdt_eta     = irpcstationEta ;
 			    imdt_phi     = irpcstationPhi ;
 			    NetaTubes = 0;

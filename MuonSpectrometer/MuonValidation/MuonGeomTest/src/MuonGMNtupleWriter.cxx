@@ -111,9 +111,9 @@ namespace MuonGM {
                             int stationName = MuonDetMgr->rpcStationName(i1);
                             bool isValid = false;
                             Identifier id =
-                                MuonDetMgr->rpcIdHelper()->channelID(stationName, i2, i3, i4, i5, 1, 1, 1, 1, true,
-                                                                     &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                 // measuresPhi, int strip, bool check, bool* isValid
+                                MuonDetMgr->rpcIdHelper()->channelID(stationName, i2, i3, i4, i5, 1, 1, 1, 1,
+                                                                     isValid);  // last 4 arguments are: int doubletPhi, int gasGap, int
+                                                                                 // measuresPhi, int strip, bool& isValid
                             if (!isValid) continue;
                             const RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(id);
                             if (!detEl) continue;

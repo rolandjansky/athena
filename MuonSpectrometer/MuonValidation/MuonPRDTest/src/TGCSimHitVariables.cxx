@@ -44,7 +44,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		// &bool isValid -> reference to boolean, which will be false in case of invalid identifier
 		// the channelID() function of the TgcIdHelper needs also a channelNumber and a stripNumber, but the TgcHitIdHelper 
 		// does not seem to return this, so we just give channelNumber=1 and stripNumber=1 for now
-		Identifier offid = m_TgcIdHelper->channelID(stname, steta, stphi, gasgap, 1, 1, true, &isValid);
+		Identifier offid = m_TgcIdHelper->channelID(stname, steta, stphi, gasgap, 1, 1, isValid);
 		if (!isValid) {
             ATH_MSG_WARNING("Cannot build a valid Identifier for TGC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", gasGap="<<gasgap<<"; skipping...");
 			continue;

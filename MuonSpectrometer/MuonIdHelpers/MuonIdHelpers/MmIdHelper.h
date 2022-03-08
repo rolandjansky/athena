@@ -62,37 +62,46 @@ public:
     ///////////// compact identifier stuff begins //////////////////////////////////////
 
     /// Initialization from the identifier dictionary
-    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
-    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const;
-    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const;
+    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
+    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const override;
+    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const override;
 
     ///////////// compact identifier stuff ends   //////////////////////////////////////
 
     // Identifier builders
-    Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
+    
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
+    
     Identifier elementID(const Identifier& channelID) const;
 
-    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check = false,
-                         bool* isValid = 0) const;
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel) const;
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool& isValid) const;
+                         
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel) const;
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel,
-                         bool check = false, bool* isValid = 0) const;
-    Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channel, bool check = false, bool* isValid = 0) const;
+                         bool& isValid) const;
+                         
+    Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channel) const;
+    Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channel, bool& isValid) const;
 
     Identifier parentID(const Identifier& id) const;
 
     Identifier multilayerID(const Identifier& channeldID) const;
-    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool check = false, bool* isValid = 0) const;
+    Identifier multilayerID(const Identifier& moduleID, int multilayer) const;
+    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool& isValid) const;
 
     // for an Identifier id, get the list of the daughter readout channel ids
     void idChannels(const Identifier& id, std::vector<Identifier>& vect) const;
 
     // Access to levels: missing field returns 0
-    int gasGap(const Identifier& id) const;
+    int gasGap(const Identifier& id) const override;
     int multilayer(const Identifier& id) const;
-    int channel(const Identifier& id) const;
+    int channel(const Identifier& id) const override;
     bool isStereo(const Identifier& id) const;
-    bool measuresPhi(const Identifier& id) const;  // Returns false
+    bool measuresPhi(const Identifier& id) const override;  // Returns false
 
     int numberOfMultilayers(const Identifier& id) const;
 
@@ -130,12 +139,14 @@ public:
     bool validElement(const Identifier& id) const;
 
 private:
+    bool isStNameInTech(const std::string& stationName) const override;
+
     int init_id_to_hashes();
     unsigned int m_module_hashes[60][20][48]{};             // Nektar Probably need to change this
     unsigned int m_detectorElement_hashes[60][20][8][3]{};  // Nektar Probably need to change this
 
     // compact id indices
-    size_type m_GASGAP_INDEX;
+    size_type m_GASGAP_INDEX{6};
 
     IdDictFieldImplementation m_mplet_impl;
     IdDictFieldImplementation m_gap_impl;
