@@ -118,7 +118,9 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescr
 StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const TrigRoiDescriptor* p_roids,
 								    const TrigL2MuonSA::MuonRoad& muonRoad,
 								    TrigL2MuonSA::TgcFitResult& tgcFitResult,
-								    std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
+								    std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
+								    TrigL2MuonSA::StgcHits& stgcHits,
+								    TrigL2MuonSA::MmHits& mmHits) const
 {
 
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
@@ -137,7 +139,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const TrigRo
     ATH_CHECK( superPointFitter(itTrack) );
 
     if(!m_nswStationFitter.empty())
-      ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack) );
+      ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack, stgcHits, mmHits) );
   }
   //
   return StatusCode::SUCCESS;
@@ -149,7 +151,9 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const TrigRo
 StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescriptor* p_roids,
                                                               const TrigL2MuonSA::MuonRoad& muonRoad,
                                                               TrigL2MuonSA::TgcFitResult& tgcFitResult,
-                                                              std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
+                                                              std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
+                                                              TrigL2MuonSA::StgcHits& stgcHits,
+                                                              TrigL2MuonSA::MmHits& mmHits) const
 {
 
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
@@ -178,7 +182,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescr
     if(exInnerA !=0 ) updateInnSP(itTrack, exInnerA, aw,bw);
 
     if(!m_nswStationFitter.empty())
-      ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack) );
+      ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack, stgcHits, mmHits) );
 
   }
   //
