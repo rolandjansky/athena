@@ -168,6 +168,11 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addSubDets([SubDetector.FORWARD_ZDC,
                          SubDetector.TDAQ_CTP
         ])
+    elif 'AFPPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_AFP,
+                         SubDetector.TDAQ_CTP
+        ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
