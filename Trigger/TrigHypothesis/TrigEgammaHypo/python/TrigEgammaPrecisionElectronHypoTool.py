@@ -270,14 +270,6 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
     monGroups = d['monGroups']
     return _IncTool( name, monGroups, cparts[0] , tool=tool )
 
-                   
-    
-def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
-    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName(conf)
-    return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict , tool=tool )
-
-
 
 
 
