@@ -10,6 +10,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
@@ -53,6 +54,7 @@
 PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
                                        ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(name, svcLoc)
+  , AthMessaging (Athena::getMessageSvc(), name)
   , m_incidentSvc("IncidentSvc", name) //FIXME should this be configurable?
   , m_mergeSvc("PileUpMergeSvc", name)
   , m_evtStore("StoreGateSvc/StoreGateSvc",  name)
@@ -72,7 +74,6 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   , m_beamLumi("LumiProfileSvc", name)
   , m_currentRun(0)
   , m_firstRun(true)
-  , m_msg( name )
   , m_maxBunchCrossingPerOrbit(3564)
   , m_nevt(0)
   , m_ncurevt(0)
@@ -219,7 +220,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     return StatusCode::SUCCESS;
   }
 
-  static int        total_nevt = 0;
 
   // These following two initialization loops are performed here in case new
   // Top level Algorithms or Output Streams have been created interactively
@@ -264,7 +264,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       ATH_MSG_ALWAYS ( "A stopRun was requested. Terminating event loop." );
       break;
     }
-    ++m_nevt; ++total_nevt; ++m_ncurevt;
+    ++m_nevt; ++m_ncurevt;
     ATH_MSG_INFO ( "nextEvent(): overlaying original event " <<
                    pEvent->runNumber() << '/' <<
                    pEvent->eventNumber() << '/' <<
@@ -431,7 +431,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 
   if (m_skipExecAlgs) {
     m_nevt--;
-    total_nevt--;
   }
 
   return StatusCode::SUCCESS;
@@ -540,8 +539,7 @@ StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
   EventContext* pctx = puctx.get();
 
   if (m_evtStore->record( std::move(puctx) ,"EventContext").isFailure()) {
-    m_msg << MSG::ERROR
-          << "Error recording event context object" << endmsg;
+    ATH_MSG_ERROR( "Error recording event context object" );
     return (StatusCode::FAILURE);
   }
 
