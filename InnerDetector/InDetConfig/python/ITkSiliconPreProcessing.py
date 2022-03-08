@@ -38,6 +38,7 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
 
     ITkSiSpacePointMakerTool = acc.popToolsAndMerge(ITkSiSpacePointMakerToolCfg(flags))
 
+    kwargs.setdefault("IsITk", True)
     kwargs.setdefault("SiSpacePointMakerTool", ITkSiSpacePointMakerTool)
     kwargs.setdefault("PixelsClustersName", 'ITkPixelClusters')
     kwargs.setdefault("SCT_ClustersName", 'ITkStripClusters')

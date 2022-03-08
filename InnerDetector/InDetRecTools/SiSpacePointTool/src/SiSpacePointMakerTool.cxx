@@ -526,6 +526,8 @@ namespace InDet {
     std::vector<Trk::SpacePoint*> tmpSpacePoints;
     tmpSpacePoints.reserve(sctInfos.size());
 
+    bool isEndcap = element->isEndcap();
+
     if(!allClusters) {
 
       // Start processing the opposite side and the eta overlapping elements
@@ -548,8 +550,9 @@ namespace InDet {
           updateRange(element, currentElement, slimit, min, max);
         }
         
+        float sign = isEndcap ? ( std::signbit(currentElement->normal().z()*element->normal().z()) ? -1. : 1.) : 1.;
+
         InDet::SCTinformation sctInfo;
-        
         for (const auto *const cluster : *clusters[currentIndex]) {
           
           bool processed = false;        
@@ -558,7 +561,7 @@ namespace InDet {
           
           for(auto& sct : sctInfos) {
             
-            double diff = lx1-sct.locX();
+            double diff = lx1-sign*sct.locX();
             
             if(diff < min || diff > max) continue;
             
@@ -589,9 +592,12 @@ namespace InDet {
         
         int currentIndex = elementIndex[n];
         const InDetDD::SiDetectorElement* currentElement = elements[currentIndex];
-        
-        double min = overlapExtents[4*currentIndex-10];
-        double max = overlapExtents[4*currentIndex- 9];
+
+        bool isOpposite = isEndcap and std::signbit(currentElement->normal().z()*element->normal().z());
+        float sign = isOpposite ? element->normal().z() : 1.;
+
+        double min = sign*overlapExtents[4*currentIndex-10];
+        double max = sign*overlapExtents[4*currentIndex- 9];
         
         if (m_SCTgapParameter != 0.) {
           updateRange(element, currentElement, slimit, min, max);
@@ -611,8 +617,9 @@ namespace InDet {
         
         IdentifierHash currentId = clusters[currentIndex]->identifyHash();
                 
-        min = overlapExtents[4*currentIndex-8];
-        max = overlapExtents[4*currentIndex-7];
+        sign = isOpposite ? currentElement->normal().z() : 1.;
+        min = sign*overlapExtents[4*currentIndex-8];
+        max = sign*overlapExtents[4*currentIndex-7];
         
         if (m_SCTgapParameter != 0.) {
           updateRange(element, currentElement, slimit, min, max);
