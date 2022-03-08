@@ -23,7 +23,7 @@ atlas_add_component( TrigHLTJetHypoUnitTests
 # Test(s) in the package:
 atlas_add_test( TrigHLTJetHypoUnitTests
    SOURCES tests/all_tests.cxx
-   tests/CombinationsGenTest.cxx
+   tests/CombinationsGeneratorTest.cxx
    tests/ProductGenTest.cxx
    tests/JetGroupProductTest.cxx
    tests/JetGroupUnionTest.cxx
@@ -35,6 +35,8 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/PassThroughFilterTest.cxx
    tests/ConditionFilterTest.cxx
    tests/MultiFilterTest.cxx
+   tests/JetStreamerTest.cxx
+   tests/make_jetstreamTest.cxx
    INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} TrigHLTJetHypoLib TrigHLTJetHypoUnitTestsLib xAODJet
    POST_EXEC_SCRIPT nopost.sh )
