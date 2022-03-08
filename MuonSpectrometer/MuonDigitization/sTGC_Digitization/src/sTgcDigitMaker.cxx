@@ -280,10 +280,12 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
                 << ", k parameter = " << par_kappa
                 << ", theta parameter = " << par_theta
                 << ", most probable time = " << most_prob_time);
-
+  
+  bool isValid = false;
   //// HV efficiency correction
   if (m_doEfficiencyCorrection){
-    Identifier tempId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, sTgcIdHelper::sTgcChannelTypes::Wire, 1, true);
+    Identifier tempId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, sTgcIdHelper::sTgcChannelTypes::Wire, 1, isValid);
+    if (!isValid) return nullptr;
     // Transform STL and STS to 0 and 1 respectively
     int stNameInt = (stationName=="STL") ? 0 : 1;
     // If inside eta0 bin of QL1/QS1, remove 1 from eta index
@@ -309,7 +311,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
   auto digits = std::make_unique<sTgcDigitCollection>(layid, coll_hash);
 
-  bool isValid = 0;
+ 
 
   // #################################################################
   //***************************** BCTAGGER ******************************** 
@@ -361,7 +363,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   ATH_MSG_DEBUG("sTgcDigitMaker::strip response ");
   int channelType = sTgcIdHelper::sTgcChannelTypes::Strip;
 
-  Identifier newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
+  Identifier newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, isValid);
 
   // get strip surface 
   int surfHash_strip =  detEl->surfaceHash(gasGap, 1);
@@ -384,7 +386,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     ATH_MSG_ERROR(" pos " << posOnSurf_strip );
     //stripNumber = 1;
   }  
-  newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripNumber, true, &isValid);
+  newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripNumber, isValid);
   if(!isValid && stripNumber != -1) {
     ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
     return nullptr;
@@ -408,7 +410,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //spread charge to a gaussian distribution
   float charge_width = CLHEP::RandGaussZiggurat::shoot(rndmEngine, m_GausMean, m_GausSigma);
   float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
-  TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
+  std::unique_ptr<TF1> charge_spread = std::make_unique<TF1>("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   
   // Charge Spread including tan(theta) resolution term.
@@ -482,7 +484,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
       }
 
       // Get the strip identifier and create the digit 
-      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
+      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, isValid);
       if (isValid) {
         Amg::Vector2D locpos(0., 0.);
         if (!detEl->stripPosition(newId, locpos)) {
@@ -531,7 +533,6 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   }
   ATH_MSG_DEBUG("Number of strip digits created = " << counter_strip);
 
-  delete charge_spread;
   // end of strip digitization
 
   if(m_channelTypes==1) {
@@ -552,7 +553,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   Amg::Vector3D hitOnSurface_pad = SURF_PAD.transform().inverse()*GPOS;
   Amg::Vector2D posOnSurf_pad(hitOnSurface_pad.x(), hitOnSurface_pad.y());
 
-  Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);// find the a pad id
+  Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1);// find the a pad id
 
   insideBounds = SURF_PAD.insideBounds(posOnSurf_pad);
 
@@ -563,7 +564,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
       ATH_MSG_ERROR(" pos " << posOnSurf_pad );
       //padNumber = 1;
     }  
-    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, padNumber, true, &isValid);
+    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, padNumber, isValid);
     if(isValid) {  
       addDigit(digits.get(), newId, bctag, sDigitTimePad, channelType);
     }
@@ -588,7 +589,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   channelType = sTgcIdHelper::sTgcChannelTypes::Wire;
 
     // Find the ID of the first wiregroup
-    Identifier WIREGP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
+    Identifier WIREGP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1);
         
     //************************************ find the nearest readout element ************************************** 
     insideBounds = SURF_WIRE.insideBounds(posOnSurf_wire);
@@ -603,7 +604,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         }
   
         // Find ID of the actual wiregroup
-        newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, wiregroupNumber, true, &isValid);
+        newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, wiregroupNumber, isValid);
   
         if(isValid) {
           int NumberOfWiregroups = detEl->numberOfStrips(newId);

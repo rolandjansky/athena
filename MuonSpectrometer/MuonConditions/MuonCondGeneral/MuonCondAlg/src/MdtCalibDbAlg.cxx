@@ -865,7 +865,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
         // need to check validity of Identifier since database contains all Run 2 MDT chambers, e.g. also EI chambers which are
         // potentially replaced by NSW
         bool isValid = true;  // the elementID takes a bool pointer to check the validity of the Identifier
-        Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name, ieta, iphi, true, &isValid);
+        Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name, ieta, iphi, isValid);
         if (!isValid) {
             static std::atomic<bool> idWarningPrinted = false;
             if (!idWarningPrinted) {

@@ -802,13 +802,13 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
           // Alexandre Laurier 2017-11-17: This block can create issues.
           // We need to make sure we dont try to add out of range neighbors to the most extreme strips, ie first and last
           // Currently, we only check to not add strip # 0
-          Identifier neighborPlusId = m_idHelperSvc->stgcIdHelper().channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
+          Identifier neighborPlusId = m_idHelperSvc->stgcIdHelper().channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, isValid);
           if(isValid && it_DETEL->second.count(neighborPlusId) == 1) { //The neighbor strip exists and has had a vmm made for it
             ATH_MSG_VERBOSE("Neighbor Trigger on REID[" << neighborPlusId.getString() << "]");
             it_DETEL->second[neighborPlusId].second->neighborTrigger();
           }
           if (stripNumber!=1){
-            Identifier neighborMinusId = m_idHelperSvc->stgcIdHelper().channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
+            Identifier neighborMinusId = m_idHelperSvc->stgcIdHelper().channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, isValid);
             if(isValid && it_DETEL->second.count(neighborMinusId) == 1) { //The neighbor strip exists and has had a vmm made for it
               ATH_MSG_VERBOSE("Neighbor Trigger on REID[" << neighborMinusId.getString() << "]");
               it_DETEL->second[neighborMinusId].second->neighborTrigger();

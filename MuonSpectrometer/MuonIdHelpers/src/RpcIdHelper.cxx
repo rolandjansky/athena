@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -7,13 +7,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 RpcIdHelper::RpcIdHelper() :
-    MuonIdHelper("RpcIdHelper"),
-    m_DOUBLETR_INDEX(0),
-    m_DOUBLETZ_INDEX(0),
-    m_DOUBLETPHI_INDEX(0),
-    m_GASGAP_INDEX(0),
-    m_MEASURESPHI_INDEX(0),
-    m_gasGapMax(UINT_MAX) {}
+    MuonIdHelper("RpcIdHelper") {}
 
 // Initialize dictionary
 int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
@@ -296,26 +290,25 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 }
 
 int RpcIdHelper::init_id_to_hashes() {
-    unsigned int hash_max = this->module_hash_max();
+    unsigned int hash_max = module_hash_max();
     for (unsigned int i = 0; i < hash_max; ++i) {
         Identifier id = m_module_vec[i];
-        int station = this->stationName(id);
-        int eta = this->stationEta(id) + 10;  // for negative etas
-        int phi = this->stationPhi(id);
-        int dR = this->doubletR(id);
+        int station = stationName(id);
+        int eta = stationEta(id) + 10;  // for negative etas
+        int phi = stationPhi(id);
+        int dR = doubletR(id);
         m_module_hashes[station][eta - 1][phi - 1][dR - 1] = i;
     }
 
-    hash_max = this->detectorElement_hash_max();
+    hash_max = detectorElement_hash_max();
     for (unsigned int i = 0; i < hash_max; ++i) {
         Identifier id = m_detectorElement_vec[i];
-        int station = this->stationName(id);
-        std::string name = this->stationNameString(station);
-        int eta = this->stationEta(id) + 10;  // for negative eta
-        int phi = this->stationPhi(id);
-        int dR = this->doubletR(id);
-        int zIndex = this->zIndex(id);
-        m_detectorElement_hashes[station][eta - 1][phi - 1][dR - 1][zIndex - 1] = i;
+        int station = stationName(id);
+        int eta = stationEta(id) + 10;  // for negative eta
+        int phi = stationPhi(id);
+        int dR = doubletR(id);
+        int zIdx = zIndex(id);
+        m_detectorElement_hashes[station][eta - 1][phi - 1][dR - 1][zIdx - 1] = i;
     }
     return 0;
 }
@@ -324,10 +317,10 @@ int RpcIdHelper::get_module_hash(const Identifier& id, IdentifierHash& hash_id) 
     // Identifier moduleId = elementID(id);
     // IdContext context = module_context();
     // return get_hash(moduleId,hash_id,&context);
-    int station = this->stationName(id);
-    int eta = this->stationEta(id) + 10;  // for negative etas
-    int phi = this->stationPhi(id);
-    int dR = this->doubletR(id);
+    int station = stationName(id);
+    int eta = stationEta(id) + 10;  // for negative etas
+    int phi = stationPhi(id);
+    int dR = doubletR(id);
     hash_id = m_module_hashes[station][eta - 1][phi - 1][dR - 1];
     return 0;
 }
@@ -336,13 +329,12 @@ int RpcIdHelper::get_detectorElement_hash(const Identifier& id, IdentifierHash& 
     // Identifier detectorElementId = detectorElementID(id);
     // IdContext context = detectorElement_context();
     // return get_hash(detectorElementId,hash_id,&context);
-    int station = this->stationName(id);
-    std::string name = this->stationNameString(station);
-    int eta = this->stationEta(id) + 10;  // for negative eta
-    int phi = this->stationPhi(id);
-    int dR = this->doubletR(id);
-    int zIndex = this->zIndex(id);
-    hash_id = m_detectorElement_hashes[station][eta - 1][phi - 1][dR - 1][zIndex - 1];
+    int station = stationName(id);
+    int eta = stationEta(id) + 10;  // for negative eta
+    int phi = stationPhi(id);
+    int dR = doubletR(id);
+    int zIdx = zIndex(id);
+    hash_id = m_detectorElement_hashes[station][eta - 1][phi - 1][dR - 1][zIdx - 1];
     return 0;
 }
 
@@ -685,15 +677,15 @@ bool RpcIdHelper::valid(const Identifier& id) const {
     }
     return true;
 }
-
+bool RpcIdHelper::isStNameInTech(const std::string& stationName) const{
+    return stationName[0] == 'B';
+}
 bool RpcIdHelper::validElement(const Identifier& id) const {
     int station = stationName(id);
-    std::string name = stationNameString(station);
-
-    if ('B' != name[0]) {
+    if (!validStation(station)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationName=" << name << endmsg;
+            log << MSG::WARNING << "Invalid stationName=" << stationNameString(station) << endmsg;
         }
         return false;
     }
@@ -702,7 +694,7 @@ bool RpcIdHelper::validElement(const Identifier& id) const {
     if (eta < stationEtaMin(id) || eta > stationEtaMax(id)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationEta=" << eta << " for stationName=" << name << " stationEtaMin=" << stationEtaMin(id)
+            log << MSG::WARNING << "Invalid stationEta=" << eta << " for stationName=" << stationNameString(station) << " stationEtaMin=" << stationEtaMin(id)
                 << " stationEtaMax=" << stationEtaMax(id) << endmsg;
         }
         return false;
@@ -712,7 +704,7 @@ bool RpcIdHelper::validElement(const Identifier& id) const {
     if ((phi < stationPhiMin(id)) || (phi > stationPhiMax(id))) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationPhi=" << phi << " for stationName=" << name << " stationPhiMin=" << stationPhiMin(id)
+            log << MSG::WARNING << "Invalid stationPhi=" << phi << " for stationName=" << stationNameString(station) << " stationPhiMin=" << stationPhiMin(id)
                 << " stationPhiMax=" << stationPhiMax(id) << endmsg;
         }
         return false;
@@ -722,7 +714,7 @@ bool RpcIdHelper::validElement(const Identifier& id) const {
     if ((dbr < doubletRMin(id)) || (dbr > doubletRMax(id))) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid doubletR=" << dbr << " for stationName=" << name << " doubletRMin=" << doubletRMin(id)
+            log << MSG::WARNING << "Invalid doubletR=" << dbr << " for stationName=" << stationNameString(station) << " doubletRMin=" << doubletRMin(id)
                 << " doubletRMax=" << doubletRMax(id) << endmsg;
         }
         return false;
@@ -758,19 +750,17 @@ bool RpcIdHelper::validPad(const Identifier& id) const {
 // Private validation of levels
 
 bool RpcIdHelper::validElement(const Identifier& id, int stationName, int stationEta, int stationPhi, int doubletR, bool noPrint) const {
-    std::string name = stationNameString(stationName);
-
-    if ('B' != name[0]) {
+    if (!validStation(stationName)) {
         if (!noPrint && m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationName=" << name << endmsg;
+            log << MSG::WARNING << "Invalid stationName=" << stationNameString(stationName) << endmsg;
         }
         return false;
     }
     if (stationEta < stationEtaMin(id) || stationEta > stationEtaMax(id)) {
         if (!noPrint && m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationEta=" << stationEta << " for stationName=" << name
+            log << MSG::WARNING << "Invalid stationEta=" << stationEta << " for stationName=" << stationNameString(stationName)
                 << " stationEtaMin=" << stationEtaMin(id) << " stationEtaMax=" << stationEtaMax(id) << endmsg;
         }
         return false;
@@ -778,7 +768,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((stationPhi < stationPhiMin(id)) || (stationPhi > stationPhiMax(id))) {
         if (!noPrint && m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationPhi=" << stationPhi << " for stationName=" << name
+            log << MSG::WARNING << "Invalid stationPhi=" << stationPhi << " for stationName=" << stationNameString(stationName)
                 << " stationPhiMin=" << stationPhiMin(id) << " stationPhiMax=" << stationPhiMax(id) << endmsg;
         }
         return false;
@@ -786,7 +776,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((doubletR < doubletRMin(id)) || (doubletR > doubletRMax(id))) {
         if (!noPrint && m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid doubletR=" << doubletR << " for stationName=" << name << " doubletRMin=" << doubletRMin(id)
+            log << MSG::WARNING << "Invalid doubletR=" << doubletR << " for stationName=" << stationNameString(stationName) << " doubletRMin=" << doubletRMin(id)
                 << " doubletRMax=" << doubletRMax(id) << endmsg;
         }
         return false;
@@ -884,9 +874,9 @@ int RpcIdHelper::init_detectorElement_hashes(void) {
         for (; first != last; ++first) {
             Identifier id;
             get_id((*first), id);
-            Identifier doubletZ_id = this->doubletZID(id);
-            int dZ = this->doubletZ(id);
-            int corrected_doubletZ = this->zIndex(id);
+            Identifier doubletZ_id = doubletZID(id);
+            int dZ = doubletZ(id);
+            int corrected_doubletZ = zIndex(id);
             bool isInserted = false;
             if (dZ == corrected_doubletZ) {
                 isInserted = ids.insert(doubletZ_id).second;
@@ -927,56 +917,53 @@ int RpcIdHelper::init_detectorElement_hashes(void) {
     return (0);
 }
 
-Identifier RpcIdHelper::elementID(int stationName, int stationEta, int stationPhi, int doubletR, bool check, bool* isValid,
-                                  bool noPrint) const {
+Identifier RpcIdHelper::elementID(int stationName, int stationEta, int stationPhi, int doubletR) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
     m_phi_impl.pack(stationPhi, result);
     m_tec_impl.pack(rpc_field_value(), result);
-    m_dbr_impl.pack(doubletR, result);
-    if (check) {
-        val = this->validElement(result, stationName, stationEta, stationPhi, doubletR, noPrint);
-        if (isValid) *isValid = val;
-    }
+    m_dbr_impl.pack(doubletR, result);    
     return result;
 }
 
-Identifier RpcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, bool check,
-                                  bool* isValid) const {
-    Identifier id;
-    int stationName = stationNameIndex(stationNameStr);
-    id = elementID(stationName, stationEta, stationPhi, doubletR, check, isValid);
-    return id;
+Identifier RpcIdHelper::elementID(int stationName, int stationEta, int stationPhi, int doubletR, bool& isValid) const {
+    const Identifier result = elementID(stationName, stationEta, stationPhi, doubletR);
+    isValid = validElement(result, stationName, stationEta, stationPhi, doubletR, true);
+    return result;
 }
 
-Identifier RpcIdHelper::elementID(const Identifier& id, int doubletR, bool check, bool* isValid) const {
+Identifier RpcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR) const {
+    return  elementID(stationNameIndex(stationNameStr), stationEta, stationPhi, doubletR);
+}
+Identifier RpcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, bool& isValid) const {
+    return  elementID(stationNameIndex(stationNameStr), stationEta, stationPhi, doubletR, isValid);
+}
+
+Identifier RpcIdHelper::elementID(const Identifier& id, int doubletR) const {
     Identifier result(id);
-    bool val = false;
     m_dbr_impl.pack(doubletR, result);
-    if (check) {
-        val = this->validElement(result);
-        if (isValid) *isValid = val;
-    }
-
     return result;
 }
 
+Identifier RpcIdHelper::elementID(const Identifier& id, int doubletR, bool& isValid) const{
+    const Identifier result = elementID(id, doubletR);
+    isValid = validElement(result);
+    return result;
+}
 Identifier RpcIdHelper::elementID(const Identifier& id) const { return parentID(id); }
 
-/*     Identifier panelID  (const Identifier& padID, int gasGap, bool check=false, bool* isValid=0) const; */
-/*     Identifier panelID  (const Identifier& channelID, bool check=false, bool* isValid=0) const; */
+/*     Identifier panelID  (const Identifier& padID, int gasGap,) const; */
+/*     Identifier panelID  (const Identifier& channelID) const; */
 /*     Identifier panelID  (int stationName, int stationEta, int stationPhi, int doubletR, */
-/* 		         int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const; */
+/* 		         int doubletZ, int doubletPhi,int gasGap,) const; */
 
 Identifier RpcIdHelper::panelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
-                                int measuresPhi, bool check, bool* isValid) const {
+                                int measuresPhi) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
@@ -987,11 +974,14 @@ Identifier RpcIdHelper::panelID(int stationName, int stationEta, int stationPhi,
     m_dbp_impl.pack(doubletPhi, result);
     m_gap_impl.pack(gasGap, result);
     m_mea_impl.pack(measuresPhi, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
     return result;
+}
+Identifier RpcIdHelper::panelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+                                int measuresPhi, bool& isValid) const {
+
+ const Identifier result = panelID(stationName, stationEta, stationPhi,  doubletR,  doubletZ, doubletPhi,  gasGap, measuresPhi);
+ isValid = valid(result);
+ return result;   
 }
 
 Identifier RpcIdHelper::panelID(const Identifier& channelID) const {
@@ -1000,23 +990,21 @@ Identifier RpcIdHelper::panelID(const Identifier& channelID) const {
     return result;
 }
 
-Identifier RpcIdHelper::panelID(const Identifier& padID, int gasGap, int measuresPhi, bool check, bool* isValid) const {
+Identifier RpcIdHelper::panelID(const Identifier& padID, int gasGap, int measuresPhi) const {
     Identifier result(padID);
-    bool val = false;
     m_gap_impl.pack(gasGap, result);
-    m_mea_impl.pack(measuresPhi, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
+    m_mea_impl.pack(measuresPhi, result);    
+    return result;
+}
+Identifier RpcIdHelper::panelID(const Identifier& padID, int gasGap, int measuresPhi, bool& isValid) const {
+    const Identifier result = panelID(padID, gasGap, measuresPhi);
+    isValid = valid(result);
     return result;
 }
 
-Identifier RpcIdHelper::gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
-                              bool check, bool* isValid) const {
+Identifier RpcIdHelper::gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
@@ -1026,11 +1014,14 @@ Identifier RpcIdHelper::gapID(int stationName, int stationEta, int stationPhi, i
     m_dbz_impl.pack(doubletZ, result);
     m_dbp_impl.pack(doubletPhi, result);
     m_gap_impl.pack(gasGap, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
+    
     return result;
+}
+Identifier RpcIdHelper::gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+                              bool& isValid) const {
+     const Identifier result = gapID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap);
+     isValid =valid(result);
+     return result;      
 }
 
 Identifier RpcIdHelper::gapID(const Identifier& panelID) const {
@@ -1039,22 +1030,21 @@ Identifier RpcIdHelper::gapID(const Identifier& panelID) const {
     return result;
 }
 
-Identifier RpcIdHelper::gapID(const Identifier& padID, int gasGap, bool check, bool* isValid) const {
+Identifier RpcIdHelper::gapID(const Identifier& padID, int gasGap) const {
     Identifier result(padID);
-    bool val = false;
     m_gap_impl.pack(gasGap, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
+    return result;
+}
+Identifier RpcIdHelper::gapID(const Identifier& padID, int gasGap, bool& isValid) const {
+    const Identifier result = gapID(padID, gasGap);
+    isValid = valid(result);
     return result;
 }
 
 Identifier RpcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
-                                  int measuresPhi, int strip, bool check, bool* isValid, bool noPrint) const {
+                                  int measuresPhi, int strip) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
@@ -1066,37 +1056,39 @@ Identifier RpcIdHelper::channelID(int stationName, int stationEta, int stationPh
     m_gap_impl.pack(gasGap, result);
     m_mea_impl.pack(measuresPhi, result);
     m_str_impl.pack(strip, result);
-    if (check) {
-        val = this->validChannel(result, stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip,
-                                 noPrint);
-        if (isValid) *isValid = val;
-    }
     return result;
 }
-
+Identifier RpcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+                                  int measuresPhi, int strip, bool& isValid) const {
+  const Identifier result = channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap,
+                                     measuresPhi, strip);
+  isValid = validChannel(result, stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip,
+                                 true);
+                                 return result;
+}
 Identifier RpcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, int doubletZ,
-                                  int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid) const {
-    Identifier id;
-    int stationName = stationNameIndex(stationNameStr);
-    id = channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip, check, isValid);
-    return id;
+                                  int doubletPhi, int gasGap, int measuresPhi, int strip) const {
+    return channelID(stationNameIndex(stationNameStr), stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip);
+}
+Identifier RpcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, int doubletZ,
+                                  int doubletPhi, int gasGap, int measuresPhi, int strip, bool& isValid) const {
+    return channelID(stationNameIndex(stationNameStr), stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip, isValid);
 }
 
-Identifier RpcIdHelper::channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip, bool check,
-                                  bool* isValid) const {
+Identifier RpcIdHelper::channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip) const {
     // pack fields independently
     Identifier result(id);
-    bool val = false;
     m_dbz_impl.pack(doubletZ, result);
     m_dbp_impl.pack(doubletPhi, result);
     m_gap_impl.pack(gasGap, result);
     m_mea_impl.pack(measuresPhi, result);
     m_str_impl.pack(strip, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
     return result;
+}
+Identifier RpcIdHelper::channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip, bool& isValid) const {
+  const Identifier result = channelID(id, doubletZ, doubletPhi, gasGap, measuresPhi, strip);
+  isValid = valid(result);
+  return result;
 }
 
 // get the parent id from the strip identifier
@@ -1122,11 +1114,9 @@ Identifier RpcIdHelper::doubletZID(const Identifier& id) const {
     return result;
 }
 
-Identifier RpcIdHelper::padID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, bool check,
-                              bool* isValid) const {
+Identifier RpcIdHelper::padID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
@@ -1134,27 +1124,27 @@ Identifier RpcIdHelper::padID(int stationName, int stationEta, int stationPhi, i
     m_tec_impl.pack(rpc_field_value(), result);
     m_dbr_impl.pack(doubletR, result);
     m_dbz_impl.pack(doubletZ, result);
-    m_dbp_impl.pack(doubletPhi, result);
-    if (check) {
-        val = this->validPad(result, stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
-        if (isValid) *isValid = val;
-    }
+    m_dbp_impl.pack(doubletPhi, result);   
     return result;
 }
+Identifier RpcIdHelper::padID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, bool& isValid) const {
+  const Identifier result = padID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
+  isValid= validPad(result, stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
+  return result;
+}
 
-Identifier RpcIdHelper::padID(const Identifier& id, int doubletZ, int doubletPhi, bool check, bool* isValid) const {
+Identifier RpcIdHelper::padID(const Identifier& id, int doubletZ, int doubletPhi) const {
     // pack fields independently
     Identifier result(id);
-    bool val = false;
     m_dbz_impl.pack(doubletZ, result);
     m_dbp_impl.pack(doubletPhi, result);
-    if (check) {
-        val = this->validPad(result);
-        if (isValid) *isValid = val;
-    }
     return result;
 }
-
+Identifier RpcIdHelper::padID(const Identifier& id, int doubletZ, int doubletPhi, bool& isValid) const {
+  const Identifier result = padID(id, doubletZ, doubletPhi);
+  isValid = validPad(result);
+  return result;
+}
 // Access to components of the ID
 
 int RpcIdHelper::doubletR(const Identifier& id) const { return m_dbr_impl.unpack(id); }
@@ -1219,7 +1209,7 @@ int RpcIdHelper::zIndex(const Identifier& id) const {
     int dR = doubletR(id);
     int dZ = doubletZ(id);
     int dP = doubletPhi(id);
-    std::string name = stationNameString(station);
+    const std::string& name = stationNameString(station);
     return zIndex(name, eta, dR, dZ, dP);
 }
 

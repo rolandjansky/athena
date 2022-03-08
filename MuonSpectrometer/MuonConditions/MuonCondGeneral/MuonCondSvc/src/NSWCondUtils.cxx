@@ -67,7 +67,7 @@ namespace MuonCalib{
 
         int ival =1;
         int phi, eta, mult;
-        std::string_view stationType = tokens[ival++];
+        std::string stationType {tokens[ival++].data()};
         phi = MdtStringUtils::atoi(tokens[ival++]);
         eta = MdtStringUtils::atoi(tokens[ival++]);
         mult = MdtStringUtils::atoi(tokens[ival++]);

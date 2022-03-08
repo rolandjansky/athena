@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "AthenaKernel/getMessageSvc.h"
 
-TgcIdHelper::TgcIdHelper() : MuonIdHelper("TgcIdHelper"), m_GASGAP_INDEX(0), m_ISSTRIP_INDEX(0) {}
+TgcIdHelper::TgcIdHelper() : MuonIdHelper("TgcIdHelper") {}
 
 // Initialize dictionary
 int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
@@ -17,7 +16,7 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
         if (m_msgSvc) { log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg; }
-        return (0);
+        return 0;
     } else {
         if (m_msgSvc) { log << MSG::DEBUG << "(Re)initialize" << endmsg; }
     }
@@ -509,15 +508,15 @@ bool TgcIdHelper::valid(const Identifier& id) const {
     }
     return true;
 }
-
+bool TgcIdHelper::isStNameInTech(const std::string& name) const {
+    return 'T' == name[0];
+}
 bool TgcIdHelper::validElement(const Identifier& id) const {
-    int station = stationName(id);
-    std::string name = stationNameString(station);
-
-    if ('T' != name[0]) {
+    int station = stationName(id);    
+    if (!validStation(station)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationName=" << name << endmsg;
+            log << MSG::WARNING << "Invalid stationName=" << stationNameString(station) << endmsg;
         }
         return false;
     }
@@ -526,7 +525,7 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
     if (eta < stationEtaMin(id) || eta > stationEtaMax(id)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationEta=" << eta << " for stationName=" << name << " stationIndex=" << station
+            log << MSG::WARNING << "Invalid stationEta=" << eta << " for stationName=" << stationNameString(station) << " stationIndex=" << station
                 << " stationEtaMin=" << stationEtaMin(id) << " stationEtaMax=" << stationEtaMax(id) << endmsg;
         }
         return false;
@@ -536,7 +535,7 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
     if (phi < stationPhiMin(id) || phi > stationPhiMax(id)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationPhi=" << phi << " for stationName=" << name << " stationIndex=" << station
+            log << MSG::WARNING << "Invalid stationPhi=" << phi << " for stationName=" << stationNameString(station) << " stationIndex=" << station
                 << " stationPhiMin=" << stationPhiMin(id) << " stationPhiMax=" << stationPhiMax(id) << endmsg;
         }
         return false;
@@ -547,19 +546,17 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
 // Private validation of levels
 
 bool TgcIdHelper::validElement(const Identifier& id, int stationName, int stationEta, int stationPhi) const {
-    std::string name = stationNameString(stationName);
-
-    if ('T' != name[0]) {
+    if (!validStation(stationName)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationName=" << name << endmsg;
+            log << MSG::WARNING << "Invalid stationName=" << stationNameString(stationName) << endmsg;
         }
         return false;
     }
     if (stationEta < stationEtaMin(id) || stationEta > stationEtaMax(id)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationEta=" << stationEta << " for stationName=" << name << " stationIndex=" << stationName
+            log << MSG::WARNING << "Invalid stationEta=" << stationEta << " for stationName=" << stationNameString(stationName) << " stationIndex=" << stationName
                 << " stationEtaMin=" << stationEtaMin(id) << " stationEtaMax=" << stationEtaMax(id) << endmsg;
         }
         return false;
@@ -567,7 +564,7 @@ bool TgcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if (stationPhi < stationPhiMin(id) || stationPhi > stationPhiMax(id)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationPhi=" << stationPhi << " for stationName=" << name << " stationIndex=" << stationName
+            log << MSG::WARNING << "Invalid stationPhi=" << stationPhi << " for stationName=" << stationNameString(stationName) << " stationIndex=" << stationName
                 << " stationPhiMin=" << stationPhiMin(id) << " stationPhiMax=" << stationPhiMax(id) << endmsg;
         }
         return false;
@@ -608,36 +605,33 @@ bool TgcIdHelper::validChannel(const Identifier& id, int stationName, int statio
     return true;
 }
 
-Identifier TgcIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool check, bool* isValid) const {
+Identifier TgcIdHelper::elementID(int stationName, int stationEta, int stationPhi) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
     m_phi_impl.pack(stationPhi, result);
     m_tec_impl.pack(tgc_field_value(), result);
-    if (check) {
-        val = this->validElement(result, stationName, stationEta, stationPhi);
-        if (isValid) *isValid = val;
-    }
+    return result;
+}
+Identifier TgcIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const{
+    const Identifier result = elementID(stationName, stationEta, stationPhi);
+    isValid = validElement(result, stationName, stationEta, stationPhi);
     return result;
 }
 
-Identifier TgcIdHelper::elementID( std::string_view stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
-    Identifier id;
-    int stationName = stationNameIndex(stationNameStr);
-    id = elementID(stationName, stationEta, stationPhi, check, isValid);
-    return id;
+Identifier TgcIdHelper::elementID( const std::string& stationNameStr, int stationEta, int stationPhi) const {
+    return  elementID( stationNameIndex(stationNameStr), stationEta, stationPhi);
 }
-
+Identifier TgcIdHelper::elementID( const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const {
+    return elementID( stationNameIndex(stationNameStr), stationEta, stationPhi, isValid);
+}
 Identifier TgcIdHelper::elementID(const Identifier& id) const { return parentID(id); }
 
-Identifier TgcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int gasGap, int isStrip, int channel, bool check,
-                                  bool* isValid) const {
+Identifier TgcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int gasGap, int isStrip, int channel) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
@@ -646,31 +640,32 @@ Identifier TgcIdHelper::channelID(int stationName, int stationEta, int stationPh
     m_gap_impl.pack(gasGap, result);
     m_ist_impl.pack(isStrip, result);
     m_cha_impl.pack(channel, result);
-    if (check) {
-        val = validChannel(result, stationName, stationEta, stationPhi, gasGap, isStrip, channel);
-        if (isValid) *isValid = val;
-    }
     return result;
 }
+Identifier TgcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
+                                  bool& isValid) const  {
+    const Identifier result = channelID(stationName, stationEta, stationPhi, gasGap, isStrip, channel);
+    isValid =  validChannel(result, stationName, stationEta, stationPhi, gasGap, isStrip, channel);
+    return result;                             
 
-Identifier TgcIdHelper::channelID(std::string_view stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
-                                  bool check, bool* isValid) const {
-    Identifier id;
-    int stationName = stationNameIndex(stationNameStr);
-    id = channelID(stationName, stationEta, stationPhi, gasGap, isStrip, channel, check, isValid);
-    return id;
+}
+Identifier TgcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel) const {
+   return channelID(stationNameIndex(stationNameStr), stationEta, stationPhi, gasGap, isStrip, channel);
+}
+Identifier TgcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel, bool& isValid) const {
+   return channelID(stationNameIndex(stationNameStr), stationEta, stationPhi, gasGap, isStrip, channel, isValid);
 }
 
-Identifier TgcIdHelper::channelID(const Identifier& id, int gasGap, int isStrip, int channel, bool check, bool* isValid) const {
+Identifier TgcIdHelper::channelID(const Identifier& id, int gasGap, int isStrip, int channel) const {
     Identifier result(id);
-    bool val = false;
     m_gap_impl.pack(gasGap, result);
     m_ist_impl.pack(isStrip, result);
-    m_cha_impl.pack(channel, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
+    m_cha_impl.pack(channel, result);  
+    return result;
+}
+Identifier TgcIdHelper::channelID(const Identifier& id, int gasGap, int isStrip, int channel, bool& isValid) const{
+    const Identifier result = channelID(id, gasGap, isStrip, channel);
+    isValid = valid(result);
     return result;
 }
 
@@ -702,29 +697,20 @@ int TgcIdHelper::stationEtaMin() const { return StationEtaMin; }
 int TgcIdHelper::stationEtaMax() const { return StationEtaMax; }
 
 int TgcIdHelper::stationPhiMin(bool endcap) const {
-    if (endcap) {
-        return StationPhiEndcapMin;
-    } else {
-        return StationPhiForwardMin;
-    }
+        return  endcap? StationPhiEndcapMin: StationPhiForwardMin;
+   
 }
 
-int TgcIdHelper::stationPhiMax(bool endcap) const {
-    if (endcap) {
-        return StationPhiEndcapMax;
-    } else {
-        return StationPhiForwardMax;
-    }
+int TgcIdHelper::stationPhiMax(bool endcap) const {  
+        return endcap? StationPhiEndcapMax: StationPhiForwardMax;
+    
 }
 
 int TgcIdHelper::gasGapMin() const { return GasGapMin; }
 
 int TgcIdHelper::gasGapMax(bool triplet) const {
-    if (triplet) {
-        return GasGapTripletMax;
-    } else {
-        return GasGapDoubletMax;
-    }
+        return triplet? GasGapTripletMax: GasGapDoubletMax;
+    
 }
 
 int TgcIdHelper::isStripMin() const { return IsStripMin; }
@@ -743,12 +729,12 @@ int TgcIdHelper::tgcTechnology() const {
 }
 
 bool TgcIdHelper::endcapChamber(int stationName) const {
-    std::string name = stationNameString(stationName);
-    return ('E' == stationNameString(stationName)[2]);
+   const  std::string& name = stationNameString(stationName);
+    return ('E' == name[2]);
 }
 
 bool TgcIdHelper::tripletChamber(int stationName) const {
-    std::string name = stationNameString(stationName);
+   const  std::string& name = stationNameString(stationName);
     return ('1' == name[1]);
 }
 
@@ -757,28 +743,28 @@ int TgcIdHelper::chamberType(std::string stationName, int stationEta) const {
         if ('F' == stationName[2])
             return 1;
         else
-            return (abs(stationEta) + 1);
+            return (std::abs(stationEta) + 1);
     } else if ('2' == stationName[1]) {
         if ('F' == stationName[2])
             return 6;
         else
-            return (abs(stationEta) + 6);
+            return (std::abs(stationEta) + 6);
     } else if ('3' == stationName[1]) {
         if ('F' == stationName[2])
             return 12;
         else
-            return (abs(stationEta) + 12);
+            return (std::abs(stationEta) + 12);
     } else if ('4' == stationName[1]) {
         if ('F' == stationName[2])
             return 18;
         else
-            return (abs(stationEta) + 18);
+            return (std::abs(stationEta) + 18);
     }
     assert(0);
     return -1;
 }
 
 int TgcIdHelper::chamberType(int stationName, int stationEta) const {
-    std::string name = stationNameString(stationName);
+   const  std::string& name = stationNameString(stationName);
     return chamberType(name, stationEta);
 }

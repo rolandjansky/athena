@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/MuonIdHelper.h"
@@ -11,26 +11,11 @@
 
 const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 
-MuonIdHelper::MuonIdHelper(const std::string& logName) :
-    m_station_region_index(0),
-    m_module_hash_max(0),
-    m_channel_hash_max(0),
-    m_detectorElement_hash_max(0),
-    m_logName(logName),
-    m_init(false) {
-    m_MUON_INDEX = 0;
-    m_GROUP_INDEX = 6500;
-    m_NAME_INDEX = 1;
-    m_ETA_INDEX = 2;
-    m_PHI_INDEX = 3;
-    m_TECHNOLOGY_INDEX = 4;
-    m_MODULE_INDEX = 5;
-    m_DETECTORELEMENT_INDEX = 5;
-    m_CHANNEL_INDEX = 10;
-    m_dict = nullptr;
-    m_msgSvc = nullptr;
+MuonIdHelper::MuonIdHelper(const std::string& logName):
+    AtlasDetectorID(),
+    m_logName{logName}{
     if (m_logName.empty()) m_logName = "MuonIdHelper";
-
+    
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
     if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
@@ -320,14 +305,15 @@ int MuonIdHelper::initLevelsFromDict() {
     if (field) {
         m_NAME_INDEX = field->m_index;
 
-        if (m_stationNameVector.empty()) {
+        if (m_stationIdxToNameMap.empty()) {
             // we only need to fill the vectors and sets once
             for (size_t i = 0; i < field->get_label_number(); i++) {
                 std::string name = field->get_label(i);
                 int index = (int)field->get_label_value(name);
-                if ((int)m_stationNameVector.size() <= index) { m_stationNameVector.resize(index + 1); }
-                m_stationNameVector[index] = name;
-
+                m_stationIndexMax = std::max(m_stationIndexMax, index);
+                m_stationNameToIdxMap[name] = index;
+                m_stationIdxToNameMap[index] = name;
+                if (isStNameInTech(name)) m_stationInTech.insert(index);
                 // all chambers starting with B are in the barrel except the BEE chambers
                 if ('B' == name[0]) {
                     if (name[1] != 'E')
@@ -373,12 +359,13 @@ int MuonIdHelper::initLevelsFromDict() {
     if (field) {
         m_TECHNOLOGY_INDEX = field->m_index;
 
-        if (m_technologyNameVector.empty()) {
-            for (size_t i = 0; i < field->get_label_number(); i++) {
+        if (m_technologyNameToIdxMap.empty()) {
+            for (size_t i = 0; i < field->get_label_number(); ++i) {
                 std::string name = field->get_label(i);
                 int index = (int)field->get_label_value(name);
-                if ((int)m_technologyNameVector.size() <= index) { m_technologyNameVector.resize(index + 1); }
-                m_technologyNameVector[index] = name;
+                m_technologyIndexMax = std::max(m_technologyIndexMax, index);
+                m_technologyNameToIdxMap[name] = index;
+                m_technologyIdxToNameMap[index] = name;               
             }
         }
 
@@ -894,11 +881,16 @@ MuonIdHelper::const_id_iterator MuonIdHelper::channel_begin(void) const { return
 MuonIdHelper::const_id_iterator MuonIdHelper::channel_end(void) const { return (m_channel_vec.end()); }
 /*******************************************************************************/
 // Check common station fields
-bool MuonIdHelper::validStation(int stationName, int technology) const {
-    if ((stationName < 0) || (stationName > stationNameIndexMax())) return false;
-    if ((technology < 0) || (technology > technologyNameIndexMax())) return false;
-    return true;
+bool MuonIdHelper::validStation(int stationName, int technology) const {   
+    return validStation(stationName) && validTechnology(technology);
 }
+bool MuonIdHelper::validStation(int stationName) const{
+    return stationName >= 0 && m_stationInTech.count(stationName);
+}
+bool MuonIdHelper::validTechnology(int technology) const{
+    return technology >= 0 && m_technologyIdxToNameMap.find(technology) != m_technologyIdxToNameMap.end();    
+}
+    
 /*******************************************************************************/
 void MuonIdHelper::addStationID(ExpandedIdentifier& id, int stationName, int stationEta, int stationPhi, int technology) const {
     id << stationName << stationEta << stationPhi << technology;
@@ -946,9 +938,9 @@ int MuonIdHelper::technology(const Identifier& id) const {
     return result;
 }
 /*******************************************************************************/
-int MuonIdHelper::stationNameIndexMax() const { return (m_stationNameVector.size() - 1); }
+int MuonIdHelper::stationNameIndexMax() const { return m_stationIndexMax; }
 /*******************************************************************************/
-int MuonIdHelper::technologyNameIndexMax() const { return (m_technologyNameVector.size() - 1); }
+int MuonIdHelper::technologyNameIndexMax() const { return m_technologyIndexMax; }
 /*******************************************************************************/
 // Methods used by Moore
 bool MuonIdHelper::isBarrel(const Identifier& id) const { return isBarrel(stationName(id)); }
@@ -968,37 +960,29 @@ bool MuonIdHelper::isForward(const int& stationNameIndex) const { return (m_isFo
 bool MuonIdHelper::isSmall(const int& stationNameIndex) const { return (m_isSmall.count(stationNameIndex) == 1); }
 /*******************************************************************************/
 // Access to name and technology maps
-int MuonIdHelper::stationNameIndex(std::string_view name) const {
-    int counter = 0;
-    for (const std::string& station_name : m_stationNameVector) {
-        if (name.compare(station_name) == 0) { return counter; }
-        ++counter;
-    }
+int MuonIdHelper::stationNameIndex(const std::string& name) const {
+    std::map<std::string, int>::const_iterator itr = m_stationNameToIdxMap.find(name);
+    if (itr != m_stationNameToIdxMap.end()) return itr->second;
     return -1;
 }
 /*******************************************************************************/
 int MuonIdHelper::technologyIndex(const std::string& name) const {
-    int counter = 0;
-    for (const std::string& technology_name : m_technologyNameVector) {
-        if (name.compare(technology_name) == 0) { return counter; }
-        ++counter;
-    }
+    std::map<std::string, int>::const_iterator itr = m_technologyNameToIdxMap.find(name);
+    if (itr != m_technologyNameToIdxMap.end()) return itr ->second;
     return -1;
 }
 /*******************************************************************************/
 const std::string& MuonIdHelper::stationNameString(const int& index) const {
     assert(index >= 0 && index <= stationNameIndexMax());
-    if (index >= 0 && index <= stationNameIndexMax()) {
-        if (!m_stationNameVector[index].empty()) { return m_stationNameVector[index]; }
-    }
+    std::map<int, std::string>::const_iterator itr = m_stationIdxToNameMap.find(index);
+    if (itr != m_stationIdxToNameMap.end()) return itr->second;
     return BAD_NAME;
 }
 /*******************************************************************************/
 const std::string& MuonIdHelper::technologyString(const int& index) const {
     assert(index >= 0 && index <= technologyNameIndexMax());
-    if (index >= 0 && index <= technologyNameIndexMax()) {
-        if (!m_technologyNameVector[index].empty()) { return m_technologyNameVector[index]; }
-    }
+    std::map<int, std::string>::const_iterator itr =  m_technologyIdxToNameMap.find(index);
+    if (itr != m_technologyIdxToNameMap.end()) return itr->second;
     return BAD_NAME;
 }
 /*******************************************************************************/
