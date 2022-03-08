@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "RPC_CondCabling/RpcCablingCondAlg.h"
@@ -12,16 +12,11 @@ RpcCablingCondAlg::RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode RpcCablingCondAlg::initialize() {
     ATH_MSG_DEBUG("initializing" << name());
-    ATH_CHECK(m_condSvc.retrieve());
     ATH_CHECK(m_readKey_map_schema.initialize());
     ATH_CHECK(m_readKey_map_schema_corr.initialize());
     ATH_CHECK(m_readKey_cm_thr_eta.initialize());
     ATH_CHECK(m_readKey_cm_thr_phi.initialize());
     ATH_CHECK(m_writeKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-        ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
     ATH_CHECK(m_idHelperSvc.retrieve());
     RDOindex::setRpcIdHelper(&m_idHelperSvc->rpcIdHelper());
     return StatusCode::SUCCESS;
