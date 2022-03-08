@@ -324,6 +324,9 @@ namespace Muon {
         if (!perigee) {
             perigee = createPerigee(*exPars);
         }
+        else {
+          exPars.release();
+        }
 
         // double check
         if (!perigee) {
