@@ -15,11 +15,12 @@ include ("EventDisplaysOnline/WaitForAtlas_jobOptions.py")
 ## ------------------------------------------- set online defaults for AthenaConfiguration.AllConfigFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
+from AthenaConfiguration.Enums import BeamType
 ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
 autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
 
 ## ------------------------------------------- update selected ConfigFlags if needed
-ConfigFlags.Beam.Type = beamType
+ConfigFlags.Beam.Type = BeamType(beamType)
 
 ## ------------------------------------------- flags set in: RecExOnline_jobOptions.py  
 isOnline          = True
