@@ -117,7 +117,7 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles(const Trk::Track& /**track
     ATH_MSG_WARNING("searchForHoles is not implemented in MuonTrackSummaryHelperTool");
 }
 
-void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track& track, Trk::TrackSummary& summary) const {
+void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track& track,  Trk::TrackSummary& summary) const {
     if (summary.m_muonTrackSummary) {
         ATH_MSG_DEBUG("TrackSummary already has detailed muon track summary, not adding a new one");
         return;
