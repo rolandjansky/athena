@@ -1,19 +1,16 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXPERF_JGTOWERMAPPINGDATACONDALGBASE_H
 #define TRIGT1CALOFEXPERF_JGTOWERMAPPINGDATACONDALGBASE_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TrigT1CaloFexPerf/JGTowerMappingData.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/JGTowerBase_ID.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 namespace LVL1
@@ -28,7 +25,6 @@ namespace LVL1
     virtual StatusCode execute(const EventContext &ctx) const final;
 
   private:
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
     SG::WriteCondHandleKey<JGTowerMappingData> m_outputKey{
         this, "MappingData", ""};
     Gaudi::Property<bool> m_mapTileCells{this, "MapTileCells", false};
