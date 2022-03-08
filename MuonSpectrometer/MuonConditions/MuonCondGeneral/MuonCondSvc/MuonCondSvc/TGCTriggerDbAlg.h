@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCTRIGGERDBALG_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
@@ -30,8 +29,6 @@ class TGCTriggerDbAlg: public AthAlgorithm
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_eifi{this, "ReadKeyEifi", "/TGC/TRIGGER/CW_EIFI", "SG key for CW-EIFI"};
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_tile{this, "ReadKeyTile", "/TGC/TRIGGER/CW_TILE", "SG key for CW-TILE"};
     SG::WriteCondHandleKey<TGCTriggerData> m_writeKey{this, "WriteKey", "TGCTriggerData", "SG Key of TGCTrigger LUTs"};
-
-    ServiceHandle<ICondSvc> m_condSvc;
 };
 
 #endif
