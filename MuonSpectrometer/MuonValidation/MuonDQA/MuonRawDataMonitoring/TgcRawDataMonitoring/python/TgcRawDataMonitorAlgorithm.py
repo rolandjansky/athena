@@ -29,7 +29,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonitorTool = CompFactory.TgcRawDataMonitorTool("TgcRawDataMonitorTool")
 
     muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
-    muonSelectionTool.MuQuality = 1 # tight:0 medium:1
+    muonSelectionTool.MuQuality = 0 # tight:0 medium:1
 
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
@@ -546,6 +546,19 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                    title='BWSectorsVsEta_Wire'+titlesuffix+';iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
                                    path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
 
+
+
+    myGroupHit.defineHistogram('hit_bcmask_bw24sectors_All,hit_bcmask_for_bw24sectors_All;TgcPrd_BWSectorsVsBCMask_All',
+                               title='BWSectorsVsBCMask_All;TGC BW Sectors(+ for A-side, - for C-side);',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+    myGroupHit.defineHistogram('hit_bcmask_bw24sectors_Wire,hit_bcmask_for_bw24sectors_Wire;TgcPrd_BWSectorsVsBCMask_Wire',
+                               title='BWSectorsVsBCMask_Wire;TGC BW Sectors(+ for A-side, - for C-side);',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+    myGroupHit.defineHistogram('hit_bcmask_bw24sectors_Strip,hit_bcmask_for_bw24sectors_Strip;TgcPrd_BWSectorsVsBCMask_Strip',
+                               title='BWSectorsVsBCMask_Strip;TGC BW Sectors(+ for A-side, - for C-side);',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+
+
     
     for side in ['A', 'C']:# side-A or side-C
         for station in range(1,5):# M1,2,3,4
@@ -591,6 +604,22 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
                                            title=title+';Global chamber index;Efficiency',type='TEfficiency',
                                            path=hitEffPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5)
+
+                x_name = "hit_bcmask_glblphi_%s" % (name)
+                y_name = "hit_bcmask_%s" % (name)
+                objname = "TgcPrd_GlobalChamberIndexVsBCMask_%s" % (name)
+                title = "GlobalChamberIndexVsBCMask_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                           title=title+';Global chamber index;',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,
+                                           ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits',
+                                                                               'Next-only',
+                                                                               'Curr-only',
+                                                                               'Curr&Next',
+                                                                               'Prev-only',
+                                                                               'Prev&Next',
+                                                                               'Prev&Curr',
+                                                                               'Prev&Curr&Next'])
 
 
                 nbinsx = 10

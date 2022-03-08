@@ -1093,6 +1093,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       std::map<std::string, std::vector<int>> tgcHitTiming;
       std::map<std::string, std::vector<int>> tgcHitPhiMapGlobalWithTrack;
       std::map<std::string, std::vector<int>> tgcHitTimingWithTrack;
+      std::map<std::string, int> tgcHitBCMaskMap;
       std::vector <int> vec_bw24sectors; // 1..12 BW-A, -1..-12 BW-C
       std::vector <int> vec_bw24sectors_wire;
       std::vector <int> vec_bw24sectors_strip;
@@ -1161,6 +1162,16 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	  tgcHitsMap[tgcHit.gap_name()].push_back(tgcHit);
 	  std::string chamberNameWithWS = Form("%s%s",tgcHit.cham_name().data(),(tgcHit.isStrip())?("S"):("W"));
 	  tgcHitsMap[chamberNameWithWS].push_back(tgcHit);
+
+	  if(hasMatchedTrack){
+	    std::string chamberNameWithLandWSandChannel = Form("%sL%02d%sCh%03d",tgcHit.cham_name().data(),gasGap,(tgcHit.isStrip())?("S"):("W"),channel);
+	    int BCMask = ( tgcHitBCMaskMap.find(chamberNameWithLandWSandChannel)==tgcHitBCMaskMap.end() ) ? ( 0 ) : ( tgcHitBCMaskMap[chamberNameWithLandWSandChannel]);
+	    if( (data->getBcBitMap() & Muon::TgcPrepData::BCBIT_NEXT) != 0 ) BCMask |= 0x1;
+	    else if( (data->getBcBitMap() & Muon::TgcPrepData::BCBIT_CURRENT) != 0 )BCMask |= 0x2;
+	    else if( (data->getBcBitMap() & Muon::TgcPrepData::BCBIT_PREVIOUS) != 0 )BCMask |= 0x4;
+	    else{ BCMask = 0;} // undefined
+	    tgcHitBCMaskMap[chamberNameWithLandWSandChannel] = BCMask;
+	  }
 	  
 	  std::string station_name = Form("%sM%02d%s",(tgcHit.iSide()==TGC::TGCSIDE::TGCASIDE)?("A"):("C"),tgcHit.iM(),(tgcHit.isStrip())?("S"):("W"));
 	  
@@ -1288,6 +1299,58 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	hit_variables.push_back(varowner.back());
       }
       
+      // BCMask plots (for TTCrx gate delay scan)
+      std::map<std::string, std::vector<int>> tgcHitBCMaskGlobalIndex;
+      std::map<std::string, std::vector<int>> tgcHitBCMask;
+      std::map<std::string, std::vector<int>> tgcHitBCMaskBWSectors;
+      std::map<std::string, std::vector<int>> tgcHitBCMaskForBWSectors;
+      for(const auto& channelNameAndBCMask : tgcHitBCMaskMap){
+	std::string chamberNameWithWS = channelNameAndBCMask.first.substr(0,16); // e.g. A01M01f01E01L01W
+	int thisChannel = std::atoi( channelNameAndBCMask.first.substr(18,3).data() ); // e.g. 001 of "Ch001"
+	std::string prevChannelName = Form("%sCh%03d",chamberNameWithWS.data(),thisChannel-1);
+	if(tgcHitBCMaskMap.find(prevChannelName)!=tgcHitBCMaskMap.end())continue; // remove if the neighboring channel also has a hit
+	std::string nextChannelName = Form("%sCh%03d",chamberNameWithWS.data(),thisChannel+1);
+	if(tgcHitBCMaskMap.find(nextChannelName)!=tgcHitBCMaskMap.end())continue; // remove if the neighboring channel also has a hit
+	int BCMask = channelNameAndBCMask.second;
+	std::string cham_name = channelNameAndBCMask.first.substr(0,12); // e.g. A01M01f01E01
+	int iLay = std::atoi( channelNameAndBCMask.first.substr(13,2).data() );
+	TGC::TgcChamber cham; cham.initChamber(cham_name);
+	int phimap_index = 0;
+	int etamap_index = 0;
+	int phimap_global_index = 0;
+	if(!m_tgcMonTool->getMapIndex(cham,iLay,etamap_index,phimap_index,phimap_global_index ))continue;
+	std::string station_name = Form("%sM%02d%s",(cham.iSide()==TGC::TGCSIDE::TGCASIDE)?("A"):("C"),cham.iM(),channelNameAndBCMask.first.substr(15,1).data());
+	tgcHitBCMaskGlobalIndex[station_name].push_back(phimap_global_index);
+	tgcHitBCMask[station_name].push_back(BCMask);
+	if(cham.iM()!=4){
+	  tgcHitBCMaskBWSectors["All"].push_back( (cham.iSide()==TGC::TGCSIDE::TGCASIDE)?( +1 * cham.iSec() ):(-1 * cham.iSec()) );
+	  tgcHitBCMaskForBWSectors["All"].push_back(BCMask);
+	  if(chamberNameWithWS.find("W")!=std::string::npos){
+	    tgcHitBCMaskBWSectors["Wire"].push_back( (cham.iSide()==TGC::TGCSIDE::TGCASIDE)?( +1 * cham.iSec() ):(-1 * cham.iSec()) );
+	    tgcHitBCMaskForBWSectors["Wire"].push_back(BCMask);
+	  }else{
+	    tgcHitBCMaskBWSectors["Strip"].push_back( (cham.iSide()==TGC::TGCSIDE::TGCASIDE)?( +1 * cham.iSec() ):(-1 * cham.iSec()) );
+	    tgcHitBCMaskForBWSectors["Strip"].push_back(BCMask);
+	  }
+	}
+      }
+      std::vector<Monitored::ObjectsCollection<std::vector<int>, double>> varowner_bcmask;
+      varowner_bcmask.reserve(tgcHitBCMask.size() * 2 + tgcHitBCMaskBWSectors.size() * 2);
+      for(const auto& chamType : tgcHitBCMaskBWSectors){
+	varowner_bcmask.push_back(Monitored::Collection(Form("hit_bcmask_bw24sectors_%s",chamType.first.data()),chamType.second,[](const int&m){return m;}));
+	hit_variables.push_back(varowner_bcmask.back());
+	varowner_bcmask.push_back(Monitored::Collection(Form("hit_bcmask_for_bw24sectors_%s",chamType.first.data()),tgcHitBCMaskForBWSectors[chamType.first],[](const int&m){return m;}));
+	hit_variables.push_back(varowner_bcmask.back());
+      }
+      for(const auto& stationNameAndBCMask : tgcHitBCMask){
+	varowner_bcmask.push_back(Monitored::Collection(Form("hit_bcmask_glblphi_%s",stationNameAndBCMask.first.data()),tgcHitBCMaskGlobalIndex[stationNameAndBCMask.first],[](const int&m){return m;}));
+	hit_variables.push_back(varowner_bcmask.back());
+	varowner_bcmask.push_back(Monitored::Collection(Form("hit_bcmask_%s",stationNameAndBCMask.first.data()),stationNameAndBCMask.second,[](const int&m){return m;}));
+	hit_variables.push_back(varowner_bcmask.back());
+      }
+
+
+
       // gap-by-gap efficiency by track extrapolation
       ATH_MSG_DEBUG("preparing for efficiency plots");
       std::map<std::string, std::vector<double>> tgcEffPhiMap_Denominator;
