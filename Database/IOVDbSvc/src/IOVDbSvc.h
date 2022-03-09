@@ -73,7 +73,7 @@ class CondAttrListCollection;
  *           
  * 
  */
-class IOVDbSvc : public virtual IIOVCondDbSvc,
+class  ATLAS_CHECK_THREAD_SAFETY IOVDbSvc : public virtual IIOVCondDbSvc,
                  public virtual IIOVDbSvc,
                  public virtual IAddressProvider,
                  public virtual IIncidentListener,
