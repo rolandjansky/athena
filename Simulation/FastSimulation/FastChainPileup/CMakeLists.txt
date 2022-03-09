@@ -20,7 +20,6 @@ atlas_add_component( FastChainPileup
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} GaudiKernel GeneratorModulesLib Pythia8_iLib )
 
 # Install files from the package:
-atlas_install_headers( FastChainPileup )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/sim_reg_test_fastchain.py )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
