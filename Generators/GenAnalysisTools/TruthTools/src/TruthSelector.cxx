@@ -17,7 +17,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "TruthUtils/HepMCHelpers.h"
-#include "TruthTools/TruthSelector.h"
+#include "TruthSelector.h"
 
 
 TruthSelector::TruthSelector (const std::string& type, const std::string& name, const IInterface* parent)
