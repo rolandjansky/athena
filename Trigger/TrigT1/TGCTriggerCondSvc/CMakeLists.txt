@@ -1,26 +1,15 @@
-################################################################################
-# Package: TGCTriggerCondSvc
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TGCTriggerCondSvc )
-
-# External dependencies:
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( TGCTriggerCondSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TGCTriggerCondSvc
-                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel StoreGateLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities StoreGateLib )
 
 atlas_add_component( TGCTriggerCondSvc
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthenaPoolUtilities Identifier GaudiKernel TGCTriggerCondSvcLib )
-
-
+                     LINK_LIBRARIES AthenaPoolUtilities StoreGateLib TGCTriggerCondSvcLib )
