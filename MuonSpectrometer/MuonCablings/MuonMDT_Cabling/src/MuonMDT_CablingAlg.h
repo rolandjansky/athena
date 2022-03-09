@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,7 +12,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/AlgTool.h"
@@ -41,8 +40,6 @@ class MuonMDT_CablingAlg: public AthAlgorithm {
    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMez{this, "MezzanineFolders", "/MDT/CABLING/MEZZANINE_SCHEMA"};
    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMap{this, "MapFolders", "/MDT/CABLING/MAP_SCHEMA"};
    SG::WriteCondHandleKey<MuonMDT_CablingMap> m_writeKey{this, "WriteKey", "MuonMDT_CablingMap", "Key of output MDT cabling map"};
-   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
-  
 
   /// Retrieves the general MDT station info from the coral attribute
   bool extractStationInfo(const coral::AttributeList& atr, CablingData& map_data ) const;
