@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGORITHMS_PIXELALIGNCONDALG_H
@@ -10,8 +10,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -46,8 +44,6 @@ class PixelAlignCondAlg : public AthAlgorithm
 
   SG::WriteCondHandleKey<GeoAlignmentStore> m_writeKey{
     this, "WriteKey", "PixelAlignmentStore", "Output pixel alignment data"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   StringProperty m_detManagerName{this, "DetManagerName", "Pixel", "Name of the DeterctorManager to retrieve"};
   const InDetDD::PixelDetectorManager* m_detManager{nullptr};
