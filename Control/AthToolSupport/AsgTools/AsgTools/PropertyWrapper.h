@@ -10,7 +10,9 @@
 #define ASG_TOOLS__PROPERTY_WRAPPER_H
 
 
-#ifdef XAOD_STANDALONE
+// WARNING: This file has been modified for 21.2 so that it is
+// compiled in all projects.  Do not let these changes propagate into
+// master.
 
 #include <iosfwd>
 #include <string>
@@ -150,7 +152,5 @@ namespace Gaudi
     return str << property.value();
   }
 }
-
-#endif
 
 #endif
