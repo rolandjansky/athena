@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_GeoModelFactory_h
@@ -58,6 +58,7 @@ private:
     std::map<std::string,const GeoShape*> m_MapShape;
     AFP_CONFIGURATION m_CfgParams;
     AFP_Geometry* m_pGeometry;
+    const bool m_addSeparationWindow;
 
     //Si detector part
     GeoShape* createSolidSIDPlate();
@@ -74,6 +75,7 @@ private:
     HepGeom::Vector3D<double> getBarShift(AFPTOF_LBARDIMENSIONS& LQBarDims, eLBarType eSpecType=ELBT_UNDEFINED);
     void addHorizontalArm(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFPTOF_LBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& PartialTransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
     void addSensor(const char* pszStationName, const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D &TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+    void addLBarSensorSeparationWindow(const char* pszStationName, const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D &TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
     void getLQBarDimensions(const int nRowID, const int nColID, AFPTOF_LBARDIMENSIONS* pLQBarDims);
 };
 
