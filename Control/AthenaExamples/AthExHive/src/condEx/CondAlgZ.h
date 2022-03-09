@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDALGS_CONDALGZ_H
@@ -16,7 +16,6 @@
 #include "AthExHive/IASCIICondDbSvc.h"
 
 #include "xAODEventInfo/EventInfo.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include <string>
 
@@ -27,11 +26,8 @@ public:
   CondAlgZ (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CondAlgZ();
   
-  virtual bool isClonable() const override { return true; }
-
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
 private:
   
@@ -40,10 +36,6 @@ private:
   SG::ReadCondHandleKey<CondDataObjY> m_rchk3 {this, "Key_RCH3", "Y2", "read cond handle key 3"};
 
   SG::WriteCondHandleKey<CondDataObjZ> m_wch {this, "Key_WCH", "Z1", "write cond handle key"};
-
-  ServiceHandle<ICondSvc> m_cs;
-
-
 };
 
 #endif
