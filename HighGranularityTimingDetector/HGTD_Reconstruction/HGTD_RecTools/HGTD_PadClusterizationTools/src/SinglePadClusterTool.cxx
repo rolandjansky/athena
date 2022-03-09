@@ -9,7 +9,7 @@
  *
  */
 
-#include "HGTD_PadClusterizationTools/SinglePadClusterTool.h"
+#include "SinglePadClusterTool.h"
 
 #include "HGTD_ReadoutGeometry/HGTD_ModuleDesign.h"
 

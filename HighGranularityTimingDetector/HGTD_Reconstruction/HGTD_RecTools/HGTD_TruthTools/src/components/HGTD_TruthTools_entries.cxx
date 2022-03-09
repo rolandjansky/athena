@@ -1,3 +1,3 @@
-#include "HGTD_TruthTools/ClusterTruthTool.h"
+#include "../ClusterTruthTool.h"
 
 DECLARE_COMPONENT( HGTD::ClusterTruthTool )

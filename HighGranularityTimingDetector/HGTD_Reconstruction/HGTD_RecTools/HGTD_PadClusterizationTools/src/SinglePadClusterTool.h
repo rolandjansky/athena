@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HGTD_RecToolInterfaces/IHGTD_PadClusterizationTool.h"
 
-#include "HGTD_PadClusterizationTools/HGTD_ClusterMakerTool.h"
+#include "HGTD_ClusterMakerTool.h"
 
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 

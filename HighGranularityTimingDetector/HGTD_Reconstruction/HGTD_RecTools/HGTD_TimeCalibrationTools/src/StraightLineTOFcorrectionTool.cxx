@@ -8,7 +8,7 @@
  * @brief Implementation file of StraightLineTOFcorrectionTool.h
  */
 
-#include "HGTD_TimeCalibrationTools/StraightLineTOFcorrectionTool.h"
+#include "StraightLineTOFcorrectionTool.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
 #include "HGTD_PrepRawData/HGTD_Cluster.h"
