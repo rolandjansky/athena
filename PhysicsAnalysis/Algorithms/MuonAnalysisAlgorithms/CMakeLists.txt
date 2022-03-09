@@ -66,3 +66,28 @@ else()
       MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type afii
       PROPERTIES TIMEOUT 600 )
 endif()
+
+if( XAOD_STANDALONE )
+   atlas_add_test( testJobDataConfig
+      SCRIPT MuonAnalysisAlgorithmsConfigTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFullSimConfig
+      SCRIPT MuonAnalysisAlgorithmsConfigTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFastSimConfig
+      SCRIPT MuonAnalysisAlgorithmsConfigTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
+else()
+   atlas_add_test( testJobDataConfig
+      SCRIPT athena.py
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type data
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFullSimConfig
+      SCRIPT athena.py
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type mc
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFastSimConfig
+      SCRIPT athena.py
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type afii
+      PROPERTIES TIMEOUT 600 )
+endif()
