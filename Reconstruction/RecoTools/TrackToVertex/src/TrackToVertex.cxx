@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // Reco & Rec
-#include "TrackToVertex/TrackToVertex.h"
+#include "TrackToVertex.h"
 #include "Particle/TrackParticle.h"
 // GaudiKernel
 #include "GaudiKernel/IIncidentSvc.h"
