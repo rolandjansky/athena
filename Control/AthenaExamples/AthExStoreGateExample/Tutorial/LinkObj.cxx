@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LinkObj.h"
@@ -39,13 +39,13 @@ void LinkObj::setContLink(vector<MyElement>&,  //coll
   // Access linked object/collection
 const MyDataObj& LinkObj::myLinkedObj()
 {
-  static MyDataObj replaceMe;
+  static const MyDataObj replaceMe;
   return replaceMe;
 }
 
 const MyElement& LinkObj::myLinkedElement() 
 {
-  static MyElement replaceMe;
+  static const MyElement replaceMe;
   return replaceMe;
   
 }

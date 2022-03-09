@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( FilePeeker )
@@ -21,7 +21,7 @@ atlas_add_executable( PoolFilePeeker
                       src/PoolFilePeeker.cxx
                       src/FileMetaData.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES EventTPCnv IOVDbTPCnv ${extra_libs} ${ROOT_LIBRARIES})
+                      LINK_LIBRARIES EventTPCnv IOVDbTPCnv CxxUtils ${extra_libs} ${ROOT_LIBRARIES})
 
 
 if( NOT SIMULATIONBASE )
@@ -29,7 +29,7 @@ if( NOT SIMULATIONBASE )
                         src/BSFilePeeker.cxx
                         src/FileMetaData.cxx
                         INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                        LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES})
+                        LINK_LIBRARIES CxxUtils ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
 # Install files from the package:
