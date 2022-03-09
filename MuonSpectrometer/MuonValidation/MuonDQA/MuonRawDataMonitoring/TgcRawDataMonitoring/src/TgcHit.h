@@ -64,6 +64,6 @@ namespace TGC {
   inline const double& TgcHit::residual() const {return m_residual;}
   inline void TgcHit::setResidual(double v) {m_residual = v;}
   
-};
+}
 #endif
 

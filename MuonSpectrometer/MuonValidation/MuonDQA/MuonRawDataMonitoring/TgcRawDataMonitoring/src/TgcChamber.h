@@ -51,5 +51,5 @@ namespace TGC {
   inline const int& TgcChamber::StationEta() const {return m_stationEta;}
   inline const int& TgcChamber::StationPhi() const {return m_stationPhi;}
   
-};
+}
 #endif

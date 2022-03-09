@@ -10,6 +10,6 @@ namespace TGC {
   enum class TGCSIDE { TGCASIDE, TGCCSIDE, TGCSIDEUNDEF };
 
 
-};
+}
 #endif
 
