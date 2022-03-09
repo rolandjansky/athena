@@ -292,6 +292,9 @@ def createTriggerFlags():
     # ATR-24619 - to be removed after validation
     flags.addFlag("Trigger.usexAODFlowElements", False)
 
+    # enables or disables the addition of VR track jet reconstruction sequence
+    flags.addFlag("Trigger.Jet.doVRJets", False)
+
     return flags
 
     
