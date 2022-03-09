@@ -169,7 +169,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
   ///////////////// Preparation: check trigger information /////////////////////
   ATH_MSG_DEBUG("Preparing trigger information");
-  bool nonMuonTriggerFired = false;
   std::set<std::string> list_of_single_muon_triggers;
   if ( !getTrigDecisionTool().empty() ){
     auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_.*");
@@ -177,37 +176,12 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       auto triggerList = chainGroup->getListOfTriggers();
       if( !triggerList.empty() ){
 	for(const auto &trig : triggerList) {
-	  std::string thisTrig = trig;
-	  if( thisTrig.find("HLT_mu")==0 ){ // muon triggers
-	    // look for only single-muon triggers
-	    if ( thisTrig.find("-")!=std::string::npos ) continue; // skipping L1Topo item
-	    if ( thisTrig.find("msonly")!=std::string::npos ) continue; // only combined muon
-	    if ( thisTrig.find("2MU")!=std::string::npos ) continue; // no L12MU
-	    if ( thisTrig.find("3MU")!=std::string::npos ) continue; // no L13MU
-	    if ( thisTrig.find("4MU")!=std::string::npos ) continue; // no L14MU
-	    if ( thisTrig.find("mu")!=std::string::npos ) {
-	      TString tmp = thisTrig;
-	      tmp.ReplaceAll("mu","ZZZ");
-	      std::unique_ptr<TObjArray> arr( tmp.Tokenize("ZZZ") );
-	      auto n = arr->GetEntries();
-	      if ( n != 2 ) continue; // exact one 'mu' letter
-	    }
-	    if ( thisTrig.find("MU")!=std::string::npos ) {
-	      TString tmp = thisTrig;
-	      tmp.ReplaceAll("MU","ZZZ");
-	      std::unique_ptr<TObjArray> arr( tmp.Tokenize("ZZZ") );
-	      auto n = arr->GetEntries();
-	      if ( n > 2 ) continue; // only one 'MU' letter if exists
-	    }
-	    list_of_single_muon_triggers.insert( thisTrig );
-	  }else{
-	    if( m_useNonMuonTriggers.value() == false ) continue;
-	    // look for muon-orthogonal triggers and if they fired
-	    if(nonMuonTriggerFired)continue; // already checked, skipping
-	    if(thisTrig.find("mu")!=std::string::npos) continue;
-	    if(thisTrig.find("MU")!=std::string::npos) continue;
-	    if(getTrigDecisionTool()->isPassed(thisTrig.data(),TrigDefs::Physics)) nonMuonTriggerFired = true;
-	  }
+	  if( trig.find("HLT_mu") != 0 )continue; // muon trigger
+	  if( trig.find("-") != std::string::npos )continue; // vetoing topo item
+	  if( trig.find("L1MU") == std::string::npos )continue; // RoI-seedeed L1 muon trigger
+	  if( trig.find("mu") !=  trig.rfind("mu") )continue;  // mu occurrence only once -> single muon trigger
+	  if( trig.find("MU") !=  trig.rfind("MU") )continue;  // MU occurrence only once -> single muon trigger
+	  list_of_single_muon_triggers.insert( trig );
 	}
       }
     }
@@ -220,11 +194,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   auto mon_lb = Monitored::Scalar<int>("mon_lb", GetEventInfo(ctx)->lumiBlock());
   fill(m_packageName+"_Common", mon_bcid, mon_pileup, mon_lb);
 
-
-
-
-
-  
   ///////////////// Extract MuonRoI /////////////////
   const xAOD::MuonRoIContainer *rois = nullptr;
   if (!m_MuonRoIContainerKey.empty() && m_anaMuonRoI.value()) {
@@ -620,6 +589,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
   ///////////////// Filling histograms for MuonRoIs in thresholdPattern /////////////////
   std::map<const xAOD::MuonRoI*,std::set<std::string>> roiAndMenu;
+  std::map<std::string,std::vector<const xAOD::MuonRoI*>> menuAndRoIs;
   if(m_monitorThresholdPatterns.value() && rois != nullptr ){
     ATH_MSG_DEBUG("Filling histograms for MuonRoIs in thresholdPattern");
     SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_L1MenuKey, ctx);
@@ -655,37 +625,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	    roiAndMenu[roi].insert(item);
 	  }
 	}
-
-	MonVariables thrMonVariables;
-	auto l1item_roi_eta = Monitored::Collection(Form("l1item_roi_eta_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return m->eta();
-	  });
-	thrMonVariables.push_back(l1item_roi_eta);
-	auto l1item_roi_phi = Monitored::Collection(Form("l1item_roi_phi_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return m->phi();
-	  });
-	thrMonVariables.push_back(l1item_roi_phi);
-	auto l1item_roi_thrNumber = Monitored::Collection(Form("l1item_roi_thrNumber_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return m->getThrNumber();
-	  });
-	thrMonVariables.push_back(l1item_roi_thrNumber);
-	auto l1item_roi_ismorecand = Monitored::Collection(Form("l1item_roi_ismorecand_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return (m->getSource()==xAOD::MuonRoI::Barrel)?(m->isMoreCandInRoI()):(-1);
-	  });
-	thrMonVariables.push_back(l1item_roi_ismorecand);
-	auto l1item_roi_bw3coin = Monitored::Collection(Form("l1item_roi_bw3coin_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getBW3Coincidence()):(-1);
-	  });
-	thrMonVariables.push_back(l1item_roi_bw3coin);
-	auto l1item_roi_innercoin = Monitored::Collection(Form("l1item_roi_innercoin_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getInnerCoincidence()):(-1);
-	  });
-	thrMonVariables.push_back(l1item_roi_innercoin);
-	auto l1item_roi_goodmf = Monitored::Collection(Form("l1item_roi_goodmf_%s",item.data()), passed_rois, [](const xAOD::MuonRoI *m) {
-	    return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getGoodMF()):(-1);
-	  });
-	thrMonVariables.push_back(l1item_roi_goodmf);
-	fill(m_packageName + item.data(), thrMonVariables);
+	menuAndRoIs.insert(std::make_pair(item,passed_rois));
       }
     }
     ATH_MSG_DEBUG("End filling histograms for MuonRoIs in thresholdPattern");
@@ -709,14 +649,16 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
       // standard quality cuts for muons
       if (muon->pt() < 1000.) continue;
-      if(!m_muonSelectionTool->accept(*muon)) continue;
+      if(m_useMuonSelectorTool && !m_muonSelectionTool->accept(*muon)) continue;
+      if(m_useOnlyCombinedMuons && muon->muonType()!=xAOD::Muon::MuonType::Combined) continue;
+      if(m_useOnlyMuidCoStacoMuons && (muon->author()!=xAOD::Muon::Author::MuidCo && muon->author()!=xAOD::Muon::Author::STACO)) continue;
 
       // initialize for muon-isolation check
       bool isolated = true;
 
       // initialize for tag-and-probe check
       bool probeOK = true;
-      if( !nonMuonTriggerFired && m_TagAndProbe.value() ) probeOK = false; // t&p should be performed
+      if( m_TagAndProbe.value() ) probeOK = false; // t&p should be performed
 
       // OK, let's start looking at the second muons
       for(const auto muon2 : *muons){
@@ -744,7 +686,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	if(probeOK)continue;
 
 	//  standard quality cuts for muons
-	if(!m_muonSelectionTool->accept(*muon2)) continue;
+	if(m_useMuonSelectorTool && !m_muonSelectionTool->accept(*muon2)) continue;
+	if(m_useOnlyCombinedMuons && muon2->muonType()!=xAOD::Muon::MuonType::Combined) continue;
+	if(m_useOnlyMuidCoStacoMuons && (muon2->author()!=xAOD::Muon::Author::MuidCo && muon2->author()!=xAOD::Muon::Author::STACO)) continue;
 
 	// loop over the single muon triggers if at least one of them matches this second muon
 	for (const auto &trigName : list_of_single_muon_triggers) {
@@ -1059,20 +1003,75 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     oflmuon_variables.push_back(muon_l1passIsMoreCandInRoI);
     fill(m_packageName, oflmuon_variables);
 
+    ATH_MSG_DEBUG("End filling offline muon-related histograms");
+  }
+  ///////////////// End filling offline muon-related histograms /////////////////
+
+
+  ///////////////// Filling thresholdPattern histograms /////////////////////
+  if(m_monitorThresholdPatterns){
     for(const auto& item : m_thrMonList){
+
       std::vector<bool> passed;
       passed.reserve(mymuons.size());
       for(const auto& mymuon : mymuons){
     	passed.push_back( mymuon.matchedL1Items.find(item) != mymuon.matchedL1Items.end() );
       }
+      auto passed_rois = menuAndRoIs[item];
+
+      MonVariables thrMonVariables;
+
       auto muon_passed_l1item = Monitored::Collection(Form("muon_passed_l1item_%s",item.data()),passed);
-      fill(m_packageName + item.data(),
-    	   muon_passed_l1item,
-    	   muon_eta, muon_phi, muon_pt_rpc, muon_pt_tgc );
+      thrMonVariables.push_back(muon_passed_l1item);
+
+      auto muon_eta_l1item=Monitored::Collection(Form("muon_eta_l1item_%s",item.data()),mymuons,[](const MyMuon&m){return m.muon->eta();});
+      thrMonVariables.push_back(muon_eta_l1item);
+      auto muon_phi_l1item=Monitored::Collection(Form("muon_phi_l1item_%s",item.data()),mymuons,[](const MyMuon&m){return m.muon->phi();});
+      thrMonVariables.push_back(muon_phi_l1item);
+      auto muon_pt_rpc_l1item=Monitored::Collection(Form("muon_pt_rpc_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
+	  return (std::abs(m.muon->eta()) < barrel_end) ? m.muon->pt() / Gaudi::Units::GeV : -10;
+	});
+      thrMonVariables.push_back(muon_pt_rpc_l1item);
+      auto muon_pt_tgc_l1item=Monitored::Collection(Form("muon_pt_tgc_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
+	  return (std::abs(m.muon->eta()) > barrel_end && std::abs(m.muon->eta()) < trigger_end) ? m.muon->pt() / Gaudi::Units::GeV : -10;
+	});
+      thrMonVariables.push_back(muon_pt_tgc_l1item);
+      auto muon_phi_rpc_l1item=Monitored::Collection(Form("muon_phi_rpc_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
+	  return (std::abs(m.muon->eta()) < barrel_end && m.muon->pt() > pt_30_cut) ? m.muon->phi() : -10;
+	});
+      thrMonVariables.push_back(muon_phi_rpc_l1item);
+      auto muon_phi_tgc_l1item=Monitored::Collection(Form("muon_phi_tgc_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
+	  return (std::abs(m.muon->eta()) > barrel_end && std::abs(m.muon->eta()) < trigger_end && m.muon->pt() > pt_30_cut) ? m.muon->phi() : -10;
+	});
+      thrMonVariables.push_back(muon_phi_tgc_l1item);
+
+      auto l1item_roi_eta=Monitored::Collection(Form("l1item_roi_eta_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){return m->eta();});
+      thrMonVariables.push_back(l1item_roi_eta);
+      auto l1item_roi_phi=Monitored::Collection(Form("l1item_roi_phi_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){return m->phi();});
+      thrMonVariables.push_back(l1item_roi_phi);
+      auto l1item_roi_thrNumber=Monitored::Collection(Form("l1item_roi_thrNumber_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){return m->getThrNumber();});
+      thrMonVariables.push_back(l1item_roi_thrNumber);
+      auto l1item_roi_ismorecand=Monitored::Collection(Form("l1item_roi_ismorecand_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
+	  return (m->getSource()==xAOD::MuonRoI::Barrel)?(m->isMoreCandInRoI()):(-1);
+	});
+      thrMonVariables.push_back(l1item_roi_ismorecand);
+      auto l1item_roi_bw3coin=Monitored::Collection(Form("l1item_roi_bw3coin_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
+	  return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getBW3Coincidence()):(-1);
+	});
+      thrMonVariables.push_back(l1item_roi_bw3coin);
+      auto l1item_roi_innercoin=Monitored::Collection(Form("l1item_roi_innercoin_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
+	  return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getInnerCoincidence()):(-1);
+	});
+      thrMonVariables.push_back(l1item_roi_innercoin);
+      auto l1item_roi_goodmf=Monitored::Collection(Form("l1item_roi_goodmf_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
+	  return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getGoodMF()):(-1);
+	});
+      thrMonVariables.push_back(l1item_roi_goodmf);
+
+      fill(m_packageName + item.data(), thrMonVariables);
     }
-    ATH_MSG_DEBUG("End filling offline muon-related histograms");
   }
-  ///////////////// End filling offline muon-related histograms /////////////////
+  ///////////////// End filling thresholdPattern histograms /////////////////
 
 
 
