@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_CONSTANTS_H
@@ -75,6 +75,8 @@ struct AFP_CONSTANTS {
 	const double ToF_HolderPinXPos=-38.304*CLHEP::mm;
 	const double ToF_HolderPinZPos=47.137*CLHEP::mm;
 	const double ToF_DistanceToFloor=0.200*CLHEP::mm;
+	const double ToF_SeparationWindowDiameter=54.5*CLHEP::mm;
+	const double ToF_SeparationWindowThickness=2.9*CLHEP::mm;
 
 	const double ToF_TrainsCnt=4;
 	const double ToF_ColumnsCnt=4;

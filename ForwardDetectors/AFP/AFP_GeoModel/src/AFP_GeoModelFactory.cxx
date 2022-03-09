@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_GeoModelFactory.h"
@@ -41,7 +41,7 @@ using namespace Genfun;
 using namespace CLHEP;
 
 AFP_GeoModelFactory::AFP_GeoModelFactory(StoreGateSvc *detStore, AFP_Geometry* pGeometry)
-    :m_pDetectorManager(NULL), m_pDetectorStore(detStore)
+    :m_pDetectorManager(NULL), m_pDetectorStore(detStore), m_addSeparationWindow(false)
 {
     pGeometry->getCfgParams(&m_CfgParams);
     m_pGeometry=pGeometry;
