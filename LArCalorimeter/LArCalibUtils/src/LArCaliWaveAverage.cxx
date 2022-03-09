@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveAverage.h"
@@ -22,8 +22,7 @@ LArCaliWaveAverage::LArCaliWaveAverage(const std::string& name, ISvcLocator* pSv
   m_onlineHelper(0),
   m_emId(0),
   m_hecId(0),
-  m_fcalId(0),
-  m_condSvc("CondSvc",name)
+  m_fcalId(0)
 {  
   m_chids.clear();
   declareProperty("ChannelIDs",     m_chids);
@@ -65,16 +64,6 @@ StatusCode LArCaliWaveAverage::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // Register write handle
-  ATH_CHECK( m_condSvc.retrieve() );
-  if (m_condSvc->regHandle(this, m_keyOutputCorr).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_keyOutputCorr.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-  if (m_condSvc->regHandle(this, m_keyOutputSymm).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_keyOutputSymm.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 

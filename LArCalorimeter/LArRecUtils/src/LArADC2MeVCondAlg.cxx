@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,9 +18,6 @@ LArADC2MeVCondAlg::~LArADC2MeVCondAlg() {}
 
 
 StatusCode LArADC2MeVCondAlg::initialize() {
-
-  //CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
 
   //Identifier helper:
   if (m_isSuperCell) {
@@ -59,12 +56,6 @@ StatusCode LArADC2MeVCondAlg::initialize() {
 
   //Write handle
   ATH_CHECK( m_ADC2MeVKey.initialize() );
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_ADC2MeVKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_ADC2MeVKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   ATH_CHECK(m_febConfigKey.initialize(m_useFEBGainThresholds));
 

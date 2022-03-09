@@ -9,7 +9,6 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "LArRecConditions/LArXTalkWeight.h"
 
 class LArXTalkWeightCondAlg: public AthReentrantAlgorithm {
