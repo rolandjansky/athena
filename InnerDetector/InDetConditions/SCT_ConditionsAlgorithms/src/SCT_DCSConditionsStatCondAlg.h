@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_DCSCONDITIONSSTATCONDALG
@@ -15,7 +15,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class SCT_DCSConditionsStatCondAlg : public AthReentrantAlgorithm 
@@ -52,8 +51,6 @@ class SCT_DCSConditionsStatCondAlg : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV{this, "ReadKeyHV", "/SCT/DCS/HV", "Key of input (raw) HV conditions folder"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState{this, "ReadKeyState", "/SCT/DCS/CHANSTAT", "Key of input (raw) State conditions folder"};
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState{this, "WriteKeyState", "SCT_DCSStatCondData", "Key of output (derived) State conditions data"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   bool m_doState{true};
   BooleanProperty m_readAllDBFolders{this, "ReadAllDBFolders", true};

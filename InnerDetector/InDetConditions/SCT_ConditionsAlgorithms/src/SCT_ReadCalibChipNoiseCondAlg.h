@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_ReadCalibChipNoiseCondAlg_h
@@ -17,7 +17,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 // Include Gaudi classes
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 // Forward declarations
@@ -39,7 +38,6 @@ class SCT_ReadCalibChipNoiseCondAlg : public AthReentrantAlgorithm
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DAQ/Calibration/ChipNoise", "Key of input (raw) noise conditions folder"};
   SG::WriteCondHandleKey<SCT_NoiseCalibData> m_writeKey{this, "WriteKey", "SCT_NoiseCalibData", "Key of output (derived) noise conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   const SCT_ID* m_id_sct{nullptr}; //!< Handle to SCT ID helper
 };
 
