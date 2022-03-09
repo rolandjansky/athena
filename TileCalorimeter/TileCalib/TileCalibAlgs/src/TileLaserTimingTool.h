@@ -41,7 +41,7 @@
 
 // Tile includes
 #include "TileCalibAlgs/ITileCalibTool.h"
-#include "TileCalibAlgs/TileSimpleStat.h"
+#include "TileSimpleStat.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileRawChannelContainer.h"

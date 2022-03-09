@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILETMDBDIGITSMONTOOL_H
 #define TILEMONITORING_TILETMDBDIGITSMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 class ITileBadChanTool;
 class TileDQstatus;

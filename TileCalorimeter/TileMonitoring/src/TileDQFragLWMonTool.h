@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILEDQFRAGLWMONTOOL_H
 #define TILEMONITORING_TILEDQFRAGLWMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileConditions/ITileDCSTool.h"
 #include "StoreGate/ReadHandleKey.h"

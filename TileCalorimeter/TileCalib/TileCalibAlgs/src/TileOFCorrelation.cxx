@@ -11,7 +11,7 @@
 ////////////////////////////////////////
 
 
-#include "TileCalibAlgs/TileOFCorrelation.h"
+#include "TileOFCorrelation.h"
 #include "TileIdentifier/TileHWID.h"
 
 #include "CLHEP/Matrix/Matrix.h"

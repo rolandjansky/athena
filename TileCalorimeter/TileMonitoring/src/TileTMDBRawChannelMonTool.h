@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILETMDBRAWCHANNELMONTOOL_H
 #define TILEMONITORING_TILETMDBRAWCHANNELMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 class ITileBadChanTool;
 class TileDQstatus;

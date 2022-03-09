@@ -23,7 +23,7 @@
 //
 //*****************************************************************************
 
-#include "TileCalibAlgs/TileMuId2DBAlg.h"
+#include "TileMuId2DBAlg.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "StoreGate/ReadCondHandle.h"
 

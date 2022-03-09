@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILERAWCHANNELMONTOOL_H
 #define TILEMONITORING_TILERAWCHANNELMONTOOL_H
 
-#include "TileMonitoring/TilePaterMonTool.h"
+#include "TilePaterMonTool.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileDQstatus.h"
 #include "StoreGate/ReadHandleKey.h"

@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILEFATHERMONTOOL_H
 #define TILEMONITORING_TILEFATHERMONTOOL_H
 
-#include "TileMonitoring/TilePaterMonTool.h"
+#include "TilePaterMonTool.h"
 
 class CaloCell;
 class TriggerInfo;

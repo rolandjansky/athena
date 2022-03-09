@@ -3,7 +3,7 @@
 */
 
 // Tile includes
-#include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
+#include "TileLaserDefaultCalibTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileConditions/TileCablingService.h"

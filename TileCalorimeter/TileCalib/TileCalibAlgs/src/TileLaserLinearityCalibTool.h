@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERLINEARITYCALIBTOOL_H
@@ -8,12 +8,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
+#include "TileLaserDefaultCalibTool.h"
+
 #include <string> 
 #include <map>
 
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
-#include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
