@@ -6,7 +6,7 @@
  MuonTrackStatisticsTool
  ***************************************************************************/
 
-#include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
+#include "MuonTrackStatisticsTool.h"
 
 #include <math.h>
 

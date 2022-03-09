@@ -16,6 +16,5 @@ atlas_add_component( MuonTrackPerformance
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo GaudiKernel MuonIdHelpersLib MuonStationIndexLib MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkParameters TrkTrack TrkTrackSummary TrkTruthData TrkToolInterfaces StoreGateLib Identifier EventPrimitives xAODMuon xAODTracking xAODTruth MuonReadoutGeometry MuonClusterizationLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonPrepRawData MuonRIO_OnTrack MuonLayerHough MuonRecValidationNtuples MuonCombinedEvent TrkMeasurementBase TrkPrepRawData TrkExInterfaces TrackRecordLib MuonSegmentMakerToolInterfaces MuonSegmentTaggerToolInterfaces )
 
 # Install files from the package:
-atlas_install_headers( MuonTrackPerformance )
 atlas_install_joboptions( share/*.py )
 
