@@ -16,7 +16,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "MuidCaloScatteringTools/MuidCaloTrackStateOnSurface.h"
+#include "MuidCaloTrackStateOnSurface.h"
 
 #include <cmath>
 #include <iomanip>
