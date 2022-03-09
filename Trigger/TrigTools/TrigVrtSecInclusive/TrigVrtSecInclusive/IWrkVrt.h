@@ -29,6 +29,8 @@ namespace TrigVSI{
 class IWrkVrt
 {
    public:
+      virtual ~IWrkVrt() = default;
+
       virtual std::deque<size_t>&        selectedTrackIndices() = 0;        //!<  Return indices of tracks associated with the vertex.
       virtual const std::deque<size_t>&  selectedTrackIndices() const = 0;  //!<  Return indices of tracks associated with the vertex.
 
