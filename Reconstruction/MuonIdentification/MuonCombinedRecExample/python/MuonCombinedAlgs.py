@@ -278,6 +278,26 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
         recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
 
+def GetCombinedTrackParticles():
+    from RecExConfig.RecFlags  import rec
+    colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
+    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
+
+    if InDetFlags.doR3LargeD0():
+        colsTP+= ["CombinedMuonsLRTTrackParticles", "ExtraPolatedMuonsLRTTrackParticles"]
+        cols += ["CombinedMuonsLRTTracks", "ExtraPolatedMuonsLRTTracks"]
+        ### These two will be remocved in 50080
+        colsTP +=["MSOnlyExtraPolatedMuonsLRTTrackParticles"]
+        cols  += ["MSOnlyExtraPolatedMuonsLRTTrackParticlesTracks"]
+    if muonRecFlags.runCommissioningChain():
+        cols +=["EMEO_MSOnlyExtrapolatedTracks", "EMEO_ExtrapolatedMuonTracks", "EMEO_CombinedMuonTracks"]
+        colsTP += ["EMEO_MSOnlyExtrapolatedMuonTrackParticles", "EMEO_ExtrapolatedMuonTrackParticles", "EMEO_CombinedMuonTrackParticles"]
+    if rec.readESD or (muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta()):
+        colsTP += ["CombinedStauTrackParticles", "ExtrapolatedStauTrackParticles"]
+        cols += ["CombinedStauTracks", "ExtrapolatedStauTracks"]
+    return colsTP, cols
+
+
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
     def __init__(self,**kwargs):

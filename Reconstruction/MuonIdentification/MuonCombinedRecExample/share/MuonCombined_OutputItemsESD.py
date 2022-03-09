@@ -4,20 +4,14 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
 from AthenaCommon.BeamFlags import jobproperties
-
+from MuonCombinedRecExample.MuonCombinedAlgs import GetCombinedTrackParticles
 MuonCombinedESDList = []
 
 if DetFlags.detdescr.Muon_on():
   if muonRecFlags.doStandalone():    
     # ========================Muons===============================================
-    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSTracks()]
-    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.CombinedFitTracks()]
-    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSOnlyTracks()]
-    MuonCombinedESDList+=["TrackCollection#EMEO_"+MuonCbKeys.ExtrapolatedMSOnlyTracks()]
-  
-    ### Combined muon track particles
-    MuonCombinedESDList+=["Combined"+MuonCbKeys.FinalMuonsLargeD0()+"Tracks"]
-    MuonCombinedESDList+=["ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0()+"Tracks"]
+    cmb_trk_container = GetCombinedTrackParticles()[1] 
+    MuonCombinedESDList+=["TrackCollection#"+ trk_col for trk_col in cmb_trk_container]   
     
   # muon track in muon spectrometer
   if rec.doTruth():
