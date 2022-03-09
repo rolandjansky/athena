@@ -32,8 +32,9 @@ namespace xAOD {
 
    private:
       std::vector< uint32_t > word;
+      std::vector< int > tobEtScale;
       std::vector< int > gFexType;
-      std::vector< uint16_t > tobEt;
+      std::vector< int16_t >  gFexTobEt;
       std::vector< uint8_t >  iEta;
       std::vector< uint8_t >  iPhi;
       std::vector< uint8_t >  gFexJetStatus;

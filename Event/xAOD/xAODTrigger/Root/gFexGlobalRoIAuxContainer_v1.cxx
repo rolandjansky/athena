@@ -11,6 +11,7 @@ namespace xAOD {
       : AuxContainerBase() {
 
       AUX_VARIABLE( word);
+      AUX_VARIABLE( tobEtScale);
       AUX_VARIABLE( saturated);
       AUX_VARIABLE( globalType);
       AUX_VARIABLE( statusOne);
