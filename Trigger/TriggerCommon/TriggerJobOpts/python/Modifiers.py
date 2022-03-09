@@ -476,6 +476,14 @@ class enableSchedulerMon(_modifier):
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.MonitorScheduler = True
 
+class enableCountAlgoMiss(_modifier):
+    """
+    Enable monitoring of non-reentrant algorithms that scheduler is waiting for
+    """
+    def postSetup(self, flags):
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        svcMgr.AlgResourcePool.CountAlgorithmInstanceMisses=True
+
 class enableFPE(_modifier):
     """
     Turn on floating point exceptions
