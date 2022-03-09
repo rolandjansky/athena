@@ -99,7 +99,7 @@ namespace HLTSeedingRoIToolDefs {
     using T_RoI = xAOD::gFexJetRoI;
     using T_RoIContainer = xAOD::gFexJetRoIContainer;
     constexpr auto F_RoIWordGetter = &xAOD::gFexJetRoI::word;
-    constexpr auto F_TobEtGetter = &xAOD::gFexJetRoI::tobEt;
+    constexpr auto F_TobEtGetter = &xAOD::gFexJetRoI::gFexTobEt;
     using UnpackingBaseClass = RoIsUnpackingToolPhase1<T_RoI, T_RoIContainer, F_RoIWordGetter, ContainerName, ThresholdType>;
     using ThresholdBaseClass = RoIThresholdsTool<T_RoI, T_RoIContainer, ContainerName, ThresholdType>;
   }
@@ -109,7 +109,7 @@ namespace HLTSeedingRoIToolDefs {
     using T_RoI = xAOD::gFexJetRoI;
     using T_RoIContainer = xAOD::gFexJetRoIContainer;
     constexpr auto F_RoIWordGetter = &xAOD::gFexJetRoI::word;
-    constexpr auto F_TobEtGetter = &xAOD::gFexJetRoI::tobEt;
+    constexpr auto F_TobEtGetter = &xAOD::gFexJetRoI::gFexTobEt;
     using UnpackingBaseClass = RoIsUnpackingToolPhase1<T_RoI, T_RoIContainer, F_RoIWordGetter, ContainerName, ThresholdType>;
     using ThresholdBaseClass = RoIThresholdsTool<T_RoI, T_RoIContainer, ContainerName, ThresholdType>;
   }

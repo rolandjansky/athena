@@ -169,17 +169,10 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    float gLJ_rhoMaxB = 0;
    float gLJ_rhoMinA = 0;
    float gLJ_rhoMinB = 0;
-   // gLJ_rhoMaxA = (thr_gLJ.rhoTowerMax('A'));//Not using these values from Trigger Menu at the moment, as they are not defined correctly 
-   // gLJ_rhoMaxB = (thr_gLJ.rhoTowerMax('B'));//Also note that values in Trigger Menu are in GeV, while here gTowers are in 200 MeV scale
-   // gLJ_rhoMinA = (thr_gLJ.rhoTowerMin('A'));
-   // gLJ_rhoMinB = (thr_gLJ.rhoTowerMin('B'));
-   
-   //Temporary defining parameters for rho 
-   gLJ_rhoMaxA = 250;
-   gLJ_rhoMaxB = 250;
-   gLJ_rhoMinA = 0;
-   gLJ_rhoMinB = 0;
-
+   gLJ_rhoMaxA = (thr_gLJ.rhoTowerMax('A'))*1000;//Note that the values are given in GeV but need to be converted in MeV to be used in PU calculation
+   gLJ_rhoMaxB = (thr_gLJ.rhoTowerMax('B'))*1000;//Note that the values are given in GeV but need to be converted in MeV to be used in PU calculation
+   gLJ_rhoMinA = (thr_gLJ.rhoTowerMin('A'))*1000;//Note that the values are given in GeV but need to be converted in MeV to be used in PU calculation
+   gLJ_rhoMinB = (thr_gLJ.rhoTowerMin('B'))*1000;//Note that the values are given in GeV but need to be converted in MeV to be used in PU calculation
    
 
    //Parameters related to gJ (small-R jet objects - gBlock)
@@ -195,10 +188,9 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
    int jetThreshold = 0;
 
-   if (FEXAlgoSpaceDefs::ENABLE_PUC){
    m_gFEXJetAlgoTool->pileUpCalculation(Atwr, gLJ_rhoMaxA, gLJ_rhoMinA,  4,  pucA);
    m_gFEXJetAlgoTool->pileUpCalculation(Btwr, gLJ_rhoMaxB, gLJ_rhoMinB,  4,  pucB);
-   }
+   
 
    // The output TOBs, to be filled by the gFEXJetAlgoTool
    std::array<uint32_t, 7> ATOB1_dat = {0};

@@ -44,7 +44,8 @@ void testgFexJetRoI() {
 
    std::cout << "Initializing test object: jet TOB" << std::endl;
    uint32_t word = 205353989;
-   obj->initialize(word);
+   int scale = 200.;
+   obj->initialize(word, scale);
 
    SIMPLE_ASSERT( obj->isgRho() == 0 );
    SIMPLE_ASSERT( obj->isgBlockLead() == 0 );
@@ -52,8 +53,8 @@ void testgFexJetRoI() {
    SIMPLE_ASSERT( obj->isgJet() == 1 );
    SIMPLE_ASSERT( obj->gFexType() == 3 );
    
-   SIMPLE_ASSERT( obj->etMin() == 5510400 );
-   SIMPLE_ASSERT( obj->etMax() == 5512000 );
+
+   SIMPLE_ASSERT( obj->et() == 688800 );
    SIMPLE_ASSERT( obj->eta() == static_cast<float>(-3.4) );
    SIMPLE_ASSERT( obj->etaMin() == static_cast<float>(-3.5) );
    SIMPLE_ASSERT( obj->etaMax() == static_cast<float>(-3.3) );
@@ -79,16 +80,18 @@ void testgFexGlobalRoI() {
 
    std::cout << "Initializing test object: global TOB" << std::endl;
    uint32_t word = 192035055;
-   obj->initialize(word);
-
+   int scale = 200.;
+   obj->initialize(word, scale);
+   
+   
    SIMPLE_ASSERT( obj->isgScalar() == 0 );
    SIMPLE_ASSERT( obj->isgMET() == 1 );
    SIMPLE_ASSERT( obj->isgMHT() == 0 );
    SIMPLE_ASSERT( obj->isgMST() == 0 );
    SIMPLE_ASSERT( obj->globalType() == 2 );
 
-   SIMPLE_ASSERT( obj->METquantityOne() == 1461600 );
-   SIMPLE_ASSERT( obj->METquantityTwo() == 1829600 );
+   SIMPLE_ASSERT( obj->METquantityOne() == 365400 );
+   SIMPLE_ASSERT( obj->METquantityTwo() == -361800 );
    SIMPLE_ASSERT( obj->SumEt() == -999 );
 
    std::cout << "Test global TOB completed!" << std::endl;
