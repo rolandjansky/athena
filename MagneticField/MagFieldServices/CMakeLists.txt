@@ -15,7 +15,6 @@ atlas_add_component( MagFieldServices
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaPoolUtilities EventInfoMgtLib GaudiKernel MagFieldConditions MagFieldElements MagFieldInterfaces PathResolver StoreGateLib )
 
 # Install files from the package:
-atlas_install_headers( MagFieldServices )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 if( NOT SIMULATIONBASE )

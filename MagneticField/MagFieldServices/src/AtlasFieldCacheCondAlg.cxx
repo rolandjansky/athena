@@ -11,7 +11,7 @@
 **/
 
 // ISF_Services include
-#include "MagFieldServices/AtlasFieldCacheCondAlg.h"
+#include "AtlasFieldCacheCondAlg.h"
 
 // Concurrency
 #include "GaudiKernel/ConcurrencyFlags.h"
