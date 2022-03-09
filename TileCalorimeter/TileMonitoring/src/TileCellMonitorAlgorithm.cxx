@@ -3,7 +3,7 @@
 */
 
 #include "TileCellMonitorAlgorithm.h"
-#include "TileMonitoring/PairBuilder.h"
+#include "PairBuilder.h"
 #include "TileEvent/TileCell.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"

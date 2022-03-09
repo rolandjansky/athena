@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILEDIGITSMONTOOL_H
 #define TILEMONITORING_TILEDIGITSMONTOOL_H
 
-#include "TileMonitoring/TilePaterMonTool.h"
+#include "TilePaterMonTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TileMonitoring/ITileStuckBitsProbsTool.h"

@@ -14,7 +14,7 @@
 #ifndef TILEMUONFITMONTOOL_H
 #define TILEMUONFITMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 class TileCosmicMuon;
 

@@ -5,7 +5,7 @@
 #ifndef TILEMONITORING_TILETBPULSEMONTOOL_H
 #define TILEMONITORING_TILETBPULSEMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 class ITileBadChanTool;
 

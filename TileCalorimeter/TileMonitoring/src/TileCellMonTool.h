@@ -14,7 +14,7 @@
 #ifndef TILECELLMONTOOL_H
 #define TILECELLMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "StoreGate/ReadHandleKey.h"
 

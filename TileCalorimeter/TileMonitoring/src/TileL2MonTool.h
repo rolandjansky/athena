@@ -14,7 +14,7 @@
 #ifndef TILEL2MONTOOL_H
 #define TILEL2MONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 /** @class TileL2MonTool
  *  @brief Class for TileL2 based monitoring

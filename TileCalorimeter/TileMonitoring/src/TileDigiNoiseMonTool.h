@@ -14,7 +14,7 @@
 #ifndef TILEDIGINOISEMONTOOL_H
 #define TILEDIGINOISEMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileConditions/ITileDCSTool.h"
 #include "StoreGate/ReadHandleKey.h"

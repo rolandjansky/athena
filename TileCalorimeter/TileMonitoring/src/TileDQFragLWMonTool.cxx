@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileDQFragLWMonTool.h"
+#include "TileDQFragLWMonTool.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/ITileBadChanTool.h"

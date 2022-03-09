@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileTowerMonTool.h"
+#include "TileTowerMonTool.h"
 
 #include "CaloEvent/CaloTower.h"
 #include "CaloEvent/CaloTowerContainer.h"

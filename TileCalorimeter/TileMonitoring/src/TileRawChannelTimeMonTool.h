@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -14,7 +14,7 @@
 #ifndef TILEMONITORING_TILERAWCHANNELTIMEMONTOOL_H
 #define TILEMONITORING_TILERAWCHANNELTIMEMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileConditions/ITileDCSTool.h"

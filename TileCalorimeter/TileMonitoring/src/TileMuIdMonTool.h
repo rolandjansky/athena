@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -14,7 +14,7 @@
 #ifndef TILEMUIDMONTOOL_H
 #define TILEMUIDMONTOOL_H
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 /** @class TileMuIdMonTool
  *  @brief Class for TileMuid based monitoring

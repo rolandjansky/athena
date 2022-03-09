@@ -33,7 +33,7 @@
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloSamplingHelper.h"
 
-#include "TileMonitoring/TileJetMonTool.h"
+#include "TileJetMonTool.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"

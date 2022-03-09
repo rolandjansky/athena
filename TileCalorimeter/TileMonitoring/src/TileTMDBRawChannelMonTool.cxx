@@ -20,7 +20,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 
-#include "TileMonitoring/TileTMDBRawChannelMonTool.h"
+#include "TileTMDBRawChannelMonTool.h"
 
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
