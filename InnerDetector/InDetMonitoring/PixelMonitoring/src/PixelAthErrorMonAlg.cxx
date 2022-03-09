@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "PixelAthErrorMonAlg.h"
@@ -124,9 +124,15 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     int nFE(0);
     bool is_fei4(false);     // FEI4 readout architecture (IBL, DBM)
+    int iblsublayer(pixlayer);
     if (pixlayer == PixLayers::kIBL) {
-      nFE = 1; // IBL 3D
-      if (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) nFE = 2; // IBL Planar
+      if (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) { // IBL Planar
+	nFE = 2;
+	iblsublayer = PixLayers::kIBL2D;
+      } else { // IBL 3D
+	nFE = 1;
+	iblsublayer = PixLayers::kIBL3D;
+      }
       is_fei4 = true;
     } else { // for fei3 Pixel layers
       nFE = 16;
@@ -184,11 +190,11 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         }
       } else {
         std::bitset<kNumErrorStatesFEI3> stateFEI4 = getErrorStateFE(fe_errorword, is_fei4);
-        num_errors[pixlayer] += stateFEI4.count();
+        num_errors[iblsublayer] += stateFEI4.count();
         Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
         for (unsigned int state = 0; state < stateFEI4.size(); ++state) {
           if (stateFEI4[state]) {
-            num_errors_per_state[state][pixlayer]++;
+            num_errors_per_state[state][iblsublayer]++;
             error_maps_per_state[state + kNumErrorStatesFEI3].add(pixlayer, pixelIDperFEI4, m_pixelid, 1.0);
           }
         }
@@ -220,8 +226,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
             weights_of_flagged_ibl_error_bits.push_back(payload);
 
             int state = serviceCode + state_offset;
-            num_errors[pixlayer] += payload;
-            num_errors_per_state[state][pixlayer] += payload;
+            num_errors[iblsublayer] += payload;
+            num_errors_per_state[state][iblsublayer] += payload;
             error_maps_per_state[state + kNumErrorStatesFEI3].add(pixlayer, pixelIDperFEI4, m_pixelid, payload);
 
             fillErrorCatRODmod(serviceCode, payload, nerrors_cat_rodmod, iFE);
@@ -230,7 +236,6 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
       } //over service codes
     } // IBL modules
 
-    // access categorized error information per module
     // access categorized error information per module (for IBL - FE)
     // it is only flagged - the actual number of errors per category is not tracked
     for (int iFE = 0; iFE < nFE; iFE++) {
@@ -243,7 +248,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {
           if (nerrors_cat_rodmod[i][iFE]) {
             if (getErrorCategory(i + 1) != 99) has_err_cat[getErrorCategory(i + 1)][iFE] = true;
-            num_errormodules_per_cat_rodmod[i][pixlayer]++;
+	    if (pixlayer == PixLayers::kIBL) num_errormodules_per_cat_rodmod[i][iblsublayer]++;
+            else num_errormodules_per_cat_rodmod[i][pixlayer]++;
             if (!m_doOnline) {
               all_errors_maps.add(pixlayer, pixID, m_pixelid, nerrors_cat_rodmod[i][iFE]);
               if (i < ErrorCategoryRODMOD::kTruncROD + 1) {
@@ -256,7 +262,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         }
         for (int i = 0; i < ErrorCategory::COUNT; i++) {
           if (has_err_cat[i][iFE]) {
-            num_errormodules_per_cat[i][pixlayer]++;
+	    if (pixlayer == PixLayers::kIBL) num_errormodules_per_cat[i][iblsublayer]++;
+            else num_errormodules_per_cat[i][pixlayer]++;
             if (!m_doOnline) {
               error_maps_per_cat[i].add(pixlayer, pixID, m_pixelid, 1.0);
             }
@@ -267,7 +274,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         // for IBL normalization is done by number of FEI4
         if ((pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
             (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true)) {
-          nActive_layer[pixlayer]++;
+	  if (pixlayer == PixLayers::kIBL) nActive_layer[iblsublayer]++;
+          else nActive_layer[pixlayer]++;
         }
       } else {
         ATH_MSG_ERROR("PixelMonitoring: got invalid pixID " << pixID);

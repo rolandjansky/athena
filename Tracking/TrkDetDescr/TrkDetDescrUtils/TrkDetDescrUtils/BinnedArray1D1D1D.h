@@ -16,6 +16,7 @@
 // STL
 #include <cassert>
 #include <vector>
+#include <utility>
 //
 class MsgStream;
 //
@@ -235,9 +236,9 @@ public:
       return 0;
     int bin1 = m_binUtil1->bin(lp);
     int bin2 = m_binUtil2->bin(lp);
-    if (!(*m_binUtilArray)[bin1][bin2]->inside(lp))
+    if (!std::as_const(*m_binUtilArray)[bin1][bin2]->inside(lp))
       return 0;
-    int bin3 = (*m_binUtilArray)[bin1][bin2]->bin(lp);
+    int bin3 = std::as_const(*m_binUtilArray)[bin1][bin2]->bin(lp);
 
     return (m_array[bin1][bin2][bin3]).get();
   }
@@ -251,11 +252,11 @@ public:
       return 0;
     int bin1 = m_binUtil1->bin(gp);
     int bin2 = m_binUtil2->bin(gp);
-    if (!(*m_binUtilArray)[bin1][bin2]->inside(gp))
+    if (!std::as_const(*m_binUtilArray)[bin1][bin2]->inside(gp))
       return 0;
-    unsigned int bin3 = (*m_binUtilArray)[bin1][bin2]->bin(gp);
+    unsigned int bin3 = std::as_const(*m_binUtilArray)[bin1][bin2]->bin(gp);
 
-    if (bin3 >= (*m_binUtilArray)[bin1][bin2]->bins())
+    if (bin3 >= std::as_const(*m_binUtilArray)[bin1][bin2]->bins())
       return 0;
 
     return (m_array[bin1][bin2][bin3]).get();
@@ -267,7 +268,7 @@ public:
   {
     int bin1 = m_binUtil1->entry(gp, 0);
     int bin2 = m_binUtil2->entry(gp, 0);
-    int bin3 = (*m_binUtilArray)[bin1][bin2]->entry(gp, 0);
+    int bin3 = std::as_const(*m_binUtilArray)[bin1][bin2]->entry(gp, 0);
 
     return (m_array[bin1][bin2][bin3]).get();
   }
@@ -308,7 +309,7 @@ private:
       for (size_t ibin1 = 0; ibin1 < m_binUtil1->bins(); ++ibin1) {
         for (size_t ibin2 = 0; ibin2 < m_binUtil2->bins(); ++ibin2) {
           for (size_t ibin3 = 0;
-               ibin3 < (*m_binUtilArray)[ibin1][ibin2]->bins();
+               ibin3 < std::as_const(*m_binUtilArray)[ibin1][ibin2]->bins();
                ++ibin3) {
             arrayObjects->push_back((m_array[ibin1][ibin2][ibin3]).get());
           }

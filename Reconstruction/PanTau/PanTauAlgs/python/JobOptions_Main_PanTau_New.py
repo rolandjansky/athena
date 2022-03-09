@@ -137,10 +137,6 @@ def PanTauCfg(flags):
     result = ComponentAccumulator()
     _name = sPrefix + 'PanTau'
    
-    # set message limit
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
-    svcMgr.MessageSvc.defaultLimit = 9999999 
-
     # set up the job properties
     from PanTauAlgs.Class_InformationHandler import InformationHandler
     infoHandler = InformationHandler()

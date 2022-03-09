@@ -111,17 +111,6 @@ class HLTTriggerResultGetter(Configured):
         else:
             raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
-        # Temporary hack to add Run-3 navigation to ESD and AOD
-        if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMVersion == 3:
-            # The hack with wildcards is needed for BS->ESD because we don't know the exact keys
-            # of HLT navigation containers before unpacking them from the BS event.
-            objKeyStore._store['streamESD'].allowWildCard(True)
-            objKeyStore._store['streamAOD'].allowWildCard(True)
-            objKeyStore.addManyTypesStreamESD(['xAOD::TrigCompositeContainer#HLTNav*',
-                                               'xAOD::TrigCompositeAuxContainer#HLTNav*'])
-            objKeyStore.addManyTypesStreamAOD(['xAOD::TrigCompositeContainer#HLTNav*',
-                                               'xAOD::TrigCompositeAuxContainer#HLTNav*'])
-
         # TrigJetRec additions
         if rec.doWriteESD():
             objKeyStore.addStreamESD("JetKeyDescriptor","JetKeyMap")
@@ -211,6 +200,10 @@ class HLTTriggerResultGetter(Configured):
             if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteESD():
                 _addSlimmingRun2('StreamESD', _TriggerESDList )                
                 log.info("configured navigation slimming for ESD output")
+            if ConfigFlags.Trigger.doEDMVersionConversion and 'HLTNav_R2ToR3Summary' not in ConfigFlags.Input.Collections:
+                from TrigNavTools.NavConverterConfig import NavConverterCfg
+                CAtoGlobalWrapper( NavConverterCfg, ConfigFlags)
+                log.info("Configured Run 1/3 -> Run3 Navigation conversion")
 
         if ConfigFlags.Trigger.EDMVersion >= 3:
             # Change in the future to 'if EDMVersion >= 3 or doEDMVersionConversion:'

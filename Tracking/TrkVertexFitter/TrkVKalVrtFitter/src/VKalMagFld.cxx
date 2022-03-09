@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  AtlasMagFld object inherits from Trk::baseMagFld.  So pointer
@@ -60,7 +60,7 @@ namespace Trk{
 // Coordinates here are in mm. - default for TrkVKalVrtCore
 //
   void VKalAtlasMagFld::getMagFld(const double x, const double y, const double z, 
-                                    double &bx, double &by, double &bz) const
+                                    double &bx, double &by, double &bz)
   {   
       double fieldXYZ[3];  double BField[3];
       fieldXYZ[0]= (x +m_magFrameX) * CLHEP::mm;

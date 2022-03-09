@@ -1486,6 +1486,23 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT28Strea
 listAODtoDPD.append(WriteDAOD_EXOT28Stream.StreamName)
 
 #################################
+# Common LLP formats (EXOT/SUSY)
+#################################
+
+class WriteDAOD_LLP1Stream(JobProperty):
+    """ DAOD_LLP1 - prototype LLP format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_LLP1"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkLLP/LLP1.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_LLP1Stream)
+listAODtoDPD.append(WriteDAOD_LLP1Stream.StreamName)
+
+#################################
 # Defined by the Jet/MET group
 #################################
 

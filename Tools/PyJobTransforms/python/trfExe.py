@@ -1422,7 +1422,9 @@ class athenaExecutor(scriptExecutor):
             currentSubstep = 'all'
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
-            if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
+            if self._isCAEnabled():
+                msg.info('ComponentAccumulator-based transforms do not support "--drop-and-reload" yet')
+            elif 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
                 msg.info('Disabling "--drop-and-reload" because the job is configured to use Valgrind')
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']

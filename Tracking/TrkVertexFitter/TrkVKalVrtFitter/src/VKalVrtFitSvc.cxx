@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -440,11 +440,11 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
  
   StatusCode
   TrkVKalVrtFitter::VKalGetFullCov( long int NTrk, dvect& CovVrtTrk,
-                                    const IVKalState& istate,
+                                    IVKalState& istate,
                                     bool useMom) const
   {
-    assert(dynamic_cast<const State*> (&istate)!=nullptr);
-    const State& state = static_cast<const State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     if(!state.m_FitStatus)       return StatusCode::FAILURE;
     if(NTrk<1)             return StatusCode::FAILURE;
     if(NTrk>NTrMaxVFit)    return StatusCode::FAILURE;

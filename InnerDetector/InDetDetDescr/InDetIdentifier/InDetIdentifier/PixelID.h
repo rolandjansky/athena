@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef INDETIDENTIFIER_PIXELID_H
@@ -16,8 +16,6 @@
  *
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/Identifier32.h"
@@ -30,7 +28,6 @@
 #include <string>
 #include <assert.h>
 #include <algorithm>
-
 
 
 class IdDictDictionary;
@@ -78,8 +75,7 @@ public:
 
   /// @name strutors
   //@{
-  PixelID(void);
-  ~PixelID(void);
+  PixelID();
   //@}
 
   /// @name Creators for wafer ids and pixel ids
@@ -201,12 +197,12 @@ public:
   /// Create compact id from hash id (return == 0 for OK)
   virtual int get_id(const IdentifierHash& hash_id,
                      Identifier& id,
-                     const IdContext* context = 0) const;
+                     const IdContext* context = 0) const override;
 
   /// Create hash id from compact id (return == 0 for OK)
   virtual int get_hash(const Identifier& id,
                        IdentifierHash& hash_id,
-                       const IdContext* context = 0) const;
+                       const IdContext* context = 0) const override;
   //@}
 
   /// Create a compact id from a value (e.g., from a persistent object).
@@ -247,12 +243,13 @@ public:
                        const IdContext* context = 0) const;
 
   /// Initialization from the identifier dictionary
-  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
+  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
 
   /// Tests of packing
   void test_wafer_packing(void) const;
   //@}
-private:
+
+protected:
   enum {
     NOT_VALID_HASH        = 64000,
     MAX_BIT               = Identifier::MAX_BIT,
@@ -281,22 +278,25 @@ private:
 
   int init_neighbors(void);
 
-  size_type m_pixel_region_index;
-  size_type m_INDET_INDEX;
-  size_type m_PIXEL_INDEX;
-  size_type m_BARREL_EC_INDEX;
-  size_type m_LAYER_DISK_INDEX;
-  size_type m_PHI_MODULE_INDEX;
-  size_type m_ETA_MODULE_INDEX;
-  size_type m_PHI_INDEX_INDEX;
-  size_type m_ETA_INDEX_INDEX;
-  int m_ETA_MODULE_OFFSET;
-  Identifier m_pixel_id;
-  const IdDictDictionary* m_dict;
+  Identifier m_baseIdentifier{};
+  ExpandedIdentifier m_baseExpandedIdentifier{};
+
+  size_type m_pixel_region_index{0};
+  size_type m_INDET_INDEX{0};
+  size_type m_PIXEL_INDEX{1};
+  size_type m_BARREL_EC_INDEX{2};
+  size_type m_LAYER_DISK_INDEX{3};
+  size_type m_PHI_MODULE_INDEX{4};
+  size_type m_ETA_MODULE_INDEX{5};
+  size_type m_PHI_INDEX_INDEX{6};
+  size_type m_ETA_INDEX_INDEX{7};
+  int m_ETA_MODULE_OFFSET{999};
+  Identifier m_pixel_id{};
+  const IdDictDictionary* m_dict{};
   MultiRange m_full_wafer_range;
   MultiRange m_full_pixel_range;
-  size_type m_wafer_hash_max;
-  size_type m_pixel_hash_max;
+  size_type m_wafer_hash_max{};
+  size_type m_pixel_hash_max{};
   Range::field m_barrel_field;
   id_vec m_wafer_vec;
   hash_vec m_prev_phi_wafer_vec;
@@ -339,11 +339,9 @@ PixelID::wafer_id(int barrel_ec,
                   int eta_module,
                   bool checks) const {
   // Build identifier
-  Identifier result((Identifier::value_type) 0);
+  Identifier result = m_baseIdentifier;
 
   // Pack fields independently
-  m_indet_impl.pack(indet_field_value(), result);
-  m_pixel_impl.pack(pixel_field_value(), result);
   m_bec_impl.pack(barrel_ec, result);
   m_lay_disk_impl.pack(layer_disk, result);
   m_phi_mod_impl.pack(phi_module, result);
@@ -404,10 +402,8 @@ PixelID::pixel_id(int barrel_ec,
                   int eta_index,
                   bool checks) const {
   // Build identifier
-  Identifier result((Identifier::value_type) 0);
+  Identifier result = m_baseIdentifier;
 
-  m_indet_impl.pack(indet_field_value(), result);
-  m_pixel_impl.pack(pixel_field_value(), result);
   m_bec_impl.pack(barrel_ec, result);
   m_lay_disk_impl.pack(layer_disk, result);
   m_phi_mod_impl.pack(phi_module, result);
@@ -596,10 +592,7 @@ PixelID::wafer_context(void) const {
 inline IdContext
 PixelID::pixel_context(void) const {
   // For pixel only, the prefix is the first two levels
-  ExpandedIdentifier id;
-
-  id << indet_field_value() << pixel_field_value();
-  return(IdContext(id, m_BARREL_EC_INDEX, m_ETA_INDEX_INDEX));
+  return(IdContext(m_baseExpandedIdentifier, m_BARREL_EC_INDEX, m_ETA_INDEX_INDEX));
 }
 
 //----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_TRIGCOOLUPDATEHELPER_H
@@ -67,16 +67,15 @@ public:
 
   /**
    * @brief Perform COOL udpates if needed
-   * @param ctx            Event context
+   * @param ctx  Event context
    */
   StatusCode hltCoolUpdate(const EventContext& ctx);
 
   /**
    * @brief Update specified COOL folder
-   * @param ctx            Event context
-   * @param doProxyReset   Drop object and reset cache
+   * @param folder  Folder name
    */
-  StatusCode hltCoolUpdate(const std::string& folder, const EventContext& ctx);
+  StatusCode hltCoolUpdate(const std::string& folder);
 
   /**
    * @brief Return folder name to index
@@ -86,9 +85,9 @@ public:
   StatusCode getFolderName(CTPfragment::FolderIndex idx, std::string& folderName) const;
 
   /**
-   * @brief Schedule COOL folder updates according to extra payload in CTP fragment
+   * @brief Decode COOL folder updates according to extra payload in CTP fragment
    */
-  StatusCode scheduleFolderUpdates(const EventContext& ctx);
+  StatusCode extractFolderUpdates(const EventContext& ctx);
 
   /**
    * @brief Read information about existing COOL folders
@@ -99,20 +98,14 @@ private:
   /**
    * @brief Reset COOL folder
    * @param folder COOL folder name
-   * @param currentRun Current run number
-   * @param dropObject Drop object and reset cache
    */
-  StatusCode resetFolder(const std::string& folder, EventIDBase::number_type currentRun,
-                         bool dropObject = false);
+  StatusCode resetFolder(const std::string& folder);
 
   /**
    * @brief Reset list of COOL folders
    * @param folders List of folder names
-   * @param currentRun Current run number
-   * @param dropObject Drop object and reset cache
    */
-  StatusCode resetFolders(const std::vector<std::string>& folders, EventIDBase::number_type currentRun,
-                          bool dropObject = false);
+  StatusCode resetFolders(const std::vector<std::string>& folders);
 
   /// CLID/name mapping of COOL folders
   std::map<std::string, FolderInfo> m_folderInfo;

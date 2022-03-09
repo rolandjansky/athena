@@ -1001,7 +1001,7 @@ namespace MuonCalib {
           // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
           // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
           bool isValid = true;
-          chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
+          chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, isValid);
           static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
           if (!isValid) {
             if (!conversionFailPrinted.test_and_set()) {
@@ -1189,7 +1189,7 @@ namespace MuonCalib {
     // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
-    channelId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
+    channelId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip, isValid);
     static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
     if (!isValid) {
       if (!conversionFailPrinted.test_and_set()) {

@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 # 
 
-from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from ..Config.MenuComponents import MenuSequence, RecoFragmentsPool, algorithmCAToGlobalWrapper
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
@@ -51,12 +51,12 @@ def muFastAlgSequence(ConfigFlags):
     l2MuViewsMaker.ViewFallThrough = True
 
     ### get muFast reco sequence ###    
-    from .MuonRecoSequences import muFastRecoSequence, makeMuonPrepDataAlgs
-    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=l2MuViewsMaker.InViewRoIs)
+    from .MuonRecoSequences import muFastRecoSequence, muonDecodeCfg
+    viewAlgs_MuonPRD = algorithmCAToGlobalWrapper(muonDecodeCfg,ConfigFlags,RoIs=l2MuViewsMaker.InViewRoIs.path())
     
     ##### L2 mutli-track mode #####
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
-    from ..Menu.MenuComponentsNaming import CFNaming
+    from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
     MultiTrackChainFilter = MuonChainFilterAlg("SAFilterMultiTrackChains")
     MultiTrackChains = getMultiTrackChainNames()
     MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
@@ -164,7 +164,7 @@ def muCombAlgSequence(ConfigFlags):
  
     # for L2 multi-track SA
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
-    from ..Menu.MenuComponentsNaming import CFNaming
+    from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
     MultiTrackChainFilter = MuonChainFilterAlg("CBFilterMultiTrackChains")
     MultiTrackChains = getMultiTrackChainNames()
     MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
@@ -385,9 +385,9 @@ def muEFSAAlgSequence(ConfigFlags):
     efsaViewsMaker.RequireParentView = True
     efsaViewsMaker.ViewFallThrough = True
 
-    from .MuonRecoSequences import muEFSARecoSequence, makeMuonPrepDataAlgs
+    from .MuonRecoSequences import muEFSARecoSequence, muonDecodeCfg
     #Run decoding again since we are using updated RoIs
-    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsaViewsMaker.InViewRoIs)
+    viewAlgs_MuonPRD = algorithmCAToGlobalWrapper(muonDecodeCfg,ConfigFlags,RoIs=efsaViewsMaker.InViewRoIs.path())
     ### get EF reco sequence ###    
     muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, 'RoI' )
  
@@ -552,8 +552,8 @@ def muEFSAFSAlgSequence(ConfigFlags):
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
-    from .MuonRecoSequences import muEFSARecoSequence, makeMuonPrepDataAlgs
-    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsafsInputMaker.InViewRoIs, forFullScan=True)
+    from .MuonRecoSequences import muEFSARecoSequence, muonDecodeCfg
+    viewAlgs_MuonPRD = algorithmCAToGlobalWrapper(muonDecodeCfg,ConfigFlags,RoIs=efsafsInputMaker.InViewRoIs.path())
     muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS' )
  
     muEFFSRecoSequence = parOR("muEFSAFSRecoSequence",[viewAlgs_MuonPRD, muEFSAFSRecoSequence])
@@ -669,7 +669,7 @@ def efLateMuRoISequence():
 
 def efLateMuAlgSequence(ConfigFlags):
 
-    from .MuonRecoSequences import muEFInsideOutRecoSequence, makeMuonPrepDataAlgs, muonIDFastTrackingSequence
+    from .MuonRecoSequences import muEFInsideOutRecoSequence, muonDecodeCfg, muonIDFastTrackingSequence
     eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemu")
     roiTool = ViewCreatorNamedROITool() # Use an existing ROI which is linked to the navigation with a custom name.
     roiTool.ROILinkName = "feature" # The ROI is actually linked as Step 1's feature. So the custom name is "feature".
@@ -683,7 +683,7 @@ def efLateMuAlgSequence(ConfigFlags):
     eflateViewsMaker.ViewFallThrough = True
 
     #decode data in these RoIs
-    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=eflateViewsMaker.InViewRoIs)
+    viewAlgs_MuonPRD = algorithmCAToGlobalWrapper(muonDecodeCfg,ConfigFlags,RoIs=eflateViewsMaker.InViewRoIs.path())
     #ID fast tracking
     muFastIDRecoSequence = muonIDFastTrackingSequence( eflateViewsMaker.InViewRoIs,"Late" )
     #inside-out reco sequence 
@@ -809,7 +809,7 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
 ##############################
 
 def getBphysChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Bphysics']]
     return chains
@@ -820,7 +820,7 @@ def getBphysChainNames():
 ############################################################
 
 def getInsideOutMuonChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2io" in chain.name]
     chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if not any(key in chain.name for key in ['noL2Comb','l2mt'])]
@@ -832,7 +832,7 @@ def getInsideOutMuonChainNames():
 ############################################################
 
 def getMultiTrackChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2mt" in chain.name]
     chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if "l2mt" in chain.name]

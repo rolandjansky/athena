@@ -50,7 +50,6 @@ private:
 
     // Pointers to the event
     StoreGateSvc* p_EventStore;
-    ActiveStoreSvc* p_ActiveStore;
 
     void checkreadoutcscgeo();
     void checkreadoutrpcgeo();

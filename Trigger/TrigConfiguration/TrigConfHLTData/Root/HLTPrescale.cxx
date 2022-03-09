@@ -18,26 +18,10 @@ TrigConf::HLTPrescale::HLTPrescale(float prescale, float pass_through) :
    m_pass_through(pass_through)
 {}
 
-HLTPrescale::HLTPrescale(const HLTPrescale& o) :
-   m_prescale(o.m_prescale),
-   m_pass_through(o.m_pass_through),
-   m_rerun_prescale(o.m_rerun_prescale),
-   m_stream_prescale(o.m_stream_prescale)
-{}
 
 TrigConf::HLTPrescale::~HLTPrescale()
 {}
 
-TrigConf::HLTPrescale&
-TrigConf::HLTPrescale::operator=(const HLTPrescale& o) {
-   if(this!=&o) {
-      m_prescale        = o.m_prescale;
-      m_pass_through    = o.m_pass_through;
-      m_rerun_prescale  = o.m_rerun_prescale;
-      m_stream_prescale = o.m_stream_prescale;
-   }
-   return *this;
-}
 
 TrigConf::HLTPrescale&
 TrigConf::HLTPrescale::setStreamPrescale(const std::string& streamName, float ps) {
@@ -53,7 +37,7 @@ TrigConf::HLTPrescale::setRerunPrescale(const std::string& targetName, float ps)
 
 std::pair<bool, float>
 TrigConf::HLTPrescale::getRerunPrescale(const std::string& targetName) const {
-   boost::unordered_map<std::string, float>::const_iterator i = m_rerun_prescale.find(targetName);
+   std::unordered_map<std::string, float>::const_iterator i = m_rerun_prescale.find(targetName);
    bool found = (i!=m_rerun_prescale.end());
    float ps = found ? i->second : 0;
    return std::make_pair(found,ps);
@@ -61,7 +45,7 @@ TrigConf::HLTPrescale::getRerunPrescale(const std::string& targetName) const {
 
 std::pair<bool, float>
 TrigConf::HLTPrescale::getStreamPrescale(const std::string& streamName) const {
-   boost::unordered_map<std::string, float>::const_iterator i = m_stream_prescale.find(streamName);
+   std::unordered_map<std::string, float>::const_iterator i = m_stream_prescale.find(streamName);
    bool found = i!=m_stream_prescale.end();
    float ps = found ? i->second : 0;
    return std::make_pair(found,ps);

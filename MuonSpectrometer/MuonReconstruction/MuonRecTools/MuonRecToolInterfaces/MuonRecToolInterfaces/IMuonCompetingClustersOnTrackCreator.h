@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONCOMPETINGCLUSTERSONTRACKCREATOR_H
 #define MUON_IMUONCOMPETINGCLUSTERSONTRACKCREATOR_H
 
 #include <list>
+#include <memory>
 
 #include "TrkCompetingRIOsOnTrackTool/ICompetingRIOsOnTrackTool.h"
 
@@ -32,8 +33,9 @@ namespace Muon {
             @return a pointer to a new CompetingMuonClustersOnTrack, zero if creation failed.
                     The ownership of the new object is passed to the client calling the tool
         */
-        virtual const CompetingMuonClustersOnTrack* createBroadCluster(const std::list<const Trk::PrepRawData*>& prds,
-                                                                       const double errorScaleFactor) const = 0;
+        virtual std::unique_ptr<const CompetingMuonClustersOnTrack> 
+        createBroadCluster(const std::list<const Trk::PrepRawData*>& prds,
+            const double errorScaleFactor) const = 0;
     };
 
     inline const InterfaceID& IMuonCompetingClustersOnTrackCreator::interfaceID() { return IID_IMuonCompetingClustersOnTrackCreator; }

@@ -377,6 +377,7 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
@@ -393,6 +394,8 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
 
+    kwargs.setdefault("TgcPrepDataContainer", 
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
     #MDT conditions information not available online
     if(athenaCommonFlags.isOnline):
         kwargs.setdefault("MdtCondKey","")
@@ -431,6 +434,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwargs):
     if extraFlags is None: extraFlags = ExtraFlags()
     extraFlags.setFlagDefault('doSegmentT0Fit',True)
+
     return DCMathSegmentMaker(name,extraFlags,**kwargs)
 
 # end of factory function DCMathSegmentMaker
@@ -475,10 +479,7 @@ else: # not (DetFlags.Muon_on() and rec.doMuon())
 
 def MuonLayerSegmentFinderTool(name='MuonLayerSegmentFinderTool',extraFlags=None,**kwargs):
     kwargs.setdefault("Csc2DSegmentMaker", getPublicTool("Csc2dSegmentMaker") if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC() else "")
-    kwargs.setdefault("Csc4DSegmentMaker", getPublicTool("Csc4dSegmentMaker") if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC() else "")
-    kwargs.setdefault("MuonClusterSegmentFinder",getPublicTool("MuonClusterSegmentFinder"))
-    if muonStandaloneFlags.reconstructionMode() != 'collisions':
-        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
+    kwargs.setdefault("Csc4DSegmentMaker", getPublicTool("Csc4dSegmentMaker") if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC() else "")    
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def ExtraTreeTrackFillerTool(name="ExtraTreeTrackFillerTool",extraFlags=None,**kwargs):

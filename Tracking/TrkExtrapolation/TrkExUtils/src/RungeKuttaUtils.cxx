@@ -605,7 +605,12 @@ transformLineToGlobal(bool useJac,
   double Bx = Az[1] * P[5] - Az[2] * P[4];
   double By = Az[2] * P[3] - Az[0] * P[5];
   double Bz = Az[0] * P[4] - Az[1] * P[3];
-  const double Bn = 1. / std::sqrt(Bx * Bx + By * By + Bz * Bz);
+  const double tmp_B2 = Bx * Bx + By * By + Bz * Bz;
+  constexpr double epsilon2 = 1e-14;
+  // assume that B := Bx, By, Boa is null vector if its norm is very small wrt. P:=P[3],P[4],P[5]:
+  // || B || < epsilon * || P||  => || B || = 0
+  // P seems to be always normalised, therefor it is assumed its norm is 1.
+  const double Bn =   ( tmp_B2 > epsilon2  ? 1. / std::sqrt(tmp_B2) : 0. );
   Bx *= Bn;
   By *= Bn;
   Bz *= Bn;

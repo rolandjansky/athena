@@ -3,7 +3,7 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
-
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 #
 # For electrons only
@@ -154,11 +154,11 @@ class TrigEgammaFastElectronHypoToolConfig:
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
-      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
-      doOnlineMonAllChains = doOnlineMonForceCfg()
+      
+      doValidationMonitoring = ConfigFlags.Trigger.doValidationMonitoring # True to monitor all chains for validation purposes
       monGroups = self.__monGroups
 
-      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+      if (any('egammaMon:online' in group for group in monGroups) or doValidationMonitoring):
         self.addMonitoring()
 
 
@@ -177,6 +177,7 @@ class TrigEgammaFastElectronHypoToolConfig:
     monTool.defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="FastElectron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
     monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="FastElectron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
     monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="FastElectron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
+    monTool.defineHistogram('d0Value', type="TH1F", path='EXPERT', title="FastElectron Hypo Track d0; d0 [mm]", xbins=100, xmin=-1, xmax=1)
     if self.tool().DoRinger:
       monTool.defineHistogram('NNOutput',type='TH1F', path='EXPERT',title="NN Output; NN; Count", xbins=17,xmin=-8,xmax=+8),
 
@@ -199,17 +200,6 @@ def TrigEgammaFastElectronHypoToolFromDict( d , tool=None):
     name = d['chainName']
     monGroups = d['monGroups']
     return _IncTool( name, monGroups, cparts[0] , tool=tool)
-
-
-
-def TrigEgammaFastElectronHypoToolFromName( name, conf, tool=None ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastElectronHypoToolFromDict( decodedDict, tool=tool )
 
 
 if __name__ == "__main__":

@@ -352,6 +352,8 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
     }
     nSelectedTrk.push_back(selectedTracks.size());
 
+    size_t iterations = 0;
+    bool isOverWarningThreshold = false;
     // dimuon + 1 track
     for (size_t itrk1 = 0; itrk1 < selectedTracks.size(); ++itrk1) {
       const xAOD::TrackParticle* trk1 = *selectedTracks[itrk1];
@@ -370,6 +372,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           isInMassRange((p_dimuon + p_trk1.SetM(PDG::mKaon)).M(), m_BplusToMuMuKaon_massRange)) {
         vtx1 = fit(state.context(), trackParticleLinks_vtx1, kB_2mu1trk, dimuon);
         makeFit_vtx1 = false;
+        ++iterations;
         if (vtx1 && vtx1->chiSquared() < m_BplusToMuMuKaon_chi2) {
           xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx1, xAOD::TrigBphys::BKMUMU, {PDG::mMuon, PDG::mMuon, PDG::mKaon}, dimuonTriggerObjectEL);
           ATH_CHECK( state.addTriggerObject(trigBphys) );
@@ -384,6 +387,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
         if (!vtx1 && makeFit_vtx1) {
           vtx1 = fit(state.context(), trackParticleLinks_vtx1, kB_2mu1trk, dimuon);
           makeFit_vtx1 = false;
+          ++iterations;
         }
         if (vtx1 && vtx1->chiSquared() < m_BcToMuMuPion_chi2) {
           xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx1, xAOD::TrigBphys::BCPIMUMU, {PDG::mMuon, PDG::mMuon, PDG::mPion}, dimuonTriggerObjectEL);
@@ -414,6 +418,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             isInMassRange((p_dimuon + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon)).M(), m_BsToMuMuPhi1020_massRange)) {
           vtx2 = fit(state.context(), trackParticleLinks_vtx2, kB_2mu2trk, dimuon);
           makeFit_vtx2 = false;
+          ++iterations;
           if (vtx2 && vtx2->chiSquared() < m_BsToMuMuPhi1020_chi2) {
             xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx2, xAOD::TrigBphys::BSPHIMUMU, {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mKaon}, dimuonTriggerObjectEL);
             ATH_CHECK( state.addTriggerObject(trigBphys) );
@@ -430,6 +435,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           if (!vtx2 && makeFit_vtx2) {
             vtx2 = fit(state.context(), trackParticleLinks_vtx2, kB_2mu2trk, dimuon);
             makeFit_vtx2 = false;
+            ++iterations;
           }
           if (vtx2 && vtx2->chiSquared() < m_BdToMuMuKstar0_chi2) {
             xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx2, xAOD::TrigBphys::BDKSTMUMU, {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mPion}, dimuonTriggerObjectEL);
@@ -446,6 +452,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           if (!vtx2 && makeFit_vtx2) {
             vtx2 = fit(state.context(), trackParticleLinks_vtx2, kB_2mu2trk, dimuon);
             makeFit_vtx2 = false;
+            ++iterations;
           }
           if (vtx2 && vtx2->chiSquared() < m_BdToMuMuKstar0_chi2) {
             xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx2, xAOD::TrigBphys::BDKSTMUMU, {PDG::mMuon, PDG::mMuon, PDG::mPion, PDG::mKaon}, dimuonTriggerObjectEL);
@@ -464,6 +471,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           if (!vtx2 && makeFit_vtx2) {
             vtx2 = fit(state.context(), trackParticleLinks_vtx2, kB_2mu2trk, dimuon);
             makeFit_vtx2 = false;
+            ++iterations;
           }
           if (vtx2 && vtx2->chiSquared() < m_LambdaBToMuMuProtonKaon_chi2 && Lxy(state.beamSpotPosition(), *vtx2) > 0.) {
             xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx2, xAOD::TrigBphys::LBPQMUMU, {PDG::mMuon, PDG::mMuon, PDG::mProton, PDG::mKaon}, dimuonTriggerObjectEL);
@@ -481,6 +489,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           if (!vtx2 && makeFit_vtx2) {
             vtx2 = fit(state.context(), trackParticleLinks_vtx2, kB_2mu2trk, dimuon);
             makeFit_vtx2 = false;
+            ++iterations;
           }
           if (vtx2 && vtx2->chiSquared() < m_LambdaBToMuMuProtonKaon_chi2 && Lxy(state.beamSpotPosition(), *vtx2) > 0.) {
             xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx2, xAOD::TrigBphys::LBPQMUMU, {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mProton}, dimuonTriggerObjectEL);
@@ -518,6 +527,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             if (!vtx3 && makeFit_vtx3) {
               vtx3 = fit(state.context(), trackParticleLinks_vtx3, kDs, dimuon);
               makeFit_vtx3 = false;
+              ++iterations;
             }
             if (vtx3 && vtx3->chiSquared() < m_BcToDsMuMu_chi2) {
               xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx3, xAOD::TrigBphys::BCDSMUMU, {PDG::mKaon, PDG::mKaon, PDG::mPion}, dimuonTriggerObjectEL);
@@ -540,6 +550,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
             if (!vtx3 && makeFit_vtx3) {
               vtx3 = fit(state.context(), trackParticleLinks_vtx3, kDplus, dimuon);
               makeFit_vtx3 = false;
+              ++iterations;
             }
             if (vtx3 && vtx3->chiSquared() < m_BcToDplusMuMu_chi2 && Lxy(dimuon->position(), *vtx3) > 0.) {
               xAOD::TrigBphys* trigBphys = makeTriggerObject(state, *vtx3, xAOD::TrigBphys::BCDPMUMU, {PDG::mPion, PDG::mPion, PDG::mKaon}, dimuonTriggerObjectEL);
@@ -550,8 +561,19 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
 
         }
       }
+
+      if (iterations > m_fitAttemptsWarningThreshold && !isOverWarningThreshold) {
+        ATH_MSG_WARNING( iterations << " combinations for vertex fitter have been processed; " << mon_nBPhysObject << " vertices have been created" );
+        isOverWarningThreshold = true;
+      }
+      if (iterations > m_fitAttemptsBreakThreshold) {
+        ATH_MSG_WARNING( "the number of fit attempts has exceeded the limit; breaking the loop at this point" );
+        break;
+      }
     }
 
+    iterations = 0;
+    isOverWarningThreshold = false;
     // B_c+ -> J/psi(-> mu+ mu-) D*+(-> D0(-> K- pi+) pi+)
     if (m_BcToDstarMuMu && isInMassRange(p_dimuon.M(), m_BcToDstarMuMu_dimuonMassRange)) {
       std::vector<ElementLink<xAOD::TrackParticleContainer>> trackParticleLinks_D0(2);  // {K-, pi+}
@@ -582,6 +604,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
               isInMassRange((p_trk1 + p_trk2).M(), m_BcToDstarMuMu_D0MassRange) &&
               isInMassRange((p_dimuon + p_trk1 + p_trk2).M() - p_dimuon.M() + PDG::mJpsi, m_BcToDstarMuMu_massRange)) {
             D0 = fit(state.context(), trackParticleLinks_D0, kD0, dimuon);
+            ++iterations;
           }
           bool isValidD0 = false;
           if (D0 && D0->chiSquared() < m_BcToDstarMuMu_chi2 && Lxy(dimuon->position(), *D0) > 0.) {
@@ -607,6 +630,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
                   (m_BcToDstarMuMu_maxDstarPionZ0 < 0. || fabs(selectedTrackZ0[itrk3]) < m_BcToDstarMuMu_maxDstarPionZ0) &&
                   isInMassRange((p_D0 + p_trk3).M() - p_D0.M() + PDG::mD0, m_BcToDstarMuMu_DstarMassRange)) {
                 auto Bc_vtx1 = fit(state.context(), trackParticleLinks_vtx1, kB_PsiPi);
+                ++iterations;
 
                 if (Bc_vtx1 && Bc_vtx1->chiSquared() < m_BcToDstarMuMu_chi2) {
                   ATH_MSG_DEBUG( "Decay vertex(mu+ mu- D*+.pi+) for B_c+ candidate has been created" );
@@ -617,6 +641,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
 
                   // refit D0 vertex
                   auto Bc_vtx2 = fit(state.context(), trackParticleLinks_D0, kD0, Bc_vtx1.get());
+                  ++iterations;
                   if (Bc_vtx2 && Bc_vtx2->chiSquared() < m_BcToDstarMuMu_chi2) {
                     ATH_MSG_DEBUG( "Fully reconstructed B_c+(-> mu+ mu- D*+) candidate has been created" );
                     xAOD::TrigBphys* triggerObject_vtx2 = makeTriggerObject(state, *Bc_vtx2, xAOD::TrigBphys::BCDSTMUMU, s_trkMass[kD0], triggerObjectEL_vtx1);
@@ -628,6 +653,15 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
           }  // end of full B_c+ reconstruction
 
         }
+      }
+
+      if (iterations > m_fitAttemptsWarningThreshold && !isOverWarningThreshold) {
+        ATH_MSG_WARNING( iterations << " combinations for vertex fitter have been processed; " << mon_nBPhysObject << " vertices have been created" );
+        isOverWarningThreshold = true;
+      }
+      if (iterations > m_fitAttemptsBreakThreshold) {
+        ATH_MSG_WARNING( "the number of fit attempts has exceeded the limit; breaking the loop at this point" );
+        break;
       }
     }  // end of B_c+ -> J/psi D*+ topology
 

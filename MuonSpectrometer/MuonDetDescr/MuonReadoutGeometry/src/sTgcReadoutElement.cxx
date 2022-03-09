@@ -285,7 +285,7 @@ namespace MuonGM {
         //-------------------
         // Pads
         //-------------------
-
+        double radius = absTransform().translation().perp() + m_offset;
         for (int il = 0; il < m_nlayers; il++) {
             m_padDesign[il].Length  = length;
             m_padDesign[il].sWidth  = sWidth;
@@ -296,6 +296,7 @@ namespace MuonGM {
             m_padDesign[il].ylFrame = ylFrame;
             m_padDesign[il].yCutout = yCutout;
             m_padDesign[il].etasign = Etasign;
+            m_padDesign[il].setR(radius);
 
             m_padDesign[il].sPadWidth = roParam.sPadWidth;
             m_padDesign[il].lPadWidth = roParam.lPadWidth;
@@ -441,10 +442,6 @@ namespace MuonGM {
 
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
-
-            // update the padDesign info
-            MuonGM::MuonPadDesign* padDesign = this->getPadDesign(id);
-            if (padDesign) padDesign->setR(m_surfaceData->m_layerCenters.back().perp());
         }
     }
 
@@ -589,14 +586,15 @@ namespace MuonGM {
         std::pair<int, int> pad(design->channelNumber(pos));
 
         if (pad.first > 0 && pad.second > 0) {
+            bool is_valid {true};
             Identifier padID =
                 manager()->stgcIdHelper()->padID(manager()->stgcIdHelper()->stationName(id), manager()->stgcIdHelper()->stationEta(id),
                                                  manager()->stgcIdHelper()->stationPhi(id), manager()->stgcIdHelper()->multilayer(id),
-                                                 manager()->stgcIdHelper()->gasGap(id), 0, pad.first, pad.second, true);
+                                                 manager()->stgcIdHelper()->gasGap(id), 0, pad.first, pad.second, is_valid);
             int channel = manager()->stgcIdHelper()->channel(padID);
             int padEta = manager()->stgcIdHelper()->padEta(padID);
             int padPhi = manager()->stgcIdHelper()->padPhi(padID);
-            if (padEta != pad.first || padPhi != pad.second) {
+            if (!is_valid || padEta != pad.first || padPhi != pad.second) {
                 MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
                 log << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " "
                     << padPhi << endmsg;

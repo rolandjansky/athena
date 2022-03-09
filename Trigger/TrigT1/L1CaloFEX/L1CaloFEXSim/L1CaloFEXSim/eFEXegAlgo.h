@@ -65,7 +65,7 @@ namespace LVL1 {
     int m_eFEXegAlgoTowerID[3][3];
     bool m_hasSeed;
 
-    SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXegAlgo_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
+    SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
 
   };
   

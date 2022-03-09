@@ -37,18 +37,16 @@ StatusCode ActiveStoreSvc::initialize()    {
 
   const bool CREATEIF(true);
   CHECK(  service(m_storeName, p_activeStore, CREATEIF) );
+  p_activeStore->makeCurrent();
   return StatusCode::SUCCESS;
 }
 
 ///set the active store pointer: used by the event loop mgrs
-void ActiveStoreSvc::setStore(StoreGateSvc* s)
-{
-  if (p_activeStore != s) {
-    p_activeStore = s;
-    s->makeCurrent();
-  }
+void ActiveStoreSvc::setStore(StoreGateSvc *s) {
+  // Now unconditional because the actual active store is thread_local
+  p_activeStore = s; // honestly, probably not necessary any more
+  s->makeCurrent();
 }
-
 
 /// get proxy for a given data object address in memory
 DataProxy* 
@@ -192,10 +190,5 @@ StatusCode ActiveStoreSvc::queryInterface(const InterfaceID& riid, void** ppvInt
 
 StoreGateSvc* ActiveStoreSvc::activeStoreOOL() const
 {
-  StoreGateSvc* pstore = nullptr;
-  const bool CREATEIF(true);
-  if (service(m_storeName, pstore, CREATEIF).isSuccess()) {
-    return pstore;
-  }
-  return nullptr;
+  return StoreGateSvc::currentStoreGate();
 }

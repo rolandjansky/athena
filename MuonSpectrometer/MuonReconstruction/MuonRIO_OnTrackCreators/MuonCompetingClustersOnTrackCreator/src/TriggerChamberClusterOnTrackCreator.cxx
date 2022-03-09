@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerChamberClusterOnTrackCreator.h"
@@ -35,12 +35,12 @@ TriggerChamberClusterOnTrackCreator::initialize()
     return StatusCode::SUCCESS;
 }
   
-const CompetingMuonClustersOnTrack*
+std::unique_ptr<const CompetingMuonClustersOnTrack>
 TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Trk::PrepRawData*>& prds, const double) const {
     ATH_MSG_VERBOSE("enter createBroadCluster: number of prds " << prds.size() );
 
     // make some PRD consistency checks
-    if (!prds.size()) {
+    if (prds.empty()) {
         ATH_MSG_WARNING("fails: empty PRD list ");
         return nullptr;
     }
@@ -78,11 +78,8 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
 
     // create a rot for each prd (which gets weight zero)
     std::vector<const Muon::MuonClusterOnTrack*>* rots = createPrdRots(prds);
-    std::vector<double>* assProbs = new std::vector<double>;
-    for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator m = rots->begin();
-	 m != rots->end();
-	 ++m)
-	assProbs->push_back(0.);
+    std::vector<double>* assProbs = new std::vector<double>(rots->size(), 0.);
+    
 
     // for each surface, find the first and last rot forming the cluster
     std::list<int>				limitingChannels;
@@ -103,7 +100,7 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
     
     // return the competingMuonClusterOnTrack object containing the final parameters,
     // error matrix, surface, list of rots and weights
-    return new CompetingMuonClustersOnTrack(parameters,errorMatrix,surface,rots,assProbs);
+    return std::make_unique<const CompetingMuonClustersOnTrack>(parameters,errorMatrix,surface,rots,assProbs);
 }
 
 void

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
@@ -42,8 +42,6 @@
 #ifndef EVENTINFO_EVENTID_H
 # include "EventInfo/EventID.h"  /* number_type */
 #endif
-
-#include "StoreGate/ActiveStoreSvc.h"
 
 // Forward declarations
 class IConversionSvc;
@@ -96,10 +94,6 @@ protected:
   typedef ServiceHandle<IConversionSvc> IConversionSvc_t;
   /// @property Reference to the Histogram Persistency Service
   IConversionSvc_t   m_histoPersSvc;
-
-  typedef ServiceHandle<ActiveStoreSvc> ActiveStoreSvc_t;
-  /// @property Reference to the Histogram Persistency Service
-  ActiveStoreSvc_t   m_activeStoreSvc;
 
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;

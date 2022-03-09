@@ -61,6 +61,8 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("SegmentCollection","MuGirlSegments")
     kwargs.setdefault("InDetCandidateLocation", 
                       "InDetCandidates" if  not muonCombinedRecFlags.doCombinedFit() else "InDetCandidatesSystemExtened")
+    kwargs.setdefault("TGCPrepDataLocation", 
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
@@ -79,6 +81,9 @@ def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
     kwargs.setdefault("CombinedTrackCollection", MuonCbKeys.MuGirlMuonsLargeD0())
     kwargs.setdefault("InDetCandidateLocation", MuonCbKeys.InDetTrackParticlesLargeD0() + 
                      ("" if not muonCombinedRecFlags.doCombinedFit() else "SystemExtended"))
+    kwargs.setdefault("TGCPrepDataLocation", 
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  )
+   
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
@@ -108,7 +113,7 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
     
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
-    kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit() or ConfigFlags.Muon.MuonTrigger)
+    kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit())
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
 
 def MuonInDetToMuonSystemExtensionAlg(name= "MuonInDetToMuonSystemExtensionAlg", **kwargs):

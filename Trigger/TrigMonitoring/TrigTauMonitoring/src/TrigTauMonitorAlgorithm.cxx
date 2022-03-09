@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -20,8 +20,11 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
 
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
   ATH_CHECK( m_offlineTauJetKey.initialize() );
+  ATH_CHECK( m_offlineElectronKey.initialize() );
+  ATH_CHECK( m_offlineMuonKey.initialize() );
   ATH_CHECK( m_legacyl1TauRoIKey.initialize() );
-  ATH_CHECK( m_phase1l1TauRoIKey.initialize() );
+  ATH_CHECK( m_phase1l1eTauRoIKey.initialize() );
+  ATH_CHECK( m_phase1l1cTauRoIKey.initialize() );
   ATH_CHECK( m_hltTauJetKey.initialize() );
   ATH_CHECK( m_hltTauJetCaloMVAOnlyKey.initialize() );
   ATH_CHECK( m_hltSeedJetKey.initialize());
@@ -150,7 +153,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
 
 void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger, float HLTthr) const
 {
-  ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillDistributions");
+  ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillDistributions for trigger " << trigger);
 
   const double thresholdOffset{10.0};
 
@@ -161,6 +164,11 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   std::vector<const xAOD::TauJet*> online_tau_vec_1p; // online 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_mp; // online mp taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_all; // online hlt taus used for HLT efficiency studies
+  std::vector<TLorentzVector> online_tau_vec;   // online hlt taus used for HLT efficiency studies (TLorentzVector)
+  std::vector<TLorentzVector> online_electrons; // online hlt electrons used for HLT efficiency studies in T&P chains
+  std::vector<TLorentzVector> online_muons; // online hlt electrons used for HLT efficiency studies in T&P \chains
+  std::vector<TLorentzVector> offElec_vec;  //offline electrons used for studying HLT performance 
+  std::vector<TLorentzVector> offMuon_vec;  //offline muons used for studying HLT performance 
 
   const TrigInfo info = getTrigInfo(trigger);
 
@@ -211,7 +219,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
     int nTracks=-1;
     feat->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     ATH_MSG_DEBUG("NTracks Online: " << nTracks);
-    online_tau_vec_all.push_back(feat);
+    online_tau_vec_all.push_back(feat);online_tau_vec.push_back(feat->p4());
     if(nTracks==0){
       online_tau_vec_0p.push_back(feat);
     } else if(nTracks==1){
@@ -254,8 +262,74 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
      fillDiTauHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_all, online_tau_vec_all);
   }
 
+  // fill T&P chains info                                                                                             
+  if(info.isTAndP){
+    if(info.hasElectron){
+      SG::ReadHandle<xAOD::ElectronContainer> offElec(m_offlineElectronKey, ctx);
+      if(!offElec.isValid())
+      {
+        ATH_MSG_WARNING("Failed to retrieve offline electrons ");
+        return;
+      }
+      for ( const auto * const part : *offElec) 
+      {
+         if(part->p4().Pt()/1000 < info.electhr+1.) continue; 
+         // select offline electrons passing good quality cuts
+         if( ! ( part->passSelection("LHMedium") && part->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
+
+         offElec_vec.push_back(part->p4());
+      }
+      for ( unsigned int i=0;i<offline_for_hlt_tau_vec_all.size();i++) {
+         bool Ismatch = false; 
+         Ismatch = HLTMatching(offline_for_hlt_tau_vec_all[i]->p4(),offElec_vec,0.2);
+         if(Ismatch) offline_for_hlt_tau_vec_all.erase(offline_for_hlt_tau_vec_all.begin()+i);
+      } 
+      auto vec =  m_trigDecTool->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics , "HLT_egamma_Electrons" );
+      for( auto &featLinkInfo : vec ){
+        const auto *feat = *(featLinkInfo.link);
+        if(!feat) continue;
+        online_electrons.push_back(feat->p4());
+      }
+
+      fillTagAndProbeVars(trigger, online_tau_vec, online_electrons);
+      fillTAndPHLTEfficiencies(ctx, trigger, offElec_vec, online_electrons, offline_for_hlt_tau_vec_all, online_tau_vec_all);
+
+    } else if(info.hasMuon){
+      SG::ReadHandle<xAOD::MuonContainer> offMuon(m_offlineMuonKey, ctx);
+      if(!offMuon.isValid())
+      {
+        ATH_MSG_WARNING("Failed to retrieve offline muons ");
+        return;
+      }
+      for( const auto * const part : *offMuon) 
+      {
+         if(part->p4().Pt()/1000 < info.muthr+1.) continue;
+         // select offline muons passing good quality cuts
+         if( ! (part->quality()<= xAOD::Muon::Medium && part->passesIDCuts())) continue;
+
+         offMuon_vec.push_back(part->p4());
+      }
+      for ( unsigned int i=0;i<offline_for_hlt_tau_vec_all.size();i++) {
+         bool Ismatch = false;
+         Ismatch = HLTMatching(offline_for_hlt_tau_vec_all[i]->p4(),offMuon_vec,0.2);
+         if(Ismatch) offline_for_hlt_tau_vec_all.erase(offline_for_hlt_tau_vec_all.begin()+i);
+      }
+
+      auto vec =  m_trigDecTool->features<xAOD::MuonContainer>(trigger,TrigDefs::Physics , "HLT_MuonsIso" );
+      for( auto &featLinkInfo : vec ){
+        const auto *feat = *(featLinkInfo.link);
+        if(!feat) continue;
+        online_muons.push_back(feat->p4());
+      }
+
+      fillTagAndProbeVars(trigger, online_tau_vec, online_muons);
+      fillTAndPHLTEfficiencies(ctx, trigger, offMuon_vec, online_muons, offline_for_hlt_tau_vec_all, online_tau_vec_all); 
+    }
+  }
+
   // true_taus
-  std::vector<const xAOD::TruthParticle*> true_taus;
+  std::vector<const xAOD::TruthParticle*> true_taus_1p;
+  std::vector<const xAOD::TruthParticle*> true_taus_3p;
   if(m_isMC){
     SG::ReadHandle<xAOD::TruthParticleContainer> truth_cont(m_truthParticleKey, ctx); 
     if(!truth_cont.isValid())
@@ -279,16 +353,26 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
         ATH_MSG_DEBUG("True Tau visible pt: " << pt);
         float eta = xTruthTau->auxdata<double>("eta_vis");
         bool lep = xTruthTau->auxdata<char>("IsLeptonicTau");
-        if(pt < 20. || lep || fabs(eta) > 2.47 ) continue;        
-        true_taus.push_back(xTruthTau);
+        if(pt < 20. || lep || fabs(eta) > 2.47 ) continue; 
+
+        if(xTruthTau->auxdata<int>("nTracks") == 1){
+          true_taus_1p.push_back(xTruthTau);
+        } else if(xTruthTau->auxdata<int>("nTracks") == 3){
+          true_taus_3p.push_back(xTruthTau);
+        }
       }
     }
   }
 
-  if(true_taus.size()>0){
-    fillTruthEfficiency(online_tau_vec_all, true_taus, trigger);
-    fillEFTauVsTruth(online_tau_vec_all, true_taus, trigger);
-  }
+  if(true_taus_1p.size()>0){
+    fillTruthEfficiency(online_tau_vec_all, true_taus_1p, trigger, "1P");
+    fillEFTauVsTruth(online_tau_vec_all, true_taus_1p, trigger, "1P");
+  } 
+
+  if(true_taus_3p.size()>0){
+    fillTruthEfficiency(online_tau_vec_all, true_taus_3p, trigger, "3P");
+    fillEFTauVsTruth(online_tau_vec_all, true_taus_3p, trigger, "3P");
+  } 
   
   offline_for_hlt_tau_vec_all.clear();
   offline_for_hlt_tau_vec_1p.clear();
@@ -297,7 +381,13 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   online_tau_vec_1p.clear();
   online_tau_vec_mp.clear();
   online_tau_vec_all.clear();
-  true_taus.clear();
+  true_taus_1p.clear();
+  true_taus_3p.clear();
+  online_tau_vec.clear();
+  online_electrons.clear();
+  online_muons.clear();
+  offElec_vec.clear();
+  offMuon_vec.clear();
 
 }
 
@@ -325,13 +415,13 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
       }
     }
 
-  
+ 
     if(trigL1Item.find("L1eTAU") != std::string::npos){
 
-      SG::ReadHandle<xAOD::eFexTauRoIContainer> eFexTauRoIs(m_phase1l1TauRoIKey, ctx);
+      SG::ReadHandle<xAOD::eFexTauRoIContainer> eFexTauRoIs(m_phase1l1eTauRoIKey, ctx);
       if(!eFexTauRoIs.isValid())
       {
-          ATH_MSG_WARNING("Failed to retrieve offline eFexTauRoI ");
+          ATH_MSG_WARNING("Failed to retrieve eFexTauRoI for L1eTAU ");
           return;
       }
 
@@ -341,9 +431,22 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
               phase1L1rois.push_back(eFexTauRoI);
           }
       }
-     
-    }
-    else{
+    } else if (trigL1Item.find("L1cTAU") != std::string::npos){
+
+      SG::ReadHandle<xAOD::eFexTauRoIContainer> eFexTauRoIs(m_phase1l1cTauRoIKey, ctx);
+      if(!eFexTauRoIs.isValid())
+      {
+          ATH_MSG_WARNING("Failed to retrieve eFexTauRoI for L1cTAU ");
+          return;
+      }
+
+      for(const auto *eFexTauRoI : *eFexTauRoIs){
+
+          if( eFexTauRoI->et()/1e3 > L1thr){
+              phase1L1rois.push_back(eFexTauRoI);
+          }
+      }
+    } else{
     
       SG::ReadHandle<xAOD::EmTauRoIContainer> EmTauRoIs(m_legacyl1TauRoIKey, ctx);
       if(!EmTauRoIs.isValid())
@@ -475,6 +578,49 @@ void TrigTauMonitorAlgorithm::fillDiTauHLTEfficiencies(const EventContext& ctx, 
   
 }
 
+void TrigTauMonitorAlgorithm::fillTAndPHLTEfficiencies(const EventContext& ctx, const std::string& trigger, const std::vector<TLorentzVector>& offline_lep_vec, const std::vector<TLorentzVector>& online_lep_vec, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const
+{
+  ATH_MSG_DEBUG("Fill Tag and Probe HLT efficiencies: " << trigger);
+
+  // require 1 offline taus and 1 online taus
+  if(online_tau_vec.size() != 1 || offline_tau_vec.size() != 1) {
+    return;
+  }
+  // ...and require 1 offline lepton and 1 online lepton                                                                        
+  if(online_lep_vec.size() != 1 || offline_lep_vec.size() != 1) {
+    return;
+  }
+ 
+  std::string monGroupName = trigger+"_TAndPHLT_Efficiency";
+ 
+  auto monGroup = getGroup(monGroupName);
+
+  auto tauPt = Monitored::Scalar<float>(monGroupName+"_tauPt",0.0);
+  auto dR = Monitored::Scalar<float>(monGroupName+"_dR",0.0);
+  auto dEta = Monitored::Scalar<float>(monGroupName+"_dEta",0.0);
+  auto dPhi = Monitored::Scalar<float>(monGroupName+"_dPhi",0.0);
+  auto averageMu = Monitored::Scalar<float>(monGroupName+"_averageMu",0.0);
+  auto HLT_match = Monitored::Scalar<bool>(monGroupName+"_TAndPHLTpass",false);
+
+  // efficiency numerator : hlt fires + offline and online tau matched
+  // plus offline and online lepton matched
+  bool hlt_fires = m_trigDecTool->isPassed(trigger, TrigDefs::Physics);
+  bool tau1_match = HLTMatching(offline_tau_vec[0], online_tau_vec, 0.2);
+  bool lep1_match = HLTMatching(offline_lep_vec[0], online_lep_vec, 0.2);
+
+  tauPt = offline_tau_vec[0]->p4().Pt()/1000;
+  dR   = offline_tau_vec[0]->p4().DeltaR(offline_lep_vec[0]);
+  dEta = std::abs(offline_tau_vec[0]->p4().Eta() - offline_lep_vec[0].Eta());
+  dPhi = offline_tau_vec[0]->p4().DeltaPhi(offline_lep_vec[0]);
+  averageMu = lbAverageInteractionsPerCrossing(ctx);
+  HLT_match = hlt_fires && tau1_match && lep1_match;
+
+  fill(monGroup, tauPt, dR, dEta, dPhi, averageMu, HLT_match);
+
+  ATH_MSG_DEBUG("After fill Tag and Probe HLT efficiencies: " << trigger);
+  
+}
+
 void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois) const
 {
   ATH_MSG_DEBUG("Fill L1 efficiencies: " << trigL1Item);
@@ -496,7 +642,7 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , cons
   
        L1_match = false;
 
-       if(trigL1Item.find("L1eTAU") != std::string::npos){
+       if(trigL1Item.find("L1eTAU") != std::string::npos || trigL1Item.find("L1cTAU") != std::string::npos){
           for( const auto *L1roi : phase1L1rois){
              L1_match = phase1L1Matching(offline_tau, L1roi, 0.3 );
              if( L1_match ){
@@ -524,7 +670,7 @@ void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::v
     
    auto monGroup = getGroup(monGroupName);
 
-   if(trigL1Item.find("L1eTAU") != std::string::npos){
+   if(trigL1Item.find("L1eTAU") != std::string::npos || trigL1Item.find("L1cTAU") != std::string::npos){
 
        auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->et()/1e3;});
        auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->eta();});
@@ -867,6 +1013,42 @@ void TrigTauMonitorAlgorithm::fillDiTauVars(const std::string& trigger, const st
 }
 
 
+void TrigTauMonitorAlgorithm::fillTagAndProbeVars(const std::string& trigger, const std::vector<TLorentzVector>& tau_vec, const std::vector<TLorentzVector>& lep_vec) const
+{
+  ATH_MSG_DEBUG("Fill Tag & Probe Variables: " << trigger); 
+
+  auto monGroup = getGroup(trigger+"_TAndPVars");
+
+  if(tau_vec.empty() || lep_vec.empty() ) return; 
+   
+  auto dR = Monitored::Scalar<float>("hdR",0.0);
+  auto dEta = Monitored::Scalar<float>("hdEta",0.0);  
+  auto dPhi = Monitored::Scalar<float>("hdPhi",0.0);
+  auto dPt = Monitored::Scalar<float>("dPt",0.0); 
+  
+  auto Pt = Monitored::Scalar<float>("Pt",0.0);
+  auto Eta = Monitored::Scalar<float>("Eta",0.0);
+  auto Phi = Monitored::Scalar<float>("Phi",0.0); 
+  auto M = Monitored::Scalar<float>("M",0.0);
+
+  dR = tau_vec[0].DeltaR(lep_vec[0]);
+  dEta = std::abs(tau_vec[0].Eta() - lep_vec[0].Eta());
+  dPhi = tau_vec[0].DeltaPhi(lep_vec[0]);
+  dPt = std::abs((tau_vec[0].Pt() - lep_vec[0].Pt())/1000);
+
+  TLorentzVector diTau4V = tau_vec[0] + lep_vec[0];
+
+  Pt = diTau4V.Pt()/1000;
+  Eta = diTau4V.Eta();
+  Phi = diTau4V.Phi();
+  M = diTau4V.M()/1000;
+  
+  fill(monGroup, dR, dEta, dPhi, dPt, Pt, Eta, Phi, M);
+
+  ATH_MSG_DEBUG("After fill Tag & Probe variables: " << trigger); 
+}
+
+
 TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string& trigger) const{ 
   return m_trigInfo.at(trigger); 
 }
@@ -875,9 +1057,9 @@ TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string& trigger) const{
 void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
 { 
 
-  std::string idwp="",type="",l1item="",l1type="";
-  float hlthr=0.,l1thr=0.;
-  bool isRNN=false,isPerf=false,isL1=false,isDiTau=false;
+  std::string type="",l1item="";
+  float hlthr=0.,electhr=0.,muthr=0.,l1thr=0.;
+  bool isL1=false,isDiTau=false,isTAndP=false,hasElectron=false,hasMuon=false;
 
   size_t l=trigger.length();
   size_t pos=trigger.find('_');
@@ -894,12 +1076,13 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
 
   names.push_back(substr);
 
-  hlthr = std::stof(names[1].substr(3,names[1].length()));
- 
-  idwp=names[2];
+  if(trigger.find("ivarloose")!=std::string::npos) hasElectron = true;
+  else if(trigger.find("ivarmedium")!=std::string::npos) hasMuon = true;
 
-  if(idwp=="perf" || idwp=="idperf") isPerf=true;
-  else if(idwp.find("RNN")!=std::string::npos) isRNN=true;
+  if(!hasElectron && !hasMuon) hlthr = std::stof(names[1].substr(3,names[1].length()));
+  //If lepton+tau trigger use tau threshold
+  else if(hasElectron) {hlthr = std::stof(names[4].substr(3,names[4].length()));electhr = std::stof(names[1].substr(1,names[1].length()));}
+  else if(hasMuon) {hlthr = std::stof(names[3].substr(3,names[4].length()));muthr = std::stof(names[1].substr(2,names[1].length()));}
 
   if(names[0].find("L1")!=std::string::npos) isL1=true;
 
@@ -913,29 +1096,35 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
     } 
     else if (names[3].find("L1eTAU") !=std::string::npos){
       l1thr = std::stof(names[3].substr(6,names[3].length()));
+    } else if (names[3].find("L1cTAU") !=std::string::npos){
+      l1thr = std::stof(names[3].substr(6,names[3].length()));
     }
    
   } 
-  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos )  {
+  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos )  {
     type=names[3];
     l1item =names[4];
 
     if(names[4].find("L1TAU") !=std::string::npos){
       l1thr = std::stof(names[4].substr(5,names[4].length())); 
     }
-    else if(names[4].find("L1eTAU") !=std::string::npos){
+    else if(names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos){
       l1thr = std::stof(names[4].substr(6,names[4].length()));
     }
-  }
+  }else l1thr = -1.; //This applies to T&P chains
 
   // check if it's ditau trigger -> 2 times 'tau' + '03dRAB'
   size_t count = 0;
   for (size_t pos =0; (pos=trigger.find("tau", pos)) != std::string::npos; ++pos, ++count);
   if(trigger.find("03dRAB") != std::string::npos && count == 2){
       isDiTau = true;
+  } else if (trigger.find("03dRAB") != std::string::npos && count == 1){
+      isTAndP = true;
+      if(trigger.find("ivarloose")!=std::string::npos) hasElectron = true;
+      else if(trigger.find("ivarmedium")!=std::string::npos) hasMuon = true;
   }  
 
-  TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isPerf,hlthr,l1thr,false,isDiTau};
+  TrigInfo info{trigger,l1item,type,isL1,hlthr,l1thr,false,isDiTau,isTAndP,hasElectron,hasMuon,electhr,muthr};
 
   m_trigInfo[trigger] = info;
 }
@@ -997,11 +1186,11 @@ StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& x
   return StatusCode::SUCCESS;
 }
 
-void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger) const
+void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger, const std::string& nProng) const
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillEFTauVsTruth");
 
-  std::string monGroupName = trigger+"EFVsTruth";
+  std::string monGroupName = trigger+"_EFVsTruth_"+nProng;
   
   auto monGroup = getGroup(monGroupName);
 
@@ -1050,12 +1239,12 @@ void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::Tau
 
 }
 
-void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger) const
+void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger, const std::string& nProng) const
 {
 
   ATH_MSG_DEBUG("Truth Tau Matching to Offline and Online Taus for trigger");
 
-  std::string monGroupName = trigger+"Truth_Efficiency";
+  std::string monGroupName = trigger+"_Truth_Efficiency_"+nProng;
 
   auto monGroup = getGroup(monGroupName);
 

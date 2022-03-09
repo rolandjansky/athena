@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DATAMODELTESTDATACOMMON_CONDWRITEREXTALG_H
 #define DATAMODELTESTDATACOMMON_CONDWRITEREXTALG_H
@@ -7,8 +7,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 
 #include <string>
@@ -32,7 +30,6 @@ private:
   Gaudi::Property<std::map<int,std::string>> m_cmd{this, "Commands", {}, "Commands to be executed on LB change"};
 
   ServiceHandle<IIOVSvc> m_iovSvc;
-  ServiceHandle<IIOVDbSvc> m_iovDbSvc;
 };
 
 } // namespace DMTest

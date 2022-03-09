@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <time.h>
@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include "AnalysisUtils/AnalysisMisc.h"
-#include "AnalysisUtils/AnalysisLooper.h"
 #include "AnalysisUtils/AnalysisSelection.h"
 #include "AnalysisUtils/AnalysisCombination.h"
 #include "AnalysisUtils/AnalysisPermutation.h"
@@ -228,19 +227,6 @@ int main()
 	std::cout << *(remain[i]) << " ";
       std::cout << std::endl;
     }
-
-  ///////////// test for Looper
-
-  DEF_TopLooper(MyCollI_t,AUTest::MyAction0)    TLoop;
-  DEF_Looper(MyCollF_t,AUTest::MyAction1,TLoop) FLoop;
-  DEF_Looper(MyCollD_t,AUTest::MyAction2,FLoop) DLoop;
-  DEF_Looper(MyCollL_t,AUTest::MyAction3,DLoop) LLoop;
-
-  TLoop tLoop(&v);
-  FLoop fLoop(&w,&tLoop);
-  DLoop dLoop(&x,&fLoop);
-  LLoop lLoop(&y,&dLoop);
-  tLoop.execute();
 
   ///////////// test for Selection
 

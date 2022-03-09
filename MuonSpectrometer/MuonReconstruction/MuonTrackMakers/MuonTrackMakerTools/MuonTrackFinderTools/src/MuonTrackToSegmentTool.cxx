@@ -33,7 +33,7 @@ namespace Muon {
         if (!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
         return StatusCode::SUCCESS;
     }
-    
+
     MuonSegment* MuonTrackToSegmentTool::convert(const EventContext& ctx, const Trk::Track& track) const {
         /** convert track to segment, express the new segment parameters on the surface of the first segment */
 
@@ -162,8 +162,7 @@ namespace Muon {
         Trk::PlaneSurface* surf = new Trk::PlaneSurface(transform, surfDim, surfDim);
         delete surfaceTransformToBeDeleted;
         // lifetime of exPars is managed in this scope
-        auto exPars = m_propagator->propagate(ctx,
-                                              *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
+        auto exPars = m_propagator->propagate(ctx, *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
                                               Trk::MagneticFieldProperties(Trk::NoField));
         if (!exPars || !exPars->covariance()) {
             ATH_MSG_DEBUG(" propagation failed!!! ");
@@ -225,7 +224,8 @@ namespace Muon {
         return seg;
     }
 
-    std::vector<Identifier> MuonTrackToSegmentTool::calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars,
+    std::vector<Identifier> MuonTrackToSegmentTool::calculateHoles(const EventContext& ctx, const Identifier& chid,
+                                                                   const Trk::TrackParameters& pars,
                                                                    const MuonTrackToSegmentTool::MeasVec& measurements) const {
         // calculate crossed tubes
         const MdtCondDbData* dbData;

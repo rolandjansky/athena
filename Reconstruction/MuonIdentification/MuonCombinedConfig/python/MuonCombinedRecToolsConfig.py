@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterTool
+from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterToolCfg
 from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg, MuonCombinedPropagatorCfg, AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
 
 #FIXME
@@ -213,7 +213,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
     result = ComponentAccumulator()
     # Not explicitly setting up MuonIdHelperSvc, nor MuonEDMHelperSvc
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     # Not explicitly setting up MuonPrintingTool
     acc = ParticleCaloExtensionToolCfg(flags,StartFromPerigee=True)
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
@@ -282,11 +282,9 @@ def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
 
 def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
-
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
-
-    result = CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")
-    kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
+    result = ComponentAccumulator()
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
+    kwargs.setdefault("TrackBuilder", result.getPrimaryAndMerge(CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")))
     #   Why was this dependent on cosmics? will now always create this 
     #   if flags.Beam.Type is BeamType.Cosmics:
     if flags.Muon.MuonTrigger and flags.Beam.Type is not BeamType.Cosmics:
@@ -378,7 +376,7 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
 def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs):
     
     result = ComponentAccumulator()
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     kwargs.setdefault("TagTool", result.popToolsAndMerge(CombinedMuonTagTestToolCfg(flags)))
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)) )
 
@@ -944,7 +942,7 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
 
 # Misc 
 def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kwargs ):
-    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonClusterSegmentFinderCfg, MuonPRDSelectionToolCfg
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonPRDSelectionToolCfg
     result = ComponentAccumulator() 
 
     csc2d=""
@@ -961,19 +959,13 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     kwargs.setdefault("Csc4DSegmentMaker",               csc4d )
 
     kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge( MuonPRDSelectionToolCfg(flags) ) )
-    if flags.Beam.Type is not BeamType.Collisions:
-        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
-
-
+   
     acc = DCMathSegmentMakerCfg(flags, name = "DCMathSegmentMaker")
     segmentmaker = acc.popPrivateTools()
     kwargs.setdefault("SegmentMaker",               segmentmaker )
     result.merge(acc)
 
-    acc = MuonClusterSegmentFinderCfg(flags, name = "MuonClusterSegmentFinder")
-    clustersegmentfinder = acc.getPrimary() #Already adds it as a public tool.
-    kwargs.setdefault("MuonClusterSegmentFinder",               clustersegmentfinder )
-    result.merge(acc)
+    
     
     acc = MuonClusterSegmentFinderToolCfg(flags, name = "MuonClusterSegmentFinderTool")
     clustersegmentfindertool = acc.popPrivateTools() 
@@ -1041,10 +1033,7 @@ def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
     return result
 
 def MuonCandidateTrackBuilderToolCfg(flags, name="MuonCandidateTrackBuilderTool", **kwargs):
-    from MuonConfig.MuonTrackBuildingConfig import MooTrackBuilderCfg
-    result = MooTrackBuilderCfg(flags, name="MooMuonTrackBuilder")
-    kwargs.setdefault("MuonSegmentTrackBuilder", result.getPrimary())
-
+    result = ComponentAccumulator()
     acc = CombinedMuonTrackBuilderCfg(flags)
     combined_muon_track_builder = acc.getPrimary()
     kwargs.setdefault("MuonTrackBuilder", combined_muon_track_builder)
@@ -1057,12 +1046,12 @@ def MuonCandidateTrackBuilderToolCfg(flags, name="MuonCandidateTrackBuilderTool"
     return result
 
 def MuonSegmentSelectionToolCfg(flags, name="MuonSegmentSelectionTool", **kwargs):
-    # Won't explicitly configure MuonIdHelperTool, MuonEDMPrinterTool, MuonSegmentHitSummaryTool
+    # Won't explicitly configure  MuonSegmentHitSummaryTool
     if flags.Input.isMC is False:
       kwargs.setdefault("GoodADCFractionCut",  0.5 )
       kwargs.setdefault("MinADCPerSegmentCut", 100 )
     result = ComponentAccumulator()
-    # kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) ) # FIXME - needs property added.
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
 
     result.setPrivateTools(CompFactory.Muon.MuonSegmentSelectionTool(name, **kwargs))
     return result
@@ -1084,7 +1073,7 @@ def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", 
     kwargs.setdefault("MuonSegmentTrackBuilder", muon_segment_track_builder)
     result.merge(acc)
 
-    kwargs.setdefault("MuonEDMPrinterTool", MuonEDMPrinterTool(flags) ) 
+    kwargs.setdefault("MuonEDMPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags))) 
 
     result.setPrivateTools(CompFactory.Muon.MuonLayerAmbiguitySolverTool(name, **kwargs))
     

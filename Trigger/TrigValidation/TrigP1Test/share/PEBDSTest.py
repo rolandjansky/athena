@@ -9,7 +9,7 @@ and executes several chains testing various types of Partial Event Building and 
 
 from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
 from TriggerMenuMT.HLT.Menu import Dev_pp_run3_v1, EventBuildingInfo, StreamInfo
-from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from libpyeformat_helper import SubDetector

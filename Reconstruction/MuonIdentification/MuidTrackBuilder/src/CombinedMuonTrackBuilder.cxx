@@ -2604,7 +2604,7 @@ namespace Rec {
                 ATH_MSG_DEBUG("createExtrapolatedTrack() - Track parameters are not perigee " << (*trackParameters));
             }
             trackStateOnSurfaces.push_back(
-                new Trk::TrackStateOnSurface(nullptr, trackParameters->clone(), nullptr, nullptr, perigeeType));
+                new Trk::TrackStateOnSurface(nullptr, trackParameters->uniqueClone(), nullptr, nullptr, perigeeType));
         }
 
         // optionally append a pseudoMeasurement describing the vertex
@@ -2794,17 +2794,15 @@ namespace Rec {
                 std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
                 typePattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
 
-                const Trk::MaterialEffectsOnTrack* materialEffects =
-                    new Trk::MaterialEffectsOnTrack(0., caloEnergy, (**s).trackParameters()->associatedSurface(), typePattern);
+                auto materialEffects =
+                    std::make_unique<const Trk::MaterialEffectsOnTrack>(0., caloEnergy, (**s).trackParameters()->associatedSurface(), typePattern);
 
                 // create TSOS
-                const Trk::FitQualityOnSurface* fitQoS = nullptr;
-                const Trk::MeasurementBase* measurementBase = nullptr;
 
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
                 type.set(Trk::TrackStateOnSurface::CaloDeposit);
 
-                TSOS = new Trk::TrackStateOnSurface(measurementBase, (**s).trackParameters()->clone(), fitQoS, materialEffects, type);
+                TSOS = new Trk::TrackStateOnSurface(nullptr, (**s).trackParameters()->uniqueClone(), nullptr, std::move(materialEffects), type);
 
                 trackStateOnSurfaces.push_back(TSOS);
                 ++s;
@@ -3058,9 +3056,9 @@ namespace Rec {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> perigeeType;
         perigeeType.set(Trk::TrackStateOnSurface::Perigee);
 
-        const Trk::Perigee* perigee =
-            new Trk::Perigee(trackParameters->position(), trackParameters->momentum(), trackParameters->charge(), surface);
-        return new Trk::TrackStateOnSurface(nullptr, perigee, nullptr, nullptr, perigeeType);
+        auto perigee =
+            std::make_unique<const Trk::Perigee>(trackParameters->position(), trackParameters->momentum(), trackParameters->charge(), surface);
+        return new Trk::TrackStateOnSurface(nullptr, std::move(perigee), nullptr, nullptr, perigeeType);
     }
 
     std::unique_ptr<const Trk::TrackParameters> CombinedMuonTrackBuilder::extrapolatedParameters(

@@ -193,20 +193,17 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
          ATH_MSG_DEBUG("Successfully created ROOT TServerSocket and added it to TMonitor: ready to accept connections, " << streamPort);
       }
    }
-
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
-   ATH_MSG_VERBOSE("Start commitOutput loop");
+StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClient) {
+   ATH_MSG_DEBUG("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
-   int workerCounter = 0;
-   if (motherClient) {
-      m_rootClientCount++;
-   }
-   std::set<int> rootClientSet;
-   std::map<TString, int> workerCount;
-   while ((m_rootClientCount > 0 || workerCounter < (numClients - 1)) && (sc.isSuccess() || sc.isRecoverable())) {
+
+   // Allow ROOT clients to start up (by setting active clients)
+   // and wait to stop the ROOT server until all clients are done and metadata is written (commitOutput fail).
+   bool anyActiveClients = (m_rootServerSocket != nullptr);
+   while (sc.isSuccess() || sc.isRecoverable() || anyActiveClients) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {
@@ -231,11 +228,17 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
                   message->ReadString(str, 64);
                   ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << str);
                   m_rootMonitor->Remove(socket);
-                  ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << socket->GetBytesRecv() << ", " << socket->GetBytesSent());
+                  ATH_MSG_DEBUG("ROOT Monitor client: " << socket << ", " << socket->GetBytesRecv() << ", " << socket->GetBytesSent());
                   socket->Close();
                   --m_rootClientCount;
                   if (m_rootMonitor->GetActive() == 0 || m_rootClientCount == 0) {
-                     ATH_MSG_INFO("ROOT Monitor: No more active clients...");
+                     if(!motherClient) {
+                       anyActiveClients = false;
+                       ATH_MSG_INFO("ROOT Monitor: No more active clients...");
+                     } else {
+                       motherClient = false;
+                       ATH_MSG_INFO("ROOT Monitor: Mother process is done...");
+                     }
                   }
                } else if (message->What() == kMESS_ANY) {
                   long long length;
@@ -244,12 +247,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
                   message->ReadInt(clientId);
                   message->ReadTString(filename);
                   message->ReadLong64(length);
-                  if (rootClientSet.insert(clientId).second) {
-                    // new client
-                     workerCount[filename]++;
-                     if (workerCount[filename] > workerCounter) workerCounter = workerCount[filename];
-                  }
-                  ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
+                  ATH_MSG_DEBUG("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
                   std::unique_ptr<TMemFile> transient(new TMemFile(filename, message->Buffer() + message->Length(), length, "UPDATE"));
                   message->SetBufferOffset(message->Length() + length);
                   ParallelFileMerger* info = static_cast<ParallelFileMerger*>(m_rootMergers.FindObject(filename));
@@ -266,7 +264,13 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
       } else if (m_rootMonitor == nullptr) {
          usleep(100);
       }
-      sc = m_cnvSvc->commitOutput("", false);
+      // Once commitOutput failed all legacy clients are finished (writing metadata), do not call again.
+      if (sc.isSuccess() || sc.isRecoverable()) {
+         sc = m_cnvSvc->commitOutput("", false);
+         if (sc.isFailure() && !sc.isRecoverable()) {
+            ATH_MSG_INFO("commitOutput failed, metadata done.");
+         }
+      }
    }
    ATH_MSG_INFO("End commitOutput loop");
    return StatusCode::SUCCESS;

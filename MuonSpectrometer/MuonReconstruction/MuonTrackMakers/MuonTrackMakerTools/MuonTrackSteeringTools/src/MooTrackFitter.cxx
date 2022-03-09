@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackFitter.h"
@@ -2327,11 +2327,11 @@ namespace Muon {
         double qoverp = startPars.charge() / startPars.momentum().mag();
         if (m_slFit) qoverp = 0;
         Trk::PerigeeSurface persurf(startPars.position());
-        Trk::Perigee* perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
+        auto perigee = std::make_unique<const Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
 
         auto trackStateOnSurfaces = Trk::TrackStates();
         trackStateOnSurfaces.reserve(tsos.size() + 1);
-        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
         for (const Trk::TrackStateOnSurface* tsos : tsos) trackStateOnSurfaces.push_back(tsos->clone());
 
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
@@ -2406,10 +2406,10 @@ namespace Muon {
             }
 
             // clean up previous track and create new one with fake hits
-            perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
+            auto uniquePerigee = std::make_unique<const Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
             trackStateOnSurfaces = Trk::TrackStates();
             trackStateOnSurfaces.reserve(tsos.size() + 3);
-            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(std::move(uniquePerigee)));
 
             tit = tsos.begin();
             tit_end = tsos.end();
@@ -2435,7 +2435,7 @@ namespace Muon {
                     if (fake) {
                         // need to clone as fake is already added to garbage collection
                         trackStateOnSurfaces.push_back(MuonTSOSHelper::createMeasTSOSWithUpdate(
-                            **tit, fake->clone(), positionFirstFake->trackParameters()->clone(), Trk::TrackStateOnSurface::Measurement));
+                            **tit, fake->uniqueClone(), positionFirstFake->trackParameters()->uniqueClone(), Trk::TrackStateOnSurface::Measurement));
                     } else {
                         ATH_MSG_WARNING(" failed to create fake at first measurement ");
                     }
@@ -2453,7 +2453,7 @@ namespace Muon {
                     if (fake) {
                         // need to clone as fake is already added to garbage collection
                         trackStateOnSurfaces.push_back(MuonTSOSHelper::createMeasTSOSWithUpdate(
-                            **tit, fake->clone(), positionSecondFake->trackParameters()->clone(), Trk::TrackStateOnSurface::Measurement));
+                            **tit, fake->uniqueClone(), positionSecondFake->trackParameters()->uniqueClone(), Trk::TrackStateOnSurface::Measurement));
                     } else {
                         ATH_MSG_WARNING(" failed to create fake at second measurement ");
                     }

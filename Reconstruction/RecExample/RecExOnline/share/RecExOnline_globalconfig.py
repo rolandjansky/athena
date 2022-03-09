@@ -193,7 +193,7 @@ globalflags.InputFormat.set_Value_and_Lock(InputFormat)
 if not useEmon:
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock([fileName])
 else:
-    athenaCommonFlags.BSRDOInput.set_Value_and_Lock([''])
+    athenaCommonFlags.BSRDOInput.set_Value_and_Lock([]) # fix from ATLASDQ-853
 
 ## suppress needless warnings "no stream X associated with id Y" for online jobs
 from GaudiSvc.GaudiSvcConf import THistSvc

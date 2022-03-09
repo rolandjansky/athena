@@ -75,6 +75,7 @@ namespace Analysis {
     // by job configuration.
     ATH_CHECK( m_VertexCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
+    ATH_CHECK( m_jetSVFlipLinkName.initialize(!m_jetSVFlipLinkName.empty()) );
     ATH_CHECK( m_jetJFVtxLinkName.initialize() );
     ATH_CHECK( m_jetJFFlipVtxLinkName.initialize(!m_jetJFFlipVtxLinkName.empty()));
     ATH_CHECK( m_VxSecVertexInfoNames.initialize() );
@@ -113,8 +114,9 @@ namespace Analysis {
 						 const xAOD::TrackParticleContainer* theTrackParticleContainer,
 						 std::string basename) const {
 
-    
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName (m_jetSVLinkName);
+    const auto& key = basename.find("Flip")!=std::string::npos ? m_jetSVFlipLinkName : m_jetSVLinkName; 
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName (key);
+  
     std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
     if (myVertexInfoVKal) {
       if (!h_jetSVLinkName.isAvailable()) {
@@ -395,7 +397,7 @@ namespace Analysis {
 
           if(tracksInJet.size()==0){
             ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet. Set some with the track selection tool " << trackname << " for VertexFinderxAODBaseName "<< basename);
-            if("SV1" == basename){
+            if("SV1" == basename ||"SV1Flip" == basename ){
               std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
               (*btagIter)->setSV1_TrackParticleLinks(TrkList);
               std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
@@ -426,7 +428,7 @@ namespace Analysis {
             theTrackParticleContainer = (*itEL).getStorableObjectPointer();
           }
 
-          if (basename == "SV1") {
+          if (basename == "SV1" || basename == "SV1Flip") {
             const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo);
 	          ATH_MSG_DEBUG("#BTAG# Found valid VKalVertexInfo information: " << infoCont.key());
 	          StatusCode sc = fillVkalVariables(**jetIter, *btagIter, myVertexInfoVKal, theTrackParticleContainer, basename);

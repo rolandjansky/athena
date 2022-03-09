@@ -4,40 +4,6 @@
 
 #include "JetTagMonitorAlgorithm.h"
 
-#include "xAODJet/JetContainer.h"   
-#include "xAODJet/JetAttributes.h"
-#include "xAODBTagging/BTagging.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"    
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
-
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "VxSecVertex/VxSecVKalVertexInfo.h"
-#include "VxSecVertex/VxSecVertexInfo.h"
-
-#include "LArRecEvent/LArEventBitInfo.h"
-
-#include "GaudiKernel/SystemOfUnits.h"
-
-#include "xAODBTagging/BTaggingUtilities.h"
-
-#include "TrkTrack/Track.h"
-
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TMath.h"
-#include "TEfficiency.h"
-
-#include <vector>
-#include <string>
-#include <sstream>
-
 JetTagMonitorAlgorithm::JetTagMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   :AthMonitorAlgorithm(name,pSvcLocator)
 {
@@ -53,19 +19,12 @@ JetTagMonitorAlgorithm::JetTagMonitorAlgorithm( const std::string& name, ISvcLoc
   declareProperty("SoftMuonPtMin", m_SoftMuonPtMin);
   declareProperty("SoftMuonPtMax", m_SoftMuonPtMax);
 
+  declareProperty("TrackSelectionTool",m_TrackSelectionTool);
   declareProperty("MinGoodTrackCut", m_MinGoodTrackCut);
   declareProperty("TrackPtCut", m_TrackPtCut);
-  declareProperty("TrackEtaCut", m_TrackEtaCut);
   declareProperty("Trackd0Cut", m_Trackd0Cut);
   declareProperty("Trackz0sinCut", m_Trackz0sinCut);
-  declareProperty("TrackChi2ndfCut", m_TrackChi2ndfCut);
   declareProperty("TrackHitIBLCut", m_TrackHitIBLCut);
-  declareProperty("TrackHitPixCut", m_TrackHitPixCut);
-  declareProperty("TrackHolePixCut", m_TrackHolePixCut);
-  declareProperty("TrackHitSCTCut", m_TrackHitSCTCut);
-  declareProperty("TrackHoleSCTCut", m_TrackHoleSCTCut);
-  declareProperty("TrackHitSiCut", m_TrackHitSiCut);
-  declareProperty("TrackHoleSiCut", m_TrackHoleSiCut);
 
   declareProperty("ElectronPtCut", m_ElectronPtCut);
   declareProperty("MuonPtCut", m_MuonPtCut);
@@ -171,8 +130,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   
   SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertContainerKey, ctx);
   if (!vertices.isValid()) {
-    ATH_MSG_ERROR("Could not find vertex AOD container with name " << m_VertContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Could not find vertex AOD container with name " << m_VertContainerKey);
+    return StatusCode::SUCCESS;
   }
   
   PV_n = vertices->size();
@@ -236,8 +195,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
   if (! muons.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
+    return StatusCode::SUCCESS;
   }
 
   for (const auto muonItr : *muons) {
@@ -276,8 +235,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::ElectronContainer> electrons(m_ElectronContainerKey, ctx);
   if (! electrons.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain electron Collection with name "<< m_ElectronContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("evtStore() does not contain electron Collection with name "<< m_ElectronContainerKey);
+    return StatusCode::SUCCESS;
   }
 
   for (const auto electronItr : *electrons) {
@@ -348,10 +307,10 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
         
   auto Tracks_n = Monitored::Scalar<int>("Tracks_n",0);
 
-  uint8_t nPixelHits  = 0;
-  uint8_t nSCTHits    = 0;
-  uint8_t nBLayerHits = 0;
-  uint8_t nTRTHits    = 0;
+  uint8_t nIBLHits   = 0;
+  uint8_t nPixelHits = 0;
+  uint8_t nSCTHits   = 0;
+  uint8_t nTRTHits   = 0;
 
   auto Hits_IBL = Monitored::Scalar<int>("Hits_IBL",0);
   auto Hits_Pixel = Monitored::Scalar<int>("Hits_Pixel",0);
@@ -362,16 +321,16 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackContainerKey, ctx);
   if (!tracks.isValid()) {
-    ATH_MSG_ERROR("Could not find track AOD container with name " << m_TrackContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Could not find track AOD container with name " << m_TrackContainerKey);
+    return StatusCode::SUCCESS;
   }
   
   Tracks_n = tracks->size();
   fill(tool,Tracks_n);
 
   for (const auto trackItr : *tracks) {
-    trackItr->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits);
-    Hits_IBL = (int)nBLayerHits;
+    trackItr->summaryValue(nIBLHits, xAOD::numberOfInnermostPixelLayerHits);
+    Hits_IBL = (int)nIBLHits;
     trackItr->summaryValue(nPixelHits, xAOD::numberOfPixelHits);
     Hits_Pixel=(int)nPixelHits;
     trackItr->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
@@ -382,7 +341,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     Hits_ID=(int)nPixelHits+(int)nSCTHits+(int)nTRTHits;
     fill(tool,Hits_IBL,Hits_Pixel,Hits_SCT, Hits_TRT,Hits_Si,Hits_ID);
         
-    ATH_MSG_DEBUG("Track hits: BLayer = " << Hits_IBL << ", PIX = " << Hits_IBL);
+    ATH_MSG_DEBUG("Track hits: IBL = " << Hits_IBL << ", PIX = " << Hits_Pixel);
     ATH_MSG_DEBUG("Track hits: SCT = " << Hits_SCT << ", Si = " << Hits_Si);
     ATH_MSG_DEBUG("Track hits: TRT = " << Hits_TRT << ", ID = " << Hits_ID);
     
@@ -398,11 +357,10 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::JetContainer> jets(m_JetContainerKey, ctx);
   if (!jets.isValid()) {
-    ATH_MSG_ERROR("Could not find jet AOD container with name " << m_JetContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Could not find jet AOD container with name " << m_JetContainerKey);
+    return StatusCode::SUCCESS;
   }
 
- 
   auto Cutflow_Jet = Monitored::Scalar<int>("Cutflow_Jet",0);
  
   auto jet_n_all = Monitored::Scalar<int>("jet_n_all",0.0);
@@ -533,10 +491,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     jet_phi_overlap = jetItr->phi();
     fill(tool,Cutflow_Jet,jet_eta_overlap,jet_phi_overlap);
 
-    // fill histograms with properties of jet associated tracks
-    fillJetTracksHistos(jetItr, PVZ);
-
-    // check if jet is taggable (defined as goodJet or suspectJet or badJet)
+    // Fill histograms with properties of jet associated tracks
+    // Check if jet is taggable (defined as goodJet or suspectJet or badJet)
     Jet_t qualityLabel = getQualityLabel(jetItr, PVZ); 
 
     if ( qualityLabel == goodJet ) {
@@ -722,7 +678,7 @@ double JetTagMonitorAlgorithm::getTaggerWeight(const xAOD::Jet *jet) const {
 
   const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
   if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
+    ATH_MSG_WARNING( "Could not retrieve b-tagging object from selected jet." );
     return 0;
   }
 
@@ -1112,7 +1068,7 @@ void JetTagMonitorAlgorithm::fillExtraTaggerHistos(const xAOD::Jet *jet) const {
 
   const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
   if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
+    ATH_MSG_WARNING( "Could not retrieve b-tagging object from selected jet." );
     return;
   }
 
@@ -1122,16 +1078,7 @@ void JetTagMonitorAlgorithm::fillExtraTaggerHistos(const xAOD::Jet *jet) const {
   auto jet_MV_pc_good = Monitored::Scalar<float>("jet_MV_pc_good",0);
   auto jet_MV_pb_good = Monitored::Scalar<float>("jet_MV_pb_good",0);
 
-  auto jet_IP2D_good = Monitored::Scalar<float>("jet_IP2D_good",0);
-  auto jet_IP3D_good = Monitored::Scalar<float>("jet_IP3D_good",0);
-  auto jet_SV1_good = Monitored::Scalar<float>("jet_SV1_good",0);
-  auto jet_JetFitter_good = Monitored::Scalar<float>("jet_JetFitter_good",0);
-  auto jet_RNNIP_good = Monitored::Scalar<float>("jet_RNNIP_good",0);
-
-  auto jet_IP3D_nTrack_good = Monitored::Scalar<int>("jet_IP3D_nTrack_good",0);
-  auto jet_SV1_nTrack_good = Monitored::Scalar<int>("jet_SV1_nTrack_good",0);
-
-  double rnnip_llr = 0, mv_pu = 0, mv_pb = 0, mv_pc = 0;  
+  double mv_pu = 0, mv_pb = 0, mv_pc = 0;  
 
   if (m_TaggerName=="DL1dv00" || m_TaggerName=="DL1r"){
     bTaggingObject->pu(m_TaggerName,mv_pu);
@@ -1141,100 +1088,8 @@ void JetTagMonitorAlgorithm::fillExtraTaggerHistos(const xAOD::Jet *jet) const {
   jet_MV_pu_good = mv_pu;
   jet_MV_pc_good = mv_pc;
   jet_MV_pb_good = mv_pb;
-
-  jet_IP2D_good = bTaggingObject->IP2D_loglikelihoodratio();
-  jet_IP3D_good = bTaggingObject->IP3D_loglikelihoodratio();
-  jet_SV1_good = bTaggingObject->SV1_loglikelihoodratio();
-  jet_JetFitter_good = bTaggingObject->JetFitter_loglikelihoodratio();
-  bTaggingObject->loglikelihoodratio("rnnip",rnnip_llr);
-  jet_RNNIP_good = rnnip_llr;
-
-  bTaggingObject->taggerInfo(jet_SV1_nTrack_good, xAOD::SV1_NGTinSvx);
-  jet_IP3D_nTrack_good = bTaggingObject->nIP3D_TrackParticles();
-
-  fill(tool,jet_MV_pu_good,jet_MV_pc_good,jet_MV_pb_good,jet_IP2D_good,jet_IP3D_good,jet_SV1_good,jet_JetFitter_good,jet_RNNIP_good,jet_IP3D_nTrack_good,jet_SV1_nTrack_good);
-
-  return;
-}
-
-
-void JetTagMonitorAlgorithm::fillJetTracksHistos(const xAOD::Jet *jet, float PV_Z) const {
-
-  const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
-  if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
-    return;
-  }
-
-  auto tool = getGroup("JetTagMonitor");
-
-  auto JetTracks_nSV = Monitored::Scalar<int>("JetTracks_nSV",0);
-  auto JetTracks_n = Monitored::Scalar<int>("JetTracks_n",0);
-  auto JetTracks_pT = Monitored::Scalar<float>("JetTracks_pT",0);
-  auto JetTracks_eta = Monitored::Scalar<float>("JetTracks_eta",0);
-  auto JetTracks_phi = Monitored::Scalar<float>("JetTracks_phi",0);
-  auto JetTracks_DR = Monitored::Scalar<float>("JetTracks_DR",0);
-
-  auto JetTracks_d0 = Monitored::Scalar<float>("JetTracks_d0",0);
-  auto JetTracks_d0s = Monitored::Scalar<float>("JetTracks_d0s",0);
-  auto JetTracks_d0si = Monitored::Scalar<float>("JetTracks_d0si",0);
-  auto JetTracks_z0 = Monitored::Scalar<float>("JetTracks_z0",0);
-  auto JetTracks_z0s = Monitored::Scalar<float>("JetTracks_z0s",0);
-  auto JetTracks_z0si = Monitored::Scalar<float>("JetTracks_z0si",0);
-
-  auto JetTracks_Hits_IBL = Monitored::Scalar<int>("JetTracks_Hits_IBL",0);
-  auto JetTracks_Hits_Pixel = Monitored::Scalar<int>("JetTracks_Hits_Pixel",0);
-  auto JetTracks_Hits_SCT = Monitored::Scalar<int>("JetTracks_Hits_SCT",0);
-  auto JetTracks_Hits_TRT = Monitored::Scalar<int>("JetTracks_Hits_TRT",0);
-
-  uint8_t jt_nBLayerHits = 0;
-  uint8_t jt_nPixHits    = 0;
-  uint8_t jt_nSCTHits    = 0;
-  uint8_t jt_nTRTHits    = 0;
-
-  TLorentzVector jet_TLV;
-  jet_TLV.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
-
-  std::vector<ElementLink<xAOD::VertexContainer>> SVs = bTaggingObject->auxdata<std::vector< ElementLink< xAOD::VertexContainer > > >("SV1_vertices");
-
-  JetTracks_nSV = SVs.size();
-
-  std::vector<ElementLink<xAOD::TrackParticleContainer>> assocTracks = bTaggingObject->auxdata< std::vector< ElementLink<xAOD::TrackParticleContainer > > >("BTagTrackToJetAssociator");
-
-  JetTracks_n = assocTracks.size();
-
-  fill(tool,JetTracks_n,JetTracks_nSV);
-
-  for ( const ElementLink< xAOD::TrackParticleContainer >& jetTracks : assocTracks ) {
-    if ( not jetTracks.isValid() ) continue;
-    const xAOD::TrackParticle* jetTrackItr = *jetTracks;
-
-    JetTracks_pT =   jetTrackItr->pt() / Gaudi::Units::GeV;
-    JetTracks_eta =  jetTrackItr->eta();
-    JetTracks_phi =  jetTrackItr->phi();
-
-    TLorentzVector JetTrack_TLV;
-    JetTrack_TLV.SetPtEtaPhiE(jetTrackItr->pt(), jetTrackItr->eta(), jetTrackItr->phi(), jetTrackItr->e());
-
-    JetTracks_DR = jet_TLV.DeltaR(JetTrack_TLV);
-
-    JetTracks_d0 =   jetTrackItr->d0();
-    JetTracks_d0s =  sqrt( jetTrackItr->definingParametersCovMatrix()( Trk::d0, Trk::d0 ) ); //sigma
-    JetTracks_d0si = JetTracks_d0/JetTracks_d0s; //significance
-
-    float PVZ = PV_Z;
-    JetTracks_z0 =   jetTrackItr->z0() + jetTrackItr->vz() - PVZ; 
-    JetTracks_z0s =  sqrt( jetTrackItr->definingParametersCovMatrix()( Trk::z0, Trk::z0 ) ); //sigma
-    JetTracks_z0si = JetTracks_z0/JetTracks_z0s; //significance
-
-    if (jetTrackItr->summaryValue(jt_nBLayerHits, xAOD::numberOfBLayerHits)) JetTracks_Hits_IBL = jt_nBLayerHits;
-    if (jetTrackItr->summaryValue(jt_nPixHits, xAOD::numberOfPixelHits)) JetTracks_Hits_Pixel = jt_nPixHits;
-    if (jetTrackItr->summaryValue(jt_nSCTHits, xAOD::numberOfSCTHits)) JetTracks_Hits_SCT = jt_nSCTHits;
-    if (jetTrackItr->summaryValue(jt_nTRTHits, xAOD::numberOfTRTHits)) JetTracks_Hits_TRT = jt_nTRTHits;
-
-    fill(tool,JetTracks_pT,JetTracks_eta,JetTracks_phi,JetTracks_DR,JetTracks_d0,JetTracks_d0s,JetTracks_d0si,JetTracks_z0,JetTracks_z0s,JetTracks_z0si,JetTracks_Hits_IBL,JetTracks_Hits_Pixel,JetTracks_Hits_SCT,JetTracks_Hits_TRT);
-
-  }
+  
+  fill(tool,jet_MV_pu_good,jet_MV_pc_good,jet_MV_pb_good);
 
   return;
 }
@@ -1250,189 +1105,232 @@ JetTagMonitorAlgorithm::Jet_t JetTagMonitorAlgorithm::getQualityLabel(const xAOD
 
   auto tool = getGroup("JetTagMonitor");
 
-  auto SelTracks_n_all = Monitored::Scalar<int>("SelTracks_n_all",0);
-  auto SelTracks_pT_all = Monitored::Scalar<float>("SelTracks_pT_all",0);
- 
-  auto SelTracks_d0 = Monitored::Scalar<float>("SelTracks_d0",0);
-  auto SelTracks_z0sin = Monitored::Scalar<float>("SelTracks_z0sin",0);
+  float jetTrack_pT = 0;
+  float jetTrack_eta = 0;
+  float jetTrack_phi = 0;
 
-  auto SelTracks_chi2ndf = Monitored::Scalar<float>("SelTracks_chi2ndf",0);
- 
-  auto SelTracks_HitIBL = Monitored::Scalar<int>("SelTracks_HitIBL",0);
-  auto SelTracks_HitPix = Monitored::Scalar<int>("SelTracks_HitPix",0);
-  auto SelTracks_HitSCT = Monitored::Scalar<int>("SelTracks_HitSCT",0);
-  auto SelTracks_HitSi = Monitored::Scalar<int>("SelTracks_HitSi",0);
-
-  auto SelTracks_HolePix = Monitored::Scalar<int>("SelTracks_HolePix",0);
-  auto SelTracks_HoleSCT = Monitored::Scalar<int>("SelTracks_HoleSCT",0);
-  auto SelTracks_HoleSi = Monitored::Scalar<int>("SelTracks_HoleSi",0);
-  
   int nTracks = 0;
-  auto SelTracks_n_pass = Monitored::Scalar<int>("SelTracks_n_pass",0);
+  int nLooseTracks = 0;
+  int nKinTracks = 0;
+  int nIPTracks = 0;
+  int nIBLTracks = 0;
 
-  bool passTrackSelection = true;
-  bool passHitSelection = true;
-  bool passIBLSiSelection = true;
+  auto JetTracks_n_0_all = Monitored::Scalar<int>("JetTracks_n_0_all",0);
+  auto JetTracks_pT_0_all = Monitored::Scalar<float>("JetTracks_pT_0_all",0);
+  auto JetTracks_eta_0_all = Monitored::Scalar<float>("JetTracks_eta_0_all",0);
+  auto JetTracks_phi_0_all = Monitored::Scalar<float>("JetTracks_phi_0_all",0);
+  auto JetTracks_DR_0_all = Monitored::Scalar<float>("JetTracks_DR_0_all",0);
 
-  auto SelTracks_eta_all = Monitored::Scalar<float>("SelTracks_eta_all",0.0);
-  auto SelTracks_phi_all = Monitored::Scalar<float>("SelTracks_phi_all",0.0);
-  auto SelTracks_eta_pT = Monitored::Scalar<float>("SelTracks_eta_pT",0.0);
-  auto SelTracks_phi_pT = Monitored::Scalar<float>("SelTracks_phi_pT",0.0);
-  auto SelTracks_eta_d0 = Monitored::Scalar<float>("SelTracks_eta_d0",0.0);
-  auto SelTracks_phi_d0 = Monitored::Scalar<float>("SelTracks_phi_d0",0.0);
-  auto SelTracks_eta_z0sin = Monitored::Scalar<float>("SelTracks_eta_z0sin",0.0);
-  auto SelTracks_phi_z0sin = Monitored::Scalar<float>("SelTracks_phi_z0sin",0.0);
-  auto SelTracks_eta_fit = Monitored::Scalar<float>("SelTracks_eta_fit",0.0);
-  auto SelTracks_phi_fit = Monitored::Scalar<float>("SelTracks_phi_fit",0.0);
-  auto SelTracks_eta_IBL = Monitored::Scalar<float>("SelTracks_eta_IBL",0.0);
-  auto SelTracks_phi_IBL = Monitored::Scalar<float>("SelTracks_phi_IBL",0.0);
-  auto SelTracks_eta_Pix = Monitored::Scalar<float>("SelTracks_eta_Pix",0.0);
-  auto SelTracks_phi_Pix = Monitored::Scalar<float>("SelTracks_phi_Pix",0.0);
-  auto SelTracks_eta_SCT = Monitored::Scalar<float>("SelTracks_eta_SCT",0.0);
-  auto SelTracks_phi_SCT = Monitored::Scalar<float>("SelTracks_phi_SCT",0.0);
-  auto SelTracks_eta_Si = Monitored::Scalar<float>("SelTracks_eta_Si",0.0);
-  auto SelTracks_phi_Si = Monitored::Scalar<float>("SelTracks_phi_Si",0.0);
-  auto SelTracks_eta_pass = Monitored::Scalar<float>("SelTracks_eta_pass",0.0);
-  auto SelTracks_phi_pass = Monitored::Scalar<float>("SelTracks_phi_pass",0.0);
+  auto JetTracks_n_1_loose = Monitored::Scalar<int>("JetTracks_n_1_loose",0);
+  auto JetTracks_pT_1_loose = Monitored::Scalar<float>("JetTracks_pT_1_loose",0);
+  auto JetTracks_eta_1_loose = Monitored::Scalar<float>("JetTracks_eta_1_loose",0);
+  auto JetTracks_phi_1_loose = Monitored::Scalar<float>("JetTracks_phi_1_loose",0);
+
+  //Loose tracks --> fill hits and impact parameters distributions
+  auto JetTracks_Hits_IBL = Monitored::Scalar<int>("JetTracks_Hits_IBL",0);
+  auto JetTracks_Hits_IBL_expect = Monitored::Scalar<int>("JetTracks_Hits_IBL_expect",0);
+  auto JetTracks_eta_loose_IBL = Monitored::Scalar<float>("JetTracks_eta_loose_IBL",0);
+  auto JetTracks_phi_loose_IBL = Monitored::Scalar<float>("JetTracks_phi_loose_IBL",0);
+  auto JetTracks_Hits_BL = Monitored::Scalar<int>("JetTracks_Hits_BL",0);
+  auto JetTracks_Hits_BL_expect = Monitored::Scalar<int>("JetTracks_Hits_BL_expect",0);
+  auto JetTracks_eta_loose_BL = Monitored::Scalar<float>("JetTracks_eta_loose_BL",0);
+  auto JetTracks_phi_loose_BL = Monitored::Scalar<float>("JetTracks_phi_loose_BL",0);
+
+  auto JetTracks_Hits_PIX = Monitored::Scalar<int>("JetTracks_Hits_PIX",0);
+  auto JetTracks_Hits_SCT = Monitored::Scalar<int>("JetTracks_Hits_SCT",0);
+  auto JetTracks_Hits_TRT = Monitored::Scalar<int>("JetTracks_Hits_TRT",0);
+
+  auto JetTracks_Holes_PIX = Monitored::Scalar<int>("JetTracks_Holes_PIX",0);
+  auto JetTracks_Holes_SCT = Monitored::Scalar<int>("JetTracks_Holes_SCT",0);
+  auto JetTracks_Holes_TRT = Monitored::Scalar<int>("JetTracks_Holes_TRT",0);
+
+  auto JetTracks_Hits_Si = Monitored::Scalar<int>("JetTracks_Hits_Si",0);
+  auto JetTracks_Holes_Si = Monitored::Scalar<int>("JetTracks_Holes_Si",0);
+
+  auto JetTracks_IP_d0 = Monitored::Scalar<float>("JetTracks_IP_d0",0);
+  auto JetTracks_IP_d0s = Monitored::Scalar<float>("JetTracks_IP_d0s",0);
+  auto JetTracks_IP_d0si = Monitored::Scalar<float>("JetTracks_IP_d0si",0);
+  auto JetTracks_IP_z0 = Monitored::Scalar<float>("JetTracks_IP_z0",0);
+  auto JetTracks_IP_z0s = Monitored::Scalar<float>("JetTracks_IP_z0s",0);
+  auto JetTracks_IP_z0si = Monitored::Scalar<float>("JetTracks_IP_z0si",0);
+  auto JetTracks_IP_z0sin = Monitored::Scalar<float>("JetTracks_IP_z0sin",0);
+
+  //Complete selection for jet quality classification
+  auto JetTracks_n_2_kin = Monitored::Scalar<int>("JetTracks_n_2_kin",0);
+  auto JetTracks_eta_2_kin = Monitored::Scalar<float>("JetTracks_eta_2_kin",0);
+  auto JetTracks_phi_2_kin = Monitored::Scalar<float>("JetTracks_phi_2_kin",0);
+
+  auto JetTracks_n_3_IP = Monitored::Scalar<int>("JetTracks_n_3_IP",0);
+  auto JetTracks_eta_3_IP = Monitored::Scalar<float>("JetTracks_eta_3_IP",0);
+  auto JetTracks_phi_3_IP = Monitored::Scalar<float>("JetTracks_phi_3_IP",0);
+
+  auto JetTracks_n_4_IBL = Monitored::Scalar<int>("JetTracks_n_4_IBL",0);
+  auto JetTracks_eta_4_IBL = Monitored::Scalar<float>("JetTracks_eta_4_IBL",0);
+  auto JetTracks_phi_4_IBL = Monitored::Scalar<float>("JetTracks_phi_4_IBL",0);
+
+  TLorentzVector jet_TLV;
+  jet_TLV.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
 
   std::vector<ElementLink<xAOD::TrackParticleContainer>> assocTracks = bTaggingObject->auxdata< std::vector< ElementLink<xAOD::TrackParticleContainer > > >("BTagTrackToJetAssociator");
+
+  nTracks = assocTracks.size();
 
   for ( const ElementLink< xAOD::TrackParticleContainer >& jetTracks : assocTracks ) {
     if ( not jetTracks.isValid() ) continue;
     const xAOD::TrackParticle* jetTrackItr = *jetTracks;
+
+    jetTrack_pT = jetTrackItr->pt() / Gaudi::Units::GeV;
+    jetTrack_eta = jetTrackItr->eta();
+    jetTrack_phi = jetTrackItr->phi();
+
+    JetTracks_pT_0_all = jetTrack_pT;
+    JetTracks_eta_0_all = jetTrack_eta;
+    JetTracks_phi_0_all = jetTrack_phi;
     
-    SelTracks_pT_all = jetTrackItr->pt() / Gaudi::Units::GeV;
-    SelTracks_eta_all = jetTrackItr->eta();
-    SelTracks_phi_all = jetTrackItr->phi();
+    TLorentzVector JetTrack_TLV;
+    JetTrack_TLV.SetPtEtaPhiE(jetTrackItr->pt(), jetTrackItr->eta(), jetTrackItr->phi(), jetTrackItr->e());
 
-    passTrackSelection = true;
-    passHitSelection = true;
+    JetTracks_DR_0_all = jet_TLV.DeltaR(JetTrack_TLV);
 
-    // Tracks failing pT and eta cuts
-    if(SelTracks_pT_all < m_TrackPtCut  || std::abs(SelTracks_eta_all) > m_TrackEtaCut){
-      passTrackSelection = false;
-      SelTracks_eta_pT = jetTrackItr->eta();
-      SelTracks_phi_pT = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_pT,SelTracks_phi_pT);
-    }
+    fill(tool,JetTracks_eta_0_all,JetTracks_phi_0_all,JetTracks_pT_0_all,JetTracks_DR_0_all);
 
-    SelTracks_d0 = jetTrackItr->d0();
+    //Select Loose tracks
+    if(m_TrackSelectionTool->accept(*jetTracks)){
     
-    // Tracks failing d0 cuts
-    if(std::abs(SelTracks_d0) > m_Trackd0Cut){
-      passTrackSelection = false;
-      SelTracks_eta_d0 = jetTrackItr->eta();
-      SelTracks_phi_d0 = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_d0,SelTracks_phi_d0);
-    }
-
-    float PVZ = PV_Z;
-    SelTracks_z0sin = (jetTrackItr->z0() + jetTrackItr->vz() - PVZ)*sin(jetTrackItr->theta());
-
-    // Tracks failing z0sin cuts
-    if(std::abs(SelTracks_z0sin) > m_Trackz0sinCut){
-      passTrackSelection = false;
-      SelTracks_eta_z0sin = jetTrackItr->eta();
-      SelTracks_phi_z0sin = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_z0sin,SelTracks_phi_z0sin);
-    }
-
-    if(jetTrackItr->numberDoF() > 0 && jetTrackItr->chiSquared() >= 0.) {
-      SelTracks_chi2ndf = jetTrackItr->chiSquared()/jetTrackItr->numberDoF();
-    }
-
-    // Tracks failing fit cuts
-    if(jetTrackItr->numberDoF() == 0 || SelTracks_chi2ndf > m_TrackChi2ndfCut){
-      passTrackSelection = false;
-      SelTracks_eta_fit = jetTrackItr->eta();
-      SelTracks_phi_fit = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_fit,SelTracks_phi_fit);
-    }
-
-    uint8_t nHitIBL=0;
-    jetTrackItr->summaryValue(nHitIBL, xAOD::numberOfInnermostPixelLayerHits);
-    uint8_t nHitPix=0;
-    jetTrackItr->summaryValue(nHitPix, xAOD::numberOfPixelHits);
-    uint8_t nHolePix=0;
-    jetTrackItr->summaryValue(nHolePix, xAOD::numberOfPixelHoles);
-    uint8_t nDeadPix;
-    jetTrackItr->summaryValue(nDeadPix, xAOD::numberOfPixelDeadSensors);
-    nHitPix += std::max((int)nDeadPix, 0);
-    uint8_t nHitSCT=0;
-    jetTrackItr->summaryValue(nHitSCT, xAOD::numberOfSCTHits);
-    uint8_t nHoleSCT=0;
-    jetTrackItr->summaryValue(nHoleSCT, xAOD::numberOfSCTHoles);
-    uint8_t nDeadSCT;
-    jetTrackItr->summaryValue(nDeadSCT, xAOD::numberOfSCTDeadSensors);
-    nHitSCT += std::max((int)nDeadSCT, 0);
-
-    SelTracks_HitIBL = (int)nHitIBL;
-
-    // Tracks failing IBL cuts
-    if(SelTracks_HitIBL < m_TrackHitIBLCut){
-      passHitSelection = false;
-      SelTracks_eta_IBL = jetTrackItr->eta();
-      SelTracks_phi_IBL = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_IBL,SelTracks_phi_IBL);
-    }
+      nLooseTracks++;
     
-    SelTracks_HitPix = (int)nHitPix;
-    SelTracks_HolePix = (int)nHolePix;
+      JetTracks_pT_1_loose =  jetTrack_pT;
+      JetTracks_eta_1_loose = jetTrack_eta;
+      JetTracks_phi_1_loose = jetTrack_phi;
+    
+      //Hits, holes
+      uint8_t expectHitIBL=0;
+      uint8_t nHitIBL=0;
+      jetTrackItr->summaryValue(expectHitIBL, xAOD::expectInnermostPixelLayerHit);
+      jetTrackItr->summaryValue(nHitIBL, xAOD::numberOfInnermostPixelLayerHits);
+      JetTracks_Hits_IBL = nHitIBL;
+      if(expectHitIBL < 1)
+	JetTracks_Hits_IBL_expect = -1;
+      else{
+	JetTracks_Hits_IBL_expect = nHitIBL;
+	JetTracks_eta_loose_IBL = jetTrack_eta;
+	JetTracks_phi_loose_IBL = jetTrack_phi;
+      }
 
-    // Tracks failing Pixel cuts
-    if(SelTracks_HitPix < m_TrackHitPixCut || SelTracks_HolePix >= m_TrackHolePixCut){
-      passHitSelection = false;
-      SelTracks_eta_Pix = jetTrackItr->eta();
-      SelTracks_phi_Pix = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_Pix,SelTracks_phi_Pix);
-    }
+      uint8_t expectHitBL=0;
+      uint8_t nHitBL=0;
+      jetTrackItr->summaryValue(expectHitBL, xAOD::expectNextToInnermostPixelLayerHit);
+      jetTrackItr->summaryValue(nHitBL, xAOD::numberOfNextToInnermostPixelLayerHits);
+      JetTracks_Hits_BL = nHitBL;
+      if(expectHitBL < 1)
+	JetTracks_Hits_BL_expect = -1;
+      else{
+	JetTracks_Hits_BL_expect = nHitBL;
+	JetTracks_eta_loose_BL = jetTrack_eta;
+	JetTracks_phi_loose_BL = jetTrack_phi;
+      }
 
-    SelTracks_HitSCT = (int)nHitSCT;
-    SelTracks_HoleSCT = (int)nHoleSCT;
+      uint8_t nHitPix=0;
+      uint8_t nHolePix=0;
+      uint8_t nDeadPix;
+      jetTrackItr->summaryValue(nHitPix, xAOD::numberOfPixelHits);
+      jetTrackItr->summaryValue(nHolePix, xAOD::numberOfPixelHoles);
+      jetTrackItr->summaryValue(nDeadPix, xAOD::numberOfPixelDeadSensors);
+      nHitPix += std::max((int)nDeadPix, 0);
+      JetTracks_Hits_PIX = nHitPix;
+      JetTracks_Holes_PIX = nHolePix;
 
-    // Tracks failing SCT cuts
-    if(SelTracks_HitSCT < m_TrackHitSCTCut || SelTracks_HoleSCT >= m_TrackHoleSCTCut){
-      passHitSelection = false;
-      SelTracks_eta_SCT = jetTrackItr->eta();
-      SelTracks_phi_SCT = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_SCT,SelTracks_phi_SCT);
-    }
+      uint8_t nHitSCT=0;
+      uint8_t nHoleSCT=0;
+      uint8_t nDeadSCT;
+      jetTrackItr->summaryValue(nHitSCT, xAOD::numberOfSCTHits);
+      jetTrackItr->summaryValue(nHoleSCT, xAOD::numberOfSCTHoles);
+      jetTrackItr->summaryValue(nDeadSCT, xAOD::numberOfSCTDeadSensors);
+      nHitSCT += std::max((int)nDeadSCT, 0);
+      JetTracks_Hits_SCT = nHitSCT;
+      JetTracks_Holes_SCT = nHoleSCT;
 
-    SelTracks_HitSi = (int)nHitPix + (int)nHitSCT;
-    SelTracks_HoleSi = (int)nHolePix + (int)nHoleSCT;
+      uint8_t nHitTRT=0;
+      jetTrackItr->summaryValue(nHitTRT, xAOD::numberOfTRTHits);
+      JetTracks_Hits_TRT = nHitTRT;
 
-    // Tracks failing Si (Pix+SCT) cuts
-    if(SelTracks_HitSi < m_TrackHitSiCut || SelTracks_HoleSi >= m_TrackHoleSiCut){
-      passHitSelection = false;
-      SelTracks_eta_Si = jetTrackItr->eta();
-      SelTracks_phi_Si = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_Si,SelTracks_phi_Si);
-    }
+      JetTracks_Hits_Si = nHitPix + nHitSCT;
+      JetTracks_Holes_Si = nHolePix + nHoleSCT;
 
-    if(passTrackSelection && passHitSelection){
-      nTracks++;
-      SelTracks_eta_pass = jetTrackItr->eta();
-      SelTracks_phi_pass = jetTrackItr->phi();
-      fill(tool,SelTracks_eta_pass,SelTracks_phi_pass);
-    }
+      //Impact parameters
+      JetTracks_IP_d0 =   jetTrackItr->d0();
+      JetTracks_IP_d0s =  sqrt( jetTrackItr->definingParametersCovMatrix()( Trk::d0, Trk::d0 ) ); //sigma
+      JetTracks_IP_d0si = JetTracks_IP_d0/JetTracks_IP_d0s; //significance
 
-    fill(tool,SelTracks_pT_all,SelTracks_eta_all,SelTracks_phi_all,SelTracks_d0,SelTracks_z0sin,SelTracks_chi2ndf,SelTracks_HitIBL,SelTracks_HitPix,SelTracks_HolePix,SelTracks_HitSCT,SelTracks_HoleSCT,SelTracks_HitSi,SelTracks_HoleSi);
+      float PVZ = PV_Z;
+      JetTracks_IP_z0 =   jetTrackItr->z0() + jetTrackItr->vz() - PVZ; 
+      JetTracks_IP_z0s =  sqrt( jetTrackItr->definingParametersCovMatrix()( Trk::z0, Trk::z0 ) ); //sigma
+      JetTracks_IP_z0si = JetTracks_IP_z0/JetTracks_IP_z0s; //significance
+      JetTracks_IP_z0sin = JetTracks_IP_z0*sin(jetTrackItr->theta()); //z0_sin(theta)
 
-    if(passTrackSelection && (SelTracks_HitIBL < m_TrackHitIBLCut || SelTracks_HitSi < m_TrackHitSiCut) )
-      passIBLSiSelection = false;
-  }
+      fill(tool,
+	   JetTracks_eta_1_loose,JetTracks_phi_1_loose,JetTracks_pT_1_loose,
+	   JetTracks_Hits_IBL,JetTracks_Hits_IBL_expect,JetTracks_eta_loose_IBL,JetTracks_phi_loose_IBL,
+	   JetTracks_Hits_BL, JetTracks_Hits_BL_expect, JetTracks_eta_loose_BL, JetTracks_phi_loose_BL,
+	   JetTracks_Hits_PIX,JetTracks_Holes_PIX,
+	   JetTracks_Hits_SCT,JetTracks_Holes_SCT,
+	   JetTracks_Hits_TRT,
+	   JetTracks_Hits_Si,JetTracks_Holes_Si,
+	   JetTracks_IP_d0,JetTracks_IP_d0s,JetTracks_IP_d0si,JetTracks_IP_z0,JetTracks_IP_z0s,JetTracks_IP_z0si,JetTracks_IP_z0sin
+	   );
 
-  SelTracks_n_all = assocTracks.size();
-  SelTracks_n_pass = nTracks;
-  fill(tool,SelTracks_n_all,SelTracks_n_pass);
+      //Tracks passing pT cut (1 GeV)
+      if(JetTracks_pT_0_all > m_TrackPtCut){
+
+	//Number of tracks passing pT cut
+	nKinTracks++;
+
+	JetTracks_eta_2_kin = jetTrack_eta;
+	JetTracks_phi_2_kin = jetTrack_phi;
+
+	fill(tool,JetTracks_eta_2_kin,JetTracks_phi_2_kin);
+
+        // Tracks passing IP selection (d0, z0sin)
+        if(std::abs(JetTracks_IP_d0) < m_Trackd0Cut && std::abs(JetTracks_IP_z0sin) < m_Trackz0sinCut){
+
+	  //Number of tracks passing IP cuts
+	  nIPTracks++;
+
+          JetTracks_eta_3_IP = jetTrack_eta;
+          JetTracks_phi_3_IP = jetTrack_phi;
+
+          fill(tool,JetTracks_eta_3_IP,JetTracks_phi_3_IP);
+
+          // Tracks passing IBL or BLayer selection (if expected, hit)
+          if(m_TrackHitIBLCut == 0 || (JetTracks_Hits_IBL_expect != 0 && JetTracks_Hits_BL_expect != 0) ){
+
+	    nIBLTracks++;
+
+            JetTracks_eta_4_IBL = jetTrack_eta;
+            JetTracks_phi_4_IBL = jetTrack_phi;
+
+            fill(tool,JetTracks_eta_4_IBL,JetTracks_phi_4_IBL);
+
+	  }//IBL sel
+	}//IP sel
+      }//kin sel
+    }//loose sel
+  }//jet tracks loop
+
+  JetTracks_n_0_all = nTracks;
+  JetTracks_n_1_loose = nLooseTracks;
+  JetTracks_n_2_kin = nKinTracks;
+  JetTracks_n_3_IP = nIPTracks;
+  JetTracks_n_4_IBL = nIBLTracks;
+  fill(tool,JetTracks_n_0_all,JetTracks_n_1_loose,JetTracks_n_2_kin,JetTracks_n_3_IP,JetTracks_n_4_IBL);
   
-  // goodJet    = jet with at least one associated track passing track and hit selection
-  // suspectJet = as goodJet but, at least one associated track does not pass IBL or Si (Pix+SCT) hit selection
-  // badJet     = not goodJet (i.e. no associated track passing track or hit selection)
+  // goodJet    = jet with at least one associated track passing loose selection
+  // suspectJet = as goodJet but, at least one associated track does not pass IBL or BL hit additional selection
+  // badJet     = not goodJet (i.e. no associated track passing loose selection)
 
-  if(nTracks < m_MinGoodTrackCut) return badJet;
+  if(nLooseTracks < m_MinGoodTrackCut) return badJet;
 
-  if(!passIBLSiSelection) return suspectJet;
+  if(nIBLTracks < nIPTracks) return suspectJet;
 
   return goodJet;
 }

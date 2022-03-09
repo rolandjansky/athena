@@ -168,6 +168,7 @@ class SlimmingHelper:
                 if (self.IncludeJetTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__JetContainer_a4tcemsubjesFS")
+                        self.SmartCollections.append("HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf") # Run 3 jet collections
                         from DerivationFrameworkCore.JetTriggerFixContent import JetTriggerFixContent
                         for item in JetTriggerFixContent:
                                 Stream.AddItem(item)
@@ -326,12 +327,18 @@ class SlimmingHelper:
                 elif collectionName=="Electrons":
                         from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
+                elif collectionName=="LRTElectrons":
+                        from DerivationFrameworkEGamma.LargeD0ElectronsCPContent import LargeD0ElectronsCPContent
+                        items.extend(LargeD0ElectronsCPContent)
                 elif collectionName=="Photons":
                         from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
                         items.extend(PhotonsCPContent)
                 elif collectionName=="Muons":
                         from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
                         items.extend(MuonsCPContent)
+                elif collectionName=="MuonsLRT":
+                        from DerivationFrameworkMuons.LargeD0MuonsCPContent import LargeD0MuonsCPContent
+                        items.extend(LargeD0MuonsCPContent)
                 elif collectionName=="TauJets":
                         from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
                         items.extend(TauJetsCPContent)
@@ -605,13 +612,15 @@ class SlimmingHelper:
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
+                elif collectionName=="InDetLargeD0TrackParticles":
+                        from DerivationFrameworkInDet.InDetLargeD0TrackParticlesCPContent import InDetLargeD0TrackParticlesCPContent
+                        items.extend(InDetLargeD0TrackParticlesCPContent)
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
                 elif self.IncludeAdditionalTriggerContent is True:
                         from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
                         items.extend(AdditionalTriggerContent)
-
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)
@@ -636,6 +645,9 @@ class SlimmingHelper:
                 elif collectionName=="HLT_xAOD__TrigVertexCountsContainer_vertexcounts":
                         from DerivationFrameworkCore.MinBiasTriggerContent import MinBiasTriggerContent
                         items.extend(MinBiasTriggerContent)
+                elif collectionName=="HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf":
+                        from DerivationFrameworkCore.JetTriggerContentRun3 import JetTriggerContentRun3
+                        items.extend(JetTriggerContentRun3)
                 else:
                         raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
                 return items

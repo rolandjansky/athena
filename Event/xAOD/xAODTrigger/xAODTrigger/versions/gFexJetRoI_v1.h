@@ -29,7 +29,7 @@ namespace xAOD {
       gFexJetRoI_v1();
 
       /// Initialise the object with its most important properties: only the word for gFEX
-      void initialize( uint32_t word );
+      void initialize( uint32_t word, int tobEtScale );
 
       /// Object types
       enum ObjectType {
@@ -45,13 +45,15 @@ namespace xAOD {
       /// Set the "raw" 32-bit words describing the object candidate
       void setWord( uint32_t value );
 
+      int tobEtScale() const;
+      /// Set the "raw" 32-bit words describing the object candidate
+      void setScale( int value );
 
       /// TOB ET (decoded from TOB, stored for convenience)
-      uint16_t tobEt() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)
-      void     setTobEt( uint16_t value); /// setter for the above
-      unsigned int unpackEtIndex( ) const; /// retrieves the Et index from the 32-bit word
-      float    etMax() const; /// floating point value (GeV, TOB scale)
-      float    etMin() const; /// floating point value (GeV, TOB scale)
+      int16_t  gFexTobEt() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)
+      void     setTobEt( int16_t value); /// setter for the above
+      int16_t  unpackEt( ) const; /// retrieves the Et index from the 32-bit word
+      float    et() const; /// floating point value (GeV, TOB scale)
 
       /// Eta Coordinates (decoded from TOB, stored for convenience)
       uint8_t iEta() const;  /// getter for integer eta index (0-63) 
@@ -65,9 +67,13 @@ namespace xAOD {
       uint8_t iPhi() const; /// Getter for integer phi index (0-32) --> check numbers for gFEX
       void  setPhi( uint8_t value); /// Setter for the above
       unsigned int unpackPhiIndex( ) const; /// retrieves the phi index from the 32-bit word
-      float phi() const; /// Central value of phi corresponding to phi index.
-      float phiMin() const; /// Minimum value of phi corresponding to phi index.
-      float phiMax() const; /// Minimum value of phi corresponding to phi index.
+      float phi_gFex() const; /// Central value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+      float phiMin_gFex() const; /// Minimum value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+      float phiMax_gFex() const; /// Minimum value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+
+      float phi() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
+      float phiMin() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
+      float phiMax() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
 
       /// TOB status: set to 1 if TOB Et exceeds TOB threshold (gBlocks & gJets). Status is set to 1 if Rho calculation is valid
       uint8_t status() const;
@@ -97,9 +103,6 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_gRhotobEtScale;
-      static const float s_gJtobEtScale;
-      static const float s_gLJtobEtScale;
       static const float s_centralPhiWidth;
       static const float s_forwardPhiWidth;
       static const std::vector<float> s_EtaEdge; 

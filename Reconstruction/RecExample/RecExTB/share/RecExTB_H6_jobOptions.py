@@ -614,7 +614,7 @@ if doLAr :
         if 'NoiseE' in dir():
            NoiseCorr.NoiseE = NoiseE   
         ToolSvc += NoiseCorr
-        from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+        from RngComps.RngCompsConf import AtRanluxGenSvc
         ServiceMgr += AtRanluxGenSvc()
         ServiceMgr.AtRanluxGenSvc.Seeds = ["TB_NOISE "+NoiseSeed]
 

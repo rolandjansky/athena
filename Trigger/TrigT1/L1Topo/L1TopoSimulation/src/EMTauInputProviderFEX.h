@@ -38,22 +38,33 @@ namespace LVL1 {
       /** \brief calculates eta and phi from roiWord*/
       void CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const;
      
+      StatusCode fillEM(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode fillTau(TCS::TopoInputEvent& inputEvent) const;
+
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMPhiEta ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMPhiEta_local ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMEtEta ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMEtPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hEmEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hEmREta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hEmRHad ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hEmWsTot ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmPhiEta_local ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmEtEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmEtPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmEtREta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmEtRHad ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmEtWsTot ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauRCore ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hTauRHad ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtRCore ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtRHad ATLAS_THREAD_SAFE;
 
-     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEXEM EDM"};
-     SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "L1_eTauRoI", "L1_eTauRoI", "eFEXTau EDM"};
+     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "eFexEMRoIKey", "L1_eEMRoI", "eFEXEM EDM"};
+     SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "eFexTauRoIKey", "L1_eTauRoI", "eFEXTau EDM"};
    };
 }
 

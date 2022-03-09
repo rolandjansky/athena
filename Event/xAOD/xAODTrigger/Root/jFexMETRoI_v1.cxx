@@ -14,12 +14,10 @@
 
 namespace xAOD {
 
-    const float jFexMETRoI_v1::s_tobEtScale = 200.;
-
     jFexMETRoI_v1::jFexMETRoI_v1()
         : SG::AuxElement() {
     }
-    void jFexMETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord) {
+    void jFexMETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution) {
 
         setTobWord   ( tobWord     );
         setjFexNumber( jFexNumber  );
@@ -28,6 +26,7 @@ namespace xAOD {
         setTobEy     ( unpackEy()  );
         setTobRes    ( unpackRes() );
         setTobSat    ( unpackSat() );
+        setResolution( resolution ); 
 
         //include in future when xTOB in jFEX has been implemented.
 
@@ -54,6 +53,9 @@ namespace xAOD {
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexMETRoI_v1, uint8_t, tobRes, setTobRes )
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexMETRoI_v1, uint8_t, tobSat, setTobSat )
 
+   ///Setting the jFEX ET resolution
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexMETRoI_v1, int  , tobEtScale, setResolution)
+   
     //-----------------
     /// Methods to decode data from the TOB/RoI and return to the user
     //-----------------
@@ -101,12 +103,12 @@ namespace xAOD {
 
     /// Ex in 1 MeV scale
     int jFexMETRoI_v1::Ex() const {
-        return tobEx()*s_tobEtScale;
+        return tobEx()*tobEtScale();
     }
 
     /// Ey in 1 MeV scale
     int jFexMETRoI_v1::Ey() const {
-        return tobEy()*s_tobEtScale;
+        return tobEy()*tobEtScale();
     }
 
 

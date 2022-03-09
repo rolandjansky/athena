@@ -3,8 +3,10 @@
 FullListOfSmartContainers = [
    "EventInfo",
    "Electrons",
+   "LRTElectrons",
    "Photons",
    "Muons",
+   "MuonsLRT",
    "TauJets",
    "TauMVATESJets",
    "DiTauJets",
@@ -95,6 +97,7 @@ FullListOfSmartContainers = [
    "BTagging_AntiKt4HI",
    "BTagging_DFAntiKt4HI",
    "InDetTrackParticles",
+   "InDetLargeD0TrackParticles",
    "PrimaryVertices",
    "HLT_xAOD__MuonContainer_MuonEFInfo",
    "HLT_xAOD__PhotonContainer_egamma_Photons",
@@ -103,5 +106,6 @@ FullListOfSmartContainers = [
    "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
    "HLT_xAOD__BTaggingContainer_HLTBjetFex",
    "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
-   "HLT_xAOD__TrigVertexCountsContainer_vertexcounts"
+   "HLT_xAOD__TrigVertexCountsContainer_vertexcounts",
+   "HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf"
 ]

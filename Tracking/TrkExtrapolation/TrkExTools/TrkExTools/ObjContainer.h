@@ -1,9 +1,9 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 /* Dear emacs, this is -*-c++-*- */
-#ifndef _ObjContainer_H_
-#define _ObjContainer_H_
+#ifndef TRKEXTOOLS_OBJCONTAINER_H
+#define TRKEXTOOLS_OBJCONTAINER_H 
 #include <vector>
 #include <utility>
 #include <limits>
@@ -26,13 +26,13 @@
  * of the container object base class does not properly clone the managed objects.
  */
 
-template<class T_Obj, class T_index = unsigned short, class T_signed_count = short>
+template<class T_Obj>
 class ObjContainer;
 
-template<class T_Obj, class T_index = unsigned short, class T_signed_counter = short>
+template<class T_Obj>
 class ObjPtr;
 
-template<class T_index = unsigned short>
+
 class ObjRef;
 
 /** Template to be specialised if object cloning is not handled by the copy operator of the container object class.
@@ -51,15 +51,6 @@ uniqueClone(const T_Obj* obj)
   return std::unique_ptr<T_Obj>(cloneObj(obj));
 }
 
-/** @brief Template which can be specialised to eventually instrument the managed objects.
- * Prerequisite for specialisation: the container object base class has a virtual destructor.
- */
-template<class T_Obj>
-T_Obj*
-replaceManagedPtr(T_Obj* p_ptr)
-{
-  return p_ptr;
-}
 
 /** Templates which can be specialised to monitor resources.
  */
@@ -90,21 +81,21 @@ namespace Dbg {
  * Does not provide object lifetime guarantees. The latter is only guaranteed
  * if an @ref ObjPtr matching this reference is still instantiated.
  */
-template <class T_index>
+
 class ObjRef {
-   template <class T_Obj_, class T_index_, class T_signed_count_>
+   template <class T_Obj_>
    friend class ObjContainer;
-   template <class T_Obj_, class T_index_, class T_signed_count_>
+   template <class T_Obj_>
    friend class ObjPtr;
 
 public:
    ObjRef()                           = default;
 
-   ObjRef(T_index idx) : m_index(idx) {}
+   ObjRef(unsigned short idx) : m_index(idx) {}
 
-   ObjRef(const ObjRef<T_index> &ref) = default;
+   ObjRef(const  ObjRef &ref) = default;
 
-   ObjRef(ObjRef<T_index> &&ref) : m_index(ref.m_index) {ref.m_index=invalid(); }
+   ObjRef( ObjRef &&ref) : m_index(ref.m_index) {ref.m_index=invalid(); }
 
    /** Return true if this class refers to an object which used to exist in the container.
     * If true there is still no guarantee that the object is still alive.
@@ -115,9 +106,9 @@ public:
     */
    operator bool() const { return isValid();  }
 
-   ObjRef<T_index> &operator=(const ObjRef<T_index> &ref) = default;
+    ObjRef &operator=(const  ObjRef &ref) = default;
 
-   ObjRef<T_index> &operator=(ObjRef<T_index> &&ref) {
+    ObjRef &operator=( ObjRef &&ref) {
       if (this != &ref) {
          m_index=ref.m_index;
          ref.m_index = invalid();
@@ -125,26 +116,26 @@ public:
       return *this;
    }
 
-   bool  operator==(const ObjRef<T_index> &obj) const {
+   bool  operator==(const  ObjRef &obj) const {
       return obj.idx() == idx();
    }
 
-   bool  operator!=(const ObjRef<T_index> &obj) const {
+   bool  operator!=(const  ObjRef &obj) const {
       return obj.idx() != idx();
    }
 
 private:
-   T_index idx() const { return m_index; };
+   unsigned short idx() const { return m_index; };
 
-   static constexpr T_index invalid()  { return  std::numeric_limits<T_index>::max(); }
-   T_index m_index = invalid();
+   static constexpr unsigned short invalid()  { return  std::numeric_limits<unsigned short>::max(); }
+   unsigned short m_index = invalid();
 };
 
 /** Object container base class.
  * contains method which do not depend on the template parameters.
  */
 class ObjContainerBase {
-   template <class T_Obj_, class T_index_, class T_signed_counter_>
+   template <class T_Obj_>
    friend class ObjPtr;
 
 protected:
@@ -239,16 +230,16 @@ protected:
  * }
  * @endverbatim
  */
-template <class T_Obj, class T_index, class T_signed_count>
+template <class T_Obj>
 class ObjContainer : public ObjContainerBase
 {
-   template <class T_Obj_, class T_index_, class T_signed_counter_>
+   template <class T_Obj_>
    friend class ObjPtr;
 public:
    ObjContainer(unsigned int min_size=0) { m_objs.reserve(min_size); }
 
    ~ObjContainer() {
-      for (std::pair<T_Obj *, T_signed_count> &elm : m_objs) {
+      for (std::pair<T_Obj *, short> &elm : m_objs) {
          if (elm.second>0) {
             this->throwObjectStillAlive(elm.first,static_cast<size_t>(elm.second));
          }
@@ -258,26 +249,26 @@ public:
       }
    }
 
-   bool isValid(ObjRef<T_index> ref) const {
+   bool isValid( ObjRef ref) const {
       return ref.idx() < m_objs.size() && m_objs[ref.idx()].first; // @TODO the latter test should not be necessary
    }
 
    // debug :
-   std::pair<T_signed_count, bool > search(T_Obj *obj) const {
-      ObjRef<T_index> ref(find(obj));
-      return std::make_pair( ref ? m_objs[ref.idx()].second : T_signed_count{},  ref.isValid() );
+   std::pair<short, bool > search(T_Obj *obj) const {
+       ObjRef ref(find(obj));
+      return std::make_pair( ref ? m_objs[ref.idx()].second : short{},  ref.isValid() );
    }
 
    /** Return the current number of slots on the container.
     * Not each slot may point to an object.
     */
-   T_index size() const { return static_cast<T_index>(m_objs.size()); }
+   unsigned short size() const { return static_cast<unsigned short>(m_objs.size()); }
 protected:
    /** Manage an external object.
     * @param obj to an external object.
     * The ownership is not taken by the container.
     */
-   ObjRef<T_index> registerObj(T_Obj &obj) {
+    ObjRef registerObj(T_Obj &obj) {
       return registerObj(&obj, s_externalObj);
    }
 
@@ -285,14 +276,14 @@ protected:
     * @param obj the object to be managed.
     * This passes ownership to the container.
     */
-   ObjRef<T_index> registerObj(T_Obj *obj) {
-      return registerObj(replaceManagedPtr(obj), 0);
+    ObjRef registerObj(T_Obj *obj) {
+      return registerObj(obj, 0);
    }
 
    /** Increase the share count of a given object.
     * @param ref a reference to the object that is to be shared.
     */
-   ObjRef<T_index> share(ObjRef<T_index> ref) {
+    ObjRef share( ObjRef ref) {
       ensureValidity(ref);
       switch(m_objs[ref.idx()].second)  {
       case s_externalObj: { return ref; }
@@ -308,8 +299,8 @@ protected:
       }
       Dbg::monitorShare(m_objs[ref.idx()].first);
 
-      if (m_objs[ref.idx()].second >= std::numeric_limits<T_signed_count>::max()) {
-         this->throwMaximumNumberOfSharesExceeded(std::numeric_limits<T_signed_count>::max()); // clone object and add new slot ?
+      if (m_objs[ref.idx()].second >= std::numeric_limits<short>::max()) {
+         this->throwMaximumNumberOfSharesExceeded(std::numeric_limits<short>::max()); // clone object and add new slot ?
       }
       ++(m_objs[ref.idx()].second);
 
@@ -320,7 +311,7 @@ protected:
     * Will destroy "shared" objects if the share count drops to zero, but external
     * or released objects will not be touched.
     */
-   void drop( ObjRef<T_index> &ref) {
+   void drop(  ObjRef &ref) {
       ensureValidity(ref);
       switch(m_objs[ref.idx()].second)  {
       case s_externalObj: { return ; }
@@ -339,10 +330,10 @@ protected:
          delete obj;
          m_objs[ref.idx()].first=nullptr;
          assert(!find(obj)); // Ensure that deleted objects are not referenced anymore
-         if (m_freeIdx == std::numeric_limits<T_index>::max()) {
+         if (m_freeIdx == std::numeric_limits<unsigned short>::max()) {
             m_freeIdx=ref.idx();
          }
-         ref=ObjRef<T_index>();
+         ref= ObjRef();
       }
    }
 
@@ -350,7 +341,7 @@ protected:
     * @param ref reference to the object.
     * @throw if the reference is invalid or the object does not exist.
     */
-   const T_Obj *get( ObjRef<T_index> ref) const {
+   const T_Obj *get(  ObjRef ref) const {
       ensureExists(ref);
       return Dbg::validateAccess(m_objs[ref.idx()].first);
    }
@@ -359,7 +350,7 @@ protected:
     * @param ref reference to the object.
     * @throw if the reference is invalid or the object does not exist.
     */
-    T_Obj *get( ObjRef<T_index> ref) {
+    T_Obj *get(  ObjRef ref) {
        ensureExists(ref);
        return Dbg::validateAccess(m_objs[ref.idx()].first);
     }
@@ -372,7 +363,7 @@ protected:
     * released objects remain alive at least as long as the object container.
     * If the object is an external object or was released already a clone is created.
     */
-   T_Obj *release( ObjRef<T_index> ref) {
+   T_Obj *release(  ObjRef ref) {
       ensureValidity(ref);
       switch (m_objs[ref.idx() ].second) {
       case 0: this->throwObjectAlreadyDeleted( ref.idx());
@@ -389,23 +380,23 @@ protected:
 
    /** Return true if this container owns the object.
     */
-   bool isOwned( ObjRef<T_index> ref) {
+   bool isOwned(  ObjRef ref) const {
       return count(ref) == 1;
    }
 
    /** Return true if the object is referred to by more than one @ref ObjPtr.
     */
-   bool isShared( ObjRef<T_index> ref) {
+   bool isShared(  ObjRef ref) const {
       return count(ref) > 1;
    }
 
    /** Return true if the object is external i.e. not owned by this container.
     */
-   bool isExtern( ObjRef<T_index> ref) {
+   bool isExtern(  ObjRef ref) const {
       return count(ref) == s_externalObj;
    }
    
-   T_signed_count count(ObjRef<T_index> ref) const{
+   short count( ObjRef ref) const{
      return m_objs[ref.idx() ].second;
    }
 
@@ -413,32 +404,32 @@ protected:
    /** Search for an object in the container.
     * @return a valid reference if the object is found or otherwise an invalid reference.
     */
-   ObjRef<T_index> find( T_Obj *obj) const {
+    ObjRef find( T_Obj *obj) const {
       unsigned int idx=m_objs.size();
-      for (typename std::vector< std::pair<T_Obj *, T_signed_count> >::const_reverse_iterator
+      for (typename std::vector< std::pair<T_Obj *, short> >::const_reverse_iterator
               iter =m_objs.rbegin();
            iter != m_objs.rend();
            ++iter) {
          --idx;
          if (iter->first == obj) {
             assert( m_objs.at(m_objs.rend()-iter-1).first == obj);
-            ObjRef<T_index> ref( static_cast<T_index>(m_objs.rend()-iter-1) ); // @TODO std::distance ?
+             ObjRef ref( static_cast<unsigned short>(m_objs.rend()-iter-1) ); // @TODO std::distance ?
             ensureValidity(ref);
             return ref;
          }
       }
-      return ObjRef<T_index>();
+      return  ObjRef();
    }
 
    /** Will throw an exception if the reference is not valid
     */
-   void ensureValidity(ObjRef<T_index> ref) const {
+   void ensureValidity( ObjRef ref) const {
       if (!isValid(ref)) this->throwInvalidObject( ref.idx(), m_objs.size());
    }
 
    /** Will throw an exception if the referenced object does not exist
     */
-   void ensureExists(ObjRef<T_index> ref) const {
+   void ensureExists( ObjRef ref) const {
       ensureValidity(ref);
       if (m_objs[ref.idx() ].second == 0) { this->throwObjectAlreadyDeleted( ref.idx()); }
    }
@@ -446,18 +437,18 @@ protected:
    /** Will throw an exception if the maximum capacity of the container is exceeded.
     */
    void checkCapacity() {
-      if (m_objs.size() >= std::numeric_limits<T_index>::max()) {
+      if (m_objs.size() >= std::numeric_limits<unsigned short>::max()) {
          this->throwMaximumCapacitiyExceeded(m_objs.size());
       }
    }
 
    /** Register an object with a given state (external, released, shared)
     */
-   ObjRef<T_index> registerObj(T_Obj *obj, T_signed_count initial_count) {
-      if (!obj) return ObjRef<T_index>{};
+    ObjRef registerObj(T_Obj *obj, short initial_count) {
+      if (!obj) return  ObjRef{};
       checkCapacity();
 
-      ObjRef<T_index> ref = find(obj);
+       ObjRef ref = find(obj);
       if (isValid(ref))  {
          switch(m_objs.at(ref.idx()).second) {
          case 0: {
@@ -473,8 +464,8 @@ protected:
          }
          //         return ref;
       }
-      if (m_freeIdx == std::numeric_limits<T_index>::max() && m_objs.size() >= m_objs.capacity()) {
-         for (typename std::vector< std::pair<T_Obj *, T_signed_count> >::const_reverse_iterator
+      if (m_freeIdx == std::numeric_limits<unsigned short>::max() && m_objs.size() >= m_objs.capacity()) {
+         for (typename std::vector< std::pair<T_Obj *, short> >::const_reverse_iterator
                  iter =m_objs.rbegin();
               iter != m_objs.rend();
               ++iter) {
@@ -483,28 +474,28 @@ protected:
             }
          }
       }
-      if (m_freeIdx == std::numeric_limits<T_index>::max()) {
-         ref=ObjRef(static_cast<T_index>(m_objs.size()));
+      if (m_freeIdx == std::numeric_limits<unsigned short>::max()) {
+         ref=ObjRef(static_cast<unsigned short>(m_objs.size()));
          m_objs.push_back(std::make_pair(obj, initial_count));
       } else {
          m_objs[m_freeIdx] = std::make_pair( obj,initial_count);
          ref=ObjRef(m_freeIdx);
-         m_freeIdx = std::numeric_limits<T_index>::max();
+         m_freeIdx = std::numeric_limits<unsigned short>::max();
       }
       ensureValidity(ref);
       return ref;
    }
 
-   constexpr static T_signed_count s_externalObj = -2;       ///< "share count" of external objects
-   constexpr static T_signed_count s_releasedObj = -1;       ///< "share count" of released objects
+   constexpr static short s_externalObj = -2;       ///< "share count" of external objects
+   constexpr static short s_releasedObj = -1;       ///< "share count" of released objects
 
-   std::vector< std::pair<T_Obj *, T_signed_count> > m_objs; ///< The storage for the object pointers
-   T_index                                           m_freeIdx=std::numeric_limits<T_index>::max();
+   std::vector< std::pair<T_Obj *, short> > m_objs; ///< The storage for the object pointers
+   unsigned short                                           m_freeIdx=std::numeric_limits<unsigned short>::max();
 };
 
 /** Pointer to objects managed by @ref ObjContainer
  */
-template <class T_Obj, class T_index, class T_signed_counter>
+template <class T_Obj>
 class ObjPtr {
 public:
    ObjPtr()                 = default;
@@ -521,7 +512,7 @@ public:
     * @param obj the external object to be stored in the container.
     * The container will not claim ownership.
     */
-   ObjPtr(ObjContainer<T_Obj, T_index, T_signed_counter>& container, const T_Obj& obj)
+   ObjPtr(ObjContainer<T_Obj>& container, const T_Obj& obj)
      : m_container(&container)
      , m_ref(m_container->registerObj(obj))
    {}
@@ -534,7 +525,7 @@ public:
     * @param container the container to store the given object
     * @param obj the object to be managed.
     */
-   ObjPtr(ObjContainer<T_Obj, T_index, T_signed_counter>& container, std::unique_ptr<T_Obj> obj)
+   ObjPtr(ObjContainer<T_Obj>& container, std::unique_ptr<T_Obj> obj)
      : ObjPtr(container, container.registerObj(obj.release()))
    {}
 
@@ -542,7 +533,7 @@ public:
     * @param container the container which manages the referenced object.
     * @param ref a reference to an object in the container (or an invalid reference) to create on invalid ObjPtr.
     */
-   ObjPtr(ObjContainer<T_Obj, T_index, T_signed_counter>& container, ObjRef<T_index> ref = ObjRef<T_index>())
+   ObjPtr(ObjContainer<T_Obj>& container,  ObjRef ref =  ObjRef())
      : m_container(&container)
      , m_ref(ref ? container.share(ref) : ref)
    {}
@@ -586,7 +577,7 @@ public:
       return *this;
    }
 
-   ObjPtr &operator=(ObjRef<T_index> ref) {
+   ObjPtr &operator=( ObjRef ref) {
       if (ref != m_ref) {
          if (*this) {
             m_container->drop(m_ref);
@@ -609,28 +600,6 @@ public:
     */
    bool  operator!=(const ObjPtr &obj) const {
       return obj.m_ref != m_ref;
-   }
-
-   /** Helper method which only stores a "new" object if the given object is not the managed object of the given pointer.
-    * @param orig a pointer to a managed object (or an invalid pointer).
-    * @param obj a new object or the already managed object pointed to by orig (or a nullptr).
-    * @return a pointer to a managed object either the newly managed object or the original managed object.
-    */
-   static ObjPtr recapture(const ObjPtr &orig, std::unique_ptr<T_Obj> obj) {
-      if (obj) {
-         if (!orig.m_container) {
-            ObjContainerBase::throwNoContainer();
-         }
-         if (orig && obj.get() == orig.get()) {
-            return orig;
-         }
-         else {
-            return ObjPtr(*orig.m_container, orig.m_container->registerObj(obj.release()));
-         }
-      }
-      else {
-         return ObjPtr();
-      }
    }
 
    T_Obj &operator*() {
@@ -656,7 +625,7 @@ public:
     */
    const T_Obj *get() const {
       if (!m_ref) return nullptr;
-      else        return m_container->get(m_ref);
+      else        return std::as_const(*m_container).get(m_ref);
    }
 
    /** Release the object this pointer points to from the container.
@@ -685,12 +654,12 @@ public:
    /** Get a light-weight reference to the object pointed to by this pointer
     * The returned light-weight reference does not provide any lifetime guarantees of the object.
     */
-   ObjRef<T_index> index() const { return m_ref; }
+    ObjRef index() const { return m_ref; }
 
  protected:
    /** Helper method to increase the share count of the object pointed to by this pointer.
     */
-   ObjRef<T_index> share() {
+    ObjRef share() {
       if (*this) {
          assert(m_container);
          return m_container->share( m_ref);
@@ -702,7 +671,7 @@ public:
 
    /** Helper method to increase the share count of the referenced object and point to that object.
     */
-   void shareAndSet(ObjRef<T_index> ref) {
+   void shareAndSet( ObjRef ref) {
       if (ref) {
          assert(m_container);
          m_ref=m_container->share(ref);
@@ -733,7 +702,7 @@ public:
 
 
 private:
-   ObjContainer<T_Obj, T_index, T_signed_counter>  *m_container = nullptr; ///< pointer to the conainer
-   ObjRef<T_index>                                  m_ref {};                                            ///< a valid reference to an object stored in the container or an invalid reference.
+   ObjContainer<T_Obj>  *m_container = nullptr; ///< pointer to the conainer
+    ObjRef                                  m_ref {};              ///< a valid reference to an object stored in the container or an invalid reference.
 };
 #endif

@@ -1,12 +1,14 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from G4AtlasTools.G4GeometryToolConfig import G4AtlasDetectorConstructionToolCfg
-from G4StepLimitation.G4StepLimitationConfigNew import G4StepLimitationToolCfg
 from ExtraParticles.ExtraParticlesConfigNew import ExtraParticlesPhysicsToolCfg
+from G4AtlasApps.SimEnums import CavernBackground
+from G4AtlasTools.G4GeometryToolConfig import G4AtlasDetectorConstructionToolCfg
 from G4ExtraProcesses.G4ExtraProcessesConfigNew import G4EMProcessesPhysicsToolCfg
+from G4StepLimitation.G4StepLimitationConfigNew import G4StepLimitationToolCfg
 from TRT_TR_Process.TRT_TR_ProcessConfigNew import TRTPhysicsToolCfg
+
 
 def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result = ComponentAccumulator()
@@ -21,7 +23,7 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
 def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
     result = ComponentAccumulator()
     PhysOptionList = [ result.popToolsAndMerge(G4StepLimitationToolCfg(ConfigFlags)) ]
-    if 'QS' in ConfigFlags.Sim.ISF.Simulator or 'LongLived' in ConfigFlags.Sim.ISF.Simulator:
+    if ConfigFlags.Sim.ISF.Simulator.isQuasiStable():
         #Quasi stable particle simulation
         PhysOptionList += [ result.popToolsAndMerge(ExtraParticlesPhysicsToolCfg(ConfigFlags)) ] # FIXME more configuration required in this method
         PhysOptionList += [ result.popToolsAndMerge(G4EMProcessesPhysicsToolCfg(ConfigFlags)) ]
@@ -40,7 +42,7 @@ def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
             raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
 
     kwargs.setdefault("GeneralCut", 1.)
-    if ConfigFlags.Sim.CavernBG not in ["Read","Write"]:
+    if ConfigFlags.Sim.CavernBackground not in [CavernBackground.Read, CavernBackground.Write]:
         kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
     kwargs.setdefault("NeutronEnergyCut", ConfigFlags.Sim.NeutronEnergyCut)
     kwargs.setdefault("ApplyEMCuts", ConfigFlags.Sim.ApplyEMCuts)

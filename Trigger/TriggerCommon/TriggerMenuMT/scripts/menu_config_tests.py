@@ -4,7 +4,7 @@
 Tests to verify generated menus are valid.
 
 Ported from TrigConfStorage/ConfigurationCheck.cxx and
-HLT/Menu/TriggerConfigHLT.py, see [ATR-19830].
+HLT/Config/Utility/HLTMenuConfig.py, see [ATR-19830].
 
 Designed to be used by the `verify_menu_config.py` script.
 '''

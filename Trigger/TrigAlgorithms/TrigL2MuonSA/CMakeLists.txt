@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigL2MuonSA )
@@ -14,7 +14,7 @@ atlas_add_component( TrigL2MuonSA
 		             src/*.cxx
                      src/components/*.cxx
 		             INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps RPC_CondCablingLib AthenaMonitoringKernelLib CxxUtils GaudiKernel GeoModelUtilities GeoPrimitives IRegionSelector Identifier MdtCalibSvcLib MuonCablingData MuonCalibEvent MuonCnvToolInterfacesLib MuonIdHelpersLib MuonPrepRawData MuonReadoutGeometry MuonRecToolInterfaces PathResolver StoreGateLib TrigMuonToolInterfaces TrigSteeringEvent TrigT1Interfaces TrigTimeAlgsLib TrkExInterfaces xAODEventInfo xAODTracking xAODTrigMuon xAODTrigger )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps ByteStreamCnvSvcBaseLib RPC_CondCablingLib AthenaMonitoringKernelLib CxxUtils EventInfo GaudiKernel GeoModelUtilities GeoPrimitives IRegionSelector Identifier MdtCalibSvcLib MuonCablingData MuonCalibEvent MuonCnvToolInterfacesLib MuonIdHelpersLib MuonPrepRawData MuonRDO MuonReadoutGeometry MuonRecToolInterfaces PathResolver StoreGateLib TrigMuonToolInterfaces TrigSteeringEvent TrigT1Interfaces TrigTimeAlgsLib TrkExInterfaces xAODEventInfo xAODTracking xAODTrigMuon xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

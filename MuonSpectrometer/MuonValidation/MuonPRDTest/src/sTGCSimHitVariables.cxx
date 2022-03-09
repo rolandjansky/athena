@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
@@ -31,7 +31,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
   for(const sTGCSimHit& hit : *nswContainer) {
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
 
-    // SimHits do not have channel type (1 is assigned as dummy value).
+    // SimHits do not have channel type.
     // Compute channel type in Val Alg to be able to validate
     for( int type=0;type<=2;++type ){ 
 
@@ -55,19 +55,21 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
           ATH_MSG_ERROR("unexpected phi range: " << sim_stationPhi);
           return StatusCode::FAILURE;
       }
-      // Current [7/12/12] implementation of the Station Name is: T[0-3][L/S][P/C] 
+      // Old [7/12/12] implementation of the Station Name is: T[0-3][L/S][P/C] 
+      // Current implementation of the Station Name is: Q[L/S][1-3][P/C] 
       int detNumber = -999, wedgeId = -999, wedgeType = -999;
       if(sim_stationName.length()!=4) {
         ATH_MSG_WARNING("sTGC validation: station Name exceeds 4 charactes, filling dummy information for detNumber, wedgeId and wedgeType");
       } 
       else {
-        detNumber = atoi(sim_stationName.substr(1,1).c_str());
-        wedgeId   = (sim_stationName.substr(2,1).compare("L")) ? 0 : 1;
+        detNumber = atoi(sim_stationName.substr(2,1).c_str());
+        wedgeId   = (sim_stationName.substr(1,1).compare("L")) ? 0 : 1;
         wedgeType = (sim_stationName.substr(3,1).compare("P")) ? 0 : 1;
       }
 
 
       //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
+      // For offline identifier, station Name is: STS or STL
       Identifier offId = simToOffline.convert(hit.sTGCId());
       
 
@@ -123,6 +125,21 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
 
       m_NSWsTGC_particleEncoding.push_back(hit.particleEncoding());
       m_NSWsTGC_depositEnergy.push_back(hit.depositEnergy());
+      m_NSWsTGC_kineticEnergy.push_back(hit.kineticEnergy());
+
+      const  Amg::Vector3D& globalPrePosition = hit.globalPrePosition();
+      m_NSWsTGC_hitGlobalPrePositionX.push_back(globalPrePosition.x());
+      m_NSWsTGC_hitGlobalPrePositionY.push_back(globalPrePosition.y());
+      m_NSWsTGC_hitGlobalPrePositionZ.push_back(globalPrePosition.z());
+      m_NSWsTGC_hitGlobalPrePositionR.push_back(globalPrePosition.perp());
+      m_NSWsTGC_hitGlobalPrePositionP.push_back(globalPrePosition.phi());
+      if (hit.kineticEnergy() < 0.0) {
+        m_NSWsTGC_hitGlobalPrePositionX.push_back(-9999.9);
+        m_NSWsTGC_hitGlobalPrePositionY.push_back(-9999.9);
+        m_NSWsTGC_hitGlobalPrePositionZ.push_back(-9999.9);
+        m_NSWsTGC_hitGlobalPrePositionR.push_back(-9999.9);
+        m_NSWsTGC_hitGlobalPrePositionP.push_back(-9999.9);
+      }
 
 
       // Fill Ntuple with SimId data
@@ -148,7 +165,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
                     << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
 
       
-      Identifier newId = m_sTgcIdHelper->channelID(m_sTgcIdHelper->parentID(offId), m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),type,1,0);
+      Identifier newId = m_sTgcIdHelper->channelID(m_sTgcIdHelper->parentID(offId), m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),type,1);
       
       // compute hit position within the detector element/surfaces
       const Trk::PlaneSurface& surf = detEl->surface(newId);
@@ -267,6 +284,11 @@ StatusCode sTGCSimHitVariables::clearVariables()
   m_NSWsTGC_hitGlobalDirectionX.clear();
   m_NSWsTGC_hitGlobalDirectionY.clear();
   m_NSWsTGC_hitGlobalDirectionZ.clear();
+  m_NSWsTGC_hitGlobalPrePositionX.clear();
+  m_NSWsTGC_hitGlobalPrePositionY.clear();
+  m_NSWsTGC_hitGlobalPrePositionZ.clear();
+  m_NSWsTGC_hitGlobalPrePositionR.clear();
+  m_NSWsTGC_hitGlobalPrePositionP.clear();
   m_NSWsTGC_detector_globalPositionX.clear();
   m_NSWsTGC_detector_globalPositionY.clear();
   m_NSWsTGC_detector_globalPositionZ.clear();
@@ -282,6 +304,7 @@ StatusCode sTGCSimHitVariables::clearVariables()
   m_NSWsTGC_FastDigitRsurfacePositionY.clear();
   m_NSWsTGC_particleEncoding.clear();
   m_NSWsTGC_depositEnergy.clear();
+  m_NSWsTGC_kineticEnergy.clear();
   m_NSWsTGC_sim_stationName.clear();
   m_NSWsTGC_wedgeId.clear();
   m_NSWsTGC_wedgeType.clear();
@@ -323,6 +346,11 @@ StatusCode sTGCSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionX", &m_NSWsTGC_hitGlobalDirectionX);
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionY", &m_NSWsTGC_hitGlobalDirectionY);
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionZ", &m_NSWsTGC_hitGlobalDirectionZ);
+    m_tree->Branch("Hits_sTGC_hitGlobalPrePositionX", &m_NSWsTGC_hitGlobalPrePositionX);
+    m_tree->Branch("Hits_sTGC_hitGlobalPrePositionY", &m_NSWsTGC_hitGlobalPrePositionY);
+    m_tree->Branch("Hits_sTGC_hitGlobalPrePositionZ", &m_NSWsTGC_hitGlobalPrePositionZ);
+    m_tree->Branch("Hits_sTGC_hitGlobalPrePositionR", &m_NSWsTGC_hitGlobalPrePositionR);
+    m_tree->Branch("Hits_sTGC_hitGlobalPrePositionP", &m_NSWsTGC_hitGlobalPrePositionP);
     m_tree->Branch("Hits_sTGC_detector_globalPositionX", &m_NSWsTGC_detector_globalPositionX);
     m_tree->Branch("Hits_sTGC_detector_globalPositionY", &m_NSWsTGC_detector_globalPositionY);
     m_tree->Branch("Hits_sTGC_detector_globalPositionZ", &m_NSWsTGC_detector_globalPositionZ);
@@ -338,6 +366,7 @@ StatusCode sTGCSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_sTGC_FastDigitRsurfacePositionY", &m_NSWsTGC_FastDigitRsurfacePositionY);
     m_tree->Branch("Hits_sTGC_particleEncoding", &m_NSWsTGC_particleEncoding);
     m_tree->Branch("Hits_sTGC_depositEnergy", &m_NSWsTGC_depositEnergy);
+    m_tree->Branch("Hits_sTGC_kineticEnergy", &m_NSWsTGC_kineticEnergy);
     m_tree->Branch("Hits_sTGC_sim_stationName", &m_NSWsTGC_sim_stationName);
     m_tree->Branch("Hits_sTGC_wedgeId", &m_NSWsTGC_wedgeId);
     m_tree->Branch("Hits_sTGC_wedgeType", &m_NSWsTGC_wedgeType);

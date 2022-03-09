@@ -32,7 +32,8 @@ def writeOverlayDigitizationMetadata(pileupDict):
 def loadOverlayDigitizationMetadata():
     folder = "/Digitization/Parameters"
     dbConnection = "sqlite://;schema=DigitParams.db;dbname=DIGPARAM"
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolder("",folder+"<db>" + dbConnection + "</db>", className = 'AthenaAttributeList')
     from AthenaCommon.AppMgr import ServiceMgr
-    ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
     ServiceMgr.IOVDbSvc.FoldersToMetaData += [ folder ]
     ServiceMgr.IOVSvc.partialPreLoadData = True

@@ -17,48 +17,11 @@ class AODEDMSet(JobProperty):
     allowedType=['list']
     StoredValue='AODSLIM'
     def _do_action(self):
-        log.warning("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
+        log.error("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.AODEDMSet = self.get_Value()
 
 _flags.append(AODEDMSet)
-
-
-class ESDEDMSet(JobProperty):
-    """ Define which sets of object go to ESD (or derived ESD) """
-    statusOn=True
-    allowedType=['list']
-    StoredValue='ESD'
-    def _do_action(self):
-        log.error("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
-
-_flags.append(ESDEDMSet)
-
-
-class configForStartup(JobProperty):
-    """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
-    statusOn=True
-    allowedType=['string']
-    StoredValue = None
-    def _do_action(self):
-        log.error("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
-
-_flags.append(configForStartup)
-
-
-class triggerConfig(JobProperty):
-    statusOn=True
-    allowedType=['string']
-    StoredValue = None
-
-    def _do_action(self):
-        log.error("TriggerFlags.triggerConfig is deprecated. Use ConfigFlags.Trigger.triggerConfig instead.")
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.triggerConfig = self.get_Value()
-
-_flags.append(triggerConfig)
 
 
 # the container of all trigger flags

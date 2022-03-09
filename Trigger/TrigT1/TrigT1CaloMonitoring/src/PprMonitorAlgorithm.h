@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALOMONITORING_PPRMONITORALGORITHM_H
 #define TRIGT1CALOMONITORING_PPRMONITORALGORITHM_H
@@ -20,7 +20,6 @@ public:PprMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
     double phiScaled; /// phi for 2d maps with integer bins (taking into account granularity in eta)
     double phi1d;     /// phi for 1d phi distributions (taking into account granularity in eta) 
     int jepET;
-    bool isDuplicate; /// Bookkeeping of multiple bins in phi for a given eta bin in the forward region 
     double maxADC;    /// max ADC timeslice
   };
 
@@ -39,14 +38,31 @@ private:
   Gaudi::Property<int> m_SliceNo{this, "SliceNo", 15, "Number of possible time slices in the readout"};
   Gaudi::Property<int> m_EMFADCCut{this, "EMFADCCut", 40, "EM FADC cut for signal"};
   Gaudi::Property<int> m_TT_ADC_Pedestal{this, "ADCPedestal", 32, "Nominal pedestal value"};
+  Gaudi::Property<std::vector<int>> m_TT_HitMap_ThreshVec{this, "LUTHitMap_ThreshVec", {0, 1, 3, 5, 10, 20, 30, 50}, "Thresholds for LUT hitmaps"}; 
+  
+  /// Groups for GenericMonitoringArrays
+  std::map<std::string,int> m_groupTimeslice_EM; 
+  std::map<std::string,int> m_groupTimeslice_HAD; 
 
   /// Helper functions
-  StatusCode fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2* tt, 
+  
+ StatusCode fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2* tt, 
                                std::vector<MonitorTT> &vecMonTT_EM, 
                                std::vector<MonitorTT> &vecMonTT_HAD,  
                                std::vector<MonitorTT> &vecMonTT) const;
 
   double recTime(const std::vector<short unsigned int> &vFADC, int cut) const;
+
+  std::string getPartition(int layer, double eta) const;
+
+  StatusCode fillPPMEtaVsPhi( MonitorTT &monTT, 
+                              const std::string& groupName, 
+                              const std::string& weightName,
+                              double weight=1.) const;
+
+  StatusCode fillPPMPhi( MonitorTT &monTT,
+                         const std::string& groupName) const;
+
 
 };
 #endif

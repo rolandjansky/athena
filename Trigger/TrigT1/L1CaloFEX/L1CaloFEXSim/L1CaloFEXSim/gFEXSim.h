@@ -21,6 +21,8 @@
 #include "L1CaloFEXSim/gFEXJwoJTOB.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include "TrigConfData/L1Menu.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
+
 
 
 namespace LVL1 {

@@ -40,8 +40,17 @@ def createTriggerFlags():
     # Enable NSW MM trigger
     flags.addFlag('Trigger.L1MuonSim.doMMTrigger', False)
 
+    # Enable NSW sTGC pad trigger
+    flags.addFlag('Trigger.L1MuonSim.doPadTrigger', False)
+
+    # Enable NSW sTGC strip trigger
+    flags.addFlag('Trigger.L1MuonSim.doStripTrigger', False)
+
     # Enable the veto mode of the NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
+
+    # Enable TGC-RPC BIS78 coincidence
+    flags.addFlag('Trigger.L1MuonSim.doBIS78', False)
 
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
     flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')

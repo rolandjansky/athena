@@ -33,7 +33,7 @@ theApp.TopAlg += [ "AddFlowByShifting" ]
 #--------------------------------------------------------------
 # Algorithms Private Options
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr.AtRndmGenSvc.Seeds = ["HIJING 4789891 989240511",
                       "HIJING_INIT 889223461 78782321"]

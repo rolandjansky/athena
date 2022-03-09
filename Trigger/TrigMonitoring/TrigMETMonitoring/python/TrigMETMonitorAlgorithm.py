@@ -122,7 +122,7 @@ def TrigMETMonConfig(inputFlags):
                  "HLT_xe110_pfsum_L1XE50",
                  "HLT_xe110_pfsum_cssk_L1XE50",
                  "HLT_xe110_pfsum_vssk_L1XE50"]
-    HLTChainsVal = ["HLT_noalg_L1XE50"]
+    HLTChainsVal = []
     HLTChainsT0 = ["HLT_xe65_cell_xe110_tcpufit_L1XE50"]
     if mt_chains == 0:
       L1Chains = ["L1_XE50"]
@@ -229,7 +229,19 @@ def TrigMETMonConfig(inputFlags):
     ## pass algorithmss to TrigMETMonAlg
     TrigMETMonAlg.compNames = comp_names
     TrigMETMonAlg.bitNames = bit_names
- 
+
+    electronPtCut = 30.0
+    muonPtCut = 30.0
+    electronEtaCut = 2.5
+    muonEtaCut = 2.5
+    signalLepAlgs = ["pfopufit"]
+   
+    TrigMETMonAlg.electronPtCut = electronPtCut
+    TrigMETMonAlg.electronEtaCut = electronEtaCut
+    TrigMETMonAlg.muonPtCut = muonPtCut
+    TrigMETMonAlg.muonEtaCut = muonEtaCut
+    TrigMETMonAlg.signalLepAlgs = signalLepAlgs
+
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
@@ -401,8 +413,93 @@ def TrigMETMonConfig(inputFlags):
                              xbins=phi_bins,xmin=phi_min,xmax=phi_max)
       metGroup.defineHistogram('{}_presel_Et'.format(alg),
                              title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
-                             path='Shifter/preSel'.format(alg),
+                             path='Shifter/preSel',
                              xbins=et_bins,xmin=et_min,xmax=et_max)
+    
+    # for alg in signalLepAlgs:
+    for alg in signalLepAlgs:
+      metGroup.defineHistogram('{}_SigEl_Ex'.format(alg),
+                             title='{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('{}_SigEl_Ex_log'.format(alg),
+                             title='{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('{}_SigEl_Ey'.format(alg),
+                             title='{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('{}_SigEl_Ey_log'.format(alg),
+                             title='{} Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('{}_SigEl_Et'.format(alg),
+                             title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('{}_SigEl_Et_log'.format(alg),
+                             title='{} Missing E_{{T}} log;log(E_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
+      metGroup.defineHistogram('{}_SigEl_sumEt'.format(alg),
+                             title='{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
+      metGroup.defineHistogram('{}_SigEl_sumEt_log'.format(alg),
+                             title='{} sumE_{{T}} log;log(sumE_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
+      metGroup.defineHistogram('{}_SigEl_phi'.format(alg),
+                             title='{} #phi;#phi;Events'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+      metGroup.defineHistogram('{0}_SigEl_phi;{0}_SigEl_phi_etweight'.format(alg), 
+                             title='{} #phi (etweighted);#phi;Et weighted events'.format(alg),
+                             weight='{}_SigEl_Et'.format(alg),
+                             path='Shifter/SignalEl/{}'.format(alg),
+                             xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+      metGroup.defineHistogram('{}_SigMu_Ex'.format(alg),
+                             title='{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('{}_SigMu_Ex_log'.format(alg),
+                             title='{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('{}_SigMu_Ey'.format(alg),
+                             title='{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('{}_SigMu_Ey_log'.format(alg),
+                             title='{} Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('{}_SigMu_Et'.format(alg),
+                             title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('{}_SigMu_Et_log'.format(alg),
+                             title='{} Missing E_{{T}} log;log(E_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
+      metGroup.defineHistogram('{}_SigMu_sumEt'.format(alg),
+                             title='{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
+      metGroup.defineHistogram('{}_SigMu_sumEt_log'.format(alg),
+                             title='{} sumE_{{T}} log;log(sumE_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
+      metGroup.defineHistogram('{}_SigMu_phi'.format(alg),
+                             title='{} #phi;#phi;Events'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+      metGroup.defineHistogram('{0}_SigMu_phi;{0}_SigMu_phi_etweight'.format(alg), 
+                             title='{} #phi (etweighted);#phi;Et weighted events'.format(alg),
+                             weight='{}_SigMu_Et'.format(alg),
+                             path='Shifter/SignalMu/{}'.format(alg),
+                             xbins=phi_bins,xmin=phi_min,xmax=phi_max)
 
     ## HLT 2d eta-phi histos
     for alg in algsHLT2d:

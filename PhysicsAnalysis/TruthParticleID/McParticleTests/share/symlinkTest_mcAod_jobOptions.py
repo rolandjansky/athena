@@ -25,7 +25,7 @@ if not 'EVTMAX' in dir():
     pass
 theApp.EvtMax = EVTMAX
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc(
     Seeds = [ "PYTHIA 4789899 989240512", "PYTHIA_INIT 820021 2347532",
               "JIMMY 390020611 821000366", "JIMMY_INIT 820021 2347532",

@@ -71,14 +71,14 @@ This scheduling is basically handled by menu construction. As a rule of thumb, w
 [GenerateJetChainDefs](../GenerateJetChainDefs.py)
 -----
 
-Called by the menu code in [`TriggerMenuMT/python/HLT/Menu/GenerateMenuMT.py`](../../Menu/GenerateMenuMT.py) to translate the HLT chain item into a concrete algorithm sequence.
+Called by the menu code in [`TriggerMenuMT/python/HLT/Config/GenerateMenuMT.py`](../../Config/GenerateMenuMT.py) to translate the HLT chain item into a concrete algorithm sequence.
 
 The menu code creates a chain dictionary from the chain name, of which the jet parts are given to `GenerateJetChainDefs.generateChainConfigs` to be interpreted by `JetChainConfiguration`.
 
 [JetChainConfiguration](../JetChainConfiguration.py)
 -----
 
-Defines the `JetChainConfiguration` object responsible for interpreting the chain dictionary and building a `Chain` object that is returned to the menu. `JetChainConfiguration` extends the [`ChainConfigurationBase`](../../Menu/ChainConfigurationBase.py) type.
+Defines the `JetChainConfiguration` object responsible for interpreting the chain dictionary and building a `Chain` object that is returned to the menu. `JetChainConfiguration` extends the [`ChainConfigurationBase`](../../Config/ChainConfigurationBase.py) type.
 
 Its `assembleChain` function extracts the reco configuration from the jet chain dictionary, using it (via functions from `JetMenuSequences.py`) to generate a `MenuSequence` that forms one or more jet `ChainStep` objects. Multiple `ChainSteps` may be combined into a single chain for filtering purpose, mainly to allow fast reco and filtering before slower reco is executed.
 
@@ -118,13 +118,22 @@ The main `jetRecoSequence()` function forwards to one of:
 * `groomedJetRecoSequence()` -- grooms an input jet collection (internally calls `standardJetBuildSequence()` to create the ungroomed jets).
 * `reclusteredJetRecoSequence()` -- reclusters an input jet collection (internally calls `standardJetBuildSequence()` to create the basic jets)
 
-[JetRecoConfiguration](../JetRecoConfiguration.py)
+[JetRecoCommon](../JetRecoCommon.py)
 -----
 
 Helper functions to facilitate the operations in `JetRecoSequences.py`:
 * Extraction & compression of the `JetRecoDict`
 * Translation of the `JetRecoDict` contents into the configuration objects from `JetRecConfig`, e.g. `JetConstituent` and `JetDefinition`.
 * Definition of jet modifier lists
+
+[JetPresel](../JetPresel.py)
+-----
+
+Helper functions to facilitate the configuration of preselection steps:
+* Extraction of the preselection reco configuration
+* Hypo tool configurators for the preselection
+
+For preselection steps, the default `trigJetHypoToolFromDict` function is wrapped in a function that translates the preselection expression from the full `chainDict` into temporary `chainParts`, which are should be seen only by the jet code.
 
 [JetTrackingConfig](../JetTrackingConfig.py)
 -----

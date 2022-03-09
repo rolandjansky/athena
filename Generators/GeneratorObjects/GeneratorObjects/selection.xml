@@ -30,8 +30,6 @@
   <class name="HepMC::GenEvent::particle_const_iterator"/>
   <class name="HepMC::GenEvent::vertex_iterator"/>
   <class name="HepMC::GenEvent::particle_iterator"/>
-  <class name="std::iterator<std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*&amp;>"/>
-  <class name="std::iterator<std::forward_iterator_tag,HepMC::GenParticle*,int,HepMC::GenParticle**,HepMC::GenParticle*&amp;>"/>
   <class name="std::_Rb_tree_const_iterator<HepMC::GenParticle*>"/>
 
   <class name="HepMC::FourVector"/>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPEVENTLOOPMGR_H
@@ -14,7 +14,7 @@
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 
 // Athena headers
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "PileUpTools/PileUpStream.h"
 
 // Gaudi headers
@@ -39,7 +39,9 @@ class EventContext;
 */
 
 class PileUpEventLoopMgr : virtual public IEventSeek,
-                           public MinimalEventLoopMgr   {
+                           public MinimalEventLoopMgr,
+                           public AthMessaging
+{
 public:
 
   /// Standard Constructor
@@ -67,10 +69,9 @@ public:
   virtual StatusCode queryInterface(const InterfaceID& riid,
                                     void** ppvInterface);
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+  using AthMessaging::msg;
+  using AthMessaging::msgLvl;
+
 
 private:
   /// Reference to the Algorithm Execution State Svc
@@ -94,9 +95,8 @@ private:
   /// PileUp Merge Service
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;
 
-  /// Input Streams
+  /// Input Stream
   PileUpStream m_origStream;
-  PileUpStream m_signalStream;
 
   /// output store
   ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
@@ -128,12 +128,6 @@ private:
   /// property: process bkg events xing by xing without caching them
   Gaudi::Property<bool> m_xingByXing;
 
-  /// property: is this job running RDO+RDO overlay.
-  Gaudi::Property<bool> m_isEventOverlayJob;
-
-  /// property: is this job running MC RDO+RDO overlay.
-  Gaudi::Property<bool> m_isEventOverlayJobMC;
-
   /// property: control behaviour of event loop on algorithm failure
   Gaudi::Property<int> m_failureMode;
 
@@ -153,9 +147,6 @@ private:
   uint32_t m_currentRun;
   bool m_firstRun;
 
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
-
   /// max bunch crossings per orbit
   unsigned int m_maxBunchCrossingPerOrbit;
 
@@ -165,8 +156,6 @@ private:
   bool m_skipExecAlgs;
   bool m_loadProxies;
 
-  /// property: flag to control extra checks for embedding jobs.
-  Gaudi::Property<bool> m_isEmbedding;
   /// property: Default true. When set to false, this will allow the
   /// code to reproduce serial output in an AthenaMP job, albeit with
   /// a significant performance penalty.

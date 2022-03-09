@@ -15,7 +15,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
 
     kwargs.setdefault("DBBeamPipeNode", 'BeamPipeEnvelope')
     kwargs.setdefault("DBInDetNode"   , 'InDetEnvelope'
-                                        if ConfigFlags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]
+                                        if ConfigFlags.GeoModel.Run < LHCPeriod.Run4
                                         else 'ITkEnvelope')
     kwargs.setdefault("DBCaloNode"    , 'CaloEnvelope'    )
     kwargs.setdefault("DBMSNode"      , 'MuonEnvelope'    )
@@ -28,7 +28,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
 
-    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
         BeamPipe.addRZ(   28.8,   3545.0 )
         BeamPipe.addRZ(  120.0,   3545.0 )
     else:
@@ -54,7 +54,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback IDEnvelope
     InDet = Volume()
     # InDet should include HGTD when it's turned on
-    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
         InDet.addRZ( 1148.,  3545. )
         InDet.addRZ(  28.8,  3545. )
     else:
@@ -67,7 +67,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback CaloEnvelope
     Calo = Volume()
 
-    if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
         Calo.addRZ( 1148.0,  3545.0 )
         Calo.addRZ(  120.0,  3545.0 )
     else:

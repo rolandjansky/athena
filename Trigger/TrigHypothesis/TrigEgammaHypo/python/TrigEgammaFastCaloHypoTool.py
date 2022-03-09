@@ -297,11 +297,11 @@ class TrigEgammaFastCaloHypoToolConfig:
       self.nocut()
 
     if hasattr(self.tool(), "MonTool"):
-      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
-      doOnlineMonAllChains = doOnlineMonForceCfg()
+      
+      doValidationMonitoring = ConfigFlags.Trigger.doValidationMonitoring # True to monitor all chains for validation purposes
       monGroups = self.__monGroups
 
-      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+      if (any('egammaMon:online' in group for group in monGroups) or doValidationMonitoring):
         self.addMonitoring()
 
 
@@ -347,7 +347,7 @@ class TrigEgammaFastCaloHypoToolConfig:
       if ConfigFlags.Trigger.doValidationMonitoring:
           monTool.defineHistogram('Et_had', type='TH1F', path='EXPERT', title="L2Calo Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]",
               xbins=50, xmin=-2000, xmax=100000)
-          monTool.defineHistogram('Rcore', type='TH1F', path='EXPERT', title="L2Calo Hypo R_{core};E^{3x3}/E^{3x7} in sampling 2",
+          monTool.defineHistogram('RCore', type='TH1F', path='EXPERT', title="L2Calo Hypo R_{core};E^{3x7}/E^{7x7} in sampling 2",
               xbins=48, xmin=-0.1, xmax=1.1)
           monTool.defineHistogram('Eratio', type='TH1F', path='EXPERT',
               title="L2Calo Hypo E_{ratio};E^{max1}-E^{max2}/E^{max1}+E^{max2} in sampling 1 (excl.crack)",
@@ -379,16 +379,6 @@ def TrigEgammaFastCaloHypoToolFromDict( d , tool=None):
     name = d['chainName']
     monGroups = d['monGroups']
     return _IncTool( name, monGroups, cparts[0], tool=tool)
-
-
-def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
-    """ To be phased out """
-    """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
-
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastCaloHypoToolFromDict( decodedDict , tool=tool)
-
 
 
 

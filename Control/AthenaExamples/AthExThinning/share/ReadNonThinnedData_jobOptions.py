@@ -36,7 +36,7 @@ svcMgr.PoolSvc.WriteCatalog = 'xmlcatalog_file:PoolFileCatalog.xml'
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 
 #####################################################

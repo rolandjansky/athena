@@ -21,6 +21,9 @@
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+
+
 #include <sstream>
 
 using TrigCompositeUtils::DecisionID;
@@ -83,6 +86,7 @@ StatusCode TrigJetHypoTool::initialize(){
     }
   }
   
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -129,7 +133,11 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
                 << "...");
 
   // steady_clock::time_point t =  steady_clock::now();
-  
+  // monitoring -- timing plots (filled for every call)
+  auto tHypo = Monitored::Timer<std::chrono::milliseconds>("TIME_jetHypo");
+  auto mon_NInputs =  Monitored::Scalar("NJetsIn",jets->size()); 
+  auto mon_NOutputs =  Monitored::Scalar("NJetsOut",-1);
+  auto monitor_group_multTime = Monitored::Group( m_monTool, tHypo, mon_NOutputs, mon_NInputs);
 
   xAODJetCollector jetCollector;
   bool pass;
@@ -141,7 +149,6 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
     return StatusCode::FAILURE;
   }
   
-
   if (!pass) {
     
     if (infocollector){
@@ -156,7 +163,7 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
     
     return StatusCode::SUCCESS;
   }
-
+  
   CHECK(checkPassingJets(jetCollector, infocollector));
   CHECK(reportPassingJets(jetCollector, jetHypoInputs));
   
@@ -177,6 +184,28 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
     std::stringstream ss;
     ss << jetCollector.hypoJets();
     jetdumper->collect("passed", ss.str());
+  }
+  tHypo.stop();
+  
+  //monitoring -- filled in passing events 
+  HypoJetVector hjv = jetCollector.hypoJets();
+
+  mon_NOutputs = hjv.size();
+  for(const auto& j : hjv) {
+    auto mon_jetEt =   Monitored::Scalar("Et",     j->et()*0.001);
+    auto mon_jetEta =  Monitored::Scalar("Eta",    j->eta());
+    auto mon_jetPhi =  Monitored::Scalar("Phi",    j->phi());
+    auto mon_jetMass = Monitored::Scalar("Mass",   j->m()*0.001);
+    auto monitor_group_passingjets = Monitored::Group( m_monTool, mon_jetEt, mon_jetEta, mon_jetPhi );       
+  }
+  //monitor the passing jets for each leg (there should only be one per chain!)
+  auto legInds = jetCollector.legInds();
+  for (const auto& label : legInds) {
+    auto jets = jetCollector.hypoJets(label);
+    auto monitor_nJt = Monitored::Scalar( "NJets", jets.size());      
+    auto htsum =  Monitored::Scalar("HT", std::accumulate(jets.begin(), jets.end(),0.0,
+							  [](double sum, const HypoJetVector::value_type jptr){return sum + jptr->et()*0.001;} ));      
+    auto monitor_group_passinght = Monitored::Group(m_monTool, monitor_nJt,htsum);
   }
   
   return StatusCode::SUCCESS;
@@ -253,7 +282,10 @@ TrigJetHypoTool::reportPassingJets(const xAODJetCollector& jetCollector,
   }
 
   return StatusCode::SUCCESS;
-}
+} 
+
+
+
 
 StatusCode
 TrigJetHypoTool::reportLeg(const std::vector<const xAOD::Jet*>& jets,

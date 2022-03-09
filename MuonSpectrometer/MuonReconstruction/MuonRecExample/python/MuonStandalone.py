@@ -131,7 +131,11 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( name,SegmentCollectionName=SegmentLocation, 
                                                         MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
                                                         MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
-                                                        PrintSummary = muonStandaloneFlags.printSummary(), **kwargs )
+                                                        PrintSummary = muonStandaloneFlags.printSummary(),
+                                                        TGC_PRDs ='TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements' , 
+                                                        **kwargs )
+   # print ('TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
+   
     # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
     if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC():
         getPublicTool("CscSegmentUtilTool")
@@ -194,7 +198,8 @@ class MuonStandalone(ConfiguredMuonRec):
             PrintSummary = muonStandaloneFlags.printSummary(),
             CscPrepDataContainer = ("CSC_Clusters" if reco_cscs else ""),
             sTgcPrepDataContainer = ("STGC_Measurements" if reco_stgc else ""),
-            MMPrepDataContainer = ("MM_Measurements" if reco_mircomegas else "")  ) )
+            MMPrepDataContainer = ("MM_Measurements" if reco_mircomegas else ""),
+            TgcPrepDataContainer = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  ) )
         if not muonStandaloneFlags.patternsOnly():
             self.addAlg( MuonSegmentFinderAlg("MuonSegmentMaker" ))
             if reco_cscs:

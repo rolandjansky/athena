@@ -25,7 +25,7 @@ atlas_add_dictionary( SCT_MonitoringDict
 # This is not essential and can be abandoned if it won't run.
 atlas_add_test( SCTLorentzMonAlg_test
                 SCRIPT python -m SCT_Monitoring.SCTLorentzMonAlg
-                POST_EXEC_SCRIPT nopost.sh
+                POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

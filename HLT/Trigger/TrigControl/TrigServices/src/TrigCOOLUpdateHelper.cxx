@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -117,33 +117,25 @@ StatusCode TrigCOOLUpdateHelper::readFolderInfo()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigCOOLUpdateHelper::resetFolders(const std::vector<std::string>& folders,
-                                              EventIDBase::number_type currentRun,
-                                              bool dropObject)
+StatusCode TrigCOOLUpdateHelper::resetFolders(const std::vector<std::string>& folders)
 {
   if (folders.empty()) return StatusCode::SUCCESS;
   
   StatusCode sc(StatusCode::SUCCESS);
   for (const std::string& f : folders) {
-    if ( resetFolder(f, currentRun, dropObject).isFailure() ) {
+    if ( resetFolder(f).isFailure() ) {
       sc = StatusCode::FAILURE;
     }
   }
   return sc;
 }
 
-StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
-                                             EventIDBase::number_type currentRun,
-                                             bool dropObject)
+StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder)
 {
   // Force a reset of folders by setting an IOVRange in the past
 
   if (m_iovSvc==nullptr || m_iovDbSvc==nullptr) return StatusCode::SUCCESS;
   
-  // Set IOV in the past to trigger reload in IOVSvc
-  IOVRange iov_range(IOVTime(currentRun-2, 0),
-                     IOVTime(currentRun-1, 0));
-
   const auto& f = m_folderInfo.find(folder);
   if ( f==m_folderInfo.end() ) {
     ATH_MSG_DEBUG("Folder " << folder << " not registered with IOVDbSvc");
@@ -152,11 +144,6 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
     
   const CLID& clid = f->second.clid;
   const std::string& key = f->second.key;
-  // Check if proxy exists
-  if ( detStore()->proxy(clid, key)==0 ) {
-    ATH_MSG_DEBUG("No proxy for " << key << " found");
-    return StatusCode::SUCCESS;  // on purpose not a failure
-  }
 
   // Make sure we are not trying to reset a time-based folder    
   IOVRange iov;
@@ -167,22 +154,14 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
     }
   }
        
-  // Invalidate IOV range
-  ATH_MSG_DEBUG("Invalidating IOV range of " << folder << " by setting it to " << iov_range);
-
-  if ((m_iovSvc->setRange(clid, key, iov_range, "StoreGateSvc")).isFailure()) {
-    ATH_MSG_WARNING("Could not set IOV range for " << folder << " to " << iov_range);
+  if ( m_iovSvc->dropObjectFromDB(clid, key, "StoreGateSvc").isFailure() ) {
+    ATH_MSG_WARNING("Could not invalidate folder " << folder);
     return StatusCode::FAILURE;        
   }
-    
-  // Drop object and reset cache
-  if (dropObject) {
-    ATH_CHECK( m_iovDbSvc->dropObject(key, /*resetCache=*/true), StatusCode::FAILURE );
-  }
-    
+
   // All OK
-  ATH_MSG_INFO("Invalidated IOV" << (dropObject ? " and dropped payload " : " ")
-               << "of folder " << folder << (key!=folder ? " (key="+key+")" : "") );
+  ATH_MSG_INFO("Invalidated IOV and dropped payload of folder " <<
+               folder << (key!=folder ? " (key="+key+")" : "") );
   
   return StatusCode::SUCCESS;
 }
@@ -193,6 +172,12 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
 //=========================================================================
 StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
 {
+  // Extract COOL folder updates from CTP fragment
+  if ( extractFolderUpdates(ctx).isFailure() ) {
+    ATH_MSG_ERROR("Failure reading CTP extra payload");
+    return StatusCode::FAILURE;
+  }
+
   // Loop over folders to be updated
   for (auto& [idx, f] : m_folderUpdates) {
           
@@ -213,7 +198,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
       ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock "
                    << f.lumiBlock << ". Current event: "  << ctx.eventID());
 
-      if ( hltCoolUpdate(folderName, ctx).isFailure() ) {
+      if ( hltCoolUpdate(folderName).isFailure() ) {
         ATH_MSG_ERROR("COOL update failed for " << folderName << ". Aborting.");
         return StatusCode::FAILURE;
       }
@@ -225,7 +210,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, const EventContext& ctx)
+StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName)
 {
   if (std::find(m_folders.begin(), m_folders.end(), folderName)==m_folders.end()) {
     ATH_MSG_ERROR("Received request to update COOL folder '" << folderName
@@ -237,7 +222,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
   Monitored::Group mon(m_monTool, mon_t);
 
   // Reset folder and make IOVDbSvc drop objects
-  if (resetFolder(folderName, ctx.eventID().run_number(), true).isFailure()) {
+  if (resetFolder(folderName).isFailure()) {
     ATH_MSG_ERROR("Reset of " << folderName << " failed");
     return StatusCode::FAILURE;
   }
@@ -263,9 +248,9 @@ StatusCode TrigCOOLUpdateHelper::getFolderName(CTPfragment::FolderIndex idx, std
 
 
 //=========================================================================
-// Schedule COOL folder updates (called on every event by HltEventLoopMgr)
+// Extract COOL folder updates from CTP fragment
 //=========================================================================
-StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
+StatusCode TrigCOOLUpdateHelper::extractFolderUpdates(const EventContext& ctx)
 {
   using CTPfragment::FolderIndex;
   using CTPfragment::FolderEntry;

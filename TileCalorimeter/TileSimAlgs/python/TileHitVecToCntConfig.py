@@ -70,23 +70,23 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     else:
         kwargs.setdefault('PileUp', flags.Digitization.PileUp)
 
-    if kwargs['PileUp']:
-        PileUpMergeSvc=CompFactory.PileUpMergeSvc
-        acc.addService( PileUpMergeSvc() )
-
     if flags.Beam.Type is BeamType.Cosmics:
         CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault('TriggerTimeTool', CosmicTriggerTimeTool())
         kwargs.setdefault('HitTimeFlag', 2)
         kwargs.setdefault('UseTriggerTime', True)
 
-    if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
-        kwargs.setdefault("FirstXing", getTileFirstXing() )
-        kwargs.setdefault("LastXing",  getTileLastXing() )
-    elif flags.Digitization.PileUp:
-        rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
-        acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
+            kwargs.setdefault("FirstXing", getTileFirstXing() )
+            kwargs.setdefault("LastXing",  getTileLastXing() )
+        else:
+            intervals += [acc.popToolsAndMerge(TileRangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     TileHitVecToCntTool=CompFactory.TileHitVecToCntTool
     acc.setPrivateTools(TileHitVecToCntTool(**kwargs))
 

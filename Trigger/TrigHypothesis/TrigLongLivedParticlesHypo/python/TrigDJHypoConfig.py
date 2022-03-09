@@ -35,17 +35,6 @@ def TrigDJHypoPromptToolFromDict( chainDict ):
 
     return tool
 
-
-def TrigDJHypoPromptToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-
-    decodedDict = dictFromChainName(conf)
-
-    return TrigDJHypoPromptToolFromDict( decodedDict )
-
 def TrigDJPromptHypoAlgMonTool():
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
@@ -95,17 +84,6 @@ def TrigDJHypoDispToolFromDict( chainDict ):
 
     return tool
 
-
-def TrigDJHypoDispToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-
-    decodedDict = dictFromChainName(conf)
-
-    return TrigDJHypoDispToolFromDict( decodedDict )
-
 def TrigDJHypoEDToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
 
@@ -121,21 +99,3 @@ def TrigDJHypoEDToolFromDict( chainDict ):
 
     return tool
 
-
-def TrigDJHypoEDToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-
-    decodedDict = dictFromChainName(conf)
-
-    return TrigDJHypoEDToolFromDict( decodedDict )
-
-
-if __name__ == "__main__":
-    tool = TrigDJHypoEDToolFromName("HLT_unconvtrk0_dispj_L1J100")
-    assert tool, "Not configured simple tool"
-
-
-    log.info("ALL OK")

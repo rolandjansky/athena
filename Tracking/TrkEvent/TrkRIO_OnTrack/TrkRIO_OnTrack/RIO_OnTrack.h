@@ -57,7 +57,8 @@ namespace Trk {
         TRT_DriftCircle=2,
         MdtDriftCircle=3,
         MuonCluster=4,
-        PlanarCluster=5
+        PlanarCluster=5,
+        HGTD_Cluster=6
     };
   }
 

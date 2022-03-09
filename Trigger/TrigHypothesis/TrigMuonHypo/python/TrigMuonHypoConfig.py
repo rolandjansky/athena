@@ -852,29 +852,3 @@ class TrigMuonLateMuRoIHypoConfig(object) :
         except LookupError:
             raise Exception('TrigMuonLateMuRoI Hypo Misconfigured')
         return tool
-
-
-
-if __name__ == '__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
-    configToTest = [ 'HLT_mu6_L1MU6',
-                     'HLT_mu20_ivarmedium_L1MU20',
-                     'HLT_2mu6_L12MU6']
-
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
-
-    for c in configToTest:
-        log.info("testing config %s", c)
-        chainDict = dictFromChainName(c)
-        toolMufast = TrigMufastHypoToolFromDict(chainDict)
-        assert toolMufast
-        toolmuComb = TrigmuCombHypoToolFromDict(chainDict)
-        assert toolmuComb
-        toolEFMSonly = TrigMuonEFMSonlyHypoToolFromDict(chainDict)
-        assert toolEFMSonly
-        toolEFCombiner = TrigMuonEFCombinerHypoToolFromDict(chainDict)
-        assert toolEFCombiner
-
-    log.info("All OK")

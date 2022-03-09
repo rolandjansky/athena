@@ -714,9 +714,10 @@ namespace MuonGM {
 
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
                 if (fpv == nullptr) {
-                    Mdt *r = new Mdt(mysql, c, stName + techname);
+                    std::unique_ptr<Mdt> r = std::make_unique<Mdt>(mysql, c, stName + techname);
                     if (debug) {
-                        log << MSG::DEBUG << " Building an MDT for station " << key << " component name is " << c->name << " manager->IncludeCutoutsFlag() "
+                        log << MSG::DEBUG << " Building an MDT for station " << key << " component name is " << c->name <<
+                        " stName "<<stName<<" techName: "<<techname<< " manager->IncludeCutoutsFlag() "
                             << manager->IncludeCutoutsFlag() << " manager->IncludeCutoutsBogFlag() " << manager->IncludeCutoutsBogFlag() << endmsg;
                     }
 
@@ -725,10 +726,7 @@ namespace MuonGM {
                     } else {
                         lvm = r->build(matManager, mysql);
                     }
-
-                    m_FPVMAP->StoreDetector(lvm, key);
-                    delete r;
-                    r = nullptr;
+                    m_FPVMAP->StoreDetector(lvm, key);                  
                 } else {
                     GeoFullPhysVol *rfpv = (GeoFullPhysVol *)fpv;
                     if (verbose) {
@@ -1269,7 +1267,10 @@ namespace MuonGM {
                 if (stname.find("BI") != std::string::npos) {
                     if (stname.find("BIS") != std::string::npos) {
                         // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
-                        if (std::abs(stationEta) >= 7 && rp->posz > 100)
+                        if (std::abs(stationEta)>= 7){
+                           log << MSG::DEBUG <<"BIS78 station eta: "<<stationEta<<" phi: "<<stationPhi<<" dR: "<<doubletR<<" dZ:"<< doubletZ <<" rp: "<<rp->posz<<endmsg;
+                        }
+                        if (std::abs(stationEta) >= 7 && rp->posz > 80)
                             doubletZ = 2;
                         else
                             doubletZ = 1;

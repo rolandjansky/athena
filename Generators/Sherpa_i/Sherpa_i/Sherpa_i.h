@@ -74,9 +74,14 @@ protected:
 
 class Atlas_RNG: public ATOOLS::External_RNG {
   CLHEP::HepRandomEngine* p_engine;
+
 public:
   Atlas_RNG(CLHEP::HepRandomEngine*);
   double Get();
+  bool CanRestoreStatus() const { return true; }
+  void SaveStatus();
+  void RestoreStatus();
+
 };
 
 

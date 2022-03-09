@@ -71,7 +71,12 @@ class LArSCL1Getter ( Configured )  :
         theLArSCL1Maker=LArSCL1Maker()
         from LArROD.LArRODFlags import larRODFlags
         theLArSCL1Maker.NSamples = larRODFlags.nSamples() + 2  # For consistency with LArAutoCorrNoiseSC - see ATLASSIM-5483
-        theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL2"
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            theLArSCL1Maker.SCL1ContainerName = overlayFlags.bkgPrefix() + "LArDigitSCL2"
+        else:
+            theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL2"
 
         self._LArSCL1Maker = theLArSCL1Maker
 

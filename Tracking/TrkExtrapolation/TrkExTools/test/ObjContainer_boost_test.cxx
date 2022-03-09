@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
  
  
@@ -17,7 +17,6 @@
 #define BOOST_TEST_MODULE TEST_TRKEXTOOLSOBJCONTAINER
 
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
@@ -62,7 +61,7 @@ std::atomic<int> TestObj::s_dtorCounter=0;
 template <> TestObj *cloneObj<TestObj>( const TestObj *a) { return (a) ? new TestObj(*a) : nullptr; }
 
 using Registry  = ObjContainer<const TestObj>;
-using IndexedObj = ObjRef<>;
+using IndexedObj = ObjRef;
 using Registrar = ObjPtr<const TestObj>;
 
 
@@ -73,7 +72,7 @@ public:
       return Registry::registerObj(&obj, s_externalObj);
    };
     IndexedObj registerObj(TestObj *obj) {
-      return Registry::registerObj(replaceManagedPtr(obj), 0);
+      return Registry::registerObj(obj, 0);
    }
    IndexedObj share(IndexedObj ref) {
      return Registry::share(ref);

@@ -7,7 +7,7 @@ evgenConfig.generators += ["Hijing"]
 ## Set default HIJING random number seeds
 # TODO: Isn't this reset anyway in EvgenJobTransforms/share/Generate_randomseeds.py?
 if not hasattr(svcMgr, 'AtRndmGenSvc'):
-    from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+    from RngComps.RngCompsConf import AtRndmGenSvc
     svcMgr += AtRndmGenSvc()
 svcMgr.AtRndmGenSvc.Seeds = \
     ["HIJING 327213897 979111713", "HIJING_INIT 31452781 78713307"]

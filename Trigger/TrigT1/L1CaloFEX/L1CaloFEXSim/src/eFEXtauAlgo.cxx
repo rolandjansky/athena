@@ -29,16 +29,15 @@ LVL1::eFEXtauAlgo::~eFEXtauAlgo()
 
 StatusCode LVL1::eFEXtauAlgo::initialize()
 {
-  ATH_CHECK(m_eFEXtauAlgo_eTowerContainerKey.initialize());
+  ATH_CHECK(m_eTowerContainerKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 StatusCode LVL1::eFEXtauAlgo::safetyTest(){
 
-  // This is to test that it will also work in the other functions, as we cal this object from SG in every function but don't want them all to have to return StatusCodes, and i'm not sure how to make this a private member instead
-  SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
-  if(!jk_eFEXtauAlgo_eTowerContainer.isValid()){
-    ATH_MSG_FATAL("LVL1::eFEXtauAlgo::safetyTest() Could not retrieve jk_eFEXtauAlgo_eTowerContainer " << m_eFEXtauAlgo_eTowerContainerKey.key() );
+  SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
+  if(!eTowerContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve eTowerContainer " << m_eTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -70,13 +69,13 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
 void LVL1::eFEXtauAlgo::buildLayers()
 {
 
-  SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
+  SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
 
   for(unsigned int ieta = 0; ieta < 3; ieta++)
   {
     for(unsigned int iphi = 0; iphi < 3; iphi++)
     {
-	  const LVL1::eTower * tmpTower = jk_eFEXtauAlgo_eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
+	  const LVL1::eTower * tmpTower = eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
 	  m_twrcells[ieta][iphi] = tmpTower->getTotalET();
 	  m_em0cells[ieta][iphi] = tmpTower->getLayerTotalET(0);
 	  m_em3cells[ieta][iphi] = tmpTower->getLayerTotalET(3);
@@ -115,9 +114,17 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
       }
       
       // Cells to the up and right must have strictly lesser ET
-      if (((beta == 0) && (bphi == 0)) || ((beta == 1) && (bphi == 0)) || ((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)))
+      if (((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)) || ((beta == 2) && (bphi == 2)) || ((beta == 1) && (bphi == 2)))
       {
         if (centralET <= m_twrcells[beta][bphi])
+        {
+          out = false;
+        }
+      }
+      // Cells down and to the left must have lesser or equal ET. If strictly lesser would create zero TOB if two adjacent cells had equal energy
+      else if (((beta == 0) && (bphi == 0)) || ((beta == 0) && (bphi == 1)) || ((beta == 0) && (bphi == 2)) || ((beta == 1) && (bphi == 0)))
+      { 
+        if (centralET < m_twrcells[beta][bphi])
         {
           out = false;
         }

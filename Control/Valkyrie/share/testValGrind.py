@@ -27,7 +27,7 @@ if not 'EVTMAX' in dir():
 theApp.EvtMax = EVTMAX
 
 if not hasattr(svcMgr, 'AtRndmGenSvc'):
-    from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+    from RngComps.RngCompsConf import AtRndmGenSvc
     svcMgr += AtRndmGenSvc()
     
 svcMgr.AtRndmGenSvc.Seeds =[

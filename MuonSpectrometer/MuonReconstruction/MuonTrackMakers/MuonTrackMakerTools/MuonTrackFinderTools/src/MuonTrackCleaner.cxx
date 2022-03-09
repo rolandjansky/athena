@@ -8,14 +8,14 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
+#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
-#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
+#include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "TrkEventPrimitives/FitQuality.h"
@@ -199,7 +199,7 @@ namespace Muon {
                 ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 if (hit->inBounds)
                     tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
-                                                                        Trk::TrackStateOnSurface::Outlier));
+                                                                       Trk::TrackStateOnSurface::Outlier));
 
                 continue;
             } else {
@@ -207,7 +207,7 @@ namespace Muon {
 
                 if (hit->cleanedCompROT) {
                     tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->cleanedCompROT, *hit->pars,
-                                                                        Trk::TrackStateOnSurface::Measurement));
+                                                                       Trk::TrackStateOnSurface::Measurement));
                     ATH_MSG_DEBUG("   replacing CompROT " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 } else {
                     tsos.push_back(hit->originalState->clone());
@@ -221,10 +221,8 @@ namespace Muon {
         }
 
         // create new track
-        std::unique_ptr<Trk::Track> cleanedTrack = std::make_unique<Trk::Track>(
-          track->info(),
-          std::move(tsos),
-          track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> cleanedTrack =
+            std::make_unique<Trk::Track>(track->info(), std::move(tsos), track->fitQuality() ? track->fitQuality()->clone() : nullptr);
         printStates(cleanedTrack.get());
 
         // fit new track
@@ -262,7 +260,7 @@ namespace Muon {
                 ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 if (hit->inBounds)
                     tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
-                                                                        Trk::TrackStateOnSurface::Outlier));
+                                                                       Trk::TrackStateOnSurface::Outlier));
 
                 continue;
             } else {
@@ -270,7 +268,7 @@ namespace Muon {
 
                 if (hit->flippedMdt) {
                     tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->flippedMdt, *hit->pars,
-                                                                        Trk::TrackStateOnSurface::Measurement));
+                                                                       Trk::TrackStateOnSurface::Measurement));
                     ATH_MSG_DEBUG("   flipping sign hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 } else {
                     tsos.push_back(hit->originalState->clone());
@@ -284,10 +282,8 @@ namespace Muon {
         }
 
         // create new track
-        std::unique_ptr<Trk::Track> cleanedTrack = std::make_unique<Trk::Track>(
-          track->info(),
-          std::move(tsos),
-          track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> cleanedTrack =
+            std::make_unique<Trk::Track>(track->info(), std::move(tsos), track->fitQuality() ? track->fitQuality()->clone() : nullptr);
         printStates(cleanedTrack.get());
 
         // fit new track
@@ -322,7 +318,7 @@ namespace Muon {
 
             ATH_MSG_VERBOSE(" outlier removal cycle " << n);
 
-            auto  tsos = DataVector<const Trk::TrackStateOnSurface>();
+            auto tsos = DataVector<const Trk::TrackStateOnSurface>();
             tsos.reserve(state.measInfo.size());
             ATH_MSG_VERBOSE("cleaning track with " << state.measInfo.size() << " hits");
 
@@ -353,10 +349,10 @@ namespace Muon {
                     if (hit->inBounds) {
                         if (hit->cleanedCompROT) {
                             tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->cleanedCompROT, *hit->pars,
-                                                                                Trk::TrackStateOnSurface::Outlier));
+                                                                               Trk::TrackStateOnSurface::Outlier));
                         } else {
                             tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
-                                                                                Trk::TrackStateOnSurface::Outlier));
+                                                                               Trk::TrackStateOnSurface::Outlier));
                         }
                     }
                     continue;
@@ -438,10 +434,7 @@ namespace Muon {
 
             // create new track
             std::unique_ptr<Trk::Track> cleanedTrack =
-              std::make_unique<Trk::Track>(
-                track->info(),
-                std::move(tsos),
-                track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+                std::make_unique<Trk::Track>(track->info(), std::move(tsos), track->fitQuality() ? track->fitQuality()->clone() : nullptr);
 
             // fit new track
             printStates(cleanedTrack.get());
@@ -617,7 +610,7 @@ namespace Muon {
                     // add as outlier
                     if (hit->inBounds)
                         tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
-                                                                            Trk::TrackStateOnSurface::Outlier));
+                                                                           Trk::TrackStateOnSurface::Outlier));
 
                     // if removed, add hit to vector of hits
                     // but only if the hit was not already an outlier to be skipped!
@@ -636,10 +629,8 @@ namespace Muon {
         }
 
         // create new track
-        std::unique_ptr<Trk::Track> cleanedTrack = std::make_unique<Trk::Track>(
-          track->info(),
-          std::move(tsos),
-          track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> cleanedTrack =
+            std::make_unique<Trk::Track>(track->info(), std::move(tsos), track->fitQuality() ? track->fitQuality()->clone() : nullptr);
 
         // fit new track
         printStates(cleanedTrack.get());
@@ -737,7 +728,7 @@ namespace Muon {
                             const Trk::MeasurementBase* newMeas = hit.flippedMdt ? hit.flippedMdt.get() : hit.meas;
 
                             tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit.originalState, *newMeas, *hit.pars,
-                                                                                Trk::TrackStateOnSurface::Measurement));
+                                                                               Trk::TrackStateOnSurface::Measurement));
                         } else {
                             tsos.push_back(hit.originalState->clone());
                         }
@@ -745,12 +736,12 @@ namespace Muon {
                     // layer not recoverable, drop the outliers: but if RPC, TGC, or CSC, expect track to go through all layers, so add a
                     // hole instead
                     if (m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id))
-                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->uniqueClone()));
                 } else {
                     ++removedOutOfBoundsHits;
                     // if RPC, TGC, or CSC, expect track to go through all layers: add a hole to replace lost outlier
                     if (m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id))
-                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->uniqueClone()));
                     ATH_MSG_DEBUG("   removing out of bounds outlier " << m_idHelperSvc->toString(hit.id) << " pull " << std::setw(7)
                                                                        << hit.pull);
                 }
@@ -770,10 +761,8 @@ namespace Muon {
         }
 
         // create new track
-        std::unique_ptr<Trk::Track> cleanedTrack = std::make_unique<Trk::Track>(
-          track->info(),
-          std::move(tsos),
-          track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> cleanedTrack =
+            std::make_unique<Trk::Track>(track->info(), std::move(tsos), track->fitQuality() ? track->fitQuality()->clone() : nullptr);
 
         if (!addedHits) {
             ATH_MSG_DEBUG(" only removed out of bound hits, returning track without new fit ");
@@ -1126,7 +1115,7 @@ namespace Muon {
                             if (prdList.empty()) {
                                 ATH_MSG_WARNING("No clusters selected during comprot cleaning, keeping old cluster");
                             } else {
-                                updatedCompRot.reset(m_compRotCreator->createBroadCluster(prdList, 0.));
+                                updatedCompRot=m_compRotCreator->createBroadCluster(prdList, 0.);
                                 ++state.numberOfCleanedCompROTs;
                             }
                         }
@@ -1142,8 +1131,10 @@ namespace Muon {
                 ATH_MSG_DEBUG("updated competing ROT");
                 info.cleanedCompROT = std::move(updatedCompRot);
                 if (info.cleanedCompROT->associatedSurface() != meas->associatedSurface()) {
-                    const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(ctx, *pars, info.cleanedCompROT->associatedSurface(),
-                                                                                     Trk::anyDirection, false, Trk::muon).release();
+                    const Trk::TrackParameters* exPars =
+                        m_extrapolator
+                            ->extrapolate(ctx, *pars, info.cleanedCompROT->associatedSurface(), Trk::anyDirection, false, Trk::muon)
+                            .release();
                     if (!exPars) {
                         ATH_MSG_WARNING("Update of comp rot parameters failed, keeping old ones");
                         info.cleanedCompROT.reset();

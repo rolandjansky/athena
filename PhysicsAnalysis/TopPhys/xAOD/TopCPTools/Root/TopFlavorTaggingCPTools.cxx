@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root";
+      "xAODBTaggingEfficiency/13TeV/2021-22-13TeV-MC16-CDI-2021-12-02_v2.root";
 
     if (m_config->bTaggingCDIPath() != "Default") {
       if (m_config->bTaggingCDIPath() != cdi_file_default) {
@@ -106,7 +106,7 @@ namespace top {
     BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
     top::check(btagsel->setProperty("TaggerName", btag_algo_WP.first),
                 "Failed to set b-tagging selecton tool TaggerName");
-    top::check(btagsel->setProperty("JetAuthor", jetAuthor + "_BTagging201903"),
+    top::check(btagsel->setProperty("JetAuthor", jetAuthor),
                 "Failed to set b-tagging selection JetAuthor");
     top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName", m_cdi_file),
                 "Failed to set b-tagging selection tool CDI file");
@@ -141,7 +141,7 @@ namespace top {
                 "Failed to set b-tagging TaggerName");
     top::check(btageff->setProperty("OperatingPoint", btag_algo_WP.second),
                 "Failed to set b-tagging OperatingPoint");
-    top::check(btageff->setProperty("JetAuthor", jetAuthor + "_BTagging201903"),
+    top::check(btageff->setProperty("JetAuthor", jetAuthor),
                 "Failed to set b-tagging JetAuthor");
     top::check(btageff->setProperty("MinPt", jetPtCut),
                 "Failed to set b-tagging selection tool MinPt");

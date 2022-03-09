@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ASGMESSAGING_STATUSCODE_H
@@ -37,44 +37,37 @@ public:
    };
 
    /// Constructor from an integer status code
-   StatusCode( unsigned long rstat = SUCCESS );
-   /// Copy constructor
-   StatusCode( const StatusCode& parent );
-   /// Destructor
-   ~StatusCode();
+   StatusCode( unsigned long rstat = SUCCESS ) noexcept : m_code( rstat ) { }
 
-   /// Assignment operator
-   StatusCode& operator= ( const StatusCode& rhs );
    /// Assignment from an integer code
-   StatusCode& operator= ( unsigned long code );
+   StatusCode& operator= ( unsigned long code ) noexcept { m_code = code; return *this; }
 
    /// Check if the operation was successful
-   bool isSuccess() const;
+   bool isSuccess() const noexcept { return m_code == SUCCESS; }
    /// Check if the operation was a failure
-   bool isFailure() const;
+   bool isFailure() const noexcept { return !isSuccess(); }
    /// Check if the operation produced a recoverable issue
-   bool isRecoverable() const;
+   bool isRecoverable() const noexcept { return m_code == RECOVERABLE; }
 
    /// Automatic conversion operator
-   operator unsigned long() const;
+   operator unsigned long() const noexcept { return m_code; }
 
-   /// Mark the status code as checked, ignoring it thereby
-   void setChecked() const { m_checked = true; }
-   /// Ignore the status code, marking it as checked
-   void ignore() const { setChecked(); }
+   /// Ignore the status code
+   void ignore() const noexcept { }
 
-   /// Enable failure (with a backtrace) on an unchecked status code
-   static void enableFailure();
-   static void enableChecking() {enableFailure();};
-   /// Disable failure (no backtrace) on an unchecked status code
-   static void disableFailure();
-   static void disableChecking() {disableFailure();};
+   /// Older functions for backward compatibility with the
+   /// pre-nondiscard version of this class in which we tracked
+   /// in the object itself whether the content was checked.  These
+   /// may go away at some point.
+   void setChecked() const noexcept { }
+   static void enableFailure() noexcept { }
+   static void enableChecking() noexcept { }
+   static void disableFailure() noexcept { }
+   static void disableChecking() noexcept { }
 
 private:
    /// Code returned by some function
    unsigned long m_code;
-   /// Internal status flag of whether the code was checked by the user
-   mutable bool m_checked;
 
 }; // class StatusCode
 

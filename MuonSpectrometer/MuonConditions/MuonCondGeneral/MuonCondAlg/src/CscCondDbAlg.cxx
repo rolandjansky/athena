@@ -142,21 +142,21 @@ StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* w
                 if (eta_side == 'A') eta = +1;
                 if (eta_side == 'C') eta = -1;
 
-                std::string_view chamber_name;
+                std::string chamber_name;
                 char size_side = tokens[0][1];
                 if (size_side == 'L') chamber_name = "CSL";
-                if (size_side == 'S') chamber_name = "CSS";
+                else if (size_side == 'S') chamber_name = "CSS";
 
                 int phi = 0;
                 std::string_view sector_side = tokens[0].substr(2, 4);
                 if (sector_side == "01" || sector_side == "02") phi = 1;
-                if (sector_side == "03" || sector_side == "04") phi = 2;
-                if (sector_side == "05" || sector_side == "06") phi = 3;
-                if (sector_side == "07" || sector_side == "08") phi = 4;
-                if (sector_side == "09" || sector_side == "10") phi = 5;
-                if (sector_side == "11" || sector_side == "12") phi = 6;
-                if (sector_side == "13" || sector_side == "14") phi = 7;
-                if (sector_side == "15" || sector_side == "16") phi = 8;
+                else if (sector_side == "03" || sector_side == "04") phi = 2;
+                else if (sector_side == "05" || sector_side == "06") phi = 3;
+                else if (sector_side == "07" || sector_side == "08") phi = 4;
+                else if (sector_side == "09" || sector_side == "10") phi = 5;
+                else if (sector_side == "11" || sector_side == "12") phi = 6;
+                else if (sector_side == "13" || sector_side == "14") phi = 7;
+                else if (sector_side == "15" || sector_side == "16") phi = 8;
 
                 Identifier ChamberId = m_idHelperSvc->cscIdHelper().elementID(chamber_name, eta, phi);
                 Identifier WireLayerId = m_idHelperSvc->cscIdHelper().channelID(ChamberId, 1, wirelayer, 1, 1);
@@ -403,7 +403,7 @@ StatusCode CscCondDbAlg::cacheASM(const std::string& data, CscCondDbData* writeC
                 // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
                 bool isValid = true;
                 chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi,
-                                                                iStrip, true, &isValid);
+                                                                iStrip, isValid);
                
                 static std::atomic<bool> conversionFailPrinted = false;
                 if (!isValid) {

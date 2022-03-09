@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Run tests for ITk
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
-from __future__ import print_function
 
 import sys
 from argparse import ArgumentParser
@@ -26,11 +25,12 @@ def defaultTestFlags(configFlags, args):
     
     configFlags.Output.HITSFileName = args.outputhitsfile
 
-    configFlags.Sim.CalibrationRun = "Off"
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
+    configFlags.Sim.CalibrationRun = CalibrationRun.Off
     configFlags.Sim.RecordStepInfo = False
-    configFlags.Sim.CavernBG = "Signal"
+    configFlags.Sim.CavernBackground = CavernBackground.Signal
     configFlags.Sim.ISFRun = False
-    configFlags.Sim.BeamPipeSimMode = 'FastSim'
+    configFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     configFlags.Sim.ReleaseGeoModel = False
 
     configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-15"

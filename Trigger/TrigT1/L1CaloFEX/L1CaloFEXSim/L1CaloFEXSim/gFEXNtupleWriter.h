@@ -98,15 +98,27 @@ private:
 
   std::vector<float> m_gRho_eta;
   std::vector<float> m_gRho_phi;
-  std::vector<float> m_gRho_et;
+  std::vector<float> m_gRho_tobEt;
+  std::vector<float> m_gRho_etMeV;
+  std::vector<float> m_gRho_etScale;
 
+  std::vector<float> m_gSJ_iEta;
+  std::vector<float> m_gSJ_iPhi;
   std::vector<float> m_gSJ_eta;
+  std::vector<float> m_gSJ_gFEXphi;
   std::vector<float> m_gSJ_phi;
-  std::vector<float> m_gSJ_et;
+  std::vector<float> m_gSJ_tobEt;
+  std::vector<float> m_gSJ_etMeV;
+  std::vector<float> m_gSJ_etScale;
 
+  std::vector<float> m_gLJ_iEta;
+  std::vector<float> m_gLJ_iPhi;
   std::vector<float> m_gLJ_eta;
+  std::vector<float> m_gLJ_gFEXphi;
   std::vector<float> m_gLJ_phi;
-  std::vector<float> m_gLJ_et;
+  std::vector<float> m_gLJ_tobEt;
+  std::vector<float> m_gLJ_etMeV;
+  std::vector<float> m_gLJ_etScale;
 
   std::vector<float> m_gGlobal_MET;
   std::vector<float> m_gGlobal_SumET;
@@ -116,6 +128,8 @@ private:
   std::vector<float> m_gGlobal_MHTy;
   std::vector<float> m_gGlobal_MSTx;
   std::vector<float> m_gGlobal_MSTy;
+  std::vector<float> m_gGlobal_etScale;
+
 
 
   StatusCode loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);

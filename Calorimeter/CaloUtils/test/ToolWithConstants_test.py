@@ -88,6 +88,8 @@ def testCfg (configFlags):
     return result
 
 
+ROOT.errorcheck.ReportMessage.hideFunctionNames (True)
+
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags

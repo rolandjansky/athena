@@ -70,15 +70,27 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
 
   m_valiTree->Branch ("gRho_eta", &m_gRho_eta);  
   m_valiTree->Branch ("gRho_phi", &m_gRho_phi);
-  m_valiTree->Branch ("gRho_et", &m_gRho_et);
+  m_valiTree->Branch ("gRho_tobEt", &m_gRho_tobEt);
+  m_valiTree->Branch ("gRho_etMeV", &m_gRho_etMeV);
+  m_valiTree->Branch ("gRho_scaleMeV", &m_gRho_etScale);
 
+  m_valiTree->Branch ("gSJ_iEta", &m_gSJ_iEta);  
+  m_valiTree->Branch ("gSJ_iPhi", &m_gSJ_iPhi);
   m_valiTree->Branch ("gSJ_eta", &m_gSJ_eta);  
+  m_valiTree->Branch ("gSJ_gFEXphi", &m_gSJ_gFEXphi);
   m_valiTree->Branch ("gSJ_phi", &m_gSJ_phi);
-  m_valiTree->Branch ("gSJ_et", &m_gSJ_et);
+  m_valiTree->Branch ("gSJ_tobEt", &m_gSJ_tobEt);
+  m_valiTree->Branch ("gSJ_etMeV", &m_gSJ_etMeV);
+  m_valiTree->Branch ("gSJ_scaleMeV", &m_gSJ_etScale);
 
+  m_valiTree->Branch ("gLJ_iEta", &m_gLJ_iEta);  
+  m_valiTree->Branch ("gLJ_iPhi", &m_gLJ_iPhi);
   m_valiTree->Branch ("gLJ_eta", &m_gLJ_eta);  
+  m_valiTree->Branch ("gLJ_gFEXphi", &m_gLJ_gFEXphi);
   m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
-  m_valiTree->Branch ("gLJ_et", &m_gLJ_et);
+  m_valiTree->Branch ("gLJ_tobEt", &m_gLJ_tobEt);
+  m_valiTree->Branch ("gLJ_etMeV", &m_gLJ_etMeV);
+  m_valiTree->Branch ("gLJ_scaleMeV", &m_gLJ_etScale);
 
   m_valiTree->Branch ("gGlobal_MET", &m_gGlobal_MET);  
   m_valiTree->Branch ("gGlobal_SumET", &m_gGlobal_SumET);  
@@ -87,7 +99,8 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gGlobal_MHTx", &m_gGlobal_MHTx);  
   m_valiTree->Branch ("gGlobal_MHTy", &m_gGlobal_MHTy);  
   m_valiTree->Branch ("gGlobal_MSTx", &m_gGlobal_MSTx);  
-  m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy);  
+  m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy); 
+  m_valiTree->Branch ("gGlobal_scaleMeV", &m_gGlobal_etScale); 
 
   
   m_load_truth_jet = true;
@@ -192,15 +205,28 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
 
   m_gRho_eta.clear();
   m_gRho_phi.clear();
-  m_gRho_et.clear();
+  m_gRho_tobEt.clear();
+  m_gRho_etMeV.clear();
+  m_gRho_etScale.clear();
 
+  m_gSJ_iEta.clear();
+  m_gSJ_iPhi.clear();
   m_gSJ_eta.clear();
+  m_gSJ_gFEXphi.clear();
   m_gSJ_phi.clear();
-  m_gSJ_et.clear();
+  m_gSJ_tobEt.clear();
+  m_gSJ_etMeV.clear();
+  m_gSJ_etScale.clear();  
 
+  m_gLJ_iEta.clear();
+  m_gLJ_iPhi.clear();
   m_gLJ_eta.clear();
+  m_gLJ_gFEXphi.clear();
   m_gLJ_phi.clear();
-  m_gLJ_et.clear();
+  m_gLJ_tobEt.clear();
+  m_gLJ_etMeV.clear();
+  m_gLJ_etScale.clear();  
+  
 
   m_gGlobal_MET.clear();
   m_gGlobal_SumET.clear();
@@ -210,6 +236,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gGlobal_MHTy.clear();
   m_gGlobal_MSTx.clear();
   m_gGlobal_MSTy.clear();
+  m_gGlobal_etScale.clear();  
   
 
 
@@ -233,24 +260,39 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   for (auto const gRho : *gRhoHandle) {
     m_gRho_eta.push_back(gRho->iEta());
     m_gRho_phi.push_back(gRho->iPhi());
-    m_gRho_et.push_back(gRho->tobEt());
+    m_gRho_tobEt.push_back(gRho->gFexTobEt());
+    m_gRho_etMeV.push_back(gRho->et());
+    m_gRho_etScale.push_back(gRho->tobEtScale());
   }
 
   for (auto const gSJ : *gBlockHandle) {
-    m_gSJ_eta.push_back(gSJ->iEta());
-    m_gSJ_phi.push_back(gSJ->iPhi());
-    m_gSJ_et.push_back(gSJ->tobEt());
+    m_gSJ_iEta.push_back(gSJ->iEta());
+    m_gSJ_iPhi.push_back(gSJ->iPhi());
+    m_gSJ_eta.push_back(gSJ->eta());
+    m_gSJ_gFEXphi.push_back(gSJ->phi_gFex());
+    m_gSJ_phi.push_back(gSJ->phi());
+    m_gSJ_tobEt.push_back(gSJ->gFexTobEt());
+    m_gSJ_etMeV.push_back(gSJ->et());
+    m_gSJ_etScale.push_back(gSJ->tobEtScale());
+
   }
 
   for (auto const gLJ : *gJetHandle) {
-    m_gLJ_eta.push_back(gLJ->iEta());
-    m_gLJ_phi.push_back(gLJ->iPhi());
-    m_gLJ_et.push_back(gLJ->tobEt());
+    m_gLJ_iEta.push_back(gLJ->iEta());
+    m_gLJ_iPhi.push_back(gLJ->iPhi());
+    m_gLJ_eta.push_back(gLJ->eta());
+    m_gLJ_gFEXphi.push_back(gLJ->phi_gFex());
+    m_gLJ_phi.push_back(gLJ->phi());
+    m_gLJ_tobEt.push_back(gLJ->gFexTobEt());
+    m_gLJ_etMeV.push_back(gLJ->et());
+    m_gLJ_etScale.push_back(gLJ->tobEtScale());
+
   }
 
   for (auto const gScalarE : *gScalarEHandle) {
     m_gGlobal_MET.push_back(gScalarE->quantityOne());
     m_gGlobal_SumET.push_back(gScalarE->quantityTwo());
+    m_gGlobal_etScale.push_back(gScalarE->tobEtScale());
   }
 
   for (auto const gMET : *gMETHandle) {

@@ -5,12 +5,14 @@
 #==============================================================
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def AFP_SiClusterTools_Cfg(kwargs={}):
 	
 	afpGeometryTool = CompFactory.AFP_GeometryTool("AFP_Geometry_tool")
-
+	
 	clusterNeighbour = CompFactory.AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
 # 	it's also possible to get the same clustering tool as in AFPAnalysisToolbox
 # 	clusterNeighbour = CompFactory.AFPSiClusterAllNeighbours("AFPSiClusterAllNeighbours", neighbourhoodType="X")
@@ -18,12 +20,14 @@ def AFP_SiClusterTools_Cfg(kwargs={}):
 	rowColToLocal = CompFactory.AFPSiRowColToLocalCSTool("AFPSiRowColToLocalCSTool", AFP_Geometry=afpGeometryTool)
 	
 	clusterTool = CompFactory.AFPSiClusterTool("AFPSiClusterTool", clusterAlgTool=clusterNeighbour, rowColToLocalCSTool = rowColToLocal)
-
+	if ConfigFlags.Input.Format is Format.POOL and "AFPSiHitContainer" not in ConfigFlags.Input.Collections:
+		clusterTool.AFPSiHitsContainerName=""
+	
 	return CompFactory.AFPSiCluster("AFPSiCluster", clusterRecoTool = clusterTool, **kwargs)
 
 
 def AFP_SiClusterTools_HLT():
-
+	
 	AFP_SiCl = AFP_SiClusterTools_Cfg({"AFPSiHitsClusterContainerKey": recordable("HLT_AFPSiHitsClusterContainer")})
 	
 	from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool

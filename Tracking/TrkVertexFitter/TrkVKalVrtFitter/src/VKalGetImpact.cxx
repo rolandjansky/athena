@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -14,7 +14,7 @@ namespace Trk {
  extern   
   void cfimp(long int TrkID, long int  ICH, int IFL, double* PAR, double* ERR,
               double* VRT, double* VCOV,
-	      double* RIMP, double* RCOV, double*  SIGN, const VKalVrtControlBase * FitCONTROL );
+	      double* RIMP, double* RCOV, double*  SIGN, VKalVrtControlBase * FitCONTROL );
 
 }
 //

@@ -226,27 +226,14 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   Monitored::Scalar<int> cpmError_SimNeData = Monitored::Scalar<int>("cpmError_SimNeData", 0);
   Monitored::Scalar<int> cpmErrorSummary = Monitored::Scalar<int>("cpmErrorSummary", 0);
   // event numbers
-  Monitored::Scalar<int> em_tt_x = Monitored::Scalar<int>("em_tt_x", 0);
   Monitored::Scalar<int> em_tt_y = Monitored::Scalar<int>("em_tt_y", 0);
-  Monitored::Scalar<int> em_tt_w = Monitored::Scalar<int>("em_tt_w", 0);
-  Monitored::Scalar<int> had_tt_x = Monitored::Scalar<int>("had_tt_x", 0);
   Monitored::Scalar<int> had_tt_y = Monitored::Scalar<int>("had_tt_y", 0);
-  Monitored::Scalar<int> had_tt_w = Monitored::Scalar<int>("had_tt_w", 0);
-  Monitored::Scalar<int> em_roi_x = Monitored::Scalar<int>("em_roi_x", 0);
   Monitored::Scalar<int> em_roi_y = Monitored::Scalar<int>("em_roi_y", 0);
-  Monitored::Scalar<int> em_roi_w = Monitored::Scalar<int>("em_roi_w", 0);  
-  Monitored::Scalar<int> tau_roi_x = Monitored::Scalar<int>("tau_roi_x", 0);
   Monitored::Scalar<int> tau_roi_y = Monitored::Scalar<int>("tau_roi_y", 0);
-  Monitored::Scalar<int> tau_roi_w = Monitored::Scalar<int>("tau_roi_w", 0);
-  Monitored::Scalar<int> cmx_tob_left_x = Monitored::Scalar<int>("cmx_tob_left_x", 0);
   Monitored::Scalar<int> cmx_tob_left_y = Monitored::Scalar<int>("cmx_tob_left_y", 0);
-  Monitored::Scalar<int> cmx_tob_left_w = Monitored::Scalar<int>("cmx_tob_left_w", 0);
-  Monitored::Scalar<int> cmx_tob_right_x = Monitored::Scalar<int>("cmx_tob_right_x", 0);
   Monitored::Scalar<int> cmx_tob_right_y = Monitored::Scalar<int>("cmx_tob_right_y", 0);
-  Monitored::Scalar<int> cmx_tob_right_w = Monitored::Scalar<int>("cmx_tob_right_w", 0);
-  Monitored::Scalar<int> cmx_thresh_x = Monitored::Scalar<int>("cmx_thresh_x", 0);
   Monitored::Scalar<int> cmx_thresh_y = Monitored::Scalar<int>("cmx_thresh_y", 0);
-  Monitored::Scalar<int> cmx_thresh_w = Monitored::Scalar<int>("cmx_thresh_w", 0);
+
 
   //
   ErrorVector crateErr(m_crates);
@@ -270,35 +257,29 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
         crateErr[loc / m_modules] |= (1 << err);	
 	if (err<7) {
 	  if (err==0) {
-	    em_tt_w=eventNumber;
+	    auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
 	    em_tt_y=loc;
-	    em_roi_x=errCounter[err][loc];
-	    fill(m_packageName,em_tt_x,em_tt_y,em_tt_w);
+	    fill(m_packageName,em_tt_evtstr,em_tt_y);
 	  } else if (err==1) {
-	    had_tt_w=eventNumber;
+	    auto had_tt_evtstr = Monitored::Scalar<std::string>("had_tt_evtstr", std::to_string(eventNumber));
 	    had_tt_y=loc;
-	    had_tt_x=errCounter[err][loc];
-	    fill(m_packageName,had_tt_x,had_tt_y,had_tt_w);
+	    fill(m_packageName,had_tt_evtstr,had_tt_y);
 	  } else if (err==2) {
-	    em_roi_w=eventNumber;
+	    auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
 	    em_roi_y=loc;
-	    em_roi_x=errCounter[err][loc];
-	    fill(m_packageName,em_roi_x,em_roi_y,em_roi_w);
+	    fill(m_packageName,em_roi_evtstr,em_roi_y);
 	  } else if (err==3) {
-	    tau_roi_w=eventNumber;
+	    auto tau_roi_evtstr = Monitored::Scalar<std::string>("tau_roi_evtstr", std::to_string(eventNumber));
 	    tau_roi_y=loc;
-	    tau_roi_x=errCounter[err][loc];
-	    fill(m_packageName,tau_roi_x,tau_roi_y,tau_roi_w);
+	    fill(m_packageName,tau_roi_evtstr,tau_roi_y);
 	  } else if (err==4) {
-	    cmx_tob_left_w=eventNumber;
+	    auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
 	    cmx_tob_left_y=loc;
-	    cmx_tob_left_x=errCounter[err][loc];
-	    fill(m_packageName,cmx_tob_left_x,cmx_tob_left_y,cmx_tob_left_w);
+	    fill(m_packageName,cmx_tob_left_evtstr,cmx_tob_left_y);
 	  } else if (err==5) {
-	    cmx_tob_right_w=eventNumber;
+	    auto cmx_tob_right_evtstr = Monitored::Scalar<std::string>("cmx_tob_right_evtstr", std::to_string(eventNumber));
 	    cmx_tob_right_y=loc;
-	    cmx_tob_right_x=errCounter[err][loc];
-	    fill(m_packageName,cmx_tob_right_x,cmx_tob_right_y,cmx_tob_right_w);
+	    fill(m_packageName,cmx_tob_right_evtstr,cmx_tob_right_y);
 	  }
 	  errCounter[err][loc]+=1;
 	}
@@ -322,10 +303,9 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
           else if (err == TopoMismatch) {
             offset = 16;
 	  }
-	  cmx_thresh_w=eventNumber;
+	  auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
 	  cmx_thresh_y=loc+offset;
-	  cmx_thresh_x=errCounter[6][loc+offset];
-	  fill(m_packageName,cmx_thresh_x,cmx_thresh_y,cmx_thresh_w);
+	  fill(m_packageName,cmx_thresh_evtstr,cmx_thresh_y);
 	  errCounter[6][loc+offset]+=1;
         }
       }
@@ -337,6 +317,15 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
 
   } // summary bind
+
+  //
+  // Save error vector for global summary
+  ErrorVector *save = new ErrorVector(crateErr);
+  StatusCode sc = evtStore()->record(save, m_errorLocation);
+  if (sc != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Error recording CPM mismatch vector in TES");
+    return sc;
+  }
 
   
   fill(m_packageName,variables);
@@ -1608,8 +1597,7 @@ void CpmSimMonitorAlgorithm::compare(const CmxCpHitsMap &cmxSimMap,
         if (!hd0 && !hd1 && !hs0 && !hs1)
           continue;
 
-        //TH1F_LW *hist = 0;
-	int loc_fill = loc +=8;
+	int loc_fill = loc + 8;
         if (hs0 == hd0 && hs1 == hd1) {
           errors[loc] |= bit;
 	  cmx_sum_loc_SimEqData=loc_fill;
@@ -1628,8 +1616,8 @@ void CpmSimMonitorAlgorithm::compare(const CmxCpHitsMap &cmxSimMap,
 	  }
         }
 	// this is the loc used for filling
-        loc += 8;
-	// and for the rest
+        loc = loc_fill;
+	// and to be used for the rest of the filling
         loc /= 2;
         const int nThresh = 8;
         const int thrLen = 3;

@@ -56,6 +56,8 @@ namespace LVL1 {
       
       ATH_CHECK(m_gMSTComponentsJwojOutKey.initialize());
 
+      ATH_CHECK(m_l1MenuKey.initialize());
+
    
 
       return StatusCode::SUCCESS;
@@ -101,8 +103,8 @@ namespace LVL1 {
       int fcalEta = 19; int fcalPhi = 0; int fcalMod = 900000;
       int initialFCAL = calcTowerID(fcalEta,fcalPhi,FEXAlgoSpaceDefs::forwardNphi,fcalMod);//900304
       int transfcalEta = 15; int transfcalPhi = 0; int transfcalMod = 700000;
-      int initialTRANSFCAL = calcTowerID(transfcalEta,transfcalPhi,FEXAlgoSpaceDefs::forwardNphi,transfcalMod);//700240
-      int emecEta = 12; int emecPhi = 0; int emecMod = 500000;
+      int initialTRANSFCAL = calcTowerID(transfcalEta,transfcalPhi,FEXAlgoSpaceDefs::centralNphi,transfcalMod);//700480
+      int emecEta = 11; int emecPhi = 0; int emecMod = 500000;
       int initialEMEC = calcTowerID(emecEta,emecPhi,FEXAlgoSpaceDefs::centralNphi,emecMod);//500384
       int transembEta = 7; int transembPhi = 0; int transembMod = 300000;
       int initialTRANSEMB = calcTowerID(transembEta,transembPhi,FEXAlgoSpaceDefs::centralNphi,transembMod);///300224
@@ -116,8 +118,8 @@ namespace LVL1 {
       int initialposTRANSEMB = calcTowerID(transembposEta,transembposPhi,FEXAlgoSpaceDefs::centralNphi,transembposMod);//400224
       int emecposEta = 8; int emecposPhi = 0; int emecposMod = 600000;
       int initialposEMEC = calcTowerID(emecposEta,emecposPhi,FEXAlgoSpaceDefs::centralNphi,emecposMod);//600256
-      int transfcalposEta = 13; int transfcalposPhi = 0; int transfcalposMod = 800000;
-      int initialposTRANSFCAL = calcTowerID(transfcalposEta,transfcalposPhi,FEXAlgoSpaceDefs::forwardNphi,transfcalposMod);//800208
+      int transfcalposEta = 12; int transfcalposPhi = 0; int transfcalposMod = 800000;
+      int initialposTRANSFCAL = calcTowerID(transfcalposEta,transfcalposPhi,FEXAlgoSpaceDefs::centralNphi,transfcalposMod);//800416
       int fcalposEta = 16; int fcalposPhi = 0; int fcalposMod = 1000000;
       int initialposFCAL = calcTowerID(fcalposEta,fcalposPhi,FEXAlgoSpaceDefs::forwardNphi,fcalposMod);//1000240
 
@@ -125,7 +127,7 @@ namespace LVL1 {
       // Since gFEX consists of a single module, here we are just (re)assigning the gTowerID
 
       // Defining a matrix 32x40 corresponding to the gFEX structure (32 phi x 40 eta in the most general case - forward region has 16 phi bins)
-      typedef  std::array<std::array<int, 40>, 32> gTowersIDs;
+      typedef  std::array<std::array<int, FEXAlgoSpaceDefs::totalNeta>, FEXAlgoSpaceDefs::centralNphi> gTowersIDs;
       gTowersIDs tmp_gTowersIDs_subset;
 
       int rows = tmp_gTowersIDs_subset.size();
@@ -134,23 +136,23 @@ namespace LVL1 {
       // set the FCAL negative part
       for(int thisCol=0; thisCol<4; thisCol++){
          for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialFCAL - ((thisCol) * 16) + thisRow;
+            int towerid = initialFCAL - ((thisCol) * (FEXAlgoSpaceDefs::forwardNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the TRANSFCAL negative part (FCAL-EMEC overlap)
-      for(int thisCol=4; thisCol<7; thisCol++){
-         for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialTRANSFCAL - ((thisCol-4) * 16) + thisRow;
+      for(int thisCol=4; thisCol<8; thisCol++){
+         for(int thisRow=0; thisRow<rows; thisRow++){
+            int towerid = initialTRANSFCAL - ((thisCol-4) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the EMEC negative part
-      for(int thisCol=7; thisCol<12; thisCol++){
+      for(int thisCol=8; thisCol<12; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-            int towerid = initialEMEC - ((thisCol-7) * 32) + thisRow;
+            int towerid = initialEMEC - ((thisCol-8) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
@@ -165,7 +167,7 @@ namespace LVL1 {
       // set the EMB negative part
       for(int thisCol = 13; thisCol < 20; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-           int towerid = initialEMB - ( (thisCol-13) * 32) + thisRow;
+           int towerid = initialEMB - ( (thisCol-13) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
            tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
@@ -173,7 +175,7 @@ namespace LVL1 {
          // set the EMB positive part
       for(int thisCol = 20; thisCol < 27; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-            int towerid = initialposEMB + ( (thisCol-20) * 32) + thisRow;
+            int towerid = initialposEMB + ( (thisCol-20) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
@@ -185,17 +187,17 @@ namespace LVL1 {
          tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
       }
       // set the EMEC positive part
-      for(int thisCol=28; thisCol<33; thisCol++){
+      for(int thisCol=28; thisCol<32; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
-            int towerid = initialposEMEC + ((thisCol-28) * 32) + thisRow;
+            int towerid = initialposEMEC + ((thisCol-28) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
 
       // set the TRANSFCAL positive part (EMEC-FCAL overlap)
-      for(int thisCol=33; thisCol<36; thisCol++){
-         for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialposTRANSFCAL + ((thisCol-33) * 16) + thisRow;
+      for(int thisCol=32; thisCol<36; thisCol++){
+         for(int thisRow=0; thisRow<rows; thisRow++){
+            int towerid = initialposTRANSFCAL + ((thisCol-32) * (FEXAlgoSpaceDefs::centralNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
@@ -203,7 +205,7 @@ namespace LVL1 {
       // set the FCAL positive part
       for(int thisCol=36; thisCol<cols; thisCol++){
          for(int thisRow=0; thisRow<rows/2; thisRow++){
-            int towerid = initialposFCAL + ((thisCol-36) * 16) + thisRow;
+            int towerid = initialposFCAL + ((thisCol-36) * (FEXAlgoSpaceDefs::forwardNphi)) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
          }
       }
@@ -265,37 +267,65 @@ namespace LVL1 {
       m_gMSTComponentsJwojContainer->setStore(m_gMSTComponentsJwojAuxContainer.get());
 
       
+      // Retrieve the L1 menu configuration
+      SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey);
+      ATH_CHECK(l1Menu.isValid());
+
+      auto & thr_gJ = l1Menu->thrExtraInfo().gJ();
+      auto & thr_gLJ = l1Menu->thrExtraInfo().gLJ();
+      auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
+
+      int gJ_scale = 0;
+      int gLJ_scale = 0;
+      int gXE_scale = 0;
+      gJ_scale = thr_gJ.resolutionMeV(); 
+      gLJ_scale = thr_gLJ.resolutionMeV(); 
+      gXE_scale = thr_gXE.resolutionMeV(); 
+
 
       //iterate over all gRho Tobs and fill EDM with them
       for(auto &tob : m_allgRhoTobs){
-         ATH_CHECK(fillgRhoEDM(tob));
+         ATH_CHECK(fillgRhoEDM(tob, gJ_scale));
       }
       //iterate over all gBlock Tobs and fill EDM with them
       for(auto &tob : m_allgBlockTobs){
-         ATH_CHECK(fillgBlockEDM(tob));
-
+         //Check the status of the TOB (bit 7)
+         //Only fill the EDM if status = 1 (means it passed the threshold, see JetFinder algorithm) 
+         int statusBit = 7;
+         int statusMask = 0x1;
+         int tob_status = (tob >> statusBit) & statusMask;
+         if (tob_status == 1){
+            ATH_CHECK(fillgBlockEDM(tob, gJ_scale));
+         }
       }
+
       //iterate over all gJet Tobs and fill EDM with them
       for(auto &tob : m_allgJetTobs){
-         ATH_CHECK(fillgJetEDM(tob));
+         //Check the status of the TOB (bit 7)
+         //Only fill the EDM if status = 1 (means it passed the threshold, see JetFinder algorithm) 
+         int statusBit = 7;
+         int statusMask = 0x1;
+         int tob_status = (tob >> statusBit) & statusMask;
+         if (tob_status == 1){
+            ATH_CHECK(fillgJetEDM(tob, gLJ_scale));   
+         }
       }
-
 
       //iterate over all JwoJ scalar energy Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgScalarEJwojTobs){
-         ATH_CHECK(fillgScalarEJwojEDM(tob));
+         ATH_CHECK(fillgScalarEJwojEDM(tob, gXE_scale));
       }
       //iterate over all JwoJ METcomponents Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgMETComponentsJwojTobs){
-         ATH_CHECK(fillgMETComponentsJwojEDM(tob));
+         ATH_CHECK(fillgMETComponentsJwojEDM(tob, gXE_scale));
       }
       //iterate over all JwoJ MHTcomponents Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgMHTComponentsJwojTobs){
-         ATH_CHECK(fillgMHTComponentsJwojEDM(tob));
+         ATH_CHECK(fillgMHTComponentsJwojEDM(tob, gXE_scale));
       }
       //iterate over all JwoJ MSTcomponents Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgMSTComponentsJwojTobs){
-         ATH_CHECK(fillgMSTComponentsJwojEDM(tob));
+         ATH_CHECK(fillgMSTComponentsJwojEDM(tob, gXE_scale));
       }
 
       
@@ -334,65 +364,65 @@ namespace LVL1 {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgRhoEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgRhoEDM(uint32_t tobWord, int gJ_scale){
 
       std::unique_ptr<xAOD::gFexJetRoI> myEDM (new xAOD::gFexJetRoI());
       m_gRhoContainer->push_back(std::move(myEDM));
-      m_gRhoContainer->back()->initialize(tobWord);
+      m_gRhoContainer->back()->initialize(tobWord, gJ_scale);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgBlockEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgBlockEDM(uint32_t tobWord, int gJ_scale){
 
       std::unique_ptr<xAOD::gFexJetRoI> myEDM (new xAOD::gFexJetRoI());
       m_gBlockContainer->push_back(std::move(myEDM));
-      m_gBlockContainer->back()->initialize(tobWord);
+      m_gBlockContainer->back()->initialize(tobWord, gJ_scale);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgJetEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgJetEDM(uint32_t tobWord, int gLJ_scale){
 
       std::unique_ptr<xAOD::gFexJetRoI> myEDM (new xAOD::gFexJetRoI());
       m_gJetContainer->push_back(std::move(myEDM));
-      m_gJetContainer->back()->initialize(tobWord);
+      m_gJetContainer->back()->initialize(tobWord, gLJ_scale);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgMETComponentsJwojEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgMETComponentsJwojEDM(uint32_t tobWord, int gXE_scale){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gMETComponentsJwojContainer->push_back(std::move(myEDM));
-      m_gMETComponentsJwojContainer->back()->initialize(tobWord);
+      m_gMETComponentsJwojContainer->back()->initialize(tobWord, gXE_scale);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgMHTComponentsJwojEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgMHTComponentsJwojEDM(uint32_t tobWord, int gXE_scale){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gMHTComponentsJwojContainer->push_back(std::move(myEDM));
-      m_gMHTComponentsJwojContainer->back()->initialize(tobWord);
+      m_gMHTComponentsJwojContainer->back()->initialize(tobWord, gXE_scale);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgMSTComponentsJwojEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgMSTComponentsJwojEDM(uint32_t tobWord, int gXE_scale){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gMSTComponentsJwojContainer->push_back(std::move(myEDM));
-      m_gMSTComponentsJwojContainer->back()->initialize(tobWord);
+      m_gMSTComponentsJwojContainer->back()->initialize(tobWord, gXE_scale);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgScalarEJwojEDM(uint32_t tobWord){
+   StatusCode gFEXSysSim::fillgScalarEJwojEDM(uint32_t tobWord, int gXE_scale){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gScalarEJwojContainer->push_back(std::move(myEDM));
-      m_gScalarEJwojContainer->back()->initialize(tobWord);
+      m_gScalarEJwojContainer->back()->initialize(tobWord, gXE_scale);
 
       return StatusCode::SUCCESS;
    }

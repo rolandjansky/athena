@@ -11,7 +11,7 @@ from AthenaCommon.Logging import logging
 #
 # Returns a single alg with no dependencies, no need to make this function return a ComponentAccumulator.
 #
-def getTrigNavSlimmingMTOnlineConfig():
+def getTrigNavSlimmingMTOnlineConfig(ConfigFlags):
   onlineSlim = CompFactory.TrigNavSlimmingMTAlg('TrigNavSlimmingMTAlg_Online')
   onlineSlim.TrigDecisionTool = "" # We do NOT filter on chains online, no additional tools/services required.
   onlineSlim.OutputCollection = "HLTNav_Summary_OnlineSlimmed"
@@ -21,6 +21,7 @@ def getTrigNavSlimmingMTOnlineConfig():
   onlineSlim.EdgesToDrop = []
   onlineSlim.NodesToDrop = []
   onlineSlim.ChainsFilter = []
+  onlineSlim.RuntimeValidation = ConfigFlags.Trigger.doRuntimeNaviVal
   return onlineSlim
 
 #
@@ -65,7 +66,6 @@ def TrigNavSlimmingMTDerivationCfg(ConfigFlags, chainsFilter = []):
   daodSlim.EdgesToDrop = ["view"]
   daodSlim.NodesToDrop = ["F"]
   daodSlim.ChainsFilter = chainsFilter
-  daodSlim.OutputLevel = 2
   ca.addEventAlgo(daodSlim)
 
   if daodSlim.OutputCollection not in possible_keys:
@@ -128,7 +128,8 @@ def TrigNavSlimmingMTCfg(ConfigFlags):
 
   inputCollection = getRun3NavigationContainerFromInput(ConfigFlags)
 
-  if ConfigFlags.Output.doWriteESD or rec.doWriteESD():
+
+  if ConfigFlags.Output.doWriteESD or rec.doWriteESD() or rec.doESD():
     esdSlim = CompFactory.TrigNavSlimmingMTAlg('TrigNavSlimmingMTAlg_ESD')
     esdSlim.TrigDecisionTool = tdt
     esdSlim.OutputCollection = "HLTNav_Summary_ESDSlimmed"
@@ -143,11 +144,12 @@ def TrigNavSlimmingMTCfg(ConfigFlags):
     esdSlim.ChainsFilter = []
     ca.addEventAlgo(esdSlim)
     log.info("Producing ESD Slimmed Trigger Navigation Collection. Reading {} and writing {}".format(esdSlim.PrimaryInputCollection, esdSlim.OutputCollection))
-
     if esdSlim.OutputCollection not in possible_keys:
       log.error("Producing a collection {} which is not listed in 'possible_keys'! Add this here too.".format(esdSlim.OutputCollection))
+  else:
+    log.info("Will not create ESD Slimmed Trigger Navigation Collection in this job")
 
-  if ConfigFlags.Output.doWriteAOD or rec.doWriteAOD():
+  if ConfigFlags.Output.doWriteAOD or rec.doWriteAOD() or rec.doAOD():
     aodSlim = CompFactory.TrigNavSlimmingMTAlg('TrigNavSlimmingMTAlg_AOD')
     aodSlim.TrigDecisionTool = tdt
     aodSlim.OutputCollection = "HLTNav_Summary_AODSlimmed"
@@ -168,8 +170,11 @@ def TrigNavSlimmingMTCfg(ConfigFlags):
       aodSlim.KeepOnlyFinalFeatures = True
       log.info("Producing AOD SMALL Trigger Navigation Collection. Reading {} and writing {}".format(aodSlim.PrimaryInputCollection, aodSlim.OutputCollection))
     ca.addEventAlgo(aodSlim)
-
     if aodSlim.OutputCollection not in possible_keys:
       log.error("Producing a collection {} which is not listed in 'possible_keys'! Add this here too.".format(esdSlim.OutputCollection))
+  else:
+    log.info("Will not create AOD Slimmed Trigger Navigation Collection in this job")
+
+
 
   return ca

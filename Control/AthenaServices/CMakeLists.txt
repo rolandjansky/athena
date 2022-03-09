@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaServices )
@@ -79,7 +79,6 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/MultiplePass_test.py
    share/MultiplePassWithAlgFilter_test.py
    share/OverrideEventNumber.py
-   share/TestSeedRunEvent.py
    share/AthDictLoaderSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py
    share/test_tpcnvdb.py
@@ -91,7 +90,3 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/DelayedConditionsCleanerSvc_test.txt
    share/ThinningCacheTool_test.txt
    share/MTES_test.py )
-
-# Need to make sure that python file installation happens before genconf
-# in order for our custom __init__.py to be installed correctly.
-add_dependencies( AthenaServicesConfigurables AthenaServicesPythonInstall )

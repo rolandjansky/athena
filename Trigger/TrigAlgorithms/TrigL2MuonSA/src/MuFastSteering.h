@@ -261,6 +261,8 @@ class MuFastSteering : public AthReentrantAlgorithm
   Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true};
   Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true};
   Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true};
+  Gaudi::Property< bool > m_use_stgc { this, "USE_STGC", true};
+  Gaudi::Property< bool > m_use_mm { this, "USE_MM", true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT  { this, "USE_ROIBASEDACCESS_MDT",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC  { this, "USE_ROIBASEDACCESS_RPC",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC  { this, "USE_ROIBASEDACCESS_TGC",  true};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -22,13 +22,12 @@
 
 // EventKernel includes
 #include "EventKernel/PdtPdg.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 // Gaudi includes
 
-// Forward declaration
-class MsgStream;
-
 class ParticleCandidateList
+  : public AthMessaging
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -127,31 +126,10 @@ class ParticleCandidateList
   void add( const PDG::pidType& partID );
   void add( const std::string& listOfParticlesName = "LightQuarks" );
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
  protected: 
-  
-  static MsgStream& msg();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
   std::list<PDG::pidType> m_list;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-inline ParticleCandidateList::ParticleCandidateList() :
-  m_list()
-{}
-
-inline ParticleCandidateList::ParticleCandidateList( const ParticleCandidateList& rhs) :
-  m_list(rhs.m_list)
-{}
 
 inline ParticleCandidateList::~ParticleCandidateList() 
 {}

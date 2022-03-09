@@ -33,6 +33,7 @@ def _createCfgFlags():
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes", [])) # former global.isMC
     acf.addFlag('Input.OverrideRunNumber', False )
+    acf.addFlag("Input.ConditionsRunNumber", -1) # Override the HITS file Run Number with one from a data run (TODO merge with Input.RunNumber)
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers", []))) # former global.RunNumber
     acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers", []))) # former global.RunNumber
     acf.addFlag('Input.TimeStamp', lambda prevFlags : getInitialTimeStampsFromRunNumbers(prevFlags.Input.RunNumber) if prevFlags.Input.OverrideRunNumber else [])

@@ -101,6 +101,26 @@ def makeEGammaDFCommon():
     ToolSvc += ElectronLHSelectorLooseBL
 
     # ====================================================================
+    # ELECTRON DNN SELECTORS
+    # ====================================================================
+    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import (
+        AsgElectronSelectorTool)
+    # Loose
+    ElectronDNNSelectorLoose = AsgElectronSelectorTool(
+        "ElectronDNNSelectorLoose", WorkingPoint="LooseDNNElectron")
+    ToolSvc += ElectronDNNSelectorLoose
+
+    # Medium
+    ElectronDNNSelectorMedium = AsgElectronSelectorTool(
+        "ElectronDNNSelectorMedium", WorkingPoint="MediumDNNElectron")
+    ToolSvc += ElectronDNNSelectorMedium
+
+    # Tight
+    ElectronDNNSelectorTight = AsgElectronSelectorTool(
+        "ElectronDNNSelectorTight", WorkingPoint="TightDNNElectron")
+    ToolSvc += ElectronDNNSelectorTight
+
+    # ====================================================================
     # ELECTRON CHARGE SELECTION
     # ====================================================================
     from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import (
@@ -266,6 +286,50 @@ def makeEGammaDFCommon():
     ToolSvc += ElectronPassLHTight
     print(ElectronPassLHTight)
 
+    # decorate electrons with the output of DNN Loose
+    ElectronPassDNNLoose = DerivationFramework__EGElectronLikelihoodToolWrapper(
+        name = "ElectronPassDNNLoose",
+        EGammaElectronLikelihoodTool = ElectronDNNSelectorLoose,
+        EGammaFudgeMCTool = "",
+        CutType = "",
+        StoreGateEntryName = "DFCommonElectronsDNNLoose",
+        ContainerName = "Electrons",
+        StoreTResult = False,
+        StoreGateEntryMultipleNames=["DFCommonElectronsDNN_pel",
+                                     "DFCommonElectronsDNN_pcf",
+                                     "DFCommonElectronsDNN_ppc",
+                                     "DFCommonElectronsDNN_phf",
+                                     "DFCommonElectronsDNN_ple",
+                                     "DFCommonElectronsDNN_plh"],
+        StoreMultipleOutputs = True)
+    ToolSvc += ElectronPassDNNLoose
+    print(ElectronPassDNNLoose)
+
+    # decorate electrons with the output of DNN Medium
+    ElectronPassDNNMedium = DerivationFramework__EGElectronLikelihoodToolWrapper(
+        name = "ElectronPassDNNMedium",
+        EGammaElectronLikelihoodTool = ElectronDNNSelectorMedium,
+        EGammaFudgeMCTool = "",
+        CutType = "",
+        StoreGateEntryName = "DFCommonElectronsDNNMedium",
+        ContainerName = "Electrons",
+        StoreTResult = False)
+    ToolSvc += ElectronPassDNNMedium
+    print(ElectronPassDNNMedium)
+
+    # decorate electrons with the output of DNN Tight
+    ElectronPassDNNTight = DerivationFramework__EGElectronLikelihoodToolWrapper(
+        name = "ElectronPassDNNTight",
+        EGammaElectronLikelihoodTool = ElectronDNNSelectorTight,
+        EGammaFudgeMCTool = "",
+        CutType = "",
+        StoreGateEntryName = "DFCommonElectronsDNNTight",
+        ContainerName = "Electrons",
+        StoreTResult = False)
+    ToolSvc += ElectronPassDNNTight
+    print(ElectronPassDNNTight)
+
+
     # decorate electrons with the output of ECIDS
     ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper(
         name="ElectronPassECIDS",
@@ -419,6 +483,9 @@ def makeEGammaDFCommon():
                            ElectronPassLHLooseBL,
                            ElectronPassLHMedium,
                            ElectronPassLHTight,
+                           ElectronPassDNNLoose,
+                           ElectronPassDNNMedium,
+                           ElectronPassDNNTight,
                            ForwardElectronPassLHLoose,
                            ForwardElectronPassLHMedium,
                            ForwardElectronPassLHTight,

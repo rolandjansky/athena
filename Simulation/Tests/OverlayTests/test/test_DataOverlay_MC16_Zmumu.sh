@@ -41,7 +41,7 @@ then
     --outputESDFile testRTT.ESD.pool.root \
     --outputAODFile testRTT.AOD.pool.root \
     --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' \
-    --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' \
+    --postInclude 'all:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' 'r2e:EventOverlayJobTransforms/muAlign_reco.py' \
     --preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArThinnedDigits.set_Value_and_Lock(False)' \
     --ignorePatterns "L1TopoMenuLoader.+ERROR." \
     --imf False

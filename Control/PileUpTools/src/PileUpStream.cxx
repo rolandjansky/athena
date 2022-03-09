@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PileUpTools/PileUpStream.h"
@@ -20,7 +20,6 @@
 
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 
-#include "StoreGate/ActiveStoreSvc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
@@ -30,7 +29,7 @@ class IOpaqueAddress;
 PileUpStream::PileUpStream():
   AthMessaging (Athena::getMessageSvc(), "PileUpStream"),
   m_name("INVALID"), p_svcLoc(0), p_sel(0), p_SG(0), p_iter(0), 
-  p_mergeSvc(nullptr), p_activeStore(0), m_ownEvtIterator(false),
+  p_mergeSvc(nullptr), m_ownEvtIterator(false),
   m_neverLoaded(true), m_ownStore(false),
   m_used(false), m_hasRing(false), m_iOriginalRing(0)
 { 
@@ -39,8 +38,7 @@ PileUpStream::PileUpStream():
 PileUpStream::PileUpStream(PileUpStream&& rhs):
   AthMessaging (Athena::getMessageSvc(), rhs.m_name),
   m_name(rhs.m_name), p_svcLoc(rhs.p_svcLoc), p_sel(rhs.p_sel), 
-  p_SG(rhs.p_SG), p_iter(rhs.p_iter), p_mergeSvc(rhs.p_mergeSvc), p_activeStore(rhs.p_activeStore),
-  m_ownEvtIterator(rhs.m_ownEvtIterator),
+  p_SG(rhs.p_SG), p_iter(rhs.p_iter), p_mergeSvc(rhs.p_mergeSvc), m_ownEvtIterator(rhs.m_ownEvtIterator),
   m_neverLoaded(rhs.m_neverLoaded), m_ownStore(rhs.m_ownStore),
   m_used(rhs.m_used), m_hasRing(rhs.m_hasRing), m_iOriginalRing(rhs.m_iOriginalRing)
 { 
@@ -58,7 +56,6 @@ PileUpStream::operator=(PileUpStream&& rhs) {
     p_SG=rhs.p_SG; 
     p_iter=rhs.p_iter;
     p_mergeSvc = rhs.p_mergeSvc;
-    p_activeStore=rhs.p_activeStore;
     m_ownEvtIterator=rhs.m_ownEvtIterator;
     rhs.m_ownEvtIterator=false;
     m_neverLoaded=rhs.m_neverLoaded;
@@ -83,7 +80,6 @@ PileUpStream::PileUpStream(const std::string& name,
   assert(p_sel);
   assert(p_svcLoc);
   if( !( p_sel->createContext(p_iter).isSuccess() &&
-         serviceLocator()->service("ActiveStoreSvc", p_activeStore).isSuccess() &&
          serviceLocator()->service("PileUpMergeSvc", p_mergeSvc, true).isSuccess() ) ) {
 
     const std::string errMsg("PileUpStream:: can not create stream");
@@ -103,8 +99,7 @@ PileUpStream::PileUpStream(const std::string& name,
 
 {
   assert(p_svcLoc);
-  if (!(serviceLocator()->service("ActiveStoreSvc", p_activeStore).isSuccess() && 
-	serviceLocator()->service(selecName, p_sel).isSuccess() &&
+  if (!(serviceLocator()->service(selecName, p_sel).isSuccess() &&
         serviceLocator()->service("PileUpMergeSvc", p_mergeSvc, true).isSuccess() &&
 	p_sel->createContext(p_iter).isSuccess() )) {
     const std::string errMsg("PileUpStream: can not create stream");
@@ -185,13 +180,7 @@ bool PileUpStream::setupStore()
 
 void PileUpStream::setActiveStore()
 {
-  if (0 == p_activeStore) {
-    const std::string errMsg("PileUpStream::setActiveStore(): no ActiveStoreSvc ptr set, INVALID STREAM STATE ");
-    ATH_MSG_ERROR ( errMsg );
-    throw std::runtime_error(errMsg);
-  }
-  p_activeStore->setStore(&store());
-  return;
+  store().makeCurrent();
 }
 
 StatusCode PileUpStream::nextRecordPre_Passive()

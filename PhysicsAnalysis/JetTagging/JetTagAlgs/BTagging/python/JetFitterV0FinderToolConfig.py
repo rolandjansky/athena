@@ -78,7 +78,7 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
                      'cutPtSingleTrackForBSecondSelection' : 750,
                      'InDetJetFitterUtils' : inDetJetFitterUtils,
                      'Mode3dFinder' : jetFitterMode3dTo1dFinder,
-                     'useITkMaterialRejection' : flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] }
+                     'useITkMaterialRejection' : flags.GeoModel.Run >= LHCPeriod.Run4 }
         for option in defaults:
             options.setdefault(option, defaults[option])
 

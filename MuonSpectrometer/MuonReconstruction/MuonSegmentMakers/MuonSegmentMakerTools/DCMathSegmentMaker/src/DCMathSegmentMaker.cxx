@@ -969,7 +969,8 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
         return createSpacePoints(gasGapHitMap);
     }
 
-    void DCMathSegmentMaker::handleChamber(DCMathSegmentMaker::IdHitMap& gasGapHitMap) const {
+    void 
+    DCMathSegmentMaker::handleChamber(DCMathSegmentMaker::IdHitMap& gasGapHitMap) const {
         ATH_MSG_DEBUG("  new chamber " << m_idHelperSvc->toString(gasGapHitMap.begin()->first));
         std::list<const Trk::PrepRawData*> prds;
 
@@ -984,7 +985,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
                 prds.push_back((*hit)->prepRawData());
             }
         }
-        const CompetingMuonClustersOnTrack* rotEta = nullptr;
+        std::unique_ptr<const CompetingMuonClustersOnTrack> rotEta;
         if (prds.size() > 1) {
             rotEta = m_compClusterCreator->createBroadCluster(prds, 0.);
 
@@ -1004,7 +1005,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
                 prds.push_back((*hit)->prepRawData());
             }
         }
-        const CompetingMuonClustersOnTrack* rotPhi = nullptr;
+        std::unique_ptr<const CompetingMuonClustersOnTrack> rotPhi;
         if (prds.size() > 1) {
             rotPhi = m_compClusterCreator->createBroadCluster(prds, 0.);
 
@@ -1792,19 +1793,20 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
             if (m_createCompetingROTsEta) {
                 // create competing ROT for eta hits
                 if (!etaClusterVec.empty()) {
-                    const CompetingMuonClustersOnTrack* etaCompCluster = m_compClusterCreator->createBroadCluster(etaClusterVec, 0.);
+                    std::unique_ptr<const CompetingMuonClustersOnTrack> etaCompCluster = m_compClusterCreator->createBroadCluster(etaClusterVec, 0.);
                     if (!etaCompCluster) {
                         ATH_MSG_DEBUG(" failed to create competing ETA ROT " << etaClusterVec.size());
                     } else {
                         double dist = distanceToSegment(segment, etaCompCluster->globalPosition(), gToStation);
-                        rioDistVec.push_back(std::make_pair(dist, etaCompCluster));
+                        auto chickenOutWithBarePointer = etaCompCluster.release();
+                        rioDistVec.push_back(std::make_pair(dist, chickenOutWithBarePointer));
                         ++netaPhiHits.first.first;
 
                         if (msgLvl(MSG::VERBOSE)) {
                             ATH_MSG_VERBOSE("    selected cluster:  " << m_idHelperSvc->toString(etaClusterVec.front()->identify()));
-                            for (unsigned int i = 0; i < etaCompCluster->containedROTs().size(); ++i) {
+                            for (unsigned int i = 0; i < chickenOutWithBarePointer->containedROTs().size(); ++i) {
                                 ATH_MSG_VERBOSE(
-                                    "               content:  " << m_idHelperSvc->toString(etaCompCluster->containedROTs()[i]->identify()));
+                                    "               content:  " << m_idHelperSvc->toString(chickenOutWithBarePointer->containedROTs()[i]->identify()));
                             }
                         }
                     }
@@ -1814,13 +1816,14 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
             if (m_createCompetingROTsPhi) {
                 // create competing ROT for phi hits
                 if (!phiClusterVec.empty()) {
-                    const CompetingMuonClustersOnTrack* phiCompCluster = m_compClusterCreator->createBroadCluster(phiClusterVec, 0.);
+                    std::unique_ptr<const CompetingMuonClustersOnTrack> phiCompCluster = m_compClusterCreator->createBroadCluster(phiClusterVec, 0.);
                     if (!phiCompCluster) {
                         ATH_MSG_DEBUG(" failed to create competing PHI ROT " << phiClusterVec.size());
                     } else {
                         double dist = distanceToSegment(segment, phiCompCluster->globalPosition(), gToStation);
-                        rioDistVec.push_back(std::make_pair(dist, phiCompCluster));
-                        phiHits.push_back(phiCompCluster);
+                        auto chickenOutWithBarePointer = phiCompCluster.release();
+                        rioDistVec.push_back(std::make_pair(dist, chickenOutWithBarePointer));
+                        phiHits.push_back(chickenOutWithBarePointer);
                         ++netaPhiHits.first.second;
 
                         if (msgLvl(MSG::VERBOSE)) {
@@ -1833,7 +1836,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
 
                         // calculate position
                         double phiPos =
-                            isEndcap ? std::abs(phiCompCluster->globalPosition().z()) : std::abs(phiCompCluster->globalPosition().perp());
+                            isEndcap ? std::abs(chickenOutWithBarePointer->globalPosition().z()) : std::abs(chickenOutWithBarePointer->globalPosition().perp());
                         if (phiPos < posFirstPhiStation) posFirstPhiStation = phiPos;
                         if (phiPos > posLastPhiStation) posLastPhiStation = phiPos;
                     }
@@ -1961,28 +1964,29 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
                     continue;
                 }
 
-                const CompetingMuonClustersOnTrack* phiCompCluster = m_compClusterCreator->createBroadCluster(prds, 0.);
+                std::unique_ptr<const CompetingMuonClustersOnTrack> phiCompCluster = m_compClusterCreator->createBroadCluster(prds, 0.);
                 if (!phiCompCluster) {
                     ATH_MSG_DEBUG(" failed to create competing PHI ROT " << prds.size());
                 } else {
                     double dist = distanceToSegment(segment, phiCompCluster->globalPosition(), gToStation);
 
                     if (std::abs(dist) > m_maxAssociateClusterDistance) {
-                        delete phiCompCluster;
+                        
                         ATH_MSG_VERBOSE("    rejected unassociated cluster:  " << m_idHelperSvc->toString(prds.front()->identify())
                                                                                << "  distance to segment " << dist);
                         continue;
                     }
-                    rioDistVec.push_back(std::make_pair(dist, phiCompCluster));
-                    phiHits.push_back(phiCompCluster);
+                    auto chickenOutWithBarePointer=phiCompCluster.release();
+                    rioDistVec.push_back(std::make_pair(dist, chickenOutWithBarePointer));
+                    phiHits.push_back(chickenOutWithBarePointer);
                     ++netaPhiHits.first.second;
                     ++addedPhiHits;
                     if (msgLvl(MSG::VERBOSE)) {
                         ATH_MSG_VERBOSE("    selected unassociated cluster:  " << m_idHelperSvc->toString(prds.front()->identify())
                                                                                << "  distance to segment " << dist);
-                        for (unsigned int i = 0; i < phiCompCluster->containedROTs().size(); ++i) {
+                        for (unsigned int i = 0; i < chickenOutWithBarePointer->containedROTs().size(); ++i) {
                             ATH_MSG_VERBOSE(
-                                "               content:  " << m_idHelperSvc->toString(phiCompCluster->containedROTs()[i]->identify()));
+                                "               content:  " << m_idHelperSvc->toString(chickenOutWithBarePointer->containedROTs()[i]->identify()));
                         }
                     }
                 }
@@ -2341,6 +2345,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
             bool isMdt = m_idHelperSvc->isMdt(id);
             bool measuresPhi = m_idHelperSvc->measuresPhi(id);
             if (isMdt) {
+                lpos.setZero();
                 const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*it);
                 if (!mdt) continue;
                 TubeEnds tubeEnds = localTubeEnds(*mdt, gToSegment, segmentToGlobal);

@@ -58,11 +58,12 @@ def defaultTestFlags(configFlags, args):
     
     configFlags.Output.HITSFileName = args.outputhitsfile
 
-    configFlags.Sim.CalibrationRun = "Off"
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
+    configFlags.Sim.CalibrationRun = CalibrationRun.Off
     configFlags.Sim.RecordStepInfo = False
-    configFlags.Sim.CavernBG = "Signal"
+    configFlags.Sim.CavernBackground = CavernBackground.Signal
     configFlags.Sim.ISFRun = False
-    configFlags.Sim.BeamPipeSimMode = 'FastSim'
+    configFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     configFlags.Sim.ReleaseGeoModel = False
 
 

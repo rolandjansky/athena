@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
@@ -73,6 +73,9 @@ namespace MuonGM {
         /** Global space point position for a given pair of phi and eta identifiers
             If one of the identifiers is outside the valid range, the function will return false */
         virtual bool spacePointPosition(const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos) const override final;
+
+	/** space point position (global) for a given pair of stereo MM identifier */
+	virtual bool spacePointPosition(const Identifier& id1, const Identifier& id2, Amg::Vector3D gpos_id1, Amg::Vector3D gpos_id2, Amg::Vector3D& gpos) const;
 
         /** space point position for a pair of phi and eta local positions and a layer identifier
             The LocalPosition is expressed in the reference frame of the phi projection.
@@ -300,6 +303,59 @@ namespace MuonGM {
         spacePointPosition(phiId, etaId, lpos);
         surface(phiId).localToGlobal(lpos, pos, pos);
         return true;
+    }
+
+    inline bool MMReadoutElement::spacePointPosition( const Identifier& id1, const Identifier& id2, Amg::Vector3D gpos_id1, Amg::Vector3D gpos_id2, Amg::Vector3D& gpos ) const {
+      
+      int multilay1 = manager()->mmIdHelper()->multilayer(id1);
+      int multilay2 = manager()->mmIdHelper()->multilayer(id2);
+      int lay1 = manager()->mmIdHelper()->gasGap(id1);
+      int lay2 = manager()->mmIdHelper()->gasGap(id2);
+
+      //check to use only layer on the same multiplet, not the same layer and at least one stereo
+      if ( (multilay1 != multilay2 || lay1 == lay2) || !( manager()->mmIdHelper()->isStereo(id1) || manager()->mmIdHelper()->isStereo(id2) ) ) return false;
+
+      double angles = std::abs(getDesign(id1)->sAngle); //stereo angle
+      double tan_angles = std::tan(angles);
+      double phi = gpos_id1.phi(); //phi of the MM sector
+
+      //parameters used to calculate the phi
+      double A = ( gpos_id1.x() - gpos_id2.x() ) / ( gpos_id1.x() + gpos_id2.x() );
+      double B = ( gpos_id1.z() - gpos_id2.z() ) / ( gpos_id1.z() + gpos_id2.z() );
+      //tan(phi/2)
+      double tan_phi2 = ( tan_angles - std::sqrt(tan_angles*tan_angles - B*B + A*A) ) / (A+B);
+
+      //ad hoc change for the sector at PI/2
+      if ( std::abs( std::abs(phi) - M_PI_2 ) < 0.01) {
+	A = ( gpos_id1.y() - gpos_id2.y() ) / ( gpos_id1.y() + gpos_id2.y() );
+	tan_phi2 = ( A - std::sqrt(A*A - B*B + tan_angles*tan_angles ) ) / (B-tan_angles);
+      }
+
+      double dphi = 0; //dphi = angle wrt the center of the sector 
+      if (manager()->mmIdHelper()->stationEta(id1) > 0) dphi = -2*std::atan(tan_phi2);
+      else dphi = 2*std::atan(tan_phi2);
+
+      //ad hoc change for the sector at PI/2
+      if ( std::abs( std::abs(phi) - M_PI_2 ) < 0.01) {
+	if (dphi*phi < 0) dphi += phi;
+	else dphi -= phi;
+      }
+
+      const double tan_phi_plus_dphi = std::tan(phi+dphi);
+      const double tan_phi_minus_angles = std::tan(phi-angles);
+
+      //global positions
+      gpos[0] = (gpos_id1.y() + gpos_id1.x()/tan_phi_minus_angles)/(tan_phi_plus_dphi + 1./tan_phi_minus_angles);
+      gpos[1] = gpos[0]*tan_phi_plus_dphi;
+      gpos[2] = gpos_id1.z();
+
+      //check if the stereo-superpoint is on the surface
+      Amg::Vector2D lpos;
+      const Trk::PlaneSurface& surf1 = surface(id1);
+      surf1.globalToLocal(gpos,gpos,lpos);
+      if( !surf1.insideBounds(lpos) ) return false;
+
+      return true;
     }
 
     inline void MMReadoutElement::spacePointPosition(const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos) const {

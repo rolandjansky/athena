@@ -41,7 +41,10 @@ def TileHitVecToCntTool(name="TileHitVecToCntTool", **kwargs):
         kwargs.setdefault("UseTriggerTime", True)
 
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
-        kwargs.setdefault("FirstXing", Tile_FirstXing() ) 
-        kwargs.setdefault("LastXing",  Tile_LastXing() ) 
+        kwargs.setdefault("FirstXing", Tile_FirstXing() )
+        kwargs.setdefault("LastXing",  Tile_LastXing() )
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     return CfgMgr.TileHitVecToCntTool(name, **kwargs)

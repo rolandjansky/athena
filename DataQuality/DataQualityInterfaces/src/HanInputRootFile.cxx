@@ -3,6 +3,7 @@
 */
 
 #include "DataQualityInterfaces/HanInputRootFile.h"
+#include "DataQualityInterfaces/HanUtils.h"
 #include "TClass.h"
 #include "TH1.h"
 #include "TGraph.h"
@@ -51,44 +52,6 @@ HanInputRootFile( std::string& rootFileName, const std::string& path )
 HanInputRootFile::
 ~HanInputRootFile()
 {
-}
-
-void
-HanInputRootFile::
-dolsr(const TDirectory* dir, std::vector<std::string>& hists, const TDirectory* topdir) 
-{
-	// permit calling with two arguments
-	if (topdir == NULL) {
-		topdir = dir;
-	}
-  TIter keys(dir->GetListOfKeys());
-  TKey* key;
-  std::string fullpath(dir->GetPath());
-  std::string toppath(topdir->GetPath());
-  std::string::size_type toppathlen = toppath.length();
-  while ((key = dynamic_cast<TKey*>(keys())) != NULL) {
-    if (TClass::GetClass(key->GetClassName())->InheritsFrom("TDirectory")) {
-      TDirectory* newdir = dynamic_cast<TDirectory*>(key->ReadObj());
-      if (!newdir) {
-	std::cerr << "WARNING: cannot read directory " 
-		  << fullpath << "/" << key->GetName()
-		  << "; skipping" << std::endl;
-      } else {
-	dolsr(newdir, hists, topdir);
-      }
-      delete newdir;
-    } else {
-      std::string path;
-      if (fullpath.substr(0, toppathlen) == toppath) {
-	int extra = 1;
-	if (toppath[toppathlen-1] == '/') extra = 0;
-      	path = fullpath.substr(toppathlen + extra, std::string::npos);
-      } else {
-      	path = fullpath;
-      }
-      hists.push_back(path+"/"+std::string(key->GetName()));
-    }      
-  }
 }
 
 

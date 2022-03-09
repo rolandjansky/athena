@@ -1,6 +1,6 @@
 """Main ISF tools configuration with ComponentAccumulator
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -404,28 +404,35 @@ def Kernel_ATLFAST3F_G4MSCfg(flags, name="ISF_Kernel_ATLFAST3F_G4MS", **kwargs):
     acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs)) # Merge properly configured SimKernel here and let deduplication sort it out.
     return acc
 
+
 def ISF_KernelCfg(flags):
-    acc = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ('FullG4MT'):
-        acc.merge(Kernel_FullG4MTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('FullG4MT_QS'):
-        acc.merge(Kernel_FullG4MT_QSCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('PassBackG4MT'):
-        acc.merge(Kernel_PassBackG4MTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('ATLFAST3MT'):
-        acc.merge(Kernel_ATLFAST3MTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('ATLFAST3MT_QS'):
-        acc.merge(Kernel_ATLFAST3MT_QSCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('ATLFASTIIMT'):
-        acc.merge(Kernel_ATLFASTIIMTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('ATLFASTIIFMT'):
-        acc.merge(Kernel_ATLFASTIIFMTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('ATLFASTIIF_G4MS'):
-        acc.merge(Kernel_ATLFASTIIF_G4MSCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('ATLFAST3F_G4MS'):
-        acc.merge(Kernel_ATLFAST3F_G4MSCfg(flags))
-    else:
-        print('Unsupported Simulator %s, bailing out', flags.Sim.ISF.Simulator)
-        import sys
-        sys.exit(1)
-    return acc
+    from G4AtlasApps.SimEnums import SimulationFlavour
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.FullG4MT:
+        return Kernel_FullG4MTCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.FullG4MT_QS:
+        return Kernel_FullG4MT_QSCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.PassBackG4MT:
+        return Kernel_PassBackG4MTCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.ATLFASTIIMT:
+        return Kernel_ATLFASTIIMTCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.ATLFASTIIFMT:
+        return Kernel_ATLFASTIIFMTCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.ATLFASTIIF_G4MS:
+        return Kernel_ATLFASTIIF_G4MSCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.ATLFAST3MT:
+        return Kernel_ATLFAST3MTCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.ATLFAST3MT_QS:
+        return Kernel_ATLFAST3MT_QSCfg(flags)
+
+    if flags.Sim.ISF.Simulator is SimulationFlavour.ATLFAST3F_G4MS:
+        return Kernel_ATLFAST3F_G4MSCfg(flags)
+
+    raise ValueError('Unknown Simulator set, bailing out')

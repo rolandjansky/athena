@@ -3,7 +3,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from DecisionHandling.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
@@ -27,22 +27,38 @@ def InputMakerForFeatureAlg(name):
 
 
 #generalize
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaCommon.Configurable import Configurable
 
-def makeSequence(ConfigFlags, name,step, signature):
-    IM= InputMakerForFeatureAlg(name="IM"+signature+name+"Step"+step)
+def makeSequence(ConfigFlags, name,step, signature):    
+    """
+    generate reco sequence for emulation chains
+    """
+    IM= InputMakerForFeatureAlg("IM"+signature+name+"Step"+step)
     IM.Output=name+signature+"IM"+step+"_out"
     if "el" in signature:
-        Alg = CaloClustering(name="CaloClustering"+name+"Step"+step, FileName="emclusters.dat")
+        Alg = CaloClustering("CaloClustering"+name+"Step"+step, FileName="emclusters.dat")
     elif "mu" in signature:
-        Alg = muMSRecAlg(name="muMSRecAlg"+name+"Step"+step, FileName="msmu.dat")
+        Alg = muMSRecAlg("muMSRecAlg"+name+"Step"+step, FileName="msmu.dat")
     else:
         sys.exit("ERROR, in configuration of sequence "+name+step+signature)
 
     Alg.Output = name+signature+"Alg"+step+"_out"
     Alg.Input  = IM.Output
-    Sequence   = seqAND(name+signature+"SeqStep"+step, [IM, Alg])
+    
+    if Configurable.configurableRun3Behavior == 1:         
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        accAlg = ComponentAccumulator()
+        accAlg.addEventAlgo(Alg)
+        InEventReco = InEventRecoCA(f"ElReco",inputMaker=IM)
+        InEventReco.mergeReco(accAlg)  
+        selAcc=SelectionCA(name+signature+"SeqStep"+step)        
+        selAcc.mergeReco(InEventReco)      
+        return (selAcc,IM, Alg.Output)
+    else:
+        Sequence   = seqAND(name+signature+"SeqStep"+step, [IM, Alg])
+        return (Sequence, IM, Alg.Output)
 
-    return (Sequence, IM, Alg.Output)
 
 
 
@@ -64,7 +80,7 @@ def MuHypo(name):
     return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName)
 
 def makeMuSequence(ConfigFlags, name,step):
-    return makeSequence(ConfigFlags, name,step, signature="mu")
+    return makeSequence(ConfigFlags, name,step, "mu")
 
 
 ## ##### electron signatures
@@ -77,25 +93,34 @@ def ElGamHypo(name):
     return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName)
 
 def makeElSequence(ConfigFlags, name,step):
-    return makeSequence(ConfigFlags, name,step, signature="el")
+    return makeSequence(ConfigFlags, name,step, "el")
 
 
 
 
 # Menu sequences
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, SelectionCA, InEventRecoCA
 
 def elMenuSequence(step, reconame, hyponame):
     (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
     elHypo = ElGamHypo(hyponame+"Step"+step+"ElHypo")
     elHypo.Input = seqOut
-    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+    if Configurable.configurableRun3Behavior == 1: 
+        Sequence.addHypoAlgo(elHypo)
+        return MenuSequenceCA(Sequence, HypoToolGen=ElTestHypoTool)                 
+    else:
+        return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
    
 
 def gamMenuSequence(step, reconame, hyponame):
     (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
     elHypo = ElGamHypo(hyponame+"Step"+step+"GamHypo")
     elHypo.Input = seqOut
-    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+    if Configurable.configurableRun3Behavior == 1: 
+        Sequence.addHypoAlgo(elHypo)
+        return MenuSequenceCA(Sequence, HypoToolGen=ElTestHypoTool)                 
+    else:
+        return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
     
 
 
@@ -103,13 +128,21 @@ def muMenuSequence(step, reconame, hyponame):
     (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeMuSequence,ConfigFlags,name=reconame, step=step)
     muHypo = MuHypo(hyponame+"Step"+step+"MuHypo")
     muHypo.Input = seqOut
-    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
+    if Configurable.configurableRun3Behavior == 1: 
+        Sequence.addHypoAlgo(muHypo)
+        return MenuSequenceCA(Sequence, HypoToolGen=MuTestHypoTool)                 
+    else:
+        return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
     
         
 def genMenuSequence(step, reconame, hyponame):
     (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
     elHypo = ElGamHypo(hyponame+"Hypo")
     elHypo.Input = seqOut
-    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+    if Configurable.configurableRun3Behavior == 1: 
+        Sequence.addHypoAlgo(elHypo)
+        return MenuSequenceCA(Sequence, HypoToolGen=ElTestHypoTool)                 
+    else:
+        return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
     
  

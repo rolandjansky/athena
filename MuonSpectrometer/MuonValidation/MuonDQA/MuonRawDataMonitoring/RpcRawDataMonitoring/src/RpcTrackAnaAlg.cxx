@@ -64,15 +64,22 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
   ATH_MSG_INFO( "MuonGM::MuonDetectorManager::RpcDetElMaxHash= "<<MuonGM::MuonDetectorManager::RpcDetElMaxHash );
   const RpcIdHelper& rpcIdHelper = m_idHelperSvc->rpcIdHelper();
 
+  m_StationNames[BI] = {};
+  m_StationNames[BM1] = {2, 3, 8, 53}; // doubletR = 1
+  m_StationNames[BM2] = {2, 3, 8, 53}; // doubletR = 2
+  m_StationNames[BO1] = {4, 5, 9, 10}; // doubletR = 1
+  m_StationNames[BO2] = {4, 5, 9, 10}; // doubletR = 2
+
   int panelIn = 0;
+  std::vector<int> BMBO_StationNames = {2, 3, 4, 5, 8, 9, 10, 53};
   for(unsigned idetEl = 0; idetEl < MuonGM::MuonDetectorManager::RpcDetElMaxHash; ++idetEl) {
     const MuonGM::RpcDetectorElement *detEl = m_muonMgr->getRpcDetectorElement(idetEl);
 
     if(!detEl) {
-      // ATH_MSG_WARNING(" MuonGM::RpcDetectorElement  detEl not valid ! "<<" idetEl =  "<<idetEl );
       continue;
     }
 
+    unsigned ngasgap = 2;
     for(int doubletZ = 1; doubletZ <= 3; ++doubletZ) {
       for(unsigned doubletPhi = 1; doubletPhi <= 2; ++doubletPhi) {
   
@@ -89,11 +96,31 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
           continue;
         }
 
-        for(unsigned gasgap = 1; gasgap <= 2; ++gasgap) {
+        int stName = rpcIdHelper.stationName(readEl_id);
+        
+        if (std::count(BMBO_StationNames.begin(), BMBO_StationNames.end(), stName)) {
+            ngasgap = 2;
+        }
+        else {
+            ngasgap = 3;
+        }
+
+        for(unsigned gasgap = 1; gasgap <= ngasgap; ++gasgap) {
           std::shared_ptr<GasGapData> gap = std::make_shared<GasGapData>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap);
 
-          if(gap->nstrip_eta > 0 || gap->nstrip_phi > 0) {
-            m_gasGapData.push_back(gap);
+          if(!gap) {
+            continue;
+          }
+
+          std::pair<int, int> st_dbR = std::make_pair(stName, gap->doubletR);
+          std::map<std::pair<int, int>, std::vector<std::shared_ptr<GasGapData>>>::iterator it_gaps = m_gasGapData.find(st_dbR);
+
+          if (it_gaps == m_gasGapData.end()) {
+            std::vector<std::shared_ptr<GasGapData>> gasgap_group = {gap};
+            m_gasGapData[st_dbR] = gasgap_group;
+          }
+          else {
+            it_gaps->second.push_back(gap);
           }
 
           std::shared_ptr<RpcPanel> rpcPanel_eta = std::make_shared<RpcPanel>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap, 0, panelIn);
@@ -257,7 +284,7 @@ StatusCode RpcTrackAnaAlg::fillMuonExtrapolateEff(const EventContext& ctx) const
       if(!track) continue;
 
       results.clear();
-      ATH_CHECK(extrapolate2RPC(track,   Trk::anyDirection, results));
+      ATH_CHECK(extrapolate2RPC(track,   Trk::anyDirection, results, BI));
       ATH_CHECK(readHitsPerGasgap(ctx, results) );
     }
   }
@@ -410,7 +437,7 @@ StatusCode RpcTrackAnaAlg::triggerMatching(const xAOD::Muon* offline_muon, const
 }
 
 //========================================================================================================
-StatusCode RpcTrackAnaAlg::extrapolate2RPC(const xAOD::TrackParticle *track, const Trk::PropDirection direction, std::vector<GasGapResult> & results) const
+StatusCode RpcTrackAnaAlg::extrapolate2RPC(const xAOD::TrackParticle *track, const Trk::PropDirection direction, std::vector<GasGapResult> & results, BarrelDL barrelDL) const
 {
   /*
     get intersections of the muon with the RPC planes
@@ -427,112 +454,91 @@ StatusCode RpcTrackAnaAlg::extrapolate2RPC(const xAOD::TrackParticle *track, con
           -- Check that extrapolated position is in the gas gap surface bounds
         if both within checks valid - then save RPC extrapolation result
   */
+  int doubletR = 1;
+  if (barrelDL >= OUT ){
+    return StatusCode::SUCCESS;
+  }
+  else if (barrelDL == BM2 || barrelDL == BO2 ){
+    doubletR = 2;
+  }
 
   using namespace Monitored;
   auto tool = getGroup(m_packageName);
 
-  ATH_MSG_DEBUG(  "  extrapolate2RPC start" );
   if(!track) {
-    ATH_MSG_WARNING( " extrapolate2RPC -invalid track particle");
     return StatusCode::FAILURE;
   }
 
-  ExSummary summary;
-
-  //
-  // Iterate over RPC readout elements and compute intersections with each gas gap
-  //
-  for(const std::shared_ptr<GasGapData> &gap: m_gasGapData) {
-    ExResult result(gap->gapid, direction);
-
-    // Compute track distance to the center of ReadoutElement and to the gas gap surface
-    gap->computeTrackDistanceToGasGap(result, *track);
-
-    ATH_MSG_DEBUG("******************************************************************************"<<std::endl
-               << "  TrackParticle  eta, phi           = " << track->eta() << ", " << track->phi() << ", pT=" << track->pt() << std::endl
-               << "  ReadoutElement center,   eta, phi = " << gap->readoutEl->center().eta() << ", " << gap->readoutEl->center().phi()  << std::endl
-               << "  ReadoutElement REcenter, eta, phi = " << gap->readoutEl->REcenter().eta() << ", " << gap->readoutEl->REcenter().phi()  << std::endl
-               << "  track DR to GasGap                = " << result.minTrackGasGapDR << std::endl
-               << "  track DR to Readout               = " << result.minTrackReadoutDR << std::endl
-               << "******************************************************************************");
-
-    if(m_minDRTrackToReadoutElement > 0.0 && result.minTrackReadoutDR > m_minDRTrackToReadoutElement) {
-      continue;
-    }
-
-    if(m_minDRTrackToGasGap > 0.0 && result.minTrackGasGapDR > m_minDRTrackToGasGap) {
-      continue;
-    }
-
-    //
-    // Extrapolate track to the gas gap surface and check whether the track position is in bounds
-    //
-    // if(!computeTrackIntersectionWithGasGap(ctx, result, track, gap)){
-    if(!computeTrackIntersectionWithGasGap(result, track, gap)){
-      continue;
-    }
-
-    ATH_MSG_DEBUG( "  localTrackPosValid:    " << result.localTrackPosValid    << std::endl
-                << "  localTrackPosInBounds: " << result.localTrackPosInBounds << std::endl
-                << "  minTrackGasGapDEta:    " << result.minTrackGasGapDEta    << std::endl
-                << "  minTrackGasGapDPhi:    " << result.minTrackGasGapDPhi    << std::endl
-                << "  minTrackGasGapDR:      " << result.minTrackGasGapDR      );
-    
-    if(!result.localTrackPosValid) {
-      continue;
-    }
-
-    if(!result.localTrackPosInBoundsTight){
-      continue;
-    }
-
-    summary.nGasGapInBounds      += int(result.localTrackPosInBounds);
-    summary.nGasGapInBoundsTight += int(result.localTrackPosInBoundsTight);
-
-    results.push_back(std::make_pair(result, gap));
-
-    auto detPar_localY_allPanel      = Scalar<float>("detPar_localY_allPanel",  result.localTrackPosY) ;
-    auto detPar_localZ_allPanel      = Scalar<float>("detPar_localZ_allPanel",  result.localTrackPosZ );
-    auto detPar_globalX_allPanel     = Scalar<float>("detPar_globalX_allPanel", result.globalTrackPosX);
-    auto detPar_globalY_allPanel     = Scalar<float>("detPar_globalY_allPanel", result.globalTrackPosY);
-    auto detPar_globalZ_allPanel     = Scalar<float>("detPar_globalZ_allPanel", result.globalTrackPosZ);
-    auto detPar_globalR_allPanel     = Scalar<float>("detPar_globalR_allPanel", sqrt(result.globalTrackPosX*result.globalTrackPosX+result.globalTrackPosY*result.globalTrackPosY));
-    auto minTrackGasGapDR_allPanel   = Scalar<float>("dR_TrackGasGap_allPanel", result.minTrackGasGapDR );
-    auto minTrackReadoutDR_allPanel  = Scalar<float>("dR_TrackRE_allPanel",     result.minTrackReadoutDR);
-    auto panelInd_detpar             = Scalar<int>("panelInd_detpar",         0);
-
-    panelInd_detpar = gap->RpcPanel_eta_phi.first->panel_index;
-    fill(tool, detPar_localY_allPanel, detPar_localZ_allPanel, detPar_globalX_allPanel, detPar_globalY_allPanel, detPar_globalZ_allPanel, detPar_globalR_allPanel, minTrackGasGapDR_allPanel, minTrackReadoutDR_allPanel, panelInd_detpar);
-    
-    panelInd_detpar = gap->RpcPanel_eta_phi.second->panel_index;
-    fill(tool, detPar_localY_allPanel, detPar_localZ_allPanel, detPar_globalX_allPanel, detPar_globalY_allPanel, detPar_globalZ_allPanel, detPar_globalR_allPanel, minTrackGasGapDR_allPanel, minTrackReadoutDR_allPanel, panelInd_detpar);
-    
-    int isOutLayer = 0;
-    int layer = 0;
-
-    if(gap->stationName == 4 || gap->stationName == 5 || gap->stationName == 9 || gap->stationName == 10 ) isOutLayer = 1;
-    layer = isOutLayer*4+(gap->doubletR-1)*2+(gap->gasgap-1);
-
-    const Trk::SurfaceBounds &bounds    = gap->readoutEl->bounds(gap->gapid);
-    ATH_MSG_DEBUG(" pass cut, gas gap id     : " << m_idHelperSvc->toString(gap->gapid) <<std::endl
-               << " pass cut, layer          : " << layer                   << std::endl
-               << " pass cut, bound          : " << bounds                  << std::endl
-               << " pass cut, StripLength_eta= " << gap->readoutEl->StripLength(0) << std::endl
-               << " pass cut, StripLength_phi= " << gap->readoutEl->StripLength(1) << std::endl
-               << " pass cut, local (Y,Z)    = ("<< result.localTrackPosY   <<", "<<result.localTrackPosZ<<")"<<std::endl
-               << " pass cut, global(X,Y,Z)  = ("<< result.globalTrackPosX  <<", "<<result.globalTrackPosY<<", "<<result.globalTrackPosZ<<")"<<std::endl
-               << " pass cut, dR_TrackGasGap = " << result.minTrackGasGapDR <<std::endl
-               << " pass cut, dR_TrackRE     = " << result.minTrackReadoutDR);
+  std::map<BarrelDL, std::vector<int>>::const_iterator dl_vec_it = m_StationNames.find(barrelDL);
+  if (dl_vec_it == m_StationNames.end()){
+    return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG( name() << " - extrapolate2RPC - number of in bounds gas gap intersections = " << summary.nGasGapInBounds);
+  Trk::TrackParameters *trackParamLayer = nullptr;
+  double minDR = 1.0; // A intial value
   
-  return StatusCode::SUCCESS;
+  const std::vector<int> dl_vec = dl_vec_it->second;
+  std::vector<int>::const_iterator it_dl = dl_vec.begin();
+  for(;it_dl != dl_vec.end(); it_dl++ ) {
+    int stName = *it_dl;
+    std::pair<int, int> st_dbR = std::make_pair(stName, doubletR);
+    std::map<std::pair<int, int>, std::vector<std::shared_ptr<GasGapData>>>::const_iterator gasgapIt = m_gasGapData.find(st_dbR);
+    if (gasgapIt == m_gasGapData.end()) {
+      continue;
+    }
+    
+    //
+    // Iterate over RPC readout elements and compute intersections with each gas gap
+    //
+    for(const std::shared_ptr<GasGapData> &gap: gasgapIt->second) {
+      ExResult result(gap->gapid, direction);
+
+      // Compute track distance to the gas gap surface
+      gap->computeTrackDistanceToGasGap(result, *track);
+
+      if(result.minTrackGasGapDR > m_minDRTrackToGasGap) {
+        continue;
+      }
+
+      //
+      // Extrapolate track to the gas gap surface and check whether the track position is in bounds
+      //
+      Trk::TrackParameters *trackParamInGap = computeTrackIntersectionWithGasGap(result, track, gap);
+
+      if(trackParamInGap == nullptr){
+        continue;
+      }
+      
+      if(!result.localTrackPosInBoundsTight){
+        continue;
+      }
+      
+
+      if (result.minTrackGasGapDR < minDR){
+        minDR = result.minTrackGasGapDR;
+        trackParamLayer = trackParamInGap;
+      }
+      ATH_MSG_DEBUG( name() << " extrapolated gasgap: " << gap->gapid_str );
+
+      results.push_back(std::make_pair(result, gap));
+    }
+  }
+ 
+  // Go to next layer of doublet
+  BarrelDL nextDL = BarrelDL(barrelDL+1);
+
+  // propgate the track parameter of the last doublet
+  // if no track paramater, use the input track
+  if      (trackParamLayer != nullptr  ) {
+    return extrapolate2RPC(trackParamLayer, direction, results, nextDL);
+  }
+  else {
+    return extrapolate2RPC(track, direction, results, nextDL);
+  }
 }
 
 //========================================================================================================
-// StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(const EventContext& ctx, ExResult &                result,
-StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &                result,
+Trk::TrackParameters*  RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &                result,
                                                             const xAOD::TrackParticle* track_particle,
                                                             const std::shared_ptr<GasGapData>         &gap) const
 {
@@ -541,17 +547,12 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
     This function:  
     - constructs Identifier for specific gasgap
     - extrapolates muon to this gas gap
-    */
-  result.localTrackPosValid  = 0;
+  */
 
   // Get surface of this gas gap and extrapolate track to this surface
-  const Trk::SurfaceBounds &bounds    = gap->readoutEl->bounds(gap->gapid);
-  const Trk::PlaneSurface &gapSurface = gap->readoutEl->surface(gap->gapid);
-
-  ATH_MSG_DEBUG( "computeTrackIntersectionWithGasGap - gas gap id: " << m_idHelperSvc->toString(gap->gapid) <<std::endl
-              << " bound:   " << bounds << std::endl);
-
-  const Trk::TrackParameters *detParameters = nullptr;
+  const Trk::SurfaceBounds &bounds          = gap->readoutEl->bounds(gap->gapid);
+  const Trk::PlaneSurface &gapSurface       = gap->readoutEl->surface(gap->gapid);
+  Trk::TrackParameters *detParameters = nullptr;
 
   if(m_useAODParticle) {
     detParameters = m_extrapolator->extrapolate(ctx,
@@ -570,11 +571,11 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
                                                 Trk::muon).release();
   }
   else {
-    return StatusCode::FAILURE;
+    return detParameters;
   }
 
   if(!detParameters) {
-    return StatusCode::FAILURE;
+    return detParameters;
   }
   
   //
@@ -589,23 +590,155 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
   const bool inbounds       = bounds.inside(local2dTrackPosition, m_boundsToleranceReadoutElement,      m_boundsToleranceReadoutElement);
   const bool inbounds_tight = bounds.inside(local2dTrackPosition, m_boundsToleranceReadoutElementTight, m_boundsToleranceReadoutElementTight);
 
-  result.localTrackPosValid         = 1;
   result.localTrackPosInBounds      = inbounds;
   result.localTrackPosInBoundsTight = inbounds_tight;
-  result.localTrackPosY             = local3dTrackPosition.y();
-  result.localTrackPosZ             = local3dTrackPosition.z();
-  result.globalTrackPosX            = detParameters->position().x();
-  result.globalTrackPosY            = detParameters->position().y();
-  result.globalTrackPosZ            = detParameters->position().z();
+  result.localPos                   = local3dTrackPosition;
+  result.globalPos                  = detParameters->position();
 
-  // Print debugging info
-  ATH_MSG_DEBUG( "  computeTrackIntersectionWithGasGap - valid track extrapolation" << std::endl
-              << "  detParameters->position()   : " << detParameters->position() << std::endl
-              << "  local3dTrackPosition        : " << local3dTrackPosition << std::endl);
+  return detParameters;
+}
 
-  // Cleanup memory
-  delete detParameters;
-  return StatusCode::SUCCESS;
+//========================================================================================================
+StatusCode RpcTrackAnaAlg::extrapolate2RPC(const Trk::TrackParameters* trackParam, const Trk::PropDirection direction, std::vector<GasGapResult> & results, BarrelDL barrelDL) const
+{
+  /*
+    get intersections of the muon with the RPC planes
+
+    Iterate over all valid RPCDetectorElements and RPCReadoutElements:
+     1) compute DR distance between track and center of ReadoutElement
+        if this distance within tolerance - proceed 
+     2) Next, compute:
+          -- min DR distance between track and strips within this gas gap
+          -- number of valid eta and phi strips within this gas gap
+        if both results within their tolerances - proceed
+     3) Extrapolate track to the surface of this gas gap:
+          -- Check that extrapolation result valid
+          -- Check that extrapolated position is in the gas gap surface bounds
+        if both within checks valid - then save RPC extrapolation result
+  */
+  int doubletR = 1;
+  if (barrelDL >= OUT ){
+    return StatusCode::SUCCESS;
+  }
+  else if (barrelDL == BM2 || barrelDL == BO2 ){
+    doubletR = 2;
+  }
+
+  using namespace Monitored;
+  auto tool = getGroup(m_packageName);
+
+  if(!trackParam) {
+    return StatusCode::FAILURE;
+  }
+
+  std::map<BarrelDL, std::vector<int>>::const_iterator dl_vec_it = m_StationNames.find(barrelDL);
+  if (dl_vec_it == m_StationNames.end()){
+    return StatusCode::FAILURE;
+  }
+
+  Trk::TrackParameters *trackParamLayer = nullptr;
+  double minDR = 1.0; // A intial value
+  
+  const std::vector<int> dl_vec = dl_vec_it->second;
+  
+  std::vector<int>::const_iterator it_dl = dl_vec.begin();
+  for(;it_dl != dl_vec.end(); it_dl++ ) {
+    int stName = *it_dl;
+    std::pair<int, int> st_dbR = std::make_pair(stName, doubletR);
+    std::map<std::pair<int, int>, std::vector<std::shared_ptr<GasGapData>>>::const_iterator gasgapIt = m_gasGapData.find(st_dbR);
+    
+    if (gasgapIt == m_gasGapData.end()) {
+      continue;
+    }
+    
+    //
+    // Iterate over RPC readout elements and compute intersections with each gas gap
+    //
+    for(const std::shared_ptr<GasGapData> &gap: gasgapIt->second) {
+      ExResult result(gap->gapid, direction);
+
+      // Compute track distance to the gas gap surface
+      gap->computeTrackDistanceToGasGap(result, trackParam);
+
+      if(result.minTrackGasGapDR > m_minDRTrackToGasGap) {
+        continue;
+      }
+
+      //
+      // Extrapolate track to the gas gap surface and check whether the track position is in bounds
+      //
+      Trk::TrackParameters *trackParamInGap = computeTrackIntersectionWithGasGap(result,  trackParam, gap);
+      if(trackParamInGap == nullptr){
+        continue;
+      }
+      
+      if(!result.localTrackPosInBoundsTight){
+        continue;
+      }
+
+      ATH_MSG_DEBUG( name() << " extrapolated gasgap: " << gap->gapid_str );
+      
+      if (result.minTrackGasGapDR < minDR){
+        minDR = result.minTrackGasGapDR;
+        trackParamLayer = trackParamInGap;
+      }
+
+      results.push_back(std::make_pair(result, gap));
+    }
+  }
+  
+  if (trackParamLayer == nullptr){
+    trackParamLayer =  const_cast<Trk::TrackParameters *>(trackParam);
+  }
+  BarrelDL nextDL = BarrelDL(barrelDL+1);
+
+  return extrapolate2RPC(trackParamLayer, direction, results, nextDL);
+}
+
+//========================================================================================================
+Trk::TrackParameters*  RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &                result,
+                                                            const Trk::TrackParameters* trackParam,
+                                                            const std::shared_ptr<GasGapData>         &gap) const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext(); 
+  /*
+    This function:  
+    - constructs Identifier for specific gasgap
+    - extrapolates muon to this gas gap
+  */
+
+  // Get surface of this gas gap and extrapolate track to this surface
+  const Trk::SurfaceBounds &bounds    = gap->readoutEl->bounds(gap->gapid);
+  const Trk::PlaneSurface &gapSurface = gap->readoutEl->surface(gap->gapid);
+  Trk::TrackParameters *detParameters = m_extrapolator->extrapolate(ctx,
+                                                                    *trackParam,
+                                                                    gapSurface,
+                                                                    result.direction,
+                                                                    true,
+                                                                    Trk::muon).release();
+
+  if(!detParameters) {
+    return detParameters;
+  }
+  
+  //
+  // Transform global extrapolated track position on surface to local coordinates
+  //
+  const Amg::Vector3D local3dTrackPosition = gap->readoutEl->globalToLocalCoords(detParameters->position(), gap->gapid);
+  const Amg::Vector2D local2dTrackPosition(local3dTrackPosition.y(), local3dTrackPosition.z());
+
+  //
+  // Check if the track position on surface is within tolerable bounds
+  //
+  const bool inbounds       = bounds.inside(local2dTrackPosition, m_boundsToleranceReadoutElement,      m_boundsToleranceReadoutElement);
+  const bool inbounds_tight = bounds.inside(local2dTrackPosition, m_boundsToleranceReadoutElementTight, m_boundsToleranceReadoutElementTight);
+
+  result.localTrackPosInBounds      = inbounds;
+  result.localTrackPosInBoundsTight = inbounds_tight;
+  result.localPos                   = local3dTrackPosition;
+  result.globalPos                  = detParameters->position();
+
+  return detParameters;
 }
 
 //========================================================================================================
@@ -724,8 +857,8 @@ StatusCode RpcTrackAnaAlg::readHitsPerGasgap(const EventContext& ctx, std::vecto
     Amg::Vector3D hitPos_global =  i_hit.second->globalPosition();
     const Amg::Vector3D hitPos_local = gap->readoutEl->globalToLocalCoords(hitPos_global, gap->gapid);
 
-    float trackPos_localY = i_hit.first.first.localTrackPosY;
-    float trackPos_localZ = i_hit.first.first.localTrackPosZ;
+    float trackPos_localY = i_hit.first.first.localPos.y();
+    float trackPos_localZ = i_hit.first.first.localPos.z();
 
     if (measuresPhi){
       int i_panel_phi = gap->RpcPanel_eta_phi.second->panel_index;

@@ -84,7 +84,7 @@ namespace Muon {
     }
 
     bool MuonLayerAmbiguitySolverTool::extendCandidatesWithLayers(
-        const EventContext& ctx, std::vector<MuonCandidate>& candidates, 
+        const EventContext& ctx, std::vector<MuonCandidate>& candidates,
         const std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec,
         const std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder) const {
         // break recursive call chain once we processed all layers
@@ -135,7 +135,8 @@ namespace Muon {
         return extendCandidatesWithLayers(ctx, candidates, muonLayerDataHashVec, newInverseSeedLayerOrder);
     }
 
-    bool MuonLayerAmbiguitySolverTool::match(const EventContext& ctx, const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const {
+    bool MuonLayerAmbiguitySolverTool::match(const EventContext& ctx, const MuonCandidate& candidate,
+                                             const MuonLayerIntersection& layerIntersection) const {
         // loop over layers and match each segment to the new one, if any fails, fail the combination
         for (const auto& layer : candidate.layerIntersections) {
             if (!m_segmentMatchingTool->match(ctx, *layer.segment, *layerIntersection.segment)) return false;
@@ -217,7 +218,8 @@ namespace Muon {
         }
     }
 
-    void MuonLayerAmbiguitySolverTool::resolveSmallLargeOverlaps(const EventContext& ctx, std::vector<MuonLayerIntersection>& existingLayerIntersections,
+    void MuonLayerAmbiguitySolverTool::resolveSmallLargeOverlaps(const EventContext& ctx,
+                                                                 std::vector<MuonLayerIntersection>& existingLayerIntersections,
                                                                  const std::vector<MuonLayerIntersection>& newLayerIntersections) const {
         ATH_MSG_VERBOSE(" resolveSmallLargeOverlaps: existing " << existingLayerIntersections.size() << " new "
                                                                 << newLayerIntersections.size());
@@ -295,13 +297,15 @@ namespace Muon {
         }
 
         // lambda to loop over the input intersections and add them to the new list
-        auto insert_intersection = [&combinedSegments] ( const Muon::MuonLayerIntersection& inter_sect){
+        auto insert_intersection = [&combinedSegments](const Muon::MuonLayerIntersection& inter_sect) {
             return !combinedSegments.count(inter_sect.segment.get());
-        };        
+        };
         // do the insertion and swap the new vector with the existingLayerIntersections
-        combinedIntersections.reserve(existingLayerIntersections.size() + newLayerIntersections.size() );
-        std::copy_if(existingLayerIntersections.begin(), existingLayerIntersections.end(), std::back_inserter(combinedIntersections), insert_intersection );
-        std::copy_if(newLayerIntersections.begin(), newLayerIntersections.end(), std::back_inserter(combinedIntersections), insert_intersection );
+        combinedIntersections.reserve(existingLayerIntersections.size() + newLayerIntersections.size());
+        std::copy_if(existingLayerIntersections.begin(), existingLayerIntersections.end(), std::back_inserter(combinedIntersections),
+                     insert_intersection);
+        std::copy_if(newLayerIntersections.begin(), newLayerIntersections.end(), std::back_inserter(combinedIntersections),
+                     insert_intersection);
         existingLayerIntersections = std::move(combinedIntersections);
     }
 }  // namespace Muon
