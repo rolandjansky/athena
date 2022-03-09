@@ -29,8 +29,7 @@
 
 InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::TRT_TrackSegmentsMakerCondAlg_ATLxk(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator),
-    m_propTool("Trk::RungeKuttaPropagator"),
-    m_condSvc{"CondSvc", name}
+    m_propTool("Trk::RungeKuttaPropagator")
 
 {
   m_fieldmode   =      "MapSolenoid" ;
@@ -51,8 +50,6 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::initialize()
 
   ATH_CHECK(m_trtDetEleContKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
-  ATH_CHECK(m_condSvc.retrieve());
-  ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
   // Get propagator tool
   //

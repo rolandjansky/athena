@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,8 +18,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderBounds.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 #include <vector>
 
@@ -82,12 +80,6 @@ namespace InDet {
     SG::WriteCondHandleKey<SiDetElementsLayerVectors_xk> m_writeKey{this, "WriteKey", "SiDetElementsLayerVectors_xk", "Key of SiDetElementsLayerVectors_xk"};
     //@}
 
-    ///////////////////////////////////////////////////////////////////
-    /// @name Service handle for SG::WriteCondHandleKey
-    ///////////////////////////////////////////////////////////////////
-    //@{
-    ServiceHandle<ICondSvc> m_condSvc;
-    //@}
 
     ///////////////////////////////////////////////////////////////////
     /// @name Private method
