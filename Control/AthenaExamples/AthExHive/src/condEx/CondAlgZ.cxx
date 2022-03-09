@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondAlgZ.h"
 #include "AthExHive/IASCIICondDbSvc.h"
 #include "StoreGate/WriteCondHandle.h"
-
-#include "GaudiKernel/ServiceHandle.h"
 
 #include <thread>
 #include <chrono>
@@ -14,8 +12,7 @@
 
 CondAlgZ::CondAlgZ( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_cs("CondSvc",name)
+  ::AthAlgorithm( name, pSvcLocator )
 {
 }
 
@@ -24,43 +21,12 @@ CondAlgZ::~CondAlgZ() {}
 StatusCode CondAlgZ::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  if (m_cs.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve CondSvc");
-  }
+  ATH_CHECK( m_rchk1.initialize() );
+  ATH_CHECK( m_rchk2.initialize() );
+  ATH_CHECK( m_rchk3.initialize() );
 
-  if (m_rchk1.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize ReadCondHandleKey with key" << m_rchk1.key() );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_wch.initialize() );
 
-  if (m_rchk2.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize ReadCondHandleKey with key" << m_rchk2.key() );
-    return StatusCode::FAILURE;
-  }
-
-  if (m_rchk3.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize ReadCondHandleKey with key" << m_rchk3.key() );
-    return StatusCode::FAILURE;
-  }
-
-
-  if (m_wch.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize WriteCondHandleKey with key" << m_wch.key() );
-    return StatusCode::FAILURE;
-  }
-
-
-  if (m_cs->regHandle(this, m_wch).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wch.fullKey() 
-                  << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CondAlgZ::finalize() {
-  ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 

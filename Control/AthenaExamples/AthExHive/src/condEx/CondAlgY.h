@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDALGS_CONDALGY_H
@@ -12,8 +12,6 @@
 #include "AthExHive/CondDataObjY.h"
 #include "AthExHive/IASCIICondDbSvc.h"
 
-#include "GaudiKernel/ICondSvc.h"
-
 #include <string>
 
 class CondAlgY  :  public AthAlgorithm {
@@ -23,12 +21,9 @@ public:
   CondAlgY (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CondAlgY();
   
-  virtual bool isClonable() const override { return true; }
-
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
-  
+
 private:
   
   SG::WriteCondHandleKey<CondDataObjY> m_wch1 {this, "Key_CH1", "Y1", "cond handle key 1"};
