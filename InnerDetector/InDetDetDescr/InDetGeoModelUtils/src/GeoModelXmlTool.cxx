@@ -58,6 +58,13 @@ int GeoModelXmlTool::createTopVolume(GeoPhysVol* world, GmxInterface& gmxInterfa
     }
   }
 
+  //optionally dump to local file for examination
+  if(m_clobOutputFileName!="") {
+      std::ofstream out(m_clobOutputFileName);
+      out << gmxInput;
+      out.close();
+   }
+
   Gmx2Geo gmx2Geo(gmxInput, world, gmxInterface, flags);
 
   unsigned int nChildren = world->getNChildVols();
@@ -105,12 +112,5 @@ std::string GeoModelXmlTool::getBlob(const std::string& vNode, const std::string
   }
   const IRDBRecord *record = (*recordSet)[0];
   std::string clobString = record->getString("XMLCLOB");
-  //optionally dump to local file for examination
-  if(m_clobOutputFileName!="") {
-      std::ofstream out(m_clobOutputFileName);
-      out << clobString;
-      out.close();
-  }
-
   return clobString;
 }
