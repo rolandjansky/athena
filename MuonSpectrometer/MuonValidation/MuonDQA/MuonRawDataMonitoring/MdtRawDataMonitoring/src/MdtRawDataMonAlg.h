@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,9 @@
 
 //Helper Includes
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-#include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
-#include "MdtRawDataMonitoring/MDTNoisyTubes.h"
-#include "MdtRawDataMonitoring/MDTChamber.h"
+#include "MuonChamberIDSelector.h"
+#include "MDTNoisyTubes.h"
+#include "MDTChamber.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"

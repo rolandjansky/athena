@@ -24,7 +24,7 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
  
-#include "MdtVsRpcRawDataMonitoring/MdtVsRpcRawDataValAlg.h"
+#include "MdtVsRpcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include <sstream>

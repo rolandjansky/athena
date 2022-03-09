@@ -10,7 +10,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 // Local
 
-#include "RpcRawDataMonitoring/RPCDQUtils.h"
+#include "RPCDQUtils.h"
 
 //========================================================================================================
 // struct RpcPanel

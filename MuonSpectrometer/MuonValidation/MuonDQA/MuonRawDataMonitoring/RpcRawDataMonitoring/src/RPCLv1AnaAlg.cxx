@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RpcRawDataMonitoring/RPCLv1AnaAlg.h"
+#include "RPCLv1AnaAlg.h"
 
 //========================================================================================================
 RPCLv1AnaAlg::RPCLv1AnaAlg (const std::string& name, ISvcLocator* pSvcLocator)

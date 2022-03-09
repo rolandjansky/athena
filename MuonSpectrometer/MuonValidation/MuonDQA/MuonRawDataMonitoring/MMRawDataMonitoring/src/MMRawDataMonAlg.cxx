@@ -17,7 +17,7 @@
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
-#include "MMRawDataMonitoring/MMRawDataMonAlg.h"
+#include "MMRawDataMonAlg.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"

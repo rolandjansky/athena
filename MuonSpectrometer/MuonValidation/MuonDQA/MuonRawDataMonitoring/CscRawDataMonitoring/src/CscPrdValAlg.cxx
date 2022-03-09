@@ -15,7 +15,7 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 // Athena include(s)
-#include "CscRawDataMonitoring/CscPrdValAlg.h"
+#include "CscPrdValAlg.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 
