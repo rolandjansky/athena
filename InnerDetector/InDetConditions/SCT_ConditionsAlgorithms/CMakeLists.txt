@@ -17,7 +17,7 @@ atlas_add_component( SCT_ConditionsAlgorithms
 function( _add_athena_test name )
    atlas_add_test( ${name}
       SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/${name}.py
-      POST_EXEC_SCRIPT nopost.sh
+      POST_EXEC_SCRIPT noerror.sh
       PROPERTIES TIMEOUT 600
       ENVIRONMENT THREADS=5 )
 endfunction()
@@ -25,7 +25,7 @@ endfunction()
 function( _add_test name )
    atlas_add_test( ${name}
       SCRIPT python -m SCT_ConditionsAlgorithms.${name}
-      POST_EXEC_SCRIPT nopost.sh
+      POST_EXEC_SCRIPT noerror.sh
       PROPERTIES TIMEOUT 600 )
 endfunction()
 
@@ -62,13 +62,13 @@ _add_test( SCT_TdaqEnabledTestAlgConfig )
 
 atlas_add_test( TestLinkMasking
                 SCRIPT share/TestLinkMasking.sh
-                POST_EXEC_SCRIPT nopost.sh
+                POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
 atlas_add_test( TestLinkMaskingNewConf
                 SCRIPT share/TestLinkMaskingNewConf.sh
-                POST_EXEC_SCRIPT nopost.sh
+                POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
