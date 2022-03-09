@@ -34,19 +34,8 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
-    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
-
-    if InDetFlags.doR3LargeD0():
-        colsTP+= ["CombinedMuonsLRTTrackParticles", "ExtraPolatedMuonsLRTTrackParticles"]
-        cols += ["CombinedMuonsLRTTracks", "ExtraPolatedMuonsLRTTracks"]
-    
-    if muonRecFlags.runCommissioningChain():
-        cols +=["EMEO_MSOnlyExtrapolatedTracks", "EMEO_ExtrapolatedMuonTracks", "EMEO_CombinedMuonTracks"]
-        colsTP += ["EMEO_MSOnlyExtrapolatedMuonTrackParticles", "EMEO_ExtrapolatedMuonTrackParticles", "EMEO_CombinedMuonTrackParticles"]
-    if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
-        colsTP += ["CombinedStauTrackParticles", "ExtrapolatedStauTrackParticles"]
-        cols += ["CombinedStauTracks", "ExtrapolatedStauTracks"]
+    from MuonCombinedRecExample.MuonCombinedAlgs import GetCombinedTrackParticles
+    colsTP, cols = GetCombinedTrackParticles()
     ### Schedule the truth tracks for the 
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker",
                                               TrackCollectionNames = cols,

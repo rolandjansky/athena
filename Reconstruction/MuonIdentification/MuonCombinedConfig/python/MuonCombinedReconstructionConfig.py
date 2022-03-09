@@ -437,6 +437,7 @@ def CombinedMuonOutputCfg(flags):
 
     aod_items = []
 
+    particle_col, trk_col = GetCombinedTrkContainers(flags)
     if flags.Detector.EnableCalo: 
         aod_items+=["xAOD::CaloClusterContainer#MuonClusterCollection"]
         aod_items+=["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
@@ -444,37 +445,18 @@ def CombinedMuonOutputCfg(flags):
 
     # Adding the xAOD content by default
     excludedAuxData = '-clusterAssociation'
-    aod_items+=[ "xAOD::TrackParticleContainer#CombinedMuonTrackParticles"]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux." + excludedAuxData ]
-    aod_items+=[ "xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles" ]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux." + excludedAuxData ]
-    aod_items+=[ "xAOD::TrackParticleContainer#MSOnlyExtrapolatedMuonTrackParticles" ]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux." + excludedAuxData ]
-    aod_items+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::TrackParticleContainer#"+col for col in particle_col]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#"+col+"Aux." +  excludedAuxData for col in particle_col]
     aod_items+=[ "xAOD::MuonContainer#Muons" ]
     aod_items+=[ "xAOD::MuonContainer#MuonsLRT"]
 
     # FIXME! Next two lines are hack to remove derivation framework variables that are added by DRAW building and are supposed to be transient
-    excludedMuonAuxData = ".-"+".-".join(iso_vars)
-    aod_items+=[ "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData ]
-    aod_items+=[ "xAOD::MuonAuxContainer#MuonsLRTAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData] 
-    
-    ### Combined muon track particles
-    aod_items+=[ "xAOD::TrackParticleContainer#CombinedMuonsLRTTrackParticles"]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedMuonsLRTTrackParticlesAux." + excludedAuxData]
-    ### ME trackParticles
-    aod_items+=[ "xAOD::TrackParticleContainer#ExtraPolatedMuonsLRTTrackParticles"]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#ExtraPolatedMuonsLRTTrackParticlesAux." + excludedAuxData]
-    aod_items+=[ "xAOD::TrackParticleContainer#MSOnlyExtraPolatedMuonsLRTTrackParticles"]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#MSOnlyExtraPolatedMuonsLRTTrackParticlesAux." + excludedAuxData]
-
+    wp_decors = ["DFCommonMuonsTight", "DFCommonGoodMuon","DFCommonMuonsMedium", "DFCommonMuonsLoose"]
+    excludedMuonAuxData = ".-"+".-".join(iso_vars+wp_decors)
+    aod_items+=[ "xAOD::MuonAuxContainer#MuonsAux" + excludedMuonAuxData ]
+    aod_items+=[ "xAOD::MuonAuxContainer#MuonsLRTAux" + excludedMuonAuxData] 
 
     ### stau
-    aod_items+=[ "xAOD::TrackParticleContainer#CombinedStauTrackParticles"]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedStauTrackParticlesAux." + excludedAuxData]
-    aod_items+=[ "xAOD::TrackParticleContainer#ExtrapolatedStauTrackParticles"]
-    aod_items+=[ "xAOD::TrackParticleAuxContainer#ExtrapolatedStauTrackParticlesAux." + excludedAuxData]
     aod_items+=[ "xAOD::MuonContainer#Staus" ]
     aod_items+=[ "xAOD::MuonAuxContainer#StausAux." + excludedAuxData ]
     aod_items+=[ "xAOD::SlowMuonContainer#SlowMuons" ]
@@ -483,13 +465,7 @@ def CombinedMuonOutputCfg(flags):
     # +++++ ESD +++++
 
     # Tracks 
-    esd_items =["TrackCollection#ExtrapolatedMuonTracks"] 
-    esd_items+=["TrackCollection#CombinedMuonTracks"]
-    esd_items+=["TrackCollection#MSOnlyExtrapolatedTracks"]
-  
-    if flags.Muon.runCommissioningChain:
-         esd_items+=["TrackCollection#EMEO_MSOnlyExtrapolatedTracks"]
-
+    esd_items = ["TrackCollection#"+col for col in trk_col]
     # Truth    
     if flags.Input.isMC:
         esd_items =["DetailedTrackTruthCollection#ExtrapolatedMuonTracksTruth"] 
