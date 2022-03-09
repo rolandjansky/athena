@@ -153,9 +153,9 @@ private:
 
       /// @name Position in cartesian coordinate
       /// @{
-      virtual double x() const { return vertex.x(); }
-      virtual double y() const { return vertex.y(); }
-      virtual double z() const { return vertex.z(); }
+      virtual double x() const override { return vertex.x(); }
+      virtual double y() const override { return vertex.y(); }
+      virtual double z() const override { return vertex.z(); }
       /// @}
 
       private :
