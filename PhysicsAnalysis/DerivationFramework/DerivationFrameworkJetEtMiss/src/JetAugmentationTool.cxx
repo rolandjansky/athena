@@ -384,6 +384,7 @@ namespace DerivationFramework {
     }
 
     // loop over the copies
+    bool truth_link_is_valid = true;
     for(const xAOD::Jet *jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
@@ -564,7 +565,7 @@ namespace DerivationFramework {
         int tntrk = 0;
         float truthjet_pt  = -999.0;
         float truthjet_eta = -999.0;
-        if(isMC){
+        if(isMC && truth_link_is_valid){
           const xAOD::Jet* tjet=nullptr;
           //tjet = * (jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink"));
           if(jet->isAvailable< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink") ){
@@ -579,7 +580,8 @@ namespace DerivationFramework {
               }//endelse NULL pointer
             }
             else {
-              ATH_MSG_DEBUG("Invalid truth link: setting weight to 1");
+              ATH_MSG_WARNING("Invalid truth link: setting weight to 1");
+              truth_link_is_valid = false;
             } //endelse isValid
           } //endif isAvailable
           else {
