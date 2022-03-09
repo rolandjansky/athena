@@ -9,6 +9,7 @@ from __future__ import print_function
 
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
+from os import environ
 
 #Cache for run/LB time stamp (avoid multiple DB lookup)
 global _timeForLB
@@ -49,6 +50,11 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
     "Get the magnetic field currents (MagFieldDCSInfo) for a given run"
     # access the TDAQ schema to translate run number into timestamp
     # and get the filename tag
+
+    if "DBRELEASE" in environ:
+        print ("Running in DBRelease, forcing readOracle to False")
+        readOracle=False
+    
     newdb=(run>=236107)
     if not quiet:
         print ("Reading magnetic field for run %i, forceOracle %s CONDBR2 %s" % (run,readOracle,newdb))
@@ -136,6 +142,9 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
 
 def getTimeForLB(run,LB,readOracle=False):
     "Return the time a specific run/LB, given the folder, or 0 for bad/no data"
+    if LB is None: 
+        LB=0
+
     runiov=(run << 32)+LB
 
     if runiov in _timeForLB:
