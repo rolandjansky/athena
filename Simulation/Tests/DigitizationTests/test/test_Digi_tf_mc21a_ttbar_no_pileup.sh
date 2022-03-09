@@ -96,7 +96,7 @@ then
     rc4=$?
     status=$rc4
 fi
-echo "art-result: $rc1 OLDvsFixedRef"
+echo "art-result: $rc4 OLDvsFixedRef"
 
 rc5=-9999
 if [[ $rc -eq 0 ]]

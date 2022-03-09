@@ -5,7 +5,7 @@
 from __future__ import print_function
 
 import sys,getopt,os,itertools
-from LumiBlockComps.LumiCalculator import lumiResult,RLBRange
+from LumiBlockComps.LumiCalculator import lumiResult
 from RunDependentSimComps.LumiResultsGetter import coolLumiResultsGetter
 
 from AthenaCommon.Logging import logging
@@ -13,7 +13,7 @@ log = logging.getLogger("RunDepTaskMaker")
 log.setLevel(logging.DEBUG)
 
 #tool: format of dictionary entry
-formatLine="'run':{run}, 'lb':{lb}, 'starttstamp':{starttstamp}, 'dt':{dt:.3f}, 'evts':_evts({evts:.0f}), 'mu':{mu:.3f}, 'force_new':False"
+formatLine="'run':{run}, 'lb':{lb}, 'starttstamp':{starttstamp}, 'evts':_evts({evts:.0f}), 'mu':{mu:.3f}"
 
 #tool: generator getting rid of bad elements (less than 1 event)
 def getGoodLB(mylistIter):

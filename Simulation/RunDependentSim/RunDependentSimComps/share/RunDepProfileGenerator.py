@@ -6,7 +6,6 @@ from __future__ import print_function
 
 import sys,argparse,os,time
 import ROOT
-import math
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("RunDepProfileGenerator")
@@ -22,7 +21,7 @@ parser.add_argument('-o','--output-file-name',help='custom output file name',des
 parser.add_argument('-c','--scale',help='total number of events by which to scale the input histogram/dictionary',dest='total_events',required=True,type=int)
 
 #Following RunDepTaskMaker.py for output format
-formatLine="'run':{run}, 'lb':{lb}, 'starttstamp':{starttstamp}, 'dt':{dt:.3f}, 'evts':_evts({evts:.0f}), 'mu':{mu:.3f}, 'force_new':False"
+formatLine="'run':{run}, 'lb':{lb}, 'starttstamp':{starttstamp}, 'evts':_evts({evts:.0f}), 'mu':{mu:.3f}"
 
 scaled_integral = 0
 
