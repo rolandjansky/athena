@@ -207,7 +207,9 @@ StatusCode TrigCostAnalysis::execute() {
 
     for (const xAOD::TrigComposite* tc : *metadataDataHandle) {
       try {
+        std::lock_guard<std::mutex> lock(m_addHostnameMutex);
         const std::string hostname = tc->getDetail<std::string>("hostname");
+        m_hostnames.insert(hostname);
       } catch ( const std::exception& ) {
         ATH_MSG_WARNING("Missing HLT_TrigCostMetadataContainer EDM hostname for event " << context.eventID().event_number());
       }
@@ -463,6 +465,16 @@ void TrigCostAnalysis::writeMetadata() {
 
   auto runNumber = m_enhancedBiasTool->getRunNumber();
   m_metadataTree->Branch("runNumber", &runNumber);
+
+  std::string hostnamesList = "";
+  if (m_hostnames.size() > 1){
+    ATH_MSG_DEBUG("Found many hostnames for this run");
+    for (auto name : m_hostnames) hostnamesList += name + ",";
+    hostnamesList.pop_back();
+  } else {
+    hostnamesList = *m_hostnames.begin();
+  }
+  m_metadataTree->Branch("hostname", &hostnamesList);
 
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
   std::string menuStr;
