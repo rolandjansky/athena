@@ -40,10 +40,6 @@ MagField::AtlasFieldMapCondAlg::~AtlasFieldMapCondAlg() = default;
 StatusCode
 MagField::AtlasFieldMapCondAlg::initialize()
 {
-
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Read Handle for the map
   ATH_CHECK(m_mapsInputKey.initialize(m_useMapsFromCOOL));
 
@@ -53,20 +49,11 @@ MagField::AtlasFieldMapCondAlg::initialize()
   // Output handle for the field map
   ATH_CHECK(m_mapCondObjOutputKey.initialize());
 
-  // Register write handles for scale factors/cache and the field map
-  if (m_condSvc->regHandle(this, m_mapCondObjOutputKey).isFailure()) {
-    ATH_MSG_ERROR("Unable to register WriteCondHandle "
-                  << m_mapCondObjOutputKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG("Initialize: Key " << m_mapCondObjOutputKey.fullKey()
+                << " has been succesfully registered ");
 
-  ATH_MSG_INFO("Initialize: Key " << m_mapCondObjOutputKey.fullKey()
-                                  << " has been succesfully registered ");
-  if (m_useMapsFromCOOL) {
-    ATH_MSG_INFO("Initialize: Will update the field map from conditions");
-  } else {
-    ATH_MSG_INFO("Initialize: Will update the field map from jobOpt file name");
-  }
+  ATH_MSG_INFO("Initialize: Will update the field map from " <<
+               (m_useMapsFromCOOL ? "conditions" : "jobOpt file name") );
 
   // Load these dictionaries now, so we don't need to try to do so
   // while multiple threads are running.

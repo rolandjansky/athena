@@ -12,11 +12,8 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-// #include "MagFieldInterfaces/IMTMagFieldSvc.h"
 
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldConditions/AtlasFieldMapCondObj.h"
@@ -122,10 +119,6 @@ private:
                                             "UseToroCurrent",
                                             20400.,
                                             "Set actual toroid current (A)" };
-  ServiceHandle<ICondSvc> m_condSvc{ this,
-                                     "CondSvc",
-                                     "CondSvc",
-                                     "conditions service" };
 };
 }
 
