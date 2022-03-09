@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloTrkMuIdTools/CaloMuonTag.h"
+#include "CaloMuonTag.h"
 
 #include "PathResolver/PathResolver.h"
 #include "StoreGate/StoreGateSvc.h"

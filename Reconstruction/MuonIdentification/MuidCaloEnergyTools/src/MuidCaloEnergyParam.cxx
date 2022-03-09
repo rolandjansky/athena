@@ -12,7 +12,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "MuidCaloEnergyTools/MuidCaloEnergyParam.h"
+#include "MuidCaloEnergyParam.h"
 
 #include <cmath>
 

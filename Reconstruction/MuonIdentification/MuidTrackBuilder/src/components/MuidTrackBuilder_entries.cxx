@@ -1,8 +1,8 @@
-#include "MuidTrackBuilder/CombinedMuonTrackBuilder.h"
-#include "MuidTrackBuilder/MuidMuonRecovery.h"
-#include "MuidTrackBuilder/MuonMatchQuality.h"
-#include "MuidTrackBuilder/MuonTrackQuery.h"
-#include "MuidTrackBuilder/OutwardsCombinedMuonTrackBuilder.h"
+#include "../CombinedMuonTrackBuilder.h"
+#include "../MuidMuonRecovery.h"
+#include "../MuonMatchQuality.h"
+#include "../MuonTrackQuery.h"
+#include "../OutwardsCombinedMuonTrackBuilder.h"
 
 DECLARE_COMPONENT(Rec::CombinedMuonTrackBuilder)
 DECLARE_COMPONENT(Rec::MuidMuonRecovery)

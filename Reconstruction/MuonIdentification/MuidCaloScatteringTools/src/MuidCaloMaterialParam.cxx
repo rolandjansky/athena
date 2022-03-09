@@ -18,7 +18,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "MuidCaloScatteringTools/MuidCaloMaterialParam.h"
+#include "MuidCaloMaterialParam.h"
 
 #include <cmath>
 #include <iomanip>

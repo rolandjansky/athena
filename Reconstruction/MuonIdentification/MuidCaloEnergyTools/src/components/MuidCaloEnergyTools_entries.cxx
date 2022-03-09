@@ -1,6 +1,6 @@
-#include "MuidCaloEnergyTools/MuidCaloEnergyMeas.h"
-#include "MuidCaloEnergyTools/MuidCaloEnergyParam.h"
-#include "MuidCaloEnergyTools/MuidCaloEnergyTool.h"
+#include "../MuidCaloEnergyMeas.h"
+#include "../MuidCaloEnergyParam.h"
+#include "../MuidCaloEnergyTool.h"
 
 DECLARE_COMPONENT(Rec::MuidCaloEnergyTool)
 DECLARE_COMPONENT(Rec::MuidCaloEnergyMeas)

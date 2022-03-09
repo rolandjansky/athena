@@ -6,7 +6,7 @@
 // MuidMaterialEffectsOnTrackProvider.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "MuidCaloScatteringTools/MuidMaterialEffectsOnTrackProvider.h"
+#include "MuidMaterialEffectsOnTrackProvider.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkGeometry/CylinderLayer.h"

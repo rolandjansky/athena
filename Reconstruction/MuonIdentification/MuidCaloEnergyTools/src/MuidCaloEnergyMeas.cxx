@@ -12,7 +12,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "MuidCaloEnergyTools/MuidCaloEnergyMeas.h"
+#include "MuidCaloEnergyMeas.h"
 
 #include "AthenaKernel/Units.h"
 #include "CLHEP/Geometry/Vector3D.h"

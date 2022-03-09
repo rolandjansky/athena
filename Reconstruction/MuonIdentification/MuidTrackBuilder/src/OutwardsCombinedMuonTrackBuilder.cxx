@@ -10,7 +10,7 @@
 //  The resulting track is fitted at the IP using the ITrackFitter interface.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include "MuidTrackBuilder/OutwardsCombinedMuonTrackBuilder.h"
+#include "OutwardsCombinedMuonTrackBuilder.h"
 
 #include <cmath>
 #include <iomanip>
