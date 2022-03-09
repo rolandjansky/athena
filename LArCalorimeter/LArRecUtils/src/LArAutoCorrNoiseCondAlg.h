@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRNOISECONDALG_H
 #define LARAUTOCORRNOISECONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -35,8 +34,6 @@ private:
   SG::ReadCondHandleKey<ILArAutoCorr> m_LArAutoCorrObjKey;
 
   SG::WriteCondHandleKey<LArAutoCorrNoise> m_LArAutoCorrNoiseObjKey;
-
-  ServiceHandle<ICondSvc> m_condSvc;
 
   bool m_isSuperCell;
   bool m_MCsym;

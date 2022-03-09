@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARLATOMEMAPPINGALG_H
@@ -10,7 +10,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArCabling/LArLATOMEMapping.h"
@@ -34,7 +33,6 @@ public:
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey {this,"ReadKey","/LAR/IdentifierSC/LatomeMapping"};
   SG::WriteCondHandleKey<LArLATOMEMapping>  m_writeKey{this,"WriteKey","LArLATOMEMap"};
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
   Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false};
 
 };

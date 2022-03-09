@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHVIDMAPPINGALG_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArRecConditions/LArHVIdMapping.h"
@@ -26,7 +25,6 @@ public:
 
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey{this, "ReadKey", "/LAR/IdentifierOfl/HVLineToElectrodeMap", "Cool folder with HV mapping"};
   SG::WriteCondHandleKey<LArHVIdMapping>  m_writeKey{this, "WriteKey","LArHVIdMap", "Key for output mapping object"} ;
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
   //bool m_isSuperCell;
 
 };

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRTOTALCONDALG_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArRawConditions/LArAutoCorrTotal.h"
@@ -46,8 +45,6 @@ private:
   SG::ReadCondHandleKey<ILArMinBias> m_LArMinBiasObjKey;
 
   SG::WriteCondHandleKey<LArAutoCorrTotal> m_LArAutoCorrTotalObjKey;
-
-  ServiceHandle<ICondSvc> m_condSvc;
 
   float m_Nminbias;
   bool m_NoPile;
