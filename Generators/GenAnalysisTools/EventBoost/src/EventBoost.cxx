@@ -13,7 +13,7 @@
 //                                             //
 /////////////////////////////////////////////////
 
-#include "EventBoost/EventBoost.h"
+#include "EventBoost.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "GaudiKernel/IRndmGenSvc.h"
