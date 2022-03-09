@@ -14,7 +14,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include "MuonDQAMonitoring/MuonDQAEventInfo.h" 
+#include "MuonDQAEventInfo.h" 
  
 namespace MuonDQA {
  

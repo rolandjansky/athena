@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "MuonDQAMonitoring/MuonDQAEvent.h"
+#include "MuonDQAEvent.h"
  
 template <class ConcreteAlgorithm> class AlgFactory;
 
