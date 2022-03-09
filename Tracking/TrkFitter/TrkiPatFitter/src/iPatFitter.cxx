@@ -7,8 +7,7 @@
    and fit quality.
 ***************************************************************************/
 
-#include <cmath>
-#include <iomanip>
+
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -31,7 +30,8 @@
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
 #include "TrkiPatFitterUtils/FitProcedureQuality.h"
 #include "TrkiPatFitter/iPatFitter.h"
-
+#include <cmath>
+#include <iomanip>
 namespace Trk
 {
   iPatFitter::iPatFitter (const std::string& type,
@@ -555,7 +555,7 @@ namespace Trk
     int hit = measurements.size();
     for (MeasurementSet::const_iterator m = measurementSet.begin();
          m != measurementSet.end();
-         m++, hit++) {
+         ++m, ++hit) {
       std::unique_ptr<const TrackSurfaceIntersection> newIntersection{
         m_stepPropagator->intersectSurface(ctx,
                                            (**m).associatedSurface(),
@@ -572,7 +572,7 @@ namespace Trk
           double distance = startDirection.dot(
             intersection->position() - startPosition);
           Amg::Vector3D positionMst = (**m).globalPosition();
-          double distanceR = sqrt(
+          double distanceR = std::sqrt(
             (positionMst.x() - startPosition.x()) * (positionMst.x() - startPosition.x()) +
             (positionMst.y() - startPosition.y()) * (positionMst.y() - startPosition.y()));
           double distanceZ = (positionMst.z() - startPosition.z());
@@ -844,7 +844,7 @@ namespace Trk
         Amg::Vector3D positionMst = startPosition;
         if (s.measurementOnTrack()) { positionMst = s.measurementOnTrack()->globalPosition(); }
         if (s.materialEffectsOnTrack()) { positionMst = s.materialEffectsOnTrack()->associatedSurface().center(); }
-        double distanceR = sqrt(
+        double distanceR = std::sqrt(
           (positionMst.x() - startPosition.x()) * (positionMst.x() - startPosition.x()) +
           (positionMst.y() - startPosition.y()) * (positionMst.y() - startPosition.y()));
         double distanceZ = (positionMst.z() - startPosition.z());
