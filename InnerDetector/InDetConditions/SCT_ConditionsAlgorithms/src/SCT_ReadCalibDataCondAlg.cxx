@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadCalibDataCondAlg.h"
@@ -52,9 +52,6 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Read Cond Handle
   ATH_CHECK(m_readKeyGain.initialize());
   ATH_CHECK(m_readKeyNoise.initialize());
@@ -67,16 +64,8 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
     else if (i==NOISE) writeKeyData = &m_writeKeyNoise;
     if (writeKeyData==nullptr) continue;
     ATH_CHECK(writeKeyData->initialize());
-    if (m_condSvc->regHandle(this, *writeKeyData).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << writeKeyData->fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
   }
   ATH_CHECK(m_writeKeyInfo.initialize());
-  if (m_condSvc->regHandle(this, m_writeKeyInfo).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyInfo.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   // Fit Defects
   m_defectMapIntToString[0]  = "UNKNOWN";       //<! Defect type not in this map, add!  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_AlignCondAlg.h"
@@ -22,9 +22,6 @@ StatusCode SCT_AlignCondAlg::initialize()
 {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Read Handles
   // Static
   ATH_CHECK(m_readKeyStatic.initialize(not m_useDynamicAlignFolders));
@@ -35,9 +32,6 @@ StatusCode SCT_AlignCondAlg::initialize()
 
   // Write Handles
   ATH_CHECK(m_writeKey.initialize());
-
-  // Register write handle
-  ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
   ATH_CHECK(detStore()->retrieve(m_detManager, m_DetManagerName));
 

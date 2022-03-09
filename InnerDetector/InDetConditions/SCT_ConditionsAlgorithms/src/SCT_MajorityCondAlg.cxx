@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_MajorityCondAlg.h"
@@ -17,19 +17,11 @@ StatusCode SCT_MajorityCondAlg::initialize()
 {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Read Cond Handle
   ATH_CHECK(m_readKey.initialize());
 
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }
