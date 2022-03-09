@@ -12,6 +12,5 @@ atlas_add_component( MuonSimHitToPrdTest
                      LINK_LIBRARIES AthenaBaseComps EventPrimitives GeoAdaptors Identifier GaudiKernel GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonSimEvent )
 
 # Install files from the package:
-atlas_install_headers( MuonSimHitToPrdTest )
 atlas_install_joboptions( share/*.py )
 
