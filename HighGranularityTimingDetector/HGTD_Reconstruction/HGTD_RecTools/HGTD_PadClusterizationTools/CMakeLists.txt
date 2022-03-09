@@ -9,6 +9,3 @@ atlas_add_component( HGTD_PadClusterizationTools
                     src/components/*.cxx
                     LINK_LIBRARIES AthenaBaseComps GaudiKernel
                     HGTD_RecToolInterfaces HGTD_PrepRawData HGTD_ReadoutGeometry)
-
-# Install files from the package:
-atlas_install_headers( HGTD_PadClusterizationTools )

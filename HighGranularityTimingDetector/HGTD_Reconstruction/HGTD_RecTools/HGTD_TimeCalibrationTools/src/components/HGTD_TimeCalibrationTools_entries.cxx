@@ -1,3 +1,3 @@
-#include "HGTD_TimeCalibrationTools/StraightLineTOFcorrectionTool.h"
+#include "../StraightLineTOFcorrectionTool.h"
 
 DECLARE_COMPONENT( HGTD::StraightLineTOFcorrectionTool )

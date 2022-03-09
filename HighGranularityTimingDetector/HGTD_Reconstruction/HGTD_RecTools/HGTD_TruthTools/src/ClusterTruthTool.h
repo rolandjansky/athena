@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_TruthTools/ClusterTruthTool.h
+ * @file ClusterTruthTool.h
  *
  * @author Alexander Leopold <alexander.leopold@cern.ch>
  * @author Noemi Calace <noemi.calace@cern.ch>

@@ -11,7 +11,7 @@
  * @brief
  */
 
-#include "HGTD_TruthTools/ClusterTruthTool.h"
+#include "ClusterTruthTool.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HGTD_PrepRawData/HGTD_Cluster.h"

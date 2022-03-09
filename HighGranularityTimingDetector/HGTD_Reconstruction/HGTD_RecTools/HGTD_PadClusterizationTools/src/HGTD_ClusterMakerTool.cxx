@@ -8,7 +8,7 @@
  * @brief
  */
 
-#include "HGTD_PadClusterizationTools/HGTD_ClusterMakerTool.h"
+#include "HGTD_ClusterMakerTool.h"
 
 #include "HGTD_PrepRawData/HGTD_Cluster.h"
 

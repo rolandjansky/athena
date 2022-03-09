@@ -7,11 +7,8 @@ atlas_subdir( HGTD_TrackTimeExtensionTools )
 atlas_add_component( HGTD_TrackTimeExtensionTools
                     src/*.cxx
                     src/components/*.cxx
-                    LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetPrepRawData
-                    TrkGeometry TrkEventPrimitives TrkSurfaces TrkTrack
+                    LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkGeometry TrkTrack
                     HGTD_RecToolInterfaces TrkExInterfaces HGTD_PrepRawData
                     TrkDetDescrUtils HGTD_ReadoutGeometry HGTD_Identifier
                     HGTD_RIO_OnTrack TrkToolInterfaces)
 
-# Install files from the package:
-atlas_install_headers( HGTD_TrackTimeExtensionTools )

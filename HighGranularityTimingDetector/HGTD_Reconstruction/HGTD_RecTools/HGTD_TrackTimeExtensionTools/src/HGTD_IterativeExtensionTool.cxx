@@ -8,7 +8,7 @@
  * @brief
  */
 
-#include "HGTD_TrackTimeExtensionTools/HGTD_IterativeExtensionTool.h"
+#include "HGTD_IterativeExtensionTool.h"
 
 #include "HGTD_Identifier/HGTD_ID.h"
 #include "HGTD_RIO_OnTrack/HGTD_ClusterOnTrack.h"

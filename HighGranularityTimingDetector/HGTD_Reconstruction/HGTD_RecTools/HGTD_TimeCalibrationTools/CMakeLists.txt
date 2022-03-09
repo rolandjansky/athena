@@ -11,5 +11,3 @@ atlas_add_component( HGTD_TimeCalibrationTools
                     HGTD_RecToolInterfaces HGTD_ReadoutGeometry TrkTrack
                     HGTD_PrepRawData)
 
-# Install files from the package:
-atlas_install_headers( HGTD_TimeCalibrationTools )

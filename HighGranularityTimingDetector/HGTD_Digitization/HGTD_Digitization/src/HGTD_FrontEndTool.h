@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_Digitization/HGTD_FrontEndTool.h
+ * @file HGTD_FrontEndTool.h
  *
  * @author Tao Wang <tao.wang@cern.ch>
  *
