@@ -29,7 +29,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonitorTool = CompFactory.TgcRawDataMonitorTool("TgcRawDataMonitorTool")
 
     muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
-    muonSelectionTool.MuQuality = 0 # tight:0 medium:1
+    muonSelectionTool.MuQuality = 1 # tight:0 medium:1
+    muonSelectionTool.MaxEta = 2.7 # tgc trigger coverage is only up to 2.4 but the detector coverage itself is up to 2.7
+    muonSelectionTool.ToroidOff = True # won't use pT-balance cuts
 
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
@@ -44,6 +46,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
     doHitResiduals = True
 
     tgcRawDataMonAlg.FillGapByGapHistograms = (doGapByGapHitOcc or doGapByGapEffMap or doHitResiduals)
+
+    tgcRawDataMonAlg.UseOnlyCombinedMuons = False
+    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = False
+    tgcRawDataMonAlg.UseMuonSelectorTool = True
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 
@@ -80,7 +86,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
-    tgcRawDataMonAlg.UseNonMuonTriggers = False
 
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
@@ -141,17 +146,17 @@ def TgcRawDataMonitoringConfig(inputFlags):
         monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_goodmf_'+monTrig+';L1Item_MuonRoI_EtaVsGoodMF_'+monTrig,title='L1Item_MuonRoI_EtaVsGoodMF_'+monTrig+';MuonRoI Eta;MuonRoI GoodMF Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
 
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_rpc;L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig+';Offline muon pT [GeV];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_rpc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig+';Offline muon pT [GeV];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=50,xmin=0,xmax=50)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_tgc;L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig+';Offline muon pT [GeV];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_tgc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig+';Offline muon pT [GeV];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=50,xmin=0,xmax=50)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_rpc;L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig+';Offline muon phi [rad.];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_rpc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig+';Offline muon phi [rad.];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=32,xmin=-math.pi,xmax=math.pi)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_tgc;L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig+';Offline muon phi [rad.];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_tgc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig+';Offline muon phi [rad.];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta;L1Item_MuonRoI_Eff_Eta_'+monTrig,title='L1Item_MuonRoI_Eff_Eta_'+monTrig+';Offline muon eta;Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Eta_'+monTrig,title='L1Item_MuonRoI_Eff_Eta_'+monTrig+';Offline muon eta;Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=100,xmin=-2.5,xmax=2.5)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta,muon_phi;L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig+';Offline muon eta; Offline muon phi',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta_l1item_'+monTrig+',muon_phi_l1item_'+monTrig+';L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig+';Offline muon eta; Offline muon phi',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
 
@@ -507,6 +512,78 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
         
     ################################################################################################################
+    label_ieta_sw = []
+    label_iphi_sw = []
+    label_glbl_index_sw = []
+    for i in range(4) : label_ieta_sw.append('')
+    for i in range(24) : label_iphi_sw.append('')
+    for i in range(96) : label_glbl_index_sw.append('')
+    for eta in range(2):
+        for sector in range(0,16):
+            for phi in range(0,25):
+                for lay in range(1,3):
+                    if eta==0 and sector!=0:continue
+                    if eta==1 and phi>2:continue
+                    if eta==1 and sector==7 and phi==0:continue
+                    if eta==1 and sector==11 and phi==0:continue
+                    if eta==1 and sector==15 and phi==0:continue
+                    if eta==1 and sector%2!=1:continue
+                    eta_index = eta * 2 + lay
+                    if eta==0:
+                        phi_index = phi
+                    else:
+                        phi_index = phi + int(sector / 2) + sector
+                    glbl_index = eta * 24*2 + (phi_index - 1) * 2 + lay
+                    if eta==0:
+                        label_ieta_sw[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                        label_iphi_sw[phi_index-1] = 'F%df%d' % (sector,phi)
+                        label_glbl_index_sw[glbl_index-1] = 'F%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+                    else:
+                        label_ieta_sw[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                        if lay==1:
+                            label_iphi_sw[phi_index-1] = 'E%df%d(%s)' % (sector,phi,label_iphi_sw[phi_index-1])
+                        label_glbl_index_sw[glbl_index-1] = 'E%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+
+    label_ieta_bw1 = []
+    label_iphi_bw1 = []
+    label_glbl_index_bw1 = []
+    label_ieta_bw23 = []
+    label_iphi_bw23 = []
+    label_glbl_index_bw23 = []
+    for i in range(15) : label_ieta_bw1.append('')
+    for i in range(48) : label_iphi_bw1.append('')
+    for i in range(720) : label_glbl_index_bw1.append('')
+    for i in range(12) : label_ieta_bw23.append('')
+    for i in range(48) : label_iphi_bw23.append('')
+    for i in range(576) : label_glbl_index_bw23.append('')
+    for eta in range(6):
+        for sector in range(1,13):
+            for phi in range(4):
+                for lay in range(1,4):
+                    for station in range(1,3):
+                        if station==1 and eta==5: continue
+                        if station!=1 and lay==3: continue
+                        nlay = 3 if station==1 else 2
+                        eta_index = eta * nlay + lay
+                        phi_index = (sector - 1) * 4 + phi + 1
+                        glbl_index = eta * 48*nlay + (phi_index - 1) * nlay + lay
+                        if station==1:
+                            label_ieta_bw1[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                            label_iphi_bw1[phi_index-1] = '%df%d' % (sector,phi)
+                            label_glbl_index_bw1[glbl_index-1] = '%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+                        else:
+                            label_ieta_bw23[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                            label_iphi_bw23[phi_index-1] = '%df%d' % (sector,phi)
+                            label_glbl_index_bw23[glbl_index-1] = '%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+
+    label_bw24sectors = []
+    for i in range(25) : label_bw24sectors.append('')
+    for side in ['A','C']:
+        for sector in range(1,13):
+            index = 13 + sector if side=='A' else 13 - sector
+            label_bw24sectors[index-1] = '%s%02d' % (side,sector)
+
+
     myGroupHit = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor_TgcHit', mainDir)
     hitPath = 'Hit/'
     hitEffPath = 'HitEff/'
@@ -519,44 +596,44 @@ def TgcRawDataMonitoringConfig(inputFlags):
         titlesuffix=opt
         if opt=='':titlesuffix='_All'
         myGroupHit.defineHistogram('mon_lb,hit_bw24sectors'+opt+';TgcPrd_BWSectorsVsLB'+titlesuffix,
-                                   title='BWSectorsVsLB'+titlesuffix+';Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+                                   title='BWSectorsVsLB'+titlesuffix+';Luminosity block;',type='TH2F',
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
         myGroupHit.defineHistogram('mon_lb,hit_bw24sectors_strip'+opt+';TgcPrd_BWSectorsVsLB_Strip'+titlesuffix,
-                                   title='BWSectorsVsLB_Strip'+titlesuffix+';Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+                                   title='BWSectorsVsLB_Strip'+titlesuffix+';Luminosity block;',type='TH2F',
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
         myGroupHit.defineHistogram('mon_lb,hit_bw24sectors_wire'+opt+';TgcPrd_BWSectorsVsLB_Wire'+titlesuffix,
-                                   title='BWSectorsVsLB_Wire'+titlesuffix+';Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+                                   title='BWSectorsVsLB_Wire'+titlesuffix+';Luminosity block;',type='TH2F',
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
         myGroupHit.defineHistogram('hit_bw24sectors'+opt+',hit_bwtiming'+opt+';TgcPrd_BWSectorsVsTiming'+titlesuffix,
-                                   title='BWSectorsVsTiming'+titlesuffix+';TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
-                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                                   title='BWSectorsVsTiming'+titlesuffix+';;Timing',type='TH2F',
+                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
         myGroupHit.defineHistogram('hit_bw24sectors_strip'+opt+',hit_bwtiming_strip'+opt+';TgcPrd_BWSectorsVsTiming_Strip'+titlesuffix,
-                                   title='BWSectorsVsTiming_Strip'+titlesuffix+';TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
-                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                                   title='BWSectorsVsTiming_Strip'+titlesuffix+';;Timing',type='TH2F',
+                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
         myGroupHit.defineHistogram('hit_bw24sectors_wire'+opt+',hit_bwtiming_wire'+opt+';TgcPrd_BWSectorsVsTiming_Wire'+titlesuffix,
-                                   title='BWSectorsVsTiming_Wire'+titlesuffix+';TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
-                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                                   title='BWSectorsVsTiming_Wire'+titlesuffix+';;Timing',type='TH2F',
+                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
         myGroupHit.defineHistogram('hit_bwfulleta'+opt+',hit_bw24sectors'+opt+';TgcPrd_BWSectorsVsEta'+titlesuffix,
-                                   title='BWSectorsVsEta'+titlesuffix+';iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+                                   title='BWSectorsVsEta'+titlesuffix+';;',type='TH2F',
+                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,xlabels=['F','E1','E2','E3','E4','E5'],ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors)
         myGroupHit.defineHistogram('hit_bwfulleta_strip'+opt+',hit_bw24sectors_strip'+opt+';TgcPrd_BWSectorsVsEta_Strip'+titlesuffix,
-                                   title='BWSectorsVsEta_Strip'+titlesuffix+';iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+                                   title='BWSectorsVsEta_Strip'+titlesuffix+';;',type='TH2F',
+                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,xlabels=['F','E1','E2','E3','E4','E5'],ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors)
         myGroupHit.defineHistogram('hit_bwfulleta_wire'+opt+',hit_bw24sectors_wire'+opt+';TgcPrd_BWSectorsVsEta_Wire'+titlesuffix,
-                                   title='BWSectorsVsEta_Wire'+titlesuffix+';iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+                                   title='BWSectorsVsEta_Wire'+titlesuffix+';;',type='TH2F',
+                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,xlabels=['F','E1','E2','E3','E4','E5'],ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors)
 
 
 
     myGroupHit.defineHistogram('hit_bcmask_bw24sectors_All,hit_bcmask_for_bw24sectors_All;TgcPrd_BWSectorsVsBCMask_All',
-                               title='BWSectorsVsBCMask_All;TGC BW Sectors(+ for A-side, - for C-side);',type='TH2F',
-                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+                               title='BWSectorsVsBCMask_All;;',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
     myGroupHit.defineHistogram('hit_bcmask_bw24sectors_Wire,hit_bcmask_for_bw24sectors_Wire;TgcPrd_BWSectorsVsBCMask_Wire',
-                               title='BWSectorsVsBCMask_Wire;TGC BW Sectors(+ for A-side, - for C-side);',type='TH2F',
-                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+                               title='BWSectorsVsBCMask_Wire;;',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
     myGroupHit.defineHistogram('hit_bcmask_bw24sectors_Strip,hit_bcmask_for_bw24sectors_Strip;TgcPrd_BWSectorsVsBCMask_Strip',
-                               title='BWSectorsVsBCMask_Strip;TGC BW Sectors(+ for A-side, - for C-side);',type='TH2F',
-                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+                               title='BWSectorsVsBCMask_Strip;;',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
 
 
     
@@ -565,36 +642,40 @@ def TgcRawDataMonitoringConfig(inputFlags):
             for s_or_w in ['S','W']:# strip or wire
                 name = "%sM%02i%s" % (side,station,s_or_w) # e.g. AM01W
                 nbins = 10
+                label_glbl_index = []
                 if station==1:
                     nbins = 720
+                    label_glbl_index = label_glbl_index_bw1
                 elif station==2 or station==3:
                     nbins = 576
+                    label_glbl_index = label_glbl_index_bw23
                 else: # station==4
                     nbins = 96
+                    label_glbl_index = label_glbl_index_sw
 
                 x_name = "mon_lb"
                 y_name = "hit_glblphi_%s" % (name)
                 objname = "TgcPrd_GlobalChamberIndexVsLB_%s" % (name)
                 title = "GlobalChamberIndexVsLB_%s" % (name)
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
-                                        title=title+';Luminosity block;Global chamber index',type='TH2F',
+                                        title=title+';Luminosity block;',type='TH2F',
                                         path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,
-                                        ybins=nbins,ymin=0.5,ymax=nbins+0.5,opt='kAddBinsDynamically')
+                                        ybins=nbins,ymin=0.5,ymax=nbins+0.5,ylabels=label_glbl_index,opt='kAddBinsDynamically')
                 x_name = "hit_glblphi_%s" % (name)
                 y_name = "hit_bunch_%s" % (name)
                 objname = "TgcPrd_GlobalChamberIndexVsTiming_All_%s" % (name)
                 title = "GlobalChamberIndexVsTiming_All_%s" % (name)
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
-                                           title=title+';Global chamber index;Timing',type='TH2F',
-                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,
+                                           title=title+';;Timing',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index,
                                            ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
                 x_name = "hit_glblphi_wTrack_%s" % (name)
                 y_name = "hit_bunch_wTrack_%s" % (name)
                 objname = "TgcPrd_GlobalChamberIndexVsTiming_wTrack_%s" % (name)
                 title = "GlobalChamberIndexVsTiming_wTrack_%s" % (name)
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
-                                           title=title+';Global chamber index;Timing',type='TH2F',
-                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,
+                                           title=title+';;Timing',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index,
                                            ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
                 
                 x_name = "hit_glblphi_effnum_%s" % (name)
@@ -602,16 +683,16 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 objname = "TgcPrd_GlobalChamberIndex_Efficiency_%s" % (name)
                 title = "GlobalChamberIndex_Efficiency_%s" % (name)
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
-                                           title=title+';Global chamber index;Efficiency',type='TEfficiency',
-                                           path=hitEffPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5)
+                                           title=title+';;Efficiency',type='TEfficiency',
+                                           path=hitEffPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index)
 
                 x_name = "hit_bcmask_glblphi_%s" % (name)
                 y_name = "hit_bcmask_%s" % (name)
                 objname = "TgcPrd_GlobalChamberIndexVsBCMask_%s" % (name)
                 title = "GlobalChamberIndexVsBCMask_%s" % (name)
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
-                                           title=title+';Global chamber index;',type='TH2F',
-                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,
+                                           title=title+';;',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index,
                                            ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits',
                                                                                'Next-only',
                                                                                'Curr-only',
@@ -624,24 +705,32 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
                 nbinsx = 10
                 nbinsy = 10
+                label_ieta = []
+                label_iphi = []
                 if station==1:
                     nbinsx = 15
                     nbinsy = 48
+                    label_ieta = label_ieta_bw1
+                    label_iphi = label_iphi_bw1
                 elif station==2 or station==3:
                     nbinsx = 12
                     nbinsy = 48
+                    label_ieta = label_ieta_bw23
+                    label_iphi = label_iphi_bw23
                 else: # station==4
                     nbinsx = 4
                     nbinsy = 24
+                    label_ieta = label_ieta_sw
+                    label_iphi = label_iphi_sw
 
                 x_name = "hit_x_%s" % (name)
                 y_name = "hit_y_%s" % (name)
                 objname = "TgcPrd_iPhiVsiEta_%s" % (name)
                 title = "iPhiVsiEta_%s" % (name)
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
-                                           title=title+';Chamber eta index;Chamber phi index',type='TH2F',path=hitPath,
-                                           xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,
-                                           ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5)
+                                           title=title+';;',type='TH2F',path=hitPath,
+                                           xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,xlabels=label_ieta,
+                                           ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5,ylabels=label_iphi)
 
                 eff_name = "hit_effnum_x_%s" % (name)
                 x_name = "hit_effden_x_%s" % (name)
@@ -649,10 +738,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 objname = "TgcPrd_iPhiVsiEta_Efficiency_%s" % (name)
                 title = "iPhiVsiEta_Efficiency_%s" % (name)
                 myGroupHit.defineHistogram(eff_name+','+x_name+','+y_name+';'+objname,
-                                           title=title+';Chamber eta index;Chamber phi index',type='TEfficiency',
+                                           title=title+';;',type='TEfficiency',
                                            path=hitEffPath,
-                                           xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,
-                                           ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5)
+                                           xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,xlabels=label_ieta,
+                                           ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5,ylabels=label_iphi)
 
 
 

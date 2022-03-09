@@ -135,7 +135,6 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   StringProperty m_ctpDecMonList{this,"CtpDecisionMoniorList","Tit:L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;","list of L1MU items to be monitored for before/after CTP decision"};
   BooleanProperty m_monitorTriggerMultiplicity{this,"MonitorTriggerMultiplicity",false,"start monitoring tirgger multiplicity performance"};
   BooleanProperty m_printAvailableMuonTriggers{this,"PrintAvailableMuonTriggers",false,"debugging purpose. print out all available muon triggers in the event"};
-  BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
   BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
   BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
   BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD"};
@@ -160,6 +159,9 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   BooleanProperty m_useExtMSTrackForExtrapolation{this,"UseExtMSTrackForExtrapolation",false,"Use ExtrapolatedMuonSpectrometerTrackParticle for extrapolation"};
   BooleanProperty m_useMSOnlyExtMSTrackForExtrapolation{this,"UseMSOnlyExtMSTrackForExtrapolation",false,"Use MSOnlyExtrapolatedMuonSpectrometerTrackParticle for extrapolation"};
   BooleanProperty m_useDirectPrimaryTrackForExtrapolation{this,"UseDirectPrimaryTrackForExtrapolation",true,"Use DirectPrimaryTrackForExtrapolation for extrapolation"};
+  BooleanProperty m_useOnlyCombinedMuons{this,"UseOnlyCombinedMuons",false,"use only CombinedMuons"};
+  BooleanProperty m_useOnlyMuidCoStacoMuons{this,"UseOnlyMuidCoStacoMuons",false,"use only MuidCo and Staco Muons"};
+  BooleanProperty m_useMuonSelectorTool{this,"UseMuonSelectorTool",true,"use MuonSelectorTool"};
   DoubleProperty m_pTCutOnExtrapolation{this,"pTCutOnExtrapolation",6000.,"pT [in MeV] cut on the extrapolation tracks"}; 
   DoubleProperty m_M1_Z{this,"M1_Z",13436.5,"z-position of TGC M1-station in mm for track extrapolate"}; 
   DoubleProperty m_M2_Z{this,"M2_Z",14728.2,"z-position of TGC M2-station in mm for track extrapolate"};
