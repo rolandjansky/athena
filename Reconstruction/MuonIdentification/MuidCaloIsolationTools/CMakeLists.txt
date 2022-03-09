@@ -11,6 +11,3 @@ atlas_add_component( MuidCaloIsolationTools
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel MuidInterfaces TrkTrack TrkSurfaces TrkParameters TrkExInterfaces TrkExUtils FourMomUtils )
 
-# Install files from the package:
-atlas_install_headers( MuidCaloIsolationTools )
-

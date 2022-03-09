@@ -9,7 +9,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "MuidCaloIsolationTools/MuidTrackIsolation.h"
+#include "MuidTrackIsolation.h"
 
 #include <cmath>
 #include <iomanip>
