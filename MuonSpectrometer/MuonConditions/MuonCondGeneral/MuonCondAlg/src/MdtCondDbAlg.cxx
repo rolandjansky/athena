@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
@@ -9,7 +9,7 @@
 using readOutPair = CondAttrListCollection::ChanAttrListPair;
 // constructor
 MdtCondDbAlg::MdtCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator), m_condSvc("CondSvc", name), m_condMapTool("MDT_MapConversion") {
+    AthReentrantAlgorithm(name, pSvcLocator), m_condMapTool("MDT_MapConversion") {
     declareProperty("MDT_MapConversion", m_condMapTool);
 
     declareProperty("isOnline", m_isOnline);
@@ -21,7 +21,7 @@ MdtCondDbAlg::MdtCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 // Initialize
 StatusCode MdtCondDbAlg::initialize() {
     ATH_MSG_DEBUG("initializing " << name());
-    ATH_CHECK(m_condSvc.retrieve());
+
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_readKey_folder_da_pshv.initialize(!m_readKey_folder_da_pshv.empty() && m_isData && m_isRun1));
@@ -37,11 +37,6 @@ StatusCode MdtCondDbAlg::initialize() {
     // so don't declare a dependencies on them.
     ATH_CHECK(m_readKey_folder_mc_deadElements.initialize(false /*!m_readKey_folder_mc_deadElements.empty() && !m_isData*/));
     ATH_CHECK(m_readKey_folder_mc_deadTubes.initialize(false /*!m_readKey_folder_mc_deadTubes.empty() && !m_isData*/));
-
-    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-        ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }

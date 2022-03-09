@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef MUONCONDALG_RPCCABLINGCONDALG_H
@@ -11,7 +11,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
@@ -30,7 +29,6 @@ private:
     typedef std::array<int, 64> sectorMap_t;
     typedef std::map<int, RPC_CondCabling::SectorLogicSetup*, std::less<int>> SLmap_t;
 
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_map_schema{this, "ReadKeySchema", "/RPC/CABLING/MAP_SCHEMA",

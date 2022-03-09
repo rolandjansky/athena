@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/TGCTriggerDbAlg.h"
@@ -7,26 +7,18 @@
 #include "StoreGate/WriteCondHandle.h"
 
 TGCTriggerDbAlg::TGCTriggerDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  AthAlgorithm(name, pSvcLocator)
 {}
 
 StatusCode TGCTriggerDbAlg::initialize(){
 
   ATH_MSG_INFO( "initialize " << name() );                
 
-  ATH_CHECK(m_condSvc.retrieve());
-  
   ATH_CHECK(m_readKey_bw.initialize());
   ATH_CHECK(m_readKey_eifi.initialize());
   ATH_CHECK(m_readKey_tile.initialize());
 
   ATH_CHECK(m_writeKey.initialize());
-
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

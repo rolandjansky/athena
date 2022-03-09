@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_CSCCONDDBALG_H
@@ -13,7 +13,6 @@
 #include <vector>
 
 // Gaudi includes
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Athena includes
@@ -70,7 +69,6 @@ private:
     Gaudi::Property<bool> m_onlineOfflinePhiFlip{this, "onlineOfflinePhiFlip", true, ""};
     Gaudi::Property<std::string> m_defaultDatabaseReadVersion{this, "defaultDatabaseReadVersion", "02-00", ""};
 
-    ServiceHandle<ICondSvc> m_condSvc;
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     SG::WriteCondHandleKey<CscCondDbData> m_writeKey{this, "WriteKey", "CscCondDbData", "Key of output CSC condition data"};
