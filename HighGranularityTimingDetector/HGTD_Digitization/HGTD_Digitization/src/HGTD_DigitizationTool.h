@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_Digitization/HGTD_DigitizationTool.h
+ * @file HGTD_DigitizationTool.h
  *
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -26,7 +26,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "HGTD_Digitization/IHGTD_SurfaceChargesGenerator.h"
+#include "IHGTD_SurfaceChargesGenerator.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorElementCollection.h"
 #include "HGTD_RawData/HGTD_RDOCollection.h"
 #include "HGTD_RawData/HGTD_RDOContainer.h"

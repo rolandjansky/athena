@@ -8,7 +8,7 @@
  * @date October, 2021
  */
 
-#include "HGTD_Digitization/HGTD_TimingResolution.h"
+#include "HGTD_TimingResolution.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "TMath.h"

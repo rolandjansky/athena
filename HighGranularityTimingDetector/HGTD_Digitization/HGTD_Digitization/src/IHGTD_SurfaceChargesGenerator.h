@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_Digitization/IHGTD_SurfaceChargesGenerator.h
+ * @file IHGTD_SurfaceChargesGenerator.h
  *
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>

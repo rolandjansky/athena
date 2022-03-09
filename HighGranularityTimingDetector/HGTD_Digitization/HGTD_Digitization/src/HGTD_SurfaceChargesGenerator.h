@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_Digitization/HGTD_SurfaceChargesGenerator.h
+ * @file HGTD_SurfaceChargesGenerator.h
  *
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -21,8 +21,8 @@
 #define HGTD_SURFACECHARGESGENERATOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "HGTD_Digitization/IHGTD_SurfaceChargesGenerator.h"
-#include "HGTD_Digitization/HGTD_TimingResolution.h"
+#include "IHGTD_SurfaceChargesGenerator.h"
+#include "HGTD_TimingResolution.h"
 
 #include <string>
 
