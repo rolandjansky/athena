@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -30,11 +30,8 @@ public:
   GeomShiftCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~GeomShiftCondAlg();
 
-  virtual bool isClonable() const override { return true; }
-
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
 private:
 
@@ -44,7 +41,6 @@ private:
 
   Gaudi::Property<double> m_zShiftPerLB {this, "ZShiftPerLB", 10.5, ""};
 
-  ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
   std::vector<const GeoAlignableTransform*> m_topAligns;
