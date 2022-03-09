@@ -16,7 +16,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileInfoDump.h"
+#include "TileInfoDump.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileTrigType.h"
 #include "TileIdentifier/TileFragHash.h"

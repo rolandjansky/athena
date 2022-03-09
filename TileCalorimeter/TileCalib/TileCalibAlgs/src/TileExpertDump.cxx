@@ -8,7 +8,7 @@
 #include "StoreGate/ReadHandle.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileExpertDump.h"
+#include "TileExpertDump.h"
 #include "TileConditions/TileInfoLoader.h"
 #include "TileConditions/TileInfo.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
