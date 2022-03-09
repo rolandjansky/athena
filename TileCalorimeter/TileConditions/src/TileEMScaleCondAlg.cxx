@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEMScaleCondAlg.h"
@@ -44,9 +44,6 @@ StatusCode TileEMScaleCondAlg::initialize() {
     m_onlCacheUnit = TileRawChannelUnit::Invalid;
   }
 
-
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
 
   // Tile cabling service
   ATH_CHECK( m_cablingSvc.retrieve() );
@@ -130,16 +127,7 @@ StatusCode TileEMScaleCondAlg::initialize() {
     ATH_CHECK( m_onlEmsProxy.retrieve() );
   }
 
-
   ATH_CHECK( m_calibEmsKey.initialize() );
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_calibEmsKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_calibEmsKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-
 
   return StatusCode::SUCCESS;
 }

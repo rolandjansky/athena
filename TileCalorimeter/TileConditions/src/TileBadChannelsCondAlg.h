@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEBADCHANNELSCONDALG_H
@@ -21,7 +21,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 // Gaudi includes
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 /**
@@ -58,12 +57,6 @@ class TileBadChannelsCondAlg: public AthAlgorithm {
     */
     SG::WriteCondHandleKey<TileBadChannels> m_badChannelsKey{this, "TileBadChannels", "TileBadChannels",
                                                              "Output Tile bad channels status"};
-
-   /**
-    * @brief Name of conditions service
-    */
-    ServiceHandle<ICondSvc> m_condSvc{this,
-        "CondSvc", "CondSvc", "The conditions service"};
 
    /**
     * @brief Name of Tile cabling service

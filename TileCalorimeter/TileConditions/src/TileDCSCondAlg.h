@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEDCSCONDALG_H
@@ -17,8 +17,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 class TileCablingService;
 
@@ -189,13 +187,6 @@ class TileDCSCondAlg: public AthReentrantAlgorithm {
     Gaudi::Property<std::string> m_dcsChStatesInCool{this,
         "DCSChStatesInCOOL", "DCSChStatesInCOOL.dat",
         "File name with mapping Tile DCS STATES DB COOL channels to ROS and drawer"};
-
-
-   /**
-    * @brief Name of conditions service
-    */
-    ServiceHandle<ICondSvc> m_condSvc{this,
-        "CondSvc", "CondSvc", "The conditions service"};
 
    /**
     * @brief Name of Tile cabling service
