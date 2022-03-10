@@ -9,11 +9,11 @@
 // +                                                                          +
 // +==========================================================================+
 //
-#include "LArDigitMaker.h"
+#include "LArHitEMapMaker.h"
 
 //----------------------------------------------------------------------------------
 
-LArDigitMaker::LArDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
+LArHitEMapMaker::LArHitEMapMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_LArPileUpTool("LArPileUpTool",this)
 {
@@ -23,10 +23,10 @@ LArDigitMaker::LArDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
 
 // ----------------------------------------------------------------------------------
 
-StatusCode LArDigitMaker::initialize()
+StatusCode LArHitEMapMaker::initialize()
 {
 
-  ATH_MSG_DEBUG("initialize LArDigitMaker");
+  ATH_MSG_DEBUG("initialize LArHitEMapMaker");
 
   if (m_LArPileUpTool.retrieve().isFailure())
   {
@@ -42,7 +42,7 @@ StatusCode LArDigitMaker::initialize()
 
 // -------------------------------------------------------------------------------------
 
-StatusCode LArDigitMaker::execute()
+StatusCode LArHitEMapMaker::execute()
 {
 
   if (m_LArPileUpTool->processAllSubEvents(Gaudi::Hive::currentContext()).isFailure()) {
