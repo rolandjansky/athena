@@ -59,4 +59,4 @@ atlas_add_executable( LArSamplesMerge
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
-atlas_install_scripts( share/LArHistMerge_trf.py share/LArCAF_tf.py share/LArNoiseBursts_tf.py share/LArNoiseBursts_fromraw_tf.py share/LArPulseShape_tf.py share/LArCells_tf.py )
+atlas_install_scripts( share/LArHistMerge_trf.py share/LArMerge_tf.py share/LArCAF_tf.py share/LArNoiseBursts_tf.py share/LArNoiseBursts_fromraw_tf.py share/LArPulseShape_tf.py share/LArCells_tf.py )

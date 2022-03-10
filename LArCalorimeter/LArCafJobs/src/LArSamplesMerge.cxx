@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*- 
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
   if (argc<3 || (argc>1 && (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help")))) {
     std::cout << "Syntax:" << std::endl;
-    std::cout << "LArSamplesMon.exe file1 file2 ... outFile" << std::endl;
+    std::cout << "LArSamplesMerge file1 file2 ... outFile" << std::endl;
     return -1;
   }
     
