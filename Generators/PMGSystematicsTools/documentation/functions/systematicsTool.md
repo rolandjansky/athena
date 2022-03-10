@@ -4,7 +4,7 @@ Help on module systematicsTool
 systematicsTool
 
 # FILE
-/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/systematicsTool.py
+local/bin/systematicsTool.py
 
 # DESCRIPTION
 This module contains helper functions which allow users to manipluate multiple 
@@ -47,7 +47,7 @@ TODO (perspectives for future development):
 - Support other types in readFromYODA
 
 
-Author: Louie D. Corpe (UCL)  
+Author: Louie D. Corpe (CERN)  
 Email: l.corpe@cern.ch
 
 # FUNCTIONS

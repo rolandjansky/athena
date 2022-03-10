@@ -4,7 +4,7 @@ Help on module submissionTool
 submissionTool
 
 # FILE
-/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/submissionTool.py
+/local/bin/submissionTool.py
 
 # DESCRIPTION
 This module is a wrapper to pathena, which does the following useful things:
@@ -15,7 +15,7 @@ available when initialising the Rivet_i instances
 - Produces Job options from templates stored in /data/RivetAnalysis*JO*py
 - Automatic download of test samples if needed
 
-Author: Louie D. Corpe (UCL)  
+Author: Louie D. Corpe (CERN)  
 Email: l.corpe@cern.ch
 
 # FUNCTIONS
@@ -41,11 +41,3 @@ submissionTool.py -h
 
 This tool is used to submit samples to the GRID, when once instance of Rivet_i per Matrix-Element
 weight is initialised and run. Template Job Options are available in /data/RivetAnalysis_*JO*.py
-
-# DATA
-## args = ['submissionTool']
-## opts = <Values at 0x7f94f76be2d8: {'inputSamples': 'exa...s': '', 'nJo...
-## parser = <optparse.OptionParser instance>
-## submissionTemplatesDir = '/afs/cern.ch/user/l/lcorpe/work/private/test...
-
-

@@ -2065,13 +2065,6 @@ public:
 	   << " " << setw(1) << VTIMUP[i]
 	   << " " << setw(1) << SPINUP[i] << std::endl;
 
-    // if ( weights.size() > 0 ) {
-    //   file << "<weights>";
-    //   for ( int i = 1, N = weights.size(); i < N; ++i )
-    //     file << " " << weights[i].first;
-    //   file << "</weights>\n";
-    // }
-
     bool iswgt = false;
     for ( int i = 0, N = namedweights.size(); i < N; ++i ) {
       if ( namedweights[i].iswgt ) {

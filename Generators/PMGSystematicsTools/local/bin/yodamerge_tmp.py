@@ -55,48 +55,46 @@ NORMALIZED, UNNORMALIZED, OR A MIX?
   script or program to do the merging: the merging machinery of this script is
   available directly in the yoda Python module.
 
-See the source of this script (e.g. use 'less `which %(prog)s`) for more discussion.
+MORE NOTES
+ 
+  If all the input histograms with a particular path are found to have the same
+  normalization, and they have ScaledBy attributes indicating that a histogram
+  weight scaling has been applied in producing the input histograms, each
+  histogram in that group will be first unscaled by their appropriate factor, then
+  merged, and then re-normalized to the target value. Otherwise the weights from
+  each histogram copy will be directly added together with no attempt to guess an
+  appropriate normalization. The normalization guesses (and they are guesses --
+  see below) are made *before* application of the per-file scaling arguments.
+ 
+  IMPORTANT: note from the above that this script can't work out what to do
+  re. scaling and normalization of output histograms from the input data files
+  alone. It may be possible (although unlikely) that input histograms have the
+  same normalization but are meant to be added directly. It may also be the case
+  (and much more likely) that histograms which should be normalized to a common
+  value will not trigger the appropriate treatment due to e.g. statistical
+  fluctuations in each run's calculation of a cross-section used in the
+  normalization. And anything more complex than a global scaling (e.g. calculation
+  of a ratio or asymmetry) cannot be handled at all with a post-hoc scaling
+  treatment. The --assume-normalized command line option will force all histograms
+  to be treated as if they are normalized in the input, which can be useful if
+  you know that all the output histograms are indeed of this nature. If they are
+  not, it will go wrong: you have been warned!
+ 
+  Please use this script as a template if you need to do something more specific.
+ 
+  NOTE: there are many possible desired behaviours when merging runs, depending on
+  the factors above as well as whether the files being merged are of homogeneous
+  type, heterogeneous type, or a combination of both. It is tempting, therefore,
+  to add a large number of optional command-line parameters to this script, to
+  handle these cases. Experience from Rivet 1.x suggests that this is a bad idea:
+  if a problem is of programmatic complexity then a command-line interface which
+  attempts to solve it in general is doomed to both failure and unusability. Hence
+  we will NOT add extra arguments for applying different merging weights or
+  strategies based on analysis object path regexes, auto-identifying 'types' of
+  run, etc., etc.: if you need to merge data files in such complex ways, please
+  use this script as a template around which to write logic that satisfies your
+  particular requirements.
 """
-
-# MORE NOTES
-#
-# If all the input histograms with a particular path are found to have the same
-# normalization, and they have ScaledBy attributes indicating that a histogram
-# weight scaling has been applied in producing the input histograms, each
-# histogram in that group will be first unscaled by their appropriate factor, then
-# merged, and then re-normalized to the target value. Otherwise the weights from
-# each histogram copy will be directly added together with no attempt to guess an
-# appropriate normalization. The normalization guesses (and they are guesses --
-# see below) are made *before* application of the per-file scaling arguments.
-#
-# IMPORTANT: note from the above that this script can't work out what to do
-# re. scaling and normalization of output histograms from the input data files
-# alone. It may be possible (although unlikely) that input histograms have the
-# same normalization but are meant to be added directly. It may also be the case
-# (and much more likely) that histograms which should be normalized to a common
-# value will not trigger the appropriate treatment due to e.g. statistical
-# fluctuations in each run's calculation of a cross-section used in the
-# normalization. And anything more complex than a global scaling (e.g. calculation
-# of a ratio or asymmetry) cannot be handled at all with a post-hoc scaling
-# treatment. The --assume-normalized command line option will force all histograms
-# to be treated as if they are normalized in the input, which can be useful if
-# you know that all the output histograms are indeed of this nature. If they are
-# not, it will go wrong: you have been warned!
-#
-# Please use this script as a template if you need to do something more specific.
-#
-# NOTE: there are many possible desired behaviours when merging runs, depending on
-# the factors above as well as whether the files being merged are of homogeneous
-# type, heterogeneous type, or a combination of both. It is tempting, therefore,
-# to add a large number of optional command-line parameters to this script, to
-# handle these cases. Experience from Rivet 1.x suggests that this is a bad idea:
-# if a problem is of programmatic complexity then a command-line interface which
-# attempts to solve it in general is doomed to both failure and unusability. Hence
-# we will NOT add extra arguments for applying different merging weights or
-# strategies based on analysis object path regexes, auto-identifying 'types' of
-# run, etc., etc.: if you need to merge data files in such complex ways, please
-# use this script as a template around which to write logic that satisfies your
-# particular requirements.
 
 import yoda
 import argparse

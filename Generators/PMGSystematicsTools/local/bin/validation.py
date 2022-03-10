@@ -56,8 +56,8 @@ def validate(testSampleDir, thisSampleName, testSamplePath, weight_database, out
         return
     wfile = open('weight.txt', 'r')
     ofile = open(outputSamples, 'a+')
-    weight_file = wfile.read().splitlines()
-    if set(weight_database) == set(weight_file):
+    weightFile = wfile.read().splitlines()
+    if set(weight_database) == set(weightFile):
         print('%s is Validated' % (thisSampleName))
         ofile.write(thisSampleName.split(":")[1] + ' ' + 'PASSED' + '\n')
     else:

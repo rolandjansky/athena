@@ -42,10 +42,6 @@ class ProphecyConfig(object) :
         self.nEvents = int( 1.1 * runArgs.maxEvents + 0.5 )
       if hasattr(runArgs,'randomSeed') :
         self.random_seed = runArgs.randomSeed
-      # RDS: commenting out the following two lines to avoid renaming from Generate_tf argument -
-      # will clash with running Prophecy4f twice      
-      # if hasattr(runArgs,'outputTXTFile') :
-      #   self.output_events_file_name = 'prophecy_'+runArgs.outputTXTFile.split('.tar.gz')[0]+'.events'
 
       if 100 * self.nEvents > self.nEvents_weighted :
         self.logger.warning( 'There are {0} events requested with {1} weighted ones.'.format( self.nEvents, self.nEvents_weighted ) )

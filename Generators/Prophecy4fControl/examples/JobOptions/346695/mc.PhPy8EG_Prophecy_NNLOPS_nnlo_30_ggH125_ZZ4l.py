@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #-------------------------------------------------------------------------------------------------
 # Prophecy4f setup with input from PowHeg LHE, merge decays from Prophecy4f, output Pythia8 evtGen
 #-------------------------------------------------------------------------------------------------

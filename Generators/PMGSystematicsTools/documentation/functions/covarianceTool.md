@@ -27,7 +27,7 @@ Email: l.corpe@cern.ch
 
 ## getCorrelationInfoFromWeb(name=None)
 
-## isfloat(x)
+## isFloat(x)
 
 ## makeBeamer(plotDictionary, outdir)
 

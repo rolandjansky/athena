@@ -156,7 +156,7 @@ def safeFileName(name, removeExtension=True, reverse=False):
   name = name.replace(".yoda", "pyoda")
   name = name.replace("yoda.", "yodap")
   name = name.replace(".root", "proot")
-  name = rivet_i_replacements(name)
+  name = rivetINameReplacements(name)
   name = name.replace(r"\+", "")
   name = name.replace("userp", "user.")
   name = name.replace("pyoda", ".yoda")
@@ -167,7 +167,7 @@ def safeFileName(name, removeExtension=True, reverse=False):
   return name
 
 
-def rivet_i_replacements(name, escapePlus=False):
+def rivetINameReplacements(name, escapePlus=False):
   reps = OrderedDict()
   reps[" nominal "] = ""
   reps[" set = "] = "_"
@@ -357,20 +357,20 @@ def splitOperand(operand, bracket="()"):
   --> [foo, Function2(bar, foo), Function3(foo, Function4 (bar, foo))]
   """
   parts = []
-  bracket_level = 0
+  bracketLevel = 0
   current = []
   isQuote = False
   # trick to remove special-case of trailing chars
   for c in (operand + ","):
-    if ((c == "," and not isQuote) or c == bracket[1]) and bracket_level == 0:
+    if ((c == "," and not isQuote) or c == bracket[1]) and bracketLevel == 0:
       parts.append("".join(current).strip('"'))
       current = []
     else:
       if c == bracket[0]:
-        bracket_level += 1
+        bracketLevel += 1
         current.append(c)
       elif c == bracket[1]:
-        bracket_level -= 1
+        bracketLevel -= 1
         current.append(c)
       elif c == '"':
         isQuote = not isQuote
@@ -1230,40 +1230,40 @@ def combineVariation(wName, wInfo, fOut, regexFilter=None, regexVeto=None):
     if 'z' in noms.keys():
       y, yup, ydn = 'z', 'zup', 'zdn'
     variations = variationHists[ao]
-    syst_central = np.array(noms)
-    syst_up = np.array(noms)
-    syst_dn = np.array(noms)
+    systCentral = np.array(noms)
+    systUp = np.array(noms)
+    systDn = np.array(noms)
 
     # calculate the value of the combined uncertainty according to the
     # specified method
     if wInfo['type'] == 'Nominal' or wInfo['combination'] == 'stat':
-      syst_central, syst_dn, syst_up = combineVariationsStat(noms)
+      systCentral, systDn, systUp = combineVariationsStat(noms)
     elif wInfo['combination'] == 'lhapdf':
       res = combineVariationsLHAPDF(noms, variations, pset, asym=False)
       if res is None: continue
-      syst_central, syst_dn, syst_up = res
+      systCentral, systDn, systUp = res
     elif wInfo['combination'] == 'replicas':
-       syst_central, syst_dn, syst_up = combineVariationsReplicas(noms, variations, asym=True)
+       systCentral, systDn, systUp = combineVariationsReplicas(noms, variations, asym=True)
     elif wInfo['combination'] == 'envelope':
-       syst_central, syst_dn, syst_up = combineVariationsEnvelope(noms, variations, asym=True, includeErrorsInEnvelope=False)
+       systCentral, systDn, systUp = combineVariationsEnvelope(noms, variations, asym=True, includeErrorsInEnvelope=False)
     elif wInfo['combination'] == 'alphaS':
-       syst_central, syst_dn, syst_up = combineVariationsAlphaS(noms, variations)
+       systCentral, systDn, systUp = combineVariationsAlphaS(noms, variations)
     elif wInfo['combination'] == 'hessian':
-       syst_central, syst_dn, syst_up = combineVariationsHessian(noms, variations, asym=True)
+       systCentral, systDn, systUp = combineVariationsHessian(noms, variations, asym=True)
     elif wInfo['combination'] == 'norm':
-       syst_central, syst_dn, syst_up = combineVariationsNorm(noms, val=wInfo['value'])
+       systCentral, systDn, systUp = combineVariationsNorm(noms, val=wInfo['value'])
     elif wInfo['combination'] == 'customFunction':
-       syst_central, syst_dn, syst_up = combineVariationsFromFormula(noms, variations, wInfo['function'])
+       systCentral, systDn, systUp = combineVariationsFromFormula(noms, variations, wInfo['function'])
     else:
        print("[ERROR] combination type:" + wInfo['combination'] + "is not yet supported... skipping this systematic uncertainty:" + wName)
 
-    syst_up = (syst_up)
-    syst_dn = (syst_dn)
-    syst_central = (syst_central)
+    systUp = (systUp)
+    systDn = (systDn)
+    systCentral = (systCentral)
 
-    outputHists[ao][y] = syst_central
-    outputHists[ao][yup] = syst_up  
-    outputHists[ao][ydn] = syst_dn  
+    outputHists[ao][y] = systCentral
+    outputHists[ao][yup] = systUp  
+    outputHists[ao][ydn] = systDn  
 
   # write the outputs!
   writeToFile(outputHists, fOut)
@@ -2695,13 +2695,13 @@ def main(argv):
       else:
         mergedFile = "%s_%s_%s/merged_sample/%s.%s" % (process, generator, opts.label, safeFileName(s), rootOrYoda)
         if structure == "AllVariationsInFile":
-          if rivet_i_replacements(s) != "" and not opts.noSyst:
-            command = r"yodamerge_tmp.py --add -o %s %s -m r'.*\[%s\].*' &> out.txt " % (mergedFile, " ".join(allFilesToMerge[safeFileName(s)]), rivet_i_replacements(s, escapePlus=True))
+          if rivetINameReplacements(s) != "" and not opts.noSyst:
+            command = r"yodamerge_tmp.py --add -o %s %s -m r'.*\[%s\].*' &> out.txt " % (mergedFile, " ".join(allFilesToMerge[safeFileName(s)]), rivetINameReplacements(s, escapePlus=True))
             if debug:
               print(command)
-              print(r"sed -i 's/\[%s\]//g' %s" % (rivet_i_replacements(s), mergedFile))
+              print(r"sed -i 's/\[%s\]//g' %s" % (rivetINameReplacements(s), mergedFile))
             os.system(command)
-            os.system(r"sed -i 's/\[%s\]//g' %s" % (rivet_i_replacements(s), mergedFile))
+            os.system(r"sed -i 's/\[%s\]//g' %s" % (rivetINameReplacements(s), mergedFile))
             if len(allFilesToMerge[safeFileName(s)]) == 1:  # to deal with issue where individual files are not scaled by yodamerge
               sampleToMerge = allFilesToMerge[safeFileName(s)][0].split(":")
               command = "yodascale -c '.* %fx' -i %s &> out.txt \n" % (float(sampleToMerge[1]), mergedFile)

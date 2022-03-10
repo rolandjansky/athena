@@ -56,7 +56,7 @@ histograms = {
 }
 
 
-def isfloat(x):
+def isFloat(x):
   # check if the object can be cast as a float
   try:
     float(x)
@@ -333,14 +333,14 @@ def markupYODAwithCorrelationsFromYAML(reference, correlationsDir):
              for error in entry['errors']:
                binErrors[counter][error['label']] = {}
                if 'symerror' in error.keys():
-                 if not isfloat(error['symerror']) and '%' in (error['symerror']):
+                 if not isFloat(error['symerror']) and '%' in (error['symerror']):
                    binErrors[counter][error['label']]['up'] = binValues[counter] * 0.01 * float(error['symerror'].replace('%', ''))
                    binErrors[counter][error['label']]['dn'] = binValues[counter] * -0.01 * float(error['symerror'].replace('%', ''))
                  else:
                    binErrors[counter][error['label']]['up'] = float(error['symerror'])
                    binErrors[counter][error['label']]['dn'] = -1 * float(error['symerror'])
                elif 'asymerror' in error.keys():
-                 if not isfloat(error['asymerror']['plus']) and '%' in error['asymerror']['plus']:
+                 if not isFloat(error['asymerror']['plus']) and '%' in error['asymerror']['plus']:
                    binErrors[counter][error['label']]['up'] = binValues[counter] * 0.01 * float(error['asymerror']['plus'].replace('%', ''))
                    binErrors[counter][error['label']]['dn'] = binValues[counter] * 0.01 * float(error['asymerror']['minus'].replace('%', ''))
                  else:
