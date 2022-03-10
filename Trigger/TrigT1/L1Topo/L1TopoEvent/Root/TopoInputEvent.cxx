@@ -51,12 +51,11 @@ StatusCode TopoInputEvent::addeTau(const TCS::eTauTOB & eTau) {
 }
 
 StatusCode TopoInputEvent::addcTau(const TCS::eTauTOB & eTau) {
-   TCS::cTauTOB cTau(eTau.Et(), eTau.isolation(), eTau.eta(), eTau.phi(), TCS::ETAU);
+   TCS::cTauTOB cTau(eTau.Et(), eTau.eta(), eTau.phi(), TCS::ETAU);
    cTau.setEtDouble( eTau.EtDouble() );
    cTau.setEtaDouble( eTau.etaDouble() );
    cTau.setPhiDouble( eTau.phiDouble() );
-   cTau.setRCore( eTau.rCore() );
-   cTau.setRHad( eTau.rHad() );
+   //Set isolation somehow?
    m_cTaus.push_back(cTau);
    return StatusCode::SUCCESS;
 }
@@ -290,7 +289,7 @@ TopoInputEvent::dump() {
 
    file << "<eEm>" << std::endl;
    for(eEmTOB* em : m_eEms) {
-      file << em->Et() << "  " << em->isolation() << "  " << em->eta() << "  " << em->phi() << "  " << em->etaDouble() << "  " << em->phiDouble() << std::endl;
+      file << em->Et() << "  " << em->Reta() << "  " << em->Rhad() << "  " << em->Wstot() << "  " << em->eta() << "  " << em->phi() << "  " << em->etaDouble() << "  " << em->phiDouble() << std::endl;
    }
    file << "</eEm>" << std::endl;
 
@@ -302,7 +301,7 @@ TopoInputEvent::dump() {
 
    file << "<eTau>" << std::endl;
    for(eTauTOB* tau : m_eTaus) {
-      file << tau->Et() << "  " << tau->isolation() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
+      file << tau->Et() << "  " << tau->rCore() << "  " << tau->rHad() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
    }
    file << "</eTau>" << std::endl;
 

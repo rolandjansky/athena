@@ -464,6 +464,7 @@ ConfigurableAlg::isocut(const std::string& threshold, const unsigned int bit) {
   if (threshold == "None") {value = 0;}
   else if (threshold == "Loose") {value = 1;}
   else if (threshold == "Medium") {value = 2;}
+  else if (threshold == "HadMedium") {value = 2;}
   else if (threshold == "Tight") {value = 3;}
   else {
     TRG_MSG_WARNING("No isolation defined as " << threshold);

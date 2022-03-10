@@ -88,6 +88,9 @@ TCS::eTauMultiplicity::process( const TCS::InputTOBArray & input,
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
     bool passed = gtob.Et() >= eTAUThr.thrValue100MeV(gtob.eta()/4);
 
+    if ( !isocut(TrigConf::Selection::wpToString(eTAUThr.rCore()), gtob.rCore()) ) {continue;}
+    if ( !isocut(TrigConf::Selection::wpToString(eTAUThr.rHad()), gtob.rHad()) ) {continue;}
+
     if (passed) {
       counting++; 
       fillHist2D( m_histAccept[0], gtob.eta(), gtob.EtDouble() );

@@ -30,6 +30,8 @@ def L1LegacyTopoSimulationCfg(flags):
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1LegacyTopoSimulation",
                                                     EMTAUInputProvider = emtauProvider,
                                                     IsLegacyTopo = True,
+                                                    InputDumpFile = "inputdump_legacy.txt",
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump, 
                                                     MonHistBaseDir = "L1/L1LegacyTopoAlgorithms")
 
     # No muon inputs to legacy Topo
