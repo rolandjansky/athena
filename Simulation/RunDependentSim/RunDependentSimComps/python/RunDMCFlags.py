@@ -144,11 +144,9 @@ class RunToTimestampDict(JobProperty):
         311000:1551000000, ##MC16 pp (25 ns bunch spacing, low mu, 2018)
         312000:1552000000, ##MC16 pp (900 GeV high-beta ALFA, 2018)
         313000:1553000000, ##MC16 PbPb (2018)
-        330000:1625000000, ##MC21 pp (13.6 TeV 2022)
-        331000:1672500000, ##MC21 pp (13.6 TeV 2023)
-        332000:1704000000, ##MC21 pp (13.6 TeV 2024)
-        340000:1814500000  ##MC21 pp (RUN-4)
-
+        330000: 1625000000, # MC21 pp (13.6 TeV Run 3 initial CP samples)
+        340000: 1640000000, # MC21 pp (RUN-4)
+        410000: 1650000000  # MC21 pp (13.6 TeV Run 3 2022)
         }
     def addEntry( self, run, timestamp, force=False):
         if not type(run) == int:
