@@ -7,10 +7,25 @@ def createITkConfigFlags():
   itkcf = AthConfigFlags()
 
   # take geometry XML files from local instance rather than Detector Database, for development
-  itkcf.addFlag("ITk.pixelGeometryFilename", "ITKLayouts/Pixel/ITkPixel.gmx")
-  itkcf.addFlag("ITk.stripGeometryFilename", "ITKLayouts/Strip/ITkStrip.gmx")
-  itkcf.addFlag("ITk.bcmPrimeGeometryFilename", "ITKLayouts/Pixel/BCMPrime.gmx")
-  itkcf.addFlag("ITk.plrGeometryFilename", "ITKLayouts/PLR/PLR.gmx")
+  itkcf.addFlag("ITk.Geometry.AllLocal", False)
+  itkcf.addFlag("ITk.Geometry.PixelLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.PixelFilename", "ITKLayouts/Pixel/ITkPixel.gmx")
+  itkcf.addFlag("ITk.Geometry.PixelClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.StripLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.StripFilename", "ITKLayouts/Strip/ITkStrip.gmx")
+  itkcf.addFlag("ITk.Geometry.StripClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.BCMPrimeLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.BCMPrimeFilename", "ITKLayouts/Pixel/BCMPrime.gmx")
+  itkcf.addFlag("ITk.Geometry.BCMPrimeClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.PLRLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.PLRFilename", "ITKLayouts/PLR/PLR.gmx")
+  itkcf.addFlag("ITk.Geometry.PLRClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.DictionaryLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.DictionaryFilename", "ITKLayouts/IdDictInnerDetector_ITK_LOCAL.xml")
+  itkcf.addFlag("ITk.Geometry.isLocal", lambda prevFlags : (prevFlags.ITk.Geometry.PixelLocal
+                                                         or prevFlags.ITk.Geometry.StripLocal
+                                                         or prevFlags.ITk.Geometry.BCMPrimeLocal
+                                                         or prevFlags.ITk.Geometry.PLRLocal))
 
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.checkDeadPixelsOnTrack", True) # Enable check for dead modules and FEs

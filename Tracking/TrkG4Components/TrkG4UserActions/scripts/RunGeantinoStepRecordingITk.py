@@ -58,7 +58,7 @@ print()
 
 # Configure
 if args.localgeo:
-    ConfigFlags.GeoModel.useLocalGeometry = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
 
 ConfigFlags.Input.Files = [args.inputevntfile]
 ConfigFlags.Output.HITSFileName = args.outputhitsfile
