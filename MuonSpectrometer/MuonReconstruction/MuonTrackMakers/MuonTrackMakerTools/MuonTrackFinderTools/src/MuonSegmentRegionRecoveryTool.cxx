@@ -498,8 +498,8 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
                                              << " dist tube edge " << distEdge << " pullEdge " << pullEdge);
                 ++nholes;
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(tubePars));
-                states.emplace_back(tsos);
+                std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createHoleTSOS(std::move(tubePars));
+                states.emplace_back(std::move(tsos));
             }
             if (!nholes) ATH_MSG_DEBUG("found holes " << nholes);
         }
