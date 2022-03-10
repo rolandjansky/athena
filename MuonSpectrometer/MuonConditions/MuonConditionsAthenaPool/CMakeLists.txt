@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 726441 2016-02-26 14:57:39Z krasznaa $
-################################################################################
-# Package: MuonConditionsAthenaPool
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonConditionsAthenaPool )
@@ -26,5 +23,3 @@ atlas_add_test( RpcByteStreamErrorContainerCnv_p1_test
    LINK_LIBRARIES GaudiKernel AthContainers Identifier MuonByteStreamErrors
    TestTools AthenaPoolCnvSvcLib )
 
-# Install files from the package:
-atlas_install_headers( MuonConditionsAthenaPool )
