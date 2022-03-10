@@ -1,0 +1,74 @@
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
+syntax = "proto2";
+
+package EventIndex;
+
+option java_package = "eventindex.lang.protobuf";
+
+message Header_p1 {
+  required uint64  startProcTime  = 1;
+  required string  taskID         = 2;
+  required string  jobID          = 3;
+  required string  inputDsName    = 4;
+  required bool    provenanceRef  = 5;
+  required bool    triggerInfo    = 6;
+}
+
+message Trailer_p1 {
+  required uint64  endProcTime    = 1;
+  required uint32  nentries       = 2;
+  required uint32  nfiles         = 3;
+}
+
+message BeginGUID_p1 {
+  required int64  startProcTime   = 1;
+  required string AMITag          = 2;
+  required string trigStream      = 3;
+  required string projName        = 4;
+  required string guid            = 5;
+}
+
+message EndGUID_p1 {
+  required uint64 endProcTime     = 1;
+  required uint32 nentries        = 2;
+}
+
+message TriggerMenu_p1 {
+  required uint32 SMK             = 1;
+  required uint32 L1PSK           = 2;
+  required uint32 HLTPSK          = 3;
+  required string L1Menu          = 4;
+  optional string L2Menu          = 5;
+  optional string EFMenu          = 6;
+  optional string HLTMenu         = 7;
+}
+
+message EIEvent_p1 {
+   required uint32  runNumber         = 1;
+   required uint64  eventNumber       = 2;
+   required uint32  lumiBlock         = 3;
+   required uint32  timeStamp         = 4;
+   required uint32  timeStampNSOffset = 5;
+   required uint32  bcid              = 6;
+   optional uint32  extendedLevel1ID  = 7;
+   required bool    isSimulation      = 8;
+   required bool    isCalibration     = 9;
+   required bool    isTestBeam        = 10;
+   optional string  L1PassedTrigMask  = 11;
+   optional string  L2PassedTrigMask  = 12;
+   optional string  EFPassedTrigMask  = 13;
+   optional uint32  SMK               = 14;
+   optional uint32  HLTPSK            = 15;
+   optional uint32  L1PSK             = 16;
+   optional float   mcEventWeight     = 17;
+   optional uint32  mcChannelNumber   = 18;
+
+   message EItoken_p1 {
+        required string name  = 1;	
+        required string token = 2;	
+   }
+
+  repeated EItoken_p1 eitoken = 20;
+}
+
