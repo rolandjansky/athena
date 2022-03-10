@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEINFO_H
@@ -75,15 +75,6 @@ class TileInfo {
   int NdigitSamples() const {return m_nSamples;}
   /** The sample at which the pulse should ideally peak */
   int ItrigSample() const {return m_iTrigSample;}
-  /** Number of photo electrons */
-  int NPhElec() const { return m_nPhElec; }
-  /** Number of photo electrons per sample */
-  int NPhElec(int samp) const { return m_nPhElecVec[samp]; }
-
-
-  /** TileHit to TileCell energy conversion.
-      Returns the factor for converting TileHit amplitude to TileCell energy in simulation*/
-  double HitCalib(const Identifier& pmt_id) const;
 
   //==================================================================
   //==
@@ -304,12 +295,6 @@ class TileInfo {
   const IdContext*          m_channel_context;
   const IdContext*          m_drawer_context;
 
-
-  double m_emscaleA;     //!< 1/sampling fraction for all normal cells
-  double m_emscaleC[64]; //!< 1/sampling fraction for all C10 cells
-  double m_emscaleE[16]; //!< 1/sampling fraction for special C10 and E1-E4 cells [9]=C10, [10]=E1, [11]=E2, [13]=E3, [15]=E4
-  double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
-
   int    m_ADCmax;
   int    m_ADCmaskValue;
   int    m_nSamples;
@@ -397,9 +382,6 @@ class TileInfo {
   double m_mev2adcTB[32];
 
   ServiceHandle<TileCablingSvc>       m_tileCablingSvc;
-
-  int    m_nPhElec;
-  int    m_nPhElecVec[7];
 
   // Three dimensional vector of the
   // decomposed covariance matrices (partition x module x gain)

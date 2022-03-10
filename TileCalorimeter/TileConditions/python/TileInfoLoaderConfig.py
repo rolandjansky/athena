@@ -6,7 +6,6 @@
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 @AccumulatorCache
@@ -31,64 +30,6 @@ def TileInfoLoaderCfg(flags, **kwargs):
         else:
             msg.info("Adjusting TileInfo to return cell noise for Opt.Filter without iterations")
             kwargs['NoiseScaleIndex'] = 1 # Noise for Optimal Filter without iterations
-
-
-    if (flags.Input.isMC or flags.Common.ProductionStep == ProductionStep.Overlay) and ('TileHitVec' in flags.Input.Collections or 'TileHitVec' in flags.Input.SecondaryCollections):
-
-        G4Version = flags.Sim.G4Version
-        G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]
-        G4V = int(G4VersionMajor) + int(G4VersionMinor) / 100.
-
-        physicsList = flags.Sim.PhysicsList
-
-        if 'EmScaleA' not in kwargs:
-
-            # Default value since May-2011
-            EmScaleA = 34.0
-
-            # Default value for G4 9.6 since Nov-2013 (need to check G4 version as well)
-            if physicsList == 'FTFP_BERT' or (physicsList == 'QGSP_BERT' and G4V > 9.05999) :
-                EmScaleA = 33.9
-
-            # Default value for G4 10.0 since June-2016
-            # see https://indico.cern.ch/event/489520/contributions/2193913/attachments/1285565/1914309/sampling_fractions.pdf
-            if G4V >= 10.0 :
-                EmScaleA = 33.7
-
-            # Value for G4 10.6 since September-2020
-            # see https://its.cern.ch/jira/browse/ATLASSIM-4401
-            if G4V >= 10.05 :
-                EmScaleA = 32.9
-
-            # Old value
-            if physicsList == 'QGSP_EMV' or physicsList == 'QGSP_BERT_EMV' or physicsList == '':
-                EmScaleA = 35.9
-
-            kwargs['EmScaleA'] = EmScaleA  # 1/s.f. value for all normal cells
-
-        else:
-            EmScaleA = kwargs['EmScaleA']
-
-        msg.info("Using 1/s.f. = %s for %s physics list and G4version %s (%s)", EmScaleA, physicsList, G4V, G4Version)
-
-        # new sampling fraction for gap/crack scintillators in Run 3
-        # see https://indico.cern.ch/event/1084901/contributions/4616550/attachments/2349654/4007529/TileGap3_SamplingFraction.pdf
-        # RUN2 values:         125 107 97 75
-        # RUN3 EM scale:       109  89 74 61
-        # RUN3 EM+nonEM scale: 123  85 69 62
-
-        if flags.GeoModel.Run >= LHCPeriod.Run3 and G4V >= 10.05:
-            if 'EmScaleE1' not in kwargs:
-                kwargs['EmScaleE1'] = 109.0
-            if 'EmScaleE2' not in kwargs:
-                kwargs['EmScaleE2'] = 89.0
-            if 'EmScaleE3' not in kwargs:
-                kwargs['EmScaleE3'] = 74.0
-            if 'EmScaleE4' not in kwargs:
-                kwargs['EmScaleE4'] = 61.0
-
-            msg.info("Using 1/s.f. = %s %s %s %s for E-cells in %s",
-                     kwargs['EmScaleE1'], kwargs['EmScaleE2'], kwargs['EmScaleE3'], kwargs['EmScaleE4'], flags.GeoModel.Run.value )
 
         kwargs.setdefault('TileNoise', flags.Digitization.DoCaloNoise)
         if kwargs['TileNoise']:

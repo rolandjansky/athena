@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -52,9 +52,6 @@ TileInfo::TileInfo()
   , m_cabling(0)
   , m_channel_context(0)
   , m_drawer_context(0)
-  , m_emscaleA(0)
-  , m_emscaleC()
-  , m_emscaleMBTS()
   , m_ADCmax(0)
   , m_ADCmaskValue(0)
   , m_nSamples(0)
@@ -104,8 +101,6 @@ TileInfo::TileInfo()
   , m_pulseShapes(0)
   , m_WienerFilterWeights(0)
   , m_tileCablingSvc("TileCablingSvc","TileInfo")
-  , m_nPhElec(0)
-  , m_nPhElecVec()
 {
   //=== initialize TestBeam defaults
   for (int i=0; i<32; ++i)
@@ -113,11 +108,6 @@ TileInfo::TileInfo()
   
   for (int i=0; i<32; ++i)
     m_mev2adcTB[i] = 1.0;
-
-  for (int i=0; i<10; ++i)
-    m_emscaleE[i] = -1.0;
-  for (int i=10; i<16; ++i)
-    m_emscaleE[i] = 75.0;
 
   // scale factors from ADC HF noise to Opt filter noise calculated by Luca Fiorini
   m_noiseScaleFactor[0] = 1.0;  // no scale at all
@@ -215,36 +205,6 @@ TileInfo::msgSvc() const
 {
   return Athena::getMessageSvc();
 }
-
-
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::HitCalib(const Identifier& pmt_id) const {
-
-  double calib;
-
-  if (m_tileTBID->is_tiletb(pmt_id)) { // MBTS or E4'
-    calib = m_emscaleMBTS[m_tileTBID->eta(pmt_id)]; // 0=inner cell, 1=outer cell, 2=E4'
-  } else if (m_tileID->is_tile_gap(pmt_id)) { // ITC of gap/crack scin
-    int sample = m_tileID->sample(pmt_id);
-    if (TileID::SAMP_E == sample) { // gap/crack scin
-      int tower=m_tileID->tower(pmt_id);
-      if (tower>15) tower /= 4; // fix for upgrade geometry with 0.025 granularity
-      calib = m_emscaleE[tower];
-    } else if (TileID::SAMP_C == sample) { // C10 cell
-      calib = m_emscaleC[m_tileID->module(pmt_id)];
-    } else {
-      calib = m_emscaleA;
-    }
-  } else {
-    calib = m_emscaleA;
-  }
-  
-  return calib;
-}
-
 
 //_____________________________________________________________________________
 const TMatrixD*

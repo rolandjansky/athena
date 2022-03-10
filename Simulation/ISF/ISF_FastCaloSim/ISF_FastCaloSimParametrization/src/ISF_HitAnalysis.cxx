@@ -22,6 +22,7 @@
 
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "CaloIdentifier/TileID.h"
+#include "TileIdentifier/TileHWID.h"
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 
@@ -76,13 +77,6 @@
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , m_geoModel(0)
-   , m_tileInfo(0)
-   , m_larEmID(0)
-   , m_larFcalID(0)
-   , m_larHecID(0)
-   , m_tileID(0)
-   , m_tileMgr(0)
    , m_hit_x(0)
    , m_hit_y(0)
    , m_hit_z(0)
@@ -322,7 +316,11 @@ StatusCode ISF_HitAnalysis::initialize()
 
   ATH_CHECK( m_fSamplKey.initialize() );
 
-  ATH_CHECK( detStore()->retrieve(m_tileInfo,"TileInfo") );
+  ATH_CHECK(detStore()->retrieve(m_tileHWID));
+  ATH_CHECK( m_tileSamplingFractionKey.initialize() );
+
+  ATH_CHECK( m_tileCablingSvc.retrieve() );
+  m_tileCabling = m_tileCablingSvc->cablingService();
 
   m_calo_dd_man  = CaloDetDescrManager::instance();
 
@@ -748,6 +746,10 @@ StatusCode ISF_HitAnalysis::execute()
  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
  const ILArfSampl* fSampl=*fSamplHdl;
 
+ SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey);
+ ATH_CHECK( tileSamplingFraction.isValid() );
+
+
  //now if the branches were created correctly, the pointers point to something and it is possible to clear the vectors
  TVector3 vectest;
  vectest.SetPtEtaPhi(1.,1.,1.);
@@ -877,7 +879,12 @@ StatusCode ISF_HitAnalysis::execute()
      }
 
      if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id)) sampfrac=fSampl->FSAMPL(id);
-
+     if (m_tileID->is_tile(id)) {
+       HWIdentifier channel_id = m_tileCabling->s2h_channel_id(id);
+       int channel = m_tileHWID->channel(channel_id);
+       int drawerIdx = m_tileHWID->drawerIdx(channel_id);
+       sampfrac = tileSamplingFraction->getSamplingFraction(drawerIdx, channel);
+     }
      if(m_larEmID->is_lar_em(id)) {
        //LAr EM cells
        if (m_larEmID->is_em_barrel(id)) larbarrel=true;
@@ -893,7 +900,6 @@ StatusCode ISF_HitAnalysis::execute()
        tile = true;
        cell_id = m_tileID->cell_id(id);
        sampling = CaloCell_ID::TileGap3;
-       sampfrac = m_tileInfo->HitCalib(id);
      } else if(m_tileID->is_tile_barrel(id) || m_tileID->is_tile_extbarrel(id) || m_tileID->is_tile_gap(id)) {
        // all other Tile cells
        tile = true;
@@ -901,7 +907,6 @@ StatusCode ISF_HitAnalysis::execute()
        Int_t tile_sampling = -1;
        if(m_calo_dd_man->get_element(cell_id)) {
          tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
-         sampfrac = m_tileInfo->HitCalib(cell_id);
        }
        if(tile_sampling!= -1) sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
      } else {
@@ -1226,7 +1231,10 @@ StatusCode ISF_HitAnalysis::execute()
    if (m_calo_dd_man->get_element(cell_id)){
       CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
 
-      float tilesampfrac = m_tileInfo->HitCalib(cell_id);
+      HWIdentifier channel_id = m_tileCabling->s2h_channel_id(pmt_id);
+      int channel = m_tileHWID->channel(channel_id);
+      int drawerIdx = m_tileHWID->drawerIdx(channel_id);
+      float tilesampfrac = tileSamplingFraction->getSamplingFraction(drawerIdx, channel);
 
       //could there be more subhits??
       for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)

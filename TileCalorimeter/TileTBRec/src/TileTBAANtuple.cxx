@@ -17,12 +17,14 @@
 //*****************************************************************************
 
 //Gaudi Includes
-#include "GaudiKernel/ITHistSvc.h"
+//#include "GaudiKernel/ITHistSvc.h"
 
 //Event info
 #include "xAODEventInfo/EventInfo.h"
 
 #include "PathResolver/PathResolver.h"
+#include "StoreGate/ReadCondHandle.h"
+
 #include <cmath>
 
 //Calo includes
@@ -36,13 +38,11 @@
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileInfo.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
-#include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileByteStream/TileLaserObjByteStreamCnv.h"
 #include "TileEvent/TileHitContainer.h"
@@ -223,10 +223,6 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_rchUnit(TileRawChannelUnit::MegaElectronVolts)
   , m_dspUnit(TileRawChannelUnit::ADCcounts)
   , m_adderFilterAlgTool("TileRawChannelBuilderFlatFilter/TileAdderFlatFilter",this)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
-  , m_cabling(0)
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_beamCnv(0)
   , m_currentFileNum(0)
@@ -355,10 +351,10 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   m_evtNr = -1;
 }
 
-
-TileTBAANtuple::~TileTBAANtuple() {
+StatusCode TileTBAANtuple::initialize() {
+  ATH_CHECK( m_samplingFractionKey.initialize() );
+  return StatusCode::SUCCESS;
 }
-
 
 /// Alg standard interface function
 /// LF TODO: We could have a problem with the new feature introduced by Sasha that quit empty fragments
@@ -379,7 +375,6 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
 
   CHECK( detStore()->retrieve(m_tileHWID) );
 
-  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
 
@@ -1999,6 +1994,9 @@ StatusCode TileTBAANtuple::storeHitVector() {
   const TileHitVector *hitVec;
   CHECK( evtStore()->retrieve(hitVec, m_hitVector) );
 
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey);
+  ATH_CHECK( samplingFraction.isValid() );
+
   // Get iterator for all hits in hit vector
   TileHitVecConstIterator it = hitVec->begin();
   TileHitVecConstIterator itEnd = hitVec->end();
@@ -2021,7 +2019,7 @@ StatusCode TileTBAANtuple::storeHitVector() {
 
     } else {
       int fragType = m_drawerType[type];
-      storeHit(cinp,fragType,fragId,m_ehitVec.at(type),m_thitVec.at(type));
+      storeHit(cinp,fragType,fragId,m_ehitVec.at(type),m_thitVec.at(type), *samplingFraction);
     }
   }
 
@@ -2043,7 +2041,10 @@ StatusCode TileTBAANtuple::storeHitContainer() {
 
   // Read Hit Container from TDS
   const TileHitContainer *hitCnt;
-  CHECK( evtStore()->retrieve(hitCnt, m_hitContainer) );
+  ATH_CHECK( evtStore()->retrieve(hitCnt, m_hitContainer) );
+
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey);
+  ATH_CHECK( samplingFraction.isValid() );
 
   // Get iterator for all collections in container
   TileHitContainer::const_iterator itColl = (*hitCnt).begin();
@@ -2077,7 +2078,7 @@ StatusCode TileTBAANtuple::storeHitContainer() {
       for (; it != itEnd; it++) {
         // get hits
         const TileHit * cinp = (*it);
-        storeHit(cinp,fragType,fragId,m_ehitCnt.at(type),m_thitCnt.at(type));
+        storeHit(cinp,fragType,fragId,m_ehitCnt.at(type),m_thitCnt.at(type),*samplingFraction);
       }
     }
   }
@@ -2088,7 +2089,8 @@ StatusCode TileTBAANtuple::storeHitContainer() {
     return StatusCode::SUCCESS;
 }
 
-void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, float* ehitVec, float* thitVec) {
+void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, float* ehitVec, float* thitVec,
+                              const TileSamplingFraction* samplingFraction) {
 
   // determine channel
   HWIdentifier hwid = cinp->pmt_HWID();
@@ -2125,10 +2127,11 @@ void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, flo
     thit /= ehit;
     // conversion factor from hit energy to final energy units 
     Identifier pmt_id = cinp->pmt_ID();
-    ehit *= m_tileInfo->HitCalib(pmt_id);
+    int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(fragId);
+    ehit *= samplingFraction->getSamplingFraction(drawerIdx, channel);
     if (m_rchUnit != TileRawChannelUnit::MegaElectronVolts) {
-      ehit /= m_tileToolEmscale->channelCalib(TileCalibUtils::getDrawerIdxFromFragId(fragId), channel, 
-                                              TileID::HIGHGAIN, 1., m_rchUnit, TileRawChannelUnit::MegaElectronVolts);
+      ehit /= m_tileToolEmscale->channelCalib(drawerIdx, channel, TileID::HIGHGAIN, 1.,
+                                              m_rchUnit, TileRawChannelUnit::MegaElectronVolts);
     }
   } else {
     thit=0.0;

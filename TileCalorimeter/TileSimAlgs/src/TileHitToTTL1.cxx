@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -38,6 +38,7 @@
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 // For the Athena-based random numbers.
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -65,25 +66,27 @@ StatusCode TileHitToTTL1::initialize() {
 
   // retrieve CaloLVL1_ID, TileID, TileHWID helpers and TileIfno from det store
 
-  CHECK( detStore()->retrieve(m_TT_ID) );
+  ATH_CHECK( detStore()->retrieve(m_TT_ID) );
 
-  CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
 
-  CHECK( detStore()->retrieve(m_tileTBID) );
+  ATH_CHECK( detStore()->retrieve(m_tileTBID) );
 
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   //=== Get Tile Info
-  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
   //=== Get Tile Bad channel tool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   //=== Get rndm number service
   ATH_CHECK( m_rndmSvc.retrieve() );
+
+  ATH_CHECK( m_samplingFractionKey.initialize() );
 
   ATH_CHECK( m_cablingSvc.retrieve() );
   m_cabling = m_cablingSvc->cablingService();
@@ -203,6 +206,9 @@ StatusCode TileHitToTTL1::execute(const EventContext &ctx) const {
     mbtsTTL1Container = std::make_unique<TileTTL1Container>();
   }
 
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey, ctx);
+  ATH_CHECK( samplingFraction.isValid() );
+
   /*........................................................................*/
   // Create temporary arrays for processing signals.
   // Create array for all TT amplitudes in a single drawer
@@ -313,7 +319,8 @@ StatusCode TileHitToTTL1::execute(const EventContext &ctx) const {
       int channel = m_tileHWID->channel(pmt_HWid);
 
       // conversion to hit energy after EMscale correction 
-      double hit_calib = m_tileInfo->HitCalib(pmt_id);
+      double hit_calib = samplingFraction->getSamplingFraction(drawerIdx, channel);
+      hit_calib = std::round(hit_calib * 10) / 10;
       // conversion to charge measured by digitizer
       // The trigger always uses the low gain
       double qfactor = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, channel

@@ -166,3 +166,9 @@ if not TileUse12bit:
 else:
     msg.info("Setting 12-bit ADC configuration")
     tileInfoConfigurator.setupAdcRange(12)
+
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.DataSource() != 'data':
+    # Set up Tile samping fraction for MC jobs
+    from TileConditions.TileCondToolConf import bookTileSamplingFractionCondAlg
+    bookTileSamplingFractionCondAlg(source='FILE')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LAREMSAMPLINGFRACTION_H
@@ -8,9 +8,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
-#include "TileConditions/TileInfo.h"
 #include "CaloIdentifier/TileID.h"
+#include "TileIdentifier/TileHWID.h"
 #include "CaloIdentifier/CaloIdManager.h"
+#include "TileConditions/TileSamplingFraction.h"
+#include "TileConditions/TileCablingSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -83,9 +85,23 @@ class LarEMSamplingFraction  : public ::AthAlgorithm
   
   const CaloCell_ID* m_calo_id{nullptr};
   
-  const TileInfo *m_tileInfo{nullptr};
   const TileID * m_tileID{nullptr};
+  const TileHWID* m_tileHWID{nullptr};
+  const TileCablingService* m_tileCabling{nullptr};
+
   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
+
+  /**
+   * @brief Name of TileSamplingFraction in condition store
+   */
+  SG::ReadCondHandleKey<TileSamplingFraction> m_tileSamplingFractionKey{this,
+      "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
+
+  /**
+   * @brief Name of Tile cabling service
+   */
+  ServiceHandle<TileCablingSvc> m_tileCablingSvc{ this,
+     "TileCablingSvc", "TileCablingSvc", "Tile cabling service"};
 };
 
 #endif //> !LarEMSamplingFraction_H
