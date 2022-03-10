@@ -47,6 +47,8 @@ namespace Muon {
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
+        m_BME_station = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME");
+        
         if (m_alignmentErrors) {
             if (!m_alignErrorTool.empty()) ATH_CHECK(m_alignErrorTool.retrieve());
         } else {
@@ -381,7 +383,7 @@ namespace Muon {
         for (auto* it : align_deviations) delete it;
         align_deviations.clear();
 
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -433,7 +435,7 @@ namespace Muon {
         //
         // clone the TSOSs and add the tsosAEOTs
         //
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        Trk::TrackStates trackStateOnSurfaces{};
         trackStateOnSurfaces.reserve(states->size() + indexAEOTs.size());
         int index = -1;
         for (const Trk::TrackStateOnSurface* tsit : *states) {
@@ -470,7 +472,7 @@ namespace Muon {
     std::unique_ptr<Trk::Track> MuonRefitTool::makeSimpleAEOTs(const Trk::Track& track) const {
         // use the new AlignmentEffectsOnTrack class
 
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -479,7 +481,7 @@ namespace Muon {
         //
         // first clone the TSOSs
         //
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        Trk::TrackStates trackStateOnSurfaces{};
         trackStateOnSurfaces.reserve(states->size() + 1);
         for (const Trk::TrackStateOnSurface* tsit : *states) { trackStateOnSurfaces.push_back(tsit->clone()); }
 
@@ -488,11 +490,9 @@ namespace Muon {
         std::vector<const Trk::TrackStateOnSurface*> indicesOfAffectedTSOSInner;
         std::vector<Identifier> indicesOfAffectedIds;
         std::vector<Identifier> indicesOfAffectedIdsInner;
-        int index = -1;
-        int indexFirst = -1;
-        int indexFirstInner = -1;
+        int index {-1}, indexFirst {-1}, indexFirstInner {-1};
         for (const Trk::TrackStateOnSurface* tsit : trackStateOnSurfaces) {
-            index++;
+            ++index;
             if (!tsit) continue;  // sanity check
 
             const Trk::TrackParameters* pars = tsit->trackParameters();
@@ -577,7 +577,7 @@ namespace Muon {
                                                                        typePattern, aEOTInner);
         }
 
-        auto trackStateOnSurfacesAEOT = DataVector<const Trk::TrackStateOnSurface>();
+        Trk::TrackStates trackStateOnSurfacesAEOT{};
         trackStateOnSurfacesAEOT.reserve(states->size() + 2);
         index = -1;
         for (const Trk::TrackStateOnSurface* tsit : trackStateOnSurfaces) {
@@ -605,7 +605,7 @@ namespace Muon {
     std::unique_ptr<Trk::Track> MuonRefitTool::updateErrors(const Trk::Track& track, const EventContext& ctx,
                                                             const IMuonRefitTool::Settings& settings) const {
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -613,22 +613,21 @@ namespace Muon {
 
         // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
         // If any new state is created, all states will be cloned and a new track will beformed from them.
-        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*>> newStates;
+        std::vector<std::unique_ptr<Trk::TrackStateOnSurface>> newStates;
         newStates.reserve(states->size() + 5);
 
         const Trk::TrackParameters* startPars = nullptr;
         std::map<int, std::set<MuonStationIndex::StIndex>> stationsPerSector;
 
         // loop over TSOSs and find start parameters
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
-            if (!*tsit) continue;  // sanity check
+        for (const Trk::TrackStateOnSurface* tsit : *states) {
+            
+            if (!tsit) continue;  // sanity check
 
-            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            const Trk::TrackParameters* pars = tsit->trackParameters();
             if (!pars) continue;
 
-            if ((*tsit)->type(Trk::TrackStateOnSurface::Perigee)) {
+            if (tsit->type(Trk::TrackStateOnSurface::Perigee)) {
                 if (!dynamic_cast<const Trk::Perigee*>(pars)) {
                     if (!startPars) {
                         startPars = pars;
@@ -639,11 +638,11 @@ namespace Muon {
             }
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            const Trk::MeasurementBase* meas = tsit->measurementOnTrack();
             if (!meas) { continue; }
 
             // skip outliers
-            if ((*tsit)->type(Trk::TrackStateOnSurface::Outlier)) continue;
+            if (tsit->type(Trk::TrackStateOnSurface::Outlier)) continue;
 
             Identifier id = m_edmHelperSvc->getIdentifier(*meas);
             // Not a ROT, else it would have had an identifier. Keep the TSOS.
@@ -699,19 +698,17 @@ namespace Muon {
         }
 
         // no check whether we have a barrel/endcap overlap
-        int nbarrel = 0;
-        int nendcap = 0;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::BI)) ++nbarrel;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::BM)) ++nbarrel;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::BO)) ++nbarrel;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::EI)) ++nendcap;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::EM)) ++nendcap;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::EO)) ++nendcap;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::EE)) ++nendcap;
-        if (stationsPerSector[selectedSector].count(MuonStationIndex::BE)) ++nendcap;
-        bool barrelEndcap = false;
-        bool deweightBarrel = false;
-        bool deweightEndcap = false;
+        
+        static constexpr std::array<MuonStationIndex::StIndex, 3> barel_stations{MuonStationIndex::BI, MuonStationIndex::BM, MuonStationIndex::BO};
+        static constexpr std::array<MuonStationIndex::StIndex, 5> endcap_stations{MuonStationIndex::EI,MuonStationIndex::EM, MuonStationIndex::EO, MuonStationIndex::EE, MuonStationIndex::BE};
+        const std::set<MuonStationIndex::StIndex>& selected_set = stationsPerSector[selectedSector];
+        const int nbarrel = std::accumulate(barel_stations.begin(),barel_stations.end(),0, [&selected_set](int n, const MuonStationIndex::StIndex& idx){
+            return (selected_set.count(idx) > 0) + n;
+        });
+        const int  nendcap = std::accumulate(endcap_stations.begin(),endcap_stations.end(),0, [&selected_set](int n, const MuonStationIndex::StIndex& idx){
+            return (selected_set.count(idx) > 0) + n;
+        });
+        bool barrelEndcap {false}, deweightBarrel{false}, deweightEndcap{false};
         if (nbarrel > 0 && nendcap > 0) {
             if (nbarrel < nendcap)
                 deweightBarrel = true;
@@ -733,30 +730,27 @@ namespace Muon {
         unsigned int removedSectorHits = 0;
         bool addedPerigee = false;
         // loop over TSOSs
-        tsit = states->begin();
-        tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
-            if (!*tsit) continue;  // sanity check
+        for (const Trk::TrackStateOnSurface* tsos : * states) {
+            if (!tsos) continue;  // sanity check
 
             // check whether state is a measurement, if not add it, except if we haven't added the perigee surface yet
-            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            const Trk::TrackParameters* pars = tsos->trackParameters();
             if (settings.prepareForFit && !pars) {
                 if (addedPerigee) {
-                    newStates.emplace_back(false, *tsit);
-                    continue;
+                    newStates.emplace_back(tsos->clone());                  
                 } else {
-                    ATH_MSG_DEBUG("Dropping TSOS before perigee surface");
-                    continue;
+                    ATH_MSG_DEBUG("Dropping TSOS before perigee surface");                   
                 }
+                continue;
             }
 
             // if preparing for fit and not recreating the starting parameters, add the original perigee before back extrapolation to MS
             // entry
-            if (settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee)) {
+            if (settings.prepareForFit && !settings.recreateStartingParameters && tsos->type(Trk::TrackStateOnSurface::Perigee)) {
                 if (pars == startPars) {
                     ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars));
                     std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars, ctx);
-                    newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
+                    newStates.emplace_back(MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                     addedPerigee = true;
                     continue;
                 } else {
@@ -765,9 +759,9 @@ namespace Muon {
             }
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
             if (!meas) {
-                newStates.emplace_back(false, *tsit);
+                newStates.emplace_back(tsos->clone());
                 continue;
             }
 
@@ -781,8 +775,8 @@ namespace Muon {
                 double theta = pars->momentum().theta();
                 double qoverp = pars->charge() / pars->momentum().mag();
                 Trk::PerigeeSurface persurf(perpos);
-                auto perigee = std::make_unique<const Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
-                newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
+                std::unique_ptr<Trk::Perigee> perigee = std::make_unique<Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
+                newStates.emplace_back(MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                 addedPerigee = true;
                 ATH_MSG_DEBUG("Adding perigee in front of first measurement");
             }
@@ -791,12 +785,12 @@ namespace Muon {
 
             // Not a ROT, else it would have had an identifier. Keep the TSOS.
             if (!id.is_valid() || !m_idHelperSvc->isMuon(id)) {
-                newStates.emplace_back(false, *tsit);
+                newStates.emplace_back(tsos->clone());
                 continue;
             }
 
             if (!settings.updateErrors) {
-                newStates.emplace_back(false, *tsit);
+                newStates.emplace_back(tsos->clone());
             } else {
                 Identifier chId = m_idHelperSvc->chamberId(id);
                 MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
@@ -810,9 +804,9 @@ namespace Muon {
                     bool hasT0Fit = false;
                     if (mdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit)) hasT0Fit = true;
 
-                    const Trk::RIO_OnTrack* rot = nullptr;
+                    std::unique_ptr<MdtDriftCircleOnTrack> rot{};
                     int sector = m_idHelperSvc->sector(id);
-                    Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = (*tsit)->type(Trk::TrackStateOnSurface::Outlier)
+                    Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = tsos->type(Trk::TrackStateOnSurface::Outlier)
                                                                                  ? Trk::TrackStateOnSurface::Outlier
                                                                                  : Trk::TrackStateOnSurface::Measurement;
 
@@ -824,63 +818,57 @@ namespace Muon {
                             m_idHelperSvc->chamberIndex(id) == MuonStationIndex::EEL && m_idHelperSvc->stationEta(id) < 0 &&
                             m_idHelperSvc->stationPhi(id) == 3) {
                             // for this chamber the errors are enormous (for a period of time)
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyEEL1C05);
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyEEL1C05));
 
-                        } else if (deweightBarrel && (stIndex == MuonStationIndex::BI || stIndex == MuonStationIndex::BM ||
-                                                      stIndex == MuonStationIndex::BO)) {
-                            // std::cout << " MUONREFIT deweightBarrel " << std::endl;
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBarEnd);
+                        } else if (deweightBarrel && 
+                                   std::find(barel_stations.begin(),barel_stations.end(),stIndex) != barel_stations.end()) {
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBarEnd));
                             if (settings.removeBarrelEndcapOverlap) type = Trk::TrackStateOnSurface::Outlier;
 
                         } else if (deweightEndcap &&
-                                   (stIndex == MuonStationIndex::EI || stIndex == MuonStationIndex::EM || stIndex == MuonStationIndex::EO ||
-                                    stIndex == MuonStationIndex::EE ||
-                                    stIndex == MuonStationIndex::BE)) {  // BEE chambers enter the endcap alignment system!
-                            // std::cout << " MUONREFIT deweightEndcap " << std::endl;
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBarEnd);
+                                  std::find(endcap_stations.begin(), endcap_stations.end(), stIndex) != barel_stations.end())  {  // BEE chambers enter the endcap alignment system!
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBarEnd));
                             if (settings.removeBarrelEndcapOverlap) type = Trk::TrackStateOnSurface::Outlier;
 
                         } else if (settings.deweightOtherSectors && sector != selectedSector) {
-                            // std::cout << " MUONREFIT deweightOther " << std::endl;
                             ++deweightHits;
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategySL);
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategySL));
 
                         } else if (m_deweightBEE && stIndex == MuonStationIndex::BE) {
-                            // std::cout << " MUONREFIT deweightBEE " << std::endl;
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBEE);
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBEE));
                             if (settings.removeBEE) type = Trk::TrackStateOnSurface::Outlier;
 
                         } else if (m_deweightEE && stIndex == MuonStationIndex::EE) {
-                            // std::cout << " MUONREFIT deweightEE " << std::endl;
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyEE);
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyEE));
 
                         } else if (m_deweightBIS78 && stIndex == MuonStationIndex::BI &&
                                    m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIS && abs(m_idHelperSvc->stationEta(id)) > 6) {
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBIS78);
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBIS78));
 
                         } else if (m_deweightBME && stIndex == MuonStationIndex::BM && m_idHelperSvc->stationPhi(id) == 7 &&
-                                   (m_idHelperSvc->mdtIdHelper()).stationName(id) == 53) {
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBXE);
+                                   (m_idHelperSvc->mdtIdHelper()).stationName(id) == m_BME_station) {
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBXE));
 
                         } else if (m_deweightBOE && stIndex == MuonStationIndex::BO &&
                                    m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BOL && abs(m_idHelperSvc->stationEta(id)) == 7 &&
                                    m_idHelperSvc->stationPhi(id) == 7) {
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBXE);
+                            rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBXE));
 
                         } else {
                             /** default strategy */
                             MuonDriftCircleErrorStrategy strat(m_errorStrategy);
                             if (hasT0Fit) strat.setParameter(MuonDriftCircleErrorStrategy::T0Refit, true);
                             if (settings.broad) strat.setParameter(MuonDriftCircleErrorStrategy::BroadError, true);
-                            rot = m_mdtRotCreator->updateError(*mdt, pars, &strat);
+                            rot.reset( m_mdtRotCreator->updateError(*mdt, pars, &strat));
                         }
                     } else {
-                        rot = m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyTwoStations);
+                        rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyTwoStations));
                     }
 
-                    const MdtDriftCircleOnTrack* newMdt = rot ? dynamic_cast<const MdtDriftCircleOnTrack*>(rot) : nullptr;
-                    if (!newMdt) {
-                        newMdt = mdt->clone();
+                   
+                    
+                    if (!rot) {
+                        rot.reset(mdt->clone());
                         type = Trk::TrackStateOnSurface::Outlier;
                     }
                     if (settings.removeOtherSectors) {
@@ -894,52 +882,51 @@ namespace Muon {
                     }
 
                     if (msgLvl(MSG::DEBUG)) {
-                        ATH_MSG_DEBUG(m_idHelperSvc->toString(newMdt->identify())
-                                      << " radius " << newMdt->driftRadius() << " new err "
-                                      << Amg::error(newMdt->localCovariance(), Trk::locR) << " old err "
+                        ATH_MSG_DEBUG(m_idHelperSvc->toString(rot->identify())
+                                      << " radius " << rot->driftRadius() << " new err "
+                                      << Amg::error(rot->localCovariance(), Trk::locR) << " old err "
                                       << Amg::error(mdt->localCovariance(), Trk::locR));
                         if (hasT0Fit)
                             ATH_MSG_DEBUG(" HasT0");
                         else
                             ATH_MSG_DEBUG(" No T0");
                         if (type == Trk::TrackStateOnSurface::Outlier) ATH_MSG_DEBUG(" Outlier");
-                        if (std::abs(newMdt->driftRadius() - mdt->driftRadius()) > 0.1)
+                        if (std::abs(rot->driftRadius() - mdt->driftRadius()) > 0.1)
                             ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
                     }
                     //the following is a cop-out until can sort out the unique_ptr magic for rot, mdt
-                    auto newUniqueMdt=std::unique_ptr<const MdtDriftCircleOnTrack>(newMdt);
-                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(**tsit, std::move(newUniqueMdt), pars->uniqueClone(), type);
-                    newStates.emplace_back(true, tsos);
+                    std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(*tsos, std::move(rot), pars->uniqueClone(), type);
+                    newStates.emplace_back(std::move(new_tsos));
                 } else if (m_idHelperSvc->isCsc(id)) {
                     if (settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex)) {
-                        Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::cloneTSOS(**tsit, Trk::TrackStateOnSurface::Outlier);
-                        newStates.emplace_back(true, tsos);
+                        std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
+                        newStates.emplace_back(std::move(new_tsos));
 
                     } else {
-                        newStates.emplace_back(false, *tsit);
+                        newStates.emplace_back(tsos->clone());
                     }
                 } else if (m_idHelperSvc->isTrigger(id)) {
                     if (m_idHelperSvc->measuresPhi(id)) {
                         MuonStationIndex::PhiIndex phiIndex = m_idHelperSvc->phiIndex(id);
 
                         if (settings.chambersToBeremoved.count(chId) || settings.phiLayersToBeremoved.count(phiIndex)) {
-                            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::cloneTSOS(**tsit, Trk::TrackStateOnSurface::Outlier);
-                            newStates.emplace_back(true, tsos);
+                            std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
+                            newStates.emplace_back(std::move(new_tsos));
 
                         } else {
-                            newStates.emplace_back(false, *tsit);
+                            newStates.emplace_back(tsos->clone());
                         }
 
                     } else {
                         if (settings.updateTriggerErrors) {
-                            newStates.emplace_back(false, *tsit);
+                            newStates.emplace_back(tsos->clone());
 
                         } else {
-                            newStates.emplace_back(false, *tsit);
+                            newStates.emplace_back(tsos->clone());
                         }
                     }
                 } else if (m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id)) {
-                    newStates.emplace_back(false, *tsit);
+                    newStates.emplace_back(tsos->clone());
 
                 } else {
                     ATH_MSG_WARNING(" unknown Identifier " << m_idHelperSvc->mdtIdHelper().print_to_string(id));
@@ -953,13 +940,10 @@ namespace Muon {
         ATH_MSG_VERBOSE(" original track had " << states->size() << " TSOS, adding " << newStates.size() - states->size() << " new TSOS ");
 
         // states were added, create a new track
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        Trk::TrackStates trackStateOnSurfaces{};
         trackStateOnSurfaces.reserve(newStates.size());
-        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*>>::iterator nit = newStates.begin();
-        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*>>::iterator nit_end = newStates.end();
-        for (; nit != nit_end; ++nit) {
-            // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
-            trackStateOnSurfaces.push_back(nit->first ? nit->second : nit->second->clone());
+        for (std::unique_ptr<Trk::TrackStateOnSurface>& new_state : newStates) {
+            trackStateOnSurfaces.push_back(std::move(new_state));
         }
         std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
                                                                             track.fitQuality() ? track.fitQuality()->clone() : nullptr);
@@ -973,7 +957,7 @@ namespace Muon {
         // uses the muonErrorStrategy
 
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -981,21 +965,19 @@ namespace Muon {
 
         // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
         // If any new state is created, all states will be cloned and a new track will beformed from them.
-        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*>> newStates;
+        std::vector<std::unique_ptr<Trk::TrackStateOnSurface>> newStates;
         newStates.reserve(states->size() + 5);
 
         const Trk::TrackParameters* startPars = nullptr;
 
         // loop over TSOSs and find start parameters
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
-            if (!*tsit) continue;  // sanity check
+        for (const Trk::TrackStateOnSurface* tsos : *states) {
+            if (!tsos) continue;  // sanity check
 
-            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            const Trk::TrackParameters* pars = tsos->trackParameters();
             if (!pars) continue;
 
-            if ((*tsit)->type(Trk::TrackStateOnSurface::Perigee)) {
+            if (tsos->type(Trk::TrackStateOnSurface::Perigee)) {
                 if (!dynamic_cast<const Trk::Perigee*>(pars)) {
                     if (!startPars) {
                         startPars = pars;
@@ -1006,11 +988,11 @@ namespace Muon {
             }
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
             if (!meas) { continue; }
 
             // skip outliers
-            if ((*tsit)->type(Trk::TrackStateOnSurface::Outlier)) continue;
+            if (tsos->type(Trk::TrackStateOnSurface::Outlier)) continue;
 
             Identifier id = m_edmHelperSvc->getIdentifier(*meas);
             // Not a ROT, else it would have had an identifier. Keep the TSOS.
@@ -1029,16 +1011,14 @@ namespace Muon {
 
         bool addedPerigee = false;
         // loop over TSOSs
-        tsit = states->begin();
-        tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
-            if (!*tsit) continue;  // sanity check
+        for (const Trk::TrackStateOnSurface* tsos : *states) {
+            if (!tsos) continue;  // sanity check
 
             // check whether state is a measurement, if not add it, except if we haven't added the perigee surface yet
-            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            const Trk::TrackParameters* pars = tsos->trackParameters();
             if (settings.prepareForFit && !pars) {
                 if (addedPerigee) {
-                    newStates.emplace_back(false, *tsit);
+                    newStates.emplace_back(tsos->clone());
                     continue;
                 } else {
                     ATH_MSG_DEBUG("Dropping TSOS before perigee surface");
@@ -1048,11 +1028,11 @@ namespace Muon {
 
             // if preparing for fit and not recreating the starting parameters, add the original perigee before back extrapolation to MS
             // entry
-            if (settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee)) {
+            if (settings.prepareForFit && !settings.recreateStartingParameters && tsos->type(Trk::TrackStateOnSurface::Perigee)) {
                 if (pars == startPars) {
                     ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars));
                     std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars, ctx);
-                    newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
+                    newStates.emplace_back(MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                     addedPerigee = true;
                     continue;
                 } else {
@@ -1061,9 +1041,9 @@ namespace Muon {
             }
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
             if (!meas) {
-                newStates.emplace_back(false, *tsit);
+                newStates.emplace_back(tsos->clone());
                 continue;
             }
 
@@ -1077,8 +1057,8 @@ namespace Muon {
                 double theta = pars->momentum().theta();
                 double qoverp = pars->charge() / pars->momentum().mag();
                 Trk::PerigeeSurface persurf(perpos);
-                auto perigee = std::make_unique<const Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
-                newStates.emplace_back(true, MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
+                std::unique_ptr<Trk::Perigee> perigee = std::make_unique<Trk::Perigee>(0, 0, phi, theta, qoverp, persurf);
+                newStates.emplace_back(MuonTSOSHelper::createPerigeeTSOS(std::move(perigee)));
                 addedPerigee = true;
                 ATH_MSG_DEBUG("Adding perigee in front of first measurement");
             }
@@ -1087,12 +1067,12 @@ namespace Muon {
 
             // Not a ROT, else it would have had an identifier. Keep the TSOS.
             if (!id.is_valid() || !m_idHelperSvc->isMuon(id)) {
-                newStates.emplace_back(false, *tsit);
+                newStates.emplace_back(tsos->clone());
                 continue;
             }
 
             if (!settings.updateErrors) {
-                newStates.emplace_back(false, *tsit);
+                newStates.emplace_back(tsos->clone());
             } else {
                 Identifier chId = m_idHelperSvc->chamberId(id);
                 MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
@@ -1107,7 +1087,7 @@ namespace Muon {
                     if (mdt->errorStrategy().creationParameter(Muon::MuonDriftCircleErrorStrategy::T0Refit)) hasT0Fit = true;
 
                     const Trk::RIO_OnTrack* rot = nullptr;
-                    Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = (*tsit)->type(Trk::TrackStateOnSurface::Outlier)
+                    Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = tsos->type(Trk::TrackStateOnSurface::Outlier)
                                                                                  ? Trk::TrackStateOnSurface::Outlier
                                                                                  : Trk::TrackStateOnSurface::Measurement;
 
@@ -1141,39 +1121,39 @@ namespace Muon {
                         if (std::abs(newMdt->driftRadius() - mdt->driftRadius()) > 0.1)
                             ATH_MSG_DEBUG(" Bad recalibration: old r " << mdt->driftRadius());
                     }
-                    auto newUniqueMdt = std::unique_ptr<const MdtDriftCircleOnTrack>(newMdt);
-                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(**tsit, std::move(newUniqueMdt), pars->uniqueClone(), type);
-                    newStates.emplace_back(true, tsos);
+                    std::unique_ptr<const MdtDriftCircleOnTrack> newUniqueMdt {newMdt};
+                    std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(*tsos, std::move(newUniqueMdt), pars->uniqueClone(), type);
+                    newStates.emplace_back(std::move(new_tsos));
                 } else if (m_idHelperSvc->isCsc(id)) {
                     if (settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex)) {
-                        Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::cloneTSOS(**tsit, Trk::TrackStateOnSurface::Outlier);
-                        newStates.emplace_back(true, tsos);
+                        std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
+                        newStates.emplace_back(std::move(new_tsos));
 
                     } else {
-                        newStates.emplace_back(false, *tsit);
+                        newStates.emplace_back(tsos->clone());
                     }
                 } else if (m_idHelperSvc->isTrigger(id)) {
                     if (m_idHelperSvc->measuresPhi(id)) {
                         MuonStationIndex::PhiIndex phiIndex = m_idHelperSvc->phiIndex(id);
 
                         if (settings.chambersToBeremoved.count(chId) || settings.phiLayersToBeremoved.count(phiIndex)) {
-                            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::cloneTSOS(**tsit, Trk::TrackStateOnSurface::Outlier);
-                            newStates.emplace_back(true, tsos);
+                            std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
+                            newStates.emplace_back(std::move(new_tsos));
 
                         } else {
-                            newStates.emplace_back(false, *tsit);
+                            newStates.emplace_back(tsos->clone());
                         }
 
                     } else {
                         if (settings.updateTriggerErrors) {
-                            newStates.emplace_back(false, *tsit);
+                            newStates.emplace_back(tsos->clone());
 
                         } else {
-                            newStates.emplace_back(false, *tsit);
+                            newStates.emplace_back(tsos->clone());
                         }
                     }
                 } else if (m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id)) {
-                    newStates.emplace_back(false, *tsit);
+                    newStates.emplace_back(tsos->clone());
 
                 } else {
                     ATH_MSG_WARNING(" unknown Identifier " << m_idHelperSvc->mdtIdHelper().print_to_string(id));
@@ -1184,13 +1164,11 @@ namespace Muon {
         ATH_MSG_VERBOSE(" original track had " << states->size() << " TSOS, adding " << newStates.size() - states->size() << " new TSOS ");
 
         // states were added, create a new track
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        Trk::TrackStates trackStateOnSurfaces{};
         trackStateOnSurfaces.reserve(newStates.size());
-        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*>>::iterator nit = newStates.begin();
-        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*>>::iterator nit_end = newStates.end();
-        for (; nit != nit_end; ++nit) {
+        for ( std::unique_ptr<Trk::TrackStateOnSurface>& state : newStates) {
             // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
-            trackStateOnSurfaces.push_back(nit->first ? nit->second : nit->second->clone());
+            trackStateOnSurfaces.push_back(std::move(state));
         }
         std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
                                                                             track.fitQuality() ? track.fitQuality()->clone() : nullptr);
@@ -1199,7 +1177,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MuonRefitTool::removeOutliers(const Trk::Track& track, const IMuonRefitTool::Settings& settings) const {
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -1211,8 +1189,8 @@ namespace Muon {
         const Trk::TrackParameters* chamberPars = nullptr;
 
         // loop over TSOSs and find start parameters
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+        Trk::TrackStates::const_iterator tsit = states->begin();
+        Trk::TrackStates::const_iterator tsit_end = states->end();
         for (; tsit != tsit_end; ++tsit) {
             if (!*tsit) continue;  // sanity check
 
@@ -1278,7 +1256,7 @@ namespace Muon {
         }
 
         // states were added, create a new track
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        Trk::TrackStates trackStateOnSurfaces{};
         trackStateOnSurfaces.reserve(states->size());
 
         ATH_MSG_DEBUG("Removing nhits: " << removedIdentifiers.size());
@@ -1292,8 +1270,8 @@ namespace Muon {
                 Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 
                 if (removedIdentifiers.count(id)) {
-                    Trk::TrackStateOnSurface* new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
-                    trackStateOnSurfaces.push_back(new_tsos);
+                    std::unique_ptr<Trk::TrackStateOnSurface> new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
+                    trackStateOnSurfaces.push_back(std::move(new_tsos));
                     continue;
                 }
             }
