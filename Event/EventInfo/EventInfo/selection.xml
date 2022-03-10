@@ -23,6 +23,8 @@
  </class>
   <exclusion>
     <class pattern="std::list<*>" />
+    <!-- This internal class in std::pair in gcc12 gives warnings unless excluded. -->
+    <class pattern="*__zero_as_null_pointer_constant*" />
   </exclusion>
 
   <class name="PyEventStreamInfo" />
