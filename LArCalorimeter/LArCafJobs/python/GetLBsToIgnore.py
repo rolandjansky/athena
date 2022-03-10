@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import sys, re
-import xmlrpclib
+import xmlrpc.client
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 from DQDefects import DefectsDB
@@ -69,8 +69,8 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   stream = 'physics_CosmicCalo'
 
   serverstring="https://%s@atlasdqm.cern.ch" % password
-  server = xmlrpclib.ServerProxy(serverstring)
-  multicall = xmlrpclib.MultiCall(server)
+  server = xmlrpc.client.ServerProxy(serverstring)
+  multicall = xmlrpc.client.MultiCall(server)
 
   # Look for the highest(latest) processing version of CosmicCalo by retrieving amitag
   run_spec = {'source': source, 'high_run': runnum, 'low_run': runnum}
@@ -99,7 +99,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
 
 
   try:
-    multicall = xmlrpclib.MultiCall(server)
+    multicall = xmlrpc.client.MultiCall(server)
     run_spec = {'source': source, 'high_run': runnum, 'stream': stream, 'proc_ver': proc, 'low_run': runnum}
     multicall.get_timestamp(run_spec)
     results=multicall()
@@ -112,7 +112,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
     print (e)
 
   
-  multicall = xmlrpclib.MultiCall(server)
+  multicall = xmlrpc.client.MultiCall(server)
   run_spec = {'source': source, 'high_run': runnum, 'stream': stream, 'proc_ver': proc, 'low_run': runnum}
   multicall.get_dqmf_all_results(run_spec,'LAr/LAR_GLOBAL/Collisions-Bkg/LArCollTimeLumiBlockTimeCut')
   results = multicall()
@@ -138,7 +138,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   if (burstsFromCosmic):# CosmicCalo stream : from the DQ web
     histoName = {'EMBC':'BarrelC','EMBA':'BarrelA','EMECC':'EMECC','EMECA':'EMECA'}
     for iPart in histoName.keys():
-      multicall = xmlrpclib.MultiCall(server)
+      multicall = xmlrpc.client.MultiCall(server)
       #multicall.get_dqmf_all_results(run_spec,'LAr/%s/Noise/Partition/NoisyEvent_TimeVeto_%s'%(iPart,histoName[iPart]))
       multicall.get_dqmf_all_results(run_spec,'/LAr/%s/Occupancy-Noise/Noise_Burst/NoisyEvent_TimeVeto_%s'%(iPart,iPart))
 

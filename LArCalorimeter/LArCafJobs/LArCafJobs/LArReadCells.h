@@ -53,6 +53,7 @@ class LArReadCells: public ::AthAlgorithm {
    std::vector<int>   m_ProvCell ;
    std::vector<int>   m_QuaCell  ;
    std::vector<int>   m_GainCell ;
+   std::vector<int>   m_ChidCell ;
    std::vector<int>   m_HwidCell ;
    std::vector<std::array<float ,32> > m_ADC    ;
 

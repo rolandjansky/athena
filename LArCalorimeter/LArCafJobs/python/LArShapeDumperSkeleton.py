@@ -20,6 +20,7 @@ def fromRunArgs(runArgs):
     processPreExec(runArgs, ConfigFlags)
 
     ConfigFlags.LAr.ROD.forceIter=True
+    ConfigFlags.LAr.OFCShapeFolder="4samples3bins17phases"
     ConfigFlags.Input.Files=runArgs.inputBSFile
     ConfigFlags.LArShapeDump.outputNtup=runArgs.outputNTUP_SAMPLESMONFile
 
@@ -31,11 +32,6 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
         ConfigFlags.LArShapeDump.HECNoiseNtup=runArgs.outputNTUP_HECNOISEFile
         
-    #protection for LArPEB event:
-    ConfigFlags.Trigger.L1.doMuon=False
-    ConfigFlags.Trigger.L1.doCalo=False
-    ConfigFlags.Trigger.L1.doTopo=False
-
     ConfigFlags.lock()
     
     cfg=MainServicesCfg(ConfigFlags)
