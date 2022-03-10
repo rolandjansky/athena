@@ -1,5 +1,5 @@
-#include <MuonTruthOverlay/CscSimDataOverlay.h>
-#include <MuonTruthOverlay/MuonSimDataOverlay.h>
+#include "../CscSimDataOverlay.h"
+#include "../MuonSimDataOverlay.h"
 
 DECLARE_COMPONENT( CscSimDataOverlay )
 DECLARE_COMPONENT( MuonSimDataOverlay )

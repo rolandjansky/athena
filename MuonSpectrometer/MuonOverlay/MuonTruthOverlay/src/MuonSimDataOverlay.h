@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
@@ -7,8 +7,8 @@
 #ifndef MUONTRUTHOVERLAY_MUONSIMDATAOVERLAY_H
 #define MUONTRUTHOVERLAY_MUONSIMDATAOVERLAY_H
 
-#include <AthenaBaseComps/AthReentrantAlgorithm.h>
-#include <MuonSimData/MuonSimDataCollection.h>
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "MuonSimData/MuonSimDataCollection.h"
 
 class MuonSimDataOverlay : public AthReentrantAlgorithm
 {
