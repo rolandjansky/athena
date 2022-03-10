@@ -50,13 +50,13 @@ TTrainedNetwork::TTrainedNetwork(Int_t nInput,
   mNormalizeOutput = normalizeOutput;
   maxExpValue = log(std::numeric_limits<double>::max());
 
-  int nlayer_max(mnOutput);
-  for (unsigned i = 0; i < mnHiddenLayerSize.size(); ++i) {
-     nlayer_max = std::max(nlayer_max, mnHiddenLayerSize[i]);
-  }
+  auto maxElement = *(std::max_element(mnHiddenLayerSize.begin(), mnHiddenLayerSize.end()));
+  int nlayer_max = std::max(static_cast<int>(mnOutput), maxElement);
+  //
   std::vector<TVectorD*>::const_iterator hidden_layer_threshold_vector_end = mThresholdVectors.end();
-  hidden_layer_threshold_vector_end--;
-  for (std::vector<TVectorD*>::const_iterator tr_itr= mThresholdVectors.begin(); tr_itr != hidden_layer_threshold_vector_end; tr_itr++){
+  --hidden_layer_threshold_vector_end;
+  //
+  for (std::vector<TVectorD*>::const_iterator tr_itr= mThresholdVectors.begin(); tr_itr != hidden_layer_threshold_vector_end; ++tr_itr){
      nlayer_max = std::max(nlayer_max, (*tr_itr)->GetNrows());
   }
   m_bufferSizeMax=nlayer_max;
@@ -92,19 +92,19 @@ TTrainedNetwork::TTrainedNetwork(std::vector<TTrainedNetwork::Input> inputs,
 
   std::vector<TVectorD*>::const_iterator hidden_layer_threshold_vector_end = 
     mThresholdVectors.end(); 
-  hidden_layer_threshold_vector_end--; 
+  --hidden_layer_threshold_vector_end; 
 
   for (std::vector<TVectorD*>::const_iterator tr_itr 
 	 = mThresholdVectors.begin(); 
        tr_itr != hidden_layer_threshold_vector_end; 
-       tr_itr++){ 
+       ++tr_itr){ 
     mnHiddenLayerSize.push_back((*tr_itr)->GetNrows()); 
   }
 
   unsigned node_n = 0; 
   for (std::vector<Input>::const_iterator itr = inputs.begin(); 
        itr != inputs.end(); 
-       itr++) { 
+       ++itr) { 
     m_input_node_offset.push_back(itr->offset); 
     m_input_node_scale.push_back(itr->scale); 
     if (!itr->name.empty()) { 
@@ -171,7 +171,7 @@ std::vector<TTrainedNetwork::Input> TTrainedNetwork::getInputs() const {
   std::map<int,std::string> input_n_to_name; 
   for (std::map<std::string,int>::const_iterator 
 	 itr = m_inputStringToNode.begin(); 
-       itr != m_inputStringToNode.end(); itr++){ 
+       itr != m_inputStringToNode.end(); ++itr){ 
     input_n_to_name[itr->second] = itr->first; 
   }
 
@@ -233,7 +233,7 @@ TTrainedNetwork::calculateNormalized(const TTrainedNetwork::DMap& in)
   size_t n_filled = 0;
   for (std::map<std::string,double>::const_iterator itr = in.begin(); 
        itr != in.end(); 
-       itr++){ 
+       ++itr){ 
     std::map<std::string,int>::const_iterator input_node_ptr = 
       m_inputStringToNode.find(itr->first); 
     if (input_node_ptr == m_inputStringToNode.end()) { 
@@ -263,7 +263,7 @@ TTrainedNetwork::calculateNormalized(const TTrainedNetwork::DMap& in)
     for (std::map<std::string,int>::const_iterator itr = 
 	   m_inputStringToNode.begin(); 
 	 itr != m_inputStringToNode.end(); 
-	 itr++){
+	 ++itr){
       if (input_set.find(itr->first) == input_set.end() ) 
 	err.append(itr->first + " "); 
     }
