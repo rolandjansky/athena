@@ -9,7 +9,7 @@
 // Gaudi Units
 #include "GaudiKernel/SystemOfUnits.h"
 //TrkDetDescr Algs, Interfaces, Utils
-#include "TrkDetDescrAlgs/MaterialMapping.h"
+#include "MaterialMapping.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
 #include "TrkDetDescrUtils/BinUtility.h"
