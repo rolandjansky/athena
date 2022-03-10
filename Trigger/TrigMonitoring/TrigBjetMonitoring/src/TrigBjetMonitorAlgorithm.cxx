@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetMonitorAlgorithm.h"
 
-#include "AthenaMonitoring/AthenaMonManager.h"
+/*#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"   //EN
 
@@ -27,22 +27,12 @@
 
 // Calculates the track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
+*/
 
 
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  ,m_doRandom(true)
-  ,m_allChains{}
-  ,m_muonContainerKey("Muons")
-  ,m_collisionRun(true)
-  ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
-{
-  declareProperty ("AllChains", m_allChains);
-  declareProperty("MuonContainerName",m_muonContainerKey);
-  declareProperty("CollisionRun",m_collisionRun);
-}
-
+{}
 
 TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
 
@@ -53,6 +43,7 @@ StatusCode TrigBjetMonitorAlgorithm::initialize() {
   ATH_CHECK( m_offlineVertexContainerKey.initialize(m_collisionRun) );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineTrackContainerKey.initialize() );
+  ATH_CHECK( m_trigDecTool.retrieve() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -107,7 +98,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   int size_AllChains = m_allChains.size();
   ATH_MSG_DEBUG(" Size of the AllChains trigger container: " << size_AllChains );
   for (int i =0; i<size_AllChains; i++){
-    chainName = m_allChains.at(i);
+    chainName = m_allChains[i];
     ATH_MSG_DEBUG("  Chain number: " << i << " AllChains Chain Name: " << chainName );
   }
   
@@ -181,7 +172,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	
 	// Jets and PV and tracks through jet link
 
-	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics); // TM 2021-10-30
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDecTool->features<xAOD::JetContainer>(trigName, TrigDefs::Physics); // TM 2021-10-30
 	
 	int ijet = 0;
 	int itrack = 0;
@@ -417,7 +408,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  ijet++;
 	  
 	  // Tracks associated to triggered jets ( featurs = onlinejets ) courtesy of Tim Martin on 12/05/2020 
-	  const auto track_it_pair = m_trigDec->associateToEventView(theTracks, jetLinkInfo.source, "roi");
+	  const auto track_it_pair = m_trigDecTool->associateToEventView(theTracks, jetLinkInfo.source, "roi");
 	  const xAOD::TrackParticleContainer::const_iterator start_it = track_it_pair.first;
 	  const xAOD::TrackParticleContainer::const_iterator end_it = track_it_pair.second;
 	  
