@@ -264,7 +264,7 @@ EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
     unsigned int wstot = eFexRoI->WstotThresholds();
 
     //Em TOB
-    TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
+    TCS::eEmTOB eem( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
     eem.setEtDouble( static_cast<double>(EtTopo/10.) );
     eem.setEtaDouble( static_cast<double>(etaTopo/40.) );
     eem.setPhiDouble( static_cast<double>(phiTopo/20.) );
@@ -329,7 +329,7 @@ EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
     unsigned int rHad = eFexTauRoI->rHadThresholds();
 
     //Tau TOB
-    TCS::eTauTOB etau( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
+    TCS::eTauTOB etau( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
     etau.setEtDouble(  static_cast<double>(EtTopo/10.) );
     etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     etau.setPhiDouble( static_cast<double>(phiTopo/20.) );

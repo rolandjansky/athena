@@ -108,6 +108,9 @@ namespace TCS {
       unsigned int Reta() const { return m_reta; }
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
+      
+      unsigned int rCore() const { return m_rCore; }
+      unsigned int rHad() const { return m_rHad; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -150,6 +153,9 @@ namespace TCS {
       unsigned int m_reta {0};
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
+     
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
 
       inputTOBType_t   m_tobType { NONE };
 
