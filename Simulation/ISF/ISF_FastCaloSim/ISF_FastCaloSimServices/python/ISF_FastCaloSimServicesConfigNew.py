@@ -1,6 +1,6 @@
 """ComponentAccumulator service configuration for ISF_FastCaloSimServices
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -166,8 +166,11 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
     kwargs.setdefault("fcalHitContainername", FCAL_hits_collection_name)
     kwargs.setdefault("hecHitContainername", HEC_hits_collection_name)
 
-    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
-    acc.merge(TileInfoLoaderCfg(flags))
+    from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+    acc.merge(TileCablingSvcCfg(flags))
+
+    from TileConditions.TileSamplingFractionConfig import TileSamplingFractionCondAlgCfg
+    acc.merge( TileSamplingFractionCondAlgCfg(flags) )
 
     kwargs.setdefault("tileHitContainername", tile_hits_collection_name)
 
@@ -194,6 +197,13 @@ def CaloCellContainerFCSFinalizerToolCfg(flags, name="ISF_CaloCellContainerFCSFi
 
 def FastHitConvAlgCfg(flags, name="ISF_FastHitConvAlg", **kwargs):
     acc = ComponentAccumulator()
+
+    from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+    acc.merge(TileCablingSvcCfg(flags))
+
+    from TileConditions.TileSamplingFractionConfig import TileSamplingFractionCondAlgCfg
+    acc.merge( TileSamplingFractionCondAlgCfg(flags) )
+
     kwargs.setdefault("CaloCellsInputName"  , flags.Sim.FastCalo.CaloCellsName)
     acc.addEventAlgo(CompFactory.FastHitConv(name, **kwargs))
     return acc

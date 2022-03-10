@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //**************************************************************************
@@ -34,11 +34,13 @@
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileHitNonConstContainer.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "TileConditions/TileSamplingFraction.h"
 
 // Athena includes
 #include "PileUpTools/PileUpToolBase.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 // Pile up
 #include "PileUpTools/PileUpMergeSvc.h"
 
@@ -52,8 +54,8 @@
 
 class TileID;
 class TileTBID;
+class TileHWID;
 class TileHit;
-class TileInfo;
 class TileDetDescrManager;
 class Identifier;
 class TileCablingService;
@@ -97,7 +99,8 @@ private:
   void processHitVectorForOverlay(const TileHitVector* inputHits, int& nHit, double& eHitTot);
   void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot, bool isSignal = false);
   void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* hitCont, CLHEP::HepRandomEngine * engine);
-  double applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine * engine);    //!< Method to apply photostatistics effect
+  // Method to apply photostatistics effect
+  double applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine* engine, const TileSamplingFraction* samplingFraction, int drawerIdx);
   void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* hitCont);
   void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* hitCont);
 
@@ -113,9 +116,12 @@ private:
   SG::WriteHandleKey<TileHitContainer> m_hitContainer_DigiHSTruthKey{this,"TileHitContainer_DigiHSTruth","TileHitCnt_DigiHSTruth",
       "Output DigiHSTruth Tile hit container key"};
 
+  /**
+   * @brief Name of TileSamplingFraction in condition store
+   */
+  SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+      "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
 
-  Gaudi::Property<std::string> m_infoName{this, "TileInfoName", "TileInfo",
-      "Name of TileInfo store (default=TileInfo)"};  //!< name of TileInfo object in TES
   bool m_run2{false};                                //!< if true => RUN2 geometry with E4' and merged E1
   bool m_run2plus{false};                            //!< if true => RUN2+ geometry with merged E1 (and E4' in RUN2)
   Gaudi::Property<bool> m_pileUp{this, "PileUp", false,
@@ -140,15 +146,16 @@ private:
       "Take trigger time from external tool (default=false)"}; //!< if true => take trigger time from external tool or from m_triggerTime
   Gaudi::Property<bool> m_doDigiTruth{this, "DoHSTruthReconstruction", false,
       "DigiTruth reconstruction"};                       //!
+  Gaudi::Property<bool> m_usePhotoStatistics{this,
+      "usePhotoStatistics", true, "Simulate photo statistics effect (default=true)"};
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeTool", "",
       "Name of trigger time tool (default='')"}; //!< tool to take the time from
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
 
-  const TileID* m_tileID{};                     //!< Pointer to TileID helper
-  const TileTBID* m_tileTBID{};                 //!< Pointer to TileID helper
-  const TileInfo* m_tileInfo{};                 //!< Pointer to TileInfo
-  float m_nPhotoElectrons[7];                         //!< number of photo electrons per GeV in samplings
+  const TileID* m_tileID{nullptr};              //!< Pointer to TileID helper
+  const TileTBID* m_tileTBID{nullptr};          //!< Pointer to TileID helper
+  const TileHWID* m_tileHWID{nullptr};          //!< Pointer to TileID helper
 
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};     //!< Random number generator engine to use
   /// Random Stream Name

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCondToolConf.py
 #author: nils.gollub@cern.ch
@@ -33,7 +33,6 @@ def bookTileCalibCondAlg(calibData, proxy):
         condSequence += TileCalibFltCondAlg( name = calibCondAlg,
                                              ConditionsProxy = proxy,
                                              TileCalibData = calibData)
-
 
 #
 #____________________________________________________________________________
@@ -772,7 +771,38 @@ def getTileCondToolDspThreshold(source = 'FILE', name = 'TileCondToolDspThreshol
         setattr(tool, n, v)
     return tool
 
+#
+#____________________________________________________________________________
+def bookTileSamplingFractionCondAlg(source = 'FILE'):
 
+    from TileConditions.TileConditionsConf import TileCondAlg_TileSamplingFraction_TileCalibDrawerFlt_ as TileSamplingFractionCondAlg
+    sampFraction = 'TileSamplingFraction'
+    sampFractionCondAlg = sampFraction + 'CondAlg'
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
+    # Override the existing conditions algorithm
+    if hasattr(condSequence, sampFractionCondAlg):
+        delattr(condSequence, sampFractionCondAlg)
+
+    if not hasattr(condSequence, sampFractionCondAlg):
+        if source == 'COOL':
+            sampFractionProxy = getTileCondProxy('COOL','Flt','oflSampFrac','TileCondProxyCool_SamplingFraction')
+        elif source == 'FILE':
+            sampFractionProxy = getTileCondProxy('FILE','Flt','TileDefault.sfr','TileCondProxyFile_SamplingFraction')
+        else:
+            file_name = find_data_file(source)
+            if file_name is not None:
+                sampFractionProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_SamplingFraction')
+            else:
+                raise(Exception("Invalid source: %s" %source ))
+
+        condSequence += TileSamplingFractionCondAlg( name = sampFractionCondAlg,
+                                                     ConditionsProxy = sampFractionProxy,
+                                                     TileCondData = sampFraction)
+
+    pass
 
 
 import os

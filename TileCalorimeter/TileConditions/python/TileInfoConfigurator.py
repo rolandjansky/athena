@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 #
@@ -33,6 +33,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         '_cooltimeIsConfigured' : False,
         '_coolonlinetimeIsConfigured' : False,
         '_coolDspThresholdIsConfigured' : False,
+        '_coolSfrIsConfigured' : False,
         '_msg': None
         }
 
@@ -422,6 +423,24 @@ class _TileInfoConfigurator( TileInfoLoader ):
         else:
             return False
 
+    #_______________________________________________________________
+    def setupCOOLSFR(self, defTag = "", dbConnection = ""):
+        """
+        Call this function to read sampling fraction and number of photo-electrons from the COOL DB.
+        Input parameters:
+        - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
+        - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
+        """
+
+        #=== prevent a second initialization
+        if self._coolSfrIsConfigured:
+            self.msg.info("setupCOOLSFR already called previously, ignoring this repeated call!")
+            return
+        self._coolSfrIsConfigured = True
+
+        self.msg.info("Changing default Tile sampling fraction and number of photo-electrons configuration to COOL source")
+        from .TileCondToolConf import bookTileSamplingFractionCondAlg
+        bookTileSamplingFractionCondAlg(source='COOL')
 
     #_______________________________________________________________
     def setupAdcRange(self, Nbits = 10):
@@ -548,4 +567,5 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     svc._cooltimeIsConfigured = False
     svc._coolonlinetimeIsConfigured = False
     svc._coolDspThresholdIsConfigured = False
+    svc._coolSfrIsConfigured = False
     return svc

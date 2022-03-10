@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************************
@@ -48,6 +48,8 @@
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
@@ -109,6 +111,7 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
   ATH_CHECK( m_muRcvDigitsContainerKey.initialize(m_runPeriod != 0) );
   ATH_CHECK( m_muRcvRawChannelContainerKey.initialize(m_runPeriod != 0) );
   ATH_CHECK( m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay && m_runPeriod != 0) );
+  ATH_CHECK( m_samplingFractionKey.initialize(m_runPeriod != 0) );
 
   if ( m_runPeriod == 0) {
     ATH_MSG_INFO("TilePulseForTileMuonReceiver should not be used for RUN1 simulations");
@@ -317,9 +320,9 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
             auto pDigits = std::make_unique<TileDigits>(*digit);
             ATH_CHECK(backgroundDigitContainer->push_back(std::move(pDigits)));
           }
-	}
+        }
       } else {
-	ATH_MSG_ERROR("ReadHandle to Background Digits is invalid.");
+        ATH_MSG_ERROR("ReadHandle to Background Digits is invalid.");
         return StatusCode::FAILURE;
       }
     }
@@ -345,6 +348,8 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
   /////////////////////////////////////////////////////////////////////////////////
   // (a.0) iterate over collections in the HIT container: access 'ros' and 'drawer'
   //
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey, ctx);
+  ATH_CHECK( samplingFraction.isValid() );
 
   for (const TileHitCollection* hitCollection : *hitContainer) {
 
@@ -416,7 +421,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
         for (int j=0; j< m_nSamples;j++) {
           pDigitSamplesRndmArray[channel][j] = digitsBuffer_rndm[j];
           // If any digit is 0 something should be wrong so flag it in order to use during overlay the standard
-	  // path to fill the expected background level for that channel
+          // path to fill the expected background level for that channel
           if (pDigitSamplesRndmArray[channel][j]==0) good_channel = false;
         }
         good_bkg[channel] = good_channel;
@@ -464,7 +469,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
          else
             TMDBchan =     m_tileID->pmt(pmt_id) + ((tower>9) ? (tower - 10) : 4);
 
-	 TILEchan=EBchan[TMDBchan];
+         TILEchan=EBchan[TMDBchan];
       } else {
         // Barrel (extension for HL-LHC)
         if (tower == 0) {
@@ -477,7 +482,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
              TMDBchan =     m_tileID->pmt(pmt_id) + ((tower<7) ? (tower-1) : 7);
         }
 
-	TILEchan=LBchan[TMDBchan];
+        TILEchan=LBchan[TMDBchan];
       }
 
       double* pDigitSamples = pDigitSamplesArray[TMDBchan];
@@ -495,7 +500,9 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       
       // Scintillator Energy -> Cell Energy (uses sampling fraction)
       //
-      double hit_calib = m_tileInfo->HitCalib(pmt_id);
+      int channel = m_tileHWID->channel(m_cablingService->s2h_channel_id(pmt_id));
+      double hit_calib = samplingFraction->getSamplingFraction(drawerIdx, channel);
+
 
       ATH_MSG_VERBOSE("------ Sampling fraction: " << hit_calib);
 

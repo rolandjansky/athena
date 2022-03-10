@@ -46,6 +46,9 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
 
+    from TileConditions.TileSamplingFractionConfig import TileSamplingFractionCondAlgCfg
+    acc.merge( TileSamplingFractionCondAlgCfg(flags) )
+
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
 
@@ -166,6 +169,7 @@ if __name__ == "__main__":
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.PileUp = False
+    ConfigFlags.Exec.MaxEvents = 3
 
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
@@ -190,7 +194,7 @@ if __name__ == "__main__":
     ConfigFlags.dump()
     acc.store( open('TileHitVecToCnt.pkl','wb') )
 
-    sc = acc.run(maxEvents=3)
+    sc = acc.run()
     # Success should be 0
     import sys
     sys.exit(not sc.isSuccess())

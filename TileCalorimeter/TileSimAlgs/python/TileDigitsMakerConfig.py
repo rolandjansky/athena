@@ -53,6 +53,9 @@ def TileDigitsMakerCfg(flags, **kwargs):
     from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
     acc.merge( TileEMScaleCondAlgCfg(flags) )
 
+    from TileConditions.TileSamplingFractionConfig import TileSamplingFractionCondAlgCfg
+    acc.merge( TileSamplingFractionCondAlgCfg(flags) )
+
     if kwargs['RndmEvtOverlay']:
         tileNoise = False
         tileCoherNoise = False
@@ -170,6 +173,7 @@ if __name__ == "__main__":
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.PileUp = False
+    ConfigFlags.Exec.MaxEvents = 3
 
     ConfigFlags.fillFromArgs()
 
@@ -194,7 +198,7 @@ if __name__ == "__main__":
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileDigitsMaker.pkl','wb') )
 
-    sc = acc.run(maxEvents=3)
+    sc = acc.run()
     # Success should be 0
     import sys
     sys.exit(not sc.isSuccess())

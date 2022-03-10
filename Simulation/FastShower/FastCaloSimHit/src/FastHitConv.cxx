@@ -19,7 +19,7 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "TileConditions/TileInfo.h"
+#include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileCellContainer.h"
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
@@ -34,15 +34,7 @@ FastHitConv::FastHitConv(const std::string& name, ISvcLocator* pSvcLocator ) :
   m_hecHitContainer("LArHitHEC"),
   m_tileHitVector("TileHitVec"),
   m_caloCellsOutputName("AllFastCalo"),
-  m_storeGateFastCalo("StoreGateSvc/FastCalo", name),
-  m_pMergeSvc(nullptr),
-  m_tileInfo(nullptr),
-  m_larEmID(nullptr),
-  m_larFcalID(nullptr),
-  m_larHecID(nullptr),
-  m_tileID(nullptr),
-  m_pileup(false)
-
+  m_storeGateFastCalo("StoreGateSvc/FastCalo", name)
 {
 
   declareProperty("doPileup", m_pileup, "Pileup mode (default=false)");
@@ -81,7 +73,12 @@ StatusCode FastHitConv::initialize()
 
   // LAr and Tile Sampling Fractions
   ATH_CHECK(m_fSamplKey.initialize());
-  CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
+
+  ATH_CHECK(detStore()->retrieve(m_tileHWID));
+  ATH_CHECK( m_tileSamplingFractionKey.initialize() );
+
+  ATH_CHECK( m_tileCablingSvc.retrieve() );
+  m_tileCabling = m_tileCablingSvc->cablingService();
 
   return StatusCode::SUCCESS;
 }
@@ -298,6 +295,9 @@ StatusCode FastHitConv::hitConstruction()
 
   // ... and finally the Tile cells
 
+  SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey);
+  ATH_CHECK( tileSamplingFraction.isValid() );
+
   it1 = cellContainer->beginConstCalo(CaloCell_ID::TILE);
   it2 = cellContainer->endConstCalo(CaloCell_ID::TILE);
 
@@ -311,14 +311,18 @@ StatusCode FastHitConv::hitConstruction()
       ATH_MSG_DEBUG("FastCell Tile Cal"<<countFastCell);
       cellid = (*it1)->ID();
       energy = (*it1)->energy();
-      SampFrac = m_tileInfo->HitCalib(cellid);
+
+      pmt_id0 = m_tileID->pmt_id(cellid, 0);
+      pmt_id1 = m_tileID->pmt_id(cellid, 1);
+
+      HWIdentifier channel_id = m_tileCabling->s2h_channel_id(pmt_id0);
+      int channel = m_tileHWID->channel(channel_id);
+      int drawerIdx = m_tileHWID->drawerIdx(channel_id);
+      SampFrac = tileSamplingFraction->getSamplingFraction(drawerIdx, channel);
       energyConv = energy/SampFrac;
 
       eTileRead += energy;
       eTileConv += energyConv;
-
-      pmt_id0 = m_tileID->pmt_id(cellid, 0);
-      pmt_id1 = m_tileID->pmt_id(cellid, 1);
 
       ATH_MSG_DEBUG("ReadFastCell id= "<<cellid<<"E="<<energy<<"SampFrac"<<SampFrac);
       ATH_MSG_DEBUG("PMT_id0="<<pmt_id0<<"PMT_id1="<<pmt_id1);
