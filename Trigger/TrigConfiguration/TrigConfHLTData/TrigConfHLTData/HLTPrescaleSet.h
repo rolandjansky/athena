@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTPrescaleSet
@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <array>
 #include <stdint.h>
 
 #include "TrigConfHLTData/HLTPrescale.h"
