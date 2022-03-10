@@ -10,7 +10,7 @@
 //   Split off of MdtRawDataValAlg.cxx Nov 2009
 ///////////////////////////////////////////////////////////////////////////
 
-#include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
+#include "MdtRawDataValAlg.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include <TError.h>
 #include <string>

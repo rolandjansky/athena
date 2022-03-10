@@ -1,5 +1,5 @@
-#include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
-#include "MdtRawDataMonitoring/MdtRawDataMonAlg.h"
+#include "../MdtRawDataValAlg.h"
+#include "../MdtRawDataMonAlg.h"
  
 DECLARE_COMPONENT( MdtRawDataValAlg )   
 DECLARE_COMPONENT( MdtRawDataMonAlg )   

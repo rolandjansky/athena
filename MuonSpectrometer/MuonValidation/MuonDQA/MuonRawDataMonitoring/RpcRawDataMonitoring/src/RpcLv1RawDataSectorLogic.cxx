@@ -16,7 +16,7 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
  
-#include "RpcRawDataMonitoring/RpcLv1RawDataSectorLogic.h"
+#include "RpcLv1RawDataSectorLogic.h"
 
 #include <inttypes.h> 
 

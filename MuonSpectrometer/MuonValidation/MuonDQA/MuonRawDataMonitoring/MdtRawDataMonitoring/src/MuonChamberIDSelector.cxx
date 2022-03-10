@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
+#include "MuonChamberIDSelector.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 
 #include <iomanip>

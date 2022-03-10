@@ -28,7 +28,7 @@
 #include "TrkParameters/TrackParameters.h"
 
 // local
-#include "RpcRawDataMonitoring/RPCDQUtils.h"
+#include "RPCDQUtils.h"
 
 namespace MuonGM 
 {

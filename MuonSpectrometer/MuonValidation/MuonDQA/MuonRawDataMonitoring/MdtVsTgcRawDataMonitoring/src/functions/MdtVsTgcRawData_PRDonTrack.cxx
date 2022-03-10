@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 // Subject: TGC Efficiency     -->TGC Efficiency plots including EIFI by comparing with MDT Segments
 ///////////////////////////////////////////////////////////////////////////////////////////// 
 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+#include "../MdtVsTgcRawDataValAlg.h"
 
 #include "TrkEventPrimitives/TrkEventPrimitivesDict.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"

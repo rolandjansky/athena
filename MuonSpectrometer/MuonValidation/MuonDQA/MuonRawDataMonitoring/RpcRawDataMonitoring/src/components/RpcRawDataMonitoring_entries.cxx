@@ -1,8 +1,8 @@
-#include "RpcRawDataMonitoring/RpcLv1RawDataValAlg.h"
-#include "RpcRawDataMonitoring/RpcLv1RawDataSectorLogic.h"
-#include "RpcRawDataMonitoring/RpcLv1RawDataEfficiency.h"
-#include "RpcRawDataMonitoring/RpcTrackAnaAlg.h"
-#include "RpcRawDataMonitoring/RPCLv1AnaAlg.h"
+#include "../RpcLv1RawDataValAlg.h"
+#include "../RpcLv1RawDataSectorLogic.h"
+#include "../RpcLv1RawDataEfficiency.h"
+#include "../RpcTrackAnaAlg.h"
+#include "../RPCLv1AnaAlg.h"
   
 
 DECLARE_COMPONENT( RpcLv1RawDataValAlg )

@@ -13,7 +13,7 @@
 #include "MuonReadoutGeometry/RpcDetectorElement.h"
 
 // Local
-#include "RpcRawDataMonitoring/RpcTrackAnaAlg.h"
+#include "RpcTrackAnaAlg.h"
 
 //================================================================================================
 RpcTrackAnaAlg::RpcTrackAnaAlg (const std::string& name, ISvcLocator *pSvcLocator):

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonSimHitToPrdTest/RPC_SimHitToPrdCBNTAlgo.h"
+#include "RPC_SimHitToPrdCBNTAlgo.h"
 
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"

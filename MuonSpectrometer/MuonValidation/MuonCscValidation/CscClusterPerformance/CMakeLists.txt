@@ -19,6 +19,3 @@ atlas_add_executable( csc_cosmic_cluster
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
-# Install files from the package:
-atlas_install_headers( CscClusterPerformance )
-

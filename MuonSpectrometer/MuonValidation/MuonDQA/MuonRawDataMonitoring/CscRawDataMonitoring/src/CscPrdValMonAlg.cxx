@@ -7,7 +7,7 @@
 // Athena include(s)
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
-#include "CscRawDataMonitoring/CscPrdValMonAlg.h"
+#include "CscPrdValMonAlg.h"
 
 using namespace Muon;
 

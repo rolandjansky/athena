@@ -29,7 +29,7 @@
  
 #include "Identifier/Identifier.h"
 
-#include "TgcRawDataMonitoring/TgcLv1RawDataValAlg.h"
+#include "TgcLv1RawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 //for express menu

@@ -4,7 +4,7 @@
 
 // Athena include(s)
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "CscRawDataMonitoring/CscRdoValMonAlg.h"
+#include "CscRdoValMonAlg.h"
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
 

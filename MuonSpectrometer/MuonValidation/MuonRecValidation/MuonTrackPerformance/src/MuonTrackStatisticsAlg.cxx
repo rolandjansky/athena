@@ -2,9 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonTrackPerformance/MuonTrackStatisticsAlg.h"
+#include "MuonTrackStatisticsAlg.h"
 
-#include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
+#include "MuonTrackStatisticsTool.h"
 
 /////////////////////////////////////////////////////////////////
 

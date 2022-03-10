@@ -11,7 +11,7 @@
 // Subject: TGC Efficiency     -->TGC Efficiency plots including EIFI by comparing with MDT Segments
 ///////////////////////////////////////////////////////////////////////////////////////////// 
 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+#include "MdtVsTgcRawDataValAlg.h"
 
 #include "TrkEventPrimitives/TrkEventPrimitivesDict.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"

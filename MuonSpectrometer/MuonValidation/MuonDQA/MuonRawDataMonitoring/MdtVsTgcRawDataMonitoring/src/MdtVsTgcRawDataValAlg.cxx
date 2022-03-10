@@ -11,7 +11,7 @@
 // Subject: correlation btw MDT hits vs TGC RoI -->Offline Muon Data Quality
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+#include "MdtVsTgcRawDataValAlg.h"
 
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
