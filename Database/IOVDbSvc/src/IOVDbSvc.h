@@ -181,6 +181,7 @@ public:
 
 private:
   // internal methods
+  StatusCode checkConfigConsistency() const;
   StatusCode checkEventSel();
   StatusCode setupFolders();
   StatusCode fillTagInfo();

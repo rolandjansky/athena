@@ -249,6 +249,8 @@ StatusCode IOVDbSvc::initialize() {
     " connections and " << m_foldermap.size() << " folders" );
   if (m_outputToFile.value()) ATH_MSG_INFO("Db dump to file activated");
   ATH_MSG_INFO( "Service IOVDbSvc initialised successfully" );
+
+  ATH_CHECK( checkConfigConsistency() );
   return StatusCode::SUCCESS;
 }
 
@@ -507,23 +509,6 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     ATH_MSG_DEBUG("updateAddress: using iovTime from init/beginRun: " << m_iovTime);
   }
 
-  // check consistency of global tag and database instance, if set
-  // catch most common user misconfigurations
-  // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
-    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
-    ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
-    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
-         (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
-        (m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
-      ATH_MSG_FATAL( "Likely incorrect conditions DB configuration! " 
-             <<  "Attached to database instance " << m_par_dbinst <<
-        " but global tag begins " << tagstub );
-      ATH_MSG_FATAL( "See Atlas/CoolTroubles wiki for details," << 
-        " or set IOVDbSvc.DBInstance=\"\" to disable check" );
-      return StatusCode::FAILURE;
-    }
-  }
 
 
   // obtain the validity key for this folder (includes overrides)
@@ -599,27 +584,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     return StatusCode::FAILURE;
   }
 
-
-  /// FIXME?
   tag = folder->key();
-  // check consistency of global tag and database instance, if set
-  // catch most common user misconfigurations
-  // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
-    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
-    ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
-    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
-         (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
-        (m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
-      ATH_MSG_FATAL( "Likely incorrect conditions DB configuration! " 
-             <<  "Attached to database instance " << m_par_dbinst <<
-        " but global tag begins " << tagstub );
-      ATH_MSG_FATAL( "See Atlas/CoolTroubles wiki for details," << 
-        " or set IOVDbSvc.DBInstance=\"\" to disable check" );
-      return StatusCode::FAILURE;
-    }
-  }
-
 
   // obtain the validity key for this folder (includes overrides)
   cool::ValidityKey vkey=folder->iovTime(time);
@@ -818,6 +783,7 @@ StatusCode IOVDbSvc::processTagInfo() {
   if (m_globalTag=="") {
     m_globalTag = m_h_tagInfoMgr->findTag("IOVDbGlobalTag");
     if (m_globalTag!="") ATH_MSG_INFO( "Global tag: " << m_globalTag<< " set from input file" );
+    ATH_CHECK( checkConfigConsistency() );
   }
 
   // now check for tag overrides for specific folders
@@ -1178,4 +1144,26 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
     throw std::exception();
   }
   return sc;
+}
+
+StatusCode IOVDbSvc::checkConfigConsistency() const {
+// check consistency of global tag and database instance, if set
+  // catch most common user misconfigurations
+  // this is only done here as need global tag to be set even if read from file
+  // @TODO should this not be done during initialize
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
+    ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
+    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") &&
+         (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
+        (m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
+      ATH_MSG_FATAL( "Likely incorrect conditions DB configuration! "
+             <<  "Attached to database instance " << m_par_dbinst <<
+        " but global tag begins " << tagstub );
+      ATH_MSG_FATAL( "See Atlas/CoolTroubles wiki for details," <<
+        " or set IOVDbSvc.DBInstance=\"\" to disable check" );
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
 }
