@@ -29,8 +29,8 @@ namespace TTN {
 #ifndef NDEBUG
       // debug code
       m_maxIndex=buffer.size();
-      m_bufferStart=&(buffer[0]);
-      m_bufferEnd=&(buffer[buffer.size()]);
+      m_bufferStart=buffer.data();
+      m_bufferEnd=m_bufferStart + buffer.size();//assumed contiguous
 #endif
     }
 
@@ -70,8 +70,8 @@ namespace TTN {
 #ifndef NDEBUG
       // debug code
       m_maxIndex=max_idx;
-      m_bufferStart=&(full_vector[0]);
-      m_bufferEnd=&(full_vector[full_vector.size()]);
+      m_bufferStart=full_vector.data();
+      m_bufferEnd=m_bufferStart+full_vector.size();//assumed contiguous
 #endif
     }
 
