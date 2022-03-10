@@ -66,9 +66,9 @@ class TrigEgammaEmulationToolConfig:
         
         # NOTE: will be adapt next
         self.__emulator.RingerTools              = createTrigEgammaFastCaloSelectors(ConfigFilePath = self.FastCaloConfigFilePath)
-        self.__emulator.ElectronLHSelectorTools  = TrigEgammaPrecisionElectronLHSelectorCfg(ConfigFilePath = self.ElectronLHConfigFilePath).getPublicTool()
-        self.__emulator.ElectronCBSelectorTools  = TrigEgammaPrecisionElectronCBSelectorCfg(ConfigFilePath = self.ElectronCBConfigFilePath).getPublicTool()
-        self.__emulator.ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg(ConfigFilePath = self.ElectronDNNConfigFilePath).getPublicTool()
+        self.__emulator.ElectronLHSelectorTools  = TrigEgammaPrecisionElectronLHSelectorCfg(ConfigFilePath = self.ElectronLHConfigFilePath).getPublicTools()
+        self.__emulator.ElectronCBSelectorTools  = TrigEgammaPrecisionElectronCBSelectorCfg(ConfigFilePath = self.ElectronCBConfigFilePath).getPublicTools()
+        self.__emulator.ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg(ConfigFilePath = self.ElectronDNNConfigFilePath).getPublicTools()
         self.__emulator.PhotonCBSelectorTools    = createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath = self.PhotonCBConfigFilePath)
     
     
