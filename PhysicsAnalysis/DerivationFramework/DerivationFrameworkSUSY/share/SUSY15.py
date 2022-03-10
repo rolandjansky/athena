@@ -33,8 +33,7 @@ AugmentationTools   = []
 
 # stream-specific sequence for on-the-fly jet building
 SeqSUSY15 = CfgMgr.AthSequencer("SeqSUSY15")
-DerivationFrameworkJob += SeqSUSY15
-
+DerivationFrameworkJob += SeqSUSY15 
 
 #====================================================================
 # Rerun VrtSecInclusive in derivation step 
@@ -80,9 +79,7 @@ if rerunVertexing:
   # setup addtional vertex container for displaced HNL analysis. 
   vsi_lepMod = setupVSI( LeptonsModSuffix ) # setup default vsi configuration 
   vsi_lepMod.twoTrkVtxFormingD0Cut = 1.0 # loosen d0 cut to 1 mm
-  vsi_lepMod.doSelectTracksWithLRTCuts = True # apply addtional track cuts inspired by LRT Run 3 optimizations
   vsi_lepMod.doSelectTracksFromMuons    = True # do leptons-only vertexing
-  vsi_lepMod.doRemoveCaloTaggedMuons    = True # do remove calo-tagged muons from track selection
   vsi_lepMod.doSelectTracksFromElectrons  = True # do leptons-only vertexing
 
 
@@ -130,6 +127,7 @@ if doDissolvedVertexing:
 # end of vertex dissolving
 #------------------------------------------------------------------------------
 
+ 
 from DerivationFrameworkSUSY.SUSY15TriggerList import triggers_met, triggers_jet, triggers_lep, triggers_photon
 
 triggers = triggers_met + triggers_jet + triggers_lep + triggers_photon
@@ -141,12 +139,13 @@ SUSY15ThinningHelper.AppendToStream( SUSY15Stream )
 
 ### Thinning for now taken from SUSY 2 with minor modifications as indicated /CO
 
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
 
+# MET/Jet tracks -> no longer needed, 11.05.2015
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 # TrackParticles directly
@@ -176,6 +175,7 @@ SUSY15ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += SUSY15ElectronTPThinningTool
 thinningTools.append(SUSY15ElectronTPThinningTool)
+
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY15PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name       = "SUSY15PhotonTPThinningTool",
@@ -203,7 +203,6 @@ SUSY15AKt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( nam
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY15AKt4JetTPThinningTool
 thinningTools.append(SUSY15AKt4JetTPThinningTool)
-
 
 #====================================================================
 # THINNING FOR RANDOMIZED TRACKS
@@ -361,6 +360,62 @@ SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel(
         SkimmingTools = [SUSY15SkimmingTool],
 )
 
+#====================================================================
+# Run VrtSecFuzzy
+#====================================================================
+
+# steer whether we want to run fuzzy vertexing, which is for DVs including soft bb
+runFuzzyVertexing = True
+
+if runFuzzyVertexing:
+
+  # make Pixel and SCT conditions available
+  include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+  include ("InDetRecExample/SCTConditionsAccess.py")
+
+  from VrtSecFuzzy.VrtSecFuzzy import VrtSecFuzzy
+  VrtSecFuzzy = VrtSecFuzzy("fuzzyVertexing")
+  VrtSecFuzzy.OutputLevel = INFO
+  VrtSecFuzzy.do_PVvetoCut                           = True 
+  VrtSecFuzzy.do_d0Cut                               = False 
+  VrtSecFuzzy.do_z0Cut                               = False 
+  VrtSecFuzzy.do_trkChi2Cut                          = False 
+  VrtSecFuzzy.TrkPtCut                               = 1000 # same as VSI
+  VrtSecFuzzy.doPVcompatibilityCut                   = True    
+  VrtSecFuzzy.RemoveFake2TrkVrt                      = True  
+  VrtSecFuzzy.CheckHitPatternStrategy                = 'ExtrapolationAssist' # Either 'Classical', 'Extrapolation' or 'ExtrapolationAssist'
+  VrtSecFuzzy.DoTruth                                = False 
+  VrtSecFuzzy.FillIntermediateVertices               = False 
+  VrtSecFuzzy.SelVrtChi2Cut                          = 50. # VSI: 5.0
+  VrtSecFuzzy.SelTrkMaxCutoff                        = 10000 
+  VrtSecFuzzy.BDTFilesName                           = ["TMVAClassification_BDT.weights_1ns_r21_newTrackSelection.weight.root", "TMVAClassification_BDT.weights_p1ns_r21_newTrackSelection.weight.root", "TMVAClassification_BDT.weights_p01ns_r21_newTrackSelection.weight.root"] # BDT files used to select track pairs likely to form seeds
+  VrtSecFuzzy.BDTMins_1stTry                         = [0.1, 0.1, 0.1] # Threshold of BDT scores [short, middle, long lifetime] used for the first seeding
+  VrtSecFuzzy.BDTMins_2ndTry                         = [-0.05, -0.05, -0.05] # Threshold of BDT [short, middle, long lifetime] scores used in the second and third seedsing
+  VrtSecFuzzy.BDTMins_primary                        = [0.15, 0.15, 999] # Treshold of BDT scores [short, middle, long lifetime] used to select primary seeds
+  VrtSecFuzzy.SeedDist                               = [1.0, 3.0, 5.0, 5.0] # Treshold of the distance used for seed merging, depending on the radius [inBP, inIBL, inPixel, outPixel] 
+
+  # next line needed if running on ESD or output of InDetRecEx , otherwise GEN_AOD
+  VrtSecFuzzy.MCEventContainer = "GEN_AOD"
+
+  from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+  FuzzyVxFitterTool = Trk__TrkVKalVrtFitter(name                = "FuzzyVxFitter",
+                                            Extrapolator        = ToolSvc.AtlasExtrapolator,
+                                            IterationNumber     = 30,
+                                            AtlasMagFieldSvc    = 'AtlasFieldSvc'
+                                           )
+  ToolSvc += FuzzyVxFitterTool;
+  FuzzyVxFitterTool.OutputLevel = INFO
+  VrtSecFuzzy.VertexFitterTool=FuzzyVxFitterTool
+  VrtSecFuzzy.Extrapolator = ToolSvc.AtlasExtrapolator
+
+  SeqSUSY15 += VrtSecFuzzy
+ 
+  MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
+                                                  'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
+                                                  'xAOD::VertexContainer#VrtSecFuzzy*',
+                                                  'xAOD::VertexAuxContainer#VrtSecFuzzy*'] )
+ 
+  print VrtSecFuzzy # end of VrtSecFuzzy
 
 #==============================================================================
 # Jet building
@@ -381,7 +436,6 @@ SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel(
         ThinningTools = thinningTools,
 )
 
-
 #==============================================================================
 # VrtSecInclusive IP Augmentor
 #==============================================================================
@@ -394,7 +448,6 @@ IPAugmentor.doAugmentDVimpactParametersToElectrons = True
 IPAugmentor.VertexFitterTool=InclusiveVxFitterTool
 
 SeqSUSY15 += IPAugmentor
-
 
 #====================================================================
 # CONTENT LIST
@@ -450,9 +503,8 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discr
                                         "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
                                         "MET_LocHadTopo.source.name.mpx.mpy.sumet",
                                         "MET_Track.source.name.mpx.mpy.sumet",
-                                        "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
-                                        "Photons.Loose",
-                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.LHLoose.Loose.ptcone30.ptcone20",
+                                        "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime", "Photons.Loose",
+                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.LHLoose.ptcone30.ptcone20",
 ]
 
 # Include dvtrack variables from re-running of VSI 
@@ -462,6 +514,16 @@ SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(new_d
 LeptonsMod_dvtrack_vars = [v + "_" +  LeptonsModSuffix for v in original_dvtrack_vars]
 SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(LeptonsMod_dvtrack_vars) ]
 SUSY15SlimmingHelper.ExtraVariables += [ "GSFTrackParticles." + ".".join(LeptonsMod_dvtrack_vars) ]
+
+if runFuzzyVertexing:
+  SUSY15SlimmingHelper.AllVariables += [
+                                        "VrtSecFuzzy_SecondaryVertices",
+                                        "VrtSecFuzzy_twoTrksVerticesInDV"
+                                       ]
+ 
+  new_dvtrack_vars_fuzzy = [v + "_fuzzy" for v in original_dvtrack_vars]
+  SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(new_dvtrack_vars_fuzzy) ]
+
 
 SUSY15SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 
