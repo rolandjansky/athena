@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolTest )
@@ -101,7 +101,7 @@ athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverl
 # AthenaMT test for DoubleEventSelector
 atlas_add_test( DoubleEventSelectorOverlayTestMT
                 SCRIPT athena.py --threads=4 -c \"outputFile=\'OverlayRDOMT.root\'\" AthenaPoolTest/DoubleEventSelectorOverlayTest.py
-                LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR"
+                LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR|Terminated successfully"
                 PROPERTIES TIMEOUT 900 )
 
 # Check for adding DetDescr tags to event info object:
