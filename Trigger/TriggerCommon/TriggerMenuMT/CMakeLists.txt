@@ -31,34 +31,38 @@ atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
 
 # Control flow tests
-foreach(test manual_menu_cf emu_step_processing_cf emu_step_menu_processing_cf)
+foreach(test emu_step_processing_cf emu_step_menu_processing_cf)
    atlas_add_test( ${test}
                    SCRIPT test_${test}.sh
                    LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-                   PROPERTIES TIMEOUT 300
                    PRIVATE_WORKING_DIRECTORY )
 endforeach()
 
+atlas_add_test( manual_menu_cf
+                SCRIPT test_manual_menu_cf.sh
+                PRIVATE_WORKING_DIRECTORY
+                POST_EXEC_SCRIPT noerror.sh )
+
 atlas_add_test( emu_step_processing_cf_newJO
                 SCRIPT python -m TriggerMenuMT.CFtest.test_menu_cf_newJO
-                POST_EXEC_SCRIPT nopost.sh
-                PRIVATE_WORKING_DIRECTORY  )
+                PRIVATE_WORKING_DIRECTORY
+                POST_EXEC_SCRIPT noerror.sh )
 
 # Unit tests:
 atlas_add_test( ViewCFTest
                 SCRIPT python -m unittest -v TriggerMenuMT.HLT.Test.ViewCFTest
-                POST_EXEC_SCRIPT nopost.sh )
+                POST_EXEC_SCRIPT noerror.sh )
 
 atlas_add_test( EventBuildingSequences
                 SCRIPT python -m TriggerMenuMT.HLT.CommonSequences.EventBuildingSequences
-                POST_EXEC_SCRIPT nopost.sh )
+                POST_EXEC_SCRIPT noerror.sh )
 
 atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
                 POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" )
 
 atlas_add_test( RecoFragmentsPool
                 SCRIPT python -m unittest -v TriggerMenuMT.HLT.Test.RecoFragmentsPoolTest
-                POST_EXEC_SCRIPT nopost.sh )
+                POST_EXEC_SCRIPT noerror.sh )
 
 # Test L1/HLT trigger menus:
 function( atlas_test_lvl1_trigger_menu menu )
@@ -96,9 +100,9 @@ atlas_add_test( generateMenuMT_newJO
                 SCRIPT python -m TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1_newJO
                 PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
-                POST_EXEC_SCRIPT nopost.sh )
+                POST_EXEC_SCRIPT noerror.sh )
 
 # test for menu name consistency
 atlas_add_test( test_menu_dump
   SCRIPT test_menu_dump.py -p
-  POST_EXEC_SCRIPT nopost.sh )
+  POST_EXEC_SCRIPT noerror.sh )
