@@ -13,25 +13,8 @@
 #include "EventInfo/EventID.h"
 
 
-#include <vector>
-
-
 namespace {
-bool isInListVector(const int bcid, const std::vector<int>&arr)
-{
-	return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
-}
-
-int reorganizePlanes(const int* station, const int* layer)
-{
-	if(*station == 0 || *station == 1)
-	{
-		return (*station*4)+3-(*layer);
-	}
-	return 0;
-}
-
-int reorganizePlanesInt(const int station, const int layer)
+int reorganizePlanes(const int station, const int layer)
 {
 	if(station == 0 || station == 1)
 	{
@@ -104,7 +87,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		fill("AFPSiLayerTool", bcidAll);
 		if(!bcData->isFilled(bcid-1))
 		{
-                        position = FRONT;
+			position = FRONT;
 			bcidFront = bcid;
 			fill("AFPSiLayerTool", bcidFront);
 			fill("AFPSiLayerTool", numberOfEventsPerLumiblockFront);
@@ -113,14 +96,14 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		{
 			if(bcData->isFilled(bcid+1))
 			{
-                                position = MIDDLE;
+				position = MIDDLE;
 				bcidMiddle = bcid;
 				fill("AFPSiLayerTool", bcidMiddle);
 				fill("AFPSiLayerTool", numberOfEventsPerLumiblockMiddle);
 			}
 			else
 			{
-                                position = END;
+				position = END;
 				bcidEnd = bcid;
 				fill("AFPSiLayerTool", bcidEnd);
 				fill("AFPSiLayerTool", numberOfEventsPerLumiblockEnd);
@@ -208,9 +191,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	nSiHits = afpHitContainer->size();
 	fill("AFPSiLayerTool", lb, nSiHits);
 
-	std::vector<int>stationValues;
-	std::vector<int>hitsPerPlanes(16);
-	std::vector<std::vector<int>> numberOfHitsPerPlane(4, std::vector<int>(4));
+	int eventsInStations[4] = {};
+	int numberOfHitsPerPlane[4][4] = {};
 
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
@@ -223,11 +205,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		timeOverThreshold   = hitsItr->timeOverThreshold();
 		
 		
-		stationValues.push_back(hitsItr->stationID());
-		
 		if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 && hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
 		{
-			
+			++eventsInStations[hitsItr->stationID()];
+
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip, pixelColIDChip);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
@@ -236,7 +217,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			
 			if(hitsItr->stationID() == 0 || hitsItr->stationID() == 1)
 			{
-				planeHits = reorganizePlanesInt(0, hitsItr->pixelLayerID());
+				planeHits = reorganizePlanes(0, hitsItr->pixelLayerID());
 			}
 			else
 			{
@@ -247,8 +228,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			++numberOfHitsPerPlane[hitsItr->stationID()][hitsItr->pixelLayerID()];
 			if(hitsItr->stationID() == 0 || hitsItr->stationID() == 1)
 			{
-				planeHitsAll = reorganizePlanesInt(hitsItr->stationID(), hitsItr->pixelLayerID());
-				planeHitsAllMU = reorganizePlanesInt(hitsItr->stationID(), hitsItr->pixelLayerID());
+				planeHitsAll = reorganizePlanes(hitsItr->stationID(), hitsItr->pixelLayerID());
+				planeHitsAllMU = reorganizePlanes(hitsItr->stationID(), hitsItr->pixelLayerID());
 			}
 			else
 			{
@@ -259,8 +240,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill("AFPSiLayerTool", planeHitsAll);
 			fill("AFPSiLayerTool", planeHitsAllMU, weightAllPlanes);
 			weightAllPlanes = 1.0;
-			
-			++hitsPerPlanes[(hitsItr->stationID())*4+hitsItr->pixelLayerID()];
 			
 			numberOfHitsPerStation = hitsItr->stationID();
 			fill("AFPSiLayerTool", numberOfHitsPerStation);
@@ -276,76 +255,29 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		}
 		else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 	}
-	
-		std::vector<int> indicatorForEventsInStations(4);
-		if(!stationValues.empty())
-		{
-			fill("AFPSiLayerTool", lbEventsStationsAll);
-		}
-		
-		if(isInListVector(0, stationValues))
-		{
-			eventsPerStation = 0;
-			++indicatorForEventsInStations[eventsPerStation];
+			
+	bool noEventsInStations = true;
+	for(int i=0; i<4; i++)
+	{
+		if(eventsInStations[i]>0) {
+			fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbEventsStations);
+			
+			eventsPerStation = i * 4;
+			fill("AFPSiLayerTool", eventsPerStation);
+			++eventsPerStation;
+			fill("AFPSiLayerTool", eventsPerStation);
+			++eventsPerStation;
+			fill("AFPSiLayerTool", eventsPerStation);
+			++eventsPerStation;
 			fill("AFPSiLayerTool", eventsPerStation);
 
-			eventsPerStation = 1;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 2;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 3;
-			fill("AFPSiLayerTool", eventsPerStation);
+			noEventsInStations = false;
 		}
-		if(isInListVector(1, stationValues))
-		{
-			eventsPerStation = 1;
-			++indicatorForEventsInStations[eventsPerStation];
-			
-			eventsPerStation = 4;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 5;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 6;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 7;
-			fill("AFPSiLayerTool", eventsPerStation);
-		}
-		if(isInListVector(2, stationValues))
-		{
-			eventsPerStation = 2;
-			++indicatorForEventsInStations[eventsPerStation];
-			
-			eventsPerStation = 8;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 9;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 10;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 11;
-			fill("AFPSiLayerTool", eventsPerStation);
-		}
-		if(isInListVector(3, stationValues))
-		{
-			eventsPerStation = 3;
-			++indicatorForEventsInStations[eventsPerStation];
-
-			eventsPerStation = 12;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 13;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 14;
-			fill("AFPSiLayerTool", eventsPerStation);
-			eventsPerStation = 15;
-			fill("AFPSiLayerTool", eventsPerStation);
-		}
-		
-		for(int i=0; i<4; i++)
-		{
-			if(indicatorForEventsInStations[i]>0)
-				fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lbEventsStations);
-		}
-	indicatorForEventsInStations.clear();
-	stationValues.clear();
+	}
+	if(!noEventsInStations)
+	{
+		fill("AFPSiLayerTool", lbEventsStationsAll);
+	}
 	
 	for(int i=0; i<4; i++)
 	{
@@ -358,8 +290,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 				hitsCounterPlanesTProfile = numberOfHitsPerPlane[i][j];
 				fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, hitsCounterPlanesTProfile);
 			}
-			
-			numberOfHitsPerPlane[i][j] = 0;
 		}
 	}
 	
@@ -368,10 +298,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	fast.reco();
 
 	// Track histograms:
-	std::vector<unsigned int> totalTracksAll(4);
-	std::vector<unsigned int> totalTracksFront(4);
-	std::vector<unsigned int> totalTracksMiddle(4);
-	std::vector<unsigned int> totalTracksEnd(4);
+	unsigned int totalTracksAll[4] = {};
+	unsigned int totalTracksFront[4] = {};
+	unsigned int totalTracksMiddle[4] = {};
+	unsigned int totalTracksEnd[4] = {};
 	
 	for (const auto& track : fast.tracks()) 
 	{
@@ -466,7 +396,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX);
 		if (cluster.station == 0 || cluster.station == 1)
 		{
-			clustersInPlanes = reorganizePlanes(&cluster.station, &cluster.layer);
+			clustersInPlanes = reorganizePlanes(cluster.station, cluster.layer);
 		}
 		else
 		{
