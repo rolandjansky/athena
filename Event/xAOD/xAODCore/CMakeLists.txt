@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODCore )
@@ -91,5 +91,6 @@ foreach( header AddDVProxy AuxContainerBase AuxSelection AuxCompression BaseInfo
       tools_TDVCollectionProxy tools_Utils CLASS_DEF )
    atlas_add_test( inc_${header}
       SOURCES test/inc_${header}.cxx
-      LINK_LIBRARIES xAODCore )
+      LINK_LIBRARIES xAODCore
+      POST_EXEC_SCRIPT nopost.sh )
 endforeach()
