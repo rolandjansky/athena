@@ -46,7 +46,6 @@ class CombinationsJetStream: public IJetStream {
 			std::size_t id):
     m_jets(jets),
     m_neigh(std::move(neigh)),
-    m_k(k),
     m_id{id}
   {
     auto n = m_jets.size();
@@ -120,7 +119,6 @@ class CombinationsJetStream: public IJetStream {
 private:
   std::vector<std::size_t> m_jets;
   std::unique_ptr<IJetStream> m_neigh{nullptr};
-  std::size_t m_k;  // n choose k...
   std::size_t m_id;
   std::vector<std::size_t> m_data;
   std::unique_ptr<CombinationsGenerator> m_combgen{nullptr};
