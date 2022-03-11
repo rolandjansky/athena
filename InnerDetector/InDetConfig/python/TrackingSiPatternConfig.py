@@ -25,7 +25,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     kwargs.setdefault("maxdImpact", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )
     kwargs.setdefault("maxZ", flags.InDet.Tracking.ActivePass.maxZImpact )
     kwargs.setdefault("minZ", -flags.InDet.Tracking.ActivePass.maxZImpact )
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel)
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel and flags.InDet.Tracking.ActivePass.extension != "R3LargeD0")
     kwargs.setdefault("SpacePointsPixelName", 'PixelSpacePoints') # InDetKeys.PixelSpacePoints()
     kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT and flags.InDet.Tracking.ActivePass.useSCTSeeding )
     kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints') # InDetKeys.SCT_SpacePoints()
@@ -66,7 +66,6 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
 
     if flags.InDet.Tracking.ActivePass.extension == "R3LargeD0":
         kwargs.setdefault("optimisePhiBinning", False)
-        kwargs.setdefault("usePixel", False)
         kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
         kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.ActivePass.maxSeedsPerSP_Strips)
         kwargs.setdefault("alwaysKeepConfirmedStripSeeds", flags.InDet.Tracking.ActivePass.keepAllConfirmedStripSeeds)
@@ -76,7 +75,6 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         kwargs.setdefault("checkEta", True)
         kwargs.setdefault("etaMin", flags.InDet.Tracking.ActivePass.minEta)
         kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
-        kwargs.setdefault("RapidityCut", flags.InDet.Tracking.ActivePass.maxEta)
     elif flags.InDet.Tracking.ActivePass.extension == "DBM":
         kwargs.setdefault("etaMin", flags.InDet.Tracking.ActivePass.minEta)
         kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
