@@ -58,6 +58,7 @@ class IAsgElectronLikelihoodTool;
 class IAsgElectronEfficiencyCorrectionTool;
 class IEGammaAmbiguityTool;
 
+class IAsgDeadHVCellRemovalTool;
 class IAsgPhotonIsEMSelector;
 class IAsgPhotonEfficiencyCorrectionTool;
 class IElectronPhotonShowerShapeFudgeTool;
@@ -800,6 +801,7 @@ namespace ST {
     asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_elecSelLikelihoodBaseline;
     asg::AnaToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEM;
     asg::AnaToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMBaseline;
+    asg::AnaToolHandle<IAsgDeadHVCellRemovalTool>  m_deadHVTool;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEfficiencySFTool;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonIsolationSFTool;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonTriggerSFTool;

@@ -36,6 +36,7 @@
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
