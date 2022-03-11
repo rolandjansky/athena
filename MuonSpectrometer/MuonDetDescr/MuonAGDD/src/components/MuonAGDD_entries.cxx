@@ -1,5 +1,5 @@
-#include "MuonAGDD/MuonAGDDTool.h"
-#include "MuonAGDD/NSWAGDDTool.h"
+#include "../MuonAGDDTool.h"
+#include "../NSWAGDDTool.h"
 
 DECLARE_COMPONENT( MuonAGDDTool )
 DECLARE_COMPONENT( NSWAGDDTool )
