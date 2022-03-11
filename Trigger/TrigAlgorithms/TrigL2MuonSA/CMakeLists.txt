@@ -23,4 +23,4 @@ atlas_install_runtime( share/*.lut)
 atlas_add_test( MdtDataPreparator_test
                 SCRIPT python -m TrigL2MuonSA.MdtDataPreparator_test
                 PROPERTIES TIMEOUT 600
-                LOG_SELECT_PATTERN "dead tube" )
+                POST_EXEC_SCRIPT noerror.sh )
