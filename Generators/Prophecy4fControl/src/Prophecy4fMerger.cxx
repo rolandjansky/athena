@@ -16,7 +16,7 @@ Prophecy4fMerger::~Prophecy4fMerger(){
 void Prophecy4fMerger::setRandomSeed(unsigned long long seed)
 {
     m_rand.SetSeed(seed);
-    std::cout << "Prophecy4fMerger::setRandomSeed: set random seed to " << seed << std::endl;
+    ATH_MSG_INFO("Prophecy4fMerger::setRandomSeed: set random seed to " + seed + ".");
 }
 
 int Prophecy4fMerger::alulb4(double *ps, double *pi, double *pf){
