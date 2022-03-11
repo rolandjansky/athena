@@ -156,109 +156,109 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
 
-       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath=hist_path)
+       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath='/')
 
        # Known bad FEBS
        darray.defineHistogram('slotBad,FTBad;KnownBadFEB', title='Known Bad FEBs {0} ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up,
                               merge='identical')
 
        darray.defineHistogram('slotMNB,FTMNB;MNBKnownFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up,
                               merge='identical')
 
        # 2D plots of noisy FEBs with various cuts
        darray.defineHistogram('slotNoisy,FTNoisy;NoisyFEBPerEvt', title='Yield of events with {0} FEB noisy -'+NoisyFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='', 
+                              type='TH2I', path=hist_path, 
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotTight,FTTight;MNBTightFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTightFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotTightCan,FTTightCan;CandidateMNBTightFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTightFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slot_PsVetoTight,FT_PsVetoTight;MNBTight_PsVetoFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTight_PsVetoFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slot_PsVetoTightCan,FT_PsVetoTightCan;CandidateMNBTight_PsVetoFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTight_PsVetoFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotLoose,FTLoose;MNBLooseFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBLooseFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        darray.defineHistogram('slotLooseCan,FTLooseCan;CandidateMNBLooseFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBLooseFEBDefStr+' (only vetoed events) ; Slot ; FT', 
-                              type='TH2I', path='',
+                              type='TH2I', path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
        # 1D plots of noisy events of various type
-       darray.defineHistogram('LBStd;NoisyEvent',type='TH1I', path='',
+       darray.defineHistogram('LBStd;NoisyEvent',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as RNB-Standard - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBSat;SaturatedNoisyEvent',type='TH1I', path='',
+       darray.defineHistogram('LBSat;SaturatedNoisyEvent',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as RNB-Saturated - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBMNBTight;MNBTightEvent',type='TH1I', path='',
+       darray.defineHistogram('LBMNBTight;MNBTightEvent',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as MNB-Tight - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBMNBTight_PsVet;MNBTight_PsVetoEvent',type='TH1I', path='',
+       darray.defineHistogram('LBMNBTight_PsVet;MNBTight_PsVetoEvent',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as MNB-Tight_PsVeto - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBMNBLoose;MNBLooseEvent',type='TH1I', path='',
+       darray.defineHistogram('LBMNBLoose;MNBLooseEvent',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as MNB-Loose - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
        # 1D plots of events still noisy after EventVeto
-       darray.defineHistogram('LBStd_Veto;NoisyEvent_TimeVeto',type='TH1I', path='',
+       darray.defineHistogram('LBStd_Veto;NoisyEvent_TimeVeto',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as RNB-Standard not vetoed by time window - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBSat_Veto;SaturatedNoisyEvent_TimeVeto',type='TH1I', path='',
+       darray.defineHistogram('LBSat_Veto;SaturatedNoisyEvent_TimeVeto',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as RNB-Saturated not vetoed by time window - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBMNBTight_Veto;MNBTightEvent_TimeVeto',type='TH1I', path='',
+       darray.defineHistogram('LBMNBTight_Veto;MNBTightEvent_TimeVeto',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as MNB-Tight not vetoed by time window - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBMNBTight_PsVeto_Veto;MNBTight_PsVetoEvent_TimeVeto',type='TH1I', path='',
+       darray.defineHistogram('LBMNBTight_PsVeto_Veto;MNBTight_PsVetoEvent_TimeVeto',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as MNB-Tight_PsVeto not vetoed by time window - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
-       darray.defineHistogram('LBMNBLoose_Veto;MNBLooseEvent_TimeVeto',type='TH1I', path='',
+       darray.defineHistogram('LBMNBLoose_Veto;MNBLooseEvent_TimeVeto',type='TH1I', path=hist_path,
                                  title='Yield of events flagged as MNB-Loose not vetoed by time window - {0} ; Luminosity Block', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
        # Trigger histos
        if larNoisyROMonAlg.doTrigger:
           siz=len(larNoisyROMonAlg.EFNoiseBurstTriggers)
-          darray.defineHistogram('Triggers;NoisyEventTrigger',type='TH1I', path='',
+          darray.defineHistogram('Triggers;NoisyEventTrigger',type='TH1I', path=hist_path,
                                  title='Trigger fired for RNB flagged events - {0} ; Special trigger fired', 
                                  xbins=siz+1,xmin=0.5,xmax=siz+1.5,
                                  xlabels=larNoisyROMonAlg.EFNoiseBurstTriggers.append("NONE"))
 
           l1siz=len(larNoisyROMonAlg.L1NoiseBurstTriggers)
-          darray.defineHistogram('L1Triggers;NoisyEventL1Term',type='TH1I', path='',
+          darray.defineHistogram('L1Triggers;NoisyEventL1Term',type='TH1I', path=hist_path,
                                  title='L1 term fired for RNB flagged events - {0} ; Special trigger fired', 
                                  xbins=l1siz+1,xmin=0.5,xmax=l1siz+1.5,
                                  xlabels=larNoisyROMonAlg.L1NoiseBurstTriggers.append("NONE"))

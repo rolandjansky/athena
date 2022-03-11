@@ -29,15 +29,19 @@ def LArOnOffIdMapping():
 
 def LArOnOffIdMappingSC():
     condSequence = AthSequencer("AthCondSeq")
-    folder="/LAR/IdentifierOfl/OnOffIdMap_SC"
     if hasattr(condSequence,"LArOnOffMappingAlgSC") :
         return #Already there....
 
-    #for the moment SC mapping is only in MC database
-    #and with one tag
-    #conddb.addFolder(dbname,folder,className="AthenaAttributeList",forceMC=True)
-    conddb.addFolder("","<db>COOLOFL_LAR/OFLP200</db>"+folder,className="AthenaAttributeList",forceMC=True)
-    conddb.addOverride(folder,"LARIdentifierOflOnOffIdMap_SC-000")
+    if conddb.isMC:
+        dbname="LAR_OFL"
+        folder="/LAR/IdentifierOfl/OnOffIdMap_SC"
+    else:
+        dbname="LAR_ONL"
+        folder="/LAR/Identifier/OnOffIdMap_SC"
+    conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    if conddb.isMC:
+       conddb.addOverride(folder,"LARIdentifierOflOnOffIdMap_SC-000")
+
     condSequence+=LArOnOffMappingAlg("LArOnOffMappingAlgSC",ReadKey=folder, WriteKey="LArOnOffIdMapSC", isSuperCell=True)
     return
 
@@ -106,7 +110,8 @@ def LArLATOMEMappingSC():
         mlog.warning("There is no LATOME mapping in the MC jobs yet")
     else:
         dbname="LAR_ONL"
-    conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    conddb.addFolder(dbname,folder,className="CondAttrListCollection")
+
     condSequence+=LArLATOMEMappingAlg("LArLATOMEMappingAlgSC",ReadKey=folder, WriteKey="LArLATOMEMap")
 
     return

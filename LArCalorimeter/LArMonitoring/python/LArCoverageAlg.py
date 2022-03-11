@@ -66,9 +66,9 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
     CaloNoiseCondAlg(noisetype="electronicNoise")
 
     #-- caloNoise groups --
-    caloNoiseToolArrayEM = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"EM")
-    caloNoiseToolArrayHEC = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"HEC")
-    caloNoiseToolArrayFCal = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"FCal")
+    caloNoiseToolArrayEM = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"EM",topPath='/')
+    caloNoiseToolArrayHEC = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"HEC",topPath='/')
+    caloNoiseToolArrayFCal = helper.addArray([nLayers],larCoverageAlg,caloNoiseToolGroupName+"FCal",topPath='/')
     caloNoiseToolGroup = helper.addGroup( #for the LB histogram
         larCoverageAlg,
         caloNoiseToolGroupName,
