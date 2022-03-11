@@ -161,7 +161,7 @@ lArDQGlobals.Partitions=["EMBC","EMBA","EMECC","EMECA","HECC","HECA","FCalC","FC
 lArDQGlobals.N_SubDet=4
 lArDQGlobals.SubDet=["EMB","EMEC","HEC","FCal"]
 lArDQGlobals.N_Gains=3
-lArDQGlobals.Gains=["HIGH","MEDIUM","LOW"]
+lArDQGlobals.Gains=["High Gain","Medium Gain","Low Gain"]
 
 #digits summary
 lArDQGlobals.N_DigitsSummary=4
@@ -271,10 +271,6 @@ lArDQGlobals.defaultStreamNames = ["express","Main","CosmicCalo","L1Calo","L1Top
 lArDQGlobals.noisyFEB_Bins=51
 lArDQGlobals.noisyFEB_Min=-0.5
 lArDQGlobals.noisyFEB_Max=50.5
-
-
-#Gains
-lArDQGlobals.Gains=["Low Gain","Medium Gain","High Gain"]
 
 #Creation of the dictionnary
 lArDQGlobals.Cell_Variables={}

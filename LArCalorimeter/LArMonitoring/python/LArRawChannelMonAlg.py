@@ -20,8 +20,6 @@ def LArRawChannelMonConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     from AthenaCommon.BeamFlags import jobproperties
-    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
-    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
     from LArMonitoring.LArMonitoringConf import LArRawChannelMonAlg
     cosmics = jobproperties.Beam.beamType() == 'cosmics'
     stream = _get_stream(DQMonFlags)
@@ -29,8 +27,15 @@ def LArRawChannelMonConfigOld(inputFlags):
     alg = LArRawChannelMonConfigCore(
         helper, instance=LArRawChannelMonAlg, inputFlags=inputFlags,
         cosmics=cosmics, stream=stream)
-    CaloNoiseCondAlg(noisetype=alg.NoiseKey.Path)
-    alg.AtlasReadyFilterTool = GetAtlasReadyFilterTool()
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if not athenaCommonFlags.isOnline():
+       from AthenaCommon.AlgSequence import AthSequencer
+       #if not hasattr (condSeq,"Calo_"+alg.NoiseKey+"Alg"):
+       if len([_ for _ in AthSequencer("AthCondSeq") if _.getName()=="Calo_"+alg.NoiseKey+"Alg"]) == 0:
+          from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+          CaloNoiseCondAlg(noisetype=alg.NoiseKey.Path)
+       from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
+       alg.AtlasReadyFilterTool = GetAtlasReadyFilterTool()
     return helper.result()
 
 
@@ -72,6 +77,7 @@ def LArRawChannelMonConfigCore(helper, instance, inputFlags, cosmics, stream):
     alg.pos_noise_thresholds = [3] * 8
     alg.neg_noise_thresholds = [3] * 8
     alg.bcid_signal_threshold = 500. * MeV
+
     alg.time_threshold = 5
     alg.quality_threshold = 65530
     alg.noise_threshold = 3
@@ -333,17 +339,15 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.Beam.Type = BeamType.Collisions
-    #ConfigFlags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-RUN2-09'
     ConfigFlags.lock()
 
     from CaloRec.CaloRecoConfig import CaloRecoCfg
     cfg = CaloRecoCfg(ConfigFlags)
     acc = LArRawChannelMonConfig(ConfigFlags)
     cfg.merge(acc)
-    #cfg.printConfig()
-    #ConfigFlags.dump()
     f = open("LArRawChannelMon.pkl", "wb")
     cfg.store(f)
     f.close()
 
+    #in case you need directly run uncomment:
     #cfg.run(100,OutputLevel=WARNING)

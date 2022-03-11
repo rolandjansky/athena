@@ -241,7 +241,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
 
-       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet])
+       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet],topPath='/')
 
        darray.defineHistogram('slotPar,FTPar;RAW_Parity',
                               title='Parity error;Slot;FT',

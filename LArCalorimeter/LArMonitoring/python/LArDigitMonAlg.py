@@ -65,7 +65,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     
     # now individual partitions, because we need a different directories, will have only 2dim arrays (side)
     for subdet in range(0,lArDQGlobals.N_SubDet):
-       array = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larDigitMonAlg,lArDQGlobals.SubDet[subdet])
+       array = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larDigitMonAlg,lArDQGlobals.SubDet[subdet],topPath='/')
        hist_path='/LAr/Digits/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
