@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMUONCURVEDSEGMENTCOMBINER_H
@@ -12,11 +12,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
 #include "MuonEDM_AssociationObjects/MuonSegPatAssMap.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
+
+#include "MCSCSegmentInfo.h"
 
 namespace Muon {
     /** @class MuonCurvedSegmentCombiner
