@@ -1,5 +1,3 @@
 #include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 
-
-DECLARE_COMPONENT( MuonStationIntersectSvc )
-
+DECLARE_COMPONENT(MuonStationIntersectSvc)
