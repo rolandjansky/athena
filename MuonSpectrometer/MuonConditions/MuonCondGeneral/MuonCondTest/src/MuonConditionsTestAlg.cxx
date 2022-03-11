@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonCondTest/MuonConditionsTestAlg.h"
+#include "MuonConditionsTestAlg.h"
 
 #include "MuonCondSvc/MuonHierarchy.h"
 
