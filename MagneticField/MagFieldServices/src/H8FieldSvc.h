@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -17,7 +17,7 @@
 
 // MagField includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "MagFieldServices/BFieldH8Grid.h"
+#include "BFieldH8Grid.h"
 
 // STL includes
 #include <vector>

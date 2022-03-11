@@ -11,7 +11,7 @@
 **/
 
 // ISF_Services include
-#include "MagFieldServices/AtlasFieldCacheCondAlg.h"
+#include "AtlasFieldCacheCondAlg.h"
 
 // Concurrency
 #include "GaudiKernel/ConcurrencyFlags.h"
@@ -34,10 +34,6 @@ MagField::AtlasFieldCacheCondAlg::~AtlasFieldCacheCondAlg() = default;
 StatusCode
 MagField::AtlasFieldCacheCondAlg::initialize()
 {
-
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Read Handle for the current
   ATH_CHECK(m_currInputKey.initialize(m_useDCS));
 
@@ -47,20 +43,11 @@ MagField::AtlasFieldCacheCondAlg::initialize()
   // Output handle for scale factors/cache
   ATH_CHECK(m_condObjOutputKey.initialize());
 
-  // Register write handle for scale factors/cache
-  if (m_condSvc->regHandle(this, m_condObjOutputKey).isFailure()) {
-    ATH_MSG_ERROR("Unable to register WriteCondHandle "
-                  << m_condObjOutputKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG("Initialize: Key " << m_condObjOutputKey.fullKey()
+                << " has been succesfully registered ");
 
-  ATH_MSG_INFO("Initialize: Key " << m_condObjOutputKey.fullKey()
-                                  << " has been succesfully registered ");
-  if (m_useDCS) {
-    ATH_MSG_INFO("Initialize: Will update current from conditions"); //
-  } else {
-    ATH_MSG_INFO("Initialize: Will update current from parameters");
-  }
+  ATH_MSG_INFO("Initialize: Will update current from " <<
+               (m_useDCS ? "conditions" : "parameters"));
 
   ATH_MSG_INFO("Initialize: useDCS, useSoleCurrent, useToroCurrent. "
                << (int)m_useDCS << ", " << m_useSoleCurrent << ", "
