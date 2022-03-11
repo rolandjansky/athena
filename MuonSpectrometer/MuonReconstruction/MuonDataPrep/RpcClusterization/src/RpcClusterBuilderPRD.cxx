@@ -11,7 +11,7 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 
-#include "RpcClusterization/RpcClusterBuilderPRD.h"
+#include "RpcClusterBuilderPRD.h"
 
 #include <cmath>
 #include <cassert>
