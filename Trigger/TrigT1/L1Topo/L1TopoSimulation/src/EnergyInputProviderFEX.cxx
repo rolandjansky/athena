@@ -39,8 +39,6 @@ EnergyInputProviderFEX::initialize() {
   incidentSvc->addListener(this,"BeginRun", 100);
   incidentSvc.release().ignore();
   
-  ATH_CHECK(m_jMet_EDMKey.initialize(SG::AllowEmpty));
-
   return StatusCode::SUCCESS;
 }
 
@@ -78,6 +76,8 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
+  /*
+  //Work in progress
   if (m_jMet_EDMKey.empty()) {
     ATH_MSG_DEBUG("jFex MET input disabled, skip filling");
     return StatusCode::SUCCESS;
@@ -122,7 +122,7 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   m_h_met_Pt->Fill(met.EtDouble());
   m_h_met_Phi->Fill( atan2(met.Ey(),met.Ex()) );
     
-  /* not checking overflow currently to be enabled in release 22. 
+  // not checking overflow currently to be enabled in release 22. 
      const bool has_overflow = (topoData->ExOverflow() or
      topoData->EyOverflow() or
      topoData->EtOverflow());
@@ -131,6 +131,8 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
      ATH_MSG_DEBUG("setOverflowFromEnergyInput : true");
      }
   */
+  TCS::MetTOB met(0,0,0);
+  inputEvent.setMET(met); 
 
   return StatusCode::SUCCESS;
 }

@@ -69,7 +69,7 @@ def L1TopoSimulationCfg(flags):
         jetProvider.jFexSRJetRoIKey = ""
         jetProvider.jFexLRJetRoIKey = ""
         jetProvider.jFexTauRoIKey = ""
-        energyProvider.jFexMETRoIKey = ""
+        jetProvider.jFexMETRoIKey = ""
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,

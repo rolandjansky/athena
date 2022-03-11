@@ -24,6 +24,7 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   else if(type == TCS::MUON) return "Muons";
   else if(type == TCS::MUONNEXTBC) return "MuonsNextBC";
   else if(type == TCS::LATEMUON) return "LateMuons";
+  else if(type == TCS::JXE ) return "jXE";
   else return "None";
 }
 
@@ -86,7 +87,7 @@ TCS::inputType(const std::string& input) {
       return TCS::MET;
 
    if ( input == "jXE")
-      return TCS::MET;
+      return TCS::JXE;
           
 
    TCS_EXCEPTION("L1TopoCommon: unknown input type " + input);

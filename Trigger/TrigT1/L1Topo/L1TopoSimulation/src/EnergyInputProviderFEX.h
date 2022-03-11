@@ -36,8 +36,6 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_jMet_EDMKey {this, "jFexMETRoIKey", "L1_jFexMETRoI", "jFEX Met EDM"};
-
       mutable LockedHandle<TH1> m_h_met_Pt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_h_met_Phi ATLAS_THREAD_SAFE;
 

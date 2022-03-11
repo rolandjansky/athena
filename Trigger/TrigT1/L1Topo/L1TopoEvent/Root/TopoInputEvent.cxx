@@ -24,7 +24,8 @@ TopoInputEvent::TopoInputEvent() :
   m_muons("InputMuons",32),
   m_lateMuons("InputLateMuons",32),
   m_muonsNextBC("InputMuonsNextBC",32),
-  m_met("InputMet",1)
+  m_met("InputMet",1),
+  m_jxe("InputjXE",1)
 {
 }
 
@@ -125,6 +126,12 @@ StatusCode TopoInputEvent::setMET(const TCS::MetTOB & met) {
    return StatusCode::SUCCESS;
 }
 
+StatusCode TopoInputEvent::setjXE(const TCS::jXETOB & jxe) {
+   m_jxe.clear();
+   m_jxe.push_back(jxe);
+   return StatusCode::SUCCESS;
+}
+
 StatusCode TopoInputEvent::setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID) {
    m_runNo = runNo;
    m_evtNo = evtNo;
@@ -213,6 +220,7 @@ TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    case MUONNEXTBC: return &m_muonsNextBC;
    case TAU: return &m_taus;
    case MET: return &m_met;
+   case JXE: return &m_jxe;
    }
    return 0;
 }
@@ -229,6 +237,7 @@ bool TopoInputEvent::hasInputOverflow(TCS::inputTOBType_t tobType) const
     case MUONNEXTBC: inputOverflow = false;                     break; 
     case TAU:        inputOverflow = overflowFromEmtauInput();  break;
     case MET:        inputOverflow = overflowFromEnergyInput(); break;
+    case JXE:        inputOverflow = overflowFromjXEInput();    break;
     default:         inputOverflow = false;
     }
    return inputOverflow;
@@ -255,11 +264,13 @@ TCS::TopoInputEvent::clear() {
    m_lateMuons.clear();
    m_muonsNextBC.clear();
    m_met.clear();
+   m_jxe.clear();
    m_runNo = 0;
    m_evtNo = 0;
    m_lumiB = 0;
    m_BCID  = 0;
    setMET(MetTOB(0,0,0)); // default MET
+   setjXE(jXETOB(0,0,0)); // default jXE
 
    m_overflowFromMuonInput = false;
 
@@ -365,6 +376,12 @@ TopoInputEvent::dump() {
    }
    file << "</muonNextBC>" << std::endl;   
 
+   file << "<jxe>" << std::endl;
+   for(const jXETOB* jxe : m_jxe) {
+      file << jxe->Ex() << "  " << jxe->Ey() << "  " << jxe->Et() << std::endl;
+   }
+   file << "</jxe>" << std::endl;
+
    file << "<met>" << std::endl;
    for(MetTOB* met : m_met) {
       file << met->Ex() << "  " << met->Ey() << "  " << met->Et() << std::endl;
@@ -409,6 +426,7 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "  #muons   : " << evt.muons().size() << " (capacity: " << evt.muons().capacity() << ")" << std::endl;
    o << "  #latemuons   : " << evt.lateMuons().size() << " (capacity: " << evt.lateMuons().capacity() << ")" << std::endl;
    o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << std::endl;
+   o << "  #jxe     : " << evt.m_jxe.size() << " (capacity: " << evt.m_jxe.capacity() << ")" << std::endl;
    o << "  #met     : " << evt.m_met.size() << " (capacity: " << evt.m_met.capacity() << ")" << std::endl;
    o << "  #info    : runNo, evtNo, lumiBlock and BCID" << std::endl;
    
@@ -422,6 +440,7 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "Muon input vector (" << evt.muons().name() << "):" << std::endl << evt.muons();
    o << "LateMuon input vector (" << evt.lateMuons().name() << "):" << std::endl << evt.lateMuons();
    o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << std::endl << evt.muonsNextBC();
+   o << "jXE input (" << evt.m_jxe.name() << "):" << std::endl << evt.m_jxe;
    o << "MET input (" << evt.m_met.name() << "):" << std::endl << evt.m_met;
    o << "Overflow from:"
      <<" EmtauInput "<<evt.overflowFromEmtauInput()
@@ -449,6 +468,7 @@ TopoInputEvent::print() const {
    TRG_MSG_INFO("  #muons   : " << muons().size() << " (capacity: " << muons().capacity() << ")");
    TRG_MSG_INFO("  #latemuons  : " << lateMuons().size() << " (capacity: " << lateMuons().capacity() << ")");
    TRG_MSG_INFO("  #muonsNextBC: " << muonsNextBC().size() << " (capacity: " << muonsNextBC().capacity() << ")");
+   TRG_MSG_INFO("  #jxe     : " << m_jxe.size() << " (capacity: " << m_jxe.capacity() << ")");
    TRG_MSG_INFO("  #met     : " << m_met.size() << " (capacity: " << m_met.capacity() << ")");
    
    TRG_MSG_DEBUG("Details:");
@@ -470,11 +490,14 @@ TopoInputEvent::print() const {
    for(auto * x : lateMuons()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("MuonsNextBC input vector (" << muonsNextBC().name() << "):");// << std::endl << muonsNextBC();
    for(auto * x : muonsNextBC()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("jXE input (" << m_jxe.name() << "):");
+   for(auto * x : m_jxe) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << std::endl << m_met;
    for(auto * x : m_met) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("Overflow bits from:"
                  <<" emtau "<<m_overflowFromEmtauInput
                  <<" jet "<<m_overflowFromJetInput
+                 <<" jxe "<<m_overflowFromjXEInput
                  <<" energy "<<m_overflowFromEnergyInput
                  <<" muon "<<m_overflowFromMuonInput);
    TRG_MSG_DEBUG("Event info:");
