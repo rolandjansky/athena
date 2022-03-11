@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -13,10 +13,6 @@
 
 //Muon software includes
 #include "MuonDigitContainer/MmDigit.h"
-
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 // ROOT includes
 #include "TTree.h"
@@ -35,16 +31,11 @@ namespace NSWL1 {
 
   MMTriggerTool::MMTriggerTool( const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_incidentSvc("IncidentSvc",name),
     m_detManager(0),
     m_MmIdHelper(0),
-    m_MmDigitContainer(""),
-    m_doNtuple(false),
     m_tree(0)
   {
     declareInterface<NSWL1::IMMTriggerTool>(this);
-    declareProperty("MM_DigitContainerName", m_MmDigitContainer = "MM_DIGITS", "the name of the MM digit container");
-    declareProperty("DoNtuple", m_doNtuple = false, "input the MMStrip branches into the analysis ntuple");
   }
 
   MMTriggerTool::~MMTriggerTool() {
@@ -56,7 +47,7 @@ namespace NSWL1 {
     ATH_MSG_DEBUG( "initializing -- " << name() );
 
     ATH_MSG_DEBUG( name() << " configuration:");
-    ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmDigitContainer.name() << m_MmDigitContainer.value());
+    ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_mmDigitContainer.name() << m_mmDigitContainer.value());
     ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                      << setfill(' ') << setiosflags(ios::right) );
 
@@ -68,11 +59,8 @@ namespace NSWL1 {
       ITHistSvc* tHistSvc;
       ATH_CHECK( service("THistSvc", tHistSvc) );
 
-      char ntuple_name[40];
-      memset(ntuple_name,'\0',40*sizeof(char));
-      sprintf(ntuple_name,"%sTree",algo_name.c_str());
-
       m_tree = 0;
+      std::string ntuple_name = algo_name+"Tree";
       ATH_CHECK( tHistSvc->getTree(ntuple_name,m_tree) );
       ATH_MSG_DEBUG("Analysis ntuple succesfully retrieved");
       ATH_CHECK( this->book_branches() );
@@ -112,21 +100,10 @@ namespace NSWL1 {
     m_par_large = std::make_shared<MMT_Parameters>(xxuvuvxx,'L', m_detManager);
     m_par_small = std::make_shared<MMT_Parameters>(xxuvuvxx,'S', m_detManager);
 
-    // Variables for RDO encoding
-    this->setPhiMin(-16.*M_PI/180.0);
-    this->setPhiMax(16.*M_PI/180.0);
-    this->setPhiBits(6);
-    this->setRMin(900); // mm
-    this->setRMax(5000);
-    this->setRBits(8);
-    this->setdThetaMin(-0.015); // rad
-    this->setdThetaMax(0.015);
-    this->setdThetaBits(5);
-
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MMTriggerTool::runTrigger(const bool do_MMDiamonds) {
+  StatusCode MMTriggerTool::runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) {
     auto ctx = Gaudi::Hive::currentContext();
     int event = ctx.eventID().event_number();
     ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
@@ -136,9 +113,6 @@ namespace NSWL1 {
     // Load Variables From Containers into our Data Structures  //
     //                                                          //
     //////////////////////////////////////////////////////////////
-
-    const MmDigitContainer *nsw_MmDigitContainer = nullptr;
-    ATH_CHECK( evtStore()->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
 
     std::map<std::string, std::shared_ptr<MMT_Parameters> > pars;
     pars["MML"] = m_par_large;
@@ -158,17 +132,17 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
     }
 
-    m_diamond = std::make_unique<MMT_Diamond>(m_detManager);
+    std::unique_ptr<MMT_Diamond> diamond = std::make_unique<MMT_Diamond>(m_detManager);
     if (do_MMDiamonds) {
-      m_diamond->setTrapezoidalShape(true);
-      m_diamond->setXthreshold(2);
-      m_diamond->setUV(true);
-      m_diamond->setUVthreshold(2);
-      m_diamond->setRoadSize(8);
-      m_diamond->setRoadSizeUpX(4);
-      m_diamond->setRoadSizeDownX(0);
-      m_diamond->setRoadSizeUpUV(4);
-      m_diamond->setRoadSizeDownUV(0);
+      diamond->setTrapezoidalShape(m_trapShape);
+      diamond->setXthreshold(m_diamXthreshold);
+      diamond->setUV(m_uv);
+      diamond->setUVthreshold(m_diamUVthreshold);
+      diamond->setRoadSize(m_diamRoadSize);
+      diamond->setRoadSizeUpX(m_diamOverlapEtaUp);
+      diamond->setRoadSizeDownX(m_diamOverlapEtaDown);
+      diamond->setRoadSizeUpUV(m_diamOverlapStereoUp);
+      diamond->setRoadSizeDownUV(m_diamOverlapStereoDown);
     }
 
     unsigned int particles = entries.rbegin()->first.second +1, nskip=0;
@@ -216,7 +190,7 @@ namespace NSWL1 {
              * Filling hits for each event: a new class, MMT_Hit, is called in
              * order to use both algorithms witghout interferences
              */
-            m_diamond->createRoads_fillHits(i-nskip, hitDatas, m_detManager, pars[station], stationPhi);
+            diamond->createRoads_fillHits(i-nskip, hitDatas, m_detManager, pars[station], stationPhi);
             double smallest_bc = 999999.;
             for(int ihds=0; ihds<(int)hitDatas.size(); ihds++) {
               if (hitDatas[ihds].BC_time < 0.) continue;
@@ -230,23 +204,23 @@ namespace NSWL1 {
                 m_trigger_strip->push_back(hitDatas[ihds].strip);
               }
             }
-            m_diamond->printHits(i-nskip);
-            std::vector<double> slopes = m_diamond->getHitSlopes();
+            diamond->printHits(i-nskip);
+            std::vector<double> slopes = diamond->getHitSlopes();
             for (const auto &s : slopes) if (m_doNtuple) m_trigger_RZslopes->push_back(s);
-            m_diamond->resetSlopes();
+            diamond->resetSlopes();
             slopes.clear();
             /*
              * Here we create roads with all MMT_Hit collected before (if any), then we save the results
              */
-            if (m_diamond->getHitVector(i-nskip).size() >= (m_diamond->getXthreshold()+m_diamond->getUVthreshold())) {
-              m_diamond->findDiamonds(i-nskip, smallest_bc, event);
+            if (diamond->getHitVector(i-nskip).size() >= (diamond->getXthreshold()+diamond->getUVthreshold())) {
+              diamond->findDiamonds(i-nskip, smallest_bc, event);
 
-              if (!m_diamond->getSlopeVector(i-nskip).empty()) {
+              if (!diamond->getSlopeVector(i-nskip).empty()) {
                 if (m_doNtuple) {
-                  m_trigger_diamond_ntrig->push_back(m_diamond->getSlopeVector(i-nskip).size());
-                  for (const auto &slope : m_diamond->getSlopeVector(i-nskip)) {
-                    m_trigger_diamond_sector->push_back(m_diamond->getDiamond(i-nskip).sector);
-                    m_trigger_diamond_stationPhi->push_back(m_diamond->getDiamond(i-nskip).stationPhi);
+                  m_trigger_diamond_ntrig->push_back(diamond->getSlopeVector(i-nskip).size());
+                  for (const auto &slope : diamond->getSlopeVector(i-nskip)) {
+                    m_trigger_diamond_sector->push_back(diamond->getDiamond(i-nskip).sector);
+                    m_trigger_diamond_stationPhi->push_back(diamond->getDiamond(i-nskip).stationPhi);
                     m_trigger_diamond_bc->push_back(slope.BC);
                     m_trigger_diamond_totalCount->push_back(slope.totalCount);
                     m_trigger_diamond_realCount->push_back(slope.realCount);
@@ -270,6 +244,62 @@ namespace NSWL1 {
                     m_trigger_diamond_phiShf->push_back(slope.phiShf);
                   }
                 }
+
+                // MM RDO filling below
+                std::vector<int> slopeBC;
+                for (const auto &slope : diamond->getSlopeVector(i-nskip)) slopeBC.push_back(slope.BC);
+                std::sort(slopeBC.begin(), slopeBC.end());
+                slopeBC.erase( std::unique(slopeBC.begin(), slopeBC.end()), slopeBC.end() );
+                for (const auto &bc : slopeBC) {
+                  Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(diamond->getDiamond(i-nskip).stationPhi, diamond->getDiamond(i-nskip).side, bc);
+
+                  for (const auto &slope : diamond->getSlopeVector(i-nskip)) {
+                    if (bc == slope.BC) {
+                      Muon::NSW_TrigRawDataSegment* trigRawDataSegment = new Muon::NSW_TrigRawDataSegment();
+
+                      // Phi-id
+                      uint8_t phi_id = 0;
+                      if (slope.phiShf*M_PI/180.0 > m_phiMax || slope.phiShf*M_PI/180.0 < m_phiMin) trigRawDataSegment->setPhiIndex(phi_id);
+                      uint8_t nPhi = (1<<m_phiBits) -2; // To accomodate the new phi-id encoding prescription around 0
+                      float phiSteps = (m_phiMax - m_phiMin)/nPhi;
+                      for (uint8_t i=0; i<nPhi; i++) {
+                        if ((slope.phiShf*M_PI/180.0) < (m_phiMin+i*phiSteps)) phi_id = i;
+                      }
+                      trigRawDataSegment->setPhiIndex(phi_id);
+                      if (m_doNtuple) m_trigger_diamond_TP_phi_id->push_back(phi_id);
+
+                      // R-id
+                      double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
+                      uint8_t R_id = 0;
+                      if (extrapolatedR > m_rMax || extrapolatedR < m_rMin) trigRawDataSegment->setRIndex(R_id);
+                      uint8_t nR = (1<<m_rBits) -1;
+                      float Rsteps = (m_rMax - m_rMin)/nR;
+                      for (uint8_t j=0; j<nR; j++) {
+                        if (extrapolatedR < (m_rMin+j*Rsteps)) R_id = j;
+                      }
+                      trigRawDataSegment->setRIndex(R_id);
+                      if (m_doNtuple) m_trigger_diamond_TP_R_id->push_back(R_id);
+
+                      // DeltaTheta-id
+                      uint8_t dTheta_id = 0;
+                      if (slope.dtheta*M_PI/180.0 > m_dThetaMax || slope.dtheta*M_PI/180.0 < m_dThetaMin) trigRawDataSegment->setDeltaTheta(dTheta_id);
+                      uint8_t ndTheta = (1<<m_dThetaBits) -1;
+                      float dThetaSteps = (m_dThetaMax - m_dThetaMin)/ndTheta;
+                      for (uint8_t k=0; k<ndTheta; k++) {
+                        if ((slope.dtheta*M_PI/180.0) < (m_dThetaMin+k*dThetaSteps)) dTheta_id = k;
+                      }
+                      trigRawDataSegment->setDeltaTheta(dTheta_id);
+                      if (m_doNtuple) m_trigger_diamond_TP_dTheta_id->push_back(dTheta_id);
+
+                      // Low R-resolution bit
+                      trigRawDataSegment->setLowRes(slope.lowRes);
+
+                      trigRawData->push_back(trigRawDataSegment);
+                    }
+                  }
+                  rdo->push_back(trigRawData);
+                }
+                ATH_MSG_DEBUG("Filled MM RDO container now having size: " << rdo->size() << ". Clearing event information!");
               } else ATH_MSG_WARNING("No output slopes to store");
             }
           } else {
@@ -435,72 +465,7 @@ namespace NSWL1 {
     entries.clear();
     Hits_Data_Set_Time.clear();
     Event_Info.clear();
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MMTriggerTool::fillRDO(Muon::NSW_TrigRawDataContainer *rdo, const bool do_MMDiamonds) {
-    if(!do_MMDiamonds) return StatusCode::SUCCESS; // The old code won't be used for the moment
-
-    for (const auto &diam : m_diamond->getDiamondVector()) {
-      std::vector<int> slopeBC;
-      for (const auto &slope : diam.slopes) slopeBC.push_back(slope.BC);
-      if (slopeBC.empty()) continue;
-      std::sort(slopeBC.begin(), slopeBC.end());
-      slopeBC.erase( std::unique(slopeBC.begin(), slopeBC.end()), slopeBC.end() );
-      for (const auto &bc : slopeBC) {
-        Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(diam.stationPhi, diam.side, bc);
-
-        for (const auto &slope : diam.slopes) {
-          if (bc == slope.BC) {
-            Muon::NSW_TrigRawDataSegment* trigRawDataSegment = new Muon::NSW_TrigRawDataSegment();
-
-            // Phi-id
-            uint8_t phi_id = 0;
-            if (slope.phiShf*M_PI/180.0 > this->getPhiMax() || slope.phiShf*M_PI/180.0 < this->getPhiMin()) trigRawDataSegment->setPhiIndex(phi_id);
-            uint8_t nPhi = (1<<this->getPhiBits()) -2; // To accomodate the new phi-id encoding prescription around 0
-            float phiSteps = (this->getPhiMax()-this->getPhiMin())/nPhi;
-            for (uint8_t i=0; i<nPhi; i++) {
-              if ((slope.phiShf*M_PI/180.0) < (this->getPhiMin()+i*phiSteps)) phi_id = i;
-            }
-            trigRawDataSegment->setPhiIndex(phi_id);
-            if (m_doNtuple) m_trigger_diamond_TP_phi_id->push_back(phi_id);
-
-            // R-id
-            double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
-            uint8_t R_id = 0;
-            if (extrapolatedR > this->getRMax() || extrapolatedR < this->getRMin()) trigRawDataSegment->setRIndex(R_id);
-            uint8_t nR = (1<<this->getRBits()) -1;
-            float Rsteps = (this->getRMax()-this->getRMin())/nR;
-            for (uint8_t j=0; j<nR; j++) {
-              if (extrapolatedR < (this->getRMin()+j*Rsteps)) R_id = j;
-            }
-            trigRawDataSegment->setRIndex(R_id);
-            if (m_doNtuple) m_trigger_diamond_TP_R_id->push_back(R_id);
-
-            // DeltaTheta-id
-            uint8_t dTheta_id = 0;
-            if (slope.dtheta*M_PI/180.0 > this->getdThetaMax() || slope.dtheta*M_PI/180.0 < this->getdThetaMin()) trigRawDataSegment->setDeltaTheta(dTheta_id);
-            uint8_t ndTheta = (1<<this->getdThetaBits()) -1;
-            float dThetaSteps = (this->getdThetaMax()-this->getdThetaMin())/ndTheta;
-            for (uint8_t k=0; k<ndTheta; k++) {
-              if ((slope.dtheta*M_PI/180.0) < (this->getdThetaMin()+k*dThetaSteps)) dTheta_id = k;
-            }
-            trigRawDataSegment->setDeltaTheta(dTheta_id);
-            if (m_doNtuple) m_trigger_diamond_TP_dTheta_id->push_back(dTheta_id);
-
-            // Low R-resolution bit
-            trigRawDataSegment->setLowRes(slope.lowRes);
-
-            trigRawData->push_back(trigRawDataSegment);
-          }
-        }
-        rdo->push_back(trigRawData);
-      }
-    }
-
-    ATH_MSG_DEBUG("Filled MM RDO container now having size: " << rdo->size() << ". Clearing event information!");
-    if (do_MMDiamonds) m_diamond->clearEvent();
+    if (do_MMDiamonds) diamond->clearEvent();
 
     return StatusCode::SUCCESS;
   }

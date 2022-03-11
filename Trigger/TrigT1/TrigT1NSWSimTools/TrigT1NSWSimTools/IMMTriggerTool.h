@@ -21,8 +21,7 @@ namespace NSWL1 {
   public:
     virtual ~IMMTriggerTool() {}
 
-    virtual StatusCode runTrigger(const bool do_MMDiamonds) = 0;
-    virtual StatusCode fillRDO(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) = 0;
+    virtual StatusCode runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IMMTriggerTool("NSWL1::IMMTriggerTool", 1 ,0);

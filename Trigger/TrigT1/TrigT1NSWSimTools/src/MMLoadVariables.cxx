@@ -273,7 +273,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         }
 
         std::string station = it->second[0].stName;
-        m_uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
+        bool uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
 
         map<hitData_key,hitData_entry> hit_info;
         vector<hitData_key> keys;
@@ -302,7 +302,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
           ROOT::Math::XYZVector athena_rec(dW.strip_gpos);
           ROOT::Math::XYZVector recon(athena_rec.Y(),-athena_rec.X(),athena_rec.Z());
 
-          if(m_uvxxmod){
+          if(uvxxmod){
             xxuv_to_uvxx(recon,thisPlane,pars[station]);
           }
 
@@ -342,12 +342,6 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
           tru_it->second.N_hits_preVMM=hit_info.size();
           tru_it->second.N_hits_postVMM=0;
         }
-
-        //might want to move these somewhere smarter in future
-        m_VMM_Deadtime = 100;
-        m_numVMM_PerPlane = 1000;
-        m_VMM_ChipStatus=vector<vector<bool> >(m_numVMM_PerPlane,vector<bool>(8,true));
-        m_VMM_ChipLastHitTime=vector<vector<int> >(m_numVMM_PerPlane,vector<int>(8,0));
 
         int xhit=0,uvhit=0;
         vector<bool>plane_hit(pars[station]->setup.size(),false);
@@ -394,7 +388,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
   void MMLoadVariables::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
     double degree=M_PI/180.0*(par->stereo_degree);
-    if(m_striphack) hit.SetY(hit.Y()*cos(degree));
+    bool striphack = false;
+    if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);
@@ -403,7 +398,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
   void MMLoadVariables::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
     double degree=-M_PI/180.0*(par->stereo_degree);
-    if(m_striphack) hit.SetY(hit.Y()*std::cos(degree));
+    bool striphack = false;
+    if(striphack) hit.SetY(hit.Y()*std::cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);
