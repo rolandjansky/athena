@@ -12,14 +12,9 @@
 
 
 //For the buildWindow function
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IService.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 
 LArHitEMap::~LArHitEMap() {}
