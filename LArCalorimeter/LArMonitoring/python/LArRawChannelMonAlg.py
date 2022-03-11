@@ -29,7 +29,7 @@ def LArRawChannelMonConfigOld(inputFlags):
     alg = LArRawChannelMonConfigCore(
         helper, instance=LArRawChannelMonAlg, inputFlags=inputFlags,
         cosmics=cosmics, stream=stream)
-    CaloNoiseCondAlg(noisetype=alg.NoiseKey)
+    CaloNoiseCondAlg(noisetype=alg.NoiseKey.Path)
     alg.AtlasReadyFilterTool = GetAtlasReadyFilterTool()
     return helper.result()
 
@@ -47,7 +47,7 @@ def LArRawChannelMonConfig(inputFlags):
     alg = LArRawChannelMonConfigCore(
         helper, instance=CompFactory.LArRawChannelMonAlg,
         inputFlags=inputFlags, cosmics=cosmics, stream=stream)
-    noise_alg = CaloNoiseCondAlgCfg(inputFlags, noisetype=alg.NoiseKey)
+    noise_alg = CaloNoiseCondAlgCfg(inputFlags, noisetype=alg.NoiseKey.Path)
     accumulator = ComponentAccumulator()
     accumulator.merge(noise_alg)
     alg.AtlasReadyFilterTool.append(
