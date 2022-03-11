@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
 #include "Prophecy4fMerger.h"
 #include <iostream>
 
@@ -5,17 +8,17 @@
 int main(int argc, char*argv[]){
 
     if(argc<5){
-        std::cout<<" Prophecy4fMerger: merge Powheg and Prophecy LHE files! "<<std::endl;
-        std::cout<<" Usage:  ./Prophecy4fMerger [Options]"<<std::endl;
-        std::cout<<"         Nedeed options:"<<std::endl;
-        std::cout<<"               --inPowheg [Powheg lhe file]"<<std::endl;
-        std::cout<<"               --inProphecy4e    [Prophecy4f lhe file with 4e decays]"<<std::endl;
-        std::cout<<"               --inProphecy4mu   [Prophecy4f lhe file with 4mu decays]"<<std::endl;
-        std::cout<<"               --inProphecy2e2mu [Prophecy4f lhe file with 2e2mu decays]"<<std::endl;
-        std::cout<<"               --outLHE [Outupt lhe file]"<<std::endl;
-        std::cout<<"               --randomSeed [the seed]"<<std::endl;
-        std::cout<<"         Additional options:"<<std::endl;
-        std::cout<<"               --debug [Enable debug mode]"<<std::endl;
+        ATH_MSG_INFO(" Prophecy4fMerger: merge Powheg and Prophecy LHE files! ");
+        ATH_MSG_INFO(" Usage:  ./Prophecy4fMerger [Options]");
+        ATH_MSG_INFO("         Nedeed options:");
+        ATH_MSG_INFO("               --inPowheg [Powheg lhe file]");
+        ATH_MSG_INFO("               --inProphecy4e    [Prophecy4f lhe file with 4e decays]");
+        ATH_MSG_INFO("               --inProphecy4mu   [Prophecy4f lhe file with 4mu decays]");
+        ATH_MSG_INFO("               --inProphecy2e2mu [Prophecy4f lhe file with 2e2mu decays]");
+        ATH_MSG_INFO("               --outLHE [Outupt lhe file]");
+        ATH_MSG_INFO("               --randomSeed [the seed]");
+        ATH_MSG_INFO("         Additional options:");
+        ATH_MSG_INFO("               --debug [Enable debug mode]");
         exit(0);
     }
     std::string powheg, prophecy4e, prophecy4mu, prophecy2e2mu, out;
