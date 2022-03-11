@@ -66,9 +66,9 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
 
   virtual StatusCode  fillMMOverviewVects(const Muon::MMPrepData*, MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2]) const;
   virtual void  fillMMOverviewHistograms(const MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2], const int lb) const;
-  virtual StatusCode  fillMMSummaryVects( const Muon::MMPrepData*, MMSummaryHistogramStruct (&vects)[2][2][8][2][2][4]) const; //[side][sector][stationPhi][stationEta][multiplet][gas_gap]
+  virtual StatusCode  fillMMSummaryVects( const Muon::MMPrepData*, MMSummaryHistogramStruct (&vects)[2][16][2][2][4]) const; //[side][stationPhi][stationEta][multiplet][gas_gap]
   virtual StatusCode  fillMMHistograms( const Muon::MMPrepData* ) const;                                      
-  virtual StatusCode  fillMMSummaryHistograms( const MMSummaryHistogramStruct (&vects)[2][2][8][2][2][4]) const;
+  virtual StatusCode  fillMMSummaryHistograms( const MMSummaryHistogramStruct (&vects)[2][16][2][2][4]) const;
 
   void clusterFromTrack(const xAOD::TrackParticleContainer*,const int lb) const;
   
