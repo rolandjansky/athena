@@ -31,7 +31,7 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
         monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
         monAlg.Method = 'TTbarTagAndProbe'
         monAlg.MonitoredChains = [chain]
-        threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
+        threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9].*[A-Z])').match(chain).groups()
         monAlg.L1Seeds = [regex('L1MU').sub('L1_MU', level1)]
         monAlg.Thresholds = [float(threshold)]
         monAlg.Group = 'Eff_ttbar_'+chain
@@ -59,7 +59,7 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
         monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
         monAlg.Method = 'ZTagAndProbe'
         monAlg.MonitoredChains = [chain]
-        threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
+        threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9].*[A-Z])').match(chain).groups()
         monAlg.L1Seeds = [regex('L1MU').sub('L1_MU', level1)]
         monAlg.Thresholds = [float(threshold)]
         monAlg.Group = 'Eff_ZTP_'+chain
