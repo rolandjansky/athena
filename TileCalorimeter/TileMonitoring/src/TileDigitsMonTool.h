@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -101,9 +101,9 @@ class TileDigitsMonTool: public TilePaterMonTool
       else return true; //error
     };
 
-    bool m_bookAll;
-    bool m_book2D;
-    int m_runType;
+    bool m_bookAll{};
+    bool m_book2D{};
+    int m_runType{};
     std::string m_contNameDSP;
 
     enum RunType {
@@ -119,27 +119,27 @@ class TileDigitsMonTool: public TilePaterMonTool
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
 
-    const uint32_t* m_cispar;
+    const uint32_t* m_cispar{};
 
-    bool m_bigain;
-    int m_nEventsTileMon;
-    int m_nSamples;
+    bool m_bigain{};
+    int m_nEventsTileMon{};
+    int m_nSamples{};
     // Factor these out to avoid triggering the ubsan sanity checks.
     struct Data {
-      double m_sumPed1[5][64][48][2];
-      double m_sumPed2[5][64][48][2];
-      double m_sumRms1[5][64][48][2];
-      double m_sumRms2[5][64][48][2];
-      double m_meanAmp[5][64][2][48];
-      double m_meanAmp_ij[5][64][2][48][48];
-      int m_nEvents_i[5][64][2][48];
-      int m_nEvents_ij[5][64][2][48][48];
-      double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
-      uint8_t m_stuck_probs[5][64][48][2][10];
+      double m_sumPed1[5][64][48][2]={0};
+      double m_sumPed2[5][64][48][2]={0};
+      double m_sumRms1[5][64][48][2]={0};
+      double m_sumRms2[5][64][48][2]={0};
+      double m_meanAmp[5][64][2][48]={0};
+      double m_meanAmp_ij[5][64][2][48][48]={0};
+      int m_nEvents_i[5][64][2][48]={0};
+      int m_nEvents_ij[5][64][2][48][48]={0};
+      double m_cov_ratio[5][64][2]={0}; //covariance ratio printed in covariance plots
+      uint8_t m_stuck_probs[5][64][48][2][10]={0};
 
       //vector to hold data corruption information
       // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
-      bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
+      bool m_corrup[5][64][2][16]={0}; //ros, drawer, gain, DMU
 
       //Pointers to Histograms
       std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
@@ -154,30 +154,30 @@ class TileDigitsMonTool: public TilePaterMonTool
       std::vector<TH1D *> m_outInHighGain;
 
       //shifted histos for DQMF
-      TH1S * m_shifted_hist[5][64][49][2]; // one extra histo for reference!
+      TH1S * m_shifted_hist[5][64][49][2]={}; // one extra histo for reference!
 
     };
     std::unique_ptr<Data> m_data;
-    bool m_allHistsFilled;
+    bool m_allHistsFilled{};
 
     //For test
     //int hp;
     //int hb;
-    bool m_fillPedestalDifference;
+    bool m_fillPedestalDifference{};
     std::string m_digitsContainerName;
 
     // TileInfo
     std::string m_infoName;
-    const TileInfo* m_tileInfo;
-    int m_i_ADCmax;
-    float m_f_ADCmax;
-    float m_ADCmaxMinusEps;
+    const TileInfo* m_tileInfo{};
+    int m_i_ADCmax{};
+    float m_f_ADCmax{};
+    float m_ADCmaxMinusEps{};
 
-    bool m_is12bit;
-    int m_shiftnbins;
+    bool m_is12bit{};
+    int m_shiftnbins{};
 
-    int m_zeroLimitHG;
-    int m_saturationLimitHG;
+    int m_zeroLimitHG{};
+    int m_saturationLimitHG{};
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };

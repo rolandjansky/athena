@@ -61,89 +61,89 @@ class TileTBCellMonTool: public TileFatherMonTool {
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
 
-    bool m_doOnline;
-    double m_Threshold;
-    double m_NegThreshold;
-    double m_energyThresholdForTime;
-    double m_EneBalThreshold;
-    double m_TimBalThreshold;
-    int32_t m_TileCellTrig;
-    int32_t m_old_lumiblock;
-    int32_t m_delta_lumiblock;
-    int32_t m_OldLumiArray1[4][64][4];
-    int32_t m_OldLumiArray2[4][64][4];
-    int m_nEventsProcessed[9]; // number of processed events per trigger
+    bool m_doOnline{};
+    double m_Threshold{};
+    double m_NegThreshold{};
+    double m_energyThresholdForTime{};
+    double m_EneBalThreshold{};
+    double m_TimBalThreshold{};
+    int32_t m_TileCellTrig{};
+    int32_t m_old_lumiblock{};
+    int32_t m_delta_lumiblock{};
+    int32_t m_OldLumiArray1[4][64][4]={0};
+    int32_t m_OldLumiArray2[4][64][4]={0};
+    int m_nEventsProcessed[9]={0}; // number of processed events per trigger
     std::string m_cellsContName;
 
-    double m_maxEnergy;
-    double m_maxTotalEnergy;
+    double m_maxEnergy{};
+    double m_maxTotalEnergy{};
 
-    TH1F* m_tileChannelTimeLBA[64][48];
-    TH1F* m_tileChannelTimeLBC[64][48];
-    TH1F* m_tileChannelTimeEBA[64][48];
-    TH1F* m_tileChannelTimeEBC[64][48];
-    TH1F* m_tileChannelEnergyLBA[64][48];
-    TH1F* m_tileChannelEnergyLBC[64][48];
-    TH1F* m_tileChannelEnergyEBA[64][48];
-    TH1F* m_tileChannelEnergyEBC[64][48];
+    TH1F* m_tileChannelTimeLBA[64][48]={};
+    TH1F* m_tileChannelTimeLBC[64][48]={};
+    TH1F* m_tileChannelTimeEBA[64][48]={};
+    TH1F* m_tileChannelTimeEBC[64][48]={};
+    TH1F* m_tileChannelEnergyLBA[64][48]={};
+    TH1F* m_tileChannelEnergyLBC[64][48]={};
+    TH1F* m_tileChannelEnergyEBA[64][48]={};
+    TH1F* m_tileChannelEnergyEBC[64][48]={};
     //TH2F* m_tileChannelEnergyVsTimeLBC01[48];
     //TH2F* m_tileChannelEnergyVsTimeEBC02[48];
     //  TH2D* m_test;
 
     int m_cellsInPartition[5] = {1151, 1472, 1408, 1151, 5182}; // EBA, LBA, LBC, EBC, ALL
-    bool m_fillTimeHistograms;
+    bool m_fillTimeHistograms{};
 
-	TH1F* m_TileTBTotalEnergyEBA[64];
-    TH2F* m_TileTBHitMapEBA[64];
-    TH1F* m_TileTBCellEneSumEBA[64][14];
-    TH1F* m_TileTBCellEneDiffEBA[64][14];
-    TH1F* m_TileTBCellTimeSumEBA[64][14];
-    TH1F* m_TileTBCellTimeDiffEBA[64][14];
+	TH1F* m_TileTBTotalEnergyEBA[64]={};
+    TH2F* m_TileTBHitMapEBA[64]={};
+    TH1F* m_TileTBCellEneSumEBA[64][14]={};
+    TH1F* m_TileTBCellEneDiffEBA[64][14]={};
+    TH1F* m_TileTBCellTimeSumEBA[64][14]={};
+    TH1F* m_TileTBCellTimeDiffEBA[64][14]={};
 
-    TH2F* m_TileTBCellEneLeftVsRightPMTEBA[64][14];
-    TH2F* m_TileTBCellTimeLeftVsRightPMTEBA[64][14];
-    TH2F* m_TileTBSampleBCvsAEneEBA[64];
-    TH1F* m_TileTBSampleDEneEBA[64];
+    TH2F* m_TileTBCellEneLeftVsRightPMTEBA[64][14]={};
+    TH2F* m_TileTBCellTimeLeftVsRightPMTEBA[64][14]={};
+    TH2F* m_TileTBSampleBCvsAEneEBA[64]={};
+    TH1F* m_TileTBSampleDEneEBA[64]={};
 
-	TH1F* m_TileTBTotalEnergyEBC[64];
-    TH2F* m_TileTBHitMapEBC[64];
-    TH1F* m_TileTBCellEneSumEBC[64][14];
-    TH1F* m_TileTBCellEneDiffEBC[64][14];
-    TH1F* m_TileTBCellTimeSumEBC[64][14];
-    TH1F* m_TileTBCellTimeDiffEBC[64][14];
+	TH1F* m_TileTBTotalEnergyEBC[64]={};
+    TH2F* m_TileTBHitMapEBC[64]={};
+    TH1F* m_TileTBCellEneSumEBC[64][14]={};
+    TH1F* m_TileTBCellEneDiffEBC[64][14]={};
+    TH1F* m_TileTBCellTimeSumEBC[64][14]={};
+    TH1F* m_TileTBCellTimeDiffEBC[64][14]={};
 
-	TH2F* m_TileTBCellEneLeftVsRightPMTEBC[64][14];
-	TH2F* m_TileTBCellTimeLeftVsRightPMTEBC[64][14];
-    TH2F* m_TileTBSampleBCvsAEneEBC[64];
-    TH1F* m_TileTBSampleDEneEBC[64];
+	TH2F* m_TileTBCellEneLeftVsRightPMTEBC[64][14]={};
+	TH2F* m_TileTBCellTimeLeftVsRightPMTEBC[64][14]={};
+    TH2F* m_TileTBSampleBCvsAEneEBC[64]={};
+    TH1F* m_TileTBSampleDEneEBC[64]={};
 
-	TH1F* m_TileTBTotalEnergyLBA[64];
-	TH2F* m_TileTBHitMapLBA[64];
-	TH1F* m_TileTBCellEneSumLBAD0[64];
-    TH1F* m_TileTBCellEneSumLBA[64][23];
-    TH1F* m_TileTBCellEneDiffLBA[64][23];
-    TH1F* m_TileTBCellTimeSumLBAD0[64];
-    TH1F* m_TileTBCellTimeSumLBA[64][23];
-    TH1F* m_TileTBCellTimeDiffLBA[64][23];
+	TH1F* m_TileTBTotalEnergyLBA[64]={};
+	TH2F* m_TileTBHitMapLBA[64]={};
+	TH1F* m_TileTBCellEneSumLBAD0[64]={};
+    TH1F* m_TileTBCellEneSumLBA[64][23]={};
+    TH1F* m_TileTBCellEneDiffLBA[64][23]={};
+    TH1F* m_TileTBCellTimeSumLBAD0[64]={};
+    TH1F* m_TileTBCellTimeSumLBA[64][23]={};
+    TH1F* m_TileTBCellTimeDiffLBA[64][23]={};
 
- 	TH2F* m_TileTBCellEneLeftVsRightPMTLBA[64][23];
- 	TH2F* m_TileTBCellTimeLeftVsRightPMTLBA[64][23];
-    TH2F* m_TileTBSampleBCvsAEneLBA[64];
-    TH1F* m_TileTBSampleDEneLBA[64];
+ 	TH2F* m_TileTBCellEneLeftVsRightPMTLBA[64][23]={};
+ 	TH2F* m_TileTBCellTimeLeftVsRightPMTLBA[64][23]={};
+    TH2F* m_TileTBSampleBCvsAEneLBA[64]={};
+    TH1F* m_TileTBSampleDEneLBA[64]={};
 
-	TH1F* m_TileTBTotalEnergyLBC[64];
-	TH2F* m_TileTBHitMapLBC[64];
-	TH1F* m_TileTBCellEneSumLBCD0[64];
-    TH1F* m_TileTBCellEneSumLBC[64][23];
-    TH1F* m_TileTBCellEneDiffLBC[64][23];
-    TH1F* m_TileTBCellTimeSumLBCD0[64];
-    TH1F* m_TileTBCellTimeSumLBC[64][23];
-    TH1F* m_TileTBCellTimeDiffLBC[64][23];
+	TH1F* m_TileTBTotalEnergyLBC[64]={};
+	TH2F* m_TileTBHitMapLBC[64]={};
+	TH1F* m_TileTBCellEneSumLBCD0[64]={};
+    TH1F* m_TileTBCellEneSumLBC[64][23]={};
+    TH1F* m_TileTBCellEneDiffLBC[64][23]={};
+    TH1F* m_TileTBCellTimeSumLBCD0[64]={};
+    TH1F* m_TileTBCellTimeSumLBC[64][23]={};
+    TH1F* m_TileTBCellTimeDiffLBC[64][23]={};
 
- 	TH2F* m_TileTBCellEneLeftVsRightPMTLBC[64][23];
- 	TH2F* m_TileTBCellTimeLeftVsRightPMTLBC[64][23];
-    TH2F* m_TileTBSampleBCvsAEneLBC[64];
-    TH1F* m_TileTBSampleDEneLBC[64];
+ 	TH2F* m_TileTBCellEneLeftVsRightPMTLBC[64][23]={};
+ 	TH2F* m_TileTBCellTimeLeftVsRightPMTLBC[64][23]={};
+    TH2F* m_TileTBSampleBCvsAEneLBC[64]={};
+    TH1F* m_TileTBSampleDEneLBC[64]={};
 	//this currently only works for extended barrel
 	/*cellHitMap[channel][bins]
 	*  bins=0 is the lower x bin
@@ -153,9 +153,9 @@ class TileTBCellMonTool: public TileFatherMonTool {
 	*  bins=4 corresponding name in cellHitMap
 	*  bins=5 whether or not there is C cell for long barrel
 	*/
-	int m_cellHitMapEB[48][5];
-	int m_cellHitMapLB[48][6];
-	int m_cellHitMapLB_C[8][4];
+	int m_cellHitMapEB[48][5]={0};
+	int m_cellHitMapLB[48][6]={0};
+	int m_cellHitMapLB_C[8][4]={0};
 	std::string m_cellHitMapNameEB[14];
 	std::string m_cellHitMapNameLB[23];
 

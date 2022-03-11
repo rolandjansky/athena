@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -54,35 +54,35 @@ class TileCellNoiseMonTool: public TileFatherMonTool {
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
 
-    bool m_doOnline;
+    bool m_doOnline{};
     //int32_t m_TileCellTrig;
     //int32_t m_oldLumiblock;
     //int32_t m_delta_lumiblock;
     std::string m_cellsContName;
 
-    bool m_isFirstEvent;
+    bool m_isFirstEvent{};
 
     // x-axis range for the individual cell noise histograms
-    float m_xMin;
-    float m_xMax;
+    float m_xMin{};
+    float m_xMax{};
 
     std::vector<TH1F*> m_tileCellEne[4][64]; // a 2D array of 4x64 partitions X modules, each containing a vector of cells
 
-    TH2F* m_mapSigma1[4];
-    TH2F* m_mapSigma2[4];
-    TH2F* m_mapR[4];
-    TH2F* m_mapChi2[4];
-    TH2F* m_mapChi2prb[4];
-    TH2F* m_mapRmsOsig[4];
-    TH2F* m_mapRms[4];
+    TH2F* m_mapSigma1[4]={};
+    TH2F* m_mapSigma2[4]={};
+    TH2F* m_mapR[4]={};
+    TH2F* m_mapChi2[4]={};
+    TH2F* m_mapChi2prb[4]={};
+    TH2F* m_mapRmsOsig[4]={};
+    TH2F* m_mapRms[4]={};
 
-    TH1F* m_hPartition1;
-    TH1F* m_hPartition2;
+    TH1F* m_hPartition1{};
+    TH1F* m_hPartition2{};
 
-    TH2F* m_h2Partition0;
-    TH2F* m_h2Partition1;
-    TH2F* m_h2Partition2;
-    TH2F* m_h2Partition3;
+    TH2F* m_h2Partition0{};
+    TH2F* m_h2Partition1{};
+    TH2F* m_h2Partition2{};
+    TH2F* m_h2Partition3{};
 
     //  TH2D* m_test;
 };
