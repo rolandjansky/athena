@@ -40,30 +40,43 @@ int GeoModelXmlTool::createTopVolume(GeoPhysVol* world, GmxInterface& gmxInterfa
     flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
     //how to propagate these to here best...?
     gmxInput = getBlob(vNode,tableName);
+    if (gmxInput.empty()) { // Invalid blob?
+      std::string errMessage("GeoModelXmlTool::createTopVolume: Empty response received from the database.");
+      throw std::runtime_error(errMessage);
+    }
+  } else {
+    flags = 0;
+    gmxInput = PathResolver::find_file(m_gmxFilename, "DATAPATH");
+    if (gmxInput.empty()) { // File not found
+      std::string errMessage("GeoModelXmlTool::createTopVolume: Unable to find file " + m_gmxFilename +
+                             " with PathResolver; check filename and DATAPATH environment variable");
+      throw std::runtime_error(errMessage);
+    }
+  }
+
+  // Use the DTD from Athena
+  if (m_gmxFilename.empty()) {
     std::string dtdFile = '"' + PathResolver::find_file("GeoModelXml/geomodel.dtd", "DATAPATH") + '"';
     ATH_MSG_DEBUG("dtdFile = " << dtdFile);
     size_t index = gmxInput.find("\"geomodel.dtd\"");
     if (index != std::string::npos) {
       gmxInput.replace(index, 14, dtdFile);
     } else {
-      throw std::runtime_error("GeoModeXmlDetectorFactoryBase::createTopVolume: Did not find string geomodel.dtd in the gmx input string.");
-    }
-  } else {
-    flags = 0;
-    gmxInput = PathResolver::find_file(m_gmxFilename, "DATAPATH");
-    if (gmxInput.empty()) { // File not found
-      std::string errMessage("GeoModeXmlDetectorFactoryBase::createTopVolume:: Unable to find file " + m_gmxFilename +
-                             " with PathResolver; check filename and DATAPATH environment variable");
-      throw std::runtime_error(errMessage);
+      throw std::runtime_error("GeoModelXmlTool::createTopVolume: Did not find string geomodel.dtd in the gmx input string.");
     }
   }
 
-  //optionally dump to local file for examination
-  if(m_clobOutputFileName!="") {
-      std::ofstream out(m_clobOutputFileName);
+  // optionally dump to local file for examination
+  if (m_clobOutputFileName != "") {
+    std::ofstream out(m_clobOutputFileName);
+    if (m_gmxFilename.empty()) {
       out << gmxInput;
-      out.close();
-   }
+    } else {
+      std::ifstream in(gmxInput);
+      out << in.rdbuf();
+    }
+    out.close();
+  }
 
   Gmx2Geo gmx2Geo(gmxInput, world, gmxInterface, flags);
 

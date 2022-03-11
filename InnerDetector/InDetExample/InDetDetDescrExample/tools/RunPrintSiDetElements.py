@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run PrintSiDetectorElements
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from argparse import ArgumentParser
@@ -51,7 +51,7 @@ ConfigFlags.Input.Files = []
 
 
 if args.localgeo:
-    ConfigFlags.GeoModel.useLocalGeometry = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
 if args.detectors:
     from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
     setupDetectorsFromList(ConfigFlags, args.detectors, toggle_geometry=True)

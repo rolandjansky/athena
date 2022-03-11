@@ -33,6 +33,4 @@ def createGeoModelConfigFlags():
                 lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Pixel']['IBLlayout'])
                 # IBL layer layout  in {"planar", "3D", "noIBL"}
 
-    gcf.addFlag("GeoModel.useLocalGeometry", False)  # use local XML files for development
-
     return gcf
