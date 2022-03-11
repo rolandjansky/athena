@@ -45,8 +45,8 @@ atlas_add_test( manual_menu_cf
 
 atlas_add_test( emu_step_processing_cf_newJO
                 SCRIPT python -m TriggerMenuMT.CFtest.test_menu_cf_newJO
-                PRIVATE_WORKING_DIRECTORY
-                POST_EXEC_SCRIPT noerror.sh )
+                LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+                PRIVATE_WORKING_DIRECTORY  )
 
 # Unit tests:
 atlas_add_test( ViewCFTest
