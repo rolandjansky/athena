@@ -17,9 +17,9 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("maxdImpact", flags.ITk.Tracking.ActivePass.maxPrimaryImpactSeed )
     kwargs.setdefault("maxZ", flags.ITk.Tracking.ActivePass.maxZImpactSeed )
     kwargs.setdefault("minZ", -flags.ITk.Tracking.ActivePass.maxZImpactSeed )
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel)
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel and flags.ITk.Tracking.ActivePass.useITkPixelSeeding)
     kwargs.setdefault("SpacePointsPixelName", 'ITkPixelSpacePoints')
-    kwargs.setdefault("useStrip", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding )
+    kwargs.setdefault("useStrip", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding)
     kwargs.setdefault("SpacePointsStripName", 'ITkStripSpacePoints')
     kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
@@ -34,18 +34,15 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
         kwargs.setdefault("maxRadius2", flags.ITk.Tracking.ActivePass.radMax)
         kwargs.setdefault("maxRadius3", flags.ITk.Tracking.ActivePass.radMax)
 
+    if flags.ITk.Tracking.doFastTracking :
+        kwargs.setdefault("useFastTracking", True)
+        kwargs.setdefault("maxSeedsForSpacePoint", 3)
+
     if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
         kwargs.setdefault("maxSeedsForSpacePoint", 5)
         kwargs.setdefault("isLRT", True)
         kwargs.setdefault("maxZPPP", flags.ITk.Tracking.ActivePass.maxZSpacePointsPPPSeeds)
         kwargs.setdefault("maxZSSS", flags.ITk.Tracking.ActivePass.maxZSpacePointsSSSSeeds)
-
-    if flags.ITk.Tracking.doFastTracking :
-        kwargs.setdefault("useFastTracking", True)
-        kwargs.setdefault("maxSeedsForSpacePoint", 3)
-        kwargs.setdefault("useStrip", False)
-        if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
-            kwargs.setdefault("usePixel", False)
 
     if flags.ITk.Tracking.writeSeedValNtuple:
         kwargs.setdefault("WriteNtuple", True)
