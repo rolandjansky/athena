@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,9 +15,6 @@
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadData_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-
-#include "GaudiKernel/ICondSvc.h"
 
 #include <vector>
 
@@ -55,7 +52,6 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"};
     SG::WriteCondHandleKey<TRT_DetElementsRoadData_xk> m_writeKey{this, "WriteKey", "TRT_DetElementsRoadData_xk", "Key of TRT_DetElementsRoadData_xk"};
-    ServiceHandle<ICondSvc> m_condSvc;
 
     ///////////////////////////////////////////////////////////////////
     // Methods

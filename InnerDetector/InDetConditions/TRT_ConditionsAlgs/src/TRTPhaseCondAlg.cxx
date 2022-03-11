@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTPhaseCondAlg.h"
@@ -10,7 +10,6 @@
 TRTPhaseCondAlg::TRTPhaseCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator),
-    m_condSvc("CondSvc",name),
     m_caldbtool("TRT_CalDbTool",this),
     m_trtId(nullptr)
 { declareProperty("TRTCalDbTool",m_caldbtool); }
@@ -19,24 +18,14 @@ TRTPhaseCondAlg::~TRTPhaseCondAlg(){}
 
 StatusCode TRTPhaseCondAlg::initialize()
 {
-
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // Straw status
   ATH_CHECK ( m_caldbtool.retrieve() );
 
   // Read key
   ATH_CHECK( m_T0ReadKey.initialize() );
 
-
   // Register write handle
   ATH_CHECK( m_T0WriteKey.initialize() );
-
-  if (m_condSvc->regHandle(this, m_T0WriteKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_T0WriteKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   // TRT ID helper
   ATH_CHECK(detStore()->retrieve(m_trtId,"TRT_ID"));
