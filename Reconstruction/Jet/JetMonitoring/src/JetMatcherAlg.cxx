@@ -297,22 +297,6 @@ StatusCode JetMatcherAlg::set_xAODJet_varHandleKeys() {
   };
   
 
-  /*
-    m_jetVarHandleKeys.push_back(m_ptDiffKey);
-  m_jetVarHandleKeys.push_back(m_energyDiffKey);
-  m_jetVarHandleKeys.push_back(m_massDiffKey);
-  m_jetVarHandleKeys.push_back(m_ptRespKey);
-  m_jetVarHandleKeys.push_back(m_energyRespKey);
-  m_jetVarHandleKeys.push_back(m_massRespKey);
-  m_jetVarHandleKeys.push_back(m_ptRefKey);
-  m_jetVarHandleKeys.push_back(m_etaRefKey);
-
-  
-  ATH_CHECK(initialize_xAODJet_varhandles(true));
-  ATH_CHECK(initialize_JetRoI_varhandles(false));
-  ATH_CHECK(initialize_jFexSRJetRoI_varhandles(false));
-  */
-  
   return StatusCode::SUCCESS;
 
 }
@@ -346,17 +330,6 @@ StatusCode JetMatcherAlg::set_JetRoI_varHandleKeys() {
     m_l1ptRefKey,
     m_l1etaRefKey
   };
-
-  /*
-  m_l1JetVarHandleKeys.push_back(m_l1ptDiffKey);
-  m_l1JetVarHandleKeys.push_back(m_l1energyDiffKey);
-  m_l1JetVarHandleKeys.push_back(m_l1massDiffKey);
-  m_l1JetVarHandleKeys.push_back(m_l1ptRespKey);
-  m_l1JetVarHandleKeys.push_back(m_l1energyRespKey);
-  m_l1JetVarHandleKeys.push_back(m_l1massRespKey);
-  m_l1JetVarHandleKeys.push_back(m_l1ptRefKey);
-  m_l1JetVarHandleKeys.push_back(m_l1etaRefKey);
-  */
   
   return StatusCode::SUCCESS;
 
