@@ -30,6 +30,7 @@ mutex_t guidMapMutex;
 */
 const std::pair<Guid, const char*> GuidToClname[] = {
    {Guid("F41DF744-242D-11E6-B472-02163E010CEC"), "xAOD::TrackParticleAuxContainer_v3"}
+  ,{Guid("8251F481-EA4C-4852-AE72-BED87E6FD2FB"), "xAOD::MuonAuxContainer_v4"}
 };
 
 using namespace pool;
