@@ -203,17 +203,20 @@ StatusCode TrigCostAnalysis::execute() {
 
   if (!m_metadataDataKey.empty()){
     SG::ReadHandle<xAOD::TrigCompositeContainer> metadataDataHandle(m_metadataDataKey, context);
-    ATH_CHECK( metadataDataHandle.isValid() );
+    if (metadataDataHandle.isValid()){
+      for (const xAOD::TrigComposite* tc : *metadataDataHandle) {
+        try {
+          std::lock_guard<std::mutex> lock(m_addHostnameMutex);
+          const std::string hostname = tc->getDetail<std::string>("hostname");
+          m_hostnames.insert(hostname);
+        } catch ( const std::exception& ) {
+          ATH_MSG_WARNING("Missing HLT_RuntimeMetadata EDM hostname for event " << context.eventID().event_number());
+        }
 
-    for (const xAOD::TrigComposite* tc : *metadataDataHandle) {
-      try {
-        std::lock_guard<std::mutex> lock(m_addHostnameMutex);
-        const std::string hostname = tc->getDetail<std::string>("hostname");
-        m_hostnames.insert(hostname);
-      } catch ( const std::exception& ) {
-        ATH_MSG_WARNING("Missing HLT_TrigCostMetadataContainer EDM hostname for event " << context.eventID().event_number());
       }
-
+    } 
+    else {
+      ATH_MSG_DEBUG("Not valid HLT_RuntimeMetadata handle for the event " << context.eventID().event_number());
     }
   }
 
@@ -471,7 +474,7 @@ void TrigCostAnalysis::writeMetadata() {
     ATH_MSG_DEBUG("Found many hostnames for this run");
     for (auto name : m_hostnames) hostnamesList += name + ",";
     hostnamesList.pop_back();
-  } else {
+  } else if (m_hostnames.size() == 1) {
     hostnamesList = *m_hostnames.begin();
   }
   m_metadataTree->Branch("hostname", &hostnamesList);
