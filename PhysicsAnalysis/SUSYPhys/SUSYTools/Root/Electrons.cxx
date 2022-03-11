@@ -18,6 +18,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
@@ -136,6 +137,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   // don't bother calibrating or computing WP
   if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
   if ( !input.caloCluster() ) { ATH_MSG_WARNING( "FillElectron: no caloCluster found: " << input.caloCluster() ); return StatusCode::SUCCESS; }
+  
+  //Check DeadHVCellRemoval
+  bool pass_deadHVTool = false;
+  pass_deadHVTool = m_deadHVTool->accept(&input);
 
   if (m_debug) {
     unsigned char el_nPixHits(0), el_nSCTHits(0);
@@ -153,8 +158,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     ATH_MSG_INFO( "ELECTRON OQ: " << acc_OQ(input) );
     ATH_MSG_INFO( "ELECTRON nPixHits: " << (int) el_nPixHits );
     ATH_MSG_INFO( "ELECTRON nSCTHits: " << (int) el_nSCTHits );
+    ATH_MSG_INFO( "ELECTRON deadHVTools: " << (bool) pass_deadHVTool );
   }
 
+  if (!pass_deadHVTool) return StatusCode::SUCCESS;
   if (!input.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return StatusCode::SUCCESS;
 
   if ( m_elecSelLikelihoodBaseline.empty()) {
