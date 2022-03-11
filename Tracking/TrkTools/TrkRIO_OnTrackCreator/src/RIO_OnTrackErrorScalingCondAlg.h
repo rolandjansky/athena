@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef _RIO_OnTrackErrorScalingCondAlg_H_
@@ -8,11 +8,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-//#include "StoreGate/ReadCondHandleKey.h"
-#//include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 #include <iostream>
 
@@ -53,8 +51,6 @@ class RIO_OnTrackErrorScalingCondAlg : public AthAlgorithm
 
   std::vector<const RIO_OnTrackErrorScalingKit *>               m_kits {};
   std::map<std::string, std::pair<unsigned int, unsigned int> > m_attributeMap;
-
-  ServiceHandle<ICondSvc> m_condSvc;
 };
 
 #endif // SCT_CONDITIONSPARAMETERCONDALG
