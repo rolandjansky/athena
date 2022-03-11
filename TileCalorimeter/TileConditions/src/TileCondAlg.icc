@@ -13,17 +13,8 @@
 template<class CONDDATA, class CALIBDATA>
 StatusCode TileCondAlg<CONDDATA, CALIBDATA>::initialize() {
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   ATH_CHECK( m_conditionsProxy.retrieve() );
   ATH_CHECK( m_condDataKey.initialize() );
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_condDataKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_condDataKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

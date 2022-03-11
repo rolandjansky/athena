@@ -11,8 +11,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-//#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 
 /**
  * @class TileCondAlg
@@ -23,7 +21,7 @@ class TileCondAlg: public AthReentrantAlgorithm {
   public:
 
     TileCondAlg(const std::string& name, ISvcLocator* svcLocator)
-      : AthReentrantAlgorithm(name, svcLocator), m_condSvc("CondSvc", name) {};
+      : AthReentrantAlgorithm(name, svcLocator) {};
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
@@ -41,9 +39,6 @@ class TileCondAlg: public AthReentrantAlgorithm {
    */
     SG::WriteCondHandleKey<CONDDATA> m_condDataKey{this,
         "TileCondData", "", "Output Tile conditions object"};
-
-    ServiceHandle<ICondSvc> m_condSvc;
-
 };
 
 #include "TileCondAlg.icc"

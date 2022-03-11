@@ -11,12 +11,10 @@
 
 RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
 {
 }
 
 StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
-  ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKey.initialize());
 
   if (m_errorScalingType.size() != m_writeKey.size()) {
@@ -28,14 +26,8 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
 
   m_kits.clear();
   m_kits.reserve(m_errorScalingType.size());
-  unsigned int idx=0;
   for (const std::string &type_name : m_errorScalingType ) {
-    if (addErrorScaling(type_name).isFailure()) return StatusCode::FAILURE;
-    if (m_condSvc->regHandle(this, m_writeKey[idx]).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey[idx].key() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-    ++idx;
+    ATH_CHECK( addErrorScaling(type_name) );
   }
   for (const std::string &attribut_name : m_attributIgnoreList ) {
     registerAttribute(attribut_name, std::numeric_limits<unsigned int>::max(),0);
