@@ -14,6 +14,7 @@ import json
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
+from TrigValTools.TrigValSteering.Common import find_file
 from AthenaCommon.Utils.unixtools import FindFile
 
 ##################################################
@@ -206,6 +207,69 @@ class TrigCostStep(Step):
         self.input = 'tmp.RDO_TRIG'
         self.args = '  --monitorChainAlgorithm --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
         self.executable = 'RunTrigCostAnalysis.py'
+
+
+##################################################
+# Exec (athenaHLT) step running runHLT_Standalone.py on data
+##################################################
+class TrigInDetRecoData(ExecStep):
+    def __init__(self, name='TrigInDetRecoData'):
+#        super(TrigInDetRecoData, self).__init__(name)
+        ExecStep.__init__(self, name)
+        self.type = 'athenaHLT'
+        self.job_options = 'TriggerJobOpts/runHLT_standalone.py'
+        self.max_events=-1
+        self.required = True
+        self.threads = 1 # TODO: change to 4
+        self.concurrent_events = 1 # TODO: change to 4
+        self.perfmon = False
+        self.timeout = 18*3600
+        self.input = ''
+        self.perfmon=False
+        self.imf=False
+        self.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=True;rewriteLVL1=True;"'
+        self.args += ' -o output'
+
+
+##################################################
+# Additional exec (athena) steps - extract Physics_Main when running on data
+##################################################
+
+class TrigBSExtr(ExecStep):
+    def __init__(self, name='TrigBSExtr'):
+        super(TrigBSExtr, self).__init__(name)
+        self.type = 'other'
+        self.executable = 'trigbs_extractStream.py'
+        self.input = ''
+        self.args = '-s Main ' + find_file('*_HLTMPPy_output.*.data')
+
+
+##################################################
+# Additional exec (athena) steps - Toer0 Reco (BS->ESD->AOD)
+##################################################
+
+class TrigTZReco(ExecStep):
+    def __init__(self, name='TrigTZReco'):
+        super(TrigTZReco, self).__init__(name)
+        self.type = 'Reco_tf'
+        tzrecoPreExec = ' '.join([
+            "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+            "ConfigFlags.Trigger.triggerMenuSetup=\'Cosmic_run3_v1\';",
+            "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
+            "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
+            "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
+            ])
+        self.threads = 1
+        self.concurrent_events = 1
+        self.input = ''
+        self.explicit_input = True
+        self.max_events = -1
+        self.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
+        self.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
+        self.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+        self.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
+        self.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
+
 
 
 
