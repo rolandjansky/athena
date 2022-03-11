@@ -50,11 +50,10 @@ def makeSequence(ConfigFlags, name,step, signature):
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         accAlg = ComponentAccumulator()
         accAlg.addEventAlgo(Alg)
-        InEventReco = InEventRecoCA(f"ElReco",inputMaker=IM)
+        InEventReco = InEventRecoCA(name+signature+"SeqStep"+step,inputMaker=IM)
         InEventReco.mergeReco(accAlg)  
-        selAcc=SelectionCA(name+signature+"SeqStep"+step)        
-        selAcc.mergeReco(InEventReco)      
-        return (selAcc,IM, Alg.Output)
+            
+        return (InEventReco,IM, Alg.Output)
     else:
         Sequence   = seqAND(name+signature+"SeqStep"+step, [IM, Alg])
         return (Sequence, IM, Alg.Output)
@@ -106,8 +105,10 @@ def elMenuSequence(step, reconame, hyponame):
     elHypo = ElGamHypo(hyponame+"Step"+step+"ElHypo")
     elHypo.Input = seqOut
     if Configurable.configurableRun3Behavior == 1: 
-        Sequence.addHypoAlgo(elHypo)
-        return MenuSequenceCA(Sequence, HypoToolGen=ElTestHypoTool)                 
+        selAcc=SelectionCA(hyponame+"elStep"+step)        
+        selAcc.mergeReco(Sequence) 
+        selAcc.addHypoAlgo(elHypo)
+        return MenuSequenceCA(selAcc, HypoToolGen=ElTestHypoTool)                 
     else:
         return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
    
@@ -117,8 +118,10 @@ def gamMenuSequence(step, reconame, hyponame):
     elHypo = ElGamHypo(hyponame+"Step"+step+"GamHypo")
     elHypo.Input = seqOut
     if Configurable.configurableRun3Behavior == 1: 
-        Sequence.addHypoAlgo(elHypo)
-        return MenuSequenceCA(Sequence, HypoToolGen=ElTestHypoTool)                 
+        selAcc=SelectionCA(hyponame+"gamStep"+step+"Gam")        
+        selAcc.mergeReco(Sequence) 
+        selAcc.addHypoAlgo(elHypo)
+        return MenuSequenceCA(selAcc, HypoToolGen=ElTestHypoTool)                 
     else:
         return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
     
@@ -129,8 +132,10 @@ def muMenuSequence(step, reconame, hyponame):
     muHypo = MuHypo(hyponame+"Step"+step+"MuHypo")
     muHypo.Input = seqOut
     if Configurable.configurableRun3Behavior == 1: 
-        Sequence.addHypoAlgo(muHypo)
-        return MenuSequenceCA(Sequence, HypoToolGen=MuTestHypoTool)                 
+        selAcc=SelectionCA(hyponame+"muStep"+step)        
+        selAcc.mergeReco(Sequence) 
+        selAcc.addHypoAlgo(muHypo)
+        return MenuSequenceCA(selAcc, HypoToolGen=MuTestHypoTool)                 
     else:
         return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
     
@@ -140,8 +145,10 @@ def genMenuSequence(step, reconame, hyponame):
     elHypo = ElGamHypo(hyponame+"Hypo")
     elHypo.Input = seqOut
     if Configurable.configurableRun3Behavior == 1: 
-        Sequence.addHypoAlgo(elHypo)
-        return MenuSequenceCA(Sequence, HypoToolGen=ElTestHypoTool)                 
+        selAcc=SelectionCA(hyponame+"elStep"+step)        
+        selAcc.mergeReco(Sequence) 
+        selAcc.addHypoAlgo(elHypo)
+        return MenuSequenceCA(selAcc, HypoToolGen=ElTestHypoTool)                 
     else:
         return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
     

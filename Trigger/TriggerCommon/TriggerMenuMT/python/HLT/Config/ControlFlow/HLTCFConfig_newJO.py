@@ -36,7 +36,7 @@ def resetDataFlow(acc):
             alg.HypoOutputDecisions = []
 
 
-def setupIMAndHypo(im, hypo):
+def connectIMAndHypo(im, hypo):
     """Setup Input and Output of Hypo and IM according to the naming convention"""
     im.InputMakerInputDecisions = []
     im.InputMakerOutputDecisions = CFNaming.inputMakerOutName(im.name)
@@ -335,15 +335,18 @@ def generateDecisionTree(flags, chains):
         """
 
         def __nameAndOutput(h):
-            return (h.name, h.HypoOutputDecisions.Path) if h else None
+            return (h.name, h.HypoOutputDecisions.Path) if h else None       
 
         output = None
         for currentCounter in range(stepCounter, -1, -1):
+           
             if currentCounter == 0:
                 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
                 thisStep = [ (''.join([c for c in seed if not c.isnumeric()]), mapThresholdToL1DecisionCollection(seed))  for seed in chain.vseeds ]
             else:
                 thisStep = [__nameAndOutput(h) for h in findAllHypoAlgs( currentCounter, chain.steps[currentCounter-1].name )]
+
+
             if output is None:
                 output = thisStep
             for index,el in enumerate(thisStep):
@@ -411,6 +414,7 @@ def generateDecisionTree(flags, chains):
         maxStep = 0
         for chain in chains:
             for stepCounter, step in enumerate( chain.steps, 1 ):
+                log.debug("DF for chain %s step %d ", chain.name, stepCounter)
                 maxStep = max(maxStep, stepCounter)
                 getSingleMenuSeq( stepCounter, step.name )
                 getFilterAlg(stepCounter, step.name, isEmpty(step))
@@ -419,10 +423,11 @@ def generateDecisionTree(flags, chains):
 
                 needCombo = False
                 for sequenceCounter, sequence in enumerate(step.sequences):
+                    #log.debug("Sequence %d: IM=%s, Hypo=%s", sequenceCounter, sequence.ca.inputMaker().name,  sequence.ca.hypo().name)
                     if not isinstance(sequence, EmptyMenuSequence): # not an empty sequence
-                        setupIMAndHypo(sequence.ca.inputMaker(), sequence.ca.hypo()) # setup basic CF
+                        connectIMAndHypo(sequence.ca.inputMaker(), sequence.ca.hypo()) # setup basic CF                        
                         acc.merge( sequence.ca, sequenceName=comboRecoSeq.name)
-
+                        log.debug("MERGE: sequence %s, sequenceName=%s", sequence, comboRecoSeq.name)
                         needCombo = True
                     else: # empty sequence
                         acc.addEventAlgo( CompFactory.PassFilter("Pass"),  sequenceName=comboRecoSeq.name)
@@ -459,6 +464,7 @@ def generateDecisionTree(flags, chains):
         """ Complete connecting (and naming) Data Flow collections"""
         for chain in chains:
             for stepCounter, step in enumerate( chain.steps, 1 ):
+                log.debug("\n************* Start connecting step %d %s for chain %s", stepCounter, step.name, chain.name)           
                 if isEmpty(step):
                     continue
 
@@ -493,8 +499,10 @@ def generateDecisionTree(flags, chains):
                                                                                                         "{} filtered chains".format(filterAlg.name))
                     filterAlg.Chains = addAndAssureUniqueness( filterAlg.Chains, chainDict["chainName"],
                                                             "{} filtered chains".format(filterAlg.name))
-
+                    
+                    log.debug("Set Filter input: %s for sequence %d while setting the chain: %s", filterAlg.Input.index(comboOut), sequenceCounter, chain.name)
                     imAlg = findAllInputMakers( stepCounter, step.name )[sequenceCounter]
+                    if imAlg: log.debug("Found maker %s",imAlg.name)
                     if imAlg:
                         imAlg.InputMakerInputDecisions = addAndAssureUniqueness( imAlg.InputMakerInputDecisions, filterOut, "{} input".format( imAlg.name ) )
                     pass
@@ -504,8 +512,13 @@ def generateDecisionTree(flags, chains):
 
                 comboHypo = findComboHypoAlg( stepCounter, step.name )
                 if comboHypo:
+                    #FP this must be changes, since the number of legs does not dpends on the number of Hypos
+                    # for example asymmetric chians have one Hypo and more than one leg
+                    # one has to loop over the number of seuqences
+                    
+                    
                     elementaryHyposOutputs = stepHypoOutput( stepCounter, chain )
-                    rawInputsToCombo = []
+                    rawInputsToCombo = []                    
                     for hypoName, hypoOutput in elementaryHyposOutputs:
                         rawInputsToCombo.append(hypoOutput)
                         comboHypo.HypoInputDecisions = addAndAssureUniqueness( comboHypo.HypoInputDecisions, hypoOutput, "{} comboHypo input".format( comboHypo.name ) )

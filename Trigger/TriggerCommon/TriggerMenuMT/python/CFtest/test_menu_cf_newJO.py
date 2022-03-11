@@ -92,7 +92,7 @@ def generateEmuMenu(ConfigFlags):
     log.info("generateEmuMenu")
     # make menu manually here:
     from TriggerMenuMT.CFtest.EmuStepProcessingConfig import generateChainsManually       
-    generateChainsManually(0x2)
+    generateChainsManually(0x3)
 
     from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO import generateDecisionTree
     import TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO
@@ -196,6 +196,8 @@ if __name__ == "__main__":
     generateL1Menu(flags)
     createL1PrescalesFileFromMenu(flags)
     
+    # switch on DEBUG on the trigger monitoring
+    #acc.foreach_component("*/TrigSignatureMoni").OutputLevel = DEBUG
     
     fName =  args.configOnly if args.configOnly else "test_menu_cf_newJO.pkl" 
     log.info("Storing config in the file %s ", fName)
