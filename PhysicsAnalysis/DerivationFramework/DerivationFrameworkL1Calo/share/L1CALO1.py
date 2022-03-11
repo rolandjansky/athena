@@ -62,8 +62,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFL1CALO1_KERN",
                                                                        AugmentationTools = augmentationTools,
                                                                        SkimmingTools = skimmingTools,
-                                                                       ThinningTools = thinningTools,
-                                                                       OutputLevel = DEBUG)
+                                                                       ThinningTools = thinningTools)
 
 topSequence += DerivationFrameworkJob
 print(DerivationFrameworkJob)
