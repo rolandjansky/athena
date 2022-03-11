@@ -5,7 +5,7 @@ atlas_subdir( TileMonitoring )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Graf Hist Spectrum Core Tree MathCore RIO )
+find_package( ROOT COMPONENTS Graf Hist HistPainter Spectrum Core Tree MathCore RIO )
 
 # Component(s) in the package:
 atlas_add_library( TileMonitoringLib
