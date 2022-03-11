@@ -22,6 +22,7 @@
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
 #include "L1TopoEvent/MetTOB.h"
+#include "L1TopoEvent/jXETOB.h"
 
 
 // TODO implement sizecheck lile in ClusterTOB
@@ -85,6 +86,9 @@ namespace TCS {
       // constructor from met
       GenericTOB(const MetTOB & met);
 
+      // constructor from jxe
+      GenericTOB(const jXETOB & jxe);
+
       // destructor
       ~GenericTOB();
 
@@ -123,6 +127,8 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
 
+      double Et2() const { return m_Et2; }
+
       virtual void print(std::ostream &o) const;
 
       void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
@@ -149,6 +155,8 @@ namespace TCS {
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
+
+      double m_Et2 { 0 };
 
       unsigned int m_reta {0};
       unsigned int m_rhad {0};

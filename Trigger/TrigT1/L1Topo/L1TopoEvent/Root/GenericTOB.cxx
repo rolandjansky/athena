@@ -214,6 +214,15 @@ TCS::GenericTOB::GenericTOB(const MetTOB & met) :
    , m_tobType(MET)
 {}
 
+// constr from jxe
+TCS::GenericTOB::GenericTOB(const jXETOB & jxe) :
+   BaseTOB(jxe.roiWord(), jxe.tobName())
+   , m_Et(jxe.Et())
+   , m_Ex(jxe.Ex())
+   , m_Ey(jxe.Ey())
+   , m_Et2(jxe.Et2())
+   , m_tobType(JXE)
+{}
 
 // destructor
 TCS::GenericTOB::~GenericTOB() = default;

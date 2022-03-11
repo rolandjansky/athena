@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -9,8 +9,10 @@
 #include "JetInputProviderFEX.h"
 #include "TrigT1CaloEvent/JetROI_ClassDEF.h"
 #include "L1TopoEvent/jJetTOB.h"
+#include "L1TopoEvent/jXETOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
-
+#include "TrigT1CaloEvent/EnergyRoI_ClassDEF.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 // this should go away
 #include <iomanip>
 #include <algorithm>
@@ -44,6 +46,7 @@ JetInputProviderFEX::initialize() {
    CHECK(m_jEDMKey.initialize(SG::AllowEmpty));
    CHECK(m_JEDMKey.initialize(SG::AllowEmpty));
    CHECK(m_jTauEDMKey.initialize(SG::AllowEmpty));
+   CHECK(m_jMet_EDMKey.initialize(SG::AllowEmpty));
 
    return StatusCode::SUCCESS;
 }
@@ -118,6 +121,12 @@ JetInputProviderFEX::handle(const Incident& incident) {
    hjTauIsolationEta->SetXTitle("#eta#times40");
    hjTauIsolationEta->SetYTitle("Isolation [100 MeV]");
 
+   auto h_jxe_Pt = std::make_unique<TH1I>( "jXEPt", "jXE TOB Pt", 100, 0, 2000);
+   h_jxe_Pt->SetXTitle("p_{T} [GeV]");
+
+   auto h_jxe_Phi = std::make_unique<TH1I>( "jXEPhi", "jXE TOB Phi", 32, -3.2, 3.2);
+   h_jxe_Phi->SetXTitle("#phi");
+
    if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProviderFEX.");
    }
@@ -142,6 +151,19 @@ JetInputProviderFEX::handle(const Incident& incident) {
    }
    else{
      ATH_MSG_WARNING("Could not register jTauTOB Eta/Isolation histogram from JetProviderFEX");
+   }
+
+   if (m_histSvc->regShared( histPath + "jXEPt", std::move(h_jxe_Pt), m_h_jxe_Pt ).isSuccess()){
+     ATH_MSG_DEBUG("jXEPt histogram has been registered successfully for JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jXEPt histogram for JetProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "jXEPhi", std::move(h_jxe_Phi), m_h_jxe_Phi ).isSuccess()){
+     ATH_MSG_DEBUG("jXEPhi histogram has been registered successfully for JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jXEPhi histogram for JetProviderFEX");
    }
 
 }
@@ -289,9 +311,61 @@ JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
+JetInputProviderFEX::filljXE(TCS::TopoInputEvent& inputEvent) const {
+  
+  if (m_jMet_EDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex XE input disabled, skip filling");
+    return StatusCode::SUCCESS;
+  }
+
+  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
+  ATH_CHECK(jMet_EDM.isValid());
+  // The jFEX MET container has 12 elements, 2 TOBs per jFEX module, so a total of 12. 
+  // According to the documentation https://gitlab.cern.ch/l1calo-run3-simulation/documentation/Run3L1CaloOfflineSWReqs/-/blob/master/l1caloreqs.pdf
+  // we want to do a vector sum of Etx/y for the FPGA 0 and FPGA 3.  
+  int global_et_x =0;
+  int global_et_y =0;
+
+  for(const auto it : *jMet_EDM){
+    const xAOD::jFexMETRoI *jFEXMet = it;
+    // Get the MET components and convert to 100 MeV units
+    int et_x = jFEXMet->tobEx()*2;
+    int et_y = jFEXMet->tobEy()*2;
+    int jFexNumber = jFEXMet->jFexNumber();
+    int fpgaNumber = jFEXMet->fpgaNumber();  
+
+    if( fpgaNumber==0 || fpgaNumber==2)
+      {
+	global_et_x+=et_x;
+	global_et_y+=et_y;
+      }
+
+    ATH_MSG_DEBUG("jFEX Met Ex = " << et_x << ", Ey = " << et_y <<", jFexNumber="<<jFexNumber<<", fpgaNumber="<<fpgaNumber);
+  }
+
+  ATH_MSG_DEBUG("Global MET candidate Ex = " << global_et_x << ", Ey = " <<global_et_y);
+  unsigned int et2 = global_et_x*global_et_x + global_et_y*global_et_y;
+  unsigned int et =  std::sqrt( et2 );
+
+  TCS::jXETOB jxe( -(global_et_x), -(global_et_y), et );
+
+  jxe.setExDouble( static_cast<double>(-global_et_x/10.) );
+  jxe.setEyDouble( static_cast<double>(-global_et_y/10.) );
+  jxe.setEtDouble( static_cast<double>(et/10.) );
+  jxe.setEt2( et2 );
+
+  inputEvent.setjXE( jxe );
+  m_h_jxe_Pt->Fill(jxe.EtDouble());
+  m_h_jxe_Phi->Fill( atan2(jxe.Ey(),jxe.Ex()) );
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
 JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   ATH_CHECK(fillTau(inputEvent));
   ATH_CHECK(fillSRJet(inputEvent));
   ATH_CHECK(fillLRJet(inputEvent));
+  ATH_CHECK(filljXE(inputEvent));
   return StatusCode::SUCCESS;
 }
