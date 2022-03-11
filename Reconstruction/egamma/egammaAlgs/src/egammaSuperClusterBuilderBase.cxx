@@ -420,20 +420,37 @@ egammaSuperClusterBuilderBase::createNewCluster(
     newCluster->setPhi0(cp0.phiEC);
   }
 
+  ATH_MSG_VERBOSE("Cluster, seed eta = " << newCluster->eta0()
+		  << " phi = " << newCluster->phi0()
+		  << " size of vec = " << acSize);
+
   // Actually fill the cluster here
   if (fillClusterConstrained(*newCluster, clusters, cp0).isFailure()) {
     newClusters->pop_back();
     return false;
   }
   // Apply SW-style summation of TileGap3 cells (if necessary).
-  if (addTileGap3CellsinWindow(*newCluster, mgr).isFailure()) {
-    ATH_MSG_ERROR(
-      "Problem with the input cluster when running AddTileGap3CellsinWindow?");
-    newClusters->pop_back();
-    return false;
+  float eta0 = std::abs(newCluster->eta0());
+  // In Run2, we did not impose restriction to include TG3 cells at this level.
+  // It should have been [1.37,1.63]. It has no impact on performance as TG3 was
+  // only used in energy calibration BDT in [1.4,1.6].
+  // In Run three we restrict to [1.37,1.75]
+  if (!m_useExtendedTG3 ||
+      (eta0 > s_ClEtaMinForTG3cell && eta0 < s_ClEtaMaxForTG3cell)) {
+    if (addTileGap3CellsinWindow(*newCluster, mgr).isFailure()) {
+      ATH_MSG_ERROR(
+		    "Problem with the input cluster when running AddTileGap3CellsinWindow?");
+      newClusters->pop_back();
+      return false;
+    }
   }
   /// Calculate the kinematics of the new cluster, after all cells are added
   CaloClusterKineHelper::calculateKine(newCluster, true, true);
+
+  ATH_MSG_VERBOSE("energy in TG3 " << newCluster->eSample(CaloSampling::TileGap3)
+		  << " uncal E = " << newCluster->e()
+		  << " raw " << newCluster->rawE()
+		  << " alt " << newCluster->altE());
 
   // If adding all EM cells we are somehow below the seed threshold then remove
   if (newCluster->et() < m_EtThresholdCut) {
@@ -463,6 +480,10 @@ egammaSuperClusterBuilderBase::createNewCluster(
     newClusters->pop_back();
     return false;
   }
+
+  ATH_MSG_VERBOSE("Good supercluster, cal E = " << newCluster->e()
+		  << " raw " << newCluster->rawE()
+		  << " alt " << newCluster->altE());
 
   if (m_linkToConstituents) {
     // EDM vector to constituent clusters
@@ -590,7 +611,7 @@ egammaSuperClusterBuilderBase::fillClusterConstrained(
   if (tofill.size() == 0) {
     return StatusCode::FAILURE;
   }
-  // Now calculate the cluster size in 2nd layes
+  // Now calculate the cluster size in 2nd layer
   // use that for constraining the L0/L1 cells we add
   const PhiSize phiSize = findPhiSize(cp0, tofill);
   const float phiPlusB = cp0.phiB + phiSize.plusB + m_extraL0L1PhiSize;
@@ -671,7 +692,7 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
   const CaloDetDescrManager& mgr) const
 {
 
-  constexpr double searchWindowEta = 0.2;
+  double searchWindowEta = m_useExtendedTG3 ? 0.35 : 0.2;
   constexpr double searchWindowPhi = 2 * M_PI / 64.0 + M_PI / 64; // ~ 0.15 rad
   std::vector<const CaloCell*> cells;
   cells.reserve(16);
@@ -688,6 +709,7 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
   const std::vector<CaloSampling::CaloSample> samples = {
     CaloSampling::TileGap3
   };
+
   for (auto samp : samples) {
     // quite slow
     myList.select(
@@ -704,10 +726,27 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
       continue;
     }
 
-    if ((CaloCell_ID::TileGap3 == dde->getSampling()) &&
-        (std::abs(dde->eta_raw()) > 1.4 && std::abs(dde->eta_raw()) < 1.6)) {
+    float maxEta = s_TG3Run2E4cellEtaMax;
+    float minEta = s_TG3Run2E4cellEtaMin;
+    if (m_useExtendedTG3) {
+      minEta = s_TG3Run3E3cellEtaMin;
+      // if |eta2| < 1.56, keep only E3, else keep E3+E4.
+      // |eta2| uses as the eta of the highest energy cell in layer 2 as proxy
+      if (std::abs(tofill.eta0()) > 1.56) {
+	maxEta = s_TG3Run3E4cellEtaMax;
+      }
+    }
+    float cellaEtaRaw = std::abs(dde->eta_raw());
+    if (cellaEtaRaw >= minEta && cellaEtaRaw <= maxEta) {
       int index = inputcells->findIndex(dde->calo_hash());
       tofill.addCell(index, 1.);
+      ATH_MSG_VERBOSE("Adding a TG3 cell " << cell
+		      << " sampling (check) " << dde->getSampling()
+		      << " raw eta = " << dde->eta_raw()
+		      << " raw phi = " << dde->phi_raw()
+		      << " energy = " << cell->e()
+		      << " to cluster with seed eta = " << tofill.eta0()
+		      << " phi = " << tofill.phi0());
     }
   }
   return StatusCode::SUCCESS;

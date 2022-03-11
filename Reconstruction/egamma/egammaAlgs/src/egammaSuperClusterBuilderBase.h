@@ -137,6 +137,12 @@ protected:
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;
   static constexpr float s_cellPhiSize = M_PI / 128.;
+  static constexpr float s_TG3Run3E4cellEtaMax = 1.72;
+  static constexpr float s_TG3Run3E3cellEtaMin = 1.2;
+  static constexpr float s_TG3Run2E4cellEtaMax = 1.6;
+  static constexpr float s_TG3Run2E4cellEtaMin = 1.4;
+  static constexpr float s_ClEtaMinForTG3cell = s_TG3Run2E4cellEtaMin-0.03; //Yes, Run2 here
+  static constexpr float s_ClEtaMaxForTG3cell = s_TG3Run3E4cellEtaMax+0.03;
 
   /** @brief Seed selection requirements */
   Gaudi::Property<float> m_EtThresholdCut{
@@ -246,12 +252,20 @@ private:
   // Extra opening in eta for L3 cells
   float m_extraL3EtaSize;
 
-  /** @brief Size of topocluster search window in eta for the barrel */
+  /** @brief Decorate the supercluster with links to the component topoclusters */
   Gaudi::Property<bool> m_linkToConstituents{
     this,
     "LinkToConstituents",
     true,
     "Link sister clusters to new cluster"
+  };
+
+  /** @brief Use extended TG3 definition (only after Run 2) */
+  Gaudi::Property<bool> m_useExtendedTG3{
+    this,
+    "UseExtendedTG3",
+    false,
+    "Extend TG3 definition from |eta| = 1.2 to |eta| = 1.72"
   };
 
   /** @brief Size of topocluster search window in eta for the barrel */
