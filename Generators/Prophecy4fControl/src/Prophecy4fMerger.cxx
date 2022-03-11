@@ -129,10 +129,7 @@ int Prophecy4fMerger::rescms(double *p, double *p1, double *p2, double m1, doubl
     static double m;
     static int il;
     static double mo1, mo2, po1[5], po2[5], pcm, pcmo;
-    //extern int alulob(double *, double *, double *);
-    //extern double alupcm(double , double , double );
-    //extern int alulof(double *, double *, double *);
-  
+      
     m = p[4];
     mo1 = p1[4];
     mo2 = p2[4];
@@ -246,27 +243,24 @@ void Prophecy4fMerger::merge(){
 	 
         if (decayModeType == 0){
             //4e
-            // std::cout << decayModeType << " 4e " << std::endl;
-            read4f = &read4e;
+                        read4f = &read4e;
             for(int i = 0; i < 4; i++) ID_l[i] = m_electronID;
         }
         else if (decayModeType == 1 || decayModeType == 2){
             //2e2mu
-            // std::cout << decayModeType << " 2e2mu " << std::endl;
-            read4f = &read2e2mu;
+                        read4f = &read2e2mu;
             for(int i = 0; i < 2; i++) ID_l[i] = m_electronID;
             for(int i = 2; i < 4; i++) ID_l[i] = m_muonID;
         }
         else {
             //4mu
-            // std::cout << decayModeType << " 4mu " << std::endl;
-            read4f = &read4mu;
+                        read4f = &read4mu;
             for(int i = 0; i < 4; i++) ID_l[i] = m_muonID;
         }
     
         if( !read4f->readEvent() ){
-            std::cout << "Still Powheg events but no more Prophecy4f"
-                      << "events! Writing out LHE file ... Events processed so far " << neve << std::endl;
+            ATH_MSG_INFO("Still Powheg events but no more Prophecy4f ");
+            ATH_MSG_INFO("events! Writing out LHE file ... Events processed so far " + neve );
             break;
         }
     
@@ -275,7 +269,7 @@ void Prophecy4fMerger::merge(){
             print("Events processed so far ",neve);
         }
         if( readH.outsideBlock.length() )
-            std::cout << readH.outsideBlock;
+            ATH_MSG_INFO( readH.outsideBlock );
     
         int nup_org=readH.hepeup.NUP;
 
@@ -410,27 +404,23 @@ void Prophecy4fMerger::merge(){
                 doDebug = true;
                 if (doDebug) {
 
-                    
-                    std::cout << "Event: " << neve << std::endl;
-                    std::cout << "Higgs and children, m, pt, eta, phi " << std::endl;
-                    std::cout << "Higgs   " << higgs.M() << ", " << higgs.Pt() << ", " << higgs.Eta() << ", " << higgs.Phi() << std::endl;
+                    ATH_MSG_DEBUG("Event: " + neve);
+                    ATH_MSG_DEBUG(" Higgs and children, m, pt, eta, phi" );
+                    ATH_MSG_DEBUG("Higgs " + higgs.M() + ", " + higgs.Pt() + "," + higgs.Eta() + "," + higgs.Phi());
 
                     
                     TLorentzVector higgsFromChildren;
                     for(int d =0; d < read4f->hepeup.NUP; d++){
-                        // TLorentzVector child( daughter2[d][0],
-                        //                       daughter2[d][1],
-                        //                       daughter2[d][2],
-                        //                       daughter2[d][3] );
                         TLorentzVector child;
                         child.SetXYZM( daughter2[d][0],
                                        daughter2[d][1],
                                        daughter2[d][2],
                                        daughter2[d][4] );
-                        std::cout << "child " << d << " " << child.M() << ", " << child.Pt() << ", " << child.Eta() << ", " << child.Phi() << std::endl;
+
+                        ATH_MSG_DEBUG("child " + d + " " + child.M() + ", " + child.Pt() + ", " + child.Eta() + ", " + child.Phi());
                         higgsFromChildren += child;
                     }
-                    std::cout << "Higgs mass " << higgs.M() << ", from children " << higgsFromChildren.M() << ", diff " << higgs.M() - higgsFromChildren.M() << std::endl;
+                    ATH_MSG_DEBUG("Higgs mass " + higgs.M() + ", from children " + higgsFromChildren.M() + ", diff " + higgs.M() - higgsFromChildren.M());
                 }
                 break;
             }
@@ -476,16 +466,12 @@ void Prophecy4fMerger::merge(){
         // set powheg weights to negative, if prophecy weight is -1
 
         // Get Prophecy4f weight
-        // std::cout << "XWGTUP " << read4f->hepeup.XWGTUP << std::endl;
-        // std::cout << "XWGTUP out bef " << writeLHE.hepeup.XWGTUP << std::endl;
-        writeLHE.hepeup.XWGTUP *= read4f->hepeup.XWGTUP;
-        // std::cout << "XWGTUP out aft " << writeLHE.hepeup.XWGTUP << std::endl;
-        double prophecyWeight = read4f->hepeup.XWGTUP;
+            writeLHE.hepeup.XWGTUP *= read4f->hepeup.XWGTUP;
+            double prophecyWeight = read4f->hepeup.XWGTUP;
         if ( writeLHE.hepeup.weights.size() > 0 ) {
             for ( int i = 1, N = writeLHE.hepeup.weights.size(); i < N; ++i ) {
-                // std::cout << "iw weight bef " << writeLHE.hepeup.weights[i].first << std::endl;
                 writeLHE.hepeup.weights[i].first *= prophecyWeight;
-                // std::cout << "iw weight aft " << writeLHE.hepeup.weights[i].first << std::endl;
+    
             }
         }
         
@@ -498,8 +484,7 @@ bool Prophecy4fMerger::isPHevent(TLorentzVector higgs,
                                  TLorentzVector sum_daugh_rest_init){
 
     if( std::abs(higgs.M()-sum_daugh_rest_init.M())>m_deltaM ){
-        std::cout << "POWHEG event with Higgs off-mass shell: "
-                  << higgs.M() << " GeV" <<std::endl;
+        ATH_MSG_INFO("POWHEG event with Higgs off-mass shell: " + higgs.M() + " GeV");
         return true;
     }
     return false;
@@ -544,7 +529,7 @@ bool Prophecy4fMerger::fileExists(const std::string& filename){
 
 void Prophecy4fMerger::print(const std::string& field){
     if(m_debug){
-        std::cout<<"DEBUG:: "+field<<std::endl;
+        ATH_MSG_DEBUG(field);
     }
 }
 
@@ -552,7 +537,7 @@ void Prophecy4fMerger::print(const std::string& field,
                              int value){
 
     if(m_debug){
-        std::cout<<"DEBUG:: "<<value<<" "+field<<std::endl;
+        ATH_MSG_DEBUG("DEBUG:: " +value +" "+field);
     }
   
 }
