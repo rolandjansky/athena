@@ -29,8 +29,4 @@ def CTPSimulationCfg(flags):
                                             DoCalo = flags.Trigger.enableL1CaloLegacy,
                                             DoMuon = False)   # not needed for L1MuonPhase1
         acc.addEventAlgo(roib)
-
-
-    from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
-    acc.merge(TriggerHistSvcConfig(flags))
     return acc
