@@ -1,5 +1,5 @@
-#include "TGC_CondCabling/TGCCablingDbTool.h"
-#include "TGC_CondCabling/TGCTriggerDbTool.h"
+#include "../TGCCablingDbTool.h"
+#include "../TGCTriggerDbTool.h"
 
 DECLARE_COMPONENT( TGCCablingDbTool )
 DECLARE_COMPONENT( TGCTriggerDbTool )

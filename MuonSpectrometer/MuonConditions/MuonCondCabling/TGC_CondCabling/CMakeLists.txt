@@ -1,6 +1,4 @@
-################################################################################
-# Package: TGC_CondCabling
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TGC_CondCabling )
@@ -16,5 +14,4 @@ atlas_add_component( TGC_CondCabling
                      LINK_LIBRARIES ${COOL_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface AthenaPoolUtilities PathResolver)
 
 # Install files from the package:
-atlas_install_headers( TGC_CondCabling )
 atlas_install_runtime( share/*.db )
