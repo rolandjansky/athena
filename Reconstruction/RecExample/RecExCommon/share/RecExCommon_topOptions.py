@@ -1066,9 +1066,7 @@ if rec.doDPD():
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
             CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
-            from PyUtils.MetaReaderPeeker import convert_metadata_items
-            #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(convert_metadata_items(layout='#join'))
+            #Explicitly add file metadata from the transient store
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass
