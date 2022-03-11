@@ -11,19 +11,35 @@ def LArPedestalAutoCorrCfg(flags):
     #Calibration runs are taken in fixed gain. 
     #The SG key of the digit-container is name of the gain
     gainStrMap={0:"HIGH",1:"MEDIUM",2:"LOW"}
-    digKey=gainStrMap[flags.LArCalib.Gain]
 
-    result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccDigitKey=digKey,
+    if not flags.LArCalib.isSC:
+       digKey=gainStrMap[flags.LArCalib.Gain]
+       result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccDigitKey=digKey,
                                                               LArFebHeaderKey="LArFebHeader",
-                                                              FailOnCorruption=False))
+                                                              FailOnCorruption=False,
+                                                              SubCaloPreselection=flags.LArCalib.Input.SubDet,
+                                                              PosNegPreselection=flags.LArCalib.Preselection.Side,
+                                                              BEPreselection=flags.LArCalib.Preselection.BEC,
+                                                              FTNumPreselection=flags.LArCalib.Preselection.FT))
 
-    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-    result.merge(LArFebErrorSummaryMakerCfg(flags))
-    result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
-    result.addEventAlgo(CompFactory.LArBadEventCatcher(CheckAccCalibDigitCont=True,
+       from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+       result.merge(LArFebErrorSummaryMakerCfg(flags))
+       result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
+       result.addEventAlgo(CompFactory.LArBadEventCatcher(CheckAccCalibDigitCont=True,
                                                        CheckBSErrors=True,
                                                        KeyList=[digKey,],
                                                        StopOnError=False))
+
+    else:   
+       digKey="SC"
+       theLArLATOMEDecoder = CompFactory.LArLATOMEDecoder("LArLATOMEDecoder",DumpFile = '',RawDataFile = '')
+       result.addEventAlgo(CompFactory.LArRawSCDataReadingAlg(adcCollKey = digKey, adcBasCollKey = "", etCollKey = "",
+                                                               etIdCollKey = "", LATOMEDecoder = theLArLATOMEDecoder))
+
+    if flags.LArCalib.Input.isRawData:
+       result.addEventAlgo(CompFactory.LArDigitsAccumulator("LArDigitsAccumulator", KeyList = [digKey], 
+                                                             LArAccuDigitContainerName = "", NTriggersPerStep = 100,
+                                                             isSC = flags.LArCalib.isSC, DropPercentTrig = 20))
 
     LArPedACBuilder=CompFactory.LArPedestalAutoCorrBuilder()
     LArPedACBuilder.KeyList         = [digKey,]
@@ -35,14 +51,21 @@ def LArPedestalAutoCorrCfg(flags):
 
     #ROOT ntuple writing:
     rootfile=flags.LArCalib.Output.ROOTFile
+    if flags.LArCalib.isSC: 
+       bcKey = "LArBadChannelSC" 
+    else: 
+       bcKey = "LArBadChannel"
+
     if rootfile != "":
         result.addEventAlgo(CompFactory.LArPedestals2Ntuple(ContainerKey = "Pedestal",
-                                                            AddFEBTempInfo = False
+                                                            AddFEBTempInfo = False, isSC = flags.LArCalib.isSC,
+                                                            BadChanKey = bcKey
                                                         )
                         )
 
         result.addEventAlgo(CompFactory.LArAutoCorr2Ntuple(ContainerKey = "LArAutoCorr",
-                                                           AddFEBTempInfo  = False
+                                                           AddFEBTempInfo  = False, isSC = flags.LArCalib.isSC,
+                                                           BadChanKey = bcKey
                                                        )
                         )
 
@@ -102,6 +125,10 @@ def LArPedestalAutoCorrCfg(flags):
         thePedestalValidationAlg.PatchMissingFEBs=True
         thePedestalValidationAlg.CheckNumberOfCoolChannels=False
         thePedestalValidationAlg.UseCorrChannels=False #Corrections go into the regular data channels
+        if flags.LArCalib.isSC:
+           thePedestalValidationAlg.CablingKey = "LArOnOffIdMapSC"
+           thePedestalValidationAlg.CalibLineKey = "LArCalibIdMapSC" 
+           thePedestalValidationAlg.BadChanKey =  bcKey
         result.addEventAlgo(thePedestalValidationAlg)
 
         ## second instance of the validation tool to detect "bad" channel
@@ -119,6 +146,10 @@ def LArPedestalAutoCorrCfg(flags):
         theBadPedestal.CheckCompletness=False
         theBadPedestal.CheckNumberOfCoolChannels=False
         theBadPedestal.ListOfDevFEBs="Bad_pedFebs.txt"
+        if flags.LArCalib.isSC:
+           theBadPedestal.CablingKey = "LArOnOffIdMapSC"
+           theBadPedestal.CalibLineKey = "LArCalibIdMapSC" 
+           theBadPedestal.BadChanKey = bcKey 
         result.addEventAlgo(theBadPedestal)
 
 
@@ -136,6 +167,10 @@ def LArPedestalAutoCorrCfg(flags):
         theAutoCorrValidationAlg.PatchMissingFEBs=True
         theAutoCorrValidationAlg.CheckNumberOfCoolChannels=False
         theAutoCorrValidationAlg.UseCorrChannels=False #Corrections go into the regular data channels
+        if flags.LArCalib.isSC:
+           theAutoCorrValidationAlg.CablingKey = "LArOnOffIdMapSC"
+           theAutoCorrValidationAlg.CalibLineKey = "LArCalibIdMapSC" 
+           theAutoCorrValidationAlg.BadChanKey = bcKey 
         result.addEventAlgo(theAutoCorrValidationAlg)
       
         ## second instance of the validation tool to detect "bad" channel     
@@ -150,6 +185,10 @@ def LArPedestalAutoCorrCfg(flags):
         theBadAutoCorr.ListOfDevFEBs="Bad_ACFebs.txt"
         theBadAutoCorr.CheckCompletness=False
         theBadAutoCorr.CheckNumberOfCoolChannels=False
+        if flags.LArCalib.isSC:
+           theBadAutoCorr.CablingKey = "LArOnOffIdMapSC"
+           theBadAutoCorr.CalibLineKey = "LArCalibIdMapSC" 
+           theBadAutoCorr.BadChanKey = bcKey 
         result.addEventAlgo(theBadAutoCorr)
 
         result.getService("IOVDbSvc").DBInstance=""
@@ -177,13 +216,15 @@ if __name__ == "__main__":
 
     ConfigFlags.lock()
 
-    print ("Input files to be processed:")
+    from AthenaCommon import Logging
+    log = Logging.logging.getLogger( 'Athena' )
+    log.info("Input files to be processed:")
     for f in ConfigFlags.Input.Files:
-        print (f)
+        log.info(f)
 
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArPedestalAutoCorrCfg(ConfigFlags))
 
-    print("Start running...")
+    log.info("Start running...")
 
     cfg.run()
