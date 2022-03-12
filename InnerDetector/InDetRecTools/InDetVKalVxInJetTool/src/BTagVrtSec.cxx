@@ -592,7 +592,7 @@ namespace InDet{
              Dist2D=tmpVrt.fitVertex.perp(); 
              if(Dist2D    > 180. )             continue;  // can't be from B decay
              double vrErr  = vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix);
-             if(m_useWrongRadErrorCut){
+             if(m_useFrozenVersion){
                if(vrErr>1.5&&getVrtScore(i,j,trkScore) < 4.*m_cutBVrtScore) continue;
              }
 //---------------
