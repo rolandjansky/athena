@@ -23,7 +23,7 @@ theFastHitConv=FastHitConv("theFastHitConv")
 from AthenaCommon.DetFlags import DetFlags
 
 list = topSequence.getSequence()
-topSequence.insert(list.index('LArDigitMaker/digitmaker1'), theFastHitConv) # put FastHitConv right before
+topSequence.insert(list.index('LArHitEMapMaker/digitmaker1'), theFastHitConv) # put FastHitConv right before
                                                                             # CaloDigi in topSequence
 
 job.theFastHitConv.OutputLevel = ALL

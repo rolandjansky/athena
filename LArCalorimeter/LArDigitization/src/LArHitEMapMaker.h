@@ -11,11 +11,11 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class LArDigitMaker : public AthAlgorithm
+class LArHitEMapMaker : public AthAlgorithm
 {
  public:
 
-  LArDigitMaker(const std::string& name, ISvcLocator* pSvcLocator);
+  LArHitEMapMaker(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
