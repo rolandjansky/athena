@@ -16,7 +16,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkTrack/Track.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace Muon {
 
@@ -290,21 +289,20 @@ namespace Muon {
 	    bool is_second_equal = false;
 	    double phi1 = -999; //phi of the first hit used as seed
 	    double phi2 = -999; //phi of the second hit used as seed
-	    for (unsigned int s1 = 1; s1 < seeds_preOR.size(); ++s1) {
+	    for (unsigned int s1 = 0; s1 < seeds_preOR.size(); ++s1) {
 	      is_first_equal = false;
 	      is_second_equal = false;
 	      phi1 = seeds_preOR[s1].first.phi();
 	      phi2 = (seeds_preOR[s1].first+seeds_preOR[s1].second).phi();
 	      for (unsigned int s2 = 0; s2 < s1; ++s2) {
-		if ( std::abs( phi1 - seeds_preOR[s2].first.phi() ) < 0.05 ) is_first_equal = true;
-		if ( std::abs( phi2 - (seeds_preOR[s2].first+seeds_preOR[s2].second).phi() ) < 0.05 ) is_second_equal = true;
+		if ( std::abs( phi1 - seeds_preOR[s2].first.phi() ) < 0.001 ) is_first_equal = true;
+		if ( std::abs( phi2 - (seeds_preOR[s2].first+seeds_preOR[s2].second).phi() ) < 0.001 ) is_second_equal = true;
 	      }
 	      if (!(is_first_equal && is_second_equal)) seeds.emplace_back(seeds_preOR[s1]);
 	    }
 	    
             std::vector<const Muon::MuonClusterOnTrack*> phiHitsPrevious;
             for (unsigned int i = 0; i < seeds.size(); ++i) {
-
                 std::pair<Amg::Vector3D, Amg::Vector3D> seed3D;
                 std::unique_ptr<Trk::TrackParameters> startpar;
                 // calculate start parameters
@@ -341,7 +339,7 @@ namespace Muon {
                 std::vector<const Muon::MuonClusterOnTrack*> phiHits = getClustersOnSegment(orderedClusters, seed3D);
                 std::vector<const Muon::MuonClusterOnTrack*> etaHits = getClustersOnSegment(orderedEtaClusters, seed3D);
 		if (phiHits.size() < 2) {
-		  continue;
+                    continue;
                 }
                 // logic to reduce combinatorics
                 if (phiHits.size() == phiHitsPrevious.size()) {
@@ -359,7 +357,6 @@ namespace Muon {
 
                 // interleave the phi hits
                 std::vector<const Trk::MeasurementBase*> vec2;
-
 
                 /// here get the new corrected set of eta hits
                 std::vector<const Muon::MuonClusterOnTrack*> etaHitsCalibrated;
@@ -386,9 +383,9 @@ namespace Muon {
                         std::make_unique<Trk::PseudoMeasurementOnTrack>(Trk::LocalParameters(Trk::DefinedParameter(0, Trk::locX)), covVtx, perVtx);
                     vec2.push_back(pseudoVtx.get());
                 }
+
                 unsigned int iEta(0), iPhi(0);
                 ATH_MSG_VERBOSE("There are " << etaHitsCalibrated.size() << " & " << phiHits.size() << " eta and phi hits");
-
                 while (true) {
                     float phiZ(999999.), etaZ(999999.);
                     if (iPhi < phiHits.size()) phiZ = std::abs(phiHits[iPhi]->globalPosition().z());
@@ -1039,12 +1036,12 @@ namespace Muon {
       std::vector<Amg::Vector3D> phiStereo;
       
       /// loop on the clusters and look for the stereo                                                                                                       
-      for ( unsigned int iclu1 = 1; iclu1 <= clusters.size()-1; ++iclu1 ) {
+      for ( unsigned int iclu1 = 0; iclu1 < clusters.size(); ++iclu1 ) {
         Identifier id1 = clusters[iclu1]->identify();
         if ( !m_idHelperSvc->isMM(id1) ) continue;
         if ( !m_idHelperSvc->mmIdHelper().isStereo(id1) ) continue;
   	// get the intersections of the stereo clusters with the other layers of the same multilayer                                                       
-	for ( unsigned int iclu2 = 0; iclu2 < iclu1; ++iclu2 ) {
+	for ( unsigned int iclu2 = iclu1+1; iclu2 < clusters.size(); ++iclu2 ) {
   	  Identifier id2 = clusters[iclu2]->identify();
 	  if ( !m_idHelperSvc->isMM(id2) ) continue;
 	  if ( !m_idHelperSvc->mmIdHelper().isStereo(id2) ) continue; //remove this if you want to use eta+stereo or stereo+stereo. Now use only stereo+stereo
@@ -1074,6 +1071,7 @@ namespace Muon {
       }
   
       return phiStereo;
+
     }
   
 }  // namespace Muon
