@@ -32,7 +32,7 @@ def InDetVKalVxInHiPtJetFinderCfg(flags, name="InDetVKalVxInHiPtJetFinder", **my
     acc = ComponentAccumulator()
     
     myargs["VertexFitterTool"] = acc.popToolsAndMerge(TrkVKalVrtFitterCfg(flags))
-    myargs["TrackClassTool"]   = acc.popToolsAndMerge(CompFactory.InDet.InDetTrkInJetType(flags))
+    myargs["TrackClassTool"]   = acc.popToolsAndMerge(InDetTrkInJetTypeCfg(flags))
     myargs["CutSharedHits"]    = 0
     myargs["Sel2VrtChi2Cut"]   = 4.
     myargs["CutBVrtScore"]     = 0.002
