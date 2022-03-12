@@ -51,13 +51,13 @@ namespace TrigConf {
                               
    private:
 
-      void loadCTPFiles(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const;
+      void loadCTPFiles(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t schemaVersion) const;
 
-      void loadCTPSMX(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const;
+      void loadCTPSMX(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t schemaVersion) const;
 
-      void loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const;
+      void loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t schemaVersion) const;
 
-      void loadMUCTPI(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const;
+      void loadMUCTPI(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t schemaVersion) const;
 
       std::vector<uint32_t> loadDBFieldIntoVector(const coral::AttributeList& row, const std::string& field, size_t size) const;
 
