@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonStationIntersectCond/MdtIntersectGeoData.h"
+#include "MuonStationIntersectCond/MuonIntersectGeoData.h"
 
 #include <TString.h>  // for Form
 
@@ -10,14 +10,15 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace Muon{
-    MdtIntersectGeoData::MdtIntersectGeoData(const MuonGM::MuonDetectorManager* detMgr, const IMuonIdHelperSvc* idHelperSvc, const  MdtCondDbData* dbData):
+    
+    MuonIntersectGeoData::~MuonIntersectGeoData() = default;
+    MuonIntersectGeoData::MuonIntersectGeoData() = default;
+
+    MuonIntersectGeoData::MuonIntersectGeoData(MsgStream& log ,const MuonGM::MuonDetectorManager* detMgr, const IMuonIdHelperSvc* idHelperSvc, const  MdtCondDbData* dbData):
       m_idHelperSvc{idHelperSvc},
       m_dbData{dbData} {
-
-        MsgStream log(Athena::getMessageSvc(), "MdtIntersectGeoData");
         for (unsigned int n =0 ; n < m_geometry.size();++n){
           IdentifierHash id_hash{n};
           const MuonGM::MdtReadoutElement* mdt_ele = detMgr->getMdtReadoutElement(id_hash);
@@ -28,7 +29,7 @@ namespace Muon{
         }
     }
 
-   std::vector<const Muon::MdtIntersectGeometry*> MdtIntersectGeoData::getStationGeometry(const Identifier& id) const {
+   std::vector<const Muon::MdtIntersectGeometry*> MuonIntersectGeoData::getStationGeometry(const Identifier& id) const {
     // get ids of geometry associated with identifier
     std::vector<Identifier> chambers = binPlusneighbours(id);
 
@@ -41,7 +42,6 @@ namespace Muon{
             continue;
         }
         IdentifierHash id_hash{};
-
         m_idHelperSvc->mdtIdHelper().get_hash(chId, id_hash);
         if (m_geometry[id_hash]) stations.push_back(m_geometry[id_hash].get());
 
@@ -50,7 +50,7 @@ namespace Muon{
     return stations;
 }
 
-Muon::MuonStationIntersect MdtIntersectGeoData::tubesCrossedByTrack(const Identifier& id, const Amg::Vector3D& pos,
+Muon::MuonStationIntersect MuonIntersectGeoData::tubesCrossedByTrack(const Identifier& id, const Amg::Vector3D& pos,
                                                                     const Amg::Vector3D& dir) const {
     std::vector<const Muon::MdtIntersectGeometry*> stations = getStationGeometry(id);
 
@@ -64,12 +64,11 @@ Muon::MuonStationIntersect MdtIntersectGeoData::tubesCrossedByTrack(const Identi
                                                     intersect.tubeIntersects().end());
     }
 
-    Muon::MuonStationIntersect intersection;
-    intersection.setTubeIntersects(std::move(tubeIntersects));
+    Muon::MuonStationIntersect intersection{std::move(tubeIntersects)};
     return intersection;
 }
 
-std::vector<Identifier> MdtIntersectGeoData::binPlusneighbours(const Identifier& id) const {
+std::vector<Identifier> MuonIntersectGeoData::binPlusneighbours(const Identifier& id) const {
     std::vector<Identifier> chIds;
     int stName = m_idHelperSvc->mdtIdHelper().stationName(id);
     int stPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);

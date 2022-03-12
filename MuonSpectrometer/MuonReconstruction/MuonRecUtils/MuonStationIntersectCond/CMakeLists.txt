@@ -11,6 +11,6 @@ atlas_add_library( MuonStationIntersectCondLib
    PRIVATE_LINK_LIBRARIES GaudiKernel StoreGateLib GeoModelUtilities
    MuonReadoutGeometry TrkDriftCircleMath MuonCondData )
 
-#atlas_add_component( MuonStationIntersectCond
-#   src/components/*.cxx
-#   LINK_LIBRARIES MuonStationIntersectCondLib )
+atlas_add_component( MuonStationIntersectCond
+   src/components/*.cxx
+   LINK_LIBRARIES MuonStationIntersectCondLib MuonReadoutGeometry )

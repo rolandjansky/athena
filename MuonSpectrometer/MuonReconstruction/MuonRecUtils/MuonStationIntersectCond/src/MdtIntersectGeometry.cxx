@@ -14,7 +14,7 @@
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkDriftCircleMath/MdtId.h"
-
+ #include "TrkDriftCircleMath/MdtChamberGeometry.h"
 // maxNTubesPerLayer is included via MdtChamberGeometry.h -> DriftCircle.h
 
 namespace Muon {
@@ -198,7 +198,7 @@ namespace Muon {
         // finally if the first ml is dead, configure the MdtChamberGeometry accordingly
         if (!goodMl0 && goodMl1) m_mdtGeometry->isSecondMultiLayer(true);
     }
-
+     const TrkDriftCircleMath::MdtChamberGeometry* MdtIntersectGeometry::mdtChamberGeometry() const { return m_mdtGeometry.get(); }
     void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream& msg) {
         if ((mydetEl->getStationName()).find("BMG") != std::string::npos) {
             PVConstLink cv = mydetEl->getMaterialGeom();  // it is "Multilayer"

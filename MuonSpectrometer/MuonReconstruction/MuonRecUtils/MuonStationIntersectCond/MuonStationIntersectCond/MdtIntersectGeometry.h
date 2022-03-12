@@ -8,7 +8,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
 #include "MuonStationIntersectCond/MuonIntersectGeometry.h"
-#include "TrkDriftCircleMath/MdtChamberGeometry.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 class MsgStream;
 namespace MuonGM {
@@ -21,8 +20,12 @@ class MdtCondDbData;
 namespace TrkDriftCircleMath {
     class MdtChamberGeometry;
 }
+namespace TrkDriftCircleMath {
+  class MdtChamberGeometry;
+}
 
 namespace Muon {  
+    
     class MdtIntersectGeometry : public MuonIntersectGeometry {
    
     public:
@@ -41,8 +44,7 @@ namespace Muon {
 
         const Amg::Transform3D& transform() const { return m_transform; }
 
-        const TrkDriftCircleMath::MdtChamberGeometry* mdtChamberGeometry() const { return m_mdtGeometry.get(); }
-
+        const TrkDriftCircleMath::MdtChamberGeometry* mdtChamberGeometry() const;
         const Identifier& chamberId() const { return m_chid; }
 
     private:
