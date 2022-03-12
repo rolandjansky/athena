@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # PhysCommon.py
@@ -101,6 +101,10 @@ scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociat
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=DerivationFrameworkJob)
+
+# Add tau WP decoration
+from DerivationFrameworkTau.TauCommon import addTauWPDecoration
+addTauWPDecoration(Seq=DerivationFrameworkJob, evetoFixTag="v1")
 
 #====================================================================
 # FLAVOUR TAGGING   
