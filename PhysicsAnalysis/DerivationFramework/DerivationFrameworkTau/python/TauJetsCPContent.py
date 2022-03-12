@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 TauJetsCPContent = [
     "TauJets",
-    "TauJetsAux.pt.eta.phi.m.ptFinalCalib.etaFinalCalib.ptTauEnergyScale.etaTauEnergyScale.charge.isTauFlags.PanTau_DecayMode.NNDecayMode.RNNJetScore.RNNJetScoreSigTrans.RNNEleScore.RNNEleScoreSigTrans.tauTrackLinks.vertexLink.secondaryVertexLink.neutralPFOLinks.pi0PFOLinks.truthParticleLink.truthJetLink",
+    "TauJetsAux.pt.eta.phi.m.ptFinalCalib.etaFinalCalib.ptTauEnergyScale.etaTauEnergyScale.charge.isTauFlags.PanTau_DecayMode.NNDecayMode.RNNJetScore.RNNJetScoreSigTrans.RNNEleScore.RNNEleScoreSigTrans.RNNEleScoreSigTrans_v1.EleRNNLoose_v1.EleRNNMedium_v1.EleRNNTight_v1.tauTrackLinks.vertexLink.secondaryVertexLink.neutralPFOLinks.pi0PFOLinks.truthParticleLink.truthJetLink",
     "TauTracks",
     "TauTracksAux.pt.eta.phi.flagSet.trackLinks",
     "InDetTrackParticles",
