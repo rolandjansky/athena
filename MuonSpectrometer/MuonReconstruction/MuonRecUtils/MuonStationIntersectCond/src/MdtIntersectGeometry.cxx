@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
+#include "MuonStationIntersectCond/MdtIntersectGeometry.h"
 
 #include <TString.h>  // for Form
 
@@ -19,40 +19,19 @@
 
 namespace Muon {
 
-    MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr,
-                                               const MdtCondDbData* dbData, MsgStream* msg, const Muon::IMuonIdHelperSvc* idHelp) :
-        m_chid(chid), m_detMgr(detMgr), m_dbData(dbData), m_idHelperSvc(idHelp) {
+    MdtIntersectGeometry::MdtIntersectGeometry(MsgStream& msg, 
+                                              const Identifier& chid, 
+                                              const IMuonIdHelperSvc* idHelperSvc,
+                                              const MuonGM::MuonDetectorManager* detMgr, 
+                                              const MdtCondDbData* dbData) :
+        m_chid(chid), m_detMgr(detMgr), m_dbData(dbData), m_idHelperSvc(idHelperSvc){
         init(msg);
     }
 
-    MdtIntersectGeometry::MdtIntersectGeometry(const MdtIntersectGeometry& right) {
-        m_chid = right.m_chid;
-        m_transform = right.m_transform;
-        m_mdtGeometry = std::make_unique<TrkDriftCircleMath::MdtChamberGeometry>(*right.m_mdtGeometry);
-        m_detElMl0 = right.m_detElMl0;
-        m_detElMl1 = right.m_detElMl1;
-        m_detMgr = right.m_detMgr;
-        m_dbData = right.m_dbData;
-        m_idHelperSvc = right.m_idHelperSvc;
-    }
-
-    MdtIntersectGeometry& MdtIntersectGeometry::operator=(const MdtIntersectGeometry& right) {
-        if (this != &right) {
-            m_chid = right.m_chid;
-            m_transform = right.m_transform;
-            m_mdtGeometry = std::make_unique<TrkDriftCircleMath::MdtChamberGeometry>(*right.m_mdtGeometry);
-            m_detElMl0 = right.m_detElMl0;
-            m_detElMl1 = right.m_detElMl1;
-            m_detMgr = right.m_detMgr;
-            m_dbData = right.m_dbData;
-            m_idHelperSvc = right.m_idHelperSvc;
-        }
-        return *this;
-    }
 
     MdtIntersectGeometry::~MdtIntersectGeometry() = default;
 
-    const MuonStationIntersect MdtIntersectGeometry::intersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const {
+    MuonStationIntersect MdtIntersectGeometry::intersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const {
         MuonStationIntersect intersect;
         if (!m_mdtGeometry) {
             MsgStream log(Athena::getMessageSvc(), "MdtIntersectGeometry");
@@ -115,7 +94,7 @@ namespace Muon {
             return m_detElMl1->getActiveTubeLength(theLayer, theTube);
     }
 
-    void MdtIntersectGeometry::init(MsgStream* msg) {
+    void MdtIntersectGeometry::init(MsgStream& msg) {
         /* calculate chamber geometry
            it takes as input:
              distance between the first and second tube in the chamber within a layer along the tube layer (tube distance)
@@ -144,7 +123,7 @@ namespace Muon {
         m_detElMl1 = nullptr;
 
         if (!m_detElMl0) {
-            (*msg) << MSG::WARNING << "MdtIntersectGeometry::init() - failed to get readout element for ML0" << endmsg;
+            msg << MSG::WARNING << "MdtIntersectGeometry::init() - failed to get readout element for ML0" << endmsg;
             return;
         }
 
@@ -181,7 +160,7 @@ namespace Muon {
             firstIdml0 = firstIdml1;
             firstMlIndex = 2;
         } else if (!goodMl0 && !goodMl1) {
-            (*msg) << MSG::WARNING << "MdtIntersectGeometry::init() - neither multilayer is good" << endmsg;
+            msg << MSG::WARNING << "MdtIntersectGeometry::init() - neither multilayer is good" << endmsg;
             return;
         }
         m_transform = m_detElMl0->GlobalToAmdbLRSTransform();
@@ -220,7 +199,7 @@ namespace Muon {
         if (!goodMl0 && goodMl1) m_mdtGeometry->isSecondMultiLayer(true);
     }
 
-    void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream* msg) {
+    void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream& msg) {
         if ((mydetEl->getStationName()).find("BMG") != std::string::npos) {
             PVConstLink cv = mydetEl->getMaterialGeom();  // it is "Multilayer"
             int nGrandchildren = cv->getNChildVols();
@@ -252,11 +231,11 @@ namespace Muon {
                             Identifier deadTubeMLId = m_idHelperSvc->mdtIdHelper().multilayerID(deadTubeId);
                             m_deadTubes.push_back(deadTubeId);
                             m_deadTubesML.insert(deadTubeMLId);
-                            if (msg) {
-                                *msg << MSG::VERBOSE << " MdtIntersectGeometry: adding dead tube (" << tube << "), layer(" << layer
-                                     << "), phi(" << phi << "), eta(" << eta << "), name(" << name << ") and adding multilayerId("
-                                     << deadTubeMLId << ")." << std::endl;
-                            }
+                            if (msg.level() == MSG::VERBOSE)                          
+                                msg << MSG::VERBOSE << " MdtIntersectGeometry: adding dead tube (" << tube << "), layer(" << layer
+                                    << "), phi(" << phi << "), eta(" << eta << "), name(" << name << ") and adding multilayerId("
+                                    << deadTubeMLId << ")." << endmsg;
+                            
                         }
                     }
                 }

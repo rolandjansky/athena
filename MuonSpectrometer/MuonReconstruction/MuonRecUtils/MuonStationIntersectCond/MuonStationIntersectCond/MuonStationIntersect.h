@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSTATIONINTERSECT_H
 #define MUON_MUONSTATIONINTERSECT_H
 
-#include "MuonStationIntersectSvc/MuonTubeIntersect.h"
+#include "MuonStationIntersectCond/MuonTubeIntersect.h"
 
 namespace Muon {
-
+    
     class MuonStationIntersect {
     public:
-        typedef std::vector<MuonTubeIntersect> TubeIntersects;
+        using  TubeIntersects = std::vector<MuonTubeIntersect>;
 
     public:
-        MuonStationIntersect() {}
-        MuonStationIntersect(const TubeIntersects& intersects) : m_intersects(intersects) {}
+        MuonStationIntersect() = default;
+        MuonStationIntersect(TubeIntersects&& intersects) : m_intersects{std::move(intersects)} {}
 
         const TubeIntersects& tubeIntersects() const { return m_intersects; }
 
