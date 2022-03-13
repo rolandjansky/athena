@@ -86,7 +86,7 @@ class LArSCL1Getter ( Configured )  :
         # check if LArdigitization is run before. If yes, uses hit map from detector store produces from lardigitization
         from AthenaCommon.DetFlags import DetFlags
         if DetFlags.digitize.LAr_on():
-            mlog.info("Using hit map from LArDigitMaker algoritm")
+            mlog.info("Using hit map from LArHitEMapMaker algoritm")
         else:
             mlog.info("digitmaker1 not found in topSequence, using own map in LArSCL1Maker")
             return False
