@@ -15,7 +15,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MuonCondData/MdtCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
@@ -31,7 +30,6 @@
 #include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "TrkDriftCircleMath/Cluster.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "TrkDriftCircleMath/DCSLHitSelector.h"
@@ -40,7 +38,7 @@
 #include "TrkDriftCircleMath/MdtChamberGeometry.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkSurfaces/Surface.h"
-
+#include "MuonStationIntersectCond/MuonIntersectGeoData.h"
 namespace Trk {
     class RIO_OnTrack;
     class PlaneSurface;
@@ -379,7 +377,6 @@ namespace Muon {
             "Key of input MuonDetectorManager condition data",
         };
 
-        ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;  //<! pointer to hole search service
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
             this,
             "MuonIdHelperSvc",
@@ -438,39 +435,41 @@ namespace Muon {
             "",
         };
 
-        double m_sinAngleCut;                        //<! cut on the angle between the segment and the prediction
-        bool m_doGeometry;                           //<! use chamber geometry in segment finding
-        bool m_curvedErrorScaling;                   //<! rescale errors for low momenta
-        bool m_doSpacePoints;                        //<! use cluster space points for association
-        bool m_createCompetingROTsEta;               //<! create competing ROTs for the clusters
-        bool m_createCompetingROTsPhi;               //<! create competing ROTs for the clusters
-        bool m_refitParameters;                      //<! refit segment if there are sufficient phi hits and update the segment parameters
-        bool m_addUnassociatedPhiHits;               //<! if there are phi hits without associated eta hit add them to segment
-        bool m_strictRoadDirectionConsistencyCheck;  //<! check if direction of road is consistent with IP (default: true),
+        Gaudi::Property<double> m_sinAngleCut{this, "SinAngleCut", 0.2};                        //<! cut on the angle between the segment and the prediction
+        Gaudi::Property<bool> m_doGeometry{this, "DoGeometry", true};                           //<! use chamber geometry in segment finding
+        Gaudi::Property<bool> m_curvedErrorScaling{this, "CurvedErrorScaling", true};                   //<! rescale errors for low momenta
+        Gaudi::Property<bool> m_doSpacePoints{this, "UseTriggerSpacePoints", true};                        //<! use cluster space points for association
+        Gaudi::Property<bool> m_createCompetingROTsEta{this, "CreateCompetingROTsEta", true};               //<! create competing ROTs for the clusters
+        Gaudi::Property<bool> m_createCompetingROTsPhi{this, "CreateCompetingROTsPhi", true};               //<! create competing ROTs for the clusters
+        Gaudi::Property<bool> m_refitParameters{this, "RefitSegment", false};                      //<! refit segment if there are sufficient phi hits and update the segment parameters
+        Gaudi::Property<bool> m_addUnassociatedPhiHits{this, "AddUnassociatedPhiHits", false};               //<! if there are phi hits without associated eta hit add them to segment
+        Gaudi::Property<bool> m_strictRoadDirectionConsistencyCheck{this, "StrictRoadDirectionConsistencyCheck", true};  //<! check if direction of road is consistent with IP (default: true),
                                                      // should be off for cosmics
-        double m_maxAssociateClusterDistance;        //<! maximum distance for clusters to be associated to segment (default: 3000
+        Gaudi::Property<double> m_maxAssociateClusterDistance{this, "MaxAssociateClusterDistance", 3000.};        //<! maximum distance for clusters to be associated to segment (default: 3000
                                                      //(mm))
-        bool m_allMdtHoles;                          //<! add all mdt holes without bound checks
-        bool m_removeDeltas;                         //<! do not add delta electrons to MuonSegmentQuality::holes
-        bool m_reject1DTgcSpacePoints;               //<! remove 1D tgc space points
-        bool m_usePreciseError;
-        bool m_outputFittedT0;
-        double m_preciseErrorScale;
-        bool m_doTimeOutChecks;
-        bool m_recoverBadRpcCabling;
-        bool m_updatePhiUsingPhiHits;
-        bool m_assumePointingPhi;
-        bool m_redo2DFit;
+        Gaudi::Property<bool> m_allMdtHoles{this, "AllMdtHoles", false};                          //<! add all mdt holes without bound checks / flag to decide whether to apply bound checks during the hole search
+        Gaudi::Property<bool> m_removeDeltas{this, "RemoveDeltasFromSegmentQuality", true};                         //<! do not add delta electrons to MuonSegmentQuality::holes
+        Gaudi::Property<bool> m_reject1DTgcSpacePoints{this,"Reject1DTgcSpacePoints", true };               //<! remove 1D tgc space points / reject TGC eta hits that are not associated with a phi hit in the same gas gap
+        Gaudi::Property<bool> m_usePreciseError{this, "UsePreciseError", false};
+        Gaudi::Property<bool> m_outputFittedT0{this, "OutputFittedT0", false};
+        Gaudi::Property<double> m_preciseErrorScale{this, "PreciseErrorScale", 2.};
+        Gaudi::Property<bool> m_doTimeOutChecks{this, "UseTimeOutGard", false};
+        
+        Gaudi::Property<bool> m_recoverBadRpcCabling{this, "RecoverBadRpcCabling", false};
+        Gaudi::Property<bool> m_updatePhiUsingPhiHits{this, "UpdatePhiUsingPhiHits", false};
+        Gaudi::Property<bool> m_assumePointingPhi{this, "AssumePointingPhi", false };
+        Gaudi::Property<bool> m_redo2DFit{this, "Redo2DFit", true};
 
-        SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcKey;
-        SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcKey;
-        SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtKey;
-        SG::ReadCondHandleKey<MdtCondDbData> m_condKey{
-            this,
-            "MdtCondKey",
-            "MdtCondDbData",
-            "Key of MdtCondDbData",
-        };
+
+
+
+        SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcKey{this, "RpcPrepDataContainer", "RPC_Measurements"};
+        SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcKey{this, "TgcPrepDataContainer", "TGC_Measurements"};
+        SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtKey{this, "MdtPrepDataContainer", "MDT_DriftCircles"};
+        
+        SG::ReadCondHandleKey<Muon::MuonIntersectGeoData> m_chamberGeoKey{this, "ChamberGeoKey", "MuonStationIntersects", "Pointer to hole search service"};
+   
+        
     };
 
 }  // namespace Muon

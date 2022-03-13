@@ -21,8 +21,8 @@ namespace Muon{
       class IMuonIdHelperSvc;
       class MuonIntersectGeoData{
           public:
-          ~MuonIntersectGeoData() ;
-          MuonIntersectGeoData() ;
+          ~MuonIntersectGeoData();
+          MuonIntersectGeoData();
           MuonIntersectGeoData(MsgStream& msg, const MuonGM::MuonDetectorManager* detMgr, const IMuonIdHelperSvc* idHelperSvc, const  MdtCondDbData* cond_data);
 
           Muon::MuonStationIntersect tubesCrossedByTrack(const Identifier& id, const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
@@ -30,12 +30,13 @@ namespace Muon{
         /** @brief get geometry description of the given chamber + neighbouring chambers */
         std::vector<const MdtIntersectGeometry*> getStationGeometry(const Identifier& id) const;
 
-
+        const MuonGM::MuonDetectorManager* detMgr() const {return m_detMgr;}
         private:          
           std::vector<Identifier> binPlusneighbours(const Identifier& id) const;
 
           std::array<std::unique_ptr<MdtIntersectGeometry>, MuonGM::MuonDetectorManager::MdtRElMaxHash> m_geometry{};
           const IMuonIdHelperSvc* m_idHelperSvc{nullptr};
+          const MuonGM::MuonDetectorManager* m_detMgr{nullptr};
           const MdtCondDbData* m_dbData{nullptr};
 
       };

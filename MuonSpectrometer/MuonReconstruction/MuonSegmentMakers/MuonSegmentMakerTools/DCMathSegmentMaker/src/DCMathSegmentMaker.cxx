@@ -58,46 +58,14 @@ namespace {
 namespace Muon {
 
     DCMathSegmentMaker::DCMathSegmentMaker(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t, n, p),
-        m_intersectSvc("MuonStationIntersectSvc", name()),
-        m_rpcKey("RPC_Measurements"),
-        m_tgcKey("TGC_Measurements"),
-        m_mdtKey("MDT_DriftCircles") {
+        AthAlgTool(t, n, p)  {
         declareInterface<IMuonSegmentMaker>(this);
-        declareInterface<IMuonSegmentTriggerHitAssociator>(this);
-
-        declareProperty("MuonStationIntersectSvc", m_intersectSvc);
-        declareProperty("SinAngleCut", m_sinAngleCut = 0.2);
-        declareProperty("DoGeometry", m_doGeometry = true);
-        declareProperty("CurvedErrorScaling", m_curvedErrorScaling = true);
-        declareProperty("UseTriggerSpacePoints", m_doSpacePoints = true);
-        declareProperty("CreateCompetingROTsPhi", m_createCompetingROTsPhi = true);
-        declareProperty("CreateCompetingROTsEta", m_createCompetingROTsEta = true);
-        declareProperty("RefitSegment", m_refitParameters = false);
-        declareProperty("AddUnassociatedPhiHits", m_addUnassociatedPhiHits = false);
-        declareProperty("StrictRoadDirectionConsistencyCheck", m_strictRoadDirectionConsistencyCheck = true);
-        declareProperty("MaxAssociateClusterDistance", m_maxAssociateClusterDistance = 3000);
-        declareProperty("AllMdtHoles", m_allMdtHoles = false, "flag to decide whether to apply bound checks during the hole search");
-        declareProperty("RemoveDeltasFromSegmentQuality", m_removeDeltas = true, "flag to decide whether add deltas to SegmentSummary");
-        declareProperty("Reject1DTgcSpacePoints", m_reject1DTgcSpacePoints = true,
-                        "reject TGC eta hits that are not associated with a phi hit in the same gas gap");
-        declareProperty("UsePreciseError", m_usePreciseError = false);
-        declareProperty("PreciseErrorScale", m_preciseErrorScale = 2.);
-        declareProperty("OutputFittedT0", m_outputFittedT0 = false);
-        declareProperty("UseTimeOutGard", m_doTimeOutChecks = true);
-        declareProperty("RecoverBadRpcCabling", m_recoverBadRpcCabling = false);
-        declareProperty("UpdatePhiUsingPhiHits", m_updatePhiUsingPhiHits = false);
-        declareProperty("AssumePointingPhi", m_assumePointingPhi = false);
-        declareProperty("Redo2DFit", m_redo2DFit = true);
-        declareProperty("RpcPrepDataContainer", m_rpcKey);
-        declareProperty("TgcPrepDataContainer", m_tgcKey);
-        declareProperty("MdtPrepDataContainer", m_mdtKey);
+        declareInterface<IMuonSegmentTriggerHitAssociator>(this);       
     }
 
     StatusCode DCMathSegmentMaker::initialize() {
         // retrieve MuonDetectorManager
         ATH_CHECK(m_DetectorManagerKey.initialize());
-        ATH_CHECK(m_intersectSvc.retrieve());
         ATH_CHECK(m_mdtCreator.retrieve());
         ATH_CHECK(m_mdtCreatorT0.retrieve());
         ATH_CHECK(m_clusterCreator.retrieve());
@@ -119,9 +87,8 @@ namespace Muon {
         ATH_CHECK(m_rpcKey.initialize());
         ATH_CHECK(m_tgcKey.initialize());
         ATH_CHECK(m_mdtKey.initialize());
-
-        if (!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
-
+        ATH_CHECK(m_chamberGeoKey.initialize());
+       
         return StatusCode::SUCCESS;
     }
 
@@ -1432,7 +1399,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
 
         SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (MuonDetMgr == nullptr) { ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object"); }
+        if (!MuonDetMgr) { ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object"); }
 
         // get detEL for first ml (always there)
         const MuonGM::MdtReadoutElement* detEl1 =
@@ -2066,21 +2033,15 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
         Identifier chid, const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, bool hasMeasuredCoordinate, std::set<Identifier>& deltaVec,
         std::set<Identifier>& outoftimeVec, std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const {
         // calculate crossed tubes
-        const MdtCondDbData* dbData;
-        if (!m_condKey.empty()) {
-            SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
-            dbData = readHandle.cptr();
-        } else
-            dbData = nullptr;  // for online running
-
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-        const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (MuonDetMgr == nullptr) {
+        
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        SG::ReadCondHandle<Muon::MuonIntersectGeoData> InterSectSvc{m_chamberGeoKey, ctx};
+        if (!InterSectSvc.isValid()) {
             ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
             // return 0;
         }
-
-        const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, MuonDetMgr);
+        const MuonStationIntersect intersect = InterSectSvc->tubesCrossedByTrack(chid, gpos, gdir);
+        const MuonGM::MuonDetectorManager* MuonDetMgr = InterSectSvc->detMgr();
 
         // set to identify the hit on the segment
         std::set<Identifier> hitsOnSegment, chambersOnSegment;

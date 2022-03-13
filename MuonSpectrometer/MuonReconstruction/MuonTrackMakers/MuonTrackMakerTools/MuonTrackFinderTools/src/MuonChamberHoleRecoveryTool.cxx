@@ -66,8 +66,7 @@ namespace Muon {
         ATH_CHECK(m_clusRotCreator.retrieve());
         ATH_CHECK(m_mmClusRotCreator.retrieve());
         ATH_CHECK(m_pullCalculator.retrieve());
-        ATH_CHECK(m_intersectSvc.retrieve());
-
+      
         ATH_CHECK(m_key_mdt.initialize());
         /// Check that the layout has CSCs and that the key is actually set
         ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty() && m_idHelperSvc->recoCSC()));
@@ -77,8 +76,7 @@ namespace Muon {
         ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty() && m_idHelperSvc->recosTgc()));
         /// Check that the layout has micromegas and that the key is set
         ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty() && m_idHelperSvc->recoMM()));
-        ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
-
+        ATH_CHECK(m_chamberGeoKey.initialize());
         return StatusCode::SUCCESS;
     }
     std::unique_ptr<Trk::Track> MuonChamberHoleRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
@@ -848,7 +846,7 @@ namespace Muon {
 
         // check whether we need to average the parameters
         if (parsLast) direction = (parsLast->position() - pars.position()).unit();
-        std::set<Identifier> chHoles = holesInMdtChamber(pars.position(), direction, chId, ctx, ids);
+        std::set<Identifier> chHoles = holesInMdtChamber(ctx, pars.position(), direction, chId, ids);
         ATH_MSG_VERBOSE(" chamber " << m_idHelperSvc->toStringChamber(chId) << " has holes " << chHoles.size());
         if (chHoles.empty()) return;
 
@@ -1080,24 +1078,14 @@ namespace Muon {
         return holes;
     }
 
-    std::set<Identifier> MuonChamberHoleRecoveryTool::holesInMdtChamber(const Amg::Vector3D& position, const Amg::Vector3D& direction,
-                                                                        const Identifier& chId, const EventContext& ctx,
-                                                                        const std::set<Identifier>& tubeIds) const {
-        // calculate crossed tubes
-        const MdtCondDbData* dbData = nullptr;
-        if (!m_condKey.empty()) {
-            SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey, ctx};
-            dbData = readHandle.cptr();
+    std::set<Identifier> MuonChamberHoleRecoveryTool::holesInMdtChamber(const EventContext& ctx, const Amg::Vector3D& position, const Amg::Vector3D& direction,
+                                                                        const Identifier& chId, const std::set<Identifier>& tubeIds) const {
+        
+        SG::ReadCondHandle<Muon::MuonIntersectGeoData> interSectSvc{m_chamberGeoKey,ctx};
+        if (!interSectSvc.isValid())   {
+            ATH_MSG_ERROR("Failed to retrieve chamber intersection service");            
         }
-
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
-        const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (!MuonDetMgr) {
-            ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-            // return;
-        }
-
-        const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chId, position, direction, dbData, MuonDetMgr);
+        MuonStationIntersect intersect = interSectSvc->tubesCrossedByTrack(chId, position, direction);
 
         // clear hole vector
         std::set<Identifier> holes;
