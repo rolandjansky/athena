@@ -35,11 +35,19 @@ namespace Muon {
 
     private:
         std::vector<Identifier> binPlusneighbours(const Identifier& id) const;
+        int toArrayIdx(const Identifier& id) const;
 
-        std::array<std::unique_ptr<MdtIntersectGeometry>, MuonGM::MuonDetectorManager::MdtRElMaxHash> m_geometry{};
+        static constexpr int s_NumMaxMdtElements = MuonGM::MuonDetectorManager::NMdtStatType * MuonGM::MuonDetectorManager::NMdtStatEta *MuonGM::MuonDetectorManager:: NMdtStatPhi;
+        std::array<std::unique_ptr<MdtIntersectGeometry>, s_NumMaxMdtElements> m_geometry{};
         const IMuonIdHelperSvc* m_idHelperSvc{nullptr};
         const MuonGM::MuonDetectorManager* m_detMgr{nullptr};
         const MdtCondDbData* m_dbData{nullptr};
+
+        int m_mdt_EIS_stName{-1}; //49
+        int m_mdt_BIM_stName{-1}; //52
+        int m_mdt_BME_stName{-1}; //53
+        int m_mdt_BMG_stName{-1}; //54
+
     };
 }  // namespace Muon
 

@@ -15,17 +15,43 @@ namespace Muon {
 
     MuonIntersectGeoData::~MuonIntersectGeoData() = default;
     MuonIntersectGeoData::MuonIntersectGeoData() = default;
-
     MuonIntersectGeoData::MuonIntersectGeoData(MsgStream& log, const MuonGM::MuonDetectorManager* detMgr,
                                                const IMuonIdHelperSvc* idHelperSvc, const MdtCondDbData* dbData) :
         m_idHelperSvc{idHelperSvc}, m_detMgr{detMgr}, m_dbData{dbData} {
+        m_mdt_EIS_stName = m_idHelperSvc->mdtIdHelper().stationNameIndex("EIS");
+        m_mdt_BIM_stName = m_idHelperSvc->mdtIdHelper().stationNameIndex("BIM");
+        m_mdt_BME_stName = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME");
+        m_mdt_BMG_stName = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
+
         for (unsigned int n = 0; n < m_geometry.size(); ++n) {
             IdentifierHash id_hash{n};
             const MuonGM::MdtReadoutElement* mdt_ele = detMgr->getMdtReadoutElement(id_hash);
             // The Mdt intersectionGeometry relies on the first multi layer. We can skip the other layers
             if (!mdt_ele || mdt_ele->getMultilayer() != 1) continue;
-            m_geometry[n] = std::make_unique<Muon::MdtIntersectGeometry>(log, mdt_ele->identify(), idHelperSvc, detMgr, dbData);
+            const Identifier id = mdt_ele->identify();
+            m_geometry[toArrayIdx(id)] = std::make_unique<Muon::MdtIntersectGeometry>(log, id, idHelperSvc, detMgr, dbData);
+        }    
+    } 
+    int MuonIntersectGeoData::toArrayIdx(const Identifier& id) const {        
+        const int stName =  m_idHelperSvc->mdtIdHelper().stationName(id);
+        int stname_index = stName;
+       
+        if (stName == m_mdt_EIS_stName) {
+            stname_index = MuonGM::MuonDetectorManager::NMdtStatType - 4;
+        } else if (stName == m_mdt_BIM_stName) {
+            stname_index = MuonGM::MuonDetectorManager::NMdtStatType - 3;
+        } else if (stName == m_mdt_BME_stName) {
+            stname_index = MuonGM::MuonDetectorManager::NMdtStatType - 2;
+        } else if (stName == m_mdt_BMG_stName) {
+            stname_index = MuonGM::MuonDetectorManager::NMdtStatType - 1;
         }
+        const int steta_index =  m_idHelperSvc->mdtIdHelper().stationEta(id) + MuonGM::MuonDetectorManager::NMdtStEtaOffset;
+        const int stphi_index =  m_idHelperSvc->mdtIdHelper().stationPhi(id) - 1;
+
+        constexpr int C = MuonGM::MuonDetectorManager::NMdtStatPhi;
+        constexpr int BxC = MuonGM::MuonDetectorManager::NMdtStatEta * C;
+        const int arrayIdx = stname_index * BxC + steta_index * C + stphi_index;
+        return arrayIdx;
     }
 
     std::vector<const Muon::MdtIntersectGeometry*> MuonIntersectGeoData::getStationGeometry(const Identifier& id) const {
@@ -38,9 +64,8 @@ namespace Muon {
         // loop over bins, retrieve geometry
         for (const Identifier& chId : chambers) {
             if (m_dbData && !m_dbData->isGoodStation(chId)) { continue; }
-            IdentifierHash id_hash{};
-            m_idHelperSvc->mdtIdHelper().get_hash(chId, id_hash);
-            if (m_geometry[id_hash]) stations.push_back(m_geometry[id_hash].get());
+            const int id = toArrayIdx(chId);            
+            if (id < m_geometry.size () &&  m_geometry[id]) stations.push_back(m_geometry[id].get());
         }
         return stations;
     }
@@ -48,9 +73,6 @@ namespace Muon {
     Muon::MuonStationIntersect MuonIntersectGeoData::tubesCrossedByTrack(const Identifier& id, const Amg::Vector3D& pos,
                                                                          const Amg::Vector3D& dir) const {
         std::vector<const Muon::MdtIntersectGeometry*> stations = getStationGeometry(id);
-
-        // ATH_MSG_DEBUG(" Calculating intersections for chamber " << m_idHelperSvc->toString(id) << " accounting for " << stations.size()
-        //                                                         << " stations");
 
         Muon::MuonStationIntersect::TubeIntersects tubeIntersects;
         for (const Muon::MdtIntersectGeometry*& it : stations) {
