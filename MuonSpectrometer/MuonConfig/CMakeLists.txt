@@ -15,11 +15,7 @@ if( NOT SIMULATIONBASE )
      SCRIPT python -m MuonConfig.MdtRdoToPrepDataTool_test
      PROPERTIES TIMEOUT 600
      LOG_SELECT_PATTERN "dead tube" )
-
-   atlas_add_test( MdtIntersectGeometry_test
-     SCRIPT python -m MuonConfig.MdtIntersectGeometry_test
-     PROPERTIES TIMEOUT 600
-     LOG_SELECT_PATTERN "dead tube" )
+  
 
    # Configure unit tests
    # Cache alignment will change depending on whether FRONTIER_SERVER is defined.

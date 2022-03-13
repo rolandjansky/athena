@@ -22,7 +22,7 @@ from AthenaConfiguration.Enums import BeamType, Format
 
 #Local
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterToolCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonStationIntersectCondAlgCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterToolCfg
 from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
 from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
@@ -195,10 +195,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     
     # Now stuff that wasn't explicitly configured before.
     
-    acc = MuonStationIntersectSvcCfg(flags)
-    muon_station_intersect_svc = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("MuonStationIntersectSvc", muon_station_intersect_svc)
+    result.merge( MuonStationIntersectCondAlgCfg(flags))
 
     acc=MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtCreator", result.getPrimaryAndMerge(acc))
@@ -233,9 +230,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     result.merge(acc)
     
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    if flags.Common.isOnline:
-        kwargs.setdefault('MdtCondKey', '')
-
+  
     dc_segment_maker = CompFactory.Muon.DCMathSegmentMaker(**kwargs)
     result.setPrivateTools(dc_segment_maker)
     return result

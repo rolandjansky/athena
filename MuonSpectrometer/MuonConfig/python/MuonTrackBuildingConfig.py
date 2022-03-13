@@ -87,7 +87,6 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
 
 def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     Muon__MooTrackBuilder=CompFactory.Muon.MooTrackBuilder
-    Trk__STEP_Propagator=CompFactory.Trk.STEP_Propagator
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg, MuonTrackExtrapolationToolCfg
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -105,9 +104,9 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     result.merge(acc)
     
     # Just take the default configuration, as per https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecExampleConfigDb.py#L56
-    # FIXME - this should be updated once there is a proper CA implementation for the STEP_Propagator
-    prop = Trk__STEP_Propagator(name = 'MuonStraightLinePropagator')
-    result.addPublicTool(prop)
+    from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
+    prop = result.getPrimaryAndMerge(MuonSTEP_PropagatorCfg(flags,name = 'MuonStraightLinePropagator'))
+    
     
     acc = MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True)
     moo_sl_track_fitter = acc.getPrimary()
@@ -244,7 +243,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
     Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
     from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonStationIntersectSvcCfg, MuonTrackSummaryToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonStationIntersectCondAlgCfg, MuonTrackSummaryToolCfg
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L426
     
     result = MuonSeededSegmentFinderCfg(flags)
@@ -271,11 +270,8 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     result.merge(acc)
     kwargs.setdefault("Fitter", mctbslfitter)
     
-    acc = MuonStationIntersectSvcCfg(flags)
-    msis = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("MuonStationIntersectSvc",msis)
-
+    result.merge( MuonStationIntersectCondAlgCfg(flags))
+    
     # Not bothering to handle IDHelper or EDMHelper or HitSummaryTool. Default is okay.
     
     from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg, regSelTool_RPC_Cfg, regSelTool_TGC_Cfg
@@ -319,8 +315,6 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     acc = MuonTrackSummaryToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
     result.merge(acc)
-    if flags.Common.isOnline:
-        kwargs.setdefault("MdtCondKey", "")
         
     segment_region_recovery_tool = Muon__MuonSegmentRegionRecoveryTool(name, **kwargs)
     result.setPrivateTools(segment_region_recovery_tool)
@@ -380,9 +374,6 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
         kwargs.setdefault("MMPrepDataContainer","")
     
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
-    if flags.Common.isOnline:
-        kwargs.setdefault("MdtCondKey","")
-
     result.setPrivateTools(CompFactory.Muon.MuonChamberHoleRecoveryTool(name, **kwargs))
     return result
 

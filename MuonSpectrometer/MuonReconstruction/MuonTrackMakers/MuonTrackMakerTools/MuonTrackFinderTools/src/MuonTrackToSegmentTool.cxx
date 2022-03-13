@@ -28,6 +28,7 @@ namespace Muon {
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
         ATH_CHECK(m_printer.retrieve());
+        ATH_CHECK(m_chamberGeoKey.initialize());
         return StatusCode::SUCCESS;
     }
 

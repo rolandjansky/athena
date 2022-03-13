@@ -17,13 +17,9 @@ def MuonEDMPrinterToolCfg(flags, name="MuonEDMPrinterTool", **kwargs):
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
     #MDT conditions information not available online
-    if flags.Common.isOnline:
-        kwargs.setdefault("MdtCondKey","")
-    
-    result = MuonStationIntersectSvcCfg(flags)
-    msis = result.getPrimary()
-    kwargs.setdefault("MuonStationIntersectSvc",msis)
-    
+    result = ComponentAccumulator()
+    result.merge(MuonStationIntersectCondAlgCfg(flags))
+
     # FIXME - this should have a CA
     RkPropagator=CompFactory.Trk.RungeKuttaPropagator
     
@@ -214,12 +210,12 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     
     return result 
 
-def MuonStationIntersectSvcCfg(flags, name='MuonStationIntersectSvc',**kwargs):
-    MuonStationIntersectSvc=CompFactory.MuonStationIntersectSvc
+def MuonStationIntersectCondAlgCfg(flags, name='MuonStationIntersectCondAlg',**kwargs):
     # Has dependency IdHelperTool (which we ignore for now)
     result = ComponentAccumulator()
-    muon_station_intersect_svc = MuonStationIntersectSvc(name=name, **kwargs)
-    result.addService(muon_station_intersect_svc, primary=True)
+    if flags.Common.isOnline: kwargs.setdefault("MdtCondKey","")
+    muon_station_intersect_condalg = CompFactory.MuonStationIntersectCondAlg(name=name, **kwargs)
+    result.addCondAlgo(muon_station_intersect_condalg, primary=True)
     return result
 
 def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
