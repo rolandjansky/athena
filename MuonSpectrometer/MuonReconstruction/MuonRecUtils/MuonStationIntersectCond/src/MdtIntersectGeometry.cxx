@@ -13,21 +13,17 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TrkDriftCircleMath/MdtChamberGeometry.h"
 #include "TrkDriftCircleMath/MdtId.h"
- #include "TrkDriftCircleMath/MdtChamberGeometry.h"
 // maxNTubesPerLayer is included via MdtChamberGeometry.h -> DriftCircle.h
 
 namespace Muon {
 
-    MdtIntersectGeometry::MdtIntersectGeometry(MsgStream& msg, 
-                                              const Identifier& chid, 
-                                              const IMuonIdHelperSvc* idHelperSvc,
-                                              const MuonGM::MuonDetectorManager* detMgr, 
-                                              const MdtCondDbData* dbData) :
-        m_chid(chid), m_detMgr(detMgr), m_dbData(dbData), m_idHelperSvc(idHelperSvc){
+    MdtIntersectGeometry::MdtIntersectGeometry(MsgStream& msg, const Identifier& chid, const IMuonIdHelperSvc* idHelperSvc,
+                                               const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData) :
+        m_chid(chid), m_detMgr(detMgr), m_dbData(dbData), m_idHelperSvc(idHelperSvc) {
         init(msg);
     }
-
 
     MdtIntersectGeometry::~MdtIntersectGeometry() = default;
 
@@ -198,7 +194,7 @@ namespace Muon {
         // finally if the first ml is dead, configure the MdtChamberGeometry accordingly
         if (!goodMl0 && goodMl1) m_mdtGeometry->isSecondMultiLayer(true);
     }
-     const TrkDriftCircleMath::MdtChamberGeometry* MdtIntersectGeometry::mdtChamberGeometry() const { return m_mdtGeometry.get(); }
+    const TrkDriftCircleMath::MdtChamberGeometry* MdtIntersectGeometry::mdtChamberGeometry() const { return m_mdtGeometry.get(); }
     void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream& msg) {
         if ((mydetEl->getStationName()).find("BMG") != std::string::npos) {
             PVConstLink cv = mydetEl->getMaterialGeom();  // it is "Multilayer"
@@ -231,11 +227,10 @@ namespace Muon {
                             Identifier deadTubeMLId = m_idHelperSvc->mdtIdHelper().multilayerID(deadTubeId);
                             m_deadTubes.push_back(deadTubeId);
                             m_deadTubesML.insert(deadTubeMLId);
-                            if (msg.level() == MSG::VERBOSE)                          
+                            if (msg.level() == MSG::VERBOSE)
                                 msg << MSG::VERBOSE << " MdtIntersectGeometry: adding dead tube (" << tube << "), layer(" << layer
                                     << "), phi(" << phi << "), eta(" << eta << "), name(" << name << ") and adding multilayerId("
                                     << deadTubeMLId << ")." << endmsg;
-                            
                         }
                     }
                 }

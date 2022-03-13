@@ -8,10 +8,10 @@
 #include "MuonStationIntersectCond/MuonTubeIntersect.h"
 
 namespace Muon {
-    
+
     class MuonStationIntersect {
     public:
-        using  TubeIntersects = std::vector<MuonTubeIntersect>;
+        using TubeIntersects = std::vector<MuonTubeIntersect>;
 
     public:
         MuonStationIntersect() = default;

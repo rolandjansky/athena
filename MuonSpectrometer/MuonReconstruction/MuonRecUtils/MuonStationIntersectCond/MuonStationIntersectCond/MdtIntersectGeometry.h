@@ -7,8 +7,8 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
-#include "MuonStationIntersectCond/MuonIntersectGeometry.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonStationIntersectCond/MuonIntersectGeometry.h"
 class MsgStream;
 namespace MuonGM {
     class MuonDetectorManager;
@@ -21,23 +21,19 @@ namespace TrkDriftCircleMath {
     class MdtChamberGeometry;
 }
 namespace TrkDriftCircleMath {
-  class MdtChamberGeometry;
+    class MdtChamberGeometry;
 }
 
-namespace Muon {  
-    
+namespace Muon {
+
     class MdtIntersectGeometry : public MuonIntersectGeometry {
-   
     public:
-        MdtIntersectGeometry(MsgStream& msg, 
-                             const Identifier& chid, 
-                             const IMuonIdHelperSvc* idHelperSvc,
-                             const MuonGM::MuonDetectorManager* detMgr, 
-                             const MdtCondDbData* dbData);
+        MdtIntersectGeometry(MsgStream& msg, const Identifier& chid, const IMuonIdHelperSvc* idHelperSvc,
+                             const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData);
 
         MdtIntersectGeometry(const MdtIntersectGeometry& right) = delete;
         MdtIntersectGeometry& operator=(const MdtIntersectGeometry& right) = delete;
-       
+
         virtual ~MdtIntersectGeometry();
 
         MuonStationIntersect intersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const override;
