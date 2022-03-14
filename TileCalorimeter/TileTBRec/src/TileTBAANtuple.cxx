@@ -2126,7 +2126,6 @@ void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, flo
   if (ehit!=0) {
     thit /= ehit;
     // conversion factor from hit energy to final energy units 
-    Identifier pmt_id = cinp->pmt_ID();
     int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(fragId);
     ehit *= samplingFraction->getSamplingFraction(drawerIdx, channel);
     if (m_rchUnit != TileRawChannelUnit::MegaElectronVolts) {
