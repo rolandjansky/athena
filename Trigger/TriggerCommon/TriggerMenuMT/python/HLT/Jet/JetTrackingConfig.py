@@ -197,19 +197,18 @@ def jetTTVA( signature, jetseq, trkopt, config, verticesname=None, adaptiveVerte
     # *****************************
     # Jet track selection algorithm
     jettrackselalg = jrtcfg.getTrackSelAlg( trkopt )
-
-    # Track-vtx association. We create a TrackVertexAssocTool then call it through a
-    # JetAlgorithm which just calls its execute() method. In the future the plan is to
-    # convert this TrackVertexAssocTool in a simple alg just as for track selection.
-    jettvassoc       = jrtcfg.getTrackVertexAssocTool( trkopt, jetseq ,
-                                                       ttva_opts = { "WorkingPoint" : "Custom",
-                                                                     "d0_cut"       : 2.0, 
-                                                                     "dzSinTheta_cut" : 2.0, 
-                                                                     "doPVPriority": adaptiveVertex,
-                                                                    }
-                                                                 )    
-    jettrkprepalg       = CompFactory.JetAlgorithm("jetalg_TrackPrep"+trkopt,
-                                                   Tools = [  jettvassoc ])
+    
+    # *****************************
+    # Track-vtx association.
+    jettrkprepalg = jrtcfg.getJetTrackVtxAlg(trkopt, algname="jetalg_TrackPrep"+trkopt,
+                                             # # parameters for the CP::TrackVertexAssociationTool (or the TrackVertexAssociationTool.getTTVAToolForReco function) :
+                                             #WorkingPoint = "Nonprompt_All_MaxWeight", # this is the new default in offline (see also CHS configuration in StandardJetConstits.py)
+                                             WorkingPoint = "Custom",
+                                             d0_cut       = 2.0, 
+                                             dzSinTheta_cut = 2.0, 
+                                             doPVPriority = adaptiveVertex,
+                                             add2Seq = jetseq,
+                                             )
 
     # Pseudojets for ghost tracks
     pjgalg = CompFactory.PseudoJetAlgorithm(

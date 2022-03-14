@@ -54,5 +54,5 @@ StatusCode JetTrackSelectionAlg::execute(const EventContext& ctx) const {
   }
 
   ATH_CHECK(m_decorDeps.linkDecors (m_input, ctx));
-  return StatusCode::SUCCESS;  
+  return StatusCode::SUCCESS; 
 }

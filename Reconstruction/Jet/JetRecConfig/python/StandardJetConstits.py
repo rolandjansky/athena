@@ -99,6 +99,11 @@ _stdInputList = [
                      prereqs = ["input:InDetTrackParticles", "input:CaloCalTopoClusters"],
                      ),
 
+    JetInputExternal("GlobalParticleFlowObjects", xAODType.FlowElement,
+                     algoBuilder = inputcfg.buildPFlowSel,
+                     prereqs = ["input:JetETMissParticleFlowObjects", ],
+                     ),
+    
     # *****************************
     JetInputExternal("InDetTrackParticles",   xAODType.TrackParticle,
                      algoBuilder = standardReco("Tracks"),
@@ -125,7 +130,8 @@ _stdInputList = [
                      algoBuilder = inputcfg.buildJetTrackUsedInFitDeco
                      ),
     JetInputExternal("JetTrackVtxAssoc",      xAODType.TrackParticle,
-                     algoBuilder = inputcfg.buildJetTrackVertexAssoc,
+                     algoBuilder = lambda jdef,_ : jrtcfg.getJetTrackVtxAlg(jdef.context, WorkingPoint="Nonprompt_All_MaxWeight"),
+                     # previous default for ttva : WorkingPoint="Custom", d0_cut= 2.0, dzSinTheta_cut= 2.0 
                      prereqs = ["input:JetTrackUsedInFitDeco", inputsFromContext("Vertices") ]
                      ),
 
@@ -236,9 +242,13 @@ _stdSeqList = [
     # this could be incorporated into the naming scheme and config
     JetInputConstitSeq("EMPFlow", xAODType.FlowElement,["CorrectPFO", "CHS"] , 'JetETMissParticleFlowObjects', 'CHSParticleFlowObjects'),
 
+    # GPFlow are the same than EMPFlow except they have pflow linked to elec or muons filtered out.
+    JetInputConstitSeq("GPFlow", xAODType.FlowElement,["CorrectPFO", "CHS"] , 'GlobalParticleFlowObjects', 'CHSGParticleFlowObjects'),
+    
+    
     # Particle Flow Objects with Constituent Subtraction + SoftKiller
     JetInputConstitSeq("EMPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
-                  'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
+                       'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
 
     # *****************************
     # Tower (used only as ghosts atm)
@@ -324,8 +334,10 @@ _stdModList = [
                        # get the track properties from the context with wich jet will be configured with propFromContext
                        # See StandardJetContext.py for the default values.
                        prereqs=[inputsFromContext("Vertices")],
-                       properties=dict(VertexContainerKey=propFromContext("Vertices"),
-                                       TrackVertexAssociation=propFromContext("TVA"))),
+                       properties=dict(VertexContainerKey=propFromContext("Vertices"),                                       
+                                       TrackVertexAssociation=propFromContext("TVA"),
+                                       UseTrackToVertexTool= lambda jdef,_: jdef.context=='default', #  This governs the usage of TVA. We turn it off in trigger for now (since in trigger jet.context != default)
+                                       )),
     
     # Pileup suppression
     JetConstitModifier("Vor",    "VoronoiWeightTool", properties=dict(doSpread=False, nSigma=0) ),
