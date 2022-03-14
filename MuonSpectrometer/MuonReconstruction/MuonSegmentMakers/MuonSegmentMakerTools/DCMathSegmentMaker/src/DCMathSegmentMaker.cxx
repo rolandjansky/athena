@@ -394,7 +394,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
 
             // loop over chambers
             geos.reserve(chamberSet.size());
-for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(id, gToStation)); }
+            for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(id, gToStation)); }
 
             // create new geometry
             multiGeo = std::make_unique<TrkDriftCircleMath::MdtMultiChamberGeometry>(geos);
@@ -405,7 +405,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
         TrkDriftCircleMath::Road road(TrkDriftCircleMath::LocVec2D(0., 0.), road_angleYZ, chamber_angleYZ, angle);
 
         // call segment finder
-        TrkDriftCircleMath::SegVec segs = m_segmentFinder->findSegments(dcs, cls, road, dcStatistics, multiGeo.get());
+        TrkDriftCircleMath::SegVec segs = m_segmentFinder->findSegments(dcs, cls, std::move(road), dcStatistics, multiGeo.get());
 
         ATH_MSG_DEBUG("Found " << segs.size() << " segments");
 
@@ -1302,6 +1302,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
                                                               TrkDriftCircleMath::DCStatistics& dcStatistics, const Amg::Transform3D& gToStation,
                                                               const Amg::Transform3D& amdbToGlobal) const {
         TrkDriftCircleMath::DCVec dcs;
+        dcs.reserve(mdts.size());
         /* ********  Mdt hits  ******** */
 
         //     typedef std::map< Identifier, TrkDriftCircleMath::MdtChamberGeometry > GeoMap;
@@ -1343,7 +1344,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
             double preciseError = dr;
             if (m_usePreciseError) { preciseError = m_preciseErrorScale * (0.23 * std::exp(-std::abs(r) / 6.06) + 0.0362); }
             // create new DriftCircle
-            TrkDriftCircleMath::DriftCircle dc(lpos, r, dr, preciseError, TrkDriftCircleMath::DriftCircle::InTime, mdtid, index, rot);
+            TrkDriftCircleMath::DriftCircle dc(lpos, r, dr, preciseError, TrkDriftCircleMath::DriftCircle::InTime, std::move(mdtid), index, rot);
 
             TubeEnds tubeEnds = localTubeEnds(*rot, gToStation, amdbToGlobal);
             if (firstMdt) {
@@ -1360,7 +1361,7 @@ for (const Identifier& id : chamberSet) { geos.push_back(createChamberGeometry(i
                                                 << tubeEnds.phimax);
                 if (m_usePreciseError) ATH_MSG_VERBOSE(" dr(2) " << preciseError);
             }
-            dcs.push_back(dc);
+            dcs.push_back(std::move(dc));
 
             chamberSet.insert(elId);
 

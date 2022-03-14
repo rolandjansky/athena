@@ -29,7 +29,9 @@ namespace Muon {
         Muon::MuonStationIntersect tubesCrossedByTrack(const Identifier& id, const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
 
         /** @brief get geometry description of the given chamber + neighbouring chambers */
-        std::vector<const MdtIntersectGeometry*> getStationGeometry(const Identifier& id) const;
+        std::vector<std::shared_ptr<const MdtIntersectGeometry>> getStationGeometry(const Identifier& id) const;
+        /** @brief get a pointer to the cached chamber */
+        std::shared_ptr<const MdtIntersectGeometry> getChamber(const Identifier& id) const;
 
         const MuonGM::MuonDetectorManager* detMgr() const { return m_detMgr; }
 
@@ -38,7 +40,7 @@ namespace Muon {
         size_t toArrayIdx(const Identifier& id) const;
 
         static constexpr int s_NumMaxMdtElements = MuonGM::MuonDetectorManager::NMdtStatType * MuonGM::MuonDetectorManager::NMdtStatEta *MuonGM::MuonDetectorManager:: NMdtStatPhi;
-        std::array<std::unique_ptr<MdtIntersectGeometry>, s_NumMaxMdtElements> m_geometry{};
+        std::array<std::shared_ptr<MdtIntersectGeometry>, s_NumMaxMdtElements> m_geometry{};
         const IMuonIdHelperSvc* m_idHelperSvc{nullptr};
         const MuonGM::MuonDetectorManager* m_detMgr{nullptr};
         const MdtCondDbData* m_dbData{nullptr};

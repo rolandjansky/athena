@@ -7,7 +7,6 @@ from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AlgSequence import AthSequencer
 from MuonCondAlg.MuonCondAlgConf import MuonAlignmentErrorDbAlg
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 from MuonRecExample.MuonRecUtils import logMuon
 from IOVDbSvc.CondDB import conddb
@@ -112,8 +111,3 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
    'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
     MuonDetectorManagerCond.IsData = False
 condSequence+=MuonDetectorManagerCond
-
-from MuonStationIntersectCond.MuonStationIntersectCondConf import MuonStationIntersectCondAlg
-intersec_cond_alg = MuonStationIntersectCondAlg("MuonStationIntersectCondAlg")
-if athenaCommonFlags.isOnline: intersec_cond_alg.MdtCondKey=""
-condSequence+=intersec_cond_alg

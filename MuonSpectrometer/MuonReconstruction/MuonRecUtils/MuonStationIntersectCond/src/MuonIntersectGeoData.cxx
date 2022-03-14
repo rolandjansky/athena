@@ -56,28 +56,32 @@ namespace Muon {
         return arrayIdx;
     }
 
-    std::vector<const Muon::MdtIntersectGeometry*> MuonIntersectGeoData::getStationGeometry(const Identifier& id) const {
+    std::vector<std::shared_ptr<const Muon::MdtIntersectGeometry>> MuonIntersectGeoData::getStationGeometry(const Identifier& id) const {
         // get ids of geometry associated with identifier
         std::vector<Identifier> chambers = binPlusneighbours(id);
 
         // vector to store result
-        std::vector<const Muon::MdtIntersectGeometry*> stations;
+        std::vector<std::shared_ptr<const Muon::MdtIntersectGeometry>> stations;
         stations.reserve(chambers.size());
         // loop over bins, retrieve geometry
         for (const Identifier& chId : chambers) {
             if (m_dbData && !m_dbData->isGoodStation(chId)) { continue; }
             const size_t id = toArrayIdx(chId);            
-            if (id < m_geometry.size () &&  m_geometry[id]) stations.push_back(m_geometry[id].get());
+            if (id < m_geometry.size () && m_geometry[id]) stations.push_back(m_geometry[id]);
         }
         return stations;
+    }
+    std::shared_ptr<const MdtIntersectGeometry> MuonIntersectGeoData::getChamber(const Identifier& chId) const {
+         const size_t id = toArrayIdx(chId);
+         return id < m_geometry.size() ? m_geometry[id] : nullptr;
     }
 
     Muon::MuonStationIntersect MuonIntersectGeoData::tubesCrossedByTrack(const Identifier& id, const Amg::Vector3D& pos,
                                                                          const Amg::Vector3D& dir) const {
-        std::vector<const Muon::MdtIntersectGeometry*> stations = getStationGeometry(id);
+        std::vector<std::shared_ptr<const Muon::MdtIntersectGeometry>> stations = getStationGeometry(id);
 
         Muon::MuonStationIntersect::TubeIntersects tubeIntersects;
-        for (const Muon::MdtIntersectGeometry*& it : stations) {
+        for (std::shared_ptr<const Muon::MdtIntersectGeometry>& it : stations) {
             Muon::MuonStationIntersect intersect = it->intersection(pos, dir);
             tubeIntersects.insert(tubeIntersects.end(), intersect.tubeIntersects().begin(), intersect.tubeIntersects().end());
         }

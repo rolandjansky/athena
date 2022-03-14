@@ -192,6 +192,13 @@ class MuonStandalone(ConfiguredMuonRec):
         reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
         reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
       
+        from MuonStationIntersectCond.MuonStationIntersectCondConf import MuonStationIntersectCondAlg
+        condSequence = AthSequencer("AthCondSeq")
+        if not hasattr(condSequence, "MuonStationIntersectCondAlg"):
+            intersec_cond_alg = MuonStationIntersectCondAlg("MuonStationIntersectCondAlg")
+            if athenaCommonFlags.isOnline: intersec_cond_alg.MdtCondKey=""
+            condSequence+=intersec_cond_alg
+
         
         self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",
             MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
