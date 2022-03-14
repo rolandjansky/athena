@@ -195,6 +195,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
    ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
    std::string m_truthLinkVecName;             
+   bool  m_FwdElectronUseG4Sel;
    float m_FwdElectronTruthExtrEtaCut;
    float m_FwdElectronTruthExtrEtaWindowCut;
    float m_partExtrConeEta;

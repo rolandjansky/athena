@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
@@ -59,5 +59,8 @@ from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 MCTruthClassifier = MCTruthClassifier(name = 'MCTruthClassifier',
                                       barcodeG4Shift = firstSimCreatedBarcode(),
                                       ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+if commonGeoFlags.Run()=="RUN4":
+    MCTruthClassifier.FwdElectronUseG4Sel = False
   
 ToolSvc += MCTruthClassifier

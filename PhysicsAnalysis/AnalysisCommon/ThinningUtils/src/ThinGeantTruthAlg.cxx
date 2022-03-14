@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinGeantTruthAlg.cxx
@@ -52,11 +52,13 @@ ThinGeantTruthAlg::ThinGeantTruthAlg( const std::string& name,
 m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
 m_doThinning(true),
 m_geantOffset(200000),
+m_etaMaxEgTruth(2.525),
 m_longlived{310,3122,3222,3112,3322,3312},
 m_truthParticlesKey("TruthParticles"),
 m_truthVerticesKey("TruthVertices"),
 m_muonsKey("Muons"),
 m_electronsKey("Electrons"),
+m_fwdElectronsKey(""), // Not used in default config
 m_photonsKey("Photons"),
 m_egammaTruthKey("egammaTruthParticles"),
 m_nEventsProcessed(0),
@@ -74,6 +76,9 @@ m_nVerticesThinned(0)
    
     declareProperty("GeantBarcodeOffset", m_geantOffset,
                     "Barcode offset for Geant particles");
+
+    declareProperty("EtaMaxEGammaTruth", m_etaMaxEgTruth,
+		    "Max eta value for e-gamma truth particles");
  
     declareProperty("LongLivedParticleList", m_longlived,
                     "List of long lifetime particles which are likely to be decayed by Geant but whose children must be kept");
@@ -84,11 +89,14 @@ m_nVerticesThinned(0)
     declareProperty("TruthVerticesKey", m_truthVerticesKey,
                     "StoreGate key for TruthVertices container");
     
-    declareProperty("MuonsKey", m_truthVerticesKey,
+    declareProperty("MuonsKey", m_muonsKey,
                     "StoreGate key for muons container");
 
-    declareProperty("ElectronsKey", m_truthVerticesKey,
+    declareProperty("ElectronsKey", m_electronsKey,
                     "StoreGate key for electrons container");
+
+    declareProperty("FwdElectronsKey", m_fwdElectronsKey,
+                    "StoreGate key for forward electrons container");
 
     declareProperty("PhotonsKey", m_photonsKey,
                     "StoreGate key for photons container");
@@ -182,6 +190,14 @@ StatusCode ThinGeantTruthAlg::execute()
     } else {
         ATH_MSG_WARNING("No electron container with key "+m_electronsKey+" found.");
     }
+    const xAOD::ElectronContainer* fwdElectrons(0);
+    if (!m_fwdElectronsKey.empty()){
+      if (evtStore()->contains<xAOD::ElectronContainer>(m_fwdElectronsKey)) {
+        CHECK( evtStore()->retrieve( fwdElectrons , m_fwdElectronsKey ) );
+      } else {
+	ATH_MSG_WARNING("No forward electron container with key "+m_fwdElectronsKey+" found.");
+      }
+    }
     const xAOD::PhotonContainer* photons(0);
     if (evtStore()->contains<xAOD::PhotonContainer>(m_photonsKey)) {
         CHECK( evtStore()->retrieve( photons , m_photonsKey ) );
@@ -201,6 +217,12 @@ StatusCode ThinGeantTruthAlg::execute()
     if (electrons!=nullptr) {
         for (auto electron : *electrons) {
             const xAOD::TruthParticle* truthElectron = xAOD::TruthHelpers::getTruthParticle(*electron);
+            if (truthElectron) recoParticleTruthIndices.push_back(truthElectron->index());
+        }
+    }
+    if (fwdElectrons!=nullptr) {
+        for (auto electron : *fwdElectrons) {
+	    const xAOD::TruthParticle* truthElectron = xAOD::TruthHelpers::getTruthParticle(*electron);
             if (truthElectron) recoParticleTruthIndices.push_back(truthElectron->index());
         }
     }
@@ -228,7 +250,7 @@ StatusCode ThinGeantTruthAlg::execute()
 
 	if(!accType.isAvailable(*egTruthParticle) || 
 	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron || 
-	   std::abs(egTruthParticle->eta()) > 2.525){
+	   std::abs(egTruthParticle->eta()) > m_etaMaxEgTruth){
 	  continue;
 	}
 
