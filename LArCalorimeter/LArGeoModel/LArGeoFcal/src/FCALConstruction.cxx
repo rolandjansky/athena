@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -157,7 +157,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
   if (!FCal23Slugs) throw std::runtime_error("Error in FCALConstruction, LAr::FCal23Slugs is not found.");
 
 
-  static FCAL_ChannelMap *cmap = new FCAL_ChannelMap(0);
+  FCAL_ChannelMap *cmap = new FCAL_ChannelMap(0);
 
   GeoFullPhysVol* fcalPhysical{nullptr};
 
@@ -519,7 +519,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
       }   
       // 16 Troughs representing  Cable Harnesses:
       if(m_fullGeo && !m_absPhysical3) {
-	static double rotAngles[] =
+	static const double rotAngles[] =
 	  { 11.25 * Gaudi::Units::deg,
 	    22.50 * Gaudi::Units::deg,
 	    45.00 * Gaudi::Units::deg,
