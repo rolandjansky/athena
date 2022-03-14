@@ -36,10 +36,10 @@ topSequence.SCTHitAnalysis.HistPath='/SiHitAnalysis/histos/'
 topSequence.BCMHitAnalysis.HistPath='/SiHitAnalysis/histos/'
 topSequence.BLMHitAnalysis.HistPath='/SiHitAnalysis/histos/'
 
-topSequence.PixelHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
-topSequence.SCTHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
-topSequence.BCMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
-topSequence.BLMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
+topSequence.PixelHitAnalysis.NtuplePath='/SiHitAnalysis/ntuples/'
+topSequence.SCTHitAnalysis.NtuplePath='/SiHitAnalysis/ntuples/'
+topSequence.BCMHitAnalysis.NtuplePath='/SiHitAnalysis/ntuples/'
+topSequence.BLMHitAnalysis.NtuplePath='/SiHitAnalysis/ntuples/'
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
