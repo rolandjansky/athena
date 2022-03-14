@@ -17,7 +17,7 @@ atlas_add_executable( mergeProphecy4f
   src/mergeProphecy4f.cxx
   src/Prophecy4fMerger.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgMessagingLib
   )
 
 # Install files from the package:
