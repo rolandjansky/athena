@@ -163,7 +163,7 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
     bool upgradeABC = (tileID->cell_hash_max() == MAX_TILE_CELLS_UPGRADEABC);
 
     // choose which geometries are true RUN2 geometries to apply run2 cabling
-    bool nothing_found = (ctb*geo*run1*ibl*run2*upg*comm != 0);
+    bool nothing_found = (ctb*geo*run1*ibl*run2*run3*upg*comm != 0);
     GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
     bool RUN2 = (nothing_found && geoConfig==GeoModel::GEO_RUN2) || (run2 == 0);
     bool RUN3 = (nothing_found && geoConfig==GeoModel::GEO_RUN3) || (run3 == 0);
