@@ -107,8 +107,8 @@ namespace Pythia8{
     }
 
   private:
-    si_data_type m_si_data_;
-    si_event_info_type m_si_event_info_;
+    si_data_type m_si_data_{};
+    si_event_info_type m_si_event_info_{};
   };
 
   // PowhegV_EW is intended to veto QCD radiation (ISR and FSR) 
@@ -662,16 +662,16 @@ namespace Pythia8{
     int    getNFSRveto() { return m_nFSRveto; }
 
   private:
-    int    m_nFinal, m_vetoMode, m_vetoCount, m_pThardMode, m_pTemtMode,
-					   m_emittedMode, m_pTdefMode, m_MPIvetoMode;
-    double m_pThard, m_pTMPI;
-    bool   m_accepted;
+    int    m_nFinal{}, m_vetoMode{}, m_vetoCount{}, m_pThardMode{}, m_pTemtMode{},
+					   m_emittedMode{}, m_pTdefMode{}, m_MPIvetoMode{};
+    double m_pThard{}, m_pTMPI{};
+    bool   m_accepted{};
     // The number of accepted emissions (in a row)
-    int m_nAcceptSeq;
+    int m_nAcceptSeq{};
     // Statistics on vetos
-    unsigned long int m_nISRveto, m_nFSRveto;
-    si_data_type m_si_data_;
-    si_event_info_type m_si_event_info_;
+    unsigned long int m_nISRveto{}, m_nFSRveto{};
+    si_data_type m_si_data_{};
+    si_event_info_type m_si_event_info_{};
   };
 
 } // end namespace Pythia8
