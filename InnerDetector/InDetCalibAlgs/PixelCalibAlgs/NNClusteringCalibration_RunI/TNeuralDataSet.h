@@ -27,6 +27,8 @@ class TNeuralDataSet
  public:
   TNeuralDataSet( Int_t aNumberOfPatterns = 0, Int_t aNumberOfUnits = 0 );
   virtual ~TNeuralDataSet( void );
+  TNeuralDataSet(const TNeuralDataSet &) = delete;
+  TNeuralDataSet & operator=(const TNeuralDataSet &) = delete;
   
   // Returns the number of the patterns in set
   Int_t GetPatternsCount( void ){ return mpData->GetNrows(); };
