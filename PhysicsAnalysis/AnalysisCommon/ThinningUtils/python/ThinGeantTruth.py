@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
@@ -14,6 +14,10 @@ class ThinGeantTruth(Configured):
                 "ThinGeantTruthAlg",
                 ThinGeantTruth = True
             )
+            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+            if commonGeoFlags.Run()=="RUN4":
+                theGeantTruthThinner.EtaMaxEGammaTruth = 4.1
+                theGeantTruthThinner.FwdElectronsKey = "ForwardElectrons"
             print theGeantTruthThinner
         except Exception:
             mlog.error("could not get handle to ThinGeantTruthAlg")

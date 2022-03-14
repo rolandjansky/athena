@@ -67,6 +67,8 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
   declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
   declareProperty("TruthInConeTool",               m_truthInConeTool );
   declareProperty("xAODTruthLinkVector"            , m_truthLinkVecName="xAODTruthLinks");
+  declareProperty("FwdElectronUseG4Sel" , m_FwdElectronUseG4Sel = true,
+		  "Use Geant4 selection for forward electrons calo clusters");
   declareProperty("FwdElectronTruthExtrEtaCut" , m_FwdElectronTruthExtrEtaCut = 2.4, 
 		  "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");
   declareProperty("FwdElectronTruthExtrEtaWindowCut" , m_FwdElectronTruthExtrEtaWindowCut = 0.15, 
@@ -386,8 +388,8 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Electron* elec){
   m_egPartdR.clear();
   m_egPartClas.clear();
 
-  if(elec->author()!=xAOD::EgammaParameters::AuthorFwdElectron){
-    const xAOD::TrackParticle* trkPtr=elec->trackParticle();
+  const xAOD::TrackParticle* trkPtr=elec->trackParticle();
+  if(elec->author()!=xAOD::EgammaParameters::AuthorFwdElectron || trkPtr){ // Central electron or forward electron with track (when reco implemented in the future)
     if(!trkPtr)     {return std::make_pair(parttype,partorig);}
     m_thePart=getGenPart(trkPtr);
   } 

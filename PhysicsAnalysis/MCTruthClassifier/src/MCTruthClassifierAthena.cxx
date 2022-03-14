@@ -122,8 +122,10 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
   for(const auto thePart : tps){
     // loop over the stable particle  
     if(thePart->status()!=1) continue;
-    // excluding G4 particle 
-    if(thePart->barcode()>=m_barcodeG4Shift) continue;
+    // excluding G4 particle
+    if(!isFwrdEle || (isFwrdEle && m_FwdElectronUseG4Sel)){
+      if(thePart->barcode()>=m_barcodeG4Shift) continue;
+    }
     long iParticlePDG = thePart->pdgId(); 
     // excluding neutrino
     if(abs(iParticlePDG)==12||abs(iParticlePDG)==14||abs(iParticlePDG)==16) continue;

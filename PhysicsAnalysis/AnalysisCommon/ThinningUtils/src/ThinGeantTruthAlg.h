@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -64,6 +64,9 @@ private:
     /// Geant barcode
     int m_geantOffset; 
  
+    /// Eta cut for egTruthParticle
+    float m_etaMaxEgTruth;
+
     /// Geant-decayed longer lived particles
     std::vector<int> m_longlived;
 
@@ -72,6 +75,7 @@ private:
     std::string m_truthVerticesKey;
     std::string m_muonsKey;
     std::string m_electronsKey;
+    std::string m_fwdElectronsKey;
     std::string m_photonsKey;   
     std::string m_egammaTruthKey;
  
