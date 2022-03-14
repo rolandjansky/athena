@@ -9,6 +9,9 @@
 #include "LHEF.h"
 #include <string>
 #include <iostream>
+#include <AsgMessaging/MessageCheck.h>
+
+using namespace asg::msgUserCode;
 
 Prophecy4fMerger::Prophecy4fMerger() : m_phEvent(false), m_debug(false), m_rand(0) { 
 }
@@ -19,7 +22,7 @@ Prophecy4fMerger::~Prophecy4fMerger(){
 void Prophecy4fMerger::setRandomSeed(unsigned long long seed)
 {
     m_rand.SetSeed(seed);
-    ATH_MSG_INFO("Prophecy4fMerger::setRandomSeed: set random seed to " + seed + ".");
+    ANA_MSG_INFO("Prophecy4fMerger::setRandomSeed: set random seed to " << seed << ".");
 }
 
 int Prophecy4fMerger::alulb4(double *ps, double *pi, double *pf){
@@ -193,37 +196,37 @@ void Prophecy4fMerger::merge(){
 
     print(" Opening Powheg LHE file ... " + m_inPowheg);
     if( !fileExists(m_inPowheg) ){
-        std::cerr << "Input Powheg LHE not Found!"
-                  << " Aborting ... " << std::endl;
+        ANA_MSG_ERROR("Input Powheg LHE not Found!"
+                  << " Aborting ... ");
         return;
     }
     LHEF::Reader readH( m_inPowheg.c_str() );
   
     print(" Opening Prophecy4f LHE file for 4e ... " + m_inProphecy4e);
     if( !fileExists(m_inProphecy4e) ){
-        std::cerr << "Input Prophecy4f for 4e LHE not Found! " << m_inProphecy4e
-                  << " Aborting ... " << std::endl;
+        ANA_MSG_INFO( "Input Prophecy4f for 4e LHE not Found! " << m_inProphecy4e
+                  << " Aborting ... " );
         return;
     }
     LHEF::Reader read4e( m_inProphecy4e.c_str() );
   
     print(" Opening Prophecy4f LHE file for 4mu ... " + m_inProphecy4mu);
     if( !fileExists(m_inProphecy4mu) ){
-        std::cerr << "Input Prophecy4f for 4mu LHE not Found! " << m_inProphecy4mu
-                  << " Aborting ... " << std::endl;
+        ANA_MSG_ERROR("Input Prophecy4f for 4mu LHE not Found! " << m_inProphecy4mu
+                  << " Aborting ... ");
         return;
     }
     LHEF::Reader read4mu( m_inProphecy4mu.c_str() );
   
     print(" Opening Prophecy4f for 2e2mu LHE file ... " + m_inProphecy2e2mu);
     if( !fileExists(m_inProphecy2e2mu) ){
-        std::cerr << "Input Prophecy4f for 2e2mu LHE not Found! " << m_inProphecy2e2mu
-                  << " Aborting ... " << std::endl;
+        ANA_MSG_ERROR("Input Prophecy4f for 2e2mu LHE not Found! " << m_inProphecy2e2mu
+                  << " Aborting ... ");
         return;
     }
     LHEF::Reader read2e2mu( m_inProphecy2e2mu.c_str() );
   
-    print(" Opening Out LHE file ... " + m_outLHE);
+    print(" Opening Out LHE file ... ", m_outLHE);
     LHEF::Writer writeLHE( m_outLHE.c_str() );
   
     writeLHE.headerBlock() << readH.headerBlock;
@@ -262,17 +265,17 @@ void Prophecy4fMerger::merge(){
         }
     
         if( !read4f->readEvent() ){
-            ATH_MSG_INFO("Still Powheg events but no more Prophecy4f ");
-            ATH_MSG_INFO("events! Writing out LHE file ... Events processed so far " + neve );
+            ANA_MSG_INFO("Still Powheg events but no more Prophecy4f ");
+            ANA_MSG_INFO("events! Writing out LHE file ... Events processed so far " << neve );
             break;
         }
     
         ++neve;
         if(neve%1000==0){
-            print("Events processed so far ",neve);
+            print("Events processed so far " + neve);
         }
         if( readH.outsideBlock.length() )
-            ATH_MSG_INFO( readH.outsideBlock );
+            ANA_MSG_INFO( readH.outsideBlock );
     
         int nup_org=readH.hepeup.NUP;
 
@@ -407,9 +410,9 @@ void Prophecy4fMerger::merge(){
                 doDebug = true;
                 if (doDebug) {
 
-                    ATH_MSG_DEBUG("Event: " + neve);
-                    ATH_MSG_DEBUG(" Higgs and children, m, pt, eta, phi" );
-                    ATH_MSG_DEBUG("Higgs " + higgs.M() + ", " + higgs.Pt() + "," + higgs.Eta() + "," + higgs.Phi());
+                    ANA_MSG_DEBUG("Event: " << neve);
+                    ANA_MSG_DEBUG(" Higgs and children, m, pt, eta, phi" );
+                    ANA_MSG_DEBUG("Higgs " << higgs.M() << ", " << higgs.Pt() << "," << higgs.Eta() << "," << higgs.Phi());
 
                     
                     TLorentzVector higgsFromChildren;
@@ -420,10 +423,10 @@ void Prophecy4fMerger::merge(){
                                        daughter2[d][2],
                                        daughter2[d][4] );
 
-                        ATH_MSG_DEBUG("child " + d + " " + child.M() + ", " + child.Pt() + ", " + child.Eta() + ", " + child.Phi());
+                        ANA_MSG_DEBUG("child " << d << " " << child.M() << ", " << child.Pt() << ", " << child.Eta() << ", " << child.Phi());
                         higgsFromChildren += child;
                     }
-                    ATH_MSG_DEBUG("Higgs mass " + higgs.M() + ", from children " + higgsFromChildren.M() + ", diff " + higgs.M() - higgsFromChildren.M());
+                    ATH_MSG_DEBUG("Higgs mass " << higgs.M() << ", from children " << higgsFromChildren.M() << ", diff " << higgs.M() - higgsFromChildren.M());
                 }
                 break;
             }
@@ -487,7 +490,7 @@ bool Prophecy4fMerger::isPHevent(TLorentzVector higgs,
                                  TLorentzVector sum_daugh_rest_init){
 
     if( std::abs(higgs.M()-sum_daugh_rest_init.M())>m_deltaM ){
-        ATH_MSG_INFO("POWHEG event with Higgs off-mass shell: " + higgs.M() + " GeV");
+        ANA_MSG_INFO("POWHEG event with Higgs off-mass shell: " << higgs.M() << " GeV");
         return true;
     }
     return false;
@@ -532,7 +535,7 @@ bool Prophecy4fMerger::fileExists(const std::string& filename){
 
 void Prophecy4fMerger::print(const std::string& field){
     if(m_debug){
-        ATH_MSG_DEBUG(field);
+        ANA_MSG_DEBUG(field);
     }
 }
 
@@ -540,7 +543,7 @@ void Prophecy4fMerger::print(const std::string& field,
                              int value){
 
     if(m_debug){
-        ATH_MSG_DEBUG("DEBUG:: " +value +" "+field);
+        ANA_MSG_DEBUG("DEBUG:: " << value << " " << field);
     }
   
 }
