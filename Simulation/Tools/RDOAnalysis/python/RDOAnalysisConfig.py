@@ -1,42 +1,46 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def RDOAnalysisBaseCfg(flags, name, **kwargs):
+def RDOAnalysisOutputCfg(flags, output_name="RDOAnalysis"):
     result = ComponentAccumulator()
 
     histsvc = CompFactory.THistSvc(name="THistSvc",
-                                   Output=[ f"{name} DATAFILE='{name}.root' OPT='RECREATE'" ])
+                                   Output=[ f"{output_name} DATAFILE='{output_name}.root' OPT='RECREATE'" ])
     result.addService(histsvc)
     
     return result
 
 
 def ITkPixelRDOAnalysisCfg(flags, name="ITkPixelRDOAnalysis", **kwargs):
-    result = RDOAnalysisBaseCfg(flags, name, **kwargs)
-
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-    result.merge(ITkPixelReadoutGeometryCfg(flags))
+    result = ITkPixelReadoutGeometryCfg(flags)
 
-    kwargs.setdefault("NtupleFileName", f"/{name}/")
-    kwargs.setdefault("HistPath", f"/{name}/")
+    kwargs.setdefault("NtuplePath", "/RDOAnalysis/ntuples/")
+    kwargs.setdefault("HistPath", "/RDOAnalysis/ITkPixel/")
+    kwargs.setdefault("SharedHistPath", "/RDOAnalysis/histos/")
 
     result.addEventAlgo(CompFactory.ITk.PixelRDOAnalysis(name, **kwargs))
+
+    result.merge(RDOAnalysisOutputCfg(flags))
+
     return result
 
 
 def ITkStripRDOAnalysisCfg(flags, name="ITkStripRDOAnalysis", **kwargs):
-    result = RDOAnalysisBaseCfg(flags, name, **kwargs)
-
     from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-    result.merge(ITkStripReadoutGeometryCfg(flags))
+    result = ITkStripReadoutGeometryCfg(flags)
 
-    kwargs.setdefault("NtupleFileName", f"/{name}/")
-    kwargs.setdefault("HistPath", f"/{name}/")
+    kwargs.setdefault("NtuplePath", "/RDOAnalysis/ntuples/")
+    kwargs.setdefault("HistPath", "/RDOAnalysis/ITkStrip/")
+    kwargs.setdefault("SharedHistPath", "/RDOAnalysis/histos/")
 
     result.addEventAlgo(CompFactory.ITk.StripRDOAnalysis(name, **kwargs))
+
+    result.merge(RDOAnalysisOutputCfg(flags))
+
     return result
 
 
