@@ -14,6 +14,7 @@ from .Physics_pp_run3_v1 import (
     SingleJetGroup,
     SingleBjetGroup,
     SingleMuonGroup,
+    SingleTauGroup,
     MultiMuonGroup,
     EgammaMuonGroup,
     PrimaryLegGroup,
@@ -55,6 +56,10 @@ def setupMenu():
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_g3_etcut_LArPEB_L1EM3', stream=['LArCells'], groups=['RATE:SinglePhoton', 'BW:Egamma']),
         ChainProp(name='HLT_e5_etcut_L1EM3',stream=['Main'], groups=['RATE:SingleElectron', 'BW:Egamma']),
+    ]
+
+    chains['Tau'] = [
+        ChainProp(name='HLT_tau0_ptonly_L1TAU8', l1SeedThresholds=['TAU8'], stream=['Main'], groups=PrimaryLegGroup+SingleTauGroup),
     ]
 
     chains['Jet'] = [
