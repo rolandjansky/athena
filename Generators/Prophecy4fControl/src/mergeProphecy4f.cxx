@@ -3,22 +3,25 @@
 */
 #include "Prophecy4fMerger.h"
 #include <iostream>
+#include <AsgMessaging/MessageCheck.h>
+
+using namespace asg::msgUserCode;
 
 
 int main(int argc, char*argv[]){
 
     if(argc<5){
-        ATH_MSG_INFO(" Prophecy4fMerger: merge Powheg and Prophecy LHE files! ");
-        ATH_MSG_INFO(" Usage:  ./Prophecy4fMerger [Options]");
-        ATH_MSG_INFO("         Nedeed options:");
-        ATH_MSG_INFO("               --inPowheg [Powheg lhe file]");
-        ATH_MSG_INFO("               --inProphecy4e    [Prophecy4f lhe file with 4e decays]");
-        ATH_MSG_INFO("               --inProphecy4mu   [Prophecy4f lhe file with 4mu decays]");
-        ATH_MSG_INFO("               --inProphecy2e2mu [Prophecy4f lhe file with 2e2mu decays]");
-        ATH_MSG_INFO("               --outLHE [Outupt lhe file]");
-        ATH_MSG_INFO("               --randomSeed [the seed]");
-        ATH_MSG_INFO("         Additional options:");
-        ATH_MSG_INFO("               --debug [Enable debug mode]");
+        ANA_MSG_INFO(" Prophecy4fMerger: merge Powheg and Prophecy LHE files! ");
+        ANA_MSG_INFO(" Usage:  ./Prophecy4fMerger [Options]");
+        ANA_MSG_INFO("         Nedeed options:");
+        ANA_MSG_INFO("               --inPowheg [Powheg lhe file]");
+        ANA_MSG_INFO("               --inProphecy4e    [Prophecy4f lhe file with 4e decays]");
+        ANA_MSG_INFO("               --inProphecy4mu   [Prophecy4f lhe file with 4mu decays]");
+        ANA_MSG_INFO("               --inProphecy2e2mu [Prophecy4f lhe file with 2e2mu decays]");
+        ANA_MSG_INFO("               --outLHE [Outupt lhe file]");
+        ANA_MSG_INFO("               --randomSeed [the seed]");
+        ANA_MSG_INFO("         Additional options:");
+        ANA_MSG_INFO("               --debug [Enable debug mode]");
         exit(0);
     }
     std::string powheg, prophecy4e, prophecy4mu, prophecy2e2mu, out;
