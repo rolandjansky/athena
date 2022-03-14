@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************************
@@ -32,6 +32,8 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
 {
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Add properties used/available only in Athena*/
+  declareProperty("FwdElectronUseG4Sel" , m_FwdElectronUseG4Sel = true,
+		  "Use Geant4 selection for forward electrons calo clusters");
   declareProperty("FwdElectronTruthExtrEtaCut",
                   m_FwdElectronTruthExtrEtaCut = 2.4,
                   "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");

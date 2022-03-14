@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATIONBASE
@@ -45,8 +45,8 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Electron* elec, Info* inf
   ParticleOrigin partorig = NonDefined;
 
   const xAOD::TruthParticle* genPart = nullptr;
-  if (elec->author() != xAOD::EgammaParameters::AuthorFwdElectron) {
-    const xAOD::TrackParticle* trkPtr = elec->trackParticle();
+  const xAOD::TrackParticle* trkPtr = elec->trackParticle();
+  if (elec->author() != xAOD::EgammaParameters::AuthorFwdElectron || trkPtr) { // Central electron or forward electron with track (when reco implemented in the future)
     if (!trkPtr) {
       return std::make_pair(parttype, partorig);
     }
