@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryLite.h"
@@ -136,7 +136,7 @@ void LArGeo::LArDetectorFactoryLite::create(GeoPhysVol* world)
   if(mbtsPcons->size()==0) {
     first = mbtsTubs->begin();
     last = mbtsTubs->end();
-    for(; first!=last; first++) {
+    for(; first!=last; ++first) {
       if((*first)->getString("TUBE") == "MBTS_mother") {
 	zposMM = (*first)->getDouble("ZPOS")*SYSTEM_OF_UNITS::mm;
 	break;
