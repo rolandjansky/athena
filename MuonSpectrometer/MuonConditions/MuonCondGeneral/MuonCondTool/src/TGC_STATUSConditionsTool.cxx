@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonCondTool/TGC_STATUSConditionsTool.h"
+#include "TGC_STATUSConditionsTool.h"
 
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonCondTest/MDTConditionsTestAlgMT.h"
+#include "MDTConditionsTestAlgMT.h"
 
 // Constructor
 MDTConditionsTestAlgMT::MDTConditionsTestAlgMT(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
