@@ -48,7 +48,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_zTrkErrorCut(5.0),
     m_cutBVrtScore(0.015),
     m_vrt2TrMassLimit(4000.),
-    m_useWrongRadErrorCut(true),
+    m_useFrozenVersion(true),
     m_fillHist(false),
     m_existIBL(true),
     m_RobustFit(1),
@@ -108,7 +108,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("Sel2VrtChi2Cut",    m_sel2VrtChi2Cut, "Cut on Chi2 of 2-track vertex for initial selection"  );
     declareProperty("Sel2VrtSigCut",     m_sel2VrtSigCut,  "Cut on significance of 3D distance between initial 2-track vertex and PV"  );
 
-    declareProperty("UseWrongRadErrorCut",   m_useWrongRadErrorCut," Temporary option for checks" );
+    declareProperty("UseFrozenVersion",   m_useFrozenVersion," Switch from default frozen version to the development/improved one" );
     declareProperty("FillHist",   m_fillHist, "Fill technical histograms"  );
     declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
 
