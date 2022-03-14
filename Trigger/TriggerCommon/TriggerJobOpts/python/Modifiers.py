@@ -249,7 +249,10 @@ class forceTileRODMap(_modifier):
             #ToolSvc.TrigDataAccess.fullTileMode=False
             #ToolSvc.TileRegionSelectorTable.FullRODs=False
             svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0
-        if _run_number>=343000:  # use 2018 version of cabling after 31-Jan-2018
+        if _run_number>=400000:  # use RUN3 version of cabling
+            log.info('Setting RUN3 cabling in TileCal')
+            svcMgr.TileCablingSvc.CablingType=6
+        elif _run_number>=343000:  # use 2018 version of cabling after 31-Jan-2018
             log.info('Setting RUN2a (2018) cabling in TileCal')
             svcMgr.TileCablingSvc.CablingType=5
 
