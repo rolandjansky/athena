@@ -32,7 +32,9 @@ namespace Muon {
             m_geometry[toArrayIdx(id)] = std::make_unique<Muon::MdtIntersectGeometry>(log, id, idHelperSvc, detMgr, dbData);
         }    
     } 
-    int MuonIntersectGeoData::toArrayIdx(const Identifier& id) const {        
+    size_t MuonIntersectGeoData::toArrayIdx(const Identifier& id) const {        
+        
+        if (!id.is_valid() || !m_idHelperSvc->isMdt(id)) return m_geometry.size();
         const int stName =  m_idHelperSvc->mdtIdHelper().stationName(id);
         int stname_index = stName;
        
@@ -50,7 +52,7 @@ namespace Muon {
 
         constexpr int C = MuonGM::MuonDetectorManager::NMdtStatPhi;
         constexpr int BxC = MuonGM::MuonDetectorManager::NMdtStatEta * C;
-        const int arrayIdx = stname_index * BxC + steta_index * C + stphi_index;
+        const size_t arrayIdx = stname_index * BxC + steta_index * C + stphi_index;
         return arrayIdx;
     }
 
@@ -64,7 +66,7 @@ namespace Muon {
         // loop over bins, retrieve geometry
         for (const Identifier& chId : chambers) {
             if (m_dbData && !m_dbData->isGoodStation(chId)) { continue; }
-            const int id = toArrayIdx(chId);            
+            const size_t id = toArrayIdx(chId);            
             if (id < m_geometry.size () &&  m_geometry[id]) stations.push_back(m_geometry[id].get());
         }
         return stations;

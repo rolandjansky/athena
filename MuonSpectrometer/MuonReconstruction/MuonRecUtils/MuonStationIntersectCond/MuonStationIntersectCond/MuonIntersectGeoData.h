@@ -35,7 +35,7 @@ namespace Muon {
 
     private:
         std::vector<Identifier> binPlusneighbours(const Identifier& id) const;
-        int toArrayIdx(const Identifier& id) const;
+        size_t toArrayIdx(const Identifier& id) const;
 
         static constexpr int s_NumMaxMdtElements = MuonGM::MuonDetectorManager::NMdtStatType * MuonGM::MuonDetectorManager::NMdtStatEta *MuonGM::MuonDetectorManager:: NMdtStatPhi;
         std::array<std::unique_ptr<MdtIntersectGeometry>, s_NumMaxMdtElements> m_geometry{};
