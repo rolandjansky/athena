@@ -249,4 +249,7 @@ else:
       "SPLIT_LEADEXPONENT=1.49",
       "SPECT_EXPONENT=1.49",
       "SPECT_LEADEXPONENT=10.32",
+      "MASS[413]=2.01022",
+      "WIDTH[413]=0.000083", # cf. https://gitlab.com/sherpa-team/sherpa/-/issues/349
+      "DECAYPATH=/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/Sherpa_i/Decaydata/2.2.12-fix-D_Kstar_K", # cf. https://gitlab.com/sherpa-team/decaydata/-/commit/af49fe3b
     ]
