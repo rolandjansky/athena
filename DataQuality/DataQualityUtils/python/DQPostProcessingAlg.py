@@ -6,8 +6,8 @@ from AthenaPython import PyAthena
 import histgrinder
 import histgrinder.interfaces
 from histgrinder.HistObject import HistObject
-from typing import (Union, Iterable, Mapping, Any, Collection,
-                    Pattern, Generator)
+from typing import Union, Any, Pattern, Dict, Optional
+from collections.abc import Iterable, Iterator, Mapping, Collection, Generator
 
 StatusCode = PyAthena.StatusCode
 
@@ -16,6 +16,7 @@ class DQPostProcessingAlg(PyAthena.Alg):
         super(DQPostProcessingAlg, self).__init__(name, **kw)
         self.Interval = 1
         self.FileKey = '/CombinedMonitoring/run_%(run)s/'
+        self.ConfigFiles = None
         self._ctr = 0
         self._run = 0
         self._transformermap = {}
@@ -38,7 +39,10 @@ class DQPostProcessingAlg(PyAthena.Alg):
 
         # read configuration & set up transformations
         self._transformers = []
-        postprocfiles = glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
+        if self.ConfigFiles is None:
+            postprocfiles = glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
+        else:
+            postprocfiles = self.ConfigFiles
         self.msg.info(f'The postprocessing config file list is {postprocfiles}')
         for configfile in glob.glob(os.path.join(dpath,'postprocessing/*.yaml')):
             config = read_configuration(configfile)
@@ -51,7 +55,7 @@ class DQPostProcessingAlg(PyAthena.Alg):
 
         # Configure input
         self._im = AthInputModule()
-        in_configuration = {'source': self}
+        in_configuration: Mapping[str, Any] = {'source': self}
         # if args.prefix:
         in_configuration['prefix'] = f'{self.FileKey}'
         self._im.configure(in_configuration)
@@ -59,7 +63,7 @@ class DQPostProcessingAlg(PyAthena.Alg):
 
         # Configure output
         self._om = AthOutputModule()
-        out_configuration = {'target': self}
+        out_configuration: Mapping[str, Any] = {'target': self}
         # if args.prefix:
         out_configuration['prefix'] = f'{self.FileKey}'
         self._om.configure(out_configuration)
@@ -76,7 +80,7 @@ class DQPostProcessingAlg(PyAthena.Alg):
                 self.msg.debug(f'consider transformer {_.tc.description}')
                 if self.DoTiming:
                     t0 = time.perf_counter()
-                v = _.consider(obj)
+                v = _.consider(obj, defer=True)
                 if self.DoTiming:
                     t = time.perf_counter()-t0
                     self._timings[_] += t
@@ -87,6 +91,11 @@ class DQPostProcessingAlg(PyAthena.Alg):
                     self._om.publish(v)
             if needtocache:
                 self._transformermap[obj.name] = cached
+        # Process deferred transformations
+        for _ in self._transformers:
+            lv = _.transform()
+            for v in lv:
+                self._om.publish(v)
         self._om.finalize()
 
     def execute(self):
@@ -152,7 +161,6 @@ class AthInputModule(histgrinder.interfaces.InputModule):
                 return klass
         return None
 
-
     def iterate(self, dryrun) -> Generator[HistObject, None, None]:
         """ Iterate over all histograms in THistSvc """
         import ROOT
@@ -201,7 +209,7 @@ class AthInputModule(histgrinder.interfaces.InputModule):
             
         log.debug('Done on input side')
 
-    def __iter__(self) -> Iterable[HistObject]:
+    def __iter__(self) -> Iterator[HistObject]:
         return self.iterate(dryrun=False)
 
     def warmup(self) -> Iterable[HistObject]:
@@ -228,17 +236,20 @@ class AthOutputModule(histgrinder.interfaces.OutputModule):
         self.overwrite = bool(options.get('overwrite', True))
         self.prefix = options.get('prefix', '/')
         self.delay = bool(options.get('delay', True))
-        self.queue = {}
+        self.queue: Optional[Dict[str, HistObject]] = {}
 
     def publish(self, obj: Union[HistObject, Iterable[HistObject]]) -> None:
         """ Accepts a HistObject containing a ROOT object to write to file """
         if isinstance(obj, HistObject):
             obj = [obj]
-        obj = { _.name: _ for _ in obj }
+        d_obj = { _.name: _ for _ in obj }
         if self.delay:
-            self.queue.update(obj)
+            if not self.queue:
+                self.queue = d_obj
+            else:
+                self.queue.update(d_obj)
         else:
-            self.queue = obj
+            self.queue = d_obj
             self._write()
             self.queue = None
 
@@ -260,6 +271,7 @@ class AthOutputModule(histgrinder.interfaces.OutputModule):
                 hptr = ROOT.MakeNullPointer(ROOT.TH1)
                 if hsvc.getHist(fulltargetname, hptr).isSuccess():
                     hsvc.deReg(hptr)
+                    ROOT.SetOwnership(hptr, True) # clean up the histogram from our side
             if not hsvc._cpp_regHist(fulltargetname, o.hist).isSuccess():
                 log.error(f"Unable to register {fulltargetname}")
             else:
