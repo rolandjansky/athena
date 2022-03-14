@@ -20,10 +20,12 @@
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelDistortionData.h"
 
-#include "InDetIdentifier/PixelID.h"
+
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include "Gaudi/Property.h"
+
+class PixelID;
 
 class PixelDistortionAlg : public AthAlgorithm {  
   public:
