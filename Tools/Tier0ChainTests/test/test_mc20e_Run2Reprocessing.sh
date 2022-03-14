@@ -47,7 +47,7 @@ if [ ${rc1} -eq 0 ]
 then
   ArtPackage=$1
   ArtJobName=$2
-  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=detailed --order-trees --ignore-exit-code diff-pool
+  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool --ignore-leave 'TrackParticleAuxContainer_v5_HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bjet_FTF(.*)' --ignore-leave 'TrackParticleAuxContainer_v5_HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bphysics_FTF(.*)' --ignore-leave 'TrackParticleAuxContainer_v5_HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF(.*)'
   rc2=$?
 fi
 echo  "art-result: ${rc2} Comparison with the latest result"
@@ -56,7 +56,7 @@ echo  "art-result: ${rc2} Comparison with the latest result"
 rc3=-9999
 if [ ${rc1} -eq 0 ]
 then
-  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run2Reprocessing_references_for_comparison/test_mc20e_2021-12-30T2101 --entries 30 --mode=detailed --order-trees --ignore-exit-code diff-pool
+  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run2Reprocessing_references_for_comparison/test_mc20e_2022-02-11T2101 --entries 30 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool --ignore-leave 'TrackParticleAuxContainer_v5_HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bjet_FTF(.*)' --ignore-leave 'TrackParticleAuxContainer_v5_HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bphysics_FTF(.*)' --ignore-leave 'TrackParticleAuxContainer_v5_HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF(.*)'
   rc3=$?
 fi
 echo  "art-result: ${rc3} Comparison with fixed reference"
