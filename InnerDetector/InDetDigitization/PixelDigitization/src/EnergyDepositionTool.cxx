@@ -27,9 +27,13 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "TLorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "PixelDigitizationUtilities.h"
 #include <cmath>
 #include <fstream>
 #include <limits> //for numeric_limits min
+
+
+
 
 namespace{
   //iBetaGamma function returning zero for the error case
@@ -102,64 +106,22 @@ StatusCode EnergyDepositionTool::initialize() {
     ATH_CHECK(m_distortionKey.initialize());
   }
 
-  if (m_doBichsel) {
+ if (m_doBichsel) {
     // Load Bichsel data
-    m_BichselData.clear();
+    m_bichselData.clear();
     ATH_MSG_INFO("The number of collision for each sampling is " << m_nCols);
     ATH_MSG_INFO("Loading data file");
-
     int n_ParticleType = 6;
     for (int iParticleType = 1; iParticleType <= n_ParticleType; iParticleType++) {
-      std::ifstream inputFile;
-      TString inputFileName = TString::Format("PixelDigitization/Bichsel_%d%s.dat", iParticleType, m_nCols == 1 ? "" : TString::Format(
-                                                "_%dsteps",
-                                                (int) m_nCols).Data());
-
-      std::string FullFileName = PathResolverFindCalibFile(std::string(inputFileName.Data()));
-      inputFile.open(FullFileName.data());
-
-      ATH_MSG_INFO("Loading file name : " << inputFileName.Data());
-      ATH_MSG_INFO("-- File full name: " << FullFileName.data());
-      ATH_MSG_INFO("-- Is file open ? " << inputFile.is_open());
-
-      if (!inputFile.is_open()) {
-        ATH_MSG_FATAL("Fail to load file " << inputFileName.Data() << " !");
-        ATH_MSG_FATAL("EnergyDepositionTool::initialize() failed");
-        return StatusCode::FAILURE;
-      }
-
-      // prepare data
-      BichselData iData;
-
-      double BetaGammaLog10 = 0;
-      inputFile >> BetaGammaLog10;
-      double ColELog10 = 0;
-      inputFile >> ColELog10;
-      double IntXLog10 = 0;
-      inputFile >> IntXLog10;
-
-      ATH_MSG_INFO("-- File eof check : " << inputFile.eof());
-
-      while (!inputFile.eof()) {
-        iData.addEntry(BetaGammaLog10, ColELog10, IntXLog10);
-        inputFile >> BetaGammaLog10;
-        inputFile >> ColELog10;
-        inputFile >> IntXLog10;
-      }
-      iData.updateAfterLastEntry();
-      ATH_MSG_INFO("-- logBetaGammaVector size : " << iData.size());
-      ATH_MSG_INFO("-- logCollisionEnergyVectorOfVector size at 0 : " << iData.logCollisionEnergyVectorOfVector[0].size());
-      ATH_MSG_INFO("-- logIntegratedCrossSectionsVectorOfVector size at 0 : " << iData.logIntegratedCrossSectionsVectorOfVector[0].size());
-      ATH_MSG_INFO(
-        "-- logHighestCrossSectionsVector : " << iData.logHighestCrossSectionsVector.size());
-
-      m_BichselData.push_back(iData);
-      inputFile.close();
-
-      ATH_MSG_INFO("-- Finish loading file " << inputFileName.Data());
+      const std::string & inputFileName(PixelDigitization::formBichselDataFileName(iParticleType, m_nCols));
+      const std::string & fullFileName = PathResolverFindCalibFile(inputFileName);
+      ATH_MSG_INFO("Bichsel Data File "<<fullFileName);
+      BichselData iData = PixelDigitization::getBichselDataFromFile(fullFileName);
+      m_bichselData.push_back(iData);
     }
     ATH_MSG_INFO("Finish Loading Data File");
   }
+
 
   m_doDeltaRay = (m_doBichsel && m_doDeltaRay);    // if we don't do Bichsel model, no re-simulation on delta-ray at
                                                    // all!
@@ -370,7 +332,7 @@ EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType,double Total
   }
 
   // load relevant data
-  BichselData iData = m_BichselData[ParticleType - 1];
+  BichselData iData = m_bichselData[ParticleType - 1];
   double BetaGammaLog10 = std::log10(BetaGamma);
   std::pair<int, int> indices_BetaGammaLog10 = iData.getBetaGammaIndices(BetaGammaLog10);
 
@@ -515,10 +477,4 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::ClusterHits(std::v
 
   return trfHitRecord;
 }
-
-
-
-
-
-
 
