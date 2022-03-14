@@ -92,8 +92,9 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    const MuonSegment* DCMathSegmentMaker::associateTriggerHits(const MuonSegment& seg, const std::vector<const MuonClusterOnTrack*>& clus,
+    MuonSegment* DCMathSegmentMaker::associateTriggerHits(const MuonSegment& seg, const std::vector<const MuonClusterOnTrack*>& clus,
                                                                 bool includeEtaHits) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         ATH_MSG_DEBUG("associateTriggerHits: clusters " << clus.size());
         // extract hits
         std::vector<const MdtDriftCircleOnTrack*> mdts;
@@ -121,7 +122,7 @@ namespace Muon {
 
             // loop over chambers
             geos.reserve(chamberSet.size());
-for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeometry(cham_id, gToStation)); }
+        for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeometry(cham_id, gToStation)); }
 
             // create new geometry
             multiGeo = std::make_unique<TrkDriftCircleMath::MdtMultiChamberGeometry>(geos);
@@ -223,9 +224,9 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         segment.hitsOnTrack(6);  // hack just putting a number above the cut of at least 2
 
         segmentCreationInfo sInfo(spVecs, multiGeo.get(), gToStation, amdbToGlobal, phimin, phimax);
-        MuonSegment* newSeg = createSegment(segment, chid, seg.globalPosition(), seg.globalDirection(), mdts, true, sInfo);
+        std::unique_ptr<MuonSegment> newSeg = createSegment(ctx, segment, chid, seg.globalPosition(), seg.globalDirection(), mdts, true, sInfo);
 
-        return newSeg;
+        return newSeg.release();
     }
 
     void DCMathSegmentMaker::addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
@@ -310,6 +311,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                                   const std::vector<const MdtDriftCircleOnTrack*>& mdts,
                                   const std::vector<const MuonClusterOnTrack*>& clusters, bool hasPhiMeasurements,
                                   Trk::SegmentCollection* segColl, double momentum, double sinAngleCut) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         if (m_doTimeOutChecks && Athena::Timeout::instance().reached()) {
             ATH_MSG_DEBUG("Timeout reached. Aborting sequence.");
             return;
@@ -417,13 +419,13 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         TrkDriftCircleMath::SegIt sit_end = segs.end();
         segmentCreationInfo sInfo(spVecs, multiGeo.get(), gToStation, amdbToGlobal, phimin, phimax);
         for (; sit != sit_end; ++sit) {
-            MuonSegment* segment = createSegment(*sit, chid, roadpos, roaddir2, mdts, hasPhiMeasurements, sInfo);
-            if (segment) segColl->push_back(segment);
+            std::unique_ptr<MuonSegment> segment = createSegment(ctx, *sit, chid, roadpos, roaddir2, mdts, hasPhiMeasurements, sInfo);
+            if (segment) segColl->push_back(segment.release());
         }
         ATH_MSG_DEBUG(" Done ");
     }
 
-    MuonSegment* DCMathSegmentMaker::createSegment(TrkDriftCircleMath::Segment& segment, const Identifier& chid,
+    std::unique_ptr<MuonSegment> DCMathSegmentMaker::createSegment(const EventContext& ctx, TrkDriftCircleMath::Segment& segment, const Identifier& chid,
                                                    const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir2,
                                                    const std::vector<const MdtDriftCircleOnTrack*>& mdts, bool hasPhiMeasurements,
                                                    segmentCreationInfo& sInfo) const {
@@ -513,13 +515,14 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         Amg::Vector3D gdir = updateDirection(linephi, *surf, roaddir2, isCurvedSegment);
 
         // extract RIO_OnTracks
-        std::vector<std::pair<double, const Trk::MeasurementBase*> > rioDistVec;  // vector to store the distance of a ROT to the segment
+        std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> > rioDistVec;  // vector to store the distance of a ROT to the segment
 
         // associate MDT hits to segment
         std::set<Identifier> deltaVec;
         std::set<Identifier> outoftimeVec;
-        std::vector<std::unique_ptr<const Trk::MeasurementBase> > measToBeDeleted =
-            associateMDTsToSegment(gdir, segment, mdts, sInfo.geom, sInfo.globalTrans, sInfo.amdbTrans, deltaVec, outoftimeVec, rioDistVec);
+        
+        associateMDTsToSegment(gdir, segment, mdts, sInfo.geom, sInfo.globalTrans, sInfo.amdbTrans, deltaVec, outoftimeVec, rioDistVec);
+        std::vector<std::pair<double, std::unique_ptr<const Trk::MeasurementBase>>> garbage_collector;
 
         TrkDriftCircleMath::DCSLHitSelector hitSelector;
 
@@ -529,7 +532,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0., 0., 0.), TrkDriftCircleMath::DCOnTrackVec());
             bool goodFit = defaultFitter.fit(result, line, segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()));
             if (goodFit) {
-                if (std::abs(segment.line().phi() - result.line().phi()) > 0.01 ||
+                if (std::abs(xAOD::P4Helpers::deltaPhi(segment.line().phi(), result.line().phi())) > 0.01 ||
                     std::abs(segment.line().x0() - result.line().x0()) > 0.01 ||
                     std::abs(segment.line().y0() - result.line().y0()) > 0.01) {
                     // update local position and global
@@ -572,16 +575,23 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         std::pair<std::pair<int, int>, bool> netaPhiHits =
             associateClustersToSegment(segment, chid, sInfo.globalTrans, sInfo.clusters, sInfo.phimin, sInfo.phimax, rioDistVec);
 
-        // copy hits into vector
-        DataVector<const Trk::MeasurementBase>* rioVec = createROTVec(rioDistVec);
-
+        /// Copy hits into vector
+        auto meas_for_fit = [&rioDistVec] () {
+            std::vector<const Trk::MeasurementBase*> out{};
+            out.reserve(rioDistVec.size());
+            std::sort(rioDistVec.begin(), rioDistVec.end(), SortByDistanceToSegment());
+            for (const std::pair<double, std::unique_ptr<const Trk::MeasurementBase>>& ele : rioDistVec) out.push_back(ele.second.get());
+            return out;
+        };
+        
+            
         double dlocx{1000.}, dangleXZ{1000.}, qoverp{-99999.}, dqoverp{-99999.};
         bool hasMeasuredCoordinate = false;
         if (m_refitParameters && netaPhiHits.second) {
             ATH_MSG_DEBUG(" distance between first and last phi hit sufficient to perform 4D fit: phi  " << gdir.phi() << " theta "
                                                                                                          << gdir.theta());
 
-            std::unique_ptr<Trk::Track> track{m_segmentFitter->fit(gpos, gdir, *surf, rioVec->stdcont())};
+            std::unique_ptr<Trk::Track> track{m_segmentFitter->fit(gpos, gdir, *surf, meas_for_fit())};
 
             if (track) {
                 if (isCurvedSegment && track->perigeeParameters() && track->perigeeParameters()->covariance()) {
@@ -604,12 +614,10 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                 surf->localToGlobal(segLocPos, gdir, gpos);
                 surf->localToGlobalDirection(segLocDir, gdir);
 
-                if (track->measurementsOnTrack() && rioVec->size() != track->measurementsOnTrack()->size()) {
+                if (track->measurementsOnTrack() && rioDistVec.size() != track->measurementsOnTrack()->size()) {
                     ATH_MSG_DEBUG(" ROT vector size changed after fit, updating ");
-                    delete rioVec;
-                    rioDistVec.clear();
-                    rioVec = new DataVector<const Trk::MeasurementBase>();
-                    rioVec->reserve(track->measurementsOnTrack()->size());
+                    garbage_collector = std::move(rioDistVec);
+                    rioDistVec.reserve(track->measurementsOnTrack()->size());
                     const Trk::TrackParameters* firstPars = nullptr;
                     for (const Trk::TrackStateOnSurface* tsit : *track->trackStateOnSurfaces()) {
                         const Trk::TrackParameters* pars = tsit->trackParameters();
@@ -620,12 +628,9 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                         const Trk::MeasurementBase* meas = tsit->measurementOnTrack();
                         if (!meas) continue;
                         if (tsit->type(Trk::TrackStateOnSurface::Outlier) && !dynamic_cast<const MdtDriftCircleOnTrack*>(meas)) continue;
-
-                        const Trk::MeasurementBase* measNew = meas->clone();
-                        rioVec->push_back(measNew);
                         double dist = (pars->position() - firstPars->position()).dot(firstPars->momentum().unit());
-                        rioDistVec.emplace_back(dist, measNew);
-                    }
+                        rioDistVec.emplace_back(dist, meas->uniqueClone());                        
+                    }                    
                 }
             } else {
                 ATH_MSG_DEBUG(" refit of segment failed!! ");
@@ -636,7 +641,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         // optional update of phi position and direction, only performed if the segment was not refitted and there are phi
         // hits
         if (m_updatePhiUsingPhiHits && !netaPhiHits.second) {
-            if (updateSegmentPhi(gpos, gdir, segLocPos, segLocDir, *surf, rioVec->stdcont(), sInfo.phimin, sInfo.phimax)) {
+            if (updateSegmentPhi(gpos, gdir, segLocPos, segLocDir, *surf, meas_for_fit(), sInfo.phimin, sInfo.phimax)) {
                 surf->localToGlobal(segLocPos, gpos, gpos);
                 surf->localToGlobalDirection(segLocDir, gdir);
                 hasMeasuredCoordinate = true;
@@ -646,9 +651,10 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         }
 
         if (msgLvl(MSG::DEBUG)) {
-            ATH_MSG_DEBUG(" number of hits " << rioVec->size() << " of which trigger " << netaPhiHits.first.first << " eta and "
+            std::vector<const Trk::MeasurementBase*> debug_meas = meas_for_fit();
+            ATH_MSG_DEBUG(" number of hits " << debug_meas.size() << " of which trigger " << netaPhiHits.first.first << " eta and "
                                              << netaPhiHits.first.second << " phi ");
-            for (const Trk::MeasurementBase* mit : *rioVec) {
+            for (const Trk::MeasurementBase* mit : debug_meas) {
                 const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(mit);
                 if (rot) {
                     ATH_MSG_DEBUG(m_idHelperSvc->toString(rot->identify()));
@@ -668,7 +674,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             }
         }
         // recalculate holes
-        std::vector<Identifier> holeVec = calculateHoles(chid, gpos, gdir, hasMeasuredCoordinate, deltaVec, outoftimeVec, rioDistVec);
+        std::vector<Identifier> holeVec = calculateHoles(ctx, chid, gpos, gdir, hasMeasuredCoordinate, deltaVec, outoftimeVec, rioDistVec);
 
         // currently not taking into account masked channels
         if (!outoftimeVec.empty()) holeVec.insert(holeVec.end(), outoftimeVec.begin(), outoftimeVec.end());
@@ -679,13 +685,8 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         if (dcslFitter && !segment.hasT0Shift() && m_outputFittedT0) {
             if (!dcslFitter->fit(result, segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()))) {
                 ATH_MSG_DEBUG(" T0 refit failed ");
-            } else {
-                if (msgLvl(MSG::DEBUG)) {
-                    if (result.hasT0Shift())
-                        ATH_MSG_DEBUG(" Fitted T0 " << result.t0Shift());
-                    else
-                        ATH_MSG_DEBUG(" No fitted T0 ");
-                }
+            } else {              
+                ATH_MSG_DEBUG(" Fitted T0 " << result.t0Shift()<<" is valid "<<result.hasT0Shift());                 
             }
         }
         bool hasFittedT0 = false;
@@ -707,10 +708,10 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         std::unique_ptr<MuonSegment> msegment;
         if (isCurvedSegment) {  // curved segments
             if (qoverp == -99999.) {
-                double charge = gpos.z() * tan(gdir.theta());
+                double charge = gpos.z() * std::tan(gdir.theta());
                 charge = charge / std::abs(charge);
                 // if the curved segment was not refit, then use a momentum estimate
-                double BILALPHA(28.4366), BMLALPHA(62.8267), BMSALPHA(53.1259), BOLALPHA(29.7554);
+                constexpr double BILALPHA(28.4366), BMLALPHA(62.8267), BMSALPHA(53.1259), BOLALPHA(29.7554);
                 if (chIndex == MuonStationIndex::BIL) {
                     qoverp = (charge * segment.deltaAlpha()) / BILALPHA;
                     dqoverp = M_SQRT2 * segment.dtheta() / BILALPHA;
@@ -734,13 +735,13 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             covMatrix(4, 4) = dqoverp * dqoverp;
 
             std::vector<Trk::DefinedParameter> defPars;
-            defPars.push_back(Trk::DefinedParameter(segLocPos[Trk::loc1], Trk::loc1));
-            defPars.push_back(Trk::DefinedParameter(segLocPos[Trk::loc2], Trk::loc2));
-            defPars.push_back(Trk::DefinedParameter(gdir.phi(), Trk::phi));
-            defPars.push_back(Trk::DefinedParameter(gdir.theta(), Trk::theta));
-            defPars.push_back(Trk::DefinedParameter(qoverp, Trk::qOverP));
+            defPars.emplace_back(segLocPos[Trk::loc1], Trk::loc1);
+            defPars.emplace_back(segLocPos[Trk::loc2], Trk::loc2);
+            defPars.emplace_back(gdir.phi(), Trk::phi);
+            defPars.emplace_back(gdir.theta(), Trk::theta);
+            defPars.emplace_back(qoverp, Trk::qOverP);
             Trk::LocalParameters segLocPar(defPars);
-            msegment = std::make_unique<MuonSegment>(segLocPar, covMatrix, surf.release(), rioVec, quality,
+            msegment = std::make_unique<MuonSegment>(segLocPar, covMatrix, surf.release(), createROTVec(rioDistVec).release(), quality,
                                                      Trk::Segment::DCMathSegmentMakerCurved);
         } else {  // straight segments
             // errors (for now no correlations)
@@ -750,7 +751,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             covMatrix(1, 1) = segment.dy0() * segment.dy0();
             covMatrix(2, 2) = dangleXZ * dangleXZ;
             covMatrix(3, 3) = segment.dtheta() * segment.dtheta();
-            msegment = std::make_unique<MuonSegment>(segLocPos, segLocDir, covMatrix, surf.release(), rioVec, quality,
+            msegment = std::make_unique<MuonSegment>(segLocPos, segLocDir, covMatrix, surf.release(), createROTVec(rioDistVec).release(), quality,
                                                      Trk::Segment::DCMathSegmentMaker);
         }
 
@@ -766,7 +767,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             if (isCurvedSegment) ATH_MSG_DEBUG(" Curved " << fittedT0);
         }
         if (segmentQuality < 0) { return nullptr; }
-        return msegment.release();
+        return msegment;
     }
 
     void DCMathSegmentMaker::find(const std::vector<const Trk::RIO_OnTrack*>& rios, Trk::SegmentCollection* segColl) const {
@@ -797,7 +798,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
 
         bool hasPhiMeasurements = false;
         Amg::Vector3D gpos = mdt->globalPosition();
-        Amg::Vector3D gdir = Amg::Vector3D(gpos.x(), gpos.y(), gpos.z()).unit();
+        Amg::Vector3D gdir = gpos.unit();
         find(gpos, gdir, mdts, clusters, hasPhiMeasurements, segColl);
     }
 
@@ -813,15 +814,11 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                                   bool hasPhiMeasurements, double momentum) const {
         // copy all mdt hits into one vector
         std::vector<const MdtDriftCircleOnTrack*> all_mdts;
-        std::vector<std::vector<const MdtDriftCircleOnTrack*> >::const_iterator mit = mdts.begin();
-        std::vector<std::vector<const MdtDriftCircleOnTrack*> >::const_iterator mit_end = mdts.end();
-        for (; mit != mit_end; ++mit) { std::copy(mit->begin(), mit->end(), std::back_inserter(all_mdts)); }
+        for (const std::vector<const MdtDriftCircleOnTrack*>& circle_vec : mdts) { std::copy(circle_vec.begin(), circle_vec.end(), std::back_inserter(all_mdts)); }
 
         // copy all clusters into one vector
         std::vector<const MuonClusterOnTrack*> all_clus;
-        std::vector<std::vector<const MuonClusterOnTrack*> >::const_iterator cit = clusters.begin();
-        std::vector<std::vector<const MuonClusterOnTrack*> >::const_iterator cit_end = clusters.end();
-        for (; cit != cit_end; ++cit) { std::copy(cit->begin(), cit->end(), std::back_inserter(all_clus)); }
+        for ( const std::vector<const MuonClusterOnTrack*>& clus_vec : clusters) { std::copy(clus_vec.begin(), clus_vec.end(), std::back_inserter(all_clus)); }
 
         const Amg::Vector3D& gpos = road.globalPosition();
         const Amg::Vector3D& gdir = road.globalDirection();
@@ -1449,14 +1446,13 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         return mdtgeo;
     }
 
-    std::vector<std::unique_ptr<const Trk::MeasurementBase> > DCMathSegmentMaker::associateMDTsToSegment(
+   void DCMathSegmentMaker::associateMDTsToSegment(
         const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, const std::vector<const MdtDriftCircleOnTrack*>& mdts,
         TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, const Amg::Transform3D& gToStation, const Amg::Transform3D& amdbToGlobal,
         std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec,
-        std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const {
+        std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const {
         // clear result vectors
-        std::vector<std::unique_ptr<const Trk::MeasurementBase> > measurementsToBeDeleted;
-
+    
         // convert segment parameters + x position from road
         const TrkDriftCircleMath::Line& line = segment.line();
         TrkDriftCircleMath::TransformToLine toLineml1(line);
@@ -1477,21 +1473,21 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             toLineml2 = tmptoLine;
         }
 
-        for (TrkDriftCircleMath::DCOnTrackIt dcit = segment.dcs().begin(); dcit != segment.dcs().end(); ++dcit) {
-            if (dcit->state() == TrkDriftCircleMath::DCOnTrack::Delta) { deltaVec.insert(mdts[dcit->index()]->identify()); }
+        for (TrkDriftCircleMath::DCOnTrack& dcit : segment.dcs()) {
+            if (dcit.state() == TrkDriftCircleMath::DCOnTrack::Delta) { deltaVec.insert(mdts[dcit.index()]->identify()); }
 
-            if (dcit->state() == TrkDriftCircleMath::DCOnTrack::OutOfTime) { outoftimeVec.insert(mdts[dcit->index()]->identify()); }
+            if (dcit.state() == TrkDriftCircleMath::DCOnTrack::OutOfTime) { outoftimeVec.insert(mdts[dcit.index()]->identify()); }
 
-            if (dcit->state() != TrkDriftCircleMath::DCOnTrack::OnTrack) continue;
+            if (dcit.state() != TrkDriftCircleMath::DCOnTrack::OnTrack) continue;
 
-            const MdtDriftCircleOnTrack* riodc = dynamic_cast<const MdtDriftCircleOnTrack*>(mdts[dcit->index()]);
+            const MdtDriftCircleOnTrack* riodc = dynamic_cast<const MdtDriftCircleOnTrack*>(mdts[dcit.index()]);
             if (!riodc) continue;
 
             // choose which line to use (ml1 or ml2)
             TrkDriftCircleMath::TransformToLine toLine = toLineml1;
             if (m_idHelperSvc->mdtIdHelper().multilayer(riodc->identify()) == 2) toLine = toLineml2;
             // calculate position of hit in line frame
-            TrkDriftCircleMath::LocVec2D pointOnHit = toLine.toLine(dcit->position());
+            TrkDriftCircleMath::LocVec2D pointOnHit = toLine.toLine(dcit.position());
 
             // calculate position of hit on line in line frame
             TrkDriftCircleMath::LocVec2D pointOnLine(pointOnHit.x(), 0.);
@@ -1522,37 +1518,35 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             // calculate side
             Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
 
-            MdtDriftCircleOnTrack* nonconstDC = nullptr;
+            std::unique_ptr<MdtDriftCircleOnTrack> nonconstDC;
             bool hasT0 = segment.hasT0Shift();
             if (!hasT0) {
                 // ATH_MSG_VERBOSE(" recalibrate MDT hit");
-                nonconstDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(), mdtGP, &gdir);
+                nonconstDC.reset(m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(), mdtGP, &gdir));
             } else {
                 ATH_MSG_VERBOSE(" recalibrate MDT hit with shift " << segment.t0Shift());
-                nonconstDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(), mdtGP, &gdir, segment.t0Shift());
+                nonconstDC.reset(m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(), mdtGP, &gdir, segment.t0Shift()));
             }
 
             if (!nonconstDC) {
-                dcit->state(TrkDriftCircleMath::DCOnTrack::OutOfTime);
+                dcit.state(TrkDriftCircleMath::DCOnTrack::OutOfTime);
                 continue;
             }
 
             // update the drift radius after recalibration, keep error
-            MdtDriftCircleOnTrack* new_drift_circle = new MdtDriftCircleOnTrack(*nonconstDC);
-            measurementsToBeDeleted.emplace_back(new_drift_circle);
-            TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), std::abs(nonconstDC->driftRadius()), dcit->dr(), dcit->drPrecise(),
-                                                   static_cast<TrkDriftCircleMath::DriftCircle*>(&(*dcit))->state(), dcit->id(),
-                                                   dcit->index(), new_drift_circle);
-            TrkDriftCircleMath::DCOnTrack new_dc_on_track(new_dc, dcit->residual(), dcit->errorTrack());
-            (*dcit) = new_dc_on_track;
+            TrkDriftCircleMath::DriftCircle new_dc(dcit.position(), std::abs(nonconstDC->driftRadius()), dcit.dr(), dcit.drPrecise(),
+                                                   static_cast<TrkDriftCircleMath::DriftCircle::DriftState>(dcit.state()), dcit.id(),
+                                                   dcit.index(), nonconstDC.get());
+            TrkDriftCircleMath::DCOnTrack new_dc_on_track(std::move(new_dc), dcit.residual(), dcit.errorTrack());
+            dcit = std::move(new_dc_on_track);
 
             if (hasT0) {
                 if (msgLvl(MSG::VERBOSE)) {
                     double shift = riodc->driftTime() - nonconstDC->driftTime();
                     ATH_MSG_VERBOSE(" t0 shift " << segment.t0Shift() << " from hit " << shift << " recal " << nonconstDC->driftRadius()
-                                                 << " t " << nonconstDC->driftTime() << "  from fit " << dcit->r() << " old "
+                                                 << " t " << nonconstDC->driftTime() << "  from fit " << dcit.r() << " old "
                                                  << riodc->driftRadius() << " t " << riodc->driftTime());
-                    if (std::abs(std::abs(nonconstDC->driftRadius()) - std::abs(dcit->r())) > 0.1 && nonconstDC->driftRadius() < 19. &&
+                    if (std::abs(std::abs(nonconstDC->driftRadius()) - std::abs(dcit.r())) > 0.1 && nonconstDC->driftRadius() < 19. &&
                         nonconstDC->driftRadius() > 1.) {
                         ATH_MSG_WARNING("Detected invalid recalibration after T0 shift");
                     }
@@ -1560,9 +1554,8 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
             }
             m_mdtCreator->updateSign(*nonconstDC, side);
             double dist = pointOnHit.x();
-            rioDistVec.push_back(std::make_pair(dist, nonconstDC));
-        }
-        return measurementsToBeDeleted;
+            rioDistVec.push_back(std::make_pair(dist, std::move(nonconstDC)));
+        }       
     }
 
     std::string DCMathSegmentMaker::printSP(std::pair<double, double> resPull, const DCMathSegmentMaker::Cluster2D& spacePoint) const {
@@ -1609,7 +1602,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
 
     std::pair<std::pair<int, int>, bool> DCMathSegmentMaker::associateClustersToSegment(
         const TrkDriftCircleMath::Segment& segment, const Identifier& chid, const Amg::Transform3D& gToStation, ClusterVecPair& spVecs,
-        double phimin, double phimax, std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const {
+        double phimin, double phimax, std::vector<std::pair<double, std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const {
         typedef IdDataVec<std::pair<double, Cluster2D> > GasGapData;
         typedef IdDataVec<GasGapData> ChamberData;
         typedef std::vector<ChamberData> ChamberDataVec;
@@ -1722,7 +1715,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                             if (m_createCompetingROTsEta)
                                 etaClusterVec.push_back(sp.etaHit->prepRawData());
                             else {
-                                rioDistVec.push_back(std::make_pair(dist, sp.etaHit->clone()));
+                                rioDistVec.push_back(std::make_pair(dist, sp.etaHit->uniqueClone()));
                                 ++netaPhiHits.first.first;
                             }
                         }
@@ -1738,7 +1731,7 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                             // can have multiple phi hits per cluster, loop over phi hits and add them
                             for (std::vector<const MuonClusterOnTrack*>::iterator pit = sp.phiHits.begin(); pit != sp.phiHits.end();
                                  ++pit) {
-                                rioDistVec.push_back(std::make_pair(dist, (*pit)->clone()));
+                                rioDistVec.push_back(std::make_pair(dist, (*pit)->uniqueClone()));
                                 ++netaPhiHits.first.second;
                                 phiHits.push_back(*pit);
 
@@ -1765,18 +1758,16 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                     if (!etaCompCluster) {
                         ATH_MSG_DEBUG(" failed to create competing ETA ROT " << etaClusterVec.size());
                     } else {
-                        double dist = distanceToSegment(segment, etaCompCluster->globalPosition(), gToStation);
-                        auto chickenOutWithBarePointer = etaCompCluster.release();
-                        rioDistVec.push_back(std::make_pair(dist, chickenOutWithBarePointer));
+                        double dist = distanceToSegment(segment, etaCompCluster->globalPosition(), gToStation);                       
                         ++netaPhiHits.first.first;
-
                         if (msgLvl(MSG::VERBOSE)) {
                             ATH_MSG_VERBOSE("    selected cluster:  " << m_idHelperSvc->toString(etaClusterVec.front()->identify()));
-                            for (unsigned int i = 0; i < chickenOutWithBarePointer->containedROTs().size(); ++i) {
+                            for (unsigned int i = 0; i < etaCompCluster->containedROTs().size(); ++i) {
                                 ATH_MSG_VERBOSE(
-                                    "               content:  " << m_idHelperSvc->toString(chickenOutWithBarePointer->containedROTs()[i]->identify()));
+                                    "               content:  " << m_idHelperSvc->toString(etaCompCluster->containedROTs()[i]->identify()));
                             }
                         }
+                        rioDistVec.push_back(std::make_pair(dist, std::move(etaCompCluster)));
                     }
                 }
             }
@@ -1789,9 +1780,8 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                         ATH_MSG_DEBUG(" failed to create competing PHI ROT " << phiClusterVec.size());
                     } else {
                         double dist = distanceToSegment(segment, phiCompCluster->globalPosition(), gToStation);
-                        auto chickenOutWithBarePointer = phiCompCluster.release();
-                        rioDistVec.push_back(std::make_pair(dist, chickenOutWithBarePointer));
-                        phiHits.push_back(chickenOutWithBarePointer);
+                        phiHits.push_back(phiCompCluster.get());
+                        
                         ++netaPhiHits.first.second;
 
                         if (msgLvl(MSG::VERBOSE)) {
@@ -1801,12 +1791,15 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                                     "               content:  " << m_idHelperSvc->toString(phiCompCluster->containedROTs()[i]->identify()));
                             }
                         }
+                        
 
                         // calculate position
                         double phiPos =
-                            isEndcap ? std::abs(chickenOutWithBarePointer->globalPosition().z()) : std::abs(chickenOutWithBarePointer->globalPosition().perp());
-                        if (phiPos < posFirstPhiStation) posFirstPhiStation = phiPos;
-                        if (phiPos > posLastPhiStation) posLastPhiStation = phiPos;
+                            isEndcap ? std::abs(phiCompCluster->globalPosition().z()) : phiCompCluster->globalPosition().perp();
+                        posFirstPhiStation = std::min(phiPos,posFirstPhiStation);
+                        posLastPhiStation = std::max(phiPos,posLastPhiStation);
+                        rioDistVec.push_back(std::make_pair(dist, std::move(phiCompCluster)));
+                      
                     }
                 }
             }
@@ -1944,19 +1937,18 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
                                                                                << "  distance to segment " << dist);
                         continue;
                     }
-                    auto chickenOutWithBarePointer=phiCompCluster.release();
-                    rioDistVec.push_back(std::make_pair(dist, chickenOutWithBarePointer));
-                    phiHits.push_back(chickenOutWithBarePointer);
+                    phiHits.push_back(phiCompCluster.get());
                     ++netaPhiHits.first.second;
                     ++addedPhiHits;
                     if (msgLvl(MSG::VERBOSE)) {
                         ATH_MSG_VERBOSE("    selected unassociated cluster:  " << m_idHelperSvc->toString(prds.front()->identify())
                                                                                << "  distance to segment " << dist);
-                        for (unsigned int i = 0; i < chickenOutWithBarePointer->containedROTs().size(); ++i) {
+                        for (unsigned int i = 0; i < phiCompCluster->containedROTs().size(); ++i) {
                             ATH_MSG_VERBOSE(
-                                "               content:  " << m_idHelperSvc->toString(chickenOutWithBarePointer->containedROTs()[i]->identify()));
+                                "               content:  " << m_idHelperSvc->toString(phiCompCluster->containedROTs()[i]->identify()));
                         }
                     }
+                    rioDistVec.push_back(std::make_pair(dist, std::move(phiCompCluster)));
                 }
             }
             ATH_MSG_VERBOSE("Added " << addedPhiHits << " unass phi hits out of " << spVecs.second.size()
@@ -1997,14 +1989,15 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         return pointOnHit.x();
     }
 
-    DataVector<const Trk::MeasurementBase>* DCMathSegmentMaker::createROTVec(
-        std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const {
+    std::unique_ptr<DataVector<const Trk::MeasurementBase>> DCMathSegmentMaker::createROTVec(
+        std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const {
         // sort hits according to they distance to the segment position
         std::sort(rioDistVec.begin(), rioDistVec.end(), SortByDistanceToSegment());
 
-        DataVector<const Trk::MeasurementBase>* rioVec = new DataVector<const Trk::MeasurementBase>();
+        std::unique_ptr<DataVector<const Trk::MeasurementBase>> rioVec = std::make_unique<DataVector<const Trk::MeasurementBase>>(SG::OWN_ELEMENTS);
         rioVec->reserve(rioDistVec.size());
-        for (const std::pair<double, const Trk::MeasurementBase*>& rdit : rioDistVec) { rioVec->push_back(rdit.second); }
+        for (std::pair<double, std::unique_ptr<const Trk::MeasurementBase>>& rdit : rioDistVec) { rioVec->push_back(std::move(rdit.second)); }
+        rioDistVec.clear();
         return rioVec;
     }
 
@@ -2030,16 +2023,14 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         return std::make_pair(residual, pull);
     }
 
-    std::vector<Identifier> DCMathSegmentMaker::calculateHoles(
+    std::vector<Identifier> DCMathSegmentMaker::calculateHoles(const EventContext& ctx,
         Identifier chid, const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, bool hasMeasuredCoordinate, std::set<Identifier>& deltaVec,
-        std::set<Identifier>& outoftimeVec, std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const {
+        std::set<Identifier>& outoftimeVec, const  std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const {
         // calculate crossed tubes
-        
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         SG::ReadCondHandle<Muon::MuonIntersectGeoData> InterSectSvc{m_chamberGeoKey, ctx};
         if (!InterSectSvc.isValid()) {
             ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-            // return 0;
+            return {};
         }
         const MuonStationIntersect intersect = InterSectSvc->tubesCrossedByTrack(chid, gpos, gdir);
         const MuonGM::MuonDetectorManager* MuonDetMgr = InterSectSvc->detMgr();
@@ -2047,8 +2038,8 @@ for (const Identifier& cham_id : chamberSet) { geos.push_back(createChamberGeome
         // set to identify the hit on the segment
         std::set<Identifier> hitsOnSegment, chambersOnSegment;
         int firstLayer{-1}, lastLayer{-1};
-        for (const std::pair<double, const Trk::MeasurementBase*>& rdit : rioDistVec) {
-            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rdit.second);
+        for (const std::pair<double, std::unique_ptr<const Trk::MeasurementBase>>& rdit : rioDistVec) {
+            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rdit.second.get());
             if (mdt) {
                 const Identifier& id = mdt->identify();
                 int layer = (m_idHelperSvc->mdtIdHelper().tubeLayer(id) - 1) + 4 * (m_idHelperSvc->mdtIdHelper().multilayer(id) - 1);

@@ -87,8 +87,8 @@ namespace Muon {
         std::sort( myDistClusters.begin(), myDistClusters.end(), SortByDistanceToSegment() );
     */
     struct SortByDistanceToSegment {
-        bool operator()(const std::pair<double, const Trk::MeasurementBase*>& hit1,
-                        const std::pair<double, const Trk::MeasurementBase*>& hit2) {
+        bool operator()(const std::pair<double, std::unique_ptr<const Trk::MeasurementBase>>& hit1,
+                        const std::pair<double, std::unique_ptr<const Trk::MeasurementBase>>& hit2) {
             return hit1.first < hit2.first;
         }
     };
@@ -171,11 +171,11 @@ namespace Muon {
         typedef std::pair<ClusterVec, ClusterVec> ClusterVecPair;
 
         struct TubeEnds {
-            TubeEnds() : lxmin(0), lxmax(0), phimin(0), phimax(0) {}
-            double lxmin;
-            double lxmax;
-            double phimin;
-            double phimax;
+            TubeEnds() = default;
+            double lxmin{0};
+            double lxmax{0};
+            double phimin{0};
+            double phimax{};
         };
 
         struct segmentCreationInfo {  // miscellaneous objects needed for segment creation
@@ -281,7 +281,7 @@ namespace Muon {
 
             Implementation of IMuonSegmentTriggerHitAssociator interface routine
         */
-        const MuonSegment* associateTriggerHits(const MuonSegment& seg, const std::vector<const MuonClusterOnTrack*>& clus,
+       MuonSegment* associateTriggerHits(const MuonSegment& seg, const std::vector<const MuonClusterOnTrack*>& clus,
                                                 bool includeEtaHits) const;
 
     private:
@@ -294,9 +294,9 @@ namespace Muon {
         /** calculate error scaling factor */
         double errorScaleFactor(const Identifier& id, double curvature, bool hasPhiMeasurements) const;
 
-        std::vector<Identifier> calculateHoles(Identifier chid, const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, bool hasMeasuredCoordinate,
+        std::vector<Identifier> calculateHoles(const EventContext& ctx, Identifier chid, const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, bool hasMeasuredCoordinate,
                                                std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec,
-                                               std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
+                                               const std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const;
 
         TrkDriftCircleMath::DCVec createDCVec(const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale,
                                               std::set<Identifier>& chamberSet, double& phimin, double& phimax,
@@ -314,16 +314,17 @@ namespace Muon {
         Cluster2D createTgcSpacePoint(const Identifier& gasGapId, const MuonClusterOnTrack* etaHit, const MuonClusterOnTrack* phiHit) const;
         TrkDriftCircleMath::CLVec createClusterVec(const Identifier& chid, ClusterVec& spVec, const Amg::Transform3D& gToStation) const;
 
-        std::vector<std::unique_ptr<const Trk::MeasurementBase> > associateMDTsToSegment(
+       void associateMDTsToSegment(
             const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, const std::vector<const MdtDriftCircleOnTrack*>& mdts,
             TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, const Amg::Transform3D& gToStation, const Amg::Transform3D& amdbToGlobal,
             std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec,
-            std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
+            std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const;
         std::pair<std::pair<int, int>, bool> associateClustersToSegment(
             const TrkDriftCircleMath::Segment& segment, const Identifier& chid, const Amg::Transform3D& gToStation, ClusterVecPair& spVecs,
-            double phimin, double phimax, std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
-        DataVector<const Trk::MeasurementBase>* createROTVec(
-            std::vector<std::pair<double, const Trk::MeasurementBase*> >& rioDistVec) const;
+            double phimin, double phimax, std::vector<std::pair<double, std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const;
+        
+        std::unique_ptr<DataVector<const Trk::MeasurementBase>> createROTVec(
+            std::vector<std::pair<double,  std::unique_ptr<const Trk::MeasurementBase>> >& rioDistVec) const;
 
         double distanceToSegment(const TrkDriftCircleMath::Segment& segment, const Amg::Vector3D& hitPos,
                                  const Amg::Transform3D& gToStation) const;
@@ -363,7 +364,7 @@ namespace Muon {
         void addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
                         std::vector<std::unique_ptr<const Trk::MeasurementBase> >& tash_bin, bool isEndcap) const;
 
-        MuonSegment* createSegment(TrkDriftCircleMath::Segment& segment, const Identifier& chid, const Amg::Vector3D& roadpos,
+        std::unique_ptr<MuonSegment> createSegment(const EventContext& ctx, TrkDriftCircleMath::Segment& segment, const Identifier& chid, const Amg::Vector3D& roadpos,
                                    const Amg::Vector3D& roaddir2, const std::vector<const MdtDriftCircleOnTrack*>& mdts,
                                    bool hasPhiMeasurements, segmentCreationInfo& sInfo) const;
 
