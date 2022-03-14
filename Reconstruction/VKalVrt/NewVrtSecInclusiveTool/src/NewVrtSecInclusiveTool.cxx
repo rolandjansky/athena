@@ -185,7 +185,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
        m_hb_fakeSVBDT  = new TH1F("fakeSVBDT"," BDT for fake SV rejection", 100, -1., 1.);
 //---
        std::string histDir;
-       histDir="/file1/stat/MultiSVrt"+m_instanceName+"/";
+       histDir="/NVSI/stat/MultiSVrt"+m_instanceName+"/";
        sc = hist_root->regHist(histDir+"massPiPi", m_hb_massPiPi);
        sc = hist_root->regHist(histDir+"massPiPi1", m_hb_massPiPi1);
        sc = hist_root->regHist(histDir+"massPPi", m_hb_massPPi);
@@ -222,7 +222,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
        m_curTup=new DevTuple();
        m_tuple = new TTree("Vertices","Vertices");
        std::string TreeDir;
-       TreeDir="/file1/stat/MultiSVrt"+m_instanceName+"/";
+       TreeDir="/NVSI/stat/MultiSVrt"+m_instanceName+"/";
        sc = hist_root->regTree(TreeDir,m_tuple);
        if (sc.isSuccess()) {
           m_tuple->Branch("ntrk",       &m_curTup->nTrk,    "ntrk/I");
