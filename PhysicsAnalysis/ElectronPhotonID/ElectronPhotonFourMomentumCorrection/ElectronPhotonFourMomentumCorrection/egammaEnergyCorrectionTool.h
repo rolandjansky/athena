@@ -458,8 +458,6 @@ namespace AtlasRoot {
 
   private:
 
-
-    std::unique_ptr<TFile> m_rootFile;
     std::string m_rootFileName;
 
     mutable TRandom3   m_random3;
