@@ -78,6 +78,12 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonAlg.l1_grho_key = 'LVL1EnergySumRoI' #'gXERHOPerf '
       TrigMETMonAlg.l1_gjwoj_key = 'LVL1EnergySumRoI' #'gXEJWOJPerf'
       TrigMETMonAlg.l1_gpufit_key = 'LVL1EnergySumRoI'
+      TrigMETMonAlg.l1_jFexMet_key = 'L1_jFexMETRoI'
+      TrigMETMonAlg.l1_jFexSumEt_key = 'L1_jFexSumETRoI'
+      TrigMETMonAlg.l1_gFexJwojScalar_key = 'L1_gScalarEJwoj'
+      TrigMETMonAlg.l1_gFexJwojMETComponents_key = 'L1_gMETComponentsJwoj'
+      TrigMETMonAlg.l1_gFexJwojMHTComponents_key = 'L1_gMHTComponentsJwoj'
+      TrigMETMonAlg.l1_gFexJwojMSTComponents_key = 'L1_gMSTComponentsJwoj'
     else:
       TrigMETMonAlg.hlt_electron_key = 'HLT_xAOD__ElectronContainer_egamma_Electrons'
       TrigMETMonAlg.hlt_muon_key = 'HLT_xAOD__MuonContainer_MuonEFInfo'
@@ -108,22 +114,9 @@ def TrigMETMonConfig(inputFlags):
                 "L1_gXENC100",
                 "L1_gXERHO100",
                 "L1_gXEJWOJ100"]
-    HLTChains = ["HLT_xe65_cell_L1XE50",
-                 "HLT_xe65_cell_xe110_tcpufit_L1XE50",
-                 "HLT_xe65_cell_xe90_pfopufit_L1XE50",
-                 "HLT_xe65_cell_xe95_pfsum_vssk_L1XE50",
-                 "HLT_xe60_cell_xe95_pfsum_cssk_L1XE50",
-                 "HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1XE50",
-                 "HLT_xe65_cell_xe105_mhtpufit_em_subjesgscIS_L1XE50",
-                 "HLT_xe55_cell_xe70_tcpufit_xe90_pfsum_vssk_L1XE50",
-                 "HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1XE50",
-                 "HLT_xe100_tcpufit_L1XE50",
-                 "HLT_xe110_tcpufit_L1XE50",
-                 "HLT_xe110_pfsum_L1XE50",
-                 "HLT_xe110_pfsum_cssk_L1XE50",
-                 "HLT_xe110_pfsum_vssk_L1XE50"]
+    HLTChains = []
     HLTChainsVal = []
-    HLTChainsT0 = ["HLT_xe65_cell_xe110_tcpufit_L1XE50"]
+    HLTChainsT0 = []
     if mt_chains == 0:
       L1Chains = ["L1_XE50"]
       HLTChains = ["HLT_xe70_mht",
@@ -161,6 +154,8 @@ def TrigMETMonConfig(inputFlags):
               "grho", 
               "gjwoj", 
               "gpufit"]
+    algsL1Fex = ["jFex",
+                 "gFexJwoj"]
     algsHLT = ["cell", 
                "tcpufit", 
                "trkmht", 
@@ -363,7 +358,41 @@ def TrigMETMonConfig(inputFlags):
       metGroup.defineHistogram('L1_{}_sumEt'.format(alg),
                              title='L1_{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
+                             xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
+      metGroup.defineHistogram('L1_{}_sumEt_log'.format(alg),
+                             title='L1_{} sumE_{{T}} log;log(sumE_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
+    ## L1 jFex gFex 
+    for alg in algsL1Fex:
+      metGroup.defineHistogram('L1_{}_Ex'.format(alg),
+                             title='L1_{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_Ex_log'.format(alg),
+                             title='L1_{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('L1_{}_Ey'.format(alg),
+                             title='L1_{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_Ey_log'.format(alg),
+                             title='L1_{} Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('L1_{}_Et'.format(alg),
+                             title='L1_{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
                              xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('L1_{}_Et_log'.format(alg),
+                             title='L1_{} Missing E_{{T}} log;log(E_{{T}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
+      metGroup.defineHistogram('L1_{}_sumEt'.format(alg),
+                             title='L1_{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
       metGroup.defineHistogram('L1_{}_sumEt_log'.format(alg),
                              title='L1_{} sumE_{{T}} log;log(sumE_{{T}}/GeV);Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),

@@ -11,6 +11,12 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTrigger/EnergySumRoI.h" 
+#include <xAODTrigger/jFexMETRoI.h>
+#include <xAODTrigger/jFexMETRoIContainer.h>
+#include <xAODTrigger/jFexSumETRoI.h>
+#include <xAODTrigger/jFexSumETRoIContainer.h>
+#include <xAODTrigger/gFexGlobalRoI.h>
+#include <xAODTrigger/gFexGlobalRoIContainer.h>
 #include "xAODTrigMissingET/TrigMissingETContainer.h" 
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h" 
 #include "xAODMuon/MuonContainer.h"
@@ -54,6 +60,13 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_grho_key{this, "l1_grho_key", "gXERHO_MET", "gXERHO MET container name"};
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_gjwoj_key{this, "l1_gjwoj_key", "gXEJWOJ_MET", "gXERJWOW MET container name"};
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_gpufit_key{this, "l1_gpufit_key", "gXEPUFIT_MET", "gXEPUFIT MET container name"};
+
+  SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_l1_jFexMet_key{this, "l1_jFexMet_key", "L1_jFexMETRoI", "L1 jFex MET container name"};
+  SG::ReadHandleKey<xAOD::jFexSumETRoIContainer> m_l1_jFexSumEt_key{this, "l1_jFexSumEt_key", "L1_jFexSumETRoI", "L1 jFex sumEt container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojScalar_key{this, "l1_gFexJwojScalar_key", "L1_gScalarEJwoj", "L1 gFex JWOJ Et and sumEt container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojMETComponents_key{this, "l1_gFexJwojMETComponents_key", "L1_gMETComponentsJwoj", "L1 gFex JWOJ Ex and Ey container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojMHTComponents_key{this, "l1_gFexJwojMHTComponents_key", "L1_gMHTComponentsJwoj", "L1 gFex JWOJ Hard Term Ex and Ey container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojMSTComponents_key{this, "l1_gFexJwojMSTComponents_key", "L1_gMSTComponentsJwoj", "L1 gFex JWOJ Soft Term Ex and Ey container name"};
 
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_cell_met_key{this, "hlt_cell_key", "HLT_MET_cell", "HLT Cell MET container name"};
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mht_met_key{this, "hlt_mht_key", "HLT_MET_mht", "HLT MHT MET container name"};
