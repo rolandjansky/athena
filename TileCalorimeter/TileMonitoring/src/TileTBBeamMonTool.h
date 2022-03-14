@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //TileTBBeamMonTool.h
@@ -12,20 +12,14 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // // Athena includes
-// #include "AthenaBaseComps/AthAlgorithm.h"
 
 // Tile includes
-// #include "TileConditions/TileCablingService.h"
-// #include "TileIdentifier/TileRawChannelUnit.h"
+
 #include "TileFatherMonTool.h"
 
-#include "TFile.h"
-#include "TMatrixT.h"
-#include "TTree.h"
+
+
 #include <string>
-#include <vector>
-#include <map>
-#include <stdint.h>
 
 class ITHistSvc;
 class TileDQstatus;
@@ -92,71 +86,71 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     TH1F* m_PMT12 = nullptr;
     TH2F* m_PMTHitMap = nullptr;
 
-    bool m_isFirstEvent;
+    bool m_isFirstEvent{};
 
     // TDC/BEAM Items
-    int m_s1cou;
-    int m_s2cou;
-    int m_s3cou;
-    int m_cher1;
-    int m_cher2;
-    int m_cher3;
-    int m_muTag;
-    int m_muHalo;
-    int m_muVeto;
+    int m_s1cou{};
+    int m_s2cou{};
+    int m_s3cou{};
+    int m_cher1{};
+    int m_cher2{};
+    int m_cher3{};
+    int m_muTag{};
+    int m_muHalo{};
+    int m_muVeto{};
 
-    float m_muBack[16]; // MUON/MuBack
+    float m_muBack[16]={0}; // MUON/MuBack
 
-    int m_btdc[16];
-    bool m_btdcFirstHit[16];
+    int m_btdc[16]={0};
+    bool m_btdcFirstHit[16]={};
 
     //PMT counters
-    int m_pmt1cou;
-    int m_pmt2cou;
-    int m_pmt3cou;
-    int m_pmt4cou;
-    int m_pmt5cou;
-    int m_pmt6cou;
-    int m_pmt7cou;
-    int m_pmt8cou;
-    int m_pmt9cou;
-    int m_pmt10cou;
-    int m_pmt11cou;
-    int m_pmt12cou;
+    int m_pmt1cou{};
+    int m_pmt2cou{};
+    int m_pmt3cou{};
+    int m_pmt4cou{};
+    int m_pmt5cou{};
+    int m_pmt6cou{};
+    int m_pmt7cou{};
+    int m_pmt8cou{};
+    int m_pmt9cou{};
+    int m_pmt10cou{};
+    int m_pmt11cou{};
+    int m_pmt12cou{};
 
-    float m_xCha1;
-    float m_yCha1;
-    float m_xCha2;
-    float m_yCha2;
-    float m_xCha1_sum;
-    float m_yCha1_sum;
-    float m_xCha2_sum;
-    float m_yCha2_sum;
-    float m_xImp;
-    float m_yImp;
+    float m_xCha1{};
+    float m_yCha1{};
+    float m_xCha2{};
+    float m_yCha2{};
+    float m_xCha1_sum{};
+    float m_yCha1_sum{};
+    float m_xCha2_sum{};
+    float m_yCha2_sum{};
+    float m_xImp{};
+    float m_yImp{};
     //float m_deltaX1;
     //float m_deltaY1;
     //float m_deltaX2;
     //float m_deltaY2;
 
     //Calibration coords
-    float m_horizontal_slope1;
-    float m_horizontal_offset1;
-    float m_vertical_slope1;
-    float m_vertical_offset1;
-    float m_horizontal_slope2;
-    float m_horizontal_offset2;
-    float m_vertical_slope2;
-    float m_vertical_offset2;
-    float m_beamBC1Z;
-    float m_beamBC2Z;
+    float m_horizontal_slope1{};
+    float m_horizontal_offset1{};
+    float m_vertical_slope1{};
+    float m_vertical_offset1{};
+    float m_horizontal_slope2{};
+    float m_horizontal_offset2{};
+    float m_vertical_slope2{};
+    float m_vertical_offset2{};
+    float m_beamBC1Z{};
+    float m_beamBC2Z{};
 
     //Cell energy and calorimeter energy
-    double m_total_energy;
-    double m_cell_energy;
-    double m_cut_energy_min;
-    double m_cut_energy_max;
-    double m_total_muon_energy;
+    double m_total_energy{};
+    double m_cell_energy{};
+    double m_cut_energy_min{};
+    double m_cut_energy_max{};
+    double m_total_muon_energy{};
 
     //Total event energy
     std::string m_cellContainer; 
@@ -167,7 +161,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     //Beam element container
     std::string m_beamElemContainer;
 
-    int m_TBperiod;
+    int m_TBperiod{};
 };
 
 #endif

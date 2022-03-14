@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -75,27 +75,27 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     std::string m_rawChannelContainerName;
     std::string m_digitsContainerName;
 
-    float m_negAmpHG;
-    float m_negAmpLG;
-    float m_jumpDeltaHG;
-    float m_jumpDeltaLG;
-    float m_pedDeltaHG;
-    float m_pedDeltaLG;
+    float m_negAmpHG{};
+    float m_negAmpLG{};
+    float m_jumpDeltaHG{};
+    float m_jumpDeltaLG{};
+    float m_pedDeltaHG{};
+    float m_pedDeltaLG{};
 
-    bool m_skipMasked;
-    bool m_skipGapCells;
-    bool m_doOnline;
-    bool m_checkDCS;  //!< if false, do not use TileDCS at all
+    bool m_skipMasked{};
+    bool m_skipGapCells{};
+    bool m_doOnline{};
+    bool m_checkDCS{};  //!< if false, do not use TileDCS at all
 
     /* njunior@cern.ch */
-    const TileDQstatus* m_dqStatus;
+    const TileDQstatus* m_dqStatus{};
 
     int m_globalErrCount[4][64]; //global CRC errors
 
     /* njunior@cern.ch */
 
     TH2I_LW* m_global[2];
-    TH2I_LW* m_mismatchedL1TriggerType;
+    TH2I_LW* m_mismatchedL1TriggerType{};
 
     TH2I_LW* m_badChannelJump2D[4];
     TH2I_LW* m_badChannelNeg2D[4];
@@ -104,22 +104,22 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     TH2I_LW* m_badChannelNeg2DNotMasked[4];
 
         /* tibor.zenis@cern.ch */
-    TH1I_LW* m_eventinfoError_LB;
-    TH2I_LW* m_nConsecBad_LB;
-    TH1I_LW* m_nConsecBad;
+    TH1I_LW* m_eventinfoError_LB{};
+    TH2I_LW* m_nConsecBad_LB{};
+    TH1I_LW* m_nConsecBad{};
 
     TH2I_LW* m_errors[4][64];
     TProfile_LW* m_errorsLB[4][64];
 
     std::array<TH2I_LW*, 4> m_badPulseQuality;
-    TH2I_LW* m_noAllDigitsInDrawer;
+    TH2I_LW* m_noAllDigitsInDrawer{};
 
     std::vector<std::string> m_errorsLabels;
     std::vector<std::string> m_partitionsLabels;
     std::vector<std::string> m_moduleLabel[NumPart]; // array of module names
     std::vector<std::string> m_cellchLabel[NumPart]; // array of cell-channels names
 
-    bool m_isFirstEvent;
+    bool m_isFirstEvent{};
 
     static const int NERROR = 17;
     static const int MASKEDERROR = NERROR - 3;
@@ -128,17 +128,17 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     static const int NCORRUPTED = 13;
     static const int NDMU = 16;
 
-    int m_nLumiblocks;
-    float m_qualityCut;
+    int m_nLumiblocks{};
+    float m_qualityCut{};
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    unsigned int m_nEventsWithAllDigits;
+    unsigned int m_nEventsWithAllDigits{};
 
     // TileInfo
     std::string m_infoName;
-    const TileInfo* m_tileInfo;
-    int m_i_ADCmax;
-    float m_ADCmaxMinusEps;
-    float m_ADCmaskValueMinusEps;
+    const TileInfo* m_tileInfo{};
+    int m_i_ADCmax{};
+    float m_ADCmaxMinusEps{};
+    float m_ADCmaskValueMinusEps{};
     /*---------------------------------------------------------*/
 
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -54,30 +54,30 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
 
-    const TileDQstatus* m_DQstatus;
+    const TileDQstatus* m_DQstatus{};
 
-    bool m_bigain;
+    bool m_bigain{};
 
     //int m_nSamples;
-    double m_sumPed1[5][64][48][2];
-    double m_sumPed2[5][64][48][2];
-    double m_sumRms1[5][64][48][2];
+    double m_sumPed1[5][64][48][2] = {0};
+    double m_sumPed2[5][64][48][2]= {0};
+    double m_sumRms1[5][64][48][2]= {0};
 
-    int m_nPedEvents[5][64][48][2];
-    int m_nRmsEvents[5][64][48][2];
+    int m_nPedEvents[5][64][48][2]= {0};
+    int m_nRmsEvents[5][64][48][2]= {0};
 
     // histogram to store 4 maps of module vs channel
-    TH2F* m_finalNoiseMap[5][2][3];
+    TH2F* m_finalNoiseMap[5][2][3]= {0};
 
-    int m_summaryUpdateFrequency;
-    int m_nEventsProcessed;
-    bool m_fillEmtyFromDB;
-    bool m_fillPedestalDifference;
+    int m_summaryUpdateFrequency{};
+    int m_nEventsProcessed{};
+    bool m_fillEmtyFromDB{};
+    bool m_fillPedestalDifference{};
     std::vector<uint32_t> m_triggerTypes;
-    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{};
     ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
-    bool m_checkDCS;
-    bool m_histogramsNotBooked;
+    bool m_checkDCS{};
+    bool m_histogramsNotBooked{};
 };
 
 #endif

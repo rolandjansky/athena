@@ -62,26 +62,26 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     StatusCode fillSummaryHistograms();
     void resetSummaryHistograms();
 
-    bool m_bookAll;
-    bool m_book2D;
-    bool m_overlaphists;
-    int m_runType;
+    bool m_bookAll{};
+    bool m_book2D{};
+    bool m_overlaphists{};
+    int m_runType{};
     std::string m_contName;
     std::string m_contNameDSP;
     std::string m_contNameOF;
-    double m_DownLimit; // Down Threshold for Amp/Q ratio plots
-    double m_UpLimit;   // Up  Threshold for Amp/Q ratio plots
-    double m_lo_IntegralLimit; // Warning error bar Low limit for  Amp/Q ratio plots
-    double m_med_IntegralLimit; // Warning error bar Med limit for  Amp/Q ratio plots
-    double m_hi_IntegralLimit; // Warning error bar High limit for  Amp/Q ratio plots
-    bool m_useratioerror; //use ratioerror bar or rangeerror bar ?
+    double m_DownLimit{}; // Down Threshold for Amp/Q ratio plots
+    double m_UpLimit{};   // Up  Threshold for Amp/Q ratio plots
+    double m_lo_IntegralLimit{}; // Warning error bar Low limit for  Amp/Q ratio plots
+    double m_med_IntegralLimit{}; // Warning error bar Med limit for  Amp/Q ratio plots
+    double m_hi_IntegralLimit{}; // Warning error bar High limit for  Amp/Q ratio plots
+    bool m_useratioerror{}; //use ratioerror bar or rangeerror bar ?
     //bool m_plotOptFilt; //book Optimal Filter histograms?
-    bool m_plotDsp; //book Optimal Filter histograms?
-    bool m_storeGraph; //Store TGraph to file: necessary due to THistSvc bug
+    bool m_plotDsp{}; //book Optimal Filter histograms?
+    bool m_storeGraph{}; //Store TGraph to file: necessary due to THistSvc bug
     std::map<int, std::vector<double> > m_efitMap;
     std::map<int, std::vector<double> > m_tfitMap;
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
-    double m_efitThresh;
+    double m_efitThresh{};
 
     /// The following three functions are implemented to filter data corruption, copied from TileDigitsMonTool.h
 
@@ -90,7 +90,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     bool checkDmuHeader(std::vector<uint32_t>* headerVec, int dmu);
     //vector to hold data corruption information
     // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
-    bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
+    bool m_corrup[5][64][2][16]={}; //ros, drawer, gain, DMU
 
     /// Function to check that the DMU header format is correct
     /// bit_31 of the DMU header must be 1 and
@@ -136,8 +136,8 @@ class TileRawChannelMonTool: public TilePaterMonTool {
 
     const uint32_t* m_cispar;
 
-    bool m_bigain;
-    int m_nEventsTileMon;
+    bool m_bigain{};
+    int m_nEventsTileMon{};
     struct Data {
       float m_rangeQ[2][2][3][48];
       double m_timeCov[5][64][48][2][2][6];
@@ -159,19 +159,19 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     };
     std::unique_ptr<Data> m_data;
 
-    TileRawChannelUnit::UNIT m_calibUnit;
+    TileRawChannelUnit::UNIT m_calibUnit{};
 
-    int m_summaryUpdateFrequency;
-    bool m_resetAfterSummaryUpdate;
-    bool m_doLaserSummaryVsPMT;
-    bool m_drawHists;
-    float m_minAmpForCorrectedTime;
+    int m_summaryUpdateFrequency{};
+    bool m_resetAfterSummaryUpdate{};
+    bool m_doLaserSummaryVsPMT{};
+    bool m_drawHists{};
+    float m_minAmpForCorrectedTime{};
     // TileInfo
-    std::string m_infoName;
-    const TileInfo* m_tileInfo;
-    bool m_is12bit;
+    std::string m_infoName{};
+    const TileInfo* m_tileInfo{};
+    bool m_is12bit{};
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    int m_intCalibUnit;
+    int m_intCalibUnit{};
 };
 
 #endif

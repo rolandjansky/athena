@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -147,15 +147,15 @@ class TileFatherMonTool: public TilePaterMonTool
 /// Example: if  m_activeTrigs[4] is 3. It means that trigger bit4 histograms can be accessed by
 /// vec_of_histos.at(  m_activeTrigs[4] ) or  vec_of_histos.at(  3 ) or better
 /// vec_of_histos.at(  m_activeTrigs[Trig_b4] )
-  int m_activeTrigs[9]; 
+  int m_activeTrigs[9]={0}; 
 
-  uint32_t m_lvl1info;
-  uint32_t m_evtNum;
-  uint32_t m_lumiBlock;
-  uint32_t m_evtBCID;
-  uint32_t m_runNum;
-  uint32_t m_tileFlag;
-  uint32_t m_tileError_error;
+  uint32_t m_lvl1info{};
+  uint32_t m_evtNum{};
+  uint32_t m_lumiBlock{};
+  uint32_t m_evtBCID{};
+  uint32_t m_runNum{};
+  uint32_t m_tileFlag{};
+  uint32_t m_tileError_error{};
   ToolHandle<Trig::TrigDecisionTool>  m_trigDec;
 
 /// Vector containing the list of triggers passed by the event

@@ -80,52 +80,52 @@ class TileDQFragMonTool: public TileFatherMonTool {
     std::string m_contNameDSP;
     std::string m_contNameOffline;
     std::string m_contNameDigits;
-    float m_negAmpHG;
-    float m_negAmpLG;
-    float m_jumpDeltaHG;
-    float m_jumpDeltaLG;
-    float m_pedDeltaHG;
-    float m_pedDeltaLG;
+    float m_negAmpHG{};
+    float m_negAmpLG{};
+    float m_jumpDeltaHG{};
+    float m_jumpDeltaLG{};
+    float m_pedDeltaHG{};
+    float m_pedDeltaLG{};
 
-    bool m_skipMasked;
-    bool m_skipGapCells;
-    bool m_doPlots;
-    bool m_doOnline;
-    bool m_checkDCS;  //!< if false, do not use TileDCSTool at all
-
-    /* njunior@cern.ch */
-    const TileDQstatus* m_dqStatus;
-    int m_UpdateCount;
-    int m_UpdateCount_shadow[10];
-    int m_UpdateTotal;
-    uint32_t m_last_lb;
-    int m_globalErrCount[4][64]; //global CRC errors
+    bool m_skipMasked{};
+    bool m_skipGapCells{};
+    bool m_doPlots{};
+    bool m_doOnline{};
+    bool m_checkDCS{};  //!< if false, do not use TileDCSTool at all
 
     /* njunior@cern.ch */
-    TH2I* m_hist_error[4][64];
-    TH2I* m_hist_error_shadow[4][64][10];
-    TH2I* m_hist_global[2];
-    TH2I* m_mismatchedL1TriggerType;
+    const TileDQstatus* m_dqStatus{};
+    int m_UpdateCount{};
+    int m_UpdateCount_shadow[10]={0};
+    int m_UpdateTotal{};
+    uint32_t m_last_lb{};
+    int m_globalErrCount[4][64]={0}; //global CRC errors
 
-    TH2S* m_hist_BadChannelJump2D[4];
-    TH2S* m_hist_BadChannelNeg2D[4];
+    /* njunior@cern.ch */
+    TH2I* m_hist_error[4][64]={};
+    TH2I* m_hist_error_shadow[4][64][10]={};
+    TH2I* m_hist_global[2]={};
+    TH2I* m_mismatchedL1TriggerType{};
 
-    TH2S* m_hist_BadChannelJump2D_nonmask[4];
-    TH2S* m_hist_BadChannelNeg2D_nonmask[4];
+    TH2S* m_hist_BadChannelJump2D[4]={};
+    TH2S* m_hist_BadChannelNeg2D[4]={};
+
+    TH2S* m_hist_BadChannelJump2D_nonmask[4]={};
+    TH2S* m_hist_BadChannelNeg2D_nonmask[4]={};
 
     /* tibor.zenis@cern.ch */
-    TH1I* m_hist_EventinfoError_LB;
-    TH2I* m_hist_nConsecBad_LB;
-    TH1I* m_hist_nConsecBad;
+    TH1I* m_hist_EventinfoError_LB{};
+    TH2I* m_hist_nConsecBad_LB{};
+    TH1I* m_hist_nConsecBad{};
 
     std::vector<std::string> m_ErrorsLabels, m_PartitionsLabels;
     std::vector<std::string> m_moduleLabel[NumPart]; // array of module names
     std::vector<std::string> m_cellchLabel[NumPart]; // array of cell-channels names
 
-    TProfile* m_hist_error_lb[4][64];
+    TProfile* m_hist_error_lb[4][64]={};
 
-    std::array<TH2I*, 4> m_badPulseQuality;
-    TH2I* m_noAllDigitsInDrawer;
+    std::array<TH2I*, 4> m_badPulseQuality{};
+    TH2I* m_noAllDigitsInDrawer{};
 
     static const int NERROR = 17;
     static const int MASKEDERROR = NERROR - 3;
@@ -134,17 +134,17 @@ class TileDQFragMonTool: public TileFatherMonTool {
     static const int NCORRUPTED = 13;
     static const int NDMU = 16;
 
-    int m_nLumiblocks;
-    float m_qualityCut;
+    int m_nLumiblocks{};
+    float m_qualityCut{};
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    unsigned int m_nEventsWithAllDigits;
+    unsigned int m_nEventsWithAllDigits{};
 
     // TileInfo
     std::string m_infoName;
-    const TileInfo* m_tileInfo;
-    int m_i_ADCmax;
-    float m_ADCmaxMinusEps;
-    float m_ADCmaskValueMinusEps;
+    const TileInfo* m_tileInfo{};
+    int m_i_ADCmax{};
+    float m_ADCmaxMinusEps{};
+    float m_ADCmaskValueMinusEps{};
     /*---------------------------------------------------------*/
 
 };
