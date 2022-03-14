@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 # JetInputConfig: A helper module providing function to setup algorithms
 # in charge of preparing input sources to jets (ex: EventDensity algo, track
@@ -9,6 +9,7 @@
 
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from JetRecConfig.JetRecConfig import isAthenaRelease
 
 def _buildJetAlgForInput(suffix, tools ):
     jetalg = CompFactory.JetAlgorithm("jetalg_"+suffix,
@@ -22,14 +23,6 @@ def buildJetTrackUsedInFitDeco( parentjetdef, inputspec ):
     return _buildJetAlgForInput("JetUsedInFitDeco",
                                 tools = [ JetRecToolsConfig.getTrackUsedInFitTool(parentjetdef.context) ]
     )
-
-def buildJetTrackVertexAssoc( parentjetdef, inputspec ):
-    from JetRecTools import JetRecToolsConfig
-    # Jet track TTVA
-    return _buildJetAlgForInput("JetTVA",
-                                tools = [ JetRecToolsConfig.getTrackVertexAssocTool(parentjetdef.context) ]
-    )
-    
 
     
 def buildJetInputTruth(parentjetdef, truthmod):
@@ -49,7 +42,7 @@ def buildLabelledTruth(parentjetdef, truthmod):
 def buildPV0TrackSel(parentjetdef, spec):
     from JetRecConfig.StandardJetContext import jetContextDic
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
-    from JetRecConfig.JetRecConfig import isAthenaRelease
+    
     trkOptions = jetContextDic[parentjetdef.context]
     tvaTool = getTTVAToolForReco("trackjetTVAtool", 
                                  returnCompFactory = True,
@@ -66,6 +59,15 @@ def buildPV0TrackSel(parentjetdef, spec):
                                            )
     return alg
 
+
+def buildPFlowSel(parentjetdef, spec):
+    return  CompFactory.JetPFlowSelectionAlg( "pflowselalg",
+                                              electronID = "LHMedium",
+                                              ChargedPFlowInputContainer  = "JetETMissChargedParticleFlowObjects",
+                                              NeutralPFlowInputContainer  = "JetETMissNeutralParticleFlowObjects",
+                                              ChargedPFlowOutputContainer = "GlobalPFlowChargedParticleFlowObjects",
+                                              NeutralPFlowOutputContainer = "GlobalPFlowNeutralParticleFlowObjects"
+                                             )
 
 ########################################################################
 def getEventShapeName( jetDefOrLabel, inputspec):
