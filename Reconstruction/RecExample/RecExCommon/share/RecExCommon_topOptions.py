@@ -570,15 +570,6 @@ if rec.doWriteBS():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
-pdr.flag_domain('tagraw')
-## add in RawInfoSummaryForTagWriter
-if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.doTagRawSummary()):
-    try:
-        include("EventTagRawAlgs/RawInfoSummaryForTagWriter_jobOptions.py")
-    except Exception:
-        logRecExCommon_topOptions.warning("Could not load RawInfoSummaryForTagWriter_joboptions !" )
-        pass
-    pass
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
 if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():

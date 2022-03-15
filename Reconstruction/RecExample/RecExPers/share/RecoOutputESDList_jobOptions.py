@@ -46,15 +46,6 @@ fullESDList += CfgItemList( "EventAthenaPool",
 # DetectorStatus
 #obsolete fullESDList += [ "DetStatusMap#DetectorStatus" ]
 
-# RawInfoSummaryForTag
-try:
-    fullItemList = []
-    protectedInclude ( "EventTagAthenaPOOL/EventTagAthenaPOOLItemList_joboptions.py")
-    fullESDList += CfgItemList( "EventTagAthenaPOOL",
-                                items = fullItemList,
-                                allowWildCard = True )
-except Exception:
-    treatException("Could not include EventTagAthenaPOOL/EventTagAthenaPOOLItemList_joboptions.py")
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():

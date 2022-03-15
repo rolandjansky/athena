@@ -58,15 +58,6 @@ try:
 except Exception:
     treatException("Could not include EventAthenaPool/EventAthenaPoolItemList_joboptions.py")
 
-# RawInfoSummaryForTag
-try:
-    fullItemList = []
-    protectedInclude ( "EventTagAthenaPOOL/EventTagAthenaPOOLItemList_joboptions.py")
-    fullAODList += CfgItemList( "EventTagAthenaPOOL",
-                                items = fullItemList,
-                                allowWildCard = True )
-except Exception:
-    treatException("Could not include EventTagAthenaPOOL/EventTagAthenaPOOLItemList_joboptions.py")
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
