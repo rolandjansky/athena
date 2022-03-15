@@ -9,7 +9,7 @@
 
 set -e
 
-Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.16767830._000007.pool.root.1 --outputDAODFile art.pool.root --reductionConf BPHY21 --maxEvents 5000 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12-08-49" ' 
+Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.16767830._000007.pool.root.1 --outputDAODFile art.pool.root --reductionConf BPHY21 --maxEvents 5000 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True) ' 
 
 echo "art-result: $? reco"
 
