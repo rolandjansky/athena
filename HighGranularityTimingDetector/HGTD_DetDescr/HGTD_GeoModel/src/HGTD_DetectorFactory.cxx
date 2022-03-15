@@ -101,8 +101,9 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
 
     ATH_MSG_INFO( "Building HGTD detector");
 
-    // load the geo db content relevant for HGTD
-    readDbParameters();
+    // initialize the geometry parameters
+    // Originally taken from geometry db, but now fully hard-coded until move to GMX implementation
+    initializeGeoParameters();
 
     // for now the position of the HGTD mother volumes is hardcoded - TODO: take from db!
     float zMother = 3482.5;
@@ -136,61 +137,14 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
     return;
 }
 
-// read the parameters describing the HGTD geometry from the db
-void HGTD_DetectorFactory::readDbParameters() {
-    // TODO : one day the LAr components should be replaced with HGTD's own dataBase
-    std::string AtlasVersion = m_athComps->geoDbTagSvc()->atlasVersion();
-    std::string LArVersion = m_athComps->geoDbTagSvc()->LAr_VersionOverride();
-    std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-    std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";     // node in RDB
+// initialize the geometry parameters (now fully hard-coded until move to GMX implementation)
+void HGTD_DetectorFactory::initializeGeoParameters() {
 
     // retrieve the material manager (can't use ATH_CHECK macros within create(), it seems..)
     StatusCode sc = detStore()->retrieve(m_materialMgr, std::string("MATERIALS"));
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot retrieve material manager from DetStore");
     }
-
-    // let's first read the box volumes
-    IRDBRecordset_ptr hgtdBoxes = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDBox", detectorKey, detectorNode);
-    for (IRDBRecordset::const_iterator it = hgtdBoxes->begin(); it != hgtdBoxes->end(); ++it) {
-        std::string name = (*it)->getString("BOX");
-        m_boxVolPars[name] = { name,
-            (*it)->getDouble("DX"),
-            (*it)->getDouble("DY"),
-            (*it)->getDouble("DZ"),
-            (*it)->getDouble("ZPOS"),
-            (*it)->getString("MATERIAL") };
-
-        ATH_MSG_DEBUG( "Read " << name << " from db: xHalf = " << m_boxVolPars[name].xHalf << " mm, yHalf = "
-              << m_boxVolPars[name].yHalf << " mm, zHalf = " << m_boxVolPars[name].zHalf << " mm, zOffsetLocal = "
-              << m_boxVolPars[name].zOffsetLocal << " mm, material = \"" << m_boxVolPars[name].material << "\"");
-    }
-
-    // Add a dummy entry that will be used to leave some space - no volume will actually be created for this
-    // needed after fix of ASIC thickness (and material) in HGTD-TDR-01 tag (ATLAS-P2-ITK-17-04-02 and later), compared to HGTD-TDR-00
-    double moduleSpaceHalfZ = 0.225;
-    m_boxVolPars["HGTD::ModuleSpace"] = {"HGTD::ModuleSpace", 11, 20, moduleSpaceHalfZ, 0, "std::Air"};
-
-    // now the tubs
-    IRDBRecordset_ptr hgtdTubs = m_athComps->rdbAccessSvc()->getRecordsetPtr("HGTDTubs", detectorKey, detectorNode);
-    for (IRDBRecordset::const_iterator it = hgtdTubs->begin(); it != hgtdTubs->end(); ++it) {
-        std::string name = (*it)->getString("TUBE");
-        m_cylVolPars[name] = { name,
-                   (*it)->getDouble("RMIN"),
-                   (*it)->getDouble("RMAX"),
-                   (*it)->getDouble("DZ"),
-                   (*it)->getDouble("ZPOS"), // no db values used currently, to be fixed when revising db scheme for master migration
-                   (*it)->getString("MATERIAL")
-        };
-        ATH_MSG_DEBUG( "Read " << name << " from db: rMin = " << m_cylVolPars[name].rMin << " mm, rMax = " << m_cylVolPars[name].rMax
-              << " mm, zHalf = " << m_cylVolPars[name].zHalf << " mm, material = \"" << m_cylVolPars[name].material << "\"");
-    }
-
-    // a few of the volumes need to be tweaked, at least for HGTD-TDR-00 and HGTD-TDR-01 - they could go into the next HGTD tag
-    m_cylVolPars["HGTD_mother"].rMin= 100; // TODO: should go into db
-    m_cylVolPars["HGTD::CoolingPlate"].material = "std::Aluminium"; // TODO: should go into the db
-
-    //  below lines are not yet in db!
 
     // temporarily hard-code custom materials - eventually will be defined in xml once HGTD migrates to GeoModelXML detector description
 
@@ -253,25 +207,48 @@ void HGTD_DetectorFactory::readDbParameters() {
     Epoxy->add(m_materialMgr->getElement("Oxygen"), 0.16);
     m_materialMgr->addMaterial("hgtd", Epoxy);
 
+    // Hardcoded box parameters taken from geometry db:
+
+    // Node: HGTDBox                      BOX                   DX       DY       DZ       ZPOS     MATERIAL
+    m_boxVolPars["HGTDModule0"]        = {"HGTDModule0",        11,      20,      1.75,    0,       "std::Air"};
+    m_boxVolPars["HGTDModule1"]        = {"HGTDModule1",        11,      20,      1.75,    0,       "std::Air"};
+    m_boxVolPars["HGTDModule2"]        = {"HGTDModule2",        11,      20,      1.75,    0,       "std::Air"};
+    m_boxVolPars["HGTDModule3"]        = {"HGTDModule3",        11,      20,      1.75,    0,       "std::Air"};
+    m_boxVolPars["HGTD::Hybrid"]       = {"HGTD::Hybrid",       10.25,   20,      .175,    0,       "hgtd::CuKapton"};
+    m_boxVolPars["HGTD::GlueSensor"]   = {"HGTD::GlueSensor",   10.25,   20,      .04,     0,       "hgtd::Epoxy"};
+    m_boxVolPars["HGTD::GlueAsic"]     = {"HGTD::GlueAsic",     11,      20,      .04,     0,       "hgtd::Epoxy"};
+    m_boxVolPars["HGTDSiSensor0"]      = {"HGTDSiSensor0",      10.25,   20,      .025,    0,       "std::Silicon"};
+    m_boxVolPars["HGTDSiSensor1"]      = {"HGTDSiSensor1",      10.25,   20,      .025,    0,       "std::Silicon"};
+    m_boxVolPars["HGTDSiSensor2"]      = {"HGTDSiSensor2",      10.25,   20,      .025,    0,       "std::Silicon"};
+    m_boxVolPars["HGTDSiSensor3"]      = {"HGTDSiSensor3",      10.25,   20,      .025,    0,       "std::Silicon"};
+    m_boxVolPars["HGTD::LGADInactive"] = {"HGTD::LGADInactive", 10.25,   20,      .1,      0,       "std::Silicon"};
+    m_boxVolPars["HGTD::ASIC"]         = {"HGTD::ASIC",         11,      20,      .15,     0,       "std::Silicon"};
+
+    // Add a dummy entry that will be used to leave some space - no volume will actually be created for this
+    // needed after fix of ASIC thickness (and material) in HGTD-TDR-01 tag (ATLAS-P2-ITK-17-04-02 and later), compared to HGTD-TDR-00
+    double moduleSpaceHalfZ = 0.225;
+    m_boxVolPars["HGTD::ModuleSpace"] = {"HGTD::ModuleSpace", 11, 20, moduleSpaceHalfZ, 0, "std::Air"};
 
 
-    // tweak tub materials taken from db
-    m_cylVolPars["HGTD::FrontCover"].material   = "hgtd::CFiberSupport"; // sct::CFiberSupport in db
-    m_cylVolPars["HGTD::FlexTube"].material     = "hgtd::CuKapton"; // sct::CuKapton in db
-    m_cylVolPars["HGTD::CoolingPlate"].material = "hgtd::CFiberSupport"; // sct::CFiberSupport in db
-    m_cylVolPars["HGTD::ModeratorIn"].material  = "hgtd::BoratedPolyethelyne"; // LAr::BoratedPolyethelyne in db
-    m_cylVolPars["HGTD::ModeratorOut"].material = "hgtd::BoratedPolyethelyne"; // LAr::BoratedPolyethelyne in db
-    m_cylVolPars["HGTD::BackCover"].material    = "hgtd::CFiberSupport"; // sct::CFiberSupport in db
-    m_cylVolPars["HGTD::PeriphElec"].material   = "hgtd::FEBoards"; // LAr::FEBoards in db
 
-
-
-    // tweak box materials taken from db
-    m_boxVolPars["HGTD::Hybrid"].material     = "hgtd::CuKapton"; // sct::CuKapton in db
-    m_boxVolPars["HGTD::GlueSensor"].material = "hgtd::Epoxy"; // sct::Epoxy in db
-    m_boxVolPars["HGTD::GlueAsic"].material   = "hgtd::Epoxy"; // sct::Epoxy in db
-
-
+    // Node: HGTDTubs                       TUBE                       RMIN     RMAX     DZ       ZPOS     MATERIAL
+    m_cylVolPars["HGTD_mother"]          = {"HGTD_mother",             100,     1100,    62.5,    -3252,   "std::Air"};
+    m_cylVolPars["HGTD::FrontCover"]     = {"HGTD::FrontCover",        120,     1000,    7.5,     0,       "hgtd::CFiberSupport"};
+    m_cylVolPars["HGTD::FlexPackage"]    = {"HGTD::FlexPackage",       120,     660,     2,       0,       "std::Air"};
+    m_cylVolPars["HGTD::FlexTube"]       = {"HGTD::FlexTube",          120,     660,     .175,    0,       "hgtd::CuKapton"};
+    m_cylVolPars["HGTD::ModuleLayer0"]   = {"HGTD::ModuleLayer0",      120,     660,     3.75,    0,       "std::Air"};
+    m_cylVolPars["HGTD::ModuleLayer1"]   = {"HGTD::ModuleLayer1",      120,     660,     3.75,    0,       "std::Air"};
+    m_cylVolPars["HGTD::ModuleLayer2"]   = {"HGTD::ModuleLayer2",      120,     660,     3.75,    0,       "std::Air"};
+    m_cylVolPars["HGTD::ModuleLayer3"]   = {"HGTD::ModuleLayer3",      120,     660,     3.75,    0,       "std::Air"};
+    m_cylVolPars["HGTD::CoolingPlate"]   = {"HGTD::CoolingPlate",      120,     920,     3,       0,       "std::Aluminium"};
+    m_cylVolPars["HGTD::SupportPlate"]   = {"HGTD::SupportPlate",      120,     660,     .5,      0,       "std::Aluminium"};
+    m_cylVolPars["HGTD::ToleranceFront"] = {"HGTD::ToleranceFront",    120,     660,     1,       0,       "std::Air"};
+    m_cylVolPars["HGTD::ToleranceBack"]  = {"HGTD::ToleranceBack",     120,     660,     1,       0,       "std::Air"};
+    m_cylVolPars["HGTD::ToleranceMid"]   = {"HGTD::ToleranceMid",      120,     660,     1,       0,       "std::Air"};
+    m_cylVolPars["HGTD::ModeratorIn"]    = {"HGTD::ModeratorIn",       120,     900,     15,      0,       "hgtd::BoratedPolyethelyne"};
+    m_cylVolPars["HGTD::ModeratorOut"]   = {"HGTD::ModeratorOut",      120,     1100,    10,      0,       "hgtd::BoratedPolyethelyne"};
+    m_cylVolPars["HGTD::BackCover"]      = {"HGTD::BackCover",         120,     1100,    4,       0,       "hgtd::CFiberSupport"};
+    m_cylVolPars["HGTD::PeriphElec"]     = {"HGTD::PeriphElec",        674,     900,     1,       2,       "hgtd::FEBoards"};
 
     m_cylVolPars["HGTD::InnerRCover1"] = {"HGTD::InnerRCover1", 110., 111., 105./2, -10., "hgtd::CFRP"};
     // the InnerRCover bulk should be 70% aerogel and 30% honeycomb made from "aradime" (not defined - using "hgtd::Honeycomb" for now)
@@ -287,16 +264,17 @@ void HGTD_DetectorFactory::readDbParameters() {
     m_cylVolPars["HGTD::PeripheralCoolingLines"] = {"HGTD::PeripheralCoolingLines", 920., 980., 3./2, 31., "std::SSteel"};
     // TODO: outer cover should be 40% "hgtd::Peek" and 60% electrical connectors (unclear material)
 
-    m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::Titanium"}; // TODO: add to db
+    m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::Titanium"};
     // Coolant should be 50% liquid and 50% gas CO2 ("hgtd::CO2")
     GeoMaterial* coolantMaterial = new GeoMaterial("hgtd::CO2CoolantMix", 0.55*(CLHEP::gram / CLHEP::cm3));
     coolantMaterial->add(m_materialMgr->getMaterial("hgtd::CO2_Liquid"), 0.5);
     coolantMaterial->add(m_materialMgr->getMaterial("hgtd::CO2"), 0.5);
     m_materialMgr->addMaterial("hgtd", coolantMaterial);
-    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "hgtd::CO2CoolantMix"}; // TODO: to add to db
+    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "hgtd::CO2CoolantMix"};
 
-    // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
-    // TODO: put these (and others needed for three-ring layout) into a separate table in the db when migrating to master
+
+
+    // These parameters were not in the db (they don't fit into the cylinder or box structures used above)
     m_hgtdPars = { 320., // rMid
         640., // rOuter - only used in one place, and there 20 mm is added to it...
         0.,   // disk1Rotation (in degrees)
