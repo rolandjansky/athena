@@ -16,6 +16,7 @@ import TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 as physics_menu
 
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (
     SingleMuonGroup,
+    SingleMETGroup,
     SinglePhotonGroup,
     SingleJetGroup,
     JetStreamersGroup,
@@ -119,7 +120,11 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_larpsall_L1J30p31ETA49_EMPTY', l1SeedThresholds=['J30p31ETA49'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
 
         # ATR-25019 Test the definition for the 'AFPCalib' stream
-        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online','RATE:Calibration','BW:Detector'])
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
+
+        # IDCalib Chains
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1J100', stream=['IDCalib'], groups=SingleJetGroup+SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']), 
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1XE50', stream=['IDCalib'], groups=SingleMETGroup+SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']),
     ]
 
     chainsP1['Cosmic'] = [

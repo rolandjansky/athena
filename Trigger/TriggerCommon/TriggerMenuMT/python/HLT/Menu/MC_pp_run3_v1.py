@@ -14,6 +14,10 @@ import TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 as physics_menu
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import ( SingleElectronGroup,
                                                         BphysicsGroup,
                                                         EOFBPhysL1MuGroup,
+                                                        PrimaryLegGroup,
+                                                        PrimaryPhIGroup,
+                                                        PrimaryL1MuGroup,
+                                                        SupportGroup,
                                                         SupportPhIGroup,
                                                         SupportLegGroup,
                                                         SingleBjetGroup,
@@ -40,6 +44,14 @@ def addMCSignatures(chains):
         ChainProp(name="HLT_mu24_L1MU14FCH", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU3V',  groups=MultiMuonGroup),
 
+        #-- nscan ATR-19376, TODO: to be moved to physics once debugged
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_J40', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryLegGroup+MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_jJ80', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryPhIGroup+MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_XE30', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryLegGroup+MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_jXE70', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryPhIGroup+MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU14FCH-MU5VF', l1SeedThresholds=['MU14FCH','FSNOSEED'],   groups=PrimaryL1MuGroup+MultiMuonGroup),
+        ## ATR-24198
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=SupportGroup+MultiMuonGroup),
     ]
 
     chainsMC['Jet'] = [
