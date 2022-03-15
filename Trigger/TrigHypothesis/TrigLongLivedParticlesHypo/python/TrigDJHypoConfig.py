@@ -10,15 +10,20 @@ def TrigDJHypoPromptToolFromDict( chainDict ):
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.DisplacedJetPromptHypoTool(name)
 
+
     tool.min_jet_pt = 50
-    tool.min_trk_pt = 2
-    tool.trk_d0cut = 4.0
+    tool.min_trk_pt = 1.0
+    tool.trk_d0cut = 3.0
     tool.max_z0st = 3.0
-    tool.d0sigcut = 25.0
+    tool.d0sigcut = 10.0
     tool.max_prompt_trk = 4
     tool.max_jet_rank = 3
     tool.min_njets = 2
-    tool.cut_name = "medium"
+    tool.cut_name = "std"
+
+    #single jet variant
+    tool.n_c3_jets = 1
+    tool.min_jet_pt_c3 = 150
 
     if 'DJTrigMon:online' in chainDict['monGroups']:
         #monitoring config
@@ -53,20 +58,27 @@ def TrigDJHypoDispToolFromDict( chainDict ):
     tool = CompFactory.DisplacedJetDispHypoTool(name)
 
 
-    tool.min_trk_pt = 2
-    tool.trk_d0cut = 4.0
+
+    tool.min_trk_pt = 1.0
+    tool.trk_d0cut = 3.0
 
     tool.max_z0st = 3.0
-    tool.d0sigcut = 25.0
-    tool.cut_name = "medium"
+    tool.d0sigcut = 10.0
+    tool.cut_name = "std"
 
-    tool.max_prompt_trk_h = 4
-    tool.min_disp_trk_h = 2
-    tool.nother_frac_h = 0.75
+    tool.max_prompt_trk_c2 = 2
+    tool.min_disp_trk_c2 = 3
+    tool.nother_frac_c2 = 0.75
 
-    tool.max_prompt_trk_l = 3
-    tool.min_disp_trk_l = 0
-    tool.nother_frac_l = 0.45
+    tool.max_prompt_trk_c1 = 1
+    tool.min_disp_trk_c1 = 0
+    tool.nother_frac_c1 = 0.45
+
+    #single jet variant
+    tool.max_prompt_trk_c3 = 1
+    tool.min_disp_trk_c3 = 3
+    tool.nother_frac_c3 = 0.75
+    tool.min_jet_pt_c3 = 150
 
 
     if 'DJTrigMon:online' in chainDict['monGroups']:
@@ -94,8 +106,11 @@ def TrigDJHypoEDToolFromDict( chainDict ):
 
     tool.min_h_jets = 1
     tool.min_l_jets = 1
+    tool.c3_total_jets = 1 #single jet variant enabled
 
-    tool.cut_name = "medium"
+    tool.cut_name = "std"
+
+
 
     return tool
 

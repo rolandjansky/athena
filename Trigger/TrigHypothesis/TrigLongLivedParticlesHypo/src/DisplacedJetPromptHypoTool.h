@@ -30,6 +30,7 @@ public:
       const xAOD::JetContainer* jets;
       std::map<const xAOD::Jet_v1*, std::vector<const xAOD::TrackParticle_v1*>> jets_to_tracks;
       const xAOD::Vertex* primary_vertex;
+      std::map<const xAOD::Jet*, xAOD::TrigComposite*> counts;
     };
 
     StatusCode decide( Info& info ) const;
@@ -46,6 +47,9 @@ public:
     Gaudi::Property<unsigned int> m_rankcut{this, "max_jet_rank",{4}, "Maximum jet rank which will be processed"};
     Gaudi::Property<int> m_minnjets{this, "min_njets",{2}, "Minimum number of jets left for it to be worth processing the event"};
     Gaudi::Property<std::string> m_cutname{this, "cut_name",{""}, "Name of cuts, used for decoration names"};
+    Gaudi::Property<float> m_c3_min_jet_pt{this, "min_jet_pt_c3", {0}, "Min jet pt for the class 3 jet"};
+    Gaudi::Property<int> m_n_c3_jets{this, "n_c3_jets",{1}, "Minimum number of jets left for it to be worth processing the event"};
+
 
     ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
   };
