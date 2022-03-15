@@ -21,7 +21,7 @@ public:
   void setBarcode(long v) { m_barcode = v; }
   void setBarcodeFrac(float v) { m_barcode_frac = v; }
 
-  double getPt() const { return m_qoverpt != 0 ? abs(sin(2 * std::atan(std::exp(-m_eta))) / m_qoverpt) : 99999999.; }
+  double getPt() const { return m_qoverpt != 0 ? std::abs(sin(2 * std::atan(std::exp(-m_eta))) / m_qoverpt) : 99999999.; }
   double getEta() const { return m_eta; }
   double getPhi() const { return m_phi; }
   double getD0() const { return m_d0; }
