@@ -446,7 +446,7 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
     else:
         raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, noTag=True)
 
     StreamEVGEN.ForceRead = True
     StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
