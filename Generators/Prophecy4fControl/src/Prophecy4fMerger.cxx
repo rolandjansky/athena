@@ -226,7 +226,7 @@ void Prophecy4fMerger::merge(){
     }
     LHEF::Reader read2e2mu( m_inProphecy2e2mu.c_str() );
   
-    print(" Opening Out LHE file ... ", m_outLHE);
+    print(" Opening Out LHE file ... " + m_outLHE);
     LHEF::Writer writeLHE( m_outLHE.c_str() );
   
     writeLHE.headerBlock() << readH.headerBlock;
@@ -426,7 +426,7 @@ void Prophecy4fMerger::merge(){
                         ANA_MSG_DEBUG("child " << d << " " << child.M() << ", " << child.Pt() << ", " << child.Eta() << ", " << child.Phi());
                         higgsFromChildren += child;
                     }
-                    ATH_MSG_DEBUG("Higgs mass " << higgs.M() << ", from children " << higgsFromChildren.M() << ", diff " << higgs.M() - higgsFromChildren.M());
+                    ANA_MSG_DEBUG("Higgs mass " << higgs.M() << ", from children " << higgsFromChildren.M() << ", diff " << higgs.M() - higgsFromChildren.M());
                 }
                 break;
             }
