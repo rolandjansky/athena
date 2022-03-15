@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuCTPIByteStreamTool.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
+#include "TrigT1MuctpiBits/MuCTPI_Bits.h"
 
 
 // Unique interface ID of the tool that identifies it to the framweork
@@ -117,7 +118,7 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
     // data words
     std::vector< uint32_t > dataWord;
     for( uint32_t i = 0; i < ndata; ++i, ++it_data ) {
-      if( *it_data >> MuCTPI_RDO::MULT_WORD_FLAG_SHIFT ) {
+      if( *it_data >> LVL1::MuCTPIBits::MULT_WORD_FLAG_SHIFT ) {
         candidateMultiplicity.push_back( static_cast< uint32_t >( *it_data ) );
         ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' )
             << ( *it_data ) << " (candidate multiplicity)");

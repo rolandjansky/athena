@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigALFAROBMonitor.h"
 
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "TrigT1MuctpiBits/MuCTPI_Bits.h"
 
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
@@ -524,7 +525,7 @@ void TrigALFAROBMonitor::dumpRoIBDataWord(uint32_t data_word) const {
     ATH_MSG_DEBUG( "Threshold               :  pt" << roI.pt() );
     ATH_MSG_DEBUG( "Sector location         :  " << loc );
     std::string sectorOffset("");  
-    if ((roI.getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK) &&
+    if ((roI.getSectorAddress() & LVL1::MuCTPIBits::SECTOR_HEMISPHERE_MASK) &&
 	(roI.getSectorLocation() == MuCTPI_RDO::BARREL)) sectorOffset = " + 32 for Hemisphere = 1 "; 
     ATH_MSG_DEBUG( "Sector ID               :  " << roI.getSectorID() << sectorOffset );
     ATH_MSG_DEBUG( "Sector addr             :  0x" << MSG::hex
@@ -534,7 +535,7 @@ void TrigALFAROBMonitor::dumpRoIBDataWord(uint32_t data_word) const {
     ATH_MSG_DEBUG( "RoI number              :  " << roI.getRoiNumber() );
     ATH_MSG_DEBUG( "IsHighestPt             :  " << roI.getCandidateIsHighestPt() );
     ATH_MSG_DEBUG( "Overlap                 :  " << roI.getOverlapBits() );
-    ATH_MSG_DEBUG( "Hemisphere              :  " << (roI.getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK) );
+    ATH_MSG_DEBUG( "Hemisphere              :  " << (roI.getSectorAddress() & LVL1::MuCTPIBits::SECTOR_HEMISPHERE_MASK) );
     ATH_MSG_DEBUG( "=================================================" );
   }
   return;

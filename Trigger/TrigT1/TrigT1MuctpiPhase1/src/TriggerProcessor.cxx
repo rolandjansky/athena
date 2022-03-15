@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// First the corresponding header.
+// Local headers
 #include "TriggerProcessor.h"
-
-// The headers from other ATLAS packages,
-// from most to least dependent.
-#include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
-#include "TrigT1Result/MuCTPI_RDO.h"
 #include "Configuration.h"
+
+// Athena headers
+#include "TrigT1Result/MuCTPI_RDO.h"
+#include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
+#include "TrigT1MuctpiBits/MuCTPI_Bits.h"
 #include "TrigConfData/L1ThrExtraInfo.h"
 #include "TrigConfData/L1Threshold.h"
 #include "TrigConfData/L1Menu.h"
 
-// Headers from external packages.
+// System headers
 #include <math.h>
 #include <bitset>
 #include <sstream>
@@ -79,55 +79,55 @@ namespace LVL1MUCTPIPHASE1 {
             uint32_t SUBSYS_ID = 0; // default for barrel
             if (isys == 0) 
             {
-              ROI_MASK = MuCTPI_RDO::BARREL_ROI_MASK;
-              SECTOR_MASK = MuCTPI_RDO::BARREL_SECTORID_MASK;
+              ROI_MASK = LVL1::MuCTPIBits::BARREL_ROI_MASK;
+              SECTOR_MASK = LVL1::MuCTPIBits::BARREL_SECTORID_MASK;
             }
             else if (isys == 1) 
             {
-              ROI_MASK = MuCTPI_RDO::ENDCAP_ROI_MASK;
-              SECTOR_MASK = MuCTPI_RDO::ENDCAP_SECTORID_MASK;
+              ROI_MASK = LVL1::MuCTPIBits::ENDCAP_ROI_MASK;
+              SECTOR_MASK = LVL1::MuCTPIBits::ENDCAP_SECTORID_MASK;
               SUBSYS_ID = 2; // not a typo!
             }
             else if (isys == 2) 
             {
-              ROI_MASK = MuCTPI_RDO::FORWARD_ROI_MASK;
-              SECTOR_MASK = MuCTPI_RDO::FORWARD_SECTORID_MASK;
+              ROI_MASK = LVL1::MuCTPIBits::FORWARD_ROI_MASK;
+              SECTOR_MASK = LVL1::MuCTPIBits::FORWARD_SECTORID_MASK;
               SUBSYS_ID = 1; // not a typo!
             }
 
             //General formula for each subword:
-            //daq_word |= (subword & MuCTPI_RDO::MASK) << MuCTPI_RDO::SHIFT
+            //daq_word |= (subword & LVL1::MuCTPIBits::MASK) << LVL1::MuCTPIBits::SHIFT
             
             //ROI word
-            daq_word |= (sectorData->roi(icand)              & ROI_MASK)                       << MuCTPI_RDO::RUN3_ROI_SHIFT;
+            daq_word |= (sectorData->roi(icand)              & ROI_MASK)                       << LVL1::MuCTPIBits::RUN3_ROI_SHIFT;
 
             //PT word
-            daq_word |= (thresh                              & MuCTPI_RDO::RUN3_CAND_PT_MASK)       << MuCTPI_RDO::RUN3_CAND_PT_SHIFT;
+            daq_word |= (thresh                              & LVL1::MuCTPIBits::RUN3_CAND_PT_MASK)       << LVL1::MuCTPIBits::RUN3_CAND_PT_SHIFT;
 
             //CANDIDIATE FLAGS
             if (isys == 0) 
             {
-              daq_word |= (sectorData->ovl(icand)              & MuCTPI_RDO::RUN3_BARREL_OL_MASK) << MuCTPI_RDO::RUN3_BARREL_OL_SHIFT;
-              daq_word |= (sectorData->is2candidates(icand)    & MuCTPI_RDO::ROI_OVERFLOW_MASK)   << MuCTPI_RDO::RUN3_ROI_OVERFLOW_SHIFT;
+              daq_word |= (sectorData->ovl(icand)              & LVL1::MuCTPIBits::RUN3_BARREL_OL_MASK) << LVL1::MuCTPIBits::RUN3_BARREL_OL_SHIFT;
+              daq_word |= (sectorData->is2candidates(icand)    & LVL1::MuCTPIBits::ROI_OVERFLOW_MASK)   << LVL1::MuCTPIBits::RUN3_ROI_OVERFLOW_SHIFT;
             }
             else
             {
-              daq_word |= (sectorData->charge(icand)           & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_CHARGE_SIGN_SHIFT;
-              daq_word |= (sectorData->bw2or3(icand)           & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_BW2OR3_SHIFT;
-              daq_word |= (sectorData->innercoin(icand)        & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_INNERCOIN_SHIFT;
-              daq_word |= (sectorData->goodmf(icand)           & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_GOODMF_SHIFT;
+              daq_word |= (sectorData->charge(icand)           & 0x1) << LVL1::MuCTPIBits::RUN3_CAND_TGC_CHARGE_SIGN_SHIFT;
+              daq_word |= (sectorData->bw2or3(icand)           & 0x1) << LVL1::MuCTPIBits::RUN3_CAND_TGC_BW2OR3_SHIFT;
+              daq_word |= (sectorData->innercoin(icand)        & 0x1) << LVL1::MuCTPIBits::RUN3_CAND_TGC_INNERCOIN_SHIFT;
+              daq_word |= (sectorData->goodmf(icand)           & 0x1) << LVL1::MuCTPIBits::RUN3_CAND_TGC_GOODMF_SHIFT;
             }
 
             //CANDIDATE VETO FLAG
-            daq_word |= (sectorData->veto(icand)             & 0x1)                            << MuCTPI_RDO::RUN3_CAND_VETO_SHIFT;
+            daq_word |= (sectorData->veto(icand)             & 0x1)                            << LVL1::MuCTPIBits::RUN3_CAND_VETO_SHIFT;
 
             //SECTOR FLAGS
-            daq_word |= (sectorData->is2candidatesInSector() & MuCTPI_RDO::CAND_OVERFLOW_MASK) << MuCTPI_RDO::RUN3_CAND_OVERFLOW_SHIFT;
+            daq_word |= (sectorData->is2candidatesInSector() & LVL1::MuCTPIBits::CAND_OVERFLOW_MASK) << LVL1::MuCTPIBits::RUN3_CAND_OVERFLOW_SHIFT;
 
             //SECTOR ADDRESS
-            daq_word |= (isub      & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK)   << MuCTPI_RDO::RUN3_CAND_SECTOR_ADDRESS_SHIFT;
-            daq_word |= (isec      & SECTOR_MASK)                          << MuCTPI_RDO::RUN3_CAND_SECTORID_SHIFT;
-            daq_word |= (SUBSYS_ID & SUBSYS_MASK)                          << MuCTPI_RDO::RUN3_SUBSYS_ADDRESS_SHIFT;
+            daq_word |= (isub      & LVL1::MuCTPIBits::SECTOR_HEMISPHERE_MASK)   << LVL1::MuCTPIBits::RUN3_CAND_SECTOR_ADDRESS_SHIFT;
+            daq_word |= (isec      & SECTOR_MASK)                          << LVL1::MuCTPIBits::RUN3OFFLINE_CAND_SECTORID_SHIFT;
+            daq_word |= (SUBSYS_ID & SUBSYS_MASK)                          << LVL1::MuCTPIBits::RUN3_SUBSYS_ADDRESS_SHIFT;
 
 
             // Add extra bit in front to flag that this is a RUN3 RoI
