@@ -14,7 +14,7 @@ from TrigConfHLTUtils.HLTUtils import string2hash
 from AthenaCommon.Logging import logging
 import re
 
-import collections
+import collections.abc
 
 log = logging.getLogger( __name__ )
 
