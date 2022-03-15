@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTruthHelpers.h 668406 2015-05-19 15:32:15Z krasznaa $
 #ifndef XAODTRUTH_XAODTRUTHHELPERS_H
 #define XAODTRUTH_XAODTRUTHHELPERS_H
 
@@ -21,6 +20,9 @@ namespace xAOD {
 
       /// Return the truthParticle associated to the given IParticle (if any)
       const TruthParticle* getTruthParticle( const xAOD::IParticle& p );
+
+      /// Return the final copy of the truth particle (or same particle if no copies done)
+      const TruthParticle* getFinalCopy( const xAOD::TruthParticle& particle );
 
       /// Return the particle's truth type (as defined by the MC Truth
       /// Classifier)
