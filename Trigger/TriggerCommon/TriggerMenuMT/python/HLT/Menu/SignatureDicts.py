@@ -333,7 +333,7 @@ MuonChainParts = {
     'etaRange'       : ['0eta105'],
     'threshold'      : '',
     'tnpInfo'        : ['probe'],
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
