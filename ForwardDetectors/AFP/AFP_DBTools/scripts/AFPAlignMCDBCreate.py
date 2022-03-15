@@ -1,18 +1,19 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# file   AFPLocalAlign.py
+# file   AFPAlignMCDBCreate.py
 # author Petr Balek <petr.balek@cern.ch>
-# date   2021-02-27
+# date   2021-11-10
 #
-# brief  A python script that generates COOL database with alignment constants for AFP. A lot of inspiration obtained in InnerDetector/InDetConditions/InDetBeamSpotService/utils/beamSpot_set.py
+# brief  A python script that generates COOL database with alignment constants for AFP. A lot of inspiration obtained in InnerDetector/InDetConditions/InDetBeamSpotService/utils/beamSpot_set.py.
+#        This version of DB is intended to be used in MC simulations. Each tag has one entry with IOV from 0 to infinite. The tags reflect various alignments through data-taking
 # usage  0. setup Athena environment (setupATLAS, asetup ...)
 #        1. run this script:
-#              python AFPLocalAlignDBCreate.py
+#              python AFPAlignMCDBCreate.py
 #        2. check the output:
-#              AtlCoolConsole.py "sqlite://;schema=Example.db;dbname=CONDBR2"
-#        3. check "testAFPLocalDB.py" for more testing
+#              AtlCoolConsole.py "sqlite://;schema=ExampleMC.db;dbname=OFLP200"
+#        3. check "testAFPDB.py" for more testing
 
 
 from __future__ import print_function
@@ -58,9 +59,9 @@ def makeFolderAndSpec(db,folderName,tag):
 class AFPDBDict():
     """A class to create a dictionary, fill it with zeros in the constructor and to overwrite zeros later"""
     def __init__ (self, folderBlk):
-        if(folderBlk.folderName=="/FWD/Onl/AFP/Align/Local"):
+        if(folderBlk.folderName=="/FWD/AFP/Align/Local"):
             emptydict={"stationID":0, "layerID":-1, "shiftX":0.0, "shiftY":0.0, "shiftZ":0.0, "alpha":0.0, "beta":0.0, "gamma":0.0}
-        elif(folderBlk.folderName=="/FWD/Onl/AFP/Align/Global"):
+        elif(folderBlk.folderName=="/FWD/AFP/Align/Global"):
             emptydict={"stationID":0, "alignType":"None", "shiftX":0.0, "shiftY":0.0, "shiftZ":0.0, "alpha":0.0, "beta":0.0, "gamma":0.0}
         else:
             print ("unknown folder %s, please edit \"AFPDBDict\" class constructor, exiting now" % folderBlk.folderName)
@@ -74,9 +75,9 @@ class AFPDBDict():
         for i in range(0, 16):
             self.mydict["data"][i]=copy.deepcopy(emptydict)
             self.mydict["data"][i]["stationID"]=i//4
-            if(folderBlk.folderName=="/FWD/Onl/AFP/Align/Local"):
+            if(folderBlk.folderName=="/FWD/AFP/Align/Local"):
                 self.mydict["data"][i]["layerID"]=i%4
-            if(folderBlk.folderName=="/FWD/Onl/AFP/Align/Global"):
+            if(folderBlk.folderName=="/FWD/AFP/Align/Global"):
                 if i%4==0: self.mydict["data"][i]["alignType"]="tracker"
                 if i%4==1: self.mydict["data"][i]["alignType"]="beam"
                 if i%4==2: self.mydict["data"][i]["alignType"]="RP"
@@ -136,16 +137,11 @@ class AFPDBDict():
         mydict_helper['stationID']=stationID
         
 
-    def savePayload(self, folderBlk, fromRun=-2, fromLB=0):
-        """A function to transform the dictionary to JSON and save it in IOV from a given run and LB; upper limits are undefined and the maximum value (until beginning of a next entry) is used."""
+    def savePayload(self, folderBlk):
+        """A function to transform the dictionary to JSON and save it in IOV from 0 to infinity; technically, upper limits are undefined and the maximum value (until beginning of a next entry) would be used."""
         
-        # perform some simple check so basic mistakes are avoided
-        if(fromRun<=0):
-            print ("cannot save payload, got fromRun=%d, it has to be positive" % fromRun)
-            sys.exit(1)
-
         # transform run nr. and LB to the right integers
-        since=runLBtoDB(run=fromRun,lb=fromLB)
+        since=runLBtoDB(0,0)
         until=cool.ValidityKeyMax
 
         # provided set of constants have to be the right one for the provided specification
@@ -157,8 +153,8 @@ class AFPDBDict():
 
 
 def main():
-    dbFile = "Example.db"
-    dbName = "CONDBR2" 
+    dbFile = "ExampleMC.db"
+    dbName = "OFLP200" 
     
     # remove the old db file so that we can write the new one
     try:
@@ -180,23 +176,24 @@ def main():
     print ("Created database", dbString)
     
     # define the folder in the database, its specification and its tag
-    folderBlkLoc_01=makeFolderAndSpec(db,folderName="/FWD/Onl/AFP/Align/Local", tag="AFPAlignLoc-01")
-    folderBlkLoc_02=makeFolderAndSpec(db,folderName="/FWD/Onl/AFP/Align/Local", tag="AFPAlignLoc-02")
-    folderBlkGlob_01=makeFolderAndSpec(db,folderName="/FWD/Onl/AFP/Align/Global", tag="AFPAlignGlob-01")
+    folderBlkLoc_ideal_01 =makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Local", tag="AFPMCAlignLoc-ideal-01")
+    folderBlkLoc_329484_01=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Local", tag="AFPMCAlignLoc-329484-01")
+    folderBlkLoc_329484_02=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Local", tag="AFPMCAlignLoc-329484-02")
     
-    # copy everything from the xml file here
-    # https://gitlab.cern.ch/afp/AfpAnalysisToolbox/-/blob/master/AfpAnalysisTools/share/align.xml, commit 3a62232e1e3584704ccbb612f5fdf62821dd6fed from October 10, 2020
-    # "toRun" is not used but it's kept here for better clarity 
+    folderBlkGlob_ideal_01 =makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Global", tag="AFPMCAlignGlob-ideal-01")
+    folderBlkGlob_203302_01=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Global", tag="AFPMCAlignGlob-203302-01")
+    folderBlkGlob_329484_01=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Global", tag="AFPMCAlignGlob-329484-01")
+    folderBlkGlob_331020_01=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Global", tag="AFPMCAlignGlob-331020-01")
+    folderBlkGlob_336288_01=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Global", tag="AFPMCAlignGlob-336288-01")
+    folderBlkGlob_347955_01=makeFolderAndSpec(db,folderName="/FWD/AFP/Align/Global", tag="AFPMCAlignGlob-347955-01")
+    
 
-    # save an empty entry, just to have the same ranges in local and global alignments
-    # fromRun, toRun = 203302, 203302
-    fromRun = 203302
-    myDict = AFPDBDict(folderBlk=folderBlkLoc_01)
-    myDict.savePayload(folderBlk=folderBlkLoc_01, fromRun=fromRun)
-
-    # fromRun, toRun = 329484, 348002
-    fromRun = 329484
-    myDict = AFPDBDict(folderBlkLoc_01)
+    # local
+    myDict = AFPDBDict(folderBlkLoc_ideal_01)
+    myDict.savePayload(folderBlk=folderBlkLoc_ideal_01)
+    
+    
+    myDict = AFPDBDict(folderBlkLoc_329484_01)
     myDict.append(stationID=0, layerID=1, shiftX=17.1871e-3,  shiftY=-31.4828e-3, shiftZ=0.0000, alpha=2.8832e-3,beta=0.0000, gamma=0.0000)
     myDict.append(stationID=0, layerID=2, shiftX=15.2353e-3,  shiftY=-51.4641e-3, shiftZ=0.0000, alpha=3.1571e-3,beta=0.0000, gamma=0.0000)
     myDict.append(stationID=0, layerID=3, shiftX=0.0000,      shiftY=0.0000,      shiftZ=0.0000, alpha=0.0000,   beta=0.0000, gamma=0.0000)
@@ -209,15 +206,10 @@ def main():
     myDict.append(stationID=3, layerID=1, shiftX=-184.2146e-3,shiftY=55.3273e-3, shiftZ=0.0000, alpha=-0.7655e-3,beta=0.0000, gamma=0.0000)
     myDict.append(stationID=3, layerID=2, shiftX=-154.2151e-3,shiftY=133.8304e-3, shiftZ=0.0000, alpha=-3.2126e-3,beta=0.0000, gamma=0.0000)
     myDict.append(stationID=3, layerID=3, shiftX=13.2748e-3,  shiftY=138.4570e-3, shiftZ=0.0000, alpha=0.5984e-3, beta=0.0000, gamma=0.0000)
-    myDict.savePayload(folderBlk=folderBlkLoc_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkLoc_329484_01)
 
-    # update July 30, 2021
-    fromRun = 203302
-    myDict = AFPDBDict(folderBlk=folderBlkLoc_02)
-    myDict.savePayload(folderBlk=folderBlkLoc_02, fromRun=fromRun)
 
-    fromRun = 329484
-    myDict = AFPDBDict(folderBlkLoc_02)
+    myDict = AFPDBDict(folderBlkLoc_329484_02)
     myDict.append(stationID=0, layerID=1, shiftX=17.1313e-3,  shiftY=-46.7438e-3, shiftZ=0.0000, alpha=2.9785e-3,  beta=0.0000, gamma=0.0000)
     myDict.append(stationID=0, layerID=2, shiftX=15.7960e-3,  shiftY=-53.7707e-3, shiftZ=0.0000, alpha=3.3048e-3,  beta=0.0000, gamma=0.0000)
     myDict.append(stationID=0, layerID=3, shiftX=0.0000,      shiftY=0.0000,      shiftZ=0.0000, alpha=0.0000,     beta=0.0000, gamma=0.0000)
@@ -230,21 +222,23 @@ def main():
     myDict.append(stationID=3, layerID=1, shiftX=0.0000,      shiftY=0.0000,      shiftZ=0.0000, alpha=0.0000,     beta=0.0000, gamma=0.0000)
     myDict.append(stationID=3, layerID=2, shiftX=-153.0397e-3,shiftY=132.8483e-3, shiftZ=0.0000, alpha=-3.9787e-3, beta=0.0000, gamma=0.0000)
     myDict.append(stationID=3, layerID=3, shiftX=13.9500e-3,  shiftY=136.9500e-3, shiftZ=0.0000, alpha=0.3829e-3,  beta=0.0000, gamma=0.0000)
-    myDict.savePayload(folderBlk=folderBlkLoc_02, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkLoc_329484_02)
 
 
-    # fromRun, toRun = 203302, 203302
-    fromRun = 203302
-    myDict = AFPDBDict(folderBlk=folderBlkGlob_01)
+    # global
+    myDict = AFPDBDict(folderBlkGlob_ideal_01)
+    myDict.savePayload(folderBlk=folderBlkGlob_ideal_01)
+    
+    
+    myDict = AFPDBDict(folderBlk=folderBlkGlob_203302_01)
     myDict.append(stationID=0, alignType="RP", shiftX=-2.34, shiftY=-13.22)
     myDict.append(stationID=1, alignType="RP", shiftX=-3.68, shiftY=-13.28)
     myDict.append(stationID=2, alignType="RP", shiftX=-3.61, shiftY=-10.09)
     myDict.append(stationID=3, alignType="RP", shiftX=-2.39, shiftY=-10.53)
-    myDict.savePayload(folderBlk=folderBlkGlob_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkGlob_203302_01)
   
-    # fromRun, toRun = 329484, 330470
-    fromRun = 329484
-    myDict = AFPDBDict(folderBlk=folderBlkGlob_01)
+
+    myDict = AFPDBDict(folderBlk=folderBlkGlob_329484_01)
     myDict.append(stationID=0, alignType="tracker", shiftX=-0.5)
     myDict.append(stationID=1, alignType="tracker", shiftX=-0.5)
     myDict.append(stationID=2, alignType="tracker", shiftX=-0.5)
@@ -261,11 +255,10 @@ def main():
     myDict.append(stationID=1, alignType="correction", shiftX=-0.320)
     myDict.append(stationID=2, alignType="correction", shiftX=-0.220)
     myDict.append(stationID=3, alignType="correction", shiftX=-0.320)
-    myDict.savePayload(folderBlk=folderBlkGlob_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkGlob_329484_01)
 
-    # fromRun, toRun = 331020, 335302
-    fromRun = 331020
-    myDict = AFPDBDict(folderBlk=folderBlkGlob_01)
+
+    myDict = AFPDBDict(folderBlk=folderBlkGlob_331020_01)
     myDict.append(stationID=0, alignType="tracker", shiftX=-0.5)
     myDict.append(stationID=1, alignType="tracker", shiftX=-0.5)
     myDict.append(stationID=2, alignType="tracker", shiftX=-0.5)
@@ -282,11 +275,10 @@ def main():
     myDict.append(stationID=1, alignType="correction", shiftX=-0.320)
     myDict.append(stationID=2, alignType="correction", shiftX=-0.220)
     myDict.append(stationID=3, alignType="correction", shiftX=-0.320)
-    myDict.savePayload(folderBlk=folderBlkGlob_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkGlob_331020_01)
 
-    # fromRun, toRun = 336288, 341692
-    fromRun = 336288
-    myDict = AFPDBDict(folderBlk=folderBlkGlob_01)
+
+    myDict = AFPDBDict(folderBlk=folderBlkGlob_336288_01)
     myDict.append(stationID=0, alignType="tracker", shiftX=-0.5)
     myDict.append(stationID=1, alignType="tracker", shiftX=-0.5)
     myDict.append(stationID=2, alignType="tracker", shiftX=-0.5)
@@ -303,16 +295,15 @@ def main():
     myDict.append(stationID=1, alignType="correction", shiftX=-0.320)
     myDict.append(stationID=2, alignType="correction", shiftX=-0.220)
     myDict.append(stationID=3, alignType="correction", shiftX=-0.320)
-    myDict.savePayload(folderBlk=folderBlkGlob_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkGlob_336288_01)
 
-    # fromRun, toRun = 347955, 348002
-    fromRun = 347955
-    myDict = AFPDBDict(folderBlk=folderBlkGlob_01)
+
+    myDict = AFPDBDict(folderBlk=folderBlkGlob_347955_01)
     myDict.append(stationID=0, alignType="RP", shiftX=-2.34, shiftY=-13.22)
     myDict.append(stationID=1, alignType="RP", shiftX=-3.68, shiftY=-13.28)
     myDict.append(stationID=2, alignType="RP", shiftX=-6.46, shiftY=-5.47)
     myDict.append(stationID=3, alignType="RP", shiftX=-6.79, shiftY=-5.03)
-    myDict.savePayload(folderBlk=folderBlkGlob_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkGlob_347955_01)
 
     print ("\nClose database")
     db.closeDatabase()

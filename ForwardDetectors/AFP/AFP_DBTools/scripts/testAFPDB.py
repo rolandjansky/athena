@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# file   testAFPLocalDB.py
+# file   testAFPDB.py
 # author Petr Balek <petr.balek@cern.ch> (with a lot of inspiration from Tomasz Bold)
 # date   2021-03-22
 
@@ -11,16 +11,16 @@
 #           1. have the local database; either get it from somewhere else (will be done in future), or create a new one with AFPLocalAlignDBCreate.py:
 #               $ python AFPLocalAlignDBCreate.py
 #           2. run this script as (feel free to change the input file):
-#               $ python testAFPLocalDB.py --filesInput=/afs/cern.ch/user/p/pbalek/workspace/public/data17_13TeV.00338480.physics_Main.daq.RAW/data17_13TeV.00338480.physics_Main.daq.RAW._lb0275._SFO-7._0007.data
+#               $ python testAFPDB.py --filesInput=/afs/cern.ch/user/p/pbalek/workspace/public/data17_13TeV.00338480.physics_Main.daq.RAW/data17_13TeV.00338480.physics_Main.daq.RAW._lb0275._SFO-7._0007.data
 #           2a. for another alignment constants, try this input file (n.b.: local constants are the same, only global are different):
-#               $ python testAFPLocalDB.py --filesInput=/afs/cern.ch/user/p/pbalek/workspace/public/data17_13TeV.00333380.physics_Main.daq.RAW/data17_13TeV.00333380.physics_Main.daq.RAW._lb0163._SFO-7._0001.data
+#               $ python testAFPDB.py --filesInput=/afs/cern.ch/user/p/pbalek/workspace/public/data17_13TeV.00333380.physics_Main.daq.RAW/data17_13TeV.00333380.physics_Main.daq.RAW._lb0163._SFO-7._0001.data
 #           3. the script will read the files and print out alignment variables for the events in the input file (based on run number and LB)
 
 #           footnote: for the python setup with TopLocRecSeq, see AFP_LocReco/AFP_LocReco_joboptions.py
 
 from AthenaConfiguration.ComponentAccumulator import CompFactory, ComponentAccumulator
 
-def testAFPLocalDBCfg(flags):
+def testAFPDBCfg(flags):
     acc = ComponentAccumulator()
 
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
@@ -31,15 +31,25 @@ def testAFPLocalDBCfg(flags):
     acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
 
     # set from where to read the local information
-    schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
-    locFolder = "/FWD/Onl/AFP/Align/Local"
-    locTag = "<tag>AFPAlignLoc-01</tag>"
-    globFolder = "/FWD/Onl/AFP/Align/Global"
-    globTag = "<tag>AFPAlignGlob-01</tag>"
-    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
-    acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='CONDBR2' ))
-
-    acc.addCondAlgo(CompFactory.SiAlignDBTester())
+    # this will read from DB for data
+#     schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
+#     locFolder = "/FWD/Onl/AFP/Align/Local"
+#     locTag = "<tag>AFPAlignLoc-01</tag>"
+#     globFolder = "/FWD/Onl/AFP/Align/Global"
+#     globTag = "<tag>AFPAlignGlob-01</tag>"
+#     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
+#     acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='CONDBR2' ))
+#     acc.addCondAlgo(CompFactory.SiAlignDBTester())
+    
+    # this will read from DB for MC (note that the source file is still data that provides run and LB, thus this is really for testing only)
+    schema = "<db>sqlite://;schema=ExampleMC.db;dbname=OFLP200</db>"
+    locFolder = "/FWD/AFP/Align/Local"
+    locTag = "<tag>AFPMCAlignLoc-329484-02</tag>"
+    globFolder = "/FWD/AFP/Align/Global"
+    globTag = "<tag>AFPMCAlignGlob-331020-01</tag>"
+    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='OFLP200' ))
+    acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='OFLP200' ))    
+    acc.addCondAlgo(CompFactory.SiAlignDBTester("SiAlignDBTester", locshiftXkey="/FWD/AFP/Align/Local", globshiftXkey="/FWD/AFP/Align/Global"))
 
     return acc
 
@@ -79,7 +89,7 @@ if __name__ == "__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags))
 
-    acc.merge(testAFPLocalDBCfg(flags))
+    acc.merge(testAFPDBCfg(flags))
     from AthenaCommon.Constants import DEBUG, VERBOSE
     acc.foreach_component("*AFP*").OutputLevel=VERBOSE
     acc.foreach_component("SiAlignDBTester").OutputLevel=DEBUG
