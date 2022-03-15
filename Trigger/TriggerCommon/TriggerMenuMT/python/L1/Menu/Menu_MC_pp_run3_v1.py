@@ -116,7 +116,6 @@ def defineMenu():
         'L1_gJ40':'',
         'L1_gJ50':'',
         'L1_gJ100':'',
-        'L1_gJ160':'',
 
         # combined non-primary
         'L1_MU8F_2J20':'',

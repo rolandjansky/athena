@@ -168,7 +168,7 @@ def defineMenu():
         # jEM
         'L1_jEM20', 'L1_jEM20M',   
 
-        # gL
+        # gJ
         'L1_gJ20', 'L1_gJ30', 'L1_gJ40', 'L1_gJ50', 'L1_gJ100', 'L1_gJ160',
 
         # gLJ

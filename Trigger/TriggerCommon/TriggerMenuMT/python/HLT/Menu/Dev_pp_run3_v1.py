@@ -36,10 +36,8 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  MuonMETGroup,
                                                                  EgammaJetGroup,
                                                                  MinBiasGroup,
-                                                                 PrimaryL1MuGroup,
                                                                  PrimaryLegGroup,
                                                                  PrimaryPhIGroup,
-                                                                 SupportGroup,
                                                                  SupportLegGroup,
                                                                  SupportPhIGroup,
                                                                  TagAndProbeLegGroup,
@@ -81,16 +79,6 @@ def setupMenu():
         #ATR-21566, di-muon TLA       
         ChainProp(name='HLT_mu10_PhysicsTLA_L1MU8F',   stream=['TLA'], groups=SingleMuonGroup+DevGroup), 
         ChainProp(name='HLT_mu10_mu6_probe_PhysicsTLA_L1MU8F', stream=['TLA'],l1SeedThresholds=['MU8F','PROBEMU3V'], groups=MultiMuonGroup+DevGroup),
-
-        #-- nscan ATR-19376, TODO: to be moved to physics once debugged
-        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_J40', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryLegGroup+MultiMuonGroup),
-        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_jJ80', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryPhIGroup+MultiMuonGroup),
-        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_XE30', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryLegGroup+MultiMuonGroup),
-        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_jXE70', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=PrimaryPhIGroup+MultiMuonGroup),
-        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU14FCH-MU5VF', l1SeedThresholds=['MU14FCH','FSNOSEED'],   groups=PrimaryL1MuGroup+MultiMuonGroup),
-        ## ATR-24198
-        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=SupportGroup+MultiMuonGroup),
-
     ]
 
     chains['Egamma'] += [
@@ -587,11 +575,6 @@ def setupMenu():
         #ChainProp(name='HLT_noalg_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']+LowMuGroup),
         # Calib Chains
         ChainProp(name='HLT_larpsallem_L1EM3', groups=SingleElectronGroup),
-
-        # IDCalib Chains
-        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1XE50', stream=['IDCalib'], groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1J100', stream=['IDCalib'], groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L14J15', stream=['IDCalib'], groups=MultiJetGroup,  l1SeedThresholds=['FSNOSEED'])
     ]
 
     chains['Streaming'] += [
