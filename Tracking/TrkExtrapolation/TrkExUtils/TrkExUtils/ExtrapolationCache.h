@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,8 +54,8 @@ public:
   void updateEloss(double ioni, double sigi, double rad, double sigr);
 
 private:
-  double m_x0tot;
-  EnergyLoss* m_eloss; // We do not own this ptr
+  double m_x0tot{};
+  EnergyLoss* m_eloss{}; // We do not own this ptr
 };
 
 }

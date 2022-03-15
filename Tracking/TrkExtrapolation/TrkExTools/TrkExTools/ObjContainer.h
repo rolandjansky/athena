@@ -52,30 +52,6 @@ uniqueClone(const T_Obj* obj)
 }
 
 
-/** Templates which can be specialised to monitor resources.
- */
-namespace Dbg {
-   /** Monitor resource access e.g. check the validity of the given pointer.
-    */
-   template <class T_Obj>
-   T_Obj *validateAccess(T_Obj *p_ptr) {
-      return p_ptr;
-   }
-
-   /** Monitor when objects are shared.
-    */
-   template <class T_Obj>
-   T_Obj *monitorShare(T_Obj *p_ptr) {
-      return p_ptr;
-   }
-
-   /** Monitor when objects are released
-    */
-   template <class T_Obj>
-   T_Obj *monitorRelease(T_Obj *p_ptr) {
-      return p_ptr;
-   }
-}
 
 /** Helper class to refer to objects in the container @ref ObjContainer.
  * Does not provide object lifetime guarantees. The latter is only guaranteed
@@ -289,7 +265,7 @@ protected:
       case s_externalObj: { return ref; }
 
       case s_releasedObj: { this->warnShareDropAfterRelease( ref.idx() );
-                            Dbg::monitorShare(m_objs[ref.idx()].first);
+                            
                             return ref; }
 
       case 0:             if (!m_objs[ref.idx()].first) {this->throwObjectAlreadyDeleted( ref.idx());}
@@ -297,7 +273,6 @@ protected:
 
       default:            { break; }
       }
-      Dbg::monitorShare(m_objs[ref.idx()].first);
 
       if (m_objs[ref.idx()].second >= std::numeric_limits<short>::max()) {
          this->throwMaximumNumberOfSharesExceeded(std::numeric_limits<short>::max()); // clone object and add new slot ?
@@ -343,7 +318,7 @@ protected:
     */
    const T_Obj *get(  ObjRef ref) const {
       ensureExists(ref);
-      return Dbg::validateAccess(m_objs[ref.idx()].first);
+      return m_objs[ref.idx()].first;
    }
 
    /** Get a pointer to a managed object.
@@ -352,7 +327,7 @@ protected:
     */
     T_Obj *get(  ObjRef ref) {
        ensureExists(ref);
-       return Dbg::validateAccess(m_objs[ref.idx()].first);
+       return m_objs[ref.idx()].first;
     }
 
    /** Remove ownership over the given object from the container.
@@ -373,7 +348,7 @@ protected:
       case s_externalObj:   return cloneObj(m_objs[ref.idx()].first);
       default:
          m_objs[ref.idx()].second = s_releasedObj;
-         Dbg::monitorRelease(m_objs[ref.idx()].first);
+        
          return m_objs[ref.idx()].first;
       }
    }
@@ -657,17 +632,6 @@ public:
     ObjRef index() const { return m_ref; }
 
  protected:
-   /** Helper method to increase the share count of the object pointed to by this pointer.
-    */
-    ObjRef share() {
-      if (*this) {
-         assert(m_container);
-         return m_container->share( m_ref);
-      }
-      else {
-         return m_ref;
-      }
-   }
 
    /** Helper method to increase the share count of the referenced object and point to that object.
     */
