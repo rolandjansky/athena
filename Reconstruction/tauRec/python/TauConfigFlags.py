@@ -27,9 +27,9 @@ def createTauConfigFlags():
     tau_cfg.addFlag("Tau.doRNNTrackClass",True)
     tau_cfg.addFlag("Tau.doTauDiscriminant",True)
     tau_cfg.addFlag("Tau.associateLRT",False)
+    tau_cfg.addFlag("Tau.isStandalone",False)
     # Classify Large Radius Tracks in tau track classifier
     tau_cfg.addFlag("Tau.clasifyLRT",False)
-    
 
     # Settings
     tau_cfg.addFlag('Tau.SeedJetCollection', 'AntiKt4LCTopoJets')

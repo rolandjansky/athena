@@ -112,15 +112,9 @@ def RecoSteering(flags):
 
     # Tau
     if flags.Reco.EnableTau:
-        from tauRec.TauConfig import TauBuildAlgCfg, TauCaloAlgCfg, TauRunnerAlgCfg
-        tauBuildAlg = TauBuildAlgCfg(flags)
-        acc.merge(tauBuildAlg)
-
-        caloAlg = TauCaloAlgCfg(flags)
-        acc.merge(caloAlg)
-
-        tauRunnerAlg = TauRunnerAlgCfg(flags)
-        acc.merge(tauRunnerAlg)
+        from tauRec.TauConfig import TauReconstructionCfg
+        acc.merge(TauReconstructionCfg(flags))
+        log.info("---------- Configured tau reconstruction")
 
     # HI
     if flags.Reco.EnableHI:
