@@ -80,6 +80,7 @@ namespace CoreDumpSvcHandler
   
   SigHandler_t oldSigHandler;         ///< old signal handlers
   bool callOldHandler(true);          ///< forward calls to old handlers?
+  bool dumpCoreFile(false);           ///< dump core file on exit?
   bool stackTrace(false);             ///< produce stack trace?
   bool fastStackTrace(false);         ///< produce fast stack trace using CxxUtils/Seal
   CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
@@ -204,6 +205,13 @@ namespace CoreDumpSvcHandler
       while (inThreads > 0 && waits < timeoutSeconds) {
         nanosleep (&one_second, nullptr);
       }
+
+      if (dumpCoreFile) {
+        // Restore default abort handler that should create a core file
+        Athena::Signal::revert (SIGABRT);
+        std::abort();
+      }
+
       // Exit now on a fatal signal; otherwise, we can hang.
       _exit (99);
     }
@@ -221,6 +229,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   CoreDumpSvcHandler::coreDumpSvc = this;
   
   m_callOldHandler.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
+  m_dumpCoreFile.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_stackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fastStackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
@@ -239,6 +248,7 @@ CoreDumpSvc::~CoreDumpSvc()
 void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
+  CoreDumpSvcHandler::dumpCoreFile = m_dumpCoreFile;
   CoreDumpSvcHandler::stackTrace = m_stackTrace;
   CoreDumpSvcHandler::fastStackTrace = m_fastStackTrace;
 
@@ -356,7 +366,8 @@ void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& n
 //----------------------------------------------------------------------
 void CoreDumpSvc::print ATLAS_NOT_THREAD_SAFE ()
 {
-  ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() << ".");
+  ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() <<
+                (m_dumpCoreFile ? ". Will try to produce a core dump file on exit." : "."));
   CoreDumpSvcHandler::log() << dump() << std::flush;
 }
 
