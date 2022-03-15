@@ -92,11 +92,13 @@ public:
 
   /// @c IIoComponent interface
   //@{
-  /** @brief callback method to reinitialize the internal state of
-   *         the component for I/O purposes (e.g. upon @c fork(2))
+  /** @brief callback methods to reinitialize/finalize the internal state
+   *         of the component for I/O purposes (e.g. upon @c fork(2))
    */
   virtual
-  StatusCode io_reinit();
+  StatusCode io_reinit() override final;
+  virtual
+  StatusCode io_finalize() override final;
   //@}
 
   /////////////////////////////////////////////////////////////////// 
