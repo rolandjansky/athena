@@ -10,7 +10,7 @@ from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
-    ITkPixelConfigCondAlgCfg, ITkPixelChargeCalibCondAlgCfg,
+    ITkPixelModuleConfigCondAlgCfg, ITkPixelChargeCalibCondAlgCfg,
     ITkPixelDistortionAlgCfg
 )
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
@@ -52,7 +52,7 @@ def ITkEnergyDepositionToolCfg(flags, name="ITkEnergyDepositionTool", **kwargs):
 def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Barrel"""
     acc = ITkPixelReadoutManagerCfg(flags)
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
@@ -68,7 +68,7 @@ def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
 def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Endcap"""
     acc = ITkPixelReadoutManagerCfg(flags)
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
@@ -83,7 +83,7 @@ def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
 
 def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSimPlanarTool for ITk"""
-    acc = ITkPixelConfigCondAlgCfg(flags)
+    acc = ITkPixelModuleConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags))
     LorentzTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
@@ -101,7 +101,7 @@ def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
 
 def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSim3DTool for ITk"""
-    acc = ITkPixelConfigCondAlgCfg(flags)
+    acc = ITkPixelModuleConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags))
     acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)

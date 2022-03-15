@@ -228,30 +228,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
             PixelNoiseShapeRUN1  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
         )
-        #====================================================================================
-        # ITK
-        CondArgs.update(
-            BarrelToTThresholdITK       = [-1,-1,-1,-1,-1],
-            BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06],
-            BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8],
-            BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3],
-            BarrelLorentzAngleCorrITK   = [   1.0,   1.0,   1.0,   1.0,   1.0],
-            DefaultBarrelBiasVoltageITK = [ 150.0, 150.0, 150.0, 150.0, 150.0],
-            BarrelFluenceITK            = [0.0e14,0.0e14,0.0e14,0.0e14,0.0e14],
-            BarrelFluenceMapITK = ["PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"],
-            EndcapToTThresholdITK       = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-            EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
-            EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
-            EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
-            EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
-            InnermostNoiseShapeITK     = [0.0, 1.0],
-            NextInnermostNoiseShapeITK = [0.0, 1.0],
-            PixelNoiseShapeITK         = [0.0, 1.0]
-        )
     else:
         # for data, make sure no Lorentz angle correction
         CondArgs.update(
@@ -263,8 +239,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapLorentzAngleCorr2018 = [  1.0,  1.0,  1.0],
             BarrelLorentzAngleCorrRUN1 = [  1.0,  1.0,  1.0],
             EndcapLorentzAngleCorrRUN1 = [  1.0,  1.0,  1.0],
-            BarrelLorentzAngleCorrITK  = [  1.0,  1.0,  1.0,  1.0,  1.0],
-            EndcapLorentzAngleCorrITK  = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
         )
 
     # Charge calibration parameters
@@ -284,14 +258,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         # ITk:
         if flags.GeoModel.Run >= LHCPeriod.Run4:  # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
-            if flags.GeoModel.Type == "BrlIncl4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-            elif flags.GeoModel.Type == "IBrlExt4.0ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt3.2_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
         elif flags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
             # Planar IBL
             if flags.GeoModel.IBLLayout == "planar":

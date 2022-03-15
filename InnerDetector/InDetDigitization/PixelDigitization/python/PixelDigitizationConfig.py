@@ -386,33 +386,6 @@ def PixelConfigCondAlg_MC():
     alg.BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShapeRUN1  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
-    #====================================================================================
-    # ITK
-    alg.BarrelToTThresholdITK       = [ -1, -1, -1, -1, -1]
-    alg.BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06]
-    alg.BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8]
-    alg.BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3]
-    alg.BarrelLorentzAngleCorrITK   = [   1.0,   1.0,   1.0,   1.0,   1.0]
-    alg.DefaultBarrelBiasVoltageITK = [ 150.0, 150.0, 150.0, 150.0, 150.0]
-    alg.BarrelFluenceITK            = [0.0e14,0.0e14,0.0e14,0.0e14,0.0e14]
-
-    alg.BarrelFluenceMapITK = ["PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                               "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"]
-
-    alg.EndcapToTThresholdITK       = [ -1, -1, -1, -1, -1,  -1, -1,  -1, -1, -1, -1, -1, -1, -1]
-    alg.EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
-    alg.EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
-    alg.EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
-    alg.EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
-    alg.DefaultEndcapBiasVoltageITK = [150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0]
-
-    alg.InnermostNoiseShapeITK     = [0.0, 1.0]
-    alg.NextInnermostNoiseShapeITK = [0.0, 1.0]
-    alg.PixelNoiseShapeITK         = [0.0, 1.0]
-
     alg.CablingMapFileName=IdMapping()
 
     return alg
