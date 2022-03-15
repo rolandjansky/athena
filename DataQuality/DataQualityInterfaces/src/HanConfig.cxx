@@ -2,10 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// **********************************************************************
-// $Id: HanConfig.cxx,v 1.30 2009-05-07 14:45:54 ponyisi Exp $
-// **********************************************************************
-
 #include "DataQualityInterfaces/HanConfig.h"
 
 #include <string.h>	// strncmp()
@@ -106,6 +102,7 @@ AssembleAndSave( std::string infileName, std::string outfileName, std::string co
   refconfig.AddKeyword("reference");
   refconfig.ReadFile(infileName);
   TMap refsourcedata;
+  refsourcedata.SetOwnerKeyValue();
   RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
 
@@ -392,7 +389,7 @@ Visit( const MiniConfigTreeNode* node ) const
     m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
 			 fnameostr);
     if (! m_refsourcedata->FindObject(fileName.c_str())) {
-      m_refsourcedata->Add(fnameostr, refInfo != "" ? new TObjString(refInfo.c_str())
+      m_refsourcedata->Add(fnameostr->Clone(), refInfo != "" ? new TObjString(refInfo.c_str())
 			   : new TObjString("Reference"));
     }
   }
@@ -655,12 +652,32 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
                   }
                   m_outfile->cd(); //we are writing to the / folder of file
                   std::shared_ptr<TObject> q(key->ReadObj());
-                  std::pair<std::string, std::shared_ptr<TObject>> z("abc", key->ReadObj());
                   objects[iRefID].emplace_back(absAlgRefName, key->ReadObj());
                 }
               }
             } else {
-              std::cerr << "uh oh, not same_name" << std::endl;
+              absAlgRefName += algRefName;
+              algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+
+              if( algRefFile != "" ) {
+                std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
+                if ( ! infile.get() ) {
+                  std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
+                  continue;
+                }
+
+                TKey* key = getObjKey( infile.get(), absAlgRefName );
+                if( key == 0 ) {
+                  // no reference
+                  std::cerr << "Couldn't find reference " << absAlgRefName << std::endl;
+                  continue;
+                }
+                m_outfile->cd(); //we are writing to the / folder of file
+                std::shared_ptr<TObject> q(key->ReadObj());
+                objects[iRefID].emplace_back(absAlgRefName, key->ReadObj());
+              } else {
+                std::cerr << "No file specified for " << absAlgRefName << " ?" << std::endl;
+              }
             }
           }
 
@@ -715,6 +732,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
               // not implemented for now
             } else {
               TObjArray* toarray = new TObjArray();
+              toarray->SetOwner(true);
               for (size_t iRef = 0; iRef < objects.size(); ++iRef) {
                 toarray->Add(objects[iRef][0].second->Clone());
               }
@@ -734,9 +752,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
             }
             if (! isMultiRef) {
               // register file information
-              auto algRefFileostr = new TObjString(algRefFile.c_str());
               if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
-                m_refsourcedata->Add(algRefFileostr, 
+                m_refsourcedata->Add(new TObjString(algRefFile.c_str()), 
                   new TObjString(algRefInfo != "" ? algRefInfo.c_str() : "Reference"));
               }
             }
