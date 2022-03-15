@@ -502,7 +502,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       //
       int channel = m_tileHWID->channel(m_cablingService->s2h_channel_id(pmt_id));
       double hit_calib = samplingFraction->getSamplingFraction(drawerIdx, channel);
-
+      hit_calib = std::round(hit_calib * 1000) / 1000;
 
       ATH_MSG_VERBOSE("------ Sampling fraction: " << hit_calib);
 
