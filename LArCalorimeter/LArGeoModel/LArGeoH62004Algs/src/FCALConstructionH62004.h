@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // FCALConstructionH62004
 // Insert the LAr FCAL into a pre-defined mother volume.
 // Author: Joe Boudreau August 204
 
-#ifndef __FCALConstructionH62004_H__
-#define __FCALConstructionH62004_H__
+#ifndef LARGEOH62004ALGS_FCALCONSTRUCTIONH62004_H
+#define LARGEOH62004ALGS_FCALCONSTRUCTIONH62004_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -56,4 +56,4 @@ namespace LArGeo {
 
 }  // namespace LArGeo
 
-#endif // __FCALConstructionH62004_H__
+#endif // LARGEOH62004ALGS_FCALCONSTRUCTIONH62004_H
