@@ -256,8 +256,14 @@ TriggerHLTListRun3 = [
 
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs',                          'BS ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
-    ('xAOD::MuonRoIContainer#LVL1MuonRoIsDAQ',                       'ESD AODFULL', 'L1'),
-    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsDAQAux.',                'ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIContainer#LVL1MuonRoIsBCm2',                      'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsBCm2Aux.',               'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIContainer#LVL1MuonRoIsBCm1',                      'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsBCm1Aux.',               'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIContainer#LVL1MuonRoIsBCp1',                      'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsBCp1Aux.',               'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIContainer#LVL1MuonRoIsBCp2',                      'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsBCp2Aux.',               'BS ESD AODFULL', 'L1'),
 
     ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                                          'BS ESD AODFULL', 'L1'),
     ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',                  'BS ESD AODFULL', 'L1'),
