@@ -58,7 +58,7 @@
 
 
 // need specialisation of cloneObj used by ObjContainer to properly clones all
-// kinds of TrackParameters:
+
 template<>
 inline const Trk::TrackParameters*
 cloneObj<const Trk::TrackParameters>(const Trk::TrackParameters* p_ptr)
