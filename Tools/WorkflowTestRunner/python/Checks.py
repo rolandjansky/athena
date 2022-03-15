@@ -162,8 +162,9 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             self.logger.info("Passed!\n")
         else:
             # print CI helper directly to avoid logger decorations
-            self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            self.logger.print("")
+            if self.setup.disable_release_setup:
+                self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+                self.logger.print("")
 
             self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
@@ -228,12 +229,16 @@ class AODContentCheck(WorkflowCheck):
             result = True
         else:
             # print CI helper directly to avoid logger decorations
-            self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            self.logger.print("")
+            if self.setup.disable_release_setup:
+                self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+                self.logger.print("")
 
             self.logger.error(f"Your change modifies the output in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
-            self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
+            if self.setup.validation_only:
+                self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
+            else:
+                self.logger.error(f"The output '{validation_output}' (>) differs from the reference '{reference_output}' (<):")
             if diff_output:
                 self.logger.print("")
                 self.logger.print(diff_output)
@@ -301,12 +306,16 @@ class AODDigestCheck(WorkflowCheck):
             result = True
         else:
             # print CI helper directly to avoid logger decorations
-            self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
-            self.logger.print("")
+            if self.setup.disable_release_setup:
+                self.logger.print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+                self.logger.print("")
 
             self.logger.error(f"Your change breaks the digest in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
-            self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
+            if self.setup.validation_only:
+                self.logger.error(f"The output '{output_name}' (>) differs from the reference '{reference_output_name}' (<):")
+            else:
+                self.logger.error(f"The output '{validation_output}' (>) differs from the reference '{reference_output}' (<):")
             if diff_output:
                 self.logger.print("")
                 self.logger.print(diff_output)
