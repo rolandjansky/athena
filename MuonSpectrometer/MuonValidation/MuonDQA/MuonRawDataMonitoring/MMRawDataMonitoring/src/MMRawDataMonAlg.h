@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -56,13 +56,12 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms(const EventContext& ctx) const override;
   
- private:  
+ private:
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool{this,"MuonSelectionTool","CP::MuonSelectionTool/MuonSelectionTool"};
-  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey",
-     "MuonDetectorManager","Key of input MuonDetectorManager condition data"};
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", "MuonDetectorManager","Key of input MuonDetectorManager condition data"};
 
   virtual StatusCode  fillMMOverviewVects(const Muon::MMPrepData*, MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2]) const;
   virtual void  fillMMOverviewHistograms(const MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2], const int lb) const;
@@ -92,10 +91,12 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
 
   SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MMContainerKey{this,"MMPrepDataContainerName","MM_Measurements"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"MuonKey","Muons","muons"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_meTrkKey{this, "METrkContainer", "ExtrapolatedMuonTrackParticles"};
 
   Gaudi::Property<bool> m_doMMESD{this,"DoMMESD",true};
   Gaudi::Property<bool> m_do_mm_overview{this,"do_mm_overview",true};
   Gaudi::Property<bool> m_do_stereoCorrection{this,"do_stereoCorrection",false};
-   
+  Gaudi::Property<float> m_cut_pt{this,"cut_pt",20000};
+
 };    
 #endif
