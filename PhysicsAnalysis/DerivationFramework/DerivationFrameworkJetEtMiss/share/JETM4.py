@@ -6,7 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 #from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addJetPtAssociation
+
 #
 from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
 #
@@ -162,18 +162,10 @@ applyPFOAugmentation(DerivationFrameworkJob)
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
-if DerivationFrameworkIsMonteCarlo:
+#if DerivationFrameworkIsMonteCarlo:
     #addMETTruthMap('AntiKt4EMTopo',"JETMX")
     #addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     #scheduleMETAssocAlg(jetm4Seq,"JETMX")
-    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-
-#===============================
-# add xbb taggers
-#===============================
-#from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
-#addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
 
 
 #====================================================================
@@ -185,6 +177,8 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "AntiKt4EMTopoJets",
                                         "AntiKt10TruthJets",
                                         "AntiKt10LCTopoJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
@@ -196,18 +190,17 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         ]
 
 JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
+                                    "CHSChargedParticleFlowObjects", "CHSNeutralParticleFlowObjects",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape"]
+JETM4SlimmingHelper.AppendToDictionary = {'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                          'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer'}
 
 JETM4SlimmingHelper.ExtraVariables = ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawE.rawEta.rawPhi.rawM","Photons."+NewTrigVars["Photons"],"JetETMissNeutralParticleFlowObjects.m.mEM.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_CENTER_LAMBDA.pt.ptEM.phi.eta",
 "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",
 "TauJets.truthJetLink.truthParticleLink.IsTruthMatched"]
-
-# XbbScore variables
-from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
-JETM4SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
 for truthc in [
     "TruthMuons",

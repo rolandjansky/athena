@@ -66,26 +66,6 @@ if DerivationFrameworkIsMonteCarlo:
 jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
 DerivationFrameworkJob += jetm13Seq
 
-
-#from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
-#runTCCReconstruction(jetm13Seq,ToolSvc, "LCOriginTopoClusters", outputTCCName="TrackCaloClustersCombinedAndNeutral")
-
-
-# Add the necessary constituents for UFOs
-#from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-#addCHSPFlowObjects()
-#pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-#if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-#  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Finally we can run the UFO building taking our unified PFlow container as input
-#from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-#emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS",caloClusterName="LCOriginTopoClusters")
-#emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
-
-
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================

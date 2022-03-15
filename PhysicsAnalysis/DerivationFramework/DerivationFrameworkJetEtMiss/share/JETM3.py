@@ -4,8 +4,8 @@
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4LowPtJets, addRscanJets, addJetPtAssociation
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt
 #
 from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
 #
@@ -162,7 +162,7 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
                                                                 ThinningTools = thinningTools,
                                                                 AugmentationTools = [TrigMatchAug])
 
-OutputJets["JETM3"] = []
+OutputJets["JETM3"] = ["AntiKt4EMPFlowLowPtJets","AntiKt4EMTopoLowPtJets"]
 
 #=======================================
 # Add. small-R jet stuff in derivations
@@ -172,31 +172,17 @@ OutputJets["JETM3"] = []
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
 
-if DerivationFrameworkIsMonteCarlo:
-  jetList_lowPt = ["AntiKt4EMTopoJets",
-                   "AntiKt4EMPFlowJets"]
-  addAntiKt4LowPtJets(jetList_lowPt,DerivationFrameworkJob,"JETM3")
+jetList = [AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt]
+addDAODJets(jetList,DerivationFrameworkJob)
 
-#====================================================================
-#Jets for R-scan
-#====================================================================
-for radius in [0.2, 0.6]:
-    if jetFlags.useTruth:
-        addRscanJets("AntiKt",radius,"Truth",jetm3Seq,"JETM3")
-        addRscanJets("AntiKt",radius,"TruthWZ",jetm3Seq,"JETM3")
-    addRscanJets("AntiKt",radius,"LCTopo",jetm3Seq,"JETM3")
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
-if DerivationFrameworkIsMonteCarlo:
+#if DerivationFrameworkIsMonteCarlo:
     ###addMETTruthMap('AntiKt4EMTopo',"JETMX")
     ###addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     ##scheduleMETAssocAlg(jetm3Seq,"JETMX")
-    ## Add GhostTruthAssociation information ##
-    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    #addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
 
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
@@ -213,7 +199,8 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt2LCTopoJets", "AntiKt6LCTopoJets",
+                                        "AntiKt4EMPFlowJets",
+                                        "AntiKt4EMTopoJets",
                                         "AntiKt4TruthWZJets",
                                         "AntiKt10TruthJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
@@ -223,6 +210,7 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "BTagging_AntiKt4EMTopo",
 					]
 JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
+                                    "CHSChargedParticleFlowObjects", "CHSNeutralParticleFlowObjects",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
@@ -231,12 +219,14 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
+JETM3SlimmingHelper.AppendToDictionary = {'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                          'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer'}
 JETM3SlimmingHelper.ExtraVariables = [
   'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
   'HLT_xAOD__JetContainer_a4tcemsubjesISFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
   "Electrons."+NewTrigVars["Electrons"],
   "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"],
-  "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
+]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
@@ -260,3 +250,5 @@ addJetOutputs(
 
 # Add the MET containers to the stream
 addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
+
+JETM3SlimmingHelper.AppendContentToStream(JETM3Stream)
