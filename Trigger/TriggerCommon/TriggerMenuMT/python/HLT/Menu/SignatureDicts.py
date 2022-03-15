@@ -221,6 +221,10 @@ JetChainParts = {
                       'DJMASS1000j50', # alias
                       'DJMASS1000j50dphi240', # alias
                       'DJMASS1000j50dphi200x400deta', # alias
+                      
+                      'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # needed for hypoToolTests.py
+                      'DIJET80j12etXX0j12eta240XX700djmass', # needed for hypoToolTests.py
+
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'HT0',
                       'HT1000',
@@ -230,6 +234,7 @@ JetChainParts = {
                       'HT1000XX0eta240',
                       'HT1000XX020jvt',
                       'HT1000XX0eta240XX020jvt',
+                      'HT50XX10etXX0eta320'  # needed for hypoToolTests.py
                       ],
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
