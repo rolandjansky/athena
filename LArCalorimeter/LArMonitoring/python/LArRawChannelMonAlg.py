@@ -31,11 +31,11 @@ def LArRawChannelMonConfigOld(inputFlags):
     if not athenaCommonFlags.isOnline():
        from AthenaCommon.AlgSequence import AthSequencer
        #if not hasattr (condSeq,"Calo_"+alg.NoiseKey+"Alg"):
-       if len([_ for _ in AthSequencer("AthCondSeq") if _.getName()=="Calo_"+alg.NoiseKey+"Alg"]) == 0:
+       if len([_ for _ in AthSequencer("AthCondSeq") if _.getName()=="Calo_"+str(alg.NoiseKey)+"Alg"]) == 0:
           from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
           CaloNoiseCondAlg(noisetype=alg.NoiseKey.Path)
        from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-       alg.AtlasReadyFilterTool = GetAtlasReadyFilterTool()
+       alg.AtlasReadyFilterTool = [GetAtlasReadyFilterTool()]
     return helper.result()
 
 
