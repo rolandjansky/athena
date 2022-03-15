@@ -165,35 +165,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  Fluence(e14):[ 7.5]
     //
     //====================================================================================
-    // Upgrade ITk-pixel
-    //
-    // MC Project:               RUN4 (unknown)
-    //  Year:                              2027 
-    //  Run Number:             [240000-250000] 
-    //                               
-    // Barrel:                       
-    //  ToT:         [   -1,   -1,   -1,   -1,   -1]
-    //  CrossTalk:   [0.06,0.06,0.06,0.06,0.06]
-    //  NoiseOcc.:   [5e-8,5e-8,5e-8,5e-8,5e-8]
-    //  DisalbePix:  [9e-3,9e-3,9e-3,9e-3,9e-3]
-    //  NoiseShape:  [2018,2018,2018,2018,2018]
-    //  BiasVoltage: [ 150, 150, 150, 150, 150]
-    //  Fluence(e14):[ 0.0, 0.0, 0.0, 0.0, 0.0]
-    //                               
-    // Endcap:                       
-    //  ToT:         [   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1]
-    //  CrossTalk:   [0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06]
-    //  NoiseOcc.:   [5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8]
-    //  DisalbePix:  [9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3]
-    //  NoiseShape:  [2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018]
-    //  BiasVoltage: [ 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150]
-    //  Fluence(e14):[ n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a]
-    //
-    // ITK 3D:                           
-    //  Fluence(e14):[ n/a]
-    //====================================================================================
-
-    //====================================================================================
     // Barrel RUN2 2015/2016
     Gaudi::Property<std::vector<int>> m_BarrelToTThreshold2016
     {this, "BarrelToTThreshold2016", {-1, 5, 5, 5}, "ToT thresholds for barrel pixel layers in 2015/2016"};
@@ -703,74 +674,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrRUN1
     {this, "EndcapLorentzAngleCorrRUN1", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in RUN1"};
-
-    //====================================================================================
-    // Barrel ITK
-    Gaudi::Property<std::vector<int>> m_BarrelToTThresholdITK
-    {this, "BarrelToTThresholdITK", {-1,-1,-1,-1,-1}, "ToT thresholds for barrel pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<float>> m_BarrelBiasVoltageITK
-    {this, "DefaultBarrelBiasVoltageITK", {150.0,150.0,150.0,150.0,150.0}, "Default barrel bias voltage in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_BarrelFluenceITK
-    {this, "BarrelFluenceITK", {0.0e14, 0.0e14, 0.0e14, 0.0e14, 0.0e14}, "Barrel fluence for radiation damage in ITK"};
-
-    Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMapITK
-    {this, "BarrelFluenceMapITK", {"PixelDigitization/maps_IBL_PL_80V_fl0e14.root",   // this needs to be updated
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
-                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"},
-                                   "Barrel fluence map for radiation damage in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_BarrelCrossTalkITK
-    {this, "BarrelCrossTalkITK", {0.06,0.06,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancyITK
-    {this, "BarrelNoiseOccupancyITK", {5e-8,5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_BarrelDisableProbabilityITK
-    {this, "BarrelDisableProbabilityITK", {9e-3,9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorrITK
-    {this, "BarrelLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in ITK"};
-
-    // This is ad-hoc solution.
-    Gaudi::Property<std::vector<float>> m_InnermostNoiseShapeITK
-    {this, "InnermostNoiseShapeITK", {0.0,1.0}, "Noise shape for IBL in ITK"};
-
-    Gaudi::Property<std::vector<float>> m_NextInnermostNoiseShapeITK
-    {this, "NextInnermostNoiseShapeITK", {0.0,1.0}, "Noise shape for b-layer in ITK"};
-
-    Gaudi::Property<std::vector<float>> m_PixelNoiseShapeITK
-    {this, "PixelNoiseShapeITK", {0.0,1.0}, "Noise shape for PIXEL in ITK"};
-
-    // Endcap ITK
-    Gaudi::Property<std::vector<int>> m_EndcapToTThresholdITK
-    {this, "EndcapToTThresholdITK", {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, "ToT thresholds for endcap pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<float>> m_EndcapBiasVoltageITK
-    {this, "DefaultEndcapBiasVoltageITK", {150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0}, "Default endcap bias voltage in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_EndcapCrossTalkITK
-    {this, "EndcapCrossTalkITK", {0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06}, "Cross-talk fraction of barrel endcap layers in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_EndcapNoiseOccupancyITK
-    {this, "EndcapNoiseOccupancyITK", {5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of endcap pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_EndcapDisableProbabilityITK
-    {this, "EndcapDisableProbabilityITK", {9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in ITK"};
-
-    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrITK
-    {this, "EndcapLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in ITK"};
-
-    // ITK 3D
-    Gaudi::Property<std::vector<double>> m_3DFluenceITK
-    {this, "Barrel3DFluenceITK", {0.0e14}, "Barrel3D fluence for radiation damage in ITK"};
-
-    Gaudi::Property<std::vector<std::string>> m_3DFluenceMapITK
-    {this, "Barrel3DFluenceMapITK", {"PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"},
-                                     "Barrel3D fluence map for radiation damage in ITK"};
 
     //====================================================================================
     // The following parameters are default values which will be overwritten by the one 

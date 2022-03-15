@@ -7,7 +7,6 @@
 #include "TGraph.h"
 #include "TString.h"
 #include "TMath.h"
-#include "TFile.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"

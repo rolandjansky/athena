@@ -21,8 +21,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "PathResolver/PathResolver.h"
 
-#include "TFile.h"
-
 #include <cmath>
 #include <memory>
 

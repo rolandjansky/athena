@@ -265,45 +265,6 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
   }
-  else if (currentRunNumber<250000) {  // RUN4
-    writeCdo -> setBarrelToTThreshold(m_BarrelToTThresholdITK);
-    writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkITK);
-    writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyITK);
-    writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityITK);
-    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrITK);
-    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltageITK);
-
-    writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdITK);
-    writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkITK);
-    writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyITK);
-    writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityITK);
-    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrITK);
-    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltageITK);
-
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_InnermostNoiseShapeITK.size(); i++)     { writeCdo->setBarrelNoiseShape(0,m_InnermostNoiseShapeITK[i]); }
-    for (size_t i=0; i<m_NextInnermostNoiseShapeITK.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_NextInnermostNoiseShapeITK[i]); }
-    for (size_t i=0; i<m_PixelNoiseShapeITK.size(); i++)  {
-      for (size_t layer:{2,3,4}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShapeITK[i]); }
-    }
-
-    for (size_t i=0; i<m_EndcapToTThresholdITK.size(); i++) {
-      for (size_t j=0; j<m_PixelNoiseShapeITK.size(); j++)  { writeCdo->setEndcapNoiseShape(i,m_PixelNoiseShapeITK[j]); }
-    }
-
-    // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluenceITK);
-    for (size_t i=0; i<m_BarrelFluenceMapITK.size(); i++) {
-      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMapITK[i]));
-    }
-
-    // Radiation damage simulation for 3D sensor
-    writeCdo -> setFluenceLayer3D(m_3DFluenceITK);
-    for (size_t i=0; i<m_3DFluenceMapITK.size(); i++) {
-      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMapITK[i]));
-    }
-
-  }
   else if (currentRunNumber<300000) {  // RUN2 2015/2016 (mc16a)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2016);
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2016);

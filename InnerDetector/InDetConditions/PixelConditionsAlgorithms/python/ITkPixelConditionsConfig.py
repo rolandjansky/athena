@@ -6,12 +6,37 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 
-def ITkPixelConfigCondAlgCfg(flags, name="ITkPixelConfigCondAlg", **kwargs):
+def ITkPixelModuleConfigCondAlgCfg(flags, name="ITkPixelModuleConfigCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelConfigCondAlg for ITk"""
+    acc = ComponentAccumulator()
     kwargs.setdefault("WriteKey", "ITkPixelModuleData")
-    # This one has the highest chance of premature divergence so just take the default Pixel for now
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
-    return PixelConfigCondAlgCfg(flags, name, **kwargs)
+    #These settings should be replaced with values taken from conditions
+    CondArgs = {}
+    CondArgs.update(
+            BarrelToTThreshold       = [-1,-1,-1,-1,-1],
+            BarrelCrossTalk          = [  0.06,  0.06,  0.06,  0.06,  0.06],
+            BarrelNoiseOccupancy     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8],
+            BarrelDisableProbability = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3],
+            BarrelLorentzAngleCorr   = [   1.0,   1.0,   1.0,   1.0,   1.0],
+            DefaultBarrelBiasVoltage = [ 150.0, 150.0, 150.0, 150.0, 150.0],
+            BarrelFluence            = [0.0e14,0.0e14,0.0e14,0.0e14,0.0e14],
+            BarrelFluenceMap         = ["PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                        "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                        "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                        "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                        "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"],
+            EndcapToTThreshold       = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            EndcapCrossTalk          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
+            EndcapNoiseOccupancy     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
+            EndcapDisableProbability = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
+            InnermostNoiseShape      = [0.0, 1.0],
+            NextInnermostNoiseShape  = [0.0, 1.0],
+            PixelNoiseShape          = [0.0, 1.0]
+        )
+    CondArgs.update(kwargs)
+    acc.addCondAlgo(CompFactory.PixelModuleConfigCondAlg(name, **CondArgs))
+    return acc
 
 def ITkPixelAlignCondAlgCfg(flags, name="ITkPixelAlignCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelAlignCondAlg for ITk"""
@@ -37,7 +62,7 @@ def ITkPixelAlignCondAlgCfg(flags, name="ITkPixelAlignCondAlg", **kwargs):
 def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg for ITk"""
     acc = ComponentAccumulator()
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
     acc.merge(ITkPixelReadoutGeometryCfg(flags))
@@ -51,7 +76,7 @@ def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kw
 def ITkPixelChargeLUTCalibCondAlgCfg(flags, name="ITkPixelChargeLUTCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg for ITk"""
     acc = ComponentAccumulator()
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
@@ -63,7 +88,7 @@ def ITkPixelChargeLUTCalibCondAlgCfg(flags, name="ITkPixelChargeLUTCalibCondAlg"
 def ITkPixelDCSCondHVAlgCfg(flags, name="ITkPixelDCSCondHVAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondHVAlg for ITk"""
     acc = ComponentAccumulator()
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     if flags.Common.isOnline:
         kwargs.update( ReadKey="/PIXEL/HLT/DCS/HV")
         acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
@@ -95,7 +120,7 @@ def ITkPixelDCSCondStatusAlgCfg(flags, name="ITkPixelDCSCondStatusAlg", **kwargs
 def ITkPixelDCSCondTempAlgCfg(flags, name="ITkPixelDCSCondTempAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondTempAlg for ITk"""
     acc = ComponentAccumulator()
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     if flags.Common.isOnline:
         kwargs.setdefault("ReadKey", "/PIXEL/HLT/DCS/TEMPERATURE")
         acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
@@ -110,7 +135,7 @@ def ITkPixelDCSCondTempAlgCfg(flags, name="ITkPixelDCSCondTempAlg", **kwargs):
 def ITkPixelDeadMapCondAlgCfg(flags, name="ITkPixelDeadMapCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDeadMapCondAlg for ITk"""
     acc = ComponentAccumulator()
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
 
     # TODO: not enabled for ITk for now
     kwargs.setdefault("ReadKey", "")
@@ -131,7 +156,7 @@ def ITkPixelDetectorElementCondAlgCfg(flags, name="ITkPixelDetectorElementCondAl
 def ITkPixelDistortionAlgCfg(flags, name="ITkPixelDistortionAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDistortionAlg for ITk"""
     acc = ComponentAccumulator()
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags,"INDET", "/Indet/Onl/PixelDist", "/Indet/PixelDist", className="DetCondCFloat"))
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
