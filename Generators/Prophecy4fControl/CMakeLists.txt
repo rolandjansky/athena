@@ -9,7 +9,6 @@ atlas_subdir( Prophecy4fControl )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 
 find_package( Prophecy4f )
-# find_package( Powheg )
 find_package( Pythia8 )
 
 # Component(s) in the package:
