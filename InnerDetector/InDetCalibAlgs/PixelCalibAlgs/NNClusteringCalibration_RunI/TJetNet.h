@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -167,7 +167,7 @@ private:
 
 
 
-  TActivationFunction m_enActFunction;
+  TActivationFunction m_enActFunction{};
 
   Int_t  m_LayerCount; // Number of Layers (including the input and output)
   Int_t* m_pLayers; //! Array which contains the number of units in each layer 
