@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigEFMissingET )
@@ -7,7 +7,6 @@ atlas_subdir( TrigEFMissingET )
 find_package( ROOT COMPONENTS Core Hist Matrix )
 find_package( Eigen )
 find_package(lwtnn)
-find_package(HDF5 1.10.1 REQUIRED COMPONENTS CXX C)
 
 atlas_add_library( TrigEFMissingETLib 
    Root/*.cxx
@@ -28,7 +27,7 @@ atlas_add_component( TrigEFMissingET
       InDetTrackSelectionToolLib TrackVertexAssociationToolLib TrkCaloExtension RecoToolInterfaces JetEDM
       xAODCaloEvent xAODTrigMissingET xAODTracking xAODJet xAODBase xAODEventShape xAODPFlow
       PathResolver
-      ${HDF5_LIBRARIES} ${LWTNN_LIBRARIES}
+      ${LWTNN_LIBRARIES}
 )
 
 # Install files from the package:
