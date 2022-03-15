@@ -1,0 +1,15 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef TGCRAWDATAMONITORING_TGCBASE_H
+#define TGCRAWDATAMONITORING_TGCBASE_H
+namespace TGC {
+  
+  enum class TGCDETECTOR{TGCM1,TGCM2,TGCM3,TGCEI,TGCFI,TGCDETECTORUNDEF};
+
+  enum class TGCSIDE { TGCASIDE, TGCCSIDE, TGCSIDEUNDEF };
+
+
+}
+#endif
+

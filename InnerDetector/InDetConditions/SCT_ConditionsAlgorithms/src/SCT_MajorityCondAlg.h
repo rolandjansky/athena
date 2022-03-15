@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_MAJORITYCONDALG
@@ -13,8 +13,6 @@
 #include "SCT_ConditionsData/SCT_MajorityCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 class SCT_MajorityCondAlg : public AthReentrantAlgorithm
 {  
@@ -30,7 +28,6 @@ class SCT_MajorityCondAlg : public AthReentrantAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DCS/MAJ", "Key of input (raw) conditions folder"};
   SG::WriteCondHandleKey<SCT_MajorityCondData> m_writeKey{this, "WriteKey", "SCT_MajorityCondData", "Key of output (derived) conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif // SCT_MAJORITYCONDALG

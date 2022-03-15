@@ -1,6 +1,4 @@
-################################################################################
-# Package: MuidCaloScatteringTools
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuidCaloScatteringTools )
@@ -12,8 +10,4 @@ atlas_add_component( MuidCaloScatteringTools
                      src/MuidMaterialEffectsOnTrackProvider.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel MuidInterfaces TrkDetDescrInterfaces TrkSurfaces TrkParameters FourMomUtils
-			            TrkExInterfaces GeoPrimitives MuidEvent muonEvent TrkGeometry TrkMaterialOnTrack TrkTrack TrkExUtils MagFieldElements MagFieldConditions )
-
-# Install files from the package:
-atlas_install_headers( MuidCaloScatteringTools )
-
+			            TrkExInterfaces GeoPrimitives MuidEvent muonEvent TrkGeometry TrkMaterialOnTrack TrkTrack TrkExUtils MagFieldConditions )

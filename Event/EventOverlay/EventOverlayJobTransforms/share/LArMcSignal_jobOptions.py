@@ -7,8 +7,8 @@ from LArROD.LArRODFlags import larRODFlags
 if DetFlags.overlay.LAr_on():
    # TODO: we used to remove some containers here which is no longer possible
 
-   from LArDigitization.LArDigitizationConf import LArDigitMaker
-   theLArDigits = LArDigitMaker("digitmaker2")
+   from LArDigitization.LArDigitizationConf import LArHitEMapMaker
+   theLArDigits = LArHitEMapMaker("digitmaker2")
    theLArDigits.EvtStore = "BkgEvent_0_SG"
    #theLArDigits.DigitContainer = job.digitmaker1.DigitContainer
    #theLArDigits.RandomDigitContainer = job.digitmaker1.RandomDigitContainer

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCoolMgr.py
 #author: nils.gollub@cern.ch
@@ -269,6 +269,8 @@ class TileCoolMgr(object):
         self.addSource('OfcOf1CisPl5p2', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
         self.addSource('OfcOf1Las',      '/TILE/ONL01/FILTER/OF1/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/LAS', 'SplitMC')
 
+        #--- sampling fraction
+        self.addSource('oflSampFrac', '/TILE/OFL02/CALIB/SFR', oflConnStr, "TileOfl02CalibSfr-SIM-00", "", 'OfflineOnly', '/TILE/OFL02/CALIB/SFR')
 
         if (self._dbInstance == 'CONDBR2'):
             #--- OFCs

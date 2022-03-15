@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -118,14 +118,17 @@ def LArDelay_OFCCaliCfg(flags):
 
     #ROOT ntuple writing:
     rootfile=flags.LArCalib.Output.ROOTFile
+    rootfile2=flags.LArCalib.Output.ROOTFile2
     if rootfile != "":
         result.addEventAlgo(CompFactory.LArCaliWaves2Ntuple(KeyList = ["LArCaliWave",],
                                                             NtupleName  = "CALIWAVE",
                                                             AddFEBTempInfo = False,
+                                                            SaveDerivedInfo = True,
                                                             ApplyCorrection = True
                                                         ))
 
-        result.addEventAlgo(CompFactory.LArOFC2Ntuple(ContainerKey = "LArOFC",
+        if rootfile2 == "":
+           result.addEventAlgo(CompFactory.LArOFC2Ntuple(ContainerKey = "LArOFC",
                                                       AddFEBTempInfo  = False
                                                   ))
 
@@ -136,6 +139,21 @@ def LArDelay_OFCCaliCfg(flags):
         result.setAppProperty("HistogramPersistency","ROOT")
         pass # end if ROOT ntuple writing
 
+    if rootfile2 != "":
+        result.addEventAlgo(CompFactory.LArOFC2Ntuple(ContainerKey = "LArOFC",
+                                                   AddFEBTempInfo  = False,
+                                                   NtupleFile = "FILE2"
+                                               ))
+
+        import os
+        if os.path.exists(rootfile2):
+           os.remove(rootfile2)
+        if rootfile == "":   
+           result.addService(CompFactory.NTupleSvc(Output = [ "FILE2 DATAFILE='"+rootfile2+"' OPT='NEW'" ]))
+        else:   
+           result.getService("NTupleSvc").Output += [ "FILE2 DATAFILE='"+rootfile2+"' OPT='NEW'" ]
+        result.setAppProperty("HistogramPersistency","ROOT")
+        pass # end if ROOT ntuple writing
 
 
     #Get the current folder tag by interrogating the database:

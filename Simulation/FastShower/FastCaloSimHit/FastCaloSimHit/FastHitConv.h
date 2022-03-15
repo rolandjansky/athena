@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TileSimEvent/TileHitVector.h"
+#include "TileConditions/TileSamplingFraction.h"
+#include "TileConditions/TileCablingSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -30,6 +32,7 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
+class TileHWID;
 
 class FastHitConv: public AthAlgorithm {
 
@@ -62,18 +65,31 @@ private:
   std::string m_caloCellsOutputName;
 
   ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
-  PileUpMergeSvc* m_pMergeSvc;
+  PileUpMergeSvc* m_pMergeSvc{nullptr};
 
   // Data description objects
   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
-  const TileInfo* m_tileInfo;                  // Pointer to TileInfo class
 
-  const LArEM_ID*     m_larEmID;
-  const LArFCAL_ID*   m_larFcalID;
-  const LArHEC_ID*    m_larHecID;
-  const TileID*       m_tileID;
+  /**
+   * @brief Name of TileSamplingFraction in condition store
+   */
+  SG::ReadCondHandleKey<TileSamplingFraction> m_tileSamplingFractionKey{this,
+      "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
 
-  bool m_pileup;                // pile up or not?
+  /**
+   * @brief Name of Tile cabling service
+   */
+  ServiceHandle<TileCablingSvc> m_tileCablingSvc{ this,
+     "TileCablingSvc", "TileCablingSvc", "Tile cabling service"};
+
+  const LArEM_ID*     m_larEmID{nullptr};
+  const LArFCAL_ID*   m_larFcalID{nullptr};
+  const LArHEC_ID*    m_larHecID{nullptr};
+  const TileID*       m_tileID{nullptr};
+  const TileHWID*     m_tileHWID{nullptr};
+  const TileCablingService* m_tileCabling{nullptr};
+
+  bool m_pileup{false};                // pile up or not?
 
 };
 #endif    //FASTCALOSIMHIT_FASTHITCONV_H

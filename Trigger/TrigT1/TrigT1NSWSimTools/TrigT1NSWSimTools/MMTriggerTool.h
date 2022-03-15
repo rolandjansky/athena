@@ -7,6 +7,7 @@
 
 //basic includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 //local includes
@@ -39,9 +40,6 @@ namespace NSWL1 {
     //load event stuff
     std::vector<hitData_entry> event_hitDatas(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
     std::vector<hitData_key> event_hitData_keys(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
-    std::shared_ptr<MMT_Parameters> m_par_large;
-    std::shared_ptr<MMT_Parameters> m_par_small;
-    std::unique_ptr<MMT_Diamond> m_diamond;
 
     //MMT_Loader stuff end
 
@@ -53,14 +51,39 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc);
 
-    StatusCode runTrigger(const bool do_MMDiamonds);
-
-    StatusCode fillRDO(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds);
+    StatusCode runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds);
 
   private:
 
     // needed Servives, Tools and Helpers
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
+    ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};       //!< Athena/Gaudi incident Service
+
+    // Parameters for Diamond Road algorithms
+    Gaudi::Property<bool>  m_trapShape            {this, "TrapezoidalShape",         true, "Consider the quadruplet as a trapezoid"};
+    Gaudi::Property<int>   m_diamRoadSize         {this, "DiamondRoadSize",          8,    "Number of strips to create a road"};
+    Gaudi::Property<bool>  m_uv                   {this, "DiamondUV",                true, "Include Stereo planes for tracking"};
+    Gaudi::Property<int>   m_diamXthreshold       {this, "DiamondEtaThreshold",      2,    "Number of Eta planes for coincidences"};
+    Gaudi::Property<int>   m_diamUVthreshold      {this, "DiamondStereoThreshold",   2,    "Number of Stereo planes for coincidences"};
+    Gaudi::Property<int>   m_diamOverlapEtaUp     {this, "DiamondEtaUpOverlap",      4,    "Number of Eta strips for upper road overlap"};
+    Gaudi::Property<int>   m_diamOverlapEtaDown   {this, "DiamondEtaDownOverlap",    0,    "Number of Eta strips for lower road overlap"};
+    Gaudi::Property<int>   m_diamOverlapStereoUp  {this, "DiamondStereoUpOverlap",   4,    "Number of Stereo strips for upper road overlap"};
+    Gaudi::Property<int>   m_diamOverlapStereoDown{this, "DiamondStereoDownOverlap", 0,    "Number of Stereo strips for lower road overlap"};
+
+    // Parameters for RDO encoding
+    Gaudi::Property<std::string>  m_mmDigitContainer{this, "MM_DigitContainerName", "MM_DIGITS", "Name of the MM digit container"};
+    Gaudi::Property<bool>         m_doNtuple        {this, "DoNtuple",   false,          "Input the MMStrip branches into the analysis ntuple"};
+    Gaudi::Property<float>        m_phiMin          {this, "PhiMin",    -16.*M_PI/180.0, "Minimum Phi"};
+    Gaudi::Property<float>        m_phiMax          {this, "PhiMax",     16.*M_PI/180.0, "Maximum Phi"};
+    Gaudi::Property<int>          m_phiBits         {this, "PhiBits",    6,              "Number of Phi bits"};
+    Gaudi::Property<float>        m_rMin            {this, "RMin",       900.0,          "Minimum R [mm]"};
+    Gaudi::Property<float>        m_rMax            {this, "RMax",       5000.0,         "Maximum R [mm]"};
+    Gaudi::Property<int>          m_rBits           {this, "RBits",      8,              "Number of R bits"};
+    Gaudi::Property<float>        m_dThetaMin       {this, "DThetaMin", -0.015,          "Minimum dTheta [rad]"};
+    Gaudi::Property<float>        m_dThetaMax       {this, "DThetaMax",  0.015,          "Maximum dTheta [rad]"};
+    Gaudi::Property<int>          m_dThetaBits      {this, "DThetaBits", 5,              "Number of dTheta bits"};
+
+    std::shared_ptr<MMT_Parameters> m_par_large;
+    std::shared_ptr<MMT_Parameters> m_par_small;
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
 
@@ -68,33 +91,6 @@ namespace NSWL1 {
     StatusCode book_branches();                             //!< book the branches
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
     void fillNtuple(const MMLoadVariables& loadedVariables);
-
-    // Functions and variables for RDO conversion: since they are method-independent, they should be stored as private members of the main class
-    void setPhiMin(float value) { m_rdoPhiMin = value; }
-    void setPhiMax(float value) { m_rdoPhiMax = value; }
-    void setPhiBits(uint8_t bits) { m_rdoPhiBits = bits; }
-    void setRMin(float value) { m_rdoRMin = value; }
-    void setRMax(float value) { m_rdoRMax = value; }
-    void setRBits(uint8_t bits) { m_rdoRBits = bits; }
-    void setdThetaMin(float value) { m_rdodThetaMin = value; }
-    void setdThetaMax(float value) { m_rdodThetaMax = value; }
-    void setdThetaBits(uint8_t bits) { m_rdodThetaBits = bits; }
-    float getPhiMin() const { return m_rdoPhiMin; }
-    float getPhiMax() const { return m_rdoPhiMax; }
-    uint8_t getPhiBits() const { return m_rdoPhiBits; }
-    float getRMin() const { return m_rdoRMin; }
-    float getRMax() const { return m_rdoRMax; }
-    uint8_t getRBits() const { return m_rdoRBits; }
-    float getdThetaMin() const { return m_rdodThetaMin; }
-    float getdThetaMax() const { return m_rdodThetaMax; }
-    uint8_t getdThetaBits() const { return m_rdodThetaBits; }
-    float m_rdoPhiMin, m_rdoPhiMax, m_rdoRMin, m_rdoRMax, m_rdodThetaMin, m_rdodThetaMax;
-    uint8_t m_rdoPhiBits, m_rdoRBits, m_rdodThetaBits;
-
-    // properties: container and service names
-    StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-
-    BooleanProperty  m_doNtuple;                            //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
 
     TTree* m_tree;                                          //!< ntuple for analysis
     std::vector<unsigned int>* m_trigger_diamond_ntrig;

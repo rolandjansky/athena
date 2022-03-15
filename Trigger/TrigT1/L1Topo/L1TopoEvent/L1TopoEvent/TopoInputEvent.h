@@ -22,6 +22,7 @@
 #include "L1TopoEvent/MuonNextBCTOBArray.h"
 #include "L1TopoEvent/MuonTOBArray.h"
 #include "L1TopoEvent/MetTOBArray.h"
+#include "L1TopoEvent/jXETOBArray.h"
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoCommon/Types.h"
 
@@ -57,6 +58,7 @@ namespace TCS {
       const LateMuonTOBArray & lateMuons() const { return m_lateMuons; }
       const MuonNextBCTOBArray & muonsNextBC() const { return m_muonsNextBC; }
       const MetTOB & met() const { return m_met[0]; }
+      const jXETOB & jxe() const { return m_jxe[0]; }
       uint32_t run_number()        const { return m_runNo; }
       uint32_t event_number()      const { return m_evtNo; }
       uint32_t lumi_block()        const { return m_lumiB; }
@@ -76,6 +78,7 @@ namespace TCS {
       bool overflowFromjJetInput   () const { return m_overflowFromjJetInput   ; }
       bool overflowFromgJetInput   () const { return m_overflowFromgJetInput   ; }
       bool overflowFromEnergyInput() const { return m_overflowFromEnergyInput; }
+      bool overflowFromjXEInput   () const { return m_overflowFromjXEInput   ; }
       bool overflowFromMuonInput  () const { return m_overflowFromMuonInput  ; }
       /** @} */ // end of groupOverflowGetters
       StatusCode addCluster(const ClusterTOB & cluster);
@@ -95,6 +98,7 @@ namespace TCS {
       StatusCode addjJet(const jJetTOB & jet);
       StatusCode addgJet(const gJetTOB & jet);
       StatusCode setMET(const MetTOB & met);
+      StatusCode setjXE(const jXETOB & jXE);
       StatusCode setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID);
       /** @defgroup groupOverflowSetters
        *  @brief setter function for overflow bits
@@ -112,6 +116,7 @@ namespace TCS {
       void setOverflowFromjJetInput   (const bool &v);
       void setOverflowFromgJetInput   (const bool &v);
       void setOverflowFromEnergyInput(const bool &v);
+      void setOverflowFromjXEInput(const bool &v);
       void setOverflowFromMuonInput  (const bool &v);
       /** @} */ // end of groupOverflowSetters
       // access all inputs by type
@@ -152,6 +157,7 @@ namespace TCS {
       LateMuonTOBArray  m_lateMuons;
       MuonNextBCTOBArray  m_muonsNextBC;
       MetTOBArray       m_met; // will have size 1
+      jXETOBArray       m_jxe; // will have size 1
 
       uint32_t m_runNo {0};
       uint32_t m_evtNo {0};
@@ -170,6 +176,7 @@ namespace TCS {
       bool m_overflowFromjJetInput { false };
       bool m_overflowFromgJetInput { false };
       bool m_overflowFromEnergyInput { false };
+      bool m_overflowFromjXEInput { false };
       bool m_overflowFromMuonInput { false };
       std::string m_inputDumpFile { "" };
 

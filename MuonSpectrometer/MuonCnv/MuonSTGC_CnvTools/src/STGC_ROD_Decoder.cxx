@@ -81,7 +81,7 @@ StatusCode Muon::STGC_ROD_Decoder::fillCollection(const ROBFragment& robFrag, co
     unsigned int station_phi  = (unsigned int)elink->elinkId()->station_phi();
     unsigned int multi_layer  = (unsigned int)elink->elinkId()->multi_layer();
     unsigned int gas_gap      = (unsigned int)elink->elinkId()->gas_gap();
-    Identifier   module_ID    = m_stgcIdHelper->elementID(station_name, station_eta, station_phi, true, &is_validID);
+    Identifier   module_ID    = m_stgcIdHelper->elementID(station_name, station_eta, station_phi, is_validID);
     if(!is_validID) { 
       ++nerr_stationID; 
       continue; 
@@ -103,7 +103,7 @@ StatusCode Muon::STGC_ROD_Decoder::fillCollection(const ROBFragment& robFrag, co
        unsigned int channel_type   = channel->channel_type();
        if (channel_number == 0) continue; // skip disconnected vmm channels
 
-       Identifier channel_ID = m_stgcIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_type, channel_number, true, &is_validID);
+       Identifier channel_ID = m_stgcIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_type, channel_number, is_validID);
        if (!is_validID) { 
          ++nerr_channelID; 
          continue; 

@@ -38,7 +38,7 @@ def _createCfgFlags():
     acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers", []))) # former global.RunNumber
     acf.addFlag('Input.TimeStamp', lambda prevFlags : getInitialTimeStampsFromRunNumbers(prevFlags.Input.RunNumber) if prevFlags.Input.OverrideRunNumber else [])
     # Configure EvtIdModifierSvc with a list of dictionaries of the form:
-    # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'dt': 104.496, 'evts': 1, 'mu': 0.005, 'force_new': False}
+    # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'evts': 1, 'mu': 0.005}
     acf.addFlag("Input.RunAndLumiOverrideList", [])
 
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name", "data17_13TeV")) # former global.ProjectName

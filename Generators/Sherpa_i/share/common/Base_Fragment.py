@@ -4,7 +4,7 @@ genSeq += Sherpa_i()
 evgenConfig.generators = ["Sherpa"]
 genSeq.Sherpa_i.PluginCode = ""
 
-
+import os
 if os.environ["SHERPAVER"].startswith('3.'):
   ## General ATLAS parameters
   genSeq.Sherpa_i.BaseFragment = """
@@ -232,3 +232,21 @@ else:
       "OL_PARAMETERS=preset=2 write_parameters=1",
   ]
   genSeq.Sherpa_i.Parameters.append(_sh_par)
+
+  if hasattr(runArgs,'ecmEnergy') and runArgs.ecmEnergy > 13001.:
+    genSeq.Sherpa_i.Parameters += [
+      "STRANGE_FRACTION=0.535",
+      "BARYON_FRACTION=1.48",
+      "DECAY_OFFSET=1.29",
+      "DECAY_EXPONENT=3.03"
+      "P_qs_by_P_qq=0.26",
+      "P_ss_by_P_qq=0.012",
+      "P_di_1_by_P_di_0=0.93",
+      "G2QQ_EXPONENT=0.60",
+      "PT_MAX=1.48",
+      "PT_MAX_FACTOR=1.34",
+      "SPLIT_EXPONENT=0.24",
+      "SPLIT_LEADEXPONENT=1.49",
+      "SPECT_EXPONENT=1.49",
+      "SPECT_LEADEXPONENT=10.32",
+    ]

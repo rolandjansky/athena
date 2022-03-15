@@ -22,6 +22,7 @@
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
 #include "L1TopoEvent/MetTOB.h"
+#include "L1TopoEvent/jXETOB.h"
 
 
 // TODO implement sizecheck lile in ClusterTOB
@@ -85,6 +86,9 @@ namespace TCS {
       // constructor from met
       GenericTOB(const MetTOB & met);
 
+      // constructor from jxe
+      GenericTOB(const jXETOB & jxe);
+
       // destructor
       ~GenericTOB();
 
@@ -108,6 +112,9 @@ namespace TCS {
       unsigned int Reta() const { return m_reta; }
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
+      
+      unsigned int rCore() const { return m_rCore; }
+      unsigned int rHad() const { return m_rHad; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -119,6 +126,8 @@ namespace TCS {
       double EtDouble() const { return m_EtDouble; }
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
+
+      double Et2() const { return m_Et2; }
 
       virtual void print(std::ostream &o) const;
 
@@ -147,9 +156,14 @@ namespace TCS {
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
 
+      double m_Et2 { 0 };
+
       unsigned int m_reta {0};
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
+     
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
 
       inputTOBType_t   m_tobType { NONE };
 

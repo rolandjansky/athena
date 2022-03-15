@@ -1,36 +1,16 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: build
 # art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigValTools.TrigValSteering.Common import find_file
 
 ##################################################
 # Helper functions to build the test steps
 ##################################################
-
-def filterBS(stream_name):
-    '''Extract ByteStream data for a given stream from a file with multiple streams'''
-    filterStep = ExecStep.ExecStep('FilterBS_'+stream_name)
-    filterStep.type = 'other'
-    filterStep.executable = 'trigbs_extractStream.py'
-    filterStep.input = ''
-    filterStep.args = '-s ' + stream_name + ' ' + find_file('*_HLTMPPy_output.*.data')
-    return filterStep
-
-def decodeBS(stream_name):
-    '''Deserialise HLT data from ByteStream and save to an ESD file'''
-    decodeStep = ExecStep.ExecStep('DecodeBS_'+stream_name)
-    decodeStep.type = 'athena'
-    decodeStep.job_options = 'TriggerJobOpts/decodeBS.py'
-    decodeStep.input = ''
-    decodeStep.explicit_input = True
-    decodeStep.args = '--filesInput='+find_file('*'+stream_name+'*._athenaHLT*.data')
-    decodeStep.perfmon = False  # no need to run PerfMon for this step
-    return decodeStep
+from TrigP1Test.TrigP1TestSteps import filterBS, decodeBS
 
 ##################################################
 # Test definition

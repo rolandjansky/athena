@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg, ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
 import InDetConfig.ITkTrackingCommonConfig as TC
-
+from ActsTrkFinding.ActsSiSpacePointsSeedMakerConfig import ActsSiSpacePointsSeedMakerCfg
 
 def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
@@ -17,9 +17,9 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("maxdImpact", flags.ITk.Tracking.ActivePass.maxPrimaryImpactSeed )
     kwargs.setdefault("maxZ", flags.ITk.Tracking.ActivePass.maxZImpactSeed )
     kwargs.setdefault("minZ", -flags.ITk.Tracking.ActivePass.maxZImpactSeed )
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel)
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel and flags.ITk.Tracking.ActivePass.useITkPixelSeeding)
     kwargs.setdefault("SpacePointsPixelName", 'ITkPixelSpacePoints')
-    kwargs.setdefault("useStrip", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding )
+    kwargs.setdefault("useStrip", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding)
     kwargs.setdefault("SpacePointsStripName", 'ITkStripSpacePoints')
     kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
@@ -34,18 +34,15 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
         kwargs.setdefault("maxRadius2", flags.ITk.Tracking.ActivePass.radMax)
         kwargs.setdefault("maxRadius3", flags.ITk.Tracking.ActivePass.radMax)
 
+    if flags.ITk.Tracking.doFastTracking :
+        kwargs.setdefault("useFastTracking", True)
+        kwargs.setdefault("maxSeedsForSpacePoint", 3)
+
     if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
         kwargs.setdefault("maxSeedsForSpacePoint", 5)
         kwargs.setdefault("isLRT", True)
         kwargs.setdefault("maxZPPP", flags.ITk.Tracking.ActivePass.maxZSpacePointsPPPSeeds)
         kwargs.setdefault("maxZSSS", flags.ITk.Tracking.ActivePass.maxZSpacePointsSSSSeeds)
-
-    if flags.ITk.Tracking.doFastTracking :
-        kwargs.setdefault("useFastTracking", True)
-        kwargs.setdefault("maxSeedsForSpacePoint", 3)
-        kwargs.setdefault("useStrip", False)
-        if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
-            kwargs.setdefault("usePixel", False)
 
     if flags.ITk.Tracking.writeSeedValNtuple:
         kwargs.setdefault("WriteNtuple", True)
@@ -209,8 +206,14 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
     ITkPropagator = acc.popToolsAndMerge(ITkPropagatorCfg(flags))
     ITkTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
-    ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
-                                                                                  InputCollections = InputCollections ))
+    ITkSiSpacePointsSeedMaker = None
+    if flags.ITk.Tracking.ActivePass.extension != "ConversionFinding" and flags.Acts.TrackFinding.useSiSpacePointSeedMaker:
+        ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ActsSiSpacePointsSeedMakerCfg(flags,
+                                                                                       InputCollections = InputCollections))
+    else:
+        ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
+                                                                                      InputCollections = InputCollections))
+        
 
     #
     # --- Setup Track finder using space points seeds

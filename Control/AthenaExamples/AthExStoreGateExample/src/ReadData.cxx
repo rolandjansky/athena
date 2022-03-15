@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -167,9 +167,9 @@ StatusCode ReadData::execute() {
   } else {
     ATH_MSG_INFO ("Retrieved DataVector of MyContObj using a const pointer");
   }
-  for (it=list->begin(); it!=list->end(); it++) {
-    float time = (*it)->time();
-    int ID     = (*it)->id();
+  for (const MyContObj* obj : *list) {
+    float time = obj->time();
+    int ID     = obj->id();
     
     ATH_MSG_INFO ("Time: " << time << "  ID: " << ID);
   }

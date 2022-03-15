@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTSTRAWCONDALG_H
@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_ConditionsData/AliveStraws.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
@@ -32,7 +31,6 @@ class TRTStrawCondAlg : public AthAlgorithm
 
 
  private:
-  ServiceHandle<ICondSvc> m_condSvc;
   SG::ReadCondHandleKey<StrawStatusContainer> m_strawReadKey{this,"StrawReadKey","/TRT/Cond/Status","Straw Status in-key"};
   SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   SG::WriteCondHandleKey<TRTCond::AliveStraws> m_strawWriteKey{this,"StrawWriteKey","AliveStraws","AliveStraws out-key"};

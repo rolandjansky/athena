@@ -17,7 +17,7 @@
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
-#include "MMRawDataMonitoring/MMRawDataMonAlg.h"
+#include "MMRawDataMonAlg.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -36,7 +36,6 @@ namespace {
   static constexpr double conversion_charge=1.6E-04;
 
   static const std::array<std::string,2> MM_Side = {"CSide", "ASide"};
-  static const std::array<std::string,2> MM_Sector = {"MMS", "MML"};
   static const std::array<std::string,2> EtaSector = {"1","2"};
 
 
@@ -149,7 +148,7 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
   if (m_doMMESD) {
     MMOverviewHistogramStruct overviewPlots;
-    MMSummaryHistogramStruct summaryPlots[2][2][8][2][2][4];
+    MMSummaryHistogramStruct summaryPlots[2][16][2][2][4];
     MMByPhiStruct occupancyPlots[16][2];
   //loop in MMPrepDataContainer                                                                             
          
@@ -192,6 +191,8 @@ StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MM
   int multiplet        = m_idHelperSvc->mmIdHelper().multilayer(Id);
   int channel          = m_idHelperSvc->mmIdHelper().channel(Id);
    
+
+
   // Returns the charge (number of electrons) converted in fC
   int charge=prd->charge()*conversion_charge;
   // Returns the time (in ns)
@@ -318,13 +319,12 @@ void MMRawDataMonAlg::fillMMOverviewHistograms( const MMOverviewHistogramStruct&
     
 }
 
-StatusCode MMRawDataMonAlg::fillMMSummaryVects( const Muon::MMPrepData* prd, MMSummaryHistogramStruct (&vects)[2][2][8][2][2][4]) const{
+StatusCode MMRawDataMonAlg::fillMMSummaryVects( const Muon::MMPrepData* prd, MMSummaryHistogramStruct (&vects)[2][16][2][2][4]) const{
 
   Identifier Id = prd->identify();
   const std::vector<Identifier>& stripIds = prd->rdoList();
 
   std::string stName   = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(Id));
-  int thisStationNumber    = m_idHelperSvc->mmIdHelper().stationName(Id);
   int thisStationEta       = m_idHelperSvc->mmIdHelper().stationEta(Id);
   int thisStationPhi       = m_idHelperSvc->mmIdHelper().stationPhi(Id);
   int thisMultiplet        = m_idHelperSvc->mmIdHelper().multilayer(Id);
@@ -334,19 +334,19 @@ StatusCode MMRawDataMonAlg::fillMMSummaryVects( const Muon::MMPrepData* prd, MMS
   float thisMu_TPC_angle=prd->angle()*toDeg;
     
   if ( thisGasgap % 2 == 0 ) { thisMu_TPC_angle = - thisMu_TPC_angle; }
-    
-  //MMS and MML phi sectors
-  int phisec=0;
-  if (thisStationNumber%2 == 0) phisec=1;
+
+  int phi=get_sectorPhi_from_stationPhi_stName(thisStationPhi ,stName);
   
   //CSide and ASide
   int iside=0;
   if(thisStationEta>0) iside=1;
   
+
   //2 eta sectors depending on Eta=+-1 (0) and +-2 (1)
   int sectorEta=get_sectorEta_from_stationEta(thisStationEta);
 
-  auto& Vectors = vects[iside][phisec][thisStationPhi-1][sectorEta][thisMultiplet-1][thisGasgap-1];
+  //  auto& Vectors = vects[iside][phisec][thisStationPhi-1][sectorEta][thisMultiplet-1][thisGasgap-1];
+  auto& Vectors = vects[iside][phi-1][sectorEta][thisMultiplet-1][thisGasgap-1];
   
   Vectors.mu_TPC_angle.push_back(thisMu_TPC_angle);
   Vectors.charge.push_back(thisCharge);
@@ -371,28 +371,24 @@ StatusCode MMRawDataMonAlg::fillMMSummaryVects( const Muon::MMPrepData* prd, MMS
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode MMRawDataMonAlg::fillMMSummaryHistograms( const MMSummaryHistogramStruct (&vects)[2][2][8][2][2][4]) const{
+StatusCode MMRawDataMonAlg::fillMMSummaryHistograms( const MMSummaryHistogramStruct (&vects)[2][16][2][2][4]) const{
   
     
   for (int iside=0;iside<2;iside++){
     std::string MM_sideGroup = "MM_sideGroup"+MM_Side[iside];
-    
-    for (int isector=0;isector<2;isector++){
-      for( int statPhi=0; statPhi<8; statPhi++) {
+      for( int statPhi=0; statPhi<16; statPhi++) {
 	for( int statEta=0; statEta<2; statEta++) {
 	  for( int multiplet=0; multiplet<2; multiplet++) {
 	    for( int gas_gap=0; gas_gap<4; gas_gap++) {
-	      
-	      auto& Vectors = vects[iside][isector][statPhi][statEta][multiplet][gas_gap];
-                          
-	      auto sector_strip=Monitored::Collection("sector_strip_"+MM_Side[iside]+"_"+MM_Sector[isector]+"_phi"+std::to_string(statPhi+1),Vectors.sector_strip);
-	      auto strip_number = Monitored::Collection("strip_number_"+MM_Side[iside]+"_"+MM_Sector[isector]+"_phi"+std::to_string(statPhi+1), Vectors.strip_number);
+
+	      auto& Vectors = vects[iside][statPhi][statEta][multiplet][gas_gap];
+	      auto sector_strip=Monitored::Collection("sector_strip_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1),Vectors.sector_strip);
+	      auto strip_number = Monitored::Collection("strip_number_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1), Vectors.strip_number);
 	      
 	      fill(MM_sideGroup,strip_number,sector_strip);
-
-	      auto charge_perLayer = Monitored::Collection("charge_"+MM_Side[iside]+"_sector_"+MM_Sector[isector]+"_phi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1), Vectors.charge);
-	      auto mu_TPC_angle_perLayer = Monitored::Collection("mu_TPC_angle_"+MM_Side[iside]+"_sector_"+MM_Sector[isector]+"_phi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1),Vectors.mu_TPC_angle);
+	      auto charge_perLayer = Monitored::Collection("charge_"+MM_Side[iside]+"_sectorphi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1), Vectors.charge);
+	      auto mu_TPC_angle_perLayer = Monitored::Collection("mu_TPC_angle_"+MM_Side[iside]+"_sectorphi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1),Vectors.mu_TPC_angle);
+	      
 
 	      fill(MM_sideGroup,charge_perLayer,mu_TPC_angle_perLayer);
 	      
@@ -400,7 +396,6 @@ StatusCode MMRawDataMonAlg::fillMMSummaryHistograms( const MMSummaryHistogramStr
 	  }
 	}
       }
-    }
   }
  
   return StatusCode::SUCCESS;
@@ -625,7 +620,6 @@ void MMRawDataMonAlg::MMEfficiency( const xAOD::TrackParticleContainer*  muonCon
   MMEfficiencyHistogramStruct Gaps[2][2][16][2];
 
   static const std::array<std::string,2> MM_Side = {"CSide", "ASide"};
-  static const std::array<std::string,2> MM_Sector = {"MMS", "MML"};
   static const std::array<std::string,2> EtaSector = {"1","2"};
   
   float cut_pt=20000;

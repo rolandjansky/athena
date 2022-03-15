@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_CONDITIONSPARAMETERCONDALG
@@ -15,7 +15,6 @@
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class SCT_ConditionsParameterCondAlg : public AthReentrantAlgorithm 
@@ -33,7 +32,6 @@ class SCT_ConditionsParameterCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<SCT_CondParameterData> m_writeKey{this, "WriteKey", "SCT_CondParameterData", "Key of output (derived) average threshold conditions data"};
 
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif // SCT_CONDITIONSPARAMETERCONDALG

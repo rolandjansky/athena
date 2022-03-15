@@ -1,9 +1,9 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 /* Dear emacs, this is -*-c++-*- */
-#ifndef _ObjContainer_H_
-#define _ObjContainer_H_
+#ifndef TRKEXTOOLS_OBJCONTAINER_H
+#define TRKEXTOOLS_OBJCONTAINER_H 
 #include <vector>
 #include <utility>
 #include <limits>
@@ -380,19 +380,19 @@ protected:
 
    /** Return true if this container owns the object.
     */
-   bool isOwned(  ObjRef ref) {
+   bool isOwned(  ObjRef ref) const {
       return count(ref) == 1;
    }
 
    /** Return true if the object is referred to by more than one @ref ObjPtr.
     */
-   bool isShared(  ObjRef ref) {
+   bool isShared(  ObjRef ref) const {
       return count(ref) > 1;
    }
 
    /** Return true if the object is external i.e. not owned by this container.
     */
-   bool isExtern(  ObjRef ref) {
+   bool isExtern(  ObjRef ref) const {
       return count(ref) == s_externalObj;
    }
    
@@ -625,7 +625,7 @@ public:
     */
    const T_Obj *get() const {
       if (!m_ref) return nullptr;
-      else        return m_container->get(m_ref);
+      else        return std::as_const(*m_container).get(m_ref);
    }
 
    /** Release the object this pointer points to from the container.

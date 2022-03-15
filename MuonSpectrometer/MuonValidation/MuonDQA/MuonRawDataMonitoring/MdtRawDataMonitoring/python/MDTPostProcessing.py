@@ -240,13 +240,21 @@ def make_eff_histo_perML(inputs, ec):
    ecap_fullStr_lower = "mdt"+ecap_str
    heffML = TH1F(ecap_fullStr_lower+"_ML_eff",ecap_fullStr_lower+"_ML_eff",50,0,1)
 
+   h2=inputs[0][1][2].Clone()
+   h2.SetTitle((inputs[0][1][2].GetTitle()).replace("_forpp", ""))
+   h3=inputs[0][1][3].Clone()
+   h3.SetTitle((inputs[0][1][3].GetTitle()).replace("_forpp", ""))
    if(not ecap_str[0] == "E"):
-      putBoxMdtRegional(inputs[0][1][2], ecap_str[0]+"O"+ecap_str[1], geo)
-      putBoxMdtRegional(inputs[0][1][3], ecap_str[0]+"M"+ecap_str[1], geo)
+      putBoxMdtRegional(h2, ecap_str[0]+"O"+ecap_str[1], geo)
+      putBoxMdtRegional(h3, ecap_str[0]+"M"+ecap_str[1], geo)
 
-   putBoxMdtRegional(inputs[0][1][4], ecap_str[0]+"I"+ecap_str[1], geo)
+   h4=inputs[0][1][4].Clone()
+   h4.SetTitle((inputs[0][1][4].GetTitle()).replace("_forpp", ""))
+   h5=inputs[0][1][5].Clone()
+   h5.SetTitle((inputs[0][1][5].GetTitle()).replace("_forpp", ""))
+   putBoxMdtRegional(h4, ecap_str[0]+"I"+ecap_str[1], geo)
    if(not ecap_str[0] == "B"):
-      putBoxMdtRegional(inputs[0][1][5], ecap_str[0]+"E"+ecap_str[1], geo)
+      putBoxMdtRegional(h5, ecap_str[0]+"E"+ecap_str[1], geo)
 
    for itr in inputs:
       if itr is None:
@@ -310,7 +318,7 @@ def make_eff_histo_perML(inputs, ec):
       putBoxMdtRegional(heff_extra,ecap_str[0]+"E"+ecap_str[1], geo)
 
 
-   return [heff_outer, heff_middle, heff_inner, heff_extra, heffML, inputs[0][1][2], inputs[0][1][3], inputs[0][1][4], inputs[0][1][5]]
+   return [heff_outer, heff_middle, heff_inner, heff_extra, heffML, h2, h3, h4, h5]
    
 def drift_time_monitoring(inputs, ec):
 
@@ -398,8 +406,10 @@ def drift_time_monitoring(inputs, ec):
    return [sumt0, sumtmax, sumtdrift]
 
 def MdtGlobalBox(inputs):
-   EvtOccBCap = inputs[0][1][0]
-   EvtOccECap = inputs[0][1][1]
+   EvtOccBCap = inputs[0][1][0].Clone()
+   EvtOccBCap.SetTitle((inputs[0][1][0].GetTitle()).replace("_forpp", ""))
+   EvtOccECap = inputs[0][1][1].Clone()
+   EvtOccECap.SetTitle((inputs[0][1][1].GetTitle()).replace("_forpp", ""))
    hflag=inputs[0][1][2]
    geo=hflag.GetMean()
    putBoxMdtGlobal(EvtOccBCap, "B", geo)

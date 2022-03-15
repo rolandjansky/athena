@@ -192,7 +192,7 @@ namespace InDet {
       double m_cutBVrtScore{};
       double m_vrt2TrMassLimit{};
 
-      bool m_useWrongRadErrorCut{};
+      bool m_useFrozenVersion{};
       bool m_fillHist{};
 
       bool m_existIBL{};

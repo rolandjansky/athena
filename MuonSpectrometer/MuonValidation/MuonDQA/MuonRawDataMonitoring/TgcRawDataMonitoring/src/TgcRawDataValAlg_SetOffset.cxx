@@ -30,7 +30,7 @@
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
  
-#include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
+#include "TgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include <inttypes.h> 

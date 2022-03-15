@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file SiLorentzAngleTool/PixelSiLorentzAngleCondAlg.h
@@ -21,7 +21,6 @@
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
@@ -43,7 +42,6 @@ class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-    ServiceHandle<ICondSvc> m_condSvc;
 
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};

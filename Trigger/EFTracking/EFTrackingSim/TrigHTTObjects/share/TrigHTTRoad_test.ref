@@ -1,0 +1,9 @@
+road id = 8675309
+layer = 0 and phi = 0 and eta = 1
+layer = 1 and phi = 1 and eta = 2
+layer = 2 and phi = 4 and eta = 3
+layer = 3 and phi = 9 and eta = 4
+layer = 4 and phi = 16 and eta = 5
+layer = 5 and phi = 25 and eta = 6
+layer = 6 and phi = 36 and eta = 7
+layer = 7 and phi = 49 and eta = 8

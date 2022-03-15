@@ -258,15 +258,13 @@ class MuonMatchingTool : public AthAlgTool {
   
  private:
 
-  enum L1Items{ L1_MU4=1, L1_MU6, L1_MU10, L1_MU11, L1_MU15, L1_MU20, L1_MU21,ERROR};
-  int L1ItemStringToInt(std::string l1item) const {
-    if( "L1_MU4"==l1item) return L1Items::L1_MU4;
-    if( "L1_MU6"==l1item) return L1Items::L1_MU6;
-    if( "L1_MU10"==l1item) return L1Items::L1_MU10;
-    if( "L1_MU11"==l1item) return L1Items::L1_MU11;
-    if( "L1_MU15"==l1item) return L1Items::L1_MU15;
-    if( "L1_MU20"==l1item) return L1Items::L1_MU20;
-    if( "L1_MU21"==l1item) return L1Items::L1_MU21;
+  enum L1Items{ L1B_MU3V=1, L1B_MU5VF=2, L1B_MU8F=3, L1B_MU14FCH=6, L1B_MU14FCHR=6 , L1E_MU3V=1, L1E_MU5VF=3, L1E_MU8F=6, L1E_MU14FCH=12, L1E_MU14FCHR=12, ERROR};
+  int L1ItemStringToInt(std::string l1item, int roiSource) const {
+    if( "L1_MU3V"==l1item) return roiSource==0 ? L1Items::L1B_MU3V : L1Items::L1E_MU3V;
+    if( "L1_MU5VF"==l1item) return roiSource==0 ? L1Items::L1B_MU5VF : L1Items::L1E_MU5VF;
+    if( "L1_MU8F"==l1item) return roiSource==0 ? L1Items::L1B_MU8F : L1Items::L1E_MU8F;
+    if( "L1_MU14FCH"==l1item) return roiSource==0 ? L1Items::L1B_MU14FCH : L1Items::L1E_MU14FCH;
+    if( "L1_MU14FCHR"==l1item) return roiSource==0 ? L1Items::L1B_MU14FCHR : L1Items::L1E_MU14FCHR;
     return L1Items::ERROR;
   }
 

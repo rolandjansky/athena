@@ -90,7 +90,7 @@ std::unique_ptr<const HGTD_ClusterContainer> makeClusters(HGTD_ID* hgtd_idhelper
         int phi_module = layer + i_clus;
         int eta_module = i_clus + 2;
         float locx = 1.3 * i_clus;
-        float locy = 1.3 * i_clus;
+        float locy = locx;
         float colx = static_cast<int>(locx / 1.3) + 15;
         float coly = static_cast<int>(locy / 1.3) + 7;
         float phi = 0;  // dummy

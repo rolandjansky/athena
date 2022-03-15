@@ -9,7 +9,7 @@
 // Amg
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // Trk
-#include "TrkDetDescrAlgs/MaterialValidation.h"
+#include "MaterialValidation.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"

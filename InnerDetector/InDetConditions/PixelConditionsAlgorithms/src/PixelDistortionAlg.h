@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixelDistortionAlg.h
@@ -23,7 +23,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelDistortionAlg : public AthAlgorithm {  
@@ -37,7 +36,6 @@ class PixelDistortionAlg : public AthAlgorithm {
   private:
     const PixelID* m_pixelID{nullptr};
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc"};  //!< Random number service
-    ServiceHandle<ICondSvc>   m_condSvc{this, "CondSvc", "CondSvc"};
 
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};

@@ -11,7 +11,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "MuidTrackBuilder/CombinedMuonTrackBuilder.h"
+#include "CombinedMuonTrackBuilder.h"
 
 #include <cmath>
 #include <iomanip>

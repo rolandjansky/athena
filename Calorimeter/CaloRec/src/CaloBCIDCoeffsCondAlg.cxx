@@ -12,7 +12,6 @@
 #include "CaloBCIDCoeffsCondAlg.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArIdentifier/LArOnlineID.h"
 
@@ -28,11 +27,6 @@ StatusCode CaloBCIDCoeffsCondAlg::initialize()
   ATH_CHECK( m_minBiasAvgKey.initialize() );
   ATH_CHECK( m_outputCoeffsKey.initialize() );
 
-  ServiceHandle<ICondSvc> condSvc ("CondSvc", name());
-  ATH_CHECK( condSvc.retrieve() );
-  ATH_CHECK( condSvc->regHandle (this, m_outputCoeffsKey) );
-
-  
   if ( m_isSC ) {
 	const LArOnline_SuperCellID* ll = nullptr;
 	ATH_CHECK(detStore()->retrieve(ll,"LArOnline_SuperCellID"));

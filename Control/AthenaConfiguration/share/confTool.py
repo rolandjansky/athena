@@ -380,7 +380,7 @@ def _compareIOVDbFolders(compRef, compChk, prefix, args, color):
         refParsed.append(_parseIOVDbFolder(item))
     for item in compChk:
         chkParsed.append(_parseIOVDbFolder(item))
-    _compareComponent(refParsed, chkParsed, prefix, args, "", color)
+    return _compareComponent(refParsed, chkParsed, prefix, args, "", color)
 
 
 if __name__ == "__main__":

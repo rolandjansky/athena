@@ -244,8 +244,8 @@ def LArOverlayDigitizationBasicCfg(flags, name="digitmaker1", **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
-    LArDigitMaker = CompFactory.LArDigitMaker
-    acc.addEventAlgo(LArDigitMaker(name, **kwargs))
+    LArHitEMapMaker = CompFactory.LArHitEMapMaker
+    acc.addEventAlgo(LArHitEMapMaker(name, **kwargs))
     acc.merge(LArHitEMapToDigitAlgCfg(flags))
 
     acc.merge(LArRawChannelBuilderAlgCfg(flags))

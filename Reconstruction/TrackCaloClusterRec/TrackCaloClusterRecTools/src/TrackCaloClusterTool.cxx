@@ -305,17 +305,17 @@ namespace TCCHelpers{
   ///  see TCCHelpers.h in TrackCaloClusterRecTools/
   struct UFOBuilder : public CombinedUFOLoop {
 
-    const xAOD::PFOContainer * m_pfoContainer;
+    const xAOD::FlowElementContainer * m_pfoContainer;
     const TrackCaloClusterInfo* m_tccInfo;
     xAOD::FlowElementContainer * m_tccContainer;
     
-    std::vector<ElementLink< xAOD::PFOContainer > > m_pfoLinks;
+    std::vector<ElementLink< xAOD::FlowElementContainer > > m_pfoLinks;
     FourMom_t m_tcc_4p = {0.,0.,0.,0.};
     
-    virtual void processPFO(const xAOD::TrackParticle* trk, const xAOD::PFO* pfo) {
+    virtual void processPFO(const xAOD::TrackParticle* trk, const xAOD::FlowElement* pfo) {
       /// accumulate the total P4 and the pfos linked to trk
       
-      ElementLink< xAOD::PFOContainer > pfoLink(*m_pfoContainer,pfo->index());
+      ElementLink< xAOD::FlowElementContainer > pfoLink(*m_pfoContainer,pfo->index());
       m_pfoLinks.push_back(pfoLink);
       double pfo_pt       = m_useEnergy ? pfo->e() : pfo->pt();
       const FourMom_t & totalP = m_tccInfo->trackTotalClusterPt.at(trk);
@@ -344,14 +344,23 @@ namespace TCCHelpers{
 UFOTool::UFOTool(const std::string& t, const std::string& n, const IInterface*  p )
   : TrackCaloClusterBaseTool(t,n,p) {}
 
+StatusCode UFOTool::initialize(){
+    //override parent class because of additional requirements on the PFOHandles etc
+    if(!m_trackVertexAssoTool.empty()) ATH_CHECK(m_trackVertexAssoTool.retrieve());
 
+    ATH_CHECK(m_assoClustersKey.initialize());
+    
+    ATH_CHECK(m_caloEntryParsDecor.initialize(!m_caloEntryParsDecor.empty()) );
+    ATH_CHECK(m_inputPFOHandle.initialize(!m_inputPFOHandle.empty()));
+    ATH_CHECK(m_orig_pfo.initialize(!m_orig_pfo.empty()));
+    return StatusCode::SUCCESS;
+}
 StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const TrackCaloClusterInfo & tccInfo ) const {
 
-  SG::ReadHandle<xAOD::PFOContainer> pfos(m_inputPFOHandle);
+  SG::ReadHandle<xAOD::FlowElementContainer> pfos(m_inputPFOHandle);
 
-  SG::ReadDecorHandle<xAOD::PFOContainer, ElementLink<xAOD::PFOContainer> > orig_pfo(m_orig_pfo);
+  SG::ReadDecorHandle<xAOD::FlowElementContainer, ElementLink<xAOD::FlowElementContainer> > orig_pfo(m_orig_pfo);
   SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinksH(m_assoClustersKey);
-
 
   // We use a dedicated helper to build the combined UFO. Initialize it :  
   TCCHelpers::UFOBuilder ufoB;
@@ -364,14 +373,13 @@ StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const Trac
   ufoB.m_pfoContainer = pfos.ptr();
   ufoB.m_tccInfo = &tccInfo;
   ufoB.m_tccContainer = tccContainer;
-
   // create a combined UFO for each track matched to some PFO 
   ufoB.combinedUFOLoop(&tccInfo, pfos.cptr());
   
   
   // Create a UFO for all neutral and charged PFO which are not matched to any tracks
   unsigned int i = -1;
-  for ( const xAOD::PFO* pfo : *pfos ) {
+  for ( const xAOD::FlowElement* pfo : *pfos ) {
     i++;
     if(pfo->pt() <= 0) continue;
     if(tccInfo.clusterToTracksWeightMap.find(pfo)!=tccInfo.clusterToTracksWeightMap.end()) continue; // combined
@@ -382,13 +390,17 @@ StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const Trac
       if(!PVMatchedAcc(*pfo)) continue;
     }
     
-    ElementLink< xAOD::PFOContainer > pfoLink(*pfos,i);
-    const std::vector< ElementLink<xAOD::PFOContainer> > PFOLink {pfoLink};    
+    ElementLink< xAOD::FlowElementContainer > pfoLink(*pfos,i);
+    const std::vector< ElementLink<xAOD::FlowElementContainer> > PFOLink {pfoLink};    
     xAOD::FlowElement* tcc = new xAOD::FlowElement;
     tccContainer->push_back(tcc);
 
     if(pfo->isCharged()) {
-      setParameters(tcc, pfo->pt(), pfo->eta(), pfo->phi(), pfo->m(), xAOD::FlowElement::SignalType::Charged, ElementLink<xAOD::TrackParticleContainer>(*tccInfo.allTracks, pfo->track(0)->index()), PFOLink);
+	//retrieve the track from the charged PFO
+	const xAOD::IParticle* pfo_chargedobj=pfo->chargedObjects().at(0);
+	const xAOD::TrackParticle* pfo_track=dynamic_cast<const xAOD::TrackParticle*>(pfo_chargedobj);
+	
+	setParameters(tcc, pfo->pt(), pfo->eta(), pfo->phi(), pfo->m(), xAOD::FlowElement::SignalType::Charged, ElementLink<xAOD::TrackParticleContainer>(*tccInfo.allTracks, pfo_track->index()), PFOLink);
     }else{
       setParameters(tcc, pfo->pt(),pfo->eta(),pfo->phi(),pfo->m(),xAOD::FlowElement::SignalType::Neutral,ElementLink<xAOD::TrackParticleContainer>(),PFOLink);      
     }

@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileRawChannelMonTool.h"
+#include "TileRawChannelMonTool.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCondToolEmscale.h"

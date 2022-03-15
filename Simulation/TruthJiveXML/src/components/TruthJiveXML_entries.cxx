@@ -1,5 +1,5 @@
-#include "TruthJiveXML/TruthTrackRetriever.h"
-#include "TruthJiveXML/TruthMuonTrackRetriever.h"
+#include "../TruthTrackRetriever.h"
+#include "../TruthMuonTrackRetriever.h"
 
 using namespace JiveXML;
 

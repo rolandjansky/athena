@@ -3,6 +3,8 @@
 */
 
 #include "LArROD/LArDigitsAccumulator.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "LArIdentifier/LArOnlineID.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <math.h>
@@ -19,6 +21,8 @@ LArDigitsAccumulator::LArDigitsAccumulator (const std::string& name, ISvcLocator
   declareProperty("KeyList",m_keylist);
   declareProperty("NTriggersPerStep",m_NtriggersPerStep);
   declareProperty("StepOfTriggers",m_nStepTrigger);
+  declareProperty("DropPercentTrig",m_DropPercentTrig=10);
+  declareProperty("isSC",m_isSC=false);
 
   m_event_counter=0;
 }
@@ -26,7 +30,31 @@ LArDigitsAccumulator::LArDigitsAccumulator (const std::string& name, ISvcLocator
 
 StatusCode LArDigitsAccumulator::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  StatusCode sc;
+  if(m_isSC){
+     const LArOnline_SuperCellID *scid;
+     sc = detStore()->retrieve(scid, "LArOnline_SuperCellID");
+     if (sc.isFailure()) {
+        ATH_MSG_ERROR( "Could not get LArOnline_SuperCellID helper !" );
+        return sc;
+     } else {
+        m_onlineHelper = (const LArOnlineID_Base*)scid;
+        ATH_MSG_DEBUG("Found the LArOnlineID helper");
+     }
+  } else { 
+     const LArOnlineID* ll;
+     sc = detStore()->retrieve(ll, "LArOnlineID");
+     if (sc.isFailure()) {
+        ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+        return sc;
+     } else {
+        m_onlineHelper = (const LArOnlineID_Base*)ll;
+        ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+     }
+  } //m_isSC
+
+  ATH_CHECK( m_calibMapKey.initialize() );
+
   m_Accumulated.resize(m_onlineHelper->channelHashMax());
   return StatusCode::SUCCESS;
 }
@@ -73,6 +101,19 @@ StatusCode LArDigitsAccumulator::execute()
       // identificators
       HWIdentifier chid=digit->hardwareID();      
       const IdentifierHash hashid = m_onlineHelper->channel_Hash(chid);
+      
+      if( m_isSC ){
+	///first check if there is a -1 and continue
+	bool hasInvalid=false;
+	for(auto s : digit->samples()){
+	  if(s<0){
+	    hasInvalid=true;
+	    break;
+	  }
+	}
+	if(hasInvalid) continue;
+      }
+
 
       CaloGain::CaloGain gain=digit->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN)
@@ -125,13 +166,20 @@ StatusCode LArDigitsAccumulator::execute()
       //ATH_MSG_DEBUG( "Matrix = " << cellAccumulated.m_matrix[0]  );
 
       // when reached total number of triggers for this step, fill LArAccumulatedDigit and reset number of triggers
-
-      if(cellAccumulated.m_ntrigger==m_NtriggersPerStep){
-
-	//ATH_MSG_DEBUG( "filling LArAccumulatedCalibDigit "  );
-	//ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", trigPerStep = " << m_NtriggersPerStep  );
+      
+      unsigned int ntrigUsed = m_NtriggersPerStep;
+      if ( m_isSC && m_DropPercentTrig != 0 ){
+	ntrigUsed -= ntrigUsed*(m_DropPercentTrig/100);
+      if ( m_event_counter%100==0 ) ATH_MSG_WARNING("Only requiring "<<ntrigUsed<<" triggers for accumulation out of "<<m_NtriggersPerStep<<" (= "<<m_NtriggersPerStep<<" - "<<m_NtriggersPerStep*(m_DropPercentTrig/100)<<")");
 	
-	accuDigit->setAddSubStep(gain,chid,cellAccumulated.m_samplesum,cellAccumulated.m_matrix,m_NtriggersPerStep);
+      }
+
+      if(cellAccumulated.m_ntrigger==ntrigUsed){
+
+	ATH_MSG_DEBUG( "filling LArAccumulatedDigit "  );
+	ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", trigPerStep = " << m_NtriggersPerStep  );
+	
+	accuDigit->setAddSubStep(gain,chid,cellAccumulated.m_samplesum,cellAccumulated.m_matrix,ntrigUsed);
       
 	larAccuDigitContainer->push_back(accuDigit);
 

@@ -44,7 +44,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
                      'useTrackSummaryInfo'          : True,
                      'nHitBLayer'                   : 0,
                      'nHitPix'                      : 1,
-                     'nHitSct'                      : 4 if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] else 0,
+                     'nHitSct'                      : 4 if flags.GeoModel.Run < LHCPeriod.Run4 else 0,
                      'nHitSi'                       : 7,
                      'nHitTrt'                      : 0,
                      'useSharedHitInfo'             : False,

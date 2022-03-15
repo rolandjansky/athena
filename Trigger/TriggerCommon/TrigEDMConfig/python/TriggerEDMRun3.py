@@ -91,8 +91,13 @@ HIJetVarsToKeep = JetVarsToKeep + ['HLT_HIClusters_DR8Assoc']
 HIJetVars = '.'.join(HIJetVarsToKeep)
 
 BTagOutput = ['jetLink','BTagTrackToJetAssociator','Muons',]
-BTagOutput_IP2D = ['IP2D_TrackParticleLinks','IP2D_nTrks','IP2D_isDefaults','IP2D_cu','IP2D_bu','IP2D_bc',]
-BTagOutput_IP3D = ['IP3D_TrackParticleLinks','IP3D_nTrks','IP3D_isDefaults','IP3D_cu','IP3D_bu','IP3D_bc',]
+BTagOutput_IPxD = [
+    'IP{x}D_TrackParticleLinks','IP{x}D_nTrks','IP{x}D_isDefaults',
+    'IP{x}D_cu','IP{x}D_bu','IP{x}D_bc',
+    'IP{x}D_pu','IP{x}D_pc','IP{x}D_pb',
+]
+BTagOutput_IP2D = [f.format(x=2) for f in BTagOutput_IPxD]
+BTagOutput_IP3D = [f.format(x=3) for f in BTagOutput_IPxD]
 BTagOutput_SV1 = ['SV1_TrackParticleLinks','SV1_vertices','SV1_isDefaults','SV1_NGTinSvx','SV1_masssvx','SV1_N2Tpair','SV1_efracsvx','SV1_deltaR','SV1_Lxy','SV1_L3d','SV1_significance3d','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_badTracksIP','SV1_normdist',]
 BTagOutput_JetFitter = [
     'JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR',
@@ -174,6 +179,13 @@ DisTrkBDTSelToKeep = []
 for var in DisTrkBDTSelToKeepBase:
     DisTrkBDTSelToKeep.append('disTrk_'+var)
 DisTrkBDTSelVars = '.'.join(DisTrkBDTSelToKeep)
+
+VSIVarsToKeep = ['vsi_mass', 'vsi_pT', 'vsi_charge', 'vsi_isFake',
+                 'vsi_twoCirc_dr', 'vsi_twoCirc_dphi', 'vsi_twoCirc_int_r', 'vsi_vrtFast_r', 'vsi_vrtFast_eta', 'vsi_vrtFast_phi',
+                 'vsi_vrtFast_trkd0', 'vsi_vrtFast_trkz0',
+                 'vsi_vrtFit_r', 'vsi_vrtFit_chi2', 'vsi_vPos', 'vsi_vPosMomAngT', 'vsi_dphi1', 'vsi_dphi2',
+                 'vsi_isPassMMV', 'vsi_trkd0cut', 'vsi_twoCircErrcut', 'vsi_twoCircRcut', 'vsi_fastErrcut', 'vsi_fastRcut', 'vsi_fitErrcut', 'vsi_chi2cut']
+VSIVars = '.'.join(VSIVarsToKeep)
 
 L1TopoErrorFlagVars = '.'.join(['hasGenericRoiError', 'hasGenericDaqError', 'hasCrcTobError', 'hasCrcFibreError',
                                 'hasCrcDaqError', 'hasRoibDaqDifference', 'hasRoibCtpDifference', 'hasDaqCtpDifference'])
@@ -398,7 +410,7 @@ TriggerHLTListRun3 = [
 
     # hipTRT
     ('xAOD::TrigRNNOutputContainer#HLT_TrigTRTHTCounts',            'BS ESD AODFULL', 'Egamma', 'inViews:TRTHitGeneratorViews'),
-    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'), 
+    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'),
 
     # CaloCluster object written by EMClusterTool
     ('xAOD::CaloClusterContainer#HLT_TrigEMClusters',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews,precisionElectronViews_LRT,precisionElectronViews_GSF,precisionPhotonViews'),
@@ -544,17 +556,13 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_TauCore_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFCoreViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_TauCore_FTFAux.',          'BS ESD AODFULL', 'Tau'),
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_TauIso_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIsoViews,TAUEFViews,TAUFTFIsoBDTViews'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_TauIso_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIsoViews,TAUFTFIsoBDTViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_TauIso_FTFAux.',          'BS ESD AODFULL', 'Tau'),
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_Tau_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Tau_FTFAux.',          'BS ESD AODFULL', 'Tau'),
-
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_Tau_IDTrig',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews,TAUPrecIsoViews'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Tau_IDTrig',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUPrecIsoViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Tau_IDTrigAux.',          'BS ESD AODFULL', 'Tau'),
 
-    ('xAOD::VertexContainer#HLT_IDVertex_Tau',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews,TAUPrecIsoViews'),
-
+    ('xAOD::VertexContainer#HLT_IDVertex_Tau',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUPrecIsoViews'),
     ('xAOD::VertexAuxContainer#HLT_IDVertex_TauAux.',           'BS ESD AODFULL', 'Tau'),
 
     ('TrigRoiDescriptorCollection#HLT_Roi_Tau',              'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -656,6 +664,10 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
 
+     # VR track jets
+    ('xAOD::JetContainer#HLT_AntiKtVR30Rmax4Rmin02PV0TrackJets',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKtVR30Rmax4Rmin02PV0TrackJetsAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
+
     # Heavy ion
     ('xAOD::JetContainer#HLT_AntiKt4HIJets_Unsubtracted',                      'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4HIJets_UnsubtractedAux.'+HIJetVars,       'BS ESD AODFULL', 'Jet'),
@@ -707,6 +719,12 @@ TriggerHLTListRun3 = [
     #FSLRT PT
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FSLRT_IDTrig',                  'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FSLRT_IDTrigAux.',          'BS ESD AODFULL', 'Jet'),
+
+    #TrigVSI
+    ('xAOD::VertexContainer#HLT_TrigVSIVertex',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexAuxContainer#HLT_TrigVSIVertexAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexContainer#HLT_TrigVSITrkPair',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexAuxContainer#HLT_TrigVSITrkPairAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
 
     # HI event shape
     ('xAOD::HIEventShapeContainer#HLT_HIEventShapeEG',          'BS ESD AODFULL',   'Egamma'),

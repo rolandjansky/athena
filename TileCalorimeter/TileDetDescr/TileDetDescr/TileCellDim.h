@@ -11,12 +11,11 @@
 #ifndef TileCellDim_h
 #define TileCellDim_h 1
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include <vector>
 
-// fwd
-class MsgStream;
-
-class TileCellDim 
+class TileCellDim
+  : public AthMessaging
 {
  public:
   TileCellDim(unsigned int nRows);
@@ -48,7 +47,6 @@ class TileCellDim
   std::vector<double> m_zMin;
   std::vector<double> m_zMax;
   double m_volume, m_Radius2HalfLength;
-  MsgStream * m_log;
 };
 
 #endif

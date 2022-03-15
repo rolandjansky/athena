@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORCONDALG_H
 #define MUONGEOMODEL_MUONDETECTORCONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonAlignmentData/CorrContainer.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
@@ -29,7 +28,6 @@ class MuonDetectorCondAlg : public AthAlgorithm {
     Gaudi::Property<bool> m_isData{this, "IsData", true};
 
   private:
-    ServiceHandle<ICondSvc> m_condSvc;
     ToolHandle<MuonDetectorTool> m_iGeoModelTool{this, "MuonDetectorTool", "MuonDetectorTool", "The MuonDetector tool"};
 
     // Read Handles

@@ -7,7 +7,7 @@
 ////  Contacts: pierre-francois.giraud@cern.ch, cmaiani@cern.ch
 ////////////////////////////////////////////////////////////////////
 
-#include "MuonAlignErrorTool/AlignmentErrorTool.h"
+#include "AlignmentErrorTool.h"
 
 #include <boost/functional/hash.hpp>
 #include <fstream>

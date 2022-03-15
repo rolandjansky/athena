@@ -20,7 +20,7 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
  
-#include "TgcRawDataMonitoring/TgcLv1RawDataValAlg.h"
+#include "TgcLv1RawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 //for express menu

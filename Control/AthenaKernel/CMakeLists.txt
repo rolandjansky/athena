@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaKernel )
@@ -109,7 +109,8 @@ atlas_add_test( SlotSpecificObj_test
 atlas_add_test( DataBucket_test
    SOURCES
    test/DataBucket_test.cxx
-   LINK_LIBRARIES AthenaKernel TestTools )
+   LINK_LIBRARIES AthenaKernel TestTools
+   LOG_IGNORE_PATTERN "DataObject 0x" )
 
 atlas_add_test( RCUUpdater_test
    SOURCES test/RCUUpdater_test.cxx

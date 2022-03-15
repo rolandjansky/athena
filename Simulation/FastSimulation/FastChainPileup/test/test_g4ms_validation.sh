@@ -76,7 +76,7 @@ case $ArtProcess in
         ntup_file=physval_g4ms_${ArtProcess}.root
 
         # Sim & Reco step
-        Sim_tf.py --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
+        Sim_tf.py --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
                   --physicsList 'FTFP_BERT_ATL' --truthStrategy 'MC15aPlus' \
                   --simulator 'ATLFASTIIF_G4MS' \
                   --postInclude 'default:PyJobTransforms/UseFrontier.py' 'EVNTtoHITS:G4AtlasTests/postInclude.DCubeTest.py' \
@@ -92,7 +92,7 @@ case $ArtProcess in
         if [ $rc -eq 0 ]
         then
             Reco_tf.py --autoConfiguration 'everything' \
-                  --inputHITSFile=${hits_file} --conditionsTag 'default:OFLCOND-MC16-SDR-25' \
+                  --inputHITSFile=${hits_file} --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
                   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
                   --postExec "all:CfgMgr.MessageSvc().setError+=['HepMcParticleLink']" \
                   --postInclude "default:PyJobTransforms/UseFrontier.py" \

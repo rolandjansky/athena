@@ -1,19 +1,19 @@
 SG::AuxElement
-   using private store 0x2679330
+   using private store
    Variables:
     - type: std::vector<short>, 	name: "subEventTime", 	value: [0, 1]
     - type: std::vector<unsigned short>, 	name: "subEventIndex", 	value: [0, 1]
     - type: std::vector<ElementLink<DataVector<xAOD::EventInfo_v1> > >, 	name: "subEventLink", 	value: N/A
     - type: std::vector<unsigned short>, 	name: "subEventType", 	value: [0, 1]
 SG::AuxElement
-   using private store 0x2679330
+   using private store
    Variables:
     - type: std::vector<short>, 	name: "subEventTime", 	value: [0, 1, 2]
     - type: std::vector<unsigned short>, 	name: "subEventIndex", 	value: [0, 1, 3]
     - type: std::vector<ElementLink<DataVector<xAOD::EventInfo_v1> > >, 	name: "subEventLink", 	value: N/A
     - type: std::vector<unsigned short>, 	name: "subEventType", 	value: [0, 1, 2]
 SG::AuxElement
-   using private store 0x2679330
+   using private store
    Variables:
     - type: std::vector<short>, 	name: "subEventTime", 	value: []
     - type: std::vector<unsigned short>, 	name: "subEventIndex", 	value: []

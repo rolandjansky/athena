@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonCondCool/CscCoolTest.h"
+#include "CscCoolTest.h"
 
 #include <fstream>
 #include <string>

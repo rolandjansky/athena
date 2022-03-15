@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_Ofl_Onl.py
 # Lukas Pribyl
@@ -118,6 +118,15 @@ for ros in range(1, 5):
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.IgnoredInHlt)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineGeneralMaskAdc)
+
+            #--- add OnlineWrongBCID if either of the ADCs has isWrongBCID
+            if statlo.isWrongBCID() or stathi.isWrongBCID():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineWrongBCID)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineWrongBCID)
+            else:
+                #--- delete OnlineWrongBCID if the both ADCs has not isWrongBCID
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineWrongBCID)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineWrongBCID)
 
             #--- add OnlineBadTiming if either of the ADCs has isBadTiming
             if statlo.isBadTiming() or stathi.isBadTiming():

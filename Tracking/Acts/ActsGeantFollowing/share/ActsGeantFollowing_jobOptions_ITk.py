@@ -29,8 +29,8 @@ def defaultTestFlags(configFlags, args):
 
 
     ## Just enable ID for the moment.
-    ConfigFlags.Input.isMC             = True
-    ConfigFlags.GeoModel.useLocalGeometry = False
+    ConfigFlags.Input.isMC            = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
     detectors = [
       "ITkPixel",
       "ITkStrip",

@@ -12,13 +12,21 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 def LArCalibBadChannelCfg(flags):
     result=ComponentAccumulator()
 
-    foldername="/LAR/BadChannelsOfl/BadChannels"
-    foldertag="".join(foldername.split("/"))+flags.LArCalib.BadChannelTag
+    if not flags.LArCalib.isSC:
+       foldername="/LAR/BadChannelsOfl/BadChannels"
+       foldertag="".join(foldername.split("/"))+flags.LArCalib.BadChannelTag
 
-    result.merge(addFolders(flags,foldername+"<tag>"+foldertag+"</tag>",flags.LArCalib.BadChannelDB,
+       result.merge(addFolders(flags,foldername+"<tag>"+foldertag+"</tag>",flags.LArCalib.BadChannelDB,
                             className="CondAttrListCollection"))
+       theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)
+    else:
+       foldername="/LAR/BadChannelsOfl/BadChannelsSC"
+       foldertag="".join(foldername.split("/"))+flags.LArCalib.BadChannelTag
+       result.merge(addFolders(flags,foldername+"<tag>"+foldertag+"</tag>",flags.LArCalib.BadChannelDB,
+                            className="CondAttrListCollection"))
+       theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername, isSC=flags.LArCalib.isSC, 
+                                                    CablingKey="LArOnOffIdMapSC",WriteKey="LArBadChannelSC")
 
-    theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)
     result.addCondAlgo(theLArBadChannelCondAlgo)
     return result
 

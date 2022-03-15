@@ -535,7 +535,7 @@ if rec.readRDO():
 #
 # Write beamspot information into xAOD::EventInfo.
 #
-if globalflags.InputFormat.is_bytestream():
+if globalflags.InputFormat.is_bytestream() and not athenaCommonFlags.isOnline():
     topSequence += CfgMgr.xAODMaker__EventInfoBeamSpotDecoratorAlg()
     pass
 
@@ -1066,9 +1066,7 @@ if rec.doDPD():
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
             CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
-            from PyUtils.MetaReaderPeeker import convert_metadata_items
-            #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(convert_metadata_items(layout='#join'))
+            #Explicitly add file metadata from the transient store
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass

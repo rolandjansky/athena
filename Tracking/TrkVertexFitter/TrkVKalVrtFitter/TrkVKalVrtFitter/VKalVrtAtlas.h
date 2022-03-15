@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrtAtlas.h
@@ -29,7 +29,7 @@ class TrkVKalVrtFitter;
 
        VKalAtlasMagFld();
       ~VKalAtlasMagFld();
-       void getMagFld(const double,const double,const double,double&,double&,double&)const;
+       virtual void getMagFld(const double,const double,const double,double&,double&,double&) override;
        void setAtlasField(MagField::AtlasFieldCache *);
        void setAtlasField(const double );
        void setAtlasMagRefFrame( double, double, double );
@@ -56,13 +56,13 @@ class StraightLineSurface;
 
 //
 // Propagator from RefStart point  to RefEnd point in local coordinate
-//   system. Global coordinates are incapsulated inside function
+//   system. Global coordinates are encapsulated inside function
 //
         virtual
         void Propagate(long int trkID, long int Charge,
 	               double *ParOld, double *CovOld, double *RefStart,
                        double *RefEnd, double *ParNew, double *CovNew,
-                       const IVKalState& istate) const override;
+                       IVKalState& istate) const override;
         virtual
         bool checkTarget( double *,
                           const IVKalState& istate) const override;

@@ -98,13 +98,14 @@ def TrigBjetMonConfig(inputFlags):
         log.info (" ==> bjet_triglist:  %s", bjet_triglist)
 
     # Check if BeamType is 'collosions'
-    from AthenaCommon.BeamFlags import jobproperties
-    BeamTypeFlag = jobproperties.Beam.beamType() 
-    CollisionRun = BeamTypeFlag == 'collisions'
+    # P.Onyisi's suggestion
+    from AthenaConfiguration.Enums import BeamType
+    CollisionRun = (inputFlags.Beam.Type == BeamType.Collisions)
     if CollisionRun:
-        log.info (" ==> BeamType is collision: %s", BeamTypeFlag)
+        log.info (" ==> BeamType is collision: %s", inputFlags.Beam.Type)
     else:
-        log.info (" ==> BeamType is not collision: %s", BeamTypeFlag)
+        log.info (" ==> BeamType is not collision: %s", inputFlags.Beam.Type)
+    trigBjetMonAlg.CollisionRun = CollisionRun
 
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.

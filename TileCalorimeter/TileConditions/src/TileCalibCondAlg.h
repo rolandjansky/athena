@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECALIBCONDALG_H
@@ -14,7 +14,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 
 /**
  * @class TileCalibCondAlg
@@ -45,9 +44,6 @@ class TileCalibCondAlg: public AthAlgorithm {
    */
     SG::WriteCondHandleKey<TileCalibData<T> > m_calibDataKey{this, "TileCalibData", "",
                                                             "Output Tile calibration constants"};
-
-    ServiceHandle<ICondSvc> m_condSvc;
-
 };
 
 #include "TileCalibCondAlg.icc"

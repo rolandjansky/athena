@@ -55,9 +55,8 @@ namespace Muon {
 
         if (!m_cscRotCreator.empty()) {
             if (!m_idHelperSvc->recoCSC())
-                ATH_MSG_WARNING(
-                    "The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it,"<<
-                    "  but double-check configuration");
+                ATH_MSG_WARNING("The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it,"
+                                << "  but double-check configuration");
             else
                 ATH_CHECK(m_cscRotCreator.retrieve());
         } else {
@@ -71,13 +70,13 @@ namespace Muon {
 
         ATH_CHECK(m_key_mdt.initialize());
         /// Check that the layout has CSCs and that the key is actually set
-        if (!m_key_csc.empty() && m_idHelperSvc->recoCSC()){ ATH_CHECK(m_key_csc.initialize());}  
+        ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty() && m_idHelperSvc->recoCSC()));
         ATH_CHECK(m_key_tgc.initialize());
         ATH_CHECK(m_key_rpc.initialize());
         /// Check that the layout has stgcs and that the key is set
-        if (!m_key_stgc.empty() && m_idHelperSvc->recosTgc()) {ATH_CHECK(m_key_stgc.initialize());}
+        ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty() && m_idHelperSvc->recosTgc()));
         /// Check that the layout has micromegas and that the key is set
-        if (!m_key_mm.empty() && m_idHelperSvc->recoMM()){ATH_CHECK(m_key_mm.initialize());}
+        ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty() && m_idHelperSvc->recoMM()));
         ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
 
         return StatusCode::SUCCESS;
@@ -179,10 +178,8 @@ namespace Muon {
         trackStateOnSurfaces.reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces.push_back(nit.release()); }
-        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
-          track.info(),
-          std::move(trackStateOnSurfaces),
-          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
+                                                                            track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 
@@ -749,9 +746,9 @@ namespace Muon {
 
             bool inbounds(false);
             if (m_idHelperSvc->isMM(id)) {
-              inbounds = ((MuonGM::MMReadoutElement*)clus->detectorElement())->insideActiveBounds(id, locExPos, 10., 10.);
+                inbounds = ((MuonGM::MMReadoutElement*)clus->detectorElement())->insideActiveBounds(id, locExPos, 10., 10.);
             } else {
-              inbounds = surf.insideBounds(locExPos, 10., 10.);
+                inbounds = surf.insideBounds(locExPos, 10., 10.);
             }
 
             ATH_MSG_VERBOSE(" found prd: " << m_idHelperSvc->toString(id) << " res " << resPull->residual().front() << " pull " << pull
@@ -780,9 +777,9 @@ namespace Muon {
         // loop over cluster layer map and add the clusters to the state vector
         for (auto& cl_it : cluster_layer_map) {
             ATH_MSG_VERBOSE(" added hit " << m_idHelperSvc->toString(cl_it.second.clus->identify()));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(std::move(cl_it.second.clus), std::move(cl_it.second.pars),
+            std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createMeasTSOS(std::move(cl_it.second.clus), std::move(cl_it.second.pars),
                                                                             Trk::TrackStateOnSurface::Measurement);
-            states.emplace_back(tsos);
+            states.emplace_back(std::move(tsos));
             ++nNewHits;
         }
 
@@ -814,12 +811,12 @@ namespace Muon {
             bool inBounds = false;
             Amg::Vector2D locPos;
 
-            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) { 
-              if (m_idHelperSvc->isMM(detElId)) {
-                inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);   
-              } else {
-                inBounds = surf.insideBounds(locPos, -100., -100.);
-              }                                                      
+            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) {
+                if (m_idHelperSvc->isMM(detElId)) {
+                    inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);
+                } else {
+                    inBounds = surf.insideBounds(locPos, -100., -100.);
+                }
             }
 
             ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " position " << exPars->parameters()[Trk::locR]
@@ -828,8 +825,8 @@ namespace Muon {
             if (!inBounds) { continue; }
 
             if (m_idHelperSvc->issTgc(id)) ATH_MSG_VERBOSE(" new hole sTgc measuresPhi " << (int)m_idHelperSvc->measuresPhi(id));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
-            states.emplace_back(tsos);
+            std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
+            states.emplace_back(std::move(tsos));
             ++nholes;
             // break; // only add one hole per det el
         }
@@ -981,10 +978,10 @@ namespace Muon {
 
                 if (!inBounds) { continue; }
 
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(
+                std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createMeasTSOS(
                     std::move(mdtROT), std::move(exPars),
                     (hitFlag != 0 || !m_addMeasurements) ? Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement);
-                states.emplace_back(tsos);
+                states.emplace_back(std::move(tsos));
                 ++nstates;
                 if (nstates == chHoles.size()) {
                     ATH_MSG_DEBUG(" recovered Mdts " << nstates << " all holes recovered " << nholes);
@@ -1028,8 +1025,8 @@ namespace Muon {
                     continue;
                 }
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(hit) << " dist wire " << exPars->parameters()[Trk::locR]);
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
-                states.emplace_back(tsos);
+                std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
+                states.emplace_back(std::move(tsos));
                 ++nholes;
                 ++nstates;
             }

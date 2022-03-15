@@ -1,35 +1,25 @@
-################################################################################
-# Package: TileMonitoring
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileMonitoring )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Graf Gpad Hist Spectrum Core Tree MathCore
-  RIO pthread Graf3d Html Postscript Gui GX11TTF GX11 HistPainter )
+find_package( ROOT COMPONENTS Graf Hist HistPainter Spectrum Core Tree MathCore RIO )
 
+# Component(s) in the package:
 atlas_add_library( TileMonitoringLib
                    TileMonitoring/*.h
                    INTERFACE
                    PUBLIC_HEADERS TileMonitoring
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                   LINK_LIBRARIES GaudiKernel TileEvent StoreGateLib TileConditionsLib xAODJet AsgTools JetInterface JetSelectorToolsLib AthenaMonitoringLib TileIdentifier )
+                   LINK_LIBRARIES GaudiKernel )
 
-# Component(s) in the package:
 atlas_add_component( TileMonitoring
   TileMonitoring/*.h src/*.cxx src/components/*.cxx
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} 
-  TileMonitoringLib
-  CaloEvent CaloGeoHelpers CaloIdentifier AthenaKernel
-  ByteStreamCnvSvcBaseLib xAODCaloEvent xAODEventInfo xAODTrigger xAODMuon JetUtils
-  TileCalibBlobObjs TileRecUtilsLib LWHists
-  TrigDecisionToolLib TrigConfL1Data TrigT1Result JetMomentToolsLib )
+  INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel AthenaMonitoringKernelLib AthenaMonitoringLib ByteStreamCnvSvcBaseLib CaloEvent CaloGeoHelpers CaloIdentifier GaudiKernel Identifier JetInterface JetMomentToolsLib JetSelectorToolsLib JetUtils LWHists StoreGateLib TileCalibBlobObjs TileConditionsLib TileEvent TileIdentifier TileMonitoringLib TileRecUtilsLib TrigConfData TrigDecisionToolLib TrigT1Result xAODCaloEvent xAODCore xAODEventInfo xAODJet xAODMuon xAODTrigger )
 
 # Install files from the package:
-atlas_install_headers( TileMonitoring )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( data/*.yaml )

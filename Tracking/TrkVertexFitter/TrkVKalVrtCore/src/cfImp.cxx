@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/Propagator.h"
@@ -18,7 +18,7 @@ extern int cfdinv(double *, double *, long int);
 
  void   cfimp(long int TrkID, long int ich, int IFL, double *par, 
 	double *err, double *vrt, double *vcov, double *rimp, 
-	double *rcov, double *sign , const VKalVrtControlBase * FitCONTROL )
+	double *rcov, double *sign , VKalVrtControlBase * FitCONTROL )
 {
     double dcov[3], errd[15], paro[5];
     double dwgt[3], errn[15];
@@ -110,7 +110,7 @@ extern int cfdinv(double *, double *, long int);
 
  void   cfimpc(long int TrkID, long int ich, int IFL, double *par, 
 	double *err, double *vrt, double *vcov, double *rimp, 
-	double *rcov, double *sign, const VKalVrtControlBase * FitCONTROL )
+	double *rcov, double *sign, VKalVrtControlBase * FitCONTROL )
 {
     double dcov[3], errd[15], paro[5];
     double dwgt[3], errn[15], cnv[6];	/* was [2][3] */

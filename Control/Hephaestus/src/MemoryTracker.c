@@ -293,7 +293,7 @@ static void hhh_report( void ) {
       fprintf( gReportStream, "   detected %u unique leak%s\n",
                nuniq, (nuniq == 1 ? "" : "s" ) );
             
-      fprintf( gReportStream, "   detected %d non-unique leak%s (total %ld bytes reported)\n",
+      fprintf( gReportStream, "   detected %u non-unique leak%s (total %ld bytes reported)\n",
                gTraceInfo->nentries, ( gTraceInfo->nentries == 1 ? "" : "s" ),
                reportedLeakSize );
 

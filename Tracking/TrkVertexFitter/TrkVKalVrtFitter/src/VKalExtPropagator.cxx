@@ -84,9 +84,9 @@ namespace Trk {
   void VKalExtPropagator::Propagate( long int trkID, long int Charge, 
                                      double *ParOld, double *CovOld, double *RefStart, 
                                      double *RefEnd, double *ParNew, double *CovNew,
-                                     const IVKalState& istate) const
+                                     IVKalState& istate) const
   {
-      const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);
+      TrkVKalVrtFitter::State& state = static_cast<TrkVKalVrtFitter::State&> (istate);
 
       int trkID_loc=trkID; if(trkID_loc<0)trkID_loc=0;
 //std::cout<<__func__<<" Ext.Propagator TrkID="<<trkID<<"to (local!!!)="<<RefEnd[0]<<", "<<RefEnd[1]<<", "<<RefEnd[2]<<'\n';

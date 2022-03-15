@@ -18,7 +18,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "MuidCaloEnergyTools/MuidCaloEnergyTool.h"
+#include "MuidCaloEnergyTool.h"
 
 #include <cmath>
 

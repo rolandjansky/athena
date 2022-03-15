@@ -1,6 +1,4 @@
-################################################################################
-# Package: TrkTrackSummaryUpdater
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkTrackSummaryUpdater )
@@ -14,16 +12,8 @@ atlas_add_library( TrkTrackSummaryUpdaterLib
                    src/*.cxx
                    test/PutTrackCollectionsInSG.cxx
                    test/SummaryToolStub.cxx
-                   PUBLIC_HEADERS TrkTrackSummaryUpdater
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrkTrack TrkEventUtils TrkToolInterfaces TrkTrackSummary
-                   PRIVATE_LINK_LIBRARIES TrkPrepRawData )
-                   
-atlas_add_library( TrkTrackSummaryUpdaterTestLib
-                   test/PutTrackCollectionsInSG.cxx
-                   test/SummaryToolStub.cxx
                    NO_PUBLIC_HEADERS
-                   LINK_LIBRARIES TrkTrackSummaryUpdaterLib 
-                   PRIVATE_LINK_LIBRARIES TrkPrepRawData )
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrkEventUtils TrkPrepRawData TrkToolInterfaces TrkTrack TrkTrackSummary )
 
 # Component(s) in the package:
 atlas_add_component( TrkTrackSummaryUpdater
@@ -32,12 +22,9 @@ atlas_add_component( TrkTrackSummaryUpdater
 
 atlas_add_test(TrackSummaryUpdater_test
                 SOURCES test/TrackSummaryUpdater_test.cxx 
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}  TrkTrackSummaryUpdaterTestLib
-                POST_EXEC_SCRIPT "nopost.sh" )
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TrkTrackSummaryUpdaterLib
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt )
-
-# Install files from the package:
-atlas_install_headers( TrkTrackSummaryUpdater )

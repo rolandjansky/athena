@@ -27,9 +27,6 @@
 #include "TrigT1NSWSimTools/PadTriggerAdapter.h"
 #include "TrigT1NSWSimTools/TriggerProcessorTool.h"
 
-#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "TTree.h"
 
 // Forward includes

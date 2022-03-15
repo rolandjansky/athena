@@ -9,6 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadDecorHandleKey.h"
@@ -16,6 +17,8 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "ITgcRawDataMonitorTool.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "TrigConfData/L1Menu.h"
 #include <memory>
@@ -36,7 +39,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     std::vector<TVector3> extVec;
     std::set<int> matchedL1ThrExclusive;
     std::set<int> matchedL1ThrInclusive;
-    std::set<TString> matchedL1Items;
+    std::set<std::string> matchedL1Items;
     bool matchedL1Charge{};
     bool passBW3Coin{};
     bool passInnerCoin{};
@@ -51,49 +54,31 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
       matchedL1Items.clear();
     }
   };
-  struct TgcHit{
-    float x{};
-    float y{};
-    float z{};
-    float shortWidth{};
-    float longWidth{};
-    float length{};
-    int isStrip{};
-    int gasGap{};
-    int channel{};
-    int eta{};
-    int phi{};
-    int station{};
-    int bunch{};
-    int sector{};
-    int f{};
-    int E{};
-    int M{};
-    int iphi{};
-    int ieta{};
-    int L{};
-    TString name;
-    int istation{};
-    int igasGap{};
-    int iside{};
-    TString side;
+  struct ExtPos{
+    double extPosZ{};
+    Amg::Vector3D extPos;
+    Amg::Vector3D extVec;
+    int matched{};
+    const xAOD::Muon* muon{};
+    std::set<std::string> passedChambers;
+    std::set<std::string> chambersHasHit;
   };
   struct TgcTrig{
     int lb{};
-    float x_In{};
-    float y_In{};
-    float z_In{};
-    float x_Out{};
-    float y_Out{};
-    float z_Out{};
-    float eta{};
-    float phi{};
-    float etain{};
-    float etaout{};
-    float width_In{};
-    float width_Out{};
-    float width_R{};
-    float width_Phi{};
+    double x_In{};
+    double y_In{};
+    double z_In{};
+    double x_Out{};
+    double y_Out{};
+    double z_Out{};
+    double eta{};
+    double phi{};
+    double etain{};
+    double etaout{};
+    double width_In{};
+    double width_Out{};
+    double width_R{};
+    double width_Phi{};
     int isAside{};
     int isForward{};
     int isStrip{};
@@ -112,8 +97,8 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int inner{};
   };
   struct CtpDecMonObj{
-    TString trigItem;
-    TString title;
+    std::string trigItem;
+    std::string title;
     long unsigned int multiplicity{};
     int rpcThr{};
     int tgcThr{};
@@ -150,10 +135,10 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   StringProperty m_ctpDecMonList{this,"CtpDecisionMoniorList","Tit:L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;","list of L1MU items to be monitored for before/after CTP decision"};
   BooleanProperty m_monitorTriggerMultiplicity{this,"MonitorTriggerMultiplicity",false,"start monitoring tirgger multiplicity performance"};
   BooleanProperty m_printAvailableMuonTriggers{this,"PrintAvailableMuonTriggers",false,"debugging purpose. print out all available muon triggers in the event"};
-  BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
   BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
   BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
   BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD"};
+  BooleanProperty m_anaTgcCoin{this,"AnaTgcCoin",false,"switch to perform analysis on TGC Coin"};
   BooleanProperty m_fillGapByGapHistograms{this,"FillGapByGapHistograms",true,"filling gap-by-gap histograms (many many)"};
   BooleanProperty m_anaOfflMuon{this,"AnaOfflMuon",true,"switch to perform analysis on xAOD::Muon"};
   BooleanProperty m_offlMuonCutOnMuonType{this,"OfflMuonCutOnMuonType",true,"applying cut on offline muon muonType"};
@@ -166,45 +151,53 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_l1trigMatchWindow3{this,"L1TrigMatchingWindow3",-0.01,"Window size in R for L1 trigger matching: param 3"};
   DoubleProperty m_l1trigMatchWindow4{this,"L1TrigMatchingWindow4",0.36,"Window size in R for L1 trigger matching: param 4"};
   DoubleProperty m_l1trigMatchWindow5{this,"L1TrigMatchingWindow5",-0.0016,"Window size in R for L1 trigger matching: param 5"};
-  DoubleProperty m_isolationWindow{this,"IsolationWindow",0.1,"Window size in R for isolation with other muons"};
+  DoubleProperty m_isolationWindow{this,"IsolationWindow",1.0,"Window size in R for isolation with other muons"};
   BooleanProperty m_requireIsolated{this,"RequireIsolated",true,"Probe muon should be isolated from other muons"};
-  DoubleProperty m_M1_Z{this,"M1_Z",13605.0,"z-position of TGC M1-station in mm for track extrapolate"};
-  DoubleProperty m_M2_Z{this,"M2_Z",14860.0,"z-position of TGC M2-station in mm for track extrapolate"};
-  DoubleProperty m_M3_Z{this,"M3_Z",15280.0,"z-position of TGC M3-station in mm for track extrapolate"};
-  DoubleProperty m_EI_Z{this,"EI_Z",7425.0,"z-position of TGC EI-station in mm for track extrapolate"};
-  DoubleProperty m_FI_Z{this,"FI_Z",7030.0,"z-position of TGC FI-station in mm for track extrapolate"};
+  BooleanProperty m_useIDTrackForExtrapolation{this,"UseIDTrackForExtrapolation",false,"Use InnerDetectorTrackParticle for extrapolation"};
+  BooleanProperty m_useMSTrackForExtrapolation{this,"UseMSTrackForExtrapolation",false,"Use MuonSpectrometerTrackParticle for extrapolation"};
+  BooleanProperty m_useCBTrackForExtrapolation{this,"UseCBTrackForExtrapolation",false,"CombinedTrackParticle for extrapolation"};
+  BooleanProperty m_useExtMSTrackForExtrapolation{this,"UseExtMSTrackForExtrapolation",false,"Use ExtrapolatedMuonSpectrometerTrackParticle for extrapolation"};
+  BooleanProperty m_useMSOnlyExtMSTrackForExtrapolation{this,"UseMSOnlyExtMSTrackForExtrapolation",false,"Use MSOnlyExtrapolatedMuonSpectrometerTrackParticle for extrapolation"};
+  BooleanProperty m_useDirectPrimaryTrackForExtrapolation{this,"UseDirectPrimaryTrackForExtrapolation",true,"Use DirectPrimaryTrackForExtrapolation for extrapolation"};
+  BooleanProperty m_useOnlyCombinedMuons{this,"UseOnlyCombinedMuons",false,"use only CombinedMuons"};
+  BooleanProperty m_useOnlyMuidCoStacoMuons{this,"UseOnlyMuidCoStacoMuons",false,"use only MuidCo and Staco Muons"};
+  BooleanProperty m_useMuonSelectorTool{this,"UseMuonSelectorTool",true,"use MuonSelectorTool"};
+  DoubleProperty m_pTCutOnExtrapolation{this,"pTCutOnExtrapolation",6000.,"pT [in MeV] cut on the extrapolation tracks"}; 
+  DoubleProperty m_M1_Z{this,"M1_Z",13436.5,"z-position of TGC M1-station in mm for track extrapolate"}; 
+  DoubleProperty m_M2_Z{this,"M2_Z",14728.2,"z-position of TGC M2-station in mm for track extrapolate"};
+  DoubleProperty m_M3_Z{this,"M3_Z",15148.2,"z-position of TGC M3-station in mm for track extrapolate"};
+  DoubleProperty m_EI_Z{this,"EI_Z",7364.7,"z-position of TGC EI-station in mm for track extrapolate"};
+  DoubleProperty m_FI_Z{this,"FI_Z",6978.2,"z-position of TGC FI-station in mm for track extrapolate"};
   DoubleProperty m_muonMass{this,"MuonMass",105.6583755,"muon invariant mass in MeV"};
   DoubleProperty m_zMass{this,"ZMass",91187.6,"muon invariant mass in MeV"};
   DoubleProperty m_zMassWindow{this,"ZMassWindow",10000,"muon invariant mass half-window in MeV"};
   DoubleProperty m_endcapPivotPlaneMinimumRadius{this,"endcapPivotPlaneMinimumRadius",0.,"minimum radius of pivot plane in endcap region"};
   DoubleProperty m_endcapPivotPlaneMaximumRadius{this,"endcapPivotPlaneMaximumRadius", 11977.,"maximum radius of pivot plane in endcap region"};
   DoubleProperty m_barrelPivotPlaneHalfLength{this,"barrelPivotPlaneHalfLength", 9500.,"half length of pivot plane in barrel region"};
+  DoubleProperty m_residualWindow{this,"ResidualWindow", 200.,"Window size in mm between hit position and track-extrapolated position"};
+  DoubleProperty m_dPhiCutOnM3{this,"dPhiCutOnM3", 0.2,"Window size in delta phi on M3 between hit position and track-extrapolated position"};
+  DoubleProperty m_dRCutOnM3{this,"dRCutOnM3", 1000.,"Window size in delta R (radious) on M3 between hit position and track-extrapolated position"};
   
   std::vector<double> m_extZposition;
   std::vector<CtpDecMonObj> m_CtpDecMonObj;
-  std::set<TString> m_thrMonList;
+  std::set<std::string> m_thrMonList;
 
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
-  void fillTgcCoin(const std::vector<TgcTrig>&, const std::string& ) const;
-
-  /* track extrapolator tool */
-  enum TargetDetector { UNDEF, TGC, RPC };
-  void extrapolate(const xAOD::Muon*, MyMuon&) const;
-  bool extrapolate(const xAOD::TrackParticle* trackParticle,
-		   const Amg::Vector3D& pos,
-		   const int detector,
-		   Amg::Vector2D& eta,
-		   Amg::Vector2D& phi,
-		   Amg::Vector3D& mom) const;
-  std::unique_ptr<const Trk::TrackParameters>
-    extrapolateToTGC(const Trk::TrackStateOnSurface* tsos,
-		     const Amg::Vector3D& pos,
-		     Amg::Vector2D& distance) const;
-  std::unique_ptr<const Trk::TrackParameters>  
-    extrapolateToRPC(const Trk::TrackStateOnSurface* tsos,
-		     const Amg::Vector3D& pos,
-		     Amg::Vector2D& distance) const;
-  double getError(const std::vector<double>& inputVec) const;
+  void fillTgcCoin(const std::string&,
+		   const std::vector<TgcTrig>&, 
+		   std::vector<Monitored::ObjectsCollection<std::vector<TgcTrig>, double>>&,
+		   MonVariables&) const;
+  void fillTgcCoinEff(const std::string&,
+		      const std::vector<TgcTrig>&, 
+		      const std::vector<ExtPos>&,
+		      std::vector<double>&,std::vector<double>&,std::vector<double>&,
+		      std::vector<Monitored::ObjectsCollection<std::vector<double>, double>>&,
+		      MonVariables&) const;
+  
   ToolHandle<Trk::IExtrapolator> m_extrapolator{this,"TrackExtrapolator","Trk::Extrapolator/AtlasExtrapolator","Track extrapolator"};
+  ToolHandle<ITgcRawDataMonitorTool> m_tgcMonTool{this,"TgcRawDataMonitorTool","TgcDawDataMonitorTool","TgcRawDataMonitorTool"};
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool{this,"MuonSelectionTool","CP::MuonSelectionTool/MuonSelectionTool","MuonSelectionTool"};
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey","MuonDetectorManager","Key of input MuonDetectorManager condition data"}; 
+
 };
 #endif

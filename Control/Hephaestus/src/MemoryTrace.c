@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Hephaestus/Hephaestus.h"
@@ -137,7 +137,7 @@ void hhh_MemoryTrace_print( FILE* f, struct hhh_MemoryTrace *mt, int hideMemAddr
    sym = (const char*)hhh_getSymbol( *elt );
    if ( (h = strstr( sym, " @" )) ) *h = '\0';
    if ( mt->size != (unsigned long)-1 )
-      fprintf( f, "%s (%ld bytes)\n", hhh_getSymbol( *elt ), mt->size );
+      fprintf( f, "%s (%lu bytes)\n", hhh_getSymbol( *elt ), mt->size );
    else
       fprintf( f, "%s\n", hhh_getSymbol( *elt ) );
    if ( h ) *h = ' ';

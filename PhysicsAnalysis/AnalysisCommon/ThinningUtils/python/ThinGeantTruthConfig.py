@@ -7,7 +7,7 @@ __doc__ = """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from AthenaConfiguration.Enums import LHCPeriod
 
 def ThinGeantTruthCfg(flags, name="ThinGeantTruthAlg", **kwargs):
 
@@ -17,6 +17,10 @@ def ThinGeantTruthCfg(flags, name="ThinGeantTruthAlg", **kwargs):
     kwargs.setdefault("StreamName", "StreamAOD")
     kwargs.setdefault("keepEGamma", flags.Reco.EnableEgamma)
     kwargs.setdefault("keepMuons", flags.Reco.EnableCombinedMuon)
+    if flags.GeoModel.Run >= LHCPeriod.Run4:
+        kwargs.setdefault("EtaMaxEGammaTruth", 4.1)
+        kwargs.setdefault("FwdElectronsKey", "ForwardElectrons")
+
     acc.addEventAlgo(CompFactory.ThinGeantTruthAlg(name, **kwargs))
     mlog.info("Geant4 Truth Thinning configured")
     return acc

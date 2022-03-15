@@ -139,6 +139,10 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         self.USE_ROIBASEDACCESS_MM = False
         #################################
 
+        # set the flag whether to use NSW or not
+        self.USE_STGC = True
+        self.USE_MM = True
+
         self.RpcErrToDebugStream = True
 
         MuonSA.MuFastSteering.topoRoad = True

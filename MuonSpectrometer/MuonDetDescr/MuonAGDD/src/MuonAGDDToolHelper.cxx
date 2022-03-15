@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDToolHelper.h"
@@ -39,7 +39,6 @@
 
 #include "MuonDetDescrUtils/BuildNSWReadoutGeometry.h"
 
-#include <TString.h> // for Form
 #include <fstream>
 
 using namespace MuonGM;
@@ -150,7 +149,8 @@ void MuonAGDDToolHelper::SetNSWComponents()
 {
   IAGDDtoGeoSvc* agddsvc = nullptr;
   if (Gaudi::svcLocator()->service(m_svcName,agddsvc).isFailure()) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonAGDDToolHelper::SetNSWComponents() - Could not retrieve %s from ServiceLocator", __FILE__, __LINE__, m_svcName.c_str()));
+    throw std::runtime_error("MuonAGDDToolHelper::SetNSWComponents() - Could not retrieve "
+                             + m_svcName + " from ServiceLocator");
   }
 	
   IAGDDtoGeoSvc::LockedController c = agddsvc->getController();

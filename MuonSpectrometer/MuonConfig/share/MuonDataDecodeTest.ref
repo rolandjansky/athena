@@ -28,7 +28,6 @@ GeoModel.IBLLayout                       : [function]
 GeoModel.Layout                          : 'atlas'
 GeoModel.Run                             : [function]
 GeoModel.Type                            : [function]
-GeoModel.useLocalGeometry                : False
 IOVDb.DBConnection                       : [function]
 IOVDb.DatabaseInstance                   : [function]
 IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'

@@ -10,20 +10,17 @@
 
 #include "TileDetDescr/TileCellDim.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h" // needed for 'Athena::getMessageSvc()'
 
 #include <stdexcept>
 #include <iostream>
 #include <cmath>
 
-#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
-
-TileCellDim::TileCellDim(unsigned int nRows) : 
+TileCellDim::TileCellDim(unsigned int nRows) :
+  AthMessaging (Athena::getMessageSvc(), "TileDetDescrManager"),
   m_nRows(nRows),
   m_volume(0)
 {
-  m_log = new MsgStream(Athena::getMessageSvc(), "TileDetDescrManager");
   // convert tile radius to tile half-length
   m_Radius2HalfLength = tan ( M_PI / 64);
 
@@ -59,7 +56,7 @@ double TileCellDim::getZMin(unsigned int index) const
  
 double TileCellDim::getZMax(unsigned int index) const
 {
-  MLOG(DEBUG) << "TileCellDim::getZMax - index: " << index << ", size: " << m_zMax.size() << endmsg;
+  ATH_MSG_DEBUG( "TileCellDim::getZMax - index: " << index << ", size: " << m_zMax.size() );
   if(index < m_zMax.size())
     return m_zMax[index];
   else

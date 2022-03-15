@@ -17,9 +17,9 @@ if 'ESD' not in DQMonFlags.monManEnvironment():
         from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
         topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
 
-#if 'ESD' not in DQMonFlags.monManEnvironment():
-#    from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
-#    topSequence += LArNoisyROMonConfigOld(DQMonFlags)
+if 'ESD' not in DQMonFlags.monManEnvironment():
+    from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
+    topSequence += LArNoisyROMonConfigOld(DQMonFlags)
 
 if globalflags.DataSource() == 'data' and 'online' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
@@ -45,4 +45,14 @@ if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource() == '
     from LArMonitoring.LArCosmicsMonAlg import LArCosmicsMonConfigOld
     if LArMonFlags.doLArCosmicsMonTool():
        topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
+
+    from LArMonitoring.LArRawChannelMonAlg import LArRawChannelMonConfigOld
+    if LArMonFlags.doLArRawChannelMon():
+       topSequence += LArRawChannelMonConfigOld(DQMonFlags)
+       # for cosmics needs also elec noise
+       from AthenaCommon.BeamFlags import jobproperties
+       if jobproperties.Beam.beamType() == 'cosmics':
+          from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+          CaloNoiseCondAlg(noisetype='electronicNoise') 
+
 

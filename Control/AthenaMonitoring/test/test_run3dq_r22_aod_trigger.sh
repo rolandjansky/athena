@@ -7,8 +7,12 @@
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 
-art.py download Tier0ChainTests test_q221_mt1.sh 
-AODFILE=(./ref-*/myAOD.pool.root)
+Reco_tf.py --AMI=q445 --preExec 'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.AODEDMSet="AODFULL"' --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --imf False
+echo "art-result: $? AOD_Creation"
+#art.py download Tier0ChainTests test_q221_mt1.sh 
+#AODFILE=(./ref-*/myAOD.pool.root)
+AODFILE=myAOD.pool.root
+
 Run3DQTestingDriver.py --inputFiles=${AODFILE} DQ.Steering.doHLTMon=True DQ.Environment=AOD --dqOffByDefault > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"

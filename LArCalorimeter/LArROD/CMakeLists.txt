@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArROD )
@@ -16,7 +16,7 @@ atlas_add_library( LArRODLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArDigitizationLib LArRecConditions TBEvent StoreGateLib LArCablingLib LArElecCalib LArRawUtilsLib LArRecUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions LArSimEvent )
 
 atlas_add_component( LArROD
                      src/components/*.cxx

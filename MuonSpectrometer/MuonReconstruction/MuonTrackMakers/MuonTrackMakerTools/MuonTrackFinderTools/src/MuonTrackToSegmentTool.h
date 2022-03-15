@@ -60,7 +60,8 @@ namespace Muon {
 
     private:
         /** @brief calculate holes */
-        std::vector<Identifier> calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars, const MeasVec& measurements) const;
+        std::vector<Identifier> calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars,
+                                               const MeasVec& measurements) const;
 
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};
@@ -73,7 +74,7 @@ namespace Muon {
             "Handle to the service providing the IMuonEDMHelperSvc interface"};  //<! multipurpose helper tool
 
         PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
-                                                 "helper to nicely print out tracks"};
+                                                       "helper to nicely print out tracks"};
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
 
         SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};

@@ -8,8 +8,8 @@ Configurable.configurableRun3Behavior = True
 ## Just enable ID for the moment.
 ConfigFlags.Input.isMC             = True
 
-ConfigFlags.GeoModel.useLocalGeometry = False
-if ConfigFlags.GeoModel.useLocalGeometry:
+ConfigFlags.ITk.Geometry.AllLocal = False
+if ConfigFlags.ITk.Geometry.AllLocal:
   detectors = [
     "ITkPixel",
     "ITkStrip",

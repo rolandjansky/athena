@@ -6,7 +6,7 @@
 
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "TileMonitoring/TileTBPulseMonTool.h"
+#include "TileTBPulseMonTool.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"

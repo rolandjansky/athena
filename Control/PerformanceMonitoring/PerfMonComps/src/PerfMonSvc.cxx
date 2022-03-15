@@ -422,13 +422,6 @@ PerfMonSvc::io_reinit()
   stream_name = m_workerDir + "/" + my_basename(orig_stream_name);
 
   ATH_MSG_INFO("reopening [" << stream_name << "]...");
-  fflush(NULL); //> flushes all output streams...
-  int close_sc = close(m_stream);
-  if (close_sc < 0) {
-    ATH_MSG_ERROR("could not close previously open fd [" << m_stream << "]: "
-                  << strerror(errno));
-    return StatusCode::FAILURE;
-  }
 
   // re-open the previous file
   int old_stream = open(orig_stream_name.c_str(), O_RDONLY);
@@ -454,11 +447,31 @@ PerfMonSvc::io_reinit()
       write(m_stream, line, bytes);
   }
   // close the old stream
-  close_sc = close(old_stream);
+  int close_sc = close(old_stream);
   if (close_sc < 0) {
     ATH_MSG_INFO("could not close the re-open old pmon.stream file");
   }
   ATH_MSG_INFO("reopening [" << stream_name << "]... [ok]");
+  return StatusCode::SUCCESS;
+}
+//@}
+
+/// @c IIoComponent interface
+//@{
+/** @brief callback method to finalize the internal state of
+ *         the component for I/O purposes (e.g. upon @c fork(2))
+ */
+StatusCode
+PerfMonSvc::io_finalize()
+{
+  ATH_MSG_INFO("closing previously open fd [" << m_stream << "] for the pmon stream...");
+  fflush(NULL); //> flushes all output streams...
+  int close_sc = close(m_stream);
+  if (close_sc < 0) {
+    ATH_MSG_ERROR("could not close previously open fd [" << m_stream << "]: "
+                  << strerror(errno));
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 //@}

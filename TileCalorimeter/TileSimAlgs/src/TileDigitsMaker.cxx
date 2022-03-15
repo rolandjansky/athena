@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -40,6 +40,7 @@
 #include "AthenaKernel/Units.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 // Pile up
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -108,6 +109,7 @@ StatusCode TileDigitsMaker::initialize() {
   ATH_MSG_DEBUG( "Using pulse shapes from COOL: " << ((m_useCoolPulseShapes)?"true":"false"));
 
   ATH_CHECK( m_pulseShapeKey.initialize(m_useCoolPulseShapes) );
+  ATH_CHECK( m_samplingFractionKey.initialize() );
 
   if (m_useCoolPulseShapes) {
     ATH_MSG_DEBUG( "Initializing pulse shape conditions object");
@@ -476,6 +478,9 @@ StatusCode TileDigitsMaker::execute(const EventContext &ctx) const {
   }
   TilePulse pulse(pulseShape);
 
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey, ctx);
+  ATH_CHECK( samplingFraction.isValid() );
+
   const TileDQstatus* dqStatus = nullptr;
   if (m_rndmEvtOverlay) {
     SG::ReadHandle<TileDQstatus> DQstatusHandle(m_DQstatusKey, ctx);
@@ -558,10 +563,10 @@ StatusCode TileDigitsMaker::execute(const EventContext &ctx) const {
     std::vector<bool> signal_in_channel(nchMax, false);
     std::vector<bool> signal_in_channel_DigiHSTruth(nchMax, false);
     ATH_CHECK(fillDigitCollection( hitCollection, drawerBufferLo, drawerBufferHi,
-                                   igain, over_gain, ech_int, signal_in_channel, *emScale, pulse));
+                                   igain, over_gain, ech_int, signal_in_channel, *emScale, *samplingFraction, pulse));
     if(m_doDigiTruth){
       ATH_CHECK(fillDigitCollection( *collItr_DigiHSTruth, drawerBufferLo_DigiHSTruth, drawerBufferHi_DigiHSTruth,
-                                     igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth, *emScale, pulse));
+                                     igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth, *emScale, *samplingFraction, pulse));
     } // End DigiHSTruth stuff
 
     /* Now all signals for this collection are stored in m_drawerBuffer, 
@@ -1095,7 +1100,7 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
                                                 std::vector<std::vector<double>>& drawerBufferHi,
                                                 std::vector<int>& igain, std::vector<int>& over_gain, std::vector<double>& ech_int,
                                                 std::vector<bool> &signal_in_channel, const TileEMScale* emScale,
-                                                const TilePulse& pulse) const{
+                                                const TileSamplingFraction* samplingFraction, const TilePulse& pulse) const{
   
   constexpr int nchMax = 48; // number of channels per drawer
   std::array<int, nchMax> ntot_ch; ntot_ch.fill(0);
@@ -1128,7 +1133,7 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
         for (int ihit = 0; ihit < n_hits; ++ihit) {
           e_hit += tileHit->energy(ihit);
         }
-        e_hit *= m_tileInfo->HitCalib(pmt_id);
+        e_hit *= samplingFraction->getSamplingFraction(drawerIdx, ich);
         ech_tot[ich] += e_hit;
         ntot_ch[ich] += n_hits;
         ATH_MSG_VERBOSE("BAD Overlay digits - skip hit in channel " << m_tileHWID->to_string(channel_id,-1));
@@ -1142,7 +1147,7 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
     if (igain[ich] < 0)
       igain[ich] = TileID::HIGHGAIN;
     // conversion from scintillator energy to total cell energy (sampling fraction)  
-    double hit_calib = m_tileInfo->HitCalib(pmt_id);
+    double hit_calib = samplingFraction->getSamplingFraction(drawerIdx, ich);
 
     // conversion to ADC counts for high gain
     double efactorHi = hit_calib / emScale->calibrateChannel(drawerIdx, ich, TileID::HIGHGAIN, 1.

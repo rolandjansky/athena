@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,6 @@
 TRTAlignCondAlg::TRTAlignCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator)
-  , m_condSvc("CondSvc",name)
   , m_detManager(nullptr)
 {
 }
@@ -25,9 +24,6 @@ StatusCode TRTAlignCondAlg::initialize()
 {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // Read Condition Handles initialize
   ATH_CHECK( m_readKeyRegular.initialize(!m_useDynamicFolders.value()) );
   ATH_CHECK( m_readKeyDynamicGlobal.initialize(m_useDynamicFolders.value()) );
@@ -36,18 +32,6 @@ StatusCode TRTAlignCondAlg::initialize()
   // Write condition handles initialize
   ATH_CHECK( m_writeKeyAlignStore.initialize() );
   ATH_CHECK( m_writeKeyDetElCont.initialize() );
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKeyAlignStore).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyAlignStore.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKeyDetElCont).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyDetElCont.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   ATH_CHECK(detStore()->retrieve(m_detManager,"TRT"));
 

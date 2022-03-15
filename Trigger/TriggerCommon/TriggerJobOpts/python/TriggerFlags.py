@@ -17,7 +17,7 @@ class AODEDMSet(JobProperty):
     allowedType=['list']
     StoredValue='AODSLIM'
     def _do_action(self):
-        log.warning("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
+        log.error("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.AODEDMSet = self.get_Value()
 

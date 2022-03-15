@@ -51,6 +51,11 @@ include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 svcMgr.IOVDbSvc.GlobalTag = "OFLCOND-MC16-SDR-16"
 svcMgr.IOVDbSvc.forceRunNumber=284500
 
+# Initialize Tile sampling fraction
+from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+tileInfoConfigurator = TileInfoConfigurator()
+tileInfoConfigurator.setupCOOLSFR()
+
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output += ["MYSTREAM DATAFILE='LArEM_SF.root' OPT='RECREATE'"]
 

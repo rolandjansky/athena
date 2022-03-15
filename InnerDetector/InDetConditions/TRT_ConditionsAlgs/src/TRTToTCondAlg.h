@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTTOTCONDALG_H
@@ -13,7 +13,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 #include "TRT_ConditionsData/TRTDedxcorrection.h"
 
@@ -36,7 +35,6 @@ class TRTToTCondAlg : public AthAlgorithm
   static void updateOccupancyCorrectionParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
 
  private:
-  ServiceHandle<ICondSvc> m_condSvc;
   SG::ReadCondHandleKey<CondAttrListVec> m_VecReadKey{this,"ToTVecReadKey","/TRT/Calib/ToT/ToTVectors","ToTVec in-key"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_ValReadKey{this,"ToTValReadKey","/TRT/Calib/ToT/ToTValue","ToTVal in-key"};
   SG::WriteCondHandleKey<TRTDedxcorrection> m_WriteKey{this,"ToTWriteKey","Dedxcorrection","Dedxcorrection out-key"};

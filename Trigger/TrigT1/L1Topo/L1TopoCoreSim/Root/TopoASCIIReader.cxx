@@ -81,17 +81,22 @@ bool TCS::TopoASCIIReader::getNextEvent() {
          }
          m_event->addCluster(cl);
       } else if(type == "<eEm>") {
-	TCS::eEmTOB eEm( TCS::eEmTOB( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()),atoi(results.at(3).c_str()) ));
-         if(results.size()==6) {
-            eEm.setEtaDouble( atof(results.at(4).c_str()) );
-            eEm.setPhiDouble( atof(results.at(5).c_str()) );
+	TCS::eEmTOB eEm( TCS::eEmTOB( atoi(results.at(0).c_str()),atoi(results.at(4).c_str()),atoi(results.at(5).c_str()) ));
+         if(results.size()==8) {
+            eEm.setEtaDouble( atof(results.at(6).c_str()) );
+            eEm.setPhiDouble( atof(results.at(7).c_str()) );
+            eEm.setReta( atof(results.at(1).c_str()) );
+            eEm.setRhad( atof(results.at(2).c_str()) );
+            eEm.setWstot( atof(results.at(3).c_str()) );
          }
          m_event->addeEm(eEm);
       } else if(type == "<eTau>") {
-	TCS::eTauTOB eTau( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()),atoi(results.at(3).c_str()) );
-         if(results.size()==6) {
-            eTau.setEtaDouble( atof(results.at(4).c_str()) );
-            eTau.setPhiDouble( atof(results.at(5).c_str()) );
+	TCS::eTauTOB eTau( atoi(results.at(0).c_str()),atoi(results.at(3).c_str()),atoi(results.at(4).c_str()) );
+         if(results.size()==7) {
+            eTau.setEtaDouble( atof(results.at(5).c_str()) );
+            eTau.setPhiDouble( atof(results.at(6).c_str()) );
+            eTau.setRCore( atof(results.at(1).c_str()) );
+            eTau.setRHad( atof(results.at(2).c_str()) );
          }
          m_event->addeTau(eTau);
       } else if(type == "<tau>") {

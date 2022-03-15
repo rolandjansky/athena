@@ -382,12 +382,11 @@ namespace Muon {
                 ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperSvc->toString(chit->first));
                 continue;
             }
-            auto chickenedOutOfOwnershipResolution = comprot.release();
-            hits.push_back(chickenedOutOfOwnershipResolution);
-            allHits.push_back(chickenedOutOfOwnershipResolution);
+            hits.push_back(comprot.get());
+            allHits.push_back(comprot.get());
 
             // add to garbage collection
-            trash_bin.push_back(chickenedOutOfOwnershipResolution);
+            trash_bin.push_back(std::move(comprot));
         }
     }
 

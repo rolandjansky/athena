@@ -38,7 +38,6 @@ namespace MuonGM {
     int Get_VMM_chip(int strip) const;  //*** Not Finished... Rough
     int strip_number(int station, int plane, int spos, std::shared_ptr<MMT_Parameters> par)const;
     int Get_Strip_ID(double X,double Y,int plane) const;
-    bool Mimic_VMM_Chip_Deadtime(hitData_entry& candy);
     void xxuv_to_uvxx(ROOT::Math::XYZVector& hit, int plane, std::shared_ptr<MMT_Parameters> par)const;
     void hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const;//x to v, u to x
     void hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const;//x to u, v to x
@@ -82,25 +81,9 @@ namespace MuonGM {
     histogramVariables histVars;
 
   private:
-  
-  //moved here
-     //VMM info
-    std::vector<std::vector<bool> > m_VMM_ChipStatus{};
-    std::vector<std::vector<int> > m_VMM_ChipLastHitTime{};
-
-    double m_VMM_Deadtime{};
-    int m_numVMM_PerPlane{};
-    //x <---> u/v switches
-    bool m_uvxxmod{};
-    
-    //
-
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const MmIdHelper* m_MmIdHelper;        //!< MM offline Id helper
-    StoreGateSvc* m_evtStore;
-    bool m_striphack{};
-
-
+    const StoreGateSvc* m_evtStore {nullptr};
   };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/MaterialProperties.h"
+#include "CxxUtils/CachedUniquePtr.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Gaudi
@@ -115,7 +116,11 @@ class CompoundLayerMaterial final: public LayerMaterialProperties {
  private:
   friend class ::CompoundLayerMaterialCnv_p1;
 
-  MaterialProperties* m_materialProperties;  //!< the ones you return
+  void resizeMaterialProperties();
+
+  using MaterialPropertiesCUP = CxxUtils::CachedUniquePtr<MaterialProperties>;
+  std::vector<std::vector<MaterialPropertiesCUP> >
+    m_materialProperties;  //!< the ones you return
 
   BinUtility* m_binUtility;    //!< the helper for the bin finding
   ValueStore m_thicknessBins;  //!< thickness parameter

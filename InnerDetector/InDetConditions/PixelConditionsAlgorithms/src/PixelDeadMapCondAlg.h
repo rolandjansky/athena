@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixelDeadMapCondAlg.h
@@ -19,7 +19,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelDeadMapCondData.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelDeadMapCondAlg : public AthReentrantAlgorithm {
@@ -30,8 +29,6 @@ class PixelDeadMapCondAlg : public AthReentrantAlgorithm {
     virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
-
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
     {this, "ReadKey", "/PIXEL/PixelModuleFeMask", "Input deadmap folder"};
 

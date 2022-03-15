@@ -12,7 +12,7 @@
 // Subject: TGCLV1-->Offline Muon Data Quality/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "TgcRawDataMonitoring/TgcLv1RawDataValAlg.h"
+#include "TgcLv1RawDataValAlg.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "MuonRDO/TgcRdo.h"

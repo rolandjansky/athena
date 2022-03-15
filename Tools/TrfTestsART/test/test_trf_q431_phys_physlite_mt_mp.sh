@@ -2,7 +2,6 @@
 #
 # art-description: Reco_tf.py q431, RAWtoALL in MT and AODtoDAOD in MP
 # art-type: grid
-# art-include: master/Athena
 # art-athena-mt: 8
 
 export ATHENA_CORE_NUMBER=8

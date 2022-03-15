@@ -96,7 +96,19 @@ TrackParticleCnvAlg::initialize()
   ATH_CHECK(
     m_aodTruth.initialize(m_addTruthLink && m_convertAODTrackParticles));
   ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
-
+  if (m_addTruthLink) {
+     const std::string container_key = m_convertTracks ? m_xaodout.key() : m_xaodTrackParticlesout.key();
+     m_xaodTruthOriginKey = container_key+".truthOrigin";
+     m_xaodTruthTypeKey =   container_key+".truthType";
+     m_xaodTruthLinkKey =  container_key+".truthParticleLink";
+     m_xaodTruthMatchProbKey = container_key+".truthMatchProbability";
+  }
+  const bool init_truthKey =  m_addTruthLink;
+  ATH_CHECK(m_xaodTruthOriginKey.initialize(init_truthKey && !m_truthClassifier.empty()));
+  ATH_CHECK(m_xaodTruthTypeKey.initialize(init_truthKey && !m_truthClassifier.empty()));
+  ATH_CHECK(m_xaodTruthLinkKey.initialize(init_truthKey));
+  ATH_CHECK(m_xaodTruthMatchProbKey.initialize(init_truthKey));
+  
   // Retrieve monitoring tools if provided
   ATH_CHECK(m_trackMonitoringTool.retrieve(DisableTool{ !m_doMonitoring }));
   ATH_CHECK(m_monTool.retrieve(DisableTool{ !m_doMonitoring }));

@@ -4,6 +4,7 @@
 
 #include "MuonSegmentRegionRecoveryTool.h"
 
+#include <ostream>
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
@@ -41,7 +42,6 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include <ostream>
 
 namespace Muon {
 
@@ -79,19 +79,19 @@ namespace Muon {
         ATH_CHECK(m_regsel_mdt.retrieve());
         ATH_CHECK(m_regsel_rpc.retrieve());
         ATH_CHECK(m_regsel_tgc.retrieve());
-        
-        if (m_idHelperSvc->recoCSC()){
+
+        if (m_idHelperSvc->recoCSC()) {
             ATH_CHECK(m_regsel_csc.retrieve());
-        } else m_regsel_csc.disable();
-        
-        
-        if (m_idHelperSvc->recosTgc() && m_recoverSTGC){
+        } else
+            m_regsel_csc.disable();
+
+        if (m_idHelperSvc->recosTgc() && m_recoverSTGC) {
             ATH_CHECK(m_regsel_stgc.retrieve());
         } else {
             m_regsel_stgc.disable();
             m_recoverSTGC = false;
         }
-        if (m_idHelperSvc->recoMM() && m_recoverMM){
+        if (m_idHelperSvc->recoMM() && m_recoverMM) {
             ATH_CHECK(m_regsel_mm.retrieve());
         } else {
             m_regsel_mm.disable();
@@ -480,14 +480,11 @@ namespace Muon {
                 int tube = m_idHelperSvc->mdtIdHelper().tube(id);
                 double tubeLen = detElLoc->getActiveTubeLength(lay, tube);
                 double distEdge = std::abs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
-                double pullEdge =
-                  tubePars->covariance() &&
-                      Amg::saneCovarianceDiagonal(*tubePars->covariance())
-                    ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ)
-                    : distEdge / 20.;
-                std::optional<Amg::Vector2D> locPos =
-                  surf.Trk::Surface::globalToLocal(tubePars->position());
-             
+                double pullEdge = tubePars->covariance() && Amg::saneCovarianceDiagonal(*tubePars->covariance())
+                                      ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ)
+                                      : distEdge / 20.;
+                std::optional<Amg::Vector2D> locPos = surf.Trk::Surface::globalToLocal(tubePars->position());
+
                 bool inBounds = false;
                 if (locPos) {
                     // perform bound check do not count holes with 100. mm of bound edge
@@ -501,8 +498,8 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
                                              << " dist tube edge " << distEdge << " pullEdge " << pullEdge);
                 ++nholes;
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(tubePars));
-                states.emplace_back(tsos);
+                std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createHoleTSOS(std::move(tubePars));
+                states.emplace_back(std::move(tsos));
             }
             if (!nholes) ATH_MSG_DEBUG("found holes " << nholes);
         }
@@ -704,14 +701,9 @@ namespace Muon {
 
             std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
 
-            for (std::unique_ptr<const Trk::TrackStateOnSurface>& sorted : toBeSorted) {
-                trackStateOnSurfaces.push_back(sorted.release());
-            }
-            std::unique_ptr<Trk::Track> trackWithHoles =
-              std::make_unique<Trk::Track>(
-                track.info(),
-                std::move(trackStateOnSurfaces),
-                track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+            for (std::unique_ptr<const Trk::TrackStateOnSurface>& sorted : toBeSorted) { trackStateOnSurfaces.push_back(sorted.release()); }
+            std::unique_ptr<Trk::Track> trackWithHoles = std::make_unique<Trk::Track>(
+                track.info(), std::move(trackStateOnSurfaces), track.fitQuality() ? track.fitQuality()->clone() : nullptr);
             // generate a track summary for this track
             if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(ctx, *trackWithHoles, nullptr, false); }
             ATH_MSG_DEBUG("Track with holes " << m_printer->print(*trackWithHoles) << std::endl
@@ -946,10 +938,8 @@ namespace Muon {
             trackStateOnSurfaces.reserve(states.size());
             for (std::unique_ptr<const Trk::TrackStateOnSurface>& sorted : states) { trackStateOnSurfaces.push_back(sorted.release()); }
             ATH_MSG_DEBUG("Creating new Track " << states.size());
-            std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
-              track.info(),
-              std::move(trackStateOnSurfaces),
-              track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+            std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
+                                                                                track.fitQuality() ? track.fitQuality()->clone() : nullptr);
             std::unique_ptr<Trk::Track> refittedTrack;
             if (m_onlyEO)
                 refittedTrack = std::unique_ptr<Trk::Track>(m_fitter->fit(ctx, *newTrack, m_useFitterOutlierLogic, Trk::muon));

@@ -372,6 +372,7 @@ def createITkTrackingPassFlags():
 
     icf.addFlag("useITkPixel"       		  , lambda pcf : pcf.Detector.EnableITkPixel )
     icf.addFlag("useITkStrip"        		  , lambda pcf : pcf.Detector.EnableITkStrip )
+    icf.addFlag("useITkPixelSeeding"        	  , True )
     icf.addFlag("useITkStripSeeding"        	  , True )
 
     icf.addFlag("usePrdAssociationTool"     , False)
@@ -489,6 +490,9 @@ def createITkLargeD0TrackingPassFlags():
 def createITkLargeD0FastTrackingPassFlags():
 
     icf = createITkLargeD0TrackingPassFlags()
+
+    icf.useITkPixelSeeding = False
+    icf.useITkStripSeeding = True
 
     icf.maxEta             = 2.4
     icf.etaBins            = [-1.0, 2.4]

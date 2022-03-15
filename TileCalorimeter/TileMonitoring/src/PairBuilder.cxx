@@ -10,7 +10,7 @@
  *  @date Sat Apr 10 2004.
  */
 
-#include "TileMonitoring/PairBuilder.h"
+#include "PairBuilder.h"
 
 PairBuilder :: PairBuilder()
 {

@@ -145,12 +145,14 @@ elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
         schema='COOLOFL_TILE/OFLP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
     if tag=='UPD4':
-        tag='OFLCOND-RUN12-SDR-31' # change default to tag used in MC15
+        tag='OFLCOND-MC16-SDR-RUN2-09' # change default to tag used in MC16
 
 if run<222222 or 'COMP200' in schema:
     cabling = 'RUN1'
 else:
-    if ('OFLP200' in schema and run>=310000) or run>=343000:
+    if   ('OFLP200' in schema and run>=330000) or run>=400000:
+        cabling = 'RUN3'
+    elif ('OFLP200' in schema and run>=310000) or run>=342550:
         cabling = 'RUN2a'
     else:
         cabling = 'RUN2'

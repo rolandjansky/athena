@@ -75,6 +75,7 @@ def RpcRDODecodeCfg(flags, name="RpcRdoToRpcPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -104,6 +105,7 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -121,7 +123,6 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
 
     # Get the RDO -> PRD tool
     kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool"))
-
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     # kwargs.setdefault("RegSel_STGC", acc.popToolsAndMerge(regSelTool_STGC_Cfg(flags)))
@@ -140,7 +141,8 @@ def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
 
     # Get the RDO -> PRD tool
     kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool"))
-
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("PrintPrepData", False)
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
     # kwargs.setdefault("RegSel_MM", acc.popToolsAndMerge(regSelTool_MM_Cfg(flags)))
@@ -174,6 +176,7 @@ def MdtRDODecodeCfg(flags, name="MdtRdoToMdtPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -207,6 +210,7 @@ def CscRDODecodeCfg(flags, name="CscRdoToCscPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 

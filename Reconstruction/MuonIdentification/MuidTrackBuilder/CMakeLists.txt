@@ -1,6 +1,4 @@
-################################################################################
-# Package: MuidTrackBuilder
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuidTrackBuilder )
@@ -17,12 +15,4 @@ atlas_add_component( MuidTrackBuilder
                      src/OutwardsCombinedMuonTrackBuilder.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AtlasDetDescr GaudiKernel MuidInterfaces TrkDetDescrInterfaces TrkGeometry TrkParameters FourMomUtils
-						       TrkTrack InDetRIO_OnTrack MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonRecHelperToolsLib 
-						       MuonRecToolInterfaces MuonCombinedToolInterfaces muonEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack
-						       TrkMeasurementBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkiPatFitterUtils TrkToolInterfaces
-						       MagFieldElements MagFieldConditions )
-
-# Install files from the package:
-atlas_install_headers( MuidTrackBuilder )
-
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel EventPrimitives FourMomUtils GaudiKernel InDetRIO_OnTrack MagFieldConditions MuidEvent MuidInterfaces MuonCombinedToolInterfaces MuonCompetingRIOsOnTrack MuonIdHelpersLib MuonRIO_OnTrack MuonReadoutGeometry MuonRecHelperToolsLib MuonRecToolInterfaces StoreGateLib TrkCompetingRIOsOnTrack TrkDetDescrInterfaces TrkEventPrimitives TrkEventUtils TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkGeometry TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkSegment TrkSurfaces TrkToolInterfaces TrkTrack TrkTrackSummary TrkiPatFitterUtils VxVertex muonEvent )

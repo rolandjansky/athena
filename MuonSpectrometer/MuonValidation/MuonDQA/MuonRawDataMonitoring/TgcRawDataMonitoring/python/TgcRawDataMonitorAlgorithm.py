@@ -26,10 +26,30 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(inputFlags))
 
-    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg', TrackExtrapolator = extrapolator)
+    tgcRawDataMonitorTool = CompFactory.TgcRawDataMonitorTool("TgcRawDataMonitorTool")
+
+    muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
+    muonSelectionTool.MuQuality = 1 # tight:0 medium:1
+    muonSelectionTool.MaxEta = 2.7 # tgc trigger coverage is only up to 2.4 but the detector coverage itself is up to 2.7
+    muonSelectionTool.ToroidOff = True # won't use pT-balance cuts
+
+    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
+                                           TrackExtrapolator = extrapolator,
+                                           TgcRawDataMonitorTool = tgcRawDataMonitorTool,
+                                           MuonSelectionTool = muonSelectionTool )
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
+
+    doGapByGapHitOcc = True
+    doGapByGapEffMap = False
+    doHitResiduals = True
+
+    tgcRawDataMonAlg.FillGapByGapHistograms = (doGapByGapHitOcc or doGapByGapEffMap or doHitResiduals)
+
+    tgcRawDataMonAlg.UseOnlyCombinedMuons = False
+    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = False
+    tgcRawDataMonAlg.UseMuonSelectorTool = True
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 
@@ -66,33 +86,50 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
-    tgcRawDataMonAlg.UseNonMuonTriggers = False
 
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
 
     if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
+    if inputFlags.Input.Format is Format.BS or ('TrigT1CoinDataCollection' in inputFlags.Input.Collections and
+                                                'TrigT1CoinDataCollectionNextBC' in inputFlags.Input.Collections and
+                                                'TrigT1CoinDataCollectionPriorBC' in inputFlags.Input.Collections ):
+        tgcRawDataMonAlg.AnaTgcCoin=True
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
     import math
 
     myGroup = helper.addGroup(tgcRawDataMonAlg,'TgcRawDataMonitor',mainDir)
 
-    oflmuonPath = 'OfflineMuons/'
-    myGroup.defineHistogram('oflmuon_num;OfflineMuon_num',title='OfflineMuon_num;OfflineMuon num per event;Number of events',
-                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
-    myGroup.defineHistogram('oflmuon_muonType;OfflineMuon_muonType',title='OfflineMuon_muonType;OfflineMuon muonType;Number of events',
-                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
-    myGroup.defineHistogram('oflmuon_author;OfflineMuon_author',title='OfflineMuon_author;OfflineMuon author;Number of events',
-                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
-    myGroup.defineHistogram('oflmuon_quality;OfflineMuon_quality',title='OfflineMuon_quality;OfflineMuon quality;Number of events',
-                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
-    myGroup.defineHistogram('oflmuon_pt;OfflineMuon_Pt',title='OfflineMuon_Pt;OfflineMuon pT [GeV];Number of events',
-                            path=oflmuonPath,type='TH1F',xbins=100,xmin=0,xmax=100)
-    myGroup.defineHistogram('oflmuon_eta,oflmuon_phi;OfflineMuon_EtaVsPhi',title='OfflineMuon_EtaVsPhi;OfflineMuon Eta;OfflineMuon Phi',
-                            path=oflmuonPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+    ################################################################################################################
+    commonPath = 'Common/'
+    myGroupCommon = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor_Common', mainDir)
+    myGroupCommon.defineHistogram('mon_lb;TgcMon_LuminosityBlock',title='Luminosity Block;Luminosity Block;Number of events',
+                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically')
+    myGroupCommon.defineHistogram('mon_bcid;TgcMon_BCID',title='BCID;BCID;Number of events',
+                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically')
+    myGroupCommon.defineHistogram('mon_pileup;TgcMon_Pileup',title='Pileup;Pileup;Number of events',
+                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically')
+    
+    ################################################################################################################
+    muonPath = 'Muon/'
+    myGroupMuon = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor_Muon', mainDir)
+    myGroupMuon.defineHistogram('oflmuon_num;TgcMon_OfflineMuon_num',title='OfflineMuon_num;OfflineMuon num per event;Number of events',
+                                  path=muonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroupMuon.defineHistogram('oflmuon_muonType;TgcMon_OfflineMuon_muonType',title='OfflineMuon_muonType;OfflineMuon muonType;Number of events',
+                                  path=muonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroupMuon.defineHistogram('oflmuon_author;TgcMon_OfflineMuon_author',title='OfflineMuon_author;OfflineMuon author;Number of events',
+                                  path=muonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroupMuon.defineHistogram('oflmuon_quality;TgcMon_OfflineMuon_quality',title='OfflineMuon_quality;OfflineMuon quality;Number of events',
+                                  path=muonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroupMuon.defineHistogram('oflmuon_pt;TgcMon_OfflineMuon_Pt',title='OfflineMuon_Pt;OfflineMuon pT [GeV];Number of events',
+                                  path=muonPath,type='TH1F',xbins=100,xmin=0,xmax=100)
+    myGroupMuon.defineHistogram('oflmuon_eta,oflmuon_phi;TgcMon_OfflineMuon_EtaVsPhi',title='OfflineMuon_EtaVsPhi;OfflineMuon Eta;OfflineMuon Phi',
+                                  path=muonPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
+
+    ################################################################################################################
     trigThrPatternsPath = 'TrigPatterns/'
     for monTrig in tgcRawDataMonAlg.ThrPatternList.split(','):
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+monTrig, mainDir)
@@ -104,25 +141,26 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
         monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_bw3coin_'+monTrig+';L1Item_MuonRoI_EtaVsBW3Coin_'+monTrig,title='L1Item_MuonRoI_EtaVsBW3Coin_'+monTrig+';MuonRoI Eta;MuonRoI BW3Coin Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_inncoin_'+monTrig+';L1Item_MuonRoI_EtaVsInnCoin_'+monTrig,title='L1Item_MuonRoI_EtaVsInnCoin_'+monTrig+';MuonRoI Eta;MuonRoI InnCoin Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_innercoin_'+monTrig+';L1Item_MuonRoI_EtaVsInnerCoin_'+monTrig,title='L1Item_MuonRoI_EtaVsInnerCoin_'+monTrig+';MuonRoI Eta;MuonRoI InnerCoin Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
         monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_goodmf_'+monTrig+';L1Item_MuonRoI_EtaVsGoodMF_'+monTrig,title='L1Item_MuonRoI_EtaVsGoodMF_'+monTrig+';MuonRoI Eta;MuonRoI GoodMF Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
 
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_rpc;L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig+';Offline muon pT [GeV];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_rpc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig+';Offline muon pT [GeV];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=50,xmin=0,xmax=50)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_tgc;L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig+';Offline muon pT [GeV];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_tgc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_TGC_'+monTrig+';Offline muon pT [GeV];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=50,xmin=0,xmax=50)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_rpc;L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig+';Offline muon phi [rad.];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_rpc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_RPC_'+monTrig+';Offline muon phi [rad.];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=32,xmin=-math.pi,xmax=math.pi)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_tgc;L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig+';Offline muon phi [rad.];Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_phi_tgc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig,title='L1Item_MuonRoI_Eff_Phi_TGC_'+monTrig+';Offline muon phi [rad.];Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta;L1Item_MuonRoI_Eff_Eta_'+monTrig,title='L1Item_MuonRoI_Eff_Eta_'+monTrig+';Offline muon eta;Efficiency',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Eta_'+monTrig,title='L1Item_MuonRoI_Eff_Eta_'+monTrig+';Offline muon eta;Efficiency',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=100,xmin=-2.5,xmax=2.5)
-        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta,muon_phi;L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig+';Offline muon eta; Offline muon phi',
+        monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_eta_l1item_'+monTrig+',muon_phi_l1item_'+monTrig+';L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Eff_EtaVsPhi_'+monTrig+';Offline muon eta; Offline muon phi',
                                 type='TEfficiency',path=trigThrPatternsPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
 
+    ################################################################################################################
     trigMultiPath = 'TrigMultiplicity/'
     for monTrig in tgcRawDataMonAlg.CtpDecisionMoniorList.split(';'):
         tmp = monTrig.split(',')[0]
@@ -151,7 +189,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                 cutmask='inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
         monTrigGroup.defineHistogram('BW3Coin;'+objname+'_roi_BW3Coin_inOk_outOk',title=objname+'_roi_BW3Coin_inOk_outOk;TGC BW3Coin flag;Number of events',
                                 cutmask='inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
-        monTrigGroup.defineHistogram('InnCoin;'+objname+'_roi_InnCoin_inOk_outOk',title=objname+'_roi_InnCoin_inOk_outOk;TGC InnCoin flag;Number of events',
+        monTrigGroup.defineHistogram('InnerCoin;'+objname+'_roi_InnerCoin_inOk_outOk',title=objname+'_roi_InnerCoin_inOk_outOk;TGC InnerCoin flag;Number of events',
                                 cutmask='inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
         monTrigGroup.defineHistogram('GoodMF;'+objname+'_roi_GoodMF_inOk_outOk',title=objname+'_roi_GoodMF_inOk_outOk;TGC GoodMF flag;Number of events',
                                 cutmask='inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
@@ -190,7 +228,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                 cutmask='inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
         monTrigGroup.defineHistogram('BW3Coin;'+objname+'_roi_BW3Coin_inOk_outNg',title=objname+'_roi_BW3Coin_inOk_outNg;TGC BW3Coin flag;Number of events',
                                 cutmask='inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
-        monTrigGroup.defineHistogram('InnCoin;'+objname+'_roi_InnCoin_inOk_outNg',title=objname+'_roi_InnCoin_inOk_outNg;TGC InnCoin flag;Number of events',
+        monTrigGroup.defineHistogram('InnerCoin;'+objname+'_roi_InnerCoin_inOk_outNg',title=objname+'_roi_InnerCoin_inOk_outNg;TGC InnerCoin flag;Number of events',
                                 cutmask='inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
         monTrigGroup.defineHistogram('GoodMF;'+objname+'_roi_GoodMF_inOk_outNg',title=objname+'_roi_GoodMF_inOk_outNg;TGC GoodMF flag;Number of events',
                                 cutmask='inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
@@ -229,7 +267,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                 cutmask='inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
         monTrigGroup.defineHistogram('BW3Coin;'+objname+'_roi_BW3Coin_inNg_outOk',title=objname+'_roi_BW3Coin_inNg_outOk;TGC BW3Coin flag;Number of events',
                                 cutmask='inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
-        monTrigGroup.defineHistogram('InnCoin;'+objname+'_roi_InnCoin_inNg_outOk',title=objname+'_roi_InnCoin_inNg_outOk;TGC InnCoin flag;Number of events',
+        monTrigGroup.defineHistogram('InnerCoin;'+objname+'_roi_InnerCoin_inNg_outOk',title=objname+'_roi_InnerCoin_inNg_outOk;TGC InnerCoin flag;Number of events',
                                 cutmask='inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
         monTrigGroup.defineHistogram('GoodMF;'+objname+'_roi_GoodMF_inNg_outOk',title=objname+'_roi_GoodMF_inNg_outOk;TGC GoodMF flag;Number of events',
                                 cutmask='inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
@@ -257,189 +295,189 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
 
 
+    ################################################################################################################
     trigPath = 'Trig/'
-
-    myGroup.defineHistogram('roi_charge;MuonRoI_Charge',title='MuonRoI Charge;Charge;Number of events',
+    myGroup.defineHistogram('roi_charge;MuonRoI_Evt_Charge',title='MuonRoI Charge;Charge;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=3,xmin=-1.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passCharge,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_Charge',title='MuonRoI_Eff_EtaVsPhi_Charge;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passCharge,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_Charge',title='MuonRoI_Eff_Pt_TGC_Charge;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_Charge_Positive',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_Charge_Positive',type='TH2F',
                             title='MuonRoI Eta vs Phi Charge Positive;MuonRoI Eta;MuonRoI Phi',cutmask='roi_posCharge',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_Charge_Negative',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_Charge_Negative',type='TH2F',
                             title='MuonRoI Eta vs Phi Charge Negative;MuonRoI Eta;MuonRoI Phi',cutmask='roi_negCharge',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_charge;MuonRoI_ThrVsCharge',type='TH2F',
-                            title='MuonRoI Thr vs Charge;MuonRoI Thresholds;MuonRoI Charge',cutmask='roi_tgc',path=trigPath,
+    myGroup.defineHistogram('roi_thr,roi_charge;MuonRoI_Evt_ChargeVsThr',type='TH2F',
+                            title='MuonRoI Charge vs Thr;MuonRoI Thresholds;MuonRoI Charge',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=3,ymin=-1.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_bw3coin;MuonRoI_BW3Coin',title='MuonRoI BW3Coin Flag;BW3Coin Flag;Number of events',
+    myGroup.defineHistogram('roi_bw3coin;MuonRoI_Evt_BW3Coin',title='MuonRoI BW3Coin Flag;BW3Coin Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passBW3Coin,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_BW3Coin',title='MuonRoI_Eff_EtaVsPhi_BW3Coin;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passBW3Coin,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_BW3Coin',title='MuonRoI_Eff_Pt_TGC_BW3Coin;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_BW3Coin',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_BW3Coin',type='TH2F',
                             title='MuonRoI Eta vs Phi BW3Coin;MuonRoI Eta;MuonRoI Phi',cutmask='roi_bw3coin',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_bw3coin;MuonRoI_ThrVsBW3Coin',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_bw3coin;MuonRoI_Evt_ThrVsBW3Coin',type='TH2F',
                             title='MuonRoI Thr vs BW3Coin;MuonRoI Thresholds;MuonRoI BW3Coin',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_bw3coinveto;MuonRoI_BW3CoinVeto',title='MuonRoI BW3CoinVeto Flag;BW3CoinVeto Flag;Number of events',
+    myGroup.defineHistogram('roi_bw3coinveto;MuonRoI_Evt_BW3CoinVeto',title='MuonRoI BW3CoinVeto Flag;BW3CoinVeto Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passBW3CoinVeto,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_BW3CoinVeto',title='MuonRoI_Eff_EtaVsPhi_BW3CoinVeto;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passBW3CoinVeto,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_BW3CoinVeto',title='MuonRoI_Eff_Pt_TGC_BW3CoinVeto;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_BW3CoinVeto',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_BW3CoinVeto',type='TH2F',
                             title='MuonRoI Eta vs Phi BW3CoinVeto;MuonRoI Eta;MuonRoI Phi',cutmask='roi_bw3coinveto',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_bw3coinveto;MuonRoI_ThrVsBW3CoinVeto',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_bw3coinveto;MuonRoI_Evt_ThrVsBW3CoinVeto',type='TH2F',
                             title='MuonRoI Thr vs BW3CoinVeto;MuonRoI Thresholds;MuonRoI BW3CoinVeto',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_inncoin;MuonRoI_InnerCoin',title='MuonRoI InnerCoin Flag;InnerCoin Flag;Number of events',
+    myGroup.defineHistogram('roi_innercoin;MuonRoI_Evt_InnerCoin',title='MuonRoI InnerCoin Flag;InnerCoin Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passInnerCoin,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_InnerCoin',title='MuonRoI_Eff_EtaVsPhi_InnerCoin;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passInnerCoin,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_InnerCoin',title='MuonRoI_Eff_Pt_TGC_InnerCoin;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_InnerCoin',type='TH2F',
-                            title='MuonRoI Eta vs Phi InnerCoin;MuonRoI Eta;MuonRoI Phi',cutmask='roi_inncoin',path=trigPath,
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_InnerCoin',type='TH2F',
+                            title='MuonRoI Eta vs Phi InnerCoin;MuonRoI Eta;MuonRoI Phi',cutmask='roi_innercoin',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_inncoin;MuonRoI_ThrVsInnerCoin',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_innercoin;MuonRoI_Evt_ThrVsInnerCoin',type='TH2F',
                             title='MuonRoI Thr vs InnerCoin;MuonRoI Thresholds;MuonRoI InnerCoin',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_innveto;MuonRoI_InnerCoinVeto',title='MuonRoI InnerCoinVeto Flag;InnerCoinVeto Flag;Number of events',
+    myGroup.defineHistogram('roi_innveto;MuonRoI_Evt_InnerCoinVeto',title='MuonRoI InnerCoinVeto Flag;InnerCoinVeto Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_InnerCoinVeto',title='MuonRoI_Eff_EtaVsPhi_InnerCoinVeto;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_InnerCoinVeto',title='MuonRoI_Eff_Pt_TGC_InnerCoinVeto;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_InnerCoinVeto',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_InnerCoinVeto',type='TH2F',
                             title='MuonRoI Eta vs Phi InnerCoinVeto;MuonRoI Eta;MuonRoI Phi',cutmask='roi_innveto',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_innveto;MuonRoI_ThrVsInnerCoinVeto',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_innveto;MuonRoI_Evt_ThrVsInnerCoinVeto',type='TH2F',
                             title='MuonRoI Thr vs InnerCoinVeto;MuonRoI Thresholds;MuonRoI InnerCoinVeto',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_goodmf;MuonRoI_GoodMF',title='MuonRoI GoodMF Flag;GoodMF Flag;Number of events',
+    myGroup.defineHistogram('roi_goodmf;MuonRoI_Evt_GoodMF',title='MuonRoI GoodMF Flag;GoodMF Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passGoodMF,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_GoodMF',title='MuonRoI_Eff_EtaVsPhi_GoodMF;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passGoodMF,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_GoodMF',title='MuonRoI_Eff_Pt_TGC_GoodMF;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_GoodMF',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_GoodMF',type='TH2F',
                             title='MuonRoI Eta vs Phi GoodMF;MuonRoI Eta;MuonRoI Phi',cutmask='roi_goodmf',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_goodmf;MuonRoI_ThrVsGoodMF',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_goodmf;MuonRoI_Evt_ThrVsGoodMF',type='TH2F',
                             title='MuonRoI Thr vs GoodMF;MuonRoI Thresholds;MuonRoI GoodMF',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_badmf;MuonRoI_BadMF',title='MuonRoI BadMF Flag;BadMF Flag;Number of events',
+    myGroup.defineHistogram('roi_badmf;MuonRoI_Evt_BadMF',title='MuonRoI BadMF Flag;BadMF Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passBadMF,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_BadMF',title='MuonRoI_Eff_EtaVsPhi_BadMF;Offline muon eta; Offline muon phi',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passBadMF,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_BadMF',title='MuonRoI_Eff_Pt_TGC_BadMF;Offline muon pT [GeV];Efficiency',
                             cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_BadMF',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_BadMF',type='TH2F',
                             title='MuonRoI Eta vs Phi BadMF;MuonRoI Eta;MuonRoI Phi',cutmask='roi_badmf',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_badmf;MuonRoI_ThrVsBadMF',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_badmf;MuonRoI_Evt_ThrVsBadMF',type='TH2F',
                             title='MuonRoI Thr vs BadMF;MuonRoI Thresholds;MuonRoI BadMF',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_ismorecand;MuonRoI_RpcIsMoreCandInRoI',title='MuonRoI RpcIsMoreCandInRoI Flag;RpcIsMoreCandInRoI Flag;Number of events',
+    myGroup.defineHistogram('roi_ismorecand;MuonRoI_Evt_RpcIsMoreCandInRoI',title='MuonRoI RpcIsMoreCandInRoI Flag;RpcIsMoreCandInRoI Flag;Number of events',
                             cutmask='roi_rpc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_RpcIsMoreCandInRoI',type='TH2F',
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_RpcIsMoreCandInRoI',type='TH2F',
                             title='MuonRoI Eta vs Phi RpcIsMoreCandInRoI;MuonRoI Eta;MuonRoI Phi',cutmask='roi_ismorecand',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_ismorecand;MuonRoI_ThrVsRpcIsMoreCandInRoI',type='TH2F',
+    myGroup.defineHistogram('roi_thr,roi_ismorecand;MuonRoI_Evt_ThrVsRpcIsMoreCandInRoI',type='TH2F',
                             title='MuonRoI Thr vs RpcIsMoreCandInRoI;MuonRoI Thresholds;MuonRoI RpcIsMoreCandInRoI',cutmask='roi_rpc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_RPC',title='MuonRoI Thresholds RPC;MuonRoI Threshold number;Number of events',
+    myGroup.defineHistogram('roi_thr;MuonRoI_Evt_Thresholds_RPC',title='MuonRoI Thresholds RPC;MuonRoI Threshold number;Number of events',
                             cutmask='roi_rpc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
-    myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_TGC',title='MuonRoI Thresholds TGC;MuonRoI Threshold number;Number of events',
+    myGroup.defineHistogram('roi_thr;MuonRoI_Evt_Thresholds_TGC',title='MuonRoI Thresholds TGC;MuonRoI Threshold number;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
 
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideA',title='MuonRoI PhiVsLB Barrel sideA;Luminosity block;RoI Phi',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_Evt_PhiVsLB_Barrel_sideA',title='MuonRoI PhiVsLB Barrel sideA;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=8,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideC',title='MuonRoI PhiVsLB Barrel sideC;Luminosity block;RoI Phi',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_Evt_PhiVsLB_Barrel_sideC',title='MuonRoI PhiVsLB Barrel sideC;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=8,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideA',title='MuonRoI PhiVsLB Endcap sideA;Luminosity block;RoI Phi',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_Evt_PhiVsLB_Endcap_sideA',title='MuonRoI PhiVsLB Endcap sideA;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideC',title='MuonRoI PhiVsLB Endcap sideC;Luminosity block;RoI Phi',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_Evt_PhiVsLB_Endcap_sideC',title='MuonRoI PhiVsLB Endcap sideC;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideA',title='MuonRoI PhiVsLB Forward sideA;Luminosity block;RoI Phi',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_Evt_PhiVsLB_Forward_sideA',title='MuonRoI PhiVsLB Forward sideA;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideC',title='MuonRoI PhiVsLB Forward sideC;Luminosity block;RoI Phi',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_Evt_PhiVsLB_Forward_sideC',title='MuonRoI PhiVsLB Forward sideC;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
     
     for n in range(1,16):
 
-        myGroup.defineHistogram('roi_eta_wInnCoin;MuonRoI_Eta_wInnCoin_Thr%02d' % n,title='MuonRoI Eta wInnCoin Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_wInnerCoin;MuonRoI_Evt_Eta_wInnerCoin_Thr%02d' % n,title='MuonRoI Eta wInnerCoin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_wBW3Coin;MuonRoI_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eta wBW3Coin Thr%02d;MuonRoI Eta;Number of events' % n,
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-
-        myGroup.defineHistogram('roi_eta_wInnCoinVeto;MuonRoI_Eta_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eta wInnCoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_wBW3CoinVeto;MuonRoI_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_wBW3Coin;MuonRoI_Evt_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eta wBW3Coin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
 
-        myGroup.defineHistogram('roi_phi_wInnCoin;MuonRoI_Phi_wInnCoin_Thr%02d' % n,title='MuonRoI Phi wInnCoin Thr%02d;MuonRoI Phi;Number of events' % n,
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_wBW3Coin;MuonRoI_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Phi wBW3Coin Thr%02d;MuonRoI Phi;Number of events' % n,
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('roi_eta_wInnerCoinVeto;MuonRoI_Evt_Eta_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eta wInnerCoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+        myGroup.defineHistogram('roi_eta_wBW3CoinVeto;MuonRoI_Evt_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
 
-        myGroup.defineHistogram('roi_phi_wInnCoinVeto;MuonRoI_Phi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Phi wInnCoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wInnerCoin;MuonRoI_Evt_Phi_wInnerCoin_Thr%02d' % n,title='MuonRoI Phi wInnerCoin Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_wBW3CoinVeto;MuonRoI_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Phi wBW3CoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wBW3Coin;MuonRoI_Evt_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Phi wBW3Coin Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
 
-        myGroup.defineHistogram('roi_eta_wInnCoin,roi_phi_wInnCoin;MuonRoI_EtaVsPhi_wInnCoin_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnCoin Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wInnerCoinVeto;MuonRoI_Evt_Phi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Phi wInnerCoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('roi_phi_wBW3CoinVeto;MuonRoI_Evt_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Phi wBW3CoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+
+        myGroup.defineHistogram('roi_eta_wInnerCoin,roi_phi_wInnerCoin;MuonRoI_Evt_EtaVsPhi_wInnerCoin_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnerCoin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
-        myGroup.defineHistogram('roi_eta_wBW3Coin,roi_phi_wBW3Coin;MuonRoI_EtaVsPhi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eta vs Phi wBW3Coin Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_wBW3Coin,roi_phi_wBW3Coin;MuonRoI_Evt_EtaVsPhi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eta vs Phi wBW3Coin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
 
-        myGroup.defineHistogram('roi_eta_wInnCoinVeto,roi_phi_wInnCoinVeto;MuonRoI_EtaVsPhi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_wInnerCoinVeto,roi_phi_wInnerCoinVeto;MuonRoI_Evt_EtaVsPhi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnerCoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
-        myGroup.defineHistogram('roi_eta_wBW3CoinVeto,roi_phi_wBW3CoinVeto;MuonRoI_EtaVsPhi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta vs Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_wBW3CoinVeto,roi_phi_wBW3CoinVeto;MuonRoI_Evt_EtaVsPhi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta vs Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
 
-        myGroup.defineHistogram('roi_eta;MuonRoI_Eta_Thr%02d' % n,title='MuonRoI Eta Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta;MuonRoI_Evt_Eta_Thr%02d' % n,title='MuonRoI Eta Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_rpc;MuonRoI_Eta_RPC_Thr%02d' % n,title='MuonRoI Eta RPC Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_rpc;MuonRoI_Evt_Eta_RPC_Thr%02d' % n,title='MuonRoI Eta RPC Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_tgc;MuonRoI_Eta_TGC_Thr%02d' % n,title='MuonRoI Eta TGC Thr%02d;MuonRoI Eta;Number of events' % n,
+        myGroup.defineHistogram('roi_eta_tgc;MuonRoI_Evt_Eta_TGC_Thr%02d' % n,title='MuonRoI Eta TGC Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_phi_rpc;MuonRoI_Phi_RPC_Thr%02d' % n,title='MuonRoI Phi RPC Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_rpc;MuonRoI_Evt_Phi_RPC_Thr%02d' % n,title='MuonRoI Phi RPC Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=32,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_tgc;MuonRoI_Phi_TGC_Thr%02d' % n,title='MuonRoI Phi TGC Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_tgc;MuonRoI_Evt_Phi_TGC_Thr%02d' % n,title='MuonRoI Phi TGC Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_Thr%02d' % n,type='TH2F',title='MuonRoI Eta vs Phi Thr%02d;MuonRoI Eta;MuonRoI Phi' % n,
+        myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_Thr%02d' % n,type='TH2F',title='MuonRoI Eta vs Phi Thr%02d;MuonRoI Eta;MuonRoI Phi' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
-        myGroup.defineHistogram('roi_inncoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Eta wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_innercoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Eta wInnerCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_inncoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoin Thr%02d;MuonRoI Phi;Efficiency' % n,
+        myGroup.defineHistogram('roi_innercoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Phi wInnerCoin Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_inncoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_innercoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnerCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
-        myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wInnerCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
+        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wInnerCoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
+        myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnerCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
@@ -471,160 +509,242 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                 type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
         
 
+
+        
+    ################################################################################################################
+    label_ieta_sw = []
+    label_iphi_sw = []
+    label_glbl_index_sw = []
+    for i in range(4) : label_ieta_sw.append('')
+    for i in range(24) : label_iphi_sw.append('')
+    for i in range(96) : label_glbl_index_sw.append('')
+    for eta in range(2):
+        for sector in range(0,16):
+            for phi in range(0,25):
+                for lay in range(1,3):
+                    if eta==0 and sector!=0:continue
+                    if eta==1 and phi>2:continue
+                    if eta==1 and sector==7 and phi==0:continue
+                    if eta==1 and sector==11 and phi==0:continue
+                    if eta==1 and sector==15 and phi==0:continue
+                    if eta==1 and sector%2!=1:continue
+                    eta_index = eta * 2 + lay
+                    if eta==0:
+                        phi_index = phi
+                    else:
+                        phi_index = phi + int(sector / 2) + sector
+                    glbl_index = eta * 24*2 + (phi_index - 1) * 2 + lay
+                    if eta==0:
+                        label_ieta_sw[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                        label_iphi_sw[phi_index-1] = 'F%df%d' % (sector,phi)
+                        label_glbl_index_sw[glbl_index-1] = 'F%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+                    else:
+                        label_ieta_sw[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                        if lay==1:
+                            label_iphi_sw[phi_index-1] = 'E%df%d(%s)' % (sector,phi,label_iphi_sw[phi_index-1])
+                        label_glbl_index_sw[glbl_index-1] = 'E%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+
+    label_ieta_bw1 = []
+    label_iphi_bw1 = []
+    label_glbl_index_bw1 = []
+    label_ieta_bw23 = []
+    label_iphi_bw23 = []
+    label_glbl_index_bw23 = []
+    for i in range(15) : label_ieta_bw1.append('')
+    for i in range(48) : label_iphi_bw1.append('')
+    for i in range(720) : label_glbl_index_bw1.append('')
+    for i in range(12) : label_ieta_bw23.append('')
+    for i in range(48) : label_iphi_bw23.append('')
+    for i in range(576) : label_glbl_index_bw23.append('')
+    for eta in range(6):
+        for sector in range(1,13):
+            for phi in range(4):
+                for lay in range(1,4):
+                    for station in range(1,3):
+                        if station==1 and eta==5: continue
+                        if station!=1 and lay==3: continue
+                        nlay = 3 if station==1 else 2
+                        eta_index = eta * nlay + lay
+                        phi_index = (sector - 1) * 4 + phi + 1
+                        glbl_index = eta * 48*nlay + (phi_index - 1) * nlay + lay
+                        if station==1:
+                            label_ieta_bw1[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                            label_iphi_bw1[phi_index-1] = '%df%d' % (sector,phi)
+                            label_glbl_index_bw1[glbl_index-1] = '%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+                        else:
+                            label_ieta_bw23[eta_index-1] = '%s%dL%d' % ('F' if eta==0 else 'E',eta,lay)
+                            label_iphi_bw23[phi_index-1] = '%df%d' % (sector,phi)
+                            label_glbl_index_bw23[glbl_index-1] = '%df%d%s%dL%d' % (sector,phi,'F' if eta==0 else 'E',eta,lay)
+
+    label_bw24sectors = []
+    for i in range(25) : label_bw24sectors.append('')
+    for side in ['A','C']:
+        for sector in range(1,13):
+            index = 13 + sector if side=='A' else 13 - sector
+            label_bw24sectors[index-1] = '%s%02d' % (side,sector)
+
+
+    myGroupHit = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor_TgcHit', mainDir)
     hitPath = 'Hit/'
-    myGroup.defineHistogram('hit_n;TgcPrd_nHits',title='TgcPrd_nHits;Number of hits;Number of events',
-                            path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('hit_bunch;TgcPrd_Timing',title='TgcPrd_Timing;Timing;Number of events',
-                            path=hitPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
+    hitEffPath = 'HitEff/'
+    myGroupHit.defineHistogram('hit_n;TgcPrd_nHits',title='TgcPrd_nHits;Number of hits;Number of events',
+                               path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
+    myGroupHit.defineHistogram('hit_bunch;TgcPrd_Timing',title='TgcPrd_Timing;Timing;Number of events',
+                               path=hitPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
+    
+    for opt in ['', '_wTrack']:
+        titlesuffix=opt
+        if opt=='':titlesuffix='_All'
+        myGroupHit.defineHistogram('mon_lb,hit_bw24sectors'+opt+';TgcPrd_BWSectorsVsLB'+titlesuffix,
+                                   title='BWSectorsVsLB'+titlesuffix+';Luminosity block;',type='TH2F',
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
+        myGroupHit.defineHistogram('mon_lb,hit_bw24sectors_strip'+opt+';TgcPrd_BWSectorsVsLB_Strip'+titlesuffix,
+                                   title='BWSectorsVsLB_Strip'+titlesuffix+';Luminosity block;',type='TH2F',
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
+        myGroupHit.defineHistogram('mon_lb,hit_bw24sectors_wire'+opt+';TgcPrd_BWSectorsVsLB_Wire'+titlesuffix,
+                                   title='BWSectorsVsLB_Wire'+titlesuffix+';Luminosity block;',type='TH2F',
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
+        myGroupHit.defineHistogram('hit_bw24sectors'+opt+',hit_bwtiming'+opt+';TgcPrd_BWSectorsVsTiming'+titlesuffix,
+                                   title='BWSectorsVsTiming'+titlesuffix+';;Timing',type='TH2F',
+                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+        myGroupHit.defineHistogram('hit_bw24sectors_strip'+opt+',hit_bwtiming_strip'+opt+';TgcPrd_BWSectorsVsTiming_Strip'+titlesuffix,
+                                   title='BWSectorsVsTiming_Strip'+titlesuffix+';;Timing',type='TH2F',
+                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+        myGroupHit.defineHistogram('hit_bw24sectors_wire'+opt+',hit_bwtiming_wire'+opt+';TgcPrd_BWSectorsVsTiming_Wire'+titlesuffix,
+                                   title='BWSectorsVsTiming_Wire'+titlesuffix+';;Timing',type='TH2F',
+                                   path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+        myGroupHit.defineHistogram('hit_bwfulleta'+opt+',hit_bw24sectors'+opt+';TgcPrd_BWSectorsVsEta'+titlesuffix,
+                                   title='BWSectorsVsEta'+titlesuffix+';;',type='TH2F',
+                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,xlabels=['F','E1','E2','E3','E4','E5'],ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors)
+        myGroupHit.defineHistogram('hit_bwfulleta_strip'+opt+',hit_bw24sectors_strip'+opt+';TgcPrd_BWSectorsVsEta_Strip'+titlesuffix,
+                                   title='BWSectorsVsEta_Strip'+titlesuffix+';;',type='TH2F',
+                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,xlabels=['F','E1','E2','E3','E4','E5'],ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors)
+        myGroupHit.defineHistogram('hit_bwfulleta_wire'+opt+',hit_bw24sectors_wire'+opt+';TgcPrd_BWSectorsVsEta_Wire'+titlesuffix,
+                                   title='BWSectorsVsEta_Wire'+titlesuffix+';;',type='TH2F',
+                                   path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,xlabels=['F','E1','E2','E3','E4','E5'],ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors)
 
-    myGroup.defineHistogram('lb_for_hit,hit_bw24sectors;TgcPrd_BWSectorsVsLB',
-                            title='TgcPrd_BWSectorsVsLB;Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                            path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('lb_for_hit,hit_bw24sectors_strip;TgcPrd_BWSectorsVsLB_Strip',
-                            title='TgcPrd_BWSectorsVsLB_Strip;Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                            path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('lb_for_hit,hit_bw24sectors_wire;TgcPrd_BWSectorsVsLB_Wire',
-                            title='TgcPrd_BWSectorsVsLB_Wire;Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                            path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
 
-    myGroup.defineHistogram('hit_bw24sectors,hit_bwtiming;TgcPrd_BWSectorsVsTiming',
-                            title='TgcPrd_BWSectorsVsTiming;TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
-                            path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
-    myGroup.defineHistogram('hit_bw24sectors_strip,hit_bwtiming_strip;TgcPrd_BWSectorsVsTiming_Strip',
-                            title='TgcPrd_BWSectorsVsTiming_Strip;TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
-                            path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
-    myGroup.defineHistogram('hit_bw24sectors_wire,hit_bwtiming_wire;TgcPrd_BWSectorsVsTiming_Wire',
-                            title='TgcPrd_BWSectorsVsTiming_Wire;TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
-                            path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
 
-    myGroup.defineHistogram('hit_bwfulleta,hit_bw24sectors;TgcPrd_BWSectorsVsEta',
-                            title='TgcPrd_BWSectorsVsEta;iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                            path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('hit_bwfulleta_strip,hit_bw24sectors_strip;TgcPrd_BWSectorsVsEta_Strip',
-                            title='TgcPrd_BWSectorsVsEta_Strip;iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                            path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('hit_bwfulleta_wire,hit_bw24sectors_wire;TgcPrd_BWSectorsVsEta_Wire',
-                            title='TgcPrd_BWSectorsVsEta_Wire;iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
-                            path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+    myGroupHit.defineHistogram('hit_bcmask_bw24sectors_All,hit_bcmask_for_bw24sectors_All;TgcPrd_BWSectorsVsBCMask_All',
+                               title='BWSectorsVsBCMask_All;;',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+    myGroupHit.defineHistogram('hit_bcmask_bw24sectors_Wire,hit_bcmask_for_bw24sectors_Wire;TgcPrd_BWSectorsVsBCMask_Wire',
+                               title='BWSectorsVsBCMask_Wire;;',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
+    myGroupHit.defineHistogram('hit_bcmask_bw24sectors_Strip,hit_bcmask_for_bw24sectors_Strip;TgcPrd_BWSectorsVsBCMask_Strip',
+                               title='BWSectorsVsBCMask_Strip;;',type='TH2F',
+                               path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits','Next-only','Curr-only','Curr&Next','Prev-only','Prev&Next','Prev&Curr','Prev&Curr&Next'])
 
+
+    
     for side in ['A', 'C']:# side-A or side-C
         for station in range(1,5):# M1,2,3,4
             for s_or_w in ['S','W']:# strip or wire
-                name = "%sM%02i%s" % (side,station,s_or_w)
-                x_name = "lb_for_%s" % (name)
-                y_name = name
+                name = "%sM%02i%s" % (side,station,s_or_w) # e.g. AM01W
                 nbins = 10
+                label_glbl_index = []
                 if station==1:
-                    nbins = 648
+                    nbins = 720
+                    label_glbl_index = label_glbl_index_bw1
                 elif station==2 or station==3:
-                    nbins = 528
+                    nbins = 576
+                    label_glbl_index = label_glbl_index_bw23
                 else: # station==4
-                    nbins = 90
+                    nbins = 96
+                    label_glbl_index = label_glbl_index_sw
 
-                myGroup.defineHistogram(x_name+','+y_name+';'+y_name+'_vs_lb',
-                                        title=y_name+'_vs_lb;Luminosity block;Chamber index',type='TH2F',
+                x_name = "mon_lb"
+                y_name = "hit_glblphi_%s" % (name)
+                objname = "TgcPrd_GlobalChamberIndexVsLB_%s" % (name)
+                title = "GlobalChamberIndexVsLB_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                        title=title+';Luminosity block;',type='TH2F',
                                         path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,
-                                        ybins=nbins,ymin=0.5,ymax=nbins+0.5,opt='kAddBinsDynamically')
-                x_name = name
-                y_name = "timing_for_%s" % (name)
-                myGroup.defineHistogram(x_name+','+y_name+';'+y_name,
-                                        title='Timing_for_'+name+';Chamber index;Timing',type='TH2F',
-                                        path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,
-                                        ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                                        ybins=nbins,ymin=0.5,ymax=nbins+0.5,ylabels=label_glbl_index,opt='kAddBinsDynamically')
+                x_name = "hit_glblphi_%s" % (name)
+                y_name = "hit_bunch_%s" % (name)
+                objname = "TgcPrd_GlobalChamberIndexVsTiming_All_%s" % (name)
+                title = "GlobalChamberIndexVsTiming_All_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                           title=title+';;Timing',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index,
+                                           ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                x_name = "hit_glblphi_wTrack_%s" % (name)
+                y_name = "hit_bunch_wTrack_%s" % (name)
+                objname = "TgcPrd_GlobalChamberIndexVsTiming_wTrack_%s" % (name)
+                title = "GlobalChamberIndexVsTiming_wTrack_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                           title=title+';;Timing',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index,
+                                           ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                
+                x_name = "hit_glblphi_effnum_%s" % (name)
+                y_name = "hit_glblphi_effden_%s" % (name)
+                objname = "TgcPrd_GlobalChamberIndex_Efficiency_%s" % (name)
+                title = "GlobalChamberIndex_Efficiency_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                           title=title+';;Efficiency',type='TEfficiency',
+                                           path=hitEffPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index)
 
-                x_name = "x_%s" % (name)
-                y_name = "y_%s" % (name)
+                x_name = "hit_bcmask_glblphi_%s" % (name)
+                y_name = "hit_bcmask_%s" % (name)
+                objname = "TgcPrd_GlobalChamberIndexVsBCMask_%s" % (name)
+                title = "GlobalChamberIndexVsBCMask_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                           title=title+';;',type='TH2F',
+                                           path=hitPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5,xlabels=label_glbl_index,
+                                           ybins=8,ymin=-0.5,ymax=8.5,ylabels=['no hits',
+                                                                               'Next-only',
+                                                                               'Curr-only',
+                                                                               'Curr&Next',
+                                                                               'Prev-only',
+                                                                               'Prev&Next',
+                                                                               'Prev&Curr',
+                                                                               'Prev&Curr&Next'])
+
+
                 nbinsx = 10
                 nbinsy = 10
+                label_ieta = []
+                label_iphi = []
                 if station==1:
                     nbinsx = 15
                     nbinsy = 48
+                    label_ieta = label_ieta_bw1
+                    label_iphi = label_iphi_bw1
                 elif station==2 or station==3:
                     nbinsx = 12
                     nbinsy = 48
+                    label_ieta = label_ieta_bw23
+                    label_iphi = label_iphi_bw23
                 else: # station==4
                     nbinsx = 4
                     nbinsy = 24
+                    label_ieta = label_ieta_sw
+                    label_iphi = label_iphi_sw
 
-                myGroup.defineHistogram(x_name+','+y_name+';'+name+'_vs_iEta',
-                                        title=name+'_vs_iEta;iEta;Chamber index',type='TH2F',path=hitPath,
-                                        xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,
-                                        ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5)
+                x_name = "hit_x_%s" % (name)
+                y_name = "hit_y_%s" % (name)
+                objname = "TgcPrd_iPhiVsiEta_%s" % (name)
+                title = "iPhiVsiEta_%s" % (name)
+                myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
+                                           title=title+';;',type='TH2F',path=hitPath,
+                                           xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,xlabels=label_ieta,
+                                           ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5,ylabels=label_iphi)
+
+                eff_name = "hit_effnum_x_%s" % (name)
+                x_name = "hit_effden_x_%s" % (name)
+                y_name = "hit_effden_y_%s" % (name)
+                objname = "TgcPrd_iPhiVsiEta_Efficiency_%s" % (name)
+                title = "iPhiVsiEta_Efficiency_%s" % (name)
+                myGroupHit.defineHistogram(eff_name+','+x_name+','+y_name+';'+objname,
+                                           title=title+';;',type='TEfficiency',
+                                           path=hitEffPath,
+                                           xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,xlabels=label_ieta,
+                                           ybins=nbinsy,ymin=0.5,ymax=nbinsy+0.5,ylabels=label_iphi)
 
 
-    coinPath = 'Coin/'
 
-    myGroup.defineHistogram('nTgcCoinDetElementIsNull;h_nTgcCoinDetElementIsNull',title='nTgcCoinDetElementIsNull',
-                            path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
-    myGroup.defineHistogram('nTgcCoinPostOutPtrIsNull;h_nTgcCoinPostOutPtrIsNull',title='nTgcCoinPostOutPtrIsNull',
-                            path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
-
-    for coinType in ['SL','HPT','LPT']:
-        for region in ['','Endcap','Forward']:
-            suffix0 = coinType if region == '' else coinType+'_'+region
-            nrois = 148 if region == 'Endcap' else 64
-            nsectors = 48 if region == 'Endcap' else 24
-            for chanType in ['','Wire','Strip']:
-                if coinType == 'SL' and chanType != '': continue # no wire or strip for "SL"
-                if coinType == 'HPT' and chanType == '': continue # always wire or strip for "HPT"
-                if coinType == 'LPT' and chanType == '': continue # always wire or strip for "LPT"
-                suffix = suffix0+'_' if chanType == '' else suffix0+'_'+chanType+'_'
-
-                if coinType == 'SL':
-                    for thr in range(1,16): #1.2...15
-                        cut = suffix+"coin_cutmask_pt"+str(thr)
-                        PT = "_Thr%02d" % thr
-                        if region == '':
-                            myGroup.defineHistogram(suffix+'coin_eta,'+suffix+'coin_phi;'+suffix+'TgcCoin_Eta2Phi'+PT,
-                                                    title=suffix+'TgcCoin_Eta2Phi'+PT+';Eta;Phi',
-                                                    type='TH2F',path=coinPath,cutmask=cut,
-                                                    xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-                        else:
-                            myGroup.defineHistogram(suffix+'coin_roi,'+suffix+'coin_sector;'+suffix+'TgcCoin_Roi2Sector'+PT,
-                                                    title=suffix+'TgcCoin_Roi2Sector'+PT+';RoI;Trigger Sector',
-                                                    type='TH2F',path=coinPath,cutmask=cut,
-                                                    xbins=nrois,xmin=-0.5,xmax=nrois-0.5,
-                                                    ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
-
-                if region == '':
-                    myGroup.defineHistogram(suffix+'coin_eta,'+suffix+'coin_phi;'+suffix+'TgcCoin_Eta2Phi',
-                                            title=suffix+'TgcCoin_Eta2Phi;Eta;Phi',
-                                            type='TH2F',path=coinPath,
-                                            xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-                else:
-                    myGroup.defineHistogram(suffix+'coin_sector,'+suffix+'coin_bunch;'+suffix+'TgcCoin_Sector2Timing',
-                                            title=suffix+'TgcCoin_Sector2Timing;Trigger Sector;Timing',
-                                            type='TH2F',path=coinPath,
-                                            xbins=nsectors*2+1,xmin=-nsectors-0.5,xmax=nsectors+0.5,
-                                            ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
-                    myGroup.defineHistogram(suffix+'coin_lb,'+suffix+'coin_sector;'+suffix+'TgcCoin_LumiBlock2Sector',
-                                            title=suffix+'TgcCoin_LumiBlock2Sector;LumiBlock;Trigger Sector',
-                                            type='TH2F',path=coinPath,
-                                            xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically',
-                                            ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
-                    if coinType == 'SL':
-                        myGroup.defineHistogram(suffix+'coin_roi,'+suffix+'coin_sector;'+suffix+'TgcCoin_Roi2Sector',
-                                                title=suffix+'TgcCoin_Roi2Sector;RoI;Trigger Sector',
-                                                type='TH2F',path=coinPath,
-                                                xbins=nrois,xmin=-0.5,xmax=nrois-0.5,
-                                                ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
-                        myGroup.defineHistogram(suffix+'coin_veto_roi,'+suffix+'coin_veto_sector;'+suffix+'TgcCoin_Roi2Sector_wVeto',
-                                                title=suffix+'TgcCoin_Roi2Sector_wVeto;RoI;Trigger Sector',
-                                                type='TH2F',path=coinPath,
-                                                xbins=nrois,xmin=-0.5,xmax=nrois-0.5,
-                                                ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
-                        myGroup.defineHistogram(suffix+'coin_sector,'+suffix+'coin_pt;'+suffix+'TgcCoin_Sector2Threshold',
-                                                title=suffix+'TgcCoin_Sector2Threshold;Trigger Sector;Threshold',
-                                                type='TH2F',path=coinPath,
-                                                xbins=nsectors*2+1,xmin=-nsectors-0.5,xmax=nsectors+0.5,
-                                                ybins=15,ymin=0.5,ymax=15.5)
-                        myGroup.defineHistogram(suffix+'coin_sector,'+suffix+'coin_isPositiveDeltaR;'+suffix+'TgcCoin_Sector2isPositiveDeltaR',
-                                                title=suffix+'TgcCoin_Sector2isPositiveDeltaR;Trigger Sector;isPositiveDeltaR',
-                                                type='TH2F',path=coinPath,
-                                                xbins=nsectors*2+1,xmin=-nsectors-0.5,xmax=nsectors+0.5,
-                                                ybins=2,ymin=-0.5,ymax=1.5,ylabels=['Negative','Positive'])
-
-    hitDetailsPath = 'HitDetails/'
     for side in ['A', 'C']:# side-A or side-C
         for sector in range(0,16):# Sector 00...15 (00 for FI, 01..15 for EI, 01..12 for BW)
             for station in range(1,5):# M1,2,3,4
@@ -638,8 +758,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             if (station<4 or (station==4 and eta==1)) and phi>3: continue # BW and EI only 0..3 internal phi
                             if station==1 and eta==5:continue # BW M1 has only 1..4 eta
                             if station==4 and eta>1:continue # EI/FI eta 0 or 1
-                            chamber_name = "%s%02dM%02df%02d%s%02dL%02d" % (side,sector,station,phi,'F' if eta==0 else 'E',eta,lay)
+                            if station>1 and lay>2:continue # triplet is only M1
                             for s_or_w in ['S','W']:# strip or wire
+                                if station==1 and lay==2 and s_or_w=="S":continue # there is no strip channel on M1 L2
                                 nbins = 100
                                 if s_or_w=="S":
                                     nbins = 32
@@ -669,14 +790,123 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                         elif eta==5: nbins = 96
                                         else:        nbins = 122
                                     else: # EI/FI
-                                        if eta==1:   nbins = 24 # EI
+                                        if eta==1:
+                                            if (sector==1 and phi==0) or (sector==1 and phi==2) or (sector==9 and phi==0) or (sector==9 and phi==2) or sector==11 or sector==15:
+                                                nbins = 16 # EI short
+                                            else:
+                                                nbins = 24 # EI
                                         else:        nbins = 32 # FI
+                                
+                                if doGapByGapHitOcc:
+                                    chamber_name = "%s%02dM%02df%02d%s%02dL%02d%s" % (side,sector,station,phi,'F' if eta==0 else 'E',eta,lay,s_or_w)
+                                    objname = 'TgcPrd_ChannelOccupancy_'+ chamber_name
+                                    title = 'Occ_'+chamber_name
+                                    myGroupHit.defineHistogram('hit_on_'+chamber_name+';'+objname,
+                                                               title=title+';Channel ID;Number of events',
+                                                               path="GapByGapHits/",xbins=nbins,xmin=0.5,xmax=nbins+0.5)
 
-                                myGroup.defineHistogram('hits_on_'+chamber_name+s_or_w,
-                                                        title='Hits_on_'+chamber_name+s_or_w+";Channel ID;Number of events",
-                                                        path=hitDetailsPath,xbins=nbins,xmin=0.5,xmax=nbins+0.5)
+                                if doGapByGapEffMap:
+                                    objname = 'TgcPrd_GapByGapEffMap_' + chamber_name
+                                    title = 'Eff_' + chamber_name
+                                    objectx = 'hit_localX_effden_' + chamber_name
+                                    objecty = 'hit_localY_effden_' + chamber_name
+                                    objectz = 'hit_effnum_' + chamber_name
+                                    myGroupHit.defineHistogram(objectz+','+objectx+','+objecty+';'+objname,
+                                                               title=title+';X [mm];Y [mm]',type='TEfficiency',
+                                                               path="GapByGapEffMap/",xbins=100,xmin=-1000,xmax=1000,ybins=100,ymin=-1500,ymax=1500)
+
+                                if lay == 1 and doHitResiduals:
+                                    chamber_name = "%s%02dM%02df%02d%s%02d%s" % (side,sector,station,phi,'F' if eta==0 else 'E',eta,s_or_w)
+                                    objname = 'TgcPrd_Residual_' + chamber_name
+                                    title = 'Res_'+chamber_name
+                                    myGroupHit.defineHistogram('hit_residual_on_'+chamber_name+';'+objname,
+                                                               title=title+';Residual [mm];Number of events',
+                                                               path="Residuals/",xbins=400,xmin=-1000,xmax=1000)
 
 
+
+
+
+
+    ################################################################################################################
+    myGroupCoin = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor_TgcCoin', mainDir)
+    coinPath = 'Coin/'
+    myGroupCoin.defineHistogram('nTgcCoinDetElementIsNull;h_nTgcCoinDetElementIsNull',title='nTgcCoinDetElementIsNull',
+                            path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
+    myGroupCoin.defineHistogram('nTgcCoinPostOutPtrIsNull;h_nTgcCoinPostOutPtrIsNull',title='nTgcCoinPostOutPtrIsNull',
+                            path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
+    for coinType in ['SL','HPT','LPT']:
+        for region in ['','Endcap','Forward']:
+            suffix0 = coinType if region == '' else coinType+'_'+region
+            nrois = 148 if region == 'Endcap' else 64
+            nsectors = 48 if region == 'Endcap' else 24
+            for chanType in ['','Wire','Strip']:
+                if coinType == 'SL' and chanType != '': continue # no wire or strip for "SL"
+                if coinType == 'HPT' and chanType == '': continue # always wire or strip for "HPT"
+                if coinType == 'LPT' and chanType == '': continue # always wire or strip for "LPT"
+                suffix = suffix0+'_' if chanType == '' else suffix0+'_'+chanType+'_'
+
+                if coinType == 'SL':
+                    for thr in range(1,16): #1.2...15
+                        cut = suffix+"coin_cutmask_pt"+str(thr)
+                        PT = "_Thr%02d" % thr
+                        if region == '':
+                            myGroupCoin.defineHistogram(suffix+'coin_eta,'+suffix+'coin_phi;'+suffix+'TgcCoin_Evt_EtaVsPhi'+PT,
+                                                    title=suffix+'TgcCoin_Evt_EtaVsPhi'+PT+';Eta;Phi',
+                                                    type='TH2F',path=coinPath,cutmask=cut,
+                                                    xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                        else:
+                            myGroupCoin.defineHistogram(suffix+'coin_roi,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsRoI'+PT,
+                                                    title=suffix+'TgcCoin_Evt_SectorVsRoI'+PT+';RoI;Trigger Sector',
+                                                    type='TH2F',path=coinPath,cutmask=cut,
+                                                    xbins=nrois,xmin=-0.5,xmax=nrois-0.5,
+                                                    ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
+
+                if region == '':
+                    myGroupCoin.defineHistogram(suffix+'coin_eta,'+suffix+'coin_phi;'+suffix+'TgcCoin_Evt_EtaVsPhi',
+                                            title=suffix+'TgcCoin_Evt_EtaVsPhi;Eta;Phi',
+                                            type='TH2F',path=coinPath,
+                                            xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                    myGroupCoin.defineHistogram(suffix+'coin_ext_matched,'+suffix+'coin_ext_eta,'+suffix+'coin_ext_phi;'+suffix+'TgcCoin_Eff_EtaVsPhi',
+                                            title=suffix+'TgcCoin_Eff_EtaVsPhi;Eta;Phi',
+                                            type='TEfficiency',path=coinPath,
+                                            xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                else:
+                    myGroupCoin.defineHistogram(suffix+'coin_sector,'+suffix+'coin_bunch;'+suffix+'TgcCoin_Evt_SectorVsTiming',
+                                            title=suffix+'TgcCoin_Evt_SectorVsTiming;Trigger Sector;Timing',
+                                            type='TH2F',path=coinPath,
+                                            xbins=nsectors*2+1,xmin=-nsectors-0.5,xmax=nsectors+0.5,
+                                            ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+                    myGroupCoin.defineHistogram(suffix+'coin_lb,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsLB',
+                                            title=suffix+'TgcCoin_Evt_SectorVsLB;LumiBlock;Trigger Sector',
+                                            type='TH2F',path=coinPath,
+                                            xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically',
+                                            ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
+                    if coinType == 'SL':
+                        myGroupCoin.defineHistogram(suffix+'coin_roi,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsRoI',
+                                                title=suffix+'TgcCoin_Evt_SectorVsRoI;RoI;Trigger Sector',
+                                                type='TH2F',path=coinPath,
+                                                xbins=nrois,xmin=-0.5,xmax=nrois-0.5,
+                                                ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
+                        myGroupCoin.defineHistogram(suffix+'coin_veto_roi,'+suffix+'coin_veto_sector;'+suffix+'TgcCoin_Evt_SectorVsRoI_wVeto',
+                                                title=suffix+'TgcCoin_Evt_SectorVsRoI_wVeto;RoI;Trigger Sector',
+                                                type='TH2F',path=coinPath,
+                                                xbins=nrois,xmin=-0.5,xmax=nrois-0.5,
+                                                ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
+                        myGroupCoin.defineHistogram(suffix+'coin_sector,'+suffix+'coin_pt;'+suffix+'TgcCoin_Evt_SectorVsThr',
+                                                title=suffix+'TgcCoin_Evt_SectorVsThr;Trigger Sector;Threshold',
+                                                type='TH2F',path=coinPath,
+                                                xbins=nsectors*2+1,xmin=-nsectors-0.5,xmax=nsectors+0.5,
+                                                ybins=15,ymin=0.5,ymax=15.5)
+                        myGroupCoin.defineHistogram(suffix+'coin_sector,'+suffix+'coin_isPositiveDeltaR;'+suffix+'TgcCoin_Evt_SectorVsisPositiveDeltaR',
+                                                title=suffix+'TgcCoin_Evt_SectorVsisPositiveDeltaR;Trigger Sector;isPositiveDeltaR',
+                                                type='TH2F',path=coinPath,
+                                                xbins=nsectors*2+1,xmin=-nsectors-0.5,xmax=nsectors+0.5,
+                                                ybins=2,ymin=-0.5,ymax=1.5,ylabels=['Negative','Positive'])
+
+
+
+    ################################################################################################################
     acc = helper.result()
     result.merge(acc)
     return result
@@ -700,7 +930,7 @@ if __name__=='__main__':
         ConfigFlags.Input.Files = inputs
         ConfigFlags.Output.HISTFileName = sys.argv[2]
     else:
-        inputs = glob.glob('/data01/data/user.masato.TrigTest.Zmumu.361107.e5112s3214d1633r12974.nightly.20210826v1_EXT0/*.root')
+        inputs = glob.glob('/data01/data/valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e5112_s3765_r12697/ESD.*.pool.root.1')
         ConfigFlags.Input.Files = inputs
         ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
 
@@ -723,7 +953,10 @@ if __name__=='__main__':
     cfg.getEventAlgo('TgcRawDataMonAlg').OutputLevel = INFO
     cfg.getEventAlgo('TgcRawDataMonAlg').MonitorTriggerMultiplicity = True
     cfg.getEventAlgo('TgcRawDataMonAlg').MonitorThresholdPatterns = True
-    cfg.getEventAlgo('TgcRawDataMonAlg').TagAndProbe = False
+    cfg.getEventAlgo('TgcRawDataMonAlg').TagAndProbe = True
+    cfg.getEventAlgo('TgcRawDataMonAlg').TgcRawDataMonitorTool.OutputLevel = INFO
+    cfg.getEventAlgo('TgcRawDataMonAlg').FillGapByGapHistograms = True
+    
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
@@ -733,6 +966,6 @@ if __name__=='__main__':
     cfg.merge(L1ConfigSvcCfg(ConfigFlags))
     generateL1Menu(ConfigFlags)
 
-    cfg.printConfig(withDetails=False, summariseProps = False)
+    cfg.printConfig(withDetails=True, summariseProps = True)
 
     cfg.run()

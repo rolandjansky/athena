@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SiDetElementBoundaryLinksCondAlg_xk_h
@@ -11,8 +11,6 @@
 #include "SiSPSeededTrackFinderData/SiDetElementBoundaryLinks_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 namespace InDet {
 
@@ -44,8 +42,6 @@ namespace InDet {
     /** Output condition object for SiCombinatorialTrackFinder_xk */
     SG::WriteCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_writeKey{this, "WriteKey", "SCT_DetElementBoundaryLinks_xk", "Key of output SiDetElementBoundaryLinks_xk"};
     BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
-
-    ServiceHandle<ICondSvc> m_condSvc;
   };
 
 }

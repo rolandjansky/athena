@@ -43,7 +43,7 @@ StatusCode PFLCCalibTool::initialize() {
 
 }
 
-void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
+StatusCode PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
 
   if (m_useLocalWeight) {
     std::unique_ptr<eflowRecClusterContainer> theEFRecClusterContainer = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
@@ -60,15 +60,17 @@ void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectCo
     /* Calibrate each cluster */
     for (auto thisCaloCluster : *tempClusterContainer){
       /* Subsequently apply all ClusterLocalCalibTools, print debug output at each stage, if DEBUG it set */
-      apply(m_clusterLocalCalibTool, thisCaloCluster);
+      ATH_CHECK(apply(m_clusterLocalCalibTool, thisCaloCluster));
 
-      apply(m_clusterLocalCalibOOCCTool, thisCaloCluster);
+      ATH_CHECK(apply(m_clusterLocalCalibOOCCTool, thisCaloCluster));
 
-      apply(m_clusterLocalCalibOOCCPi0Tool, thisCaloCluster);
+      ATH_CHECK(apply(m_clusterLocalCalibOOCCPi0Tool, thisCaloCluster));
 
-      apply(m_clusterLocalCalibDMTool, thisCaloCluster);
+      ATH_CHECK(apply(m_clusterLocalCalibDMTool, thisCaloCluster));
+
     }//loop on CaloCluster
   }//if not use local weight scheme
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PFLCCalibTool::finalize() {
@@ -76,9 +78,10 @@ StatusCode PFLCCalibTool::finalize() {
 }
 
 
-void PFLCCalibTool::apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster) {
+StatusCode PFLCCalibTool::apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster) {
   if (m_useLocalWeight) ATH_MSG_WARNING("Applying recalculated weights, when configuration requested to use original weights");
-  if (calibTool->execute(cluster).isFailure()) ATH_MSG_WARNING("Could not execute " << calibTool.name());
+  ATH_CHECK(calibTool->execute(cluster));
+  return StatusCode::SUCCESS;  
 }
 
 void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters, const CaloDetDescrManager& calo_dd_man) {

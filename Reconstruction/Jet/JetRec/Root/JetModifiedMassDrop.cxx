@@ -111,6 +111,10 @@ int JetModifiedMassDrop::groom(const xAOD::Jet& jin,
 
   int npMMDT = filtpjMMDT.pieces().size();
   xAOD::Jet* pjet = m_bld->add(filtpjMMDT, pjContainer, jets, &jin);
+  if ( pjet == nullptr ) {
+    ATH_MSG_ERROR("Unable to add jet to container");
+    return 1;
+  }
   //pjet->SetAttribute<int>("TransformType", xAOD::JetTransform::MMDT); // Possibly not needed
   pjet->setAttribute("didMMDT", didMMDT);
   pjet->setAttribute("ZCut", m_zcut);
@@ -125,11 +129,9 @@ int JetModifiedMassDrop::groom(const xAOD::Jet& jin,
   ATH_MSG_DEBUG("   ncon: " << pjMMDT.constituents().size() << "/"
                             << ppjin->constituents().size());
   ATH_MSG_DEBUG("   nsub: " << npMMDT);
-  if ( pjet == 0 ) {
-    ATH_MSG_ERROR("Unable to add jet to container");
-  } else {
-    ATH_MSG_DEBUG("Added jet to container.");
-  }
+  
+  ATH_MSG_DEBUG("Added jet to container.");
+  
   return 0;
 }
 

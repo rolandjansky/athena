@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/Derivt.h"
@@ -34,7 +34,7 @@ extern void addCrossVertexDeriv(CascadeEvent &, double * , long int , const std:
 extern void setFittedParameters(double * , std::vector<int> &, CascadeEvent &);
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =nullptr);
+extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, VKalVrtControl * =nullptr);
 extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
 extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > &, CascadeEvent& );

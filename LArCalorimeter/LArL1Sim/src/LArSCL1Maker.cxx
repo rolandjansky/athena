@@ -401,7 +401,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
       noise.assign(m_nSamples,0);
 
       // noise definition
-      if ( m_NoiseOnOff && (backGroundIdx<999999) ) {
+      if ( m_NoiseOnOff && (backGroundIdx==999999) ) {
       float SigmaNoise = (larnoise->noise(id,0));
       int index;
       const std::vector<float>& CorrGen = (autoCorrNoise->autoCorrSqrt(id,0));

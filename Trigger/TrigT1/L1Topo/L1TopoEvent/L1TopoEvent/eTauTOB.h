@@ -14,7 +14,6 @@ namespace TCS {
    public:
       
       static unsigned int nBitsEt() { return g_nBitsEt; }
-      static unsigned int nBitsIsolation() { return g_nBitsIsolation; }
       static unsigned int nBitsEta() { return g_nBitsEta; }
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
@@ -22,7 +21,7 @@ namespace TCS {
       eTauTOB(uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
       
       // constructor with individual values
-      eTauTOB(unsigned int et, double isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
+      eTauTOB(unsigned int et, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
 
       // constructor with initial values
       eTauTOB(const eTauTOB & eem);
@@ -32,7 +31,6 @@ namespace TCS {
 
       // accessors
       unsigned int Et() const { return m_Et; }                  // Et in units of 100 MeV
-      double isolation() const { return m_isolation; }    
       int eta() const { return m_eta; }                         // eta in units of 0.025
       unsigned int phi() const { return m_phi; }                // phi in units of 0.05
 
@@ -45,7 +43,6 @@ namespace TCS {
 
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
-      void setIsolation(double isolation) { m_isolation = isolation ; }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(unsigned int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
@@ -53,9 +50,9 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
 
-      void setRCore(unsigned int rCore) { m_rCore = rCore; }
-      void setRHad(unsigned int rHad) { m_rHad = rHad; }
-      
+      void setRCore(unsigned int th) { m_rCore = th; }
+      void setRHad(unsigned int th) { m_rHad = th; }
+     
       // memory management
       static eTauTOB* createOnHeap(const eTauTOB& eem);
       static void clearHeap();
@@ -69,12 +66,10 @@ namespace TCS {
 
    private:
       static const unsigned int g_nBitsEt;
-      static const unsigned int g_nBitsIsolation;
       static const unsigned int g_nBitsEta;
       static const unsigned int g_nBitsPhi;
       
       unsigned int m_Et {0};
-      double m_isolation {0};
       int m_eta {0};
       unsigned int m_phi {0};
 

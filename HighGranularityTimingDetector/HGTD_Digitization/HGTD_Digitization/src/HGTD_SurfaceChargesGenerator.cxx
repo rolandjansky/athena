@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_Digitization/HGTD_SurfaceChargesGenerator.h
+ * @file HGTD_SurfaceChargesGenerator.h
  *
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -12,7 +12,7 @@
  *
  */
 
-#include "HGTD_Digitization/HGTD_SurfaceChargesGenerator.h"
+#include "HGTD_SurfaceChargesGenerator.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"

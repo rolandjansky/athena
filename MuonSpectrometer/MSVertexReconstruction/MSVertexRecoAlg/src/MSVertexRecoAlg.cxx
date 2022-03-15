@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MSVertexRecoAlg/MSVertexRecoAlg.h"
+#include "MSVertexRecoAlg.h"
 
 #include "MSVertexUtils/MSVertex.h"
 #include "MSVertexUtils/Tracklet.h"

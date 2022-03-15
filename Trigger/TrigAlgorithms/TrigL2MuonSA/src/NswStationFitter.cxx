@@ -20,7 +20,9 @@ TrigL2MuonSA::NswStationFitter::NswStationFitter(const std::string& type,
 }
 
 StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const TrigRoiDescriptor* p_roids,
-                                                            TrigL2MuonSA::TrackPattern& trackPattern) const
+                                                            TrigL2MuonSA::TrackPattern& trackPattern,
+                                                            TrigL2MuonSA::StgcHits& stgcHits,
+                                                            TrigL2MuonSA::MmHits& mmHits) const
 {
 
   ATH_MSG_DEBUG("NswStationFitter::findSuperPoints() was called.");
@@ -29,10 +31,33 @@ StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const TrigRoiDescrip
   ATH_CHECK( selectStgcHits(p_roids,trackPattern.stgcSegment) );
   ATH_CHECK( selectMmHits(p_roids,trackPattern.mmSegment) );
 
-  ATH_CHECK( findStgcHitsInSegment(trackPattern.stgcSegment) );
-  ATH_MSG_DEBUG("@@STGC@@ number of STGC hits for SPs " << trackPattern.stgcSegment.size());
-  ATH_CHECK( findMmHitsInSegment(trackPattern.mmSegment) );
-  ATH_MSG_DEBUG("@@MM@@ number of MM hits for SPs " << trackPattern.mmSegment.size());
+  ATH_CHECK( findStgcHitsInSegment(stgcHits) );
+  ATH_CHECK( findMmHitsInSegment(mmHits) );
+
+  bool isLargeStgc = false; 
+  bool isSmallStgc = false;
+  if(stgcHits.size() != 0){
+    for(unsigned int iHit = 0; iHit < stgcHits.size(); iHit++){
+      if(stgcHits.at(iHit).isOutlier == 0){
+        if(stgcHits.at(iHit).stationName == 58) isLargeStgc = true; 
+        else if(stgcHits.at(iHit).stationName == 57) isSmallStgc = true;
+        if(isLargeStgc && isSmallStgc) continue;
+      }
+    }
+  }
+  if(mmHits.size() != 0){
+    for(unsigned int iHit = 0; iHit < mmHits.size(); iHit++){
+      if(mmHits.at(iHit).isOutlier == 0){
+        if(isLargeStgc){
+          if(mmHits.at(iHit).stationName == 55) mmHits.at(iHit).isOutlier = 1;
+        } else if(isSmallStgc) {
+          if(mmHits.at(iHit).stationName == 56) mmHits.at(iHit).isOutlier = 1;
+        }
+      }
+    }
+  }
+  ATH_CHECK( MakeSegment(trackPattern,stgcHits) );
+  ATH_CHECK( MakeSegment(trackPattern,mmHits) );
 
   ATH_MSG_DEBUG("Number of sTGC and MM hits for SPs " << trackPattern.stgcSegment.size() << " " << trackPattern.mmSegment.size());  
   if (trackPattern.stgcSegment.size() < 9 && trackPattern.mmSegment.size() < 6) {
@@ -41,6 +66,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const TrigRoiDescrip
   else {
     ATH_CHECK( calcMergedHit(trackPattern) );
   }
+
 
   return StatusCode::SUCCESS;
 
@@ -231,11 +257,21 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcWeightedSumHit(TrigL2MuonSA::Trac
 
 StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::StgcHits& stgcHits) const
 {
-  if(stgcHits.size() < 9) {
-    ATH_MSG_INFO("Number of STGC hits is too small, at least 9 hits required : "<<stgcHits.size()<<" hits");
+  if(stgcHits.size() == 0) return StatusCode::SUCCESS;
+  int hitsInRoad = 0;
+  for(unsigned int iHit = 0; iHit < stgcHits.size(); iHit++){
+    if(stgcHits.at(iHit).isOutlier == 0){
+      hitsInRoad++;
+      stgcHits.at(iHit).isOutlier = 1;
+    }
+  }
+  if(hitsInRoad == 0) return StatusCode::SUCCESS;
+  
+  if(hitsInRoad < 9) {
+    ATH_MSG_INFO("Number of STGC hits is too small, at least 9 hits required : "<<hitsInRoad<<" hits");
     return StatusCode::SUCCESS;
-    } else if(stgcHits.size() > 100) {
-    ATH_MSG_WARNING("Number of STGC hits is too large, at most (2^16 - 1) hits allowed : "<<stgcHits.size()<<" hits");
+    } else if(hitsInRoad > 100) {
+    ATH_MSG_WARNING("Number of STGC hits is too large, at most (2^16 - 1) hits allowed : "<<hitsInRoad<<" hits");
     return StatusCode::SUCCESS;
   }
 
@@ -243,6 +279,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
   std::array<std::vector<int>, 8> strHitIdByLayer;
   std::array<std::vector<int>, 8> wireHitIdByLayer;
   for(unsigned int iHit = 0; iHit < stgcHits.size(); ++iHit){
+    if(stgcHits.at(iHit).isOutlier != 1) continue;
     int layerNumber = stgcHits.at(iHit).layerNumber;
     if (layerNumber > 7) {
       ATH_MSG_WARNING("STGC hit layer number > 7");
@@ -279,8 +316,6 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
   findSetOfStgcHitIds(stgcHits, wireHitIdByLayer, wireHitIds);
   ATH_MSG_DEBUG("check point 3");
   ATH_MSG_DEBUG("@@STGC@@ strip wire " << strHitIds.size() << " " << wireHitIds.size());
-  TrigL2MuonSA::StgcHits selectedStgcHits;
-  selectedStgcHits.clear();
   
   bool isLargeStrip = false;
   bool isSmallStrip = false;
@@ -288,9 +323,9 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
     std::array<int, 8> hitIds = strHitIds.at(iHit);
     for (unsigned int iLayer = 0; iLayer < 8; ++iLayer) {
       if (hitIds[iLayer] != -1) {
-        selectedStgcHits.push_back(stgcHits.at(hitIds[iLayer]));
         if(stgcHits.at(hitIds[iLayer]).stationName == 58) isLargeStrip = true;
         else if(stgcHits.at(hitIds[iLayer]).stationName == 57) isSmallStrip = true;
+        stgcHits.at(hitIds[iLayer]).isOutlier = 0;
       }
     }
   }
@@ -299,18 +334,18 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
     for (unsigned int iLayer = 0; iLayer < 8; ++iLayer) {
       if (hitIds[iLayer] != -1) {
         if(isLargeStrip){
-          if(stgcHits.at(hitIds[iLayer]).stationName != 58) continue;
-          selectedStgcHits.push_back(stgcHits.at(hitIds[iLayer]));
+          if(stgcHits.at(hitIds[iLayer]).stationName == 58){
+            stgcHits.at(hitIds[iLayer]).isOutlier = 0;
+          }
         }
         else if(isSmallStrip){
-          if(stgcHits.at(hitIds[iLayer]).stationName != 57) continue;
-          selectedStgcHits.push_back(stgcHits.at(hitIds[iLayer]));
+          if(stgcHits.at(hitIds[iLayer]).stationName == 57){
+            stgcHits.at(hitIds[iLayer]).isOutlier = 0;
+          }
         }
       }
     }
   }
-  stgcHits.clear();
-  stgcHits = selectedStgcHits;
   ATH_MSG_DEBUG("check point 4");
   return StatusCode::SUCCESS;
 
@@ -320,17 +355,21 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
                                                          std::array<std::vector<int>,8> hitIdByLayer,
                                                          std::vector<std::array<int, 8>>& hitIdsCandidate) const
 {
-  double NSWCenterZ = 7526.329; //FIX ME!!!
+  double NSWCenterZ = 7526.329;
+  int side = 0; 
 
   bool isStrip = 0;
   for (unsigned int iLayer = 0; iLayer < 8; ++iLayer) {
     if ( hitIdByLayer[iLayer].size() > 0) {
+      side = std::abs(stgcHits.at(hitIdByLayer[iLayer].at(0)).z)/stgcHits.at(hitIdByLayer[iLayer].at(0)).z;
       if ( stgcHits.at(hitIdByLayer[iLayer].at(0)).channelType == 1 ){
         isStrip = 1;
         break;
       }
     }
   }
+  NSWCenterZ = NSWCenterZ * side;
+  
   ATH_MSG_DEBUG("check point 2.1");
   std::array<std::vector<unsigned long int>,4> hitIdsInTwo;
   std::array<std::vector<double>,4> slopeInTwo;
@@ -745,6 +784,36 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
   }
 }
 
+StatusCode TrigL2MuonSA::NswStationFitter::MakeSegment(TrigL2MuonSA::TrackPattern& trackPattern,
+                                                       TrigL2MuonSA::StgcHits& stgcHits) const
+{
+  TrigL2MuonSA::StgcHits selectedStgcHits;
+  selectedStgcHits.clear();
+  if(stgcHits.size() == 0) return StatusCode::SUCCESS;
+  for(unsigned int iHit = 0; iHit < stgcHits.size(); iHit++){
+    if(stgcHits.at(iHit).isOutlier != 0) continue;
+    selectedStgcHits.push_back(stgcHits.at(iHit));
+  }
+  trackPattern.stgcSegment.clear();
+  trackPattern.stgcSegment = selectedStgcHits;
+  return StatusCode::SUCCESS;
+}
+StatusCode TrigL2MuonSA::NswStationFitter::MakeSegment(TrigL2MuonSA::TrackPattern& trackPattern,
+                                                       TrigL2MuonSA::MmHits& mmHits) const
+{
+  TrigL2MuonSA::MmHits selectedMmHits;
+  selectedMmHits.clear();
+  if(mmHits.size() == 0) return StatusCode::SUCCESS;
+  for(unsigned int iHit = 0; iHit < mmHits.size(); iHit++){
+    if(mmHits.at(iHit).isOutlier != 0) continue;
+    selectedMmHits.push_back(mmHits.at(iHit));
+  }
+  trackPattern.mmSegment.clear();
+  trackPattern.mmSegment = selectedMmHits;
+  return StatusCode::SUCCESS;
+}
+  
+
 void TrigL2MuonSA::NswStationFitter::LinearFit(std::vector<double>& x,std::vector<double>& y,
                                                double* slope, double* intercept, double* mse) const
 {
@@ -766,27 +835,46 @@ void TrigL2MuonSA::NswStationFitter::LinearFit(std::vector<double>& x,std::vecto
 }
 
 void TrigL2MuonSA::NswStationFitter::LinearFitWeight(std::vector<double>& x,std::vector<double>& y,
-                   std::vector<bool>& isStgc, double* slope, double* intercept, double* mse) const
+                   std::vector<bool>& isStgc, double* slope, double* intercept, double* mse, double eta) const
 {
-  double sigma_stgc = 1; // resolution
-  double sigma_mm   = 1;
-  double w_stgc = 1/std::pow(sigma_stgc,2);
-  double w_mm = 1/std::pow(sigma_mm,2);
+  double RmsDeltarEtaStgc[12] = {};
+  double RmsDeltarEtaMm[12]= {};
+  getNswResolution(RmsDeltarEtaStgc, RmsDeltarEtaMm, 12);
+
+  double weightStgc[12] = {};
+  double weightMm[12]   = {};
+  for(int i_weight=0; i_weight<12; i_weight++){
+    weightStgc[i_weight] = 1/std::pow(RmsDeltarEtaStgc[i_weight],2);
+    weightMm[i_weight] = 1/std::pow(RmsDeltarEtaMm[i_weight],2);
+  }
+  int weightBin = 0;
+  double minEta = 1.3;
+  double maxEta = 1.4;
+  for(int iBin=0; iBin<12; iBin++){
+    if(std::abs(eta) >= minEta && std::abs(eta) < maxEta){
+      weightBin = iBin;
+      break;
+    } else {
+      minEta += 0.1;
+      maxEta += 0.1;
+    }
+  }
+  
   double sumX=0, sumY=0, sumXY=0, sumX2=0, sumW=0;
   int nHits = x.size();
   for (unsigned int iHit = 0; iHit < x.size(); ++iHit){
     if(isStgc.at(iHit)){
-      sumX  += w_stgc * x.at(iHit);
-      sumY  += w_stgc * y.at(iHit);
-      sumXY += w_stgc * x.at(iHit) * y.at(iHit);
-      sumX2 += w_stgc * x.at(iHit) * x.at(iHit);
-      sumW  += w_stgc;
+      sumX  += weightStgc[weightBin] * x.at(iHit);
+      sumY  += weightStgc[weightBin] * y.at(iHit);
+      sumXY += weightStgc[weightBin] * x.at(iHit) * y.at(iHit);
+      sumX2 += weightStgc[weightBin] * x.at(iHit) * x.at(iHit);
+      sumW  += weightStgc[weightBin];
     } else {
-      sumX  += w_mm * x.at(iHit);
-      sumY  += w_mm * y.at(iHit);
-      sumXY += w_mm * x.at(iHit) * y.at(iHit);
-      sumX2 += w_mm * x.at(iHit) * x.at(iHit);
-      sumW  += w_mm;
+      sumX  += weightMm[weightBin] * x.at(iHit);
+      sumY  += weightMm[weightBin] * y.at(iHit);
+      sumXY += weightMm[weightBin] * x.at(iHit) * y.at(iHit);
+      sumX2 += weightMm[weightBin] * x.at(iHit) * x.at(iHit);
+      sumW  += weightMm[weightBin];
     }
   }
   *slope = (sumW * sumXY - sumX * sumY) / (sumW * sumX2 - (sumX * sumX));
@@ -798,18 +886,22 @@ void TrigL2MuonSA::NswStationFitter::LinearFitWeight(std::vector<double>& x,std:
   *mse = *mse / (nHits - 2);
 }
 
+void TrigL2MuonSA::NswStationFitter::getNswResolution(double *stgcDeltaR, double *mmDeltaR, unsigned int size) const
+{
+  double RmsDeltarEtaStgc[12] = {1.43,1.53,1.53,1.56,1.59,1.54,1.70,1.69,1.76,1.81,1.83,1.84};
+  double RmsDeltarEtaMm[12]   = {0.49,0.46,0.48,0.40,0.39,0.39,0.38,0.35,0.36,0.33,0.33,0.40};
+  for(unsigned int bin=0; bin < size; bin++){
+    stgcDeltaR[bin] = RmsDeltarEtaStgc[bin];
+    mmDeltaR[bin]   = RmsDeltarEtaMm[bin];
+  }
+}
+
 StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPattern& trackPattern) const
 {
   TrigL2MuonSA::StgcHits stgcHits = trackPattern.stgcSegment;
   TrigL2MuonSA::MmHits mmHits = trackPattern.mmSegment;
 
-  bool isLargeStgc = false;
-  bool isSmallStgc = false;
-  for(unsigned int iHit = 0; iHit < stgcHits.size(); ++iHit) {
-    if(stgcHits.at(iHit).stationName == 58) isLargeStgc = true; 
-    else if(stgcHits.at(iHit).stationName == 57) isSmallStgc = true; 
-    if(isLargeStgc && isSmallStgc) continue;
-  }
+  double side_mm = 0;
   std::vector<double> r, z;
   std::vector<bool> isStgc;
   for(unsigned int iHit = 0; iHit < stgcHits.size(); ++iHit) {
@@ -820,16 +912,11 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
     }
   }
   for(unsigned int iHit = 0; iHit < mmHits.size(); ++iHit) {
-    if(isLargeStgc){
-      if(mmHits.at(iHit).stationName == 55) continue;
-    }
-    else if(isSmallStgc){
-      if(mmHits.at(iHit).stationName == 56) continue;
-    }
     if (mmHits.at(iHit).layerNumber < 2 || mmHits.at(iHit).layerNumber > 5) {
       r.push_back(mmHits.at(iHit).r);
       z.push_back(mmHits.at(iHit).z);
       isStgc.push_back(false);
+      side_mm = std::abs(mmHits.at(iHit).z)/mmHits.at(iHit).z;
     }
   }
   double slopefit=0., interceptfit=99999., mse=-1.;
@@ -864,28 +951,38 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
     ATH_MSG_DEBUG("@@Merge@@ philocalwire " << rProj << " " << rInterpolate << " " << std::tan(phiProj) );
     ATH_MSG_DEBUG("@@Merge@@ philocalwire " << std::atan(rProj/rInterpolate*std::tan(phiProj)) );
   }
-  double tanTiltAngleU = std::tan( 1.5/360.*2.*M_PI),
-         tanTiltAngleV = std::tan(-1.5/360.*2.*M_PI); 
+  double tanTiltAngleU = 0,
+         tanTiltAngleV = 0;
+  double cosTiltAngleU = 0,
+         cosTiltAngleV = 0;
+  double sinTiltAngleU = 0,
+         sinTiltAngleV = 0;
+  if(side_mm == 1){
+    tanTiltAngleU = tan( 1.5/360.*2.*M_PI),
+    tanTiltAngleV = tan(-1.5/360.*2.*M_PI);
+    cosTiltAngleU = cos( 1.5/360.*2.*M_PI),
+    cosTiltAngleV = cos(-1.5/360.*2.*M_PI);
+    sinTiltAngleU = sin( 1.5/360.*2.*M_PI),
+    sinTiltAngleV = sin(-1.5/360.*2.*M_PI);
+  } else if(side_mm == -1){
+    tanTiltAngleU = tan(-1.5/360.*2.*M_PI),
+    tanTiltAngleV = tan(1.5/360.*2.*M_PI);
+    cosTiltAngleU = cos(-1.5/360.*2.*M_PI),
+    cosTiltAngleV = cos(1.5/360.*2.*M_PI);
+    sinTiltAngleU = sin(-1.5/360.*2.*M_PI),
+    sinTiltAngleV = sin(1.5/360.*2.*M_PI);
+  }
   for (unsigned int iHit = 0; iHit < mmHits.size(); ++iHit) {
-    if(isLargeStgc){
-      if(mmHits.at(iHit).stationName == 55) continue;
-    }
-    else if(isSmallStgc){
-      if(mmHits.at(iHit).stationName == 56) continue;
-    }
-   
     if (localPhiCenter > 2.*M_PI) {
       if (mmHits.at(iHit).stationPhi<=5) {
         localPhiCenter = 0.25 * M_PI * ((double)mmHits.at(iHit).stationPhi-1.);
       } else {
         localPhiCenter = 0.25 * M_PI * ((double)mmHits.at(iHit).stationPhi-9.);
       }
-      
       if (mmHits.at(iHit).stationName == 55){
         localPhiCenter += M_PI/8.; // small MM sectors
         if (mmHits.at(iHit).stationPhi == 5) localPhiCenter -= 2 * M_PI;
       }
-    
     }
     if (mmHits.at(iHit).layerNumber >1 && mmHits.at(iHit).layerNumber < 6){
       double rInterpolate = slopefit * mmHits.at(iHit).z + interceptfit;
@@ -911,6 +1008,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
   isStgc.clear();
   std::vector<double> r_stgc, z_stgc, r_mm, z_mm;
   std::vector<bool> isStgc_stgc, isStgc_mm;
+  double side_stgc = 0;
   for(unsigned int iHit = 0; iHit < stgcHits.size(); ++iHit) {
     if (stgcHits.at(iHit).stationPhi<=5) localPhiCenter = 0.25 * M_PI * ((double)stgcHits.at(iHit).stationPhi-1.);
     if (stgcHits.at(iHit).stationPhi> 5) localPhiCenter = 0.25 * M_PI * ((double)stgcHits.at(iHit).stationPhi-9.);
@@ -918,6 +1016,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
       r_stgc.push_back(stgcHits.at(iHit).r/std::cos(phiLocalAvg));
       z_stgc.push_back(stgcHits.at(iHit).z);
       isStgc_stgc.push_back(true);
+      side_stgc = std::abs(stgcHits.at(iHit).z)/stgcHits.at(iHit).z;
       
       ATH_MSG_DEBUG("@@Merge@@ stgc strip_r " << phiLocalAvg << " " << stgcHits.at(iHit).z << " " << stgcHits.at(iHit).r/std::cos(phiLocalAvg));
     }
@@ -931,26 +1030,21 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
   }
 
   for(unsigned int iHit = 0; iHit < mmHits.size(); ++iHit) {
-    if(isLargeStgc){
-      if(mmHits.at(iHit).stationName == 55) continue;
-    }
-    else if(isSmallStgc){
-      if(mmHits.at(iHit).stationName == 56) continue;
-    }
     if (mmHits.at(iHit).layerNumber < 2 || mmHits.at(iHit).layerNumber > 5) {
       r_mm.push_back(mmHits.at(iHit).r/std::cos(phiLocalAvg));
       z_mm.push_back(mmHits.at(iHit).z);
       isStgc_mm.push_back(false);
+      side_mm = std::abs(mmHits.at(iHit).z)/mmHits.at(iHit).z;
     } else {
       z_mm.push_back(mmHits.at(iHit).z);
       isStgc_mm.push_back(false);
       
       double rProj = mmHits.at(iHit).r;
       if ((mmHits.at(iHit).layerNumber)%2 == 0) { // layer U
-        double rPrime = (rProj * std::cos(1.5/360.*2.*M_PI))/(std::cos(phiLocalAvg)*std::cos(1.5/360.*2.*M_PI) + std::sin(phiLocalAvg)*std::sin(1.5/360.*2.*M_PI));
+        double rPrime = (rProj * cosTiltAngleU)/(cos(phiLocalAvg)*cosTiltAngleU + sin(phiLocalAvg)*sinTiltAngleU);
         r_mm.push_back(rPrime);
       } else { //layer V
-        double rPrime = (rProj * std::cos(-1.5/360.*2.*M_PI))/(std::cos(phiLocalAvg)*std::cos(-1.5/360.*2.*M_PI) + std::sin(phiLocalAvg)*std::sin(-1.5/360.*2.*M_PI));
+        double rPrime = (rProj * cosTiltAngleV)/(cos(phiLocalAvg)*cosTiltAngleV + sin(phiLocalAvg)*sinTiltAngleV);
         r_mm.push_back(rPrime);
       }
     }
@@ -964,6 +1058,11 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
 
   unsigned int fmerge = 0;
   slopefit=0., interceptfit=99999., mse=1.e20;
+  double side = 0;
+  double StgcSegZ = 7526.329;
+  double StgcSegR = 0;
+  double MmSegZ = 7526.329;
+  double MmSegR = 0;
   if (mse_stgc < 1.e7 && mse_mm < 1.e7) {
     r = r_stgc;
     copy(r_mm.begin(), r_mm.end(), back_inserter(r));
@@ -971,7 +1070,35 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
     copy(z_mm.begin(), z_mm.end(), back_inserter(z));
     isStgc = isStgc_stgc;
     copy(isStgc_mm.begin(), isStgc_mm.end(), back_inserter(isStgc));
-    LinearFitWeight(z,r,isStgc,&slopefit,&interceptfit,&mse);
+
+    if(side_stgc == -1){
+      StgcSegZ = -7526.329;
+    }
+    StgcSegR = slopefit_stgc * StgcSegZ + interceptfit_stgc;
+    double StgcSegOriginTheta = std::atan(StgcSegR / StgcSegZ);
+    double StgcSegEta         = side_stgc * (- std::log(std::abs(std::tan(StgcSegOriginTheta / 2))));
+    if(side_mm == -1){
+      MmSegZ = -7526.329;
+    }
+    MmSegR = slopefit_mm * MmSegZ + interceptfit_mm;
+    double MmSegOriginTheta = std::atan(MmSegR / MmSegZ);
+    double MmSegEta         = side_stgc * (- std::log(std::abs(std::tan(MmSegOriginTheta / 2))));
+
+    double SegEtaAve = 0;
+    if(side_stgc != 0 || side_mm != 0){
+      if(side_stgc == side_mm){
+        side = side_stgc;
+        SegEtaAve = (StgcSegEta + MmSegEta)/2;
+      } else if(side_stgc == 0) {
+        side = side_mm;
+        SegEtaAve = MmSegEta;
+      } else if(side_mm == 0) {
+        side = side_stgc;
+        SegEtaAve = StgcSegEta;
+      }
+    }
+    
+    LinearFitWeight(z,r,isStgc,&slopefit,&interceptfit,&mse,SegEtaAve);
     fmerge = 1;
   }
   if (mse > 1.e7) {
@@ -979,11 +1106,15 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
       slopefit = slopefit_stgc;
       interceptfit = interceptfit_stgc;
       mse = mse_stgc;
+      z = z_stgc;
+      side = side_stgc;
       fmerge = 2;
     } else {
       slopefit = slopefit_mm;
       interceptfit = interceptfit_mm;
       mse = mse_mm;
+      z = z_mm;
+      side = side_mm;
       fmerge = 3;
     }
   }
@@ -996,6 +1127,9 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
   xAOD::L2MuonParameters::Chamber inner = xAOD::L2MuonParameters::Chamber::EndcapInner;
   TrigL2MuonSA::SuperPoint* superPoint = &(trackPattern.superPoints[inner]);
   double NSWCenterZ = 7526.329; 
+  if(side == -1){
+    NSWCenterZ = -7526.329;
+  }
   superPoint->R = slopefit * NSWCenterZ + interceptfit;
   superPoint->Phim = phiLocalAvg+localPhiCenter;
   superPoint->Z = NSWCenterZ; 
@@ -1012,22 +1146,34 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
   ATH_MSG_DEBUG("@@Merge@@ fit mse= " << mse << " " << mse_stgc << " " << mse_mm);
   ATH_MSG_DEBUG("@@Merge@@ fit tech= " << fmerge);
 
+
   return StatusCode::SUCCESS;
 
 }
 
 StatusCode TrigL2MuonSA::NswStationFitter::findMmHitsInSegment(TrigL2MuonSA::MmHits& mmHits) const
 {
-  if(mmHits.size() < 6) {
-    ATH_MSG_INFO("Number of MM hits is too small, at least 6 hits required : "<<mmHits.size()<<" hits");
+  if(mmHits.size() == 0) return StatusCode::SUCCESS;
+  int hitsInRoad = 0;
+  for(unsigned int iHit = 0; iHit < mmHits.size(); iHit++){
+    if(mmHits.at(iHit).isOutlier == 0){
+      hitsInRoad++;
+      mmHits.at(iHit).isOutlier = 1;
+    }
+  }
+  if(hitsInRoad == 0) return StatusCode::SUCCESS;
+  
+  if(hitsInRoad < 6) {
+    ATH_MSG_INFO("Number of MM hits is too small, at least 6 hits required : "<<hitsInRoad<<" hits");
     return StatusCode::SUCCESS;
-    } else if(mmHits.size() > 100) {
-    ATH_MSG_WARNING("Number of MM hits is too large, at most (2^16 - 1) hits allowed : "<<mmHits.size()<<" hits");
+    } else if(hitsInRoad > 100) {
+    ATH_MSG_WARNING("Number of MM hits is too large, at most (2^16 - 1) hits allowed : "<<hitsInRoad<<" hits");
     return StatusCode::SUCCESS;
   }
 
   std::array< std::vector<int>, 8 > hitIdByLayer;
   for(unsigned int iHit = 0; iHit < mmHits.size(); ++iHit){
+    if(mmHits.at(iHit).isOutlier != 1) continue;
     int layerNumber = mmHits.at(iHit).layerNumber;
     if (layerNumber > 7) {
       ATH_MSG_WARNING("MM hit layer number > 7");
@@ -1048,18 +1194,14 @@ StatusCode TrigL2MuonSA::NswStationFitter::findMmHitsInSegment(TrigL2MuonSA::MmH
   std::vector< std::array<int, 8> > mmHitIds;
   findSetOfMmHitIds(mmHits, hitIdByLayer, mmHitIds);
   ATH_MSG_DEBUG("check point 6");
-  TrigL2MuonSA::MmHits selectedMmHits;
-  selectedMmHits.clear();
   for (unsigned int iHit = 0; iHit < mmHitIds.size(); ++iHit) {
     std::array<int, 8> hitIds = mmHitIds.at(iHit);
     for (unsigned int iLayer = 0; iLayer < 8; ++iLayer) {
       if (hitIds[iLayer] != -1) {
-        selectedMmHits.push_back(mmHits.at(hitIds[iLayer]));
-      }
+        mmHits.at(hitIds[iLayer]).isOutlier = 0;
+      } 
     }
   }
-  mmHits.clear();
-  mmHits = selectedMmHits;
   ATH_MSG_DEBUG("check point 7");
   return StatusCode::SUCCESS;
 }
@@ -1070,6 +1212,14 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
 {
   
   double NSWCenterZ = 7526.329;
+  int side = 0; 
+  for (unsigned int iLayer = 0; iLayer < 8; ++iLayer) {
+    if ( hitIdByLayer[iLayer].size() > 0) {
+      side = std::abs(mmHits.at(hitIdByLayer[iLayer].at(0)).z)/mmHits.at(hitIdByLayer[iLayer].at(0)).z;
+      break;
+    }
+  }
+  NSWCenterZ = NSWCenterZ * side;
 
   std::array<std::vector<unsigned long int>,4> hitIdsInTwo;
   std::array<std::vector<double>,4> slopeInTwo;
@@ -1233,8 +1383,15 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
     return;
   }
 
-  double tanTiltAngleU = std::tan( 1.5/360*2*M_PI),
-         tanTiltAngleV = std::tan(-1.5/360*2*M_PI);
+  double tanTiltAngleU = 0,
+         tanTiltAngleV = 0;
+  if(side == 1){
+    tanTiltAngleU = tan( 1.5/360.*2.*M_PI),
+    tanTiltAngleV = tan(-1.5/360.*2.*M_PI);
+  } else if(side == -1){
+    tanTiltAngleU = tan(-1.5/360.*2.*M_PI),
+    tanTiltAngleV = tan(1.5/360.*2.*M_PI);
+  }
 
   std::vector< std::array<int, 8> > hitIdsInEight;
   std::vector<double> mseInEight;

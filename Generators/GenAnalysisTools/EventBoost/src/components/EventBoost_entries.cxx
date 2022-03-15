@@ -1,4 +1,4 @@
-#include "EventBoost/EventBoost.h"
+#include "../EventBoost.h"
 
 DECLARE_COMPONENT( EventBoost )
 

@@ -16,6 +16,3 @@ atlas_add_component( EventBoost
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib GeneratorObjects )
 
-# Install files from the package:
-atlas_install_headers( EventBoost )
-

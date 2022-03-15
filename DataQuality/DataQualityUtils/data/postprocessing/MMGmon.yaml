@@ -7,5 +7,3 @@ Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Efficiency/pcb_eta(?P<
 Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Efficiency_per_PCB_eta{eta}_E{side}']
 Function : MMRawDataMonitoring.MMPostProcessing.make_eff_histo_per_PCB
 Description: make_eff_histo_per_PCB
----
-

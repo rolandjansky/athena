@@ -20,6 +20,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--file', default='TrigCostRoot_Results.root', help='Input ROOT file to generate output from')
     parser.add_argument('--userDetails', help='User supplied metadata string giving any extra details about this run.')
+    parser.add_argument('--oksMetadata', action='store_true', help='Retrieve additional metadata from OKS for Cost CPU studies')
+    parser.add_argument('--partition', default='ATLAS', help='Used partition (needed to read OKS details)')
     parser.add_argument('--underflowThreshold', default=0.5, help='Threshold of underflow percent value to save warning in metadata tree.')
     parser.add_argument('--overflowThreshold', default=0.1, help='Threshold of underflow percent value to save warning in metadata tree.')
     parser.add_argument('--dumpAlgorithmSummary', action='store_true', help='Print algorithm\'s mean time of execution to the log file')     
@@ -29,7 +31,7 @@ def main():
 
     if inputFile.IsOpen():
         warningMsg = exploreTree(inputFile, args.dumpAlgorithmSummary, args.underflowThreshold, args.overflowThreshold)
-        saveMetadata(inputFile, args.userDetails, warningMsg)
+        saveMetadata(inputFile, args.userDetails, warningMsg, args.oksMetadata, args.partition)
     else:
         log.error("File %s not found", args.file)
 

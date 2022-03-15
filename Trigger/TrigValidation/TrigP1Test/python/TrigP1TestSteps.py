@@ -121,3 +121,28 @@ def default_check_steps_OHMon(test, hist_path):
     for hm_step in matches:
         steps.remove(hm_step)
     return steps
+
+def filterBS(stream_name):
+    '''Extract ByteStream data for a given stream from a file with multiple streams'''
+    from TrigValTools.TrigValSteering import ExecStep
+    from TrigValTools.TrigValSteering.Common import find_file
+    filterStep = ExecStep.ExecStep('FilterBS_'+stream_name)
+    filterStep.type = 'other'
+    filterStep.executable = 'trigbs_extractStream.py'
+    filterStep.input = ''
+    filterStep.args = '-s ' + stream_name + ' ' + find_file('*_HLTMPPy_output.*.data')
+    return filterStep
+
+def decodeBS(stream_name):
+    '''Deserialise HLT data from ByteStream and save to an ESD file'''
+    from TrigValTools.TrigValSteering import ExecStep
+    from TrigValTools.TrigValSteering.Common import find_file
+    decodeStep = ExecStep.ExecStep('DecodeBS_'+stream_name)
+    decodeStep.type = 'athena'
+    decodeStep.job_options = 'TriggerJobOpts/decodeBS.py'
+    decodeStep.input = ''
+    decodeStep.explicit_input = True
+    decodeStep.args = '--filesInput='+find_file('*'+stream_name+'*._athenaHLT*.data')
+    decodeStep.perfmon = False  # no need to run PerfMon for this step
+    return decodeStep
+

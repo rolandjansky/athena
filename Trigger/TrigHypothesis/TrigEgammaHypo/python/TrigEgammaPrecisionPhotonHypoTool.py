@@ -122,11 +122,11 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
       self.nominal()
 
     if hasattr(self.tool(), "MonTool"):
-      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
-      doOnlineMonAllChains = doOnlineMonForceCfg()
+      
+      doValidationMonitoring = ConfigFlags.Trigger.doValidationMonitoring # True to monitor all chains for validation purposes
       monGroups = self.__monGroups
 
-      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+      if (any('egammaMon:online' in group for group in monGroups) or doValidationMonitoring):
         self.addMonitoring()
 
 
@@ -148,6 +148,12 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
 
     monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionPhoton Hypo Passed Cuts;Cut",
                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts) ]
+
+    if ConfigFlags.Trigger.doValidationMonitoring:
+      monTool.defineHistogram('etcone20',type='TH1F',path='EXPERT',title= "PrecisionPhoton Hypo etcone20; etcone20;", xbins=50, xmin=0, xmax=5.0),
+      monTool.defineHistogram('topoetcone20',type='TH1F',path='EXPERT',title= "PrecisionPhoton Hypo; topoetcone20;", xbins=50, xmin=-10, xmax=10),
+      monTool.defineHistogram('reletcone20',type='TH1F',path='EXPERT',title= "PrecisionPhoton Hypo etcone20/et; etcone20/et;", xbins=50, xmin=-0.5, xmax=0.5),
+      monTool.defineHistogram('reltopoetcone20',type='TH1F',path='EXPERT',title= "PrecisionPhoton Hypo; topoetcone20/pt;", xbins=50, xmin=-0.5, xmax=0.5)
 
     monTool.HistPath = 'PrecisionPhotonHypo/'+self.__name
     self.tool().MonTool = monTool

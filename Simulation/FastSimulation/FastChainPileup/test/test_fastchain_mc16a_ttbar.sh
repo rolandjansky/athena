@@ -31,7 +31,7 @@ FastChain_tf.py \
     --maxEvents 25 \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
     --preExec 'EVNTtoRDO:ToolSvc.NewMergeMcEventCollTool.OutputLevel=VERBOSE;' \
     --postInclude='PyJobTransforms/UseFrontier.py,DigitizationTests/postInclude.RDO_Plots.py' \
@@ -61,7 +61,7 @@ then
     rc1=$?
 
     Reco_tf.py --inputRDOFile ${rdoFile} --maxEvents '-1' \
-               --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-16' \
+               --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
                --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
                --outputAODFile ${aodFile} \
                --steering 'doRDO_TRIG' \

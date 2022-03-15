@@ -111,8 +111,7 @@ endif()
 
 atlas_add_test( exctrace2_test
    SOURCES test/exctrace2_test.cxx
-   LINK_LIBRARIES CxxUtils
-   LOG_IGNORE_PATTERN "no version information available" )
+   LINK_LIBRARIES CxxUtils )
 
 atlas_add_test(
    OptionalContainer_test
@@ -136,7 +135,6 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
       reverse_wrapper_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
-      LOG_IGNORE_PATTERN "no version information available"
       LINK_LIBRARIES CxxUtils TestTools )
 endforeach()
 # Needed because this executable directly uses multiversioned functions.

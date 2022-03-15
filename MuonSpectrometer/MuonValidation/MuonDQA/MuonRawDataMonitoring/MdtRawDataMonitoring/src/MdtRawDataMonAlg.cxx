@@ -30,9 +30,9 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
-#include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
-#include "MdtRawDataMonitoring/MdtRawDataMonAlg.h"
-#include "MdtRawDataMonitoring/MdtHistCoder.h"
+#include "MuonChamberIDSelector.h"
+#include "MdtRawDataMonAlg.h"
+#include "MdtHistCoder.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"

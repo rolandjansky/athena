@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETRECTOOLS_CHARGEDHADRONSUBTRACTIONTOOL_H
@@ -45,12 +45,19 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   StatusCode matchToPrimaryVertex(xAOD::FlowElementContainer& cont) const;
 
   const xAOD::Vertex* getPrimaryVertex() const;
-  bool m_useTrackToVertexTool;
-  bool m_ignoreVertex;
-  float m_z0sinThetaCutValue;
+
+
+  // properties -----------------
+  
+  Gaudi::Property<bool> m_useTrackToVertexTool = {this, "UseTrackToVertexTool", false, "True if we will use the track to vertex tool"};
+  Gaudi::Property<bool> m_ignoreVertex = {this, "IgnoreVertex", false, "Dummy option for cosmics - accept everything"};
+  Gaudi::Property<float> m_z0sinThetaCutValue = {this, "Z0sinThetaCutValue", 2.0, "True if we will use the track to vertex tool"};
 	
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trkVtxAssoc_key;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key = {this, "VertexContainerKey", "PrimaryVertices", "key for the primary vertex container"};
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trkVtxAssoc_key = {this, "TrackVertexAssociation", "JetTrackVtxAssoc", "key for the TrackVertexAssociation object"};
+  
+
+
 };
 
 #endif

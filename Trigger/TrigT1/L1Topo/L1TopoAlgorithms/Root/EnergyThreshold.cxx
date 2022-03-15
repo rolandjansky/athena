@@ -17,7 +17,8 @@
 #include "L1TopoCommon/Exception.h" 
 #include "L1TopoInterfaces/Count.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/MetTOBArray.h"
+#include "L1TopoEvent/jXETOBArray.h"
+#include <cmath>
 
 
 REGISTER_ALG_TCS(EnergyThreshold)
@@ -63,21 +64,21 @@ TCS::StatusCode TCS::EnergyThreshold::process( const TCS::InputTOBArray & input,
 
 
   // Grab the threshold and cast it into the right type
-  auto MetThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*m_threshold);
-
+  auto jXEThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*m_threshold);
   // Grab inputs
-  const MetTOBArray & MetArray = dynamic_cast<const MetTOBArray&>(input);
+  const jXETOBArray & jXEArray = dynamic_cast<const jXETOBArray&>(input);
 
   int counting = 0; 
   
   // loop over input TOBs
-  for(MetTOBArray::const_iterator met = MetArray.begin();
-      met != MetArray.end();
-      ++met ) {
-    bool passed =(*met)->Et() >= MetThr.thrValue100MeV();
+  for(jXETOBArray::const_iterator jxe = jXEArray.begin();
+      jxe != jXEArray.end();
+      ++jxe ) {
+
+    bool passed = (*jxe)->Et() >= jXEThr.thrValue100MeV();
     if (passed) {
       counting++;
-      fillHist1D(m_histAccept[0], ((*met)->Et()/10.));
+      fillHist1D(m_histAccept[0], ((*jxe)->Et()/10.));
     }
   }
 

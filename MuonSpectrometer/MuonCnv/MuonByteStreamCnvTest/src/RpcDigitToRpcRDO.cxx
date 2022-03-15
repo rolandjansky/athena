@@ -22,8 +22,8 @@
 static double time_correction(double, double, double);
 
 namespace {
-  static constexpr unsigned int const& rpcRawHitWordLength = 7;
-  static constexpr double const& inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
+  static constexpr unsigned int rpcRawHitWordLength = 7;
+  static constexpr double inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -289,10 +289,9 @@ RpcPad* RpcDigitToRpcRDO::decodePad(PADreadout& pad, const RpcCablingCondData* r
   index.offline_indexes(name, eta, phi, doublet_r, doublet_z, doublet_phi, gas_gap, measures_phi, strip);
 
   // Build the pad offline identifier
-  bool check = true;
-  bool valid = false;
+  bool valid{false};
   Identifier id = m_idHelperSvc->rpcIdHelper().padID(name, eta, phi, doublet_r, 
-      doublet_z, doublet_phi, check, &valid);
+      doublet_z, doublet_phi, valid);
 
   ATH_MSG_DEBUG( "Invalid pad offline indices " );
   ATH_MSG_DEBUG( "Name : "    << name  );

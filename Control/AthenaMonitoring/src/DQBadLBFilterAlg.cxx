@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DQBadLBFilterAlg.h"
@@ -13,7 +13,6 @@ DQBadLBFilterAlg::DQBadLBFilterAlg(const std::string& name, ISvcLocator* pSvcLoc
 , m_ignoreRecoverable(true)
 , m_readKey("/GLOBAL/DETSTATUS/DEFECTS")
 , m_writeKey("")
-, m_condSvc("CondSvc",name)
 , m_attribListSpec(0)
 {
   declareProperty("ignoreRecoverable", m_ignoreRecoverable);
@@ -39,16 +38,9 @@ StatusCode DQBadLBFilterAlg::initialize()
   m_attribListSpec = new coral::AttributeListSpecification;
   m_attribListSpec->extend("Accept", "bool");
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
   // Handles
   ATH_CHECK( m_readKey.initialize() );
   ATH_CHECK( m_writeKey.initialize() );
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

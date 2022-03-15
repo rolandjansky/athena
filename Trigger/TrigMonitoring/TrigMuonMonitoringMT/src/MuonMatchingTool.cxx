@@ -281,12 +281,13 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
     double roiEta = roi->eta();
     double roiPhi = roi->phi();
     int roiThr = roi->getThrNumber();
+    int roiSource = roi->getSource();
     
     double deta = refEta - roiEta;
     double dphi = xAOD::P4Helpers::deltaPhi(refPhi, roiPhi);
     double dR = sqrt(deta*deta + dphi*dphi);
     ATH_MSG_VERBOSE("L1 muon candidate eta=" << roiEta << " phi=" << roiPhi  << " dR=" << dR);
-    if( dR<reqdR && roiThr>=L1ItemStringToInt(trig)){
+    if( dR<reqdR && roiThr>=L1ItemStringToInt(trig, roiSource)){
       reqdR = dR;
       pass = true;
       closest = roi;

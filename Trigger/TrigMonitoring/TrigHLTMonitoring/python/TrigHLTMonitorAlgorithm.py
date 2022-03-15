@@ -16,15 +16,19 @@ def createHLTDQConfigFlags():
     # need to (temporarily) block signature monitoring by default when it is
     # running on bytestream. Remove when ATR-23720 is completed
     from AthenaConfiguration.Enums import Format
+    from AthenaConfiguration.Enums import BeamType
     acf.addFlag('DQ.Steering.HLT.doGeneral', True)
-    acf.addFlag('DQ.Steering.HLT.doBjet', lambda flags: flags.Input.Format is Format.POOL)
+
+    # b-jets disabled for cosmics following ATR-25036
+    acf.addFlag('DQ.Steering.HLT.doBjet', lambda flags: flags.Input.Format is Format.POOL and flags.Beam.Type is BeamType.Collisions)
+
     acf.addFlag('DQ.Steering.HLT.doBphys', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doCalo', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doEgamma', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doJet', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doMET', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doMinBias', lambda flags: flags.Input.Format is Format.POOL)
-    acf.addFlag('DQ.Steering.HLT.doMuon', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doMuon', True) #must be changed back to lambda flags if monGroups are implemented. Safe if ATR-23720 is completed
     acf.addFlag('DQ.Steering.HLT.doTau', lambda flags: flags.Input.Format is Format.POOL)
 
     return acf

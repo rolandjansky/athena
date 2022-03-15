@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARALIGNMENTALGS_LARALIGNCONDALG_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "DetDescrConditions/DetCondKeyTrans.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
@@ -43,8 +42,6 @@ class LArAlignCondAlg final : public AthAlgorithm
       , "LArAlignmentStore"
       , "LArAlignmentStore"
       , "SG key of the resulting GeoAlignmentStore for LAr" };
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   LArAlignHelper m_alignHelper;
 };

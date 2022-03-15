@@ -59,7 +59,7 @@ int JetTrimmer::groom(const xAOD::Jet& jin,
     return 1;
   }
   const PseudoJet* ppjin = pseudojetRetriever()->pseudojet(jin);
-  if ( ppjin == 0 ) {
+  if ( ppjin == nullptr ) {
     ATH_MSG_WARNING("Jet does not have a pseudojet.");
     return 1;
   }
@@ -72,6 +72,10 @@ int JetTrimmer::groom(const xAOD::Jet& jin,
   int nptrim = pjtrim.pieces().size();
   // Add jet to collection.
   xAOD::Jet* pjet = m_bld->add(pjtrim, pjContainer, jets, &jin);
+  if ( pjet == nullptr ) {
+    ATH_MSG_ERROR("Unable to add jet to container");
+    return 1;
+  }
   pjet->setAttribute<int>("TransformType", xAOD::JetTransform::Trim);
   pjet->setAttribute("RClus", float(m_rclus));
   pjet->setAttribute("PtFrac", float(m_ptfrac));
@@ -80,11 +84,9 @@ int JetTrimmer::groom(const xAOD::Jet& jin,
   ATH_MSG_DEBUG("   ncon: " << pjtrim.constituents().size() << "/"
                             << ppjin->constituents().size());
   ATH_MSG_DEBUG("   nsub: " << nptrim);
-  if ( pjet == 0 ) {
-    ATH_MSG_ERROR("Unable to add jet to container");
-  } else {
-    ATH_MSG_DEBUG("Added jet to container.");
-  }
+  
+  ATH_MSG_DEBUG("Added jet to container.");
+  
   return 0;
 }
 

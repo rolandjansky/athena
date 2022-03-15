@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TFile.h"
@@ -21,6 +21,7 @@
 #include "ByteStreamEventTPCnv/ByteStreamMetadata_p1.h"
 #endif // not SIMULATIONBASE
 #include "FileMetaData.h"
+#include "CxxUtils/checker_macros.h"
 
 
 
@@ -326,7 +327,7 @@ PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
   return;
 }
 
-int main(int argc, char** argv) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char** argv) {
 
   bool verbose=false;
   bool kvDump=false;

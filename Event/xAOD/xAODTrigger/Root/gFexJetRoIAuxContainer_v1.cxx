@@ -13,12 +13,14 @@ namespace xAOD {
       : AuxContainerBase() {
 
       AUX_VARIABLE( word);
+      AUX_VARIABLE( tobEtScale);
       AUX_VARIABLE( gFexType);
-      AUX_VARIABLE( tobEt);
+      AUX_VARIABLE( gFexTobEt);
       AUX_VARIABLE( iEta);
       AUX_VARIABLE( iPhi);
       AUX_VARIABLE( gFexJetStatus);
       AUX_VARIABLE( saturated);
+      
    }
 
 } // namespace xAOD

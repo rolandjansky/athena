@@ -166,6 +166,10 @@ def RecoPostProcessingCfg(flags):
         from ThinningUtils.ThinTRTStandaloneConfig import (
             ThinTRTStandaloneCfg)
         acc.merge(ThinTRTStandaloneCfg(flags))
+    if flags.Reco.PostProcessing.InDetForwardTrackParticleThinning:
+        from ThinningUtils.ThinInDetForwardTrackParticlesConfig import (
+            ThinInDetForwardTrackParticlesCfg)
+        acc.merge(ThinInDetForwardTrackParticlesCfg(flags))
     if flags.Reco.PostProcessing.GeantTruthThinning:
         from ThinningUtils.ThinGeantTruthConfig import (
             ThinGeantTruthCfg)

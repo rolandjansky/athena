@@ -1,6 +1,4 @@
-################################################################################
-# Package: MuonCurvedSegmentCombiner
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonCurvedSegmentCombiner )
@@ -9,8 +7,4 @@ atlas_subdir( MuonCurvedSegmentCombiner )
 atlas_add_component( MuonCurvedSegmentCombiner
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonEDM_AssociationObjects StoreGateLib Identifier MuonReadoutGeometry MuonIdHelpersLib MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack MuonSegmentCombinerToolInterfaces MuonSegmentMakerToolInterfaces )
-
-# Install files from the package:
-atlas_install_headers( MuonCurvedSegmentCombiner )
-
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonEDM_AssociationObjects MuonReadoutGeometry MuonIdHelpersLib MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack MuonSegmentCombinerToolInterfaces )

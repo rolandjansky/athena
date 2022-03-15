@@ -1,94 +1,94 @@
 Content of healthyCont:
   SG::AuxElement
-   in container 0x7ffc308bd100
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 0
     - type: float, 	name: "testVar2", 	value: 0
     - type: short, 	name: "testVar3", 	value: 0
   SG::AuxElement
-   in container 0x7ffc308bd100
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 1
     - type: float, 	name: "testVar2", 	value: 1.5
     - type: short, 	name: "testVar3", 	value: 2
   SG::AuxElement
-   in container 0x7ffc308bd100
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 2
     - type: float, 	name: "testVar2", 	value: 3
     - type: short, 	name: "testVar3", 	value: 4
 Content of brokenCont (before breaking):
   SG::AuxElement
-   in container 0x7ffc308bd210
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 0
     - type: float, 	name: "testVar2", 	value: 0
     - type: short, 	name: "testVar3", 	value: 0
   SG::AuxElement
-   in container 0x7ffc308bd210
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 1
     - type: float, 	name: "testVar2", 	value: 1.5
     - type: short, 	name: "testVar3", 	value: 2
   SG::AuxElement
-   in container 0x7ffc308bd210
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 2
     - type: float, 	name: "testVar2", 	value: 3
     - type: short, 	name: "testVar3", 	value: 4
 Content of copyCont after healthy deep copy:
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 0
     - type: float, 	name: "testVar2", 	value: 0
     - type: short, 	name: "testVar3", 	value: 0
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 1
     - type: float, 	name: "testVar2", 	value: 1.5
     - type: short, 	name: "testVar3", 	value: 2
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 2
     - type: float, 	name: "testVar2", 	value: 3
     - type: short, 	name: "testVar3", 	value: 4
 Content of copyCont after healthy safe deep copy:
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 0
     - type: float, 	name: "testVar2", 	value: 0
     - type: short, 	name: "testVar3", 	value: 0
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 1
     - type: float, 	name: "testVar2", 	value: 1.5
     - type: short, 	name: "testVar3", 	value: 2
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 2
     - type: float, 	name: "testVar2", 	value: 3
     - type: short, 	name: "testVar3", 	value: 4
 Content of copyCont after broken safe deep copy:
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 0
     - type: float, 	name: "testVar2", 	value: 0
     - type: short, 	name: "testVar3", 	value: 0
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 1
     - type: float, 	name: "testVar2", 	value: 0
     - type: short, 	name: "testVar3", 	value: 2
   SG::AuxElement
-   in container 0x7ffc308bd320
+   in container
    Variables:
     - type: int, 	name: "testVar1", 	value: 2
     - type: float, 	name: "testVar2", 	value: 0

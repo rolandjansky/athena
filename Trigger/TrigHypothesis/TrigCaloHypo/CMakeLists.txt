@@ -19,7 +19,7 @@ atlas_add_component( TrigCaloHypo
                      LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib AthViews xAODTrigCalo CaloEvent CaloInterfaceLib DecisionHandlingLib GaudiKernel Identifier LArRecConditions LArRecEvent StoreGateLib TrigCaloHypoLib TrigCompositeUtilsLib TrigSteeringEvent )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select=ATL900,ATL901 )
 
 # Install IS schema files:
 atlas_install_generic( schema/Larg.LArNoiseBurstCandidates.is.schema.xml

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -106,38 +106,6 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   // values for custom TileCal cosmic trigger boards
   declareProperty("TTL1CosmicsGain",     m_ttL1CosmicsGain=5.0,          "gain of the Cosmics board");
   declareProperty("TTL1CosmicsThresh",   m_ttL1CosmicsThresh=5.0,        "threshold in the Cosmics board");
-
-  // EM scale for old multiple scattering - default up to release 13.2.0
-  //declareProperty("EmScaleA",            m_emscaleA=35.9,                "conversion from Hit to Cell energy");
-  // EM scale for new multiple scattering - default starting from release 14.0.0
-  //declareProperty("EmScaleA",            m_emscaleA=34.3,                "conversion from Hit to Cell energy");
-  // EM scale for new multiple scattering - default starting from release 17.0.1
-
-  declareProperty("EmScaleA",            m_emscaleA=34.0,                "conversion from Hit to Cell energy");
-
-  // new EM scale for special C10 cells starting from release 16.0.0.4
-
-  declareProperty("EmScaleC10sp",        m_emscaleE[9]=45.,              "conversion from Hit to Cell energy for special C10 cells");
-
-  // new EM scale for gap/crack scintillators starting from release 16.0.0
-
-  declareProperty("EmScaleE1",           m_emscaleE[10]=125.0,           "conversion from Hit to Cell energy for cells E1 (gap scin)");
-  declareProperty("EmScaleE2",           m_emscaleE[11]=107.0,           "conversion from Hit to Cell energy for cells E2 (gap scin)");
-  declareProperty("EmScaleE3",           m_emscaleE[13]=97.0,            "conversion from Hit to Cell energy for cells E3 (crack scin)");
-  declareProperty("EmScaleE4",           m_emscaleE[15]=75.0,            "conversion from Hit to Cell energy for cells E4 (crack scin)");
-  declareProperty("EmScaleMBTSinner",    m_emscaleMBTS[0]=1.0,           "conversion from Hit to Cell energy for MBTS inner cell");
-  declareProperty("EmScaleMBTSouter",    m_emscaleMBTS[1]=1.0,           "conversion from Hit to Cell energy for MBTS outer cell");
-  declareProperty("EmScaleE4prime",      m_emscaleMBTS[2]=-1.0,          "conversion from Hit to Cell energy for E4' if negative - use the same as for E4");
-
-  // Number of photoelectrons per GeV - used in simulation of photostatistics
-  declareProperty("NPhElec",             m_nPhElec      =  70,           "default number of photo electrons per GeV");
-  declareProperty("NPhElecA",            m_nPhElecVec[0]=  70,           "default number of photo electrons per GeV in A layer");
-  declareProperty("NPhElecC",            m_nPhElecVec[1]=  70,           "default number of photo electrons per GeV in B/C layer");
-  declareProperty("NPhElecD",            m_nPhElecVec[2]=  70,           "default number of photo electrons per GeV in D layer");
-  declareProperty("NPhElecE",            m_nPhElecVec[3]=  70,           "default number of photo electrons per GeV in E layer");
-  declareProperty("NPhElecMBTSinner",    m_nPhElecVec[4]=1500,           "default number of photo electrons per GeV in MBTS, inner cell");
-  declareProperty("NPhElecMBTSouter",    m_nPhElecVec[5]=1070,           "default number of photo electrons per GeV in MBTS, outer cell");
-  declareProperty("NPhElecE4prime",      m_nPhElecVec[6]=  -1,           "default number of photo electrons per GeV in E4' cell, if negative - use the same as for E4");
 
   //==========================================================
   //=== Digits pulse shapes
@@ -249,11 +217,6 @@ StatusCode TileInfoLoader::initialize() {
   info->m_mbtsL1Max = m_mbtsL1Max;
   info->m_ttL1CosmicsGain = m_ttL1CosmicsGain;
   info->m_ttL1CosmicsThresh = m_ttL1CosmicsThresh;
-  info->m_emscaleA = m_emscaleA;
-  info->m_nPhElec = m_nPhElec;
-  std::copy (std::begin(m_emscaleE), std::end(m_emscaleE), std::begin(info->m_emscaleE));
-  std::copy (std::begin(m_emscaleMBTS), std::end(m_emscaleMBTS), std::begin(info->m_emscaleMBTS));
-  std::copy (std::begin(m_nPhElecVec), std::end(m_nPhElecVec), std::begin(info->m_nPhElecVec));
   info->m_ADCmax = m_ADCmax;
   info->m_ADCmaskValue = m_ADCmaskValue;
 
@@ -261,11 +224,6 @@ StatusCode TileInfoLoader::initialize() {
 
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
-
-  // initialize sampling fraction for all C10 cells to default value
-  for (int i=0; i<64; ++i) {
-    info->m_emscaleC[i] =  info->m_emscaleA;
-  }
 
   const IGeoModelSvc *geoModel=0;
 
@@ -312,63 +270,6 @@ StatusCode TileInfoLoader::initialize() {
     } else {
       ATH_MSG_DEBUG( "ATLAS geometry " << atlasVersion << " version " << ver );
     }
-
-    if (info->m_emscaleA < 0.0) { // negative value from jobOptions
-      info->m_emscaleA = -info->m_emscaleA; // convert to positive value and use it without any other checks
-      ATH_MSG_DEBUG("Sampling fraction in jobOptions is negative - use absolute value of it");
-    } else {
-      if (geo == 0 && ver < 180000) { // GEO versions used for MC08,MC09,MC10 - use old SF by default
-        if (fabs(info->m_emscaleA - 34.3) > 0.001) {
-          info->m_emscaleA = 34.3;
-          ATH_MSG_DEBUG("ATLAS geometry " << ver << " < 180000 - use old default sampling fraction");
-          ATH_MSG_DEBUG("If you want to override old default, put negative value in jobOptions");
-        }
-      }
-    }
-
-    if (ver >= 140000 || run1 == 0 || ibl == 0 || run2 == 0 || upg == 0 || RUN2) {
-      if (ibl == 0 || run2 == 0 || RUN2)
-        ATH_MSG_DEBUG( "ATLAS IBL geometry - special sampling fractions for gap/crack scin are allowed" );
-      else if (upg == 0)
-        ATH_MSG_DEBUG( "ATLAS High Luminosity LHC geometry - special sampling fractions for gap/crack scin are allowed" );
-      else
-        ATH_MSG_DEBUG( "ATLAS geometry " << ver << " >= 140000 - special sampling fractions for gap/crack scin are allowed" );
-
-      if (info->m_emscaleE[9] < 0.0) {
-        info->m_emscaleE[9] = info->m_emscaleA;
-      } else {
-        for (int i = 0; i < 64; ++i) {
-          if (!TileCablingService::C10_connected(i)) {
-            info->m_emscaleC[i] =  info->m_emscaleE[9];
-            ATH_MSG_DEBUG( "Special C10 in EB module " << i + 1 );
-          }
-        }
-
-        info->m_emscaleE[12] = info->m_emscaleE[13];
-        info->m_emscaleE[14] = info->m_emscaleE[15];
-      }
-    } else {
-      ATH_MSG_DEBUG( "ATLAS geometry " << ver << " < 140000 - disabling special sampling fractions for gap/crack scin" );
-
-      info->m_emscaleE[9] = info->m_emscaleA;
-      for (int i = 10; i < 16; ++i) {
-        info->m_emscaleE[i] = 75.;
-      }
-    }
-
-    // sampling fraction for E4' stored in the same array as MBTS (eta index = 2)
-    if (info->m_emscaleMBTS[2] < 0.0)  info->m_emscaleMBTS[2] = info->m_emscaleE[15];
-
-    // number of photoelectrons for E4' - if it is not set, assume the same number as for all E-cells
-    if (info->m_nPhElecVec[6]  < 0.0)  info->m_nPhElecVec[6]  = info->m_nPhElecVec[3];
-
-    ATH_MSG_DEBUG( "Sampling fraction for normal cells 1/" << info->m_emscaleA );
-    ATH_MSG_DEBUG( "Sampling fraction for special C10 cells 1/" << info->m_emscaleE[9] );
-    ATH_MSG_DEBUG( "Sampling fraction for E1 cells 1/" << info->m_emscaleE[10] );
-    ATH_MSG_DEBUG( "Sampling fraction for E2 cells 1/" << info->m_emscaleE[11] );
-    ATH_MSG_DEBUG( "Sampling fraction for E3 cells 1/" << info->m_emscaleE[13] );
-    ATH_MSG_DEBUG( "Sampling fraction for E4 cells 1/" << info->m_emscaleE[15] );
-    ATH_MSG_DEBUG( "Sampling fraction for E4' cells 1/" << info->m_emscaleMBTS[2] );
 
   }
 

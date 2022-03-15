@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* file contains the implementation for the AthenaRootSerializeSvc class.
@@ -11,6 +11,7 @@
 
 #include "StorageSvc/DbReflex.h"
 #include "TBufferFile.h"
+#include "TClass.h"
 
 //___________________________________________________________________________
 AthenaRootSerializeSvc::AthenaRootSerializeSvc(const std::string& name,
@@ -24,10 +25,11 @@ AthenaRootSerializeSvc::~AthenaRootSerializeSvc() {
 //___________________________________________________________________________
 StatusCode AthenaRootSerializeSvc::initialize() {
    ATH_MSG_INFO("Initializing " << name());
-   if (!::AthService::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
+
+   // Load message handler dictionary to avoid crashes when reporting
+   // possible errors during event processing (ATR-25049)
+   TClass::GetClass("TMessageHandler");
+
    return(StatusCode::SUCCESS);
 }
 

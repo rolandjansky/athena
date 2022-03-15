@@ -33,7 +33,7 @@ def main():
       print "Also ensure you have a valid certificate (voms-proxy-init -voms atlas)"
       return 1
 
-    client = pyAMI.client.Client('atlas')
+    client = pyAMI.client.Client(['atlas', 'atlas-replica'])
     atlasAPI.init()
 
     #read datasets into list

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _InDet_LWTNNCondAlg_H_
@@ -9,7 +9,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "PoolSvc/IPoolSvc.h"
 
 //#include "TrkNeuralNetworkUtils/NeuralNetworkToHistoTool.h"
@@ -42,9 +41,6 @@ class LWTNNCondAlg : public AthReentrantAlgorithm {
 
  private:
 //  TTrainedNetwork* retrieveNetwork(TFile &input_file, const std::string& folder) const;
-
-  ServiceHandle<ICondSvc> m_condSvc
-    {this, "CondSvc", "CondSvc", "The conditions service to register new conditions data."};
 
   //StatusCode configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, const std::string& thisJson);
   StatusCode configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN, const std::string& thisJson) const;

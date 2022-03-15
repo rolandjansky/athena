@@ -236,6 +236,10 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                            Aligned     = False,
                                                            DataSet     = False )
 
+    # set the flag whether to use NSW or not
+    muFastAlg.USE_STGC = True
+    muFastAlg.USE_MM = True
+
     muFastAlg.UseEndcapInnerFromBarrel = True
 
     if setup == '900GeV':

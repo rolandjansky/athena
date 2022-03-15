@@ -22,14 +22,14 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileDigiNoiseCalibAlg.h"
+#include "TileDigiNoiseCalibAlg.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
-#include "TileCalibAlgs/TileOFCorrelation.h"
+#include "TileOFCorrelation.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "TFile.h"

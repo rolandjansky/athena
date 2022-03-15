@@ -44,37 +44,6 @@ def generateChains( flags, chainDict ):
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
     @AccumulatorCache
-    def __ftfTauSeq(flags):
-        selAcc=SelectionCA('tauFTF')
-        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_Tau', 
-                                                                           InViewRoIs = 'UpdatedCaloRoI')
-
-        from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
-        fastInDetReco = InViewRecoCA('FastTau',
-                                        RoIsLink          = 'UpdatedCaloRoI',
-                                        RoITool           = newRoITool,
-                                        RequireParentView = True,
-                                        mergeUsingFeature = True
-         #viewMaker=evtViewMaker
-         )
-        idTracking = trigInDetFastTrackingCfg(flags, roisKey=fastInDetReco.inputMaker().InViewRoIs, signatureName="Tau")
-        fastInDetReco.mergeReco(idTracking)
-        fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTau',
-                                DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+{}'.format(fastInDetReco.inputMaker().InViewRoIs) ),
-                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly')]) )
-        selAcc.mergeReco(fastInDetReco)
-        hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByTau",
-                                                    trackcollection = flags.Trigger.InDetTracking.Tau.trkTracks_FTF, RoIForIDReadHandleKey="" )
-        selAcc.addHypoAlgo(hypoAlg)
-        from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
-        menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
-        return (selAcc , menuCA)
-
-    def __ftfTau():
-        (selAcc , menuCA) = __ftfTauSeq(flags)
-        return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
-
-    @AccumulatorCache
     def __ftfCoreSeq(flags):                                                                                                                                                                 
         selAcc=SelectionCA('tauCoreFTF')                                                                                                                                      
         newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauCore',
@@ -184,7 +153,7 @@ def generateChains( flags, chainDict ):
 
 
     thresholds = [p["L1threshold"] for p in chainDict['chainParts'] if p['signature'] == 'Tau' ]
-    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ __calo(), __ftfTau(), __ftfCore(), __ftfIso(), __ftfIsoBDT() ] )
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ __calo(), __ftfCore(), __ftfIso(), __ftfIsoBDT() ] )
     return chain
 
 

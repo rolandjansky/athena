@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -26,7 +26,6 @@ namespace DMTest {
  */
 CondAlg2::CondAlg2 (const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator),
-    m_condSvc("CondSvc", name),
     m_rltestKey ("/DMTest/RLTest"),
     m_tstestKey ("/DMTest/TSTest"),
     m_outKey ("scond3", "DMTest")
@@ -45,7 +44,6 @@ StatusCode CondAlg2::initialize()
   ATH_CHECK( m_rltestKey.initialize() );
   ATH_CHECK( m_tstestKey.initialize() );
   ATH_CHECK( m_outKey.initialize() );
-  ATH_CHECK( m_condSvc->regHandle(this, m_outKey) );
   return StatusCode::SUCCESS;
 }
 

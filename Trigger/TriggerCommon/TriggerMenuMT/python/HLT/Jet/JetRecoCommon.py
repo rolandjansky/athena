@@ -402,6 +402,13 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     }[groomAlg]
     return groomDef
 
+#Jet Definition for VR track jets
+def defineVRTrackJets(Rmax, Rmin, VRMassScale, Ptmin, prefix, suffix):
+    jetconstit = JetInputConstit("PV0Track", xAODType.TrackParticle, "PV0JetSelectedTracks_ftf")
+    VRTrackJetDef = JetDefinition("AntiKt", Rmax, jetconstit, ptmin=Ptmin, VRMinR=Rmin, VRMassSc=VRMassScale, prefix=prefix, suffix=suffix, lock=True)
+    return VRTrackJetDef
+
+
 def defineHIJets(jetRecoDict,clustersKey=None,prefix='',suffix=''):
     minpt = {
         4:  7000,

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cstring>
 #include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/DataBucketBase.h"
+#include "CxxUtils/FPControl.h"
 #include "SGTools/DataProxy.h"
 #include "TrigSerializeResult/StringSerializer.h"
 #include "BareDataBucket.h"
@@ -25,6 +25,8 @@
 #include "TStreamerInfo.h"
 #include "PathResolver/PathResolver.h"
 
+#include <cstring>
+#include <regex>
 
 class TriggerEDMDeserialiserAlg::WritableAuxStore : public SG::AuxStoreInternal {
 public:
@@ -56,7 +58,9 @@ namespace  {
     return type.getTypeInfo();
   }
 
-  
+  /**
+   * Strip "std::vector" from type name
+   */
   std::string stripStdVec (const std::string& s_in) {
     std::string s = s_in;
     std::string::size_type pos{0};
@@ -64,6 +68,21 @@ namespace  {
       s.erase (pos, 5);
     }
     return s;
+  }
+
+  /**
+   * Detect if there is a version change between two types (e.g. v1, v2).
+   *
+   * Due to type-aliasing we cannot just compare the entire type name as e.g.
+   * 'DataVector<xAOD::MyType_v1>' and 'xAOD::MyTypeContainer_v1' should be
+   * considered the same version.
+   */
+  bool versionChange(const std::string& type1, const std::string& type2) {
+    static const std::regex re(".+(_v[0-9]+).*");  // find last _v in string
+    std::smatch m1, m2;
+    return ( std::regex_match(type1, m1, re) and
+             std::regex_match(type2, m2, re) and
+             m1.str(1) != m2.str(1) );  // number 0 is full match
   }
   
 }
@@ -147,11 +166,7 @@ StatusCode TriggerEDMDeserialiserAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMDeserialiserAlg::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const {    
+StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const {
 
   auto resultHandle = SG::makeHandle( m_resultKey, context );
   if ( not resultHandle.isValid() ) {
@@ -169,9 +184,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) const {
+StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) const {
 
-  size_t  buffSize = m_initialSerialisationBufferSize;
+  size_t buffSize = m_initialSerialisationBufferSize;
   std::unique_ptr<char[]> buff = std::make_unique<char[]>(buffSize);
 
   // returns a char* buffer that is at minimum as large as specified in the argument
@@ -182,55 +197,79 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 		  }
 		};  
 
-  // the pointers defined below need to be used in decoding consecutive fragments of xAOD containers: 1) xAOD interface, 2) Aux store, 3) decorations
+  // the pointers defined below need to be used in decoding consecutive fragments of xAOD containers:
+  // 1) xAOD interface, 2) Aux store, 3) decorations
   // invalid conditions are: invalid interface pointer when decoding Aux store
   //                         invalid aux store and interface when decoding the decoration
   // these pointer should be invalidated when: decoding TP containers, aux store when decoding the xAOD interface 
-  WritableAuxStore* currentAuxStore = nullptr; // set when decoding Aux
+  WritableAuxStore* currentAuxStore = nullptr;         // set when decoding Aux
   SG::AuxVectorBase* xAODInterfaceContainer = nullptr; // set when decoding xAOD interface
   
-  int fragmentCount = 0;
+  size_t fragmentCount = 0;
   PayloadIterator start = dataptr->begin();
   while ( start != dataptr->end() )  {
     fragmentCount++;
     const CLID clid{ PayloadHelpers::collectionCLID( start ) };
-    std::string transientTypeName;
+    std::string transientTypeName, transientTypeInfoName;
     ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientTypeName ) );
+    ATH_CHECK( m_clidSvc->getTypeInfoNameOfID( clid, transientTypeInfoName ) ); // version
+
     const std::vector<std::string> descr{ PayloadHelpers::collectionDescription( start ) };
     ATH_CHECK( descr.size() == 2 );
     std::string persistentTypeName{ descr[0] };
     const std::string key{ descr[1] };
     const size_t bsize{ PayloadHelpers::dataSize( start ) };
 
-    ATH_MSG_DEBUG( "" );
-    ATH_MSG_DEBUG( "fragment: " << fragmentCount << " type: "<< transientTypeName << " persistent type: " <<  persistentTypeName << " key: " << key << " size: " << bsize );
+    ATH_MSG_DEBUG( "fragment #" << fragmentCount <<
+                   " type: "<< transientTypeName << " (" << transientTypeInfoName << ")" <<
+                   " persistent type: " << persistentTypeName << " key: " << key << " size: " << bsize );
     resize( bsize );
     PayloadHelpers::toBuffer( start, buff.get() );
 
-    start = PayloadHelpers::toNextFragment( start ); // point the start to the next chunk, irrespectively of what happens in deserialisation below
+    // point the start to the next chunk, irrespectively of what happens in deserialisation below
+    start = PayloadHelpers::toNextFragment( start );
         
     RootType classDesc = RootType::ByNameNoQuiet( persistentTypeName );
     ATH_CHECK( classDesc.IsComplete() );
     size_t usedBytes{ bsize };
+
+    // Many variables in this class were changed from double to float.
+    // However, we wrote data in the past which contained values
+    // that were valid doubles but which were out of range for floats.
+    // So we can get FPEs when we read them.
+    // Disable FPEs when we're reading an instance of this class.
+    CxxUtils::FPControl fpcontrol;
+    if (persistentTypeName == "xAOD::BTaggingTrigAuxContainer_v1") {
+      fpcontrol.holdExceptions();
+    }
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
 
-    ATH_MSG_DEBUG( "Deserialised object of ptr: " << obj << " which used: " << usedBytes << " bytes from available: " << bsize );
+    ATH_MSG_DEBUG( "Deserialised object of ptr: " << obj << " which used: " << usedBytes <<
+                   " bytes from available: " << bsize );
     if ( obj == nullptr ) {
-      ATH_MSG_ERROR( "Deserialisation of object of CLID " << clid << " and transientTypeName " << transientTypeName << " # " << key << " failed" );
-      ATH_CHECK(false);
+      ATH_MSG_ERROR( "Deserialisation of object of CLID " << clid << " and transientTypeName " <<
+                     transientTypeName << " # " << key << " failed" );
+      return StatusCode::FAILURE;
     }
-    const bool isxAODInterfaceContainer = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") == std::string::npos and transientTypeName.find("ElementLink") == std::string::npos;
-    const bool isxAODAuxContainer       = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") != std::string::npos;
+    const bool isxAODInterfaceContainer = (transientTypeName.find("xAOD") != std::string::npos and
+                                           transientTypeName.find("Aux") == std::string::npos and
+                                           transientTypeName.find("ElementLink") == std::string::npos);
+    const bool isxAODAuxContainer       = (transientTypeName.find("xAOD") != std::string::npos and
+                                           transientTypeName.find("Aux") != std::string::npos);
     const bool isxAODDecoration	        = transientTypeName.find("vector") != std::string::npos;
-    const bool isTPContainer	        = persistentTypeName.find("_p")	   != std::string::npos;
+    const bool isTPContainer	        = persistentTypeName.find("_p")	!= std::string::npos;
+    const bool isVersionChange          = versionChange(persistentTypeName, transientTypeInfoName);
+
+    ATH_CHECK( checkSanity( transientTypeName, isxAODInterfaceContainer,
+                            isxAODAuxContainer, isxAODDecoration, isTPContainer ) );
     
-    ATH_CHECK( checkSanity( transientTypeName, isxAODInterfaceContainer, isxAODAuxContainer, isxAODDecoration, isTPContainer ) );
-    
-    if ( isTPContainer ) {
+    if ( isTPContainer or isVersionChange ) {
+      if ( isVersionChange ) ATH_MSG_DEBUG( "Version change detected from " << persistentTypeName << " to "
+                                            << transientTypeInfoName << ". Will invoke PT converter." );
+
       std::string decodedTransientName;
       void * converted = m_tpTool->convertPT( persistentTypeName, obj, decodedTransientName );
       ATH_CHECK( converted != nullptr );
-      ATH_CHECK( decodedTransientName == transientTypeName );      
       classDesc.Destruct( obj );
 
       // from now on in case of T/P class we deal with a new class, the transient one
@@ -239,44 +278,41 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       obj = converted;
     }
 
-
-
     if ( isxAODInterfaceContainer or isxAODAuxContainer or isTPContainer ) {
       BareDataBucket* dataBucket = new BareDataBucket( obj, clid, classDesc );
       const std::string outputName = m_prefix + key;
-      auto proxyPtr = evtStore()->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( dataBucket ), outputName, false, false );
+      auto proxyPtr = evtStore()->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( dataBucket ),
+                                                outputName, false, false );
       if ( proxyPtr == nullptr )  {
-	ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << outputName << " failed" );
+        ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << outputName << " failed" );
       }
 
       if ( isxAODInterfaceContainer ) {
         static const RootType vbase = RootType::ByNameNoQuiet( "SG::AuxVectorBase" );
-	currentAuxStore = nullptr; // the store will be following, setting it to nullptr assure we catch issue with of missing Aux
-	xAODInterfaceContainer =
+        currentAuxStore = nullptr; // the store will be following, setting it to nullptr assure we catch issue with of missing Aux
+        xAODInterfaceContainer =
           reinterpret_cast<SG::AuxVectorBase*>(classDesc.Cast (vbase, dataBucket->object(), true));
       } else if ( isxAODAuxContainer )  {
-	ATH_CHECK( key.back() == '.' );
-	ATH_CHECK( std::count( key.begin(), key.end(), '.')  == 1 );
-	ATH_CHECK( currentAuxStore == nullptr );
-	ATH_CHECK( xAODInterfaceContainer != nullptr );
+        // key contains exactly one '.' at the end
+        ATH_CHECK( key.find('.') == key.size()-1 );
+        ATH_CHECK( currentAuxStore == nullptr and xAODInterfaceContainer != nullptr );
 
         static const RootType auxinterface = RootType::ByNameNoQuiet( "SG::IAuxStore" );
-	xAOD::AuxContainerBase* auxHolder =
+        xAOD::AuxContainerBase* auxHolder =
           reinterpret_cast<xAOD::AuxContainerBase*>(classDesc.Cast (auxinterface, dataBucket->object(), true));
-	ATH_CHECK( auxHolder != nullptr );
-	xAODInterfaceContainer->setStore( auxHolder );
-	currentAuxStore = new WritableAuxStore();
-	auxHolder->setStore( currentAuxStore );
+        ATH_CHECK( auxHolder != nullptr );
+        xAODInterfaceContainer->setStore( auxHolder );
+        currentAuxStore = new WritableAuxStore();
+        auxHolder->setStore( currentAuxStore );
       } else {
-	currentAuxStore = nullptr;
-	xAODInterfaceContainer = nullptr; // invalidate xAOD related pointers	
+        currentAuxStore = nullptr;
+        xAODInterfaceContainer = nullptr; // invalidate xAOD related pointers
       }
 
-
     } else if ( isxAODDecoration ) {
-      ATH_CHECK( currentAuxStore != nullptr );
-      ATH_CHECK( xAODInterfaceContainer != nullptr );
-      ATH_CHECK( deserialiseDynAux( transientTypeName, persistentTypeName, key, obj, currentAuxStore, xAODInterfaceContainer ) );
+      ATH_CHECK( currentAuxStore != nullptr and xAODInterfaceContainer != nullptr );
+      ATH_CHECK( deserialiseDynAux( transientTypeName, persistentTypeName, key, obj,
+                                    currentAuxStore, xAODInterfaceContainer ) );
     }
   }
   return StatusCode::SUCCESS;
@@ -310,7 +346,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialiseDynAux( const std::string& tran
   if ( vec->size() != 0 ) {
     ATH_CHECK( currentAuxStore != nullptr );
     currentAuxStore->addVector(id, std::move(vec), false);    
-    // trigger loading of the dynamic varaibles
+    // trigger loading of the dynamic variables
     SG::AuxElement::TypelessConstAccessor accessor( decorationName );
     accessor.getDataArray( *interfaceContainer );
   }
@@ -318,11 +354,11 @@ StatusCode TriggerEDMDeserialiserAlg::deserialiseDynAux( const std::string& tran
 }
 
 StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientTypeName, bool isxAODInterfaceContainer, bool isxAODAuxContainer, bool isDecoration, bool isTPContainer ) const {
-  ATH_MSG_DEBUG( "Recognised type " << transientTypeName <<" as: " 
-		 << (isxAODInterfaceContainer ?" xAOD Interface Container":"" ) 
-		 << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
-		 << ( isDecoration ? " xAOD Decoration" : "") 
-		 << ( isTPContainer ? " T/P Container " : "") );
+  ATH_MSG_DEBUG( "Recognised type " << transientTypeName <<" as: "
+		 << (isxAODInterfaceContainer ? "xAOD Interface Container":"" )
+		 << (isxAODAuxContainer ? "xAOD Aux Container ":"" )
+		 << ( isDecoration ? "xAOD Decoration" : "")
+		 << ( isTPContainer ? "T/P Container " : "") );
   
   const std::vector<bool> typeOfContainer( { isxAODInterfaceContainer, isxAODAuxContainer, isDecoration, isTPContainer } );			     
   const size_t count = std::count( typeOfContainer.begin(), typeOfContainer.end(), true );
@@ -333,10 +369,10 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
   if (count > 1 ) {
     ATH_MSG_ERROR( "Ambiguous container kind deduced from the transient type name " << transientTypeName );
     ATH_MSG_ERROR( "Recognised type as: " 
-		   << (isxAODInterfaceContainer ?" xAOD Interface Context":"" ) 
-		   << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
-		   << ( isDecoration ? " xAOD Decoration" : "") 
-		   << ( isTPContainer ? " T/P Container " : "") );
+		   << (isxAODInterfaceContainer ? "xAOD Interface Context":"" )
+		   << (isxAODAuxContainer ? " xAOD Aux Container ":"" )
+		   << ( isDecoration ? "xAOD Decoration" : "")
+		   << ( isTPContainer ? "T/P Container " : "") );
     return StatusCode::FAILURE;    
   }
   return StatusCode::SUCCESS;
@@ -367,8 +403,8 @@ void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
     inf->BuildCheck();
     TClass *cl = inf->GetClass();
     if (cl != nullptr) {
-      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
-		     << " checksum: " << std::hex << inf->GetCheckSum()  );
+      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName() <<
+                     " checksum: " << std::hex << inf->GetCheckSum() << std::dec );
     }
   }
 }

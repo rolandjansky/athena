@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-import logging
-msg = logging.getLogger(__name__)
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argBool
+from PyJobTransforms.trfArgClasses import argString, argPOOLFile
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argBool, argString, argPOOLFile
 
 def addEI_InputTypes_tfArgs(parser):
     parser.add_argument('--inputPOOLFile', nargs='+',
@@ -25,36 +24,58 @@ def addEI_InputTypes_tfArgs(parser):
                         type=argFactory(argFile, type='RDO', io='input'),
                         help='Input RDO file', group='Event Index')
 
+
 def addEI_OutputTypes_tfArgs(parser):
     parser.add_argument('--outputEIFile',
                         type=argFactory(argFile, io='output', type='misc'),
-                        help='Output Event Index file (default: output.ei.pkl)', group='Event Index')
+                        help='Output Event Index file '
+                        '(default: output.ei.pkl)',
+                        group='Event Index')
+
 
 def addEI_Basic_tfArgs(parser):
-    parser.add_argument("--eidsname", 
+    parser.add_argument("--eidsname",
                         type=argFactory(argString),
-                        help="Overrides input file dataset name (default: read from job environment variable INDS)", 
+                        help="Overrides input file dataset name "
+                        "(default: read from job environment variable INDS)",
                         group='Event Index')
-    parser.add_argument("--trigger", 
+    parser.add_argument("--trigger",
                         type=argFactory(argBool),
-                        help="Include trigger information (default: true)", group='Event Index')
-    parser.add_argument("--provenance", 
+                        help="Include trigger information (default: true)",
+                        group='Event Index')
+    parser.add_argument("--provenance",
                         type=argFactory(argBool),
-                        help="Include provenance information (default: true)", group='Event Index')
-    parser.add_argument("--sendtobroker", 
+                        help="Include provenance information (default: true)",
+                        group='Event Index')
+    parser.add_argument("--sendtobroker",
                         type=argFactory(argBool),
-                        help="Send event index to message broker (default: true)", group='Event Index')
+                        help="Send event index to message broker "
+                        "(default: false)",
+                        group='Event Index')
+    parser.add_argument("--testbrk",
+                        type=argFactory(argBool),
+                        help="Use test message broker (default: false)",
+                        group='Event Index')
+    parser.add_argument("--eifmt",
+                        type=argFactory(argInt),
+                        help="Value ignored. Always prduce SPB format. "
+                        "Argument kept for compatibility",
+                        group='Event Index')
 
     # internal options for T0 jobs
-    parser.add_argument("--_taskid", 
+    parser.add_argument("--_taskid",
                         type=argFactory(argString),
-                        help="TaskID (for T0 jobs usage)", group='Event Index')
-    parser.add_argument("--_jobid", 
+                        help="TaskID (for T0 jobs usage)",
+                        group='Event Index')
+    parser.add_argument("--_jobid",
                         type=argFactory(argString),
-                        help="JobID (for T0 jobs usage)", group='Event Index')
-    parser.add_argument("--_attempt", 
+                        help="JobID (for T0 jobs usage)",
+                        group='Event Index')
+    parser.add_argument("--_attempt",
                         type=argFactory(argString),
-                        help="Attempt number (for T0 jobs usage)", group='Event Index')
+                        help="Attempt number (for T0 jobs usage)",
+                        group='Event Index')
+
 
 def addEI_tfArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
@@ -62,10 +83,3 @@ def addEI_tfArgs(parser):
     addEI_InputTypes_tfArgs(parser)
     addEI_OutputTypes_tfArgs(parser)
     addEI_Basic_tfArgs(parser)
-
-def addEI_MRG_tfArgs(parser):
-    # Use arggroup to get these arguments in their own sub-section (of --help)
-    parser.defineArgGroup('Event Index', 'Options for event index generation')
-    addEI_OutputTypes_tfArgs(parser)
-    addEI_Basic_tfArgs(parser)
-    

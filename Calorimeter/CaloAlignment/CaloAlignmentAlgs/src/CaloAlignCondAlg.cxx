@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloAlignCondAlg.h"
@@ -14,16 +14,9 @@ StatusCode CaloAlignCondAlg::initialize()
 {
   ATH_MSG_DEBUG("initialize " << name());
 
-  ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKeyGeoAlign.initialize(SG::AllowEmpty));
   ATH_CHECK(m_readKeyCellPosShift.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeCaloMgrKey.initialize());
-
-  // Register Write Cond Handle
-  if(m_condSvc->regHandle(this, m_writeCaloMgrKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeCaloMgrKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

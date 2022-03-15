@@ -233,10 +233,19 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
 std::optional<TrigConf::DataStructure>
 TrigConf::DataStructure::getObject_optional(const std::string & pathToChild) const
 {
-   if(data().find(pathToChild) == data().not_found()) {
-      return std::nullopt;
+
+   if(const auto & obj = data().get_child_optional(pathToChild)) {
+      // check if the pathToChild is an attribute
+      if( obj.get().get_value<std::string>() != "" ) {
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not an object {} but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
+      }
+      // check if the pathToChild points to a list
+      if ( obj.get().front().first.empty() ) {
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not an object {} but a list [], it needs to be accessed via getList(\"" + pathToChild + "\") -> vector<DataStructure>");
+      }
+      return std::optional<TrigConf::DataStructure>(obj.get());
    }
-   return std::optional<TrigConf::DataStructure>(getObject(pathToChild));
+   return std::nullopt;
 }
 
 

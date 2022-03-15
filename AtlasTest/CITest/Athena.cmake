@@ -116,9 +116,6 @@ atlas_add_citest( TriggerMC
 atlas_add_citest( TriggerData
    SCRIPT test_trig_data_v1Dev_build.py )
 
-atlas_add_citest( TriggerCosmic
-   SCRIPT test_trig_data_v1Cosmic_build.py )
-
 atlas_add_citest( TriggerDataCAConfig
    SCRIPT test_trig_data_newJO_build.py )
 
@@ -127,3 +124,34 @@ atlas_add_citest( Trigger_athenaHLT_v1Dev
 
 atlas_add_citest( Trigger_athenaHLT_v1PhysP1
    SCRIPT test_trigP1_v1PhysP1_build.py )
+
+atlas_add_citest( Trigger_athenaHLT_v1Cosmic
+   SCRIPT test_trigP1_v1Cosmic_build.py )
+
+# TODO: We stop here for now (migration ongoing...)
+return()
+
+
+#################################################################################
+# DQ
+#################################################################################
+atlas_add_citest( Run3DQr21ESD
+   SCRIPT Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root"]' DQ.Steering.doHLTMon=False --threads=1 )
+
+atlas_add_citest( q221_Run3DQ
+   PRE_EXEC_SCRIPT "cp ../q221/HLTMonitoring*.json ."
+   SCRIPT Run3DQTestingDriver.py 'Input.Files=["../q221/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
+   PROPERTIES REQUIRED_FILES ../q221/myAOD.pool.root
+   DEPENDS q221 )
+
+#################################################################################
+# Digitization/Simulation
+#################################################################################
+atlas_add_citest( MuonDigiReco_digi
+   SCRIPT Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v2.root --imf False --outputRDOFile OUT_RDO.root --conditionsTag OFLCOND-MC16-SDR-RUN3-02 )
+
+atlas_add_citest( MuonDigiReco_reco
+   SCRIPT Reco_tf.py --inputRDOFile ../MuonDigiReco_digi/OUT_RDO.root --autoConfiguration everything --imf False --outputESDFile OUT_ESD.root
+   PROPERTIES REQUIRED_FILES ../MuonDigiReco_digi/OUT_RDO.root
+   DEPENDS MuonDigiReco_digi
+   POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/checkMuonDigiReco.sh )

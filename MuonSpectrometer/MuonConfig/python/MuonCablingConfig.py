@@ -19,7 +19,7 @@ def RPCCablingConfigCfg(flags):
         rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
         rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
         from AthenaConfiguration.Enums  import LHCPeriod
-        if flags.Input.isMC and flags.GeoModel.Run not in [LHCPeriod.Run1,LHCPeriod.Run2]:        # from Run3 on geometry
+        if flags.Input.isMC and flags.GeoModel.Run >= LHCPeriod.Run3:        # from Run3 on geometry
            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
 

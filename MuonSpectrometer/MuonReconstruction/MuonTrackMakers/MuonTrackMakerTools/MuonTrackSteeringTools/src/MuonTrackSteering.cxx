@@ -661,14 +661,15 @@ namespace Muon {
         TrackCollection* result = takeOwnership ? new TrackCollection() : new TrackCollection(SG::VIEW_ELEMENTS);
         result->reserve(candidates.size());
         for (std::unique_ptr<MuPatTrack>& cit : candidates) {
+            auto & thisTrack =  cit->track();
             // if track selector is configured, use it and remove bad tracks
-            if (!m_trackSelector.empty() && !m_trackSelector->decision(cit->track())) continue;
+            if (!m_trackSelector.empty() && !m_trackSelector->decision(thisTrack)) continue;
 
             Trk::Track* track;
             if (takeOwnership)
-                track = new Trk::Track(cit->track());
+                track = new Trk::Track(thisTrack);
             else
-                track = &cit->track();
+                track = &thisTrack;
             // add track summary to this track
             if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false); }
             result->push_back(track);

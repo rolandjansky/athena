@@ -197,19 +197,18 @@ def jetTTVA( signature, jetseq, trkopt, config, verticesname=None, adaptiveVerte
     # *****************************
     # Jet track selection algorithm
     jettrackselalg = jrtcfg.getTrackSelAlg( trkopt )
-
-    # Track-vtx association. We create a TrackVertexAssocTool then call it through a
-    # JetAlgorithm which just calls its execute() method. In the future the plan is to
-    # convert this TrackVertexAssocTool in a simple alg just as for track selection.
-    jettvassoc       = jrtcfg.getTrackVertexAssocTool( trkopt, jetseq ,
-                                                       ttva_opts = { "WorkingPoint" : "Custom",
-                                                                     "d0_cut"       : 2.0, 
-                                                                     "dzSinTheta_cut" : 2.0, 
-                                                                     "doPVPriority": adaptiveVertex,
-                                                                    }
-                                                                 )    
-    jettrkprepalg       = CompFactory.JetAlgorithm("jetalg_TrackPrep"+trkopt,
-                                                   Tools = [  jettvassoc ])
+    
+    # *****************************
+    # Track-vtx association.
+    jettrkprepalg = jrtcfg.getJetTrackVtxAlg(trkopt, algname="jetalg_TrackPrep"+trkopt,
+                                             # # parameters for the CP::TrackVertexAssociationTool (or the TrackVertexAssociationTool.getTTVAToolForReco function) :
+                                             #WorkingPoint = "Nonprompt_All_MaxWeight", # this is the new default in offline (see also CHS configuration in StandardJetConstits.py)
+                                             WorkingPoint = "Custom",
+                                             d0_cut       = 2.0, 
+                                             dzSinTheta_cut = 2.0, 
+                                             doPVPriority = adaptiveVertex,
+                                             add2Seq = jetseq,
+                                             )
 
     # Pseudojets for ghost tracks
     pjgalg = CompFactory.PseudoJetAlgorithm(
@@ -225,6 +224,16 @@ def jetTTVA( signature, jetseq, trkopt, config, verticesname=None, adaptiveVerte
     jetseq += conf2toConfigurable( jettrkprepalg )
     jetseq += conf2toConfigurable( pjgalg )
 
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if ConfigFlags.Trigger.Jet.doVRJets:
+        jettrackselalg = jrtcfg.getTrackSelAlg( trkopt, trackSelOpt=True )
+        jetseq += conf2toConfigurable( jettrackselalg )
+        pv0_jettvassoc, pv0_ttvatool = jrtcfg.getPV0TrackVertexAssocTool(trkopt, jetseq)
+        pv0jettrkprepalg    = CompFactory.JetAlgorithm("pv0jetalg_TrackPrep"+trkopt,
+                                                        Tools = [ pv0_jettvassoc ])
+        pv0trackselalg = jrtcfg.getPV0TrackSelAlg(pv0_ttvatool, trkopt)
+        jetseq += conf2toConfigurable( pv0jettrkprepalg )
+        jetseq += conf2toConfigurable( pv0trackselalg )
 
     # make sure we output only the key,value related to tracks (otherwise, alg duplication issues)
     outmap = { k:jetContext[k] for k in trkKeys }

@@ -256,7 +256,7 @@ namespace Muon {
         Trk::TrackStates::const_iterator insertClustersWithCompetingRotCreation(const EventContext& ctx,
             Trk::TrackStates::const_iterator tsit,
             Trk::TrackStates::const_iterator tsit_end,
-            std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+            std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
         ToolHandle<MooTrackFitter> m_fitter{this, "Fitter", "Muon::MooTrackFitter/MooTrackFitter", "Tool to fit segments to tracks"};
         ToolHandle<MooTrackFitter> m_slFitter{this, "SLFitter", "Muon::MooTrackFitter/MooSLTrackFitter", "Tool to fit segments to tracks"};

@@ -30,8 +30,8 @@
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MuonSegment/MuonSegment.h"
 
-#include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
-#include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
+#include "MuonChamberIDSelector.h"
+#include "MdtRawDataValAlg.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"

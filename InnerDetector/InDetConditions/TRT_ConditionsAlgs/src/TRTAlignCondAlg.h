@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCONDITIONSALGS_TRTALIGNCONDALG_H
@@ -10,7 +10,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -38,7 +37,6 @@ class TRTAlignCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<GeoAlignmentStore>  m_writeKeyAlignStore{this,"WriteKeyAlignStore","GeoAlignmentStore","Write handle key to store GeoAlignmentStore constants"};
   SG::WriteCondHandleKey<InDetDD::TRT_DetElementContainer> m_writeKeyDetElCont{this, "WriteKeyDetElCont", "TRT_DetElementContainer", "Key of output to store detector element structures for TRT"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
   const InDetDD::TRT_DetectorManager* m_detManager;
 
   Gaudi::Property<bool> m_useDynamicFolders{ this, "UseDynamicFolders", false, "Turn on-off use of Dynamic folders" };

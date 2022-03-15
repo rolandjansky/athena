@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_SILICONTEMPCONDALG
@@ -12,8 +12,6 @@
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 class SCT_ID;
 
@@ -33,7 +31,6 @@ class SCT_SiliconTempCondAlg : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_readKeyState{this, "ReadKeyState", "SCT_DCSStatCondData", "Key of input state conditions data"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp0{this, "ReadKeyTemp", "SCT_DCSTemp0CondData", "Key of input (hybrid) temperature conditions data"};
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey{this, "WriteKey", "SCT_SiliconTempCondData", "Key of output (sensor) temperature conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   ToolHandle<ISCT_DCSConditionsTool> m_sctDCSTool{this, "DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrived SCT DCS information"};
   const SCT_ID* m_pHelper{nullptr}; //!< ID helper for SCT
 };

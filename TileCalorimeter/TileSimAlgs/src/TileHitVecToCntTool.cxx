@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -12,8 +12,8 @@
 #include "TileSimAlgs/TileHitVecToCntTool.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-#include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -22,6 +22,7 @@
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // Trigger time
 #include "AthenaKernel/ITriggerTime.h"
@@ -55,65 +56,24 @@ StatusCode TileHitVecToCntTool::initialize() {
 
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  // retrieve TileID helper and TileInfo from det store
+  // retrieve TileID helper from det store
+  ATH_CHECK(detStore()->retrieve(m_tileID));
 
-  CHECK(detStore()->retrieve(m_tileID));
+  ATH_CHECK(detStore()->retrieve(m_tileTBID));
 
-  CHECK(detStore()->retrieve(m_tileTBID));
+  ATH_CHECK(detStore()->retrieve(m_tileHWID));
 
-  CHECK(detStore()->retrieve(m_tileInfo, m_infoName));
+  ATH_CHECK( m_samplingFractionKey.initialize() );
 
-  CHECK(m_cablingSvc.retrieve());
+  ATH_CHECK(m_cablingSvc.retrieve());
   m_cabling = m_cablingSvc->cablingService();
 
   m_run2 = m_cabling->isRun2Cabling();
   m_run2plus = m_cabling->isRun2PlusCabling();
 
-  for (int i = 0; i < 7; ++i) {
-    Identifier pmt_id;
-    switch (i) { // invent pmt_id in a given part(sampling) of the calorimeter
-      case 6:
-        //pmt_id = m_tileTBID->channel_id(-1/*side*/, 0/*phi*/, 2/*radius*/);
-        // use the same ID as for normal E-cell - to obtain the same Npe at the end
-        pmt_id = m_tileID->pmt_id(3/*section*/, 1/*side*/, 0/*module*/, 11/*tower*/, 3/*sample*/, 0);
-        break; // E4' cell uses special ID, similar to MBTS
-      case 5:
-        pmt_id = m_tileTBID->channel_id(1/*side*/, 0/*phi*/, 1/*radius*/);
-        break; // MBTS outer cell
-      case 4:
-        pmt_id = m_tileTBID->channel_id(1/*side*/, 0/*phi*/, 0/*radius*/);
-        break; // MBTS inner cell
-      case 3:
-        pmt_id = m_tileID->pmt_id(3/*section*/, 1/*side*/, 0/*module*/, 11/*tower*/, 3/*sample*/, 0);
-        break; // gap/crack
-      default:
-        pmt_id = m_tileID->pmt_id(1/*section*/, 1/*side*/, 0/*module*/, 0/*tower*/, i/*sample*/, 0); // normal cell
-        break;
-    }
-    // take number of photoelectrons per GeV divide by 1000 to go to MeV
-    // and multiply by inverted sampling fraction (35.9)
-    // to get number of photoelectrons per 1 MeV energy in scintillator
-    m_nPhotoElectrons[i] = (m_tileInfo->NPhElec(i)) / (Gaudi::Units::GeV / Gaudi::Units::MeV)
-        * m_tileInfo->HitCalib(pmt_id);
-
-    //ATH_MSG_DEBUG( i << " " << m_tileInfo->NPhElec(i) << " " << m_tileInfo->HitCalib(pmt_id) );
-
+  if (!m_usePhotoStatistics) {
+    ATH_MSG_INFO("No photostatistics effect will be simulated");
   }
-
-  if (m_nPhotoElectrons[0] <= 0) {
-    std::fill(m_nPhotoElectrons, m_nPhotoElectrons + 7, 0);
-    ATH_MSG_DEBUG("No photostatistics effect will be simulated");
-  }
-
-  ATH_MSG_DEBUG( " numPhElec/MeV for TileHit energy: "
-                << " A "  << m_nPhotoElectrons[0]
-                << " BC " << m_nPhotoElectrons[1]
-                << " D "  << m_nPhotoElectrons[2]
-                << " E "  << m_nPhotoElectrons[3]
-                << " E4' "  << m_nPhotoElectrons[6]
-                << " MBTSout "  << m_nPhotoElectrons[5]
-                << " MBTSin "  << m_nPhotoElectrons[4]
-  );
 
   if (m_rndmEvtOverlay) {
     m_pileUp = false;
@@ -237,17 +197,14 @@ StatusCode TileHitVecToCntTool::initialize() {
   }
 
   if (m_run2plus) {
-    const TileHWID* tileHWID;
-    CHECK(detStore()->retrieve(tileHWID));
+    m_fragHashFunc.initialize(m_tileHWID);
 
-    m_fragHashFunc.initialize(tileHWID);
-
-    m_E1merged.resize(tileHWID->drawer_hash_max());
-    m_MBTSmerged.resize(tileHWID->drawer_hash_max());
+    m_E1merged.resize(m_tileHWID->drawer_hash_max());
+    m_MBTSmerged.resize(m_tileHWID->drawer_hash_max());
 
     for (int ros = 3; ros < 5; ++ros) {
       for (int drawer = 0; drawer < 64; ++drawer) {
-        int frag_id = tileHWID->frag(ros, drawer);
+        int frag_id = m_tileHWID->frag(ros, drawer);
         IdentifierHash frag_hash = m_fragHashFunc(frag_id);
         m_E1merged[frag_hash] = (m_cabling->E1_merged_with_run2plus(ros, drawer) != 0);
         m_MBTSmerged[frag_hash] = (m_cabling->is_MBTS_merged_run2plus(drawer));
@@ -936,7 +893,10 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
-  
+
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey, ctx);
+  ATH_CHECK( samplingFraction.isValid() );
+
   TileHitNonConstContainer::iterator collIt_DigiHSTruth; 
   TileHitNonConstContainer::iterator endColl_DigiHSTruth;
 	if(m_doDigiTruth) collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();
@@ -946,9 +906,14 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
     TileHitCollection* coll_DigiHSTruth;
     TileHitCollection::iterator hitItr_DigiHSTruth;
     TileHitCollection::iterator hitEnd_DigiHSTruth;
-		if(m_doDigiTruth) coll_DigiHSTruth = (*collIt_DigiHSTruth).get();
-		if(m_doDigiTruth) hitItr_DigiHSTruth = coll_DigiHSTruth->begin();
-		if(m_doDigiTruth) hitEnd_DigiHSTruth = coll_DigiHSTruth->end();
+    if(m_doDigiTruth) coll_DigiHSTruth = (*collIt_DigiHSTruth).get();
+    if(m_doDigiTruth) hitItr_DigiHSTruth = coll_DigiHSTruth->begin();
+    if(m_doDigiTruth) hitEnd_DigiHSTruth = coll_DigiHSTruth->end();
+
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(coll->identify());
+    int ros = m_tileHWID->ros(drawer_id);
+    int drawer = m_tileHWID->drawer(drawer_id);
+    int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
     for (TileHit* pHit : *coll) {
       double ehit = 0.0;
@@ -966,8 +931,11 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
         //channel_id = m_cabling->s2h_channel_id(pmt_id);
       }
 
-      double scaleFactor = applyPhotoStatistics(ehit, pmt_id, engine);
-      pHit->scale(scaleFactor);
+      double scaleFactor = 1.0;
+      if (m_usePhotoStatistics) {
+        scaleFactor = applyPhotoStatistics(ehit, pmt_id, engine, *samplingFraction, drawerIdx);
+        pHit->scale(scaleFactor);
+      }
 
       if(m_doDigiTruth){
         TileHit *pHit_DigiHSTruth = (*hitItr_DigiHSTruth);
@@ -1041,11 +1009,19 @@ StatusCode TileHitVecToCntTool::finalize() {
 
 }
 
-double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine * engine) {
-  // pmt_sample = 0-3 for normal cells 4 for inner MBTS, 5 for outer MBTS, 6 for E4'
-  int pmt_sample =
-      (m_tileTBID->is_tiletb(pmt_id)) ? TileID::SAMP_X + m_tileTBID->channel(pmt_id) : m_tileID->sample(pmt_id);
-  double pe = energy * m_nPhotoElectrons[pmt_sample];
+double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine* engine,
+                                                 const TileSamplingFraction* samplingFraction, int drawerIdx) {
+
+  int channel = m_tileHWID->channel(m_cabling->s2h_channel_id(pmt_id));
+  // take number of photoelectrons per GeV divide by 1000 to go to MeV
+  // and multiply by inverted sampling fraction (about 36, depends on G4 version, sampling and eta)
+  // to get number of photoelectrons per 1 MeV energy in scintillator
+  float nPhotoElectrons = samplingFraction->getNumberOfPhotoElectrons(drawerIdx, channel)
+    / (Gaudi::Units::GeV / Gaudi::Units::MeV) * samplingFraction->getSamplingFraction(drawerIdx, channel);
+
+  nPhotoElectrons = std::round(nPhotoElectrons * 1000) / 1000;
+
+  double pe = energy * nPhotoElectrons;
   double pe_scale = 1., RndmPois = 1.;
 
   switch (m_photoElectronStatistics) {
@@ -1104,7 +1080,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 
   ATH_MSG_VERBOSE( "PhotoElec: id=" << m_tileID->to_string(pmt_id,-1)
                   << " totEne=" << energy
-                  << ", numPhElec[" << pmt_sample << "]=" << m_nPhotoElectrons[pmt_sample]
+                  << ", numPhElec=" << nPhotoElectrons
                   << ", pe=" << pe
                   << ", rndmPoisson=" << RndmPois
                   << ", pe_scale=" << pe_scale);

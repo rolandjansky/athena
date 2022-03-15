@@ -3,7 +3,7 @@
 */
 
 
-#include "GoodRunsListsUser/DummyDumperAlg.h"
+#include "DummyDumperAlg.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

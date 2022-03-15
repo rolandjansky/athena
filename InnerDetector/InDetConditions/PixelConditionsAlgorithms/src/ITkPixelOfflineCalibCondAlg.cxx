@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ITkPixelOfflineCalibCondAlg.h"
@@ -22,8 +22,6 @@ PixelOfflineCalibCondAlg::PixelOfflineCalibCondAlg(const std::string& name, ISvc
 StatusCode PixelOfflineCalibCondAlg::initialize() {
   ATH_MSG_DEBUG("ITkPixelOfflineCalibCondAlg::initialize()");
 
-  ATH_CHECK(m_condSvc.retrieve());
-
   ATH_CHECK(service("DetectorStore", m_detStore));
   ATH_CHECK(m_detStore->retrieve(m_pixelid, "PixelID")) ;
 
@@ -33,11 +31,6 @@ StatusCode PixelOfflineCalibCondAlg::initialize() {
   ATH_CHECK(m_readKey.initialize());
 
   ATH_CHECK(m_writeKey.initialize());
-
-  if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

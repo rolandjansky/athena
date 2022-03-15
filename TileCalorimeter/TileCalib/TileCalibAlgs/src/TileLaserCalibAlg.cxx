@@ -11,7 +11,7 @@
 
 
 // Tile includes
-#include "TileCalibAlgs/TileLaserCalibAlg.h"
+#include "TileLaserCalibAlg.h"
 
 #include "TFile.h"
 #include <iostream>

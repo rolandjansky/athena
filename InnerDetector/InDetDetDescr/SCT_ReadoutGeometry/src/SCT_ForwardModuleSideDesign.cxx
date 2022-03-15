@@ -50,6 +50,18 @@ SCT_ForwardModuleSideDesign::SCT_ForwardModuleSideDesign(const double thickness,
   m_bounds = Trk::TrapezoidBounds(0.5*minWidth(), 0.5*maxWidth(), 0.5*length());
 }
 
+double SCT_ForwardModuleSideDesign::sinStripAngleReco(double x, double y) const {
+    // If theta is angle between the edges of a sensor, then tan(theta/2) = (maxW - minW) / 2 / length
+    // and tan(theta/2) = width/2 / radius
+    // So 1/r = (maxW - minW) / (width * length)
+    double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
+    // We measure the angle from the y (eta) axis towards the x (phi) axis, hence the -ve sign.
+    double sinAngle = -x * oneOverRadius / sqrt(
+        (1 + y * oneOverRadius) * (1 + y * oneOverRadius) + x * oneOverRadius * x * oneOverRadius);
+
+    return sinAngle;
+}
+
 void
 SCT_ForwardModuleSideDesign::distanceToDetectorEdge(const SiLocalPosition & localPosition,
 						   double & etaDist, double & phiDist) const

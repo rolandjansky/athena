@@ -636,16 +636,16 @@ class MenuSequence(object):
 class MenuSequenceCA(MenuSequence):
     ''' MenuSequence with Component Accumulator '''
 
-    def __init__(self, ca, HypoToolGen ):
-        self.ca = ca
-        allAlgs = ca.getEventAlgos()
+    def __init__(self, selectionCA, HypoToolGen ):
+        self.ca = selectionCA
+        allAlgs = self.ca.getEventAlgos()
         inputMaker = [ a for a in allAlgs if isInputMakerBase(a)]
         assert len(inputMaker) == 1, "Wrong number of input makers in the component accumulator {}".format(len(inputMaker))
         inputMaker = inputMaker[0]
         hypoAlg = [ a for a in allAlgs if isHypoAlg(a)]
         assert len(hypoAlg) == 1, "Wrong number of hypo algs in the component accumulator {}".format(len(hypoAlg))
         hypoAlg = hypoAlg[0]
-        MenuSequence.__init__(self, ca.getSequence(), inputMaker,  hypoAlg, HypoToolGen)
+        MenuSequence.__init__(self, self.ca.getSequence(), inputMaker,  hypoAlg, HypoToolGen)
 
     @property
     def sequence(self):
@@ -1105,8 +1105,9 @@ class InEventRecoCA( ComponentAccumulator ):
             self.inputMakerAlg = CompFactory.InputMakerForRoI(**args)
             
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
-        self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
+        self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name ) #FP: why is this needed?
         self.addSequence( self.recoSeq, self.mainSeq.name )
+        
     pass
 
     def mergeReco( self, ca ):
@@ -1173,7 +1174,7 @@ class SelectionCA(ComponentAccumulator):
 
         super( SelectionCA, self ).__init__()   
 
-        self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
+        self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))       
         self.stepViewSequence = seqAND(CFNaming.stepContentName(name), [self.stepRecoSequence])
         self.addSequence(self.stepViewSequence)
 
@@ -1185,7 +1186,7 @@ class SelectionCA(ComponentAccumulator):
         self.merge(other, sequenceName=self.stepViewSequence.name)
 
     def addHypoAlgo(self, algo):
-        """To be used when the hypo alg configuration does not require auxiliary tools/services"""
+        """To be used when the hypo alg configuration does not require auxiliary tools/services"""        
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
     def hypo(self):

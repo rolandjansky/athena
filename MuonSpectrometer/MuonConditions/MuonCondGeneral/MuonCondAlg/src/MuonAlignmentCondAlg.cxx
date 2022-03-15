@@ -20,7 +20,7 @@
 #include "SGTools/TransientAddress.h"
 
 MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), m_condSvc{"CondSvc", name}, m_newFormat2020(false) {
+    AthAlgorithm(name, pSvcLocator), m_newFormat2020(false) {
     m_geometryVersion = "";
     m_AsBuiltRequested = false;
     m_ILineRequested = false;
@@ -41,8 +41,6 @@ StatusCode MuonAlignmentCondAlg::initialize() {
     ATH_MSG_INFO("Initilalizing");
     ATH_MSG_INFO("In initialize ---- # of folders registered is " << m_parlineFolder.size());
 
-    ATH_CHECK(m_condSvc.retrieve());
-
     // =======================
     // Loop on folders requested in configuration and check if /MUONALIGN/CSC/ILINES and /MUONALIGN/MDT/ASBUILTPARAMS are requested
     // =======================
@@ -62,25 +60,9 @@ StatusCode MuonAlignmentCondAlg::initialize() {
 
     // Write Handles
     ATH_CHECK(m_writeALineKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeALineKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeALineKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
     ATH_CHECK(m_writeBLineKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeBLineKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeBLineKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
     ATH_CHECK(m_writeILineKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeILineKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeILineKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
     ATH_CHECK(m_writeAsBuiltKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeAsBuiltKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeAsBuiltKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     ATH_CHECK(detStore()->retrieve(m_muonDetMgrDS));
     m_geometryVersion = m_muonDetMgrDS->geometryVersion();

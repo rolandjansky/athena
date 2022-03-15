@@ -14,7 +14,7 @@ class IPFBaseTool : virtual public IAlgTool {
  public:
 
   /** Execute method to use eflowCaloObjectContainer */
-  virtual void execute(const eflowCaloObjectContainer&) = 0;
+  virtual StatusCode execute(const eflowCaloObjectContainer&) = 0;
 
   DeclareInterfaceID(IPFBaseTool,1,0);
 

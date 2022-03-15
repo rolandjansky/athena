@@ -118,28 +118,16 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     status = status && m_PPToSL[i]->readData((TGCRegionType)(i+1));
   }
 
-  std::string version;
   // Temporary solution for Run 3 simulation (to be migrated to CONDDB
   tgcArgs()->set_USE_CONDDB(false);
-  version = "1_01_01_06_02";
 
   // CW for SL (ONLY available for Run-3 development phase)
-  std::string ver_BW   = "02";
-  std::string ver_EIFI = "06";
-  std::string ver_TILE = "01";
-  std::string ver_NSW  = "01";
-  std::string ver_BIS78  = "01"; // OK?
-  std::string ver_HotRoI = "1";
-
-  std::vector<std::string> vers = TGCDatabaseManager::splitCW(version, '_');
-  if(vers.size() == 5) {
-    ver_BW   = "v" + vers[4];
-    ver_EIFI = "v" + vers[3];
-    ver_TILE = "v" + vers[2];
-    ver_NSW  = "v" + vers[1];
-    ver_HotRoI = "v" + vers[0];
-    //ver_BIS78  = "v" + vers[5]; // OK?
-  }
+  std::string ver_BW   = "v04";
+  std::string ver_EIFI = "v06";
+  std::string ver_TILE = "v01";
+  std::string ver_NSW  = "v01";
+  std::string ver_BIS78  = "v01"; // OK?
+  std::string ver_HotRoI = "v1";
 
   // EIFI Coincidence Map
   ATH_MSG_DEBUG("start to create EIFI coincidence map.");

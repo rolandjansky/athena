@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCalibDbAlg.h"
@@ -50,7 +50,6 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string &name, ISvcLocator *pSvcLocator) 
 
 StatusCode MdtCalibDbAlg::initialize() {
     ATH_MSG_DEBUG("initialize " << name());
-    ATH_CHECK(m_condSvc.retrieve());
 
     // if timeslew correction vector m_MeanCorrectionVsR has non-zero size then set
     // m_TsCorrectionT0=m_MeanCorrectionVsR[0] and subtract this each value in the vector.
@@ -103,19 +102,6 @@ StatusCode MdtCalibDbAlg::initialize() {
     ATH_CHECK(m_writeKeyRt.initialize());
     ATH_CHECK(m_writeKeyTube.initialize());
     ATH_CHECK(m_writeKeyCor.initialize());
-
-    if (m_condSvc->regHandle(this, m_writeKeyRt).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyRt.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
-    if (m_condSvc->regHandle(this, m_writeKeyTube).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyTube.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
-    if (m_condSvc->regHandle(this, m_writeKeyCor).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyCor.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     ATH_CHECK(detStore()->retrieve(m_detMgr));
     return StatusCode::SUCCESS;
@@ -865,7 +851,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
         // need to check validity of Identifier since database contains all Run 2 MDT chambers, e.g. also EI chambers which are
         // potentially replaced by NSW
         bool isValid = true;  // the elementID takes a bool pointer to check the validity of the Identifier
-        Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name, ieta, iphi, true, &isValid);
+        Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name, ieta, iphi, isValid);
         if (!isValid) {
             static std::atomic<bool> idWarningPrinted = false;
             if (!idWarningPrinted) {

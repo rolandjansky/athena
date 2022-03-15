@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "MuonCondInterface/ITriggerCoolSvc.h"
-#include "MuonCondCool/TriggerCool.h"
+#include "TriggerCool.h"
 
 #include "string.h"
 

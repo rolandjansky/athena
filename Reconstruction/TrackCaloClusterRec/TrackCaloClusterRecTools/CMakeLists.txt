@@ -14,7 +14,7 @@ atlas_add_library( TrackCaloClusterRecToolsLib
    xAODCaloEvent xAODPFlow xAODAssociations
    PRIVATE_LINK_LIBRARIES FourMomUtils TrkSurfaces TrkTrack
    TrkParameters TrkExInterfaces TrkCaloExtension AtlasDetDescr
-   TrkParametersIdentificationHelpers xAODMuon CxxUtils )
+   TrkParametersIdentificationHelpers xAODMuon CxxUtils)
 
 atlas_add_component( TrackCaloClusterRecTools
    src/components/*.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDALGS_CONDALGX_H
@@ -24,11 +24,8 @@ public:
   CondAlgX (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CondAlgX();
   
-  virtual bool isClonable() const override { return true; }
-
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
 private:
   

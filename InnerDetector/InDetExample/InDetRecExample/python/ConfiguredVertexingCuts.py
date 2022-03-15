@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -76,6 +76,8 @@ class ConfiguredVertexingCuts :
 
    self.__doMaxTracksCut = False
    self.__MaxTracks = 5000 #Not applied  anyway if above false
+
+   self.__maxVertices         = 200
       
 #-----------------------------------------------------------------------
 #End of the default track pre-selection block

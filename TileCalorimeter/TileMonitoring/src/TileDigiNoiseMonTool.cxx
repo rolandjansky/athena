@@ -19,7 +19,7 @@
 // ********************************************************************
 
 // Tile includes
-#include "TileMonitoring/TileDigiNoiseMonTool.h"
+#include "TileDigiNoiseMonTool.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"

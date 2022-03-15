@@ -177,13 +177,13 @@ def triggerSummaryCfg(flags, hypos):
     DecisionSummaryMakerAlg=CompFactory.DecisionSummaryMakerAlg
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
-    allChains = OrderedDict() # keys are chain names, values are lists of collections
+    chainToLastCollection = OrderedDict() # keys are chain names, values are lists of collections
 
 
     # sort steps according to the step number i.e. strings Step1 Step2 ... Step10 Step11 rather than
     # alphabetic order Step10 Step11 Step1 Step2
     for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0]) ):
-        # While filling the allChains dict we will replace the content intentionally
+        # While filling the chainToLastCollection dict we will replace the content intentionally
         # i.e. the chain has typically multiple steps and we want the collections from the last one
         # In a step the chain is handled by hypo or hypo followed by the combo,
         # in second case we want out of the later.
@@ -191,13 +191,13 @@ def triggerSummaryCfg(flags, hypos):
         # (TODO, review this whn config is symmetrised by addition of ComboHypos always)
         orderedStepHypos = sorted(stepHypos, key=lambda hypo: not __isCombo(hypo))
 
-        stepChains = OrderedDict()
+        chainToCollectionInStep = OrderedDict()
         for hypo in orderedStepHypos:
             hypoChains, hypoOutputKeys = __decisionsFromHypo( hypo )
             for chain in hypoChains:
-                if chain not in stepChains:
-                    stepChains[chain] = hypoOutputKeys
-        allChains.update( stepChains )
+                if chain not in chainToCollectionInStep:
+                    chainToCollectionInStep[chain] = hypoOutputKeys
+        chainToLastCollection.update( chainToCollectionInStep )
 
     from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
@@ -205,23 +205,23 @@ def triggerSummaryCfg(flags, hypos):
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
     else:
         for chainName, chainDict in HLTMenuConfig.dicts().items():
-            if chainName not in allChains:
+            if chainName not in chainToLastCollection:
                 __log.debug("The chain %s is not mentioned in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
-                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
-                allChains[chainName] = [ mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] ) ]
+                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have multiple parts in chainDict, it makes no sense: %s"%chainName
+                chainToLastCollection[chainName] = [ mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] ) ]
 
-    for c, cont in allChains.items():
+    for c, cont in chainToLastCollection.items():
         __log.debug("Final decision of chain  %s will be read from %d %s", c, len(cont), str(cont))
     # Flatten all the collections preserving the order
     collectionsWithFinalDecisions = []
-    for chain, collections in allChains.items():
+    for chain, collections in chainToLastCollection.items():
         for c in collections:
             if c not in collectionsWithFinalDecisions:
                 collectionsWithFinalDecisions.append(c)
     __log.debug("Final keys %s", collectionsWithFinalDecisions)
     decisionSummaryAlg.FinalDecisionKeys = collectionsWithFinalDecisions
-    decisionSummaryAlg.FinalStepDecisions = dict(allChains)
+    decisionSummaryAlg.FinalStepDecisions = dict(chainToLastCollection)
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
@@ -669,7 +669,7 @@ def triggerRunCfg( flags, menu=None ):
 
         if flags.Trigger.doOnlineNavigationCompactification:
             from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
-            onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+            onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig(flags)
             acc.addEventAlgo( onlineSlimAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc

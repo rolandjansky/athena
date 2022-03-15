@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Create object vkalMagFld which containg magnetic field.
@@ -38,7 +38,7 @@ baseMagFld::baseMagFld() = default;
 baseMagFld::~baseMagFld() = default;
 
 void vkalMagFld::getMagFld(const double X,const double Y,const double Z,
-                           double& bx, double& by, double& bz, const VKalVrtControlBase* FitControl=nullptr ) const
+                           double& bx, double& by, double& bz, VKalVrtControlBase* FitControl=nullptr ) const
 {
      bx=by=0.;
      //std::cout<<"In coreMag.field0 Control="<<FitControl<<'\n';

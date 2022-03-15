@@ -9,7 +9,7 @@
 // version 0.0 Markus Elsing
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetExtensionProcessor/InDetExtensionProcessor.h"
+#include "InDetExtensionProcessor.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
