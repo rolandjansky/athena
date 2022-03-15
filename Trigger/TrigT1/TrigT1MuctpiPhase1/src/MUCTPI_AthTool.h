@@ -1,7 +1,7 @@
 // This file is really -*- C++ -*-.
 
 /*                                                                                                                      
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1MUCTPIPHASE1_MUCTPI_ATHTOOL_H
@@ -26,6 +26,9 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/DataHandle.h"
 
+#include <optional>
+#include <functional>
+
 namespace LVL1 {
   class TrigThresholdDecisionTool;
 }
@@ -40,7 +43,7 @@ namespace LVL1MUCTPIPHASE1 {
     MUCTPI_AthTool(const std::string& type, const std::string& name, 
 		   const IInterface* parent);
 
-    ~MUCTPI_AthTool();
+    virtual ~MUCTPI_AthTool() override = default;
 
     StatusCode initialize();
     StatusCode start();
@@ -55,10 +58,10 @@ namespace LVL1MUCTPIPHASE1 {
     /// Event loop method for running on an RDO file
     StatusCode executeFromRDO() const;
     /// Save the outputs of the simulation into StoreGate
-    StatusCode saveOutput(MUCTPIResults& results, int bcidOffset = 0) const;
+    StatusCode saveOutput(std::optional<std::reference_wrapper<MUCTPIResults>> results, int bcidOffset = 0) const;
 
     
-    std::vector<int> m_bcidOffsetList = {-2,-1,1,2};
+    static constexpr std::array<int,4> m_bcidOffsetList{-2,-1,1,2};
 
     std::string m_inputSource;
     std::string m_aodLocId;
@@ -77,14 +80,22 @@ namespace LVL1MUCTPIPHASE1 {
     SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1KeyRPC{this, "MuctpiPhase1LocationRPC", "L1MuctpiStoreRPC", "Location of muctpiPhase1 for Rpc"};
     SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1KeyTGC{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
     SG::WriteHandleKey<LVL1::MuCTPICTP> m_MuCTPICTPWriteKey{this, "MuCTPICTPLocation", LVL1MUCTPI::DEFAULT_MuonCTPLocation, "Location of MuCTPICTP"};
-    SG::WriteHandleKey<xAOD::MuonRoIContainer> m_MuCTPI_xAODWriteKey{this, "MUCTPI_xAODLocation", "LVL1MuonRoIs", "Location of xAOD::MuonRoIContainer"};
-    SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey;
-    SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_m2;
-    SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_m1;
-    SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_p1;
-    SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_p2;
-
-
+    SG::WriteHandleKeyArray<xAOD::MuonRoIContainer> m_MuCTPI_xAODWriteKeys {
+      this, "MUCTPI_xAODLocation", {
+        "LVL1MuonRoIsBCm2", "LVL1MuonRoIsBCm1",
+        "LVL1MuonRoIs",
+        "LVL1MuonRoIsBCp1", "LVL1MuonRoIsBCp2"
+      },
+      "Output keys for xAOD::MuonRoIContainer, one per time slice"
+    };
+    SG::WriteHandleKeyArray<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKeys {
+      this, "L1TopoOutputLocID", {
+        LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"-2", LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"-1",
+        LVL1MUCTPI::DEFAULT_MuonL1TopoLocation,
+        LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"1", LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"2"
+      },
+      "Output keys for MuCTPItoL1Topo, one per time slice"
+    };
 
     // These properties control how the multiplicity summation happens:
     std::string m_multiplicityStrategyName;

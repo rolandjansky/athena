@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULT_MUCTPI_RDO_H
@@ -142,7 +142,6 @@ public:
     return m_dataWord;
   }
   
-#include<TrigT1MuctpiBits/MuCTPI_Bits.h>
 
 private:
   /// Variable storing the multiplicity word(s) sent to the CTP

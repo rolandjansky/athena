@@ -1,11 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULT_MUCTPI_MULTIPLICITYWORD_DECODER_H
 #define TRIGT1RESULT_MUCTPI_MULTIPLICITYWORD_DECODER_H
+
+// Gaudi include(s):
+#include "GaudiKernel/MsgStream.h"
 
 // System include(s):
 #include <cstdint>

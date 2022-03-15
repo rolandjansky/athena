@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGCRecRoiTool.h"
@@ -186,6 +186,8 @@ namespace LVL1 {
       ATH_MSG_INFO( "Bad roiWord  " 
 		    << " roi word = " << std::hex << roiWord 
 		    << " sysID = " << std::dec << sysID
+		    << " subSysID = " << std::dec << subSysID
+		    << " (side " << (tgcIdBase.getSideType()==TGCIdBase::SideType::Aside ? "A)" : "C)")
 		    << " trigger sectorID = " << std::dec << t_sectorID
 		    << " sectorID = " << std::dec << sectorID
 		    << " roiNumber = " << std::dec << roiNumber );
@@ -193,6 +195,8 @@ namespace LVL1 {
     } else {
       ATH_MSG_DEBUG( " roi word = " << std::hex << roiWord 
 		     << " sysID = " << std::dec << sysID
+		     << " subSysID = " << std::dec << subSysID
+		     << " (side " << (tgcIdBase.getSideType()==TGCIdBase::SideType::Aside ? "A)" : "C)")
 		     << " trigger sectorID = " << std::dec << t_sectorID
 		     << " sectorID = " << std::dec << sectorID
 		     << " roiNumber = " << std::dec << roiNumber );

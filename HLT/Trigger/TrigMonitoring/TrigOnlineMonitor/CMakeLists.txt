@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigOnlineMonitor )
@@ -12,7 +12,7 @@ atlas_add_component( TrigOnlineMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamData EventInfo GaudiKernel LumiBlockData MagFieldConditions StoreGateLib TrigConfData TrigT1Result )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamData EventInfo GaudiKernel LumiBlockData MagFieldConditions StoreGateLib TrigConfData TrigT1Result TrigT1MuctpiBits )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

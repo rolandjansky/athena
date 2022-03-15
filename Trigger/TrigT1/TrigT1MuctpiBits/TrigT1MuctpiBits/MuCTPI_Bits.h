@@ -1,12 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1RESULT_MUCTPI_BITS_H
-#define TRIGT1RESULT_MUCTPI_BITS_H
+#ifndef TRIGT1MUCTPIBITS_MUCTPI_BITS_H
+#define TRIGT1MUCTPIBITS_MUCTPI_BITS_H
 
+namespace LVL1::MuCTPIBits {
   /// Binary 111 representing the maximal multiplicity value for a given threshold
    static constexpr uint32_t MULT_VAL = 7;
   /// Number of multiplicity bits reserved per threshold
@@ -73,6 +74,7 @@
 
   /// Mask for extracting the address of the muon candidate from the data word
   /// This is the mask and shift for the full sector address, including the hemisphere as the least significant bit
+   static constexpr uint32_t RUN3_CAND_SECTOR_ADDRESS_MASK = 0xff;
    static constexpr uint32_t CAND_SECTOR_ADDRESS_MASK = 0xff;
   /// Mask for the bit showing which hemisphere the candidate came from.(1: positive; 0: negative)
    static constexpr uint32_t SECTOR_HEMISPHERE_MASK = 0x1;
@@ -90,6 +92,26 @@
 /// Position in the data word of the subsystem bits
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_SHIFT = 27;
    static constexpr uint32_t SUBSYS_ADDRESS_SHIFT = 20;
+   /// Run-3 subsystem identifier bits location and values (online firmware format)
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BAFW_SHIFT = 26;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BAFW_MASK = 0b11;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BA_VAL = 0b00;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_FW_VAL = 0b01;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_SHIFT = 27;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_MASK = 0b1;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_VAL = 0b1;
+   static constexpr uint32_t RUN3_SUBSYS_HEMISPHERE_SHIFT = 28;
+   static constexpr uint32_t RUN3_SUBSYS_HEMISPHERE_MASK = 0b1;
+   /// Run-3 subsystem identifier bits location and values (offline software format)
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_SHIFT = 27;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_MASK = 0b11;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_BA_VAL = 0b00;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_FW_VAL = 0b01;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_EC_SHIFT = 28;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_EC_MASK = 0b1;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_EC_VAL = 0b1;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_HEMISPHERE_SHIFT = 21;
+   static constexpr uint32_t RUN3OFFLINE_SUBSYS_HEMISPHERE_MASK = 0b1;
 
   /// Mask for extracting the sector ID for endcap candidates from the data word
    static constexpr uint32_t ENDCAP_SECTORID_MASK = 0x3f;
@@ -97,8 +119,11 @@
    static constexpr uint32_t FORWARD_SECTORID_MASK = 0x1f;
   /// Mask for extracting the sector ID for barrel candidates from the data word
    static constexpr uint32_t BARREL_SECTORID_MASK = 0x1f;
-  /// Position of the sector ID itself, which is one bit left of the full sector address
-   static constexpr uint32_t RUN3_CAND_SECTORID_SHIFT = 22;
+  /// Position of the sector ID itself
+   static constexpr uint32_t RUN3_CAND_SECTORID_MASK = 0x7f;
+   static constexpr uint32_t RUN3_CAND_SECTORID_SHIFT = 21;
+   static constexpr uint32_t RUN3OFFLINE_CAND_SECTORID_MASK = 0x7f;
+   static constexpr uint32_t RUN3OFFLINE_CAND_SECTORID_SHIFT = 22;
    static constexpr uint32_t CAND_SECTORID_SHIFT = 15;
 
 /// gone in v2
@@ -115,7 +140,6 @@
    static constexpr uint32_t CAND_SENT_ROI_SHIFT = 26;
 
   /// Position of the bit turned on for the multiplicity words that distinguishes them from the data words
-   static constexpr uint32_t RUN3_MULT_WORD_FLAG_SHIFT = 31; // is 31 correct? - check with Stefan
    static constexpr uint32_t MULT_WORD_FLAG_SHIFT = 29;
 
   /// Position of the bit specifying the candidate's sign
@@ -132,4 +156,49 @@
    static constexpr uint32_t RUN3_CAND_VETO_SHIFT = 16;
    static constexpr uint32_t CAND_VETO_SHIFT = 28;
 
-#endif 
+  // Timeslice and multiplicity words
+  static constexpr uint32_t RUN3_TIMESLICE_MULT_WORD_ID_SHIFT = 30;
+  static constexpr uint32_t RUN3_TIMESLICE_MULT_WORD_ID_MASK = 0b11;
+  static constexpr uint32_t RUN3_TIMESLICE_MULT_WORD_ID_VAL = 0b10;
+  static constexpr uint32_t RUN3_TIMESLICE_MULT_WORD_NUM_SHIFT = 28;
+  static constexpr uint32_t RUN3_TIMESLICE_MULT_WORD_NUM_MASK = 0b11;
+  static constexpr uint32_t RUN3_TIMESLICE_WORD_NUM_VAL = 0b00; // Timeslice word is 0, multiplicity words are 1, 2, 3
+  static constexpr uint32_t RUN3_TIMESLICE_BCID_SHIFT = 16;
+  static constexpr uint32_t RUN3_TIMESLICE_BCID_MASK = 0xfff;
+  static constexpr uint32_t RUN3_TIMESLICE_NTOB_SHIFT = 10;
+  static constexpr uint32_t RUN3_TIMESLICE_NTOB_MASK = 0x3f;
+  static constexpr uint32_t RUN3_TIMESLICE_NCAND_SHIFT = 0;
+  static constexpr uint32_t RUN3_TIMESLICE_NCAND_MASK = 0x3ff;
+  static constexpr uint32_t RUN3_MULTIPLICITY_OVERFLOW_SHIFT = 0x8;
+  static constexpr uint32_t RUN3_MULTIPLICITY_OVERFLOW_MASK = 0b1;
+  static constexpr uint32_t RUN3_MULTIPLICITY_TRIGBITS_SHIFT = 0x9;
+  static constexpr uint32_t RUN3_MULTIPLICITY_TRIGBITS_MASK = 0x7ffff;
+
+  // Multiplicity word encoding (split 64-bit word into 28+28+8)
+  static constexpr uint32_t RUN3_MULTIPLICITY_PART1_SHIFT = 0;
+  static constexpr uint32_t RUN3_MULTIPLICITY_PART1_MASK = 0xffffff;
+  static constexpr uint32_t RUN3_MULTIPLICITY_PART2_SHIFT = 28;
+  static constexpr uint32_t RUN3_MULTIPLICITY_PART2_MASK = 0xffffff;
+  static constexpr uint32_t RUN3_MULTIPLICITY_PART3_SHIFT = 56;
+  static constexpr uint32_t RUN3_MULTIPLICITY_PART3_MASK = 0xff;
+
+  // Candidate words
+  static constexpr uint32_t RUN3_CAND_WORD_ID_SHIFT = 31;
+  static constexpr uint32_t RUN3_CAND_WORD_ID_MASK = 0b1;
+  static constexpr uint32_t RUN3_CAND_WORD_ID_VAL = 0b0;
+
+  // Topo TOB words
+  static constexpr uint32_t RUN3_TOPO_WORD_ID_SHIFT = 29;
+  static constexpr uint32_t RUN3_TOPO_WORD_ID_MASK = 0b111;
+  static constexpr uint32_t RUN3_TOPO_WORD_ID_VAL = 0b110;
+
+  // ROD status word
+  static constexpr uint32_t RUN3_STATUS_WORD_ID_SHIFT = 29;
+  static constexpr uint32_t RUN3_STATUS_WORD_ID_MASK = 0b111;
+  static constexpr uint32_t RUN3_STATUS_WORD_ID_VAL = 0b111;
+  static constexpr uint32_t RUN3_STATUS_WORD_SHIFT = 0;
+  static constexpr uint32_t RUN3_STATUS_WORD_MASK = 0xffff;
+
+} // namespace LVL1::MuCTPIBits
+
+#endif // TRIGT1MUCTPIBITS_MUCTPI_BITS_H
