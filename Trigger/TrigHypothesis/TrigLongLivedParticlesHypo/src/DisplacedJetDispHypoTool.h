@@ -31,6 +31,8 @@ public:
       const xAOD::Jet* jet;
       const xAOD::TrackParticleContainer* lrt_tracks;
       const xAOD::Vertex* primary_vertex;
+      const xAOD::TrigComposite* counts;
+      xAOD::TrigComposite* info;
     };
 
     StatusCode decide( Info& info ) const;
@@ -45,13 +47,19 @@ public:
     Gaudi::Property<float> m_d0sigcut{this, "d0sigcut",{25.0}, "Maximum value for z0*sin(theta) [mm]"};
 
 
-    Gaudi::Property<int> m_maxprompt_h{this, "max_prompt_trk_h",{4}, "Max number of prompt tracks in a jet"};
-    Gaudi::Property<int> m_mindisp_h{this, "min_disp_trk_h",{4}, "Min number of disp tracks in a jet"};
-    Gaudi::Property<float> m_nother_frac_h{this, "nother_frac_h",{0.5}, "nother frac"};
+    Gaudi::Property<int> m_maxprompt_c2{this, "max_prompt_trk_c2",{4}, "Max number of prompt tracks in a jet"};
+    Gaudi::Property<int> m_mindisp_c2{this, "min_disp_trk_c2",{4}, "Min number of disp tracks in a jet"};
+    Gaudi::Property<float> m_nother_frac_c2{this, "nother_frac_c2",{0.5}, "nother frac"};
 
-    Gaudi::Property<int> m_maxprompt_l{this, "max_prompt_trk_l",{4}, "Max number of prompt tracks in a jet"};
-    Gaudi::Property<int> m_mindisp_l{this, "min_disp_trk_l",{4}, "Min number of disp tracks in a jet"};
-    Gaudi::Property<float> m_nother_frac_l{this, "nother_frac_l",{0.5}, "nother frac"};
+    Gaudi::Property<int> m_maxprompt_c1{this, "max_prompt_trk_c1",{4}, "Max number of prompt tracks in a jet"};
+    Gaudi::Property<int> m_mindisp_c1{this, "min_disp_trk_c1",{4}, "Min number of disp tracks in a jet"};
+    Gaudi::Property<float> m_nother_frac_c1{this, "nother_frac_c1",{0.5}, "nother frac"};
+
+    //single jet special class
+    Gaudi::Property<int> m_maxprompt_c3{this, "max_prompt_trk_c3",{1}, "Max number of prompt tracks in a jet"};
+    Gaudi::Property<int> m_mindisp_c3{this, "min_disp_trk_c3",{3}, "Min number of disp tracks in a jet"};
+    Gaudi::Property<float> m_nother_frac_c3{this, "nother_frac_c3",{0.5}, "nother frac"};
+    Gaudi::Property<float> m_c3_min_jet_pt{this, "min_jet_pt_c3",{0.5}, "nother frac"};
     
     Gaudi::Property<std::string> m_cutname{this, "cut_name",{""}, "Name of cuts, used for decoration names"};
 

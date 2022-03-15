@@ -30,6 +30,7 @@ StatusCode DisplacedJetDispHypoAlg::initialize()
   ATH_CHECK(m_lrtTracksKey.initialize());
   renounce(m_lrtTracksKey);
   ATH_CHECK(m_vtxKey.initialize());
+  ATH_CHECK(m_infoKey.initialize());
 
 
   ATH_CHECK(m_hypoTools.retrieve());
@@ -52,6 +53,9 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
   ATH_CHECK( vtxHandle.isValid() );
   const xAOD::VertexContainer* vtxs = vtxHandle.get();
 
+  //info container
+  SG::WriteHandle<xAOD::TrigCompositeContainer> infoHandle(m_infoKey, context);
+
   //get the primary vertex
   const xAOD::Vertex_v1* primary_vertex = nullptr;
 
@@ -65,6 +69,12 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
     ATH_MSG_DEBUG("missing primary vertex");
     return StatusCode::SUCCESS;
   }
+
+  auto infoContainer = std::make_unique< xAOD::TrigCompositeContainer>();
+  auto infoContainerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
+  infoContainer->setStore(infoContainerAux.get());
+
+  std::map<TrigCompositeUtils::Decision*, int> info_index_map;
 
   for(const TrigCompositeUtils::Decision* previousDecision: *previousDecisionsHandle){
     const auto viewELInfo = findLink< ViewContainer >( previousDecision, viewString() );
@@ -86,7 +96,7 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
     const xAOD::TrackParticleContainer* lrtTracks = lrtHandle.get();
 
     //get the linked jet feature
-    std::vector<TrigCompositeUtils::LinkInfo<xAOD::JetContainer>> jet_feature_links = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString());
+    std::vector<TrigCompositeUtils::LinkInfo<xAOD::JetContainer>> jet_feature_links = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
     ATH_CHECK(jet_feature_links.size() == 1); //ensure we only have 1 link
     const TrigCompositeUtils::LinkInfo<xAOD::JetContainer> jet_feature_link = jet_feature_links.at(0);
     //verify if the feature link is valid
@@ -96,19 +106,45 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
     //reattach jet feature link
     d->setObjectLink(featureString(), jet_feature_link.link);
 
+    //get my count object which has been linked to the decision
+    auto count_links = TrigCompositeUtils::findLinks<xAOD::TrigCompositeContainer>(previousDecision, "djtrig_counts");
+    ATH_CHECK(count_links.size() == 1); //ensure we only have 1 link
+    auto count_link = count_links.at(0);
+    ATH_CHECK(count_link.isValid());
+    const xAOD::TrigComposite* count = *(count_link.link);
+
+    //create a counts object
+    auto info_cn = new xAOD::TrigComposite();
+    auto info_idx = infoContainer->size();
+
+    infoContainer->push_back(info_cn);
+
+    info_index_map[d]= info_idx;
+
 
     //count the number of tracks in the RoI (at this point it is running in RoI mode)
     //apply the nprompt, nother, ndisp requirements and generated the per jet decision
     //if pass also attach a decoration to the jet for the pass type
     //third hypo step will generate the event level decision
 
-    DisplacedJetDispHypoTool::Info info{d, prev, jet, lrtTracks, primary_vertex};
+    DisplacedJetDispHypoTool::Info info{d, prev, jet, lrtTracks, primary_vertex, count, info_cn};
 
     for(auto &tool:m_hypoTools)
     {
       ATH_CHECK(tool->decide(info));
     }
   }
+
+  //write the info container
+  ATH_CHECK(infoHandle.record(std::move(infoContainer), std::move(infoContainerAux)));
+
+  //link all of the info entries to the decisions
+  for(auto pair: info_index_map){
+    auto d = pair.first;
+    auto idx = pair.second;
+    d->setObjectLink("djtrig_info", ElementLink<xAOD::TrigCompositeContainer>(*infoHandle, idx, context));
+  }
+
 
   ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;

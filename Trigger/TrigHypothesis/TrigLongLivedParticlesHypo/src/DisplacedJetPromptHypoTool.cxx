@@ -6,6 +6,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 
 #include "DisplacedJetPromptHypoTool.h"
 
@@ -44,6 +45,10 @@ StatusCode DisplacedJetPromptHypoTool::decide(  Info& info )  const {
 	//generate ranks
 	std::vector<const xAOD::Jet*> input_jets;
 
+	std::map<const xAOD::Jet*, int> map_nprompt;
+	std::map<const xAOD::Jet*, int> map_ndisp;
+	std::map<const xAOD::Jet*, int> map_nother;
+
 	for(auto j: *(info.jets)){
 		if(j->pt()/Gaudi::Units::GeV < m_min_jet_pt) continue; //reject low pt jets
 		if(std::abs(j->eta()) > 2.4) continue; //reject jets outside the barrel region
@@ -65,7 +70,7 @@ StatusCode DisplacedJetPromptHypoTool::decide(  Info& info )  const {
 			  	}
 			}else{
 				//candidate displaced
-				double d0sig = std::fabs(trk->d0())/std::sqrt(trk->definingParametersCovMatrixDiagVec().at(0)); //need to look into beamspot information in the trigger
+				double d0sig = xAOD::TrackingHelpers::d0significance(trk); //need to look into beamspot information in the trigger
 
 				if(d0sig >= m_d0sigcut){
 					track_class = 2; //displaced
@@ -92,9 +97,10 @@ StatusCode DisplacedJetPromptHypoTool::decide(  Info& info )  const {
 		input_jets.push_back(j); //insert the jet for ranking
 		//also attach the number of prompt & other tracks found
 		//saves having to redetermine this later
-		j->auxdecor<int>("djtrig_jet_nprompt_"+m_cutname)=nprompt;
-		j->auxdecor<int>("djtrig_jet_ndisp_"+m_cutname)=ndisp;
-		j->auxdecor<int>("djtrig_jet_nother_prompt_"+m_cutname)=nother;
+
+		map_nprompt[j] = nprompt;
+		map_ndisp[j] = ndisp;
+		map_nother[j] = nother;
 	}
 
 	//rank jets
@@ -105,17 +111,22 @@ StatusCode DisplacedJetPromptHypoTool::decide(  Info& info )  const {
 	);
 
 	int n_ok_jets = 0;
+	int n_c3_ok_jets = 0;
 
 	for(size_t i = 0; i<input_jets.size(); i++){
 		if(i < m_rankcut){
-			n_ok_jets += 1;			
+			n_ok_jets += 1;
+
+			if(input_jets[i]->pt()/Gaudi::Units::GeV >= m_c3_min_jet_pt){
+				n_c3_ok_jets += 1;
+			}	
 		}
 	}
 
-	if(n_ok_jets >= m_minnjets){
-		//accept the event
-		ATH_MSG_DEBUG("Event passed min jets passed rank cut");
-	}else{
+
+	//reject early if it cannot pass the trigger
+	if(n_ok_jets < m_minnjets && n_c3_ok_jets != m_n_c3_jets){
+		//reject the event
 		ATH_MSG_DEBUG("Event failed to few jets passed rank");
 		return StatusCode::SUCCESS;
 	}
@@ -131,9 +142,19 @@ StatusCode DisplacedJetPromptHypoTool::decide(  Info& info )  const {
 			ATH_MSG_DEBUG("Passing Jet pT = "<<j->pt()/Gaudi::Units::GeV<<" rank= "<<i<<" dec_ptr="<<d);
 			addDecisionID(m_decisionId.numeric(), d);
 
+			//add info on this jet to the trig info composite container
+			//then add a link on the decision object linking to this object
+			auto ic = info.counts[j];
+			ic->setDetail<int>("nprompt_"+m_cutname, map_nprompt[j]);
+			ic->setDetail<int>("ndisp_"+m_cutname, map_ndisp[j]);
+			ic->setDetail<int>("nother_"+m_cutname, map_nother[j]);
+			ic->setDetail<int>("c3_total_jets_"+m_cutname, n_c3_ok_jets);
+
 			mon_vec_pass_jet_pt.push_back(j->pt()/Gaudi::Units::GeV);
-			mon_vec_pass_nprompt.push_back(j->auxdecor<int>("djtrig_jet_nprompt_"+m_cutname));
-			mon_vec_pass_nother.push_back(j->auxdecor<int>("djtrig_jet_nother_"+m_cutname));
+			mon_vec_pass_nprompt.push_back(map_nprompt[j]);
+			mon_vec_pass_nother.push_back(map_nother[j]);
+
+			//single jet mode
 		}
 	}
 

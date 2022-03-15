@@ -16193,19 +16193,17 @@ HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1eTAU80_2eTAU6
     3: 19
     4: 7
 HLT_unconvtrk0_dispj_L1J100:
-  eventCount: 2
+  eventCount: 0
   stepCounts:
     0: 5
     1: 5
     2: 2
-    3: 2
-    4: 2
+    3: 1
   stepFeatures:
     0: 5
     1: 5
-    2: 5
-    3: 4
-    4: 4
+    2: 4
+    3: 1
 HLT_unconvtrk0_fslrt_L14J15:
   eventCount: 11
   stepCounts:

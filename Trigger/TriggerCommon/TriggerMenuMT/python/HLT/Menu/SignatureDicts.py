@@ -1074,7 +1074,7 @@ UnconventionalTrackingChainParts_Default = {
     'isoInfo'        : '',
     'threshold'      : '',
     'extra'          : '',
-    'addInfo'        : [],
+    'addInfo'        : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0
