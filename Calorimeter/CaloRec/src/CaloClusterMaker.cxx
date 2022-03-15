@@ -66,8 +66,6 @@ CaloClusterMaker::CaloClusterMaker(const std::string& name,
   // Name(s) of Cluster Correction Tools
   declareProperty("ClusterCorrectionTools",m_clusterCorrectionTools);
 
-  //MT-unfriendly: declareProperty("KeepEachCorrection",  m_keep_each_correction=false);
-
   // Name(s) of Cluster Correction Tools (even field) to trigger the
   // recording of the current cluster container in StoreGate before
   // its execution and the corresponding container name(s) (odd
@@ -137,7 +135,7 @@ StatusCode CaloClusterMaker::execute (const EventContext& ctx) const
 
   // make a Cluster Container 
   SG::WriteHandle<xAOD::CaloClusterContainer> clusColl (m_clusterOutput, ctx);
-  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), clusColl, msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(clusColl));
   
   ToolHandleArray<CaloClusterCollectionProcessor>::const_iterator toolIt, toolIt_e; //Iterators over Tool handles
   toolIt=m_clusterMakerTools.begin();
@@ -171,15 +169,7 @@ StatusCode CaloClusterMaker::execute (const EventContext& ctx) const
   toolIt_e=m_clusterCorrectionTools.end();
   for(;toolIt!=toolIt_e;++toolIt) {
     const std::string& toolname=(*toolIt).name();
-    /*MT-unfriendly, drop for now. 
-    if (m_keep_each_correction) {
-      const std::string interimContName=m_clusterOutput.key() + "-pre" +toolname;
-      xAOD::CaloClusterContainer* interimCont=CaloClusterStoreHelper::makeContainer(&(*evtStore()),interimContName,msg());
-      CaloClusterStoreHelper::copyContainer(clusColl.ptr(),interimCont);
 
-      ATH_CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),interimCont, interimContName, msg()));
-    }
-    */
     ATH_MSG_DEBUG(" Applying correction = " << toolname);
     const std::string chronoName = this->name() + "_" + toolname;
     if (m_chronoTools) m_chrono->chronoStart(chronoName);

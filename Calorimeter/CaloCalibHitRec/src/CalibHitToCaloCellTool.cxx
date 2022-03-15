@@ -4,8 +4,6 @@
 
 #include "CaloCalibHitRec/CalibHitToCaloCellTool.h"
 
-//Gaudi Includes
-#include "StoreGate/StoreGateSvc.h"
 
 // Calo include
 #include "CaloIdentifier/CaloDM_ID.h"
@@ -16,7 +14,10 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
+#include "CaloEvent/CaloClusterCellLinkContainer.h"
 
 #include "LArRecEvent/LArCell.h"
 #include "TileEvent/TileCell.h"
@@ -42,8 +43,6 @@ CalibHitToCaloCellTool::CalibHitToCaloCellTool(const std::string& t, const std::
 
   declareProperty("OutputCellContainerName", m_outputCellContainerName = "TruthCells");
   declareProperty("OutputClusterContainerName", m_outputClusterContainerName = "TruthClusters");
-  declareProperty("WriteTruthCellContainers", m_writeTruthCellContainers=false);
-  declareProperty("WriteTruthClusterContainers", m_writeTruthClusterContainers=false);
   
   m_tileActiveHitCnt   = "TileCalibHitActiveCell";
   m_tileInactiveHitCnt = "TileCalibHitInactiveCell";
@@ -67,7 +66,18 @@ StatusCode CalibHitToCaloCellTool::initialize()
   ATH_CHECK( detStore()->retrieve(m_caloCell_ID) );
   ATH_CHECK( detStore()->retrieve(m_caloDM_ID) );
   ATH_CHECK( m_caloMgrKey.initialize() );
-    
+
+  
+  for (unsigned int i=0; i<CalibHitUtils::nEnergyTypes; i++) {
+    m_cellContKeys.push_back(m_outputCellContainerName+m_energyTypeToStr[i]);
+    m_clusterContKeys.push_back(m_outputClusterContainerName+m_energyTypeToStr[i]);
+    m_cellLinkKeys.push_back(m_outputClusterContainerName+m_energyTypeToStr[i]+"_links");
+  }
+
+  ATH_CHECK(m_cellContKeys.initialize());
+  ATH_CHECK(m_clusterContKeys.initialize());
+  ATH_CHECK(m_cellLinkKeys.initialize());
+
   ATH_MSG_INFO("initialisation completed" );
   return StatusCode::SUCCESS;
 }
@@ -78,32 +88,31 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
 {
   ATH_MSG_DEBUG("in calibHitToCaloCellTool");
 
-  std::string EnergyTypeToStr[] = {"Eem","Evis","Etot"};
-
-  //protection - tool should run once per event
-  if (evtStore()->contains<CaloCellContainer>((m_outputCellContainerName+EnergyTypeToStr[0]).c_str()) &&
-      evtStore()->contains<xAOD::CaloClusterContainer>((m_outputClusterContainerName+EnergyTypeToStr[0]).c_str())) {
-    ATH_MSG_DEBUG("containers for truth calo cells and truth clusters already exist");
-    return StatusCode::SUCCESS;
-  }
-    
   SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
   ATH_CHECK(caloMgrHandle.isValid());
   const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
 
-  CaloCellContainer* truthCells[3];                                                                                                                                                                       
-  xAOD::CaloClusterContainer* truthClusters[3];                                                                                                                                                           
+  //CaloCellContainer* truthCells[3];                                                                                                                                                                       
+  //xAOD::CaloClusterContainer* truthClusters[3];                                                                                                                                                           
   
+  std::vector<SG::WriteHandle<CaloCellContainer> > truthCells;
+  std::vector<SG::WriteHandle<xAOD::CaloClusterContainer> > truthClusters;
+  std::vector<SG::WriteHandle<CaloClusterCellLinkContainer> > truthLinks;
+
+
   // register containers for cells and clusters
   for (unsigned int i=0; i<CalibHitUtils::nEnergyTypes; i++) {
-    truthCells[i] = new CaloCellContainer();
-    truthClusters[i] = CaloClusterStoreHelper::makeContainer(&(*evtStore()),(m_outputClusterContainerName+EnergyTypeToStr[i]).c_str(),msg());    
-    if (!truthClusters[i]) {
-      ATH_MSG_FATAL("Cannot make cluster container");
-      return StatusCode::FAILURE;
-    }
-  }
-  
+
+    truthCells.emplace_back(m_cellContKeys[i]);
+    ATH_CHECK(truthCells.back().record(std::make_unique<CaloCellContainer>())); 
+
+    truthClusters.emplace_back(m_clusterContKeys[i]);
+    ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(truthClusters.back()));
+
+    truthLinks.emplace_back(m_cellLinkKeys[i]);
+    ATH_CHECK(truthLinks.back().record(std::make_unique<CaloClusterCellLinkContainer>()));
+  }    
+ 
   // retrieve calibration hit containers
   const unsigned int nCont = m_calibHitContainerNames.size();
   std::vector<const CaloCalibrationHitContainer*> calibHitContainers(nCont,nullptr);
@@ -264,7 +273,7 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
   ATH_MSG_DEBUG("making truth cluster");
   xAOD::CaloCluster* truthCluster[3] = {nullptr,nullptr,nullptr};
   for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) {
-    truthCluster[i] = CaloClusterStoreHelper::makeCluster(truthClusters[i],truthCells[i]);
+    truthCluster[i] = CaloClusterStoreHelper::makeCluster(truthClusters[i].ptr(),truthCells[i].ptr());
     if (!truthCluster[i]) {
       ATH_MSG_FATAL("makeCluster failed");
       return StatusCode::FAILURE;
@@ -276,23 +285,12 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
     
     truthCluster[i]->setClusterSize(xAOD::CaloCluster::CSize_Unknown);
     CaloClusterKineHelper::calculateKine(truthCluster[i], true, true);
-    ATH_MSG_INFO("Created truth cluster with " << EnergyTypeToStr[i] <<" " << truthCluster[i]->e());
+    ATH_CHECK(CaloClusterStoreHelper::finalizeClusters (truthLinks[i],
+							truthClusters[i].ptr()));
+    
+    ATH_MSG_INFO("Created truth cluster with " << m_energyTypeToStr[i] <<" " << truthCluster[i]->e());
   }
 
-  // record containers
-  if (m_writeTruthCellContainers) {
-    for (int i=0;i<3;i++) {
-      ATH_MSG_DEBUG("recording truth cells container for " << EnergyTypeToStr[i] <<" deposits, size: " << truthCells[i]->size());
-      ATH_CHECK(evtStore()->record(truthCells[i], (m_outputCellContainerName+EnergyTypeToStr[i]).c_str()));
-    }
-  }
-  if (m_writeTruthClusterContainers) {
-    for (int i=0;i<3;i++) {
-      ATH_MSG_DEBUG("finalizing truth cluster");
-      ATH_CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(), truthClusters[i], (m_outputClusterContainerName+EnergyTypeToStr[i]).c_str(), msg()) );
-    }
-  }
-  
   ATH_MSG_DEBUG("execute() completed successfully" );
   return StatusCode::SUCCESS;
 }

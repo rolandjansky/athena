@@ -49,8 +49,8 @@ DerivationFramework::CellsInConeThinning::addBranches() const
 
   /// Make new container
   SG::WriteHandle<xAOD::CaloClusterContainer> dclHdl(m_OutputClusterSGKey);
-  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(
-    &(*evtStore()), dclHdl, msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(dclHdl));
+ 
   /// Input objects
   SG::ReadHandle<xAOD::EgammaContainer> egHdl(m_SGKey);
   const xAOD::EgammaContainer* egammas = egHdl.cptr();
