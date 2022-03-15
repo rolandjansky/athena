@@ -787,7 +787,6 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
       dqpar->AddAlgPar( algPar );
     }
   }
-  std::cout << "Refsourcedata is ... ? " << m_refsourcedata << std::endl;
 }
 
 
