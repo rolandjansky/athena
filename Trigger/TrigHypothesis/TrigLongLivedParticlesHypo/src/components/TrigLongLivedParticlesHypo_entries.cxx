@@ -9,6 +9,9 @@
 #include "../TrigDisappearingTrackHypoAlg.h"
 #include "../TrigDisappearingTrackHypoTool.h"
 
+#include "../../TrigLongLivedParticlesHypo/MuonClusterHypoAlg.h"
+#include "../../TrigLongLivedParticlesHypo/MuonClusterHypoTool.h"
+
 #include "../DisplacedJetPromptHypoTool.h"
 #include "../DisplacedJetPromptHypoAlg.h"
 
@@ -35,3 +38,5 @@ DECLARE_COMPONENT( DisplacedJetPromptHypoAlg )
 DECLARE_COMPONENT( DisplacedJetPromptHypoTool )
 DECLARE_COMPONENT( DisplacedJetEventDecisionHypoAlg )
 DECLARE_COMPONENT( DisplacedJetEventDecisionHypoTool )
+DECLARE_COMPONENT( MuonClusterHypoAlg )
+DECLARE_COMPONENT( MuonClusterHypoTool )

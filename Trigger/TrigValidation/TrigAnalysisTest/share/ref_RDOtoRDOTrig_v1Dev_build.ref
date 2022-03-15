@@ -13278,6 +13278,8 @@ HLT_mu28_ivarmedium_L1MU14FCH:
     2: 4
     3: 4
     4: 4
+HLT_mu3vtx_L12MU8F:
+  eventCount: 0
 HLT_mu4_L1MU3V:
   eventCount: 14
   stepCounts:
