@@ -15,11 +15,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthAllocators/DataPool.h"
-#include "StoreGate/ReadCondHandle.h"
 
 RpcPadContainerCnv_p2::RpcPadContainerCnv_p2() :
-  m_isInitialized(false),
-  m_rpcCabKey("RpcCablingCondData") {
+  m_isInitialized(false){
 }
 
 
@@ -28,7 +26,23 @@ StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log) {
    // Do not initialize again:
     m_isInitialized=true;
 
-    StatusCode sc = m_rpcCabKey.initialize();
+    // Get the helper from the detector store
+    ISvcLocator* svcLocator = Gaudi::svcLocator();
+    StoreGateSvc *detStore;
+    StatusCode sc = svcLocator->service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+        return StatusCode::FAILURE;
+    } else {
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
+    }
+    
+    sc = detStore->retrieve(m_rpcIdHelper);
+    if (sc.isFailure()) {
+        log << MSG::FATAL << "Could not get ID helper !" << endmsg;
+        return StatusCode::FAILURE;
+    }
+    else log<<MSG::DEBUG<<" got RpcIdHelper"<<endmsg;
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return sc;
@@ -56,12 +70,6 @@ void RpcPadContainerCnv_p2::transToPers(const RpcPadContainer* transCont,  RpcPa
 
 void  RpcPadContainerCnv_p2::persToTrans(const RpcPadContainer_p2* persCont, RpcPadContainer* transCont, MsgStream &log) 
 {
-    SG::ReadCondHandle<RpcCablingCondData> rpcCab(m_rpcCabKey, Gaudi::Hive::currentContext());
-    const RpcCablingCondData* rpcCabling=*rpcCab;
-    if (!rpcCab.isValid()||!rpcCabling) {
-        log << MSG::FATAL << m_rpcCabKey.fullKey() << " is not available." << endmsg;
-        return;
-    }
     RpcPadCnv_p1  cnv;
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_pads.size() << "Collections" << endmsg;
@@ -79,7 +87,7 @@ void  RpcPadContainerCnv_p2::persToTrans(const RpcPadContainer_p2* persCont, Rpc
             StatusCode sc = transCont->addCollection(coll, coll->identifyHash());
             if (sc.isFailure()) {
                 log << MSG::WARNING<<"Could not add collection with hash="<<coll->identifyHash()
-                    <<" to IDC which has hash max of "<<transCont->size()<<" (PadHashFunction gives "<<rpcCabling->max()<<")"<<endmsg;
+                    <<" to IDC which has hash max of "<<transCont->size()<<" (PadHashFunction gives "<<m_rpcIdHelper->module_hash_max()<<endmsg;
                 throw std::runtime_error("Failed to add collection to ID Container. Hash = "+std::to_string(coll->identifyHash()));
             }
         }
@@ -99,13 +107,7 @@ RpcPadContainer* RpcPadContainerCnv_p2::createTransient(const RpcPadContainer_p2
             return 0;
         }
     }
-    SG::ReadCondHandle<RpcCablingCondData> rpcCab(m_rpcCabKey, Gaudi::Hive::currentContext());
-    const RpcCablingCondData* rpcCabling=*rpcCab;
-    if (!rpcCab.isValid()||!rpcCabling) {
-        log << MSG::FATAL << m_rpcCabKey.fullKey() << " is not available." << endmsg;
-        return nullptr;
-    }
-    std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(rpcCabling->max()));
+    std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(m_rpcIdHelper->module_hash_max()));
     
     persToTrans(persObj, trans.get(), log);
     return(trans.release());

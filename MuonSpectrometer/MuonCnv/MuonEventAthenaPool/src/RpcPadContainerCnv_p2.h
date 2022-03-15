@@ -15,8 +15,7 @@
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonEventAthenaPool/RpcPadContainer_p2.h"
-#include "RPC_CondCabling/RpcCablingCondData.h"
-#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
 
 class MsgStream;
 
@@ -33,7 +32,7 @@ public:
     StatusCode initialize(MsgStream &log);
 private:
     bool m_isInitialized;
-    SG::ReadCondHandleKey<RpcCablingCondData> m_rpcCabKey;
+    const RpcIdHelper* m_rpcIdHelper;
 };
 
 #endif 
