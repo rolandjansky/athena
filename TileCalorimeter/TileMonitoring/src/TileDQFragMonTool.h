@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -99,7 +99,7 @@ class TileDQFragMonTool: public TileFatherMonTool {
     int m_UpdateCount_shadow[10]={0};
     int m_UpdateTotal{};
     uint32_t m_last_lb{};
-    int m_globalErrCount[4][64]={0}; //global CRC errors
+    int m_globalErrCount[4][64]={{0}}; //global CRC errors
 
     /* njunior@cern.ch */
     TH2I* m_hist_error[4][64]={};
