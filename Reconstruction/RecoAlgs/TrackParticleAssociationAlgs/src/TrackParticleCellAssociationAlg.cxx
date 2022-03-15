@@ -40,7 +40,7 @@ StatusCode TrackParticleCellAssociationAlg::execute()
 
   // Create the xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::CaloClusterContainer> clusColl( m_clusterContainerName /*,ctx*/);
-  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), clusColl, msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(clusColl));
 
   
   SG::WriteHandle<xAOD::TrackParticleClusterAssociationContainer> xaoda( m_associationContainerName/*,ctx*/);

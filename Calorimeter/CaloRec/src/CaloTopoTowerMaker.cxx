@@ -154,7 +154,7 @@ StatusCode CaloTopoTowerMaker::execute (const EventContext& ctx) const
 
   // make a Cluster Container 
   SG::WriteHandle<xAOD::CaloClusterContainer> clusColl (m_towerOutput, ctx);
-  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), clusColl, msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(clusColl));
 
   std::string chronoName(this->name()+std::string("_"));
   if ( !m_useLCWCalibration ) {  

@@ -84,12 +84,6 @@ class CaloClusterMaker : public AthReentrantAlgorithm
   //Handle to the ChronoStatSvc
   ServiceHandle<IChronoStatSvc> m_chrono;
 
-  /** @brief Keep the individual results of each correction.
-   *
-   * If true, we keep in StoreGate the complete list of clusters
-   * before each correction has been performed. */
-  //MT-unfriendly:bool m_keep_each_correction;
-
   /** 
    * @brief controls saving the uncalibrated signal state just before
    * the first @c CaloClusterCorrectionTool is invoked. Is a configurable 

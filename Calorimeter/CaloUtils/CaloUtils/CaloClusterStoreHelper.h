@@ -55,38 +55,17 @@ public:
 
   /** 
    * @brief Creates a new \a xAOD::CaloClusterContainer in the given WriteHandle + \a CaloClusterAuxContainer and records them to SG
-   * @param pStoreGate ptr to \a StoreGateSvc (use &(*evtStore()) from an AthAlgorithm) 
    * @param clusColl SG write handle key of \a ClusterContainer
-   * @param msgStream Reference to the \a MessageStream
    * @return status code indicating sucess or failure
    */ 
-  static StatusCode AddContainerWriteHandle(StoreGateSvc* pStoreGate,
-                                            SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl,
-                                            MsgStream& msg);
+  static StatusCode AddContainerWriteHandle(SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl);
 
-  /** 
-   * @brief Creates a new \a xAOD::CaloClusterContainer + \a CaloClusterAuxContainer and records them to SG
-   * @param pStoreGate ptr to \a StoreGateSvc (use &(*evtStore()) from an AthAlgorithm) 
-   * @param clusCollKey SG key of \a ClusterContainer
-   * @param msgStream Reference to the \a MessageStream
-   * @return pointer to the \a xAOD::CaloClusterContainer or NULL in case of failure
-   */ 
-  static xAOD::CaloClusterContainer* makeContainer(StoreGateSvc* pStoreGate,
-						   const std::string& clusCollKey,
-						   MsgStream& msgStream);
   ////////////////////
   // finalize Clusters //
   ////////////////////
 	 
+ 
   /*! \brief Finalize clusters (move CaloClusterCellLink to separate container*/
-  /* (Backwards-compatible version.) */
-  static StatusCode finalizeClusters(StoreGateSvc* pStoreGate,
-				     xAOD::CaloClusterContainer* pClusterColl,
-				     const std::string& clusCollKey,
-				     MsgStream& msgStream );
-
-  /*! \brief Finalize clusters (move CaloClusterCellLink to separate container*/
-  /* (Modern version.) */
   static StatusCode finalizeClusters(SG::WriteHandle<CaloClusterCellLinkContainer>& h,
 				     xAOD::CaloClusterContainer* pClusterColl);
 
