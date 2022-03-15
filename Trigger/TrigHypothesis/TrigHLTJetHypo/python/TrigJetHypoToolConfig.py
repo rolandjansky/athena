@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TriggerMenuMT.HLT.Config.MenuComponents import NoHypoToolCreated
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
 from TrigHLTJetHypo.TrigJetHypoMonitoringConfig import TrigJetHypoToolMonitoring
 
