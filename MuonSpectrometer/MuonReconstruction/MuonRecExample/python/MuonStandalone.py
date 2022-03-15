@@ -171,6 +171,18 @@ def MuonStandaloneTrackParticleCnvAlg( name="MuonStandaloneTrackParticleCnvAlg",
 
     return xAODMaker__TrackParticleCnvAlg(name,**kwargs)
 
+
+
+def MuonStationsInterSectAlg(**kwargs):
+    from MuonStationIntersectCond.MuonStationIntersectCondConf import MuonStationIntersectCondAlg
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    if hasattr(condSequence, "MuonStationIntersectCondAlg"): return
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline:
+        kwargs.setdefault("MdtCondKey", "")
+    condSequence += MuonStationIntersectCondAlg("MuonStationIntersectCondAlg",**kwargs)
+ 
 #
 # The top level configurator
 #
@@ -185,23 +197,12 @@ class MuonStandalone(ConfiguredMuonRec):
 
     def configure(self,keys=None):
         super(MuonStandalone,self).configure(keys)
-        if not self.isEnabled(): return
-
+        if not self.isEnabled(): return        
         # do the following in case of (at least one) NSW
         reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
         reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
         reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
       
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        if not hasattr(condSequence, "MuonStationIntersectCondAlg"):
-            from MuonStationIntersectCond.MuonStationIntersectCondConf import MuonStationIntersectCondAlg
-            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            intersec_cond_alg = MuonStationIntersectCondAlg("MuonStationIntersectCondAlg")
-            if athenaCommonFlags.isOnline: intersec_cond_alg.MdtCondKey=""
-            condSequence+=intersec_cond_alg
-
-        
         self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",
             MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
             PrintSummary = muonStandaloneFlags.printSummary(),
