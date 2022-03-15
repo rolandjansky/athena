@@ -32,12 +32,15 @@ public:
     /// Constructor
     /// @tparam values Container type, based on value_t
     /// @tparam mapper Function used to access the identifier_t
+    /// @param max_ids Expected maximum number of identifiers,
+    /// to reserve enough space in the map and avoid re-hashing
     /// @brief At construction, a map is filled with identifiers and
     /// corresponding ranges of objects in the container
     /// @note The map has to be built as soon as the container is complete.
     /// If changes in the container happen the ranges may be invalidated.
     ContainerAccessor(const container_t& values,
-                          std::function<identifier_t(const value_t&)> mapper) {
+                          std::function<identifier_t(const value_t&)> mapper, size_t max_ids=2000) {
+        m_ranges.reserve(max_ids);
         std::optional<identifier_t> prev = std::nullopt;
         Iterator groupStart = values.begin();
         for (Iterator it = values.begin(); it != values.end(); ++it) {
