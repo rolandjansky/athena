@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKPERFORMANCEALG_H
@@ -50,7 +50,7 @@ namespace Muon {
 class MuonTrackPerformanceAlg : public AthAlgorithm {
 public:
     struct ChamberData {
-        Identifier chId;
+        Identifier chId{};
         std::set<Identifier> hits;
     };
 
@@ -83,15 +83,17 @@ public:
             productionVertex = data.productionVertex ? new Amg::Vector3D(*data.productionVertex) : 0;
             momentumAtProduction = data.momentumAtProduction ? new Amg::Vector3D(*data.momentumAtProduction) : 0;
         }
+         // no copying
+        TrackData& operator=(const TrackData&) = delete;
 
-        TrackRecord* truthTrack;
-        int motherPdg;
-        double chi2Ndof;
-        Amg::Vector3D* productionVertex;
-        Amg::Vector3D* momentumAtProduction;
-        TruthTrajectory* truthTrajectory;
-        Trk::Perigee* trackPars;
-        Trk::TrackSummary* trackSummary;
+        TrackRecord* truthTrack{};
+        int motherPdg{};
+        double chi2Ndof{};
+        Amg::Vector3D* productionVertex{};
+        Amg::Vector3D* momentumAtProduction{};
+        TruthTrajectory* truthTrajectory{};
+        Trk::Perigee* trackPars{};
+        Trk::TrackSummary* trackSummary{};
 
         std::vector<ChamberData> missingChambers;
         std::vector<ChamberData> wrongChambers;
@@ -141,13 +143,12 @@ public:
         }
 
     private:
-        // no copying
-        TrackData& operator=(const TrackData&) { return *this; }
+       
     };
 
     struct EventData {
-        unsigned int eventNumber;
-        unsigned int eventPosition;
+        unsigned int eventNumber{};
+        unsigned int eventPosition{};
         std::vector<TrackData*> missingTruthTracks;
         std::vector<TrackData*> missingTruthTracksOneStation;
 
@@ -267,18 +268,18 @@ private:
     SG::ReadHandleKey<TrackRecordCollection> m_trackRecord{this, "TrackRecord", "MuonEntryLayerFilter", "Track Record Collection"};
 
     // member set by Joboptions
-    int m_doSummary;
-    int m_doHitResiduals;
-    int m_doTrackDebug;
-    bool m_doTruth;
-    bool m_doHistos;
-    double m_momentumCutSim;
-    double m_momentumCut;
-    bool m_usePtCut;
-    bool m_isCombined;
-    bool m_doSegments;
-    bool m_writeToFile;
-    bool m_doStau;
+    int m_doSummary{};
+    int m_doHitResiduals{};
+    int m_doTrackDebug{};
+    bool m_doTruth{};
+    bool m_doHistos{};
+    double m_momentumCutSim{};
+    double m_momentumCut{};
+    bool m_usePtCut{};
+    bool m_isCombined{};
+    bool m_doSegments{};
+    bool m_writeToFile{};
+    bool m_doStau{};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
@@ -286,54 +287,54 @@ private:
                                                           "Handle to the service providing the IMuonEDMHelperSvc interface"};
     ToolHandle<Muon::IMuonTrackTruthTool> m_truthTool;
     ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelperTool;
-    MsgStream* m_log;
-    bool m_debug;
-    bool m_verbose;
-    int m_doEventListMissed;
-    int m_doEventListIncomplete;
-    int m_doEventListFake;
+    MsgStream* m_log{};
+    bool m_debug{};
+    bool m_verbose{};
+    int m_doEventListMissed{};
+    int m_doEventListIncomplete{};
+    int m_doEventListFake{};
 
-    int m_minMdtHits;
-    int m_minCscEtaHits;
-    int m_minCscPhiHits;
-    int m_minRpcEtaHits;
-    int m_minRpcPhiHits;
-    int m_minTgcEtaHits;
-    int m_minTgcPhiHits;
-    int m_minsTgcEtaHits;
-    int m_minsTgcPhiHits;
-    int m_minMMEtaHits;
+    int m_minMdtHits{};
+    int m_minCscEtaHits{};
+    int m_minCscPhiHits{};
+    int m_minRpcEtaHits{};
+    int m_minRpcPhiHits{};
+    int m_minTgcEtaHits{};
+    int m_minTgcPhiHits{};
+    int m_minsTgcEtaHits{};
+    int m_minsTgcPhiHits{};
+    int m_minMMEtaHits{};
 
-    unsigned int m_nevents;
-    unsigned int m_ntracks;
+    unsigned int m_nevents{};
+    unsigned int m_ntracks{};
 
-    unsigned int m_nmatchedTracks;
-    unsigned int m_nmatchedTracksSecondary;
-    unsigned int m_nmatchedFakeTracks;
+    unsigned int m_nmatchedTracks{};
+    unsigned int m_nmatchedTracksSecondary{};
+    unsigned int m_nmatchedFakeTracks{};
 
-    unsigned int m_nfakeTracks;
-    unsigned int m_nfakeTracksHighPt;
-    unsigned int m_nfakeTracksLowPt;
-    unsigned int m_nfakeTracksSL;
+    unsigned int m_nfakeTracks{};
+    unsigned int m_nfakeTracksHighPt{};
+    unsigned int m_nfakeTracksLowPt{};
+    unsigned int m_nfakeTracksSL{};
 
-    unsigned int m_nmissedTracks;
-    unsigned int m_nmissedTracksOneStation;
+    unsigned int m_nmissedTracks{};
+    unsigned int m_nmissedTracksOneStation{};
 
-    unsigned int m_nmissedTracksSecondary;
-    unsigned int m_nmissedTracksOneStationSecondary;
+    unsigned int m_nmissedTracksSecondary{};
+    unsigned int m_nmissedTracksOneStationSecondary{};
 
-    unsigned int m_nmissingStationMomLoss;
-    unsigned int m_nmissingStationLayer;
-    unsigned int m_nmissingCscStationLayer;
-    unsigned int m_nmissingStationLayerTrigger;
-    unsigned int m_nmissingStation;
+    unsigned int m_nmissingStationMomLoss{};
+    unsigned int m_nmissingStationLayer{};
+    unsigned int m_nmissingCscStationLayer{};
+    unsigned int m_nmissingStationLayerTrigger{};
+    unsigned int m_nmissingStation{};
 
-    unsigned int m_nwrongStationLayer;
-    unsigned int m_nwrongStationLayerTrigger;
-    unsigned int m_nwrongStation;
+    unsigned int m_nwrongStationLayer{};
+    unsigned int m_nwrongStationLayerTrigger{};
+    unsigned int m_nwrongStation{};
 
-    unsigned int m_ntruthTracks;
-    unsigned int m_ntruthTracksSecondary;
+    unsigned int m_ntruthTracks{};
+    unsigned int m_ntruthTracksSecondary{};
 
     struct TrackSummary {
         std::string trackPars;
@@ -360,7 +361,7 @@ private:
     std::set<int> m_selectedPdgs;  // set storing particle PDG's considered for matching
 
     // type of track (based on enum defined in Muon_v1.h)
-    int m_trackType;
+    int m_trackType{};
     std::string m_trackTypeString;
 };
 

@@ -39,7 +39,7 @@ public:
     StatusCode finalize();
     // statistics to be counted
     struct TrackCounters {
-        TrackCounters(std::string trkLoc) :
+        TrackCounters(const std::string & trkLoc) :
             trackLocation(trkLoc),
             nEvents(0),
             nTracks(0),
@@ -66,7 +66,7 @@ public:
     };
 
     struct TruthTrackCounters {
-        TruthTrackCounters(std::string trkLoc) : trackLocation(trkLoc), nEvents(0), nTracks(0) {
+        TruthTrackCounters(const std::string & trkLoc) : trackLocation(trkLoc), nEvents(0), nTracks(0) {
             for (unsigned int i = 0; i < 3; i++) {
                 nPIXELhits[i] = 0;
                 nSCThits[i] = 0;
