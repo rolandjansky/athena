@@ -364,16 +364,15 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
 
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
     kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
-    if ConfigFlags.Muon.MuonTrigger:
-        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
+    kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     if ConfigFlags.Muon.MuonTrigger:
-        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
