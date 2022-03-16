@@ -4,7 +4,7 @@ Help on module buildDatabase
 buildDatabase
 
 # FILE
-/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/buildDatabase.py
+local/bin/buildDatabase.py
 
 # DESCRIPTION
 #Author: Abhishek Nag (TU Dresden)
@@ -106,7 +106,6 @@ buildDatabase
 ## S_IXGRP = 8
 ## S_IXOTH = 1
 ## S_IXUSR = 64
-## SystToolsPath = '/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTo...
 ## UF_APPEND = 4
 ## UF_COMPRESSED = 32
 ## UF_HIDDEN = 32768

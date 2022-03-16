@@ -52,7 +52,7 @@ import os,sys
 
 
 
-indir="/afs/cern.ch/user/l/lcorpe/work/public/SystToolsUnitTests/CxAODReader_VVSemileptonic"
+indir="SystToolsUnitTests/CxAODReader_VVSemileptonic"
 outdir="output_dir"
 
 inF="%s/testfile.root"%indir
@@ -89,7 +89,7 @@ import readDatabase as rdb
 
 
 
-indir="/afs/cern.ch/user/l/lcorpe/work/public/SystToolsUnitTests/RootFormatSingleFile/"
+indir="SystToolsUnitTests/RootFormatSingleFile/"
 inFile="DE_c2_M600.root"
 
 weightList=rdb.getWeights('309126')[0]

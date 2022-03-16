@@ -4,7 +4,7 @@ Help on module covarianceToolsLibrary
 covarianceToolsLibrary
 
 # FILE
-/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/covarianceToolsLibrary.py
+local/bin/covarianceToolsLibrary.py
 
 # DESCRIPTION
 The `covarianceToolsLibrary.py` can be used directly to manipulate covariance info and evaluate goodness of fit, inmported into your own python script.

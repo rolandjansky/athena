@@ -4,7 +4,7 @@ Help on module readDatabase
 readDatabase
 
 # FILE
-/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/readDatabase.py
+local/bin/readDatabase.py
 
 # DESCRIPTION
 #Author: Abhishek Nag (TU Dresden)
@@ -17,7 +17,5 @@ readDatabase
 
 ## main(argv)
 
-# DATA
-## SystToolsPath = '/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTo...
 
 

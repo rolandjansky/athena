@@ -4,7 +4,7 @@ Help on module covarianceTool
 covarianceTool
 
 # FILE
-/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/covarianceTool.py
+local/bin/covarianceTool.py
 
 # DESCRIPTION
 The `covarianceTool.py` executable dis a helper which uses the functions provided by `covarianceToolsLibrary.py` to perform the  
