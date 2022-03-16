@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
- * $Id: han_results_print.cxx,v 1.2 2009-02-11 10:42:13 ponyisi Exp $
- */
 
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <filesystem>
 
 #include "DataQualityUtils/HanOutputFile.h"
 
@@ -35,6 +33,11 @@ int main( int argc, char *argv[] )
   
   std::string resultsName( arg.hresults );
   
+  if (!std::filesystem::exists(resultsName)) {
+    std::cerr << "File " << resultsName << " does not seem to exist. Exiting" << std::endl;
+    return 1;
+  }
+
   dqutils::HanOutputFile of(resultsName);
   of.printAllDQAssessments();
   
