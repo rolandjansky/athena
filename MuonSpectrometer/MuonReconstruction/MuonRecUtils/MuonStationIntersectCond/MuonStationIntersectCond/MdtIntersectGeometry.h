@@ -20,9 +20,6 @@ class MdtCondDbData;
 namespace TrkDriftCircleMath {
     class MdtChamberGeometry;
 }
-namespace TrkDriftCircleMath {
-    class MdtChamberGeometry;
-}
 
 namespace Muon {
 
