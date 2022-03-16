@@ -5,10 +5,9 @@
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-try:
-    from GeneratorModules.GeneratorModulesConf import CopyEventWeight
-    topSeq += CopyEventWeight(TruthCollKey="GEN_EVENT")
-except:
-    from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-    topSeq += CopyEventWeight()
+if not hasattr(topSeq, "EventInfoCnvAlg"):
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSeq += xAODMaker__EventInfoCnvAlg(xAODKey="EventInfo")
+from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
+topSeq += CopyEventWeight(mcEventWeightsKey="EventInfo.mcEventWeights")
 
