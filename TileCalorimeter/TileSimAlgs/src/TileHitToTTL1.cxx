@@ -320,7 +320,7 @@ StatusCode TileHitToTTL1::execute(const EventContext &ctx) const {
 
       // conversion to hit energy after EMscale correction 
       double hit_calib = samplingFraction->getSamplingFraction(drawerIdx, channel);
-      hit_calib = std::round(hit_calib * 10) / 10;
+      hit_calib = std::round(hit_calib * 1000) / 1000;
       // conversion to charge measured by digitizer
       // The trigger always uses the low gain
       double qfactor = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, channel
