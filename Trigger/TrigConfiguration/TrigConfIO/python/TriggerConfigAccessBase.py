@@ -91,12 +91,14 @@ class ConfigDBLoader(ConfigLoader):
         self.dbkey = dbkey
         self.query = None
         self.schema = None
+
     def setQuery(self, query):
         """
-        query template can be a single query or a list of queries (to deal with different schemata)
-        (internally stored as list of queries, which are tried in order)
+        query template is a dictionary of queries, identified by schema version, 
+        similar to TrigConf::TrigDBMenuLoader::m_hltQueries and TrigConf::TrigDBMenuLoader::m_l1Queries
         """
-        self.query = [ query ] if isinstance(query,six.string_types) else query
+        self.query = query
+
     @staticmethod
     def getResolvedFileName(filename, pathenv=""):
         """ looks for file, first absolute, then by resolving envvar pathenv"""
@@ -108,6 +110,7 @@ class ConfigDBLoader(ConfigLoader):
             if os.access( f, os.R_OK ):
                 return f
         raise RuntimeError("Can't read file %s, neither locally nor in %s" % (filename, pathenv) )
+
     @staticmethod
     def getConnectionParameters(dbalias):
         dblookupFile = ConfigDBLoader.getResolvedFileName("dblookup.xml", "CORAL_DBLOOKUP_PATH")
@@ -145,6 +148,7 @@ class ConfigDBLoader(ConfigLoader):
 
     @staticmethod
     def getSchema(connStr):
+        ''' Read schema from connection string '''
         if connStr.startswith("oracle:"):
             [_, schema] = connStr.split("/")[-2:]
             return schema
@@ -162,6 +166,32 @@ class ConfigDBLoader(ConfigLoader):
             raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
 
     @staticmethod
+    def readSchemaVersion(qdict, session):
+        ''' Read schema version form database, based on TrigConf::TrigDBLoader::schemaVersion '''
+        try:
+            q = "SELECT TS_TAG FROM {schema}.TRIGGER_SCHEMA TS"
+            query = ConfigDBLoader.getCoralQuery(session, q.format(**qdict))
+            cursor = query.execute()
+            cursor.next()
+
+            versionTag = cursor.currentRow()[0].data()
+
+            versionTagPrefix = "Trigger-Run3-Schema-v"
+            if not versionTag.startswith(versionTagPrefix):
+                raise RuntimeError( "Tag format error: Trigger schema version tag {0} does not start with {1}".format(versionTag, versionTagPrefix))   
+
+            vstr = versionTag[len(versionTagPrefix)]
+
+            if not vstr.isdigit():
+                raise RuntimeError( "Invalid argument when interpreting the version part {0} of schema tag {1} is {2}".format(vstr, versionTag, type(vstr))) 
+
+            log.info("Found schema version {0}".format(vstr))
+            return int(vstr)
+
+        except Exception as e:
+            log.warning("Failed to read schema version: {0}".format(e))
+
+    @staticmethod
     def getCoralQuery(session, queryStr):
         ''' Parse output, tables and contidion from the query string into coral query object'''
         query = session.nominalSchema().newQuery()
@@ -173,8 +203,22 @@ class ConfigDBLoader(ConfigLoader):
             tableSplit = list(filter(None, table.split(" ")))
             query.addToTableList(tableSplit[0].split(".")[1], tableSplit[1])
 
-        query.setCondition(queryStr.split("WHERE")[1], coral.AttributeList())
+        if "WHERE" in queryStr:
+            query.setCondition(queryStr.split("WHERE")[1], coral.AttributeList())
+
         return query
+
+    def getQueryDefinition(self, schemaVersion):
+        '''Choose query based on schema version, based on TrigConf::TrigDBLoader::getQueryDefinition '''
+        maxDefVersion = 0
+        for vkey in self.query.keys():
+            if vkey>maxDefVersion and vkey<=schemaVersion:
+                maxDefVersion = vkey
+
+        if maxDefVersion == 0:
+            raise RuntimeError("No query available for schema version {0}".format(schemaVersion))
+
+        return self.query[maxDefVersion]
 
     def load(self):
         credentials = ConfigDBLoader.getConnectionParameters(self.dbalias)
@@ -184,48 +228,75 @@ class ConfigDBLoader(ConfigLoader):
         svcconfig.disablePoolAutomaticCleanUp()
         svcconfig.setConnectionTimeOut(0)
 
-        for q in self.query:
-            for credential in credentials:
-                log.info("Trying credentials {0}".format(credential))
-                try: 
-                    session = svc.connect(credential, coral.access_ReadOnly)
-                except Exception as e:
-                    log.warning("Failed to establish connection: {0}".format(e))
-                    continue
+        for credential in credentials:
+            log.info("Trying credentials {0}".format(credential))
 
-                try:
-                    # Check that the FRONTIER_SERVER is set properly, if not reduce the retrial period and time out values
-                    if not ('FRONTIER_SERVER' in os.environ and os.environ['FRONTIER_SERVER']):
-                        svcconfig.setConnectionRetrialPeriod(1)
-                        svcconfig.setConnectionRetrialTimeOut(1)
-                    else:
-                        svcconfig.setConnectionRetrialPeriod(300)
-                        svcconfig.setConnectionRetrialTimeOut(3600)
+            try: 
+                session = svc.connect(credential, coral.access_ReadOnly)
+            except Exception as e:
+                log.warning("Failed to establish connection: {0}".format(e))
+                continue
 
-                    session.transaction().start(True) # readOnly
-                    schema = ConfigDBLoader.getSchema(credential)
+            try:
+                # Check that the FRONTIER_SERVER is set properly, if not reduce the retrial period and time out values
+                if not ('FRONTIER_SERVER' in os.environ and os.environ['FRONTIER_SERVER']):
+                    svcconfig.setConnectionRetrialPeriod(1)
+                    svcconfig.setConnectionRetrialTimeOut(1)
+                else:
+                    svcconfig.setConnectionRetrialPeriod(300)
+                    svcconfig.setConnectionRetrialTimeOut(3600)
 
-                    qdict = { "schema" : schema, "dbkey" : self.dbkey }
-                    query = ConfigDBLoader.getCoralQuery(session, q.format(**qdict))
+                session.transaction().start(True) # readOnly
+                schema = ConfigDBLoader.getSchema(credential)
+                qdict = { "schema" : schema, "dbkey" : self.dbkey }
+                
+                # Choose query basen on schema
+                schemaVersion = ConfigDBLoader.readSchemaVersion(qdict, session)
+                qstr = self.getQueryDefinition(schemaVersion)
 
-                    cursor = query.execute()
+                query = ConfigDBLoader.getCoralQuery(session, qstr.format(**qdict))
 
-                    # Read query result
-                    cursor.next()
-                    configblob = cursor.currentRow()[0].data()
-                    if type(configblob) != str:
-                        configblob = configblob.readline()
-                    config = json.loads(configblob, object_pairs_hook = odict)
-                    session.transaction().commit()
-                    
-                    self.confirmConfigType(config)
-                    return config
-                except Exception as e:
-                    log.warning("Failed to execute query: {0}".format(e))
-                    session.transaction().commit()
+                cursor = query.execute()
 
+                # Read query result
+                cursor.next()
+                configblob = cursor.currentRow()[0].data()
+                if type(configblob) != str:
+                    configblob = configblob.readline()
+                config = json.loads(configblob, object_pairs_hook = odict)
+                session.transaction().commit()
+                
+                self.confirmConfigType(config)
+                return config       
+            except Exception as e:
+                log.warning("Failed to execute query: {0}".format(e))
+                ConfigDBLoader.readMaxTableKey(qstr, qdict, session)
+                session.transaction().commit()
 
         raise RuntimeError("Query failed")
+
+
+    @staticmethod
+    def readMaxTableKey(q, qdict, session):
+        ''' Read highest available key in table, based on the query'''
+        try:
+            # Create query - remove last condition for the key value and add it in begining as "SELECT MAX"
+            id_str = q.split("WHERE")[1].split("AND")[-1].split("=")[0]
+
+            q_formatted = "SELECT MAX(" + id_str + ") FROM " + q.split("FROM")[1].split("WHERE")[0]
+
+            # If there are multiple "where" conditions add them back to the query
+            if "AND" in q.split("WHERE")[1]:
+                q_formatted += " WHERE " + q.split("WHERE")[1].rsplit('AND', 1)[0]
+
+            query = ConfigDBLoader.getCoralQuery(session, q_formatted.format(**qdict))
+            cursor = query.execute()
+            cursor.next()
+
+            log.info("Highest available key is {0}".format(int(cursor.currentRow()[0].data())))
+        except Exception as e:
+            log.warning("Failed to read maximum available key: {0}".format(e))
+
 
     # proposed filename when writing config to file
     def getWriteFilename(self):
