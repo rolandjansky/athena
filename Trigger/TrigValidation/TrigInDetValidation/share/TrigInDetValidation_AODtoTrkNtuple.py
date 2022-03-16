@@ -238,9 +238,9 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_FTF",
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here
