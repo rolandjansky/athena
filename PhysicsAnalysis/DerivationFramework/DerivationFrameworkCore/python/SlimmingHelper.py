@@ -407,7 +407,7 @@ class SlimmingHelper:
                         items.extend(AntiKt10UFOCHSJetsCPContent)
                 elif collectionName=="AntiKt10TruthTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent
-                        if "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" not in self:
+                        if "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" not in self.AppendToDictionary:
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
                         items.extend(AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent)
