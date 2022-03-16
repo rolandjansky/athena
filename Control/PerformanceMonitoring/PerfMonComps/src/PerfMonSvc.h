@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonSvc.h 
@@ -84,10 +84,10 @@ public:
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+                                     void** ppvInterface ) override;
   //@}
 
   /// @c IIoComponent interface
@@ -108,29 +108,29 @@ public:
   /// @brief return the list of components' names for a given step
   virtual
   std::vector<std::string>
-  components(const std::string& stepName) const;
+  components(const std::string& stepName) const override;
 
   /// @brief return the list of io-components' names
   virtual
   std::vector<std::string>
-  io_components() const;
+  io_components() const override;
 
   /// retrieve the monitored value for the component `compName` and 
   /// for the step `stepName` (ini,evt,fin,cbk,...)
   virtual
   const PerfMon::Component*
   component(const std::string& stepName,
-            const std::string& compName) const;
+            const std::string& compName) const override;
 
   /// retrieve the I/O monitored value for the I/O component `compName`
   virtual
   const PerfMon::IoContainer*
-  io_component(const std::string& compName) const;
+  io_component(const std::string& compName) const override;
 
   /// retrieve the domain name for a given component `compName`
   virtual
   void
-  domain(const std::string& compName, std::string& domain) const;
+  domain(const std::string& compName, std::string& domain) const override;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -140,7 +140,8 @@ public:
 
   /** incident service handle for EndEvent
    */
-  void handle( const Incident& incident );
+  virtual
+  void handle( const Incident& incident ) override;
 
   /** Declare monitoring information
       @param name Monitoring information name knwon to the external system
@@ -151,68 +152,68 @@ public:
   virtual void declareInfo( const std::string& name, 
                             const bool& var, 
                             const std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const int& var, 
                             const std::string& desc,  
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const long& var, 
                             const std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const double& var, 
                             const std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const std::string& var, 
                             const std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const std::pair<double,double>& var, 
                             const std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const AIDA::IBaseHistogram* var, 
                             const  std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo( const std::string& name, 
                             const std::string& format, 
                             const void * var, int size, 
                             const std::string& desc, 
-                            const IInterface* owner );
+                            const IInterface* owner ) override;
   virtual void declareInfo(const std::string& name, 
                            const StatEntity& var, 
                            const std::string& desc, 
-                           const IInterface* owner);
+                           const IInterface* owner) override;
 
   /** Undeclare monitoring information
       @param name Monitoring information name knwon to the external system
       @param owner Owner identifier of the monitoring information
   */
   virtual void undeclareInfo( const std::string& name, 
-                              const IInterface* owner );
+                              const IInterface* owner ) override;
   /** Undeclare monitoring information
       @param owner Owner identifier of the monitoring information
   */
-  virtual void undeclareAll( const IInterface* owner );
+  virtual void undeclareAll( const IInterface* owner ) override;
 
   /** Get the names for all declared monitoring informations for a given
       owener. If the owner is NULL, then it returns for all owners
       informationUndeclare monitoring information
   */
-  virtual std::set<std::string>* getInfos( const IInterface* owner );
+  virtual std::set<std::string>* getInfos( const IInterface* owner ) override;
 
 
   /** Start collecting monitoring data for a given component, for a given
    *  step of the Gaudi FSM
    */
-  void startAud( const std::string& stepName, const std::string& compName );
+  void startAud( const std::string& stepName, const std::string& compName ) override;
 
   /** Stop collecting monitoring data for a given component, for a given
    *  step of the Gaudi FSM
    */
-  void stopAud ( const std::string& stepName, const std::string& compName );
+  void stopAud ( const std::string& stepName, const std::string& compName ) override;
 
   /////////////////////////////////////////////////////////////////// 
   // Private methods: 
