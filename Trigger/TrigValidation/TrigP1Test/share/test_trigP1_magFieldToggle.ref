@@ -127,6 +127,5 @@ MagFieldCondReader                        19   0    INFO Field status: solenoid=
 MagFieldCondReader                        19   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
 MagFieldCondReader                        20   0    INFO Field status: solenoid=1, toroids=1
 MagFieldCondReader                        20   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
-AtlasFieldCacheCondAlg                              INFO Initialize: Key  ( 'AtlasFieldCacheCondObj' , 'ConditionStore+fieldCondObj' )  has been succesfully registered 
 AtlasFieldCacheCondAlg                              INFO Initialize: Will update current from parameters
 AtlasFieldCacheCondAlg                              INFO Initialize: useDCS, useSoleCurrent, useToroCurrent. 0,  'UseSoleCurrent':7730.0000,  'UseToroCurrent':20400.000 LockMapCurrents 1
