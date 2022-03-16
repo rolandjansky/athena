@@ -44,13 +44,11 @@ TCS::jTauMultiplicity::initialize() {
   m_threshold = getThreshold();
 
   // book histograms
-  bool isMult = true;
+  std::string hname_accept = "jTauMultiplicity_accept_EtaPt_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 100, 0, 100);
 
-  std::string hname_accept = "hjTauMultiplicity_accept_EtaPt_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 150, 0., 100., isMult);
-
-  hname_accept = "hjTauMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+  hname_accept = "jTauMultiplicity_accept_counts_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
 
   return StatusCode::SUCCESS;
      
@@ -71,7 +69,7 @@ TCS::jTauMultiplicity::process( const TCS::InputTOBArray & input,
 {
 
   // Grab the threshold and cast it into the right type
-  auto jTAUThr = dynamic_cast<const TrigConf::L1Threshold_jTAU &>(*m_threshold);
+  const auto& jTAUThr = dynamic_cast<const TrigConf::L1Threshold_jTAU &>(*m_threshold);
 
   // Grab inputs
   const jTauTOBArray & jtaus = dynamic_cast<const jTauTOBArray&>(input);
