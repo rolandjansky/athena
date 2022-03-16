@@ -40,7 +40,7 @@ StatusCode StripRDOAnalysis::initialize() {
   ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(m_ntupleName.value().c_str(), "ITkStripRDOAnalysis");
-  ATH_CHECK(m_thistSvc->regTree(m_ntuplePath + m_ntupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(m_ntuplePath.value() + m_ntupleName.value(), m_tree));
   if (m_tree) {
     // ITk Strip RDO
     m_tree->Branch("rdoID", &m_rdoID);

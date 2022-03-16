@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,7 +41,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(m_ntupleName.value().c_str(), "ITkPixelRDOAnalysis");
-  ATH_CHECK(m_thistSvc->regTree(m_ntuplePath + m_ntupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(m_ntuplePath.value() + m_ntupleName.value(), m_tree));
   if (m_tree) {
     // PIXEL RDO
     m_tree->Branch("rdoID", &m_rdoID);
