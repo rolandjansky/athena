@@ -5,6 +5,9 @@
 #include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/DataBucketBase.h"
 #include "CxxUtils/FPControl.h"
+#include "CxxUtils/SealDebug.h"
+#include "CxxUtils/SealSignal.h"
+#include "RootUtils/WithRootErrorHandler.h"
 #include "SGTools/DataProxy.h"
 #include "TrigSerializeResult/StringSerializer.h"
 #include "BareDataBucket.h"
@@ -25,6 +28,7 @@
 #include "TStreamerInfo.h"
 #include "PathResolver/PathResolver.h"
 
+#include <sys/resource.h>
 #include <cstring>
 #include <regex>
 
@@ -84,7 +88,26 @@ namespace  {
              std::regex_match(type2, m2, re) and
              m1.str(1) != m2.str(1) );  // number 0 is full match
   }
-  
+
+  /**
+   * Temporary ROOT error handler for deserialization (ATR-25049)
+   */
+  bool handleError(int level, bool /*abort*/, const char* location, const char* /*msg*/) {
+    if ( level >= kError && location && strstr(location, "TBufferFile::ReadClass")) {
+      // Raise soft core dump size limit to hard limit
+      struct rlimit core_limit;
+      getrlimit(RLIMIT_CORE, &core_limit);
+      core_limit.rlim_cur = core_limit.rlim_max;
+      setrlimit(RLIMIT_CORE, &core_limit);
+
+      std::cout << "TriggerEDMDeserialiserAlg: Raising core dump soft size limit to " << core_limit.rlim_cur
+                << " and trying to dump core file..." << std::endl;
+      Athena::DebugAids::coredump(SIGSEGV);   // this is non-fatal, job continues
+    }
+
+    return true;  // call default handlers
+  }
+
 }
 
 /**
@@ -231,7 +254,6 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
         
     RootType classDesc = RootType::ByNameNoQuiet( persistentTypeName );
     ATH_CHECK( classDesc.IsComplete() );
-    size_t usedBytes{ bsize };
 
     // Many variables in this class were changed from double to float.
     // However, we wrote data in the past which contained values
@@ -242,7 +264,14 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
     if (persistentTypeName == "xAOD::BTaggingTrigAuxContainer_v1") {
       fpcontrol.holdExceptions();
     }
-    void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
+
+    size_t usedBytes{ bsize };
+    void* obj{ nullptr };
+    {
+      // Temporary error handler to debug ATR-25049
+      RootUtils::WithRootErrorHandler hand( handleError );
+      obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
+    }
 
     ATH_MSG_DEBUG( "Deserialised object of ptr: " << obj << " which used: " << usedBytes <<
                    " bytes from available: " << bsize );
