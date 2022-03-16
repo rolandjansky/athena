@@ -30,6 +30,7 @@ testChains = {
     "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
     "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
 
+    "HLT_mu4_cosmic_L1MU3V_EMPTY:HLT_IDTrack_Cosmic_IDTrig",
 
     // "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron",
     // "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_IDTrig",
