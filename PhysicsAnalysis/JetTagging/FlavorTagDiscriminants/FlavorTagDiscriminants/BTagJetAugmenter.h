@@ -33,6 +33,7 @@ public:
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag) const;
+  double augmentDmeson(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const;
 
   float safelog_prob(float p_up, float p_down) const;
 

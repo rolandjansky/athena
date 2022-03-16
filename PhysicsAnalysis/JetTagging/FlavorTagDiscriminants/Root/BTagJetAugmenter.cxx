@@ -394,13 +394,63 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     m_secondaryVtx_EFrac(btag) = EFrac;
     m_secondaryVtx_DmesonMass(btag) = m;
     m_secondaryVtx_isDmesonRecon(btag) = false;
+    double tempM_forDmeson = augmentDmeson(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector);
 
-    // now reconstruct D mesons
+    if(tempM_forDmeson>-98){
+      m_secondaryVtx_DmesonMass(btag) = tempM_forDmeson;
+      m_secondaryVtx_isDmesonRecon(btag) = true;
+    }else{
+      m_secondaryVtx_isDmesonRecon(btag) = false;
+    }
+
+  }
+  if(secondaryVtx_track_number > 0){
+    double min = secondaryVtx_min_track_flightDirRelEta;
+    double max = secondaryVtx_max_track_flightDirRelEta;
+    double avg = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
+    m_secondaryVtx_min_trk_flightDirRelEta(btag) = min;
+    m_secondaryVtx_max_trk_flightDirRelEta(btag) = max;
+    m_secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
+  }else{
+    m_secondaryVtx_min_trk_flightDirRelEta(btag) = NAN;
+    m_secondaryVtx_max_trk_flightDirRelEta(btag) = NAN;
+    m_secondaryVtx_avg_trk_flightDirRelEta(btag) = NAN;
+  }
+  if(track_number > 0){
+    double min = min_track_flightDirRelEta;
+    double max = max_track_flightDirRelEta;
+    double avg = track_flightDirRelEta_total / track_number;
+    m_min_trk_flightDirRelEta(btag) = min;
+    m_max_trk_flightDirRelEta(btag) = max;
+    m_avg_trk_flightDirRelEta(btag) = avg;
+  }else{
+    m_min_trk_flightDirRelEta(btag) = NAN;
+    m_max_trk_flightDirRelEta(btag) = NAN;
+    m_avg_trk_flightDirRelEta(btag) = NAN;
+  }
+
+  m_rnnip_isDefaults(btag) = 0;
+
+}
+
+
+bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) const {
+  return !(m_jf_vertices(btag).size() > 0 && (m_jf_nVtx(btag) > 0 || m_jf_nSingleTracks(btag) > 0));
+}
+
+double BTagJetAugmenter::augmentDmeson(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const {
+
+  double DmesonMass = -99.0;
+  const float track_mass = 139.57; // assume pion mass for all tracks
+  const float track_kaon = 493.677; // kaon mass
+  TLorentzVector secondaryVtx_4momentum_Dmeson;
+
+  // now reconstruct D mesons
     if(secondaryVtx_track_number == 3 && abs(secondaryVtx_charge) == 1){ // D+ -> K- pi+ pi+, and charge conjugate
       std::vector<TLorentzVector>::const_iterator secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
       for (std::vector<float>::const_iterator secondaryVtx_charge_Iter = secondaryVtx_charge_vector.begin();
-      secondaryVtx_charge_Iter != secondaryVtx_charge_vector.end();
-      ++secondaryVtx_charge_Iter) {
+            secondaryVtx_charge_Iter != secondaryVtx_charge_vector.end();
+            ++secondaryVtx_charge_Iter) {
         TLorentzVector track_fourVector_new;
         if((secondaryVtx_charge==1 && (*secondaryVtx_charge_Iter)==-1) || (secondaryVtx_charge==-1 && (*secondaryVtx_charge_Iter)==1)){
           track_fourVector_new.SetVectM((*secondaryVtx_4momentum_Iter).Vect(), track_kaon);
@@ -411,14 +461,13 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
         ++secondaryVtx_4momentum_Iter;
       }
       if(secondaryVtx_4momentum_Dmeson.M()>1000 && secondaryVtx_4momentum_Dmeson.M()<2200){
-        m_secondaryVtx_DmesonMass(btag) = secondaryVtx_4momentum_Dmeson.M();
-        m_secondaryVtx_isDmesonRecon(btag) = true;
+        DmesonMass = secondaryVtx_4momentum_Dmeson.M();
       }
     } else if(secondaryVtx_track_number == 2 && secondaryVtx_charge == 0){ // D0 -> K- pi+
       std::vector<TLorentzVector>::const_iterator secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
       for (std::vector<float>::const_iterator secondaryVtx_charge_Iter = secondaryVtx_charge_vector.begin();
-      secondaryVtx_charge_Iter != secondaryVtx_charge_vector.end();
-      ++secondaryVtx_charge_Iter) {
+            secondaryVtx_charge_Iter != secondaryVtx_charge_vector.end();
+            ++secondaryVtx_charge_Iter) {
         TLorentzVector track_fourVector_new;
         if((*secondaryVtx_charge_Iter)==-1){
           track_fourVector_new.SetVectM((*secondaryVtx_4momentum_Iter).Vect(), track_kaon);
@@ -429,8 +478,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
         ++secondaryVtx_4momentum_Iter;
       }
       if(secondaryVtx_4momentum_Dmeson.M()>1000 && secondaryVtx_4momentum_Dmeson.M()<2200){
-        m_secondaryVtx_DmesonMass(btag) = secondaryVtx_4momentum_Dmeson.M();
-        m_secondaryVtx_isDmesonRecon(btag) = true;
+        DmesonMass = secondaryVtx_4momentum_Dmeson.M();
       }
     } else if(secondaryVtx_track_number == 4 && secondaryVtx_charge == 0){ // D0 -> K- pi+ pi- pi+
       std::vector<TLorentzVector>::const_iterator secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
@@ -468,45 +516,12 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
       } 
       double mDmeson_2 = secondaryVtx_4momentum_Dmeson_new.M();
       if (abs(mDmeson_1 - 1864.83)<=abs(mDmeson_2 - 1864.83) && mDmeson_1>1000 && mDmeson_1<2200){
-          m_secondaryVtx_DmesonMass(btag)=mDmeson_1;
-          m_secondaryVtx_isDmesonRecon(btag) = true;
+          DmesonMass=mDmeson_1;
       }
       else if(abs(mDmeson_2 - 1864.83)<=abs(mDmeson_1 - 1864.83) && mDmeson_2>1000 && mDmeson_2<2200){
-          m_secondaryVtx_DmesonMass(btag)=mDmeson_2; 
-          m_secondaryVtx_isDmesonRecon(btag) = true;
+          DmesonMass=mDmeson_2;
       }
     }
-  }
-  if(secondaryVtx_track_number > 0){
-    double min = secondaryVtx_min_track_flightDirRelEta;
-    double max = secondaryVtx_max_track_flightDirRelEta;
-    double avg = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
-    m_secondaryVtx_min_trk_flightDirRelEta(btag) = min;
-    m_secondaryVtx_max_trk_flightDirRelEta(btag) = max;
-    m_secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
-  }else{
-    m_secondaryVtx_min_trk_flightDirRelEta(btag) = NAN;
-    m_secondaryVtx_max_trk_flightDirRelEta(btag) = NAN;
-    m_secondaryVtx_avg_trk_flightDirRelEta(btag) = NAN;
-  }
-  if(track_number > 0){
-    double min = min_track_flightDirRelEta;
-    double max = max_track_flightDirRelEta;
-    double avg = track_flightDirRelEta_total / track_number;
-    m_min_trk_flightDirRelEta(btag) = min;
-    m_max_trk_flightDirRelEta(btag) = max;
-    m_avg_trk_flightDirRelEta(btag) = avg;
-  }else{
-    m_min_trk_flightDirRelEta(btag) = NAN;
-    m_max_trk_flightDirRelEta(btag) = NAN;
-    m_avg_trk_flightDirRelEta(btag) = NAN;
-  }
 
-  m_rnnip_isDefaults(btag) = 0;
-
-}
-
-
-bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) const {
-  return !(m_jf_vertices(btag).size() > 0 && (m_jf_nVtx(btag) > 0 || m_jf_nSingleTracks(btag) > 0));
+    return DmesonMass;
 }
