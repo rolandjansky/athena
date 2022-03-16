@@ -388,7 +388,7 @@ if not hasattr(topSeq, "EventInfoCnvAlg"):
    topSeq += xAODMaker__EventInfoCnvAlg()
    # intnetionally skip adding the xAOD::EventInfo to the ItemList
 
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=False )
+StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=True )
 if hasattr(runArgs, "inputEVNT_PreFile") :
   svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
   StreamEVGEN.TakeItemsFromInput = True
