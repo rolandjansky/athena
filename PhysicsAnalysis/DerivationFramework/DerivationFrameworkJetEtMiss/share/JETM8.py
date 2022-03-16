@@ -6,9 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
 DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-#from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 #====================================================================
 # SKIMMING TOOL 

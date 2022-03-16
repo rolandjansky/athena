@@ -33,8 +33,8 @@ JETM3SkimmingTools = []
 orstr  = ' || '
 andstr = ' && '
 
-elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'])
-muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'])
+elofflinesel = 'count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'
+muofflinesel = 'count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'
 
 electronSelection = '(' + elofflinesel + ')'
 muonSelection = '(' + muofflinesel + ')'
@@ -179,6 +179,7 @@ addDAODJets(jetList,DerivationFrameworkJob)
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
+# To be restored after fixing the errors caused by these lines
 #if DerivationFrameworkIsMonteCarlo:
     ###addMETTruthMap('AntiKt4EMTopo',"JETMX")
     ###addMETTruthMap('AntiKt4EMPFlow',"JETMX")

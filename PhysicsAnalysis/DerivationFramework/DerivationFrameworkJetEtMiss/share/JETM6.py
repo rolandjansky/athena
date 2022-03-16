@@ -5,18 +5,8 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-
-#from DerivationFrameworkEGamma.EGammaCommon import *
-#from DerivationFrameworkMuons.MuonsCommon import *
 
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-
-#from DerivationFrameworkJetEtMiss.METCommon import *
-
-#from DerivationFrameworkInDet.InDetCommon import *
-
-#from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SET UP STREAM   
@@ -295,11 +285,6 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
-                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
-                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                        #"AntiKt4EMPFlowJets_BTagging201810",
-                                        #"AntiKt4EMPFlowJets_BTagging201903",
-                                        #"AntiKt4EMTopoJets_BTagging201810",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                         "BTagging_AntiKt4EMPFlow",
                                         "BTagging_AntiKt4EMTopo",

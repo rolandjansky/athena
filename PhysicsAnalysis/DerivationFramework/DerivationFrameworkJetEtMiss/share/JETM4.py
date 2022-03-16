@@ -4,7 +4,6 @@
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
-#from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
 
 #
@@ -162,6 +161,7 @@ applyPFOAugmentation(DerivationFrameworkJob)
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
+# To be restored after fixing the errors caused by these lines
 #if DerivationFrameworkIsMonteCarlo:
     #addMETTruthMap('AntiKt4EMTopo',"JETMX")
     #addMETTruthMap('AntiKt4EMPFlow',"JETMX")
