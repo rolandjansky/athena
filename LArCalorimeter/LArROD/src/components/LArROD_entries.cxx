@@ -22,6 +22,7 @@
 #include "LArROD/LArCalibDigitsAccumulatorFreeGain.h"
 #include "LArROD/LArRawChannelBuilderAlg.h"
 #include "LArROD/LArRawChannelBuilderIterAlg.h"
+#include "../LArNNRawChannelBuilder.h"
 #include "../LArSCSimpleMaker.h"
 #include "../LArSuperCellBCIDEmAlg.h"
 #include "../LArSuperCellBCIDAlg.h"
@@ -54,6 +55,7 @@ DECLARE_COMPONENT( LArRawChannelBuilderPedestalSampleZero )
 DECLARE_COMPONENT( LArRawChannelBuilderToolTileInfo )
 DECLARE_COMPONENT( LArRawChannelBuilderAlg )
 DECLARE_COMPONENT( LArRawChannelBuilderIterAlg )
+DECLARE_COMPONENT( LArNNRawChannelBuilder )
 DECLARE_COMPONENT( LArSCSimpleMaker )
 DECLARE_COMPONENT( LArSuperCellBCIDEmAlg )
 DECLARE_COMPONENT( LArSuperCellBCIDAlg )
