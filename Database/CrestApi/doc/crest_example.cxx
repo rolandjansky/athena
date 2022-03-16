@@ -30,7 +30,7 @@ void print_path() {
   std::cout << SURL << std::endl;
 }
 
-bool createDirTree(const std::string full_path) {
+bool createDirTree(const std::string& full_path) {
   size_t pos = 0;
   bool ret_val = true;
 
@@ -172,7 +172,7 @@ void testListTagsParams() {
   }
 }
 
-void testListTagsParams(std::string name) {
+void testListTagsParams(const std::string& name) {
   std::cout << std::endl << "test: listTagsParams" << std::endl;
   CrestClientExt myCrestClient = CrestClientExt(SURL);
 
@@ -1827,7 +1827,7 @@ void test01() {
 
   map <std::string, std::string> :: iterator it = m.begin();
   cout << "Map Listing 1: " << endl;
-  for (int i = 0; it != m.end(); it++, i++) {  // Output
+  for (int i = 0; it != m.end(); ++it, ++i) {  // Output
     cout << i << ") key: " << it->first << ", value: " << it->second << endl;
   }
 
@@ -1852,7 +1852,7 @@ void test01() {
 
   it = m.begin();
   cout << "Map Listing 2: " << endl;
-  for (int i = 0; it != m.end(); it++, i++) {  // Output
+  for (int i = 0; it != m.end(); ++it, ++i) {  // Output
     cout << i << ") key: " << it->first << ", value: " << it->second << endl;
   }
 }

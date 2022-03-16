@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2019-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -1556,7 +1556,7 @@ namespace Crest {
  * It works with the file data storage.
  * @param tagname - tag name.
  */
-    void getTagDataInfo(std::string tagname);
+    void getTagDataInfo(const std::string& tagname);
   };
 } // namespace
 
