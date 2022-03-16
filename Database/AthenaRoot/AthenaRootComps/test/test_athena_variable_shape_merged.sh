@@ -2,12 +2,12 @@
 
 set -e
 
+reffile=$1
+
 testname=test_athena_variable_shape
 mkdir -p $testname
 cd $testname
 rm -f *.txt *.xml
-
-cp @CMAKE_CURRENT_SOURCE_DIR@/test/ref.data.merged.ascii .
 
 echo "::: generate merged.root..."
 athena.py \
@@ -30,7 +30,7 @@ diff -urN data.merged.txt data.4.txt || exit 1
 echo "::: compare py-alg outputs... [ok]"
 
 echo "::: compare py-alg output to reference..."
-diff -urN data.merged.txt ref.data.merged.ascii || exit 1
+diff -urN data.merged.txt $reffile || exit 1
 echo "::: compare py-alg output to reference... [ok]"
 
 echo "::: compare dump-root outputs..."
