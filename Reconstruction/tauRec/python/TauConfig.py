@@ -50,7 +50,7 @@ def TauBuildAlgCfg(flags):
     # TauBuildAlg AKA TauProcessorAlg
     TauProcessorAlg=CompFactory.getComp("TauProcessorAlg")
     BuildAlg = TauProcessorAlg ( name="TauCoreBuilderAlg",
-                                 Key_jetInputContainer=flags.Tau.JetCollection,
+                                 Key_jetInputContainer=flags.Tau.SeedJetCollection,
                                  Key_tauOutputContainer="tmp_TauJets",
                                  Key_tauTrackOutputContainer="TauTracks",
                                  Key_tauShotClusOutputContainer="TauShotClusters",

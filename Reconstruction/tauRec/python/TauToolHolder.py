@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 #
@@ -231,7 +231,7 @@ def TauTrackFinderCfg(flags):
                                     removeDuplicateCoreTracks = flags.Tau.RemoveDupeCoreTracks,
                                     useGhostTracks = flags.Tau.useGhostTracks,
                                     ghostTrackDR = flags.Tau.ghostTrackDR,
-                                    Key_jetContainer = (flags.Tau.JetCollection if flags.Tau.useGhostTracks else ""),
+                                    Key_jetContainer = (flags.Tau.SeedJetCollection if flags.Tau.useGhostTracks else ""),
                                     Key_trackPartInputContainer = flags.Tau.TrackCollection,
                                     Key_LargeD0TrackInputContainer = (flags.Tau.LargeD0TrackContainer if flags.Tau.associateLRT else ""),
                                     TrackToVertexIPEstimator = result.popToolsAndMerge(TauTrackToVertexIPEstimatorCfg(flags)) )
@@ -262,7 +262,7 @@ def TauVertexedClusterDecoratorCfg(flags):
 
     TauVertexedClusterDecorator = CompFactory.getComp("TauVertexedClusterDecorator")
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
-                                                                SeedJet = flags.Tau.JetCollection)
+                                                                SeedJet = flags.Tau.SeedJetCollection)
 
     result.setPrivateTools(myTauVertexedClusterDecorator)
     return result
