@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloRec )
@@ -44,7 +44,7 @@ atlas_add_test( CaloCellFastCopyTool_test
    SOURCES test/CaloCellFastCopyTool_test.cxx
    LINK_LIBRARIES CaloRecLib CaloEvent CaloDetDescrLib CaloIdentifier
    IdDictParser AthenaBaseComps StoreGateLib CxxUtils GaudiKernel
-   LOG_IGNORE_PATTERN "Retrieved const pointer|Retrieved const handle|object not modifiable" )
+   LOG_IGNORE_PATTERN "@0x[0-9a-f]{4,}|Retrieved const pointer|Retrieved const handle|object not modifiable" )
 
 atlas_add_test( CaloCellContainerFromClusterTool_test
    SOURCES test/CaloCellContainerFromClusterTool_test.cxx

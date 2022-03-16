@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -96,7 +96,6 @@ int main() {
 
   SG::T2pMap t2p;
   DataProxy addressProxy(tGen, pIConvSvc);
-  cout << "FIXME: in opt 32 bits we need to print the address of addressProxy to avoid a crash when the jobs ends!?!  @" << &addressProxy << endl;
   addressProxy.setT2p(&t2p);
 
   assert( addressProxy.isValid() );

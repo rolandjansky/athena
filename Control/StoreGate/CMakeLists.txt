@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( StoreGate )
@@ -43,8 +43,8 @@ set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
 
 _add_test( ActiveStore_test )
 _add_test( SGTiming_test LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages" )
-_add_test( SGHive_test LOG_IGNORE_PATTERN "${_hivePatterns}" )
-_add_test( DataHandle_test )
+_add_test( SGHive_test LOG_IGNORE_PATTERN "DataObject @0x|${_hivePatterns}" )
+_add_test( DataHandle_test LOG_IGNORE_PATTERN "this proxy 0x" )
 _add_test( SGIterator_test )
 _add_test( KeyConcept_test )
 _add_test( StoreClearedIncident_test )
@@ -58,7 +58,7 @@ _add_test( ReadHandleKey_test )
 _add_test( WriteHandleKey_test )
 _add_test( UpdateHandleKey_test )
 _add_test( TypelessWriteHandleKey_test )
-_add_test( VarHandleBase_test )
+_add_test( VarHandleBase_test LOG_IGNORE_PATTERN "VarHandleBase @0x" )
 _add_test( VarHandles_test )
 _add_test( WriteHandle_test )
 _add_test( ReadHandle_test )
@@ -74,7 +74,7 @@ _add_test( WriteCondHandle_test )
 _add_test( WriteDecorHandleKeyArray_test )
 _add_test( ReadDecorHandleKeyArray_test )
 _add_test( ThinningHandleKey_test )
-_add_test( ThinningHandleBase_test )
+_add_test( ThinningHandleBase_test LOG_IGNORE_PATTERN "@0x" )
 _add_test( ThinningHandle_test )
 _add_test( ShallowCopyDecorDeps_test )
 

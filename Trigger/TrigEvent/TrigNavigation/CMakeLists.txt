@@ -39,7 +39,7 @@ foreach( name TriggerElement_test Holder_test Registration_test Ownership_test H
       TrigSerializeCnvSvcLib
       PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-      LOG_IGNORE_PATTERN "^ClassIDSvc *VERBOSE|added entry for CLID|no dictionary for class|when retrieved"
+      LOG_IGNORE_PATTERN "0x[0-9a-f]{4,}|^ClassIDSvc *VERBOSE|added entry for CLID|no dictionary for class|when retrieved"
        )
 
 endforeach()
