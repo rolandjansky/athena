@@ -3,10 +3,7 @@
 refname=$1
 ignore=$2
 
-ATLAS_REFERENCE_TAG=AthenaRootComps/AthenaRootCompsReference-01-00-01
-
-get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
-reffile=`basename $ATLAS_REFERENCE_TAG`/$refname
+reffile=`arc_linkinputs.sh`/${refname}
 chkfile=d3pd.ascii
 
 if [ -n "${ignore}" ]; then
