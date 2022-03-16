@@ -39,7 +39,7 @@ import sys
 import os
 import argparse
 import ast
-import collections
+import collections.abc
 from datetime import datetime as dt
 import six
 
