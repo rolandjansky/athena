@@ -19,6 +19,7 @@ from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg
 # for Digitization
 from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+from LArROD.LArNNChannelBuilder import LArNNRawChannelBuilderCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 # for Trigger Tower
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
@@ -216,8 +217,13 @@ def LArDigitizationBasicCfg(flags, **kwargs):
         PileUpTools = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
         kwargs["PileUpTools"] = PileUpTools
     acc.merge(PileUpToolsCfg(flags, **kwargs))
+
     acc.merge(LArHitEMapToDigitAlgCfg(flags))
-    acc.merge(LArRawChannelBuilderAlgCfg(flags))
+    if flags.LAr.ROD.NNRawChannelBuilding:
+        acc.merge(LArNNRawChannelBuilderCfg(flags))
+    else:
+        acc.merge(LArRawChannelBuilderAlgCfg(flags))
+
     if flags.Digitization.AddCaloDigiThinned:
         acc.merge(LArDigitThinnerCfg(flags))
     return acc
