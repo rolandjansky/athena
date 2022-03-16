@@ -1,18 +1,18 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# file   AFPLocalAlign.py
+# file   AFPAlignDBCreate.py
 # author Petr Balek <petr.balek@cern.ch>
 # date   2021-02-27
 #
 # brief  A python script that generates COOL database with alignment constants for AFP. A lot of inspiration obtained in InnerDetector/InDetConditions/InDetBeamSpotService/utils/beamSpot_set.py
 # usage  0. setup Athena environment (setupATLAS, asetup ...)
 #        1. run this script:
-#              python AFPLocalAlignDBCreate.py
+#              python AFPAlignDBCreate.py
 #        2. check the output:
 #              AtlCoolConsole.py "sqlite://;schema=Example.db;dbname=CONDBR2"
-#        3. check "testAFPLocalDB.py" for more testing
+#        3. check "testAFPDB.py" for more testing
 
 
 from __future__ import print_function
