@@ -202,7 +202,9 @@ class MuonStandalone(ConfiguredMuonRec):
         reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
         reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
         reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
-      
+        
+        MuonStationsInterSectAlg()
+
         self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",
             MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
             PrintSummary = muonStandaloneFlags.printSummary(),

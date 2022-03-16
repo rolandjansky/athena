@@ -7,7 +7,6 @@ from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
 from MuonRecExample import MuonAlignConfig  # noqa: F401 (import side-effects)
 
-
 from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonStationTypeBuilder
 MuonStationTypeBuilder= Muon__MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
 ToolSvc += MuonStationTypeBuilder
@@ -30,6 +29,3 @@ MuonTrackingGeometryBuilderCond.ExitVolumeName  = TrkDetFlags.MuonSystemContaine
 MuonTrackingGeometryBuilderCond.OutputLevel     = TrkDetFlags.MuonBuildingOutputLevel()
 ToolSvc += MuonTrackingGeometryBuilderCond
 
-from MuonRecExample.MuonStandalone import MuonStationsInterSectAlg 
-MuonStationsInterSectAlg()
-      
