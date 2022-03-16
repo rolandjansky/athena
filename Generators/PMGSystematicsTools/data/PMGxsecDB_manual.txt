@@ -1,0 +1,4 @@
+dataset_number/I:physics_short/C:crossSection/D:genFiltEff/D:kFactor/D:relUncert/D:generator_name/C
+300000		Pythia8BPhotospp_A14_CTEQ6L1_pp_Jpsimu2p5mu2p5		3498900.0		1.0000E+00		1.0		0.0		Pythia8B+Photospp
+410646		PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top		0.037937		1.0000E+00		1.0		0.0		PowhegPythia8
+410659		PhPy8EG_A14_tchan_BW50_lept_antitop		0.022175		1.0000E+00		1.0		0.0		PowhegPythia8
