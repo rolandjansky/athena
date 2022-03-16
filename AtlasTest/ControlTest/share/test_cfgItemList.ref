@@ -9,7 +9,6 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'JetCollection#HLT_AutoKey*', 'VxContainer#Conversions']
 Py:Athena            INFO removing TrigEsd item list
 Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'VxContainer#Conversions']
-Py:Athena            INFO '<AthenaOutputStream/FooFoo at 0x13b8850>' is not a CfgItemList
 Py:Athena            INFO Error has been caught, good
 Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'VxContainer#Conversions']
 Py:Athena            INFO InDet list: ['AnotherVxContainer#Conversions', 'VxContainer#Conversions']

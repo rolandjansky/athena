@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamCnvSvc )
@@ -44,6 +44,7 @@ atlas_add_executable( AtlListBSEvents test/AtlListBSEvents.cxx
 # Test(s) in the package:
 atlas_add_test( BSEventSelector
    SCRIPT "athena.py --threads 1 ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py"
+   LOG_IGNORE_PATTERN "from ES 0x"
    LOG_SELECT_PATTERN "ByteStream.*Svc" )
 
 atlas_add_test( AtlCopyBSEvent1

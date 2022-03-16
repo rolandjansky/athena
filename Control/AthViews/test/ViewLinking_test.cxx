@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ClassID.h"
@@ -218,9 +218,7 @@ int main() {
 
   StoreGateSvc* pStore(0);
 
-  if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
-    log << MSG::INFO << "SG pointer: " << pStore << endmsg;
-  } else {
+  if( pSvcLoc->service("StoreGateSvc", pStore, true).isFailure() ) {
     log << MSG::ERROR << "SG not available" << endmsg;
     return -1;
   }

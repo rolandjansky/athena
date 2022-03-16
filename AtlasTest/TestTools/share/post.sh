@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #/** @file post.sh
 # @brief sh script that checks the return code of an executable and compares
@@ -69,10 +69,8 @@ EOF
 # Patterns that cannot be ignored
 ERRORS="^ERROR | ERROR | FATAL "
 
-# ignore hex addresses
-PP="0x\w{4,}"
 # ignore package names e.g. Package-00-00-00
-PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
+PP='\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 # ignore trunk package names e.g. Package-r123456
 PP="$PP"'|\w+-r[[:digit:]]+'
 # ignore cpu usage printouts

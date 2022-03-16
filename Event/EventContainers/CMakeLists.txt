@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventContainers )
@@ -18,7 +18,7 @@ atlas_add_dictionary( EventContainersDict
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES EventContainers
-                LOG_IGNORE_PATTERN "elapsed"
+                LOG_IGNORE_PATTERN "elapsed|coll 0x"
                )
 atlas_add_test( IdMTCont SOURCES test/IDMT_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers

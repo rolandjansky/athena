@@ -22,7 +22,6 @@ job.MyTopAlg.TheTool.Factor = 14.
 # Another custom configured tool to use
 from AthExJobOptions.CustomToolUsingTool2 import CustomToolUsingTool2
 job += TopAlgorithm( 'YourTopAlg' )
-printfunc (job.YourTopAlg.properties())
 job.YourTopAlg.OutputKey = 'YourKey'
 job.YourTopAlg.TheTool = CustomToolUsingTool2( 'CustomTool2' )
 job.YourTopAlg.TheTool.Factor = 18.
@@ -34,8 +33,5 @@ job.YourTopAlg.TheTool.Factor = 18.
 # Some global settings (typically, you *only* want to
 # do this in the final options file, never in a fragment):
 theApp.EvtMax = 2
-
-# Print the final job for reference purposes
-printfunc (job)
 
 # End of AthExJobOptions_CustomTopAlgorithmJobOptions.py
