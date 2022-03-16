@@ -177,6 +177,15 @@ class ConfigAccumulator :
         """add an algorithm to the sequence being created"""
         self._algSeq += alg
 
+    def addPublicTool (self, tool) :
+        """add a public tool to the sequence being created"""
+        try:
+            # Try to access the ToolSvc, to see whethet we're in Athena mode:
+            from AthenaCommon.AppMgr import ToolSvc  # noqa: F401
+        except ImportError:
+            # We're not, so let's remember this as a "normal" algorithm:
+            self._algSeq += tool
+
 
     def readOrUpdateRef (self, containerName, sourceName) :
         """get a reference object to decorate the given container with

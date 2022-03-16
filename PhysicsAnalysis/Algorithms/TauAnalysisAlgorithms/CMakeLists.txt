@@ -33,24 +33,61 @@ atlas_install_data( data/*.conf )
 # if( XAOD_STANDALONE )
 #    atlas_add_test( testJobData
 #       SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+#       POST_EXEC_SCRIPT nopost.sh
 #       PROPERTIES TIMEOUT 600 )
 #    atlas_add_test( testJobFullSim
 #       SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+#       POST_EXEC_SCRIPT nopost.sh
 #       PROPERTIES TIMEOUT 600 )
 #    atlas_add_test( testJobFastSim
 #       SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+#       POST_EXEC_SCRIPT nopost.sh
 #       PROPERTIES TIMEOUT 600 )
 # else()
 #    atlas_add_test( testJobData
 #       SCRIPT athena.py
 #       TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type data
+#       POST_EXEC_SCRIPT nopost.sh
 #       PROPERTIES TIMEOUT 600 )
 #    atlas_add_test( testJobFullSim
 #       SCRIPT athena.py
 #       TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+#       POST_EXEC_SCRIPT nopost.sh
 #       PROPERTIES TIMEOUT 600 )
 #    atlas_add_test( testJobFastSim
 #       SCRIPT athena.py
 #       TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+#       POST_EXEC_SCRIPT nopost.sh
+#       PROPERTIES TIMEOUT 600 )
+# endif()
+#
+# if( XAOD_STANDALONE )
+#    atlas_add_test( testJobDataConfig
+#       SCRIPT TauAnalysisAlgorithmsConfigTest_eljob.py --data-type data --unit-test
+#       POST_EXEC_SCRIPT nopost.sh
+#       PROPERTIES TIMEOUT 600 )
+#    atlas_add_test( testJobFullSimConfig
+#       SCRIPT TauAnalysisAlgorithmsConfigTest_eljob.py --data-type mc --unit-test
+#       POST_EXEC_SCRIPT nopost.sh
+#       PROPERTIES TIMEOUT 600 )
+#    atlas_add_test( testJobFastSimConfig
+#       SCRIPT TauAnalysisAlgorithmsConfigTest_eljob.py --data-type afii --unit-test
+#       POST_EXEC_SCRIPT nopost.sh
+#       PROPERTIES TIMEOUT 600 )
+# else()
+#    atlas_add_test( testJobDataConfig
+#       SCRIPT athena.py
+#       TauAnalysisAlgorithms/TauAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type data
+#       POST_EXEC_SCRIPT nopost.sh
+#       PROPERTIES TIMEOUT 600 )
+#    atlas_add_test( testJobFullSimConfig
+#       SCRIPT athena.py
+#       TauAnalysisAlgorithms/TauAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type mc
+#       POST_EXEC_SCRIPT nopost.sh
+#       PROPERTIES TIMEOUT 600 )
+#    atlas_add_test( testJobFastSimConfig
+#       SCRIPT athena.py
+#       TauAnalysisAlgorithms/TauAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type afii
+#       POST_EXEC_SCRIPT nopost.sh
 #       PROPERTIES TIMEOUT 600 )
 # endif()
