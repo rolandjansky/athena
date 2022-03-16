@@ -10,6 +10,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetRecConfig.JetRecConfig import isAthenaRelease
+from EventShapeTools.EventDensityConfig import configEventDensityTool, getEventShapeName
 
 def _buildJetAlgForInput(suffix, tools ):
     jetalg = CompFactory.JetAlgorithm("jetalg_"+suffix,
@@ -65,49 +66,35 @@ def buildPFlowSel(parentjetdef, spec):
                                               electronID = "LHMedium",
                                               ChargedPFlowInputContainer  = "JetETMissChargedParticleFlowObjects",
                                               NeutralPFlowInputContainer  = "JetETMissNeutralParticleFlowObjects",
-                                              ChargedPFlowOutputContainer = "GlobalPFlowChargedParticleFlowObjects",
-                                              NeutralPFlowOutputContainer = "GlobalPFlowNeutralParticleFlowObjects"
+                                              ChargedPFlowOutputContainer = "GlobalChargedParticleFlowObjects",
+                                              NeutralPFlowOutputContainer = "GlobalNeutralParticleFlowObjects"
                                              )
 
 ########################################################################
-def getEventShapeName( jetDefOrLabel, inputspec):
-    """ Get the name of the event shape container for a given event shape alg """
-
-    from .JetDefinition import JetDefinition
-    nameprefix = inputspec or ""
-    if isinstance(jetDefOrLabel, JetDefinition):
-        label = jetDefOrLabel.inputdef.label
-    else:
-        label = jetDefOrLabel.replace('_','')
-    return nameprefix+"Kt4"+label+"EventShape"
-
 
 def buildEventShapeAlg(jetOrConstitdef, inputspec, voronoiRf = 0.9, radius = 0.4, suffix = None ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
 
-    from .JetDefinition import JetInputConstit
-    
-    if isinstance(jetOrConstitdef, JetInputConstit):
-        label = jetOrConstitdef.label + '' if suffix is None else f'_{suffix}'
-    else:
-        label = jetOrConstitdef.inputdef.label + '' if suffix is None else f'_{suffix}'
+    from .JetRecConfig import getPJContName
 
-    rhokey = getEventShapeName(label, inputspec)
-    nameprefix = inputspec or ""
-    rhotoolname = "EventDensity_"+nameprefix+"Kt4"+label
     
-    rhotool = CompFactory.EventDensityTool(
-        rhotoolname,
-        InputContainer = "PseudoJet"+label, # same as in PseudoJet algs
-        OutputContainer = rhokey,
+    pjContName = getPJContName(jetOrConstitdef,suffix)
+    nameprefix = inputspec or ""
+
+    print("AAAAAA , ",pjContName, inputspec)
+    
+    rhotool = configEventDensityTool(
+        f"EventDensity_{nameprefix}Kt4{pjContName}",
+        jetOrConstitdef,
+        InputContainer = pjContName, 
+        OutputContainer = getEventShapeName(jetOrConstitdef, nameprefix=inputspec, suffix=suffix, radius=radius),
         JetRadius = radius,
-        UseFourMomArea = True,
         VoronoiRfact = voronoiRf,
-        JetAlgorithm = "Kt",)
+        )
     
     eventshapealg = CompFactory.EventDensityAthAlg(
-        "{0}{1}Alg".format(nameprefix,rhotoolname),
+        f"EventDensity_{nameprefix}Kt4{pjContName}Alg",
         EventDensityTool = rhotool )
 
     return eventshapealg

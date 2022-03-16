@@ -339,7 +339,15 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
 ########################################################################
 
 
-
+def getPJContName( jetOrConstitdef, suffix=None):
+    """Construct the name of the PseudoJetContainer defined by the given JetDef or JetInputConstit.
+    This name has to be constructed from various places, so we factorize the definition here.
+    """
+    
+    cdef = jetOrConstitdef if isinstance(jetOrConstitdef, JetInputConstit) else jetOrConstitdef.inputdef
+    end = '' if suffix is None else f'_{suffix}'
+    return f'PseudoJet{cdef.containername}{end}'
+    
 def getConstitPJGAlg(constitdef,suffix=None, flags=None):
     """returns a configured PseudoJetAlgorithm which converts the inputs defined by constitdef into fastjet::PseudoJet
 
@@ -350,12 +358,13 @@ def getConstitPJGAlg(constitdef,suffix=None, flags=None):
 
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(constitdef.name,constitdef.inputname))
 
-    full_label = constitdef.label + '' if suffix is None else f'_{suffix}'
+    end = '' if suffix is None else f'_{suffix}'
+    full_label = constitdef.label + end
 
     pjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_"+full_label,
+        "pjgalg_"+constitdef.containername+end,
         InputContainer = constitdef.containername,
-        OutputContainer = "PseudoJet"+full_label,
+        OutputContainer =getPJContName(constitdef,suffix),
         Label = full_label,
         SkipNegativeEnergy=True
         )
@@ -387,7 +396,7 @@ def getGhostPJGAlg(ghostdef):
 
     kwargs = dict( 
         InputContainer = ghostdef.containername,
-        OutputContainer=    "PseudoJet"+label,
+        OutputContainer= "PseudoJetGhost"+ghostdef.containername,
         Label=              label,
         SkipNegativeEnergy= True,
         #OutputLevel = 3,

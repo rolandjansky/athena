@@ -569,7 +569,7 @@ def makeEGammaDFCommon():
         if not hasattr(DerivationFrameworkJob,constitPJAlg.getName()):
             DerivationFrameworkJob += conf2toConfigurable(constitPJAlg)
 
-        tc = configEventDensityTool("EDTruthCentralTool", cst.Truth.label,
+        tc = configEventDensityTool("EDTruthCentralTool", cst.Truth,
                                     0.5,
                                     AbsRapidityMin=0.0,
                                     AbsRapidityMax=1.5,
@@ -579,7 +579,7 @@ def makeEGammaDFCommon():
         ToolSvc += tc
 
         # Compute the truth-particle-level energy density in the forward eta region
-        tf = configEventDensityTool("EDTruthForwardTool", cst.Truth.label,
+        tf = configEventDensityTool("EDTruthForwardTool", cst.Truth,
                                     0.5,
                                     AbsRapidityMin=1.5,
                                     AbsRapidityMax=3.0,

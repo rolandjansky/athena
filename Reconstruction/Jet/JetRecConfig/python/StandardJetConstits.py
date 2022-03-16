@@ -243,13 +243,17 @@ _stdSeqList = [
     JetInputConstitSeq("EMPFlow", xAODType.FlowElement,["CorrectPFO", "CHS"] , 'JetETMissParticleFlowObjects', 'CHSParticleFlowObjects'),
 
     # GPFlow are the same than EMPFlow except they have pflow linked to elec or muons filtered out.
-    JetInputConstitSeq("GPFlow", xAODType.FlowElement,["CorrectPFO", "CHS"] , 'GlobalParticleFlowObjects', 'CHSGParticleFlowObjects'),
+    JetInputConstitSeq("GPFlow", xAODType.FlowElement,["CorrectPFO", "CHS"] , 'GlobalParticleFlowObjects', 'CHSGParticleFlowObjects',
+                       label='EMPFlow'),
     
     
     # Particle Flow Objects with Constituent Subtraction + SoftKiller
     JetInputConstitSeq("EMPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
                        'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
 
+    JetInputConstitSeq("GPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
+                       'GlobalParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
+    
     # *****************************
     # Tower (used only as ghosts atm)
     JetInputConstit("Tower", xAODType.CaloCluster, "CaloCalFwdTopoTowers"),

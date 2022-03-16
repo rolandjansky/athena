@@ -22,7 +22,7 @@ defaultInputKey = {
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
    'Tracks'    :'InDetTrackParticles',
-   'PFlowObj'  :'CHSParticleFlowObjects',
+   'PFlowObj'  :'CHSGParticleFlowObjects',
    'ORPFlowObj':'OverlapRemovedCHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
@@ -165,7 +165,7 @@ class METAssocConfig:
         modConstKey_tmp = modConstKey
         modClusColls_tmp = modClusColls
         if doPFlow:
-            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects" if 'OverlapRemoved' not in suffix else "OverlapRemovedCHSParticleFlowObjects"
+            if modConstKey_tmp == "": modConstKey_tmp = "CHSGParticleFlowObjects" if 'OverlapRemoved' not in suffix else "OverlapRemovedCHSParticleFlowObjects"
         else:
             if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',

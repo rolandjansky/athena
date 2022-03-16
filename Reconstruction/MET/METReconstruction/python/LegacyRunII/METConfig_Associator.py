@@ -66,7 +66,7 @@ if metFlags.DoPFlow() and metFlags.UseTracks():
     cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
                                 associators,
                                 doPFlow=True,
-                                usePFOLinks=metFlags.UseFELinks() 
+                                usePFOLinks=metFlags.UseFELinks(),
                                 )
 
     metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
