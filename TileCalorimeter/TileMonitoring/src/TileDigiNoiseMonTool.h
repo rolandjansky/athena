@@ -59,15 +59,15 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     bool m_bigain{};
 
     //int m_nSamples;
-    double m_sumPed1[5][64][48][2] = {0};
-    double m_sumPed2[5][64][48][2]= {0};
-    double m_sumRms1[5][64][48][2]= {0};
+    double m_sumPed1[5][64][48][2] = {{{{0}}}};
+    double m_sumPed2[5][64][48][2]= {{{{0}}}};
+    double m_sumRms1[5][64][48][2]= {{{{0}}}};
 
-    int m_nPedEvents[5][64][48][2]= {0};
-    int m_nRmsEvents[5][64][48][2]= {0};
+    int m_nPedEvents[5][64][48][2]= {{{{0}}}};
+    int m_nRmsEvents[5][64][48][2]= {{{{0}}}};
 
     // histogram to store 4 maps of module vs channel
-    TH2F* m_finalNoiseMap[5][2][3]= {0};
+    TH2F* m_finalNoiseMap[5][2][3]= {{{0}}};
 
     int m_summaryUpdateFrequency{};
     int m_nEventsProcessed{};

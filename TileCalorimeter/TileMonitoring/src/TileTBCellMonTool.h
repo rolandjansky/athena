@@ -70,8 +70,8 @@ class TileTBCellMonTool: public TileFatherMonTool {
     int32_t m_TileCellTrig{};
     int32_t m_old_lumiblock{};
     int32_t m_delta_lumiblock{};
-    int32_t m_OldLumiArray1[4][64][4]={0};
-    int32_t m_OldLumiArray2[4][64][4]={0};
+    int32_t m_OldLumiArray1[4][64][4]={{{0}}};
+    int32_t m_OldLumiArray2[4][64][4]={{{0}}};
     int m_nEventsProcessed[9]={0}; // number of processed events per trigger
     std::string m_cellsContName;
 
@@ -153,9 +153,9 @@ class TileTBCellMonTool: public TileFatherMonTool {
 	*  bins=4 corresponding name in cellHitMap
 	*  bins=5 whether or not there is C cell for long barrel
 	*/
-	int m_cellHitMapEB[48][5]={0};
-	int m_cellHitMapLB[48][6]={0};
-	int m_cellHitMapLB_C[8][4]={0};
+        int m_cellHitMapEB[48][5]={{0}};
+        int m_cellHitMapLB[48][6]={{0}};
+        int m_cellHitMapLB_C[8][4]={{0}};
 	std::string m_cellHitMapNameEB[14];
 	std::string m_cellHitMapNameLB[23];
 

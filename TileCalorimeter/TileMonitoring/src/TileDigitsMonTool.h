@@ -126,20 +126,20 @@ class TileDigitsMonTool: public TilePaterMonTool
     int m_nSamples{};
     // Factor these out to avoid triggering the ubsan sanity checks.
     struct Data {
-      double m_sumPed1[5][64][48][2]={0};
-      double m_sumPed2[5][64][48][2]={0};
-      double m_sumRms1[5][64][48][2]={0};
-      double m_sumRms2[5][64][48][2]={0};
-      double m_meanAmp[5][64][2][48]={0};
-      double m_meanAmp_ij[5][64][2][48][48]={0};
-      int m_nEvents_i[5][64][2][48]={0};
-      int m_nEvents_ij[5][64][2][48][48]={0};
-      double m_cov_ratio[5][64][2]={0}; //covariance ratio printed in covariance plots
-      uint8_t m_stuck_probs[5][64][48][2][10]={0};
+      double m_sumPed1[5][64][48][2]={{{{0}}}};
+      double m_sumPed2[5][64][48][2]={{{{0}}}};
+      double m_sumRms1[5][64][48][2]={{{{0}}}};
+      double m_sumRms2[5][64][48][2]={{{{0}}}};
+      double m_meanAmp[5][64][2][48]={{{{0}}}};
+      double m_meanAmp_ij[5][64][2][48][48]={{{{{0}}}}};
+      int m_nEvents_i[5][64][2][48]={{{{0}}}};
+      int m_nEvents_ij[5][64][2][48][48]={{{{{0}}}}};
+      double m_cov_ratio[5][64][2]={{{0}}}; //covariance ratio printed in covariance plots
+      uint8_t m_stuck_probs[5][64][48][2][10]={{{{{0}}}}};
 
       //vector to hold data corruption information
       // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
-      bool m_corrup[5][64][2][16]={0}; //ros, drawer, gain, DMU
+      bool m_corrup[5][64][2][16]={{{{0}}}}; //ros, drawer, gain, DMU
 
       //Pointers to Histograms
       std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
