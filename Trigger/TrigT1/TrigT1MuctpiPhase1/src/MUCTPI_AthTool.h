@@ -45,8 +45,8 @@ namespace LVL1MUCTPIPHASE1 {
 
     virtual ~MUCTPI_AthTool() override = default;
 
-    StatusCode initialize();
-    StatusCode start();
+    virtual StatusCode initialize() override;
+    virtual StatusCode start() override;
     StatusCode execute() const;
 
   private:
