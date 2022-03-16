@@ -47,7 +47,7 @@ public:
   using pointer = value_type*;
   using reference = value_type&;
 
-  using pointer_type = pointer;
+  typedef pointer pointer_type;  // `using' here gives cppcheck false positives
   using const_pointer_type = const DATA*;
   using reference_type = reference;
   using const_reference_type = const DATA&;
