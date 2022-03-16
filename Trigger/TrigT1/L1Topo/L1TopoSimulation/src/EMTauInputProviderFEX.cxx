@@ -87,11 +87,11 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
    auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 200);
    hTauEt->SetXTitle("E_{T} [GeV]");
-   auto hTauRCore = std::make_unique<TH1I>( "eTauRCore", "eTau TOB rCore isolation", 3, 0, 3);
+   auto hTauRCore = std::make_unique<TH1I>( "eTauTOBRCore", "eTau TOB rCore isolation", 3, 0, 3);
    hTauRCore->SetXTitle("rCore isolation");
-   auto hTauRHad = std::make_unique<TH1I>( "eTauRHad", "eTau TOB rHad isolation", 3, 0, 3);
+   auto hTauRHad = std::make_unique<TH1I>( "eTauTOBRHad", "eTau TOB rHad isolation", 3, 0, 3);
    hTauRHad->SetXTitle("rHad isolation");
-   auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 400, -200, 200, 128, 0, 128);
+   auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 200, -200, 200, 128, 0, 128);
    hTauPhiEta->SetXTitle("#eta#times40");
    hTauPhiEta->SetYTitle("#phi#times20");
    auto hTauEtEta = std::make_unique<TH2I>( "eTauTOBEtEta", "eTau TOB Et vs eta", 200, -200, 200, 100, 0, 200);
@@ -179,17 +179,17 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register eTauTOBEt histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauRCore", std::move(hTauRCore), m_hTauRCore ).isSuccess()){
-     ATH_MSG_DEBUG("eTauRCore histogram has been registered successfully for EMTauProviderFEX.");
+   if (m_histSvc->regShared( histPath + "eTauTOBRCore", std::move(hTauRCore), m_hTauRCore ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBRCore histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eTauRCore histogram for EMTauProviderFEX");
+     ATH_MSG_WARNING("Could not register eTauTOBRCore histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauRHad", std::move(hTauRHad), m_hTauRHad ).isSuccess()){
-     ATH_MSG_DEBUG("eTauRHad histogram has been registered successfully for EMTauProviderFEX.");
+   if (m_histSvc->regShared( histPath + "eTauTOBRHad", std::move(hTauRHad), m_hTauRHad ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBRHad histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eTauRHad histogram for EMTauProviderFEX");
+     ATH_MSG_WARNING("Could not register eTauTOBRHad histogram for EMTauProviderFEX");
    }
    if (m_histSvc->regShared( histPath + "eTauTOBPhiEta", std::move(hTauPhiEta), m_hTauPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("eTauTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
@@ -302,7 +302,6 @@ EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
   SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
   ATH_CHECK(eTau_EDM.isValid());
 
-  // TODO: read eTau isolation variables from eTau RoI
   for(const auto it : * eTau_EDM){
     const xAOD::eFexTauRoI* eFexTauRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 

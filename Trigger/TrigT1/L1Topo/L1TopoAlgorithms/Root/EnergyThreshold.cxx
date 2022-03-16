@@ -38,15 +38,11 @@ TCS::StatusCode TCS::EnergyThreshold::initialize(){
     m_threshold = getThreshold();
 
     // book histograms
-    bool isMult = true; 
-
-    std::string hname_accept = "EnergyThreshold_accept_ET_"+m_threshold->name();
-
-    bookHist(m_histAccept, hname_accept, "ET", 200, 0, 200, isMult);
-
+    std::string hname_accept = "EnergyThreshold_accept_EtaPt_"+m_threshold->name();
+    bookHistMult(m_histAccept, hname_accept, "Mult_"+ m_threshold->name(), "E_{t} [GeV]", 200, 0, 200);
+  
     hname_accept = "EnergyThreshold_accept_counts_"+m_threshold->name();
-
-    bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+    bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
 
     return StatusCode::SUCCESS;
     
@@ -64,7 +60,7 @@ TCS::StatusCode TCS::EnergyThreshold::process( const TCS::InputTOBArray & input,
 
 
   // Grab the threshold and cast it into the right type
-  auto jXEThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*m_threshold);
+  const auto& jXEThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*m_threshold);
   // Grab inputs
   const jXETOBArray & jXEArray = dynamic_cast<const jXETOBArray&>(input);
 

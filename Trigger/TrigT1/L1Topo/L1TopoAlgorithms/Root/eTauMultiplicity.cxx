@@ -44,13 +44,11 @@ TCS::eTauMultiplicity::initialize() {
   m_threshold = getThreshold();
 
   // book histograms
-  bool isMult = true;
+  std::string hname_accept = "eTauMultiplicity_accept_EtaPt_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 100, 0, 100);
 
-  std::string hname_accept = "heTauMultiplicity_accept_EtaPt_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 150, 0., 100., isMult);
-
-  hname_accept = "heTauMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+  hname_accept = "eTauMultiplicity_accept_counts_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
 
   return StatusCode::SUCCESS;
      
@@ -71,7 +69,7 @@ TCS::eTauMultiplicity::process( const TCS::InputTOBArray & input,
 {
 
   // Grab the threshold and cast it into the right type
-  auto eTAUThr = dynamic_cast<const TrigConf::L1Threshold_eTAU &>(*m_threshold);
+  const auto& eTAUThr = dynamic_cast<const TrigConf::L1Threshold_eTAU &>(*m_threshold);
 
   // Grab inputs
   const eTauTOBArray & etaus = dynamic_cast<const eTauTOBArray&>(input);

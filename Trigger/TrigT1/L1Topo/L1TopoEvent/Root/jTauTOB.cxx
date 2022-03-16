@@ -1,4 +1,4 @@
-//  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/jTauTOB.h"
 
@@ -11,15 +11,11 @@ TCS::jTauTOB::jTauTOB(uint32_t roiWord, const std::string& tobName) :
 {}
 
 // constructor with initial values
-TCS::jTauTOB::jTauTOB(unsigned int Et, unsigned int isolation, int eta, unsigned phi, uint32_t roiWord, const std::string& tobName) :
+TCS::jTauTOB::jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, const std::string& tobName) :
    BaseTOB( roiWord,tobName )
    , m_Et(Et)
    , m_eta(eta)
    , m_phi(phi)
-   , m_isolation(isolation)
-   , m_EtDouble(Et/10.)
-   , m_etaDouble(eta/40.)
-   , m_phiDouble(phi/20.)
 {}
 
 // copy constructor
@@ -39,5 +35,5 @@ TCS::jTauTOB::clearHeap() {
 
 void
 TCS::jTauTOB::print(std::ostream &o) const {
-   o << "jTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", isolation: " << isolation() ;
+   o << "jTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
 }

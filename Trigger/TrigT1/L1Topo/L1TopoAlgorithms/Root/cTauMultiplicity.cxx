@@ -31,13 +31,18 @@ TCS::cTauMultiplicity::initialize() {
   m_threshold = getThreshold();
   
   // book histograms
-  bool isMult = true;
- 
-  std::string hname_accept = "hcTauMultiplicity_accept_EtaPt_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 30, 0., 20., isMult);
+  std::string hname_accept = "cTauMultiplicity_accept_EtaPt_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 100, 0, 100);
 
-  hname_accept = "hcTauMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+  hname_accept = "cTauMultiplicity_accept_counts_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
+
+  // cTau TOB monitoring histograms
+  bookHistMult(m_histcTauEt, "cTauTOBEt", "Matched cTau TOB Et", "E_{t} [GeV]", 200, 0, 200);
+  bookHistMult(m_histcTauPhiEta, "cTauTOBPhiEta", "Matched cTau TOB location", "#eta#times40", "#phi#times20", 200, -200, 200, 128, 0, 128);
+  bookHistMult(m_histcTauEtEta, "cTauTOBEtEta", "Matched cTau TOB Et vs eta", "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 200, 0, 200);
+  bookHistMult(m_histcTauIso, "cTauTOBIso", "Matched cTau isolation", "isolation", 200, 0, 10);
+  bookHistMult(m_histcTauIsoScore, "cTauTOBIsoScore", "Matched cTau isolation score", "isolation score", 4, 0, 4);
 
   return StatusCode::SUCCESS;
 }
@@ -57,61 +62,63 @@ TCS::cTauMultiplicity::process( const TCS::InputTOBArray & input, Count & count 
 {
 
   // Grab the threshold and cast it into the right type                                                                                                                                                 
-  auto cTauThr = dynamic_cast<const TrigConf::L1Threshold_cTAU &>(*m_threshold);
+  const auto& cTauThr = dynamic_cast<const TrigConf::L1Threshold_cTAU &>(*m_threshold);
 
   const cTauTOBArray & cTaus = dynamic_cast<const cTauTOBArray&>(input);
 
   int counting = 0;
-  int count_eTaus = 0; 
   // Loop over eTau candidates
-  for(cTauTOBArray::const_iterator etau_cand = cTaus.begin(); etau_cand != cTaus.end(); ++etau_cand ) {
+  for(cTauTOBArray::const_iterator etauCand = cTaus.begin(); etauCand != cTaus.end(); ++etauCand ) {
 
-    if((*etau_cand)->tobType() != TCS::ETAU) continue;
+    if((*etauCand)->tobType() != TCS::ETAU) continue;
     
-    bool matching  = false; // Is it matched to a jTau?
-    bool isolation = false; // If matched: does it pass the isolation cut?
-    bool passed    = false; // passed = true if (matching==true && isolation==true) || (matching==false)
+    bool accept = false;     // accept = true if (isMatched==true && isIsolated==true) || (isMatched==false)
+    bool isMatched  = false; // Is the eTau matched to a jTau?
+    bool isIsolated = false; // If matched: does the resulting cTau pass the isolation cut?
+    float isolation = 0;              // cTau isolation (0 if no match is found)
+    unsigned int isolation_score = 0; // cTau isolation score (0 if no match is found)
 
     // Loop over jTau candidates
-    for(cTauTOBArray::const_iterator jtau_cand = cTaus.begin(); jtau_cand != cTaus.end(); ++jtau_cand ) {
+    for(cTauTOBArray::const_iterator jtauCand = cTaus.begin(); jtauCand != cTaus.end(); ++jtauCand ) {
       
-      if((*jtau_cand)->tobType() != TCS::JTAU) continue;
+      if((*jtauCand)->tobType() != TCS::JTAU) continue;
 
-      // Matching is done comparing eta_tower and phi_tower (granularity = 0.1)
-      // These coordinates represent the lower edge of the towers (both for eFEX and jFEX)
-      int eTauEtaTower = (*etau_cand)->eta() - (*etau_cand)->eta()%4;  // eTau eta = 4*eta_tower + seed 
-      int jTauEtaTower = (*jtau_cand)->eta();                          // jTau eta = 4*eta_tower
-      unsigned int eTauPhiTower = (*etau_cand)->phi();                 // eTau phi = 2*phi_tower 
-      unsigned int jTauPhiTower = (*jtau_cand)->phi();                 // jTau phi = 2*phi_tower 
+      isMatched = cTauMatching( *etauCand, *jtauCand );
 
-      bool matching = (eTauEtaTower == jTauEtaTower) && (eTauPhiTower == jTauPhiTower);
-
-      if (matching) {
+      if (isMatched) {
         // Isolation condition coded as in firmware https://indico.cern.ch/event/1079697/contributions/4541419/attachments/2315137/3940824/cTAU_FirmwareAlgoProposal.pdf page 8. 
-        // Using physics values for the cut
-        unsigned int isolation_score = convertIsoToBit( (*etau_cand)->Et(), (*jtau_cand)->isolation() );
-        isolation = isocut( TrigConf::Selection::wpToString(cTauThr.isolation()), isolation_score );
+        // Using physics values for the cut 
+        isolation = static_cast<float>((*jtauCand)->EtIso()) / static_cast<float>((*etauCand)->Et()); // Internal variable for checks
+        isolation_score = convertIsoToBit( *etauCand, *jtauCand );
+        isIsolated = isocut( TrigConf::Selection::wpToString(cTauThr.isolation()), isolation_score );
+        break; // Break loop when a match is found
       }
 
     } // End of jTau loop
 
-    
+    // Fill cTau TOB histograms before threshold cuts (matched cTaus only)
+    if (isMatched) {
+      fillHist1D( m_histcTauEt[0], (*etauCand)->EtDouble() );
+      fillHist2D( m_histcTauPhiEta[0], (*etauCand)->eta(), (*etauCand)->phi() );
+      fillHist2D( m_histcTauEtEta[0], (*etauCand)->eta(), (*etauCand)->EtDouble() );
+      fillHist1D( m_histcTauIso[0], isolation );
+      fillHist1D( m_histcTauIsoScore[0], isolation_score );
+    }
+
     // This is a good cTau
-    if( matching && isolation ) { passed = true; }
+    if ( isMatched && isIsolated ) { accept = true; }
     // This is a non-matched eTau
-    if( !(matching) ) { passed = true; }
+    if ( not isMatched ) { accept = true; }
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity                                                                      
     // Requirement on pT based on eTau candidate 
-    passed = passed && (*etau_cand)->Et() >= cTauThr.thrValue100MeV((*etau_cand)->eta()/4);
-    if (passed) {
+    accept = accept && (*etauCand)->Et() >= cTauThr.thrValue100MeV((*etauCand)->eta()/4);
+    if (accept) {
       counting++;
-      fillHist2D( m_histAccept[0], (*etau_cand)->eta(), (*etau_cand)->EtDouble() );
+      fillHist2D( m_histAccept[0], (*etauCand)->eta(), (*etauCand)->EtDouble() );
     }
-    count_eTaus++;
     
   } // End of eTau loop
-
 
   fillHist1D( m_histAccept[1], counting);
   
@@ -125,14 +132,37 @@ TCS::cTauMultiplicity::process( const TCS::InputTOBArray & input, Count & count 
 
 
 unsigned int
-TCS::cTauMultiplicity::convertIsoToBit(const unsigned int & etauEt, const unsigned int & jtauIso){
+TCS::cTauMultiplicity::convertIsoToBit(const TCS::cTauTOB * etauCand, const TCS::cTauTOB * jtauCand) const {
   unsigned int bit = 0;
-  // Assign the tightest passed WP as default bit
-  if( jtauIso < etauEt * 0.4 ) bit = 1; // Loose
-  if( jtauIso < etauEt * 0.35) bit = 2; // Medium
-  if( jtauIso < etauEt * 0.3 ) bit = 3; // Tight 
+
+  // Assign the tightest accept WP as default bit
+  if( jtauCand->EtIso() < etauCand->Et() * 0.4 ) bit = 1; // Loose
+  if( jtauCand->EtIso() < etauCand->Et() * 0.35) bit = 2; // Medium
+  if( jtauCand->EtIso() < etauCand->Et() * 0.3 ) bit = 3; // Tight 
   
   return bit;
 }
 
- 
+
+bool
+TCS::cTauMultiplicity::cTauMatching(const TCS::cTauTOB * etauCand, const TCS::cTauTOB * jtauCand) const {
+
+  bool matching  = false; 
+
+  // Matching is done comparing eta_tower and phi_tower (granularity = 0.1)
+  // These coordinates represent the lower edge of the towers (both for eFEX and jFEX)
+
+  // eTau eta = 4*eta_tower + seed, eta from -25 to 24
+  int eTauEtaTower;
+  if (etauCand->eta()%4 >= 0 ) { eTauEtaTower = etauCand->eta() - etauCand->eta()%4; }
+  else                         { eTauEtaTower = etauCand->eta() - etauCand->eta()%4 - 4; }
+
+  int jTauEtaTower = jtauCand->eta();              // jTau eta = 4*eta_tower
+  unsigned int eTauPhiTower = etauCand->phi();     // eTau phi = 2*phi_tower 
+  unsigned int jTauPhiTower = jtauCand->phi();     // jTau phi = 2*phi_tower 
+
+  matching = (eTauEtaTower == jTauEtaTower) && (eTauPhiTower == jTauPhiTower);
+
+  return matching;
+
+}

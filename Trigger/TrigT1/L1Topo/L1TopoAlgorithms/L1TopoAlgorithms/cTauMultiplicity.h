@@ -34,7 +34,10 @@ namespace TCS {
       TrigConf::L1Threshold const * m_threshold{nullptr};
       // This function is used to map the ctau isolation working points into a common format with eFEX EM and taus.
       // This allows us to use same functionalities from ConfigurableAlg (L1TopoInterfaces) to apply isolation cuts in multiplicity algorithms for all flavour of TOBS 
-      unsigned int convertIsoToBit(const unsigned int & etauEt, const unsigned int & jtauIso); 
+      unsigned int convertIsoToBit( const TCS::cTauTOB * etauCand, const TCS::cTauTOB * jtauCand ) const; 
+
+      // Matching function for L1Topo
+      bool cTauMatching( const TCS::cTauTOB * etauCand, const TCS::cTauTOB * jtauCand ) const; 
 
    };
 
