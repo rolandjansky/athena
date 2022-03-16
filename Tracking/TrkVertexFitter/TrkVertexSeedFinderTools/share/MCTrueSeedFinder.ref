@@ -85,9 +85,6 @@ phi_module    4
 eta_module    5
 phi_index     6
 eta_index     7
-GEOPIXELSERVICES pixel : 28.995 245 //  3460
-GEOPIXELSERVICES barrel : 28.997 143 //  -460 460
-GEOPIXELSERVICES endcap : 82 175 //  484 670
 testalg1          VERBOSE execute
 testalg1          VERBOSE testing 3
 found 298 particles
