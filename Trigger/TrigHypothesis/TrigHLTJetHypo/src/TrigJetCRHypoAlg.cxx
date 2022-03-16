@@ -70,7 +70,7 @@ StatusCode TrigJetCRHypoAlg::execute( const EventContext& context ) const {
   auto trackHandle = SG::makeHandle(m_trackParticleKey, context );
 
   ATH_CHECK( trackHandle.isValid() );
-  const xAOD::TrackParticleContainer * allTracks = trackHandle.get();
+  const xAOD::TrackParticleContainer* allTracks = trackHandle.get();
   ATH_MSG_DEBUG ( allTracks->size() << " tracks found" );
 
   // get cells from the key :
@@ -78,7 +78,7 @@ StatusCode TrigJetCRHypoAlg::execute( const EventContext& context ) const {
   auto cellHandle = SG::makeHandle(m_cellKey, context );
 
   ATH_CHECK( cellHandle.isValid() );
-  const CaloConstCellContainer * cells = cellHandle.get();
+  const CaloConstCellContainer* cells = cellHandle.get();
   ATH_MSG_DEBUG ( cells->size() << " cells found" );
   
   

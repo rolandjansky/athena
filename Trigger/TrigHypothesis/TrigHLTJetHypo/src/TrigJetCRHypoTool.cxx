@@ -114,7 +114,6 @@ bool TrigJetCRHypoTool::decide_on_single_jet( JetInfo& input ) const {
     int countCaloCell=0;
     double countCell_layer[4] = {0,0,0,0};
 
-
     for(CaloCellContainer::const_iterator celliter = cellContainer->begin(); celliter != cellContainer->end(); ++celliter){
       //LoF cell selection in tile:
       if((*celliter)->caloDDE()->is_tile() && (*celliter)->energy() > m_minCellEt){
