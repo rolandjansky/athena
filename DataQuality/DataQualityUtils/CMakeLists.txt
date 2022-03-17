@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityUtils )
@@ -91,3 +91,15 @@ atlas_add_alias( CreateMDTConfig_readme "CreateMDTConfig_readme.sh" )
 atlas_add_alias( DQHistogramMerge "DQHistogramMerge.py" )
 atlas_add_alias( DQWebDisplay "DQWebDisplay.py" )
 atlas_add_alias( CreateMDTConfig_chambers "CreateMDTConfig_chambers.sh" )
+
+# Tests:
+atlas_add_test( physval_make_web_display_test
+    SCRIPT physval_make_web_display.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/example_root/Data.root
+    PROPERTIES TIMEOUT 300
+    POST_EXEC_SCRIPT nopost.sh
+)
+
+atlas_add_test( han_results_print_test
+    SCRIPT test/test_han_results_print.sh ${CMAKE_CURRENT_SOURCE_DIR}
+    PROPERTIES TIMEOUT 300
+)
