@@ -244,15 +244,20 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    gXE_seedThrB = thr_gXE.seedThr('B'); //defined in GeV by default
    gXE_seedThrB = gXE_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
 
+
    unsigned int aFPGA_A = 0;
    unsigned int bFPGA_A = 0;
    unsigned int aFPGA_B = 0;
    unsigned int bFPGA_B = 0;
-   aFPGA_A = thr_gXE.JWOJ_param('A','a');
-   bFPGA_A = thr_gXE.JWOJ_param('A','b');
-   aFPGA_B = thr_gXE.JWOJ_param('B','a');
-   bFPGA_B = thr_gXE.JWOJ_param('B','b');
+   // aFPGA_A = thr_gXE.JWOJ_param('A','a');
+   // bFPGA_A = thr_gXE.JWOJ_param('A','b');
+   // aFPGA_B = thr_gXE.JWOJ_param('B','a');
+   // bFPGA_B = thr_gXE.JWOJ_param('B','b');
    
+   aFPGA_A = 1;
+   bFPGA_A = 1;
+   aFPGA_B = 1;
+   bFPGA_B = 1;
 
    m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
                                        aFPGA_B, bFPGA_B,
