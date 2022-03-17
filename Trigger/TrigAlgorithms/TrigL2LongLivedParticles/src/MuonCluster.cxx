@@ -98,8 +98,8 @@ StatusCode MuonCluster::execute(const EventContext& ctx) const
     //check to make sure we have all the input trigger elements!
 
     int iter_cl=0;
-    lvl1_muclu_roi muonClu[20] = {0,0,0};
-    lvl1_muclu_roi muonClu0[20] = {0,0,0};
+    lvl1_muclu_roi muonClu[20] = {{0,0,0}};
+    lvl1_muclu_roi muonClu0[20] = {{0,0,0}};
 
     auto roiCollectionHdl = SG::makeHandle(m_roiCollectionKey, ctx);
     auto roiCollection = roiCollectionHdl.get();

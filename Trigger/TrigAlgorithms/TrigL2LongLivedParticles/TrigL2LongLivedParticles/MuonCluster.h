@@ -65,9 +65,9 @@ public:
       "output RoI Descriptor container with descriptor for cluster with maximum number of RoIs. For ID."};
 
   /** hltInitialize() */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** hltExecute(), main code of the algorithm */
-  StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 
 private:
