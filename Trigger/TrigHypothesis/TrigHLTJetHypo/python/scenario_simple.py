@@ -169,6 +169,14 @@ def scenario_simple(chain_parts):
     filterparams = []
     
     ncp = 0
+    
+    # keep track of identical cond_args, which are given the same
+    # clique number. 
+    # the C++ code will use the clique number for optimisation of
+    # the calculation of the combinations
+    #
+    # current implementation: condition filter not included.
+    clique_list = []
     for cp in chain_parts:
         ncp += 1
 
@@ -179,14 +187,27 @@ def scenario_simple(chain_parts):
         
         multiplicity = int(cp['multiplicity'])
         chainPartInd = cp['chainPartIndex']
+ 
+        # make an empty filter condition for the FR condition
+        filterparams.append(FilterParams(typename='PassThroughFilter'))
+
+        args = deepcopy(condargs)
+        args.append(filterparams)
+        clique = None
+        try:
+            clique = clique_list.index(condargs)
+        except ValueError:
+            # seen for the first time
+            clique_list.append(condargs)
+            clique = len(clique_list)-1
+
         repcondargs.append(RepeatedConditionParams(tree_id = ncp,
                                                    tree_pid=0,
+                                                   clique=clique,
                                                    chainPartInd=chainPartInd,
                                                    multiplicity=multiplicity,
                                                    condargs=condargs))
 
-        # make an empty filter condition for the FR condition
-        filterparams.append(FilterParams(typename='PassThroughFilter'))
 
     # treevec[i] gives the tree_id of the parent of the
     # node with tree_id = i

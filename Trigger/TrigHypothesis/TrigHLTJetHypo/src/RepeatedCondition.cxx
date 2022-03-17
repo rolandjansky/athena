@@ -10,9 +10,11 @@
 
 RepeatedCondition::RepeatedCondition(std::unique_ptr<ICondition> cp,
 				     std::size_t mult,
+				     int clique,
 				     int cpInd,
 				     bool invert):
   m_condition{std::move(cp)}, m_multiplicity{mult},
+  m_clique{clique},
   m_chainPartInd{cpInd}, m_invert{invert}{}
 
 
@@ -39,6 +41,11 @@ unsigned int RepeatedCondition::capacity() const {
 std::size_t RepeatedCondition::multiplicity() const {
   return m_multiplicity;
 }
+
+
+int RepeatedCondition::clique() const {
+  return m_clique;
+}
   
 std::string RepeatedCondition::toString() const {
   std::stringstream ss;
@@ -46,6 +53,7 @@ std::string RepeatedCondition::toString() const {
   
   ss << "RepeatedCondition (" << address << ") Multiplicity: "
      << m_multiplicity
+     << " clique " << m_clique
      << " chainPartInd " << m_chainPartInd
      << " invert " << std::boolalpha << m_invert
      << '\n';

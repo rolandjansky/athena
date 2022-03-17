@@ -29,7 +29,8 @@ class ITrigJetHypoInfoCollector;
 class RepeatedCondition: public IRepeatedCondition {
  public:
  RepeatedCondition(std::unique_ptr<ICondition> cp,
-			  std::size_t mult,
+		   std::size_t mult,
+		   int clique,
 		   int chainPartind = -1,
 		   bool invert=false);
   virtual ~RepeatedCondition();
@@ -43,6 +44,7 @@ class RepeatedCondition: public IRepeatedCondition {
   
   virtual unsigned int capacity() const override;
   virtual std::size_t multiplicity() const override;
+  virtual int clique() const override;
   
   virtual std::string toString() const override;
 
@@ -54,7 +56,7 @@ private:
 
   std::unique_ptr<ICondition> m_condition;
   std::size_t m_multiplicity{1};
-
+  int  m_clique{-1};
   // record of which chain part in the chainDict this conditions comes from
   int m_chainPartInd{-1};
   bool m_invert{false};
