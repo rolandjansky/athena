@@ -944,7 +944,7 @@ namespace Muon {
             if (m_onlyEO)
                 refittedTrack = std::unique_ptr<Trk::Track>(m_fitter->fit(ctx, *newTrack, m_useFitterOutlierLogic, Trk::muon));
             else
-                refittedTrack = std::unique_ptr<Trk::Track>(m_builder->fit(*newTrack, ctx, m_useFitterOutlierLogic, Trk::muon));
+                refittedTrack = std::unique_ptr<Trk::Track>(m_builder->fit(ctx, *newTrack, m_useFitterOutlierLogic, Trk::muon));
             if (refittedTrack) {
                 ATH_MSG_DEBUG("New Track " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
 

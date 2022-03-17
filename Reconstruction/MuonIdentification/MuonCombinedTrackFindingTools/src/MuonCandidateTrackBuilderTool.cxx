@@ -146,7 +146,7 @@ namespace Muon {
         ATH_MSG_VERBOSE("final measurement list: " << std::endl << m_printer->print(measurements));
 
         ATH_MSG_DEBUG("Extracted hits from candidate: " << measurements.size());
-        std::unique_ptr<Trk::Track> refittedTrack{m_trackFitter->indetExtension(idTrack, measurements, ctx)};
+        std::unique_ptr<Trk::Track> refittedTrack{m_trackFitter->indetExtension(ctx, idTrack, measurements)};
         if (refittedTrack) {
             ATH_MSG_DEBUG("got Track: " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
         }

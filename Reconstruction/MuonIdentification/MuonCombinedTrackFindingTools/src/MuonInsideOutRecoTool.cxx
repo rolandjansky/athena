@@ -191,7 +191,7 @@ namespace MuonCombined {
                                        const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack,
                                        TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
         const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
-        float bs_x{0.}, bs_y{0.}, bs_z{0.};
+        Amg::Vector3D origin{0.,0.,0.};
 
         const xAOD::Vertex* matchedVertex = nullptr;
         if (!m_vertexKey.empty()) {
@@ -211,16 +211,13 @@ namespace MuonCombined {
             }
         }
         if (matchedVertex) {
-            bs_x = matchedVertex->x();
-            bs_y = matchedVertex->y();
-            bs_z = matchedVertex->z();
-            ATH_MSG_DEBUG(" found matched vertex  bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z);
+            origin = Amg::Vector3D{matchedVertex->x(), matchedVertex->y(), matchedVertex->z()};
+            ATH_MSG_DEBUG(" found matched vertex "<<origin);
         } else {
-            // take for beamspot point of closest approach of ID track in  x y z
-            bs_x = idTrackParticle.d0() * std::cos(idTrackParticle.phi()) + idTrackParticle.vx();
-            bs_y = idTrackParticle.d0() * std::sin(idTrackParticle.phi()) + idTrackParticle.vy();
-            bs_z = idTrackParticle.z0() + idTrackParticle.vz();
-            ATH_MSG_DEBUG(" NO matched vertex  take track perigee  x " << bs_x << " y " << bs_y << " z " << bs_z);
+           origin = Amg::Vector3D{-idTrackParticle.d0() * std::sin(idTrackParticle.phi()) + idTrackParticle.vx(),
+                                  idTrackParticle.d0() * std::cos(idTrackParticle.phi()) + idTrackParticle.vy(),
+                                  idTrackParticle.z0() + idTrackParticle.vz()};
+            ATH_MSG_DEBUG(" NO matched vertex  take track perigee "<<origin);
         }
 
         ATH_MSG_VERBOSE("selectedTrack:");
@@ -273,7 +270,7 @@ namespace MuonCombined {
         }
 
         // perform standalone refit
-        std::unique_ptr<Trk::Track> standaloneRefit{m_trackFitter->standaloneRefit(*selectedTrack, ctx, bs_x, bs_y, bs_z)};
+        std::unique_ptr<Trk::Track> standaloneRefit{m_trackFitter->standaloneRefit(ctx, *selectedTrack, origin)};
 
         combTracks->push_back(std::move(selectedTrack));
         ElementLink<TrackCollection> comblink(*combTracks, combTracks->size() - 1);

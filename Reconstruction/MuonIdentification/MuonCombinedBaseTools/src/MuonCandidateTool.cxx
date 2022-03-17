@@ -62,11 +62,8 @@ namespace MuonCombined {
             ATH_MSG_ERROR("Could not retrieve the BeamSpot data from key " << m_beamSpotKey.objKey());
             return;
         }
-        float beamSpotX = beamSpotHandle->beamPos()[Amg::x];
-        float beamSpotY = beamSpotHandle->beamPos()[Amg::y];
-        float beamSpotZ = beamSpotHandle->beamPos()[Amg::z];
-
-        ATH_MSG_DEBUG("Beamspot position bs_x=" << beamSpotX << ", bs_y=" << beamSpotY << ", bs_z=" << beamSpotZ);
+      
+        ATH_MSG_DEBUG("Beamspot position bs_x=" << beamSpotHandle->beamPos());
         
         
         std::vector<track_link> trackLinks;
@@ -87,7 +84,7 @@ namespace MuonCombined {
                                                 << m_printer->printStations(msTrack));
             std::unique_ptr<Trk::Track> standaloneTrack;
             if (m_extrapolationStrategy == 0u) {
-                standaloneTrack = m_trackBuilder->standaloneFit(msTrack, ctx, nullptr, beamSpotX, beamSpotY, beamSpotZ);
+                standaloneTrack = m_trackBuilder->standaloneFit(ctx, msTrack,  beamSpotHandle->beamPos(), nullptr);
             } else {
                 standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack, ctx);
             }
