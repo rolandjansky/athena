@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4RunControl/LArGeoTB2004Options.h"
@@ -27,7 +27,7 @@ void LArGeoTB2004Options::saveMe()
   }
 }
 
-void LArGeoTB2004Options::printMe()
+void LArGeoTB2004Options::printMe() const
 {
   std::cout << " *** *** This is the object of type LArGeoTB2004Options *** *** \n";
   std::cout << " ** H1 Cryostat X Position = " << m_CryoXPosition << "\n *** *** \n";
