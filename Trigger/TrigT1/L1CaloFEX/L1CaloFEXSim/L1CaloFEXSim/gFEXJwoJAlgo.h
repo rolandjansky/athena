@@ -46,10 +46,10 @@ namespace LVL1 {
 
   private:
 
-    unsigned int m_aFPGA_A;
-    unsigned int m_bFPGA_A;
-    unsigned int m_aFPGA_B;
-    unsigned int m_bFPGA_B;
+    int m_aFPGA_A;
+    int m_bFPGA_A;
+    int m_aFPGA_B;
+    int m_bFPGA_B;
     int m_gBlockthresholdA;
     int m_gBlockthresholdB;
 
@@ -57,21 +57,21 @@ namespace LVL1 {
     virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
     virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
-                           unsigned int & MHT_x, unsigned int & MHT_y,
-                           unsigned int & MST_x, unsigned int & MST_y,
-                           unsigned int & MET_x, unsigned int & MET_y);
+                           int & MHT_x, int & MHT_y,
+                           int & MST_x, int & MST_y,
+                           int & MET_x, int & MET_y);
 
-    virtual void metTotal(unsigned int A_MET_x, unsigned int A_MET_y,
-                          unsigned int B_MET_x, unsigned int B_MET_y,
-                          unsigned int & MET_x, unsigned int & MET_y, unsigned int & MET);
+    virtual void metTotal(int A_MET_x, int A_MET_y,
+                          int B_MET_x, int B_MET_y,
+                          int & MET_x, int & MET_y, int & MET);
 
-    virtual void sumEtFPGA(gTowersCentral twrs, unsigned int & partial_sumEt);
+    virtual void sumEtFPGA(gTowersCentral twrs, int & partial_sumEt);
 
-    virtual void sumEt(unsigned int  A_sumEt, unsigned int  B_sumEt, unsigned int & total_sumEt);
+    virtual void sumEt(int  A_sumEt, int  B_sumEt, int & total_sumEt);
 
-    virtual unsigned int sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
+    virtual float sinLUT(unsigned int phiIDX, unsigned int aw);
 
-    virtual unsigned int cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
+    virtual float cosLUT(unsigned int phiIDX, unsigned int aw);
 
 
   };

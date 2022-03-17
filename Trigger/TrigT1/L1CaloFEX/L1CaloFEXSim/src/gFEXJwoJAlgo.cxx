@@ -59,36 +59,37 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   gTowersCentral gBLKB;
   gBlockAB(Btwr, gBLKB);
 
-  //FPGA A observables
-  unsigned int A_MHT_x = 0x0;
-  unsigned int A_MHT_y = 0x0;
-  unsigned int A_MST_x = 0x0;
-  unsigned int A_MST_y = 0x0;
-  unsigned int A_MET_x = 0x0;
-  unsigned int A_MET_y = 0x0;
 
-  unsigned int A_sumEt = 0x0;
+  //FPGA A observables
+  int A_MHT_x = 0x0;
+  int A_MHT_y = 0x0;
+  int A_MST_x = 0x0;
+  int A_MST_y = 0x0;
+  int A_MET_x = 0x0;
+  int A_MET_y = 0x0;
+
+  int A_sumEt = 0x0;
 
   //FPGA B observables
-  unsigned int B_MHT_x = 0x0;
-  unsigned int B_MHT_y = 0x0;
-  unsigned int B_MST_x = 0x0;
-  unsigned int B_MST_y = 0x0;
-  unsigned int B_MET_x = 0x0;
-  unsigned int B_MET_y = 0x0;
+  int B_MHT_x = 0x0;
+  int B_MHT_y = 0x0;
+  int B_MST_x = 0x0;
+  int B_MST_y = 0x0;
+  int B_MET_x = 0x0;
+  int B_MET_y = 0x0;
 
-  unsigned int B_sumEt = 0x0;
+  int B_sumEt = 0x0;
 
   //Global observables
-  unsigned int MET_x = 0x0;
-  unsigned int MET_y = 0x0;
-  unsigned int MET = 0x0;
+  int MET_x = 0x0;
+  int MET_y = 0x0;
+  int MET = 0x0;
 
-  unsigned int total_sumEt = 0x0;
-  unsigned int MHT_x = 0x0;
-  unsigned int MHT_y = 0x0;
-  unsigned int MST_x = 0x0;
-  unsigned int MST_y = 0x0;
+  int total_sumEt = 0x0;
+  int MHT_x = 0x0;
+  int MHT_y = 0x0;
+  int MST_x = 0x0;
+  int MST_y = 0x0;
 
 
   metFPGA(Atwr, gBLKA, m_gBlockthresholdA, A_MHT_x, A_MHT_y, A_MST_x, A_MST_y, A_MET_x, A_MET_y);
@@ -114,28 +115,28 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   // The order of the TOBs is given according to the TOB ID (TODO: check how it's done in fw)
 
   // First TOB is (MET, SumEt)
-  outTOB[0] = total_sumEt; //set the Quantity2 to the corresponding slot (LSB)
+  outTOB[0] = (total_sumEt &  0x00000FFF) << 0; //set the Quantity2 to the corresponding slot (LSB)
   outTOB[0] = outTOB[0] | (MET  &  0x00000FFF) << 12;//Quantity 1 (in bit number 12)
   if (total_sumEt != 0) outTOB[0] = outTOB[0] | 0x00000001 << 24;//Status bit for Quantity 2 (0 if quantity is null)
   if (MET != 0) outTOB[0] = outTOB[0] | 0x00000001 << 25;//Status bit for Quantity 1 (0 if quantity is null)
   outTOB[0] = outTOB[0] | (1  &  0x0000001F) << 26;//TOB ID is 1 for scalar values (5 bits starting at 26)
 
 // Second TOB is (MET_x, MET_y)
-  outTOB[1] = MET_y; //set the Quantity2 to the corresponding slot (LSB)
+  outTOB[1] = (MET_y &  0x00000FFF) << 0; //set the Quantity2 to the corresponding slot (LSB)
   outTOB[1] = outTOB[1] | (MET_x  &  0x00000FFF) << 12;//Quantity 1 (in bit number 12)
   if (MET_y != 0) outTOB[1] = outTOB[1] | 0x00000001 << 24;//Status bit for Quantity 2 (0 if quantity is null)
   if (MET_x != 0) outTOB[1] = outTOB[1] | 0x00000001 << 25;//Status bit for Quantity 1 (0 if quantity is null)
   outTOB[1] = outTOB[1] | (2  &  0x0000001F) << 26;//TOB ID is 2 for MET_x, MET_y (5 bits starting at 26)
 
 // Third TOB is hard components (MHT_x, MHT_y)
-  outTOB[2] = MHT_y; //set the Quantity2 to the corresponding slot (LSB)
+  outTOB[2] = (MHT_y &  0x00000FFF) << 0; //set the Quantity2 to the corresponding slot (LSB)
   outTOB[2] = outTOB[2] | (MHT_x  &  0x00000FFF) << 12;//Quantity 1 (in bit number 12)
   if (MHT_y != 0) outTOB[2] = outTOB[2] | 0x00000001 << 24;//Status bit for Quantity 2 (0 if quantity is null)
   if (MHT_x != 0) outTOB[2] = outTOB[2] | 0x00000001 << 25;//Status bit for Quantity 1 (0 if quantity is null)
   outTOB[2] = outTOB[2] | (3  &  0x0000001F) << 26;//TOB ID is 3 for hard components (5 bits starting at 26)
 
   // Fourth TOB is hard components (MST_x, MST_y)
-  outTOB[3] = MST_y; //set the Quantity2 to the corresponding slot (LSB)
+  outTOB[3] = (MST_y &  0x00000FFF) << 0; //set the Quantity2 to the corresponding slot (LSB)
   outTOB[3] = outTOB[3] | (MST_x  &  0x00000FFF) << 12;//Quantity 1 (in bit number 12)
   if (MST_y != 0) outTOB[3] = outTOB[3] | 0x00000001 << 24;//Status bit for Quantity 2 (0 if quantity is null)
   if (MST_x != 0) outTOB[3] = outTOB[3] | 0x00000001 << 25;//Status bit for Quantity 1 (0 if quantity is null)
@@ -197,7 +198,6 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
-
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
       // zero jet sum here
@@ -221,13 +221,14 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn-1] + twrs[krowUp][jcolumn-1] + twrs[krowDn][jcolumn-1] +
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
-        // switch to 800 MeV LSB 
-        if (FEXAlgoSpaceDefs::APPLY_TRUNC){
-          gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
-        }
         // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
-        if ( gBlkSum[irow][jcolumn] < 0 )       gBlkSum[irow][jcolumn] = 0;
-        if ( gBlkSum[irow][jcolumn] > 4091 )    gBlkSum[irow][jcolumn] = 4091;  
+        if ( gBlkSum[irow][jcolumn] < 0 ){
+          gBlkSum[irow][jcolumn] = 0;
+        }
+        if ( gBlkSum[irow][jcolumn] > 4091 ){
+          gBlkSum[irow][jcolumn] = 4091;
+        }  
+
     }
   }
 
@@ -235,33 +236,33 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
 
 void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
-                           unsigned int & MHT_x, unsigned int & MHT_y,
-                           unsigned int & MST_x, unsigned int & MST_y,
-                           unsigned int & MET_x, unsigned int & MET_y){
+                           int & MHT_x, int & MHT_y,
+                           int & MST_x, int & MST_y,
+                           int & MET_x, int & MET_y){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
       if(gBlkSum[irow][jcolumn] > gBlockthreshold){
-        MHT_x += (twrs[irow][jcolumn])*cosLUT(irow, 5, 6);
-        MHT_y += (twrs[irow][jcolumn])*sinLUT(irow, 5, 6);
+        MHT_x += (twrs[irow][jcolumn])*(cosLUT(irow, 5));
+        MHT_y += (twrs[irow][jcolumn])*(sinLUT(irow, 5));
+
       }
       else{
-       MST_x += (twrs[irow][jcolumn])*cosLUT(irow, 5, 6);
-       MST_y += (twrs[irow][jcolumn])*sinLUT(irow, 5, 6);
+       MST_x += (twrs[irow][jcolumn])*(cosLUT(irow, 5));
+       MST_y += (twrs[irow][jcolumn])*(sinLUT(irow, 5));
       }
     }
   }
   MET_x = m_aFPGA_A * MHT_x + m_bFPGA_A * MST_x;
   MET_y = m_aFPGA_B * MHT_y + m_bFPGA_B * MST_y;
 
-
 }
 
-void gFEXJwoJAlgo::metTotal(unsigned int A_MET_x, unsigned int A_MET_y,
-                            unsigned int B_MET_x, unsigned int B_MET_y,
-                            unsigned int & MET_x, unsigned int & MET_y, unsigned int & MET){
+void gFEXJwoJAlgo::metTotal(int A_MET_x, int A_MET_y,
+                            int B_MET_x, int B_MET_y,
+                            int & MET_x, int & MET_y, int & MET){
 
   MET_x = A_MET_x + B_MET_x;
   MET_y = A_MET_y + B_MET_y;
@@ -270,7 +271,7 @@ void gFEXJwoJAlgo::metTotal(unsigned int A_MET_x, unsigned int A_MET_y,
 }
 
 
-void gFEXJwoJAlgo::sumEtFPGA(gTowersCentral twrs, unsigned int & partial_sumEt ){
+void gFEXJwoJAlgo::sumEtFPGA(gTowersCentral twrs, int & partial_sumEt ){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
@@ -280,10 +281,10 @@ void gFEXJwoJAlgo::sumEtFPGA(gTowersCentral twrs, unsigned int & partial_sumEt )
       partial_sumEt += twrs[irow][jcolumn];
     }
   }
-
+  
 }
 
-void gFEXJwoJAlgo::sumEt(unsigned int  A_sumEt, unsigned int  B_sumEt, unsigned int & total_sumEt ){
+void gFEXJwoJAlgo::sumEt(int  A_sumEt, int  B_sumEt, int & total_sumEt ){
 
   total_sumEt = A_sumEt + B_sumEt;
 
@@ -292,27 +293,24 @@ void gFEXJwoJAlgo::sumEt(unsigned int  A_sumEt, unsigned int  B_sumEt, unsigned 
 //----------------------------------------------------------------------------------
 // bitwise simulation of sine LUT in firmware
 //----------------------------------------------------------------------------------
-unsigned int gFEXJwoJAlgo::sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw)
+float gFEXJwoJAlgo::sinLUT(unsigned int phiIDX, unsigned int aw)
 {
   float c = ((float)phiIDX)/pow(2,aw);
-  float rad = 2*M_PI*c;
+  float rad = ( (2*M_PI) + (M_PI/32) ) *c;
   float rsin = sin(rad);
-
-  return static_cast<unsigned int>(round((pow(2.0,dw-1)-1.0)*rsin));
+  return rsin;
 }
 
 //----------------------------------------------------------------------------------
 // bitwise simulation cosine LUT in firmware
 //----------------------------------------------------------------------------------
-unsigned int gFEXJwoJAlgo::cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw)
+float gFEXJwoJAlgo::cosLUT(unsigned int phiIDX, unsigned int aw)
 {
   float c = ((float)phiIDX)/pow(2,aw);
-  float rad = 2*M_PI*c;
+  float rad = ( (2*M_PI) + (M_PI/32) ) *c;
   float rcos = cos(rad);
-
-  return static_cast<unsigned int>(round((pow(2.0,dw-1)-1.0)*rcos));
+  return rcos;
 }
-
 
 
 
