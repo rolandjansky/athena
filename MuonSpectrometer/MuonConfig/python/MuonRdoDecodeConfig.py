@@ -227,8 +227,7 @@ def CscClusterBuildCfg(flags, name="CscThresholdClusterBuilder"):
 
     # Get cluster creator tool
 
-    acc = MuonIdHelperSvcCfg(flags) 
-    MuonIdHelperSvc = acc.getService("MuonIdHelperSvc")
+    MuonIdHelperSvc = acc.getPrimaryAndMerge( MuonIdHelperSvcCfg(flags) )
     CalibCscStripFitter = acc.getPrimaryAndMerge( CalibCscStripFitterCfg(flags) )
     QratCscClusterFitter = acc.getPrimaryAndMerge( QratCscClusterFitterCfg(flags) )
     SimpleCscClusterFitter = CompFactory.SimpleCscClusterFitter(CscAlignmentTool = CscAlignmentTool(flags) )
