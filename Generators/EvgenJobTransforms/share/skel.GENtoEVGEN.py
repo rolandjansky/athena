@@ -105,7 +105,8 @@ if not hasattr(runArgs, "randomSeed"):
     # TODO: or guess it from the JO name??
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
-
+if ( runArgs.firstEvent <= 0):
+    evgenLog.warning("Run argument firstEvent should be > 0") 
 
 ##==============================================================
 ## Configure standard Athena and evgen services

@@ -7,7 +7,11 @@ atlas_subdir( Sherpa_i )
 find_package( CLHEP )
 find_package( OpenLoops )
 find_package( Sherpa COMPONENTS SherpaTools SherpaInitialization )
+if (HEPMC3_USE)
 find_package( hepmc3 )
+else()
+find_package( HepMC )
+endif()
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
