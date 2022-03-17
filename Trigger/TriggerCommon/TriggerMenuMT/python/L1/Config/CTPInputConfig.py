@@ -22,9 +22,9 @@ class CTPInputConfig:
             ( "connector4", "Topo1Opt3" )
         ])
         inputLayout["electrical"] = odict([
-            ( "connector0", "Topo3El" ),
+            ( "connector0", "Topo2El" ),
             ( "connector1", "LegacyTopoMerged" ),
-            ( "connector2", "Topo2El" ),  # Eitehr Topo2El or AlfaCtpin
+            ( "connector2", "Topo3El" ),  # Either Topo3El or AlfaCtpin
         ])
         inputLayout["ctpin"] = odict()
         inputLayout["ctpin"]["slot7"] = odict([
