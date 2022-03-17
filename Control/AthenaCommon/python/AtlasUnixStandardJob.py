@@ -22,6 +22,7 @@ def _setupAtlasUnixStandardJob():
     svcMgr += GaudiSvcConf.NTupleSvc()
     svcMgr += GaudiSvcConf.RndmGenSvc()
     svcMgr += GaudiCommonSvcConf.ChronoStatSvc()
+    svcMgr += GaudiCommonSvcConf.AlgContextSvc(BypassIncidents=True)
 
     import GaudiAud.GaudiAudConf as GaudiAudConf
     svcMgr.AuditorSvc += GaudiAudConf.AlgContextAuditor()
