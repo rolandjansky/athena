@@ -12,6 +12,8 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+#include "Gaudi/Parsers/Factory.h" // Gaudi::Property<std::map<std::string, std::map<std::string, double>>> 
+
 #include "RatesTrigger.h"
 #include "RatesScanTrigger.h"
 #include "RatesGroup.h"
@@ -274,7 +276,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   Gaudi::Property<bool> m_enableLumiExtrapolation{this, "EnableLumiExtrapolation", true, "If false then no extrapolation in L, N_bunch or <mu> will be performed.."};
   Gaudi::Property<uint32_t> m_vetoStartOfTrain{this, "VetoStartOfTrain", 0, "How many BCID to veto at the start of a bunch train."};
   //Gaudi::Property<std::string> m_prescalesJSON{this, "PrescalesJSON", "",  "Optional JSON of prescales from the TrigMenuRuleBook to apply."};
-  Gaudi::Property<std::map<std::string, double>> m_prescalesJSON{this, "PrescalesJSON", {},  "Optional JSON of prescales from the TrigMenuRuleBook to apply."};
+  Gaudi::Property<std::map<std::string, std::map<std::string, double>>> m_prescalesJSON{this, "PrescalesJSON", {},  "Optional JSON of prescales from the TrigMenuRuleBook to apply."};
 
 
   double m_targetMu; //!< What pileup level the prediction is targeting

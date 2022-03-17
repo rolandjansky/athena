@@ -203,7 +203,9 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   const TrigConf::HLTPrescalesSet& hltPrescalesSet = m_configSvc->hltPrescalesSet(Gaudi::Hive::currentContext());
   for( auto & p : hltPrescalesSet.data().get_child("prescales") ) {
     if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || hltPrescalesSet.prescale(p.first).prescale < 0){
-      m_prescalesJSON[p.first] = hltPrescalesSet.prescale(p.first).prescale;
+      m_prescalesJSON[p.first]["prescale"] = hltPrescalesSet.prescale(p.first).prescale;
+
+      //TODO - check also express prescales. can be done when TrigConf::HLTPrescale express stream methods are in place
 
       if (hltPrescalesSet.prescale(p.first).prescale < 0){
         ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
@@ -214,7 +216,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   const TrigConf::L1PrescalesSet& l1PrescalesSet = m_configSvc->l1PrescalesSet(Gaudi::Hive::currentContext());
   for( auto & p : l1PrescalesSet.prescales() ) {
     if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || p.second.prescale < 0){
-      m_prescalesJSON[p.first] = p.second.prescale;
+      m_prescalesJSON[p.first]["prescale"] = p.second.prescale;
 
       if (p.second.prescale < 0){
         ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
@@ -279,15 +281,15 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
         ATH_MSG_WARNING("Unable to find " << trigger << " in supplied JSON. DISABLING." );
         prescale = 0.;
       } else {
-        prescale        = m_prescalesJSON[trigger];
-	//expressPrescale = m_prescalesJSON.at( trigger ).m_expressPrescale;
+        prescale        = m_prescalesJSON[trigger]["prescale"];
+	      expressPrescale = m_prescalesJSON[trigger]["prescale_express"];
       }
       if (isHLT) {
         if (m_prescalesJSON.value().count(lowerName) == 0) {
           ATH_MSG_WARNING("Unable to find " << trigger << "'s seed, " << lowerName << ", in supplied JSON. DISABLING." );
           lowerPrescale = 0.;
         } else {
-          lowerPrescale = m_prescalesJSON[lowerName];
+          lowerPrescale = m_prescalesJSON[lowerName]["prescale"];
         }
       }
     }
@@ -299,7 +301,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   }
 
   for (const auto& trigger : m_prescalesJSON) {
-    if (trigger.second > 0 &&  std::find(triggers.begin(), triggers.end(), trigger.first) == triggers.end()) {
+    if (trigger.second.at("prescale") > 0 &&  std::find(triggers.begin(), triggers.end(), trigger.first) == triggers.end()) {
        ATH_MSG_WARNING( "Trigger " << trigger.first << " in supplied JSON is NOT AVAILABLE in the supplied AOD file.");
     }
   }
@@ -822,30 +824,36 @@ void RatesAnalysisAlg::writeMetadata() {
   std::vector<std::string> triggers;
   std::vector<std::string> lowers;
   std::vector<double> prescales;
+  std::vector<double> express;
   triggers.reserve(m_triggers.size());
   lowers.reserve(m_triggers.size());
   prescales.reserve(m_triggers.size());
+  express.reserve(m_triggers.size());
   for (const auto& trigger : m_triggers) {
     triggers.push_back(trigger.first);
     lowers.push_back(trigger.second->getSeedName());
     prescales.push_back(trigger.second->getPrescale() );
+    express.push_back(trigger.second->getPrescale(true /*includeExpress*/) );
   }
 
   for (const auto& group : m_groups) {
     triggers.push_back(group.first);
     lowers.push_back("-");
     prescales.push_back(-1);
+    express.push_back(-1);
   }
 
   for (const auto& group : m_globalGroups) {
     triggers.push_back("RATE_GLOBAL_" + group.first);
     lowers.push_back("-");
     prescales.push_back(-1);
+    express.push_back(-1);
   }
 
   m_metadataTree->Branch("triggers", &triggers);
   m_metadataTree->Branch("lowers", &lowers);
   m_metadataTree->Branch("prescales", &prescales);
+  m_metadataTree->Branch("express", &express);
 
   std::vector<int32_t> bunchGroups;
   bunchGroups.reserve(16);
