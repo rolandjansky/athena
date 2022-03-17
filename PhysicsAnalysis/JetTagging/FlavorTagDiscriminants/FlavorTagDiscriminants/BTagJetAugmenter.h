@@ -33,7 +33,7 @@ public:
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag) const;
-  double augmentDmeson(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const;
+  double getDmesonMass(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const;
 
   float safelog_prob(float p_up, float p_down) const;
 
@@ -95,7 +95,7 @@ private:
 
   // Add new variable
   AE::Decorator<float> m_secondaryVtx_DmesonMass;
-  AE::Decorator<bool> m_secondaryVtx_isDmesonRecon;
+  AE::Decorator<char> m_secondaryVtx_isDmesonRecon;
 
   AE::ConstAccessor<char> m_rnnip_pbIsValid;
   AE::Decorator<char> m_rnnip_isDefaults;

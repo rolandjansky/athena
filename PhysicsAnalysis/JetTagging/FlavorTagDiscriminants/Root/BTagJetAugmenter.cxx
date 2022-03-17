@@ -394,13 +394,13 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     m_secondaryVtx_EFrac(btag) = EFrac;
     m_secondaryVtx_DmesonMass(btag) = m;
     m_secondaryVtx_isDmesonRecon(btag) = false;
-    double tempM_forDmeson = augmentDmeson(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector);
+    double tempM_forDmeson = getDmesonMass(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector);
 
     if(tempM_forDmeson>-98){
       m_secondaryVtx_DmesonMass(btag) = tempM_forDmeson;
-      m_secondaryVtx_isDmesonRecon(btag) = true;
+      m_secondaryVtx_isDmesonRecon(btag) = 1;
     }else{
-      m_secondaryVtx_isDmesonRecon(btag) = false;
+      m_secondaryVtx_isDmesonRecon(btag) = 0;
     }
 
   }
@@ -438,7 +438,7 @@ bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) const {
   return !(m_jf_vertices(btag).size() > 0 && (m_jf_nVtx(btag) > 0 || m_jf_nSingleTracks(btag) > 0));
 }
 
-double BTagJetAugmenter::augmentDmeson(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const {
+double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const {
 
   double DmesonMass = -99.0;
   const float track_mass = 139.57; // assume pion mass for all tracks
@@ -482,14 +482,14 @@ double BTagJetAugmenter::augmentDmeson(int secondaryVtx_track_number, float seco
       }
     } else if(secondaryVtx_track_number == 4 && secondaryVtx_charge == 0){ // D0 -> K- pi+ pi- pi+
       std::vector<TLorentzVector>::const_iterator secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
-      int KaonFlag = -1; //if Kaon is already taken: KaonFlag = +1
+      bool KaonFlag = false; //if Kaon is already taken: KaonFlag = true
       for (std::vector<float>::const_iterator secondaryVtx_charge_Iter = secondaryVtx_charge_vector.begin();
       secondaryVtx_charge_Iter != secondaryVtx_charge_vector.end();
       ++secondaryVtx_charge_Iter) {
         TLorentzVector track_fourVector_new;
-        if((*secondaryVtx_charge_Iter)==-1 && KaonFlag == -1){
+        if((*secondaryVtx_charge_Iter)==-1 && KaonFlag == false){
           track_fourVector_new.SetVectM((*secondaryVtx_4momentum_Iter).Vect(), track_kaon);
-          KaonFlag=1;
+          KaonFlag=true;
         } else {
           track_fourVector_new.SetVectM((*secondaryVtx_4momentum_Iter).Vect(), track_mass);
         }
@@ -498,15 +498,15 @@ double BTagJetAugmenter::augmentDmeson(int secondaryVtx_track_number, float seco
       }
       double mDmeson_1 = secondaryVtx_4momentum_Dmeson.M();
       secondaryVtx_4momentum_Iter = secondaryVtx_4momentum_vector.begin();
-      KaonFlag = -1;
+      KaonFlag = false;
       TLorentzVector secondaryVtx_4momentum_Dmeson_new;
       for(std::vector<float>::const_iterator secondaryVtx_charge_Iter = secondaryVtx_charge_vector.begin();
       secondaryVtx_charge_Iter != secondaryVtx_charge_vector.end();
       ++secondaryVtx_charge_Iter) {
         TLorentzVector track_fourVector_new2;
-        if((*secondaryVtx_charge_Iter)==-1 && KaonFlag == -1){
-          KaonFlag=1;
-        } else if ((*secondaryVtx_charge_Iter)==-1 && KaonFlag == 1){
+        if((*secondaryVtx_charge_Iter)==-1 && KaonFlag == false){
+          KaonFlag=true;
+        } else if ((*secondaryVtx_charge_Iter)==-1 && KaonFlag == true){
           track_fourVector_new2.SetVectM((*secondaryVtx_4momentum_Iter).Vect(), track_kaon);
         } else{
           track_fourVector_new2.SetVectM((*secondaryVtx_4momentum_Iter).Vect(), track_mass);
