@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -138,3 +138,19 @@ def getJetGhostLabelTool(jetdef, modspec):
         PartPtMin = 5000.0
     )
     return jetghostlabeler
+
+def getJetTruthLabelTool(jetdef, modspec):
+
+    isTruthJet = 'Truth' in jetdef.fullname()
+
+    if not isinstance(modspec, str):
+        raise ValueError("JetTruthLabelingTool can only be scheduled with str as modspec")
+    else:
+        truthLabel = str(modspec)
+
+    jetTruthLabelTool = CompFactory.JetTruthLabelingTool('truthlabeler_{0}'.format(truthLabel),
+                                                         RecoJetContainer = jetdef.fullname(),
+                                                         IsTruthJetCollection = isTruthJet,
+                                                         TruthLabelName = truthLabel)
+
+    return jetTruthLabelTool

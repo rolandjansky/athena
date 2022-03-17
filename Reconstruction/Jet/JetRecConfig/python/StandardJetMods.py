@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 This module defines the standard JetModifier tools used in jet reco
 
@@ -113,6 +113,16 @@ stdJetModifiers.update(
                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ],JetContainer = _jetname),
     Charge =          JetModifier("JetChargeTool", "jetcharge", 
                                   prereqs = [ "ghost:Track" ]),
+
+    QGTagging =       JetModifier("JetQGTaggerVariableTool", "qgtagging",
+                                  createfn=JetMomentToolsConfig.getQGTaggingTool,
+                                  prereqs = lambda _,jetdef : ["mod:JetPtAssociation", "mod:TrackMoments"] if not isMC(jetdef._cflags) else ["mod:TrackMoments"],
+                                  JetContainer = _jetname),
+
+    fJVT =           JetModifier("JetForwardPFlowJvtTool", "fJVT",
+                                 createfn=JetMomentToolsConfig.getPFlowfJVTTool,
+                                 prereqs = ["input:EventDensity","input:PrimaryVertices"],
+                                 JetContainer = _jetname),
 )
 
 # Truth labelling moments
@@ -142,7 +152,19 @@ stdJetModifiers.update(
                                    prereqs=["ghost:BHadronsFinal",
                                             "ghost:CHadronsFinal",
                                             "ghost:TausFinal"]
-                                   )
+                                   ),
+
+    JetPtAssociation = JetModifier("JetPtAssociationTool", "jetPtAssociation",
+                                   filterfn=isMC,
+                                   createfn=JetMomentToolsConfig.getJetPtAssociationTool,
+                                   prereqs=["ghost:Truth"],
+                                   JetContainer = _jetname
+                                  ),
+
+    JetTaggingTruthLabel = JetModifier("JetTaggingTruthLabel", "truthlabeler_{mods}",
+                                       filterfn=isMC,
+                                       createfn=ParticleJetToolsConfig.getJetTruthLabelTool,
+                                      ),
 )
 
 
@@ -179,5 +201,10 @@ stdJetModifiers.update(
     charge    = JetModifier( "JetChargeTool", "charge", K=1.0),
 
     qw = JetModifier( "QwTool", "qw"),
-    #showerdec = JetModifier( "  ShowerDeconstructionTool"),
+
+)
+
+# VR track-jet decorations
+stdJetModifiers.update(
+    vr = JetModifier( "FlavorTagDiscriminants::VRJetOverlapDecoratorTool", "vr")
 )
