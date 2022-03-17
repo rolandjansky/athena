@@ -5,7 +5,11 @@ from __future__ import print_function
 
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (
     SingleJetGroup,
-    MultiJetGroup)
+    MultiJetGroup,
+)
+
+DevGroup = ['Development']
+
 
 from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
@@ -89,10 +93,11 @@ chains = [
 
     ChainProp(name='HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_PTRANGE2r3_L1J20', groups=SingleJetGroup),
 
-    ChainProp(name='HLT_j80_j60_SHARED_j40__L1J15', groups=[MultiJetGroup], l1SeedThresholds=['FSNOSEED']*3,),
+    ChainProp(name='HLT_j80_j60_SHARED_j40__L1J15', groups=MultiJetGroup, l1SeedThresholds=['FSNOSEED']*3,),
 
     ChainProp(name='HLT_j0_HT1000_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
 
+     ChainProp(name='HLT_2j35_0eta240_roiftf_2j35_0eta240_85bdips_roiftf_presel4c35_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiJetGroup+DevGroup),
 ]
 
 def testChainDictMaker(idict):

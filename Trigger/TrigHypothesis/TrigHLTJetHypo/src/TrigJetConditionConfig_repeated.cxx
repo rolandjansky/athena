@@ -48,6 +48,7 @@ TrigJetConditionConfig_repeated::getRepeatedCondition() const {
   return
     std::make_unique<RepeatedCondition>(getCompoundCondition(),
 					m_multiplicity,
+					m_clique,
 					m_chainPartInd,
 					m_invert);
 }
