@@ -81,6 +81,7 @@ def MM_RdoToDigitCfg(flags, name="MM_RdoToDigitAlg", **kwargs):
 def MdtDigitToMdtRDOCfg(flags, name="MdtDigitToMdtRDO", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitToMdtRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "MDTCSM")
     else:
@@ -93,6 +94,7 @@ def MdtDigitToMdtRDOCfg(flags, name="MdtDigitToMdtRDO", **kwargs):
 def RpcDigitToRpcRDOCfg(flags, name="RpcDigitToRpcRDO", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitToRpcRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "RPCPAD")
     else:
@@ -105,6 +107,7 @@ def RpcDigitToRpcRDOCfg(flags, name="RpcDigitToRpcRDO", **kwargs):
 def TgcDigitToTgcRDOCfg(flags, name="TgcDigitToTgcRDO", **kwargs):
     """Return ComponentAccumulator with configured TgcDigitToTgcRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "TGCRDO")
     else:
@@ -114,15 +117,13 @@ def TgcDigitToTgcRDOCfg(flags, name="TgcDigitToTgcRDO", **kwargs):
     return acc
 
 
-def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
-    """Return ComponentAccumulator with configured CscDigitToCscRDO algorithm"""
-    # for Csc, configuration is in the tool CscDigitToCscRDOTool
-    # configure dependency
-    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
-    acc = CscCalibToolCfg(flags)
-    CscCalibTool = acc.popPrivateTools()
+def CscDigitToCscRDOToolCfg(flags, name="CscDigitToCscRDOTool", **kwargs):
+    """Return ComponentAccumulator with configured CscDigitToCscRDOTool"""
+    acc = ComponentAccumulator()
     # configure basic parameters
-    kwargs.setdefault("cscCalibTool", CscCalibTool)
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
+    kwargs.setdefault("cscCalibTool", acc.popToolsAndMerge(CscCalibToolCfg(flags)))
     kwargs.setdefault("NumSamples", 4)
     kwargs.setdefault("Latency", 0)
     kwargs.setdefault("addNoise", flags.Common.ProductionStep != ProductionStep.Overlay) # doMuonNoise flag not migrated
@@ -135,9 +136,15 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
         kwargs.setdefault("OutputObjectName", "CSCRDO")
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
-    # tool and container algorithm
-    CscDigitToCscRDOTool = CompFactory.CscDigitToCscRDOTool
-    tool = CscDigitToCscRDOTool("CscDigitToCscRDOTool", **kwargs)
+    acc.setPrivateTools(CompFactory.CscDigitToCscRDOTool("CscDigitToCscRDOTool", **kwargs))
+    return acc
+
+
+def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
+    """Return ComponentAccumulator with configured CscDigitToCscRDO algorithm"""
+    # for CSC, configuration is in the tool CscDigitToCscRDOTool
+    acc = ComponentAccumulator()
+    tool = acc.popToolsAndMerge(CscDigitToCscRDOToolCfg(flags))
     CscDigitToCscRDO = CompFactory.CscDigitToCscRDO
     if flags.Concurrency.NumThreads > 0:
         acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool,
@@ -150,6 +157,7 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
 def STGC_DigitToRDOCfg(flags, name="STGC_DigitToRDO", **kwargs):
     """Return ComponentAccumulator with configured STGC_DigitToRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "sTGCRDO")
     else:
@@ -162,6 +170,7 @@ def STGC_DigitToRDOCfg(flags, name="STGC_DigitToRDO", **kwargs):
 def MM_DigitToRDOCfg(flags, name="MM_DigitToRDO", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitToRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "MMRDO")
     else:
@@ -174,6 +183,7 @@ def MM_DigitToRDOCfg(flags, name="MM_DigitToRDO", **kwargs):
 def SigMdtDigitToMdtRDOCfg(flags, name="SigMdtDigitToMdtRDO", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitToMdtRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDTCSM")
     MdtDigitToMdtRDO = CompFactory.MdtDigitToMdtRDO
@@ -184,6 +194,7 @@ def SigMdtDigitToMdtRDOCfg(flags, name="SigMdtDigitToMdtRDO", **kwargs):
 def SigRpcDigitToRpcRDOCfg(flags, name="SigRpcDigitToRpcRDO", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitToRpcRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "RPC_DIGITS")
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "RPCPAD")
     RpcDigitToRpcRDO = CompFactory.RpcDigitToRpcRDO
@@ -194,6 +205,7 @@ def SigRpcDigitToRpcRDOCfg(flags, name="SigRpcDigitToRpcRDO", **kwargs):
 def SigTgcDigitToTgcRDOCfg(flags, name="SigTgcDigitToTgcRDO", **kwargs):
     """Return ComponentAccumulator with configured TgcDigitToTgcRDO algorithm"""
     acc = ComponentAccumulator()
+    kwargs.setdefault("MuonIdHelperSvc", acc.getPrimaryAndMerge(MuonIdHelperSvcCfg(flags)).name)
     kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "TGC_DIGITS")
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TGCRDO")
     TgcDigitToTgcRDO = CompFactory.TgcDigitToTgcRDO
