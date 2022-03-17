@@ -204,6 +204,36 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::STGC_RawData* sTGCRawD
   return StatusCode::SUCCESS;
 }
 
+StatusCode Muon::NSWCalibTool::distToTime(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, const std::vector<double>& driftDistances, std::vector<double>& driftTimes) const {
+  /// retrieve the magnetic field
+  MagField::AtlasFieldCache fieldCache;
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (!fieldCondObj) {
+    ATH_MSG_ERROR("doDigitization: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return StatusCode::FAILURE;
+  }
+  fieldCondObj->getInitializedCache(fieldCache);
+  Amg::Vector3D magneticField;
+  fieldCache.getField(globalPos.data(), magneticField.data());
+
+  /// get the component parallel to to the eta strips (same used in digitization)
+  double phi    = globalPos.phi();
+  double bfield = (magneticField.x()*std::sin(phi)-magneticField.y()*std::cos(phi))*1000.;
+
+  /// swap sign depending on the readout side  
+  int gasGap = m_idHelperSvc->mmIdHelper().gasGap(prepData->identify());
+  bool changeSign = ( globalPos.z() < 0. ? (gasGap==1 || gasGap==3) : (gasGap==2 || gasGap==4) );
+  if (changeSign) bfield = -bfield;
+  double cos2_lorentzAngle = std::pow(std::cos ( (bfield>0. ? 1. : -1.)*m_lorentzAngleFunction->Eval(std::abs(bfield)) * toRad), 2);
+  /// loop over drift distances                                                                                             
+  for (unsigned int i = 0; i < driftDistances.size(); i++){
+    double time = driftDistances.at(i)/(m_vDrift*cos2_lorentzAngle);
+    driftTimes.push_back(time);
+  }
+  return StatusCode::SUCCESS;
+
+}
 
 
 double Muon::NSWCalibTool::pdoToCharge(const int pdoCounts, const Identifier& stripID) const {
