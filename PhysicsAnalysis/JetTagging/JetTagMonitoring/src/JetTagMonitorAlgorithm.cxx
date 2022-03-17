@@ -174,8 +174,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   
   SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertContainerKey, ctx);
   if (!vertices.isValid()) {
-    ATH_MSG_ERROR("Could not find vertex AOD container with name " << m_VertContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG("Could not find vertex AOD container with name " << m_VertContainerKey);
+    return StatusCode::SUCCESS;
   }
   
   PV_n = vertices->size();
@@ -295,8 +295,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackContainerKey, ctx);
   if (!tracks.isValid()) {
-    ATH_MSG_ERROR("Could not find track AOD container with name " << m_TrackContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG("Could not find track AOD container with name " << m_TrackContainerKey);
+    return StatusCode::SUCCESS;
   }
   
   Tracks_n = tracks->size();
@@ -333,8 +333,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
   if (! muons.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
+    return StatusCode::SUCCESS;
   }
 
   for (const auto muonItr : *muons) {
@@ -372,8 +372,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::ElectronContainer> electrons(m_ElectronContainerKey, ctx);
   if (! electrons.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain electron Collection with name "<< m_ElectronContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG("evtStore() does not contain electron Collection with name "<< m_ElectronContainerKey);
+    return StatusCode::SUCCESS;
   }
 
   for (const auto electronItr : *electrons) {
@@ -411,7 +411,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   if (IsolatedElectrons_n == 1 && IsolatedMuons_n == 1 && Electron_charge*Muon_charge == -1) isTTbarEvent = true;
 
   if(isTTbarEvent)
-    ATH_MSG_WARNING("This is a candidate ttbar event "<< Run_event);
+    ATH_MSG_DEBUG("This is a candidate ttbar event "<< Run_event);
 
   /////////////////////
   //* Jet container *//
@@ -423,8 +423,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   SG::ReadHandle<xAOD::JetContainer> jets(m_JetContainerKey, ctx);
   if (!jets.isValid()) {
-    ATH_MSG_ERROR("Could not find jet AOD container with name " << m_JetContainerKey);
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG("Could not find jet AOD container with name " << m_JetContainerKey);
+    return StatusCode::SUCCESS;
   }
 
  
@@ -751,7 +751,7 @@ double JetTagMonitorAlgorithm::getTaggerWeight(const xAOD::Jet *jet) const {
 
   const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
   if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
+    ATH_MSG_DEBUG( "Could not retrieve b-tagging object from selected jet." );
     return 0;
   }
 
@@ -1146,7 +1146,7 @@ void JetTagMonitorAlgorithm::fillExtraTaggerHistos(const xAOD::Jet *jet) const {
 
   const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
   if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
+    ATH_MSG_DEBUG( "Could not retrieve b-tagging object from selected jet." );
     return;
   }
 
@@ -1196,7 +1196,7 @@ void JetTagMonitorAlgorithm::fillJetTracksHistos(const xAOD::Jet *jet, float PV_
 
   const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
   if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
+    ATH_MSG_DEBUG( "Could not retrieve b-tagging object from selected jet." );
     return;
   }
 
@@ -1278,7 +1278,7 @@ JetTagMonitorAlgorithm::Jet_t JetTagMonitorAlgorithm::getQualityLabel(const xAOD
 
   const xAOD::BTagging *bTaggingObject = xAOD::BTaggingUtilities::getBTagging( *jet );
   if ( !bTaggingObject ) {
-    ATH_MSG_ERROR( "Could not retrieve b-tagging object from selected jet." );
+    ATH_MSG_DEBUG( "Could not retrieve b-tagging object from selected jet." );
     return badJet;
   }
 
