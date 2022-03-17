@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCInnerTrackletSlotHolder_hh
@@ -27,7 +27,6 @@ namespace LVL1TGCTrigger {
 			       const TGCInnerTrackletSlot* innerTrackletSlots[]) const;
     
     /** returns SL readout trigger bits FI2|EI2|FI1|EI1|FI0|EI0 **/
-    int getInnerTrackletBits(const TGCInnerTrackletSlot* innerTrackletSlots[]) const;
     
     enum {
       NUMBER_OF_SIDES = 2, // Side A and Side C
@@ -37,6 +36,7 @@ namespace LVL1TGCTrigger {
       // slot23, slot24, slot01, slot02 go to A01 phi0/phi1 Endcap SL
     };
 
+    void getInnerTrackletBits(const TGCInnerTrackletSlot* innerTrackletSlots[], std::array<int, NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR> &eifi_bits) const;
     const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 
   private:
