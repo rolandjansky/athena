@@ -1,27 +1,12 @@
-from glob import glob
-if 1:
-    testdir = os.environ.get ('ATLAS_REFERENCE_DATA',
-                              'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd')
-    _cbntfiles = [
-        testdir + '/ntuple.0.root',
-        testdir + '/ntuple.1.root',
-        ]
-    ## _cbntfiles = [
-    ##     '/tmp/binet/data/ntuple.0.root',
-    ##     '/tmp/binet/data/ntuple.1.root',
-    ##     ]
-    
-if 0:
-    _cbntfiles = [
-        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.0.root',
-        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.1.root',
-        ]
-    _cbntfiles = [
-        '/tmp/binet/data/small.ntuple.0.root',
-        '/tmp/binet/data/small.ntuple.1.root',
-        ]
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
+import os
+from AthenaCommon.Utils import unixtools
+
 if not 'FNAMES' in dir():
-    FNAMES = _cbntfiles[:]
+    paths = os.getenv('DATAPATH').split(os.pathsep) + [os.getenv('ATLAS_REFERENCE_DATA','')]
+    testdir = unixtools.find_datafile(os.getenv('ATLAS_REFERENCE_TAG'), paths)
+    FNAMES = [os.path.join(testdir, f) for f in ('ntuple.0.root', 'ntuple.1.root')]
 
 if not isinstance(FNAMES, (list,tuple)):
     FNAMES = [FNAMES]

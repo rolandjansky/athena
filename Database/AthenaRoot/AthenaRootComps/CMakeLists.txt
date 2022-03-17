@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaRootComps )
@@ -27,59 +27,76 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/tests/*.py )
 atlas_install_scripts( test/*.sh test/ref.* test/*.py )
 
+# Tests in the package:
+set( _reftag "AthenaRootComps/AthenaRootCompsReference-01-00-01" )
+
 atlas_add_test( test_athena_ntuple_dumper_multiple
-                SCRIPT test/test_athena_ntuple_dumper_multiple.sh
+                SCRIPT athena.py -c"DOWRITE=2" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PRIVATE_WORKING_DIRECTORY )
+
+atlas_add_test( test_athena_ntuple_dumper_multiple_diffroot  # diff-root on the test above
+                SCRIPT acmd.py diff-root ../unitTestRun_test_athena_ntuple_dumper_multiple/d3pd.root ../unitTestRun_test_athena_ntuple_dumper_multiple/d3pd_2.root -t egamma
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                PRIVATE_WORKING_DIRECTORY
+                PROPERTIES DEPENDS AthenaRootComps_test_athena_ntuple_dumper_multiple_ctest )
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles_nooutput
-                SCRIPT test/test_athena_ntuple_dumper_varhandles_nooutput.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                SCRIPT athena.py -c"DOWRITE=0" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PRIVATE_WORKING_DIRECTORY )
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles
-                SCRIPT test/test_athena_ntuple_dumper_varhandles.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                SCRIPT athena.py -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PRIVATE_WORKING_DIRECTORY )
 
 atlas_add_test( test_athena_ntuple_dumper_novarhandles
-                SCRIPT test/test_athena_ntuple_dumper_novarhandles.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                SCRIPT athena.py -c"USEVARHANDLE=0" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PRIVATE_WORKING_DIRECTORY )
+
+atlas_add_test( test_athena_ntuple_dumper_read
+                SCRIPT athena.py -c"FNAMES=['../unitTestRun_test_athena_ntuple_dumper_novarhandles/d3pd.root']" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii collectionName"
+                PRIVATE_WORKING_DIRECTORY
+                PROPERTIES DEPENDS AthenaRootComps_test_athena_ntuple_dumper_novarhandles_ctest )
 
 atlas_add_test( test_athena_variable_shape1
                 SCRIPT test/test_athena_variable_shape1.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( test_athena_variable_shape2
                 SCRIPT test/test_athena_variable_shape2.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( test_athena_variable_shape3
                 SCRIPT test/test_athena_variable_shape3.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT nopost.sh )
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/test_athena_variable_shape_merged.sh.in
-                ${CMAKE_CURRENT_BINARY_DIR}/test_athena_variable_shape_merged_script.sh
-                @ONLY )
 atlas_add_test( test_athena_variable_shape_merged
-                SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/test_athena_variable_shape_merged_script.sh
+                SCRIPT test_athena_variable_shape_merged.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/ref.data.merged.ascii
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
-set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
-                      PROPERTIES DEPENDS
-                      "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
-                    
+                PROPERTIES DEPENDS "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
+
 atlas_add_test( test_athena_multtuple
                 SCRIPT test/test_athena_multtuple.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd_der.ascii"
+                PRIVATE_WORKING_DIRECTORY )
                     
 atlas_add_test( test_athena_multtuple_seek
                 SCRIPT test/test_athena_multtuple_seek.sh
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES TIMEOUT 600 )
-
+                ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
+                POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd_seek.ascii"
+                PRIVATE_WORKING_DIRECTORY )
