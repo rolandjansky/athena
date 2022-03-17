@@ -6,7 +6,7 @@
 atlas_subdir( PMGSystematicsTools )
 
 # External dependencies:
-find_package( PythonLibs )
+find_package( Python COMPONENTS Interpreter )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 find_package( Rivet )
 find_package( YODA )
