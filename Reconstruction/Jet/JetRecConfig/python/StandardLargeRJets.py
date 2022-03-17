@@ -34,6 +34,8 @@ clustermods      = ("ECPSFrac","ClusterMoments",)
 truthmods        = ("PartonTruthLabel","TruthPartonDR",)
 pflowmods        = ()
 
+truthlabels = ("JetTaggingTruthLabel:R10TruthLabel_R21Consolidated","JetTaggingTruthLabel:R10TruthLabel_R21Precision",)
+
 substrmods = ("nsubjettiness", "nsubjettinessR", "ktsplitter",
               "ecorr", "ecorrR", "qw",
               # ... others ?
@@ -63,10 +65,10 @@ AntiKt10LCTopo_noVR = AntiKt10LCTopo.clone(
 AntiKt10LCTopo_withmoms = AntiKt10LCTopo.clone(
     modifiers = ("Sort", "Filter:50000", "Width", "TrackMoments", "TrackSumMoments","JetDeltaRLabel:5000")+clustermods+truthmods,
     # NOT all moments from old AntiKt10LCTopo config here yet. 
-                                               
 )
+
 AntiKt10LCTopoTrimmed = JetTrimming(AntiKt10LCTopo,
-                                    modifiers = standardrecomods+substrmods+lctopo_trimmed_mods,
+                                    modifiers = ("Calib:CombinedMass:mc","Filter:100000")+standardrecomods+substrmods+lctopo_trimmed_mods+truthlabels,
                                     PtFrac = 0.05, RClus = 0.2,                                    
                                     )
 
@@ -74,8 +76,6 @@ AntiKt10LCTopoSoftDrop = JetSoftDrop(AntiKt10LCTopo,
                                      modifiers = standardrecomods+substrmods,
                                      Beta = 1., ZCut= 0.1,
                                      )
-
-
 
 
 AntiKt10Truth = JetDefinition("AntiKt",1.0,cst.Truth,

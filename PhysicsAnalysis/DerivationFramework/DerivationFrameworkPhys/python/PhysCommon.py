@@ -17,7 +17,7 @@ from DerivationFrameworkMuons import MuonsCommon
 InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
-from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addBadBatmanFlag, addDistanceInTrain, addDAODJets, addQGTaggerTool, getPFlowfJVT, addJetTruthLabel, addVRTrackJetMoments, addSidebandEventShape
+from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addBadBatmanFlag, addDistanceInTrain, addDAODJets, addSidebandEventShape
 from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
 from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
@@ -60,31 +60,23 @@ if (DerivationFrameworkIsMonteCarlo):
 # JET/MET   
 #====================================================================
 
-jetList = [AntiKt4EMTopo,
-           AntiKt4EMPFlow,
+AntiKt4EMTopo_deriv = AntiKt4EMTopo.clone(
+   modifiers = AntiKt4EMTopo.modifiers+("JetPtAssociation","QGTagging")
+)
+
+AntiKt4EMPFlow_deriv = AntiKt4EMPFlow.clone(
+   modifiers = AntiKt4EMPFlow.modifiers+("JetPtAssociation","QGTagging","fJVT")
+)
+
+jetList = [AntiKt4EMTopo_deriv,
+           AntiKt4EMPFlow_deriv,
            AntiKtVR30Rmax4Rmin02PV0Track,
            AntiKt10LCTopoTrimmed]
 
 addDAODJets(jetList,DerivationFrameworkJob)
 
-# Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=DerivationFrameworkJob,labelname="R10TruthLabel_R21Consolidated")
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=DerivationFrameworkJob,labelname="R10TruthLabel_R21Precision")
-
-# q/g tagging variables
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob)
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob)
-
-# fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob)
-
 # Special rho definition for PFlow jets
 addSidebandEventShape(sequence=DerivationFrameworkJob)
-
-# extra variables for VR jets
-addVRTrackJetMoments(jetalg="AntiKtVR30Rmax4Rmin02PV0Track",sequence=DerivationFrameworkJob)
-
 # Event cleaning flags
 addEventCleanFlags(sequence=DerivationFrameworkJob)
 # Bad batman flag for events with large EMEC-IW Noise
@@ -92,6 +84,7 @@ addBadBatmanFlag(sequence=DerivationFrameworkJob)
 # Distance in train
 addDistanceInTrain(sequence=DerivationFrameworkJob)
 
+#MET reconstruction
 scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociationAlg")
 
 #====================================================================
