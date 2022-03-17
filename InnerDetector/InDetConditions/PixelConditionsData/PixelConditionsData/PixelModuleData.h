@@ -25,12 +25,6 @@ class PixelModuleData {
     PixelModuleData();
     virtual ~PixelModuleData();
 
-    void setModuleStatus(const int chanNum, const int value);
-    int getModuleStatus(const int chanNum) const;
-
-    void setChipStatus(const int chanNum, const int value);
-    int getChipStatus(const int chanNum) const;
-
     // Digitization parameters
     void setBunchSpace(double bunchSpace);
     double getBunchSpace() const;
@@ -208,9 +202,6 @@ class PixelModuleData {
     void clear();
 
   private:
-    typedef std::map<int, int> IntConditions;
-    IntConditions  m_moduleStatus;
-    IntConditions  m_chipStatus;
 
     typedef std::map<int, std::vector<float>> chipCharge;
 

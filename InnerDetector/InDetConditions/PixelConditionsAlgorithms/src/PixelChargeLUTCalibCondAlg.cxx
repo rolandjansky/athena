@@ -68,7 +68,6 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_INFO("Range of input is " << rangeW);
 
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-      const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
       const CondAttrListCollection::AttributeList &payload = attrList->second;
 
       // RUN-3 format
@@ -185,43 +184,6 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
               return StatusCode::FAILURE;
             }
           }
-        }
-      }
-      else {
-        ATH_MSG_WARNING("payload[\"data_array\"] does not exist for ChanNum. Check if this is RUN-3 format." << channelNumber);
-        IdentifierHash wafer_hash = IdentifierHash(channelNumber);
-        Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
-        int bec   = m_pixelID->barrel_ec(wafer_id);
-        int layer = m_pixelID->layer_disk(wafer_id);
-        const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
-        const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-        int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
-        for (int j=0; j<numFE; j++) {
-          writeCdo -> setAnalogThreshold((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
-          writeCdo -> setAnalogThresholdSigma((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
-          writeCdo -> setAnalogThresholdNoise((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
-          writeCdo -> setInTimeThreshold((int)channelNumber,     configData->getDefaultInTimeThreshold(bec,layer));
-          writeCdo -> setQ2TotA((int)channelNumber, configData->getDefaultQ2TotA());
-          writeCdo -> setQ2TotE((int)channelNumber, configData->getDefaultQ2TotE());
-          writeCdo -> setQ2TotC((int)channelNumber, configData->getDefaultQ2TotC());
-          writeCdo -> setTotRes1((int)channelNumber, 0.0);
-          writeCdo -> setTotRes2((int)channelNumber, 0.0);
-
-          // Long pixel
-          writeCdo -> setAnalogThresholdLong((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
-          writeCdo -> setAnalogThresholdSigmaLong((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
-          writeCdo -> setAnalogThresholdNoiseLong((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
-          writeCdo -> setInTimeThresholdLong((int)channelNumber,     configData->getDefaultInTimeThreshold(bec,layer));
-
-          writeCdo -> setQ2TotALong((int)channelNumber, configData->getDefaultQ2TotA());
-          writeCdo -> setQ2TotELong((int)channelNumber, configData->getDefaultQ2TotE());
-          writeCdo -> setQ2TotCLong((int)channelNumber, configData->getDefaultQ2TotC());
-
-          // Ganged pixel
-          writeCdo -> setAnalogThresholdGanged((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
-          writeCdo -> setAnalogThresholdSigmaGanged((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
-          writeCdo -> setAnalogThresholdNoiseGanged((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
-          writeCdo -> setInTimeThresholdGanged((int)channelNumber,     configData->getDefaultInTimeThreshold(bec,layer));
         }
       }
     }

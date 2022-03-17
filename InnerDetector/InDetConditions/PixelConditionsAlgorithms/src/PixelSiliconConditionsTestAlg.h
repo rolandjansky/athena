@@ -15,7 +15,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
@@ -33,8 +32,6 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
-    {this, "PixelModuleData", "PixelModuleData", "Output key"};
 
     SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
     {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
