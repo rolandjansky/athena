@@ -59,6 +59,10 @@ def ActsSeedingToolBaseCfg(ConfigFlags,
     options.setdefault('cotThetaMax', 7.40627) # Also used by SpacePointGridConfig  
     options.setdefault('deltaRMin', 5. * UnitConstants.mm) # Also used by SeedFilterConfig
     options.setdefault('deltaRMax', 60. * UnitConstants.mm) # Also used by SpacePointGridConfig 
+    options.setdefault('deltaRMinTopSP', 5. * UnitConstants.mm)
+    options.setdefault('deltaRMaxTopSP', 60. * UnitConstants.mm)
+    options.setdefault('deltaRMinBottomSP', 5. * UnitConstants.mm)
+    options.setdefault('deltaRMaxBottomSP', 60. * UnitConstants.mm)
     options.setdefault('impactMax', 3 * UnitConstants.mm) # Also used by SpacePointGridConfig 
     options.setdefault('sigmaScattering', 5)    
     options.setdefault('maxPtScattering', 10 * UnitConstants.mm)
@@ -75,6 +79,10 @@ def ActsSeedingToolBaseCfg(ConfigFlags,
     options.setdefault('zAlign', 0 * UnitConstants.mm)
     options.setdefault('rAlign', 0 * UnitConstants.mm)
     options.setdefault('sigmaError', 5)
+    options.setdefault('useVariableMiddleSPRange', False)
+    options.setdefault('deltaRMiddleSPRange', 10) # TOOD: Add ACTS units (currently not supported for this prop)
+    options.setdefault('seedConfirmation', False) # no default for detailed conf, since confirmation is disabled by default
+    options.setdefault('enableCutsForSortedSP', False)
 
     # Used by SeedFilterConfig
     options.setdefault('deltaInvHelixDiameter', 0.00003 * 1. / UnitConstants.mm)
