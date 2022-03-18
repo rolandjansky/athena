@@ -166,3 +166,30 @@ TCS::cTauMultiplicity::cTauMatching(const TCS::cTauTOB * etauCand, const TCS::cT
   return matching;
 
 }
+
+
+#ifndef TRIGCONF_STANDALONE
+size_t
+TCS::cTauMultiplicity::cTauMatching(const xAOD::eFexTauRoI & eTau, const xAOD::jFexTauRoIContainer & jTauRoIs) {
+
+  // Return the index of the matched jTau if existent (otherwise return std::numeric_limits<size_t>::max())
+  size_t i_matched{std::numeric_limits<size_t>::max()};
+  size_t i_jTau{0};
+
+  for (const xAOD::jFexTauRoI* jTau : jTauRoIs) {
+
+    // eFEX: etaTower = iEta, phiTower = iPhi
+    // jFEX: etaTower = globalEta, phiTower = globalPhi
+    bool matching = ( eTau.iEta() == jTau->globalEta() ) && ( static_cast<unsigned int>(eTau.iPhi()) == jTau->globalPhi() );
+
+    if ( matching ) {
+      i_matched = i_jTau;
+      break; // Break the loop when a match is found
+    }
+    ++i_jTau;
+  }
+
+  return i_matched;
+
+}
+#endif
