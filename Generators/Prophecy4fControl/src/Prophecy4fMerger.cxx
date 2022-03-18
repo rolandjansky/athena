@@ -272,7 +272,7 @@ void Prophecy4fMerger::merge(){
     
         ++neve;
         if(neve%1000==0){
-            print("Events processed so far " + neve);
+            print("Events processed so far ", neve);
         }
         if( readH.outsideBlock.length() )
             ANA_MSG_INFO( readH.outsideBlock );
