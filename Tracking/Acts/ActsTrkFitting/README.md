@@ -18,7 +18,7 @@ Reco_tf.py --conditionsTag all:OFLCOND-MC16-SDR-25 \
 --digiSeedOffset2 '1' \
 --inputHITSFile='YOUR_INPUT_FILE' \
 --postInclude 'RAWtoESD:../athena/Tracking/Acts/ActsTrkFitting/share/postInclude_ActsRefitting.py' \
---preExec  'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.AODEDMSet="AODFULL"' \
+--preExec  'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from AthenaConfiguration.AllConfigFlags import ConfigFlags;ConfigFlags.Trigger.AODEDMSet="AODFULL"' \
 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["PhysicsList"];' \
 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;' \
 --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii; saveToAscii("config_RAWtoESD_q221_job.txt");ServiceMgr.MessageSvc.defaultLimit = 9999999;' \
