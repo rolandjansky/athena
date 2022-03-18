@@ -4,11 +4,7 @@
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
 
-#include "MuonDigitContainer/MmDigitContainer.h"
 #include "AtlasHepMC/GenEvent.h"
-#include "GeneratorObjects/McEventCollection.h"
-#include "TrackRecord/TrackRecordCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -31,30 +27,15 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       m_MmIdHelper = idhelper;
 }
 
-  StatusCode MMLoadVariables::getMMDigitsInfo(std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-                                        std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
-                                        std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
-                                        std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
+StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContainer,
+					    const TrackRecordCollection* trackRecordCollection,
+					    const MmDigitContainer *nsw_MmDigitContainer,
+					    std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
+					    std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+					    std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
+					    std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
       //*******Following MuonPRD code to access all the variables**********
-
       histogramVariables fillVars;
-
-      //Get truth variables, vertex
-      const McEventCollection *truthContainer = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(truthContainer,"TruthEvent") );
-
-      //Get MuEntry variables TBD if still necessary
-      const TrackRecordCollection* trackRecordCollection = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(trackRecordCollection,"MuonEntryLayer") );
-
-      //Get truth information container of digitization
-      const MuonSimDataCollection* nsw_MmSdoContainer = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(nsw_MmSdoContainer,"MM_SDO") );
-
-      // get digit container (a container corresponds to a multilayer of a module)
-      const MmDigitContainer *nsw_MmDigitContainer = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
-      if (nsw_MmDigitContainer->digit_size() == 0) return StatusCode::SUCCESS;
 
       std::vector<ROOT::Math::PtEtaPhiEVector> truthParticles, truthParticles_ent, truthParticles_pos;
       std::vector<int> pdg;
@@ -69,7 +50,6 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       ROOT::Math::PtEtaPhiEVector thePart, theInfo;
       auto MuEntry_Particle_n = trackRecordCollection->size();
       int j=0; // iteration of particle entries
-
       for(const auto it : *truthContainer) {
         const HepMC::GenEvent *subEvent = it;
 #ifdef HEPMC3

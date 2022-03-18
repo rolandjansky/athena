@@ -51,6 +51,9 @@ namespace NSWL1 {
     ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                      << setfill(' ') << setiosflags(ios::right) );
 
+    ATH_CHECK(m_keyMcEventCollection.initialize());
+    ATH_CHECK(m_keyMuonEntryLayer.initialize());
+    ATH_CHECK(m_keyMmDigitContainer.initialize());
 
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -122,7 +125,26 @@ namespace NSWL1 {
     std::map<std::pair<int, unsigned int>,std::vector<digitWrapper> > entries;
     std::map<std::pair<int, unsigned int>,std::map<hitData_key,hitData_entry> > Hits_Data_Set_Time;
     std::map<std::pair<int, unsigned int>,evInf_entry> Event_Info;
-    ATH_CHECK( load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info, pars) );
+
+    SG::ReadHandle<McEventCollection> readMcEventCollection( m_keyMcEventCollection );
+    SG::ReadHandle<TrackRecordCollection> readMuonEntryLayer( m_keyMuonEntryLayer );
+    SG::ReadHandle<MmDigitContainer> readMmDigitContainer( m_keyMmDigitContainer );
+    if( !readMcEventCollection.isValid() ){
+      ATH_MSG_ERROR("Cannot retrieve McEventCollection");
+      return StatusCode::FAILURE;
+    }
+    if( !readMuonEntryLayer.isValid() ){
+      ATH_MSG_ERROR("Cannot retrieve MuonEntryLayer");
+      return StatusCode::FAILURE;
+    }
+    if( !readMmDigitContainer.isValid() ){
+      ATH_MSG_ERROR("Cannot retrieve MmDigitContainer");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( load.getMMDigitsInfo( readMcEventCollection.cptr(),
+				     readMuonEntryLayer.cptr(),
+				      readMmDigitContainer.cptr(),
+				      entries, Hits_Data_Set_Time, Event_Info, pars) );
     if (m_doNtuple) this->fillNtuple(load);
 
     if (entries.empty()) {

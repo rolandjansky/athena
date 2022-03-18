@@ -733,6 +733,14 @@ pair<double,double> MMT_Parameters::ak_bk_hit_bins(const vector<int>& hits)const
     nhits++;
   }
   double diff = nhits*sum_xx-sum_x*sum_x;
+  if(std::abs(diff)<1e-10){
+    ATH_MSG_WARNING("diff is too small: " << diff << " 1e-10 will be used instead");
+    diff = 1e-10;
+  }
+  if(std::abs(sum_x)<1e-10){
+    ATH_MSG_WARNING("sum_x is too small: " << sum_x << " 1e-10 will be used instead");
+    sum_x = 1e-10;
+  }
   return pair<double,double>(1.*nhits/sum_x, 1.*sum_x/diff);
 }
 
