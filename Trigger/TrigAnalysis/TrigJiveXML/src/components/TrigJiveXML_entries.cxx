@@ -1,5 +1,4 @@
 #include "TrigJiveXML/EmTauROIRetriever.h"
-#include "TrigJiveXML/TrigInDetTrackRetriever.h"
 #include "TrigJiveXML/JetROIRetriever.h"
 #include "TrigJiveXML/LVL1JetElementRetriever.h"
 #include "TrigJiveXML/LVL1ResultRetriever.h"
@@ -18,7 +17,6 @@
 using namespace JiveXML;
 
 DECLARE_COMPONENT( EmTauROIRetriever )
-DECLARE_COMPONENT( TrigInDetTrackRetriever )
 DECLARE_COMPONENT( JetROIRetriever )
 DECLARE_COMPONENT( LVL1JetElementRetriever )
 DECLARE_COMPONENT( LVL1ResultRetriever )
