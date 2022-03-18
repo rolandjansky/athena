@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigBunchCrossingTool )
-
-# External dependencies:
-find_package( CORAL QUIET COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
 if( XAOD_STANDALONE )
@@ -24,8 +21,7 @@ else()
       TrigBunchCrossingTool/*.h src/*.cxx Root/*.h Root/*.cxx
       Root/json/*.h Root/json/*.inl
       src/components/*.cxx
-      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel AthenaPoolUtilities CxxUtils
+      LINK_LIBRARIES AthenaKernel AthenaPoolUtilities
       GaudiKernel TrigBunchCrossingToolLib TrigConfL1Data xAODTrigger )
 endif()
 

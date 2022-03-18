@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 ## @package BunchCrossingTool
@@ -37,8 +37,8 @@ def BunchCrossingTool( type = "" ):
             __logger.info( "Forcing the usage of TrigConfBunchCrossingTool" )
             return TrigConfBunchCrossingTool()
         elif type == "LHC":
-            __logger.info( "Forcing the usage of LHCBunchCrossingTool" )
-            return LHCBunchCrossingTool()
+            __logger.error( "The LHCBunchCrossingTool is no longer supported" )
+            return None
         elif type == "MC":
             __logger.info( "Forcing the usage of MCBunchCrossingTool" )
             return MCBunchCrossingTool()
@@ -51,21 +51,16 @@ def BunchCrossingTool( type = "" ):
 
     # Decide which tool to use based on the global flags:
     from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.isOverlay():
-        __logger.info( "Selecting LHCBunchCrossingTool for overlay job" )
-        return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
         if rec.doTrigger():
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
-        else:
-            __logger.info( "Trigger turned off, selecting LHCBunchCrossingTool for "
-                           "this job" )
-            return LHCBunchCrossingTool()
     else:
         __logger.info( "Selecting MCBunchCrossingTool for this job" )
         return MCBunchCrossingTool()
+
+    return None
 
 ##
 # @short Function creating a default configuration for the Trig::TrigConfBunchCrossingTool
@@ -175,59 +170,6 @@ def MCBunchCrossingTool():
         pass
 
     # Return the tool to the user:
-    return getattr( ToolSvc, __defaultToolName )
-
-##
-# @short Function creating the default configuration for Trig::LHCBunchCrossingTool
-#
-# The function instantiates a tool that reads the bunch pattern from the LHC folders
-# of the TDAQ conditions database. It is considered a bit more reliable than the
-# trigger configuration information for some runs. But in general one should just
-# use TrigConfBunchCrossingTool.
-#
-# @returns The default configuration of a public Trig::LHCBunchCrossingTool
-#
-# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
-def LHCBunchCrossingTool():
-
-    # The default name of the tool:
-    __defaultToolName = "BunchCrossingTool"
-
-    # Get ourselves a logger:
-    from AthenaCommon.Logging import logging
-    __logger = logging.getLogger( "LHCBunchCrossingTool" )
-
-    # Check if the tool already exists. If it does, let's just return it without
-    # any modifications:
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr( ToolSvc, __defaultToolName ):
-        __logger.debug( "Tool already exists, not configuring it again" )
-        return getattr( ToolSvc, __defaultToolName )
-
-    # Create a new instance of the tool if it doesn't exist yet:
-    from TrigBunchCrossingTool.TrigBunchCrossingToolConf import \
-         Trig__LHCBunchCrossingTool
-    __tool = Trig__LHCBunchCrossingTool( __defaultToolName )
-
-    # Create a default configuration for it:
-    __logger.info( "Set the default values for the LHCBunchCrossingTool configuration" )
-
-    # Now make sure the tool has access to the metadata folders:
-    from IOVDbSvc.CondDB import conddb
-    __dbConnection = "TDAQ"
-    __folders = [ "FILLPARAMS", "BUNCHDATA" ]
-    for f in __folders:
-        if not conddb.folderRequested( "/TDAQ/OLC/LHC/%s" % f ):
-            __logger.info( "Adding folder to IOVDbSvc: /TDAQ/OLC/LHC/%s", f ) 
-            conddb.addFolderWithTag( __dbConnection, "/TDAQ/OLC/LHC/%s" % f, "HEAD" )
-            pass
-        pass
-
-    # Add the tool to ToolSvc and return it to the user:
-    ToolSvc += __tool
     return getattr( ToolSvc, __defaultToolName )
 
 ##
