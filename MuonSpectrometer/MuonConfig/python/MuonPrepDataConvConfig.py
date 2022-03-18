@@ -14,6 +14,7 @@ def MuonPrepDataConvCfg(flags):
         ("Muon::CscPrepDataContainer", "CSC_Clusters"),
         ("Muon::MMPrepDataContainer", "MM_Measurements"),
         ("Muon::sTgcPrepDataContainer", "STGC_Measurements"),
+  
     ]
     for cont_type, cont_name in prepdata_container:
         if len([item for item in flags.Input.Collections if item == cont_name]) == 0: continue

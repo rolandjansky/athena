@@ -132,7 +132,11 @@ def MuonReconstructionCfg(flags):
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
     result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags) )
-
+    if flags.Muon.runCommissioningChain:
+        result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags,
+                                                            "MuonStandaloneTrackParticleCnvAlg_EMEO",
+                                                            TrackContainerName = "EMEO_MuonSpectrometerTracks",
+                                                            xAODTrackParticlesFromTracksContainerName="EMEO_MuonSpectrometerTrackParticles"))
     # Setup output
     if flags.Output.doWriteESD or flags.Output.doWriteAOD:
         result.merge(StandaloneMuonOutputCfg(flags))
