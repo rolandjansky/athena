@@ -895,7 +895,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.pixCL.pixCL_1.pixCL_2.pixCLmin3.pixCLBarrel.pixCLEndcapA.pixCLEndcapC.sctSP.sctSPBarrel.sctSPEndcapA.sctSPEndcapC',     'BS ESD AODFULL AODSLIM', 'MinBias'),
 
     ('xAOD::TrigCompositeContainer#HLT_TrackCount',                                             'BS ESD AODFULL AODSLIM', 'MinBias'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.vertexZcuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
 
     ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias' ,'inViews:ZVertFinderRecoViews'),
     ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight.zfinder_tool', 'BS ESD AODFULL', 'MinBias'),
