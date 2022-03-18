@@ -321,14 +321,13 @@ std::vector<std::string> Database::getListOfNames(const StringRef& stream)
     std::string w;
     while(std::getline(ss, w, ','))
     {
-        std::size_t i=0, j=w.length()-1;
-        for(;i<w.length();++i) if(!std::isspace(w[i])) break;
-        for(;j>0;--j) if(!std::isspace(w[j])) break;
-        if(j<=i)
+        std::size_t i = w.find_first_not_of(" \t");
+        std::size_t j = w.find_last_not_of(" \t");
+        if(i == std::string::npos)
         {
             throw(XmlError(stream) << "this should be a comma-separated list of names");
         }
-        words.push_back(w.substr(i,j-i+1));
+        words.push_back(w.substr(i, j-i+1));
     }
     return words;
 }
