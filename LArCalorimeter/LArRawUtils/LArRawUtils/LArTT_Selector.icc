@@ -150,7 +150,7 @@ void LArTT_Selector<CONTAINER>::setContainer(const CONTAINER* c) {
 template <class CONTAINER >
 //void LArTT_Selector<CONTAINER> :: setRoIs( const VEC_TT_ID& ids, 
 //							int sam)
-void LArTT_Selector<CONTAINER> :: setRoIs ATLAS_NOT_THREAD_SAFE ( const VEC_TT_ID& ids)
+void LArTT_Selector<CONTAINER> :: setRoIs ( const VEC_TT_ID& ids)
 {
 
   // clean it up. 
