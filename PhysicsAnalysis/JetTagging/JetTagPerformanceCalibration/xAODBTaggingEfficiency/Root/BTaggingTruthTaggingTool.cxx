@@ -822,6 +822,9 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
           trfinf.eff_allOP[op_appo].at(ieff)= 0;
           for(unsigned int p = iop; p<m_availableOP.size(); p++){ //add all the eff above the WP
             trfinf.eff_allOP[op_appo].at(ieff)+=trfinf.effMC_allOP[m_availableOP.at(p)].at(ieff);
+            if (trfinf.eff_allOP[op_appo].at(ieff) > 1.0){
+              trfinf.eff_allOP[op_appo].at(ieff) = 1.0;
+            }
           }
           if( op_appo == m_cutBenchmark)
             trfinf.eff.at(ieff) = trfinf.eff_allOP[m_cutBenchmark].at(ieff);
