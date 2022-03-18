@@ -22,6 +22,8 @@ class TTree;
 
 #include "MMLoadVariables.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "TrackRecord/TrackRecordCollection.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -57,6 +59,11 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};       //!< Athena/Gaudi incident Service
+
+    // read data handle
+    SG::ReadHandleKey<McEventCollection> m_keyMcEventCollection{this,"McEventCollection","TruthEvent","Location of TruthEvent"};
+    SG::ReadHandleKey<TrackRecordCollection> m_keyMuonEntryLayer{this,"MuonEntryLayer","MuonEntryLayer","Location of MuonEntryLayer"};
+    SG::ReadHandleKey<MmDigitContainer> m_keyMmDigitContainer{this,"MmDigitContainer","MM_DIGITS","Location of MmDigitContainer"};
 
     // Parameters for Diamond Road algorithms
     Gaudi::Property<bool>  m_trapShape            {this, "TrapezoidalShape",         true, "Consider the quadruplet as a trapezoid"};
