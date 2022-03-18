@@ -16,7 +16,7 @@
 //LVL1 ROIS
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 //MUON CLUSTER
-#include "TrigL2LongLivedParticles/MuonCluster.h"
+#include "MuonCluster.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "CxxUtils/fpcompare.h"
 #include "CxxUtils/phihelper.h"
