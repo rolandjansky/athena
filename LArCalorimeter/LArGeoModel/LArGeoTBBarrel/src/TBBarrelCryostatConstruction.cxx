@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TBBarrelCryostatConstruction
@@ -468,7 +468,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope(const VDetecto
      GeoLogVol* ring3_log = new GeoLogVol(baseName+"Ring3",ring3_shape,Iron);
      GeoPhysVol* ring3_phys = new GeoPhysVol(ring3_log);
 
-     static double zring[6] = {397.,805.,1255.,1750.,2316.,2868.};
+     static const double zring[6] = {397.,805.,1255.,1750.,2316.,2868.};
      for (int iring=0; iring < 6; iring++)
      {
        double Zcd =  zring[iring]-LAr_z_max/2.+Cryo_z0;
