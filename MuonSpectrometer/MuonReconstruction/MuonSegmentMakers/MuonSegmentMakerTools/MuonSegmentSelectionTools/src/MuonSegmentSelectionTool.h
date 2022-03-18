@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTSELECTIONTOOL_H
@@ -47,12 +47,11 @@ class MuonSegmentSelectionTool : virtual public IMuonSegmentSelectionTool, publi
 
   private:
     /** @brief calculate segment quality for MDT segments */
-    int mdtSegmentQuality(const MuonSegment& seg, const Identifier& chid, bool ignoreHoles) const;
+    int mdtSegmentQuality(const MuonSegment& seg, bool ignoreHoles) const;
 
 
     /** @brief calculate segment quality for CSC segments */
-    int cscSegmentQuality(const MuonSegment& seg, const Identifier& chid, bool ignoreHoles, bool useEta,
-                          bool usePhi) const;
+    int cscSegmentQuality(const MuonSegment& seg, bool useEta, bool usePhi) const;
 
     /** @brief calculate segment quality for NSW segments */
     int nswSegmentQuality(const MuonSegment& seg, const Identifier& chid, bool ignoreHoles) const;
@@ -68,15 +67,16 @@ class MuonSegmentSelectionTool : virtual public IMuonSegmentSelectionTool, publi
         "Printer",
         "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
     };  //!< EDM printer tool
-    ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool{
+    
+    PublicToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool{
         this,
         "MuonSegmentHitSummaryTool",
         "Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool",
     };  //!< hit summary tool
 
-    double m_cutSegmentQuality;    //!< cut on the segment quality
-    double m_adcFractionCut;       //!< cut on fraction of MDT hits above ADC cut
-    int    m_minAdcPerSegmentCut;  //!< minimum value for the MDT with the highest ADC value on the segment
+    Gaudi::Property<double> m_cutSegmentQuality{this, "SegmentQualityCut", 10.};    //!< cut on the segment quality
+    Gaudi::Property<double> m_adcFractionCut{this, "GoodADCFractionCut",-1};       //!< cut on fraction of MDT hits above ADC cut
+    Gaudi::Property<int>    m_minAdcPerSegmentCut{this,"MinADCPerSegmentCut",70 };  //!< minimum value for the MDT with the highest ADC value on the segment
 };
 
 }  // namespace Muon

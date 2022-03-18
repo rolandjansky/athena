@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentConverterTool.h"
@@ -8,11 +8,22 @@
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
+namespace {
+    static const SG::AuxElement::Accessor<float> acc_clusterTime("clusterTime");
+    static const SG::AuxElement::Accessor<float> acc_clusterTimeError("clusterTimeError");
+    static const SG::AuxElement::Accessor<bool>  acc_clusterTimeValid("clusterTimeValid");
+    
+    static const SG::AuxElement::Accessor<uint8_t> acc_mmStereoHits("N_MicromegaStereoHits");
+    static const SG::AuxElement::Accessor<uint8_t> acc_mmEtaHits("N_MicromegaEtaHits");
+
+    static const SG::AuxElement::Accessor<uint8_t> acc_stgcEtaHits("N_StgcEtaHits");
+    static const SG::AuxElement::Accessor<uint8_t> acc_stgcPhiHits("N_StgcPhiHits");
+}
+
 namespace Muon {
 
 MuonSegmentConverterTool::MuonSegmentConverterTool(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t, n, p)
-{
+    : AthAlgTool(t, n, p) {
     declareInterface<xAODMaker::IMuonSegmentConverterTool>(this);
 }
 
@@ -81,13 +92,13 @@ MuonSegmentConverterTool::addClusterTiming(const MuonSegment& seg, xAOD::MuonSeg
         if (result.valid)
             ATH_MSG_WARNING("Unphysical time returned by tool - ignoring. result.valid = "
                             + std::to_string(result.valid));
-        xaodSeg.auxdata<float>("clusterTime")      = std::numeric_limits<float>::max();
-        xaodSeg.auxdata<float>("clusterTimeError") = std::numeric_limits<float>::max();
-        xaodSeg.auxdata<int>("clusterTimeValid")   = 0;
+        acc_clusterTime(xaodSeg) = std::numeric_limits<float>::max();
+        acc_clusterTimeError(xaodSeg) = std::numeric_limits<float>::max();
+        acc_clusterTimeValid(xaodSeg)  = 0;
     } else {
-        xaodSeg.auxdata<float>("clusterTime")      = result.time;
-        xaodSeg.auxdata<float>("clusterTimeError") = result.error;
-        xaodSeg.auxdata<int>("clusterTimeValid")   = result.valid;
+        acc_clusterTime(xaodSeg) = result.time;
+        acc_clusterTimeError(xaodSeg) = result.error;
+        acc_clusterTimeValid(xaodSeg) = result.valid;
     }
 }
 
@@ -121,13 +132,21 @@ MuonSegmentConverterTool::convert(const MuonSegment& seg, xAOD::MuonSegmentConta
 
     // hit counts
     IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(seg);
-    xaodSeg->setNHits(hitCounts.nmdtHitsMl1 + hitCounts.nmdtHitsMl2 + hitCounts.ncscHitsEta,
+    xaodSeg->setNHits(hitCounts.nmdtHits()+ hitCounts.nmmHits() + hitCounts.ncscHits.netaHits,
                       hitCounts.nphiTrigHitLayers, hitCounts.netaTrigHitLayers);
 
     // MDT + cluster timing
     if (seg.hasFittedT0()) xaodSeg->setT0Error(seg.time(), seg.errorTime());
     if (!m_hitTimingTool.empty()) addClusterTiming(seg, *xaodSeg);
-
+    /// NSW
+    if (m_idHelperSvc->hasMM()) {
+        acc_mmStereoHits(*xaodSeg) = hitCounts.nmmStereoHits;
+        acc_mmEtaHits(*xaodSeg) = hitCounts.nmmEtaHits;
+    }
+    if (m_idHelperSvc->hasSTgc()) {
+        acc_stgcEtaHits(*xaodSeg) = hitCounts.nstgcHits.netaHits;
+        acc_stgcPhiHits(*xaodSeg) = hitCounts.nstgcHits.nphiHits;        
+    }
     return xaodSeg;
 }
 

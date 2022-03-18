@@ -143,7 +143,7 @@ namespace MuonCombined {
         */
 
         AssociatedData associatedData;
-        if (!extractTimeMeasurements(*muonSystemExtension, associatedData)) { return; }
+        if (!extractTimeMeasurements(ctx, *muonSystemExtension, associatedData)) { return; }
 
         /** STAGE 2
             build candidates from seeds in the chamber layers
@@ -158,7 +158,7 @@ namespace MuonCombined {
             refine candidates: find segments using the beta seed of the candidate
         */
 
-        if (!refineCandidates(candidates)) { return; }
+        if (!refineCandidates(ctx, candidates)) { return; }
 
         if (!m_recoValidationTool.empty()) addCandidatesToNtuple(indetTrackParticle, candidates, 1);
 
@@ -182,7 +182,7 @@ namespace MuonCombined {
         addTag(indetCandidate, *candidates.front(), tagMap, combTracks, segments);
     }
 
-    bool MuonStauRecoTool::refineCandidates(MuonStauRecoTool::CandidateVec& candidates) const {
+    bool MuonStauRecoTool::refineCandidates(const EventContext& ctx, MuonStauRecoTool::CandidateVec& candidates) const {
         // keep track of candidates for which segments are found
         CandidateVec refinedCandidates;
 
@@ -214,7 +214,7 @@ namespace MuonCombined {
 
                 // match segments to intersection, store the ones that match
                 std::vector<std::shared_ptr<const Muon::MuonSegment>> selectedSegments;
-                m_segmentMatchingTool->select(layerData.intersection, segments, selectedSegments);
+                m_segmentMatchingTool->select(ctx, layerData.intersection, segments, selectedSegments);
                 // fill validation content
                 if (!m_recoValidationTool.empty()) {
                     for (const auto& seg : selectedSegments) m_recoValidationTool->add(layerData.intersection, *seg, 3);
@@ -979,7 +979,7 @@ namespace MuonCombined {
         if (it != it_end) extendCandidates(candidates, usedMaximumData, it, it_end);
     }
 
-    bool MuonStauRecoTool::extractTimeMeasurements(const Muon::MuonSystemExtension& muonSystemExtension,
+    bool MuonStauRecoTool::extractTimeMeasurements(const EventContext& ctx, const Muon::MuonSystemExtension& muonSystemExtension,
                                                    MuonStauRecoTool::AssociatedData& associatedData) const {
         // get layer intersections
         const std::vector<Muon::MuonSystemExtension::Intersection>& layerIntersections = muonSystemExtension.layerIntersections();
@@ -1007,7 +1007,7 @@ namespace MuonCombined {
                 if (t0fittedSegments.empty()) continue;
 
                 // match segments to intersection, store the ones that match
-                m_segmentMatchingTool->select(*it, t0fittedSegments, maximum->t0fittedSegments);
+                m_segmentMatchingTool->select(ctx, *it, t0fittedSegments, maximum->t0fittedSegments);
 
                 // get beta seeds for Maximum
                 getBetaSeeds(*maximum);
