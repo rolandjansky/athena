@@ -40,8 +40,8 @@ def BunchCrossingTool( type = "" ):
             __logger.error( "The LHCBunchCrossingTool is no longer supported" )
             return None
         elif type == "MC":
-            __logger.info( "Forcing the usage of MCBunchCrossingTool" )
-            return MCBunchCrossingTool()
+            __logger.error( "The MCBunchCrossingTool is no longer supported" )
+            return None
         elif type == "Web":
             __logger.info( "Forcing the usage of WebBunchCrossingTool" )
             return WebBunchCrossingTool()
@@ -56,9 +56,6 @@ def BunchCrossingTool( type = "" ):
         if rec.doTrigger():
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
-    else:
-        __logger.info( "Selecting MCBunchCrossingTool for this job" )
-        return MCBunchCrossingTool()
 
     return None
 
@@ -111,66 +108,6 @@ def TrigConfBunchCrossingTool():
     ToolSvc += __tool
     return getattr( ToolSvc, __defaultToolName )
 
-##
-# @short Function creating the default configuration for Trig::MCBunchCrossingTool
-#
-# This tool reads the bunch pattern information from the MetaData of pileup MC
-# files. It probably doesn't work for overlay files, but I couldn't test that
-# yet...
-#
-# @returns The default configuration of a public Trig::MCBunchCrossingTool
-#
-# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
-def MCBunchCrossingTool():
-
-    # The default name of the tool:
-    __defaultToolName = "BunchCrossingTool"
-
-    # Get ourselves a logger:
-    from AthenaCommon.Logging import logging
-    __logger = logging.getLogger( "MCBunchCrossingTool" )
-
-    # Check if the tool already exists. If it does, let's just return it without
-    # any modifications:
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr( ToolSvc, __defaultToolName ):
-        __logger.debug( "Tool already exists, not configuring it again" )
-        return getattr( ToolSvc, __defaultToolName )
-
-    # Create a new instance of the tool if it doesn't exist yet:
-    from TrigBunchCrossingTool.TrigBunchCrossingToolConf import \
-         Trig__MCBunchCrossingTool
-    __tool = Trig__MCBunchCrossingTool( __defaultToolName )
-
-    # Create a default configuration for it:
-    __logger.info( "Set the default values for the MCBunchCrossingTool configuration" )
-
-    # Add the tool to ToolSvc:
-    ToolSvc += __tool
-
-    # If this is a BS reading job (it *can* happen) then stop at
-    # this point, as the metadata folder will not be available.
-    from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.InputFormat() != "pool":
-        return getattr( ToolSvc, __defaultToolName )
-
-    # Now make sure the tool has access to the metadata folders:
-    from IOVDbSvc.CondDB import conddb
-    __dbConnection = ""
-    __folders = [ "/Digitization/Parameters" ]
-    for f in __folders:
-        if not conddb.folderRequested( f ):
-            __logger.info( "Adding folder to IOVDbSvc: %s", f ) 
-            conddb.addFolderWithTag( __dbConnection, f, "HEAD",
-                                     className='AthenaAttributeList')
-            pass
-        pass
-
-    # Return the tool to the user:
-    return getattr( ToolSvc, __defaultToolName )
 
 ##
 # @short Function creating the default configuration for Trig::WebBunchCrossingTool

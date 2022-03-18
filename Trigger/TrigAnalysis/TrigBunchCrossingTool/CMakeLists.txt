@@ -21,8 +21,7 @@ else()
       TrigBunchCrossingTool/*.h src/*.cxx Root/*.h Root/*.cxx
       Root/json/*.h Root/json/*.inl
       src/components/*.cxx
-      LINK_LIBRARIES AthenaKernel AthenaPoolUtilities
-      GaudiKernel TrigBunchCrossingToolLib TrigConfL1Data xAODTrigger )
+      LINK_LIBRARIES AthenaKernel GaudiKernel TrigBunchCrossingToolLib TrigConfL1Data xAODTrigger )
 endif()
 
 atlas_add_test( ut_static_bunch_tool_test

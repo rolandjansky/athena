@@ -38,9 +38,8 @@ def BunchCrossingConfProvider( type = "" ):
             __logger.error( "The LHCBunchCrossingTool is no longer supported" )
             return None
         elif type == "MC":
-            from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
-            __logger.info( "Forcing the usage of MCBunchCrossingTool" )
-            return MCBunchCrossingTool()
+            __logger.info( "The MCBunchCrossingTool is no longer supported" )
+            return None
         else:
             __logger.warning( "Type = " + type + " not recognized" )
             __logger.warning( "Will select tool type based on global flags" )
@@ -53,9 +52,5 @@ def BunchCrossingConfProvider( type = "" ):
             from TrigBunchCrossingTool.BunchCrossingTool import TrigConfBunchCrossingTool
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
-    else:
-        __logger.info( "Selecting MCBunchCrossingTool for this job" )
-        from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
-        return MCBunchCrossingTool()
 
     return None
