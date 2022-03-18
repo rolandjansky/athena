@@ -113,7 +113,7 @@ if rec.doJetMissingETTag() and DetFlags.Calo_on():
     try:
         from JetRec.JetRecFlags import jetFlags
         if jetFlags.Enabled():
-            include( "JetRec/JetRec_jobOptions.py" )
+            include( "JetRec/JetRec_jobOptionsNewConfig.py" )
             jetOK=jetFlags.Enabled()
     except Exception:
         treatException("Could not set up jet reconstruction")
@@ -127,12 +127,10 @@ pdr.flag_domain('egmiso')
 if (rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()) and
     (jobproperties.CaloRecFlags.doCaloTopoCluster() or
      objKeyStore.isInInput ('xAOD::ParticleContainer', 'CaloCalTopoClusters'))):
-    try:
-        from IsolationAlgs.IsoGetter import isoGetter
-        isoGetter()
-    except Exception:
-        treatException("Could not set up isolation. Switched off !")
 
+    from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
+    CAtoGlobalWrapper(IsolationSteeringCfg, ConfigFlags)
+    
 if jetOK and recAlgs.doMuonSpShower() and DetFlags.detdescr.Muon_on() and DetFlags.haveRIO.Calo_on() :
     try:
         include("MuonSpShowerBuilderAlgs/MuonSpShowerBuilder_jobOptions.py")

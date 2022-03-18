@@ -54,32 +54,33 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
 
 
   # Event shape tools.
+  from JetRecConfig.StandardJetConstits import stdConstitDic as cst
   evsDict = {
-    "emtopo"   : ("EMTopoEventShape",   jtm.emget),
-    "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
-    "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
+    "emtopo"   : ("EMTopoEventShape",   jtm.emget, cst.EMTopo),
+    "lctopo"   : ("LCTopoEventShape",   jtm.lcget, cst.LCTopo),
+    "empflow"  : ("EMPFlowEventShape",  jtm.empflowget, cst.EMPFlow),
   }
 
   if jetFlags.useTracks():
     if jetFlags.useVertices():
-      evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget)
-      evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcoriginget)
+      evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget, cst.EMTopoOrigin)
+      evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcoriginget, cst.LCTopoOrigin)
     else:
-      evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emget)
-      evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcget)
+      evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emget, cst.EMTopo)
+      evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcget, cst.LCtopo)
   jetlog.info( myname + "Event shape tools: " + str(eventShapeTools) )
 
   from RecExConfig.AutoConfiguration import IsInInputFile
   for evskey in eventShapeTools:
     from EventShapeTools.EventDensityConfig import configEventDensityTool
     if evskey in evsDict:
-      (toolname, getter) = evsDict[evskey]
+      (toolname, getter, constitdef) = evsDict[evskey]
       if toolname in jtm.tools:
         jetlog.info( myname + "Skipping duplicate event shape: " + toolname )
       else:
         jetlog.info( myname + "Adding event shape " + evskey )
         if not IsInInputFile("xAOD::EventShape",toolname):
-          jtm += configEventDensityTool(toolname, getter.Label, 0.4)
+          jtm += configEventDensityTool(toolname, constitdef, 0.4)
           jtm.allEDTools += [jtm.tools[toolname]]
     else:
       jetlog.info( myname + "Invalid event shape key: " + evskey )

@@ -223,6 +223,9 @@ _stdSeqList = [
     JetInputConstitSeq("EMTopo", xAODType.CaloCluster, ["EM"],
                        "CaloCalTopoClusters", "EMTopoClusters", jetinputtype="EMTopo",
                        ),
+    JetInputConstitSeq("LCTopo", xAODType.CaloCluster, ["LC"],
+                       "CaloCalTopoClusters", "LCTopoClusters", jetinputtype="LCTopo",
+                       ),
     JetInputConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"],
                        "CaloCalTopoClusters", "EMOriginTopoClusters", jetinputtype="EMTopo",
                        ),
@@ -337,10 +340,12 @@ _stdModList = [
     JetConstitModifier("CHS",    "ChargedHadronSubtractionTool",
                        # get the track properties from the context with wich jet will be configured with propFromContext
                        # See StandardJetContext.py for the default values.
-                       prereqs=[inputsFromContext("Vertices")],
+                       # Note : Jet trigger still needs an older CHS config, hence the cheks to jetdef.context below...
+                       #        When jet trigger migrate and follow the offline settings all this can be simplified.
+                       prereqs= lambda parentjdef : [inputsFromContext("Vertices"),] + ( [inputsFromContext("TVA")] if parentjdef.context=='default' else []) ,
                        properties=dict(VertexContainerKey=propFromContext("Vertices"),                                       
                                        TrackVertexAssociation=propFromContext("TVA"),
-                                       UseTrackToVertexTool= lambda jdef,_: jdef.context=='default', #  This governs the usage of TVA. We turn it off in trigger for now (since in trigger jet.context != default)
+                                       UseTrackToVertexTool= lambda jdef,_: jdef.context=='default', 
                                        )),
     
     # Pileup suppression

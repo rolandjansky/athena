@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from EventShapeTools.EventShapeToolsConf import EventDensityTool, EventShapeCopier, EventDensityAthAlg
 import logging
 edLogger = logging.getLogger( "EventDensityConfig" )   
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def getEventShapeName( defOrLabel, nameprefix="", suffix=None, radius=0.4):
     """ Get the name of the event shape container for a given jet def or jet constit def.
@@ -56,7 +56,7 @@ def configEventDensityTool( name, jetOrConstitdef, radius=0.4, **options ):
     # Override properties with user-supplied options.
     toolProperties.update( options)
     # Build the tool :
-    return EventDensityTool(name, **toolProperties)
+    return CompFactory.EventDensityTool(name, **toolProperties)
 
 
 def configEventShapeCopierAlg( input ):
@@ -70,7 +70,7 @@ def configEventShapeCopierAlg( input ):
                                  EventDensityName = "DensityForJetsR" + alg[-1])
         ToolSvc +=t
         return t
-    return EventDensityAlg(input+"EventShapeCopierAlg", EventDensityTool = [ buildTool("Kt4"), buildTool("Kt6") ] )
+    return CompFactory.EventDensityAlg(input+"EventShapeCopierAlg", EventDensityTool = [ buildTool("Kt4"), buildTool("Kt6") ] )
 
 
 
@@ -79,6 +79,6 @@ def configEventShapeCopierAlg( input ):
 def EventDensityAlg(name, EventDensityTool=None, **args):
     edLogger.warning("When instantiating %s : call of EventDensityAlg is deprecated", name)
     edLogger.warning("  please use EventDensityAthAlg (from  EventShapeTools.EventShapeToolsConf import EventDensityAthAlg) ")
-    alg = EventDensityAthAlg(name,EventDensityTool=EventDensityTool, **args)
+    alg = CompFactory.EventDensityAthAlg(name,EventDensityTool=EventDensityTool, **args)
     return alg
 
