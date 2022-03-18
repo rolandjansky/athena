@@ -37,15 +37,20 @@ StatusCode TrackCountHypoTool::decide(TrkCountsInfo &trkinfo) const
 	}
 	std::vector<float> pTcuts;
 	std::vector<float> z0cuts;
+	std::vector<float> vertexZcuts;
 	trkinfo.counts->getDetail<std::vector<float>>("pTcuts", pTcuts);
 	trkinfo.counts->getDetail<std::vector<float>>("z0cuts", z0cuts);
+	trkinfo.counts->getDetail<std::vector<float>>("vertexZcuts", vertexZcuts);
 
 
 	float countForConfiguredPtThreshold{};
 	bool found{false};
+	// find the right counter
 	for (size_t i = 0; i < counts.size(); ++i)
 	{
-		if (std::abs(pTcuts[i] - m_minPt) < 0.001 && std::abs(z0cuts[i] - m_maxZ0) < 0.001)
+		if (std::abs(pTcuts[i] - m_minPt) < 0.001 
+			&& std::abs(z0cuts[i] - m_maxZ0) < 0.001
+			&& std::abs(vertexZcuts[i] - m_maxVertexZ) < 0.001)
 		{
 			found = true;
 			countForConfiguredPtThreshold = counts[i];
@@ -54,10 +59,14 @@ StatusCode TrackCountHypoTool::decide(TrkCountsInfo &trkinfo) const
 
 	if (!found)
 	{
-		ATH_MSG_ERROR("Unable to find tracks count for requested pT threshold " << m_minPt << " need to fix hypo tool configuration or add new threshold in tracks counting");
+		ATH_MSG_ERROR("Unable to find tracks count for requested: "  
+					<< " min pT " << m_minPt 
+					<< " nax z0  " << m_maxZ0
+					<< " vertex Z " << m_maxVertexZ 
+					<< " need to fix hypo tool configuration or add new threshold in tracks counting");
 		for (size_t i = 0; i < counts.size(); ++i)
 		{
-			ATH_MSG_ERROR("Count of tracks of pT above " << pTcuts[i] << " and z0 requirement "  << z0cuts[i] << " that are available");
+			ATH_MSG_ERROR("Count of tracks of pTcuts " << pTcuts[i] << " z0Cuts "  << z0cuts[i] << " vertexZcuts " <<  vertexZcuts[i] << " that are available");
 		}
 		return StatusCode::FAILURE;
 	}

@@ -40,6 +40,8 @@ def TrackCountHypoToolGen(chainDict):
     if "hmt" in chainDict["chainName"]:
         hypo.minNtrks = int(chainDict["chainParts"][0]["hypoTrkInfo"].strip("trk"))
         hypo.minPt = 200*Units.MeV
+        if "pusup" in chainDict["chainName"]:
+            hypo.maxVertexZ = 10*Units.mm
     if "mb_sptrk" in chainDict["chainName"]:
         hypo.minPt = 100*Units.MeV
         hypo.maxZ0 = 401*Units.millimeter
@@ -76,7 +78,8 @@ def TrigZVertexHypoToolGen(chainDict):
     if "pusup" in chainDict["chainName"]:
         hypo.minWeight = int(chainDict["chainParts"][0]["pileupInfo"].strip("pusup"))
     else:
-        raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
+        hypo.minWeight = -1 # pass always
+
     return hypo
 
 @AccumulatorCache
@@ -174,6 +177,9 @@ def MinBiasTrkSequence():
 
         from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
         algs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVMinBiasIDTracking')
+        vdv = algs[0]
+        assert vdv.DataObjects, "Likely not ViewDataVerifier, does not have DataObjects property"
+        vdv.DataObjects += [("xAOD::TrigCompositeContainer", "HLT_vtx_z")]
         trackCountHypo = TrackCountHypoAlg()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
         trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")
