@@ -534,10 +534,10 @@ namespace MuonCombined {
             ATH_MSG_DEBUG(" Segment quality " << quality);
             if (quality < m_segmentQualityCut) continue;
             Muon::IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(*itSeg);
-            if (hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta > 0) ATH_MSG_DEBUG(" CSC segment ");
+            if (hitCounts.ncscHits() > 0) ATH_MSG_DEBUG(" CSC segment ");
             else {
                 if (hitCounts.nmdtHoles >= m_nmdtHoles) continue;
-                if (hitCounts.nmdtHitsMl1 + hitCounts.nmdtHitsMl2 < m_nmdtHits) continue;  // precision hits
+                if (hitCounts.nmdtHits() < m_nmdtHits) continue;  // precision hits
                 if (hitCounts.nmdtHitsMl1 > 0 && hitCounts.nmdtHitsMl1 < m_nmdtHitsML) continue;
                 if (hitCounts.nmdtHitsMl2 > 0 && hitCounts.nmdtHitsMl2 < m_nmdtHitsML) continue;
                 // If Trigger hits are expected one should at least find one
@@ -560,12 +560,11 @@ namespace MuonCombined {
                 }
                 if (stIndex == Muon::MuonStationIndex::EI) {
                     // remove CSC segment with hits in only one projection
-                    /// Update ME: Need to think about cuts for the NSW!
-                    if (hitCounts.nmdtHits() == 0 && (!hitCounts.ncscHitsEta  | !hitCounts.ncscHitsPhi))
+                    /// Update ME: Need to think about cuts for the NSW!                    
+                    if (m_idHelperSvc->isCsc(chId) && !hitCounts.ncscHits.hasEtaAndPhi())
                         continue;
                 }
             }
-            if (hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta > 0) ATH_MSG_DEBUG(" CSC segment passed");
             FilteredSegmentCollection.emplace_back(itSeg);
         }
         return FilteredSegmentCollection;

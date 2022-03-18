@@ -35,11 +35,13 @@ namespace Muon {
         /** Default AlgTool functions */
         MuonLayerSegmentFinderTool(const std::string& type, const std::string& name, const IInterface* parent);
         virtual ~MuonLayerSegmentFinderTool() = default;
-        StatusCode initialize();
+        StatusCode initialize() override;
 
         /**IMuonLayerSegmentFinderTool interface: find */
-        void find(const MuonSystemExtension::Intersection& intersection, std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
-                  MuonLayerPrepRawData& layerPrepRawData, const EventContext& ctx) const;
+        void find(const EventContext& ctx,
+                  const MuonSystemExtension::Intersection& intersection, 
+                  const  MuonLayerPrepRawData& layerPrepRawData,
+                  std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const override;
 
     private:
         /** find segments from PRD clusters */
