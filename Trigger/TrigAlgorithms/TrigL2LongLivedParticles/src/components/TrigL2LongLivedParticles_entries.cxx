@@ -1,3 +1,3 @@
-#include "TrigL2LongLivedParticles/MuonCluster.h"
+#include "../MuonCluster.h"
 
 DECLARE_COMPONENT( MuonCluster )
