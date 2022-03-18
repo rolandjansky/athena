@@ -38,6 +38,8 @@ if not 'TileCablingType' in dir():
                 from Digitization.DigitizationFlags import digitizationFlags
                 if digitizationFlags.dataRunNumber.statusOn:
                     rn = digitizationFlags.dataRunNumber()
+                if rn is None and digitizationFlags.RunAndLumiOverrideList.statusOn:
+                    rn = digitizationFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0]
             except:
                 msg.info("No DigitizationFlags available - looks like HLT job")
         if rn is None:
