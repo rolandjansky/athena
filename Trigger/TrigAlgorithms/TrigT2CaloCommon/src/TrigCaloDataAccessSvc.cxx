@@ -154,7 +154,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
           TileCellCollection::const_iterator itt = (*it)->begin();
           TileCellCollection::const_iterator End = (*it)->end();
           for (;itt!=End;++itt){
-		TileCell* cell = (TileCell*)*itt;
+		TileCell* cell ATLAS_THREAD_SAFE = (TileCell*)*itt;
 		loadedCells.push_back( cell );
           } // End of for printout cells
   }
