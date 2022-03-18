@@ -101,6 +101,6 @@ private:
 CLASS_DEF(SiLorentzAngleCondData, 91712959, 1)
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF(SiLorentzAngleCondData, 150548945);
+CONDCONT_MIXED_DEF(SiLorentzAngleCondData, 150548945);
 
 #endif // SiLorentzAngleCondData_h

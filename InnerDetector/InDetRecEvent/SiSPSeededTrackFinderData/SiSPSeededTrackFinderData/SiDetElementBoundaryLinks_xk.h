@@ -25,6 +25,6 @@ namespace InDet {
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( InDet::SiDetElementBoundaryLinks_xk , 235877993 , 1 )
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( InDet::SiDetElementBoundaryLinks_xk , 112316929 );
+CONDCONT_MIXED_DEF( InDet::SiDetElementBoundaryLinks_xk , 112316929 );
 
 #endif // SiDetElementBoundaryLinks_xk

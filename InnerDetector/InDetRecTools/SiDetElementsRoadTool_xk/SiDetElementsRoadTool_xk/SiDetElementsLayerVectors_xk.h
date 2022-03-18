@@ -25,6 +25,6 @@ namespace InDet {
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( InDet::SiDetElementsLayerVectors_xk , 231384279 , 1 )
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( InDet::SiDetElementsLayerVectors_xk , 226495641 );
+CONDCONT_MIXED_DEF( InDet::SiDetElementsLayerVectors_xk , 226495641 );
 
 #endif // SiDetElementsLayerVectors_xk_H
