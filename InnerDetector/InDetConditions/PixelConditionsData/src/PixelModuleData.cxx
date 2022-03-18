@@ -9,8 +9,6 @@
 #include "PixelConditionsData/PixelModuleData.h"
 
 PixelModuleData::PixelModuleData():
-  m_moduleStatus(),
-  m_chipStatus(),
   m_fluenceLayer(),
   m_RadSimFluenceMapList(),
   m_fluenceLayer3D(),
@@ -19,28 +17,6 @@ PixelModuleData::PixelModuleData():
 }
 
 PixelModuleData::~PixelModuleData() { }
-
-// Module status
-void PixelModuleData::setModuleStatus(const int chanNum, const int value) {
-  m_moduleStatus[chanNum] = value;
-}
-
-int PixelModuleData::getModuleStatus(const int chanNum) const {
-  auto itr = m_moduleStatus.find(chanNum);
-  if (itr!=m_moduleStatus.end()) { return itr->second; }
-  return 0;
-}
-
-// Chip (FE) status
-void PixelModuleData::setChipStatus(const int chanNum, const int value) {
-  m_chipStatus[chanNum] = value;
-}
-
-int PixelModuleData::getChipStatus(const int chanNum) const {
-  auto itr = m_chipStatus.find(chanNum);
-  if (itr!=m_chipStatus.end()) { return itr->second; }
-  return 0;
-}
 
 // Digitization parameters
 void PixelModuleData::setBunchSpace(double bunchSpace) { m_bunchSpace = bunchSpace; }
@@ -365,8 +341,6 @@ void PixelModuleData::setDistortionFileName(std::string distortionFileName) { m_
 std::string PixelModuleData::getDistortionFileName() const { return m_distortionFileName; }
 
 void PixelModuleData::clear() {
-  m_moduleStatus.clear();
-  m_chipStatus.clear();
   m_fluenceLayer.clear();
   m_RadSimFluenceMapList.clear();
   m_fluenceLayer3D.clear();
