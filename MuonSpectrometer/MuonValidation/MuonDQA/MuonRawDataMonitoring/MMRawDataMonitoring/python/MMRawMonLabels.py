@@ -1,5 +1,5 @@
 #                                                           
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 #x-y labels for occupancy plots
@@ -39,3 +39,5 @@ y_lab_lb_CSide_eta1=['#eta-1 ml1 gp1 PCB 1 MMS','#eta-1 ml1 gp1 PCB 2 MMS','#eta
 
 label_empty = ['']
 y_lab_occ_lb=['ml1 gap1']+label_empty*7+['ml1 gap2']+label_empty*7+['ml1 gap3']+label_empty*7+['ml1 gap4']+label_empty*7+['ml2 gap1']+label_empty*7+['ml2 gap2']+label_empty*7+['ml2 gap3']+label_empty*7+['ml2 gap4']+label_empty*7
+
+x_lab_mpv = ['ml1 gp1', 'ml1 gp2', 'ml1 gp3', 'ml1 gp4', 'ml2 gp1', 'ml2 gp2', 'ml2 gp3', 'ml2 gp4']
