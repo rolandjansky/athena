@@ -7,9 +7,9 @@ atlas_subdir( MuonStationIntersectCond )
 atlas_add_library( MuonStationIntersectCondLib
    MuonStationIntersectCond/*.h src/*.cxx
    PUBLIC_HEADERS MuonStationIntersectCond
-   LINK_LIBRARIES AthenaBaseComps GeoPrimitives Identifier MuonIdHelpersLib
+   LINK_LIBRARIES AthenaBaseComps GeoPrimitives Identifier MuonIdHelpersLib TrkDriftCircleMath
    PRIVATE_LINK_LIBRARIES GaudiKernel StoreGateLib GeoModelUtilities
-   MuonReadoutGeometry TrkDriftCircleMath MuonCondData )
+   MuonReadoutGeometry MuonCondData )
 
 atlas_add_component( MuonStationIntersectCond
    src/components/*.cxx

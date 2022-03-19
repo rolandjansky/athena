@@ -9,6 +9,7 @@
 #include "Identifier/Identifier.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonStationIntersectCond/MuonIntersectGeometry.h"
+#include "TrkDriftCircleMath/MdtChamberGeometry.h"
 class MsgStream;
 namespace MuonGM {
     class MuonDetectorManager;
@@ -16,10 +17,6 @@ namespace MuonGM {
 }  // namespace MuonGM
 
 class MdtCondDbData;
-
-namespace TrkDriftCircleMath {
-    class MdtChamberGeometry;
-}
 
 namespace Muon {
 
