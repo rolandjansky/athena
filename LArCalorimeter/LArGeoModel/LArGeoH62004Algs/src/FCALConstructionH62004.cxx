@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -204,7 +204,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
      fcalData[i].FCalSampling = (*m_fcalMod)[i]->getInt("FCALSAMPLING");
   }
 
-  static FCAL_ChannelMap *cmap = new FCAL_ChannelMap(0);
+  FCAL_ChannelMap *cmap = new FCAL_ChannelMap(0);
 
   GeoFullPhysVol *fcalPhysical(NULL);
 
