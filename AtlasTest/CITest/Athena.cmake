@@ -87,13 +87,17 @@ atlas_add_citest( RecoRun4MC
 #################################################################################
 
 atlas_add_citest( DataQuality_r21ESD
-   SCRIPT Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root"]' DQ.Steering.doHLTMon=False --threads=1 )
+   SCRIPT Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root"]' ConfigFlags.Output.HISTFileName='DataQuality_r21ESD_HIST.root' DQ.Steering.doHLTMon=False --threads=1 )
 
 atlas_add_citest( DataQuality_Run3MC
    SCRIPT Run3DQTestingDriver.py 'Input.Files=["../RecoRun3MC/run_q445/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
    PROPERTIES REQUIRED_FILES ../RecoRun3MC/run_q445/myAOD.pool.root
    DEPENDS RecoRun3MC )
 
+atlas_add_citest( DataQuality_r21ESD_Postprocessing
+   SCRIPT echo ../DataQuality_r21ESD/DataQuality_r21ESD_HIST.root >> tomerge.txt && DQHistogramMerge tomerge.txt merged.root 1 
+   PROPERTIES REQUIRED_FILES ../DataQuality_r21ESD/DataQuality_r21ESD_HIST.root
+   DEPENDS DataQuality_r21ESD )
 
 #################################################################################
 # Special reconstruction

@@ -50,6 +50,37 @@ def hHitXonTMap(inputs):
                         rh.SetBinContent(j + 1, 0)
     return [rh]
     
+def hHitXonTMap2(inputs):
+    # Refactored version of hHitXonTMap that works in online because it orders inputs
+    import ROOT
+    hist = inputs[0][0]['histogram'] #removing "unscaled_" prefix
+    element = inputs[0][0]['element']
+    if element == 'S':
+        name  = hist + 'S'
+        titleElement = 'Straws'
+    if element == 'C':
+        name  = hist + 'C'
+        titleElement = 'Chips'
+    if hist == 'hHitHWonTMap': title = 'HL Hit(In time Window) on Track: '
+    if hist == 'hHitWonTMap':  title = 'Leading Edge on Track in Time Window: '
+    if hist == 'hHitAonTMap':  title = 'Any LL Bit on Track: '
+    if hist == 'hHitAWonTMap': title = 'Any LL Bit on Track in Time Window: '
+    if hist == 'hHitHonTMap':  title = 'HL Hit on Track: '
+    rh = ROOT.TH1F(name, title + titleElement, 1, 0, 1)
+    rh.GetXaxis().SetTitle(titleElement[:-1] + ' Number in Stack')
+    rh.GetYaxis().SetTitle('Probability')
+
+    plot0 = inputs[0][1][1]
+    plot1 = inputs[0][1][0]
+    nBins = plot1.GetNbinsX()
+    rh.SetBins(nBins, 0, nBins)
+    for j in range(1,nBins+2): #range of the input histogram, not the output
+        if plot0.GetBinEntries(j) > 0:
+            rh.SetBinContent(j, plot1.GetBinContent(j)*1./plot0.GetBinEntries(j))
+        else:
+            rh.SetBinContent(j, 0)
+    return [rh]
+    
 def hHitOnTrackVsAll(inputs):
     import ROOT
     element = inputs[0][0]['element']

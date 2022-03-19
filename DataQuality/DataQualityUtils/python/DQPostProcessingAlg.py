@@ -17,10 +17,12 @@ class DQPostProcessingAlg(PyAthena.Alg):
         self.Interval = 1
         self.FileKey = '/CombinedMonitoring/run_%(run)s/'
         self.ConfigFiles = None
+        self.FunctionsToDisable = []
         self._ctr = 0
         self._run = 0
         self._transformermap = {}
         self._timings = {}
+        self._plotnames = set()
         self.DoTiming = True
         self.DoEntryOptimization = True
 
@@ -44,9 +46,9 @@ class DQPostProcessingAlg(PyAthena.Alg):
         else:
             postprocfiles = self.ConfigFiles
         self.msg.info(f'The postprocessing config file list is {postprocfiles}')
-        for configfile in glob.glob(os.path.join(dpath,'postprocessing/*.yaml')):
+        for configfile in postprocfiles:
             config = read_configuration(configfile)
-            self._transformers += [Transformer(_) for _ in config]
+            self._transformers += [Transformer(_) for _ in config if _.description not in self.FunctionsToDisable]
         selectors = set()
         for transform in self._transformers:
             selectors.update(transform.inregexes)
@@ -73,6 +75,7 @@ class DQPostProcessingAlg(PyAthena.Alg):
         import time
         for obj in self._im:
             self.msg.debug(f'now processing for {obj.name}')
+            # if we are still accumulating new plots then transformer cache is possibly invalid
             translist = self._transformermap.get(obj.name, self._transformers)
             needtocache = (translist == self._transformers)
             cached = []
@@ -80,22 +83,26 @@ class DQPostProcessingAlg(PyAthena.Alg):
                 self.msg.debug(f'consider transformer {_.tc.description}')
                 if self.DoTiming:
                     t0 = time.perf_counter()
-                v = _.consider(obj, defer=True)
+                if needtocache:
+                    if any(_.match(obj.name) for _ in _.inregexes):
+                        cached.append(_)
+                v = _.consider(obj, defer=True)  # need to find out if it produces output
                 if self.DoTiming:
                     t = time.perf_counter()-t0
                     self._timings[_] += t
                 if v:
-                    if needtocache:
-                        cached.append(_)
                     self.msg.debug('Match made!')
                     self._om.publish(v)
             if needtocache:
                 self._transformermap[obj.name] = cached
         # Process deferred transformations
         for _ in self._transformers:
-            lv = _.transform()
-            for v in lv:
-                self._om.publish(v)
+            try:
+                lv = _.transform()
+                for v in lv:
+                    self._om.publish(v)
+            except Exception as e:
+                self.msg.info(f'Exception running transformer {_.tc.description}: {e}')
         self._om.finalize()
 
     def execute(self):
@@ -170,7 +177,9 @@ class AthInputModule(histgrinder.interfaces.InputModule):
         hsvc = self.source.hsvc
 
         # check if we have new histograms; if so, check against selectors to see if we're interested
-        currenthists = set(str(_) for _ in hsvc.getHists())
+        # weirdly unpythonic code to avoid memory leak in iterators pre-ROOT 6.26
+        histnames = hsvc.getHists()
+        currenthists = set(str(histnames[_]) for _ in range(len(histnames)))
         for k in currenthists - self.cachednames:
             # log.info(f'We have ... ? {k}')
             if not k.startswith(specprefix):
@@ -189,16 +198,15 @@ class AthInputModule(histgrinder.interfaces.InputModule):
             if dryrun:
                 yield HistObject(k.replace(specprefix, '', 1), None)
                 
-            log.debug(f'ROOT input trying to read {k}')
+            log.debug(f'THistSvc input trying to read {k}')
             if klass is None:
                 klass = self._getklass(k)
                 self.matchednames[k] = klass
             hptr = ROOT.MakeNullPointer(klass)
             if hsvc.getHist(k, hptr).isSuccess():
-                log.debug(f'ROOT input read {k} as {type(hptr)}')
-                # obj = hptr.Clone()
-                # obj.SetDirectory(0)
+                log.debug(f'THistSvc input read {k} as {type(hptr)}')
                 obj = hptr
+                ROOT.SetOwnership(obj, False) # no NOT attempt to GC histograms read from THistSvc
                 if k in self.entries:
                     if obj.GetEntries() == self.entries[k]:
                         continue
@@ -237,6 +245,16 @@ class AthOutputModule(histgrinder.interfaces.OutputModule):
         self.prefix = options.get('prefix', '/')
         self.delay = bool(options.get('delay', True))
         self.queue: Optional[Dict[str, HistObject]] = {}
+        self._hsvc_funcs = {'hist': { 'exists': self.target.hsvc.existsHist,
+                                      'get': self.target.hsvc.getHist,
+                                      'reg': self.target.hsvc._cpp_regHist },
+                            'graph': { 'exists': self.target.hsvc.existsGraph,
+                                       'get': self.target.hsvc.getGraph,
+                                       'reg': self.target.hsvc._cpp_regGraph },
+                            'eff': { 'exists': self.target.hsvc.existsEfficiency,
+                                     'get': self.target.hsvc.getEfficiency,
+                                     'reg': self.target.hsvc._cpp_regEfficiency },
+                            }
 
     def publish(self, obj: Union[HistObject, Iterable[HistObject]]) -> None:
         """ Accepts a HistObject containing a ROOT object to write to file """
@@ -262,22 +280,36 @@ class AthOutputModule(histgrinder.interfaces.OutputModule):
         log = self.target.msg
         hsvc = self.target.hsvc
         for _, o in self.queue.items():
-            ROOT.SetOwnership(o.hist, False)
             fulltargetname = os.path.join(self.prefix, o.name) % { 'run': self.target._run }
-            log.debug(f"Attempt to publish {fulltargetname}")
+            log.debug(f"Attempt to publish {fulltargetname} of type {type(o.hist)}")
+            # it would be perverse if the type of the postprocessing output changed
+            # between invocations and we will not consider it
+            if isinstance(o.hist, ROOT.TH1):
+                funcs = self._hsvc_funcs['hist']
+                parenttype = ROOT.TH1
+            elif isinstance(o.hist, ROOT.TGraph):
+                funcs = self._hsvc_funcs['graph']
+                parenttype = ROOT.TGraph
+            elif isinstance(o.hist, ROOT.TEfficiency):
+                funcs = self._hsvc_funcs['eff']
+                parenttype = ROOT.TEfficiency
+            else:
+                log.warning(f'Do not know how to handle object {fulltargetname} of type {type(o.hist)}; skipping')
+                continue
             o.hist.SetName(os.path.basename(fulltargetname))
-            if hsvc.existsHist(fulltargetname):
+            if funcs['exists'](fulltargetname):
                 # following kind of silly procedure is necessary to avoid memory leaks
-                hptr = ROOT.MakeNullPointer(ROOT.TH1)
-                if hsvc.getHist(fulltargetname, hptr).isSuccess():
+                hptr = ROOT.MakeNullPointer(parenttype)
+                if funcs['get'](fulltargetname, hptr).isSuccess():
                     hsvc.deReg(hptr)
                     ROOT.SetOwnership(hptr, True) # clean up the histogram from our side
-            if not hsvc._cpp_regHist(fulltargetname, o.hist).isSuccess():
+            if not funcs['reg'](fulltargetname, o.hist).isSuccess():
                 log.error(f"Unable to register {fulltargetname}")
             else:
+                ROOT.SetOwnership(o.hist, False)
                 log.debug("Published")
         self.queue.clear()
 
     def finalize(self) -> None:
-        """ Writes outstanding HistObjects to file """
+        """ Outputs outstanding HistObjects """
         self._write()

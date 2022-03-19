@@ -8,29 +8,29 @@ Output: [ 'TRT/{region}/hOccupancy{element}' ]
 Function: TRTMonitoringRun3.TRTPostProcessing.hOccupancy
 Description: TRTOCCUPANCY
 ---
-Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitHWonTMap|hEfficiency)(?P<element>S|C)' ]
+Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/unscaled_(?P<histogram>hHitHWonTMap)(?P<element>S|C)', 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/hEfficiency(?P<element>S|C)' ]
 Output: [ 'TRT/{region}/hHitHWonTMap{element}' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap2
 Description: TRTHITHWONTMAP
 ---
-Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitWonTMap|hEfficiency)(?P<element>S|C)' ]
+Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/unscaled_(?P<histogram>hHitWonTMap)(?P<element>S|C)', 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/hEfficiency(?P<element>S|C)' ]
 Output: [ 'TRT/{region}/hHitWonTMap{element}' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap2
 Description: TRTHITWONTMAP
 ---
-Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitAonTMap|hEfficiency)(?P<element>S|C)' ]
+Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/unscaled_(?P<histogram>hHitAonTMap)(?P<element>S|C)', 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/hEfficiency(?P<element>S|C)' ]
 Output: [ 'TRT/{region}/hHitAonTMap{element}' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap2
 Description: TRTHITAONTMAP
 ---
-Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitAWonTMap|hEfficiency)(?P<element>S|C)' ]
+Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/unscaled_(?P<histogram>hHitAWonTMap)(?P<element>S|C)', 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/hEfficiency(?P<element>S|C)' ]
 Output: [ 'TRT/{region}/hHitAWonTMap{element}' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap2
 Description: TRTHITAWONTMAP
 ---
-Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitHonTMap|hEfficiency)(?P<element>S|C)' ]
+Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/unscaled_(?P<histogram>hHitHonTMap)(?P<element>S|C)', 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/hEfficiency(?P<element>S|C)' ]
 Output: [ 'TRT/{region}/hHitHonTMap{element}' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap2
 Description: TRTHITHONTMAP
 ---
 Input:  [ 'TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitAonTMap|hHitAMap|unscaled_hHitAMap)(?P<element>S|C)' ]
