@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -75,6 +75,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
         eventCleaningTool.OrDecorator = "passOR"
         eventCleaningTool.CleaningLevel = jetCleaningTool.CutLevel
         eventCleaningTool.JetContainer = str(jetContainer)
+        eventCleaningTool.SuppressInputDependence = True
 
         tileJetMonAlg.EventCleaningTool = eventCleaningTool
         tileJetMonAlg.JetTrackingEtaLimit = jetTrackingEtaLimit
