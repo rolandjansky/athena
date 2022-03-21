@@ -107,6 +107,7 @@ private:
   std::vector<float> m_gSJ_eta;
   std::vector<float> m_gSJ_gFEXphi;
   std::vector<float> m_gSJ_phi;
+  std::vector<float> m_gSJ_phiTopo;
   std::vector<float> m_gSJ_tobEt;
   std::vector<float> m_gSJ_etMeV;
   std::vector<float> m_gSJ_etScale;
@@ -116,6 +117,7 @@ private:
   std::vector<float> m_gLJ_eta;
   std::vector<float> m_gLJ_gFEXphi;
   std::vector<float> m_gLJ_phi;
+  std::vector<float> m_gLJ_phiTopo;
   std::vector<float> m_gLJ_tobEt;
   std::vector<float> m_gLJ_etMeV;
   std::vector<float> m_gLJ_etScale;
