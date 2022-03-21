@@ -108,7 +108,7 @@ LArTBClusterBuilder::execute(const EventContext& /*ctx*/,
 	    {//seed cell position
 	      eta_clus = (*it_middle_cell)->eta();
 	      phi_clus = (*it_middle_cell)->phi();
-	      cluster = CaloClusterStoreHelper::makeCluster(caloCellContainer,eta_clus,phi_clus, xAOD::CaloCluster::CSize_Unknown);
+	      cluster = larClusterContainer.push_back(CaloClusterStoreHelper::makeCluster(caloCellContainer,eta_clus,phi_clus, xAOD::CaloCluster::CSize_Unknown));
 	      seed = false;
 	    }
 	  
@@ -158,7 +158,6 @@ LArTBClusterBuilder::execute(const EventContext& /*ctx*/,
       if (cluster==0) break;
       CaloClusterKineHelper::calculateKine(cluster,false,true);
 
-      larClusterContainer.push_back(cluster);
       
       //now put data in TDS
       //for (int iSample=m_layer0; iSample <= m_layer3; ++iSample) 

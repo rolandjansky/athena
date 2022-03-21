@@ -8,7 +8,7 @@
 #include "tauRecTools/TauRecToolBase.h"
 
 #include "xAODPFlow/PFOAuxContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloInterface/IHadronicCalibrationTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -85,8 +85,9 @@ private:
    *         cell in the phi direction
    */
   xAOD::CaloCluster* createShotCluster(const CaloCell* cell,
-                                       const CaloCell* phiNeighCell,
-                                       const CaloCellContainer& cellContainer) const;
+				       const CaloCell* phiNeighCell,
+				       const CaloCellContainer& cellContainer,
+				       xAOD::CaloClusterContainer* clusterContainer) const;
 
   /** @brief Get eta bin */
   int getEtaBin(float eta) const;

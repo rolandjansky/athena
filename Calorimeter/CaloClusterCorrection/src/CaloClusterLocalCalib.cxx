@@ -98,7 +98,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
               
 //         Make new Cluster and CellColl
         CaloCellContainer* myCellColl = new CaloCellContainer(SG::OWN_ELEMENTS);  
-        xAOD::CaloCluster* myCluster  = CaloClusterStoreHelper::makeCluster(myCellColl);
+	std::unique_ptr<xAOD::CaloCluster> myCluster  = CaloClusterStoreHelper::makeCluster(myCellColl);
         int cellIndex = 0; 
         CaloCell* CellReplica = nullptr;     
 //         Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster
@@ -116,7 +116,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
           cellIndex++;
         }  
         
-        CaloClusterKineHelper::calculateKine(myCluster,false,false);
+        CaloClusterKineHelper::calculateKine(myCluster.get(),false,false);
         myCluster->setRawE(myCluster->e());
         
 // Set sample energy of the new cluster to the one of the old cluster, other wise it is zero, important for dm correction
@@ -125,7 +125,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
           if (myCluster->hasSampling(s)) myCluster->setEnergy((CaloSampling::CaloSample)i, theCluster->eSample((CaloSampling::CaloSample)i)); 
         }//end loop over samplings  
         
-        CaloClusterKineHelper::calculateKine(myCluster,true,false);
+        CaloClusterKineHelper::calculateKine(myCluster.get(),true,false);
 //           Give the new cluster the same moments as the old one
         myCluster->insertMoment(xAOD::CaloCluster::CENTER_LAMBDA,centLambd);
         myCluster->insertMoment(xAOD::CaloCluster::FIRST_ENG_DENS,engdens);
@@ -134,7 +134,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
         
 //         Weight the new cluster
         for (const ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
-          if (tool->weight(myCluster,ctx).isFailure())
+          if (tool->weight(myCluster.get(),ctx).isFailure())
             msg(MSG::ERROR) << " failed to weight cluster " << endmsg;
         }
 
@@ -179,7 +179,6 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
          }         
                   
          delete myCellColl;          
-         delete myCluster; 
 
       }
 //    else, what as was always done     
