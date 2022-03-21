@@ -92,7 +92,10 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
     tileMBTSMonAlg.TriggerChain = ''
 
     numberOfMBTS = 32
-    energyCuts = [60. / 222 for mbts in range(0, numberOfMBTS)]
+    if runNumber < 400000:
+        energyCuts = [60. / 222 for mbts in range(0, numberOfMBTS)]
+    else:
+        energyCuts = [0.1 for mbts in range(0, numberOfMBTS)]
     kwargs.setdefault("EnergyCuts", energyCuts)
 
     for k, v in kwargs.items():
@@ -363,7 +366,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             title = f'Run {run}: Energy with TBP fired of {mbtsName};Energy [pC]'
             name = f'Energy;Energy_TBP_{mbtsName}'
             tool.defineHistogram(name, title = title, type = 'TH1F', path = 'Cell',
-                                 xbins = 550, xmin = -0.5, xmax = 5)
+                                 xbins = nEnergyBins, xmin = -0.5, xmax = maxEnergy)
 
         # 29) Configure histogram with MBTS counter energy vs luminosity block with TBP fired
         energyTrigLBArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileEnergyTrigLBMBTS', topPath = 'Tile/MBTS')
