@@ -16,9 +16,9 @@ def L1MuonBSConverterMonitoring(name, encoder=False):
                          xlabels=['Undefined', 'Timeslice', 'Multiplicity', 'Candidate', 'Topo', 'Status'])
     tool.defineHistogram('BCIDOffsetsWrtROB', path='EXPERT', type='TH1F',
                          title='BCID difference between timeslice header and ROB header;BCID difference;N time slices',
-                         xbins=100, xmin=-50, xmax=50, opt='kCanRebin')
-    tool.defineHistogram('SectorID', path='EXPERT', type='TH1F',
-                         title='RoI candidate sector ID;;N RoIs',
+                         xbins=200, xmin=-100, xmax=100)
+    tool.defineHistogram('SubsysID', path='EXPERT', type='TH1F',
+                         title='RoI candidate subsys ID;;N RoIs',
                          xbins=4, xmin=0, xmax=4,
                          xlabels=['Undefined','Barrel', 'Forward', 'Endcap'])
 
@@ -32,12 +32,12 @@ def L1MuonBSConverterMonitoring(name, encoder=False):
                             title='Error bits set in data status word;Bit number;N errors',
                             xbins=16, xmin=0, xmax=16)
 
-    for sectorName in ['Barrel', 'Forward', 'Endcap']:
-        tool.defineHistogram(f'roiEta_{sectorName}', path='EXPERT', type='TH1F',
-                             title=f'Eta of output RoIs in the {sectorName} sector;eta;N RoIs',
+    for subsysName in ['Barrel', 'Forward', 'Endcap']:
+        tool.defineHistogram(f'roiEta_{subsysName}', path='EXPERT', type='TH1F',
+                             title=f'Eta of output RoIs in the {subsysName} subsystem;eta;N RoIs',
                              xbins=60, xmin=-3, xmax=3)
-        tool.defineHistogram(f'roiPhi_{sectorName}', path='EXPERT', type='TH1F',
-                             title=f'Phi of output RoIs in the {sectorName} sector;phi;N RoIs',
+        tool.defineHistogram(f'roiPhi_{subsysName}', path='EXPERT', type='TH1F',
+                             title=f'Phi of output RoIs in the {subsysName} subsystem;phi;N RoIs',
                              xbins=64, xmin=-3.2, xmax=3.2)
 
     return tool
