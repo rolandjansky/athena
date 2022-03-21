@@ -68,13 +68,15 @@ namespace xAOD {
       void  setPhi( uint8_t value); /// Setter for the above
       unsigned int unpackPhiIndex( ) const; /// retrieves the phi index from the 32-bit word
       float phi_gFex() const; /// Central value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
-      float phiMin_gFex() const; /// Minimum value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
-      float phiMax_gFex() const; /// Minimum value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+      float phiMin_gFex() const; /// Low value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
+      float phiMax_gFex() const; /// High value of phi corresponding to phi index (using gFex convention, phi in [0, 2pi]).
 
       float phi() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
-      float phiMin() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
-      float phiMax() const; /// Central value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
+      float phiMin() const; /// Low value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
+      float phiMax() const; /// High value of phi corresponding to phi index (using ATLAS convention, phi in [-pi, pi]).
 
+      int iPhiTopo() const; /// phi index in the range used by L1Topo (0->127)
+      
       /// TOB status: set to 1 if TOB Et exceeds TOB threshold (gBlocks & gJets). Status is set to 1 if Rho calculation is valid
       uint8_t status() const;
       void setStatus( uint8_t value ) ; 
