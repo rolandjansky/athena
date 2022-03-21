@@ -11620,7 +11620,7 @@ HLT_mu20_ivarmedium_mu4noL1_10invmAB70_L1MU14FCH:
     3: 4
     4: 4
     5: 6
-    6: 4
+    6: 6
 HLT_mu20_ivarmedium_mu8noL1_L1MU14FCH:
   eventCount: 2
   stepCounts:
@@ -11733,7 +11733,7 @@ HLT_mu20_mu2noL1_invmJPsiOS_L1MU14FCH:
     2: 4
     3: 4
     4: 6
-    5: 4
+    5: 6
 HLT_mu22_2mu4noL1_L1MU14FCH:
   eventCount: 0
   stepCounts:
@@ -14138,21 +14138,21 @@ HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU5VFMU3V:
 HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-0DR22-MU5VFMU3V-BO:
   eventCount: 0
 HLT_mu6_mu6noL1_L1MU5VF:
-  eventCount: 3
+  eventCount: 4
   stepCounts:
     0: 11
     1: 11
     2: 11
     3: 11
     4: 4
-    5: 3
+    5: 4
   stepFeatures:
     0: 14
     1: 14
     2: 16
     3: 14
     4: 9
-    5: 6
+    5: 8
 HLT_mu6_noL2Comb_mu4_noL2Comb_bJpsimumu_L1MU5VF_2MU3V:
   eventCount: 1
   stepCounts:
