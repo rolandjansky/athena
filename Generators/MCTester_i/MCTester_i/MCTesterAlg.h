@@ -60,8 +60,8 @@ public:
    // Some storegate variables
    std::string m_key; 
    SG::ReadHandleKey<xAOD::EventInfo>  m_infokey{this
-       , "McEventInfoKey"
-       , "McEventInfo"
+       , "EventInfoKey"
+       , "EventInfo"
        , "ReadHandleKey for xAOD::EventInfo" };
 
    //variables used to configure MC-TESTER

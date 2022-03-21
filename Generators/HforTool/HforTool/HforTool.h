@@ -94,7 +94,7 @@ private:
 
   SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey {this
       , "EventInfo"
-      , "McEventInfo"
+      , "EventInfo"
       , "ReadHandleKey for xAOD::EventInfo"};
 
   /// Lists of four-vectors for b/c quarks from MPI, indexed by abs pdgId

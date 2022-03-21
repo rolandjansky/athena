@@ -155,7 +155,7 @@ theApp.EvtMax = -1
 
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
-                          OutputEventInfo="McEventInfo",
+                          OutputEventInfo="EventInfo",
                           mcEventWeightsKey="TMPEvtInfo.mcEventWeights")
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
@@ -453,10 +453,10 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
     else:
         raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, noTag=True, eventInfoKey="McEventInfo")
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, noTag=True, eventInfoKey="EventInfo")
 
     StreamEVGEN.ForceRead = True
-    StreamEVGEN.ItemList += ["EventInfo#*", "xAOD::EventInfo#McEventInfo*", "xAOD::EventAuxInfo#McEventInfoAux.*", "McEventCollection#*"]
+    StreamEVGEN.ItemList += ["EventInfo#*", "xAOD::EventInfo#EventInfo*", "xAOD::EventAuxInfo#EventInfoAux.*", "McEventCollection#*"]
     StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
     ## Used for pile-up (remove dynamic variables except flavour labels)
     if evgenConfig.saveJets:

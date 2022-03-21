@@ -119,7 +119,7 @@ private:
 
   SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey{this
       , "EventInfo"
-      , "McEventInfo"
+      , "EventInfo"
       , "ReadHandleKey for xAOD::EventInfo" };
 };
 
