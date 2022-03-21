@@ -110,16 +110,16 @@ JetInputProviderFEX::handle(const Incident& incident) {
    auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 200, 0, 200);
    hjTauPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 2000);
-   hjTauIsolation->SetXTitle("Isolation [100 MeV]");
+   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 200);
+   hjTauIsolation->SetXTitle("Isolation [GeV]");
 
-   auto hjTauPhiEta = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 240, -240, 240, 64, 0, 128);
+   auto hjTauPhiEta = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 200, -200, 200, 128, 0, 128);
    hjTauPhiEta->SetXTitle("#eta#times40");
    hjTauPhiEta->SetYTitle("#phi#times20");
 
-   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 240, -240, 240, 200, 0, 2000);
+   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 200, -200, 200, 200, 0, 200);
    hjTauIsolationEta->SetXTitle("#eta#times40");
-   hjTauIsolationEta->SetYTitle("Isolation [100 MeV]");
+   hjTauIsolationEta->SetYTitle("Isolation [GeV]");
 
    auto h_jxe_Pt = std::make_unique<TH1I>( "jXEPt", "jXE TOB Pt", 100, 0, 2000);
    h_jxe_Pt->SetXTitle("p_{T} [GeV]");
@@ -202,18 +202,19 @@ JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
-    TCS::jTauTOB jtau( EtTopo, isolation, etaTopo, phiTopo );
+    TCS::jTauTOB jtau( EtTopo, etaTopo, phiTopo );
     jtau.setEtDouble( static_cast<double>(EtTopo/10.) );
     jtau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     jtau.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jtau.setEtIso( isolation );
 
     inputEvent.addjTau( jtau );
     inputEvent.addcTau( jtau );
 
     m_hjTauPt->Fill(jtau.EtDouble());
-    m_hjTauIsolation->Fill(jtau.isolation());
+    m_hjTauIsolation->Fill(jtau.EtIso()/10.);
     m_hjTauPhiEta->Fill(jtau.eta(),jtau.phi()); 
-    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.isolation()); 
+    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.EtIso()/10.); 
   }
 
   return StatusCode::SUCCESS;

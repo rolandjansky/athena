@@ -17,7 +17,9 @@ TEST(JetGroupUnionTester, empty) {
   
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
+  std::size_t n_required{1};
+  std::vector<bool> leaves{true};
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
 
   EXPECT_TRUE(jgu.next(collector).empty());
 }
@@ -28,7 +30,8 @@ TEST(JetGroupUnionTester, one_elementary_cond) {
 
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {0, 1, 2};
-  std::vector<std::size_t> condMult{1};
+
+  std::vector<bool> leaves{true};
 
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
@@ -37,10 +40,31 @@ TEST(JetGroupUnionTester, one_elementary_cond) {
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
+  std::size_t n_required{1};
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
   
   auto exp = std::vector<std::size_t>{0, 1, 2};
   EXPECT_EQ(jgu.next(collector), exp);
+  EXPECT_TRUE(jgu.next(collector).empty());
+}
+
+TEST(JetGroupUnionTester, toofewjets) {
+  std::vector<std::size_t> siblings{0};
+
+  CondInd2JetGroupsInds satisfiedBy;
+  satisfiedBy[0] = std::vector<std::size_t> {0, 1, 2};
+  std::vector<bool> leaves{true};
+
+  JetGroupInd2ElemInds jg2elemjgs;
+  jg2elemjgs[0] = std::vector<std::size_t> {0};
+  jg2elemjgs[1] = std::vector<std::size_t> {1};
+  jg2elemjgs[2] = std::vector<std::size_t> {2};
+
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+
+  std::size_t n_required{4};
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
+  
   EXPECT_TRUE(jgu.next(collector).empty());
 }
 
@@ -51,7 +75,7 @@ TEST(JetGroupUnionTester, two_elem_nooverlap) {
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {0, 1, 2};
   satisfiedBy[1] = std::vector<std::size_t> {3, 4, 5};
-  std::vector<std::size_t> condMult{1};
+  std::vector<bool> leaves{true, true};
 
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
@@ -63,7 +87,9 @@ TEST(JetGroupUnionTester, two_elem_nooverlap) {
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
+  std::size_t n_required{1};
+
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
   EXPECT_EQ(jgu.next(collector), exp);
@@ -76,7 +102,7 @@ TEST(JetGroupUnionTester, two_elem_withoverlap) {
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {0, 1, 2};
   satisfiedBy[1] = std::vector<std::size_t> {3, 1, 5};
-  std::vector<std::size_t> condMult{1};
+  std::vector<bool> leaves{true, true};
 
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
@@ -88,7 +114,8 @@ TEST(JetGroupUnionTester, two_elem_withoverlap) {
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
+  std::size_t n_required{1};
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 3, 5};
   EXPECT_EQ(jgu.next(collector), exp);
@@ -102,8 +129,9 @@ TEST(JetGroupUnionTester, two_comp_nooverlap) {
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {10};
   satisfiedBy[1] = std::vector<std::size_t> {20};
-  std::vector<std::size_t> condMult{1};
 
+  std::vector<bool> leaves{false, false};
+  
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
   jg2elemjgs[1] = std::vector<std::size_t> {1};
@@ -116,7 +144,9 @@ TEST(JetGroupUnionTester, two_comp_nooverlap) {
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
+  std::size_t n_required{1};
+
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
   EXPECT_EQ(jgu.next(collector), exp);
@@ -130,7 +160,7 @@ TEST(JetGroupUnionTester, two_comp_withoverlap) {
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {10};
   satisfiedBy[1] = std::vector<std::size_t> {20};
-  std::vector<std::size_t> condMult{1};
+  std::vector<bool> leaves{false, false};
 
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
@@ -144,7 +174,9 @@ TEST(JetGroupUnionTester, two_comp_withoverlap) {
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  JetGroupUnion jgu(siblings, satisfiedBy, jg2elemjgs, collector);
+  std::size_t n_required{1};
+
+  JetGroupUnion jgu(siblings, leaves, satisfiedBy, jg2elemjgs, n_required);
   
   auto exp = std::vector<std::size_t>{0, 1, 2, 5};
   EXPECT_EQ(jgu.next(collector), exp);

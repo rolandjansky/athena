@@ -121,7 +121,7 @@ AsgElectronChargeIDSelectorTool::initialize()
   }
 
   unsigned nfold = 1;
-  TFile* bdtfile = TFile::Open(TrainingFile.data());
+  std::unique_ptr<TFile> bdtfile(TFile::Open(TrainingFile.data(),"READ"));
   if (!bdtfile) {
     ATH_MSG_ERROR("Input file found to be empty!! " << TrainingFile);
     return StatusCode::FAILURE;

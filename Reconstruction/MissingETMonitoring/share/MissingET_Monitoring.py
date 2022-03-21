@@ -5,7 +5,7 @@ from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
 
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
-cleaningTool = JetCleaningTool( "LooseBadJets" , CutLevel = "LooseBad")
+cleaningTool = JetCleaningTool( "LooseBadJets" , CutLevel = "LooseBad", JetContainer = "AntiKt4LCTopoJets")
 ToolSvc += cleaningTool
 
 

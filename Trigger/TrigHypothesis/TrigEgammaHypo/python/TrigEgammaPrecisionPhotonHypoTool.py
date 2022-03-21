@@ -187,7 +187,7 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
     if not ConfigFilePath:
       ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
 
-    import collections
+    import collections.abc
     # Configure the IsEM selectors
     SelectorNames = collections.OrderedDict( {
             'tight'  : 'TightPhotonSelector',

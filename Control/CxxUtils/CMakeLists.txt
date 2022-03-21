@@ -37,12 +37,13 @@ atlas_add_test( read_athena_statm_test
 atlas_add_test( PageAccessControl_test
    SOURCES test/PageAccessControl_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils )
+   LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils
+   LOG_IGNORE_PATTERN "for page .* 0x" )
 
 atlas_add_test( SEGVHandler_test
    SOURCES test/SEGVHandler_test.cxx
    LINK_LIBRARIES CxxUtils
-   LOG_IGNORE_PATTERN "page fault|FIXME NOT Freeing memory" )
+   LOG_IGNORE_PATTERN "0x[0-9a-f]{4,}|page fault|FIXME NOT Freeing memory" )
 
 atlas_add_test( procmaps_test
    SOURCES test/procmaps_test.cxx
@@ -64,7 +65,7 @@ if( NOT XAOD_STANDALONE )
       LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS}
       # With clang12 i see DWARF error messages from addr2line.
       # It still works ok, though.
-      LOG_IGNORE_PATTERN "DebugAids::stacktrace|CxxUtils::backtraceByUnwind|DWARF error")
+      LOG_IGNORE_PATTERN "0x[0-9a-f]{4,}|DebugAids::stacktrace|CxxUtils::backtraceByUnwind|DWARF error")
 endif()
 
 atlas_add_test( MD5_test
@@ -111,7 +112,9 @@ endif()
 
 atlas_add_test( exctrace2_test
    SOURCES test/exctrace2_test.cxx
-   LINK_LIBRARIES CxxUtils )
+   LINK_LIBRARIES CxxUtils
+   LOG_IGNORE_PATTERN "0x[0-9a-f]{4,}"
+)
 
 atlas_add_test(
    OptionalContainer_test

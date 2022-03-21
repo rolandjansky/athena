@@ -5,7 +5,6 @@
 #ifndef E1HG_SYSTEMATICS_H
 #define E1HG_SYSTEMATICS_H
 #include "TH1.h"
-#include "TFile.h"
 #include "TArrayD.h"
 
 /**
@@ -19,7 +18,7 @@ class e1hg_systematics {
  public:
   /** @brief constructor (initialization done there reading root files) */
   e1hg_systematics();
-  ~e1hg_systematics();
+  ~e1hg_systematics() {};
 
   /**
    @brief particle_type = 0 (electrons), 1 (unconv photons), 2 (conv photons)
@@ -32,10 +31,10 @@ class e1hg_systematics {
  private:
 
   // histograms to store parameters
-  TH1D* m_helec[8]{};
-  TH1D* m_hphot[8]{};
-  TH1D* m_hphot2[8]{};
-  TFile* m_file0;
+  static const int s_nEtaBins = 8;
+  TH1D* m_helec[s_nEtaBins]{};
+  TH1D* m_hphot[s_nEtaBins]{};
+  TH1D* m_hphot2[s_nEtaBins]{};
   const TArrayD* m_etBins;
 
 };

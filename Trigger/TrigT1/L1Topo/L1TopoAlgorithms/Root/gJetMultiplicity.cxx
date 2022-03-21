@@ -43,13 +43,11 @@ TCS::gJetMultiplicity::initialize() {
   m_threshold = getThreshold();
 
   // book histograms
-  bool isMult = true;
+  std::string hname_accept = "gJetMultiplicity_accept_EtaPt"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 600, 0, 600);
 
-  std::string hname_accept = "hgJetMultiplicity_accept_EtaPt"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 450, 0., 300., isMult);
-
-  hname_accept = "hgJetMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+  hname_accept = "gJetMultiplicity_accept_counts_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
 
   return StatusCode::SUCCESS;
      

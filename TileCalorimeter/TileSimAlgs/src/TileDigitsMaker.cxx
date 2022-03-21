@@ -1133,7 +1133,7 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
         for (int ihit = 0; ihit < n_hits; ++ihit) {
           e_hit += tileHit->energy(ihit);
         }
-        e_hit *= samplingFraction->getSamplingFraction(drawerIdx, ich);
+        e_hit *= std::round(samplingFraction->getSamplingFraction(drawerIdx, ich) * 1000) / 1000;
         ech_tot[ich] += e_hit;
         ntot_ch[ich] += n_hits;
         ATH_MSG_VERBOSE("BAD Overlay digits - skip hit in channel " << m_tileHWID->to_string(channel_id,-1));
@@ -1148,6 +1148,7 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
       igain[ich] = TileID::HIGHGAIN;
     // conversion from scintillator energy to total cell energy (sampling fraction)  
     double hit_calib = samplingFraction->getSamplingFraction(drawerIdx, ich);
+    hit_calib = std::round(hit_calib * 1000) / 1000;
 
     // conversion to ADC counts for high gain
     double efactorHi = hit_calib / emScale->calibrateChannel(drawerIdx, ich, TileID::HIGHGAIN, 1.

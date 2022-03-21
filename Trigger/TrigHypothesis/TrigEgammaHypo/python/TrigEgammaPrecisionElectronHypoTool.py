@@ -290,7 +290,7 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
     if not ConfigFilePath:
       ConfigFilePath = ConfigFlags.Trigger.egamma.dnnVersion
   
-    import collections
+    import collections.abc
     SelectorNames = collections.OrderedDict({
           'dnntight'  :'AsgElectronDNNTightSelector',
           'dnnmedium' :'AsgElectronDNNMediumSelector',
@@ -321,7 +321,7 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
     if not ConfigFilePath:
         ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
 
-    import collections
+    import collections.abc
     SelectorNames = collections.OrderedDict({
           'lhtight'       :'AsgElectronLHTightSelector',
           'lhmedium'      :'AsgElectronLHMediumSelector',

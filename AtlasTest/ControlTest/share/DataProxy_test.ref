@@ -24,7 +24,6 @@ ClassIDSvc           INFO  getRegistryEntries: read 1913 CLIDRegistry entries fo
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-FIXME: in opt 32 bits we need to print the address of addressProxy to avoid a crash when the jobs ends!?!  @0x7ffc8985ffb0
 EventPersistenc...   INFO Added successfully Conversion service:ToyConversionSvc[m
 Now we expect to see a warning message:
 ----Warning Message Starts--->>

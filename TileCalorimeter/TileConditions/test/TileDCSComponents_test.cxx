@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -98,7 +98,23 @@ static const std::vector<TileDCSState::TileDCSStatus> DCS_STATUS{
 };
 
 
-static const EventIDRange EVENT_RANGE {
+static const EventIDRange EVENT_TIME_RANGE {
+  EventIDBase{
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFEVT,
+    EventIDBase::UNDEFNUM / 8, // Time stamp
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFNUM},
+
+  EventIDBase{
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFEVT,
+    EventIDBase::UNDEFNUM / 2,  // Time stamp
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFNUM}
+};
+
+static const EventIDRange EVENT_RUN_RANGE {
   EventIDBase{
     EventIDBase::UNDEFNUM / 8, // Run number
     EventIDBase::UNDEFEVT,
@@ -114,24 +130,22 @@ static const EventIDRange EVENT_RANGE {
     EventIDBase::UNDEFNUM / 2}  // Lumi block
 };
 
-/*
-static const EventIDRange ALL_EVENT_RANGE {
+static const EventIDRange EVENT_MIXED_RANGE {
   EventIDBase{
-    0, // Run number
+    EventIDBase::UNDEFNUM / 8, // Run number
     EventIDBase::UNDEFEVT,
+    EventIDBase::UNDEFNUM / 8, // Time stamp
     EventIDBase::UNDEFNUM,
-    EventIDBase::UNDEFNUM,
-    0}, // Lumi block
+    EventIDBase::UNDEFNUM / 8}, // Lumi block
 
   EventIDBase{
-    EventIDBase::UNDEFNUM - 1,  // Run number
+    EventIDBase::UNDEFNUM / 2,  // Run number
     EventIDBase::UNDEFEVT,
+    EventIDBase::UNDEFNUM / 2, // Time stamp
     EventIDBase::UNDEFNUM,
-    EventIDBase::UNDEFNUM,
-    EventIDBase::UNDEFNUM - 1}  // Lumi block
+    EventIDBase::UNDEFNUM / 2}  // Lumi block
 };
 
-*/
 
 /** Class provides dummy algorithm
  *  to help construct Tool to be tested.
@@ -200,8 +214,6 @@ using FolderData = std::map<unsigned int, std::vector<std::pair<std::string, T>>
 template<typename T>
 void prepareDCSFolder(const std::string& key, const FolderData<T>& folderData) {
 
-  IOVRange range(EVENT_RANGE);
-
   SG::WriteCondHandleKey<CondAttrListCollection> folderKey(key);
   assert(folderKey.initialize().isSuccess());
 
@@ -227,10 +239,10 @@ void prepareDCSFolder(const std::string& key, const FolderData<T>& folderData) {
   }
 
 
-  std::cout << "FOLDER [" << EVENT_RANGE << "]: " << std::endl;
+  std::cout << "FOLDER [" << EVENT_TIME_RANGE << "]: " << std::endl;
   data->dump();
 
-   assert(folder.record(EVENT_RANGE, data.release()).isSuccess());
+  assert(folder.record(EVENT_TIME_RANGE, data.release()).isSuccess());
 }
 
 
@@ -512,7 +524,7 @@ void prepareEms(void) {
 
   SG::WriteCondHandle<TileEMScale> folderEms{folderEmsKey};
 
-  assert(folderEms.record(EVENT_RANGE, emScale.release()).isSuccess());
+  assert(folderEms.record(EVENT_RUN_RANGE, emScale.release()).isSuccess());
 
 }
 
@@ -848,7 +860,7 @@ void testTileDCSTool(ISvcLocator* svcLoc) {
 
     SG::WriteCondHandle<TileDCSState> dcsState{dcsStateKey};
     std::unique_ptr<TileDCSState> dcsData = getDCSState();
-    assert(dcsState.record(EVENT_RANGE, dcsData.release()).isSuccess());
+    assert(dcsState.record(EVENT_MIXED_RANGE, dcsData.release()).isSuccess());
 
   }
 
@@ -885,6 +897,7 @@ int main() {
   EventIDBase eventId;
   eventId.set_run_number(EventIDBase::UNDEFNUM / 4);
   eventId.set_lumi_block(EventIDBase::UNDEFNUM / 4);
+  eventId.set_time_stamp(EventIDBase::UNDEFNUM / 4);
 
   EventContext ctx;
   ctx.setEventID(eventId);

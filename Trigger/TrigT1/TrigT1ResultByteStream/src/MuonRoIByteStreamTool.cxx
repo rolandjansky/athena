@@ -107,7 +107,7 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
   std::array<size_t,static_cast<size_t>(LVL1::MuCTPIBits::WordType::MAX)> wordTypeCounts{}; // zero-initialised
   auto monWordTypeCount = Monitored::Collection("WordTypeCount", wordTypeCounts);
   auto monWordType = Monitored::Collection("WordType", s_wordTypes);
-  std::vector<uint32_t> bcidOffsetsWrtROB; // diffs between BCID in timeslice header and BCID in ROB header
+  std::vector<int> bcidOffsetsWrtROB; // diffs between BCID in timeslice header and BCID in ROB header
   auto monBCIDOffsetsWrtROB = Monitored::Collection("BCIDOffsetsWrtROB", bcidOffsetsWrtROB);
 
   // We don't know the readout window size at this point, so will collect start and end of roi words for each time
@@ -288,7 +288,7 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
   std::array<size_t,static_cast<size_t>(LVL1::MuCTPIBits::WordType::MAX)> wordTypeCounts{}; // zero-initialised
   auto monWordTypeCount = Monitored::Collection("WordTypeCount", wordTypeCounts);
   auto monWordType = Monitored::Collection("WordType", s_wordTypes);
-  std::vector<uint32_t> bcidOffsetsWrtROB; // diffs between BCID in timeslice header and BCID in ROB header
+  std::vector<int> bcidOffsetsWrtROB; // diffs between BCID in timeslice header and BCID in ROB header
   auto monBCIDOffsetsWrtROB = Monitored::Collection("BCIDOffsetsWrtROB", bcidOffsetsWrtROB);
   auto monitorCandidate = [](const auto& monTool, const xAOD::MuonRoI& roi){
       // Fill per-candidate monitoring histograms

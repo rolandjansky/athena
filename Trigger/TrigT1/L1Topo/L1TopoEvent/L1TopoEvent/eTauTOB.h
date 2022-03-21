@@ -38,8 +38,8 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }          // float eta with granularity 0.025
       double phiDouble() const { return m_phiDouble; }          // float phi with granularity 0.05
       
-      unsigned int rCore() const { return m_rCore; }
-      unsigned int rHad() const { return m_rHad; }
+      unsigned int rCore() const { return m_rCore; }            // rCore isolation
+      unsigned int rHad() const { return m_rHad; }              // rHad isolation
 
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }

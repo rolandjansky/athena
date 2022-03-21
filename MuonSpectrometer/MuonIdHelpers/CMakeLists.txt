@@ -33,5 +33,6 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( muon_id_test
                 SOURCES
                 test/muon_id_test.cxx
-                LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib MuonStationIndexLib )
+                LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib MuonStationIndexLib
+                LOG_IGNORE_PATTERN "init_detectorElement_hashes.*0x" )
 endif()

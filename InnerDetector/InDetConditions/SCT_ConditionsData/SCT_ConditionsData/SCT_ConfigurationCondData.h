@@ -102,6 +102,6 @@ CLASS_DEF( SCT_ConfigurationCondData , 115061956 , 1 )
 
 // Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( SCT_ConfigurationCondData, 23220694 );
+CONDCONT_MIXED_DEF( SCT_ConfigurationCondData, 23220694 );
 
 #endif // SCT_CONFIGURATIONDATA_H

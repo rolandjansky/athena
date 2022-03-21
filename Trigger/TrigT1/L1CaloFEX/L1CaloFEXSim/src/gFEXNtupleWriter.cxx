@@ -290,24 +290,24 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   }
 
   for (auto const gScalarE : *gScalarEHandle) {
-    m_gGlobal_MET.push_back(gScalarE->quantityOne());
-    m_gGlobal_SumET.push_back(gScalarE->quantityTwo());
+    m_gGlobal_MET.push_back(gScalarE->METquantityOne());
+    m_gGlobal_SumET.push_back(gScalarE->METquantityTwo());
     m_gGlobal_etScale.push_back(gScalarE->tobEtScale());
   }
 
   for (auto const gMET : *gMETHandle) {
-    m_gGlobal_METx.push_back(gMET->quantityOne());
-    m_gGlobal_METy.push_back(gMET->quantityTwo());
+    m_gGlobal_METx.push_back(gMET->METquantityOne());
+    m_gGlobal_METy.push_back(gMET->METquantityTwo());
   }
 
   for (auto const gMHT : *gMETHandle) {
-    m_gGlobal_MHTx.push_back(gMHT->quantityOne());
-    m_gGlobal_MHTy.push_back(gMHT->quantityTwo());
+    m_gGlobal_MHTx.push_back(gMHT->METquantityOne());
+    m_gGlobal_MHTy.push_back(gMHT->METquantityTwo());
   }
 
   for (auto const gMST : *gMSTHandle) {
-    m_gGlobal_MSTx.push_back(gMST->quantityOne());
-    m_gGlobal_MSTy.push_back(gMST->quantityTwo());
+    m_gGlobal_MSTx.push_back(gMST->METquantityOne());
+    m_gGlobal_MSTy.push_back(gMST->METquantityTwo());
   }
 
   SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey);

@@ -66,10 +66,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_DBMTimeJitter
     {this, "DBMTimeJitter", {0.0,0.0,0.0}, "Time jitter of DBM layer"};
 
-    // Dead map key. This will be replaced once new deadmap format is validated.
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey
-    {this, "ReadDeadMapKey", "", "Input key of deadmap conditions folder"};
-
     //====================================================================================
     // Run-dependent SIMULATION(digitization) parameters:
     //

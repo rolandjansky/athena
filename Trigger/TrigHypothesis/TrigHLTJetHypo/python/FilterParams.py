@@ -17,6 +17,9 @@ class FilterParams:
 
         self.typename = typename
         self.args = args
+
+    def __eq__(self, other):
+        return self.typename == other.typename and self.args == other.args
  
     def __str__(self):
 

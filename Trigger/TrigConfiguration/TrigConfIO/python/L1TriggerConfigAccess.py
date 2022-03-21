@@ -14,10 +14,10 @@ class L1MenuAccess(TriggerConfigAccess):
         """
         super(L1MenuAccess,self).__init__( ConfigType.L1MENU, mainkey = "items",
                                            jsonString=jsonString, filename = filename, dbalias = dbalias, dbkey = smkey)
-        self.loader.setQuery([
-            "SELECT L1MT.L1TM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MENU L1MT WHERE L1MT.L1TM_ID=SMT.SMT_L1_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
-            "SELECT L1MT.L1MT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MASTER_TABLE L1MT WHERE L1MT.L1MT_ID=SMT.SMT_L1_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
-        ])
+        self.loader.setQuery({
+            2: "SELECT L1MT.L1TM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MENU L1MT WHERE L1MT.L1TM_ID=SMT.SMT_L1_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            1: "SELECT L1MT.L1MT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MASTER_TABLE L1MT WHERE L1MT.L1MT_ID=SMT.SMT_L1_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
+        })
         self.load()
 
     def itemNames(self):
@@ -151,9 +151,9 @@ class L1PrescalesSetAccess(TriggerConfigAccess):
         """
         super(L1PrescalesSetAccess,self).__init__( ConfigType.L1PS, mainkey = "cutValues",
                                                    jsonString = jsonString, filename = filename, dbalias = dbalias, dbkey = l1pskey )
-        self.loader.setQuery([
-            "SELECT L1PS_DATA FROM {schema}.L1_PRESCALE_SET WHERE L1PS_ID={dbkey}" # for current and new db schema
-        ])
+        self.loader.setQuery({
+            1: "SELECT L1PS_DATA FROM {schema}.L1_PRESCALE_SET L1PS WHERE L1PS_ID={dbkey}" # for current and new db schema
+        })
         self.load()
 
 
@@ -183,8 +183,8 @@ class BunchGroupSetAccess(TriggerConfigAccess):
     def __init__(self, filename = None, jsonString=None, dbalias = None, bgskey = None ):
         super(BunchGroupSetAccess,self).__init__( ConfigType.BGS, mainkey = "bunchGroups",
                                                   jsonString = jsonString, filename = filename, dbalias = dbalias, dbkey = bgskey )
-        self.loader.setQuery([
-            "SELECT L1BGS_DATA FROM {schema}.L1_BUNCH_GROUP_SET WHERE L1BGS_ID={dbkey}" # for current and new db schema
-        ])
+        self.loader.setQuery({
+            1: "SELECT L1BGS_DATA FROM {schema}.L1_BUNCH_GROUP_SET BGS WHERE L1BGS_ID={dbkey}" # for current and new db schema
+        })
         self.load()
 

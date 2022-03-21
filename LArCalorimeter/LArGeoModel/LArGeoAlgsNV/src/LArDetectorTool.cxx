@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -194,14 +194,12 @@ StatusCode LArDetectorToolNV::create()
 
 StatusCode LArDetectorToolNV::clear()
 {
-  std::vector<std::string>::const_iterator itStored;
-
   StoredPhysVol* storedPV{nullptr};
   StatusCode status(StatusCode::SUCCESS);
   std::vector<std::string> sgkeysFPV = detStore()->keys<StoredPhysVol>();
   // First loop over all Full Physical volumes and initialize their global position informations
-  for(itStored=sgkeysFPV.begin();itStored!=sgkeysFPV.end();itStored++) {
-    status = detStore()->retrieve(storedPV,*itStored);
+  for (const std::string& stored : sgkeysFPV) {
+    status = detStore()->retrieve(storedPV,stored);
     if(status.isFailure()) {
       storedPV = nullptr;
       continue;
@@ -213,8 +211,8 @@ StatusCode LArDetectorToolNV::clear()
     }
   }
 
-  for(itStored=sgkeysFPV.begin();itStored!=sgkeysFPV.end();itStored++) {
-    status = detStore()->retrieve(storedPV,*itStored);
+  for (const std::string& stored : sgkeysFPV) {
+    status = detStore()->retrieve(storedPV,stored);
     if(status.isFailure()) {
       storedPV = nullptr;
       continue;
@@ -227,8 +225,8 @@ StatusCode LArDetectorToolNV::clear()
 
   // Release all Stored XF and Stored FPV from the detector store
   std::vector<std::string> sgkeysAXF = detStore()->keys<StoredAlignX>();
-  for(itStored=sgkeysAXF.begin();itStored!=sgkeysAXF.end();itStored++) {
-    SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<StoredAlignX>::ID(),*itStored);
+  for (const std::string& stored : sgkeysAXF) {
+    SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<StoredAlignX>::ID(),stored);
     if(proxy) proxy->reset();
   }
 

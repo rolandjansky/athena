@@ -46,16 +46,14 @@ private:
 
   /// Helper functions
   
- StatusCode fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2* tt, 
-                               std::vector<MonitorTT> &vecMonTT_EM, 
-                               std::vector<MonitorTT> &vecMonTT_HAD,  
+ StatusCode makePPMTower( const xAOD::TriggerTower_v2* tt, 
                                std::vector<MonitorTT> &vecMonTT) const;
 
   double recTime(const std::vector<short unsigned int> &vFADC, int cut) const;
 
   std::string getPartition(int layer, double eta) const;
 
-  StatusCode fillPPMEtaVsPhi( MonitorTT &monTT, 
+  StatusCode fillPPMEtaPhi( MonitorTT &monTT, 
                               const std::string& groupName, 
                               const std::string& weightName,
                               double weight=1.) const;

@@ -155,6 +155,7 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
     int ibl  = atlasVersion.compare(0,9,"ATLAS-IBL");
     int run2 = atlasVersion.compare(0,8,"ATLAS-R2");
     int run3 = atlasVersion.compare(0,8,"ATLAS-R3");
+    int run4 = atlasVersion.compare(0,13,"ATLAS-P2-RUN4");
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int comm = atlasVersion.compare(0,10,"ATLAS-Comm");
 
@@ -163,11 +164,11 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
     bool upgradeABC = (tileID->cell_hash_max() == MAX_TILE_CELLS_UPGRADEABC);
 
     // choose which geometries are true RUN2 geometries to apply run2 cabling
-    bool nothing_found = (ctb*geo*run1*ibl*run2*run3*upg*comm != 0);
+    bool nothing_found = (ctb*geo*run1*ibl*run2*run3*run4*upg*comm != 0);
     GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
     bool RUN2 = (nothing_found && geoConfig==GeoModel::GEO_RUN2) || (run2 == 0);
     bool RUN3 = (nothing_found && geoConfig==GeoModel::GEO_RUN3) || (run3 == 0);
-    bool RUN4 = (nothing_found && geoConfig==GeoModel::GEO_RUN4);
+    bool RUN4 = (nothing_found && geoConfig==GeoModel::GEO_RUN4) || (run4 == 0);
     //|| (ibl == 0 || upg == 0);
 
     if (RUN2) {
@@ -208,8 +209,17 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
       }
 
     } else if (RUN4) {
-      ATH_MSG_INFO( "RUN4 ATLAS geometry detected - use RUN1 cabling: " << atlasVersion );
-      m_cablingType = TileCablingService::MBTSOnly;
+
+      ATH_MSG_INFO( "RUN4 ATLAS geometry flag detected for geometry: " << atlasVersion );
+      if (m_cablingType == TileCablingService::RUN3Cabling) {
+        ATH_MSG_INFO( "Cabling for RUN3 ATLAS geometry is set via jobOptions " );
+      } else if ( m_cablingType < TileCablingService::RUN3Cabling) {
+        ATH_MSG_INFO( "Setting RUN3 cabling" );
+        m_cablingType = TileCablingService::RUN3Cabling;
+      } else {
+        ATH_MSG_INFO( "Using cabling type " << m_cablingType << " from jobOptions " );
+      }
+
     } else if (m_cablingType == TileCablingService::RUN3Cabling) {
       ATH_MSG_INFO( "Cabling for RUN3 ATLAS geometry is set via jobOptions " );
     } else if (m_cablingType == TileCablingService::RUN2Cabling) {

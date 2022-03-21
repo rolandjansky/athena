@@ -1,0 +1,128 @@
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
+start: (outputblock
+        | dirblock
+	| histblock
+	| algorithmblock
+	| thresholdblock
+	| compalgblock
+	| metadatablock
+    | referenceblock)*
+
+COMMENT: /#[^\n]*/
+%ignore COMMENT
+
+outputblock : "output"i outputname "{" (algorefstatement
+                                       | weightstatement
+                                       | outputblock)* "}"
+
+outputname : NODENAME
+algorithmreference : NODEREF
+outputreference : NODEREF
+weightstatement: "weight" "=" NUMBER -> weight
+
+dirblock : "dir"i dirname "{" (dirstatements
+                              | dirblock
+			      | histblock)* "}"
+
+dirname: REGEX
+
+?dirstatements: "reference"i "=" NODENAME -> reference
+              | histstatements
+algorefstatement: "algorithm"i "=" algorithmreference
+
+histblock: "hist"i histname atname? "{" histstatements* "}"
+
+REGEX: /[^\n\t@ ]+/
+histname: REGEX
+atname: "@"NODENAME
+
+?histstatements: "display"i "=" DISPSTRING -> display
+              | "algorithm"i "=" algorithmreference
+	      | "output"i "=" NODEREF -> output
+	      | "regex"i "=" INTBOOL -> regex
+	      | "weight" "=" NUMBER -> weight
+	      | "description"i "=" DISPSTRING -> description
+		  | NODEREF "=" DISPSTRING -> extra
+
+dispparamkey: /^(?!(display|algorithm|output|regex|weight|description))[^=\#\s]+/i
+DISPPARAMSTATEMENT: /^(?!(display|algorithm|output|regex|weight|description))[^=\#\s]+/i WS_INLINE* "=" WS_INLINE* /[^\s]+/
+
+INTBOOL: ("0" | "1")
+
+DISPSTRING: /(?![ =\n]).+/
+
+algorithmblock: "algorithm"i algorithmname "{" algstatements* "}"
+
+algorithmname: NODENAME
+
+?algstatements: "libname"i "=" LIBNAME -> libname
+             | "name"i "=" NODENAME -> realname
+	     | algorithmblock
+	     | "reference"i "=" algreferencespec
+	     | threshold
+	     | algparams
+
+algparams: /(?!(libname|name|reference|threshold))[^=\#\s]+/i "=" algparamvalue
+
+algparam: NODENAME
+algparamvalue: NUMBER
+
+threshold: THRESHOLDKEY thresholdref
+THRESHOLDKEY: ("thresholds" | NODEREF "|thresholds") WS_INLINE? "="
+subalgname: NODEREF
+thresholdref: NODEREF
+
+CONDALGREFERENCESPEC: WORD "=" NODEREF ":" NODEREF
+
+algreferencespec: (CONDALGREFERENCESPEC ";")* NODEREF
+
+LIBNAME: CNAME ("." NODENAME)*
+
+thresholdblock: "thresholds" thresholdname "{" (thresholdblock | limits)* "}"
+thresholdname: NODENAME
+
+?limits: "limits" limitname "{" limitstatements* "}"
+limitname: NODENAME
+
+limitstatements: "warning" "=" NUMBER -> warning
+               | "error" "=" NUMBER -> error
+	       | algparams
+
+compalgblock: "compositeAlgorithm" compalgname "{" compalgstatements* "}"
+compalgname: NODENAME
+
+?compalgstatements: "libnames" "=" LIBNAME -> libname
+                 | "subalgs" "=" subalglist
+subalglist: (NODEREF ",")* NODEREF
+
+metadatablock: "metadata" metadataname "{" mdpairs* "}"
+metadataname: NODENAME
+mdpairs: mdkey "=" mdvalue
+mdkey: NODENAME
+mdvalue: DISPSTRING
+
+referenceblock: "reference"i referencename "{" referencestatements* "}"
+referencename: NODENAME
+referencestatements: "location" "=" DISPSTRING -> location
+                   | "file" "=" DISPSTRING -> file
+		   | "path" "=" NODEREF -> path
+		   | "info" "=" DISPSTRING -> info
+		   | "name" "=" NODEREF -> name
+		
+
+NODENAME: ("_" | "." | DIGIT | LETTER) ("_" | "&" | "[" | "]" | "-" | "." | ">" | DIGIT | LETTER)*
+
+NODEREF: (NODENAME"/")* NODENAME
+
+%import common.ESCAPED_STRING   -> STRING
+%import common.STRING_INNER
+%import common.SIGNED_NUMBER    -> NUMBER
+%import common.CNAME
+%import common.DIGIT
+%import common.LETTER
+%import common.WORD
+%import common.WS_INLINE
+%import common.WS
+%import common.NEWLINE
+%ignore WS

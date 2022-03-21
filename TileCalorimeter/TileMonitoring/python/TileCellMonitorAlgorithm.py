@@ -46,6 +46,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     kwargs.setdefault('fillChannelTimeHistograms', True)
     kwargs.setdefault('fillTimeAndEnergyDiffHistograms', False)
     kwargs.setdefault('fillGapScintilatorHistograms', False)
+    kwargs.setdefault('EnergyLimitForTime', 750.0 * GeV)
 
     from AthenaConfiguration.Enums import BeamType
     if flags.Beam.Type in [BeamType.Cosmics, BeamType.SingleBeam]:

@@ -267,17 +267,17 @@ void ConfigurableAlg::registerHist(TH2 * h) {
    m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const bool isMult) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name, const std::string& title, const int binx, const int xmin, const int xmax) {
   std::string xmin_str = ToString(xmin);
   std::string xmax_str = ToString(xmax);
   std::string newTitle = title;
   std::string newName = name;
-  if (not isMult) {
-    newTitle = xmin_str+title+xmax_str;
-    newName = name+"_"+xmin_str+title+xmax_str;
-    std::replace( newName.begin(), newName.end(), '-', 'n');
-    std::replace( newName.begin(), newName.end(), ' ', '_');
-  }
+
+  newTitle = xmin_str+title+xmax_str;
+  newName = name+"_"+xmin_str+title+xmax_str;
+  std::replace( newName.begin(), newName.end(), '-', 'n');
+  std::replace( newName.begin(), newName.end(), ' ', '_');
+
   regName.push_back(m_name+"/"+newName);
 
   // Add units to axis labels
@@ -289,7 +289,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   else {
     if (title == "ETA" || title == "DETA" || title == "DR")                                  { xTitle = title+"#times40"; }
     if (title == "PHI" || title == "DPHI")                                                   { xTitle = title+"#times20"; }
-    if (title == "PT" || title == "ET" || title == "HT" || title == "INVM" || title == "MT") { xTitle = isMult ? title+" [GeV]" : title+" [100 MeV]"; } 
+    if (title == "PT" || title == "ET" || title == "HT" || title == "INVM" || title == "MT") { xTitle = title+" [100 MeV]"; } 
   }
  
   int xmin_new,xmax_new;
@@ -329,12 +329,21 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     xmax_new=dr_max;
   }
 
-  TH1 *h = new TH1F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new);
+  TH1 *h = new TH1F(newName.c_str(), newTitle.c_str(), binx, xmin_new, xmax_new);
   h->GetXaxis()->SetTitle(xTitle.c_str());
   m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax, const bool isMult) {
+void ConfigurableAlg::bookHistMult(std::vector<std::string> &regName, const std::string& name, const std::string& title, const std::string& xtitle, const int binx, const int xmin, const int xmax) {
+
+  regName.push_back(m_name+"/"+name);
+
+  TH1 *h = new TH1F(name.c_str(), title.c_str(), binx, xmin, xmax);
+  h->GetXaxis()->SetTitle(xtitle.c_str());
+  m_impl->registerHist(h);
+}
+
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name, const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
   auto usPos = title.find(" vs ");
   std::string xName = title.substr(0,usPos);
   std::string yName = title.substr(usPos+4);
@@ -344,12 +353,12 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   std::string ymax_str = ToString(ymax);
   std::string newTitle = title;
   std::string newName = name;
-  if (not isMult) {
-    newTitle = xmin_str+xName+xmax_str+" vs "+ymin_str+yName+ymax_str;
-    newName = name+"_"+xmin_str+xName+xmax_str+"_"+ymin_str+yName+ymax_str;
-    std::replace( newName.begin(), newName.end(), '-', 'n');
-    std::replace( newName.begin(), newName.end(), ' ', '_');
-  }
+
+  newTitle = xmin_str+xName+xmax_str+" vs "+ymin_str+yName+ymax_str;
+  newName = name+"_"+xmin_str+xName+xmax_str+"_"+ymin_str+yName+ymax_str;
+  std::replace( newName.begin(), newName.end(), '-', 'n');
+  std::replace( newName.begin(), newName.end(), ' ', '_');
+
   regName.push_back(m_name+"/"+newName);
 
   // Add units to axis labels
@@ -365,11 +374,11 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   else {
     if (xName == "ETA" || xName == "DETA" || xName == "DR")                                  { xTitle = xName+"#times40"; }
     if (xName == "PHI" || xName == "DPHI")                                                   { xTitle = xName+"#times20"; }
-    if (xName == "PT" || xName == "ET" || xName == "HT" || xName == "INVM" || xName == "MT") { xTitle = isMult ? xName+" [GeV]" : xName+" [100 MeV]"; } 
+    if (xName == "PT" || xName == "ET" || xName == "HT" || xName == "INVM" || xName == "MT") { xTitle = xName+" [100 MeV]"; } 
 
     if (yName == "ETA" || yName == "DETA" || yName == "DR")                                  { yTitle = yName+"#times40"; }
     if (yName == "PHI" || yName == "DPHI")                                                   { yTitle = yName+"#times20"; }
-    if (yName == "PT" || yName == "ET" || yName == "HT" || yName == "INVM" || yName == "MT") { yTitle = isMult ? yName+" [GeV]" : yName+" [100 MeV]"; } 
+    if (yName == "PT" || yName == "ET" || yName == "HT" || yName == "INVM" || yName == "MT") { yTitle = yName+" [100 MeV]"; } 
   }
 
   int xmin_new,xmax_new;
@@ -436,9 +445,19 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     ymax_new=dr_max;
   }
 
-  TH2 *h = new TH2F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new,biny,ymin_new,ymax_new);
+  TH2 *h = new TH2F(newName.c_str(), newTitle.c_str(), binx, xmin_new, xmax_new, biny, ymin_new, ymax_new);
   h->GetXaxis()->SetTitle(xTitle.c_str());
   h->GetYaxis()->SetTitle(yTitle.c_str());
+  m_impl->registerHist(h);
+}
+
+  void ConfigurableAlg::bookHistMult(std::vector<std::string> &regName, const std::string& name, const std::string& title, const std::string& xtitle, const std::string& ytitle, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
+
+  regName.push_back(m_name+"/"+name);
+
+  TH2 *h = new TH2F(name.c_str(), title.c_str(), binx, xmin, xmax, biny, ymin, ymax);
+  h->GetXaxis()->SetTitle(xtitle.c_str());
+  h->GetYaxis()->SetTitle(ytitle.c_str());
   m_impl->registerHist(h);
 }
   

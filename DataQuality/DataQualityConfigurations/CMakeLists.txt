@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityConfigurations )
@@ -64,8 +64,10 @@ foreach( hanfile collisions_run collisions_minutes10
       DESTINATION ${CMAKE_INSTALL_DATADIR}/DataQualityConfigurations OPTIONAL )
 
    # add a test
-   atlas_add_test( ${hanfile}_syntax SCRIPT scripts/han-config-check.sh ${configOutputFile} PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
+   # temporarily disable until we fix the syntax checker
+   # atlas_add_test( ${hanfile}_syntax SCRIPT scripts/han-config-check.sh ${configOutputFile} PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
    atlas_add_test( ${hanfile}_topempty SCRIPT test/check_no_top_level_assessments.sh ${outputFile} POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ${hanfile}_lark SCRIPT han_lark_tester.py ${configOutputFile} PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
 
    # Clean up:
    unset( outputFile )

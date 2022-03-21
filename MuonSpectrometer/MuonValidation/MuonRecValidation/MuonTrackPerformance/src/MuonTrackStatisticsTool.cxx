@@ -50,7 +50,7 @@ StatusCode MuonTrackStatisticsTool::finalize() {
 StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(const std::string& name, const DetailedTrackTruthCollection* truthMap) const {
     std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_it = m_allTruthCounters.begin();
     std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_itEnd = m_allTruthCounters.end();
-    for (; counterTruth_it != counterTruth_itEnd; counterTruth_it++) {
+    for (; counterTruth_it != counterTruth_itEnd; ++counterTruth_it) {
         if ((*counterTruth_it)->trackLocation.compare(name) == 0) { return updateTruthTrackCounters(**counterTruth_it, *truthMap); }
     }
     ATH_MSG_WARNING("Failed to match the collection " << name << " to any counter");
@@ -69,7 +69,7 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
     DetailedTrackTruthCollection::const_iterator it = it_start;
     int myindex = 0;
 
-    for (it = it_start; it != it_end; it++) {
+    for (it = it_start; it != it_end; ++it) {
         counters.nPIXELhits[0] += (*it).second.statsCommon()[SubDetHitStatistics::Pixel];
         counters.nSCThits[0] += (*it).second.statsCommon()[SubDetHitStatistics::SCT];
         counters.nTRThits[0] += (*it).second.statsCommon()[SubDetHitStatistics::TRT];
@@ -117,7 +117,7 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 StatusCode MuonTrackStatisticsTool::updateTrackCounters(const std::string& name, const TrackCollection* tracks) const {
     std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_it = m_allCounters.begin();
     std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_itEnd = m_allCounters.end();
-    for (; counter_it != counter_itEnd; counter_it++) {
+    for (; counter_it != counter_itEnd; ++counter_it) {
         if ((*counter_it)->trackLocation.compare(name) == 0) { return updateTrackCounters(**counter_it, *tracks); }
     }
     ATH_MSG_WARNING("Failed to match the collection " << name << " to any counter");
@@ -187,7 +187,7 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const {
     double holePerTrk;
     double chi2PerTrk;
 
-    for (; counter_it != counter_itEnd; counter_it++) {
+    for (; counter_it != counter_itEnd; ++counter_it) {
         if ((*counter_it)->nEvents != 0 && (*counter_it)->nTracks != 0) {
             trksPerEvent = (double)(*counter_it)->nTracks / (*counter_it)->nEvents;
             hitsPerTrk = (double)(*counter_it)->nHits / (*counter_it)->nTracks;
@@ -213,7 +213,7 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const {
         double trksPerTrtrk = -1;
 
         if (m_doTruth) {
-            for (truthcounter_it = truthcounter_it_start; truthcounter_it != truthcounter_itEnd; truthcounter_it++) {
+            for (truthcounter_it = truthcounter_it_start; truthcounter_it != truthcounter_itEnd; ++truthcounter_it) {
                 TString TruthCollectionName = (*truthcounter_it)->trackLocation;
                 if (TruthCollectionName.Contains((*counter_it)->trackLocation)) {
                     TruthTrackCounter = (*truthcounter_it)->nTracks;
@@ -289,7 +289,7 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const {
     }
 
     if (m_doTruth) {
-        for (truthcounter_it = truthcounter_it_start; truthcounter_it != truthcounter_itEnd; truthcounter_it++) {
+        for (truthcounter_it = truthcounter_it_start; truthcounter_it != truthcounter_itEnd; ++truthcounter_it) {
             double TruthTrksPerEvent;
             double PIXELhitsPerTrk;
             double SCThitsPerTrk;

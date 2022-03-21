@@ -10,6 +10,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/WriteHandle.h"
+#include <memory>
 
 class CaloCellContainer;
 class StoreGateSvc;
@@ -24,9 +25,9 @@ public:
   /** 
    *  @brief Creates a valid \a CaloCluster with a private Aux-Store and CellLink container 
    *  @param cellCont pointer to the underlying CaloCellContainer
-   *  @return Pointer to a \a CaloCluster object.
+   *  @return unique_ptr to a \a CaloCluster object.
    */
-  static xAOD::CaloCluster* makeCluster(const CaloCellContainer* cellCont);
+  static std::unique_ptr<xAOD::CaloCluster> makeCluster(const CaloCellContainer* cellCont);
   
   /** 
    *  @brief Creates a valid \a CaloCluster with a private Aux-Store and CellLink container 
@@ -35,11 +36,11 @@ public:
    *  @param phi0 seed \f$ \varphi \f$ of cluster 
    *  @param clusterSize
    *
-   *  @return Pointer to a \a CaloCluster object
+   *  @return unique_ptr to a \a CaloCluster object
    */
-  static xAOD::CaloCluster* makeCluster(const CaloCellContainer* cellCont,
-					const double eta0, const double phi0,
-					const xAOD::CaloCluster_v1::ClusterSize clusterSize);
+  static std::unique_ptr<xAOD::CaloCluster> makeCluster(const CaloCellContainer* cellCont,
+							const double eta0, const double phi0,
+							const xAOD::CaloCluster_v1::ClusterSize clusterSize);
 
 
   /** 

@@ -238,7 +238,7 @@ LArCellCont::find(const HWIdentifier& rodid) const{
 
 // This WILL NOT trigger BSCNV. This assumes BSCNV was done before
 const std::vector<LArCellCollection*>::const_iterator
-LArCellCont::find(const unsigned int& rodid) const{
+LArCellCont::find(const unsigned int& rodid) {
 	int idx = m_hash(rodid);
 	if ( m_eventNumber[idx] != m_event ) { // Decoding a new event
 	m_eventNumber[idx] = m_event;

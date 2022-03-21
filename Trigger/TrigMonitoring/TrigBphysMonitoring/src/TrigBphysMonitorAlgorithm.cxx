@@ -375,7 +375,7 @@ StatusCode TrigBphysMonitorAlgorithm::buildDimuons(const EventContext& ctx, std:
   
   // Muon preselection
   std::vector<const xAOD::Muon*> selectedMuons;
-  for (const auto& mu : *muonContainer) {
+  for (const auto mu : *muonContainer) {
     if ( mu == nullptr ) continue;
     if ( mu->muonType() != xAOD::Muon::Combined ) continue; // require combined muons
     if (!mu->inDetTrackParticleLink()) continue; // No muons without ID tracks

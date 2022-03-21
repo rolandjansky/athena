@@ -6,6 +6,7 @@ atlas_subdir( LArROD )
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( lwtnn )
 
 # Component(s) in the package:
 atlas_add_library( LArRODLib
@@ -13,10 +14,10 @@ atlas_add_library( LArRODLib
                    src/tests/*.cxx
                    PUBLIC_HEADERS LArROD
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArDigitizationLib LArRecConditions TBEvent StoreGateLib LArCablingLib LArElecCalib LArRawUtilsLib LArRecUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions LArSimEvent )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions LArSimEvent  ${LWTNN_LIBRARIES} )
 
 atlas_add_component( LArROD
                      src/components/*.cxx

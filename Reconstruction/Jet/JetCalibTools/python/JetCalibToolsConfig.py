@@ -44,9 +44,9 @@ rscanlc6 = {
 }
 
 fatjetcontexts = {
-    "CombinedMass":  ("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config","00-04-81","EtaJES_JMS"),
-    "CaloMass":      ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
-    "TAMass":        ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
+    "CombinedMass":  ("JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config","00-04-82","EtaJES_JMS"),
+    "CaloMass":      ("JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config","00-04-82","EtaJES_JMS"),
+    "TAMass":        ("JES_MC16recommendation_FatJet_Trimmed_JMS_TA_12Oct2018.config","00-04-82","EtaJES_JMS"),
     "TrigUngroomed": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
     "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015_PtFrac4.config","00-04-82","EtaJES_JMS"),
     "TrigSoftDrop":  ("JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config","00-04-82","EtaJES_JMS"),
@@ -171,6 +171,8 @@ def getJetCalibToolPrereqs(modspec,jetdef):
         if calibcontext != "TrigRun2": # No track/MS GSC for trigger w/o FTK
             prereqs += ["mod:TrackMoments",
                         "ghost:MuonSegment"]
+    if "CombinedMass" in calibcontext:
+        prereqs += ["mod:TrackSumMoments"]
     jetcaliblog.debug("Prereqs for calibseq '{0}': {1}".format(calibseq,str(prereqs)))
     return prereqs
 

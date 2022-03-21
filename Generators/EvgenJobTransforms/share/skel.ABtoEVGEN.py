@@ -94,6 +94,8 @@ if not hasattr(runArgs, "randomSeed"):
     raise RuntimeError("No random seed provided.")
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
+if (runArgs.firstEvent <= 0):
+    evgenLog.warning("Run argument firstEvent should be > 0")
 
 if hasattr(runArgs, "inputEVNT_PreFile"):
    evgenLog.info("inputEVNT_PreFile = " + ','.join(runArgs.inputEVNT_PreFile))
@@ -388,7 +390,7 @@ if not hasattr(topSeq, "EventInfoCnvAlg"):
    topSeq += xAODMaker__EventInfoCnvAlg()
    # intnetionally skip adding the xAOD::EventInfo to the ItemList
 
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=False )
+StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=True )
 if hasattr(runArgs, "inputEVNT_PreFile") :
   svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
   StreamEVGEN.TakeItemsFromInput = True

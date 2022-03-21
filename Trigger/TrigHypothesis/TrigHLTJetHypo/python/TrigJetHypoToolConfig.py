@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 debug = False  # SET TO FALSE  WHEN COMMITTING
+
 if debug:
     from AthenaCommon.Constants import DEBUG
     logger.setLevel(DEBUG)

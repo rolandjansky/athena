@@ -71,6 +71,29 @@ def MuonBytestream2RdoConfig(flags):
     TgcRawDataProvider = CompFactory.Muon.TgcRawDataProvider(name = "TgcRawDataProvider" + postFix,
                                                               ProviderTool = MuonTgcRawDataProviderTool)
     acc.addEventAlgo(TgcRawDataProvider)
+    # for sTGC
+    if flags.Detector.GeometrysTGC:
+        Muon__STGC_ROD_Decoder=CompFactory.Muon.STGC_ROD_Decoder
+        STGCRodDecoder = Muon__STGC_ROD_Decoder(name = "sTgcROD_Decoder"+postFix)
+        Muon__STGC_RawDataProviderToolMT=CompFactory.Muon.STGC_RawDataProviderToolMT
+        MuonsTgcRawDataProviderTool = Muon__STGC_RawDataProviderToolMT(name    = "STGC_RawDataProviderToolMT"+postFix,
+                                                                       Decoder = STGCRodDecoder)
+        Muon__sTgcRawDataProvider=CompFactory.Muon.sTgcRawDataProvider
+        sTgcRawDataProvider = Muon__sTgcRawDataProvider(name       = "sTgcRawDataProvider"+postFix,
+                                                        ProviderTool = MuonsTgcRawDataProviderTool )
+        acc.addEventAlgo(sTgcRawDataProvider)
+
+    # for MM
+    if flags.Detector.GeometryMM:
+        Muon__MmROD_Decoder=CompFactory.Muon.MM_ROD_Decoder
+        MMRodDecoder = Muon__MmROD_Decoder(name="MmROD_Decoder"+postFix)
+        Muon_MM_RawDataProviderToolMT = CompFactory.Muon.MM_RawDataProviderToolMT
+        MuonMmRawDataProviderTool = Muon_MM_RawDataProviderToolMT(name  = "MM_RawDataProviderToolMT"+postFix,
+                                                                  Decoder = MMRodDecoder)
+        Muon__MmRawDataProvider = CompFactory.Muon.MM_RawDataProvider
+        MmRawDataProvider = Muon__MmRawDataProvider(name = "MmRawDataProvider"+postFix, ProviderTool = MuonMmRawDataProviderTool )
+        acc.addEventAlgo(MmRawDataProvider)
+
     if flags.Trigger.L1MuonSim.EmulateNSW and flags.Trigger.L1MuonSim.NSWVetoMode:
         # for MDT
         MDTRodDecoder = CompFactory.MdtROD_Decoder(name = "MdtROD_Decoder" + postFix)
@@ -156,8 +179,14 @@ def MuonRdo2DigitConfig(flags):
     if flags.Input.Format is Format.POOL:
         rdoInputs = [
             ('RpcPadContainer','RPCPAD'),
-            ('TgcRdoContainer','TGCRDO'),
+            ('TgcRdoContainer','TGCRDO')
         ]
+        # Read MMRDO and sTGCRDO
+        if flags.Detector.GeometrysTGC or flags.Detector.GeometryMM:
+            rdoInputs += [
+                ('Muon::MM_RawDataContainer','MMRDO'),
+                ('Muon::STGC_RawDataContainer','sTGCRDO')
+            ]
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
 
@@ -167,15 +196,21 @@ def MuonRdo2DigitConfig(flags):
                                                                  DecodeRpcRDO = True,
                                                                  DecodeTgcRDO = True,
                                                                  DecodeCscRDO = False,
-                                                                 DecodeSTGC_RDO = False,
-                                                                 DecodeMM_RDO = False,
+                                                                 DecodeSTGC_RDO = flags.Detector.GeometrysTGC,
+                                                                 DecodeMM_RDO = flags.Detector.GeometryMM,
                                                                  mdtRdoDecoderTool="",
                                                                  cscRdoDecoderTool="",
                                                                  cscCalibTool = "",
-                                                                 stgcRdoDecoderTool="",
-                                                                 mmRdoDecoderTool="",
+                                                                 MmDigitContainer = "MM_DIGITS_L1",
+                                                                 sTgcDigitContainer = "sTGC_DIGITS_L1",
                                                                  RpcDigitContainer = "RPC_DIGITS_L1",
                                                                  TgcDigitContainer = "TGC_DIGITS_L1")
+
+    if not flags.Detector.GeometrysTGC:
+        MuonRdoToMuonDigitTool.stgcRdoDecoderTool=""
+    if not flags.Detector.GeometryMM:
+        MuonRdoToMuonDigitTool.mmRdoDecoderTool=""
+
     acc.addPublicTool(MuonRdoToMuonDigitTool)
     rdo2digit = CompFactory.MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
                                                 MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool)
@@ -186,13 +221,22 @@ def NSWTriggerConfig(flags):
     acc = ComponentAccumulator()
     if not flags.Detector.GeometrysTGC and not flags.Detector.GeometryMM:
         return acc
+
+    if flags.Input.Format is Format.POOL and flags.Input.isMC:
+        rdoInputs = [
+            ('McEventCollection','TruthEvent'),
+            ('TrackRecordCollection','MuonEntryLayer')
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
+
     PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False)
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
     StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False)
     MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
-    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False)
+    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
     MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
                                                UseLookup = False,

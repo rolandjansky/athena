@@ -52,9 +52,11 @@ HGTD_Cluster::HGTD_Cluster() : PrepRawData() {
 }
 
 // move constructor:
-HGTD_Cluster::HGTD_Cluster(HGTD_Cluster&& rhs) : PrepRawData(std::move(rhs)) {
-  m_width = std::move(rhs.m_width);
-  m_glob_pos = std::move(rhs.m_glob_pos);
+HGTD_Cluster::HGTD_Cluster(HGTD_Cluster&& rhs) :
+  PrepRawData(std::move(rhs)),
+  m_width(std::move(rhs.m_width)),
+  m_glob_pos(std::move(rhs.m_glob_pos))
+{
   m_det_el = std::exchange(rhs.m_det_el, nullptr);
   m_time = std::exchange(rhs.m_time, 0);
   m_time_resolution = std::exchange(rhs.m_time_resolution, 0);

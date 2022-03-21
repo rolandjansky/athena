@@ -10,7 +10,7 @@ from DerivationFrameworkPhys import PhysCommon
 
 from JetRecConfig.StandardSmallRJets import AntiKt4PV0Track, AntiKt4EMPFlow, AntiKt4EMPFlowNoPtCut, AntiKt4EMTopoNoPtCut, AntiKt4EMPFlowCSSK
 
-from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs, addDAODJets, addJetPtAssociation, OutputJets
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs, addDAODJets, OutputJets
 
 #====================================================================
 # SKIMMING TOOL
@@ -126,11 +126,6 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          ThinningTools = thinningTools)
 
 
-#Truth jet association
-if DerivationFrameworkIsMonteCarlo:
-    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-
 #=======================================
 # R = 0.4 track-jets (needed for Rtrk)
 #=======================================
@@ -151,12 +146,6 @@ addDAODJets(jetList,DerivationFrameworkJob)
 
 OutputJets["JETM1"] = ["AntiKt4PV0TrackJets","AntiKt4EMPFlowCSSKJets","AntiKt4EMPFlowNoPtCutJets","AntiKt4EMTopoNoPtCutJets"]
 
-#Truth jet association
-if DerivationFrameworkIsMonteCarlo:
-    addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMPFlowNoPtCut", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -164,23 +153,24 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
 
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
-                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
+                                        "InDetTrackParticles",
+                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthWZJets",
                                         "AntiKt10UFOCSSKJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-                                        "BTagging_AntiKt4EMPFlow",
-                                        ]
+                                        "BTagging_AntiKt4EMPFlow"]
 
-# Add QG tagger variables
 JETM1SlimmingHelper.ExtraVariables  = ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.GhostTower",
                                        "InDetTrackParticles.truthMatchProbability", 
                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
-                                       "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack"]
+                                       "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
+                                       "TruthVertices.z"]
 
-JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "EventInfo", "TruthVertices", "TruthParticles"
+JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "EventInfo", "TruthParticles",
+                                     "AntiKt4TruthJets", "InTimeAntiKt4TruthJets", "OutOfTimeAntiKt4TruthJets",
                                      "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape",
                                      "CaloCalFwdTopoTowers"]
 

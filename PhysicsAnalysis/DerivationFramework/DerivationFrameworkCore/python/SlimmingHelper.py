@@ -38,57 +38,61 @@ from DerivationFrameworkCore.CompulsoryContent import CompulsoryContent, Compuls
 from DerivationFrameworkCore.ContentHandler import ContentHandler
 from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
-from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
-from DerivationFrameworkCore.PreliminarySmartContainers import PreliminarySmartContainers
 import PyUtils.Logging as L
 msg = L.logging.getLogger('DerivationFramework__SlimmingHelper')
 msg.setLevel(L.logging.INFO)
-#from TrigEDMConfig.TriggerEDMAnalysis import *
 
-# This list base class allows the slimming helper to be locked after calling AppendContentToStream
+# This list base class allows the slimming helper to be locked after calling BuildFinalItemList
 class lockable_list(list):
         def __init__(self,data=[]):
                 list.__init__(self,data)
                 self.__dict__["_locked"] = False
         def append(self,name):
                 if self._locked is True:
-                        msg.error("Attempting to Modify SlimmingHelper after AppendContentToStream has Been Called")
-                        raise RuntimeError("Late Modification to SlimmingHelper do not modify after calling AppendContentToStream")
+                        msg.error("Attempting to Modify SlimmingHelper after BuildFinalItemList has Been Called")
+                        raise RuntimeError("Late Modification to SlimmingHelper do not modify after calling BuildFinalItemList")
                 else:
                         return list.append(self, name)
         def __setattr__(self,name,value):
                 if self._locked is True:
-                        msg.error("Attempting to Modify SlimmingHelper after AppendContentToStream has Been Called")
-                        raise RuntimeError("Late Modification to SlimmingHelper do not modify after calling AppendContentToStream")
+                        msg.error("Attempting to Modify SlimmingHelper after BuildFinalItemList has Been Called")
+                        raise RuntimeError("Late Modification to SlimmingHelper do not modify after calling BuildFinalItemList")
                 else:
                         self.__dict__[name] = value
         def lock(self):
                 self.__dict__["_locked"] = True
 
-def buildNamesAndTypes():
-        from RecExConfig.InputFilePeeker import inputFileSummary
+# Builds the "NamesAndTypes" map needed to set up the item list
+def buildNamesAndTypes(*args):
         namesAndTypes = {}
-        if inputFileSummary['eventdata_items'] is not None:
-                for item in inputFileSummary['eventdata_items']:
-                        namesAndTypes[item[1].strip('.')] = item[0]
+        if len(args)==0:
+                # 1st possibility: non-CA job, user didn't provide a list from ComponentAccumulator 
+                from RecExConfig.InputFilePeeker import inputFileSummary
+                if inputFileSummary['eventdata_items'] is not None:
+                        for item in inputFileSummary['eventdata_items']:
+                                namesAndTypes[item[1].strip('.')] = item[0]
+                # 2nd possibility: CA job, user provided the list from ComponentAccumulator
+                else:
+                        from DerivationFrameworkCore.StaticNamesAndTypes import StaticNamesAndTypes
+                        namesAndTypes = StaticNamesAndTypes
         else:
-                from DerivationFrameworkCore.StaticNamesAndTypes import StaticNamesAndTypes
-                namesAndTypes = StaticNamesAndTypes
-        return namesAndTypes
+                for item in args[0]:
+                        item = item.split('#')
+                        namesAndTypes[item[1].strip('.')] = item[0] 
+        return namesAndTypes      
 
 class SlimmingHelper:
-        def __init__(self,inputName):
+        def __init__(self,inputName,**kwargs):
                 self.__dict__["_locked"] = False
                 self.name = inputName
+                self.FinalItemList = lockable_list() # The final item list that will be appended to the output stream
                 self.StaticContent = lockable_list() # Content added explicitly via old-style content lists
                 self.ExtraVariables = lockable_list() # Content added by users via variable names (dictionary type:[item1,item,..,N])
                 # Smart slimming (only variables needed for CP + kinematics)
                 self.SmartCollections = lockable_list()
                 self.AllVariables = lockable_list() # Containers for which all branches should be kept
                 self.AppendToDictionary = {}
-                self.NamesAndTypes = buildNamesAndTypes()
-                self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
                 self.IncludeTriggerNavigation = True
                 self.IncludeAdditionalTriggerContent = False
                 self.IncludeMuonTriggerContent = False
@@ -100,6 +104,10 @@ class SlimmingHelper:
                 self.IncludeBJetTriggerContent = False
                 self.IncludeBPhysTriggerContent = False
                 self.IncludeMinBiasTriggerContent = False
+                # Choice of whether user provided a typed container list or not (CA vs non-CA) 
+                if "NamesAndTypes" in kwargs.keys(): self.NamesAndTypes = buildNamesAndTypes(kwargs["NamesAndTypes"])
+                else: self.NamesAndTypes = buildNamesAndTypes()
+                self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
 
         # This hack prevents any members from being modified after lock is set to true, this happens in AppendContentToStream
         def __setattr__(self,name,value):
@@ -125,8 +133,27 @@ class SlimmingHelper:
                         raise RuntimeError("Conflict in Slimming List and Compulsory Content")
 
 
-        # The main routine: called by all job options once.
+        # Loops over final ItemList and appends each item to the stream
+        # Used for jobs not set up in the component accumulator 
         def AppendContentToStream(self,Stream):
+                # Check if the SlimmingHelper is locked. 
+                # If it is, just loop over the items and append. 
+                # If not, build the item list and then append.
+                if self._locked is False:
+                        self.BuildFinalItemList()
+                for item in self.FinalItemList:
+                        Stream.AddItem(item)
+
+        # Returns the final item list. Used for component accumulator jobs
+        def GetItemList(self):
+                # Check if the SlimmingHelper is locked. 
+                # If it is, just return the item list. 
+                # If not, build the item list and then return it.
+                if self._locked is False:
+                        self.BuildFinalItemList()
+                return(self.FinalItemList)
+
+        def BuildFinalItemList(self):
                 # Master item list: all items that must be passed to the ContentHandler for processing
                 # This will now be filled
                 masterItemList = []
@@ -136,17 +163,7 @@ class SlimmingHelper:
                 self.AllVariables += CompulsoryDynamicContent
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
-                        formatName = Stream.Name.strip("Stream_DAOD")
-                        for item in self.AllVariables:
-                                # Block AllVariables for containers with smart slimming lists, for those formats for which it is disallowed
-                                if (formatName in AllVariablesDisallowed) and (item in FullListOfSmartContainers):
-                                    # We have a preliminary list of smart collections as a way to roll out new ones
-                                    if item in PreliminarySmartContainers:
-                                        msg.warning("Using AllVariables for a container with a smart slimming list ("+item+") will soon be disabled for format "+formatName+" - please use smart slimming and/or ExtraVariables, this will be promoted to an exception soon!")
-                                    else:
-                                        msg.error("Using AllVariables for a container with a smart slimming list ("+item+") is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
-                                        raise RuntimeError("AllVariables not permitted for requested DAOD format")
-                                masterItemList.extend(self.GetWholeContentItems(item))
+                        for item in self.AllVariables: masterItemList.extend(self.GetWholeContentItems(item))
                 for item in masterItemList:
                         if "Aux." in item:
                                 allVariablesList.append(item)
@@ -171,14 +188,14 @@ class SlimmingHelper:
                         self.SmartCollections.append("HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf") # Run 3 jet collections
                         from DerivationFrameworkCore.JetTriggerFixContent import JetTriggerFixContent
                         for item in JetTriggerFixContent:
-                                Stream.AddItem(item)
+                                self.FinalItemList.append(item)
 
                 if (self.IncludeEtMissTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET")
                         from DerivationFrameworkCore.EtMissTriggerFixContent import EtMissTriggerFixContent
                         for item in EtMissTriggerFixContent:
-                                Stream.AddItem(item)
+                                self.FinalItemList.append(item)
 
                 if (self.IncludeTauTriggerContent is True):
                         triggerContent = True
@@ -227,7 +244,7 @@ class SlimmingHelper:
                 excludedAuxData = "-clusterAssociation.-PseudoJet"
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
                 for item in mainEntries:
-                        Stream.AddItem(item)
+                        self.FinalItemList.append(item)
                 for item in auxEntries.keys():
                         theDictionary = self.NamesAndTypes.copy()
                         theDictionary.update (self.AppendToDictionary)
@@ -259,35 +276,35 @@ class SlimmingHelper:
                                         entry+=excludedAuxData
                                 if ('xAOD::JetAuxContainer' in theDictionary[item] and auxEntries[item]==""):
                                         entry+=excludedAuxData
-                                Stream.AddItem(entry)
+                                self.FinalItemList.append(entry)
 
                 # Add compulsory items not covered by smart slimming (so no expansion)
                 for item in CompulsoryContent:
-                        Stream.AddItem(item)
+                        self.FinalItemList.append(item)
 
                 # Add trigger item (not covered by smart slimming so no expansion)
                 # Old, will be removed (kept just to not break some deriavtions)
                 if (self.IncludeJetTauEtMissTriggerContent is True):
                         from DerivationFrameworkCore.JetTauEtMissTriggerContent import JetTauEtMissTriggerContent
                         for item in JetTauEtMissTriggerContent:
-                                Stream.AddItem(item)
+                                self.FinalItemList.append(item)
 
                 # non xAOD collections for MinBias
                 if (self.IncludeMinBiasTriggerContent is True):
                         from DerivationFrameworkCore.MinBiasTrigger_nonxAOD_Content import MinBiasTrigger_nonxAOD_Content
                         for item in MinBiasTrigger_nonxAOD_Content:
-                                Stream.AddItem(item)
+                                self.FinalItemList.append(item)
 
                 if (triggerContent and self.IncludeTriggerNavigation):
                         for item in CompulsoryTriggerNavigation:
-                                Stream.AddItem(item)
+                                self.FinalItemList.append(item)
 
                 # Add non-xAOD and on-the-fly content (not covered by smart slimming so no expansion)
                 badItemsWildcards = []
                 badItemsXAOD = []
                 for item in self.StaticContent:
                         if (self.ValidateStaticContent(item)=="OK"):
-                                Stream.AddItem(item)
+                                self.FinalItemList.append(item)
                         if (self.ValidateStaticContent(item)=="WILDCARD"):
                                 badItemsWildcards.append(item)
                         if (self.ValidateStaticContent(item)=="XAOD"):
@@ -301,6 +318,7 @@ class SlimmingHelper:
                         print (badItemsXAOD)
                         raise RuntimeError("Static content list contains xAOD collections")
                 #Prevent any more modifications As they will be completely ignored, and hard to debug
+                self.FinalItemList.lock()
                 self.StaticContent.lock()
                 self.ExtraVariables.lock()
                 self.SmartCollections.lock()
@@ -407,7 +425,7 @@ class SlimmingHelper:
                         items.extend(AntiKt10UFOCHSJetsCPContent)
                 elif collectionName=="AntiKt10TruthTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent
-                        if "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" not in self:
+                        if "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" not in self.AppendToDictionary:
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
                         items.extend(AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent)

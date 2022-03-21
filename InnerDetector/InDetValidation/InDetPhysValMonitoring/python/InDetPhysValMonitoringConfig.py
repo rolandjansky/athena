@@ -234,7 +234,7 @@ def InDetLargeD0PhysValMonitoringToolCfg(flags, **kwargs):
     kwargs.setdefault("SubFolder", 'LRT/')
     kwargs.setdefault("TruthSelectionTool", TruthSelectionTool)
     if flags.Detector.GeometryID:
-        kwargs.setdefault("TrackParticleContainerName", 'InDetLargeD0TrackParticles' if flags.InDet.storeSeparateLargeD0Container else 'InDetTrackParticles')
+        kwargs.setdefault("TrackParticleContainerName", 'InDetLargeD0TrackParticles' if flags.InDet.Tracking.storeSeparateLargeD0Container else 'InDetTrackParticles')
     elif flags.Detector.GeometryITk:
         kwargs.setdefault("TrackParticleContainerName", 'InDetLargeD0TrackParticles' if flags.ITk.storeSeparateLargeD0Container else 'InDetTrackParticles')
     kwargs.setdefault("useTrackSelection", True)

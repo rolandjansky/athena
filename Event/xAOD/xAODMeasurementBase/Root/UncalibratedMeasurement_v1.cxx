@@ -7,14 +7,14 @@
 // Local include(s):
 #include "xAODMeasurementBase/versions/UncalibratedMeasurement_v1.h"
 
-static const SG::AuxElement::Accessor< Identifier::value_type > identifierAcc( "identifier" );
+static const SG::AuxElement::Accessor< IdentifierHash::value_type > identifierHashAcc( "identifierHash" );
 
-void xAOD::UncalibratedMeasurement_v1::setIdentifier(Identifier& id) {
-    identifierAcc(*this) = id.get_compact();
+void xAOD::UncalibratedMeasurement_v1::setIdentifierHash(IdentifierHash& id) {
+    identifierHashAcc(*this) = id.value();
 }
 
-const Identifier xAOD::UncalibratedMeasurement_v1::identifier() const {
-    Identifier::value_type id = identifierAcc(*this);
-    return Identifier(id);
+const IdentifierHash xAOD::UncalibratedMeasurement_v1::identifierHash() const {
+    IdentifierHash::value_type id = identifierHashAcc(*this);
+    return IdentifierHash(id);
 }
 

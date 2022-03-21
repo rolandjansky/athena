@@ -384,7 +384,7 @@ def TrigEgammaFastCaloHypoToolFromDict( d , tool=None):
 
 def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 
-    import collections
+    import collections.abc
 
     if not ConfigFilePath:
       ConfigFilePath = ConfigFlags.Trigger.egamma.ringerVersion

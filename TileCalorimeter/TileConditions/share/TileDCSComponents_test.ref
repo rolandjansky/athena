@@ -1,18 +1,18 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts jobOptions_TileDCSTest.txt
-JobOptionsSvc        INFO # =======> /tmp/mnowak/build/jobOptions_TileDCSTest.txt
+JobOptionsSvc        INFO # =======> /data2/harkusha/mixcondcont/build/TileCalorimeter/TileConditions/CMakeFiles/unitTestRun/jobOptions_TileDCSTest.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (2,1): GeoModelSvc.SupportedGeometry = 21
 JobOptionsSvc        INFO # (3,1): GeoModelSvc.AtlasVersion = "ATLAS-R2-2016-01-00-01"
 JobOptionsSvc        INFO Job options successfully read in from jobOptions_TileDCSTest.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0p1)
-                                          running on aibuild20-040.cern.ch on Wed Dec  2 17:39:01 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v36r4)
+                                          running on pcatl02 on Fri Mar 18 18:01:48 2022
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 4742 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 4415 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -41,7 +41,7 @@ AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'Det
 Test TileDCSState
 
 Test TileDCSCondAlg
-ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 TileDCSCondAlgTest   INFO Will read the following folders: /TILE/TEST/DCS/HV  /TILE/TEST/DCS/STATES
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
@@ -55,6 +55,8 @@ DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and s
 DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for PLR_ID with CLID 131939624 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for HGTD_ID with CLID 79264207 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
@@ -83,14 +85,16 @@ DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 a
 DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
-TagInfoMgr           INFO   AlgTool: TagInfoMgr.IOVDbMetaDataTool
+DetDescrCnvSvc       INFO  filling address for JTower_ID with CLID 218674799 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for GTower_ID with CLID 49678914 and storage type 68 to detector store 
+TagInfoMgr           INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
 GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
-ClassIDSvc           INFO  getRegistryEntries: read 1137 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 1193 CLIDRegistry entries for module ALL
 TileCablingSvc       INFO RUN2 ATLAS geometry flag detected for geometry: ATLAS-R2-2016-01-00-01
 TileCablingSvc       INFO Setting RUN2 (2014-2017) cabling
 TileCablingSvc       INFO Setting Cabling type to 4
@@ -100,8 +104,8 @@ TileCablingSvc    WARNING Unable to retrieve TileDetDescrManager from DetectorSt
 TileCablingSvc    WARNING Will not set Tile online hash ID in CaloDetDescrElements
 TileDCSCondAlgTest   INFO Will read the following folders: /TILE/TEST/DCS/HV  /TILE/TEST/DCS/STATES
 Tile cabling type: 5
-ClassIDSvc           INFO  getRegistryEntries: read 1878 CLIDRegistry entries for module ALL
-FOLDER [{[536870911,l:536870911] - [2147483647,l:2147483647]}]: 
+ClassIDSvc           INFO getRegistryEntries: read 1716 CLIDRegistry entries for module ALL
+FOLDER [{[0,0,t:536870911] - [t:2147483647]}]: 
 min range: {[0,0] - [2147483647,4294967295]}
 chan, attr: 15
 [HVOUT01 (float) : 205], [HVOUT02 (float) : 205.01], [HVOUT03 (float) : 205.02], [HVOUT04 (float) : 205.03], [HVOUT05 (float) : 205.04], [HVOUT06 (float) : 205.05], [HVOUT07 (float) : 205.06], [HVOUT08 (float) : 205.07], [HVOUT09 (float) : 205.08], [HVOUT10 (float) : 205.09], [HVOUT11 (float) : 205.1], [HVOUT12 (float) : 205.11], [HVOUT13 (float) : 205.12], [HVOUT14 (float) : 205.13], [HVOUT15 (float) : 205.14], [HVOUT16 (float) : 205.15], [HVOUT17 (float) : 205.16], [HVOUT18 (float) : 205.17], [HVOUT19 (float) : 205.18], [HVOUT20 (float) : 205.19], [HVOUT21 (float) : 205.2], [HVOUT22 (float) : 205.21], [HVOUT23 (float) : 205.22], [HVOUT24 (float) : 205.23], [HVOUT25 (float) : 205.26], [HVOUT26 (float) : 205.25], [HVOUT27 (float) : 205.24], [HVOUT28 (float) : 205.29], [HVOUT29 (float) : 205.28], [HVOUT30 (float) : 205.27], [HVOUT31 (float) : 205.32], [HVOUT32 (float) : 205.31], [HVOUT33 (float) : 205.3], [HVOUT34 (float) : 205.35], [HVOUT35 (float) : 205.34], [HVOUT36 (float) : 205.33], [HVOUT37 (float) : 205.38], [HVOUT38 (float) : 205.37], [HVOUT39 (float) : 205.36], [HVOUT40 (float) : 205.41], [HVOUT41 (float) : 205.4], [HVOUT42 (float) : 205.39], [HVOUT43 (float) : 205.44], [HVOUT44 (float) : 205.43], [HVOUT45 (float) : 205.42], [HVOUT46 (float) : 205.47], [HVOUT47 (float) : 205.46], [HVOUT48 (float) : 205.45], [TEMP1 (float) : 48], [TEMP2 (float) : 49], [TEMP3 (float) : 50], [TEMP4 (float) : 51], [TEMP5 (float) : 52], [TEMP6 (float) : 53], [TEMP7 (float) : 54]
@@ -109,7 +113,7 @@ chan, attr: 16
 [HVOUT01 (float) : 206], [HVOUT02 (float) : 206.01], [HVOUT03 (float) : 206.02], [HVOUT04 (float) : 206.03], [HVOUT05 (float) : 206.04], [HVOUT06 (float) : 206.05], [HVOUT07 (float) : 206.06], [HVOUT08 (float) : 206.07], [HVOUT09 (float) : 206.08], [HVOUT10 (float) : 206.09], [HVOUT11 (float) : 206.1], [HVOUT12 (float) : 206.11], [HVOUT13 (float) : 206.12], [HVOUT14 (float) : 206.13], [HVOUT15 (float) : 206.14], [HVOUT16 (float) : 206.15], [HVOUT17 (float) : 206.16], [HVOUT18 (float) : 206.17], [HVOUT19 (float) : 206.18], [HVOUT20 (float) : 206.19], [HVOUT21 (float) : 206.2], [HVOUT22 (float) : 206.21], [HVOUT23 (float) : 206.22], [HVOUT24 (float) : 206.23], [HVOUT25 (float) : 206.26], [HVOUT26 (float) : 206.25], [HVOUT27 (float) : 206.24], [HVOUT28 (float) : 206.29], [HVOUT29 (float) : 206.28], [HVOUT30 (float) : 206.27], [HVOUT31 (float) : 206.32], [HVOUT32 (float) : 206.31], [HVOUT33 (float) : 206.3], [HVOUT34 (float) : 206.35], [HVOUT35 (float) : 206.34], [HVOUT36 (float) : 206.33], [HVOUT37 (float) : 206.38], [HVOUT38 (float) : 206.37], [HVOUT39 (float) : 206.36], [HVOUT40 (float) : 206.41], [HVOUT41 (float) : 206.4], [HVOUT42 (float) : 206.39], [HVOUT43 (float) : 206.44], [HVOUT44 (float) : 206.43], [HVOUT45 (float) : 206.42], [HVOUT46 (float) : 206.47], [HVOUT47 (float) : 206.46], [HVOUT48 (float) : 206.45], [TEMP1 (float) : 48], [TEMP2 (float) : 49], [TEMP3 (float) : 50], [TEMP4 (float) : 51], [TEMP5 (float) : 52], [TEMP6 (float) : 53], [TEMP7 (float) : 54]
 chan, attr: 17
 [HVOUT01 (float) : 207], [HVOUT02 (float) : 207.01], [HVOUT03 (float) : 207.02], [HVOUT04 (float) : 207.03], [HVOUT05 (float) : 207.04], [HVOUT06 (float) : 207.05], [HVOUT07 (float) : 207.06], [HVOUT08 (float) : 207.07], [HVOUT09 (float) : 207.08], [HVOUT10 (float) : 207.09], [HVOUT11 (float) : 207.1], [HVOUT12 (float) : 207.11], [HVOUT13 (float) : 207.12], [HVOUT14 (float) : 207.13], [HVOUT15 (float) : 207.14], [HVOUT16 (float) : 207.15], [HVOUT17 (float) : 207.16], [HVOUT18 (float) : 207.17], [HVOUT19 (float) : 207.18], [HVOUT20 (float) : 207.19], [HVOUT21 (float) : 207.2], [HVOUT22 (float) : 207.21], [HVOUT23 (float) : 207.22], [HVOUT24 (float) : 207.23], [HVOUT25 (float) : 207.26], [HVOUT26 (float) : 207.25], [HVOUT27 (float) : 207.24], [HVOUT28 (float) : 207.29], [HVOUT29 (float) : 207.28], [HVOUT30 (float) : 207.27], [HVOUT31 (float) : 207.32], [HVOUT32 (float) : 207.31], [HVOUT33 (float) : 207.3], [HVOUT34 (float) : 207.35], [HVOUT35 (float) : 207.34], [HVOUT36 (float) : 207.33], [HVOUT37 (float) : 207.38], [HVOUT38 (float) : 207.37], [HVOUT39 (float) : 207.36], [HVOUT40 (float) : 207.41], [HVOUT41 (float) : 207.4], [HVOUT42 (float) : 207.39], [HVOUT43 (float) : 207.44], [HVOUT44 (float) : 207.43], [HVOUT45 (float) : 207.42], [HVOUT46 (float) : 207.47], [HVOUT47 (float) : 207.46], [HVOUT48 (float) : 207.45], [TEMP1 (float) : 48], [TEMP2 (float) : 49], [TEMP3 (float) : 50], [TEMP4 (float) : 51], [TEMP5 (float) : 52], [TEMP6 (float) : 53], [TEMP7 (float) : 54]
-FOLDER [{[536870911,l:536870911] - [2147483647,l:2147483647]}]: 
+FOLDER [{[0,0,t:536870911] - [t:2147483647]}]: 
 min range: {[0,0] - [2147483647,4294967295]}
 chan, attr: 15
 [hvOut1 (float) : 205.005], [hvOut2 (float) : 205.015], [hvOut3 (float) : 205.025], [hvOut4 (float) : 205.035], [hvOut5 (float) : 205.045], [hvOut6 (float) : 205.055], [hvOut7 (float) : 205.065], [hvOut8 (float) : 205.075], [hvOut9 (float) : 205.085], [hvOut10 (float) : 205.095], [hvOut11 (float) : 205.105], [hvOut12 (float) : 205.115], [hvOut13 (float) : 205.125], [hvOut14 (float) : 205.135], [hvOut15 (float) : 205.145], [hvOut16 (float) : 205.155], [hvOut17 (float) : 205.165], [hvOut18 (float) : 205.175], [hvOut19 (float) : 205.185], [hvOut20 (float) : 205.195], [hvOut21 (float) : 205.205], [hvOut22 (float) : 205.215], [hvOut23 (float) : 205.225], [hvOut24 (float) : 205.235], [hvOut25 (float) : 205.265], [hvOut26 (float) : 205.255], [hvOut27 (float) : 205.245], [hvOut28 (float) : 205.295], [hvOut29 (float) : 205.285], [hvOut30 (float) : 205.275], [hvOut31 (float) : 205.325], [hvOut32 (float) : 205.315], [hvOut33 (float) : 205.305], [hvOut34 (float) : 205.355], [hvOut35 (float) : 205.345], [hvOut36 (float) : 205.335], [hvOut37 (float) : 205.385], [hvOut38 (float) : 205.375], [hvOut39 (float) : 205.365], [hvOut40 (float) : 205.415], [hvOut41 (float) : 205.405], [hvOut42 (float) : 205.395], [hvOut43 (float) : 205.445], [hvOut44 (float) : 205.435], [hvOut45 (float) : 205.425], [hvOut46 (float) : 205.475], [hvOut47 (float) : 205.465], [hvOut48 (float) : 205.455], [hvIn1 (float) : 0], [hvIn2 (float) : 0], [hvIn3 (float) : 0], [hvIn4 (float) : 0], [temp1 (float) : 5], [temp2 (float) : 10], [temp3 (float) : 15], [temp4 (float) : 20], [temp5 (float) : 25], [temp6 (float) : 30], [temp7 (float) : 35], [volt1 (float) : 2], [volt2 (float) : 4], [volt3 (float) : 6], [volt4 (float) : 8], [volt5 (float) : 10], [volt6 (float) : 12], [volt7 (float) : 14], [vFix1 (float) : 1230], [vFix2 (float) : 1230]
@@ -117,7 +121,7 @@ chan, attr: 16
 [hvOut1 (float) : 206.005], [hvOut2 (float) : 206.015], [hvOut3 (float) : 206.025], [hvOut4 (float) : 206.035], [hvOut5 (float) : 206.045], [hvOut6 (float) : 206.055], [hvOut7 (float) : 206.065], [hvOut8 (float) : 206.075], [hvOut9 (float) : 206.085], [hvOut10 (float) : 206.095], [hvOut11 (float) : 206.105], [hvOut12 (float) : 206.115], [hvOut13 (float) : 206.125], [hvOut14 (float) : 206.135], [hvOut15 (float) : 206.145], [hvOut16 (float) : 206.155], [hvOut17 (float) : 206.165], [hvOut18 (float) : 206.175], [hvOut19 (float) : 206.185], [hvOut20 (float) : 206.195], [hvOut21 (float) : 206.205], [hvOut22 (float) : 206.215], [hvOut23 (float) : 206.225], [hvOut24 (float) : 206.235], [hvOut25 (float) : 206.265], [hvOut26 (float) : 206.255], [hvOut27 (float) : 206.245], [hvOut28 (float) : 206.295], [hvOut29 (float) : 206.285], [hvOut30 (float) : 206.275], [hvOut31 (float) : 206.325], [hvOut32 (float) : 206.315], [hvOut33 (float) : 206.305], [hvOut34 (float) : 206.355], [hvOut35 (float) : 206.345], [hvOut36 (float) : 206.335], [hvOut37 (float) : 206.385], [hvOut38 (float) : 206.375], [hvOut39 (float) : 206.365], [hvOut40 (float) : 206.415], [hvOut41 (float) : 206.405], [hvOut42 (float) : 206.395], [hvOut43 (float) : 206.445], [hvOut44 (float) : 206.435], [hvOut45 (float) : 206.425], [hvOut46 (float) : 206.475], [hvOut47 (float) : 206.465], [hvOut48 (float) : 206.455], [hvIn1 (float) : 0], [hvIn2 (float) : 0], [hvIn3 (float) : 0], [hvIn4 (float) : 0], [temp1 (float) : 5], [temp2 (float) : 10], [temp3 (float) : 15], [temp4 (float) : 20], [temp5 (float) : 25], [temp6 (float) : 30], [temp7 (float) : 35], [volt1 (float) : 2], [volt2 (float) : 4], [volt3 (float) : 6], [volt4 (float) : 8], [volt5 (float) : 10], [volt6 (float) : 12], [volt7 (float) : 14], [vFix1 (float) : 1230], [vFix2 (float) : 1230]
 chan, attr: 17
 [hvOut1 (float) : 207.005], [hvOut2 (float) : 207.015], [hvOut3 (float) : 207.025], [hvOut4 (float) : 207.035], [hvOut5 (float) : 207.045], [hvOut6 (float) : 207.055], [hvOut7 (float) : 207.065], [hvOut8 (float) : 207.075], [hvOut9 (float) : 207.085], [hvOut10 (float) : 207.095], [hvOut11 (float) : 207.105], [hvOut12 (float) : 207.115], [hvOut13 (float) : 207.125], [hvOut14 (float) : 207.135], [hvOut15 (float) : 207.145], [hvOut16 (float) : 207.155], [hvOut17 (float) : 207.165], [hvOut18 (float) : 207.175], [hvOut19 (float) : 207.185], [hvOut20 (float) : 207.195], [hvOut21 (float) : 207.205], [hvOut22 (float) : 207.215], [hvOut23 (float) : 207.225], [hvOut24 (float) : 207.235], [hvOut25 (float) : 207.265], [hvOut26 (float) : 207.255], [hvOut27 (float) : 207.245], [hvOut28 (float) : 207.295], [hvOut29 (float) : 207.285], [hvOut30 (float) : 207.275], [hvOut31 (float) : 207.325], [hvOut32 (float) : 207.315], [hvOut33 (float) : 207.305], [hvOut34 (float) : 207.355], [hvOut35 (float) : 207.345], [hvOut36 (float) : 207.335], [hvOut37 (float) : 207.385], [hvOut38 (float) : 207.375], [hvOut39 (float) : 207.365], [hvOut40 (float) : 207.415], [hvOut41 (float) : 207.405], [hvOut42 (float) : 207.395], [hvOut43 (float) : 207.445], [hvOut44 (float) : 207.435], [hvOut45 (float) : 207.425], [hvOut46 (float) : 207.475], [hvOut47 (float) : 207.465], [hvOut48 (float) : 207.455], [hvIn1 (float) : 0], [hvIn2 (float) : 0], [hvIn3 (float) : 0], [hvIn4 (float) : 0], [temp1 (float) : 5], [temp2 (float) : 10], [temp3 (float) : 15], [temp4 (float) : 20], [temp5 (float) : 25], [temp6 (float) : 30], [temp7 (float) : 35], [volt1 (float) : 2], [volt2 (float) : 4], [volt3 (float) : 6], [volt4 (float) : 8], [volt5 (float) : 10], [volt6 (float) : 12], [volt7 (float) : 14], [vFix1 (float) : 1230], [vFix2 (float) : 1230]
-FOLDER [{[536870911,l:536870911] - [2147483647,l:2147483647]}]: 
+FOLDER [{[0,0,t:536870911] - [t:2147483647]}]: 
 min range: {[0,0] - [2147483647,4294967295]}
 chan, attr: 15
 [FORDAQ_MBHV (int) : 111]

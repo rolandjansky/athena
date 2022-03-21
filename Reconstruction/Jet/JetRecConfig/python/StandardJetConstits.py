@@ -259,7 +259,8 @@ _stdSeqList = [
     
     # *****************************
     # Tower (used only as ghosts atm)
-    JetInputConstit("Tower", xAODType.CaloCluster, "CaloCalFwdTopoTowers"),
+    JetInputConstit("Tower", xAODType.CaloCluster, "CaloCalFwdTopoTowers",
+                    filterfn = lambda flags : ("CaloCalFwdTopoTowers" in flags.Input.Collections, "Towers as ghosts disabled as CaloCalFwdTopoTowers are not in the input")),
 
     # *****************************
     # Track constituents (e.g. ghosts, no quality criteria, no TTVA)

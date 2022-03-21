@@ -77,6 +77,6 @@ CLASS_DEF( SCT_CalibDefectData , 103608210, 1 )
 
 // Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( SCT_CalibDefectData , 1073500 );
+CONDCONT_MIXED_DEF( SCT_CalibDefectData , 1073500 );
 
 #endif // SCT_CALIBDEFECTDATA_H

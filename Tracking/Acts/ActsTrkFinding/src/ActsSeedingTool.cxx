@@ -34,6 +34,14 @@ namespace ActsTrk {
     ATH_MSG_INFO( "   " << m_cotThetaMax );
     ATH_MSG_INFO( "   " << m_deltaRMin );
     ATH_MSG_INFO( "   " << m_deltaRMax );
+    ATH_MSG_INFO( "   " << m_deltaRMinTopSP );
+    ATH_MSG_INFO( "   " << m_deltaRMaxTopSP );
+    ATH_MSG_INFO( "   " << m_deltaRMinBottomSP );
+    ATH_MSG_INFO( "   " << m_deltaRMaxBottomSP );
+    ATH_MSG_INFO( "   " << m_useVariableMiddleSPRange );
+    ATH_MSG_INFO( "   " << m_deltaRMiddleSPRange );
+    ATH_MSG_INFO( "   " << m_seedConfirmation );
+    ATH_MSG_INFO( "   " << m_enableCutsForSortedSP );
     ATH_MSG_INFO( "   " << m_impactMax );
     ATH_MSG_INFO( "   " << m_sigmaScattering );    
     ATH_MSG_INFO( "   " <<  m_maxPtScattering );
@@ -50,6 +58,7 @@ namespace ActsTrk {
     ATH_MSG_INFO( "   " <<  m_zAlign );
     ATH_MSG_INFO( "   " <<  m_rAlign );
     ATH_MSG_INFO( "   " <<  m_sigmaError );
+
 
     ATH_MSG_INFO( " * Used by SeedFilterConfig:");
     ATH_MSG_INFO( "   " << m_deltaInvHelixDiameter );
@@ -167,11 +176,18 @@ namespace ActsTrk {
     
     static thread_local typename decltype(finder)::State state;
 
+    Acts::Extent rRangeSPExtent;
+
+    for(auto it = spBegin; it!=spEnd; ++it) {
+      const auto& sp = *it;
+      rRangeSPExtent.check({sp->x(), sp->y(), sp->z()}); 
+    }
+
     auto group = spacePointsGrouping.begin();
     auto groupEnd = spacePointsGrouping.end();
     for (; group != groupEnd; ++group) {
       finder.createSeedsForGroup(state, std::back_inserter(seeds), group.bottom(),
-                                 group.middle(), group.top());
+                                 group.middle(), group.top(), rRangeSPExtent);
     }
     
     return seeds;
@@ -216,6 +232,10 @@ namespace ActsTrk {
     finderCfg.cotThetaMax = m_cotThetaMax;
     finderCfg.deltaRMin = m_deltaRMin;
     finderCfg.deltaRMax = m_deltaRMax;
+    finderCfg.deltaRMaxTopSP = m_deltaRMaxTopSP;
+    finderCfg.deltaRMinTopSP = m_deltaRMinTopSP;
+    finderCfg.deltaRMaxBottomSP = m_deltaRMaxBottomSP;
+    finderCfg.deltaRMinBottomSP = m_deltaRMinBottomSP;
     finderCfg.impactMax = m_impactMax;
     finderCfg.sigmaScattering = m_sigmaScattering;
     finderCfg.maxPtScattering = m_maxPtScattering;
@@ -235,11 +255,37 @@ namespace ActsTrk {
     finderCfg.rAlign = m_rAlign;
     finderCfg.sigmaError = m_sigmaError;
 
-    finderCfg.highland = 3.6 * std::sqrt(m_radLengthPerSeed) * (1 + 0.038 * std::log(m_radLengthPerSeed));
-    finderCfg.maxScatteringAngle2 = std::pow( finderCfg.highland / finderCfg.minPt, 2);
-    finderCfg.pTPerHelixRadius = 300. * finderCfg.bFieldInZ;
-    finderCfg.minHelixDiameter2 = std::pow(finderCfg.minPt * 2 / finderCfg.pTPerHelixRadius, 2);
-    finderCfg.pT2perRadius = std::pow(finderCfg.highland / finderCfg.pTPerHelixRadius, 2);
+    finderCfg.rRangeMiddleSP.reserve(m_rRangeMiddleSP.size());
+    for(const std::vector<double>& inner : m_rRangeMiddleSP) {
+      std::vector<float> fInner;
+      fInner.reserve(inner.size());
+      for(double value : inner) {
+        fInner.push_back(static_cast<float>(value));
+      }
+      finderCfg.rRangeMiddleSP.push_back(std::move(fInner));
+    }
+
+    finderCfg.useVariableMiddleSPRange = m_useVariableMiddleSPRange;
+    finderCfg.deltaRMiddleSPRange = m_deltaRMiddleSPRange;
+
+    finderCfg.seedConfirmation = m_seedConfirmation;
+    finderCfg.centralSeedConfirmationRange.zMinSeedConf = m_seedConfCentralZMin;
+    finderCfg.centralSeedConfirmationRange.zMaxSeedConf = m_seedConfCentralZMax;
+    finderCfg.centralSeedConfirmationRange.rMaxSeedConf = m_seedConfCentralRMax;
+    finderCfg.centralSeedConfirmationRange.nTopSeedConf = m_seedConfCentralNTop;
+    finderCfg.centralSeedConfirmationRange.nTopForLargeR = m_seedConfCentralNTopLR;
+    finderCfg.centralSeedConfirmationRange.nTopForSmallR = m_seedConfCentralNTopSR;
+
+    finderCfg.forwardSeedConfirmationRange.zMinSeedConf = m_seedConfForwardZMin;
+    finderCfg.forwardSeedConfirmationRange.zMaxSeedConf = m_seedConfForwardZMax;
+    finderCfg.forwardSeedConfirmationRange.rMaxSeedConf = m_seedConfForwardRMax;
+    finderCfg.forwardSeedConfirmationRange.nTopSeedConf = m_seedConfForwardNTop;
+    finderCfg.forwardSeedConfirmationRange.nTopForLargeR = m_seedConfForwardNTopLR;
+    finderCfg.forwardSeedConfirmationRange.nTopForSmallR = m_seedConfForwardNTopSR;
+
+    finderCfg.zBinEdges = m_zBinEdges;
+    
+    finderCfg.enableCutsForSortedSP = m_enableCutsForSortedSP;
 
     return std::make_pair( gridCfg,finderCfg );
   }  

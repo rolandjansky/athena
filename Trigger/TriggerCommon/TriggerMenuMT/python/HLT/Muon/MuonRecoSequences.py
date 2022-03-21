@@ -379,7 +379,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -403,6 +403,7 @@ def muEFSARecoSequence( RoIs, name ):
     # Sets up and configures the muon alignment:
     from MuonRecExample import MuonAlignConfig # noqa: F401
 
+  MuonStationsInterSectAlg()
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
       theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",  CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
                                                     sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),

@@ -14,8 +14,10 @@ def toCSV(fileName, metadata, HLTTriggers, readL1=False):
   with open(fileName, mode='w') as outputCSV_file:
     rates_csv_writer = csv.writer(outputCSV_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-    rates_csv_writer.writerow(['Name','Active Time [s]','Group','Weighted PS Rate [Hz]','Weighted PS Rate Err [Hz]','Unique Rate [Hz]','Unique Rate Err [Hz]','Prescale','ID','Raw Active Events','Raw Pass Events','Active Events','Input Rate [Hz]','Pass Fraction after PS [%]','Pass Weighted PS'])
-    rates_csv_writer.writerow(['Trigger name','Integrated length of all lumi blocks which contributed events to this rates prediction.','The group this chain belongs to.','Rate after applying all prescale(s) as weights.','Error on rate after applying all prescale(s) as weights','Total rate without this chain rate','Error on unique rate','The prescale of this chain. Only displayed for simple combinations.','The CPTID or HLT Chain ID','Raw underlying statistics on the number events processed for this chain.','Raw underlying statistics on the number events passed by this chain.','Number of events in which the chain - or at least one chain in the combination - was executed.','Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.','Fraction of events which pass this trigger after prescale.','Number of events this chain or combination passed after applying prescales as weighting factors.'])
+    rates_csv_writer.writerow(['Name','Active Time [s]','Group','Weighted PS Rate [Hz]','Weighted PS Rate Err [Hz]', \
+                                      'Unique Rate [Hz]','Unique Rate Err [Hz]','Express Rate [Hz]','Express Rate Err [Hz]','Prescale','Express Prescale','ID', \
+                                      'Raw Active Events','Raw Pass Events','Active Events','Input Rate [Hz]','Pass Fraction after PS [%]','Pass Weighted PS'])
+    rates_csv_writer.writerow(['Trigger name','Integrated length of all lumi blocks which contributed events to this rates prediction.','The group this chain belongs to.','Rate after applying all prescale(s) as weights.','Error on rate after applying all prescale(s) as weights','Total rate without this chain rate','Error on unique rate','Express stream rate','Error on express rate','The prescale of this chain. Only displayed for simple combinations.','The prescale of the chain including express prescale','The CPTID or HLT Chain ID','Raw underlying statistics on the number events processed for this chain.','Raw underlying statistics on the number events passed by this chain.','Number of events in which the chain - or at least one chain in the combination - was executed.','Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.','Fraction of events which pass this trigger after prescale.','Number of events this chain or combination passed after applying prescales as weighting factors.'])
 
     for trig in HLTTriggers:
 
@@ -37,7 +39,9 @@ def toCSV(fileName, metadata, HLTTriggers, readL1=False):
       else:
         passFrac_afterPS=100*float(trig.passWeighted)/float(trig.activeWeighted)
 
-      rates_csv_writer.writerow([trig.name,"%.4f" % trig.rateDenominator,group_name,"%.4f" % trig.rate,"%.4f" % trig.rateErr,"%.4f" % trig.rateUnique,"%.4f" % trig.rateUniqueErr,trig.prescale,chain_id,"%.0f" % trig.activeRaw,"%.0f" % trig.passRaw,"%.4f" % trig.activeWeighted,"%.4f" % (float(trig.activeWeighted)/float(trig.rateDenominator)),"%.4f" % passFrac_afterPS,"%.4f" % trig.passWeighted])
+      rates_csv_writer.writerow([trig.name,"%.4f" % trig.rateDenominator,group_name,"%.4f" % trig.rate,"%.4f" % trig.rateErr, \
+          "%.4f" % trig.rateUnique,"%.4f" % trig.rateUniqueErr, "%.4f" % trig.rateExpress,"%.4f" % trig.rateExpressErr, trig.prescale, trig.expressPrescale, chain_id, \
+          "%.0f" % trig.activeRaw,"%.0f" % trig.passRaw,"%.4f" % trig.activeWeighted,"%.4f" % (float(trig.activeWeighted)/float(trig.rateDenominator)),"%.4f" % passFrac_afterPS,"%.4f" % trig.passWeighted])
       
     
 
@@ -108,14 +112,18 @@ def getMetadata(inputFile):
 
   prescales = {}
   lowers = {}
+  express = {}
   for i in range(0, metatree.triggers.size()):
     prescale = metatree.prescales.at(i)
+    expressPrescale = metatree.express.at(i)
     # Handle group prescale values
     prescales[metatree.triggers.at(i)] = prescale if prescale > -1 else "Multiple"
     lowers[metatree.triggers.at(i)] = str(metatree.lowers.at(i))
+    express[metatree.triggers.at(i)] = expressPrescale if expressPrescale > -1 else "Multiple"
 
   metadata['prescales'] = prescales
   metadata['lowers'] = lowers
+  metadata['express'] = express
   
   chainid = {}
   chaingroup = {}

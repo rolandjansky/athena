@@ -472,6 +472,7 @@ PerfMonSvc::io_finalize()
                   << strerror(errno));
     return StatusCode::FAILURE;
   }
+  m_stream = -1; // reset the fd
   return StatusCode::SUCCESS;
 }
 //@}
@@ -1252,6 +1253,23 @@ PerfMonSvc::comp_startAud(const std::string& stepName,
      ((unsigned long)c.mem.nmall[0]),
      ((unsigned long)c.mem.nfree[0])
      );
+  // In AthenaMP, we need to re-open the pmon stream
+  // before we write the results that come from the
+  // finalization of the mother process. Otherwise,
+  // we shouldn't be going into this block...
+  if (m_stream<0) {
+    const std::string stream_name = m_outFileName.value()+".pmon.stream";
+
+    PMON_INFO("re-opening pmon-stream file [" << stream_name << "]...");
+    m_stream = open(stream_name.c_str(),
+                  O_WRONLY | O_APPEND,
+                  S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+    if (m_stream<0) {
+      PMON_ERROR("could not re-open pmon-stream file ["
+          << stream_name << "] !");
+    }
+  }
   write(m_stream, buf, buf_sz);
   free(buf);
 

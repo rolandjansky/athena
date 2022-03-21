@@ -51,9 +51,8 @@ namespace Muon {
     }
 
     StatusCode MuonSegmentRegionRecoveryTool::initialize() {
-        ATH_CHECK(m_DetectorManagerKey.initialize());
         ATH_CHECK(m_edmHelperSvc.retrieve());
-        ATH_CHECK(m_intersectSvc.retrieve());
+        ATH_CHECK(m_chamberGeoKey.initialize());
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_seededSegmentFinder.retrieve());
 
@@ -96,9 +95,7 @@ namespace Muon {
         } else {
             m_regsel_mm.disable();
             m_recoverMM = false;
-        }
-        ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
-
+        }      
         return StatusCode::SUCCESS;
     }
 
@@ -411,12 +408,12 @@ namespace Muon {
             return nullptr;
         }
 
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
-        const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (!MuonDetMgr) {
-            ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+        SG::ReadCondHandle<Muon::MuonIntersectGeoData> InterSectSvc{m_chamberGeoKey,ctx};
+        if (!InterSectSvc.isValid())   {
+            ATH_MSG_ERROR("Failed to retrieve chamber intersection service");
             return nullptr;
         }
+        const MuonGM::MuonDetectorManager* MuonDetMgr = InterSectSvc->detMgr();
 
         std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> states;
         unsigned int nholes = 0;
@@ -449,14 +446,8 @@ namespace Muon {
             ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toStringChamber(chId) << " hash " << ith);
 
             // calculate crossed tubes
-            const MdtCondDbData* dbData = nullptr;
-            if (!m_condKey.empty()) {
-                SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey, ctx};
-                dbData = readHandle.cptr();
-            }
-            const MuonStationIntersect intersect =
-                m_intersectSvc->tubesCrossedByTrack(chId, exPars->position(), exPars->momentum().unit(), dbData, MuonDetMgr);
-
+            const MuonStationIntersect intersect = InterSectSvc->tubesCrossedByTrack(chId, exPars->position(), exPars->momentum().unit());
+           
             // clear hole vector
             for (unsigned int ii = 0; ii < intersect.tubeIntersects().size(); ++ii) {
                 const MuonTubeIntersect& tint = intersect.tubeIntersects()[ii];

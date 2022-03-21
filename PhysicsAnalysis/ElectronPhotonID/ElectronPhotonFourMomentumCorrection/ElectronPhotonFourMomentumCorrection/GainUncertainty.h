@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINUNCERTAINTYY_H
@@ -10,8 +10,6 @@
 #include <memory>
 #include <string>
 
-
-class TFile;
 class TH1;
 
 namespace egGain{
@@ -31,15 +29,12 @@ public:
 
 private:
 
-  static const int m_NUM_ETA_BINS=5;
-
-  std::unique_ptr<TFile> m_gainFile;
-
+  static const int s_nEtaBins=5;
   TH1* m_alpha_specialGainRun;
   TH1* m_gain_impact_Zee;
-  TH1* m_gain_Impact_elec[5]{};
-  TH1* m_gain_Impact_conv[5]{};
-  TH1* m_gain_Impact_unco[5]{};
+  TH1* m_gain_Impact_elec[s_nEtaBins]{};
+  TH1* m_gain_Impact_conv[s_nEtaBins]{};
+  TH1* m_gain_Impact_unco[s_nEtaBins]{};
 
 };
 

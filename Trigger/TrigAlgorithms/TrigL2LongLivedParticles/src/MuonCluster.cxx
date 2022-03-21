@@ -16,7 +16,7 @@
 //LVL1 ROIS
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 //MUON CLUSTER
-#include "TrigL2LongLivedParticles/MuonCluster.h"
+#include "MuonCluster.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "CxxUtils/fpcompare.h"
 #include "CxxUtils/phihelper.h"
@@ -98,8 +98,8 @@ StatusCode MuonCluster::execute(const EventContext& ctx) const
     //check to make sure we have all the input trigger elements!
 
     int iter_cl=0;
-    lvl1_muclu_roi muonClu[20] = {0,0,0};
-    lvl1_muclu_roi muonClu0[20] = {0,0,0};
+    lvl1_muclu_roi muonClu[20] = {{0,0,0}};
+    lvl1_muclu_roi muonClu0[20] = {{0,0,0}};
 
     auto roiCollectionHdl = SG::makeHandle(m_roiCollectionKey, ctx);
     auto roiCollection = roiCollectionHdl.get();

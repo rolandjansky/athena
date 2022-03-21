@@ -13,11 +13,13 @@ class RepeatedConditionParams:
     the integer ids for the tree and parent nodes.
     """
     
-    def __init__(self,  tree_id, tree_pid, chainPartInd=-1, multiplicity=1,
+    def __init__(self,  tree_id, tree_pid, clique=-1,
+                 chainPartInd=-1, multiplicity=1,
                  condargs=[], invert=False):
   
         self.tree_id = tree_id
         self.tree_pid = tree_pid
+        self.clique = clique # Conditions with the same args form a  clique
         self.chainPartInd = chainPartInd
         self.multiplicity = multiplicity
 

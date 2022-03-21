@@ -40,22 +40,24 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager*              MuonDetMgr{*DetectorManagerHandle};
-    if (MuonDetMgr == nullptr) {
+    if (!MuonDetMgr) {
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
         return hitCounts;
     }
 
     // calculate shortest channel
-    double                       shortestTube   = 1e9;
+    double                       shortestTube   {FLT_MAX};
     const MdtDriftCircleOnTrack* mdtShortest    = nullptr;
     bool                         transformIsSet = false;
     Amg::Transform3D             gToAMDB;
     Amg::Vector3D                lpos(0., 0., 0.);
-    Amg::Vector3D                ldir;
+    Amg::Vector3D                ldir{0.,0.,0.};
     double                       dxdy = 1.;
 
     Identifier                chid    = m_edmHelperSvc->chamberId(seg);
     MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chid);
+    
+    /// This concerns only the RPC & TGC chambers
     if ((!m_idHelperSvc->isCsc(chid) && stIndex == MuonStationIndex::EI) || stIndex == MuonStationIndex::BO)
         hitCounts.nexpectedTrigHitLayers = 1;
     else if (stIndex == MuonStationIndex::BM)
@@ -64,12 +66,10 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
         hitCounts.nexpectedTrigHitLayers = 3;
 
     // loop over hits
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit     = seg.containedMeasurements().begin();
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg.containedMeasurements().end();
-    for (; mit != mit_end; ++mit) {
-
+    for (const Trk::MeasurementBase* meas : seg.containedMeasurements()) {
+        
         // get id and check that it is a muon hit id
-        Identifier id = m_edmHelperSvc->getIdentifier(**mit);
+        Identifier id = m_edmHelperSvc->getIdentifier(*meas);
         if (!id.is_valid() || !m_idHelperSvc->isMuon(id)) continue;
 
         // check if MDT is so increase ml counter
@@ -82,9 +82,8 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
             MdtLayerIntersect& layIntersect = hitCounts.mdtHitHolePerLayerCounts[layIndex];
             ++layIntersect.nhits;
 
-            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*mit);
+            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
             if (mdt) {
-
                 const MuonGM::MdtReadoutElement* detEl =
                     mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : MuonDetMgr->getMdtReadoutElement(id);
                 if (!detEl) {
@@ -106,44 +105,42 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
                     shortestTube = tubeLen;
                 }
             }
-            if (m_idHelperSvc->mdtIdHelper().multilayer(id) == 1)
-                ++hitCounts.nmdtHitsMl1;
-            else
-                ++hitCounts.nmdtHitsMl2;
-
-            if (mdt) {
-                if (mdt->prepRawData()) {
-                    int adc = mdt->prepRawData()->adc();
-                    if (adc > m_lowerADCBound) ++hitCounts.nmdtHighADCHits;
-                    if (adc > hitCounts.adcMax) hitCounts.adcMax = adc;
-                }
+            const bool first_layer = (m_idHelperSvc->mdtIdHelper().multilayer(id) == 1);
+            hitCounts.nmdtHitsMl1 += first_layer;
+            hitCounts.nmdtHitsMl2 += !first_layer;
+            if (mdt && mdt->prepRawData()) {
+                int adc = mdt->prepRawData()->adc();
+                if (adc > m_lowerADCBound) hitCounts.nmdtHighADCHits+=(adc > m_lowerADCBound);
+                hitCounts.adcMax = std::max(adc, hitCounts.adcMax);                
             }
 
-        } else if (m_idHelperSvc->isTrigger(id)) {
+        } 
+        /// Check for the TGC and RPC chambers
+        else if (m_idHelperSvc->isTrigger(id)) {
             // get gasgap ID (same for eta/phi projection)
             Identifier gasGapId    = m_idHelperSvc->gasGapId(id);
-            bool       measuresPhi = m_idHelperSvc->measuresPhi(id);
-            if (measuresPhi)
-                ++hitCounts.hitCountsPerLayer[gasGapId].nphiHits;
-            else
-                ++hitCounts.hitCountsPerLayer[gasGapId].netaHits;
-        } else {
-            bool measuresPhi = m_idHelperSvc->measuresPhi(id);
-            if (measuresPhi)
-                ++hitCounts.ncscHitsPhi;
-            else
-                ++hitCounts.ncscHitsEta;
+            const bool measuresPhi = m_idHelperSvc->measuresPhi(id);
+            hitCounts.hitCountsPerLayer[gasGapId].nphiHits+= measuresPhi;
+            hitCounts.hitCountsPerLayer[gasGapId].netaHits+= !measuresPhi;          
+        } else if (m_idHelperSvc->isCsc(id)) {
+            const bool measuresPhi = m_idHelperSvc->measuresPhi(id);
+            hitCounts.ncscHits.nphiHits+= measuresPhi;
+            hitCounts.ncscHits.netaHits+= !measuresPhi;          
+        } else if (m_idHelperSvc->issTgc(id)){
+            const bool measuresPhi = m_idHelperSvc->measuresPhi(id);
+            hitCounts.nstgcHits.nphiHits+= measuresPhi;
+            hitCounts.nstgcHits.netaHits+= !measuresPhi;       
+        } else if (m_idHelperSvc->isMM(id)){
+            const bool isStereo = m_idHelperSvc->mmIdHelper().isStereo(id);
+            hitCounts.nmmEtaHits +=  !isStereo;          
+            hitCounts.nmmStereoHits+= isStereo;     
         }
     }
 
     const MuonSegmentQuality* quality = dynamic_cast<const MuonSegmentQuality*>(seg.fitQuality());
     if (quality) {
-        std::vector<Identifier>::const_iterator hit     = quality->channelsWithoutHit().begin();
-        std::vector<Identifier>::const_iterator hit_end = quality->channelsWithoutHit().end();
-        for (; hit != hit_end; ++hit) {
-
-            const Identifier& id = *hit;
-            // get layer index
+        for (const Identifier& id : quality->channelsWithoutHit()) {
+            /// get layer index
             int                ml       = m_idHelperSvc->mdtIdHelper().multilayer(id);
             int                lay      = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
             int                tube     = m_idHelperSvc->mdtIdHelper().tube(id);
@@ -168,11 +165,8 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
 
 
     // now loop over map and get the counts for the trigger hits
-    std::map<Identifier, EtaPhiHitCount>::iterator it     = hitCounts.hitCountsPerLayer.begin();
-    std::map<Identifier, EtaPhiHitCount>::iterator it_end = hitCounts.hitCountsPerLayer.end();
-    for (; it != it_end; ++it) {
-
-        EtaPhiHitCount& counts = it->second;
+    for (std::pair<const Identifier, EtaPhiHitCount>& it : hitCounts.hitCountsPerLayer) {
+        EtaPhiHitCount& counts = it.second;
 
         // increase eta/phi hit counts
         if (counts.nphiHits != 0) ++hitCounts.nphiTrigHitLayers;
@@ -187,16 +181,12 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
     int  currentEnclosedHoles = 0;
     bool firstLayerWithHits   = false;
     // now loop over mdt map and get the number of enclosed holes
-    MdtLayerIntersectMap::iterator lit     = hitCounts.mdtHitHolePerLayerCounts.begin();
-    MdtLayerIntersectMap::iterator lit_end = hitCounts.mdtHitHolePerLayerCounts.end();
-    for (; lit != lit_end; ++lit) {
-        // std::cout << " layer " << lit->first << " hits " << lit->second.nhits << " holes " << lit->second.nholes <<
-        // std::endl;
-        hitCounts.nmdtHoles += lit->second.nholes;
-        if (lit->second.nhits == 0) {
+    for ( auto& lit :  hitCounts.mdtHitHolePerLayerCounts) {
+        hitCounts.nmdtHoles += lit.second.nholes;
+        if (lit.second.nhits == 0) {
             ++currentEnclosedHoles;
             // count holes within chamber bounds
-            if (std::abs(lit->second.distFromTubeEnd) - 0.5 * lit->second.tubeLength < m_positionAlongTubeCut)
+            if (std::abs(lit.second.distFromTubeEnd) - 0.5 * lit.second.tubeLength < m_positionAlongTubeCut)
                 ++hitCounts.nmdtHolesInChamber;
         } else {
             if (firstLayerWithHits) hitCounts.nmdtEnclosedHoles += currentEnclosedHoles;

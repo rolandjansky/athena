@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 JetRecConfig: A helper module for configuring jet reconstruction     
@@ -136,10 +136,11 @@ def getJetDefAlgs(configFlags, jetdef ,  returnConfiguredDef=False, monTool=None
 
     # Scan the dependencies of this jetdef, also converting all aliases it contains 
     # into config objects and returning a fully configured copy.
-    jetdef_i = solveDependencies(jetdef)
 
+    jetdef_i = solveDependencies(jetdef, configFlags=configFlags)
     jetdef_i._cflags = configFlags
-    
+
+
     # check if the conditions are compatible with the inputs & modifiers of this jetdef_i.
     # if in standardRecoMode we will remove whatever is incompatible and still try to run
     # if not, we raise an exception
@@ -186,6 +187,9 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     # Transfer the input & ghost dependencies onto the parent jet alg,
     # so they are handled when instatiating the parent jet algs
     for prereq  in groomdef_i._prereqOrder:
+        #Protection for some modifiers that have three 'arguments'
+        if len(prereq.split(':')) > 2:
+            continue
         reqType, reqKey = prereq.split(':')
         if reqType=='ghost':
             groomdef_i.ungroomeddef.ghostdefs.append(reqKey)
@@ -199,6 +203,9 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     #  we need to rebuild the pseudoJet)
     algs, ungroomeddef_i = getJetDefAlgs(configFlags, groomdef_i.ungroomeddef , True)
     groomdef_i._ungroomeddef = ungroomeddef_i # set directly the internal members to avoid complication. This is fine, since we've been cloning definitions.
+
+    #Filter the modifiers based on the configFlags
+    removeGroomModifFailingConditions(groomdef_i, configFlags, raiseOnFailure = not groomdef_i.ungroomeddef.standardRecoMode)
 
     algs += [ getJetRecGroomAlg(groomdef_i, monTool=monTool) ]
 
@@ -461,6 +468,7 @@ def getJetRecGroomAlg(groomdef,monTool=None):
                          UngroomedJets = groomdef.ungroomeddef.fullname(),
                          ParentPseudoJets = groomdef.ungroomeddef._internalAtt['finalPJContainer'],
                          **groomdef.properties)
+
     # get JetModifier list
     mods = getJetModifierTools(groomdef)
 
@@ -714,7 +722,32 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
     filterList( list(jetdef._prereqOrder), "")
     return True
 
-    
+
+
+def removeGroomModifFailingConditions(groomdef, configflags, raiseOnFailure=True):
+
+    mods_filtered = []
+
+    for mod in groomdef.modifiers:
+        fullkey = 'mod:'+mod
+        cInstance = groomdef._prereqDic[fullkey]
+        ok, reason = isComponentPassingConditions(cInstance, configflags, groomdef._prereqDic)
+
+        if not ok :
+            if raiseOnFailure:
+                raise Exception("JetGrooming {} can NOT be scheduled. Failure  of {} {}  reason={}".format(
+                groomdef, 'mod', mod, reason) )
+
+            jetlog.info(f"{groomdef.fullname()} : removing modifier {mod}  reason={reason}")
+
+            if fullkey in groomdef._prereqOrder:
+                groomdef._prereqOrder.remove(fullkey)
+        else:
+            mods_filtered.append(mod)
+
+    groomdef.modifiers = mods_filtered
+
+
 def isComponentPassingConditions(component, configflags, prereqDic):
     """Test if component is compatible with configflags.
     This is done by calling component.filterfn AND testing all its prereqs.
