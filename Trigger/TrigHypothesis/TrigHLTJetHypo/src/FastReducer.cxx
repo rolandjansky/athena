@@ -376,6 +376,7 @@ bool FastReducer::propagate_(std::size_t child,
 					m_conditionClique,
 					m_jg2elemjgs,
 					m_conditions[par]->capacity(),
+					m_tree.is_simple(),
 					collector);
    
   // obtain the next product of jet groups passing siblings

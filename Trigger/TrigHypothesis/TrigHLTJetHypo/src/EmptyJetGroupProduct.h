@@ -15,9 +15,14 @@ class EmptyJetGroupProduct: public IJetGroupProduct{
 public:
   EmptyJetGroupProduct(){}
   
-  virtual std::vector<std::size_t> next(const Collector&) override {
+  virtual std::vector<std::size_t> next(const Collector&collector) override {
+    if(collector){
+      collector->collect("EmptyJetGroup::next()",
+                         "end of iteration ");
+    }
     return std::vector<std::size_t>();
   }
+  virtual bool valid() const override {return true;}
   
 };
 

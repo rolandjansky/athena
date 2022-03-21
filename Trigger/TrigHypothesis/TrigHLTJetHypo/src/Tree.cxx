@@ -61,6 +61,17 @@ const std::vector<std::size_t>& Tree::firstGeneration() const {
 }
 
 
+bool Tree::is_simple() const {
+  if (m_parents.empty()) {
+    return false;
+  } else {
+    return std::all_of(m_parents.begin(),
+		       m_parents.end(),
+		       [](const auto& e) {return e == 0;});
+  }
+}	  
+
+
 std::size_t Tree::depth(std::size_t n) const {
   std::size_t depth{0u};
   while (n != 0){

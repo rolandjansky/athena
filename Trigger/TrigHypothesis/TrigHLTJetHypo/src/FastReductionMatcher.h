@@ -44,6 +44,11 @@ class FastReductionMatcher: public IJetsMatcher {
  
   std::string toString() const override;
 
+
+  bool valid() const override;
+  std::string msg() const override;
+  
+
  private:
 
   ConditionPtrs m_conditions;
@@ -60,5 +65,8 @@ class FastReductionMatcher: public IJetsMatcher {
   // leaf Condition capacities
   long unsigned int m_minNjets{0u};
 
+  // error handling
+  bool m_validState{true};
+  std::string m_msg;
 };
 #endif

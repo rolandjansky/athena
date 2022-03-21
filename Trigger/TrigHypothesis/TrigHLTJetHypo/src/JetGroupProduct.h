@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_JETGROUPPRODUCT_H
@@ -38,9 +38,10 @@ class JetGroupProduct: public IJetGroupProduct{
 
   virtual
   std::vector<std::size_t> next(const Collector&) override;
+  virtual bool valid() const override;
   
  private:
-  std::vector<std::vector<std::size_t>>  m_condIndices;
+
   std::vector<bool>  m_jetMask;
   std::size_t  m_jetEnd{0};
   // ProductGen m_productGen;

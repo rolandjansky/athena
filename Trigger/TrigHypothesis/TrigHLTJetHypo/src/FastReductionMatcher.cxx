@@ -17,12 +17,19 @@ FastReductionMatcher::FastReductionMatcher(ConditionPtrs& conditions,
   m_conditionFilters(std::move(filters)),
   m_tree(tree){
 
+  if (m_conditions[0]->capacity() != 0 or
+      m_conditions[0]-> multiplicity() != 1) {
+    m_validState= false;
+    m_msg = "Condition tree root node is not AcceptAll";
+  }
+
   int minNjets{0};
   for (const auto& il : m_tree.leaves()){
     const auto& condition = m_conditions[il];
 
     if (!condition->isFromChainPart()) {
-      throw std::runtime_error("Tree leaf condition  but not from ChainPart");
+      m_validState = false;
+      m_msg  = "Tree leaf condition  but not from ChainPart";
     }
     minNjets += condition->capacity() * condition->multiplicity();
 
@@ -31,7 +38,8 @@ FastReductionMatcher::FastReductionMatcher(ConditionPtrs& conditions,
   m_minNjets = std::max(1, minNjets);
   
   if (filters.size() != conditions.size()) {
-    throw std::runtime_error("Conditions and ConditionFilters sequence sizes differ");
+    m_validState = false;
+    m_msg = "Conditions and ConditionFilters sequence sizes differ";
   }
 
 }
@@ -107,3 +115,6 @@ std::string FastReductionMatcher::toString() const {
 
   return ss.str();
 }
+
+bool FastReductionMatcher::valid() const {return m_validState;}
+std::string FastReductionMatcher::msg() const {return m_msg;}

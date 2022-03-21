@@ -33,6 +33,9 @@ class IJetsMatcher{
 				    xAODJetCollector&,
 				    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 				    bool debug=false) const = 0;
+
+  virtual bool valid() const  = 0;
+  virtual std::string msg() const  = 0;
   
   virtual std::string toString() const = 0;
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_JETGROUPSINGLECLIQUE_H
@@ -11,31 +11,27 @@
 #include <vector>
 
 using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
+
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
+
 
 typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 class JetGroupSingleClique: public IJetGroupProduct{
   /*
-   * Returns the elementary jet groups for jet groups satisfying a condition.
-   * Intended to be used with a single clique set of Conditions
-   * with an AcceptAll parent. Here, all siblings have the same passing jets
-   * and next() need return only the set of jets satisfying 
-   * one of the siblings. 
-   * The simple scenario gives rise to this special case.
+   * create a jet group for monoclique simple trees
    */
-public:
-  JetGroupSingleClique(const std::vector<std::size_t>& satisfyingJetGroups,
-		       const JetGroupInd2ElemInds& jg2elemjgs
-		       );
+ public:
+  JetGroupSingleClique(const std::vector<std::size_t>& satisfyingJets,
+		       std::size_t n_required);
   
-  virtual
-  std::vector<std::size_t> next(const Collector&) override;
+  virtual std::vector<std::size_t> next(const Collector&) override;
+
+  virtual bool valid() const override;
   
-private:
+ private:
   std::vector<std::size_t>  m_jetIndices;
   bool m_done{false};
-
 };
 
 #endif
