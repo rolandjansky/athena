@@ -1779,7 +1779,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
 
 
 ## @brief Specialist executor to manage the handling of multiple implicit input
-#  and output files within the reduction framework. 
+#  and output files within the derivation framework. 
 class reductionFrameworkExecutor(athenaExecutor):
     ## @brief Take inputDAODFile and setup the actual outputs needed
     #  in this job.
@@ -1787,15 +1787,19 @@ class reductionFrameworkExecutor(athenaExecutor):
         self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
         if 'NTUP_PILEUP' not in output:
-            if 'reductionConf' not in self.conf.argdict:
+            # New derivation framework transform uses "requiredDerivedFormats"
+            if 'reductionConf' not in self.conf.argdict and 'requiredDerivedFormats' not in self.conf.argdict:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No reduction configuration specified')
 
             if ('DAOD' not in output) and ('D2AOD' not in output):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No base name for DAOD reduction')
-        
-            for reduction in self.conf.argdict['reductionConf'].value:
+
+            formatList = []
+            if 'reductionConf' in self.conf.argdict: formatList = self.conf.argdict['reductionConf'].value
+            if 'requiredDerivedFormats' in self.conf.argdict: formatList = self.conf.argdict['requiredDerivedFormats'].value        
+            for reduction in formatList:
                 if ('DAOD' in output):
                     dataType = 'DAOD_' + reduction
                     outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
