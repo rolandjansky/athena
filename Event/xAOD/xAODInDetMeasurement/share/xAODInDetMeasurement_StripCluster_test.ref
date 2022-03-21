@@ -1,8 +1,8 @@
- --------- MEASUREMENT BASE ------------ 
-Identifier = 0x20024480ea00000
+ --------- MEASUREMENT BASE ------------
+Identifier Hash = 123485
 Local Position = 0.15
 Local Covariance = 0.012
- ----------STRIP CLUSTER INFO ----------- 
+ ----------STRIP CLUSTER INFO -----------
 Global Position = 10
 10
 10

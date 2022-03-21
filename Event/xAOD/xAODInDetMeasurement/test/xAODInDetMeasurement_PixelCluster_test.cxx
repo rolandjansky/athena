@@ -30,8 +30,8 @@ std::ostream& operator<< ( std::ostream& out,
 
 void fill( xAOD::PixelCluster& pixelCluster) {
 
-    Identifier::value_type idval(0x20024480ea00000);
-    Identifier id(idval);
+    IdentifierHash::value_type idHashVal(15623);
+    IdentifierHash idHash(idHashVal);
 
     Eigen::Matrix<float,2,1> localPosition(0.1, 0.5);
 
@@ -40,7 +40,7 @@ void fill( xAOD::PixelCluster& pixelCluster) {
     localCovariance(0, 0) = 0.012;
     localCovariance(1, 1) = 0.012;
 
-    pixelCluster.setMeasurement<2>(id, localPosition, localCovariance);
+    pixelCluster.setMeasurement<2>(idHash, localPosition, localCovariance);
 
     Eigen::Matrix<float, 3, 1> globalPosition(10, 10, 10);
 
@@ -64,7 +64,7 @@ void fill( xAOD::PixelCluster& pixelCluster) {
 
 void print ( const xAOD::PixelCluster& pixelCluster) {
     std::cout << " --------- MEASUREMENT BASE ------------ " << std::endl;
-    std::cout << "Identifier = " << pixelCluster.identifier() << std::endl;
+    std::cout << "Identifier Hash = " << pixelCluster.identifierHash() << std::endl;
     std::cout << "Local Position = " << pixelCluster.localPosition<2>() << std::endl;
     std::cout << "Local Covariance = " << pixelCluster.localCovariance<2>() << std::endl;
     std::cout << " ----------PIXEL CLUSTER INFO ----------- " << std::endl;

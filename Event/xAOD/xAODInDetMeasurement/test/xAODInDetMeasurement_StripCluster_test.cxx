@@ -30,8 +30,8 @@ std::ostream& operator<< ( std::ostream& out,
 
 void fill( xAOD::StripCluster& stripCluster) {
 
-    Identifier::value_type idval(0x20024480ea00000);
-    Identifier id(idval);
+    IdentifierHash::value_type idHashVal(123485);
+    IdentifierHash idHash(idHashVal);
 
     Eigen::Matrix<float,1,1> localPosition(0.15);
 
@@ -39,7 +39,7 @@ void fill( xAOD::StripCluster& stripCluster) {
     localCovariance.setZero();
     localCovariance(0, 0) = 0.012;
 
-    stripCluster.setMeasurement<1>(id, localPosition, localCovariance);
+    stripCluster.setMeasurement<1>(idHash, localPosition, localCovariance);
 
     Eigen::Matrix<float, 3, 1> globalPosition(10, 10, 10);
 
@@ -66,7 +66,7 @@ void fill( xAOD::StripCluster& stripCluster) {
 
 void print ( const xAOD::StripCluster& stripCluster) {
     std::cout << " --------- MEASUREMENT BASE ------------ " << std::endl;
-    std::cout << "Identifier = " << stripCluster.identifier() << std::endl;
+    std::cout << "Identifier Hash = " << stripCluster.identifierHash() << std::endl;
     std::cout << "Local Position = " << stripCluster.localPosition<1>() << std::endl;
     std::cout << "Local Covariance = " << stripCluster.localCovariance<1>() << std::endl;
     std::cout << " ----------STRIP CLUSTER INFO ----------- " << std::endl;
