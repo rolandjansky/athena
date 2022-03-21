@@ -48,8 +48,9 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
       ROOT::Math::XYZVector vertex_tmp(0.,0.,0.);
  
       ROOT::Math::PtEtaPhiEVector thePart, theInfo;
-      auto MuEntry_Particle_n = trackRecordCollection->size();
+      auto MuEntry_Particle_n = (trackRecordCollection!=nullptr)?trackRecordCollection->size():0;
       int j=0; // iteration of particle entries
+      if( truthContainer != nullptr ){
       for(const auto it : *truthContainer) {
         const HepMC::GenEvent *subEvent = it;
 #ifdef HEPMC3
@@ -60,9 +61,10 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
           const HepMC::GenParticle *particle = pit;
 #endif
           const HepMC::FourVector momentum = particle->momentum();
-          int k=trackRecordCollection->size(); //number of mu
+          int k=(trackRecordCollection!=nullptr)?trackRecordCollection->size():0; //number of mu
           if(HepMC::barcode(particle) < 1e06 && std::abs(particle->pdg_id())==13){
             thePart.SetCoordinates(momentum.perp(),momentum.eta(),momentum.phi(),momentum.e());
+            if(trackRecordCollection!=nullptr){
             for(const auto & mit : *trackRecordCollection ) {
               const CLHEP::Hep3Vector mumomentum = mit.GetMomentum();
               const CLHEP::Hep3Vector muposition = mit.GetPosition();
@@ -74,6 +76,7 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
                 etaPosition_tmp = muposition.getEta();
               }
             }//muentry loop
+            } // trackRecordCollection is not null
             int l=0;
 #ifdef HEPMC3
             for(auto vertex1 : subEvent->vertices()) {
@@ -110,6 +113,7 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
 
         } //end particle loop
       } //end truth container loop (should be only 1 container per event)
+      } // if truth container is not null
       auto ctx = Gaudi::Hive::currentContext();
       int event = ctx.eventID().event_number();
 
