@@ -98,3 +98,31 @@ TEST(make_jetstreamTester, SimpleCompoundSimpleChain) {
   EXPECT_EQ (vec{}, streamer.next());
 }
 
+TEST(make_jetstreamTester, reallife) {
+ std::vector<std::vector<std::size_t>> v;
+ v.push_back(std::vector<std::size_t>{0, 1, 2});
+ v.push_back(std::vector<std::size_t>{
+      0, 1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13,
+      14, 15, 17, 19, 21, 25, 26, 29, 33});
+
+      
+
+  std::vector<std::size_t> repeats{1,3};
+  
+  std::size_t sid{0};
+
+  auto stream = make_jetstream(v, repeats, sid);
+
+  JetStreamer streamer(std::move(stream));
+
+  std::size_t ipass{0};
+
+  while (true) {
+    auto indices = streamer.next();
+    if (indices.empty()){break;}
+    ++ipass;
+  }
+
+  // 3990 = 3*C(21,3)
+  EXPECT_EQ (ipass, 3990u);
+}

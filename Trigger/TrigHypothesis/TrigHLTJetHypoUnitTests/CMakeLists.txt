@@ -27,6 +27,7 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/ProductGenTest.cxx
    tests/JetGroupProductTest.cxx
    tests/JetGroupUnionTest.cxx
+   tests/JetGroupSingleCliqueTest.cxx
    tests/JetGroupRegisterTest.cxx
    tests/TLorentzVectorFactoryTest.cxx
    tests/xAODJetCollectorTest.cxx
@@ -38,6 +39,7 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/JetStreamerTest.cxx
    tests/make_jetstreamTest.cxx
    tests/TreeTest.cxx
+   tests/JetGroupProductFactoryTest.cxx	   
    INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} TrigHLTJetHypoLib TrigHLTJetHypoUnitTestsLib xAODJet
    POST_EXEC_SCRIPT nopost.sh )
