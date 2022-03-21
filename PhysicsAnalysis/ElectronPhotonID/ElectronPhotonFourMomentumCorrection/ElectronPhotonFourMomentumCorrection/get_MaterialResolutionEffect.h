@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef get_MaterialResolutionEffect_H
@@ -22,7 +22,6 @@
 
 class TH1;
 class TH2;
-class TFile;
 class TArrayD;
 
 
@@ -31,7 +30,7 @@ class get_MaterialResolutionEffect : public asg::AsgMessaging {
  public:
   /** @brief constructor (initialization done there reading root files with resolution fit parameters */
   get_MaterialResolutionEffect();
-  ~get_MaterialResolutionEffect();
+  ~get_MaterialResolutionEffect() {};
 
   /** @brief get material effect on resolution from distorted geometry as difference to 40 GeV Et electrons smearing
       @brief particle_type: 0=electron, 1=reco unconverted photon, 2=reco converted photon
@@ -46,12 +45,12 @@ class get_MaterialResolutionEffect : public asg::AsgMessaging {
  private:
 
   // histograms to store resolution parameters
-  std::array<std::array<std::array<std::unique_ptr<TH1>, 3>, 8>,4> m_hSystPeak;
-  std::array<std::array<std::array<std::unique_ptr<TH1>, 3>, 8>,4> m_hSystResol;
+  static const int s_nEtaBins = 8;
+  static const int s_nSys = 4;
+  std::array<std::array<std::array<std::unique_ptr<TH1>, 3>, s_nEtaBins>, s_nSys> m_hSystPeak;
+  std::array<std::array<std::array<std::unique_ptr<TH1>, 3>, s_nEtaBins>, s_nSys> m_hSystResol;
   std::array<std::unique_ptr<TH2>, 3> m_hsyst_IBL_PP0;
-  std::unique_ptr <TFile> m_file0;
   const TArrayD* m_etBins; //A xistogram will own this
-
 
 };
 
