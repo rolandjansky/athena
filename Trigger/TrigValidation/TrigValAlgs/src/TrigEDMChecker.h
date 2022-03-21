@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_EDM_CHECKER_H
@@ -9,6 +9,7 @@
 #include "GaudiKernel/ObjectVector.h"
 
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 
@@ -42,12 +43,13 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
  public:
 
    TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator);
-   ~TrigEDMChecker();
+   virtual ~TrigEDMChecker();
 
-   StatusCode initialize();
-   StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute() override;
 
  private:
+   StatusCode do_execute ATLAS_NOT_THREAD_SAFE();
 
    /** a handle on Store Gate for access to the Event Store */
    bool m_doDumpAll;
@@ -61,7 +63,7 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    StatusCode dumpTrackParticleContainer();
 
    bool m_doDumpTrigMissingET;
-   StatusCode dumpTrigMissingET();
+   StatusCode dumpTrigMissingET ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpxAODTrigMissingET;
    StatusCode dumpxAODTrigMissingET();
@@ -76,48 +78,48 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    StatusCode dumpTrigEFBphysContainer();
 
    bool m_doDumpTrigEFBjetContainer;
-   StatusCode dumpTrigEFBjetContainer();
+   StatusCode dumpTrigEFBjetContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigL2BjetContainer;
-   StatusCode dumpTrigL2BjetContainer();
+   StatusCode dumpTrigL2BjetContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigTauClusterContainer;
-   StatusCode dumpTrigTauClusterContainer();
+   StatusCode dumpTrigTauClusterContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigEMCluster;
-   StatusCode dumpTrigEMCluster();
+   StatusCode dumpTrigEMCluster ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigEMClusterContainer;
-   StatusCode dumpTrigEMClusterContainer();
+   StatusCode dumpTrigEMClusterContainer ATLAS_NOT_THREAD_SAFE();
 
 
    bool m_doDumpxAODTrigEMCluster;
-   StatusCode dumpxAODTrigEMCluster();
+   StatusCode dumpxAODTrigEMCluster ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpxAODTrigEMClusterContainer;
-   StatusCode dumpxAODTrigEMClusterContainer();
+   StatusCode dumpxAODTrigEMClusterContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpCombinedMuonFeature;
-   StatusCode dumpCombinedMuonFeature();
-   StatusCode dumpCombinedMuonFeatureContainer();
+   StatusCode dumpCombinedMuonFeature ATLAS_NOT_THREAD_SAFE();
+   StatusCode dumpCombinedMuonFeatureContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpMuonFeature;
-   StatusCode dumpMuonFeature();
+   StatusCode dumpMuonFeature ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTileMuFeature;
-   StatusCode dumpTileMuFeatureContainer();
+   StatusCode dumpTileMuFeatureContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTileTrackMuFeature;
-   StatusCode dumpTileTrackMuFeatureContainer();
+   StatusCode dumpTileTrackMuFeatureContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigPhotonContainer;
-   StatusCode dumpTrigPhotonContainer();
+   StatusCode dumpTrigPhotonContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigMuonEFContainer;
-   StatusCode dumpTrigMuonEFContainer();
+   StatusCode dumpTrigMuonEFContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigMuonEFInfoContainer;
-   StatusCode dumpTrigMuonEFInfoContainer();
+   StatusCode dumpTrigMuonEFInfoContainer ATLAS_NOT_THREAD_SAFE();
    void printMuonTrk(const TrigMuonEFTrack* muonTrack);
    void printMuonTrk(const TrigMuonEFCbTrack* muonTrack);
 
@@ -125,10 +127,10 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    StatusCode dumpxAODMuonContainer();
 
    bool m_doDumpTrigMuonEFIsolationContainer;
-   StatusCode dumpTrigMuonEFIsolationContainer();
+   StatusCode dumpTrigMuonEFIsolationContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigElectronContainer;
-   StatusCode dumpTrigElectronContainer();
+   StatusCode dumpTrigElectronContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpxAODTrigElectronContainer;
    StatusCode dumpxAODTrigElectronContainer();
@@ -143,10 +145,10 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    StatusCode dumpxAODPhotonContainer();
    
    bool m_doDumpTrigTauContainer;
-   StatusCode dumpTrigTauContainer();
+   StatusCode dumpTrigTauContainer ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpTrigTauTracksInfo;
-   StatusCode dumpTrigTauTracksInfo();
+   StatusCode dumpTrigTauTracksInfo ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpHLTResult;
    StatusCode dumpHLTResult();
@@ -155,13 +157,13 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    StatusCode dumpTrigInDetTrackCollection();
 
    bool m_doDumpTrigVertexCollection;
-   StatusCode dumpTrigVertexCollection();
+   StatusCode dumpTrigVertexCollection ATLAS_NOT_THREAD_SAFE();
 
    bool m_doDumpxAODTauJetContainer;
-   StatusCode dumpxAODTauJetContainer();
+   StatusCode dumpxAODTauJetContainer ATLAS_NOT_THREAD_SAFE();
  
    bool m_doDumpTauJetContainer;
-   StatusCode dumpTauJetContainer();
+   StatusCode dumpTauJetContainer ATLAS_NOT_THREAD_SAFE ();
 
    bool m_doDumpxAODTrackParticle;
    StatusCode dumpxAODTrackParticle();
@@ -225,6 +227,9 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{ this, "Decisions", "RoIDecisions", "Decisions created from TEs" };
    ToolHandle< HLT::Navigation > m_navigationTool{ this, "NavigationTool", "HLT::Navigation/Navigation", "" };
    ToolHandle< Trig::TrigDecisionTool > m_trigDec{ this, "TriggerDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool", ""};
+
+   int m_trackWarningNum{0};
+   int m_vertexWarningNum{0};
 };
 
 #endif // TRIG_EDM_CHECKER_H
