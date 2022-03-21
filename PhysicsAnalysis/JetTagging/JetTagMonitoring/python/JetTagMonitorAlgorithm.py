@@ -55,14 +55,20 @@ def JetTagMonitorConfig(inputFlags):
     # Declare properties
 
     #objects collections
-    jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets"
     jetTagMonAlg.MuonsCollection = "Muons"
     jetTagMonAlg.ElectronsCollection = "Electrons"
 
+    #Skip jet filter selection in case of ion-ion or proton-ion collisions
+    if inputFlags.DQ.DataType == 'heavyioncollisions':
+        jetTagMonAlg.SkipPreSelection = True
+        jetTagMonAlg.SkipJetFilter = True
+        jetTagMonAlg.JetsCollection = "AntiKt4HIJets" #Heavy Ion jet collection
+    else:
+        jetTagMonAlg.SkipPreSelection = False
+        jetTagMonAlg.SkipJetFilter = False
+        jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets" #Standard jet collection
 
-    #skip jet filter selection if ion-ion or proton-ion collisions
-    jetTagMonAlg.SkipJetFilter = False
-
+    #Additional low-level taggers and extra plots (i.e. pu, pb, pc)
     jetTagMonAlg.DoExtraTaggerHistos = True
 
     #general pT / eta cuts for jets
@@ -440,7 +446,8 @@ if __name__=='__main__':
     #Select the input (data or MC) and output files
     
     #Data r22 ART input working:
-    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_MAR22/run/DQ_ARTs/myESD.data18.23Feb.root"] #ESD from ART test, 23 Feb 22, data18
+    #ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_NEW22/run/DQ_ARTs/myESD.data15HI.15Mar.root"] #ESD from ART test, 15 Mar 22, data15_heavy_ion
+    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_NEW22/run/DQ_ARTs/myESD.data18.14Mar.root"] #ESD from ART test, 14 Mar 22, data18_13TeV
     #ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ_art/myESD.pool.root"] #ESD from ART test, 15 Feb 22, data18
     ConfigFlags.Input.isMC = False
 
@@ -460,9 +467,9 @@ if __name__=='__main__':
 
     jetTagMonitorAcc = JetTagMonitorConfig(ConfigFlags)
     cfg.merge(jetTagMonitorAcc)
-    
+
     # If you want to turn on more detailed messages ...
-    #trigEgammaMonitorAcc.getEventAlgo('TrigEgammaMonAlg').OutputLevel = 2 # DEBUG
+    #jetTagMonitorAcc.getEventAlgo('JetTagMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     #Select how many events to run on 
