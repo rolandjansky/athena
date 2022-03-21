@@ -19,6 +19,7 @@
 #include <vector>
 #include <map>
 #include "TRandom3.h"
+#include <stdexcept>
 
 TRandom3 myrand;
 
@@ -190,7 +191,7 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
   FILE *fp = fopen(file.c_str(),"r");
   if (!fp) {
     ATH_MSG_ERROR( "Could not open "<<file<<"!" );
-    throw;
+    throw std::runtime_error("File could not be opened in ByteStreamMultipleOutputStreamCopyTool::initlbnmap");
   }
   char *line=new char[500];
   int stream,run,lbn,nevt,nwanted;
@@ -219,7 +220,7 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
     FILE *fp = fopen(file.c_str(),"r");
     if (!fp) {
       ATH_MSG_ERROR( "Could not open "<<file<<"!" );
-      throw;
+      throw std::runtime_error("File could not be opened in ByteStreamMultipleOutputStreamCopyTool::initlbnmap");
     }
     char *line=new char[500];
     int run,evt,time,lbn,noalg,j40,psnoalg,psj40;
