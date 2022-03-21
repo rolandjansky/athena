@@ -26,6 +26,7 @@ private:
     Gaudi::Property<float> m_medhiEthresh {this,"medhiEthresh",15.0};
     Gaudi::Property<float> m_hiEthresh {this,"hiEthresh",20.0};
 
-    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_CaloClusterContainerKey {this, "CaloCalTopoClusters", "CaloCalTopoClusters"};
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_CaloClusterContainerKey {this, "ClusterKey", "CaloCalTopoClusters",
+	"StoreGate key of cluster collection to be monitored"};
 };
 #endif
