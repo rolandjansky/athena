@@ -5,43 +5,32 @@
 #include "ElectronPhotonFourMomentumCorrection/e1hg_systematics.h"
 #include "PathResolver/PathResolver.h"
 #include <cmath>
-#include <cstdlib>
 
+#include "TFile.h"
 #include "TAxis.h"
-#include "Riostream.h"
-
-#ifndef ROOTCORE
-#include "PathResolver/PathResolver.h"
-#endif
 
 e1hg_systematics::e1hg_systematics()
 {
+  const std::string fileName =
+    PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/e1hg_systematics_histos.root");
+  std::unique_ptr<TFile> file0(TFile::Open(fileName.c_str(),"READ"));
 
-  m_file0 = TFile::Open( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/e1hg_systematics_histos.root").c_str() );
-
-
-  for (Int_t ieta=0;ieta<8;ieta++) {
+  for (Int_t ieta=0;ieta<s_nEtaBins;ieta++) {
      char name[60];
      sprintf(name,"elec_%d",ieta);
-     m_helec[ieta] = (TH1D*) m_file0->Get(name);
+     m_helec[ieta] = (TH1D*) file0->Get(name);
+     m_helec[ieta]->SetDirectory(nullptr);
      sprintf(name,"unconv_%d",ieta);
-     m_hphot[ieta] = (TH1D*) m_file0->Get(name);
+     m_hphot[ieta] = (TH1D*) file0->Get(name);
+     m_hphot[ieta]->SetDirectory(nullptr);
      sprintf(name,"conv_%d",ieta);
-     m_hphot2[ieta] = (TH1D*) m_file0->Get(name);
-
+     m_hphot2[ieta] = (TH1D*) file0->Get(name);
+     m_hphot2[ieta]->SetDirectory(nullptr);
   }
 
   TAxis* aa=m_helec[0]->GetXaxis();
   m_etBins = aa->GetXbins();
-
 }
-
-//=========================================================================
-e1hg_systematics::~e1hg_systematics()
-{
-  m_file0->Close();
-}
-
 //============================================================================
 // inputs are particle_type (0=elec, 1=reco unconv photon, 2=reco conv photon)
 //            energy in MeV
