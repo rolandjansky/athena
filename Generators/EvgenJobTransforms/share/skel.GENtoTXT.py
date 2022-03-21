@@ -108,7 +108,7 @@ from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, g
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
-if (runArgs.firstEvents <= 0):
+if (runArgs.firstEvent <= 0):
    evgenLog.warning("Run argument firstEvent should be > 0")
 
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
