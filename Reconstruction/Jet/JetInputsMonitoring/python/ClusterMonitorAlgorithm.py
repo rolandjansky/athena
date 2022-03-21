@@ -8,7 +8,7 @@
 @python configuration for the Run III Calo Cluster Monitoring package
 '''
 
-def ClusterMonitoringConfig(inputFlags):
+def ClusterMonitoringConfig(inputFlags, ClusterKey="CaloCalTopoClusters"):
     '''Function to configures some algorithms in the monitoring system.'''
 
     ### STEP 1 ###
@@ -32,9 +32,9 @@ def ClusterMonitoringConfig(inputFlags):
     # is the algorithm.
     # This uses the new Configurables object system.
     from AthenaConfiguration.ComponentFactory import CompFactory
-    clusterMonAlg = helper.addAlgorithm(CompFactory.ClusterMonitorAlgorithm,'ClusterMonAlg')
+    clusterMonAlg = helper.addAlgorithm(CompFactory.ClusterMonitorAlgorithm,ClusterKey+'MonAlg')
 
-
+    clusterMonAlg.ClusterKey=ClusterKey
 
     ### STEP 3 ###
     # Edit properties of a algorithm
@@ -59,35 +59,43 @@ def ClusterMonitoringConfig(inputFlags):
     # clusterMonAlg.MyDomainTool = MyDomainTool()
 
 
+    #Def hist-path based on input key
+    sgKeytoHistName={"CaloCalTopoClusters":"CaloTopoClusters",
+                     "egClusterCollection":"LArClusterEM"}
+        
+    histName=sgKeytoHistName[ClusterKey] if ClusterKey in sgKeytoHistName else ClusterKey
+
+    
+
     # Add monitor groups. 
     clustersAllGroup = helper.addGroup(
         alg=clusterMonAlg,
         name='ClusterMonitorAllClusters',
-        topPath='CaloTopoClusters/AllClusters/'
+        topPath=histName+'/AllClusters/'
     )
 
     clustersExpertGroup = helper.addGroup(
         alg=clusterMonAlg,
         name='ClusterMonitorExpertPlots',
-        topPath='CaloTopoClusters/AllClusters/Expert/'
+        topPath=histName+'/AllClusters/Expert/'
     )
 
     clustersCalECAGroup = helper.addGroup(
         alg=clusterMonAlg,
         name='ClusterMonitorCalECA',
-        topPath='CaloTopoClusters/CalECA/'
+        topPath=histName+'/CalECA/'
     )
 
     clustersCalBARGroup = helper.addGroup(
         alg=clusterMonAlg,
         name='ClusterMonitorCalBAR',
-        topPath='CaloTopoClusters/CalBAR/'
+        topPath=histName+'/CalBAR/'
     )
 
     clustersCalECCGroup = helper.addGroup(
         alg=clusterMonAlg,
         name='ClusterMonitorCalECC',
-        topPath='CaloTopoClusters/CalECC/'
+        topPath=histName+'/CalECC/'
     )
 
 
