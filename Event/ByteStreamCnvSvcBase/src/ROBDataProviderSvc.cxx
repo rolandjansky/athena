@@ -263,11 +263,7 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
 		  (m_maskL2EFModuleID) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
       }
-      if ((rob->rod_ndata() == 0) && (m_filterEmptyROB)) {
-         ATH_MSG_DEBUG( " ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-	         << " removed for L1 Id = " << cache->currentLvl1ID);
-          rob.reset();
-      } else if (filterRobWithStatus(rob.get())) {
+      if (filterRobWithStatus(rob.get())) {
          if (rob->nstatus() > 0) {
             const uint32_t* it_status;
             rob->status(it_status);
@@ -278,6 +274,10 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
 	            << " removed for L1 Id = " << cache->currentLvl1ID);
          }
          rob.reset();
+      } else if ((rob->rod_ndata() == 0) && (m_filterEmptyROB)) {
+         ATH_MSG_DEBUG( " ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
+	         << " removed for L1 Id = " << cache->currentLvl1ID);
+          rob.reset();
       } else {
          ROBMAP::const_iterator it = cache->robmap.find(id);
          if (it != cache->robmap.end()) {
