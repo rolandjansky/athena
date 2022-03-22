@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 801699 2017-03-28 14:18:58Z fladias $
-################################################################################
-# Package: ISF_FastCaloSimEvent
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ISF_FastCaloSimEvent )
@@ -18,34 +15,34 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
-                           ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h 
-                           ISF_FastCaloSimEvent/DoubleArray.h 
-                           ISF_FastCaloSimEvent/TFCSFunction.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunction.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionInt16Histogram.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionSpline.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHelpers.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateInterpolationHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS2DFunction.h 
-                           ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h 
+                           ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h
+                           ISF_FastCaloSimEvent/DoubleArray.h
+                           ISF_FastCaloSimEvent/TFCSFunction.h
+                           ISF_FastCaloSimEvent/TFCS1DFunction.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionInt16Histogram.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionSpline.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHelpers.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHistogram.h
+                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateInterpolationHistogram.h
+                           ISF_FastCaloSimEvent/TFCS2DFunction.h
+                           ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h
                            ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h
-                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationExpHistogram.h 
-                           ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationExpHistogram.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationBase.h
                            ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h
-                           ISF_FastCaloSimEvent/TFCSParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSParametrization.h
                            ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h
                            ISF_FastCaloSimEvent/TFCSInitWithEkin.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationHistogram.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationPiecewiseLinear.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h
-                           ISF_FastCaloSimEvent/TFCSParametrizationChain.h 
+                           ISF_FastCaloSimEvent/TFCSParametrizationChain.h
                            ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h
                            ISF_FastCaloSimEvent/TFCSParametrizationFloatSelectChain.h
                            ISF_FastCaloSimEvent/TFCSParametrizationPDGIDSelectChain.h
@@ -53,8 +50,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSParametrizationEkinSelectChain.h
                            ISF_FastCaloSimEvent/TFCSParametrizationEtaSelectChain.h
                            ISF_FastCaloSimEvent/TFCSParametrizationAbsEtaSelectChain.h
-                           ISF_FastCaloSimEvent/TFCSEnergyParametrization.h 
-                           ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSEnergyParametrization.h
+                           ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h
                            ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h
                            ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h
                            ISF_FastCaloSimEvent/TFCSPredictExtrapWeights.h
@@ -78,17 +75,17 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h
                            ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h
-                           ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
-                           ISF_FastCaloSimEvent/TFCSSimulationState.h 
+                           ISF_FastCaloSimEvent/TFCSExtrapolationState.h
+                           ISF_FastCaloSimEvent/TFCSSimulationState.h
                            ISF_FastCaloSimEvent/TFCSTruthState.h
-                           ISF_FastCaloSimEvent/TFCSVoxelHistoLateralCovarianceFluctuations.h 
-                           ISF_FastCaloSimEvent/LinkDef.h 
+                           ISF_FastCaloSimEvent/TFCSVoxelHistoLateralCovarianceFluctuations.h
+                           ISF_FastCaloSimEvent/LinkDef.h
 			   EXTERNAL_PACKAGES HepPDT)
 
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
    PUBLIC_HEADERS ISF_FastCaloSimEvent
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR} ${LWTNN_INCLUDE_DIRS}
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaKernel AthenaBaseComps CaloDetDescrLib ${LWTNN_LIBRARIES} ${LIBXML2_LIBRARIES}
    CaloGeoHelpers TileSimEvent
