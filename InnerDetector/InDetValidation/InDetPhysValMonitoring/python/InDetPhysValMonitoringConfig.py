@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file InDetPhysValMonitoringConfig.py
@@ -66,6 +66,14 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
 
     acc.merge(HistogramDefinitionSvcCfg(flags))
 
+    jets_name_for_HardScatter = 'AntiKt4EMTopoJets'
+    # if we are running with sumpT(w) hard scatter selection, we need to schedule jet finding
+    if flags.IDPVM.hardScatterStrategy == 2:
+        
+        from InDetPhysValMonitoring.addRecoJetsConfig import AddRecoJetsIfNotExistingCfg
+        acc.merge(AddRecoJetsIfNotExistingCfg(flags, jets_name_for_HardScatter))
+
+
     if flags.Input.isMC:
         kwargs.setdefault("TruthParticleContainerName", "TruthParticles")
         if 'TruthSelectionTool' not in kwargs:
@@ -75,6 +83,9 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         if 'hardScatterSelectionTool' not in kwargs:
             hardScatterSelectionTool = acc.popToolsAndMerge(HardScatterSelectionToolCfg(flags))
             hardScatterSelectionTool.RedoHardScatter=True
+            # for sumpt(w), make sure the HS selection tool picks up the correct jets
+            if flags.IDPVM.hardScatterStrategy == 2:
+                hardScatterSelectionTool.JetContainer = jets_name_for_HardScatter
             hardScatterSelectionTool.SelectionMode = flags.IDPVM.hardScatterStrategy
             kwargs.setdefault("hardScatterSelectionTool", hardScatterSelectionTool)
 
