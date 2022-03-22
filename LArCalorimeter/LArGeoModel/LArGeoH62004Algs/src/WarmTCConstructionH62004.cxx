@@ -93,31 +93,34 @@ double WTC_sci_y = 1160.0*Gaudi::Units::mm;
 
 //  Define dimension WTC mother
 //
+// cppcheck-suppress duplicateAssignExpression
 double x_m = WTC_high / 2;
 double y_m = WTC_high / 2;
 double z_m = (86.0*Gaudi::Units::mm + WTC_len + WTC_sci_z + Muon_dist + Muon_z) / 2;
 //
 // Define dimension of Fe absorber
 //
+// cppcheck-suppress duplicateAssignExpression
 double Fe_x = WTC_high / 2;
 double Fe_y = WTC_high / 2;
 double Fe_z = (99.0 / 2)*Gaudi::Units::mm;
 //
-// Define dimension of X scintilator
+// Define dimension of X scintillator
 //
 double x_x = 6 * WTC_sci_x / 2;
+// cppcheck-suppress duplicateAssignExpression
 double x_y = WTC_sci_y / 2;
 //
-// Define dimension of Y scintilator
+// Define dimension of Y scintillator
 //
 double y_x = WTC_sci_y / 2;
 double y_y = 6 * WTC_sci_x / 2;
 //
-// Define widht of scintilator, same for X & Y
+// Define widht of scintillator, same for X & Y
 //
 double z_s = WTC_sci_z / 2;
 //
-// Calculate position of Fe & scintilators inside mother WTC
+// Calculate position of Fe & scintillators inside mother WTC
 // x & y position is always 0, all is need is z position!!
 //
 double z_x[3], z_y[3], z_Fe[4];
@@ -172,7 +175,7 @@ double z_x[3], z_y[3], z_Fe[4];
  if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store ")+tag).c_str());
 
 //
-// Create the muon scintilator and position
+// Create the muon scintillator and position
  double a,n;
  std::string muname = "LAr::WarmTC::MuonWall";
  GeoBox *mu_box = new GeoBox(Muon_x/2, Muon_y/2, Muon_z/2);
@@ -208,7 +211,7 @@ double z_x[3], z_y[3], z_Fe[4];
  }
  
 //
-// Create X scintilators and position them
+// Create X scintillators and position them
 // 
  std::string sname = "LAr::WarmTC::Sci";
  GeoBox *X_box = new GeoBox(x_x,x_y,z_s);
@@ -222,7 +225,7 @@ double z_x[3], z_y[3], z_Fe[4];
  }
  
 //
-// Create Y scintilators and position them
+// Create Y scintillators and position them
 // 
  sname = "LAr::WarmTC::Sci";
  GeoBox *Y_box = new GeoBox(y_x,y_y,z_s);
