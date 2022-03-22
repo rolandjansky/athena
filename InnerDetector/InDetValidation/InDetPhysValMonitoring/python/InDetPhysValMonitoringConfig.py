@@ -241,11 +241,46 @@ def InDetLargeD0PhysValMonitoringToolCfg(flags, **kwargs):
 
     return InDetPhysValMonitoringToolCfg(flags, name='InDetPhysValMonitoringToolLargeD0', **kwargs)
 
+def InDetMergedLargeD0PhysValMonitoringToolCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    TruthSelectionTool = acc.popToolsAndMerge(InDetRttTruthSelectionToolCfg(flags, name = "AthTruthSelectionToolForIDPVM_MergedLargeD0", **kwargs))
+    TruthSelectionTool.maxProdVertRadius = 400.
+    TruthSelectionTool.minPt = 1200.
+    TruthSelectionTool.ancestorList = flags.IDPVM.ancestorIDs
+
+    kwargs.setdefault("SubFolder", 'LRTMerged/')
+    kwargs.setdefault("TruthSelectionTool", TruthSelectionTool)
+    if flags.Detector.GeometryID:
+        kwargs.setdefault("TrackParticleContainerName", 'InDetWithLRTTrackParticles' if flags.InDet.Tracking.storeSeparateLargeD0Container else 'InDetTrackParticles')
+    elif flags.Detector.GeometryITk:
+        kwargs.setdefault("TrackParticleContainerName", 'InDetWithLRTTrackParticles' if flags.ITk.storeSeparateLargeD0Container else 'InDetTrackParticles')
+    kwargs.setdefault("useTrackSelection", True)
+
+    return InDetPhysValMonitoringToolCfg(flags, name='InDetPhysValMonitoringToolMergedLargeD0', **kwargs)
+
 def InDetPhysValMonitoringCfg(flags):
     acc = ComponentAccumulator()
 
     from InDetPhysValMonitoring.InDetPhysValDecorationConfig import AddDecoratorIfNeededCfg
     acc.merge(AddDecoratorIfNeededCfg(flags))
+
+
+    def LRTMerger():
+        acc = ComponentAccumulator()
+        tool = CompFactory.DerivationFramework.TrackParticleMerger(name = "MergeLRTAndStandard", 
+                                                                   TrackParticleLocation = ["InDetTrackParticles","InDetLargeD0TrackParticles"], 
+                                                                   OutputTrackParticleLocation = "InDetWithLRTTrackParticles", 
+                                                                   CreateViewColllection  = True)
+        acc.addPublicTool(tool)
+            
+        LRTMergeAug = CompFactory.DerivationFramework.CommonAugmentation("InDetLRTMerge", AugmentationTools = tool)
+            
+        acc.addEventAlgo(LRTMergeAug)
+        return acc
+
+    if flags.IDPVM.doValidateMergedLargeD0Tracks:
+        acc.merge(LRTMerger())
 
     monMan = CompFactory.AthenaMonManager( "PhysValMonManager" )
     monMan.FileKey = "M_output"
@@ -260,6 +295,7 @@ def InDetPhysValMonitoringCfg(flags):
              (flags.IDPVM.doValidateMuonMatchedTracks    ,  InDetPhysValMonitoringToolMuonsCfg ),
              (flags.IDPVM.doValidateElectronMatchedTracks,  InDetPhysValMonitoringToolElectronsCfg ),
              (flags.IDPVM.doValidateLargeD0Tracks        ,  InDetLargeD0PhysValMonitoringToolCfg ),
+             (flags.IDPVM.doValidateMergedLargeD0Tracks  ,  InDetMergedLargeD0PhysValMonitoringToolCfg),
              (flags.IDPVM.doValidateLooseTracks          ,  InDetPhysValMonitoringToolLooseCfg ),
              (flags.IDPVM.doValidateTightPrimaryTracks   ,  InDetPhysValMonitoringToolTightPrimaryCfg ),
              (flags.IDPVM.doValidateDBMTracks            ,  InDetPhysValMonitoringToolDBMCfg ),
