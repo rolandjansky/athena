@@ -72,6 +72,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   writeCdo -> setFEI4EndcapHitDiscConfig(m_FEI4EndcapHitDiscConfig);
   writeCdo -> setFEI4ChargScaling(m_chargeScaleFEI4);
   writeCdo -> setUseFEI4SpecialScalingFunction(m_UseFEI4SpecialScalingFunction);
+  writeCdo -> setFEI4ToTSigma(m_FEI4ToTSigma);
 
   // Charge calibration parameters
   writeCdo -> setDefaultQ2TotA(m_CalibrationParameterA);
