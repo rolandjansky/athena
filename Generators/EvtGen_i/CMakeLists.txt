@@ -15,10 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel 
                           Tools/PathResolver )
 
-#set( PHOTOSPP_VERSION 3.61 )
-#set( PHOTOSPP_ROOT
-#   /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/photos++/${PHOTOSPP_VERSION}/${LCG_PLATFORM} )
-
 
 
 # External dependencies:
@@ -50,6 +46,26 @@ atlas_add_library( EvtGen_iLib
                    src/EvtPhotosEngine.cxx
                    src/EvtPythiaEngine.cxx
                    src/EvtInclusiveDecay.cxx
+                   src/Belle2/EvtB0toKsKK.cc
+                   src/Belle2/EvtBCL.cc
+                   src/Belle2/EvtBCLFF.cc
+                   src/Belle2/EvtBGL.cc
+                   src/Belle2/EvtBGLFF.cc
+                   src/Belle2/EvtBSemiTauonic.cc
+                   src/Belle2/EvtBSemiTauonic2HDMType2.cc
+		   src/Belle2/EvtBSemiTauonicAmplitude.cc
+		   src/Belle2/EvtBSemiTauonicHelicityAmplitudeCalculator.cc
+		   src/Belle2/EvtBSemiTauonicScalarMesonAmplitude.cc
+		   src/Belle2/EvtBSemiTauonicVectorMesonAmplitude.cc
+		   src/Belle2/EvtEtaFullDalitz.cc
+ 		   src/Belle2/EvtEtaPi0Dalitz.cc
+ 		   src/Belle2/EvtEtaPrimeDalitz.cc
+ 		   src/Belle2/EvtHQET3.cc
+		   src/Belle2/EvtHQET3FF.cc
+ 		   src/Belle2/EvtLLSW.cc
+		   src/Belle2/EvtLLSWFF.cc
+ 		   src/Belle2/EvtPHSPBMix.cc
+ 		   src/Belle2/EvtYmSToYnSpipiCLEOboost.cc
                    PUBLIC_HEADERS EvtGen_i
                    DEFINITIONS -DEVTGEN_PYTHIA -DEVTGEN_PHOTOS -DEVTGEN_TAUOLA
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${PHOTOSPP_INCLUDE_DIRS} ${TAUOLAPP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EVTGEN_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
