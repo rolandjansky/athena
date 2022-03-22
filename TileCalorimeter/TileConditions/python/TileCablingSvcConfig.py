@@ -30,6 +30,9 @@ def TileCablingSvcCfg(flags):
 
     if not flags.Common.isOnline:
       runNumber = flags.Input.RunNumber[0]
+      if flags.Input.OverrideRunNumber > 0:
+          from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
+          runNumber = getMinMaxRunNumbers(flags)[0]
       if flags.GeoModel.Run is LHCPeriod.Run1:
           if runNumber > 219651:
               # Choose RUN2 cabling for old geometry tags starting from 26-MAR-2013
