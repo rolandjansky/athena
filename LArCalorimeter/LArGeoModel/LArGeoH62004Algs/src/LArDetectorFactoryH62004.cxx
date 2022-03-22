@@ -210,7 +210,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   {                                             // (with 350=1/2 length of FrontBeam volume)
     GeoVPhysVol* front = 0;
     front = FrontBeamConstruction.GetEnvelope();
-    if(front !=0 && expHallPhys !=0){
+    if(front !=0){
       expHallPhys->add( new GeoNameTag("H62004::Front"));
       expHallPhys->add( new GeoTransform( GeoTrf::TranslateZ3D(z_bard) ) );  
       expHallPhys->add(front);    
