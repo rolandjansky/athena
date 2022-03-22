@@ -127,6 +127,7 @@ def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
     from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg, MuonTrackSummaryToolCfg
     result.merge(MuonPrepDataConvCfg(flags))
 
     result.merge( MuonSegmentFindingCfg(flags))
@@ -137,6 +138,14 @@ def MuonReconstructionCfg(flags):
                                                             "MuonStandaloneTrackParticleCnvAlg_EMEO",
                                                             TrackContainerName = "EMEO_MuonSpectrometerTracks",
                                                             xAODTrackParticlesFromTracksContainerName="EMEO_MuonSpectrometerTrackParticles"))
+    
+    # FIXME - work around to fix unconfigured public MuonTrackScoringTool   
+    # It wuould be best to find who is using this tool, and add this configuration there
+    # But AFAICS the only parent is MuonCombinedFitTagTool, and it's private there, so I'm a bit confused.
+    result.addPublicTool( result.popToolsAndMerge(MuonTrackScoringToolCfg(flags) ) )
+    # Ditto
+    result.addPublicTool( result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags) ) )
+
     # Setup output
     if flags.Output.doWriteESD or flags.Output.doWriteAOD:
         result.merge(StandaloneMuonOutputCfg(flags))
