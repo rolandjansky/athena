@@ -45,6 +45,10 @@ private:
   ServiceHandle<StoreGateSvc> m_evtStore {this, "EventStore", "StoreGateSvc"};
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "" , "Monitoring tool"};
 
+  // ------------------------- Properties --------------------------------------
+  Gaudi::Property<int> m_checkCTPFragmentModuleID {this, "CheckCTPFragmentModuleID", -1,
+    "After reading a new event, assert we can retrieve the CTP fragment with Module ID given by this property, "
+    "and that has no errors. A value <0 disables the check."};
 
   // ------------------------- Private data members ----------------------------
   struct EventCache {
