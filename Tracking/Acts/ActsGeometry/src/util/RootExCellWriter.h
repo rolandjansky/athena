@@ -33,9 +33,9 @@ class TFile;
     ///  this holds the information to be written out
     struct ExtrapolationStep
     {
-      float x, y, z;     ///< position (global)
-      float px, py, pz;  ///< momentum
-      float type;        ///< type of the step
+      float x{}, y{}, z{};     ///< position (global)
+      float px{}, py{}, pz{};  ///< momentum
+      float type{};        ///< type of the step
     };
 
     // @struct Config
@@ -48,10 +48,10 @@ class TFile;
       std::string fileMode = "RECREATE";  ///< file access mode
       std::string treeName
           = "extrapolation_cells";  ///< name of the output tree
-      bool writeSensitive;
-      bool writeMaterial;
-      bool writePassive;
-      bool writeBoundary;
+      bool writeSensitive{};
+      bool writeMaterial{};
+      bool writePassive{};
+      bool writeBoundary{};
     };
 
     /// Constructor
@@ -59,8 +59,14 @@ class TFile;
     RootExCellWriter(const Config&        cfg
                      //Acts::Logging::Level level = Acts::Logging::INFO
                      );
+    
+    RootExCellWriter() = delete;                 
+    
+    RootExCellWriter(const & RootExCellWriter) = delete;
+    
+    RootExCellWriter & operator =(const RootExCellWriter & )= delete;
 
-    /// Virtual destructor
+    /// Destructor; so now you need the rule of three (or five)
     ~RootExCellWriter();
 
     /// End-of-run hook
@@ -77,13 +83,13 @@ class TFile;
 
     Config             m_cfg;           ///< the config class
     std::mutex         m_writeMutex;    ///< protect multi-threaded writes
-    TFile*             m_outputFile;    ///< the output file
-    TTree*             m_outputTree;    ///< the output tree
-    float              m_eta;           ///< global eta start
-    float              m_phi;           ///< global phi start
-    float              m_materialX0;    ///< material in X0
-    float              m_materialL0;    ///< material in L0
-    int             m_eventNum;
+    TFile*             m_outputFile{};    ///< the output file
+    TTree*             m_outputTree{};    ///< the output tree
+    float              m_eta{};           ///< global eta start
+    float              m_phi{};           ///< global phi start
+    float              m_materialX0{};    ///< material in X0
+    float              m_materialL0{};    ///< material in L0
+    int             m_eventNum{};
     std::vector<float> m_s_positionX;   ///< global position x of the step
     std::vector<float> m_s_positionY;   ///< global position y of the step
     std::vector<float> m_s_positionZ;   ///< global position z of the step
@@ -100,7 +106,7 @@ class TFile;
         m_s_localposition0;  ///< local position - first coordinate
     std::vector<float>
         m_s_localposition1;  ///< local position - second coordinate
-    int m_hits;              ///< number of hits in sensitive material
+    int m_hits{};              ///< number of hits in sensitive material
   };
 
 
