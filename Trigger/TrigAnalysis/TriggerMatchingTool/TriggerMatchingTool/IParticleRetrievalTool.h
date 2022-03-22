@@ -70,14 +70,14 @@ namespace Trig {
 
       /**
        * @brief Retrieve an IParticle from a feature
-       * @param[out] particles The retrieved particle(s)
+       * @param[out] particle The retrieved particle
        * @param feature The feature containing the particle
        * @param te The trigger element containing this feature
        * @param[out] navFailure Use to communicate a failure in the navigation
        * without an error.
        */
       StatusCode retrieveFeatureParticle(
-          std::vector<const xAOD::IParticle *>& particles,
+          const xAOD::IParticle*& particle,
           const HLT::TriggerElement::FeatureAccessHelper& feature,
           const HLT::TriggerElement* te,
           bool& navFailure) const;
