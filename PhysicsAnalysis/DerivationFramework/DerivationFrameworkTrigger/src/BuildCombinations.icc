@@ -28,8 +28,8 @@ namespace DerivationFramework { namespace TriggerMatchingUtils {
   
 
   template <typename T>
-    std::vector<std::vector<T>> getAllCombinations(
-        std::vector<RangedItr<typename std::vector<T>::const_iterator>>& inputs, bool distinct)
+    std::vector<std::vector<T>> getAllDistinctCombinations(
+        std::vector<RangedItr<typename std::vector<T>::const_iterator>>& inputs)
   {
     // This is where the output will go
     std::vector<std::vector<T>> output;
@@ -69,12 +69,11 @@ namespace DerivationFramework { namespace TriggerMatchingUtils {
         currentCombination.pop_back();
       } //> end if inner iterator is exhausted
       else {
-        // Check if the pointed-to element is already in the current combination (if we need
-        // distinct combinations)
+        // Check if the pointed-to element is already in the current combination
         const T& currentCandidate = **itr;
         // Now that we've accessed this value, step past it
         ++*itr;
-        if (!distinct || std::find(
+        if (std::find(
               currentCombination.begin(), 
               currentCombination.end(), 
               currentCandidate) == currentCombination.end() ) {
