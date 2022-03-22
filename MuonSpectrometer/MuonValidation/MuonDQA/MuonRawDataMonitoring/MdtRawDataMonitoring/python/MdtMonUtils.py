@@ -591,8 +591,9 @@ def MDTFitTDC(h):
       binAtTmax = h.GetBinContent(h.FindBin(tmax))
       if(binAtTmax<1):
          binAtTmax = 1
-      # to additionally account for bad fits                                                                                                                                                            
-      tmaxerr += 10.0 * func2.GetChisquare() / (0.01*binAtTmax*binAtTmax*func2.GetNumberFitPoints())
+      # to additionally account for bad fits
+      if func2.GetNumberFitPoints() > 0:
+          tmaxerr += 10.0 * func2.GetChisquare() / (0.01*binAtTmax*binAtTmax*func2.GetNumberFitPoints())
 
    return [t0, t0err, tmax, tmaxerr]
 

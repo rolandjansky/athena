@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
-import shutil, re
+import shutil, re, sys, os
 
 from .dqu_subprocess import apply as _local_apply
 
@@ -56,7 +56,7 @@ def _dolsr(dir):
 
 def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
     import os
-    isProduction = 'DQPRODUCTION' in os.environ and bool(os.environ['DQPRODUCTION'])
+    isProduction = bool(os.environ.get('DQPRODUCTION', False))
     func, mail_to = funcinfo
     tmpfilename = outFileName + "-safe-" + str(os.getpid())
     shutil.copy2(outFileName, tmpfilename)
@@ -218,6 +218,9 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['ponyisi@utexas.edu']),
                ]
 
+    # determine how we react to a failure
+    isTesting = bool(os.environ.get('DQ_POSTPROCESS_ERROR_ON_FAILURE', False))
+
     # first try all at once
     def go_all(fname, isIncremental):
         for funcinfo in funclist:
@@ -226,6 +229,8 @@ def DQPostProcess( outFileName, isIncremental=False ):
     success = _ProtectPostProcessing( (go_all, []), outFileName, isIncremental )
 
     if not success:
-        #if True:
-        for funcinfo in funclist:
-            _ProtectPostProcessing( funcinfo, outFileName, isIncremental )
+        if isTesting:
+            sys.exit(1)
+        else:
+            for funcinfo in funclist:
+                _ProtectPostProcessing( funcinfo, outFileName, isIncremental )
