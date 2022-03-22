@@ -11,6 +11,8 @@ def GetCustomAthArgs():
     from argparse import ArgumentParser
     IDPVMparser = ArgumentParser(description='Parser for IDPVM configuration')
     IDPVMparser.add_argument("--filesInput")
+    IDPVMparser.add_argument("--doLargeD0Tracks", help='also run LRT plots', action='store_true', default=False)
+    IDPVMparser.add_argument("--doMergedLargeD0Tracks", help='also run merged STD+LRT plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTightPrimary", help='also run tight-primary plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInJets", help='also run tracks in jets', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInBJets", help='also run tracks in jets', action='store_true', default=False)
@@ -42,6 +44,8 @@ ConfigFlags.IDPVM.doValidateTightPrimaryTracks = MyArgs.doTightPrimary
 ConfigFlags.IDPVM.doTruthOriginPlots = MyArgs.doTruthOrigin
 ConfigFlags.IDPVM.doValidateMuonMatchedTracks = MyArgs.doMuonMatchedTracks
 ConfigFlags.IDPVM.doValidateElectronMatchedTracks = MyArgs.doElectronMatchedTracks
+ConfigFlags.IDPVM.doValidateLargeD0Tracks = MyArgs.doLargeD0Tracks
+ConfigFlags.IDPVM.doValidateMergedLargeD0Tracks = MyArgs.doMergedLargeD0Tracks
 ConfigFlags.IDPVM.doPerAuthorPlots = MyArgs.doPerAuthor
 ConfigFlags.IDPVM.doHitLevelPlots = MyArgs.doHitLevelPlots
 ConfigFlags.IDPVM.runDecoration = not MyArgs.disableDecoration
