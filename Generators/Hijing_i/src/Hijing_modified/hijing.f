@@ -308,7 +308,7 @@ c*******************************
            YP(3,2)=-YP(3,1)
         endif
 c********************************
-       DO 12 I=1,IHNT2(1)-1
+       DO 13 I=1,IHNT2(1)-1
        DO 12 J=I+1,IHNT2(1)
        IF(YP(3,I).GT.YP(3,J)) GO TO 12
        Y1=YP(1,I)
@@ -321,6 +321,7 @@ c********************************
        YP(2,J)=Y2
        YP(3,J)=Y3
 12       CONTINUE
+13     CONTINUE
 C
 C******************************
 14       YT(1,1)=0.0
@@ -365,7 +366,7 @@ c**********************************
            YT(3,2)=-YT(3,1)
         endif
 c*********************************
-       DO 22 I=1,IHNT2(3)-1
+       DO 23 I=1,IHNT2(3)-1
        DO 22 J=I+1,IHNT2(3)
        IF(YT(3,I).LT.YT(3,J)) GO TO 22
        Y1=YT(1,I)
@@ -378,6 +379,7 @@ c*********************************
        YT(2,J)=Y2
        YT(3,J)=Y3
 22       CONTINUE
+23     CONTINUE
 C********************
 24       MISS=-1
 
@@ -417,7 +419,7 @@ C
        HINT1(19)=BB
        HINT1(20)=PHI
 C
-       DO 70 JP=1,IHNT2(1)
+       DO 71 JP=1,IHNT2(1)
        DO 70 JT=1,IHNT2(3)
           SCIP(JP,JT)=-1.0
           B2=(YP(1,JP)+BBX-YT(1,JT))**2+(YP(2,JP)+BBY-YT(2,JT))**2
@@ -459,6 +461,7 @@ C                     ********perform elastic collisions
           IPCOL(NCOLT)=JP
           ITCOL(NCOLT)=JT
 70       CONTINUE
+71     CONTINUE
 C              ********total number interactions proj and targ has
 C                            suffered
        IF(NCOLT.EQ.0) THEN
@@ -487,7 +490,7 @@ C
 C              ********Specifying the location of the hard and
 C                     minijet if they are enforced by user
 C
-       DO 200 JP=1,IHNT2(1)
+       DO 199 JP=1,IHNT2(1)
        DO 200 JT=1,IHNT2(3)
        IF(SCIP(JP,JT).EQ.-1.0) GO TO 200
               NFP(JP,11)=NFP(JP,11)+1
@@ -620,6 +623,7 @@ C              ********conduct soft scattering between JP and JT
        JATT=JATT+JOUT
 
 200       CONTINUE
+199    CONTINUE
 c
 c**************************
 c
@@ -788,7 +792,7 @@ C              ********Fragment the q-qbar jets systems *****
 C
           JTP(1)=IHNT2(1)
           JTP(2)=IHNT2(3)
-          DO 400 NTP=1,2
+          DO 401 NTP=1,2
           DO 400 J_JTP=1,JTP(NTP)
               CALL HIJFRG(J_JTP,NTP,IERROR)
                IF(MSTU(24).NE.0 .OR. IERROR.GT.0) THEN
@@ -911,6 +915,7 @@ C---BAC
                    VATT(NATT,4)=V(I,4)
 390              CONTINUE 
 400          CONTINUE
+401        CONTINUE
 C              ********Fragment the q-qq related string systems
        ENDIF
 
