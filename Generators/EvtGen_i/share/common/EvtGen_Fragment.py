@@ -2,7 +2,9 @@
 
 evgenConfig.generators += ["EvtGen"]
 
-if "EVTGENVER" in os.environ:
+if hasattr(runArgs,'ecmEnergy') and runArgs.ecmEnergy > 13001.:
+  decayfile_str = "2022inclusive_BELLE.dec"  
+elif "EVTGENVER" in os.environ:
   evtgenver_str = str(os.environ['EVTGENVER'])[:3]
   evtgenver = float(evtgenver_str)
   print(" ver of EvtGen ", evtgenver)
@@ -22,6 +24,9 @@ genSeq += EvtInclusiveDecay()
 genSeq.EvtInclusiveDecay.OutputLevel = INFO
 genSeq.EvtInclusiveDecay.decayFile = decayfile_str
 genSeq.EvtInclusiveDecay.allowAllKnownDecays=False
+evgenConfig.auxfiles += ['inclusiveP8DsDPlus.pdt']
+genSeq.EvtInclusiveDecay.pdtFile = "inclusiveP8DsDPlus.pdt"
+
 genSeq.EvtInclusiveDecay.whiteList+=[-411, -421, -10411, -10421, -413, -423,
                                      -10413, -10423, -20413, -20423, -415, -425, -431, -10431, -433, -10433, -20433,
                                      -435, -511, -521, -10511, -10521, -513, -523, -10513, -10523, -20513, -20523,

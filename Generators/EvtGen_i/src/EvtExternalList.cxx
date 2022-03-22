@@ -25,6 +25,19 @@
 #include "EvtGen_i/EvtGenExternal/EvtPHOTOS.hh"
 #include "EvtGen_i/EvtGenExternal/EvtPythia.hh"
 #include "EvtGen_i/EvtGenExternal/EvtTauola.hh"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtB0toKsKK.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtBCL.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtBGL.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtBSemiTauonic.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtBSemiTauonic2HDMType2.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtEtaFullDalitz.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtEtaPi0Dalitz.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtEtaPrimeDalitz.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtHQET3.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtLLSW.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtPHSPBMix.h"
+#include "EvtGen_i/EvtGenExternal/Belle2/EvtYmSToYnSpipiCLEOboost.h"
+using namespace Belle2;
 
 EvtExternalGenList::EvtExternalGenList(bool convertPythiaCodes, std::string pythiaXmlDir,
 				       std::string photonType, bool useEvtGenRandom) {
@@ -70,6 +83,32 @@ std::list<EvtDecayBase*> EvtExternalGenList::getListOfModels() {
   std::list<EvtDecayBase*> extraModels;
   extraModels.push_back(pythiaModel);
   extraModels.push_back(tauolaModel);
+
+  EvtB0toKsKK* evtB0toKsKK = new EvtB0toKsKK();
+  EvtBCL* evtBCL = new EvtBCL();
+  EvtBGL* evtBGL = new  EvtBGL();
+  EvtBSemiTauonic*  evtBSemiTauonic  = new  EvtBSemiTauonic();
+  EvtBSemiTauonic2HDMType2* evtBSemiTauonic2HDMType2  = new  EvtBSemiTauonic2HDMType2();
+  EvtEtaFullDalitz* evtEtaFullDalitz  = new  EvtEtaFullDalitz();
+  EvtEtaPi0Dalitz* evtEtaPi0Dalitz  = new  EvtEtaPi0Dalitz();
+  EvtEtaPrimeDalitz* evtEtaPrimeDalitz  = new  EvtEtaPrimeDalitz();
+  EvtHQET3*  evtHQET3  = new  EvtHQET3();
+  EvtLLSW* evtLLSW  = new  EvtLLSW();
+  EvtPHSPBMix* evtPHSPBMix  = new  EvtPHSPBMix();
+  EvtYmSToYnSpipiCLEOboost* evtYmSToYnSpipiCLEOboost  = new EvtYmSToYnSpipiCLEOboost();
+
+  extraModels.push_back(evtB0toKsKK);
+  extraModels.push_back(evtBCL);
+  extraModels.push_back(evtBGL);
+  extraModels.push_back(evtBSemiTauonic);
+  extraModels.push_back(evtBSemiTauonic2HDMType2);
+  extraModels.push_back(evtEtaFullDalitz);
+  extraModels.push_back(evtEtaPi0Dalitz);
+  extraModels.push_back(evtEtaPrimeDalitz);
+  extraModels.push_back(evtHQET3);
+  extraModels.push_back(evtLLSW);
+  extraModels.push_back(evtPHSPBMix);
+  extraModels.push_back(evtYmSToYnSpipiCLEOboost);
 
   // Return the list of models
   return extraModels;
