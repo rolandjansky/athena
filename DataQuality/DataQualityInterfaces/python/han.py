@@ -123,9 +123,8 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
                         log.error('Unable to find references for', orig)
                     else:
                         if isinstance(ref, ROOT.TMap):
-                            algrefname = ref.GetValue(h)
-                            if algrefname:
-                                algrefname = algrefname.GetString().Data()
+                            algrefnameptr = ref.GetValue(h)
+                            algrefname = algrefnameptr.GetString().Data() if algrefnameptr else ""
                 if algrefname and isinstance(config.Get(algrefname), ROOT.TMap):
                     log.error(f'Reference for {newass} is somehow still a TMap')
                 copyMetadata(newass, mapping_regex[orig][0], input=h, algrefname=algrefname)
