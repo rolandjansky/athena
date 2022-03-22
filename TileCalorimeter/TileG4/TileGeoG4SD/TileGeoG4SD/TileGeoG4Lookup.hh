@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -20,28 +20,28 @@ class TileSimHit;
 
 class TileGeoG4Cell {
 public:
-  int detector;            // 1-Barrel, 2-Extended Barrel, 3-ITC,
+  int detector{};            // 1-Barrel, 2-Extended Barrel, 3-ITC,
   // 4-gap/crack, 5-Mod0, 6-Prototype
 
-  int cellNum;             // from -16 (A-16) to 16 (A16)
+  int cellNum{};             // from -16 (A-16) to 16 (A16)
 
-  int tower;               // from -16 (A-16) to 16 (A16)
+  int tower{};               // from -16 (A-16) to 16 (A16)
 
-  int sample;              // 1 - A, Proto1
+  int sample{};              // 1 - A, Proto1
   // 2 - B, BC, C, Proto2
   // 3 - D, Proto3
   // 4 - gap/crack, Proto4
 
-  double sinTh;    //added by Mike
-  double r;        //added by Mike
+  double sinTh{};    //added by Mike
+  double r{};        //added by Mike
 
-  int firstRow;
-  int lastRow;
+  int firstRow{};
+  int lastRow{};
   std::vector<int> nrOfTilesInRow;
-  int nrOfPMT;
+  int nrOfPMT{};
   std::vector<int> holes;
 
-  double zMin, zMax, zMin2, zMax2;  //added by Sergey
+  double zMin{}, zMax{}, zMin2{}, zMax2{};  //added by Sergey
 
   // Two Vectors containing pointers to TileSimHit objects
   // corresponding to the PMTs of current cell
@@ -65,8 +65,8 @@ public:
 
 class TileGeoG4Sample {
 public:
-  int firstRow;
-  int lastRow;
+  int firstRow{};
+  int lastRow{};
   std::vector<TileGeoG4Cell*> cells;
 
   TileGeoG4Sample();
@@ -76,12 +76,12 @@ class TileGeoG4Section {
 public:
   std::vector<TileGeoG4Sample*> samples;
 
-  int nrOfModules;
-  int nrOfPeriods;
-  int nrOfScintillators;
+  int nrOfModules{};
+  int nrOfPeriods{};
+  int nrOfScintillators{};
 
-  int nrOfPhysicalSections;
-  int nrOfPhysicalSections_negative;
+  int nrOfPhysicalSections{};
+  int nrOfPhysicalSections_negative{};
 
   TileGeoG4Section(const int verboseLevel);
   ~TileGeoG4Section();
@@ -101,7 +101,7 @@ public:
 private:
   //for each scintillator in the module contains pointer to the corresponding cell
   std::vector<TileGeoG4Cell*> m_ScinToCell;
-  int m_verboseLevel;
+  int m_verboseLevel{};
 
 };
 
