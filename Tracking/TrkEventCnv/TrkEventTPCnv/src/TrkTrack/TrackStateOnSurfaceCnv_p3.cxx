@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -38,8 +38,8 @@ persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurfac
   // which did allow reading  such tracks.  So defer setting these pointers
   // until after the checks,
   *transObj = Trk::TrackStateOnSurface (nullptr,
-                                        trackParameters,
-                                        fitQoS,
+                                        std::unique_ptr<const Trk::TrackParameters> (trackParameters),
+                                        std::unique_ptr<const Trk::FitQualityOnSurface> (fitQoS),
                                         nullptr,
                                         persObj->m_typeFlags);
   transObj->m_measurementOnTrack.reset(meas);

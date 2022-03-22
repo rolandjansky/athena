@@ -35,7 +35,7 @@ namespace {
         std::unique_ptr<const Trk::TrackParameters> pars;
         std::unique_ptr<const Muon::MuonClusterOnTrack> clus;
     };
-    typedef std::map<Identifier, PullCluster> ClusterLayerMap;
+    using ClusterLayerMap = std::map<Identifier, PullCluster>;
 
 }  // namespace
 namespace Muon {
@@ -469,9 +469,7 @@ namespace Muon {
         }
 
         createHoleTSOSsForClusterChamber(detElId, ctx, pars, layIds, chHoles, prds, states);
-
-        return;
-    }
+   }
 
     void MuonChamberHoleRecoveryTool::createHoleTSOSsForMmChamber(
         const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
@@ -517,9 +515,7 @@ namespace Muon {
         }
 
         createHoleTSOSsForClusterChamber(detElId, ctx, pars, layIds, chHoles, prds, states);
-
-        return;
-    }
+   }
 
     void MuonChamberHoleRecoveryTool::createHoleTSOSsForCscChamber(
         const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,

@@ -161,7 +161,7 @@ HGTD_IterativeExtensionTool::getLastHitOnTrack(const Trk::Track& track) const {
   // loop over the associated hits in ITk in reverse order, since we want to
   // select the one closest to HGTD to start the extrapolation
   for (auto i = tsos->rbegin(); i != tsos->rend(); ++i) {
-    auto curr_last_tsos = *i;
+    const auto *curr_last_tsos = *i;
     if (not curr_last_tsos) {
       continue;
     }
@@ -176,7 +176,7 @@ HGTD_IterativeExtensionTool::getLastHitOnTrack(const Trk::Track& track) const {
 
 std::vector<const Trk::Surface*>
 HGTD_IterativeExtensionTool::getCompatibleSurfaces(
-    const Trk::TrackParameters& param, const Trk::Layer* layer) const {
+    const Trk::TrackParameters& param, const Trk::Layer* layer) {
 
   std::vector<const Trk::Surface*> surfaces;
 
@@ -271,7 +271,7 @@ HGTD_IterativeExtensionTool::findBestCompatibleCluster(
   std::unique_ptr<const Trk::TrackStateOnSurface> tsos = nullptr;
 
   double lowest_chi2 = -1;
-  for (auto collection : *m_cluster_container) {
+  for (const auto *collection : *m_cluster_container) {
     // find the one collection that can be associated to the surface
     if (collection->identify() !=
         param->associatedSurface().associatedDetectorElementIdentifier()) {
@@ -338,5 +338,8 @@ HGTD_IterativeExtensionTool::updateState(
   std::unique_ptr<const Trk::TrackParameters> pars = m_updator->addToState(
       *param, cot->localParameters(), cot->localCovariance(), quality);
 
-  return std::make_unique<const Trk::TrackStateOnSurface>(cot.get(), pars.get(), quality);
+  return std::make_unique<const Trk::TrackStateOnSurface>(
+    std::move(cot),
+    std::move(pars),
+    std::unique_ptr<Trk::FitQualityOnSurface>(quality));
 }

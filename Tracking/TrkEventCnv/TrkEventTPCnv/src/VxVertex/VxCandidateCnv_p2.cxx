@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VxVertex/VxCandidate.h"
@@ -13,7 +13,7 @@ void  VxCandidateCnv_p2::persToTrans(const Trk::VxCandidate_p1 * persObj, Trk::V
   fillTransFromPStore(&m_recVertexConverter, persObj->m_recVertex, &vx, log);
     
   std::vector<Trk::VxTrackAtVertex*> trackAtVertex;
-  if (persObj->m_vxTrackAtVertex.size()){ // not to call if 0
+  if (!persObj->m_vxTrackAtVertex.empty()){ // not to call if 0
     trackAtVertex.reserve( persObj->m_vxTrackAtVertex.size() );
     for( std::vector<TPObjRef>::const_iterator it = persObj->m_vxTrackAtVertex.begin(); it != persObj->m_vxTrackAtVertex.end();  ++it ) 
       trackAtVertex.push_back( createTransFromPStore( &m_vxTrackAtVertexConverter, *it, log ) );    

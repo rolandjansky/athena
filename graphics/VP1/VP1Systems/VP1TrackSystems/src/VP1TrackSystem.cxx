@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ public:
   QList<const Trk::PrepRawData*> selectedPRDs;
 
   //Return value is number of track handles used for input (e.g. those without valid momentum info are ignored)
-  unsigned calcTotalMomentumOfSelectedHandles(Amg::Vector3D& totmom, Amg::Vector3D& totpos, double& mass);
+  unsigned calcTotalMomentumOfSelectedHandles(Amg::Vector3D& totmom, Amg::Vector3D& totpos, double& mass) const;
 
   template <class T>
   QList<TrackCollHandleBase*> createSpecificCollections() {
@@ -149,7 +149,7 @@ public:
 };
 
 //____________________________________________________________________
-VP1TrackSystem::VP1TrackSystem(QString name)
+VP1TrackSystem::VP1TrackSystem(const QString& name)
   : IVP13DSystemSimple(name,
            "System showing all track-like objects.",
            "Edward.Moyse@cern.ch, Thomas.Kittelmann@cern.ch"), m_d(new Imp)
@@ -292,8 +292,8 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   // TODO! But do we still need it here?? Allow this to be configured?
   //
   std::vector<std::string> key;
-  key.push_back("MooreMuonChamberT0s");
-  key.push_back("MboyMuonChamberT0s");
+  key.emplace_back("MooreMuonChamberT0s");
+  key.emplace_back("MboyMuonChamberT0s");
   assert(m_d->chamberT0s.size()==key.size());
 
   for (unsigned int i=0; i<m_d->chamberT0s.size(); i++){
@@ -464,7 +464,7 @@ void VP1TrackSystem::visibleObjectsChanged()
     vistracks.reserve(trackhelper->visibleObjects().size());
     std::map<const Trk::Track*,SoMaterial*>::const_iterator it, itE = trackhelper->visibleObjects().end();
     for (it = trackhelper->visibleObjects().begin();it!=itE;++it)
-      vistracks.push_back(std::pair<const Trk::Track*, const SoMaterial*>(it->first,it->second));
+      vistracks.emplace_back(it->first,it->second);
     messageVerbose("Emitting visibleTracksChanged (with nvistracks = "+QString::number(vistracks.size())+")" );
     emit visibleTracksChanged(vistracks);
     return;
@@ -477,7 +477,7 @@ void VP1TrackSystem::visibleObjectsChanged()
     vissegments.reserve(segmenthelper->visibleObjects().size());
     std::map<const Trk::Segment*,SoMaterial*>::const_iterator it, itE = segmenthelper->visibleObjects().end();
     for (it = segmenthelper->visibleObjects().begin();it!=itE;++it)
-      vissegments.push_back(std::pair<const Trk::Segment*, const SoMaterial*>(it->first,it->second));
+      vissegments.emplace_back(it->first,it->second);
     messageVerbose("Emitting visibleSegmentsChanged (with nvissegments = "+QString::number(vissegments.size())+")" );
     emit visibleSegmentsChanged(vissegments);
     return;
@@ -584,7 +584,7 @@ void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode
 
         QList<AssociatedObjectHandleBase*> trackmeas = handle_trktrack->getVisibleMeasurements();
 
-        if (trackmeas.size()==0) message("In refit mode, but no visible measurements found so can't do anything. Perhaps they're not enabled in 'Details'?");
+        if (trackmeas.empty()) message("In refit mode, but no visible measurements found so can't do anything. Perhaps they're not enabled in 'Details'?");
         QList<AssociatedObjectHandleBase*> currentsel = m_d->ascObjSelManager->currentSelection();
   //If at least one of the track measurements is unselected, we
   //select them all. Otherwise we deselect them.
@@ -654,7 +654,7 @@ void VP1TrackSystem::userDeselectedSingleNode(SoCooperativeSelection*, SoNode* ,
 }
 
 //____________________________________________________________________
-unsigned VP1TrackSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& totmom, Amg::Vector3D& totpos, double& mass)
+unsigned VP1TrackSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& totmom, Amg::Vector3D& totpos, double& mass) const
 {
   totmom = Amg::Vector3D(0,0,0);
   totpos = Amg::Vector3D(0,0,0);

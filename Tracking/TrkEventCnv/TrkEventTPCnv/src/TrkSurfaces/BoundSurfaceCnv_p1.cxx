@@ -65,7 +65,7 @@ transToPers( const SURFACE *transObj, Trk::BoundSurface_p1 *persObj, MsgStream &
 
 
 // specialized for polymorphic surfaces
-typedef  ITPConverterFor<Trk::SurfaceBounds>   TPCnvForSurfBnds;
+using TPCnvForSurfBnds = ITPConverterFor<Trk::SurfaceBounds>;
 
 template< class SURFACE >
 void

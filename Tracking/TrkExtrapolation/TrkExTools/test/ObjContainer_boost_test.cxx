@@ -27,7 +27,6 @@
 #include <memory>
 #include <atomic>
 
-namespace utf = boost::unit_test;
 
 /* Can run with:
   ~/build/Tracking/TrkExtrapolation/TrkExTools/test-bin/ObjContainer_boost_test.exe -l all
@@ -165,7 +164,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
   BOOST_AUTO_TEST_CASE(ObjContainerMethods){
     Registry o(100);
     BOOST_CHECK(not(o.isValid(1)));
-    auto pTestObj = new TestObj();
+    auto *pTestObj = new TestObj();
     auto [count,validity] = o.search(pTestObj);
     BOOST_CHECK(count == 0);
     BOOST_CHECK(validity == false);
@@ -186,7 +185,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
       BOOST_CHECK(pOcs->isExtern(ref) == true);
       //this is what 'isExtern' really means
       BOOST_CHECK(pOcs->count(ref) == -2);
-      auto pObj = &o;
+      auto *pObj = &o;
       auto returnPair = pOcs->search(pObj);
       BOOST_CHECK(returnPair.first == -2); //it's external
       BOOST_CHECK(returnPair.second);
@@ -247,7 +246,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
     Registrar assignment; //already tested default c'tor
     BOOST_CHECK_NO_THROW(assignment = reg);
     BOOST_CHECK(assignment == reg); //compare the refs
-    auto pObj = reg.get();
+    const auto *pObj = reg.get();
     BOOST_CHECK(pObj == &externalObj);
     //make a new object to test !=
     Registrar tempRegistrar;
@@ -261,7 +260,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
     Registry objRegister;
     auto uniquePtrTestObj = std::make_unique<TestObj>();
     //use a newed pointer to be able to explicitly delete later
-    auto reg = new Registrar(objRegister,std::move(uniquePtrTestObj)); //previously tested
+    auto *reg = new Registrar(objRegister,std::move(uniquePtrTestObj)); //previously tested
     BOOST_CHECK(reg->isOwned());
     BOOST_CHECK(not reg->isShared());
     BOOST_CHECK(not reg->isExtern());
@@ -278,7 +277,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
     //Now do the same without releasing, just deleting the ObjPtr
     Registry objRegister2;
     auto uniquePtrTestObj2 = std::make_unique<TestObj>();
-    auto reg2 = new Registrar(objRegister2,std::move(uniquePtrTestObj2));
+    auto *reg2 = new Registrar(objRegister2,std::move(uniquePtrTestObj2));
     BOOST_CHECK_NO_THROW(delete reg2);
     //check all those objects went away anyway
     BOOST_CHECK(TestObj::isCleanedUp());

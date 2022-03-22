@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACK_SUMMARY_CNV_P2_TRK_H
@@ -14,7 +14,7 @@ class MsgStream;
 class TrackSummaryCnv_p2: 
 public T_AthenaPoolTPCnvBase< Trk::TrackSummary, Trk::TrackSummary_p2 > {
 private:
-    void dbgPrint(const Trk :: TrackSummary *transObj);
+    static void dbgPrint(const Trk :: TrackSummary *transObj);
 public:
     TrackSummaryCnv_p2() {}
     virtual void persToTrans( const Trk :: TrackSummary_p2 *persObj, Trk :: TrackSummary    *transObj, MsgStream &log );

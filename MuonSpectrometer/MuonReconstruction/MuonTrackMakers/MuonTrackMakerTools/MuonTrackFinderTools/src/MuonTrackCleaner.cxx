@@ -1491,7 +1491,7 @@ namespace Muon {
         }
     }
 
-    std::string MuonTrackCleaner::print(MuonTrackCleaner::ChamberLayerStatistics& statistics) const {
+    std::string MuonTrackCleaner::print(MuonTrackCleaner::ChamberLayerStatistics& statistics) {
         std::ostringstream sout;
 
         unsigned int nhits = statistics.nhits;
@@ -1536,7 +1536,7 @@ namespace Muon {
         return true;
     }
 
-    void MuonTrackCleaner::unremoveHits(ChamberRemovalOutput& result) const {
+    void MuonTrackCleaner::unremoveHits(ChamberRemovalOutput& result) {
         // loop over removed hits and 'unremove' them so they are used in the next iteration
         for (auto* hit : result.removedHits) hit->useInFit = 1;
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -51,7 +51,7 @@ public:
   {
     if (!p)
       return nullptr;//Fixme: message!
-    auto v = p->production_vertex();
+    auto *v = p->production_vertex();
     if (!v)
       return nullptr;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
@@ -66,7 +66,7 @@ public:
   {
     if (!p)
       return nullptr;//Fixme: message!
-    auto v = p->end_vertex();
+    auto *v = p->end_vertex();
     if (!v)
       return nullptr;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
@@ -83,7 +83,12 @@ public:
 
   static Trk::TrackStateOnSurface * createTSOS(const Trk::TrackParameters * pars)
   {
-    return pars ? new Trk::TrackStateOnSurface(nullptr,pars,nullptr,nullptr) : nullptr;
+    return pars ? new Trk::TrackStateOnSurface(
+                    nullptr,
+                    std::unique_ptr<const Trk::TrackParameters>(pars),
+                    nullptr,
+                    nullptr)
+                : nullptr;
   }
   static void addPars(DataVector<const Trk::TrackStateOnSurface>* dv, const Trk::TrackParameters * pars)
   {
@@ -100,7 +105,7 @@ public:
       VP1Msg::messageDebug("TrackHandle_TruthTrack WARNING: Could not create track due to null TSOS vector");
       return;
     }
-    if (trackStateOnSurfaces->size()==0) {
+    if (trackStateOnSurfaces->empty()) {
       VP1Msg::messageDebug("TrackHandle_TruthTrack WARNING: Could not create track due to empty TSOS vector");
       delete trackStateOnSurfaces;
       return;
@@ -262,7 +267,7 @@ bool TrackHandle_TruthTrack::hasVertexAtIR(const double& rmaxsq, const double& z
 {
   if (!m_d->genParticle)
     return false;
-  auto v = m_d->genParticle->production_vertex();
+  auto *v = m_d->genParticle->production_vertex();
   if (!v)
     return false;
 

@@ -85,9 +85,9 @@ private:
    *
    * FIXME exchange the loop with the neighbour functionality (wherever that is)
    */
-  std::vector<const Trk::Surface*>
+  static std::vector<const Trk::Surface*>
   getCompatibleSurfaces(const Trk::TrackParameters& param,
-                        const Trk::Layer* layer) const;
+                        const Trk::Layer* layer) ;
 
   /**
    * @brief After the compatible surfaces have been selected, the extrapolation
