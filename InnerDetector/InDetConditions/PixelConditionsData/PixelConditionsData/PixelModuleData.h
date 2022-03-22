@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsData/PixelModuleData.h
@@ -125,6 +125,9 @@ class PixelModuleData {
     void setUseFEI4SpecialScalingFunction(bool UseFEI4SpecialScalingFunction);
     float getFEI4ChargScaling() const;
     bool getUseFEI4SpecialScalingFunction() const;
+
+    void setFEI4ToTSigma(std::vector<double> FEI4ToTSigma);
+    double getFEI4ToTSigma(int tot) const;
 
     // Charge calibration parameters
     void setDefaultQ2TotA(float paramA);
@@ -272,6 +275,8 @@ class PixelModuleData {
 
     float m_scaleFEI4{};
     bool m_UseFEI4SpecialScalingFunction{};
+
+    std::vector<double> m_FEI4ToTSigma;
 
     float m_paramA{};
     float m_paramE{};

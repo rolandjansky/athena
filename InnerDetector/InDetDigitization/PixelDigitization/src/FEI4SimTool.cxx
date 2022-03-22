@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "FEI4SimTool.h"
@@ -125,6 +125,17 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     double tot = calibData->getToT((int) moduleHash, circ, type, charge);
     double totsig = calibData->getTotRes((int) moduleHash, circ, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine, tot, totsig));
+
+    // This is for new IBL calibration, since above method (stat_cast) is not effective.
+    if (totsig==0.0) {
+      double totIBLsig = moduleData->getFEI4ToTSigma(nToT);
+      if (totIBLsig) {
+        if (CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0)<std::exp(-0.5/totIBLsig/totIBLsig)) {
+          if (CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0)<0.5) { nToT--; }
+          else                                                { nToT++; }
+        }
+      }
+    } 
 
     if (nToT < 1) {
       nToT = 1;
