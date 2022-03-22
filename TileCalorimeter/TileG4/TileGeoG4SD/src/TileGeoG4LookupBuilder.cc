@@ -108,11 +108,11 @@ void TileGeoG4LookupBuilder::ResetCells(TileHitVector* tileHitsCollection) {
   TileGeoG4SectionMap::iterator first = m_sectionMap->begin();
   TileGeoG4SectionMap::iterator last = m_sectionMap->end();
 
-  TileGeoG4Sample* sample;
-  TileGeoG4Cell* cell;
-  size_t l_nSamp, l_nCell, j;
+  TileGeoG4Sample* sample{};
+  TileGeoG4Cell* cell{};
+  size_t l_nSamp{}, l_nCell{}, j{};
 
-  for (; first != last; first++) {
+  for (; first != last; ++first) {
     for (l_nSamp = 0; l_nSamp < first->second->samples.size(); l_nSamp++) {
       sample = first->second->samples[l_nSamp];
       for (l_nCell = 0; l_nCell < sample->cells.size(); l_nCell++) {

@@ -14,7 +14,7 @@
 
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include <fstream>
-#include <string>
+
 
 TileRow::TileRow(std::string& datafile, std::string& ratiofile) {
   std::ifstream dataInFile, ratioInFile;
@@ -81,12 +81,12 @@ void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift) {
 
   int l_nRow = nrOfScintillators;             //Number of scintillators in the period
   int l_nPeriod = nrOfPeriods;                //Number of periods in the module
-  int l_indCurrentSample;
-  int l_rowShiftInSample;                     //Index of current row according to the current sample
-
-  int* l_indCurrentCell = new int[l_nRow];    //Index of current cell for each row
-  int* l_currentBoundary = new int[l_nRow];   //Current boundary for the row
-  int row, per;
+  int l_indCurrentSample{};
+  int l_rowShiftInSample{};                     //Index of current row according to the current sample
+  
+  std::vector<int> l_indCurrentCell(l_nRow, 0); //Index of current cell for each row
+  std::vector<int> l_currentBoundary(l_nRow, 0);   //Current boundary for the row
+  int row{}, per{};
 
   m_ScinToCell.clear();
 
@@ -129,10 +129,6 @@ void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift) {
       } //if(gap_crack)
     } //for(row)
   } //for(per)
-
-  delete[] l_indCurrentCell;
-  delete[] l_currentBoundary;
-
 }
 
 TileGeoG4Cell* TileGeoG4Section::ScinToCell(int nScin) {
