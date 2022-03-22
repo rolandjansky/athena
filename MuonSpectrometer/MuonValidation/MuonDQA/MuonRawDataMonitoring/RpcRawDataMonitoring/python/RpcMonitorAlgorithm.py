@@ -35,9 +35,9 @@ def RpcMonitoringConfig(inputFlags):
     rpcTrackAnaAlg.plotMuonEff = True
     rpcTrackAnaAlg.plotPRD     = True
 
-    rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
+    # rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     rpcTrackAnaAlg.TagAndProbe         = False
-    rpcTrackAnaAlg.TagAndProbeZmumu    = False
+    # rpcTrackAnaAlg.TagAndProbeZmumu    = False
 
     if not inputFlags.DQ.triggerDataAvailable:
         rpcTrackAnaAlg.MuonRoIContainerName = ''
