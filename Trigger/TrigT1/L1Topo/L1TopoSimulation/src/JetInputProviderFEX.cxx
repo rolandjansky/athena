@@ -60,11 +60,11 @@ JetInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   //jJet
+   // jJet
    auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 200, 0, 400);
    hjJetPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjJetPhiEta = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 240, -240, 240, 64, 0, 128);
+   auto hjJetPhiEta = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 200, -200, 200, 128, 0, 128);
    hjJetPhiEta->SetXTitle("#eta#times40");
    hjJetPhiEta->SetYTitle("#phi#times20");
 
@@ -83,11 +83,11 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jJetTOB PhiEta histogram from JetProviderFEX");
    }
 
-   //jLargeRJet
-   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 200, 0, 2000);
+   // jLargeRJet
+   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 200, 0, 1000);
    hjLargeRJetPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjLargeRJetPhiEta = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 240, -240, 240, 64, 0, 128);
+   auto hjLargeRJetPhiEta = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 200, -200, 200, 128, 0, 128);
    hjLargeRJetPhiEta->SetXTitle("#eta#times40");
    hjLargeRJetPhiEta->SetYTitle("#phi#times20");
 
@@ -106,26 +106,20 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jLargeRJetTOB PhiEta histogram from JetProviderFEX");
    }
 
-   //jTau
-   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 200, 0, 200);
+   // jTau
+   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 200, 0, 400);
    hjTauPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 200);
+   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 400);
    hjTauIsolation->SetXTitle("Isolation [GeV]");
 
    auto hjTauPhiEta = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 200, -200, 200, 128, 0, 128);
    hjTauPhiEta->SetXTitle("#eta#times40");
    hjTauPhiEta->SetYTitle("#phi#times20");
 
-   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 200, -200, 200, 200, 0, 200);
+   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 200, -200, 200, 200, 0, 400);
    hjTauIsolationEta->SetXTitle("#eta#times40");
    hjTauIsolationEta->SetYTitle("Isolation [GeV]");
-
-   auto h_jxe_Pt = std::make_unique<TH1I>( "jXEPt", "jXE TOB Pt", 100, 0, 2000);
-   h_jxe_Pt->SetXTitle("p_{T} [GeV]");
-
-   auto h_jxe_Phi = std::make_unique<TH1I>( "jXEPhi", "jXE TOB Phi", 32, -3.2, 3.2);
-   h_jxe_Phi->SetXTitle("#phi");
 
    if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProviderFEX.");
@@ -133,7 +127,6 @@ JetInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register jTauTOB Pt histogram from JetProviderFEX");
    }
-
    if (m_histSvc->regShared( histPath + "jTauTOBIsolation", std::move(hjTauIsolation), m_hjTauIsolation ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Isolation histogram has been registered successfully from JetProviderFEX.");
    }
@@ -152,6 +145,34 @@ JetInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register jTauTOB Eta/Isolation histogram from JetProviderFEX");
    }
+
+   // jEm
+   auto hjEmPt = std::make_unique<TH1I>( "jEmTOBPt", "jEm TOB Pt", 200, 0, 400);
+   hjEmPt->SetXTitle("p_{T} [GeV]");
+
+   auto hjEmPhiEta = std::make_unique<TH2I>( "jEmTOBPhiEta", "jEm TOB Location", 200, -200, 200, 128, 0, 128);
+   hjEmPhiEta->SetXTitle("#eta#times40");
+   hjEmPhiEta->SetYTitle("#phi#times20");
+
+   if (m_histSvc->regShared( histPath + "jEmTOBPt", std::move(hjEmPt), m_hjEmPt ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Pt histogram has been registered successfully from JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Pt histogram from JetProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBPhiEta", std::move(hjEmPhiEta), m_hjEmPhiEta ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB PhiEta histogram has been registered successfully from JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB PhiEta histogram from JetProviderFEX");
+   }
+
+   // jXE
+   auto h_jxe_Pt = std::make_unique<TH1I>( "jXEPt", "jXE TOB Pt", 200, 0, 2000);
+   h_jxe_Pt->SetXTitle("p_{T} [GeV]");
+
+   auto h_jxe_Phi = std::make_unique<TH1I>( "jXEPhi", "jXE TOB Phi", 64, -3.2, 3.2);
+   h_jxe_Phi->SetXTitle("#phi");
 
    if (m_histSvc->regShared( histPath + "jXEPt", std::move(h_jxe_Pt), m_h_jxe_Pt ).isSuccess()){
      ATH_MSG_DEBUG("jXEPt histogram has been registered successfully for JetProviderFEX.");
