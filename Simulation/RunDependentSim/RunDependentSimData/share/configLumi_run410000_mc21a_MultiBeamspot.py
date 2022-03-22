@@ -1,11 +1,13 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-def setupProfile(flags, scaleTaskLength=1):
+# We need to be able to adjust for different dataset sizes.
+if not 'ScaleTaskLength' in dir():   ScaleTaskLength = 1
+_evts = lambda x: int(ScaleTaskLength * x)
 
-  def _evts(x):
-    return int(scaleTaskLength * x)
-
-  return [
+if not 'logging' in dir(): import logging
+digilog = logging.getLogger('Digi_trf')
+digilog.info('doing RunLumiOverride configuration from file.')
+JobMaker=[
     {'run':410000, 'lb':1, 'starttimestamp':1625000060, 'evts':_evts(1), 'mu':34.5, 'step':0},
     {'run':410000, 'lb':2, 'starttimestamp':1625000120, 'evts':_evts(2), 'mu':36.5, 'step':0},
     {'run':410000, 'lb':3, 'starttimestamp':1625000180, 'evts':_evts(4), 'mu':38.5, 'step':0},
@@ -166,4 +168,11 @@ def setupProfile(flags, scaleTaskLength=1):
     {'run':410000, 'lb':3068, 'starttimestamp':1625184080, 'evts':_evts(1), 'mu':82.5, 'step':3},
     {'run':410000, 'lb':3069, 'starttimestamp':1625184140, 'evts':_evts(1), 'mu':83.5, 'step':3},
     {'run':410000, 'lb':3070, 'starttimestamp':1625184200, 'evts':_evts(1), 'mu':84.5, 'step':3},
-  ]
+    #--> end hiding
+]
+
+include('RunDependentSimData/configCommon.py')
+
+#cleanup python memory
+if not "RunDMC_testing_configuration" in dir():
+    del JobMaker
