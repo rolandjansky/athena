@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Pythonized version of MadGraph steering executables
 #    written by Zach Marshall <zach.marshall@cern.ch>
 #    updates for aMC@NLO by Josh McFayden <mcfayden@cern.ch>
+#    updates to LHE handling and SUSY functionality by Emma Kuwertz <ekuwertz@cern.ch>
 #  Attempts to remove path-dependence of MadGraph
 
 import os,time,subprocess,shutil,glob,re,stat
@@ -134,7 +135,8 @@ def error_check(errors):
                 mglog.info(err)
                 continue
             # silly ghostscript issue in 21.6.46 nightly
-            if 'required by /lib64/libfontconfig.so' in err:
+            if 'required by /lib64/libfontconfig.so' in err or\
+               'required by /lib64/libgs.so' in err:
                 mglog.info(err)
                 continue
             if 'Error: Symbol' in err and 'has no IMPLICIT type' in err:
@@ -657,6 +659,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'systematics_program':'none'},skipBaseFragment=True)
 
 
+    global MADGRAPH_COMMAND_STACK
     if not isNLO:
         ### LO RUN ###
         if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun',os.R_OK):
@@ -697,7 +700,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events, starting generation.')
 
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
-        global MADGRAPH_COMMAND_STACK
         if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name, os.F_OK):
             mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+' directory from gridpack generation')
             MADGRAPH_COMMAND_STACK += ['rm -rf '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name]
