@@ -110,5 +110,6 @@ atlas_add_test( physval_make_web_display_test
 
 atlas_add_test( han_results_print_test
     SCRIPT test/test_han_results_print.sh ${CMAKE_CURRENT_SOURCE_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_han_results_print_test
     PROPERTIES TIMEOUT 300
 )
