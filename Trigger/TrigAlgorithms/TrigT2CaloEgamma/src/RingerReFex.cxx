@@ -149,8 +149,8 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
   if ( m_useTile ){
 
     // Get all cells for the Tile calorimeter
-    TileCellCollection sel;
-    TileCellCollection::const_iterator it, itBegin, itEnd;
+    std::vector<const TileCell*> sel;
+    std::vector<const TileCell*>::const_iterator it, itBegin, itEnd;
  
     load_cells_time.start();
     if( m_dataSvc->loadCollections( context, roi, sel ).isFailure() ){
