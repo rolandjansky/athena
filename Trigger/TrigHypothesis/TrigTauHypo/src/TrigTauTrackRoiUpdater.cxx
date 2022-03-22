@@ -210,7 +210,7 @@ double TrigTauTrackRoiUpdater::getBDTscore(const xAOD::TauJet* tau, const Trk::T
   int nPixHole = trkSummary->get(Trk::numberOfPixelHoles);
   int nSCTHole = trkSummary->get(Trk::numberOfSCTHoles);
 
-  float ratio_pt = (tau->ptTrigCaloOnly()>0.) ? trkPerigee->pT()/tau->ptTrigCaloOnly() : 0.;
+  float ratio_pt = (tau->pt()>0.) ? trkPerigee->pT()/tau->pt() : 0.;
 
   float dEta = tau->eta() - trkPerigee->eta();
   float dPhi = CxxUtils::wrapToPi(tau->phi() - trkPerigee->parameters()[Trk::phi0]);

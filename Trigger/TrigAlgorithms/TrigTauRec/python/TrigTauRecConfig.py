@@ -25,8 +25,6 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             # Decorate the clusters
             tools.append(taualgs.getTauClusterFinder())
             tools.append(taualgs.getTauVertexedClusterDecorator())
-            # Calibrate to TES
-            tools.append(taualgs.getEnergyCalibrationLC(caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
@@ -72,9 +70,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             if doTrackBDT:
                 # BDT track classification is deprecated, RNN track classification feasibility under study
                 log.warning( "BDT track classifier is deprecated and won't be scheduled")
-
-            # Calibrate to calo TES
-            tools.append(taualgs.getEnergyCalibrationLC())
 
             # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
             tools.append(taualgs.getMvaTESVariableDecorator())
