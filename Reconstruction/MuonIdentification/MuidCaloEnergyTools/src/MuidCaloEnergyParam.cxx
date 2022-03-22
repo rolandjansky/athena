@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -673,7 +673,7 @@ namespace Rec {
         return 0.;
     }
 
-    double MuidCaloEnergyParam::caloCompartmentDepthTile(int icomp) const {
+    double MuidCaloEnergyParam::caloCompartmentDepthTile(int icomp) {
         // depth in absorption lengths (from Tile TDR p 22) eta = 0
         constexpr double comp[4] = {1.5, 4.2, 1.9, 0.};  // assign 0. to ITC for the moment
         double total = 0.;
@@ -682,7 +682,7 @@ namespace Rec {
         return 0.;
     }
 
-    double MuidCaloEnergyParam::caloCompartmentDepthLArHEC(int icomp) const {
+    double MuidCaloEnergyParam::caloCompartmentDepthLArHEC(int icomp) {
         // depth in absorption lengths (from Liquid Argon TDR Table 1-3 p 11)
         constexpr double comp[4] = {1.4, 2.9, 5.7 / 2., 5.7 / 2.};  // divide 5.7 rad lengths equally to 3rd and 4th sampling
         double total = 0.;
@@ -692,7 +692,7 @@ namespace Rec {
         return 0.;
     }
 
-    double MuidCaloEnergyParam::caloCompartmentDepthLArEM(int icomp) const {
+    double MuidCaloEnergyParam::caloCompartmentDepthLArEM(int icomp) {
         // depth in radiation lengths (from Liquid Argon TDR p 5) eta = 0
         constexpr double comp[4] = {0.2, 4.3, 16., 2.};
         double total = 0.;

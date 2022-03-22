@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -434,7 +434,7 @@ namespace Rec {
         return extrapolation;
     }
 
-    bool MuidCaloTrackStateOnSurface::useEtaPhiFromDirection(const Trk::TrackParameters& parameters) const {
+    bool MuidCaloTrackStateOnSurface::useEtaPhiFromDirection(const Trk::TrackParameters& parameters) {
         // estimate eta,phi for the track intersect with the calo from the track direction when the
         // parameters are expressed near the beam-line, further out it's better to use the track position
         double parameterDistance = parameters.position().mag();

@@ -419,10 +419,21 @@ namespace Muon {
                     /// Where do these magic numbers come from?
                     const double deltaError = std::max(itAli.second.first, 0.01);
                     const double angleError = std::max(itAli.second.second, 0.000001);
-                    Trk::AlignmentEffectsOnTrack* aEOT = new Trk::AlignmentEffectsOnTrack(
-                        0., deltaError, 0., angleError, itAli.first, &(tsit->measurementOnTrack()->associatedSurface()));
-                    std::unique_ptr<Trk::TrackStateOnSurface> tsosAEOT = std::make_unique<Trk::TrackStateOnSurface>(
-                        nullptr, tsit->trackParameters()->clone(), nullptr, nullptr, typePattern, aEOT);
+                    auto aEOT = std::make_unique<Trk::AlignmentEffectsOnTrack>(
+                      0.,
+                      deltaError,
+                      0.,
+                      angleError,
+                      itAli.first,
+                      &(tsit->measurementOnTrack()->associatedSurface()));
+                    std::unique_ptr<Trk::TrackStateOnSurface> tsosAEOT =
+                      std::make_unique<Trk::TrackStateOnSurface>(
+                        nullptr,
+                        tsit->trackParameters()->uniqueClone(),
+                        nullptr,
+                        nullptr,
+                        typePattern,
+                        std::move(aEOT));
                     indexAEOTs.push_back(index);
                     tsosAEOTs.emplace_back(std::move(tsosAEOT));
                     found = true;
@@ -557,24 +568,44 @@ namespace Muon {
         if (!indicesOfAffectedTSOS.empty() && (m_addMiddle || m_addAll)) {
             int middle = indicesOfAffectedTSOS.size() / 2;
             const Trk::TrackStateOnSurface* tsos = indicesOfAffectedTSOS[middle];
-            Trk::AlignmentEffectsOnTrack* aEOT =
-                new Trk::AlignmentEffectsOnTrack(m_alignmentDelta, m_alignmentDeltaError, m_alignmentAngle, m_alignmentAngleError,
-                                                 indicesOfAffectedIds, &(tsos->measurementOnTrack()->associatedSurface()));
-            ATH_MSG_DEBUG(" AlignmentEffectsOnTrack on surface " << aEOT->associatedSurface() << " nr of tsos affected "
-                                                                 << indicesOfAffectedTSOS.size());
-            tsosAEOT =
-                std::make_unique<Trk::TrackStateOnSurface>(nullptr, tsos->trackParameters()->clone(), nullptr, nullptr, typePattern, aEOT);
+            auto aEOT = std::make_unique<Trk::AlignmentEffectsOnTrack>(
+              m_alignmentDelta,
+              m_alignmentDeltaError,
+              m_alignmentAngle,
+              m_alignmentAngleError,
+              indicesOfAffectedIds,
+              &(tsos->measurementOnTrack()->associatedSurface()));
+            ATH_MSG_DEBUG(" AlignmentEffectsOnTrack on surface "
+                          << aEOT->associatedSurface()
+                          << " nr of tsos affected "
+                          << indicesOfAffectedTSOS.size());
+            tsosAEOT = std::make_unique<Trk::TrackStateOnSurface>(
+              nullptr,
+              tsos->trackParameters()->uniqueClone(),
+              nullptr,
+              nullptr,
+              typePattern,
+              std::move(aEOT));
         }
 
         std::unique_ptr<Trk::TrackStateOnSurface> tsosAEOTInner;
         if (!indicesOfAffectedTSOSInner.empty() && (m_addInner || m_addTwo)) {
             int middle = indicesOfAffectedTSOSInner.size() / 2;
             const Trk::TrackStateOnSurface* tsosInner = indicesOfAffectedTSOSInner[middle];
-            Trk::AlignmentEffectsOnTrack* aEOTInner =
-                new Trk::AlignmentEffectsOnTrack(m_alignmentDelta, m_alignmentDeltaError, m_alignmentAngle, m_alignmentAngleError,
-                                                 indicesOfAffectedIdsInner, &(tsosInner->measurementOnTrack()->associatedSurface()));
-            tsosAEOTInner = std::make_unique<Trk::TrackStateOnSurface>(nullptr, tsosInner->trackParameters()->clone(), nullptr, nullptr,
-                                                                       typePattern, aEOTInner);
+            auto aEOTInner = std::make_unique<Trk::AlignmentEffectsOnTrack>(
+              m_alignmentDelta,
+              m_alignmentDeltaError,
+              m_alignmentAngle,
+              m_alignmentAngleError,
+              indicesOfAffectedIdsInner,
+              &(tsosInner->measurementOnTrack()->associatedSurface()));
+            tsosAEOTInner = std::make_unique<Trk::TrackStateOnSurface>(
+              nullptr,
+              tsosInner->trackParameters()->uniqueClone(),
+              nullptr,
+              nullptr,
+              typePattern,
+              std::move(aEOTInner));
         }
 
         Trk::TrackStates trackStateOnSurfacesAEOT{};
