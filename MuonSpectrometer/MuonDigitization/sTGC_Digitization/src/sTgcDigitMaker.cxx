@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGC_Digitization/sTgcDigitMaker.h"
@@ -155,18 +155,25 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
  
   // DO THE DIGITIZATTION HERE ////////
 
+  // Required precision on length in mm
+  constexpr double length_tolerance = 0.01;
+
   // Retrieve the wire surface
   int surfHash_wire = detEl->surfaceHash(gasGap, sTgcIdHelper::sTgcChannelTypes::Wire);
   const Trk::PlaneSurface& SURF_WIRE = detEl->surface(surfHash_wire); // get the wire surface
 
-  // Hit global position
-  Amg::Vector3D GPOS(hit->globalPosition().x(),hit->globalPosition().y(),hit->globalPosition().z());
+  // Hit post-Step global position
+  const Amg::Vector3D& GPOS{hit->globalPosition()};
+  // Hit pre-Step global position
+  const Amg::Vector3D& pre_pos{hit->globalPrePosition()};
   // Hit global direction
-  const Amg::Vector3D GLODIRE(hit->globalDirection().x(), hit->globalDirection().y(), hit->globalDirection().z());
+  const Amg::Vector3D& GLODIRE{hit->globalDirection()};
 
   // Hit position in the wire surface's coordinate frame 
   Amg::Vector3D hitOnSurface_wire = SURF_WIRE.transform().inverse() * GPOS;
-  Amg::Vector2D posOnSurf_wire(hitOnSurface_wire.x(), hitOnSurface_wire.y());
+  Amg::Vector3D pre_pos_wire_surf = SURF_WIRE.transform().inverse() * pre_pos;
+  Amg::Vector2D posOnSurf_wire(0.5 * (hitOnSurface_wire.x() + pre_pos_wire_surf.x()),
+                               0.5 * (hitOnSurface_wire.y() + pre_pos_wire_surf.y()));
 
   /* Determine the closest wire and the distance of closest approach
    * Since most particles pass through the the wire plane between two wires,
@@ -175,83 +182,112 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
    *
    * Finding that nearest wire follows the following steps:
    * - Compute the distance to the wire at the center of the current wire pitch
-   * - Compute the distance to the other adjacent wire and, if it is smaller, 
-   *   verify the distance to the next to the adjacent wire
+   * - Compute the distance to the other adjacent wire 
    */
-
-  // hit direction in the wire surface's coordinate frame
-  Amg::Vector3D loc_dire_wire = SURF_WIRE.transform().inverse().linear()*GLODIRE;
 
   // Wire number of the current wire pitch
   int wire_number = detEl->getDesign(layid)->wireNumber(posOnSurf_wire);
 
-  // Compute the distance from the hit to the wire, return value of -9.99 if unsuccessful
-  double dist_wire = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number);
-  if (dist_wire < -9.) {
-    ATH_MSG_DEBUG("Failed to get the distance between the hit at (" 
-                    << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
-                    << " and wire number = " << wire_number 
+  // If wire number is invalid, verify if hit is near the edge of the chamber. 
+  const int number_wires = detEl->numberOfWires(layid);
+  if ((wire_number < 1) || (wire_number > number_wires)) {
+    // Compute the wire number using either the pos-step position or 
+    // the pre-step position, whichever yields a valid wire number. 
+    Amg::Vector2D new_posOnSurf(hitOnSurface_wire.x(), hitOnSurface_wire.y());
+    wire_number = detEl->getDesign(layid)->wireNumber(new_posOnSurf);
+    if ((wire_number < 1) || (wire_number > number_wires)) {
+      new_posOnSurf = Amg::Vector2D(pre_pos_wire_surf.x(), pre_pos_wire_surf.y());
+      wire_number = detEl->getDesign(layid)->wireNumber(new_posOnSurf);
+    }
+  }
+  
+  // Compute the position of the ionization and its distance relative to a given sTGC wire.
+  Ionization ionization = pointClosestApproach(layid, wire_number, pre_pos_wire_surf, hitOnSurface_wire);
+  double dist_wire = ionization.distance;
+  if (dist_wire > 0.) {
+    // Determine the other adjacent wire, which is
+    //  -1 if particle crosses the wire surface between wire_number-1 and wire_number
+    //  +1 if particle crosses the wire surface between wire_number and wire_number+1 
+    int adjacent = 1;
+    if (ionization.posOnSegment.x() < ionization.posOnWire.x()) {adjacent = -1;}
+
+    // Find the position of the ionization with respect to the adjacent wire
+    Ionization ion_adj = pointClosestApproach(layid, wire_number+adjacent, pre_pos_wire_surf, hitOnSurface_wire);
+    // Keep the closest point 
+    double dist_wire_adj = ion_adj.distance;
+    if ((dist_wire_adj > 0.) && (dist_wire_adj < dist_wire)) {
+      dist_wire = dist_wire_adj;
+      wire_number += adjacent;
+      ionization = std::move(ion_adj);
+    }
+  } else {
+    ATH_MSG_DEBUG("Failed to get the distance between the wire number = " << wire_number 
+                    << " and hit at (" << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
+                    << ". Number of wires = " << number_wires
                     << ", chamber stationName: " << stationName 
                     << ", stationEta: " << stationEta
                     << ", stationPhi: " << stationPhi
                     << ", multiplet:" << multiPlet
                     << ", gas gap: " << gasGap);
-  } else {
-    // Determine the other adjacent wire, which is +1 if particle passes through the 
-    // wire plane between wires wire_number and wire_number+1 and -1 if particle
-    // passes through between wires wire_number and wire_number-1
-    int adjacent = 1;
-    if (dist_wire < 0.) {adjacent = -1;}
-
-    // Compute distance to the other adjacent wire
-    double dist_wire_adj = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number + adjacent);
-    if (std::abs(dist_wire_adj) < std::abs(dist_wire)) {
-      dist_wire = dist_wire_adj;
-      wire_number = wire_number + adjacent;
-
-      // Check the next to the adjacent wire to catch uncommon track
-      if ((wire_number + adjacent) > 1) {
-        double tmp_dist = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number + adjacent * 2);
-        if (std::abs(tmp_dist) < std::abs(dist_wire)) {
-          ATH_MSG_DEBUG("Wire number is more than one wire pitch away for hit position = (" 
-                          << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
-                          << ", wire number = " << wire_number + adjacent * 2
-                          << ", with d(-2) = " << tmp_dist
-                          << ", while d(0) = " << dist_wire
-                          << ", chamber stationName = " << stationName
-                          << ", stationEta = " << stationEta
-                          << ", stationPhi = " << stationPhi
-                          << ", multiplet = " << multiPlet
-                          << ", gas gap = " << gasGap);
-        }
-      }
-    }
+    return nullptr;
   }
 
-  // Distance should be in the range [0, 0.9] mm, unless particle passes through 
-  // the wire plane near the edges
-  double wire_pitch = detEl->wirePitch();
-  // Absolute value of the distance
-  double abs_dist_wire = std::abs(dist_wire);
-  if ((dist_wire > -9.) && (abs_dist_wire > (wire_pitch / 2))) {
-    ATH_MSG_DEBUG("Distance to the nearest wire (" << abs_dist_wire << ") is greater than expected.");
+  // Update the position of ionization on the wire surface
+  posOnSurf_wire = Amg::Vector2D(ionization.posOnWire.x(), ionization.posOnWire.y());
+  // Position of the ionization in the global coordinate frame
+  const Amg::Vector3D glob_ionization_pos = SURF_WIRE.transform() * ionization.posOnWire;
+
+  ATH_MSG_VERBOSE("Ionization_info: distance: " << ionization.distance 
+    << " posOnTrack: " << ionization.posOnSegment.x() << " " 
+                        << ionization.posOnSegment.y() << " " 
+                        << ionization.posOnSegment.z() << " "
+    << " posOnWire: " << ionization.posOnWire.x() << " " 
+                       << ionization.posOnWire.y() << " " 
+                       << ionization.posOnWire.z() << " "
+    << " hitGPos: " << GPOS.x() <<" "<< GPOS.y() <<" "<< GPOS.z() << " "
+    << " hitPrePos: " << pre_pos.x() <<" "<< pre_pos.y() <<" "<< pre_pos.z()  << " "
+    << " EDep: " << hit->depositEnergy() << " EKin: " << hit->kineticEnergy() 
+    << " pdgId: " << hit->particleEncoding()
+    << " stationName: " << stationName
+    << " stationEta: " << stationEta
+    << " stationPhi: " << stationPhi
+    << " multiplet: " << multiPlet
+    << " gasgap: " << gasGap);
+
+  // Distance should be in the range [0, 0.9] mm, excepting
+  // - particles pass through the wire plane near the edges
+  // - secondary particles created inside the gas gap that go through the gas gap partially. 
+  //   Most of such particles are not muons and have low kinetic energy. 
+  // - particle with trajectory parallel to the sTGC wire plane
+  const double wire_pitch = detEl->wirePitch();
+  if ((dist_wire > 0.) && (std::abs(hit->particleEncoding()) == 13) && (dist_wire > (wire_pitch/2))) {
+    ATH_MSG_DEBUG("Distance to the nearest wire (" << dist_wire << ") is greater than expected.");
+    ATH_MSG_DEBUG("Hit globalPos: (" << GPOS.x() <<", "<< GPOS.y() <<", "<< GPOS.z() << ") "
+                 << " globalPrePos: (" << pre_pos.x() <<", "<< pre_pos.y() <<", "<< pre_pos.z()  << ") "
+                 << " EDeposited: " << hit->depositEnergy() << " EKinetic: " << hit->kineticEnergy() 
+                 << " pdgID: " << hit->particleEncoding()
+                 << " stationName = " << stationName
+                 << " stationEta = " << stationEta
+                 << " stationPhi = " << stationPhi
+                 << " multiplet = " << multiPlet
+                 << " gas gap = " << gasGap);
   }
 
   // Do not digitize hits that are too far from the nearest wire
-  if (abs_dist_wire > wire_pitch) {
+  if (dist_wire > wire_pitch) {
     return nullptr;
   }
 
   // Get the gamma pdf parameters associated with the distance of closest approach.
-  //GammaParameter gamma_par = getGammaParameter(abs_dist_wire);
-  double par_kappa = (getGammaParameter(abs_dist_wire)).kParameter; 
-  double par_theta = (getGammaParameter(abs_dist_wire)).thetaParameter; 
-  double most_prob_time = getMostProbableArrivalTime(abs_dist_wire);
+  const GammaParameter gamParam = getGammaParameter(dist_wire);
+  const double par_kappa = gamParam.kParameter; 
+  const double par_theta = gamParam.thetaParameter; 
+  const double most_prob_time = getMostProbableArrivalTime(dist_wire);
   // Compute the most probable value of the gamma pdf
   double gamma_mpv = (par_kappa - 1) * par_theta;
   // If the most probable value is less than zero, then set it to zero
   if (gamma_mpv < 0.) {gamma_mpv = 0.;}
-  double t0_par = most_prob_time - gamma_mpv;
+  const double t0_par = most_prob_time - gamma_mpv;
 
   // Digit time follows a gamma distribution, so a value val is 
   // chosen using a gamma random generator then is shifted by t0
@@ -264,7 +300,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // In such case, discard the negative value and shoot RandGamma for another value.
   // However, if that has already been done many times then set digit_time to zero 
   // in order to avoid runaway loop.
-  const int shoot_limit = 4;
+  constexpr int shoot_limit = 4;
   int shoot_counter = 0;
   while (digit_time < 0.) {
     if (shoot_counter > shoot_limit) {
@@ -369,9 +405,9 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   int surfHash_strip =  detEl->surfaceHash(gasGap, 1);
   const Trk::PlaneSurface& SURF_STRIP = detEl->surface(surfHash_strip); // get the strip surface
 
-  Amg::Vector3D hitOnSurface_strip = SURF_STRIP.transform().inverse()*GPOS;
+  const Amg::Vector3D hitOnSurface_strip = SURF_STRIP.transform().inverse()*glob_ionization_pos;
 
-  Amg::Vector2D posOnSurf_strip(hitOnSurface_strip.x(),hitOnSurface_strip.y());
+  const Amg::Vector2D posOnSurf_strip(hitOnSurface_strip.x(),hitOnSurface_strip.y());
   bool insideBounds = SURF_STRIP.insideBounds(posOnSurf_strip);
   if(!insideBounds) { 
     ATH_MSG_DEBUG("Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(newId) << "; local position " <<posOnSurf_strip ); 
@@ -382,10 +418,18 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
        
   int stripNumber = detEl->stripNumber(posOnSurf_strip, newId);
   if( stripNumber == -1 ){
-    ATH_MSG_ERROR("Failed to obtain strip number " << m_idHelper->print_to_string(newId) );
-    ATH_MSG_ERROR(" pos " << posOnSurf_strip );
-    //stripNumber = 1;
-  }  
+    // Verify if the energy deposit is at the boundary
+    const float new_posX = (posOnSurf_strip.x() > 0.0)? posOnSurf_strip.x() - length_tolerance
+                                                      : posOnSurf_strip.x() + length_tolerance;
+    const Amg::Vector2D new_position(new_posX, posOnSurf_strip.y());
+    stripNumber = detEl->stripNumber(new_position, newId);
+    // Skip hit if still unable to obtain strip number
+    if (stripNumber < 1) {
+      ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelper->print_to_string(newId) );
+      ATH_MSG_WARNING("Position on strip surface = (" << posOnSurf_strip.x() << ", " << posOnSurf_strip.y() << ")");
+      return nullptr;
+    }
+  }
   newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripNumber, isValid);
   if(!isValid && stripNumber != -1) {
     ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
@@ -550,8 +594,8 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   int  surfHash_pad =  detEl->surfaceHash(gasGap, 0);
   const Trk::PlaneSurface& SURF_PAD = detEl->surface(surfHash_pad); // get the pad surface
 
-  Amg::Vector3D hitOnSurface_pad = SURF_PAD.transform().inverse()*GPOS;
-  Amg::Vector2D posOnSurf_pad(hitOnSurface_pad.x(), hitOnSurface_pad.y());
+  const Amg::Vector3D hitOnSurface_pad = SURF_PAD.transform().inverse()*glob_ionization_pos;
+  const Amg::Vector2D posOnSurf_pad(hitOnSurface_pad.x(), hitOnSurface_pad.y());
 
   Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1);// find the a pad id
 
@@ -560,9 +604,19 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   if(insideBounds) { 
     int padNumber = detEl->stripNumber(posOnSurf_pad, PAD_ID);
     if( padNumber == -1 ){
-      ATH_MSG_ERROR("Failed to obtain pad number " << m_idHelper->print_to_string(PAD_ID) );
-      ATH_MSG_ERROR(" pos " << posOnSurf_pad );
-      //padNumber = 1;
+      // Verify if the energy deposit is at the boundary
+      const float new_posX = (posOnSurf_pad.x()>0.0)? posOnSurf_pad.x()-length_tolerance
+                                                    : posOnSurf_pad.x()+length_tolerance;
+      const float new_posY = (posOnSurf_pad.y()>0.0)? posOnSurf_pad.y()-length_tolerance
+                                                    : posOnSurf_pad.y()+length_tolerance;
+      const Amg::Vector2D new_position(new_posX, new_posY);
+      padNumber = detEl->stripNumber(new_position, PAD_ID);
+      // Skip hit if still unable to obtain pad number
+      if (padNumber < 1) {
+        ATH_MSG_WARNING("Failed to obtain pad number " << m_idHelper->print_to_string(PAD_ID) );
+        ATH_MSG_WARNING("Position on pad surface = (" << posOnSurf_pad.x() << ", " << posOnSurf_pad.y() << ")");
+        return digits;
+      }
     }  
     newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, padNumber, isValid);
     if(isValid) {  
@@ -599,8 +653,17 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
         int wiregroupNumber = detEl->stripNumber(posOnSurf_wire, WIREGP_ID);
         if( wiregroupNumber == -1 ){
-          ATH_MSG_ERROR("Failed to obtain wire number " << m_idHelper->print_to_string(WIREGP_ID) );
-          ATH_MSG_ERROR(" pos " << posOnSurf_wire );
+          // Verify if the energy deposit is at the boundary
+          const float new_posX = (posOnSurf_wire.x() > 0.0)? posOnSurf_wire.x() - length_tolerance
+                                                           : posOnSurf_wire.x() + length_tolerance;
+          const Amg::Vector2D new_position(new_posX, posOnSurf_wire.y());
+          wiregroupNumber = detEl->stripNumber(new_position, WIREGP_ID);
+          // Skip hit if still unable to obtain pad number
+          if (wiregroupNumber < 1) {
+            ATH_MSG_WARNING("Failed to obtain wire number " << m_idHelper->print_to_string(WIREGP_ID) );
+            ATH_MSG_WARNING("Position on wire surface = (" << posOnSurf_wire.x() << ", " << posOnSurf_wire.y() << ")");
+            return digits;
+          }
         }
   
         // Find ID of the actual wiregroup
@@ -672,6 +735,109 @@ double sTgcDigitMaker::distanceToWire(Amg::Vector3D& position, Amg::Vector3D& di
      
   return (sign * distance);
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+sTgcDigitMaker::Ionization sTgcDigitMaker::pointClosestApproach(const Identifier& id, int wireNumber,
+                                                                Amg::Vector3D& preStepPos,
+                                                                Amg::Vector3D& postStepPos
+                                                                ) const
+{
+  // tolerance in mm
+  constexpr float tolerance = 0.001;
+  // minimum segment length
+  constexpr float min_length = 0.1;
+
+  // Position of the ionization
+  Ionization ionization;
+
+  // Wire number should be one or greater
+  if (wireNumber < 1) return ionization;
+
+  // Get the current sTGC element (a four-layer chamber)
+  const MuonGM::sTgcReadoutElement* detEl = m_mdManager->getsTgcReadoutElement(id);
+
+  // Wire number too large
+  if (wireNumber > detEl->numberOfWires(id)) return ionization;
+
+  // Finding smallest distance and the points at the smallest distance.
+  //  The smallest distance between two lines is perpendicular to both lines.
+  //  We can construct two lines in the wire surface local coordinate frame: 
+  //  - one for the hit segment with equation h0 + t * v_h, where h0 is a point 
+  //    and v_h is the unit vector of the hit segment
+  //  - another for the wire with similar equation w0 + s * v_w, where w0 is a
+  //    point and v_w is the unit vector of the wire line
+  //  Then it is possible to determine the factors s and t by requiring the 
+  //  dot product to be zero:
+  //   1. (h0 - w0) \dot v_h = 0
+  //   2. (h0 - w0) \dot v_w = 0
+
+  // Wire pitch
+  const double wire_pitch = detEl->wirePitch();
+  // Wire local position on the wire plane, the y-coordinate is arbitrary and z-coordinate is zero
+  const double wire_posX = detEl->positionFirstWire(id) + (wireNumber - 1) * wire_pitch;
+  const Amg::Vector3D wire_position(wire_posX, postStepPos.y(), 0.);
+  // The wires are parallel to Y in the wire plane's coordinate frame
+  const Amg::Vector3D wire_direction(0., 1., 0.);
+
+  // particle trajectory
+  Amg::Vector3D hit_direction(postStepPos.x() - preStepPos.x(),
+                              postStepPos.y() - preStepPos.y(), 
+                              postStepPos.z() - preStepPos.z());
+  const double seg_length = hit_direction.mag();
+  if (seg_length > tolerance) hit_direction /= seg_length;
+
+  // Find the point on the track segment that is closest to the wire
+  if (seg_length < min_length) {
+    ionization.posOnSegment = postStepPos;
+    ionization.posOnWire = wire_position;
+    ionization.distance = std::hypot(postStepPos.x() - wire_posX, postStepPos.z());
+    return ionization;
+  }
+
+  // Dot product between the wire and hit direction
+  const double cos_theta = wire_direction.dot(hit_direction);
+  // distance between the hit and wire
+  const Amg::Vector3D dist_wire_hit = postStepPos - wire_position;
+
+  // Verifier the special case where the two lines are parallel
+  if (std::abs(cos_theta - 1.0) < tolerance) {
+    ATH_MSG_DEBUG("The track segment is parallel to the wire, position of digit is undefined");
+    ionization.posOnSegment = 0.5 * (postStepPos + preStepPos);
+    ionization.posOnWire = Amg::Vector3D(wire_posX, ionization.posOnSegment.y(), 0.0);
+    ionization.distance = std::hypot(ionization.posOnSegment.x() - wire_posX, 
+                                     ionization.posOnSegment.z());
+    return ionization;
+  }
+
+  // Perpendicular component squared
+  const double sin_theta_2 = 1.0 - cos_theta * cos_theta;
+
+  //* Point on the hit segment
+  const float factor_hit = (-dist_wire_hit.dot(hit_direction) 
+                           + dist_wire_hit.dot(wire_direction) * cos_theta) / sin_theta_2;
+  Amg::Vector3D ionization_pos = postStepPos + factor_hit * hit_direction;
+
+  // If the point is on the track segment, then compute the other point on the wire.
+  // Otherwise, set the ionization at the pre-step position and compute where it 
+  // should be on the wire.
+  Amg::Vector3D pos_on_wire(0., 0., 0.);
+  if (factor_hit < seg_length) {
+    //* Point on the wire line
+    const float factor_wire = (dist_wire_hit.dot(wire_direction)
+                              - dist_wire_hit.dot(hit_direction) * cos_theta) / sin_theta_2;
+    pos_on_wire = wire_position + factor_wire * wire_direction;
+  } else {
+    ionization_pos = preStepPos;
+    pos_on_wire = wire_position - (seg_length * cos_theta) * wire_direction;
+  }
+
+  // Save the distance and ionization position
+  ionization.distance = (ionization_pos - pos_on_wire).mag();
+  ionization.posOnSegment = ionization_pos;
+  ionization.posOnWire = pos_on_wire;
+
+  return ionization;
+};
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
 bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi,const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const {
@@ -1216,7 +1382,7 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
   // Find the parameters assuming the container is sorted in ascending order of 'lowEdge'
   int index{-1};
   for (auto& par: m_gammaParameter) {
-    if (distance < par.lowEdge) {
+    if (d < par.lowEdge) {
       break;
     }
     ++index;

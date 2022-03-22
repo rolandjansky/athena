@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -85,6 +85,15 @@ class sTgcDigitMaker : public AthMessaging {
     double thetaParameter;
   };
 
+  /** Ionization object with distance, position on the hit segment and 
+   *  position on the wire.
+   */
+  struct Ionization {
+    double distance{-9.99}; //smallest distance bet the wire and particle trajectory
+    Amg::Vector3D posOnSegment{0.,0.,0.}; // Point of closest approach 
+    Amg::Vector3D posOnWire{0.,0.,0.}; // Position on the wire
+  };
+
   /**
      Determines whether a hit is detected or not.
   */
@@ -134,6 +143,17 @@ class sTgcDigitMaker : public AthMessaging {
    *  In case of error, the function returns -9.99.
    */
   double distanceToWire(Amg::Vector3D& position, Amg::Vector3D& direction, Identifier id, int wire_number) const;
+
+  /** Determine the points where the distance between two segments is smallest.
+   *  Given two segments, e.g. a particle trajectory and a sTGC wire, solve for the 
+   *  two points, the point on the trajectory and the point on the wire, where the 
+   *  distance between the two segments is the smallest.
+   *
+   *  Positions returned are in the local coordinate frame of the wire plane.
+   *  Returns an object with distance of -9.99 in case of error.
+   */
+  Ionization pointClosestApproach(const Identifier& id, int wireNumber, Amg::Vector3D& preStepPos, 
+                                  Amg::Vector3D& postStepPos) const;
 
   /** Get digit time offset of a strip depending on its relative position to 
    *  the strip at the centre of the cluster.
