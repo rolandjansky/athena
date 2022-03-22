@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -8,6 +8,10 @@
 
 #ifndef PERFMONCOMPS_PERFMONMTSVC_H
 #define PERFMONCOMPS_PERFMONMTSVC_H
+
+// Thread-safety-checker
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
