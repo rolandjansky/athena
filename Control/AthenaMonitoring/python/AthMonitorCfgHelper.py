@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file AthMonitorCfgHelper.py
@@ -33,8 +33,9 @@ class AthMonitorCfgHelper(object):
         self.monSeq.StopOverride=True
         self.resobj = ComponentAccumulator()
         self.resobj.addSequence(self.monSeq)
-        from .TriggerInterface import TrigDecisionToolCfg
-        self.resobj.merge(TrigDecisionToolCfg(inputFlags))
+        if self.inputFlags.DQ.useTrigger:
+            from .TriggerInterface import TrigDecisionToolCfg
+            self.resobj.merge(TrigDecisionToolCfg(inputFlags))
 
     def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''
@@ -66,7 +67,7 @@ class AthMonitorCfgHelper(object):
         algObj.DataType = self.inputFlags.DQ.DataType
         if self.inputFlags.DQ.useTrigger:
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
-        algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
+            algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
         if self.inputFlags.DQ.enableLumiAccess:
             algObj.EnableLumi = True
