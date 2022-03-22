@@ -213,21 +213,54 @@ def TrigBjetMonConfig(inputFlags):
 
             HistName = 'PVx_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV from jets;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV;Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
 
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV from jets;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
 
             HistName = 'PVy_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV from jets;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV;Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
 
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV from jets;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+
+
+
+         # Difference of the online and offline PV coordinates
+
+            HistName = 'DiffOnOffPVz_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Difference of online and offline zPV;zPVonline-zPVoffline;Events',
+                                             path='Expert/'+chain[2:],xbins=400,xmin=-2.0,xmax=2.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Difference of online and offline zPV;zPVonline-zPVoffline;Events',
+                                             path='Shifter/'+chain[2:],xbins=400,xmin=-2.0,xmax=2.0)
+
+            HistName = 'DiffOnOffPVx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Difference of online and offline xPV;xPVonline-xPVoffline;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-0.1,xmax=0.1)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Difference of online and offline xPV;xPVonline-xPVoffline;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-0.1,xmax=0.1)
+
+            HistName = 'DiffOnOffPVy_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Difference of online and offline yPV;yPVonline-yPVoffline;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-0.1,xmax=0.1)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Difference of online and offline yPV;yPVonline-yPVoffline;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-0.1,xmax=0.1)
+
+
 
          # track histograms
 
@@ -433,36 +466,36 @@ def TrigBjetMonConfig(inputFlags):
                                              path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
 
 
-            HistName = 'DL1_pu_tr_' + chain[2:]
+            HistName = 'DL1d_pu_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pu probability;DL1_pu;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_pu probability;DL1d_pu;Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pu probability;DL1_pu;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_pu probability;DL1d_pu;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
 
-            HistName = 'DL1_pc_tr_' + chain[2:]
+            HistName = 'DL1d_pc_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pc probability;DL1_pc;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_pc probability;DL1d_pc;Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pc probability;DL1_pc;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_pc probability;DL1d_pc;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
 
-            HistName = 'DL1_pb_tr_' + chain[2:]
+            HistName = 'DL1d_pb_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pb probability;DL1_pb;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_pb probability;DL1d_pb;Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pb probability;DL1_pb;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_pb probability;DL1d_pb;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
 
-            HistName = 'DL1_mv_tr_' + chain[2:]
+            HistName = 'DL1d_mv_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_mv LLR;DL1d_mv;Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1d_mv LLR;DL1d_mv;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
 
@@ -497,6 +530,23 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
+
+
+            HistName = 'DIPSL_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DIPS u probability;dipsLoose20210517_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DIPS u probability;dipsLoose20210517_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DIPSL_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DIPS c probability;dipsLoose20210517_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DIPS c probability;dipsLoose20210517_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
 
             HistName = 'DIPSL_pb_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -550,7 +600,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.isMC = False
 
     # AOD file to be run w/ MT access and Mon Groups implemented
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MonGroupTest_030222.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest160322.AOD.pool.root'
 
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
