@@ -556,7 +556,13 @@ namespace InDet {
       //
       if (passTiming) {
         unsigned int nBadStrips(0);
-        for (unsigned int sn=thisStrip; sn!=thisStrip+nStrips; ++sn) {
+        unsigned int max_strip = std::min( static_cast<unsigned int>(thisStrip+nStrips), static_cast<unsigned int>(idHelper.strip_max(waferId)+1) );
+
+        if (thisStrip+nStrips > max_strip) {
+           ATH_MSG_DEBUG("SCT strip range exceeds bounds: strip range " << thisStrip << " .. + " << nStrips << " = " << (thisStrip+nStrips)
+			   << " !<= " << max_strip );
+        }
+        for (unsigned int sn=thisStrip; sn < max_strip; ++sn) {
           Identifier stripId = m_useRowInformation ? idHelper.strip_id(waferId,thisRow,sn) : idHelper.strip_id(waferId,sn);
           if (m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP)) {
             currentVector.push_back(stripId);
