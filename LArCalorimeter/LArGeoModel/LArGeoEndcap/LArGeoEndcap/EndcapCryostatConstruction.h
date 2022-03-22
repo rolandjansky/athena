@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -42,6 +42,9 @@ namespace LArGeo {
         bool enableMBTS = true
     );
     virtual ~EndcapCryostatConstruction();
+
+    EndcapCryostatConstruction(const EndcapCryostatConstruction&) = delete;
+    EndcapCryostatConstruction& operator= (const EndcapCryostatConstruction&) = delete;
 
     // Get the envelope containing one endcap (pos/neg)
     GeoFullPhysVol*     createEnvelope(bool bPos);

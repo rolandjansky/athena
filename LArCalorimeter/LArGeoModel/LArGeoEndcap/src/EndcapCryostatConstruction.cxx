@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EndcapCryostatConstruction
@@ -815,7 +815,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// In this description the Moderator and the JM tube are constructed as separate volumes (both of them are tubes)
 	// ****
 
-	for(; first!=last; first++) {
+	for(; first!=last; ++first) {
 	  std::string strTubeName = (*first)->getString("TUBE");
 	  if(strTubeName == "MBTS_mother")
 	    itMother = first;
