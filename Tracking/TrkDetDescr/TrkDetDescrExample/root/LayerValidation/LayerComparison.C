@@ -70,9 +70,11 @@ void LayerComparison(TString& file1name, TString& file2name, TString& layername,
    TCanvas* moduleCanvas     = new TCanvas(moduleCanvasName,moduleCanvasTitle,100,100,600,920);
    moduleCanvas->Divide(2,3);
 
-   if (file1 && file2) 
+   if (file1 && file2) {
      std::cout << " [m] both files loaded - trying to get TTree(s) '" << treeName << "'." << std::endl;
-
+   } else {
+     throw std::runtime_error("File could not be loaded in LayerComparison constructor");
+   }
 
    TTree* tree1 = file1->Get(treeName);
    TTree* tree2 = file2->Get(treeName);
