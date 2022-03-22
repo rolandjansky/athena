@@ -56,10 +56,11 @@ ActsATLASConverterTool::initialize()
     {
       const auto* actsElement = dynamic_cast<const ActsDetectorElement*>(surface->associatedDetectorElement());
       // Conversion from Acts to ATLAS surface impossible for the TRT so the TRT surface are not sure in this map
-      bool isTRT = (dynamic_cast<const InDetDD::TRT_BaseElement*>(actsElement->upstreamDetectorElement()) != nullptr);
-      if(actsElement && !isTRT
-                     && m_actsSurfaceMap.find(actsElement->identify()) == m_actsSurfaceMap.end()){
-        m_actsSurfaceMap.insert(std::pair<Identifier, const Acts::Surface &>(actsElement->identify(), *surface));
+      if(actsElement){
+        bool isTRT = (dynamic_cast<const InDetDD::TRT_BaseElement*>(actsElement->upstreamDetectorElement()) != nullptr);
+        if(!isTRT && m_actsSurfaceMap.find(actsElement->identify()) == m_actsSurfaceMap.end()){
+          m_actsSurfaceMap.insert(std::pair<Identifier, const Acts::Surface &>(actsElement->identify(), *surface));
+        }
       }
     }
     return;
