@@ -13,10 +13,8 @@
 #ifndef TrkGsfMeasurementUpdator_H
 #define TrkGsfMeasurementUpdator_H
 
-#include "TrkGaussianSumFilterUtils/KalmanParameterUpdator.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
-//
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
