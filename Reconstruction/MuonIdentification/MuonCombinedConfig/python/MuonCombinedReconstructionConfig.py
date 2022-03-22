@@ -550,6 +550,11 @@ def MuonCombinedReconstructionCfg(flags):
         # Has to be at end if not using sequencer. If we drop this requirement, can be moved above
         result.merge( StauCreatorAlgCfg(flags) )
 
+    # FIXME
+    # I see errors related to an unconfigured public tool. This is a quick fix, but should really move to where it is called.
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedTrackSummaryToolCfg
+    result.addPublicTool( result.popToolsAndMerge( MuonCombinedTrackSummaryToolCfg(flags) ) )
+
     # post processing
     result.addEventAlgo( CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection") )
     result.merge(MuonDecorationAlgsCfg(flags))
