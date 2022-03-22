@@ -7,7 +7,7 @@
  **   @author M.Sutton
  **   @date   Thu 30 Apr 2015 14:03:50 CEST 
  **
- **  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -29,32 +29,32 @@ public:
   ChainString( const ChainString& s );
 
   ChainString& operator=(const ChainString&) = default;
-  std::string head()  { return mhead;  }
-  std::string tail()  { return mtail;  }
-  std::string extra() { return mextra; }
-  std::string element() { return melement; }
-  std::string roi()     { return mroi; }
-  std::string vtx()     { return mvtx; }
+  std::string head()  { return m_head;  }
+  std::string tail()  { return m_tail;  }
+  std::string extra() { return m_extra; }
+  std::string element() { return m_element; }
+  std::string roi()     { return m_roi; }
+  std::string vtx()     { return m_vtx; }
 
-  bool        passed()  { return mpassed; }
+  bool        passed()  { return m_passed; }
 
-  const std::string& head()  const { return mhead;  }
-  const std::string& tail()  const { return mtail;  }
-  const std::string& extra() const { return mextra; }
-  const std::string& element() const { return melement; }
-  const std::string& roi()     const { return mroi; }
-  const std::string& vtx()     const { return mvtx; }
+  const std::string& head()  const { return m_head;  }
+  const std::string& tail()  const { return m_tail;  }
+  const std::string& extra() const { return m_extra; }
+  const std::string& element() const { return m_element; }
+  const std::string& roi()     const { return m_roi; }
+  const std::string& vtx()     const { return m_vtx; }
 
-  const bool&        passed()  const { return mpassed; }
+  const bool&        passed()  const { return m_passed; }
 
-  const std::string& raw() const { return mraw; }
+  const std::string& raw() const { return m_raw; }
   
   /// can't make this return a reference in case there 
   /// is no such key - could throw an exception then it 
   /// would work, but that is far too excessive 
   std::string value( const std::string& key ) const { 
     int i=find(key);
-    if ( i>=0 ) return mvalues[i];
+    if ( i>=0 ) return m_values[i];
     return "";
   }
 
@@ -64,13 +64,13 @@ public:
     return "";
   }
 
-  const std::vector<std::string>& values() const { return mvalues; }
-  const std::vector<std::string>&   keys() const { return   mkeys; }
+  const std::vector<std::string>& values() const { return m_values; }
+  const std::vector<std::string>&   keys() const { return   m_keys; }
 
-  std::string         pre() const { return mraw.substr( 0, mraw.find(":post") ); }
-  const std::string& post() const { return mpost; }
+  std::string         pre() const { return m_raw.substr( 0, m_raw.find(":post") ); }
+  const std::string& post() const { return m_post; }
 
-  size_t postcount() const { return mpostcount; }
+  size_t postcount() const { return m_postcount; }
 
 public:   
 
@@ -135,28 +135,28 @@ protected:
   void parse( std::string s );
 
   int find( const std::string& key ) const { 
-    for ( int i=mkeys.size() ; i-- ; ) if ( key==mkeys[i] ) return i;
+    for ( int i=m_keys.size() ; i-- ; ) if ( key==m_keys[i] ) return i;
     return -1;
   }
 
 private:
 
-  std::string mhead;
-  std::string mtail;
-  std::string mextra;
-  std::string melement;
-  std::string mroi;
-  std::string mvtx;
+  std::string m_head;
+  std::string m_tail;
+  std::string m_extra;
+  std::string m_element;
+  std::string m_roi;
+  std::string m_vtx;
 
-  bool        mpassed;
+  bool        m_passed;
 
-  std::vector<std::string> mkeys;
-  std::vector<std::string> mvalues;
+  std::vector<std::string> m_keys;
+  std::vector<std::string> m_values;
 
-  std::string mraw;
+  std::string m_raw;
 
-  std::string mpost;
-  size_t      mpostcount; 
+  std::string m_post;
+  size_t      m_postcount;
 
 };
 
