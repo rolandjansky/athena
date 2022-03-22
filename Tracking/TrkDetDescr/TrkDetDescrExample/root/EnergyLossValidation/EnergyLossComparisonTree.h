@@ -67,6 +67,8 @@ public :
    TBranch*        b_ReconNewEta;
 
    EnergyLossComparisonTree(TTree *tree=0);
+   EnergyLossComparisonTree(const EnergyLossComparisonTree &) = delete;
+   EnergyLossComparisonTree & operator=(const EnergyLossComparisonTree &) = delete;
    virtual ~EnergyLossComparisonTree();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
