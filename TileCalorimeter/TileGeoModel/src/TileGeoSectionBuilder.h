@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -172,7 +172,7 @@ class TileGeoSectionBuilder
       @param level       volume level and printig level
       @param XYZ         checking variables
   */
-  void checking(std::string VolumeName, bool print, int level,
+  void checking(const std::string& VolumeName, bool print, int level,
                 double X1, double X2, double Y1, double Y2, double Z); 
 
   // These methods should be used when section contents are not built
