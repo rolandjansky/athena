@@ -178,7 +178,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
       innerAbsorberMaterial_name = "LAr::EMEC_shell";
     }
   }
-  innerAbsorberMaterial = materialManager->getMaterial(innerAbsorberMaterial_name.c_str());
+  innerAbsorberMaterial = materialManager->getMaterial(innerAbsorberMaterial_name);
   if(!innerAbsorberMaterial){
     throw std::runtime_error(
       (innerAbsorberMaterial_name +
@@ -196,7 +196,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
       outerAbsorberMaterial_name = "LAr::EMEC_shell";
     }
   }
-  outerAbsorberMaterial = materialManager->getMaterial(outerAbsorberMaterial_name.c_str());
+  outerAbsorberMaterial = materialManager->getMaterial(outerAbsorberMaterial_name);
   if(!outerAbsorberMaterial){
     throw std::runtime_error(
       (outerAbsorberMaterial_name +
