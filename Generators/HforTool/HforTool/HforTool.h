@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HFORTOOL_H
@@ -13,7 +13,7 @@
 #include "AtlasHepMC/SimpleVector.h"
 
 
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "JetEvent/JetCollection.h"
 
 #include <string>
@@ -89,8 +89,13 @@ private:
 
   /// Run/event number for the previously processed event
   /// @note So that the same GenEvent doesn't get read twice for one event
-  EventID::number_type m_prev_run_number;
-  EventID::number_type m_prev_event_number;
+  uint32_t m_prev_run_number{0};
+  unsigned long long m_prev_event_number{0};
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey {this
+      , "EventInfo"
+      , "EventInfo"
+      , "ReadHandleKey for xAOD::EventInfo"};
 
   /// Lists of four-vectors for b/c quarks from MPI, indexed by abs pdgId
   std::map< int,std::vector<HepMC::FourVector> > m_Quarks_MPI;

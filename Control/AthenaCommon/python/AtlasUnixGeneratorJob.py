@@ -30,8 +30,9 @@ def _setupAtlasUnixGeneratorJob():
     # Temporarily inject the xAOD::EventInfo converter here to allow for adiabatic migration of the clients
     from AthenaCommon.AlgSequence import AthSequencer
     topSequence = AthSequencer("AthAlgSeq")
-    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg(AODKey = 'McEventInfo')
+    if not hasattr(topSequence, "EventInfoCnvAlg"):
+        from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg(AODKey = 'McEventInfo')
 
     return
 

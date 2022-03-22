@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -21,9 +21,6 @@
 #include "HforTool/HforTool.h"
 
 #include "JetEvent/JetCollection.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 
 #include "AtlasHepMC/Relatives.h"
 
@@ -52,21 +49,21 @@ HforTool::HforTool(const std::string& type, const std::string& name, const IInte
 }
 
 
-StatusCode HforTool::initialize() {
-	ATH_MSG_INFO("Initializing Hfor Tool ");
+StatusCode HforTool::initialize() 
+{
+  ATH_MSG_INFO("Initializing Hfor Tool ");
 
-	StatusCode sc = AthAlgTool::initialize();
-	if(sc.isFailure()) return sc;
+  ATH_CHECK(AthAlgTool::initialize());
+  ATH_CHECK(m_evtInfoKey.initialize());
 
+  //check if removal schema is supported
+  if(m_schema != "jetbased" && m_schema != "angularbased" && m_schema != "strict" ) {
+    ATH_MSG_ERROR("Requested removal schema is not supported, please use: jetbased, ptbased or strict");
+    return StatusCode::FAILURE;
+  }
 
-	//check if removal schema is supported
-	if(m_schema != "jetbased" && m_schema != "angularbased" && m_schema != "strict" )	{
-		ATH_MSG_ERROR("Requested removal schema is not supported, please use: jetbased, ptbased or strict");
-		return StatusCode::FAILURE;
-	}
-
-	ATH_MSG_INFO(" Using " << m_schema << " removal schema");
-	return StatusCode::SUCCESS;
+  ATH_MSG_INFO(" Using " << m_schema << " removal schema");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -194,18 +191,12 @@ std::string HforTool::getDecision(const std::string& schema) {
 // Find the Heavy Flavour Quarks in this event
 void HforTool::findHFQuarks() {
   // Get the event / run number from StoreGate
-  const EventInfo * currentEvent(NULL) ;
-  StatusCode sc = evtStore()->retrieve(currentEvent) ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_INFO("Couldnt retrieve EventInfo from StoreGateSvc");
-    return ;
-  }
-
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey);
+  
   // Make sure that we haven't processed this event before
-  const EventType* eventType = currentEvent->event_type();
-  EventID::number_type run_number(eventType->mc_channel_number()) ;
-  //EventID::number_type run_number(currentEvent->event_ID()->run_number()) ;
-  EventID::number_type event_number(currentEvent->event_ID()->event_number()) ;
+  uint32_t run_number=evtInfo->mcChannelNumber();
+  unsigned long long event_number=evtInfo->eventNumber();
+
   if ( run_number == m_prev_run_number &&
        event_number == m_prev_event_number )
     return ;
@@ -231,10 +222,10 @@ void HforTool::findHFQuarks() {
 	  !m_McEventCollectionKey.size() && ikey != m_McEventCollectionKeys.end();
 	  ikey++ ) {
       ATH_MSG_DEBUG("SG key " << (*ikey));
-      const McEventCollection * mymcevent(NULL) ;
-      sc = evtStore()->retrieve(mymcevent, (*ikey)) ;
-      if (sc.isFailure())
+      const McEventCollection * mymcevent{nullptr};
+      if(evtStore()->retrieve(mymcevent, (*ikey)).isFailure()) {
 	ATH_MSG_DEBUG("no McEventCollection found with key " << (*ikey));
+      }
       else {
 	m_McEventCollectionKey = (*ikey) ;
 	ATH_MSG_INFO("McEventCollection found with key " << m_McEventCollectionKey);
@@ -248,10 +239,9 @@ void HforTool::findHFQuarks() {
   }
 
   // Get the McEventCollection
-  const McEventCollection* myMcEventCollection(NULL);
+  const McEventCollection* myMcEventCollection{nullptr};
   /// @todo Use CHECK macro
-  sc = evtStore()->retrieve(myMcEventCollection,m_McEventCollectionKey);
-  if (sc.isFailure()) {
+  if (evtStore()->retrieve(myMcEventCollection,m_McEventCollectionKey).isFailure()) {
     ATH_MSG_INFO("McEventCollection not found");
     return ;
   }
@@ -1224,18 +1214,11 @@ void HforTool::checkSampleType()
 ////////////////////////////////////////////////////////////////////////
 {
   // Get the event / run number from StoreGate
-  const EventInfo * currentEvent(NULL) ;
-  StatusCode sc = evtStore()->retrieve(currentEvent) ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_INFO("Couldnt retrieve EventInfo from StoreGateSvc");
-    return ;
-  }
-  const EventType* eventType = currentEvent->event_type();
-  EventID::number_type run_number(eventType->mc_channel_number()) ;
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey);
 
-  // If running on EVGEN files, mc_channel_number may not be set yet
-  if ( run_number == 0 )
-    run_number = currentEvent->event_ID()->run_number() ;
+  uint32_t run_number=evtInfo->mcChannelNumber()==0
+    ? evtInfo->runNumber()
+    : evtInfo->mcChannelNumber();
 
   // poor man's solution for the time being
   m_isZinclusive = false;

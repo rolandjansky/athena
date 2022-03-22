@@ -13,9 +13,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -66,6 +63,7 @@ StatusCode Rivet_i::initialize() {
   ATH_MSG_DEBUG("Rivet_i initializing");
   ATH_MSG_INFO("Using Rivet version " << Rivet::version());
 
+  ATH_CHECK(m_evtInfoKey.initialize());
 
   // Set RIVET_ANALYSIS_PATH based on alg setup
 
@@ -260,11 +258,8 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
 
   // overwrite the HEPMC dummy event number with the proper ATLAS event number
-  const DataHandle<EventInfo> eventInfo;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
-    uint64_t eventNumber = eventInfo->event_ID()->event_number();
-    modEvent->set_event_number((int)eventNumber);
-  }
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey);
+  modEvent->set_event_number((int)evtInfo->eventNumber());
 
   // weight-name cleaning
 #ifdef HEPMC3

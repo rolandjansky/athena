@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RIVET_I_H
 #define RIVET_I_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "Rivet/AnalysisHandler.hh"
 
@@ -116,6 +117,10 @@ private:
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey{this
+      , "EventInfo"
+      , "EventInfo"
+      , "ReadHandleKey for xAOD::EventInfo" };
 };
 
 #endif

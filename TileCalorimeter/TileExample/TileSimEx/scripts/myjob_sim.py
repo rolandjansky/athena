@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #==============================================================
 #
@@ -180,15 +180,7 @@ pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
 
-try:
-    include("G4AtlasApps/fragment.SimCopyWeights.py")
-except:
-    try:
-        from GeneratorModules.GeneratorModulesConf import CopyEventWeight
-        topSeq += CopyEventWeight(TruthCollKey="GEN_EVENT")
-    except:
-        from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-        topSeq += CopyEventWeight()
+include("G4AtlasApps/fragment.SimCopyWeights.py")
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 

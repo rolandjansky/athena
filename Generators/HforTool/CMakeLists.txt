@@ -7,4 +7,4 @@ atlas_subdir( HforTool )
 atlas_add_component( HforTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AtlasHepMCLib AtlasHepMCsearchLib AthenaBaseComps EventInfo JetEvent GeneratorObjects TruthUtils GenInterfacesLib )
+                     LINK_LIBRARIES AtlasHepMCLib AtlasHepMCsearchLib AthenaBaseComps xAODEventInfo JetEvent GeneratorObjects TruthUtils GenInterfacesLib )
