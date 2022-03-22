@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -45,7 +45,7 @@ class TileGeoCutBuilder
   void MakeCut(GeoPhysVol*&             mother,
                int                      number);
 
-  void checking(std::string VolumeName, bool print, int level,
+  void checking(const std::string& VolumeName, bool print, int level,
                 double X1, double X2, double Y1, double Y2, double Z); 
 
  private:

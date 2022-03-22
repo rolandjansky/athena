@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,7 +44,7 @@ public:
       @param level       volume level and printig level
       @param X1,X2,Y1,Y2,DZ - checking variables
   */
-  void checking(std::string VolumeName, bool print, int level,
+  void checking(const std::string& VolumeName, bool print, int level,
                 double X1, double X2, double Y1, double Y2, double Z); 
 
 private:  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileAtlasFactory.h"
@@ -3113,7 +3113,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
 // Checking geometry dimensions for all directions
 
-void TileAtlasFactory::checking(std::string Name, bool print, int level,
+void TileAtlasFactory::checking(const std::string& Name, bool print, int level,
                                 double X1, double X2, double Y1, double Y2, double Z) 
 {
   double rless = .150; //150 [mkm]

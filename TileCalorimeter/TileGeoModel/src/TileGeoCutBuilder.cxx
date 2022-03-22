@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoCutBuilder.h"
@@ -65,7 +65,7 @@ void TileGeoCutBuilder::MakeCut(GeoPhysVol*&   mother,
 
 // Checking geometry dimensions for all direction
 
-void TileGeoCutBuilder::checking(std::string Name, bool print, int level,
+void TileGeoCutBuilder::checking(const std::string& Name, bool print, int level,
                                  double X1, double X2, double Y1, double Y2, double Z) 
 {
   double rless = .005; // 5 [mkm]
