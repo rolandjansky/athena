@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
-import shutil, re
+import shutil, re, sys, os
 from typing import List, Tuple, Callable
 
 from .dqu_subprocess import apply as _local_apply
@@ -226,6 +226,9 @@ def DQPostProcess( outFileName, isIncremental=False ):
                ]
 
     funclist += make_newstyle_funcs()
+
+    # determine how we react to a failure
+    isTesting = bool(os.environ.get('DQ_POSTPROCESS_ERROR_ON_FAILURE', False))
 
     # first try all at once
     def go_all(fname, isIncremental):
