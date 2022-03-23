@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -64,6 +64,11 @@ def TriggerRecoCfg(flags):
     return acc
 
 
+def _asList(edm):
+    """Helper to convert EMD dictionary to flat list"""
+    return [ f"{type}#{name}" for type, names in edm.items() for name in names ]
+
+
 def TriggerEDMCfg(flags):
     """Configures which trigger collections are recorded"""
     acc = ComponentAccumulator()
@@ -74,9 +79,6 @@ def TriggerEDMCfg(flags):
     if flags.Trigger.EDMVersion in [1,2]:
         menuMetadata += ['xAOD::TriggerMenuAuxContainer#*', 'xAOD::TriggerMenuContainer#*',]
 
-    # EDM
-    def _asList(edm):
-        return [ f"{type}#{name}" for type, names in edm.items() for name in names ]
     _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
     _TriggerAODList = getTriggerEDMList(flags.Trigger.AODEDMSet,  flags.Trigger.EDMVersion)
     log.debug("ESD EDM list: %s", _TriggerESDList)
@@ -216,15 +218,10 @@ def Run1xAODConversionCfg(flags):
     acc = ComponentAccumulator()
 
     log.info("Will configure Run 1 trigger EDM to xAOD conversion")
-    from TrigEDMConfig.TriggerEDM import getPreregistrationList
+    from TrigEDMConfig.TriggerEDM import getPreregistrationList, getTriggerEDMList
     from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
 
-    # define list of HLT xAOD containers to be written to the output root file
-    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-    edm = getTriggerEDMList(flags.Trigger.ESDEDMSet, 2 )
-
-
-    navTool = CompFactory.HLT.Navigation("Navigation", 
+    navTool = CompFactory.HLT.Navigation("Navigation",
                                          ClassesToPreregister = getPreregistrationList(flags.Trigger.EDMVersion) )
     
     from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,TrackParticleCreatorToolCfg,RecTrackParticleContainerCnvToolCfg
@@ -258,6 +255,8 @@ def Run1xAODConversionCfg(flags):
 
     acc.addEventAlgo(xaodConverter)
 
+    # write the xAOD (Run-2) classes to the output
+    edm = _asList(getTriggerEDMList(flags.Trigger.ESDEDMSet, 2))
     acc.merge(addToESD(flags, edm))
     acc.merge(addToAOD(flags, edm))
 
