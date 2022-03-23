@@ -9,7 +9,6 @@
 // Section of includes for LAr calo tests
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // Section of includes for tile calo tests
@@ -36,7 +35,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
@@ -76,107 +74,8 @@
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , m_hit_x(0)
-   , m_hit_y(0)
-   , m_hit_z(0)
-   , m_hit_energy(0)
-   , m_hit_time(0)
-   , m_hit_identifier(0)
-   , m_hit_cellidentifier(0)
-   , m_islarbarrel(0)
-   , m_islarendcap(0)
-   , m_islarhec(0)
-   , m_islarfcal(0)
-   , m_istile(0)
-   , m_hit_sampling(0)
-   , m_hit_samplingfraction(0)
-   , m_truth_energy(0)
-   , m_truth_px(0)
-   , m_truth_py(0)
-   , m_truth_pz(0)
-   , m_truth_pdg(0)
-   , m_truth_barcode(0)
-   , m_truth_vtxbarcode(0)
-   , m_cluster_energy(0)
-   , m_cluster_eta(0)
-   , m_cluster_phi(0)
-   , m_cluster_size(0)
-   , m_cluster_cellID(0)
-   , m_cell_identifier(0)
-   , m_cell_energy(0)
-   , m_cell_sampling(0)
-   , m_g4hit_energy(0)
-   , m_g4hit_time(0)
-   , m_g4hit_identifier(0)
-   , m_g4hit_cellidentifier(0)
-   , m_g4hit_samplingfraction(0)
-   , m_g4hit_sampling(0)
-   , m_total_cell_e(0)
-   , m_total_hit_e(0)
-   , m_total_g4hit_e(0)
-   , m_final_cell_energy(0)
-   , m_final_hit_energy(0)
-   , m_final_g4hit_energy(0)
-   , m_tree(0)
-   , m_ntupleFileName("ISF_HitAnalysis")
-   , m_ntupleTreeName("CaloHitAna")
-   , m_metadataTreeName("MetaData")
-   , m_geoFileName("ISF_Geometry")
-   , m_thistSvc(0)
-   //#####################
-   , m_eta_calo_surf(0)
-   , m_phi_calo_surf(0)
-   , m_d_calo_surf(0)
-   , m_ptruth_eta(0)
-   , m_ptruth_phi(0)
-   , m_ptruth_e(0)
-   , m_ptruth_et(0)
-   , m_ptruth_pt(0)
-   , m_ptruth_p(0)
-   , m_pdgid(0)
-   , m_newTTC_entrance_eta(0)
-   , m_newTTC_entrance_phi(0)
-   , m_newTTC_entrance_r(0)
-   , m_newTTC_entrance_z(0)
-   , m_newTTC_entrance_detaBorder(0)
-   , m_newTTC_entrance_OK(0)
-   , m_newTTC_back_eta(0)
-   , m_newTTC_back_phi(0)
-   , m_newTTC_back_r(0)
-   , m_newTTC_back_z(0)
-   , m_newTTC_back_detaBorder(0)
-   , m_newTTC_back_OK(0)
-   , m_newTTC_mid_eta(0)
-   , m_newTTC_mid_phi(0)
-   , m_newTTC_mid_r(0)
-   , m_newTTC_mid_z(0)
-   , m_newTTC_mid_detaBorder(0)
-   , m_newTTC_mid_OK(0)
-   , m_newTTC_IDCaloBoundary_eta(0)
-   , m_newTTC_IDCaloBoundary_phi(0)
-   , m_newTTC_IDCaloBoundary_r(0)
-   , m_newTTC_IDCaloBoundary_z(0)
-   , m_newTTC_Angle3D(0)
-   , m_newTTC_AngleEta(0)
 
-   , m_MuonEntryLayer_E(0)
-   , m_MuonEntryLayer_px(0)
-   , m_MuonEntryLayer_py(0)
-   , m_MuonEntryLayer_pz(0)
-   , m_MuonEntryLayer_x(0)
-   , m_MuonEntryLayer_y(0)
-   , m_MuonEntryLayer_z(0)
-   , m_MuonEntryLayer_pdg(0)
 
-   , m_caloEntrance(0)
-   , m_calo_tb_coord(0)
-   , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
-   , m_particleDataTable(0)
-   , m_CaloBoundaryR(1148)
-   , m_CaloBoundaryZ(3550)
-
-   ,m_MC_DIGI_PARAM("/Digitization/Parameters")
-   ,m_MC_SIM_PARAM("/Simulation/Parameters")
 
    //######################
 
@@ -272,33 +171,12 @@ StatusCode ISF_HitAnalysis::initialize()
   //
   // Register the callback(s):
   //
-  StatusCode sc = service("GeoModelSvc", m_geoModel);
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_geoModel.retrieve());
+  ATH_CHECK(detStore()->retrieve(m_tileMgr));
+  ATH_CHECK(detStore()->retrieve(m_tileID));
 
-  sc = detStore()->retrieve(m_tileMgr);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve TileDetDescrManager from DetectorStore" );
-      m_tileMgr=0;
-    }
-
-  sc = detStore()->retrieve(m_tileID);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve TileID helper from DetectorStore" );
-      m_tileID=0;
-    }
-
-  const DataHandle<CaloIdManager> caloIdManager;
-  sc=detStore()->retrieve(caloIdManager);
-  if(sc.isSuccess())
-    ATH_MSG_DEBUG("CaloIDManager retrieved.");
-  else
-    throw std::runtime_error("ISF_HitAnalysis: Unable to retrieve CaloIDManeger");
+  const CaloIdManager* caloIdManager{nullptr};
+  ATH_CHECK(detStore()->retrieve(caloIdManager));
   m_larEmID=caloIdManager->getEM_ID();
   if(m_larEmID==0)
     throw std::runtime_error("ISF_HitAnalysis: Invalid LAr EM ID helper");
@@ -323,38 +201,29 @@ StatusCode ISF_HitAnalysis::initialize()
   ATH_CHECK(m_caloMgrKey.initialize());
 
   // Retrieve Tools
-  IToolSvc* p_toolSvc = 0;
-  if ( service("ToolSvc",p_toolSvc).isFailure() )
-    {
-      ATH_MSG_ERROR("Cannot find ToolSvc! ");
-      return StatusCode::FAILURE;
-    }
-  else
-    {
-      IAlgTool* algTool;
+  IToolSvc* p_toolSvc = nullptr;
+  ATH_CHECK(service("ToolSvc",p_toolSvc));
+  IAlgTool* algTool = nullptr;
 
-      // Get TimedExtrapolator  ***************************************************************************************************
-      if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
-        return StatusCode::FAILURE;
+  // Get TimedExtrapolator  ***************************************************************************************************
+  if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure()) {
+    return StatusCode::FAILURE;
+  }
+  else { 
+    ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
+  }
 
-      else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
-
-      std::string CaloCoordinateTool_name="TBCaloCoordinate";
-      ListItem CaloCoordinateTool(CaloCoordinateTool_name);
-      if(p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this).isFailure() )
-        {
-          ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-          return StatusCode::FAILURE;
-        }
-      m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
-      if(!m_calo_tb_coord )
-        {
-          ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-          return StatusCode::FAILURE;
-        }
-      else
-        ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
-    } //tools
+  std::string CaloCoordinateTool_name="TBCaloCoordinate";
+  ListItem CaloCoordinateTool(CaloCoordinateTool_name);
+  ATH_CHECK(p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this));
+  m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
+  if(!m_calo_tb_coord ) {
+    ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
+    return StatusCode::FAILURE;
+  }
+  else {
+    ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
+  } //tools
 
   if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
     {
@@ -379,38 +248,22 @@ StatusCode ISF_HitAnalysis::initialize()
           return StatusCode::FAILURE;
         }
     }
-  else
+  else {
     ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
+  }
 
   // Get CaloGeometryHelper
-  if (m_CaloGeometryHelper.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR("CaloGeometryHelper not found ");
-      return StatusCode::FAILURE;
-    }
-
+  ATH_CHECK(m_CaloGeometryHelper.retrieve());
+    
   // Get FastCaloSimCaloExtrapolation
-  if (m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK (m_FastCaloSimCaloExtrapolation.retrieve());
 
   // Grab the Ntuple and histogramming service for the tree
-  sc = service("THistSvc",m_thistSvc);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve pointer to THistSvc" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_thistSvc.retrieve());
 
   //#########################
-  IPartPropSvc* p_PartPropSvc=0;
-  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
-    {
-      ATH_MSG_ERROR("could not find PartPropService");
-      return StatusCode::FAILURE;
-    }
+  IPartPropSvc* p_PartPropSvc = nullptr;
+  ATH_CHECK(service("PartPropSvc",p_PartPropSvc));
 
   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
   if(m_particleDataTable == 0)
@@ -422,7 +275,7 @@ StatusCode ISF_HitAnalysis::initialize()
   std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
   m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
   std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
-  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
+  StatusCode sc = m_thistSvc->regTree(fullNtupleName, m_tree);
   if (sc.isFailure() || !m_tree )
     {
       ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName);

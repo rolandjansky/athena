@@ -8,12 +8,15 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ObjectVector.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadCondHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
+//#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "TileConditions/TileSamplingFraction.h"
@@ -55,11 +58,9 @@ class TileID;
 class TileHWID;
 class TileDetDescrManager;
 class TTree;
-class ITHistSvc;
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
-class IGeoModelSvc;
 
 //############################
 class ICaloCoordinateTool;
@@ -86,8 +87,9 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const static int MAX_LAYER = 25;
 
  private:
+   ServiceHandle<IGeoModelSvc> m_geoModel
+     {this, "GeoModelSvc", "GeoModelSvc", "GeoModel service"};
 
-   const IGeoModelSvc *m_geoModel{nullptr};
    const LArEM_ID *m_larEmID{nullptr};
    const LArFCAL_ID *m_larFcalID{nullptr};
    const LArHEC_ID *m_larHecID{nullptr};
@@ -111,46 +113,46 @@ class ISF_HitAnalysis : public AthAlgorithm {
       "TileCablingSvc", "TileCablingSvc", "Tile cabling service"};
 
    /** Simple variables by Ketevi */
-   std::vector<float>* m_hit_x;
-   std::vector<float>* m_hit_y;
-   std::vector<float>* m_hit_z;
-   std::vector<float>* m_hit_energy;
-   std::vector<float>* m_hit_time;
-   std::vector<Long64_t>* m_hit_identifier;
-   std::vector<Long64_t>* m_hit_cellidentifier;
-   std::vector<bool>*  m_islarbarrel;
-   std::vector<bool>*  m_islarendcap;
-   std::vector<bool>*  m_islarhec;
-   std::vector<bool>*  m_islarfcal;
-   std::vector<bool>*  m_istile;
-   std::vector<int>*   m_hit_sampling;
-   std::vector<float>* m_hit_samplingfraction;
+   std::vector<float>* m_hit_x{nullptr};
+   std::vector<float>* m_hit_y{nullptr};
+   std::vector<float>* m_hit_z{nullptr};
+   std::vector<float>* m_hit_energy{nullptr};
+   std::vector<float>* m_hit_time{nullptr};
+   std::vector<Long64_t>* m_hit_identifier{nullptr};
+   std::vector<Long64_t>* m_hit_cellidentifier{nullptr};
+   std::vector<bool>*  m_islarbarrel{nullptr};
+   std::vector<bool>*  m_islarendcap{nullptr};
+   std::vector<bool>*  m_islarhec{nullptr};
+   std::vector<bool>*  m_islarfcal{nullptr};
+   std::vector<bool>*  m_istile{nullptr};
+   std::vector<int>*   m_hit_sampling{nullptr};
+   std::vector<float>* m_hit_samplingfraction{nullptr};
 
-   std::vector<float>* m_truth_energy;
-   std::vector<float>* m_truth_px;
-   std::vector<float>* m_truth_py;
-   std::vector<float>* m_truth_pz;
-   std::vector<int>*   m_truth_pdg;
-   std::vector<int>*   m_truth_barcode;
-   std::vector<int>*   m_truth_vtxbarcode; //production vertex barcode
+   std::vector<float>* m_truth_energy{nullptr};
+   std::vector<float>* m_truth_px{nullptr};
+   std::vector<float>* m_truth_py{nullptr};
+   std::vector<float>* m_truth_pz{nullptr};
+   std::vector<int>*   m_truth_pdg{nullptr};
+   std::vector<int>*   m_truth_barcode{nullptr};
+   std::vector<int>*   m_truth_vtxbarcode{nullptr}; //production vertex barcode
 
-   std::vector<float>* m_cluster_energy;
-   std::vector<float>* m_cluster_eta;
-   std::vector<float>* m_cluster_phi;
-   std::vector<unsigned>* m_cluster_size;
-   std::vector<std::vector<Long64_t >>* m_cluster_cellID;
+   std::vector<float>* m_cluster_energy{nullptr};
+   std::vector<float>* m_cluster_eta{nullptr};
+   std::vector<float>* m_cluster_phi{nullptr};
+   std::vector<unsigned>* m_cluster_size{nullptr};
+   std::vector<std::vector<Long64_t >>* m_cluster_cellID{nullptr};
       
 
-   std::vector<Long64_t>* m_cell_identifier;
-   std::vector<float>*       m_cell_energy;
-   std::vector<int>*         m_cell_sampling;
+   std::vector<Long64_t>*    m_cell_identifier{nullptr};
+   std::vector<float>*       m_cell_energy{nullptr};
+   std::vector<int>*         m_cell_sampling{nullptr};
 
-   std::vector<float>*       m_g4hit_energy;
-   std::vector<float>*       m_g4hit_time;
-   std::vector<Long64_t>* m_g4hit_identifier;
-   std::vector<Long64_t>* m_g4hit_cellidentifier;
-   std::vector<float>*       m_g4hit_samplingfraction;
-   std::vector<int>*         m_g4hit_sampling;
+   std::vector<float>*       m_g4hit_energy{nullptr};
+   std::vector<float>*       m_g4hit_time{nullptr};
+   std::vector<Long64_t>*    m_g4hit_identifier{nullptr};
+   std::vector<Long64_t>*    m_g4hit_cellidentifier{nullptr};
+   std::vector<float>*       m_g4hit_samplingfraction{nullptr};
+   std::vector<int>*         m_g4hit_sampling{nullptr};
 
    //CaloHitAna variables
    FCS_matchedcellvector* m_oneeventcells; //these are all matched cells in a single event
@@ -160,18 +162,19 @@ class ISF_HitAnalysis : public AthAlgorithm {
    Float_t m_total_hit_e = 0;
    Float_t m_total_g4hit_e = 0;
 
-   std::vector<Float_t>* m_final_cell_energy;
-   std::vector<Float_t>* m_final_hit_energy;
-   std::vector<Float_t>* m_final_g4hit_energy;
+   std::vector<Float_t>* m_final_cell_energy{nullptr};
+   std::vector<Float_t>* m_final_hit_energy{nullptr};
+   std::vector<Float_t>* m_final_g4hit_energy{nullptr};
 
+   TTree * m_tree{nullptr};
+   std::string m_ntupleFileName{"ISF_HitAnalysis"};
+   std::string m_ntupleTreeName{"CaloHitAna"};
+   std::string m_metadataTreeName{"MetaData"};
+   std::string m_geoFileName{"ISF_Geometry"};
+   int m_NtruthParticles{1};
 
-   TTree * m_tree;
-   std::string m_ntupleFileName;
-   std::string m_ntupleTreeName;
-   std::string m_metadataTreeName;
-   std::string m_geoFileName;
-   int m_NtruthParticles;
-   ITHistSvc * m_thistSvc;
+   ServiceHandle<ITHistSvc> m_thistSvc{ this,
+      "THistSvc", "THistSvc", "Tile histogramming service"};
 
    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
        , "CaloDetDescrManager"
@@ -179,76 +182,64 @@ class ISF_HitAnalysis : public AthAlgorithm {
        , "SG Key for CaloDetDescrManager in the Condition Store" };
 
    //####################################################
-   double m_eta_calo_surf;
-   double m_phi_calo_surf;
-   double m_d_calo_surf;
-   double m_ptruth_eta;
-   double m_ptruth_phi;
-   double m_ptruth_e;
-   double m_ptruth_et;
-   double m_ptruth_pt;
-   double m_ptruth_p;
-   int m_pdgid;
+   double m_eta_calo_surf{0.};
+   double m_phi_calo_surf{0.};
+   double m_d_calo_surf{0.};
+   double m_ptruth_eta{0.};
+   double m_ptruth_phi{0.};
+   double m_ptruth_e{0.};
+   double m_ptruth_et{0.};
+   double m_ptruth_pt{0.};
+   double m_ptruth_p{0.};
+   int m_pdgid{0};
 
-   std::vector<std::vector<float> >* m_newTTC_entrance_eta;
-   std::vector<std::vector<float> >* m_newTTC_entrance_phi;
-   std::vector<std::vector<float> >* m_newTTC_entrance_r;
-   std::vector<std::vector<float> >* m_newTTC_entrance_z;
-   std::vector<std::vector<float> >* m_newTTC_entrance_detaBorder;
-   std::vector<std::vector<bool> >* m_newTTC_entrance_OK;
-   std::vector<std::vector<float> >* m_newTTC_back_eta;
-   std::vector<std::vector<float> >* m_newTTC_back_phi;
-   std::vector<std::vector<float> >* m_newTTC_back_r;
-   std::vector<std::vector<float> >* m_newTTC_back_z;
-   std::vector<std::vector<float> >* m_newTTC_back_detaBorder;
-   std::vector<std::vector<bool> >* m_newTTC_back_OK;
-   std::vector<std::vector<float> >* m_newTTC_mid_eta;
-   std::vector<std::vector<float> >* m_newTTC_mid_phi;
-   std::vector<std::vector<float> >* m_newTTC_mid_r;
-   std::vector<std::vector<float> >* m_newTTC_mid_z;
-   std::vector<std::vector<float> >* m_newTTC_mid_detaBorder;
-   std::vector<std::vector<bool> >* m_newTTC_mid_OK;
-   std::vector<float>* m_newTTC_IDCaloBoundary_eta;
-   std::vector<float>* m_newTTC_IDCaloBoundary_phi;
-   std::vector<float>* m_newTTC_IDCaloBoundary_r;
-   std::vector<float>* m_newTTC_IDCaloBoundary_z;
-   std::vector<float>* m_newTTC_Angle3D;
-   std::vector<float>* m_newTTC_AngleEta;
+   std::vector<std::vector<float> >* m_newTTC_entrance_eta{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_entrance_phi{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_entrance_r{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_entrance_z{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_entrance_detaBorder{nullptr};
+   std::vector<std::vector<bool> >*  m_newTTC_entrance_OK{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_back_eta{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_back_phi{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_back_r{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_back_z{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_back_detaBorder{nullptr};
+   std::vector<std::vector<bool> >*  m_newTTC_back_OK{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_mid_eta{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_mid_phi{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_mid_r{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_mid_z{nullptr};
+   std::vector<std::vector<float> >* m_newTTC_mid_detaBorder{nullptr};
+   std::vector<std::vector<bool> >*  m_newTTC_mid_OK{nullptr};
+   std::vector<float>* m_newTTC_IDCaloBoundary_eta{nullptr};
+   std::vector<float>* m_newTTC_IDCaloBoundary_phi{nullptr};
+   std::vector<float>* m_newTTC_IDCaloBoundary_r{nullptr};
+   std::vector<float>* m_newTTC_IDCaloBoundary_z{nullptr};
+   std::vector<float>* m_newTTC_Angle3D{nullptr};
+   std::vector<float>* m_newTTC_AngleEta{nullptr};
 
 
-   std::vector<float>* m_MuonEntryLayer_E;
-   std::vector<float>* m_MuonEntryLayer_px;
-   std::vector<float>* m_MuonEntryLayer_py;
-   std::vector<float>* m_MuonEntryLayer_pz;
-   std::vector<float>* m_MuonEntryLayer_x;
-   std::vector<float>* m_MuonEntryLayer_y;
-   std::vector<float>* m_MuonEntryLayer_z;
-   std::vector<int>* m_MuonEntryLayer_pdg;
+   std::vector<float>* m_MuonEntryLayer_E{nullptr};
+   std::vector<float>* m_MuonEntryLayer_px{nullptr};
+   std::vector<float>* m_MuonEntryLayer_py{nullptr};
+   std::vector<float>* m_MuonEntryLayer_pz{nullptr};
+   std::vector<float>* m_MuonEntryLayer_x{nullptr};
+   std::vector<float>* m_MuonEntryLayer_y{nullptr};
+   std::vector<float>* m_MuonEntryLayer_z{nullptr};
+   std::vector<int>*   m_MuonEntryLayer_pdg{nullptr};
 
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;
-   mutable const Trk::TrackingVolume*   m_caloEntrance;
+   mutable const Trk::TrackingVolume*   m_caloEntrance{nullptr};
    std::string                          m_caloEntranceName;
    // extrapolation through Calo
    std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
    Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
-   ICaloCoordinateTool*           m_calo_tb_coord;
+   ICaloCoordinateTool*           m_calo_tb_coord{nullptr};
    /** End new Extrapolator setup */
 
-   //IExtrapolateToCaloTool*      m_etoCalo;
-   //IExtrapolateToCaloTool*      m_etoCaloEntrance;
-   //CaloDepthTool*               m_calodepth;
-   //CaloDepthTool*               m_calodepthEntrance;
-   //Trk::IExtrapolator*            m_extrapolator;
-   //std::string                    m_extrapolatorName;
-   //std::string                    m_extrapolatorInstanceName;
-   //std::string                    m_calosurf_InstanceName;
-   //std::string                    m_calosurf_entrance_InstanceName;
-
-   CaloCell_ID_FCS::CaloSample    m_sample_calo_surf;
+   CaloCell_ID_FCS::CaloSample    m_sample_calo_surf{CaloCell_ID_FCS::noSample};
    std::vector< CaloCell_ID_FCS::CaloSample > m_surfacelist;
-
-   //CaloGeometryFromCaloDDM* m_CaloGeometry;
 
    /** The FastCaloSimGeometryHelper tool */
    ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
@@ -284,10 +275,10 @@ class ISF_HitAnalysis : public AthAlgorithm {
    void extrapolate(HepMC::ConstGenParticlePtr  part,std::vector<Trk::HitInfo>* hitVector);
    void extrapolate_to_ID(HepMC::ConstGenParticlePtr  part,std::vector<Trk::HitInfo>* hitVector);
 
-   HepPDT::ParticleDataTable*     m_particleDataTable;
+   HepPDT::ParticleDataTable*     m_particleDataTable{nullptr};
 
-   double m_CaloBoundaryR;
-   double m_CaloBoundaryZ;
+   double m_CaloBoundaryR{1148};
+   double m_CaloBoundaryZ{3550};
    double m_calomargin;
    bool m_saveAllBranches;
    bool m_doAllCells;
@@ -297,9 +288,8 @@ class ISF_HitAnalysis : public AthAlgorithm {
    bool m_doG4Hits;
    Int_t m_TimingCut;
 
-
-   std::string m_MC_DIGI_PARAM;
-   std::string m_MC_SIM_PARAM;
+   std::string m_MC_DIGI_PARAM{"/Digitization/Parameters"};
+   std::string m_MC_SIM_PARAM{"/Simulation/Parameters"};
 
    //###################################################################
 
