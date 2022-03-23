@@ -31,7 +31,6 @@
 //#####################################
 
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
-#include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimParametrization/FCS_Cell.h"
 
@@ -80,8 +79,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode finalize() override;
    virtual StatusCode execute() override;
    StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
-
-   const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
    const static int MAX_LAYER = 25;
 
@@ -240,27 +237,8 @@ class ISF_HitAnalysis : public AthAlgorithm {
    CaloCell_ID_FCS::CaloSample    m_sample_calo_surf{CaloCell_ID_FCS::noSample};
    std::vector< CaloCell_ID_FCS::CaloSample > m_surfacelist;
 
-   /** The FastCaloSimGeometryHelper tool */
-   ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
-
    /** The FastCaloSimCaloExtrapolation tool */
    ToolHandle<IFastCaloSimCaloExtrapolation> m_FastCaloSimCaloExtrapolation;
-
-   bool   isCaloBarrel(int sample) const;
-   double deta(int sample,double eta) const;
-   void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
-   double rzmid(int sample,double eta) const;
-   double rzent(int sample,double eta) const;
-   double rzext(int sample,double eta) const;
-   double rmid(int sample,double eta) const;
-   double rent(int sample,double eta) const;
-   double rext(int sample,double eta) const;
-   double zmid(int sample,double eta) const;
-   double zent(int sample,double eta) const;
-   double zext(int sample,double eta) const;
-   double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
-   double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
-   double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
 
    bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample][3];
    double m_letaCalo[CaloCell_ID_FCS::MaxSample][3];

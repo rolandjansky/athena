@@ -98,8 +98,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
 
-  declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
-
   declareProperty("MetaDataSim", m_MC_SIM_PARAM );
   declareProperty("MetaDataDigi", m_MC_DIGI_PARAM );
 
@@ -252,9 +250,6 @@ StatusCode ISF_HitAnalysis::initialize()
     ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
   }
 
-  // Get CaloGeometryHelper
-  ATH_CHECK(m_CaloGeometryHelper.retrieve());
-    
   // Get FastCaloSimCaloExtrapolation
   ATH_CHECK (m_FastCaloSimCaloExtrapolation.retrieve());
 
@@ -1571,79 +1566,3 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
 
  return hitVector;
 } //caloHits
-
-
-bool ISF_HitAnalysis::isCaloBarrel(int sample) const
-{
-  return GetCaloGeometry()->isCaloBarrel(sample);
-}
-
-double ISF_HitAnalysis::deta(int sample,double eta) const
-{
-  return GetCaloGeometry()->deta(sample,eta);
-}
-
-void ISF_HitAnalysis::minmaxeta(int sample,double eta,double& mineta,double& maxeta) const
-{
-  GetCaloGeometry()->minmaxeta(sample,eta,mineta,maxeta);
-}
-
-double ISF_HitAnalysis::rmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->rmid(sample,eta);
-}
-
-double ISF_HitAnalysis::zmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->zmid(sample,eta);
-}
-
-double ISF_HitAnalysis::rzmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzmid(sample,eta);
-}
-
-double ISF_HitAnalysis::rent(int sample,double eta) const
-{
-  return GetCaloGeometry()->rent(sample,eta);
-}
-
-double ISF_HitAnalysis::zent(int sample,double eta) const
-{
-  return GetCaloGeometry()->zent(sample,eta);
-}
-
-double ISF_HitAnalysis::rzent(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzent(sample,eta);
-}
-
-double ISF_HitAnalysis::rext(int sample,double eta) const
-{
-  return GetCaloGeometry()->rext(sample,eta);
-}
-
-double ISF_HitAnalysis::zext(int sample,double eta) const
-{
-  return GetCaloGeometry()->zext(sample,eta);
-}
-
-double ISF_HitAnalysis::rzext(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzext(sample,eta);
-}
-
-double ISF_HitAnalysis::rpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->rpos(sample,eta,subpos);
-}
-
-double ISF_HitAnalysis::zpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->zpos(sample,eta,subpos);
-}
-
-double ISF_HitAnalysis::rzpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->rzpos(sample,eta,subpos);
-}
