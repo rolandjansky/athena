@@ -1655,6 +1655,9 @@ class ItemDef:
             MenuItem('L1_BPH-7M14-2MU3VF'          ).setLogic( d.TOPO_7INVM14_2MU3VFab & physcond)
             MenuItem('L1_BPH-7M14-2MU3V'           ).setLogic( d.TOPO_7INVM14_2MU3Vab & physcond)
 
+            #ATR-24932
+            MenuItem('L1_BPH-7M14-0DR25-MU5VFMU3VF'   ).setLogic( d.TOPO_7INVM14_0DR25_MU5VFab_MU3VFab & physcond)
+
             # ATR-19510, SM Low-mass DY
             MenuItem('L1_DY-BOX-2MU3V' ).setLogic( d.TOPO_5DETA99_5DPHI99_2MU3Vab & physcond)
             MenuItem('L1_DY-BOX-MU5VFMU3V').setLogic( d.TOPO_5DETA99_5DPHI99_MU5VFab_MU3Vab & physcond)
