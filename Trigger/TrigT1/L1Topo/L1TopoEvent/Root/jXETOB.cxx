@@ -4,10 +4,6 @@
 
 thread_local TCS::Heap<TCS::jXETOB> TCS::jXETOB::fg_heap("jXETOB");
 
-const unsigned int TCS::jXETOB::g_nBitsEx = 15;
-const unsigned int TCS::jXETOB::g_nBitsEy = 15;
-const unsigned int TCS::jXETOB::g_nBitsEt = 15;
-
 // default constructor
 TCS::jXETOB::jXETOB() : BaseTOB(0,"jXETOB")
 {}
@@ -20,19 +16,22 @@ TCS::jXETOB::jXETOB(int ex, int ey, unsigned int et) : BaseTOB(0,"jXETOB")
 {}
 
 // constructor with initial values
-TCS::jXETOB::jXETOB(const jXETOB & met) : BaseTOB(0,"jXETOB")
-   , m_Ex( met.m_Ex )
-   , m_Ey( met.m_Ey )
-   , m_Et( met.m_Et )
-   , m_Et2( met.m_Et2)
+TCS::jXETOB::jXETOB(const jXETOB & jxe) : BaseTOB(0,"jXETOB")
+   , m_Ex( jxe.m_Ex )
+   , m_Ey( jxe.m_Ey )
+   , m_Et( jxe.m_Et )
+   , m_Et2( jxe.m_Et2 )
+   , m_ExDouble( jxe.m_ExDouble )
+   , m_EyDouble( jxe.m_EyDouble )
+   , m_EtDouble( jxe.m_EtDouble ) 
 {}
 
 // destructor
 TCS::jXETOB::~jXETOB() = default;
 
 TCS::jXETOB*
-TCS::jXETOB::createOnHeap(const jXETOB& cl) {
-   return fg_heap.create(cl);
+TCS::jXETOB::createOnHeap(const jXETOB& jxe) {
+   return fg_heap.create(jxe);
 }
 
 void

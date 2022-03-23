@@ -141,11 +141,11 @@ int main(int argc, char **argv)
 		
 		
        TString xAxisTitle    = "#eta";
-       TString yAxisTitle[7] = { "t [X_{0}]", "t [L_{0}]", "A", "Z", "Z/A", "#rho [g/cm^{3}]", "t * A/Z * #rho [g/cm^{3}]" }; 
+       TString yAxisTitle[9] = { "t [X_{0}]", "t [L_{0}]", "A", "Z", "Z/A", "#rho [g/cm^{3}]", "t * A/Z * #rho [g/cm^{3}]", "", "" }; 
 
       int loopCanvas = doCalo ? numCanvas : 5;
 											
-      std::cout << " [m] Configured to loop over " << loopCanvas << " Canvae " << std::endl;
+      std::cout << " [m] Configured to loop over " << loopCanvas << " Canvases " << std::endl;
 
 
        // get the profile histograms
@@ -167,7 +167,8 @@ int main(int argc, char **argv)
          
           if (ihist<numhists-1){
               // draw the histogram
-	     (*g4Profiles)[icanv*numhists+ihist]->SetMinimum(0.);
+	           (*g4Profiles)[icanv*numhists+ihist]->SetMinimum(0.);
+	           //cppcheck-suppress arrayIndexOutOfBoundsCond
              (*g4Profiles)[icanv*numhists+ihist]->SetYTitle(yAxisTitle[ihist]);
              (*tgProfiles)[icanv*numhists+ihist]->SetMarkerStyle(8);		      
              (*tgProfiles)[icanv*numhists+ihist]->SetMarkerSize(0.4);

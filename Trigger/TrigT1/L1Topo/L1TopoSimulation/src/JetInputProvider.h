@@ -39,7 +39,7 @@ namespace LVL1 {
 
       mutable LockedHandle<TH1> m_hPt1 ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hPt2 ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hPhiEta ATLAS_THREAD_SAFE;
    };
 }
 

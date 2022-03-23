@@ -835,7 +835,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
     myGroupCoin.defineHistogram('nTgcCoinPostOutPtrIsNull;h_nTgcCoinPostOutPtrIsNull',title='nTgcCoinPostOutPtrIsNull',
                             path=coinPath,xbins=101,xmin=-0.5,xmax=100.5)
-    for coinType in ['SL','HPT','LPT']:
+    for coinType in ['SL','HPT','LPT','EIFI']:
         for region in ['','Endcap','Forward']:
             suffix0 = coinType if region == '' else coinType+'_'+region
             nrois = 148 if region == 'Endcap' else 64
@@ -844,6 +844,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 if coinType == 'SL' and chanType != '': continue # no wire or strip for "SL"
                 if coinType == 'HPT' and chanType == '': continue # always wire or strip for "HPT"
                 if coinType == 'LPT' and chanType == '': continue # always wire or strip for "LPT"
+                if coinType == 'EIFI' and chanType == '': continue # always wire or strip for "EIFI" tracklet
                 suffix = suffix0+'_' if chanType == '' else suffix0+'_'+chanType+'_'
 
                 if coinType == 'SL':
@@ -871,6 +872,18 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                             title=suffix+'TgcCoin_Eff_EtaVsPhi;Eta;Phi',
                                             type='TEfficiency',path=coinPath,
                                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                    if coinType == 'SL':
+                        for coinflag in ['Qpos','Qneg','F','C','H','EI','Tile','RPC','NSW']:
+                            myGroupCoin.defineHistogram(suffix+'coin_eta,'+suffix+'coin_phi;'+suffix+'TgcCoin_Evt_EtaVsPhi_CoinFlag'+coinflag,
+                                                        title=suffix+'TgcCoin_Evt_EtaVsPhi_CoinFlag'+coinflag+';Eta;Phi',cutmask=suffix+'coin_CoinFlag'+coinflag,
+                                                        type='TH2F',path=coinPath,
+                                                        xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                        for coinflag in ['Q','F','C','H','EI','Tile','RPC','NSW']:
+                            myGroupCoin.defineHistogram(suffix+'coin_ext_matched_CoinFlag'+coinflag+','+suffix+'coin_ext_matched_eta,'+suffix+'coin_ext_matched_phi;'+suffix+'TgcCoin_Eff_EtaVsPhi_CoinFlag'+coinflag,
+                                                        title=suffix+'TgcCoin_Eff_EtaVsPhi_CoinFlag'+coinflag+';Eta;Phi',
+                                                        type='TEfficiency',path=coinPath,
+                                                        xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+
                 else:
                     myGroupCoin.defineHistogram(suffix+'coin_sector,'+suffix+'coin_bunch;'+suffix+'TgcCoin_Evt_SectorVsTiming',
                                             title=suffix+'TgcCoin_Evt_SectorVsTiming;Trigger Sector;Timing',
@@ -882,7 +895,15 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                             type='TH2F',path=coinPath,
                                             xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically',
                                             ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
+
                     if coinType == 'SL':
+                        for coinflag in ['EI','Tile','RPC','NSW']:
+                            myGroupCoin.defineHistogram(suffix+'coin_lb,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsLB_CoinFlag'+coinflag,
+                                                        title=suffix+'TgcCoin_Evt_SectorVsLB_CoinFlag'+coinflag+';LumiBlock;Trigger Sector',
+                                                        type='TH2F',path=coinPath,cutmask=suffix+'coin_CoinFlag'+coinflag,
+                                                        xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically',
+                                                        ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
+
                         myGroupCoin.defineHistogram(suffix+'coin_roi,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsRoI',
                                                 title=suffix+'TgcCoin_Evt_SectorVsRoI;RoI;Trigger Sector',
                                                 type='TH2F',path=coinPath,
@@ -930,7 +951,7 @@ if __name__=='__main__':
         ConfigFlags.Input.Files = inputs
         ConfigFlags.Output.HISTFileName = sys.argv[2]
     else:
-        inputs = glob.glob('/data01/data/valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e5112_s3765_r12697/ESD.*.pool.root.1')
+        inputs = glob.glob('data/*')
         ConfigFlags.Input.Files = inputs
         ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
 

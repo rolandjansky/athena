@@ -33,9 +33,8 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    void MuonLayerSegmentFinderTool::find(const MuonSystemExtension::Intersection& intersection,
-                                          std::vector<std::shared_ptr<const Muon::MuonSegment>>& segments,
-                                          MuonLayerPrepRawData& layerPrepRawData, const EventContext& ctx) const {
+    void MuonLayerSegmentFinderTool::find(const EventContext& ctx, const MuonSystemExtension::Intersection& intersection, 
+                                          const MuonLayerPrepRawData& layerPrepRawData, std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const {
         ATH_MSG_VERBOSE(
             " Running segment finding in sector "
             << intersection.layerSurface.sector << " region " << MuonStationIndex::regionName(intersection.layerSurface.regionIndex)
@@ -122,12 +121,11 @@ namespace Muon {
 
         std::vector<std::unique_ptr<MuonSegment>> foundSegments;
         m_clusterSegMakerNSW->find(ctx, clusters, foundSegments, nullptr);
-        if (!foundSegments.empty()) {
-            for (std::unique_ptr<MuonSegment>& seg : foundSegments) {
-                ATH_MSG_DEBUG(" NSW segment " << m_printer->print(*seg));
-                segments.emplace_back(std::move(seg));
-            }
-        }
+        
+        for (std::unique_ptr<MuonSegment>& seg : foundSegments) {
+            ATH_MSG_DEBUG(" NSW segment " << m_printer->print(*seg));
+            segments.emplace_back(std::move(seg));
+        }        
     }
 
     void MuonLayerSegmentFinderTool::findCscSegments(const EventContext& ctx, const MuonLayerPrepRawData& layerPrepRawData,

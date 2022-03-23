@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -104,10 +104,9 @@ private:
   void addSurfaceToShapes( SoSeparator*&shape_simple, SoSeparator*&shape_detailed);
   void addMaterialEffectsToShapes( SoSeparator*&shape_simple, SoSeparator*&shape_detailed);
 
-  void ensureInitSeps( SoSeparator*&shape_simple, SoSeparator*&shape_detailed);
+  static void ensureInitSeps( SoSeparator*&shape_simple, SoSeparator*&shape_detailed);
   SoTranslation* getZTranslationTube( const Trk::Surface *, const double& maxTrans ) const;
 
-  TrkObjToString m_objToType; 
   HitToSoNode m_hitToSoNode;
 };
 

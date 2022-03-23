@@ -20,6 +20,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <sstream>
 
 // EDM includes
 #include "TClass.h"
@@ -135,47 +136,39 @@ AsgElectronChargeIDSelectorTool::initialize()
       TDirectory* td = (TDirectoryFile*)key->ReadObj();
       std::string dirName = td->GetName();
       if (dirName.find(m_pid_name) != std::string::npos) {
-        std::string foldconf = dirName.substr(dirName.rfind('_') + 1, -1);
-        // std::string f_index=foldconf.substr(0,foldconf.find("o"));
-        std::string s_nfold = foldconf.substr(foldconf.find('o') + 1, -1);
+        std::string foldconf = dirName.substr(dirName.rfind('_') + 1);
+        std::string s_nfold = foldconf.substr(foldconf.find('o') + 1);
         nfold = atoi(s_nfold.data());
         break;
       }
     }
   }
-
   ATH_MSG_INFO("ECIDS nfold configuration: " << nfold);
 
-  const TString toaPath = "/ECIDS_" + m_pid_name
-    + TString::Format("_0o%d", nfold) + "/variables";
+  m_inputVars.clear();
+  const TString toaPath = Form("ECIDS_%s_0o%d/variables",m_pid_name.Data(),nfold);
   const TObjArray* toa = bdtfile->Get<TObjArray>(toaPath);
-  std::string commaSepVars;
   if (toa) {
     const TObjString* tos = dynamic_cast<const TObjString*>(toa->At(0));
-    if(tos) commaSepVars = tos->GetString().Data();
+    if (tos) {
+      std::istringstream commaSepVars(tos->GetString().Data());
+      ATH_MSG_INFO("Variables for ECIDS " << commaSepVars.str());
+      std::string inVar;
+      while (std::getline(commaSepVars,inVar,',')) {
+	m_inputVars.push_back(inVar);
+	ATH_MSG_VERBOSE("Variables for ECIDS (check) " << inVar);
+      }
+    }
   }
-  if(commaSepVars.length()) {
-    ATH_MSG_INFO("Variables for ECIDS= " << commaSepVars);
-  }
-  else {
+  if (!m_inputVars.size()) {
     ATH_MSG_FATAL("Cannot access the list of input variables @"
-                  << bdtfile->GetName() << toaPath);
+                  << bdtfile->GetName() << " " << toaPath);
   }
-
-  // prepare m_inputVars
-  m_inputVars.clear();
-  while (commaSepVars.find(',') != std::string::npos) {
-    m_inputVars.push_back(commaSepVars.substr(0, commaSepVars.find(',')));
-    commaSepVars.erase(0, commaSepVars.find(',') + 1);
-  }
-  m_inputVars.push_back(
-    commaSepVars.substr(0, -1)); // push back the last element
 
   for (unsigned i_fold = 0; i_fold < nfold; i_fold++) {
-    TString treename = "/ECIDS_" + m_pid_name +
-                       TString::Format("_%do%d", i_fold, nfold) + "/BDT";
-    // std::cout<<"Trying to access a ttree with name: "<<treename<<std::endl;
+    TString treename = Form("ECIDS_%s_%do%d/BDT",m_pid_name.Data(),i_fold,nfold);
     TTree* tree = (TTree*)bdtfile->Get(treename);
+    ATH_MSG_VERBOSE("Trying to access a ttree with name: " << treename << " " << tree);
     m_v_bdts.push_back(new MVAUtils::BDT(tree));
   }
 

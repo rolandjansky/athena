@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -170,8 +170,8 @@ namespace Rec {
 
         std::unique_ptr<const Trk::TrackParameters> param_clone = trackParameters.uniqueClone();
         double thickness = radiationThickness(trackParameters.position().eta());
-        const Trk::MaterialEffectsBase* materialEffects =
-            new const Trk::MaterialEffectsOnTrack(thickness, param_clone->associatedSurface());
+        auto materialEffects =
+            std::make_unique<const Trk::MaterialEffectsOnTrack>(thickness, param_clone->associatedSurface());
 
         // create TSOS
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -179,7 +179,12 @@ namespace Rec {
 
         ATH_MSG_VERBOSE(" trackStateOnSurface::Scatterer with radiationThickness " << thickness);
 
-        return std::make_unique<Trk::TrackStateOnSurface>(nullptr, param_clone.release(), nullptr, materialEffects, pattern);
+        return std::make_unique<Trk::TrackStateOnSurface>(
+          nullptr,
+          std::move(param_clone),
+          nullptr,
+          std::move(materialEffects),
+          pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>

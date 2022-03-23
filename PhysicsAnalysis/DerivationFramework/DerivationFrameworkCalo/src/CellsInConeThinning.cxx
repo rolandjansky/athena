@@ -89,10 +89,9 @@ DerivationFramework::CellsInConeThinning::addBranches() const
     int index(0);
     for (const xAOD::Egamma* eg : *egammas) {
       if (static_cast<bool>(entries.at(index))) {
-        xAOD::CaloCluster* dummy = CaloClusterStoreHelper::makeCluster(cells);
+        xAOD::CaloCluster* dummy = CaloClusterStoreHelper::makeCluster(dclHdl.ptr(),cells);
         DerivationFramework::CellsInCone::egammaSelect(
           dummy, cells, caloDDMgr, eg, m_dr);
-        dclHdl->push_back(dummy);
       }
       ++index;
     }
@@ -100,10 +99,9 @@ DerivationFramework::CellsInConeThinning::addBranches() const
   /// Fill clusters without selection string
   else {
     for (const xAOD::Egamma* eg : *egammas) {
-      xAOD::CaloCluster* dummy = CaloClusterStoreHelper::makeCluster(cells);
+      xAOD::CaloCluster* dummy = CaloClusterStoreHelper::makeCluster(dclHdl.ptr(),cells);
       DerivationFramework::CellsInCone::egammaSelect(
         dummy, cells, caloDDMgr, eg, m_dr);
-      dclHdl->push_back(dummy);
     }
   }
   /// Finalize clusters

@@ -33,8 +33,8 @@ StatusCode DumpMC::execute() {
   if (m_DeepCopy) {
     McEventCollection* mcCollptra = new McEventCollection();
     // Fill the new McEventCollection with a copy of the initial HepMC::GenEvent
-    for (McEventCollection::const_iterator evt = events_const()->begin(); evt != events_const()->end(); ++evt) {
-      mcCollptra->push_back(new HepMC::GenEvent(*(*evt)));
+    for(const HepMC::GenEvent* evt : *events_const()) {
+      mcCollptra->push_back(new HepMC::GenEvent(*evt));
     }
     // Loop over all events in McEventCollection
     for (McEventCollection::iterator evt = mcCollptra->begin(); evt != mcCollptra->end(); ++evt) {
@@ -98,9 +98,9 @@ StatusCode DumpMC::execute() {
   }
 
   // Loop over all events in McEventCollection
-  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
-    auto pdfinfo = (*itr)->pdf_info();
-    auto ion = (*itr)->heavy_ion();
+  for(const HepMC::GenEvent* evt : *events_const()) {
+    auto pdfinfo = evt->pdf_info();
+    auto ion = evt->heavy_ion();
 #ifdef HEPMC3
     if (pdfinfo) {
       std::cout << "PdfInfo: "
@@ -170,11 +170,10 @@ StatusCode DumpMC::execute() {
 #endif
     if (m_VerboseOutput) {
       if (!m_EtaPhi) {
-        HepMC::Print::line(std::cout,**itr); // standard HepMc dump
+        HepMC::Print::line(std::cout,*evt); // standard HepMc dump
       } else { // sort particles by rapidity and then dump
         // Loop over all particles in the event and build up the grid
-        const HepMC::GenEvent* genEvt = (*itr);
-        for (auto part: *genEvt) {
+        for (auto part: *evt) {
           double rapid =part->momentum().pseudoRapidity();
           double phi =  part->momentum().phi(); //phi is in range -pi to pi
           double et=part->momentum().perp();
@@ -184,8 +183,7 @@ StatusCode DumpMC::execute() {
         }
       }
       if(m_PrintQuasiStableParticles) {
-        const HepMC::GenEvent* genEvt = (*itr);
-        for (auto pitr: *genEvt) {
+        for (auto pitr: *evt) {
           int p_stat=pitr->status();
           if(p_stat==2 && pitr->production_vertex() && pitr->end_vertex()) {
             const auto& prodVtx = pitr->production_vertex()->position();

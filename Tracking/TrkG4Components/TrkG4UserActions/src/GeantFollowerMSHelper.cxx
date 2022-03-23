@@ -505,7 +505,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 
            int mmat = 0;
            if (matvec_BACK && !matvec_BACK->empty() &&
-               matvec_BACK->size() > 0) {
+               !matvec_BACK->empty()) {
              std::vector<const Trk::TrackStateOnSurface*>::const_iterator it =
                matvec_BACK->begin();
              std::vector<const Trk::TrackStateOnSurface*>::const_iterator
@@ -888,7 +888,7 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
    typePatternDeposit.set(Trk::TrackStateOnSurface::CaloDeposit);
    typePatternDeposit.set(Trk::TrackStateOnSurface::Scatterer);
 
-   for(auto m : matvec) {
+   for(const auto *m : matvec) {
 
      if(!m->trackParameters()) {
        ATH_MSG_WARNING("No trackparameters on TrackStateOnSurface ");
@@ -1032,12 +1032,17 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
                            sigmaDeltaE_rad_tot,
                            depth);
           const Trk::Surface& surf = *(meot->associatedSurface().clone());
-          const Trk::MaterialEffectsOnTrack* meotLast =
-            new Trk::MaterialEffectsOnTrack(
+          auto meotLast =
+            std::make_unique<const Trk::MaterialEffectsOnTrack>(
               X0_tot, scatNew, energyLossNew, surf, meotPattern);
-          const Trk::TrackParameters* pars = m->trackParameters()->clone();
+          std::unique_ptr<const Trk::TrackParameters> pars = m->trackParameters()->uniqueClone();
           //        make new TSOS
-          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
+          const Trk::TrackStateOnSurface* newTSOS =
+            new Trk::TrackStateOnSurface(nullptr,
+                                         std::move(pars),
+                                         nullptr,
+                                         std::move(meotLast),
+                                         typePattern);
           newTSOSvector.push_back(newTSOS);
 
           Eloss_tot += energyLossNew->deltaE();

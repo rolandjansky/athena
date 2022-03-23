@@ -1132,12 +1132,12 @@ for( auto isoType : isoTypes ){
 
       if(cleg && cleg->getCellLinks()){
 	double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
-	CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
-									 seedEta,seedPhi,
-									 cleg->clusterSize());
+        std::unique_ptr<CaloCluster> egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
+											 seedEta,seedPhi,
+											 cleg->clusterSize());
 
 	if (!m_caloFillRectangularTool->execute (Gaudi::Hive::currentContext(),
-                                                 egcCloneFor57).isSuccess())
+                                                 egcCloneFor57.get()).isSuccess())
         {
           return false;
 	}
@@ -1153,7 +1153,6 @@ for( auto isoType : isoTypes ){
 		      << " seed eta,phi " << cleg->eta0() << " " << cleg->phi0()
 		      << " eraw = " << eraw57 << " etraw = " << coreV
 		      );
-	delete egcCloneFor57;
      }
 #else
      return false;

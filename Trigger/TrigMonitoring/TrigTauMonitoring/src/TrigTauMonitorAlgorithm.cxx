@@ -745,11 +745,17 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string& trigger, const
                                                     return TMath::Log10(std::min(tau->ptDetectorAxis() / 1000.0, 100.0));});
   auto massTrkSys         = Monitored::Collection("massTrkSys", tau_vec,  [&nProng] (const xAOD::TauJet* tau){
                                                 float detail = -999;
-                                                if ( tau->detail(xAOD::TauJetParameters::massTrkSys, detail) && nProng.find("MP") != std::string::npos ){
+                                                if ( tau->detail(xAOD::TauJetParameters::massTrkSys, detail) && (nProng.find("MP") != std::string::npos || nProng.find("3P") != std::string::npos)){
                                                   detail = TMath::Log10(std::max(detail, 140.0f));
                                                 }return detail;});
-   
-  fill(monGroup, centFrac,etOverPtLeadTrk,dRmax,absipSigLeadTrk,sumPtTrkFrac,emPOverTrkSysP,ptRatioEflowApprox,mEflowApprox,ptDetectorAxis,massTrkSys);     
+  
+  auto trFlightPathSig    = Monitored::Collection("trFlightPathSig", tau_vec,  [&nProng] (const xAOD::TauJet* tau){
+                                                float detail = -999;
+                                                if ( nProng.find("MP") != std::string::npos || nProng.find("3P") != std::string::npos ) {
+                                                   tau->detail(xAOD::TauJetParameters::trFlightPathSig, detail);
+                                                } return detail;});
+ 
+  fill(monGroup, centFrac,etOverPtLeadTrk,dRmax,absipSigLeadTrk,sumPtTrkFrac,emPOverTrkSysP,ptRatioEflowApprox,mEflowApprox,ptDetectorAxis,massTrkSys,trFlightPathSig);     
 
   ATH_MSG_DEBUG("After fill RNN input variables: " << trigger);
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -210,7 +210,6 @@ namespace G4UA
           m_matStepCollection->push_back(new Trk::MaterialStep(pos.x(), pos.y(), pos.z(), steplength, X0, L0, A, Z, rho));
       }
     }
-    return;
-  }
+     }
 
 } // namespace G4UA

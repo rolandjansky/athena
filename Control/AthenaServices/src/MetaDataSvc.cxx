@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -371,10 +371,10 @@ void MetaDataSvc::handle(const Incident& inc) {
 }
 
 //__________________________________________________________________________
-// This method is currently called only from OutputStreamSequencerSvc for MP EventService
-StatusCode MetaDataSvc::transitionMetaDataFile()
+// This method is currently called only from OutputStreamSequencerSvc
+StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn)
 {
-   ATH_MSG_DEBUG("transitionMetaDataFile()");
+   ATH_MSG_DEBUG("transitionMetaDataFile: " << outputConn );
 
    // this is normally called through EndInputFile inc, simulate it for EvSvc 
    FileIncident inc("transitionMetaDataFile", "EndInputFile", "dummyMetaInputFileName", "");
@@ -388,7 +388,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile()
 
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
-      if (!cnvSvc->disconnectOutput("").isSuccess()) {
+      if (!cnvSvc->disconnectOutput(outputConn).isSuccess()) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
    }

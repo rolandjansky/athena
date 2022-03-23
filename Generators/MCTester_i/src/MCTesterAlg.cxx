@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorObjects/McEventCollection.h"
@@ -15,16 +15,12 @@
 #include "MCTester_i/MCTesterAlg.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 /////////////////////////////////////////////////////////////////////////////
 MCTesterAlg::MCTesterAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
   //Key to HepMC record
   declareProperty("McEventKey", m_key="GEN_EVENT");
-  declareProperty("McEventInfoKey", m_infokey="");
 
   //MC-TESTER SETUP configureables
   declareProperty("decay_particle", m_decay_particle=15);
@@ -65,6 +61,7 @@ MCTesterAlg::MCTesterAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode MCTesterAlg::initialize()
 {
   ATH_MSG_DEBUG( "initialize()" );
+  ATH_CHECK(m_infokey.initialize());
 
   //Setup and intiatlise MC-Tester
   Setup::decay_particle=m_decay_particle;
@@ -116,20 +113,11 @@ StatusCode MCTesterAlg::execute()
 {
   ATH_MSG_DEBUG( "execute()" );
 
-  int run_number;
-  uint64_t evt_number;
-  
   //Load event info
-  const EventInfo * mcInfoptr;
-  if ( evtStore()->retrieve(mcInfoptr, m_infokey).isFailure() ) {
-    ATH_MSG_ERROR( "Could not retrieve EventInfo" );
-    return StatusCode::FAILURE;
-  } else{
-    run_number=mcInfoptr->event_ID()->run_number();
-    evt_number=mcInfoptr->event_ID()->event_number();
-
-    ATH_MSG_DEBUG( "run: " << run_number << " event: " << evt_number );
-  }
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_infokey);
+  int run_number=evtInfo->runNumber();
+  uint64_t evt_number=evtInfo->eventNumber();
+  ATH_MSG_DEBUG( "run: " << run_number << " event: " << evt_number );
 
   //Load HepMC info
   const McEventCollection* mcCollptr;

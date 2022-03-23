@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKCLEANER_H
@@ -298,7 +298,7 @@ namespace Muon {
         bool checkPhiConstraint(CleaningState& state) const;
 
         // unremove hits for next iteration of chamber cleaning
-        void unremoveHits(ChamberRemovalOutput& result) const;
+        static void unremoveHits(ChamberRemovalOutput& result) ;
 
         // print track states
         void printStates(Trk::Track* track) const;
@@ -347,7 +347,7 @@ namespace Muon {
         /** helper function to extract chambers that are to be removed */
         bool extractChambersToBeRemoved(CleaningState& state, std::set<Identifier>& chambersToBeRemovedSet, bool usePhi = false) const;
 
-        std::string print(ChamberLayerStatistics& statistics) const;
+        static std::string print(ChamberLayerStatistics& statistics) ;
     };
 
 }  // namespace Muon

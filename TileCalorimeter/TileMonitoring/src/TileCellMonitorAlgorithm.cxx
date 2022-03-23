@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCellMonitorAlgorithm.h"
@@ -487,23 +487,33 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
           // Fill channel timing histograms.
           if (isCollision || m_fillTimeHistograms) {
-            if (isOkChannel1 && energy1 > m_energyThresholdForTime) {
-              chanTime[partition1].push_back(time1);
-              chanTimeDrawer[partition1].push_back(drawer);
-              chanTimeChannel[partition1].push_back(channel1);
-              chanTimeDigitizer[partition1].push_back(getDigitizer(channel1));
-              if (m_fillChannelTimeHistograms) {
-                sampChanTime[partition1][sample].push_back(time1);
+            if (isOkChannel1 && energy1 > m_energyThresholdForTime && energy1 < m_energyLimitForTime) {
+              if ((gain1 == 0) && (energy1 < 1000.)) {
+                ATH_MSG_DEBUG("Low energy in LG for time monitoring: " << Tile::getDrawerString(ros1, drawer)
+                              << ", channel = " << channel1 << ", energy = " << energy1 << ", time = " << time1);
+              } else {
+                chanTime[partition1].push_back(time1);
+                chanTimeDrawer[partition1].push_back(drawer);
+                chanTimeChannel[partition1].push_back(channel1);
+                chanTimeDigitizer[partition1].push_back(getDigitizer(channel1));
+                if (m_fillChannelTimeHistograms) {
+                  sampChanTime[partition1][sample].push_back(time1);
+                }
               }
             }
 
-            if (isOkChannel2 && energy2 > m_energyThresholdForTime) {
-              chanTime[partition2].push_back(time2);
-              chanTimeDrawer[partition2].push_back(drawer);
-              chanTimeChannel[partition2].push_back(channel2);
-              chanTimeDigitizer[partition2].push_back(getDigitizer(channel2));
-              if (m_fillChannelTimeHistograms) {
-                sampChanTime[partition2][sample].push_back(time2);
+            if (isOkChannel2 && energy2 > m_energyThresholdForTime && energy2 < m_energyLimitForTime) {
+              if ((gain2 == 0) && (energy2 < 1000.)) {
+                ATH_MSG_DEBUG("Low energy in LG for time monitoring: " << Tile::getDrawerString(ros2, drawer)
+                              << ", channel = " << channel2 << ", energy = " << energy2 << ", time = " << time2);
+              } else {
+                chanTime[partition2].push_back(time2);
+                chanTimeDrawer[partition2].push_back(drawer);
+                chanTimeChannel[partition2].push_back(channel2);
+                chanTimeDigitizer[partition2].push_back(getDigitizer(channel2));
+                if (m_fillChannelTimeHistograms) {
+                  sampChanTime[partition2][sample].push_back(time2);
+                }
               }
             }
           }

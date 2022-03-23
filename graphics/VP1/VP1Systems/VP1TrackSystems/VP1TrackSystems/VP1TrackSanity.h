@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,11 +37,11 @@ public:
   VP1TrackSanity(IVP1System * sys=0);//sys!=0 for messages in gui.
   virtual ~VP1TrackSanity();
 
-  bool isSafe(const Trk::TrackStateOnSurface* ) const;
-  bool isSafe(const Trk::TrackParameters* ) const;
-  bool isSafe(const Trk::MeasurementBase* ) const;
-  bool isSafe(const Trk::RIO_OnTrack* ) const;
-  bool isSafe(const Trk::PrepRawData* ) const;
+  static bool isSafe(const Trk::TrackStateOnSurface* ) ;
+  static bool isSafe(const Trk::TrackParameters* ) ;
+  static bool isSafe(const Trk::MeasurementBase* ) ;
+  static bool isSafe(const Trk::RIO_OnTrack* ) ;
+  static bool isSafe(const Trk::PrepRawData* ) ;
 
   //TK: OK, maybe we can't call all of these "isSafe", if more than
   //one of the arguments inherit from the same baseclass (not sure if

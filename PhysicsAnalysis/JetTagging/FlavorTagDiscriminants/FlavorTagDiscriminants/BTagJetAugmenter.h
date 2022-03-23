@@ -44,6 +44,8 @@ private:
   AE::Decorator<float> m_eta_uncalib;
   AE::Decorator<float> m_abs_eta_uncalib;
 
+  AE::Decorator<float> m_scalarSumTrackPt;
+
   AE::ConstAccessor<std::vector<float> > m_ip2d_weightBOfTracks;
   AE::Decorator<int> m_ip2d_nTrks;
   AE::ConstAccessor<float> m_ip2d_pu;

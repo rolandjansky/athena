@@ -197,6 +197,11 @@ void TopoInputEvent::setOverflowFromEnergyInput(const bool &v)
     m_overflowFromEnergyInput = v;
 }
 
+void TopoInputEvent::setOverflowFromjXEInput   (const bool &v)
+{
+    m_overflowFromjXEInput = v;
+}
+
 void TopoInputEvent::setOverflowFromMuonInput  (const bool &v)
 {
     m_overflowFromMuonInput = v;

@@ -16,19 +16,16 @@ TCS::jEmTOB::jEmTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, co
    , m_Et(Et)
    , m_eta(eta)
    , m_phi(phi)
-   , m_EtDouble(Et/10.)
-   , m_etaDouble(eta/40.)
-   , m_phiDouble(phi/20.)
 {}
 
 // copy constructor
-TCS::jEmTOB::jEmTOB(const jEmTOB & cluster) = default;
+TCS::jEmTOB::jEmTOB(const jEmTOB & jet) = default;
 
 TCS::jEmTOB::~jEmTOB() = default;
 
 TCS::jEmTOB*
-TCS::jEmTOB::createOnHeap(const jEmTOB& cluster) {
-   return fg_heap.create(cluster);
+TCS::jEmTOB::createOnHeap(const jEmTOB& jet) {
+   return fg_heap.create(jet);
 }
 
 void
@@ -38,5 +35,5 @@ TCS::jEmTOB::clearHeap() {
 
 void
 TCS::jEmTOB::print(std::ostream &o) const {
-   o << "jEm cluster energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+   o << "jEm jet energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
 }

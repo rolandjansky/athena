@@ -103,33 +103,33 @@ private:
   ServiceHandle<StoreGateSvc> m_detStore; // used by TileGeoG4CalibSD.cc
   ServiceHandle<IGeoModelSvc> m_geoModSvc;
 
-  Identifier m_invalid_id; /// FIXME just a default-constructed Identifier???
+  Identifier m_invalid_id{}; /// FIXME just a default-constructed Identifier???
 
-  TileMicroHit m_microHit;
+  TileMicroHit m_microHit{};
 
-  TileSDOptions m_options;
+  TileSDOptions m_options{};
 
   Gaudi::Property<double> m_birk1{this, "birk1",0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
   Gaudi::Property<double> m_birk2{this, "birk2",9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
 
   /** @brief Keep hit time */
-  bool m_keepHitTime;
+  bool m_keepHitTime{};
 
   /** @brief Structure holding the attenuation lengths */
   std::unique_ptr<TileRow> m_row;
 
   /** @brief pointer to TileID helper class */
-  const TileID* m_tileID;
+  const TileID* m_tileID{};
 
   /** @brief pointer to TileTBID helper class */
-  const TileTBID* m_tileTBID;
+  const TileTBID* m_tileTBID{};
 
   /** @brief hits in different tile rows are shifted in time by this amount of ns */
-  double m_tileSizeDeltaT;
+  double m_tileSizeDeltaT{};
 
   /** @brief time for hits which are above m_timeCut threshold
       it is equal to m_tilesize_deltaT - m_deltaT */
-  double m_lateHitTime;
+  double m_lateHitTime{};
 
   /** @brief function to provide correct deltaT bin width for given time */
   inline double deltaT(double time) const {

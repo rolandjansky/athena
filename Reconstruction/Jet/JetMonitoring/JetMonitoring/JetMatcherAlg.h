@@ -105,12 +105,12 @@ class JetMatcherAlg : public AthReentrantAlgorithm {
   StatusCode initialize_JetRoI_varHandleKeys(bool);
   StatusCode initialize_jFexSRJetRoI_varHandleKeys(bool);
 
-  TLorentzVector GetTLV(const xAOD::Jet* jet) const;
-  TLorentzVector GetTLV(const xAOD::JetRoI* jet) const;
-  TLorentzVector GetTLV(const xAOD::jFexSRJetRoI* jet) const;
+  StatusCode GetTLV(const xAOD::Jet* jet, TLorentzVector&) const;
+  StatusCode GetTLV(const xAOD::JetRoI* jet, TLorentzVector&) const;
+  StatusCode GetTLV(const xAOD::jFexSRJetRoI* jet, TLorentzVector&) const;
 
   template <typename T>
-  void jetMatching(SG::ReadHandle<DataVector<T>> jets1,
+  StatusCode jetMatching(SG::ReadHandle<DataVector<T>> jets1,
 		   SG::ReadHandle<xAOD::JetContainer> jets2,
 		   SG::WriteDecorHandleKey<DataVector<T>> matchedHandleKey,
 		   std::vector<std::reference_wrapper<SG::WriteDecorHandleKey<DataVector<T>>>> varHandleKeys,

@@ -29,7 +29,7 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 568 \
 --maxEvents ${Events} \
---outputRDOFile ${DigiOutFileNameCG} \
+--outputRDOFile ${DigiOutFileNameCA} \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC21aSingleBeamspot.py' \
 --skipEvents 0 \

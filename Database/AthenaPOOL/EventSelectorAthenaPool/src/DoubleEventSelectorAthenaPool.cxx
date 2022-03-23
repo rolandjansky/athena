@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -157,10 +157,12 @@ StatusCode DoubleEventSelectorAthenaPool::recordAttributeList() const
   // MN: accessing only attribute list, ignoring token list
   const coral::AttributeList& attrList = m_headerIterator->currentRow().attributeList();
   ATH_MSG_DEBUG("AttributeList size " << attrList.size());
-  auto athAttrList = std::make_unique<AthenaAttributeList>(attrList);
+  std::unique_ptr<AthenaAttributeList> athAttrList{};
 
   // Decide what to do based on the type of secondary file
   if (m_secondaryByteStream) {
+    // Create empty attribute list
+    athAttrList = std::make_unique<AthenaAttributeList>();
     // Always add ByteStream as primary input
     ATH_CHECK(m_secondarySelector->fillAttributeList(athAttrList.get(), "", false));
 
@@ -168,6 +170,8 @@ StatusCode DoubleEventSelectorAthenaPool::recordAttributeList() const
     ATH_MSG_DEBUG("Append primary attribute list properties to the secondary one with a suffix: " << m_secondaryAttrListSuffix.value());
     ATH_CHECK(fillAttributeList(athAttrList.get(), "_" + m_secondaryAttrListSuffix.value(), true));
   } else {
+    // Create a new attribute list from the primary input one
+    athAttrList = std::make_unique<AthenaAttributeList>(attrList);
     // Fill the new attribute list from the primary file
     ATH_CHECK(fillAttributeList(athAttrList.get(), "", false));
 

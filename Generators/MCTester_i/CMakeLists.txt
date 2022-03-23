@@ -14,7 +14,7 @@ atlas_add_component( MCTester_i
                      ${MCTester_sources}
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${MCTESTER_INCLUDE_DIRS} ${HEPMC_MCTester_INTERFACE_DIR}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${MCTESTER_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib EventInfo GeneratorObjects )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${MCTESTER_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib GeneratorObjects )
 
 
 # Install files from the package:

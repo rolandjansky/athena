@@ -16,7 +16,7 @@ outputblock : "output"i outputname "{" (algorefstatement
                                        | weightstatement
                                        | outputblock)* "}"
 
-outputname : NODENAME
+outputname : NODENAME || PATTERNNODENAME
 algorithmreference : NODEREF
 outputreference : NODEREF
 weightstatement: "weight" "=" NUMBER -> weight
@@ -39,7 +39,7 @@ atname: "@"NODENAME
 
 ?histstatements: "display"i "=" DISPSTRING -> display
               | "algorithm"i "=" algorithmreference
-	      | "output"i "=" NODEREF -> output
+	      | "output"i "=" OUTPUTNODEREF -> output
 	      | "regex"i "=" INTBOOL -> regex
 	      | "weight" "=" NUMBER -> weight
 	      | "description"i "=" DISPSTRING -> description
@@ -112,8 +112,10 @@ referencestatements: "location" "=" DISPSTRING -> location
 		
 
 NODENAME: ("_" | "." | DIGIT | LETTER) ("_" | "&" | "[" | "]" | "-" | "." | ">" | DIGIT | LETTER)*
+PATTERNNODENAME: (NODENAME? "${"NODENAME"}" )+ NODENAME? | NODENAME
 
 NODEREF: (NODENAME"/")* NODENAME
+OUTPUTNODEREF: (PATTERNNODENAME"/")* PATTERNNODENAME
 
 %import common.ESCAPED_STRING   -> STRING
 %import common.STRING_INNER

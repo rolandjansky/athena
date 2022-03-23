@@ -66,10 +66,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_DBMTimeJitter
     {this, "DBMTimeJitter", {0.0,0.0,0.0}, "Time jitter of DBM layer"};
 
-    // Dead map key. This will be replaced once new deadmap format is validated.
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey
-    {this, "ReadDeadMapKey", "", "Input key of deadmap conditions folder"};
-
     //====================================================================================
     // Run-dependent SIMULATION(digitization) parameters:
     //
@@ -736,6 +732,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<bool> m_UseFEI4SpecialScalingFunction
     {this, "UseFEI4SpecialScalingFunction", true, "Use FEI4 special scaling function"};
+
+    Gaudi::Property<std::vector<double>> m_FEI4ToTSigma
+    {this, "FEI4ToTSigma", {0.0,0.50,0.50,0.50,0.50,0.50,0.60,0.60,0.60,0.60,0.65,0.70,0.75,0.80,0.80,0.80,0.80}, "Set ToT sigma for FEI4"};
 
     // Charge calibration parameters
     Gaudi::Property<float> m_CalibrationParameterA

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef MUON_MUONTRACKEXTRAPOLATIONTOOL_H
@@ -52,7 +52,7 @@ namespace Muon {
 
     private:
         double estimateDistanceToEntryRecord(const EventContext &ctx, const Trk::TrackParameters &pars) const;
-        const Trk::TrackParameters *checkForSecondCrossing(const Trk::TrackParameters &firstCrossing, const Trk::Track &track) const;
+        static const Trk::TrackParameters *checkForSecondCrossing(const Trk::TrackParameters &firstCrossing, const Trk::Track &track) ;
         const Trk::TrackParameters *findClosestParametersToMuonEntry(const EventContext &ctx, const Trk::Track &track) const;
 
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets

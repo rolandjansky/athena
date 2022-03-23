@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -545,7 +545,7 @@ if __name__== '__main__':
             physPostProcess = (['histgrinder', inputPath, outputPath,
                                  '--inmodule', 'DQOnlinePostprocessing.atlas_oh.OHInputModule',
                                  '--outmodule', 'DQOnlinePostprocessing.atlas_oh.OHOutputModule',
-                                 '-c'] + physConfigurations)
+                                 '--prefix', '/', '-c'] + physConfigurations)
 
             subprocess.run(physPostProcess)
 
@@ -563,6 +563,6 @@ if __name__== '__main__':
             noisePostProcess = (['histgrinder', inputPath, outputPath,
                                  '--inmodule', 'DQOnlinePostprocessing.atlas_oh.OHInputModule',
                                  '--outmodule', 'DQOnlinePostprocessing.atlas_oh.OHOutputModule',
-                                 '-c'] + noiseConfigurations)
+                                 '--prefix', '/', '-c'] + noiseConfigurations)
 
             subprocess.run(noisePostProcess)

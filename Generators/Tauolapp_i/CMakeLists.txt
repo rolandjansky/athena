@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Tauolapp_i )
@@ -16,7 +16,7 @@ atlas_add_component( Tauolapp_i
    Tauolapp_i/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${TAUOLAPP_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${TAUOLAPP_LIBRARIES} AtlasHepMCLib ${CLHEP_LIBRARIES}
-   AthenaBaseComps AthenaKernel AthenaPoolUtilities EventInfo GaudiKernel
+   AthenaBaseComps AthenaKernel AthenaPoolUtilities GaudiKernel
    GeneratorObjects )
 
 # Install files from the package:

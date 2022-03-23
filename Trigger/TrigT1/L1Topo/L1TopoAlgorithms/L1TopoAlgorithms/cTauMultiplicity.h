@@ -13,6 +13,12 @@
 #include "L1TopoEvent/TOBArray.h"
 #include "TrigConfData/L1Threshold.h"
 
+// Include xAOD headers here
+#ifndef TRIGCONF_STANDALONE
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#endif
+
 class TH2;
 
 namespace TCS {
@@ -28,7 +34,12 @@ namespace TCS {
       virtual StatusCode processBitCorrect( const TCS::InputTOBArray & input, Count & count ) override final ;
 
       virtual StatusCode process( const TCS::InputTOBArray & input, Count & count ) override final ;
-      
+
+      #ifndef TRIGCONF_STANDALONE
+      // Matching function for HLT seeding
+      static size_t cTauMatching( const xAOD::eFexTauRoI & eTau, const xAOD::jFexTauRoIContainer & jTauRoIs );
+      #endif
+
    private:
 
       TrigConf::L1Threshold const * m_threshold{nullptr};

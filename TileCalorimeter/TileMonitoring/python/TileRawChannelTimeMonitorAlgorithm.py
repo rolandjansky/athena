@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileRawChannelTimeMonitorAlgorithm.py
@@ -36,6 +36,9 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     # Partition pairs to monitor average time difference between partitions (ROS - 1)
     partitionPairs = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
     kwargs.setdefault('PartitionTimeDiffferncePairs', partitionPairs)
+
+    if flags.Input.RunNumber[0] > 400000: # Update partition time corrections for Run 3
+        kwargs.setdefault('PartitionTimeCorrections', [-28.65, -45.2, 25.24, 24.94])
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools

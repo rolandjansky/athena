@@ -57,6 +57,11 @@ if hasattr(runArgs,"preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
+if hasattr(runArgs, "detectors"):
+    if not 'DetFlags' in dir():
+        from Digitization.DigitizationFlagsHelpers import setupDigitizationLegacyDetectorFlags
+        DetFlags = setupDigitizationLegacyDetectorFlags(runArgs.detectors)
+
 include("RDOAnalysis/RDOAnalysis_commonOptions.py")
 
 ## Post-include

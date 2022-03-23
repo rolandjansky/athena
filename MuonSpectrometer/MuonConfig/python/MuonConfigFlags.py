@@ -83,8 +83,7 @@ def createMuonConfigFlags():
     
     mcf.addFlag("Muon.useSegmentMatching", lambda prevFlags : prevFlags.Beam.Type is BeamType.Collisions) # Do not use for cosmics or singlebeam 
     mcf.addFlag("Muon.useTrackSegmentMatching", True )
-    ### Disable the commissioing chain brute force to build 22.0.52 
-    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( False and (prevFlags.Muon.doMicromegas or prevFlags.Muon.dosTGCs) \
+    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Muon.doMicromegas or prevFlags.Muon.dosTGCs) \
                                                                  and prevFlags.Beam.Type is BeamType.Collisions) )
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders

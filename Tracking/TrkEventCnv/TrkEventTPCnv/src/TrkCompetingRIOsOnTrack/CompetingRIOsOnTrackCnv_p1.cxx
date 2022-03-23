@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -34,7 +34,7 @@ void CompetingRIOsOnTrackCnv_p1::persToTrans( const Trk::CompetingRIOsOnTrack_p1
     // find max assignment index again
   double maxAssgnProb = 0;
   unsigned int max = transObj->m_assignProb->size();
-  typedef std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > t_probVec;
+  using t_probVec = std::vector<Trk::CompetingRIOsOnTrack::AssignmentProb>;
   const t_probVec& tProbVec = *(transObj->m_assignProb);
   for (unsigned int i=0; i<max; i++) {
     if ( tProbVec[i] >= maxAssgnProb) {

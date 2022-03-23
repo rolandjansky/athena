@@ -77,7 +77,9 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
 
   ToolHandle<InDet::IInDetTrackSelectionTool> m_TrackSelectionTool{this, "TrackSelectionTool", "InDetTrackSelectionTool", "Tool for selecting tracks"};
 
+  bool m_SkipPreSelection; //true for HI/HI-p collisions, false for pp collisions
   bool m_SkipJetFilter; //true for HI/HI-p collisions, false for pp collisions
+
   bool m_DoExtraTaggerHistos; //true if interested in extra tagger histograms
 
   int m_MinGoodTrackCut;

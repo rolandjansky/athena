@@ -59,14 +59,12 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   }
 
   // Create a vector of trigger towers with quantities to be monitored
-  std::vector<MonitorTT> vecMonTT_EM;  // EM towers
-  std::vector<MonitorTT> vecMonTT_HAD; // HAD towers
   std::vector<MonitorTT> vecMonTT;     // All towers
 
   // Loop over trigger tower container
   // Create the trigger tower objects and calculate scaled phi
   for (const xAOD::TriggerTower* tt : *triggerTowerTES) {
-    ATH_CHECK( fillPPMTowerEtaPhi(tt, vecMonTT_EM, vecMonTT_HAD, vecMonTT) );     
+    ATH_CHECK( makePPMTower(tt, vecMonTT) );     
   }
 
   
@@ -123,7 +121,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       // Fill LUT-CP eta-phi maps 
       // ppm_em_2d_etaPhi_tt_lutcp_AverageEt, ppm_had_2d_etaPhi_tt_lutcp_AverageEt 
       if (cpET > 5) {
-        ATH_CHECK( fillPPMEtaVsPhi(myTower, groupName, "cpET_TT_2D", cpET) ); 
+        ATH_CHECK( fillPPMEtaPhi(myTower, groupName, "cpET_TT_2D", cpET) ); 
       }
     }
 
@@ -135,7 +133,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       ATH_MSG_DEBUG("Filling group " << groupName);
       ATH_MSG_DEBUG("cpET > " << th << " ? " << (cpET > th));  
       if (cpET > th) {
-        ATH_CHECK( fillPPMEtaVsPhi(myTower, groupName, "", 1.) );
+        ATH_CHECK( fillPPMEtaPhi(myTower, groupName, "", 1.) );
       }
     }
               
@@ -156,7 +154,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       // Fill LUT-JEP eta-phi maps 
       // ppm_em_2d_etaPhi_tt_lutjep_AverageEt, ppm_had_2d_etaPhi_tt_lutjep_AverageEt 
       if (jepET > 5) {
-        ATH_CHECK( fillPPMEtaVsPhi(myTower, groupName, "jepET_TT_2D", jepET) ); 
+        ATH_CHECK( fillPPMEtaPhi(myTower, groupName, "jepET_TT_2D", jepET) ); 
       }
     }
 
@@ -168,7 +166,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       ATH_MSG_DEBUG("Filling group " << groupName);
       ATH_MSG_DEBUG("jepET > " << th << " ? " << (jepET > th));
       if (jepET > th) {
-        ATH_CHECK( fillPPMEtaVsPhi(myTower, groupName, "", 1.) );
+        ATH_CHECK( fillPPMEtaPhi(myTower, groupName, "", 1.) );
       }
 
     }
@@ -190,7 +188,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       const int ADC = ((myTower.tower)->adc())[tslice];
       if (ADC > m_TT_ADC_HitMap_Thresh) {
         // Fills both ppm_em_2d_etaPhi_tt_adc_HitMap (unweighted) and ppm_em_2d_etaPhi_tt_adc_ProfileHitMap (weighted) at the same time
-        ATH_CHECK(fillPPMEtaVsPhi(myTower, groupName, "adcTT", ADC));
+        ATH_CHECK(fillPPMEtaPhi(myTower, groupName, "adcTT", ADC));
       }
     }
   
@@ -205,7 +203,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
  
     if (max >= 0.) {
       fill(groupName, maxADC);
-      ATH_CHECK(fillPPMEtaVsPhi(myTower, groupName, "maxADCPlus1", maxADCPlus1));
+      ATH_CHECK(fillPPMEtaPhi(myTower, groupName, "maxADCPlus1", maxADCPlus1));
     }
    
     // -------- Bits of BCID logic word --------
@@ -314,14 +312,10 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   return StatusCode::SUCCESS;
 }
 
-StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2* tt, 
-                                                    std::vector<MonitorTT> &vecMonTT_EM,  
-                                                    std::vector<MonitorTT> &vecMonTT_HAD,  
+StatusCode PprMonitorAlgorithm::makePPMTower( const xAOD::TriggerTower_v2* tt, 
                                                     std::vector<MonitorTT> &vecMonTT) const
 {
   // Geometry
-  const int layer = tt->layer(); // 0 = EM, 1 = HAD
-  //const double eta = tt->eta();
   const double phi = tt->phi();
   double phiMod = phi * m_phiScaleTT;
   
@@ -341,8 +335,6 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
   monTT.jepET = jepET;
   monTT.maxADC = max;
   vecMonTT.push_back(monTT);
-  if (layer == 0) vecMonTT_EM.push_back(monTT);
-  if (layer == 1) vecMonTT_HAD.push_back(monTT);
    
   return StatusCode::SUCCESS; 
 }
@@ -433,7 +425,7 @@ std::string PprMonitorAlgorithm::getPartition(int layer, double eta) const {
 }
 
 
-StatusCode PprMonitorAlgorithm::fillPPMEtaVsPhi( MonitorTT &monTT, 
+StatusCode PprMonitorAlgorithm::fillPPMEtaPhi( MonitorTT &monTT, 
                                            const std::string& groupName, 
                                            const std::string& weightName,
                                            double weight/*=1.*/) const {

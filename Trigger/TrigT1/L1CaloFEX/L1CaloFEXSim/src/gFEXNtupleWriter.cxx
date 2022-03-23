@@ -79,6 +79,7 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gSJ_eta", &m_gSJ_eta);  
   m_valiTree->Branch ("gSJ_gFEXphi", &m_gSJ_gFEXphi);
   m_valiTree->Branch ("gSJ_phi", &m_gSJ_phi);
+  m_valiTree->Branch ("gSJ_phiTopo", &m_gSJ_phiTopo);
   m_valiTree->Branch ("gSJ_tobEt", &m_gSJ_tobEt);
   m_valiTree->Branch ("gSJ_etMeV", &m_gSJ_etMeV);
   m_valiTree->Branch ("gSJ_scaleMeV", &m_gSJ_etScale);
@@ -88,6 +89,7 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gLJ_eta", &m_gLJ_eta);  
   m_valiTree->Branch ("gLJ_gFEXphi", &m_gLJ_gFEXphi);
   m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
+  m_valiTree->Branch ("gLJ_phiTopo", &m_gLJ_phiTopo);
   m_valiTree->Branch ("gLJ_tobEt", &m_gLJ_tobEt);
   m_valiTree->Branch ("gLJ_etMeV", &m_gLJ_etMeV);
   m_valiTree->Branch ("gLJ_scaleMeV", &m_gLJ_etScale);
@@ -214,6 +216,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gSJ_eta.clear();
   m_gSJ_gFEXphi.clear();
   m_gSJ_phi.clear();
+  m_gSJ_phiTopo.clear();
   m_gSJ_tobEt.clear();
   m_gSJ_etMeV.clear();
   m_gSJ_etScale.clear();  
@@ -223,6 +226,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gLJ_eta.clear();
   m_gLJ_gFEXphi.clear();
   m_gLJ_phi.clear();
+  m_gLJ_phiTopo.clear();
   m_gLJ_tobEt.clear();
   m_gLJ_etMeV.clear();
   m_gLJ_etScale.clear();  
@@ -271,6 +275,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_gSJ_eta.push_back(gSJ->eta());
     m_gSJ_gFEXphi.push_back(gSJ->phi_gFex());
     m_gSJ_phi.push_back(gSJ->phi());
+    m_gSJ_phiTopo.push_back(gSJ->iPhiTopo());
     m_gSJ_tobEt.push_back(gSJ->gFexTobEt());
     m_gSJ_etMeV.push_back(gSJ->et());
     m_gSJ_etScale.push_back(gSJ->tobEtScale());
@@ -283,6 +288,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_gLJ_eta.push_back(gLJ->eta());
     m_gLJ_gFEXphi.push_back(gLJ->phi_gFex());
     m_gLJ_phi.push_back(gLJ->phi());
+    m_gLJ_phiTopo.push_back(gLJ->iPhiTopo());
     m_gLJ_tobEt.push_back(gLJ->gFexTobEt());
     m_gLJ_etMeV.push_back(gLJ->et());
     m_gLJ_etScale.push_back(gLJ->tobEtScale());

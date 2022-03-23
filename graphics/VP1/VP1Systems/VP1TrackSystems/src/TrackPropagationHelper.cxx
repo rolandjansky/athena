@@ -53,7 +53,7 @@ public:
   const double maxz{};
   const double fallback_flydist{};
 
-  bool outsideIDVolume(const Amg::Vector3D& p) {
+  bool outsideIDVolume(const Amg::Vector3D& p) const {
     return fabs(p.z())>maxz||p.perp2()>maxInDetrsq;
   }
 
@@ -75,7 +75,7 @@ public:
                 Trk::ParticleHypothesis hypo,
                 const double& dist );
   //Granularity:
-  double maxPointDistSq(const Amg::Vector3D& /* p */){
+  static double maxPointDistSq(const Amg::Vector3D& /* p */){
       //Vertex region:
     /** all paths return the same number
     const double absz(fabs(p.z())), absrsq(p.perp2());

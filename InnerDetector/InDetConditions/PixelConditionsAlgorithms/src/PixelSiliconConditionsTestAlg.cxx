@@ -17,7 +17,6 @@ StatusCode PixelSiliconConditionsTestAlg::initialize()
 {  
   ATH_MSG_INFO("Calling initialize");
 
-  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
   ATH_CHECK(m_lorentzAngleTool.retrieve());
@@ -31,7 +30,6 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
 
   SG::ReadCondHandle<PixelDCSHVData> hv(m_readKeyHV);
   SG::ReadCondHandle<PixelDCSTempData> temp(m_readKeyTemp);
-  SG::ReadCondHandle<PixelModuleData> deadmap(m_moduleDataKey);
   SG::ReadCondHandle<PixelChargeCalibCondData> calib(m_chargeDataKey);
   SG::ReadCondHandle<PixelDistortionData> distortion(m_distortionKey);
 
@@ -39,7 +37,6 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
     ATH_MSG_DEBUG("Module " << i << " "
                             << hv->getBiasVoltage(i) << " " 
                             << temp->getTemperature(i) << " " 
-                            << deadmap->getModuleStatus(i) << " " 
                             << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)));
     for (int j=0; j<16; j++) {
       ATH_MSG_DEBUG("FE " << j << " "
