@@ -542,6 +542,9 @@ std::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
       ,"/root/include/"
       ,"/var/tmp/"
       ,"/var/lock/"
+      ,"/var/lib/"
+      ,"/include/c++/"
+      ,".confdb2"
       };
 
   path fdPath("/proc/self/fd");
