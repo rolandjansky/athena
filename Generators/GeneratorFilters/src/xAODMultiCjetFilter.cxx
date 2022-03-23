@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 // This is a general-purpose multi-c-jet filter with the removal of the 
 // c-hadrons orriginating from b-hadrons decay.
@@ -170,10 +170,9 @@ StatusCode xAODMultiCjetFilter::filterEvent() {
 
   // Bookkeeping
   double weight = 1;
- for(itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
-  const HepMC::GenEvent* genEvt = (*itr);
- weight = genEvt->weights().front();
-}
+  for(const HepMC::GenEvent* genEvt : *events_const()) {
+    weight = genEvt->weights().front();
+  }
 
   m_SumOfWeights_Evt += weight;
   if(pass){
