@@ -64,10 +64,10 @@ def configEventShapeCopierAlg( input ):
     """
     def buildTool( alg):         
         from AthenaCommon.AppMgr import ToolSvc
-        t= EventShapeCopier( input+alg+"EvtShapeCopier",
-                                 InputEventShape=input+"EventShape",
-                                 OutputEventShape=alg+input+"EventShape",
-                                 EventDensityName = "DensityForJetsR" + alg[-1])
+        t= CompFactory.EventShapeCopier( input+alg+"EvtShapeCopier",
+                                         InputEventShape=input+"EventShape",
+                                         OutputEventShape=alg+input+"EventShape",
+                                         EventDensityName = "DensityForJetsR" + alg[-1])
         ToolSvc +=t
         return t
     return CompFactory.EventDensityAlg(input+"EventShapeCopierAlg", EventDensityTool = [ buildTool("Kt4"), buildTool("Kt6") ] )

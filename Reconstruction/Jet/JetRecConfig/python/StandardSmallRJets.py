@@ -39,7 +39,7 @@ calibmods_lowCut = (
 
 standardmods = (
     "LArHVCorr", "Width",
-     "CaloQuality", "TrackMoments","TrackSumMoments",
+    "CaloQuality", "TrackMoments","TrackSumMoments",
     "JVF", "JVT", "Charge",
 )
 
@@ -87,7 +87,7 @@ AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.GPFlow,
 
 AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
                               ghostdefs = standardghosts+flavourghosts, 
-                              modifiers = calibmods+("Filter:15000",)+standardmods+clustermods,
+                              modifiers = calibmods+("Filter_ifnotESD:15000",)+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
 )

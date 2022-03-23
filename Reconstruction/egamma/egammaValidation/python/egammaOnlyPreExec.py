@@ -10,6 +10,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 def setRunEgammaOnlyRecoFlags():
 
     ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.Reco.EnablePFlow = False
+
     rec.doTrigger.set_Value_and_Lock(False)
     rec.doTau.set_Value_and_Lock(False)
     rec.doMuon.set_Value_and_Lock(False)
@@ -32,7 +34,6 @@ def setRunEgammaOnlyRecoFlags():
     AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
 
     jetFlags.Enabled = False
-
 
 def setRunEgammaOnlyMergeFlags():
     rec.doTrigger.set_Value_and_Lock(False)

@@ -5,16 +5,21 @@ from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
 from JetRecConfig.JetRecConfig import JetRecCfg
 
 
+
 def JetRecoSteeringCfg(flags):
     result = ComponentAccumulator()
-
+    
     # the Standard list of jets to run :
     jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo_noVR]
 
+    from JetRecConfig.JetConfigFlags import jetInternalFlags
+    # We're in Reco job : propagate this info to the runIII jet config
+    # (see JetConfigFlags.py for motivations on this way of doing)
+    jetInternalFlags.isRecoJob = True
+    
     #--------------------------------------------------------------
     # Create the jet algs from the jet definitions
     #--------------------------------------------------------------
-
     for jd in jetdefs:
         result.merge(JetRecCfg(flags, jd))
 
