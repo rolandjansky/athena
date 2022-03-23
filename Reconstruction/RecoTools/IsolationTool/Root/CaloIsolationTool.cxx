@@ -117,7 +117,6 @@ namespace xAOD {
     
     ATH_CHECK(m_tpEDCentral.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_tpEDForward.initialize(m_InitializeReadHandles));
-    ATH_CHECK(m_tpEDveryForward.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDCentral.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDForward.initialize(m_InitializeReadHandles));
 
@@ -1440,12 +1439,17 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
                                        const CaloCluster* fwdClus) const
 
   {
+    std::vector<float> corrvec;
+    corrvec.resize(isoTypes.size(),0.);
+
     // assume two densities for the time being
     const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5 || m_useEtaDepPU) ? &m_tpEDCentral : &m_tpEDForward;
     if (type == "PFlow") {
       esKey = (fabs(eta) < 1.5) ? &m_efEDCentral : &m_efEDForward;
     } else if (fwdClus != nullptr) {
-      esKey = &m_tpEDveryForward;
+      ATH_MSG_DEBUG("No pileup correction for forward electron isolation yet");
+      result.noncoreCorrections[Iso::pileupCorrection] = corrvec;
+      return true;
     }
 
     SG::ReadHandle<EventShape> edShape(*esKey);
@@ -1477,8 +1481,6 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if (iter != ecore.end())
       areacore = ecore.find(xAOD::Iso::coreArea)->second;
 
-    std::vector<float> corrvec;
-    corrvec.resize(isoTypes.size(),0.);
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
       float dR    = Iso::coneSize(isoTypes.at(i));
       float toSub = rho*(dR*dR*M_PI - areacore);
