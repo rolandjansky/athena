@@ -211,6 +211,14 @@ def ITkRecPreProcessingSiliconCfg(flags, **kwargs):
         from InDetConfig.ITkTrackRecoConfig import ITkStripClusterizationCfg
         acc.merge(ITkStripClusterizationCfg(flags))
 
+    if flags.ITk.Tracking.convertInDetClusters and flags.Detector.EnableITkPixel and flags.Detector.EnableITkStrip:
+        #
+        # --- Conversion algorithm for InDet clusters to xAOD clusters
+        #
+        from InDetConfig.ITkTrackRecoConfig import ITkInDetToXAODClusterConversionCfg
+        acc.merge(ITkInDetToXAODClusterConversionCfg(flags))
+
+
     #
     # ----------- form SpacePoints from clusters in SCT and Pixels
     #

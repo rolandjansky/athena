@@ -68,5 +68,6 @@ def createITkConfigFlags():
   from InDetConfig.VertexFindingFlags import createITkPriVertexingFlags
   itkcf.addFlagsCategory("ITk.PriVertex", createITkPriVertexingFlags, prefix=True)
 
+  itkcf.addFlag("ITk.Tracking.convertInDetClusters", False) # Turn on conversion of InDet clusters to xAOD clusters
 
   return itkcf
