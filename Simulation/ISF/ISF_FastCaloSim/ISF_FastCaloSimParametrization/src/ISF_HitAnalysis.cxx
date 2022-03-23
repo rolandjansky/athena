@@ -9,7 +9,6 @@
 // Section of includes for LAr calo tests
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -124,7 +123,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_metadataTreeName("MetaData")
    , m_geoFileName("ISF_Geometry")
    , m_thistSvc(0)
-   , m_calo_dd_man(0)
    //#####################
    , m_eta_calo_surf(0)
    , m_phi_calo_surf(0)
@@ -322,7 +320,7 @@ StatusCode ISF_HitAnalysis::initialize()
   ATH_CHECK( m_tileCablingSvc.retrieve() );
   m_tileCabling = m_tileCablingSvc->cablingService();
 
-  m_calo_dd_man  = CaloDetDescrManager::instance();
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // Retrieve Tools
   IToolSvc* p_toolSvc = 0;
@@ -686,12 +684,13 @@ StatusCode ISF_HitAnalysis::finalize()
   geo->Branch("dz", &geocell.dz,"dz/F");
  }
 
- if(m_calo_dd_man)
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+ ATH_CHECK(caloMgrHandle.isValid());
+ const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
+ int ncells=0;
+ for (const CaloDetDescrElement* theDDE : calo_dd_man->element_range())
  {
-  int ncells=0;
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_calo_dd_man->element_begin();calo_iter<m_calo_dd_man->element_end();++calo_iter)
-  {
-   const CaloDetDescrElement* theDDE=*calo_iter;
    if(theDDE)
    {
     CaloCell_ID::CaloSample sample=theDDE->getSampling();
@@ -723,10 +722,10 @@ StatusCode ISF_HitAnalysis::finalize()
      geo->Fill();
     }
    }
-  }
-
-  ATH_MSG_INFO( ncells<<" cells found" );
  }
+
+ ATH_MSG_INFO( ncells<<" cells found" );
+
  dummyGeoFile->Close();
  return StatusCode::SUCCESS;
 } //finalize
@@ -844,6 +843,10 @@ StatusCode ISF_HitAnalysis::execute()
 
  //##########################
 
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+ ATH_CHECK(caloMgrHandle.isValid());
+ const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
  //Get the FastCaloSim step info collection from store
  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
  StatusCode sc = evtStore()->retrieve(eventStepsES, "MergedEventSteps");
@@ -871,8 +874,8 @@ StatusCode ISF_HitAnalysis::execute()
      Identifier id = (*it)->identify();
      Identifier cell_id = (*it)->identify(); //to be replaced by cell_id in tile
 
-     if(m_calo_dd_man->get_element(id)) {
-       CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(id)->getSampling();
+     if(calo_dd_man->get_element(id)) {
+       CaloCell_ID::CaloSample layer = calo_dd_man->get_element(id)->getSampling();
        sampling = layer; //use CaloCell layer immediately
      } else {
        ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
@@ -905,10 +908,10 @@ StatusCode ISF_HitAnalysis::execute()
        tile = true;
        cell_id = m_tileID->cell_id(id);
        Int_t tile_sampling = -1;
-       if(m_calo_dd_man->get_element(cell_id)) {
-         tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
+       if(calo_dd_man->get_element(cell_id)) {
+         tile_sampling = calo_dd_man->get_element(cell_id)->getSampling();
        }
-       if(tile_sampling!= -1) sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
+       if(tile_sampling!= -1) sampling = tile_sampling; //calo_dd_man needs to be called with cell_id not pmt_id!!
      } else {
        ATH_MSG_WARNING( "This hit is somewhere. Please check!");
      }
@@ -1169,10 +1172,10 @@ StatusCode ISF_HitAnalysis::execute()
       // special case for E4'
       m_cell_sampling->push_back(CaloCell_ID::TileGap3);
     }
-    else if (m_calo_dd_man->get_element((*itrCell)->ID()))
+    else if (calo_dd_man->get_element((*itrCell)->ID()))
     {
     // all other Tile cells
-    CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
+    CaloCell_ID::CaloSample layer = calo_dd_man->get_element((*itrCell)->ID())->getSampling();
     m_cell_sampling->push_back(layer);
     }
     else
@@ -1193,12 +1196,12 @@ StatusCode ISF_HitAnalysis::execute()
     for (hi=(*iter).begin();hi!=(*iter).end();++hi) {
       hitnumber++;
       const LArHit* larHit = *hi;
-      const CaloDetDescrElement *hitElement = m_calo_dd_man->get_element(larHit->cellID());
+      const CaloDetDescrElement *hitElement = calo_dd_man->get_element(larHit->cellID());
       if(!hitElement)
         continue;
       Identifier larhitid = hitElement->identify();
-      if(m_calo_dd_man->get_element(larhitid)) {
-      CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+      if(calo_dd_man->get_element(larhitid)) {
+      CaloCell_ID::CaloSample larlayer = calo_dd_man->get_element(larhitid)->getSampling();
 
       float larsampfrac=fSampl->FSAMPL(larhitid);
       m_g4hit_energy->push_back( larHit->energy() );
@@ -1228,8 +1231,8 @@ StatusCode ISF_HitAnalysis::execute()
    Identifier pmt_id = (*i_hit).identify();
    Identifier cell_id = m_tileID->cell_id(pmt_id);
 
-   if (m_calo_dd_man->get_element(cell_id)){
-      CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
+   if (calo_dd_man->get_element(cell_id)){
+      CaloCell_ID::CaloSample layer = calo_dd_man->get_element(cell_id)->getSampling();
 
       HWIdentifier channel_id = m_tileCabling->s2h_channel_id(pmt_id);
       int channel = m_tileHWID->channel(channel_id);

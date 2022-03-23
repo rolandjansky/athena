@@ -2,8 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_HIT_ANALYSIS_H
-#define ISF_HIT_ANALYSIS_H
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_ISF_HIT_ANALYSIS_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_ISF_HIT_ANALYSIS_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Algorithm.h"
@@ -45,7 +45,6 @@ namespace Trk
 #include <string>
 #include <Rtypes.h>
 #include <TLorentzVector.h>
-//#include "TH1.h"
 
 /* *************************************************************
  This is a modified copy of Simulation/Tools/CaloHitAnalysis
@@ -77,10 +76,10 @@ class ISF_HitAnalysis : public AthAlgorithm {
    ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
    ~ISF_HitAnalysis();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode execute();
-   virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual StatusCode execute() override;
+   StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
    const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
@@ -173,7 +172,11 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::string m_geoFileName;
    int m_NtruthParticles;
    ITHistSvc * m_thistSvc;
-   const CaloDetDescrManager* m_calo_dd_man;
+
+   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+       , "CaloDetDescrManager"
+       , "CaloDetDescrManager"
+       , "SG Key for CaloDetDescrManager in the Condition Store" };
 
    //####################################################
    double m_eta_calo_surf;
