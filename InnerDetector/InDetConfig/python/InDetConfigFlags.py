@@ -22,6 +22,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation)
   icf.addFlag("InDet.noTRTTiming", lambda prevFlags: prevFlags.Beam.Type is BeamType.SingleBeam)
+  icf.addFlag("InDet.doTRTPhase", lambda prevFlags: prevFlags.Beam.Type is BeamType.Cosmics)
 
 
   ### Tracking parameters

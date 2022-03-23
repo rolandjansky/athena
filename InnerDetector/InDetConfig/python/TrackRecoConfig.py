@@ -410,6 +410,8 @@ def InDetTrackRecoCfg(flags):
                                       InputCollections = [],
                                       BarrelSegments = "TRTSegmentsTRT"))
 
+    # @TODO add TRTPhase computation somewhere (needed for cosmics)
+
     # ------------------------------------------------------------
     #
     # ----------- Main passes for standard reconstruction
@@ -583,7 +585,7 @@ def InDetTrackRecoOutputCfg(flags):
         ]
 
     # write phase calculation into ESD
-    if flags.Beam.Type is BeamType.Cosmics:
+    if flags.InDet.doTRTPhase:
         toESD += ["ComTime#TRT_Phase"]
 
     # Save PRD
