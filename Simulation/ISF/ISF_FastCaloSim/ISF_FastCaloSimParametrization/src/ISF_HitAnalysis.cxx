@@ -537,7 +537,7 @@ StatusCode ISF_HitAnalysis::finalize()
   geo->Branch("dz", &geocell.dz,"dz/F");
  }
 
- SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
  ATH_CHECK(caloMgrHandle.isValid());
  const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
 
@@ -595,10 +595,10 @@ StatusCode ISF_HitAnalysis::execute()
   return StatusCode::FAILURE;
  }
 
- SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+ SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey,Gaudi::Hive::currentContext());
  const ILArfSampl* fSampl=*fSamplHdl;
 
- SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey);
+ SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey,Gaudi::Hive::currentContext());
  ATH_CHECK( tileSamplingFraction.isValid() );
 
 
@@ -696,7 +696,7 @@ StatusCode ISF_HitAnalysis::execute()
 
  //##########################
 
- SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
  ATH_CHECK(caloMgrHandle.isValid());
  const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
 

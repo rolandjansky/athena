@@ -15,7 +15,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
-//#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
