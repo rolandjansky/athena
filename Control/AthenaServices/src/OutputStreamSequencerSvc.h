@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OUTPUTSTREAMSEQUENCERSVC_H
@@ -81,13 +81,20 @@ private: // data
 
    /// Current EventRange ID constructed on the last NextRange incident
    std::string  m_currentRangeID;
-   
+
+   /// Recently constructed full file name (useful in single threaded processing)
+   std::string  m_lastFileName;
+
    /// EventRange ID for all slots
    std::vector<std::string>   m_rangeIDinSlot;
 
 private: // properties
    /// SequenceIncidentName, incident name for triggering file sequencing.
-   StringProperty             m_incidentName;
+   StringProperty             m_incidentName {this, "SequenceIncidentName", "",
+         "Name of the incident that signals the next Event Range start" };
+   /// Flag to switch on storage of reporting info in fnToRangeId
+   BooleanProperty            m_reportingOn {this, "ReportingOn", false,
+         "If True, keep info about Ranges for getRangeReport() calls"};
 
    std::map<std::string,std::string> m_fnToRangeId;
    std::map<std::string,std::string>::iterator m_finishedRange;
