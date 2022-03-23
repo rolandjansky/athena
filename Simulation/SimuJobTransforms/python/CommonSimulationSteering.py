@@ -103,15 +103,13 @@ def CommonSimulationCfg(ConfigFlags, log):
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
-    cfg.getEventAlgo("OutputStreamHITS").AcceptAlgs=AcceptAlgNames
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=AcceptAlgNames) )
     if ConfigFlags.Sim.ISF.ReSimulation:
         cfg.getEventAlgo("OutputStreamHITS").TakeItemsFromInput=False
 
     if len(ConfigFlags.Output.EVNT_TRFileName)>0:
         from SimuJobTransforms.SimOutputConfig import getStreamEVNT_TR_ItemList
-        cfg.merge( OutputStreamCfg(ConfigFlags,"EVNT_TR", ItemList=getStreamEVNT_TR_ItemList(ConfigFlags), disableEventTag=True) )
-        cfg.getEventAlgo("OutputStreamEVNT_TR").AcceptAlgs=AcceptAlgNames
+        cfg.merge( OutputStreamCfg(ConfigFlags,"EVNT_TR", ItemList=getStreamEVNT_TR_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=AcceptAlgNames) )
 
     # Add MT-safe PerfMon
     if ConfigFlags.PerfMon.doFastMonMT or ConfigFlags.PerfMon.doFullMonMT:

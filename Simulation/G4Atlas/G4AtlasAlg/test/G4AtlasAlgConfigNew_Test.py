@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=['G4AtlasAlg']) )
 
     # FIXME hack to match to buggy behaviour in old style configuration
     OutputStreamHITS = cfg.getEventAlgo("OutputStreamHITS")
