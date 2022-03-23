@@ -15,6 +15,7 @@ ParticleJetGhostLabelTool::ParticleJetGhostLabelTool(const std::string& name)
     declareProperty("LabelName", m_labelnames.singleint="HadronGhostTruthLabelID", "Name of the jet label attribute to be added.");
     declareProperty("DoubleLabelName", m_labelnames.doubleint="HadronGhostExtendedTruthLabelID", "Name of the jet label attribute to be added (with the possibility of up to 2 matched hadrons).");
     declareProperty("LabelPtName", m_labelnames.pt="HadronGhostTruthLabelPt", "Name of attribute for maximum particle pt");
+    declareProperty("LabelLxyName", m_labelnames.Lxy="HadronGhostTruthLabelLxy", "Name of attribute for Lxy of particle with maximum pt");
     declareProperty("GhostBName", m_ghostbname="GhostBHadronsFinal", "Name of attribute for matched B hadrons.");
     declareProperty("GhostCName", m_ghostcname="GhostCHadronsFinal", "Name of attribute for matched C hadrons.");
     declareProperty("GhostTauName", m_ghosttauname="GhostTausFinal", "Name of attribute for matched Taus.");
