@@ -52,10 +52,10 @@
         "chains" : "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig"
     },
     "L2fsjet":{
-        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet"
+        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
     },
     "L2fsjetvtx":{
-        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS/HLT_IDVertex_FS HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet/HLT_IDVertex_FSJet"
+        "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS/HLT_IDVertex_FS"
     },
     "L2fst0vtx":{
         "chains" : "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
@@ -94,6 +94,7 @@
     "chains" : "HLT_mu4_cosmic_L1MU3V_EMPTY:HLT_IDTrack_Cosmic_IDTrig"
     }
 }
+
 
 
 
