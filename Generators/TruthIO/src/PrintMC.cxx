@@ -57,10 +57,9 @@ StatusCode PrintMC::execute() {
 
   // Loop over all events in McEventCollection
 
-  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
+  for (const HepMC::GenEvent* evt : *events_const()) {
 
     // Get event number from HepMC
-    const HepMC::GenEvent* evt = *itr;
     uint64_t evtnum = std::max(0,evt->event_number());
     // Override with evtnum from Athena if enabled and functional
     if (!m_trustHepMC) {
