@@ -161,6 +161,11 @@ if args.lengthintegrator:
 if args.simulate:
     from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
     acc.merge(G4AtlasAlgCfg(ConfigFlags, "ITkG4AtlasAlg", **kwargs))
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
+    acc.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=['ITkG4AtlasAlg']) )
+
+
 
 # dump pickle
 with open("ITkTest.pkl", "wb") as f:
