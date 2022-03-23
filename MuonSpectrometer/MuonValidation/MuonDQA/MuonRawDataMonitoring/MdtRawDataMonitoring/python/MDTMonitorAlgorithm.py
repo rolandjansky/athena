@@ -4,9 +4,9 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
-from .MdtMonUtils import getMDTLabel, getMDTLabelx
-from .MDTTubeMax import tubeMax
-from .MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
+from MdtRawDataMonitoring.MdtMonUtils import getMDTLabel, getMDTLabelx
+from MdtRawDataMonitoring.MDTTubeMax import tubeMax, tubeMax_smdt
+from MdtRawDataMonitoring.MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
 
 def MdtMonitoringConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -530,6 +530,8 @@ def MdtMonitoringConfig(inputFlags):
         title_mdttube= ch+"_MDT_Station_TUBE_ADCCut"
         var="tube_perch_"+ch+";"+title_mdttube
         binmax=tubeMax[ch]
+        if mdtMonAlg.do_Run3Geometry and ch[0:5]=="BIS7A":
+            binmax=tubeMax_smdt[ch]
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='adccut',
                                              title=title_mdttube+";tubeID;Number of Entries",
@@ -842,7 +844,7 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-
+    
     #ConfigFlags.Input.isMC = True
     #ConfigFlags.Common.isOnline = True
     ConfigFlags.Output.HISTFileName = 'MdtMonitorOutput.root'

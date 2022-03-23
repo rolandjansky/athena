@@ -3,6 +3,18 @@
 # 
 
 #from GetTubeMax function
+
+tubeMax_smdt ={
+    "BIS7A02":744,
+    "BIS7A04":744,
+    "BIS7A06":744,
+    "BIS7A08":648,
+    "BIS7A10":648,
+    "BIS7A12":648,
+    "BIS7A14":648,
+    "BIS7A16":648
+}
+
 tubeMax ={
     "BIL6C01":288,
     "BIL6C03":288,
