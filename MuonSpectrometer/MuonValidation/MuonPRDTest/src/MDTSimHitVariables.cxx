@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSimHitVariables.h"
@@ -104,7 +104,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     const HepMcParticleLink& pLink = hit.particleLink();
     barcode = pLink.barcode();
     if (pLink.isValid()) {
-      const HepMC::GenParticle* genP = pLink.cptr();
+      HepMC::ConstGenParticlePtr genP = pLink.cptr();
       if (genP) {
         pdgId=genP->pdg_id();
         barcode=HepMC::barcode(genP);
