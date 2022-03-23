@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,10 +35,19 @@
 // ATLAS C++
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+#include "SCT_ConditionsData/IdentifierSet.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 
 namespace SCT_test {
+   EventIDBase timestamp (int t)
+   {
+      return EventIDBase (EventIDBase::UNDEFNUM,  // run
+                          EventIDBase::UNDEFEVT,  // event
+                          t);
+   }
+
 
 // Gaudi Test fixture that provides a clean Gaudi environment for
 // each individual test case
@@ -92,10 +101,9 @@ protected:
         ASSERT_TRUE( detStore->record(pHelper, "SCT_ID").isSuccess() );
       }
     }
+    StoreGateSvc* conditionStore = nullptr;
+    ASSERT_TRUE( m_svcLoc->service ("StoreGateSvc/ConditionStore", conditionStore).isSuccess() );
 
-    std::unique_ptr<IdentifierSet> dummyData{std::make_unique<IdentifierSet>()};
-    SG::WriteHandle<IdentifierSet> dummyDataHandle{"BadSCTModuleIds_RODVeto"};
-    ASSERT_TRUE( dummyDataHandle.record(std::move(dummyData)).isSuccess() );
   }
 
   void TearDownGaudi() {
@@ -112,6 +120,7 @@ protected:
   SmartIF<IEvtSelector> m_evtSel;
   SmartIF<IProperty> m_propMgr;
   StoreGateSvc* m_sg{nullptr};
+  Athena_test::DummyRCUSvc m_rcu;
 };
 
 class SCT_RODVetoTool_test: public ::testing::Test, public GaudiFixture {
@@ -173,6 +182,19 @@ TEST_F(SCT_RODVetoTool_test, isGood_Id) {
   const Identifier elementId{0};
   EventContext ctx{0, 0};
   ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+  EventIDBase eid (1, 0, 0, 0, 20);
+  ctx.setEventID (eid);
+
+  StoreGateSvc* conditionStore = nullptr;
+  ASSERT_TRUE( m_svcLoc->service ("StoreGateSvc/ConditionStore", conditionStore).isSuccess() );
+  std::unique_ptr<IdentifierSet> dummyData{std::make_unique<IdentifierSet>()};
+
+  DataObjID id2 ("BadSCTModuleIds_RODVeto");
+  auto cc2 = std::make_unique<CondCont<IdentifierSet> > (m_rcu, id2);
+  const EventIDRange range2 (timestamp (0), timestamp (80));
+  assert( cc2->insert (range2, std::move(dummyData), ctx).isSuccess() );
+  assert( conditionStore->record (std::move (cc2), "BadSCTModuleIds_RODVeto") );
+
   ASSERT_TRUE( m_tool->isGood(elementId, ctx, InDetConditions::DEFAULT) );
 }
 
