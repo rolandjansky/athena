@@ -50,7 +50,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadCondHandle<PixelModuleData>moduleData(m_moduleDataKey, ctx);
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
 
   // Read Cond Handle (temperature)
   SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);

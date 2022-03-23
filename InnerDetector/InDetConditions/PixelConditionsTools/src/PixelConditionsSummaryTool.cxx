@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsSummaryTool.h"
@@ -25,10 +25,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
 
-//  const EventContext& ctx{Gaudi::Hive::currentContext()};
-//  bool useByteStream = (SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI4() || SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI3());
   bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
-//  ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
   ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));

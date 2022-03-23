@@ -96,8 +96,11 @@ StatusCode PixelHitDiscCnfgAlg::execute(const EventContext& ctx) const {
     }
   }
   // Take average.
-  double aveHitPL = 1.0*SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getFEI4HitDiscConfig(0,0);
-  double aveHit3D = 1.0*SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getFEI4HitDiscConfig(0,0);
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
+
+  double aveHitPL = moduleData->getFEI4HitDiscConfig(0, 0);
+  double aveHit3D = moduleData->getFEI4HitDiscConfig(0, 0);
 
   if (nhitPL) { aveHitPL = hitPL/(1.0*nhitPL); }
 

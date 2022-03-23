@@ -64,7 +64,8 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
   std::string DCSname;
   std::string line;
 
-  SG::ReadCondHandle<PixelModuleData>moduleData(m_moduleDataKey, ctx);
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
 
   // For debugging purposes
   std::ofstream output_mapping_file_raw;
@@ -94,9 +95,10 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
     instr.str(std::string(p_cabling,blob_cabling.size())); 
   }
   else {
-    const std::string filename = PathResolverFindCalibFile(moduleData->getCablingMapFileName());
+    const std::string &cablingFilename = moduleData->getCablingMapFileName();
+    const std::string filename = PathResolverFindCalibFile(cablingFilename);
     if (filename.empty()) {
-      ATH_MSG_FATAL("Mapping File: " << moduleData->getCablingMapFileName() << " not found!");
+      ATH_MSG_FATAL("Mapping File: " << cablingFilename << " not found!");
       return StatusCode::FAILURE;
     }
     std::ifstream fin(filename.c_str());
@@ -104,7 +106,7 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
     instr << fin.rdbuf();
 
     writeHandle.addDependency(IOVInfiniteRange::infiniteRunLB()); //When reading from file, use infinite IOV
-    ATH_MSG_DEBUG("Refilled pixel cabling from file \"" << moduleData->getCablingMapFileName() << "\"");
+    ATH_MSG_DEBUG("Refilled pixel cabling from file \"" << cablingFilename << "\"");
   }
 
   // Each entry in the mapping is sepated by a newline.

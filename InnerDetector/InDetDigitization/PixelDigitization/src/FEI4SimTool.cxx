@@ -42,8 +42,11 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     return;
   }
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   int maxFEI4SmallHit = 2;
   int overflowToT = moduleData->getFEI4OverflowToT(barrel_ec, layerIndex);
@@ -63,11 +66,11 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     ThermalNoise(moduleData->getThermalNoise(barrel_ec, layerIndex), chargedDiodes, rndmEngine);
 
     // Add random noise
-    RandomNoise(chargedDiodes, rndmEngine);
+    RandomNoise(chargedDiodes, moduleData, calibData, rndmEngine);
   }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
+  RandomDisable(chargedDiodes, moduleData, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeOrderedIterator i_chargedDiode = chargedDiodes.orderedBegin();
        i_chargedDiode != chargedDiodes.orderedEnd(); ++i_chargedDiode) {

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "FEI3SimTool.h"
@@ -43,8 +43,11 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     return;
   }
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   // Add cross-talk
   CrossTalk(moduleData->getCrossTalk(barrel_ec, layerIndex), chargedDiodes);
@@ -54,11 +57,11 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     ThermalNoise(moduleData->getThermalNoise(barrel_ec, layerIndex), chargedDiodes, rndmEngine);
 
     // Add random noise
-    RandomNoise(chargedDiodes, rndmEngine);
+    RandomNoise(chargedDiodes, moduleData, calibData, rndmEngine);
   }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
+  RandomDisable(chargedDiodes, moduleData, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeIterator i_chargedDiode = chargedDiodes.begin(); i_chargedDiode != chargedDiodes.end();
        ++i_chargedDiode) {
@@ -119,11 +122,11 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
       int bunchSim = 0;
       if (diode.totalCharge().fromTrack()) {
         if (moduleData->getFEI3TimingSimTune(barrel_ec, layerIndex) == 2018) {
-          bunchSim = relativeBunch2018(diode.totalCharge(), barrel_ec, layerIndex, moduleIndex, rndmEngine);
+          bunchSim = relativeBunch2018(diode.totalCharge(), barrel_ec, layerIndex, moduleIndex, moduleData, rndmEngine);
         } else if (moduleData->getFEI3TimingSimTune(barrel_ec, layerIndex) == 2015) {
-          bunchSim = relativeBunch2015(diode.totalCharge(), barrel_ec, layerIndex, moduleIndex, rndmEngine);
+          bunchSim = relativeBunch2015(diode.totalCharge(), barrel_ec, layerIndex, moduleIndex, moduleData, rndmEngine);
         } else if (moduleData->getFEI3TimingSimTune(barrel_ec, layerIndex) == 2009) {
-          bunchSim = relativeBunch2009(threshold, intimethreshold, diode.totalCharge(), rndmEngine);
+          bunchSim = relativeBunch2009(threshold, intimethreshold, diode.totalCharge(), moduleData, rndmEngine);
         }
       } else {
         if (moduleData->getFEI3TimingSimTune(barrel_ec, layerIndex) > 0) {
@@ -197,12 +200,12 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
 }
 
 int FEI3SimTool::relativeBunch2009(const double threshold, const double intimethreshold,
-                                   const SiTotalCharge& totalCharge, CLHEP::HepRandomEngine* rndmEngine) const {
+                                   const SiTotalCharge& totalCharge,
+                                   const PixelModuleData* moduleData,
+                                   CLHEP::HepRandomEngine* rndmEngine) const {
   int BCID = 0;
   double myTimeWalkEff = 0.;
   double overdrive = intimethreshold - threshold;
-
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
 
   //my TimeWalk computation through PARAMETRIZATION (by Francesco De Lorenzi - Milan)
   //double curvature  =  7.6e7*overdrive-2.64e10;
@@ -217,14 +220,14 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
 
   myTimeWalkEff = myTimeWalk + myTimeWalk * 0.2 * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
-  double randomjitter =
+  double randomJitter =
     CLHEP::RandFlat::shoot(rndmEngine, (-moduleData->getTimeJitter(0, 1) / 2.0),
                            (moduleData->getTimeJitter(0, 1) / 2.0));
 
   //double G4Time	 = totalCharge.time();
 
   double G4Time = getG4Time(totalCharge);
-  double timing = moduleData->getTimeOffset(0, 1) + myTimeWalkEff + (randomjitter) + G4Time;
+  double timing = moduleData->getTimeOffset(0, 1) + myTimeWalkEff + randomJitter + G4Time;
   BCID = static_cast<int>(floor(timing / moduleData->getBunchSpace()));
   //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );
 
@@ -233,6 +236,7 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
 
 // This is the new parameterization based on the 2015 collision data.
 int FEI3SimTool::relativeBunch2015(const SiTotalCharge& totalCharge, int barrel_ec, int layer_disk, int moduleID,
+                                   const PixelModuleData* moduleData,
                                    CLHEP::HepRandomEngine* rndmEngine) const {
   /**
    * 2016.03.29  Soshi.Tsuno@cern.ch
@@ -255,7 +259,6 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge& totalCharge, int barrel_
    * 60% working point tune-2
    */
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
   double prob = 0.0;
   if (barrel_ec == 0 && layer_disk == 1) {
     if (abs(moduleID) == 0) {
@@ -601,6 +604,7 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge& totalCharge, int barrel_
 }
 
 int FEI3SimTool::relativeBunch2018(const SiTotalCharge& totalCharge, int barrel_ec, int layer_disk, int moduleID,
+                                   const PixelModuleData* moduleData,
                                    CLHEP::HepRandomEngine* rndmEngine) const {
   /**
    * 2020.01.20  Minori.Fujimoto@cern.ch
@@ -609,7 +613,6 @@ int FEI3SimTool::relativeBunch2018(const SiTotalCharge& totalCharge, int barrel_
    * https://indico.cern.ch/event/880804/
    */
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
   double prob = 0.0;
   if (barrel_ec == 0 && layer_disk == 1) {
     if (abs(moduleID) == 0) {
