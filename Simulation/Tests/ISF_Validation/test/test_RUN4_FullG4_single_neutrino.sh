@@ -3,6 +3,7 @@
 # art-description: MC21-style simulation using FullG4 and RUN4 geometry, single neutrino
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test_neutrino.HITS.pool.root
 
 Input=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/EVNT/mc15_14TeV.900149.PG_single_nu_Pt50.evgen.EVNT.e8371/EVNT.26393337._000001.pool.root.1

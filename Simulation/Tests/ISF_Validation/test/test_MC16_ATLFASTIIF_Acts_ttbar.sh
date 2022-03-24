@@ -3,6 +3,7 @@
 # art-description: MC16-style simulation using ATLFASTIIF
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.HITS.pool.root
 
 # MC16 setup

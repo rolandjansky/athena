@@ -2,6 +2,7 @@
 #
 # art-description: MC16-style simulation using G4FastCalo
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.HITS.pool.root
 # art-output: truth.root
 

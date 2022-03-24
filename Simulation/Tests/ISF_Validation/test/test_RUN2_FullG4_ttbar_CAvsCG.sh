@@ -3,6 +3,7 @@
 # art-description: MC16-style simulation using FullG4MT
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.CG.HITS.pool.root
 # art-output: test.CA.HITS.pool.root
 # art-output: Config*
