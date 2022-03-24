@@ -306,7 +306,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_gGlobal_METy.push_back(gMET->METquantityTwo());
   }
 
-  for (auto const gMHT : *gMETHandle) {
+  for (auto const gMHT : *gMHTHandle) {
     m_gGlobal_MHTx.push_back(gMHT->METquantityOne());
     m_gGlobal_MHTy.push_back(gMHT->METquantityTwo());
   }

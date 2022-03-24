@@ -130,11 +130,7 @@ namespace LVL1 {
     constexpr static bool ENABLE_PUC = true;
     constexpr static bool APPLY_TRUNC = false;
     //define constants needed by gFEX JwoJ algorithm
-    constexpr static unsigned int aFPGA_A = 48;
-    constexpr static unsigned int bFPGA_A = 48;
-    constexpr static unsigned int aFPGA_B = 52;
-    constexpr static unsigned int bFPGA_B = 52;
-    constexpr static int gblockThreshold = 125;//*200 MeV = 25 GeV
+    constexpr static bool ENABLE_JWOJ_C = false;
 
 
   };
