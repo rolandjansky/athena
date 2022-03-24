@@ -429,7 +429,7 @@ if DetFlags.haveRIO.TRT_on():
         if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
             conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
         # FIXME: need to force an override for the online DB until this folder has been added to the latest tag
-        conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
+        conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v2")
 
     #
     # now do the services
