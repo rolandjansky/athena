@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ class RecMomentumQualityValidation : public AthAlgorithm {
 
       /** method: make the output table */
       void printTable() const;
-      void monitorTrackFits(std::vector<unsigned int>&, const double&) const;
+      static void monitorTrackFits(std::vector<unsigned int>&, const double&) ;
 
       /** properties from JobOptions: */
       std::string    m_inputTrackCollection; //!< job option: the reco track collection name

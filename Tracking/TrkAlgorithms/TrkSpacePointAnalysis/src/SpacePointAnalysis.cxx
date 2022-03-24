@@ -13,7 +13,7 @@
 #include "TString.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <iostream>
 

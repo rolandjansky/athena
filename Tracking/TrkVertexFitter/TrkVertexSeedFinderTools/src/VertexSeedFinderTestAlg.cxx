@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexSeedFinderTools/src/VertexSeedFinderTestAlg.cxx
@@ -321,9 +321,9 @@ VertexSeedFinderTestAlg::makeMcEventCollection (const EventContext& ctx) const
   }
 
   auto evtcoll = std::make_unique<McEventCollection>();
-  evtcoll->push_back (std::move (evt1));
-  evtcoll->push_back (std::move (evt2));
-  evtcoll->push_back (std::move (evt3));
+  evtcoll->push_back (evt1);
+  evtcoll->push_back (evt2);
+  evtcoll->push_back (evt3);
 
   SG::WriteHandle<McEventCollection> h (m_mcEventCollectionKey, ctx);
   ATH_CHECK( h.record (std::move (evtcoll)) );

@@ -97,7 +97,7 @@ void CompoundLayerMaterialCnv_p1::transToPers( const Trk::CompoundLayerMaterial 
     persObj->valueMatrices.push_back(transObj->m_zBins.valueBinMatrix);         
     persObj->valueMatrices.push_back(transObj->m_rhoBins.valueBinMatrix);
     
-    typedef std::vector< std::pair< unsigned char, unsigned char> > CVector;
+    using CVector = std::vector<std::pair<unsigned char, unsigned char>>;
     // composition matrix
     size_t ocBins = transObj->m_composition.size();
     if (ocBins){

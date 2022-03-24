@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVALHISTUTILS_MSHITPLOTS_H
@@ -18,8 +18,8 @@ class MSHitPlots: public PlotBase {
     void fill(const xAOD::TrackParticle& trkprt, float weight=1.0);
     void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
     
-    void fillPlot(HitTypePlots& hitPlots, const std::string& sInfo, const xAOD::TruthParticle& truthprt, float weight=1.0);
-    void fillPlot(HitTypePlots& hitPlots, xAOD::SummaryType info, const xAOD::TrackParticle& trkprt, float weight=1.0);
+    static void fillPlot(HitTypePlots& hitPlots, const std::string& sInfo, const xAOD::TruthParticle& truthprt, float weight=1.0);
+    static void fillPlot(HitTypePlots& hitPlots, xAOD::SummaryType info, const xAOD::TrackParticle& trkprt, float weight=1.0);
 
     Trk::HitTypePlots nprecLayers;
     Trk::HitTypePlots nphiLayers;

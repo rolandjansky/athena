@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/DefParamPullPlots.h"
@@ -53,7 +53,7 @@ namespace Trk {
   }
 
   void
-  DefParamPullPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
+  DefParamPullPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) const {
     const double d0_trk = trkprt.d0();
     const double z0_trk = trkprt.z0();
     const double phi_trk = trkprt.phi0();

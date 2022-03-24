@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ StatusCode Trk::TruthTrackCreation::initialize()
         return StatusCode::FAILURE;
     }
     // PRD truth trajectory selectors
-    if (m_prdTruthTrajectorySelectors.size() && m_prdTruthTrajectorySelectors.retrieve().isFailure()){
+    if (!m_prdTruthTrajectorySelectors.empty() && m_prdTruthTrajectorySelectors.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_prdTruthTrajectorySelectors << ". Aborting ...");
         return StatusCode::FAILURE;
     }
@@ -119,7 +119,7 @@ StatusCode Trk::TruthTrackCreation::execute()
     auto ttIterE = truthTraj.end();
     for ( ; ttIter != ttIterE; ++ttIter){
         // run through the selector chain
-        if (m_prdTruthTrajectorySelectors.size()){
+        if (!m_prdTruthTrajectorySelectors.empty()){
             ToolHandleArray<Trk::IPRD_TruthTrajectorySelector>::const_iterator prdTTSelIter  = m_prdTruthTrajectorySelectors.begin();
             ToolHandleArray<Trk::IPRD_TruthTrajectorySelector>::const_iterator prdTTSelIterE = m_prdTruthTrajectorySelectors.end();
             bool passed = true;
@@ -148,8 +148,8 @@ StatusCode Trk::TruthTrackCreation::execute()
 
         }
         // If configured : check with the TrackSelectors
-        bool passed = !(m_trackSelectors.size());
-        if ( m_trackSelectors.size() ) {
+        bool passed = m_trackSelectors.empty();
+        if ( !m_trackSelectors.empty() ) {
             ToolHandleArray<Trk::ITrackSelectorTool>::iterator tsIter  = m_trackSelectors.begin();
             ToolHandleArray<Trk::ITrackSelectorTool>::iterator tsIterE = m_trackSelectors.end();
             for ( ; ( tsIter != tsIterE && !passed ); ++tsIter){

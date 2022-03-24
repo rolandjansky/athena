@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/EfficiencyPlots.h"
@@ -29,11 +29,9 @@ namespace Trk {
 
   void
   EfficiencyPlots::finalizePlots() {
-    EfficiencyPurityCalculator calc;
-
-    calc.calculateEfficiency(m_pDenomPlots->eta, m_pNumPlots->eta, eff_eta);
-    calc.calculateEfficiency(m_pDenomPlots->phi, m_pNumPlots->phi, eff_phi);
-    calc.calculateEfficiency(m_pDenomPlots->pt, m_pNumPlots->pt, eff_pt);
-    calc.calculateIntegrated(m_pDenomPlots->pt, m_pNumPlots->pt, eff_pti, 1, EfficiencyPurityCalculator::kX);
+    EfficiencyPurityCalculator::calculateEfficiency(m_pDenomPlots->eta, m_pNumPlots->eta, eff_eta);
+    EfficiencyPurityCalculator::calculateEfficiency(m_pDenomPlots->phi, m_pNumPlots->phi, eff_phi);
+    EfficiencyPurityCalculator::calculateEfficiency(m_pDenomPlots->pt, m_pNumPlots->pt, eff_pt);
+    EfficiencyPurityCalculator::calculateIntegrated(m_pDenomPlots->pt, m_pNumPlots->pt, eff_pti, 1, EfficiencyPurityCalculator::kX);
   }
 }
