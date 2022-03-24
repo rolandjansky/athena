@@ -3,7 +3,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 import InDetConfig.ITkTrackingCommonConfig as TC
-from ActsTrkFinding.ActsSiSpacePointsSeedMakerConfig import ActsSiSpacePointsSeedMakerCfg
 
 def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
@@ -142,13 +141,12 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     ITkTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
     ITkSiSpacePointsSeedMaker = None
     if flags.ITk.Tracking.ActivePass.extension != "ConversionFinding" and flags.Acts.TrackFinding.useSiSpacePointSeedMaker:
-        ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ActsSiSpacePointsSeedMakerCfg(flags,
-                                                                                       InputCollections = InputCollections))
+        from ActsTrkSeedingTool.ActsTrkSeedingToolConfig import ActsTrkSiSpacePointsSeedMakerCfg
+        ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ActsTrkSiSpacePointsSeedMakerCfg(flags,
+                                                                                          InputCollections = InputCollections))
     else:
         ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
                                                                                       InputCollections = InputCollections))
-        
-
     #
     # --- Setup Track finder using space points seeds
     #
