@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -160,7 +160,7 @@ AsgElectronChargeIDSelectorTool::initialize()
       }
     }
   }
-  if (!m_inputVars.size()) {
+  if (m_inputVars.empty()) {
     ATH_MSG_FATAL("Cannot access the list of input variables @"
                   << bdtfile->GetName() << " " << toaPath);
   }

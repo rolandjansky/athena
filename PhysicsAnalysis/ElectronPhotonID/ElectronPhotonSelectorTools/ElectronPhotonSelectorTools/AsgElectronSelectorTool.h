@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -108,15 +108,15 @@ private:
   double combineOutputs(const std::vector<float>& mvaScores, double eta) const;
 
   /** Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta*/
-  unsigned int getDiscEtaBin( double eta ) const;
+  static unsigned int getDiscEtaBin( double eta ) ;
 
   /** Gets the Descriminant Et bin the et (MeV) [0,s_fnDiscEtBins-1]*/
-  unsigned int getDiscEtBin( double et ) const;
+  static unsigned int getDiscEtBin( double et ) ;
 
   // NOTE that this will only perform the cut interpolation up to ~45 GeV, so
   // no smoothing is done above this for the high ET MVA binning yet
   /** Interpolates cut values along pt*/
-  double interpolateCuts( const std::vector<double>& cuts, double et, double eta ) const;
+  static double interpolateCuts( const std::vector<double>& cuts, double et, double eta ) ;
 
 
 
