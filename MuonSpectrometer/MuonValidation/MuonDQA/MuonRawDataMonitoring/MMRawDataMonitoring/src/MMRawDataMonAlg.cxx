@@ -356,6 +356,12 @@ StatusCode MMRawDataMonAlg::fillMMSummaryHistograms( const MMSummaryHistogramStr
 						auto& Vectors = vects[iside][statPhi][statEta][multiplet][gas_gap];
 						auto sector_strip = Monitored::Collection("sector_strip_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1), Vectors.sector_strip);
 						auto strip_number = Monitored::Collection("strip_number_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1), Vectors.strip_number);
+						if(!Vectors.strip_number.empty())
+						{
+							auto cluster_size = Monitored::Scalar("cluster_size_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), Vectors.strip_number.size());
+							auto pcb_mon = Monitored::Scalar("pcb_mon_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), get_PCB_from_channel(Vectors.strip_number.at(0)));
+							fill(MM_sideGroup, cluster_size, pcb_mon);
+						}
 						auto charge_perLayer = Monitored::Collection("charge_" + MM_Side[iside] + "_sectorphi" + std::to_string(statPhi+1) + "_stationEta" + EtaSector[statEta] + "_multiplet" + std::to_string(multiplet+1) + "_gas_gap" + std::to_string(gas_gap+1), Vectors.charge);
 						auto mu_TPC_angle_perLayer = Monitored::Collection("mu_TPC_angle_" + MM_Side[iside] + "_sectorphi" + std::to_string(statPhi+1) + "_stationEta" + EtaSector[statEta] + "_multiplet" + std::to_string(multiplet+1) + "_gas_gap" + std::to_string(gas_gap+1),Vectors.mu_TPC_angle);
 						fill(MM_sideGroup, strip_number, sector_strip, charge_perLayer, mu_TPC_angle_perLayer);
