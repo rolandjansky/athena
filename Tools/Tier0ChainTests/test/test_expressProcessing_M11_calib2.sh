@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: RecoTrf
+# art-description: Express processing at Tier0
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
@@ -10,8 +10,8 @@ export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-
 
 
 Reco_tf.py  \
---AMI x609  \
---inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data21_comm.00404400.express_express.merge.RAW._lb2497._SFO-ALL._0001.1" \
+--AMI x615  \
+--inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_calib.00412340.express_express.daq.RAW._lb0015._SFO-15._0002.data" \
 --outputAODFile="AOD.root" \
 --outputESDFile="ESD.pool.root" \
 --outputDAOD_L1CALO2File="L1CALO2.pool.root" \
