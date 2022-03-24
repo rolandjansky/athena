@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62002.h"
@@ -213,7 +213,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
     const double H62002WallsPos = 10182.*Gaudi::Units::mm;  // A wild guess at the moment.....
     WallsConstruction  WallsConstruction2002;
     GeoVPhysVol* frontwalls = WallsConstruction2002.GetEnvelope();
-    if(frontwalls !=0 && expHallPhys !=0){
+    if(frontwalls !=0){
       expHallPhys->add( new GeoNameTag("LAr"));
       expHallPhys->add( new GeoTransform( GeoTrf::TranslateZ3D(H62002WallsPos) ) );  
       expHallPhys->add(frontwalls);    
