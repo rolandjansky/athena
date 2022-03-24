@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODTruthHelpers.cxx 668406 2015-05-19 15:32:15Z krasznaa $
 
 // Core EDM include(s):
 #include "AthLinks/ElementLink.h"
@@ -66,6 +64,29 @@ namespace xAOD {
          // Something has failed. Return a nullptr
          return nullptr;
       }
+
+
+      /// @param particle The truth particle we want to get the final copy of
+      /// @returns A pointer to the final truth particle copy if available,
+      ///          or pointer to the same particle if no copies done.
+      ///
+      const xAOD::TruthParticle* getFinalCopy( const xAOD::TruthParticle& particle ) {
+
+         // Loop over the children
+         for( size_t i{}; i < particle.nChildren(); ++i ) {
+
+            // Check if particle pointer exists and it is the same particle (same PDG ID)
+            if( particle.child( i ) != nullptr && particle.child( i )->pdgId() == particle.pdgId() ) {
+               // Recursively check again
+               // It is fine to return when we find first copy candidate as there can only be one
+               return getFinalCopy( *particle.child( i ) );
+            }
+         }
+
+         // Return the same particle if no copies found
+         return &particle;
+      }
+
 
       /// @param p The particle that we want to find the truth type of
       /// @returns 0 if the truth type is not available, or the truth type
