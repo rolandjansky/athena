@@ -5,7 +5,6 @@ logging.getLogger().info("Importing %s", __name__)
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -364,16 +363,15 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
 
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
     kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
-    if ConfigFlags.Muon.MuonTrigger:
-        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
+    kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     if ConfigFlags.Muon.MuonTrigger:
-        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
@@ -396,10 +394,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 
     kwargs.setdefault("TgcPrepDataContainer", 
                       'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
-    #MDT conditions information not available online
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
-
+   
     # MuonCompetingClustersCreator apparently just takes default
     kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )
 

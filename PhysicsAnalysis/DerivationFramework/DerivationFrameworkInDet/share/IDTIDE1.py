@@ -47,14 +47,6 @@ if 'DerivationFrameworkIsMonteCarlo' not in dir() :
 IsMonteCarlo=DerivationFrameworkIsMonteCarlo
 
 #====================================================================
-# Re-run jet reconstruction needed for preselection
-#====================================================================
-from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow
-jetList = [AntiKt4EMTopo,AntiKt4EMPFlow]
-from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-addDAODJets(jetList,DerivationFrameworkJob)
-
-#====================================================================
 # SET UP STREAM  
 #====================================================================
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
@@ -508,11 +500,11 @@ IDTIDE1Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 IDTIDE1Stream.AddItem("xAOD::TauJetContainer#TauJets")
 IDTIDE1Stream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMPFlowJets")
-IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.-PseudoJet")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
-IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.-PseudoJet")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
 #IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
 #IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
 #IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")
@@ -533,6 +525,6 @@ if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthEventContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthEventAuxContainer#*")
   IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
-  IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.-PseudoJet")
+  IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
 
 print(IDTIDE1Stream)

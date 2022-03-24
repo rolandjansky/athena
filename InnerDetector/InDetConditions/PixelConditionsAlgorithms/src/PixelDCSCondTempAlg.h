@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelDCSCondTempAlg.h
@@ -22,7 +22,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelDCSCondTempAlg : public AthReentrantAlgorithm {
@@ -35,7 +34,6 @@ class PixelDCSCondTempAlg : public AthReentrantAlgorithm {
 
   private:
     const PixelID* m_pixelID{nullptr};
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};

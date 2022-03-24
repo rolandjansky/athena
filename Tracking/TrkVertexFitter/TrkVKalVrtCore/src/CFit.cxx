@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -145,7 +145,7 @@ bool checkPosition(VKVertex * vk, double vertex[3]){
 
 
 extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = nullptr);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =nullptr);
+extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, VKalVrtControl * =nullptr);
 extern void cfmasserr(VKVertex* , int*, double, double*, double*);
 extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 

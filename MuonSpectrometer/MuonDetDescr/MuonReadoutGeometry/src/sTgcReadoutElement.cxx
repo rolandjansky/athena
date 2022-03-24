@@ -586,14 +586,15 @@ namespace MuonGM {
         std::pair<int, int> pad(design->channelNumber(pos));
 
         if (pad.first > 0 && pad.second > 0) {
+            bool is_valid {true};
             Identifier padID =
                 manager()->stgcIdHelper()->padID(manager()->stgcIdHelper()->stationName(id), manager()->stgcIdHelper()->stationEta(id),
                                                  manager()->stgcIdHelper()->stationPhi(id), manager()->stgcIdHelper()->multilayer(id),
-                                                 manager()->stgcIdHelper()->gasGap(id), 0, pad.first, pad.second, true);
+                                                 manager()->stgcIdHelper()->gasGap(id), 0, pad.first, pad.second, is_valid);
             int channel = manager()->stgcIdHelper()->channel(padID);
             int padEta = manager()->stgcIdHelper()->padEta(padID);
             int padPhi = manager()->stgcIdHelper()->padPhi(padID);
-            if (padEta != pad.first || padPhi != pad.second) {
+            if (!is_valid || padEta != pad.first || padPhi != pad.second) {
                 MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
                 log << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " "
                     << padPhi << endmsg;

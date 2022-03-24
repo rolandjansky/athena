@@ -100,6 +100,7 @@ DoLoose Data
 
 ### B-tagging configuration
 BTaggingCaloJetWP DL1r:FixedCutBEff_77 DL1r:Continuous
+BTaggingCaloJetUncalibWP DL1dv00:FixedCutBEff_77
 BTaggingTrackJetWP DL1r:FixedCutBEff_77 DL1r:Continuous
 # Example of how to remove systematics from b-tag EV
 

@@ -136,6 +136,10 @@ if DetFlags.overlay.LVL1_on():
     if DetFlags.simulateLVL1.LAr_on():
         outStream.ItemList += [ 'LArTTL1Container#LArTTL1EM' ]
         outStream.ItemList += [ 'LArTTL1Container#LArTTL1HAD' ]
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+        if commonGeoFlags.Run()=="RUN3":
+            outStream.ItemList+=["CaloCellContainer#SCell"]
+
     if DetFlags.simulateLVL1.Tile_on():
         outStream.ItemList += [ 'TileTTL1Container#TileTTL1Cnt' ]
         outStream.ItemList += [ 'TileTTL1Container#TileTTL1MBTS' ]

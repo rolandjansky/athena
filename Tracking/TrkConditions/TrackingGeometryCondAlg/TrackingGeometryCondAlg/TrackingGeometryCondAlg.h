@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,6 @@
 #include "TrkDetDescrInterfaces/IGeometryBuilderCond.h"
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk{
@@ -38,7 +37,6 @@ private:
     "AtlasTrackingGeometry",
     "Key of output of TrackingGeometry for ID"
   };
-  ServiceHandle<ICondSvc> m_condSvc{ this, "CondSvc", "CondSvc" };
   ToolHandle<Trk::IGeometryBuilderCond> m_trackingGeometryBuilder{
     this,
     "GeometryBuilder",

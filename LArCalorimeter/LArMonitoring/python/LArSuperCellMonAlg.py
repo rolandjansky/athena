@@ -33,7 +33,7 @@ def LArSuperCellMonConfigOld(inputFlags):
     algo = LArSuperCellMonConfigCore(helper, LArSuperCellMonAlg,inputFlags,isCosmics, isMC)
 
     from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-    algo.ReadyFilterTool = GetAtlasReadyFilterTool()
+    algo.ReadyFilterTool = [GetAtlasReadyFilterTool()]
     from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
     algo.BadLBTool = GetLArBadLBFilterTool()
 

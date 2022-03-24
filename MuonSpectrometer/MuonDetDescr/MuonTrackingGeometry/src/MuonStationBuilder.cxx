@@ -827,10 +827,10 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
 
     if (stationName[0] == 'C') {
         const int cscEtaSt = eta - MuonGM::MuonDetectorManager::NCscStEtaOffset;    
-        const Identifier readout_id = m_muonMgr->cscIdHelper()->elementID(stationName, cscEtaSt, phi+1, 1);
+        const Identifier readout_id = m_muonMgr->cscIdHelper()->channelID(stationName, cscEtaSt, phi+1, 1, 1, 0, 1);
         const MuonGM::CscReadoutElement* cscRE = m_muonMgr->getCscReadoutElement(readout_id);
         if (!cscRE) {
-            const Identifier id_lay1 = m_muonMgr->cscIdHelper()->channelID(stationName,eta, phi+1, 1, 1, 1, 1);         
+            const Identifier id_lay1 = m_muonMgr->cscIdHelper()->channelID(stationName, cscEtaSt, phi+1, 2, 1, 0, 1);         
             cscRE = m_muonMgr->getCscReadoutElement(id_lay1);
         }
         if (cscRE) {
@@ -879,7 +879,7 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
         const int stationEta = zi + (eta >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
         auto getReadout = [stationInt, stationEta, this](int phi ) {
                 const int stationPhi  = phi + 1;
-                const Identifier id = m_muonMgr->tgcIdHelper()->elementID(stationInt, stationEta, stationPhi, false) ;
+                const Identifier id = m_muonMgr->tgcIdHelper()->elementID(stationInt, stationEta, stationPhi);
                 return m_muonMgr->getTgcReadoutElement(id);
         };
         const MuonGM::TgcReadoutElement* tgc = getReadout(phi - 1);
@@ -908,7 +908,7 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
             int phiSt = tgc->getStationPhi();
 
             bool validId{false};
-            Identifier wireId = m_idHelperSvc->tgcIdHelper().channelID(stationName, etaSt, phiSt, 1, 0, 1, true, &validId);
+            Identifier wireId = m_idHelperSvc->tgcIdHelper().channelID(stationName, etaSt, phiSt, 1, 0, 1, validId);
             if (!validId) ATH_MSG_ERROR("invalid TGC channel:" << wireId);
             const Amg::Vector3D gp = tgc->channelPos(wireId);
             const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gp);
@@ -916,7 +916,7 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
             if (assocVol && assocVol->confinedLayers()) {
                 Trk::BinnedArraySpan<Trk::Layer const * const> layers = assocVol->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < layers.size(); il++) {
-                    wireId = m_idHelperSvc->tgcIdHelper().channelID(stationName, etaSt, phiSt, il + 1, 0, 1, true, &validId);
+                    wireId = m_idHelperSvc->tgcIdHelper().channelID(stationName, etaSt, phiSt, il + 1, 0, 1, validId);
                     if (!validId)
                         const_cast<Trk::Layer*>(layers[il])->setLayerType(1);
                     else {
@@ -1102,9 +1102,8 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
                                 bool isValid = false;
                                 // the RpcIdHelper expects doubletR/doubletZ/doubletPhi to start at 1
                                 Identifier id = m_idHelperSvc->rpcIdHelper().channelID(
-                                    nameIndex, eta, phi, doubletR + 1, doubletZ + 1, doubletPhi + 1, 1, 1, 1, true, &isValid,
-                                    true);  // last 6 arguments are: int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool
-                                            // noPrint
+                                    nameIndex, eta, phi, doubletR + 1, doubletZ + 1, doubletPhi + 1, 1, 1, 1, isValid);  
+                                    // last 4 arguments are: int gasGap, int measuresPhi, int strip, bool& isValid
                                 if (!isValid) {
                                     ATH_MSG_DEBUG("Could not find valid Identifier for station="
                                                   << nameIndex << ", eta=" << eta << ", phi=" << phi << ", doubletR=" << doubletR + 1

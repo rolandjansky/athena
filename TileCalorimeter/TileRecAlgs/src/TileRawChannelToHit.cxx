@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -33,6 +33,7 @@
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 // access all RawChannels inside container
 #include "EventContainers/SelectAllObject.h" 
@@ -44,12 +45,8 @@
 //
 TileRawChannelToHit::TileRawChannelToHit(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
   , m_tileToolEmscale("TileCondToolEmscale")
 {
-  declareProperty("TileInfoName", m_infoName = "TileInfo");                                 // name of TileInfo store
   declareProperty("UseSamplFract", m_useSamplFract = false);  // if true energy in TileHit is the as it is coming from G4 simulation
                                                               // and by default it is equal to final - TileCell energy
   declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
@@ -70,16 +67,16 @@ StatusCode TileRawChannelToHit::initialize() {
     ATH_MSG_INFO( "TileHit will contain CELL energy (not divided by sampling fraction)" );
 
   // retrieve TileID helper and TileIfno from det store
-  CHECK( detStore()->retrieve(m_tileID) );
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
-
-  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
   ATH_CHECK( m_hitVectorKey.initialize() );
+
+  ATH_CHECK( m_samplingFractionKey.initialize(m_useSamplFract) );
 
   ATH_MSG_INFO( "TileRawChannelToHit initialization completed" );
 
@@ -98,6 +95,13 @@ StatusCode TileRawChannelToHit::execute() {
   int nChan = 0;
   float eCh = 0.0;
   float eHitTot = 0.0;
+
+  const TileSamplingFraction* samplingFraction = nullptr;
+  if (m_useSamplFract) {
+    SG::ReadCondHandle<TileSamplingFraction> samplingFractionHandle(m_samplingFractionKey);
+    ATH_CHECK( samplingFractionHandle.isValid() );
+    samplingFraction = samplingFractionHandle.cptr();
+  }
 
   SG::WriteHandle<TileHitVector> hitVector(m_hitVectorKey);
 
@@ -156,8 +160,9 @@ StatusCode TileRawChannelToHit::execute() {
                                                        amp, rChUnit, 
                                                        TileRawChannelUnit::MegaElectronVolts);
 
-          if (m_useSamplFract) // divide by sampling fraction (about 40) 
-            ener /= m_tileInfo->HitCalib(pmt_id);
+          if (m_useSamplFract) { // divide by sampling fraction (about 40)
+            ener /= samplingFraction->getSamplingFraction(drawerIdx, channel);
+          }
 
           TileHit hit(pmt_id, ener, time);
           eHitTot += ener;

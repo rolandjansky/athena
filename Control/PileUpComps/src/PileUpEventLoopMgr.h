@@ -14,7 +14,7 @@
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 
 // Athena headers
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "PileUpTools/PileUpStream.h"
 
 // Gaudi headers
@@ -39,7 +39,9 @@ class EventContext;
 */
 
 class PileUpEventLoopMgr : virtual public IEventSeek,
-                           public MinimalEventLoopMgr   {
+                           public MinimalEventLoopMgr,
+                           public AthMessaging
+{
 public:
 
   /// Standard Constructor
@@ -67,10 +69,9 @@ public:
   virtual StatusCode queryInterface(const InterfaceID& riid,
                                     void** ppvInterface);
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+  using AthMessaging::msg;
+  using AthMessaging::msgLvl;
+
 
 private:
   /// Reference to the Algorithm Execution State Svc
@@ -145,9 +146,6 @@ private:
   /// current run number
   uint32_t m_currentRun;
   bool m_firstRun;
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 
   /// max bunch crossings per orbit
   unsigned int m_maxBunchCrossingPerOrbit;

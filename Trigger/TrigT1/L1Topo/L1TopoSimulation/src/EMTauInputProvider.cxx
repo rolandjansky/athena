@@ -57,29 +57,29 @@ EMTauInputProvider::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 80, 0, 400);
-   hEMEt->SetXTitle("E_{T}");
-   auto hEMEtaPhi = std::make_unique<TH2I>( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 64, 0, 64);
-   hEMEtaPhi->SetXTitle("#eta");
-   hEMEtaPhi->SetYTitle("#phi");
-   auto hEMEtEta = std::make_unique<TH2I>( "EMTOBEtEta", "Et vs eta", 40, 0, 200, 25, -50, 50);
-   hEMEtEta->SetXTitle("E_{t}");
-   hEMEtEta->SetYTitle("#eta");
-   auto hEMEtPhi = std::make_unique<TH2I>( "EMTOBEtPhi", "Et vs phi", 40, 0, 200, 64, 0, 64);
-   hEMEtPhi->SetXTitle("E_{t}");
-   hEMEtPhi->SetYTitle("#phi");
+   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 200, 0, 400);
+   hEMEt->SetXTitle("E_{T} [GeV]");
+   auto hEMPhiEta = std::make_unique<TH2I>( "EMTOBPhiEta", "EM TOB Location", 200, -50, 50, 128, 0, 64);
+   hEMPhiEta->SetXTitle("#eta#times10");
+   hEMPhiEta->SetYTitle("#phi#times10");
+   auto hEMEtEta = std::make_unique<TH2I>( "EMTOBEtEta", "Et vs eta", 200, -50, 50, 200, 0, 400);
+   hEMEtEta->SetXTitle("#eta#times10");
+   hEMEtEta->SetYTitle("E_{t} [GeV]");
+   auto hEMEtPhi = std::make_unique<TH2I>( "EMTOBEtPhi", "Et vs phi", 128, 0, 64, 200, 0, 400);
+   hEMEtPhi->SetXTitle("#phi#times10");
+   hEMEtPhi->SetYTitle("E_{t} [GeV]");
 
-   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 80, 0, 400);
-   hTauEt->SetXTitle("E_{T}");
-   auto hTauEtaPhi = std::make_unique<TH2I>( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 64, 0, 64);
-   hTauEtaPhi->SetXTitle("#eta");
-   hTauEtaPhi->SetYTitle("#phi");
-   auto hTauEtEta = std::make_unique<TH2I>( "TauTOBEtEta", "Et vs eta", 40, 0, 200, 25, -50, 50);
-   hTauEtEta->SetXTitle("E_{t}");
-   hTauEtEta->SetYTitle("#eta");
-   auto hTauEtPhi = std::make_unique<TH2I>( "TauTOBEtPhi", "Et vs phi", 40, 0, 200, 64, 0, 64);
-   hTauEtPhi->SetXTitle("E_{t}");
-   hTauEtPhi->SetYTitle("#phi");
+   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 200, 0, 400);
+   hTauEt->SetXTitle("E_{T} [GeV]");
+   auto hTauPhiEta = std::make_unique<TH2I>( "TauTOBPhiEta", "Tau TOB Location", 200, -50, 50, 128, 0, 64);
+   hTauPhiEta->SetXTitle("#eta#times10");
+   hTauPhiEta->SetYTitle("#phi#times10");
+   auto hTauEtEta = std::make_unique<TH2I>( "TauTOBEtEta", "Et vs eta", 200, -50, 50, 200, 0, 400);
+   hTauEtEta->SetXTitle("#eta#times10");
+   hTauEtEta->SetYTitle("E_{t} [GeV]");
+   auto hTauEtPhi = std::make_unique<TH2I>( "TauTOBEtPhi", "Et vs phi", 128, 0, 64, 200, 0, 400);
+   hTauEtPhi->SetXTitle("#phi#times10");
+   hTauEtPhi->SetYTitle("E_{t} [GeV]");
 
 
    if (m_histSvc->regShared( histPath + "EMTOBEt", std::move(hEMEt), m_hEMEt ).isSuccess()){
@@ -88,7 +88,7 @@ EMTauInputProvider::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register EMTOBEt histogram for EMTauProvider");
    }
-   if (m_histSvc->regShared( histPath + "EMTOBPhiEta", std::move(hEMEtaPhi), m_hEMEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "EMTOBPhiEta", std::move(hEMPhiEta), m_hEMPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("EMTOBPhiEta histogram has been registered successfully for EMTauProvider.");
    }
    else{
@@ -113,7 +113,7 @@ EMTauInputProvider::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register TauTOBEt histogram for EMTauProvider");
    }
-   if (m_histSvc->regShared( histPath + "TauTOBPhiEta", std::move(hTauEtaPhi), m_hTauEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "TauTOBPhiEta", std::move(hTauPhiEta), m_hTauPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("TauTOBPhiEta histogram has been registered successfully for EMTauProvider.");
    }
    else{
@@ -179,15 +179,15 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          if(tob.cmx()==0) {
             inputEvent.addCluster( cl );
             m_hEMEt->Fill(cl.Et());
-            m_hEMEtaPhi->Fill(cl.eta(),cl.phi());
-            m_hEMEtEta->Fill(cl.Et(),cl.eta());
-            m_hEMEtPhi->Fill(cl.Et(),cl.phi());
+            m_hEMPhiEta->Fill(cl.eta(),cl.phi());
+            m_hEMEtEta->Fill(cl.eta(),cl.Et());
+            m_hEMEtPhi->Fill(cl.phi(),cl.Et());
          } else {
             inputEvent.addTau( cl );            
             m_hTauEt->Fill(cl.Et());
-            m_hTauEtaPhi->Fill(cl.eta(),cl.phi());
-            m_hTauEtEta->Fill(cl.Et(),cl.eta());
-            m_hTauEtPhi->Fill(cl.Et(),cl.phi());
+            m_hTauPhiEta->Fill(cl.eta(),cl.phi());
+            m_hTauEtEta->Fill(cl.eta(),cl.Et());
+            m_hTauEtPhi->Fill(cl.phi(),cl.Et());
          }
       }
       if(topoData->overflow()){

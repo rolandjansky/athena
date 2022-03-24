@@ -7,7 +7,7 @@
 //
 // Masahiro Morii, Harvard University
 //
-#include "MagFieldServices/BFieldH8Grid.h"
+#include "BFieldH8Grid.h"
 
 BFieldH8Grid::BFieldH8Grid()
 {

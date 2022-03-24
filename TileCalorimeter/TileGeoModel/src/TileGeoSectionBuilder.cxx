@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoSectionBuilder.h"
@@ -1709,8 +1709,8 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   double elementZPozition = m_dbManager->TICGzc();
 
   double dXleft =35., dXright = 35.;
-  double dZleft = elementDz/2, dZright = elementDz/2;
-  double dZsaddleL = elementDz/4, dZsaddleR = elementDz/4;
+  double dZleft = elementDz/2, dZright = dZleft;
+  double dZsaddleL = elementDz/4, dZsaddleR = dZsaddleL;
   double dY = 7.5;
 
   rightMaterial = leftMaterial = m_matLArServices;
@@ -2490,8 +2490,8 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 
 // Checking geometry dimensions for all direction
 
-void TileGeoSectionBuilder::checking(std::string Name, bool print, int level,
-                                double X1, double X2, double Y1, double Y2, double Z) 
+void TileGeoSectionBuilder::checking(const std::string& Name, bool print, int level,
+                                     double X1, double X2, double Y1, double Y2, double Z) 
 {
   double rless = .005; //5 [mkm]
   std::string Step[8] = {" ",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,6 +11,8 @@
 //  Initial version: September 2008                           //
 //                                                            //
 ////////////////////////////////////////////////////////////////
+
+#include <utility>
 
 #include "VP1TrackSystems/TrackCollHandle_RefittedTracks.h"
 #include "VP1TrackSystems/TrackHandle_TrkTrack.h"
@@ -29,7 +31,7 @@ TrackCollHandle_RefittedTracks::TrackCollHandle_RefittedTracks(TrackSysCommonDat
 							       const QString& name, QList<const Trk::Track*> fittedtracks)
   : TrackCollHandle_TrkTrack(cd,name,TrackType::RefittedTrack), m_d(new Imp)
 {
-  m_d->fittedtracks = fittedtracks;
+  m_d->fittedtracks = std::move(fittedtracks);
 }
 
 //____________________________________________________________________

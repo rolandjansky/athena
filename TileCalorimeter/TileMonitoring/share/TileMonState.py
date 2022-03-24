@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -94,7 +94,10 @@ if Partition == 'ATLAS' or Partition == 'Tile':
                 StreamType = 'express'
                 KeyCount = 20
             else:
-                beamType = 'collisions'
+                if beam_energy > 0:
+                    beamType = 'collisions'
+                else:
+                    beamType = 'cosmics'
         
         else:
             if 'CIS mono' in run_type:
@@ -215,7 +218,7 @@ if 'TriggerType' in dir():
 if 'GroupName' in dir():
     ByteStreamEmonInputSvc.GroupName = GroupName
 else:
-    ByteStreamEmonInputSvc.GroupName = "TilePhysMon"
+    ByteStreamEmonInputSvc.GroupName = "TilePhysMonED"
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?

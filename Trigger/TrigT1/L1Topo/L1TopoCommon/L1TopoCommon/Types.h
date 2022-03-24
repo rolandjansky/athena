@@ -16,14 +16,15 @@ namespace TCS {
                          MET=5,
                          MUON=6, 
                          TAU=7,
-			 LATEMUON=8, 
-			 MUONNEXTBC=9,
+                         LATEMUON=8, 
+                         MUONNEXTBC=9,
                          EEM=10,
-			 ETAU=11,
+                         ETAU=11,
                          JEM=12,
                          GLARGERJET=13,
                          GJET=14,
-			 CTAU=15
+                         CTAU=15,
+                         JXE=16
    }; 
 
   enum outputTopoType_t { UNDEF=999,

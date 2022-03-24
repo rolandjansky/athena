@@ -56,9 +56,9 @@ EnergyInputProvider::handle(const Incident& incident) {
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
    auto hPt = std::make_unique<TH1I>( "MET", "Missing ET TOB", 200, 0, 2000);
-   hPt->SetXTitle("p_{T}");
+   hPt->SetXTitle("p_{T} [GeV]");
 
-   auto hPhi = std::make_unique<TH1I>( "METPhi", "MET TOB Phi", 32, -3.2, 3.2);
+   auto hPhi = std::make_unique<TH1I>( "METPhi", "MET TOB Phi", 64, -3.2, 3.2);
    hPhi->SetXTitle("#phi");
 
    if (m_histSvc->regShared( histPath + "MET", std::move(hPt), m_hPt ).isSuccess()){

@@ -478,7 +478,7 @@ namespace Muon {
             isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // recalculate distance
         }
         // check for chamber sorting issues
-        if (pos != list.begin() && (*pos)->info().id.is_valid() && m_idHelperSvc->detElId(hit->info().id) != m_idHelperSvc->detElId((*pos)->info().id)) {
+        if (pos != list.begin() && (*pos)->info().id.is_valid() && hit->info().id.is_valid() && m_idHelperSvc->detElId(hit->info().id) != m_idHelperSvc->detElId((*pos)->info().id)) {
             Identifier posDetElId = m_idHelperSvc->detElId((*pos)->info().id);
             --pos;
             if ((*pos)->info().id.is_valid() && posDetElId == m_idHelperSvc->detElId((*pos)->info().id)) {  // can't insert a hit from one chamber in the middle of hits of another chamber

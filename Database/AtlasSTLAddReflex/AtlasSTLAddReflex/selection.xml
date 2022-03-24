@@ -96,6 +96,6 @@
 
   <exclusion>
     <!-- These show up in the gcc12 headers. -->
-    <class pattern="*__null_ptr_constant"/>
+    <class pattern="*__zero_as_null_pointer_constant"/>
   </exclusion>
 </lcgdict>

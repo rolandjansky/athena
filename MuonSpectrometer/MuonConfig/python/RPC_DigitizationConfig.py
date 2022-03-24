@@ -96,8 +96,6 @@ def RPC_DigitizationToolCfg(flags, name="RpcDigitizationTool", **kwargs):
     else:
         kwargs.setdefault("PileUpMergeSvc", '')
     kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
-    rangetool = acc.popToolsAndMerge(RPC_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
@@ -113,6 +111,7 @@ def RPC_OverlayDigitizationToolCfg(flags, name="Rpc_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "RPC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "RPC_SDO")
+    kwargs.setdefault("PileUpMergeSvc", '')
     return RPC_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 

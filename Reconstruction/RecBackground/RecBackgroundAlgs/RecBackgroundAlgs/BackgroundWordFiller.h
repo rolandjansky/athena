@@ -17,7 +17,7 @@ Updated Mark Tibbetts 6/3/2012
 #include "RecBackgroundEvent/BeamBackgroundData.h"
 #include "LUCID_RawEvent/LUCID_RawDataContainer.h"
 #include "BCM_CollisionTime/BcmCollisionTime.h"
-#include "TagEvent/RawInfoSummaryForTag.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
 #include "TileEvent/TileContainer.h"
 #include "LArRecEvent/LArCollisionTime.h"
 
@@ -49,8 +49,9 @@ class BackgroundWordFiller : public AthAlgorithm
   /** ReadHandleKey for BcmCollisionTime */
   SG::ReadHandleKey<BcmCollisionTime> m_bcmCollisionTimeKey{this,"BcmCollisionTimeKey","BcmCollisionTime","Key for BcmCollisionTime"};
 
-  /** ReadHandleKey for RawInfoSummaryForTag */
-  SG::ReadHandleKey<RawInfoSummaryForTag> m_rawInfoSummaryForTagKey{this,"RawInfoSummaryForTagKey","RawInfoSummaryForTag","Key for RawInfoSummaryForTag"};
+  /** ReadHandleKey for SpacePointContainers */
+  SG::ReadHandleKey<SpacePointContainer> m_sctSpacePointKey{this,"SCT_SpacePointKey","SCT_SpacePoints",""};
+  SG::ReadHandleKey<SpacePointContainer> m_pixSpacePointKey{this,"Pixel_SpacePointKey","PixelSpacePoints",""};
 
   /** ReadHandleKey for TileCellContainer */
   SG::ReadHandleKey<TileCellContainer> m_tileCellContainerKey{this,"TileCellContainerKey","MBTSContainer","Key for TileCellContainer"};

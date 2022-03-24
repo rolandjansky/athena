@@ -643,7 +643,7 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	const int offset = nThresh;
 	const int mask = (1 << nBits) - 1;
 	for (int thr = 0; thr < nThresh; ++thr) {
-	  const int hit = (hits0 >> (nBits*thr)) & mask;
+	  const int hit = (hits1 >> (nBits*thr)) & mask;
 	  if (hit) {
 	    if (cmx) {
 	      cmxCpThresBinRightX=bin;
@@ -708,6 +708,7 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   Monitored::Scalar<int> cpmErrorX = Monitored::Scalar<int>("cpmErrorX", 0);
   Monitored::Scalar<int> cpmErrorY = Monitored::Scalar<int>("cpmErrorY", 0);
   Monitored::Scalar<int> cpmErrorSummary = Monitored::Scalar<int>("cpmErrorSummary", 0);
+  Monitored::Scalar<int> cpmErrorSummary_Events = Monitored::Scalar<int>("cpmErrorSummary_Events", 0);
   std::vector<int> crateErr(4);
   for (int err = 0; err < NumberOfSummaryBins; ++err) {
     int error = 0;
@@ -732,8 +733,22 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     if (error) {
       cpmErrorSummary=err;
       fill(m_packageName,cpmErrorSummary);
+      // event numbers    
+      cpmErrorSummary_Events=err;  
+      auto evtstr = Monitored::Scalar<std::string>("evtstr", std::to_string(ctx.eventID().event_number()));
+      fill(m_packageName,evtstr,cpmErrorSummary_Events);
     }
   } // NSummaryBins
+
+
+  // Save error vector for global summary
+
+  std::vector<int> *save = new std::vector<int>(crateErr);
+  StatusCode sc = evtStore()->record(save, m_errorLocation);
+  if (sc != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Error recording CPM error vector in TES");
+    return sc;
+  }
 
   fill(m_packageName,variables);
   variables.clear();
@@ -792,15 +807,10 @@ StatusCode CpmMonitorAlgorithm::fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowe
 		    " max slices " << m_maxSlices << " m_modules " << m_modules <<
 		    " slice " << slice);
     }
-    GLinkParityError=1; 
-    cpmLoc=1;
-    fill(m_packageName, GLinkParityError, cpmLoc);
-
 
     // Errors    
     bool emParityError=false; 
     bool emLinkDownError=false; 
-    bool emGLinkParityError[8]={false};
     uint32_t error = ct->emError(); 
     if (error) {
       const LVL1::DataError emError(error);
@@ -812,7 +822,6 @@ StatusCode CpmMonitorAlgorithm::fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowe
 	emLinkDownError=true;
         errorsCPM[loc] |= (1 << EMLink);
       }
-      // fix me
       const int status = (error >> LVL1::DataError::GLinkParity) & 0xff; 
       if (status) {
 	cpmLoc=loc;
@@ -847,7 +856,6 @@ StatusCode CpmMonitorAlgorithm::fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowe
     monTT.slice=slice;
     monTT.emParityError=emParityError;
     monTT.emLinkDownError=emLinkDownError;
-    memcpy(monTT.emGLinkParityError, emGLinkParityError, sizeof(emGLinkParityError));
     monTT.hadParityError=hadParityError;
     monTT.hadLinkDownError=hadLinkDownError;
     if (em) {

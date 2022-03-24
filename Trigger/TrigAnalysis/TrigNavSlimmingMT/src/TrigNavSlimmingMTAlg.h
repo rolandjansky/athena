@@ -105,6 +105,10 @@ private:
     this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool",
     "Trigger Decision Tool, used to apply the ChainsFilter"};
 
+  Gaudi::Property<bool> m_runtimeValidation{
+    this, "RuntimeValidation", false,
+    "Perform additional validation checks on the navigation, and print WARNINGs if anything out of the ordinary is found."};
+
   std::set<std::string> m_allOutputContainersSet; //!< Processed form of m_allOutputContainers
 
   /**

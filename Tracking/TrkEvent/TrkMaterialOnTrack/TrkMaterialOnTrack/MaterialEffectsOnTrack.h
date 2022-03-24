@@ -88,6 +88,20 @@ public:
       typePattern =
         std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
 
+  /** @brief partial constructor passing (with ownership) an energy loss object
+   @param[in] tInX0 layer thickness in terms of rad length
+   @param[in] eloss pointer to EnergyLoss object (passing ownership)
+   @param[in] assocSurf surface on which material effects are expressed
+   @param[in] typePattern bitset scheme to characterise type of MEOT.
+  */
+  MaterialEffectsOnTrack(
+    const double tInX0,
+    std::unique_ptr<const EnergyLoss> eloss,
+    const Surface& assocSurf,
+    const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
+      typePattern =
+        std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+
   /** @brief partial constructor with only a thickness, input to ME-Updator
    @param[in] tInX0 layer thickness in terms of rad length
    @param[in] assocSurf surface on which material effects are expressed

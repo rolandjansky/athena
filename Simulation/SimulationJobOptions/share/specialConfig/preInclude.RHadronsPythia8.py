@@ -38,19 +38,15 @@ def load_files_for_rhadrons_scenario(input_param_card='SLHA_INPUT.DAT',spectrum=
     """ Load all the files needed for a given scenario"""
     # Create custom PDGTABLE.MeV file
     create_rhadron_pdgtable(input_param_card,spectrum)
- 
     # Create particles.txt file
     create_rhadron_particles_file(input_param_card,spectrum)
-
     from RHadrons.RHadronMasses import get_interaction_list
     get_interaction_list(input_param_card, interaction_file='ProcessList.txt', mass_spectrum=spectrum)
-
     # Remove existing physics configuration file ([MDJ]: FIXME: Is this happening earlier, or is it needed?)
     if os.path.isfile('PhysicsConfiguration.txt'):
         rhlog.warning("load_files_for_rhadrons_scenario() Found pre-existing PhysicsConfiguration.txt file - deleting.")
         os.remove('PhysicsConfiguration.txt')
 
-  
 # Whether we're in sim or digi
 doG4SimConfig = True
 
@@ -70,6 +66,7 @@ try:
         runNumber = f.infos['tag_info']['mc_channel_number']
     else:
         runNumber = f.infos['run_number'][0]
+
     # This is also used for digitization, so protect in case we're there
     if "StreamHITS" in f.infos["stream_names"]:
         from Digitization.DigitizationFlags import digitizationFlags
@@ -90,30 +87,46 @@ simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
 # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
 from glob import glob
 # Default position: look in cvmfs for job options
-cvmfs_mc15 = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/'
-JO = glob(cvmfs_mc15+'/share/DSID'+str(int(runNumber/1000))+'xxx/MC15.'+str(runNumber)+'*.py')
+
+if(runNumber ==  449497 ):
+   runNumber =  421442
+   print('run number changed from 449497 to ',str(runNumber))
+
+cvmfs_mc16 = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/'
+
+JO = glob(cvmfs_mc16+str(int(runNumber/1000))+'xxx/'+str(runNumber)+'/mc.'+'*.py')
+
+JO_path = cvmfs_mc16+str(int(runNumber/1000))+'xxx/'+str(runNumber)
+os.environ["JOBOPTSEARCHPATH"] = JO_path +":"+os.environ["JOBOPTSEARCHPATH"]
+os.environ["DATAPATH"] = JO_path +":"+os.environ["DATAPATH"]
 if len(JO)>0:
     JO = JO[0]
 else:
-    # Miss.  Try local
-    JO = glob('MC15.'+str(runNumber)+'*.py')
+    # Miss.  Try local in dir=DSID
+    JO = glob(str(runNumber)+'/mc.'+'*.py')
     if len(JO)>0: JO=JO[0]
     else:
-        # Miss.  Try one directory deeper
-        JO = glob('*/MC15.'+str(runNumber)+'*.py')
+        # Miss.  Try one directory deeper (any name)
+        JO = glob('*/mc.'+str(runNumber)+'*.py')
         if len(JO)>0: JO=JO[0]
         else:
-            # Miss.  Fall back to datapath
-            for adir in os.environ['DATAPATH'].split(":"):
-                JO = glob(adir+'/MC15.'+str(runNumber)+'*.py')
-                if len(JO)>0:
-                    JO=JO[0]
-                    break
+            # Miss.  Try local
+            JO = glob('mc.'+'*.py')
+            if len(JO)>0: JO=JO[0]
+            else:
+                # Miss.  Fall back to datapath
+                for adir in os.environ['DATAPATH'].split(":"):
+                   JO = glob(adir+'/mc.'+'*.py')
+                   if len(JO)>0:
+                      JO=JO[0]
+                      break
 if not JO:
     raise RuntimeError('Could not locate job options for DSID '+str(runNumber))
 # add any necessary elements to the runArgs here!
-runArgs.jobConfig = [JO.split('/')[-1] if '/' in JO else JO]
+runArgs.jobConfig = [JO.split('/')[-2] if '/' in JO else JO]
 runArgs.runNumber = runNumber
+runArgs.ecmEnergy = 13000.
+runArgs.randomSeed = 1234
 # Set up evgenLog logger - use this one
 evgenLog=rhlog
 # Set up evgenConfig just for a holder
@@ -142,14 +155,10 @@ genSeq.Pythia8.Commands = [
 testSeq = dummyClass()
 testSeq.TestHepMC = dummyClass()
 # Block includes that we don't want running
-include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
-include.block('MC15JobOptions/Pythia8_Base_Fragment.py')
-include.block('MC15JobOptions/Pythia8_EvtGen.py')
-include.block('MC15JobOptions/Pythia8_LHEF.py')
-
-# Make sure all the files can be found
-from EvgenJobTransforms.jo_proxy import mk_jo_proxy
-mk_jo_proxy(cvmfs_mc15, "MC15JobOptions", "_joproxy15")
+include.block('MadGraphControl/MadGraphControl_SimplifiedModelPostInclude.py')
+include.block('Pythia8_i/Pythia8_Base_Fragment.py')
+include.block('Pythia8_i/Pythia8_EvtGen.py')
+include.block('Pythia8_i/Pythia8_LHEF.py')
 
 # Updating JOBOPTSEARCHPATH env var on the athena side
 import re,os
@@ -161,8 +170,8 @@ Include.optionsPath = re.split( ',|' + os.pathsep, Include.optionsPathEnv )
 include(JO)
 
 # Build the param card, aka SLHA file
-from MadGraphControl.MadGraphUtils import build_param_card
-build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)
+from MadGraphControl.MadGraphUtils import modify_param_card
+modify_param_card(param_card_input='param_card.SM.%s.%s.dat'%(gentype,decaytype),params={'MASS': masses,'DECAY':decays},output_location='SLHA_INPUT.DAT')
 
 # Get the spectrum number if it's in the metadata
 spectrum = 1 if 'SPECTRUM' not in simdict else simdict['SPECTRUM']
@@ -170,10 +179,9 @@ spectrum = 1 if 'SPECTRUM' not in simdict else simdict['SPECTRUM']
 # Last step, load up the files
 load_files_for_rhadrons_scenario('SLHA_INPUT.DAT',spectrum)
 
-
 # Add any lines that were missing
 # In case we want to use Pythia8 for decays during simulation
-lifetime = float(simdict['LIFETIME']) if simdict.has_key("LIFETIME") else -1.
+lifetime = float(simdict['LIFETIME']) if "LIFETIME" in simdict else -1.
 if lifetime>0.:
     if lifetime<1. and hasattr(runArgs,'outputEVNT_TRFile'):
         rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')

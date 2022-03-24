@@ -19,8 +19,11 @@ class QTest(WorkflowTest):
             else:
                 extra_args += " --maxEvents 20"
 
-        if "input" not in extra_args and type == WorkflowType.MCPileUpReco:
-            extra_args += f" --inputHITSFile {input_HITS[run]} --inputRDO_BKGFile ../run_d*/myRDO.pool.root"
+        if type == WorkflowType.MCPileUpReco:
+            if "inputHITSFile" not in extra_args:
+                extra_args += f" --inputHITSFile {input_HITS[run]}"
+            if "inputRDO_BKGFile" not in extra_args:
+                extra_args += f" --inputRDO_BKGFile ../run_d*/myRDO.pool.root"
 
         threads = 1
         threads_argument = '--multithreaded'

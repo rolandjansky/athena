@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileCellBuilderFromHit_test.py
 # Author: scott snyder
@@ -415,6 +415,8 @@ bct2 = make_tileBadChanTool ('tilecellbuilder_bct2',
 """)
 
 
+from TileConditions.TileCondToolConf import bookTileSamplingFractionCondAlg
+bookTileSamplingFractionCondAlg(source='FILE')
 
 from TileRecUtils.TileRecUtilsConf import TileCellBuilderFromHit
 

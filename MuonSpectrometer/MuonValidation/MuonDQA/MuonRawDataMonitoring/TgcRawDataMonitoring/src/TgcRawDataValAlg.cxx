@@ -24,7 +24,7 @@
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
  
-#include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
+#include "TgcRawDataValAlg.h"
 
 #include <inttypes.h> 
 #include <sstream>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "MuidCaloEnergyTools/MuidCaloEnergyTool.h"
+#include "MuidCaloEnergyTool.h"
 
 #include <cmath>
 
@@ -197,8 +197,12 @@ namespace Rec {
         std::unique_ptr<Trk::TrackParameters> middle_clone = middleParameters.uniqueClone();
         /// Cache the pointer for the debug message
         const CaloEnergy* calo_observer = caloEnergy.get();
-        const Trk::MaterialEffectsOnTrack* materialEffects =
-            new const Trk::MaterialEffectsOnTrack(0., caloEnergy.release(), middle_clone->associatedSurface(), typePattern);
+        auto materialEffects =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(
+            0.,
+            caloEnergy.release(),
+            middle_clone->associatedSurface(),
+            typePattern);
 
         // create TSOS
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -225,7 +229,8 @@ namespace Rec {
                           << std::setw(5) << std::setprecision(3) << calo_observer->sigmaMinusDeltaE() / Units::GeV << " (" << std::setw(5)
                           << std::setprecision(3) << calo_observer->sigmaDeltaE() / Units::GeV << ") GeV,  CaloEnergy::Type " << eLossType);
         }
-        return std::make_unique<Trk::TrackStateOnSurface>(nullptr, middle_clone.release(), nullptr, materialEffects, pattern);
+        return std::make_unique<Trk::TrackStateOnSurface>(
+          nullptr, std::move(middle_clone), nullptr, std::move(materialEffects), pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
@@ -477,7 +482,7 @@ namespace Rec {
         return caloEnergy;
     }
 
-    double MuidCaloEnergyTool::muSpecResolParam(double trackMomentum, double eta) const {
+    double MuidCaloEnergyTool::muSpecResolParam(double trackMomentum, double eta) {
         const double pT = trackMomentum / std::cosh(eta) / Units::GeV;  // pt in GeV
         double a = 0.;
         double b = 0.;
@@ -494,7 +499,7 @@ namespace Rec {
         return std::hypot(a, (b * pT));
     }
 
-    double MuidCaloEnergyTool::paramCorrection(double trackMomentum, double eta, double MopLoss, double MopLossSigma) const {
+    double MuidCaloEnergyTool::paramCorrection(double trackMomentum, double eta, double MopLoss, double MopLossSigma) {
         const double Nsigma = 2.;
         double MSres = muSpecResolParam(trackMomentum, eta);
         double MSsigma = trackMomentum * MSres;
@@ -516,7 +521,7 @@ namespace Rec {
         return MopStat;
     }
 
-    double MuidCaloEnergyTool::landau(double x, double mpv, double sigma, bool norm) const {
+    double MuidCaloEnergyTool::landau(double x, double mpv, double sigma, bool norm) {
         // The LANDAU function with mpv(most probable value) and sigma.
         // This function has been adapted from the CERNLIB routine G110 denlan.
         // If norm=kTRUE (default is kFALSE) the result is divided by sigma

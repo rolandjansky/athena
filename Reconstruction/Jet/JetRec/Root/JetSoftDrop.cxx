@@ -66,7 +66,7 @@ int JetSoftDrop::groom(const xAOD::Jet& jin,
     return 1;
   }
   const PseudoJet* ppjin = pseudojetRetriever()->pseudojet(jin);
-  if ( ppjin == 0 ) {
+  if ( ppjin == nullptr ) {
     ATH_MSG_WARNING("Jet does not have a pseudojet.");
     return 1;
   }
@@ -79,6 +79,10 @@ int JetSoftDrop::groom(const xAOD::Jet& jin,
   PseudoJet pjsoftdrop = softdropper(*ppjin);
   int npsoftdrop = pjsoftdrop.pieces().size();
   xAOD::Jet* pjet = m_bld->add(pjsoftdrop, pjContainer, jets, &jin);
+  if ( pjet == nullptr ) {
+    ATH_MSG_ERROR("Unable to add jet to container");
+    return 1;
+  }
   //pjet->SetAttribute<int>("TransformType", xAOD::JetTransform::SoftDrop); //xAOD::JetTransform::SoftDrop probably doesn't exist yet
   pjet->setAttribute<float>("ZCut", m_zcut);
   pjet->setAttribute<float>("SoftDropBeta", m_beta);
@@ -89,11 +93,8 @@ int JetSoftDrop::groom(const xAOD::Jet& jin,
   ATH_MSG_DEBUG("   ncon: " << pjsoftdrop.constituents().size() << "/"
                             << ppjin->constituents().size());
   ATH_MSG_DEBUG("   nsub: " << npsoftdrop);
-  if ( pjet == 0 ) {
-    ATH_MSG_ERROR("Unable to add jet to container");
-  } else {
-    ATH_MSG_DEBUG("Added jet to container.");
-  }
+  ATH_MSG_DEBUG("Added jet to container.");
+  
   return 0;
 }
 

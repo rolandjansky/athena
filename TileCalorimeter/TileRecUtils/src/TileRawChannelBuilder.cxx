@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -534,9 +534,13 @@ StatusCode TileRawChannelBuilder::commitContainer()
     const TileRawChannelContainer * dspCnt = SG::makeHandle (m_DSPContainerKey, ctx).get();
     ATH_MSG_DEBUG( "Incomplete container - use noise filter corrections from DSP container" );
 
+    uint32_t bsFlags = dspCnt->get_bsflags();
     std::vector<IdentifierHash> hashes = m_rawChannelCnt->GetAllCurrentHashes();
     std::vector<IdentifierHash> dspHashes = dspCnt->GetAllCurrentHashes();
-    if (hashes != dspHashes) {
+    if (bsFlags == 0) {
+      ATH_MSG_WARNING("Problem in applying noise corrections: DSP container ("
+                      << m_DSPContainerKey.key() << ") seems to be emtpy!");
+    } else if (hashes != dspHashes) {
       ATH_MSG_ERROR( " Error in applying noise corrections; "
                      "hash vectors do not match.");
     } else {

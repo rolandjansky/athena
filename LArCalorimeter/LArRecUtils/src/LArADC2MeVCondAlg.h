@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "LArRecConditions/LArFebConfig.h"
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -48,9 +47,6 @@ class LArADC2MeVCondAlg: public AthReentrantAlgorithm {
       "SG key of HVScaleCorr object (or empty string if no HVScaleCorr)"};   //Not (yet) used for supercells and simulation 
   
   SG::WriteCondHandleKey<LArADC2MeV>  m_ADC2MeVKey{this,"LArADC2MeVKey","LArADC2MeV","SG key of the resulting LArADC2MeV object"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
-
 
   SG::ReadCondHandleKey<LArFebConfig> m_febConfigKey{this,"FebConfigKey","LArFebConfig","SG key for FEB config object"};
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -82,6 +82,10 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
 		}
 	}
 
+	if(m_addSeparationWindow)
+	{
+		addLBarSensorSeparationWindow(pszStationName,1,pPhysMotherVol,TofTransform,bsContainer);
+	}
 	addSensor(pszStationName,1,pPhysMotherVol,TofTransform,bsContainer);
 
 	return StatusCode::SUCCESS;
@@ -205,6 +209,43 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 	bsContainer->push_back(GeoBorderSurface(szlabel, pPhysRadiator, pPhysMotherVolume, m_pOpticalSurface));
 }
 
+
+void AFP_GeoModelFactory::addLBarSensorSeparationWindow(const char* pszStationName, const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVolume,
+									HepGeom::Transform3D &TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
+{
+	int nPixelID;
+	char szlabel[64];
+	double fX1Pos_1, fX2Pos_1, fX1Pos_2, fX2Pos_2;
+	HepGeom::Transform3D TotTransform;
+
+	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
+	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
+	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:m_AfpConstants.ToF_Sensor2BarDist;
+
+	GeoTube* pSolWindow=new GeoTube(0,0.5*m_AfpConstants.ToF_SeparationWindowDiameter,0.5*m_AfpConstants.ToF_SeparationWindowThickness);
+	
+	nPixelID=10*( TofCfg.nX1PixCnt/2-1 +1)+( TofCfg.nX1PixCnt/2-1 +1);
+	m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos_1,&fX2Pos_1);
+	nPixelID=10*( TofCfg.nX1PixCnt/2 +1)+( TofCfg.nX1PixCnt/2 +1);
+	m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos_2,&fX2Pos_2);
+	
+	sprintf(szlabel,"%s_Q%i_LogLBarSensorSeparationWindow",pszStationName,nQuarticID);
+	TotTransform=TransInMotherVolume*HepGeom::Translate3D(0.5*(fX1Pos_1+fX1Pos_2),-0.5*m_AfpConstants.ToF_SeparationWindowThickness-fSensor2BarDistance,0.5*(fX2Pos_1+fX2Pos_2))*HepGeom::RotateX3D(90.0*CLHEP::deg);
+	GeoLogVol* pLogWindow=new GeoLogVol(szlabel,pSolWindow,m_MapMaterials["Quartz"]);
+	GeoOpticalPhysVol* pPhysWindow=new GeoOpticalPhysVol(pLogWindow);
+	sprintf(szlabel,"%s_Q%i_LBarSensorSeparationWindow",pszStationName,nQuarticID);
+	pPhysMotherVolume->add(new GeoNameTag(szlabel));
+	pPhysMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TotTransform)));
+	pPhysMotherVolume->add(pPhysWindow);
+	sprintf(szlabel,"%s_Q%i_WindowSurface",pszStationName,nQuarticID);
+	bsContainer->push_back(GeoBorderSurface(szlabel, pPhysWindow, pPhysMotherVolume, m_pOpticalSurface));
+	
+	pPhysWindow=nullptr;
+
+}
+
+
+
 void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVolume,
 									HepGeom::Transform3D &TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
 {
@@ -216,6 +257,10 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:m_AfpConstants.ToF_Sensor2BarDist;
+	if(m_addSeparationWindow)
+	{
+		fSensor2BarDistance += m_AfpConstants.ToF_SeparationWindowThickness;
+	}
 
 	GeoBox* pSolSensor=new GeoBox(0.5*TofCfg.fPixelX1Dim,0.5*m_AfpConstants.ToF_SensorThickness,0.5*TofCfg.fPixelX2Dim);
 
@@ -225,7 +270,6 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 		{
 			nPixelID=10*(i+1)+(j+1);
 			m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos,&fX2Pos);
-
 
 			sprintf(szlabel,"%s_Q%i_LogTDSensor[%i]",pszStationName,nQuarticID,nPixelID);
 			TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,-0.5*m_AfpConstants.ToF_SensorThickness-fSensor2BarDistance,fX2Pos);
@@ -238,7 +282,7 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 			sprintf(szlabel,"%s_Q%i_SensorSurface[%i]",pszStationName,nQuarticID,nPixelID);
 			bsContainer->push_back(GeoBorderSurface(szlabel, pPhysSensor, pPhysMotherVolume, m_pOpticalSurface));
 
-			pPhysSensor=NULL;
+			pPhysSensor=nullptr;
 		}
 	}
 

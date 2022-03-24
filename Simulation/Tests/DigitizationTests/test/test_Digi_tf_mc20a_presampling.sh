@@ -6,14 +6,18 @@
 # art-include: master/Athena
 # art-output: mc20a_presampling.RDO.pool.root
 # art-output: log.*
+# art-output: legacy.*
+# art-output: DigiPUConfig*
 
 Events=25
-DigiOutFileName="mc20a_presampling.RDO.pool.root"
+DigiOutFileNameCG="mc20a_presampling.RDO.pool.root"
+DigiOutFileNameCA="mc20a_presampling.CA.RDO.pool.root"
 HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/mc16_13TeV.900149.PG_single_nu_Pt50.simul.HITS.e8307_s3482/HITS.24078104._234467.pool.root.1"
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.simul.HITS_FILT.e8341_s3687_s3704/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.900311.Epos_minbias_inelastic_lowjetphoton.simul.HITS_FILT.e8341_s3687_s3704/*"
 
 
+# config only
 Digi_tf.py \
 --PileUpPresampling True \
 --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
@@ -25,7 +29,25 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents ${Events} \
---outputRDOFile ${DigiOutFileName} \
+--outputRDOFile ${DigiOutFileNameCA} \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20a.py' \
+--skipEvents 0 \
+--athenaopts '"--config-only=DigiPUConfigCG.pkl"'
+
+# full run
+Digi_tf.py \
+--PileUpPresampling True \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+--digiSeedOffset1 170 --digiSeedOffset2 170 \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
+--geometryVersion default:ATLAS-R2-2016-01-00-01 \
+--inputHITSFile ${HSHitsFile} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
+--jobNumber 1 \
+--maxEvents ${Events} \
+--outputRDOFile ${DigiOutFileNameCG} \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20a.py' \
 --skipEvents 0
@@ -33,38 +55,75 @@ Digi_tf.py \
 rc=$?
 status=$rc
 echo "art-result: $rc digiOLD"
-rc1=-9999
+mv runargs.HITtoRDO.py runargs.legacy.HITtoRDO.py
+mv log.HITtoRDO legacy.HITtoRDO
+
 rc2=-9999
+if [[ $rc -eq 0 ]]
+then
+    Digi_tf.py \
+    --CA \
+    --PileUpPresampling True \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --digiSeedOffset1 170 --digiSeedOffset2 170 \
+    --digiSteeringConf 'StandardSignalOnlyTruth' \
+    --geometryVersion default:ATLAS-R2-2016-01-00-01 \
+    --inputHITSFile ${HSHitsFile} \
+    --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
+    --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
+    --jobNumber 1 \
+    --maxEvents ${Events} \
+    --outputRDOFile ${DigiOutFileNameCA} \
+    --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
+    --preInclude 'HITtoRDO:Campaigns.MC20a' \
+    --skipEvents 0
+
+    rc2=$?
+    status=$rc2
+fi
+echo "art-result: $rc2 digiCA"
+
 rc3=-9999
-rc4=-9999
+if [ $rc -eq 0 ] && [ $rc2 -eq 0 ]
+then
+    acmd.py diff-root ${DigiOutFileNameCG} ${DigiOutFileNameCA} \
+        --mode=semi-detailed --error-mode resilient --order-trees \
+        --ignore-leaves RecoTimingObj_p1_Bkg_HITStoRDO_timings index_ref
+    rc3=$?
+    status=$rc3
+fi
+echo "art-result: $rc3 OLDvsCA"
 
 # get reference directory
 source DigitizationCheckReferenceLocation.sh
 echo "Reference set being used: ${DigitizationTestsVersion}"
 
+rc4=-9999
 if [[ $rc -eq 0 ]]
 then
     # Do reference comparisons
-    art.py compare ref --mode=semi-detailed --no-diff-meta "$DigiOutFileName" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName"
-    rc1=$?
-    status=$rc1
-fi
-echo "art-result: $rc1 OLDvsFixedRef"
-
-if [[ $rc -eq 0 ]]
-then
-    checkFile "$DigiOutFileName"
-    rc3=$?
-    status=$rc3
-fi
-echo "art-result: $rc3 checkFile"
-
-if [[ $rc -eq 0 ]]
-then
-    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed
+    art.py compare ref --mode=semi-detailed --no-diff-meta "$DigiOutFileNameCG" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileNameCG"
     rc4=$?
     status=$rc4
 fi
-echo "art-result: $rc4 regression"
+echo "art-result: $rc4 OLDvsFixedRef"
+
+rc5=-9999
+if [[ $rc -eq 0 ]]
+then
+    checkFile "$DigiOutFileNameCG"
+    rc5=$?
+    status=$rc5
+fi
+echo "art-result: $rc5 checkFile"
+
+rc6=-9999
+if [[ $rc -eq 0 ]]
+then
+    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed --file="$DigiOutFileNameCG"
+    rc6=$?
+    status=$rc6
+fi
+echo "art-result: $rc6 regression"
 
 exit $status

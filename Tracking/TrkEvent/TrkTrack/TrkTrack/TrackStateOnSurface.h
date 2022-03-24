@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
             TrackStateOnSurface.h  -  description
@@ -171,19 +171,8 @@ public:
    *
    * The objects passed in belong to the this object, or to the Track
    * to which this FQOS will be assigned.
-   *
-   * (in short DO NOT delete them yourself)
-   * This ctor will set appropriate flags for all non-null objects passed
-   * in (i.e. if there is a MeasurementBase, it will set the measurement flag)
    */
-  TrackStateOnSurface(
-    const MeasurementBase* meas,
-    const TrackParameters* trackParameters,
-    const FitQualityOnSurface* fitQoS,
-    const MaterialEffectsBase* materialEffects = nullptr,
-    const AlignmentEffectsOnTrack* alignmentEffectsOnTrack = nullptr);
-
-  TrackStateOnSurface(
+  explicit TrackStateOnSurface(
     std::unique_ptr<const MeasurementBase> meas,
     std::unique_ptr<const TrackParameters> trackParameters,
     std::unique_ptr<const FitQualityOnSurface> fitQoS,
@@ -195,9 +184,6 @@ public:
    *
    * The objects passed in belong to the this object, or to the Track to which
    * this FQOS will be assigned.
-   *
-   * (in short DO NOT delete them yourself)
-   *
    * It is 'explicit' to avoid problems such as bug#74513.
    *
    * @param[in] meas pointer to a MeasurementBase, or 0 if no object is being
@@ -216,39 +202,25 @@ public:
    * 0 if no object is being passed.
    */
   explicit TrackStateOnSurface(
-    const MeasurementBase* meas,
-    const TrackParameters* trackParameters,
-    const FitQualityOnSurface* fitQoS,
-    const MaterialEffectsBase* materialEffectsOnTrack,
-    const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
-      typePattern,
-    const AlignmentEffectsOnTrack* alignmentEffectsOnTrack =
-      nullptr /// @todo remove =0 at some point
-  );
-
-  explicit TrackStateOnSurface(
     std::unique_ptr<const MeasurementBase> meas,
     std::unique_ptr<const TrackParameters> trackParameters,
     std::unique_ptr<const FitQualityOnSurface> fitQoS,
     std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack,
-    const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
-      typePattern,
-    std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack =
-      nullptr /// @todo remove =0 at some point
+    const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& typePattern,
+    std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack = nullptr
   );
 
   /**
    * constructor without a FitQualityOnSurface. Both the objects passed now
    * belong to this class, or to the track to which this TrackStateOnSurface
-   * belongs. Do NOT delete them yourself
+   * belongs.
    *
    * This ctor will set appropriate flags for all non-null objects passed
    * in (i.e. if there is a MeasurementBase, it will set the measurement flag)
    */
-  TrackStateOnSurface(const MeasurementBase* meas,
-                      const TrackParameters* trackParameters);
-  TrackStateOnSurface(std::unique_ptr<const MeasurementBase> meas,
-                      std::unique_ptr<const TrackParameters> trackParameters);
+  explicit TrackStateOnSurface(
+    std::unique_ptr<const MeasurementBase> meas,
+    std::unique_ptr<const TrackParameters> trackParameters);
 
   /**
    * Pseudo-constructor: needed to avoid excessive RTTI

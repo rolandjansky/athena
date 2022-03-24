@@ -6,7 +6,7 @@
 //   get quality of combined track match
 ///////////////////////////////////////////////////////////////////
 
-#include "MuidTrackBuilder/MuonMatchQuality.h"
+#include "MuonMatchQuality.h"
 
 #include <cmath>
 #include <iomanip>

@@ -31,6 +31,14 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
   from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
   from AthenaCommon.GlobalFlags import globalflags
 
+  # Load RDOs if we aren't loading bytestream                                                                                       
+  from AthenaCommon.AlgSequence import AlgSequence
+  topSequence = AlgSequence()
+
+  if not globalflags.InputFormat.is_bytestream():
+     topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+                                        ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
+
   viewAlgs = []
 
   ViewDataVerifier = None
@@ -51,23 +59,12 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
     if doFTF and config.name == 'fullScanUTT' :
       ViewDataVerifier.DataObjects += [ ( 'DataVector< LVL1::RecJetRoI >' , 'StoreGateSvc+HLT_RecJETRoIs' ) ]
 
-
-
-    viewAlgs.append( ViewDataVerifier )
-
-    # Load RDOs if we aren't loading bytestream
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-
-    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
-
-
-
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
-      topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
+
+    viewAlgs.append( ViewDataVerifier )
+
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc

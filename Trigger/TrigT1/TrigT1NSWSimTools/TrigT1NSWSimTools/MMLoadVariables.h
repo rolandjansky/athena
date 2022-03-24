@@ -8,6 +8,10 @@
 #include "MMT_struct.h" //for digitWrapper, hitData_key, hitData_entry, evInf_entry
 #include "AthenaBaseComps/AthMessaging.h"
 
+#include "MuonDigitContainer/MmDigitContainer.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "TrackRecord/TrackRecordCollection.h"
+
 #include <map>
 #include <vector>
 #include <string>
@@ -17,7 +21,6 @@ class MmIdHelper;
 class MmDigit;
 class StoreGateSvc;
 class MMT_Parameters;
-class MmDigitContainer;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -29,16 +32,18 @@ namespace MuonGM {
 
     MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper);
 
-    StatusCode getMMDigitsInfo(std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-                         std::map<std::pair<int,unsigned int>,std::map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
-                         std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
-                         std::map<std::string,std::shared_ptr<MMT_Parameters> > &pars);
+    StatusCode getMMDigitsInfo(const McEventCollection *truthContainer,
+			       const TrackRecordCollection* trackRecordCollection,
+			       const MmDigitContainer *nsw_MmDigitContainer,
+			       std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
+			       std::map<std::pair<int,unsigned int>,std::map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+			       std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
+			       std::map<std::string,std::shared_ptr<MMT_Parameters> > &pars);
     //Import_Athena..._.m stuff
     double phi_shift(double athena_phi,const std::string& wedgeType, int stationPhi) const;
     int Get_VMM_chip(int strip) const;  //*** Not Finished... Rough
     int strip_number(int station, int plane, int spos, std::shared_ptr<MMT_Parameters> par)const;
     int Get_Strip_ID(double X,double Y,int plane) const;
-    bool Mimic_VMM_Chip_Deadtime(hitData_entry& candy);
     void xxuv_to_uvxx(ROOT::Math::XYZVector& hit, int plane, std::shared_ptr<MMT_Parameters> par)const;
     void hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const;//x to v, u to x
     void hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const;//x to u, v to x
@@ -82,25 +87,9 @@ namespace MuonGM {
     histogramVariables histVars;
 
   private:
-  
-  //moved here
-     //VMM info
-    std::vector<std::vector<bool> > m_VMM_ChipStatus{};
-    std::vector<std::vector<int> > m_VMM_ChipLastHitTime{};
-
-    double m_VMM_Deadtime{};
-    int m_numVMM_PerPlane{};
-    //x <---> u/v switches
-    bool m_uvxxmod{};
-    
-    //
-
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const MmIdHelper* m_MmIdHelper;        //!< MM offline Id helper
-    StoreGateSvc* m_evtStore;
-    bool m_striphack{};
-
-
+    const StoreGateSvc* m_evtStore {nullptr};
   };
 
 

@@ -75,6 +75,27 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
     return ITkStripClusterizationCfg(flags, name=name, **kwargs)
 
 ##------------------------------------------------------------------------------
+
+def ITkInDetToXAODClusterConversionCfg(flags, name="ITkInDetToXAODClusterConversion", **kwargs):
+    acc = ComponentAccumulator()
+
+    histsvc = CompFactory.THistSvc(name="THistSvc",
+                                   Output=[ f"EXPERT DATAFILE='{name}.root' OPT='RECREATE'" ])
+    acc.addService(histsvc)
+
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    monTool = GenericMonitoringTool('MonTool', HistPath=name)
+    monTool.defineHistogram('TIME_Total'            , path='EXPERT',type='TH1F',title="Total time; Time [#mus]; Events"                     , xbins = 100, xmin=0.0, xmax=10000.0)
+    monTool.defineHistogram('TIME_PixelConversion'  , path='EXPERT',type='TH1F',title="Pixel Cluster Conversion time; Time [#mus]; Events"  , xbins = 100, xmin=0.0, xmax=10000.0)
+    monTool.defineHistogram('TIME_StripConversion'  , path='EXPERT',type='TH1F',title="Strip Cluster Conversion time; Time [#mus]; Events"  , xbins = 100, xmin=0.0, xmax=10000.0)
+
+    kwargs.setdefault("MonTool", monTool)
+
+    conversionAlg=CompFactory.InDetToXAODClusterConversion(name=name, **kwargs)
+    acc.addEventAlgo(conversionAlg)
+    return acc
+
+##------------------------------------------------------------------------------
 def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
 

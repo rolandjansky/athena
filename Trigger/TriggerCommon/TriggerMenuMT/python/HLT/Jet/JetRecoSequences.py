@@ -140,6 +140,10 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     jetRecAlg = JetRecConfig.getJetRecAlg(jetDef, monTool=monTool)
     buildSeq += conf2toConfigurable( jetRecAlg )
     
+    if configFlags.Trigger.Jet.doVRJets and JetRecoCommon.jetDefNeedsTracks(jetRecoDict) and 'a10' in jetRecoDict['recoAlg']:
+        buildSeqVR, jetsOutVR, jetDefVR = RecoFragmentsPool.retrieve(VRJetRecoSequence, configFlags, trkopt = jetRecoDict['trkopt'])
+        buildSeq += buildSeqVR
+
     return buildSeq, jetsOut, jetDef
 
 def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
@@ -339,6 +343,24 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
 
     jetsOut = recordable(rcJetDef.fullname())
     jetDef = rcJetDef
+    return recoSeq, jetsOut, jetDef
+
+# VR track jets reconstruction sequence
+def VRJetRecoSequence(configFlags, trkopt):
+    recoSeq = parOR("VRJetRecSeq", [])
+    VRTrackJetDef = JetRecoCommon.defineVRTrackJets(Rmax=0.4, Rmin=0.02, VRMassScale=30000, Ptmin=4000, prefix=jetNamePrefix, suffix="")
+    VRTrackJetName = VRTrackJetDef.fullname()
+    VRTrackJetDef = solveDependencies(VRTrackJetDef)
+    constitPJAlg = JetRecConfig.getConstitPJGAlg(VRTrackJetDef.inputdef)
+    recoSeq += conf2toConfigurable(constitPJAlg)
+    finalpjs = str(constitPJAlg.OutputContainer)
+    VRTrackJetDef._internalAtt['finalPJContainer'] = finalpjs
+    from JetRec import JetOnlineMon
+    monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+VRTrackJetName+"/")
+    VRTrackJetRecAlg = JetRecConfig.getJetRecAlg(VRTrackJetDef,  monTool)
+    recoSeq += conf2toConfigurable(VRTrackJetRecAlg)
+    jetsOut = recordable(VRTrackJetName)
+    jetDef = VRTrackJetDef
     return recoSeq, jetsOut, jetDef
 
 # This sets up the reconstruction starting from calo towers for heavy ion events.

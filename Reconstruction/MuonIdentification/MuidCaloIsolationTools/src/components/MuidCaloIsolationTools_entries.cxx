@@ -1,3 +1,3 @@
-#include "MuidCaloIsolationTools/MuidTrackIsolation.h"
+#include "../MuidTrackIsolation.h"
 
 DECLARE_COMPONENT(Rec::MuidTrackIsolation)

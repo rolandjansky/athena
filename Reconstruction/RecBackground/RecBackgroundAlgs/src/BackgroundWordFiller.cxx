@@ -136,7 +136,8 @@ StatusCode BackgroundWordFiller::initialize() {
   ATH_CHECK(m_beamBackgroundDataKey.initialize(!m_isMC));
   ATH_CHECK(m_LUCID_rawDataContainerKey.initialize(!m_isMC));
   ATH_CHECK(m_bcmCollisionTimeKey.initialize());
-  ATH_CHECK(m_rawInfoSummaryForTagKey.initialize(!m_isMC));
+  ATH_CHECK( m_sctSpacePointKey.initialize(!m_isMC) );
+  ATH_CHECK( m_pixSpacePointKey.initialize(!m_isMC) );
   ATH_CHECK(m_tileCellContainerKey.initialize());
   ATH_CHECK(m_lArCollisionTimeKey.initialize(!m_isMC));
   ATH_CHECK(m_eventInfoDecorKey.initialize());
@@ -248,13 +249,20 @@ StatusCode BackgroundWordFiller::execute() {
   // ID SP multiplicities from Raw for filling:  IDMultiplicityHuge, IDSPNonEmpty
   ///////////////////////////////////////////////////////////////////////////////
   if (!m_isMC) { // do not request in MC
-    SG::ReadHandle<RawInfoSummaryForTag> rawInfoSummaryForTagReadHandle(m_rawInfoSummaryForTagKey);
+    SG::ReadHandle<SpacePointContainer> sctSP{m_sctSpacePointKey};
+    SG::ReadHandle<SpacePointContainer> pixSP{m_pixSpacePointKey};
+
     
-    if (!rawInfoSummaryForTagReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to RawInfoSummaryForTag: " << m_rawInfoSummaryForTagKey.key());
+    if (!sctSP.isValid() or !pixSP.isValid()) {
+      ATH_MSG_WARNING("Invalid ReadHandle to SCT/Pix spacepoints");
+    }
     else{
-      int NSCTsps = rawInfoSummaryForTagReadHandle->getNsctSPs();
-      int NPIXsps = rawInfoSummaryForTagReadHandle->getNpixSPs();
+      int NSCTsps = 0;
+      int NPIXsps = 0;
+      std::for_each(sctSP->begin(),sctSP->end(),[&NSCTsps](const auto coll){if (coll) NSCTsps+=coll->size();});
+      std::for_each(pixSP->begin(),pixSP->end(),[&NPIXsps](const auto coll){if (coll) NPIXsps+=coll->size();});
       
+
       // set IDMultiplicityHuge
       if ( (NPIXsps)>m_PixMultiplicityHuge_Cut){
 	if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixMultiplicityHuge)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixMultiplicityHuge]);

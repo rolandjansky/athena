@@ -66,7 +66,7 @@ def _ftf(flags, chainDict):
 def _precisonCaloSeq(flags):
     recoAcc = InViewRecoCA('ElectronRoITopoClusterReco', RequireParentView = True)
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
-                                                              DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
+                                                              DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs.Path),
                                                                            ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage')]))
 
     from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
@@ -285,18 +285,3 @@ def generateChains(flags, chainDict):
 
     return chain
 
-if __name__ == '__main__':
-    # run with: python -m TriggerMenuMT.HLT.Electron.generateElectron
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.lock()
-    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-    chain = generateChains(ConfigFlags, dictFromChainName('HLT_e26_L1EM15'))
-    for step in chain.steps:
-        for s in step.sequences:
-            if not isinstance(s, EmptyMenuSequence):
-                s.ca.printConfig(withDetails=True, summariseProps=False) # flip the last arg to see all settings
-                s.ca.wasMerged() # to silence check for orphanted CAs

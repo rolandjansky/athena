@@ -884,7 +884,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                            useBeamConstraint=InDetFlags.useBeamConstraint(),
                                                            significanceCutSeeding=12,
                                                            maximumChi2cutForSeeding=49,
-                                                           maxVertices=200,
+                                                           maxVertices=InDetPrimaryVertexingCuts.maxVertices(),
                                                            doMaxTracksCut=InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                            maxTracks=InDetPrimaryVertexingCuts.MaxTracks(),
                                                            TrackingGeometryTool=actsTrackingGeometryTool,

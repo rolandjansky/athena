@@ -11,7 +11,7 @@ def TrigTauMonConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags,'TrigTauAthMonitorCfg')
 
     from TrigTauMonitoring.TrigTauMonitoringConfigMT import TrigTauMonAlgBuilder
-    monAlgCfg = TrigTauMonAlgBuilder( helper, '2018', detailedHistogram=True ) # Using 2018 e/g tunings
+    monAlgCfg = TrigTauMonAlgBuilder( helper ) 
     # build monitor and book histograms
     monAlgCfg.configure()
 

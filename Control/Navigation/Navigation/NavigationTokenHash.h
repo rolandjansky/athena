@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file Navigation/NavigationTokenHash.h
  * @author scott snyder <snyder@bnl.gov>
@@ -46,7 +44,6 @@ std::size_t navigationHash (const void* p)
 
 template <typename CHILD>
 struct NavigationTokenHash
-  : public std::unary_function<const CHILD*, std::size_t>
 {
   std::size_t operator() (const CHILD* p) const
   {

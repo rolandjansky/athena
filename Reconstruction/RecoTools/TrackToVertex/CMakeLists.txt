@@ -1,22 +1,10 @@
-################################################################################
-# Package: TrackToVertex
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackToVertex )
-
-# External dependencies:
-find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_component( TrackToVertex
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel ITrackToVertex 
-		     TrkNeutralParameters StoreGateLib Particle TrkDetDescrUtils TrkSurfaces TrkEventPrimitives TrkParameters 
-		     TrkParticleBase TrkTrack VxVertex TrkExInterfaces BeamSpotConditionsData CxxUtils)
-
-# Install files from the package:
-atlas_install_headers( TrackToVertex )
-
+                     LINK_LIBRARIES AthenaBaseComps BeamSpotConditionsData GaudiKernel GeoPrimitives ITrackToVertex Particle TrkDetDescrUtils TrkExInterfaces TrkParameters TrkSurfaces TrkTrack VxVertex )

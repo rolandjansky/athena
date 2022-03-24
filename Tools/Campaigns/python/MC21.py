@@ -17,15 +17,27 @@ def MC21a(flags):
     flags.Digitization.DoPixelPlanarRadiationDamage = True
 
     # pile-up
-    # TODO: using MC20e pile-up profile for now
-    flags.Digitization.PU.NumberOfLowPtMinBias = 99.33
-    flags.Digitization.PU.NumberOfHighPtMinBias = 0.17
+    # These numbers are based upon a relative XS scaling of the high-pt slice
+    # of 64%, which leads to a relative high-pt / low-pt sampling of
+    # 0.001953314389 / 0.9980466856. Those numbers are then multiplied by 52.
+    # to follow pile-up profile. Only a relevant number of significant digits
+    # are kept.
+    flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
-    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run310000_MC20e'
+    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run330000_MC21a_SingleBeamspot'
 
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
         flags.Digitization.PU.HighPtMinBiasInputColOffset = -1
+
+
+def MC21aSingleBeamspot(flags):
+    """MC21a flags for MC to match initial Run 3 data (single beamspot version)"""
+    MC21a(flags)
+
+    # override only pile-up profile
+    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run330000_MC21a_SingleBeamspot'
 
 
 def MC21NoPileUp(flags):

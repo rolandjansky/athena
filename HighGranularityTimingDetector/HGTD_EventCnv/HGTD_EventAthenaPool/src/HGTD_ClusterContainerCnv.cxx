@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_EventAthenaPool/src/HGTD_ClusterContainerCnv.cxx
  * @author Noemi Calace <noemi.calace@cern.ch>
@@ -26,7 +26,7 @@ HGTD_ClusterContainer* HGTD_ClusterContainerCnv::createTransient() {
   HGTD_ClusterContainer* p_collection(0);
   if (compareClassGuid(p1_guid)) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    std::auto_ptr<HGTD_ClusterContainer_p1> p_coll(
+    std::unique_ptr<HGTD_ClusterContainer_p1> p_coll(
         poolReadObject<HGTD_ClusterContainer_p1>());
     p_collection = m_converter_p1.createTransient(p_coll.get(), msg());
   } else {

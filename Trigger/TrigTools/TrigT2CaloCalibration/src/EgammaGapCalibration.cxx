@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,9 +26,8 @@ using CaloClusterCorr::interpolate;
 StatusCode EgammaGapCalibration::initialize(){
 
 	CHECK (base_class::initialize());
-	m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
-	(*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
+	ATH_MSG_DEBUG( "Initialize Tool : " << name()  );
 
 	return StatusCode::SUCCESS;
 
@@ -37,8 +36,7 @@ StatusCode EgammaGapCalibration::initialize(){
 
 StatusCode EgammaGapCalibration::finalize(){
 
-	(*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endmsg;
-	delete m_log;
+        ATH_MSG_DEBUG( "Finalize Tool : " << name()  );
 
 	return StatusCode::SUCCESS;
 
@@ -48,10 +46,8 @@ void EgammaGapCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 					  const void * /*param*/) const{
 	
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "makeCorrection for tool : "
-		<< name() << endmsg;
-	(*m_log) << MSG::DEBUG << "Cluster E input : " <<
-		clus->energy() << endmsg;
+        ATH_MSG_DEBUG( "makeCorrection for tool : " << name()  );
+	ATH_MSG_DEBUG( "Cluster E input : " << clus->energy()  );
 #endif
 	float the_aeta=(clus->eta());
 	if (the_aeta<0) the_aeta=-the_aeta;
@@ -68,8 +64,7 @@ void EgammaGapCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 	clus->setEnergy(a*(ec+alpha*eh_scint + offset));
 	clus->setEt(clus->energy()/cosh(clus->eta()));
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Cluster E output : " <<
-		clus->energy() << endmsg;
+	ATH_MSG_DEBUG( "Cluster E output : " << clus->energy()  );
 #endif
 
 }

@@ -4,7 +4,7 @@ import threading
 from argparse import ArgumentParser, Namespace
 from os import environ
 from pathlib import Path
-from sys import exit
+from sys import exit, stdout
 from typing import List
 
 from .Checks import FailedOrPassedCheck, FPECheck, SimpleCheck, WarningsComparisonCheck
@@ -49,7 +49,7 @@ def setup_logger(name: str) -> logging.Logger:
     fileHandler.setFormatter(fileFormatter)
 
     streamFormatter = CustomFormatter("%(levelname)-8s %(message)s")
-    streamHandler = logging.StreamHandler()
+    streamHandler = logging.StreamHandler(stdout)
     streamHandler.setFormatter(streamFormatter)
 
     logger = logging.getLogger()

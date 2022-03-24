@@ -4,11 +4,7 @@
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
 
-#include "MuonDigitContainer/MmDigitContainer.h"
 #include "AtlasHepMC/GenEvent.h"
-#include "GeneratorObjects/McEventCollection.h"
-#include "TrackRecord/TrackRecordCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -31,30 +27,15 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       m_MmIdHelper = idhelper;
 }
 
-  StatusCode MMLoadVariables::getMMDigitsInfo(std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-                                        std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
-                                        std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
-                                        std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
+StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContainer,
+					    const TrackRecordCollection* trackRecordCollection,
+					    const MmDigitContainer *nsw_MmDigitContainer,
+					    std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
+					    std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+					    std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
+					    std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
       //*******Following MuonPRD code to access all the variables**********
-
       histogramVariables fillVars;
-
-      //Get truth variables, vertex
-      const McEventCollection *truthContainer = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(truthContainer,"TruthEvent") );
-
-      //Get MuEntry variables TBD if still necessary
-      const TrackRecordCollection* trackRecordCollection = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(trackRecordCollection,"MuonEntryLayer") );
-
-      //Get truth information container of digitization
-      const MuonSimDataCollection* nsw_MmSdoContainer = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(nsw_MmSdoContainer,"MM_SDO") );
-
-      // get digit container (a container corresponds to a multilayer of a module)
-      const MmDigitContainer *nsw_MmDigitContainer = nullptr;
-      ATH_CHECK( m_evtStore->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
-      if (nsw_MmDigitContainer->digit_size() == 0) return StatusCode::SUCCESS;
 
       std::vector<ROOT::Math::PtEtaPhiEVector> truthParticles, truthParticles_ent, truthParticles_pos;
       std::vector<int> pdg;
@@ -67,9 +48,9 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       ROOT::Math::XYZVector vertex_tmp(0.,0.,0.);
  
       ROOT::Math::PtEtaPhiEVector thePart, theInfo;
-      auto MuEntry_Particle_n = trackRecordCollection->size();
+      auto MuEntry_Particle_n = (trackRecordCollection!=nullptr)?trackRecordCollection->size():0;
       int j=0; // iteration of particle entries
-
+      if( truthContainer != nullptr ){
       for(const auto it : *truthContainer) {
         const HepMC::GenEvent *subEvent = it;
 #ifdef HEPMC3
@@ -80,9 +61,10 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
           const HepMC::GenParticle *particle = pit;
 #endif
           const HepMC::FourVector momentum = particle->momentum();
-          int k=trackRecordCollection->size(); //number of mu
+          int k=(trackRecordCollection!=nullptr)?trackRecordCollection->size():0; //number of mu
           if(HepMC::barcode(particle) < 1e06 && std::abs(particle->pdg_id())==13){
             thePart.SetCoordinates(momentum.perp(),momentum.eta(),momentum.phi(),momentum.e());
+            if(trackRecordCollection!=nullptr){
             for(const auto & mit : *trackRecordCollection ) {
               const CLHEP::Hep3Vector mumomentum = mit.GetMomentum();
               const CLHEP::Hep3Vector muposition = mit.GetPosition();
@@ -94,6 +76,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
                 etaPosition_tmp = muposition.getEta();
               }
             }//muentry loop
+            } // trackRecordCollection is not null
             int l=0;
 #ifdef HEPMC3
             for(auto vertex1 : subEvent->vertices()) {
@@ -130,6 +113,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
         } //end particle loop
       } //end truth container loop (should be only 1 container per event)
+      } // if truth container is not null
       auto ctx = Gaudi::Hive::currentContext();
       int event = ctx.eventID().event_number();
 
@@ -191,7 +175,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
               globalPosZ.push_back(0.);
               ++nstrip;
 
-              Identifier cr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, cr_strip, true, &isValid);
+              Identifier cr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, cr_strip, isValid);
               if (!isValid) {
                 ATH_MSG_WARNING("MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << cr_strip
                                << "; associated positions will be set to 0.0.");
@@ -273,7 +257,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         }
 
         std::string station = it->second[0].stName;
-        m_uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
+        bool uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
 
         map<hitData_key,hitData_entry> hit_info;
         vector<hitData_key> keys;
@@ -302,7 +286,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
           ROOT::Math::XYZVector athena_rec(dW.strip_gpos);
           ROOT::Math::XYZVector recon(athena_rec.Y(),-athena_rec.X(),athena_rec.Z());
 
-          if(m_uvxxmod){
+          if(uvxxmod){
             xxuv_to_uvxx(recon,thisPlane,pars[station]);
           }
 
@@ -342,12 +326,6 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
           tru_it->second.N_hits_preVMM=hit_info.size();
           tru_it->second.N_hits_postVMM=0;
         }
-
-        //might want to move these somewhere smarter in future
-        m_VMM_Deadtime = 100;
-        m_numVMM_PerPlane = 1000;
-        m_VMM_ChipStatus=vector<vector<bool> >(m_numVMM_PerPlane,vector<bool>(8,true));
-        m_VMM_ChipLastHitTime=vector<vector<int> >(m_numVMM_PerPlane,vector<int>(8,0));
 
         int xhit=0,uvhit=0;
         vector<bool>plane_hit(pars[station]->setup.size(),false);
@@ -394,7 +372,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
   void MMLoadVariables::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
     double degree=M_PI/180.0*(par->stereo_degree);
-    if(m_striphack) hit.SetY(hit.Y()*cos(degree));
+    bool striphack = false;
+    if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);
@@ -403,7 +382,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
   void MMLoadVariables::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
     double degree=-M_PI/180.0*(par->stereo_degree);
-    if(m_striphack) hit.SetY(hit.Y()*std::cos(degree));
+    bool striphack = false;
+    if(striphack) hit.SetY(hit.Y()*std::cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);

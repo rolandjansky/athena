@@ -7,7 +7,7 @@
 // Athena include(s)
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
-#include "CscRawDataMonitoring/CscClusterValMonAlg.h"
+#include "CscClusterValMonAlg.h"
 
 // STL include(s)
 #include <bitset>

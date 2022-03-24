@@ -1,5 +1,5 @@
 // /*
-//   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+//   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 // */
 
 #include "ActsKalmanFitter.h"
@@ -10,6 +10,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "GaudiKernel/EventContext.h"
 
 // ACTS
 #include "Acts/Definitions/TrackParametrization.hpp"
@@ -28,16 +29,16 @@
 
 
 // PACKAGE
+#include "ActsGeometry/ATLASSourceLink.h"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "ActsGeometry/ActsATLASConverterTool.h"
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsInterop/Logger.h"
 
 // STL
-#include <memory>
 #include <vector>
-#include <fstream>
-#include <string>
+
 
 
 ActsKalmanFitter::ActsKalmanFitter(const std::string& t,const std::string& n,
@@ -440,7 +441,7 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
           const auto* detElem = dynamic_cast<const InDetDD::SiDetectorElement*>(actsElement->upstreamDetectorElement());
           // We need to determine the type of state 
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-          const Trk::TrackParameters *parm;
+          std::unique_ptr<const Trk::TrackParameters> parm;
 
           // State is a hole (no associated measurement), use predicted parameters      
           if (flag[Acts::TrackStateFlag::HoleFlag] == true){         
@@ -484,14 +485,14 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
             parm = m_ATLASConverterTool->ActsTrackParameterToATLAS(actsParam, tgContext);
             typePattern.set(Trk::TrackStateOnSurface::Measurement);                                           
           }
-          const Trk::MeasurementBase *measState = nullptr;
+          std::unique_ptr<const Trk::MeasurementBase> measState;
           if (state.hasUncalibrated()){
             const auto& sl = static_cast<const ATLASSourceLink&>(state.uncalibrated());
-            measState = sl.atlasHit().clone();
+            measState = sl.atlasHit().uniqueClone();
           }
           double nDoF = state.calibratedSize();
-          const Trk::FitQualityOnSurface *quality = new Trk::FitQualityOnSurface(state.chi2(), nDoF);
-          const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(measState, parm, quality, nullptr, typePattern);
+          auto quality =std::make_unique<const Trk::FitQualityOnSurface>(state.chi2(), nDoF);
+          const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(std::move(measState), std::move(parm), std::move(quality), nullptr, typePattern);
           // If a state was succesfully created add it to the trajectory 
           if (perState) {
             finalTrajectory.insert(finalTrajectory.begin(), perState);
@@ -503,10 +504,10 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
 
     // Convert the perigee state and add it to the trajectory
     const Acts::BoundTrackParameters actsPer = fitOutput.fittedParameters.value();
-    const Trk::TrackParameters *per = m_ATLASConverterTool->ActsTrackParameterToATLAS(actsPer, tgContext);
+    std::unique_ptr<const Trk::TrackParameters> per = m_ATLASConverterTool->ActsTrackParameterToATLAS(actsPer, tgContext);
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
+    const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(nullptr, std::move(per), nullptr, nullptr, typePattern);
     if (perState) finalTrajectory.insert(finalTrajectory.begin(), perState);
 
     // Create the track using the states

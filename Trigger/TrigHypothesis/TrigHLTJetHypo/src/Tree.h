@@ -23,6 +23,7 @@ class Tree{
   std::vector<std::size_t> siblings(std::size_t) const;
   std::size_t size() const;
   const std::vector<std::size_t>& leaves() const;
+  bool is_leaf(size_t) const;
   const std::vector<std::size_t>& firstGeneration() const;
 
   std::vector<std::size_t>::const_iterator cbegin() const {

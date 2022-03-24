@@ -125,7 +125,7 @@ public:
 
     // Access to name and technology maps
 
-    int stationNameIndex(std::string_view name) const;
+    int stationNameIndex(const std::string& name) const;
     int technologyIndex(const std::string& name) const;
     const std::string& stationNameString(const int& index) const;
     const std::string& technologyString(const int& index) const;
@@ -146,20 +146,20 @@ public:
     typedef std::vector<Identifier>::const_iterator const_id_iterator;
 
     /// Initialization from the identifier dictionary
-    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
+    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
 
     ///
     /// access to IdContext's which define which levels or fields are
     /// contained in the Muon id
     ///
     /// id for technology
-    IdContext technology_context(void) const;
+    IdContext technology_context() const;
     /// id for module
-    IdContext module_context(void) const;
+    IdContext module_context() const;
     /// id for detector element
-    IdContext detectorElement_context(void) const;
+    IdContext detectorElement_context() const;
     /// id for channel
-    IdContext channel_context(void) const;
+    IdContext channel_context() const;
 
     /// get the hashes
     virtual int gasGap(const Identifier& id) const = 0;
@@ -170,10 +170,10 @@ public:
     virtual int get_channel_hash(const Identifier& id, IdentifierHash& hash_id) const;
 
     /// Create compact id from hash id (return == 0 for OK)
-    virtual int get_id(const IdentifierHash& hash_id, Identifier& id, const IdContext* context = 0) const;
+    virtual int get_id(const IdentifierHash& hash_id, Identifier& id, const IdContext* context = 0) const override;
 
     /// Create hash id from compact id (return == 0 for OK)
-    virtual int get_hash(const Identifier& id, IdentifierHash& hash_id, const IdContext* context = 0) const;
+    virtual int get_hash(const Identifier& id, IdentifierHash& hash_id, const IdContext* context = 0) const override;
 
     /// Create expanded id from compact id (return == 0 for OK)
     int get_expanded_id(const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
@@ -182,33 +182,33 @@ public:
     /// id_iterators
     int get_id(const ExpandedIdentifier& old_id, Identifier& new_id) const;
     /// multirange
-    MultiRange multiRange(void) const;
+    MultiRange multiRange() const;
 
     /// the maximum hash value
-    size_type module_hash_max(void) const;
-    size_type detectorElement_hash_max(void) const { return m_detectorElement_hash_max; };
-    size_type channel_hash_max(void) const;
+    size_type module_hash_max() const;
+    size_type detectorElement_hash_max() const { return m_detectorElement_hash_max; };
+    size_type channel_hash_max() const;
 
     /// the id's
-    std::vector<Identifier> idVector(void) const;
+    std::vector<Identifier> idVector() const;
 
     ///
     /// Iterators over full set of ids. Module iterator is sorted
     ///
-    const_id_iterator module_begin(void) const;
-    const_id_iterator module_end(void) const;
+    const_id_iterator module_begin() const;
+    const_id_iterator module_end() const;
 
     ///
     /// Iterators over full set of ids. detector element iterator is sorted
     ///
-    const_id_iterator detectorElement_begin(void) const;
-    const_id_iterator detectorElement_end(void) const;
+    const_id_iterator detectorElement_begin() const;
+    const_id_iterator detectorElement_end() const;
 
     ///
     /// Iterators over full set of ids. Channel iterator is sorted
     ///
-    const_id_iterator channel_begin(void) const;
-    const_id_iterator channel_end(void) const;
+    const_id_iterator channel_begin() const;
+    const_id_iterator channel_end() const;
 
     /// Access to hashes for neighbors in phi and eta
     ///  (return == 0 for neighbor found)
@@ -218,7 +218,7 @@ public:
     int get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const;
 
     /// Tests of packing
-    void test_module_packing(void) const;
+    void test_module_packing() const;
     void test_id(const Identifier& id, const IdContext& context) const;
 
     int stationNameIndexMax() const;
@@ -227,18 +227,18 @@ public:
     static const std::string BAD_NAME;
 
 protected:
-    enum { NOT_VALID_HASH = 64000 };
+    static constexpr int NOT_VALID_HASH = 64000;
 
     typedef std::vector<Identifier> id_vec;
     typedef id_vec::const_iterator id_vec_it;
     typedef std::vector<unsigned short> hash_vec;
     typedef hash_vec::const_iterator hash_vec_it;
 
-    int initLevelsFromDict(void);
-    int init_hashes(void);
-    virtual int init_detectorElement_hashes(void);
-    int init_channel_hashes(void);
-    int init_neighbors(void);
+    int initLevelsFromDict();
+    int init_hashes();
+    virtual int init_detectorElement_hashes();
+    int init_channel_hashes();
+    int init_neighbors();
 
     // Create expanded id from compact id (return == 0 for OK)
     int get_expanded_id_calc(const Identifier& compact_id, ExpandedIdentifier& id, const IdContext* context) const;
@@ -248,31 +248,40 @@ protected:
     // Create hash from compact
     virtual int get_hash_calc(const Identifier& compact_id, IdentifierHash& hash_id, const IdContext* context) const;
 
-    size_type m_station_region_index;
-    size_type m_MUON_INDEX;
-    size_t m_GROUP_INDEX;
-    size_type m_NAME_INDEX;
-    size_type m_ETA_INDEX;
-    size_type m_PHI_INDEX;
-    size_type m_TECHNOLOGY_INDEX;
-    size_type m_MODULE_INDEX;
-    size_type m_DETECTORELEMENT_INDEX;
-    size_type m_CHANNEL_INDEX;
-    const IdDictDictionary* m_dict;
+    /// The valid element checks converted the identifier to a stationName string
+    /// in order to assess whether the stationName is good or not. However, the valid
+    /// stations can be cached during initialization stage. For eacb stationName found in the
+    /// dict, this method is called and the corresponding index is added to the stationToTech set
+    virtual bool isStNameInTech(const std::string& stationName) const = 0;
+    
+    std::set<int> m_stationInTech{};
+    
+    
+    size_type m_station_region_index{0};
+    size_type m_MUON_INDEX{0};
+    size_t m_GROUP_INDEX{6500};
+    size_type m_NAME_INDEX{1};
+    size_type m_ETA_INDEX{2};
+    size_type m_PHI_INDEX{3};
+    size_type m_TECHNOLOGY_INDEX{4};
+    size_type m_MODULE_INDEX{5};
+    size_type m_DETECTORELEMENT_INDEX{5};
+    size_type m_CHANNEL_INDEX{10};
+    const IdDictDictionary* m_dict{nullptr};
 
     MultiRange m_muon_range;
     MultiRange m_full_module_range;
-    size_type m_module_hash_max;
+    size_type m_module_hash_max{0};
     id_vec m_module_vec;
 
     MultiRange m_muon_channel_range;
     MultiRange m_full_channel_range;
-    size_type m_channel_hash_max;
+    size_type m_channel_hash_max{0};
     id_vec m_channel_vec;
 
     MultiRange m_muon_detectorElement_range;
     MultiRange m_full_detectorElement_range;
-    size_type m_detectorElement_hash_max;
+    size_type m_detectorElement_hash_max{0};
     id_vec m_detectorElement_vec;
 
     hash_vec m_prev_phi_module_vec;
@@ -292,6 +301,9 @@ protected:
     // Check values down to station level
 
     bool validStation(int stationName, int technology) const;
+    bool validStation(int stationName) const;
+    bool validTechnology(int technology) const;
+    
 
     // Append station ID fields
 
@@ -306,8 +318,17 @@ private:
 
     // vectors for stationNames and technologies
 
-    std::vector<std::string> m_stationNameVector;
-    std::vector<std::string> m_technologyNameVector;
+    /// Mapping  string -> int
+    std::map<std::string, int> m_stationNameToIdxMap;
+    /// Mapping int -> string
+    std::map<int, std::string> m_stationIdxToNameMap;
+    
+    int m_stationIndexMax{-INT_MAX};
+    /// Mapping string -> int
+    std::map<std::string, int> m_technologyNameToIdxMap;
+    /// Mapping int -> string
+    std::map<int, std::string> m_technologyIdxToNameMap;
+    int m_technologyIndexMax{-INT_MAX};
 
     // little helpers to speed things up
     std::set<int> m_isBarrel;
@@ -319,8 +340,8 @@ private:
     enum MuonIndices { StationNameIndex = 1, StationEtaIndex = 2, StationPhiIndex = 3, TechnologyIndex = 4 };
 
 protected:
-    std::string m_logName;
-    bool m_init;
+    std::string m_logName{};
+    bool m_init{false};
 };
 
 // For backwards compatibility

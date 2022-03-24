@@ -68,8 +68,10 @@ class RatesTrigger:
     # Some menu-derived metadata
     prescales = metadata['prescales']
     lowers = metadata['lowers']
+    express = metadata['express']
     self.prescale = prescales[name]
     self.lower = lowers[name]
+    self.expressPrescale = express[name]
 
     # Unique rate requires the subtraction of the (all minus this trigger) total from the (all triggers) total
     # The error is taken as a fractional error on the main rate calc

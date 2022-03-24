@@ -1,14 +1,14 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def SiHitAnalysisOutputCfg(flags):
+def SiHitAnalysisOutputCfg(flags, output_name='SiHitAnalysis'):
     acc = ComponentAccumulator()
 
     svc = CompFactory.THistSvc(name="THistSvc")
-    svc.Output = ["SiHitAnalysis DATAFILE='SiHitAnalysis.root' OPT='RECREATE'"]
+    svc.Output = [f"{output_name} DATAFILE='{output_name}.root' OPT='RECREATE'"]
     acc.addService(svc)
 
     return acc
@@ -20,8 +20,8 @@ def ITkPixelHitAnalysisCfg(flags):
 
     alg = CompFactory.SiHitAnalysis('ITkPixelHitAnalysis')
     alg.CollectionName = 'ITkPixelHits'
-    alg.HistPath='/SiHitAnalysis/Histos/'
-    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    alg.HistPath='/SiHitAnalysis/histos/'
+    alg.NtuplePath='/SiHitAnalysis/ntuples/'
     acc.addEventAlgo(alg)
 
     acc.merge(SiHitAnalysisOutputCfg(flags))
@@ -35,8 +35,8 @@ def ITkStripHitAnalysisCfg(flags):
 
     alg = CompFactory.SiHitAnalysis('ITkStripHitAnalysis')
     alg.CollectionName = 'ITkStripHits'
-    alg.HistPath='/SiHitAnalysis/Histos/'
-    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    alg.HistPath='/SiHitAnalysis/histos/'
+    alg.NtuplePath='/SiHitAnalysis/ntuples/'
     acc.addEventAlgo(alg)
 
     acc.merge(SiHitAnalysisOutputCfg(flags))
@@ -45,15 +45,16 @@ def ITkStripHitAnalysisCfg(flags):
 
 
 def HGTD_HitAnalysisCfg(flags):
-    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
-    # TODO: Hit Analysis with GMX
-    # from HGTD_GeoModelXml.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    if flags.HGTD.Geometry.useGeoModelXml:
+        from HGTD_GeoModelXml.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    else:
+        from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
     acc = HGTD_SimulationGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('HGTD_HitAnalysis')
     alg.CollectionName = 'HGTD_Hits'
-    alg.HistPath='/SiHitAnalysis/Histos/'
-    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    alg.HistPath='/SiHitAnalysis/histos/'
+    alg.NtuplePath='/SiHitAnalysis/ntuples/'
     acc.addEventAlgo(alg)
 
     acc.merge(SiHitAnalysisOutputCfg(flags))
@@ -67,8 +68,8 @@ def PLRHitAnalysisCfg(flags):
 
     alg = CompFactory.SiHitAnalysis('PLRHitAnalysis')
     alg.CollectionName = 'PLRHits'
-    alg.HistPath='/SiHitAnalysis/Histos/'
-    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    alg.HistPath='/SiHitAnalysis/histos/'
+    alg.NtuplePath='/SiHitAnalysis/ntuples/'
     acc.addEventAlgo(alg)
 
     acc.merge(SiHitAnalysisOutputCfg(flags))

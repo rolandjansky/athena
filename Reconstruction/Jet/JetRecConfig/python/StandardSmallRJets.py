@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+from JetRecConfig.JetRecConfig import registerAsInputConstit
 from .JetDefinition import  JetDefinition
 
 
@@ -51,13 +52,15 @@ pflowmods        = ()
 # Standard track jet definition
 # ********************************************************
 AntiKtVR30Rmax4Rmin02PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
-                                              modifiers = ("Sort","JetDeltaRLabel:4500","JetGhostLabel"),
+                                              modifiers = ("Sort","JetDeltaRLabel:4500","JetGhostLabel","vr"),
                                               ptmin=4000,
                                               standardRecoMode = True,
                                               VRMinR = 0.02,
                                               VRMassSc = 30000,
                                               lock = True)
 
+# These jets are used as ghost, so they also need to be defined as constituents : 
+registerAsInputConstit(AntiKtVR30Rmax4Rmin02PV0Track)
 
 
 AntiKt4PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
@@ -103,7 +106,7 @@ AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
 # *********************************************************
 AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
                                    ghostdefs = standardghosts+flavourghosts,
-                                   modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1",)+truthmods+standardmods,
+                                   modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1","JetPtAssociation")+truthmods+standardmods,
                                    ptmin = 2000,
                                    standardRecoMode = True,
                                    lock = True
@@ -115,7 +118,7 @@ AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
 AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
                                       infix = "NoPtCut",
                                       ghostdefs = standardghosts+flavourghosts,
-                                      modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                      modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+("JetPtAssociation",),
                                       ptmin = 1,
                                       standardRecoMode = True,
                                       lock = True
@@ -125,7 +128,7 @@ AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
 AntiKt4EMTopoNoPtCut = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                                      infix = "NoPtCut",
                                      ghostdefs = standardghosts+flavourghosts,
-                                     modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+clustermods,
+                                     modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+clustermods+("JetPtAssociation",),
                                      ptmin = 1,
                                      standardRecoMode = True,
                                      lock = True
@@ -134,7 +137,7 @@ AntiKt4EMTopoNoPtCut = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
 AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.EMPFlow,
                                     infix = "LowPt",
                                     ghostdefs = standardghosts+flavourghosts,
-                                    modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                    modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+("JetPtAssociation",),
                                     ptmin = 2000,
                                     standardRecoMode = True,
                                     lock = True
@@ -143,7 +146,7 @@ AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.EMPFlow,
 AntiKt4EMTopoLowPt = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                                    infix = "LowPt",
                                    ghostdefs = standardghosts+flavourghosts,
-                                   modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+clustermods,
+                                   modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+clustermods+("JetPtAssociation",),
                                    ptmin = 2000,
                                    standardRecoMode = True,
                                    lock = True

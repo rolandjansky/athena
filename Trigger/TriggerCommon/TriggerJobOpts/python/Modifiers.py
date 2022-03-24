@@ -229,32 +229,6 @@ class forcePileupNoise(_modifier):
         conddb.addMarkup("/CALO/Noise/CellNoise","<forceRunNumber>178540</forceRunNumber>")
 
 
-class forceTileRODMap(_modifier):
-    """
-    Configure Tile ROD map based on run-number (ATR-16290)
-    """
-    def postSetup(self, flags):
-        if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
-           from TileByteStream.TileByteStreamConf import TileROD_Decoder
-           svcMgr.ToolSvc+=TileROD_Decoder()
-        # Get run number from input file if running in athena
-        global _run_number
-        if _run_number is None:
-            import PyUtils.AthFile as athFile
-            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
-            _run_number = af.run_number[0]
-        if _run_number<318000:  # use old readout scheme (default is new one)
-            log.info('Reverting to pre-2017 Tile ROD map')
-            #ToolSvc.TrigDataAccess.fullTileMode=False
-            #ToolSvc.TileRegionSelectorTable.FullRODs=False
-            svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0
-        if _run_number>=343000:  # use 2018 version of cabling after 31-Jan-2018
-            log.info('Setting RUN2a (2018) cabling in TileCal')
-            svcMgr.TileCablingSvc.CablingType=5
-
-
-
 class useOnlineLumi(_modifier):
     """
     Use online LuminosityTool
@@ -475,6 +449,14 @@ class enableSchedulerMon(_modifier):
         if flags.Trigger.Online.isPartition:
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.MonitorScheduler = True
+
+class enableCountAlgoMiss(_modifier):
+    """
+    Enable monitoring of non-reentrant algorithms that scheduler is waiting for
+    """
+    def postSetup(self, flags):
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        svcMgr.AlgResourcePool.CountAlgorithmInstanceMisses=True
 
 class enableFPE(_modifier):
     """

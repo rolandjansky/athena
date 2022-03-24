@@ -66,8 +66,8 @@ int main(int argc, char **argv)
 		
       TString saveExtension = "none";
       int mode = 0;
-      if (argc>2)
-	mode = (argv[2] == "0") ? 0 : 1;
+      if (argc>2) mode = std::abs(strcmp(argv[2], "0"));
+	
 
 
       TFile* File = TFile::Open(file);

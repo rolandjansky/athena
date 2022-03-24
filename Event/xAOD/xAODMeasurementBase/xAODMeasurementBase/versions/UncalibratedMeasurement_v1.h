@@ -8,7 +8,7 @@
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
 
-#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "EventPrimitives/EventPrimitives.h"
 
 namespace xAOD {
@@ -42,8 +42,8 @@ namespace xAOD {
         /// @name Functions to get measurement properties
         /// @{
 
-        /// Returns the identifier of the measurement (corresponds to the detector element identifier)
-        const Identifier identifier() const;
+        /// Returns the IdentifierHash of the measurement (corresponds to the detector element IdentifierHash)
+        const IdentifierHash identifierHash() const;
 
         using PosAccessor = const SG::AuxElement::Accessor< std::array< float, 3 > >;
         using CovAccessor = const SG::AuxElement::Accessor< std::array< float, 9 > >;
@@ -105,8 +105,8 @@ namespace xAOD {
         /// @name Functions to set measurement properties
         /// @{
 
-        /// Sets the identifier of the measurement (corresponds to the detector element identifier)
-        void setIdentifier(Identifier& id);
+        /// Sets the IdentifierHash of the measurement (corresponds to the detector element IdentifierHash)
+        void setIdentifierHash(IdentifierHash& idHash);
 
 
         /// @}
@@ -114,12 +114,12 @@ namespace xAOD {
         /// @name Direct method to set measurement properties
         /// @{
 
-        /// Sets Identifier, local position and local covariance of the measurement
+        /// Sets IdentifierHash, local position and local covariance of the measurement
         template < int N >
-        void setMeasurement(Identifier& id,
+        void setMeasurement(IdentifierHash& idHash,
                             Eigen::Matrix<float,N,1>& locPos,
                             Eigen::Matrix<float,N,N>& locCov) {
-            setIdentifier(id);
+            setIdentifierHash(idHash);
             localPosition<N>() = locPos;
             localCovariance<N>() = locCov;
         }

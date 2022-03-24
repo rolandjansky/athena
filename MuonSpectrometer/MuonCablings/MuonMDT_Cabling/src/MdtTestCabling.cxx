@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonMDT_Cabling/MdtTestCabling.h"
+#include "MdtTestCabling.h"
 
 MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),

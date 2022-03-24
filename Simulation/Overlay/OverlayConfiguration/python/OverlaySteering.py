@@ -6,6 +6,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+from AthenaConfiguration.Enums import LHCPeriod
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
@@ -14,7 +15,7 @@ from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
-from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg
+from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg, LArSuperCellOverlayCfg
 from MuonConfig.CscOverlayConfig import CscOverlayCfg
 from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
 from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
@@ -89,6 +90,9 @@ def OverlayMainCfg(configFlags):
                 pass  # TODO: not supported for now
             else:
                 acc.merge(LArTTL1OverlayCfg(configFlags))
+                if configFlags.GeoModel.Run in [LHCPeriod.Run3]:
+                    acc.merge(LArSuperCellOverlayCfg(configFlags))
+
     if configFlags.Detector.EnableTile:
         acc.merge(TileDigitizationCfg(configFlags))
         if configFlags.Detector.EnableL1Calo:

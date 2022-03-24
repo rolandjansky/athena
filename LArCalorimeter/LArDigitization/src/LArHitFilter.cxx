@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -8,7 +8,7 @@
 //   individual hit times
 //  This is aimed to run at first stage for very large luminosity pileup
 
-#include "LArDigitization/LArHitFilter.h"
+#include "LArHitFilter.h"
 #include "LArSimEvent/LArHit.h"
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/IdentifierHash.h"

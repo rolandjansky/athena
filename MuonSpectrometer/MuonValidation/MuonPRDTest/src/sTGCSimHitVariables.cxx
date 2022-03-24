@@ -165,7 +165,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
                     << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
 
       
-      Identifier newId = m_sTgcIdHelper->channelID(m_sTgcIdHelper->parentID(offId), m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),type,1,0);
+      Identifier newId = m_sTgcIdHelper->channelID(m_sTgcIdHelper->parentID(offId), m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),type,1);
       
       // compute hit position within the detector element/surfaces
       const Trk::PlaneSurface& surf = detEl->surface(newId);

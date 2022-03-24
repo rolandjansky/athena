@@ -31,7 +31,7 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --maxEvents 100 \
     --skipEvents 0 \
     --geometryVersion ATLAS-R2-2015-03-01-00 \
-    --conditionsTag OFLCOND-RUN12-SDR-31 \
+    --conditionsTag OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
     --preSimInclude FastChainPileup/FastPileup.py \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
@@ -58,8 +58,7 @@ then
     Reco_tf.py --inputRDOFile ${rdoFile} --maxEvents '-1' \
                --autoConfiguration=everything \
                --outputAODFile ${aodFile} \
-               --steering 'doRDO_TRIG' \
-               --athenaopts "all:--threads=1" \
+               --preExec "all:rec.doTrigger.set_Value_and_Lock(False)" \
                --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
                --imf False
      rc2=$?

@@ -11,7 +11,7 @@
  * @brief
  */
 
-#include "HGTD_Digitization/HGTD_DigitizationTool.h"
+#include "HGTD_DigitizationTool.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 #include "HGTD_Identifier/HGTD_ID.h"

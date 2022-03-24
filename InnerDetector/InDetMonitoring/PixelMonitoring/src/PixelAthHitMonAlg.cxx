@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "PixelAthHitMonAlg.h"
@@ -117,20 +117,23 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
     if (pixlayer == 99) continue;
 
     if (m_pixelCondSummaryTool->isActive(id_hash) == true) {
-      if (pixlayer == PixLayers::kIBL && m_pixelid->eta_module(waferID) > -7 &&
-          m_pixelid->eta_module(waferID) < 6) nActive_layer[pixlayer] += 2;
-      else nActive_layer[pixlayer]++;
-
+      if (pixlayer == PixLayers::kIBL) {
+	if (m_pixelid->eta_module(waferID) > -7 &&
+	    m_pixelid->eta_module(waferID) < 6) nActive_layer[PixLayers::kIBL2D] += 2;
+	else nActive_layer[PixLayers::kIBL3D]++;
+      } else nActive_layer[pixlayer]++;
       if (m_pixelCondSummaryTool->isGood(id_hash) == true) {
-        if (pixlayer == PixLayers::kIBL && m_pixelid->eta_module(waferID) > -7 &&
-            m_pixelid->eta_module(waferID) < 6) nGood_layer[pixlayer] += 2;
-        else nGood_layer[pixlayer]++;
+        if (pixlayer == PixLayers::kIBL) {
+	  if (m_pixelid->eta_module(waferID) > -7 &&
+	      m_pixelid->eta_module(waferID) < 6) nGood_layer[PixLayers::kIBL2D] += 2;
+	  else nGood_layer[PixLayers::kIBL3D]++;
+        } else nGood_layer[pixlayer]++;
       }
     }
   }
 
   const int nChannels_mod[PixLayers::COUNT] = {
-    46080, 46080, 46080, 46080, 46080, 26880
+    46080, 46080, 46080, 46080, 46080, 26880, 26880
   };
   float nGoodChannels_layer[PixLayers::COUNT];
   float nActiveChannels_layer[PixLayers::COUNT];
@@ -153,30 +156,26 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   std::unordered_map<int, std::vector<int> > hitToTLayer;
 
   Identifier rdoID;
-  PixelRDO_Container::const_iterator colNext = rdocontainer->begin();
-  PixelRDO_Container::const_iterator lastCol = rdocontainer->end();
-  DataVector<PixelRDORawData>::const_iterator p_rdo;
 
-  for (; colNext != lastCol; ++colNext) {
-    const InDetRawDataCollection<PixelRDORawData>* PixelCollection(*colNext);
-    if (!PixelCollection) {
+  for (auto colNext: *rdocontainer) {
+    const InDetRawDataCollection<PixelRDORawData>* HitCollection(colNext);
+    if (!HitCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Hit container is empty.");
       auto dataread_err = Monitored::Scalar<int>("hitdataread_err", DataReadErrors::CollectionInvalid);
       fill(hitGroup, dataread_err);
       continue;
     }
 
-    for (p_rdo = PixelCollection->begin(); p_rdo != PixelCollection->end(); ++p_rdo) {
-      rdoID = (*p_rdo)->identify();
+    for (auto p_rdo: *HitCollection) {
+      rdoID = p_rdo->identify();
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID));
       if (pixlayer == 99) continue;
+
       HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
       if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelReadout->getFE(rdoID, rdoID), 1.0);
+
       nhits++;
-      nhits_layer[pixlayer]++;
-      hitLvl1a.push_back((*p_rdo)->getLVL1A());
-      hitLvl1aLayer[pixlayer].push_back((*p_rdo)->getLVL1A());
-      hitToTLayer[pixlayer].push_back((*p_rdo)->getToT());
+      hitLvl1a.push_back(p_rdo->getLVL1A());
       getPhiEtaMod(m_pixelid, rdoID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA:
@@ -203,6 +202,13 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
         hitsPerEventArray.IBL[phiMod][etaMod]++;
         break;
       }
+      if (pixlayer == PixLayers::kIBL) 
+	{
+	  pixlayer = (m_pixelid->eta_module(rdoID) > -7 && m_pixelid->eta_module(rdoID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	}
+      nhits_layer[pixlayer]++;
+      hitLvl1aLayer[pixlayer].push_back(p_rdo->getLVL1A());
+      hitToTLayer[pixlayer].push_back(p_rdo->getToT());
     }
   }
 
@@ -248,9 +254,13 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   fill1DProfLumiLayers("AvgOccActivePerLumi", lb, avgocc_active_layer);
   fill1DProfLumiLayers("AvgOccGoodPerLumi", lb, avgocc_good_layer);
 
-  if (avgocc_good_layer[PixLayers::kIBL] > 0) {
+  
+  float nGoodChannels_ibl = nGoodChannels_layer[PixLayers::kIBL2D] + nGoodChannels_layer[PixLayers::kIBL3D];
+  float avgocc_good_ibl(0);
+  if (nGoodChannels_ibl>0) avgocc_good_ibl = (nhits_layer[PixLayers::kIBL2D] + nhits_layer[PixLayers::kIBL3D])/nGoodChannels_ibl;
+  if (avgocc_good_ibl > 0) {
     for (int i = 0; i < PixLayers::COUNT; i++) {
-      avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
+      avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_ibl;
     }
     fill1DProfLumiLayers("AvgOccRatioToIBLPerLumi", lb, avgocc_ratio_toIBL_layer);
   }

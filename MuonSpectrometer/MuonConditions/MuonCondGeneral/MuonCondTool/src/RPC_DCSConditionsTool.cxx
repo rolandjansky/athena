@@ -21,7 +21,7 @@
 #include <map>
 #include <string>
 
-#include "MuonCondTool/RPC_DCSConditionsTool.h"
+#include "RPC_DCSConditionsTool.h"
 
 
 #include "MuonCondSvc/MdtStringUtils.h"

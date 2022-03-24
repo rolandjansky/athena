@@ -22,6 +22,7 @@ def createLArConfigFlags():
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
+    lcf.addFlag("LAr.doBadFebMasking",lambda prevFlags : not prevFlags.Input.isMC)
 
     # Include MC shape folder
     lcf.addFlag("LAr.UseMCShape", True)
@@ -57,6 +58,11 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.ROD.UseDelta", 0)
     # Force using the iterative OFC procedure
     lcf.addFlag("LAr.ROD.forceIter",False)
+    # NN based energy reconstruction
+    lcf.addFlag("LAr.ROD.NNRawChannelBuilding", False)
+    lcf.addFlag("LAr.ROD.nnJson", "")
+    lcf.addFlag("LAr.ROD.nnOutputNode", "")
+    lcf.addFlag("LAr.ROD.nnInputNode", "")
 
     ##NoisyRO flags
     # cell quality cut

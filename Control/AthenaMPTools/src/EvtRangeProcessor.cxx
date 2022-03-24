@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EvtRangeProcessor.h"
@@ -44,7 +44,6 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
 				     , const std::string& name
 				     , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
-  , m_isPileup(false)
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
   , m_activeWorkers(0)
@@ -60,7 +59,6 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
 {
   declareInterface<IAthenaMPTool>(this);
 
-  declareProperty("IsPileup",m_isPileup);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("Channel2Scatterer", m_channel2Scatterer);
   declareProperty("Channel2EvtSel", m_channel2EvtSel);
@@ -76,24 +74,9 @@ EvtRangeProcessor::~EvtRangeProcessor()
 StatusCode EvtRangeProcessor::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job running in non-pileup mode");
-  }
 
-  StatusCode sc = AthenaMPToolBase::initialize();
-  if(!sc.isSuccess())
-    return sc;
-
-  sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
-  if(sc.isFailure() || m_evtSeek==0) {
-    ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK(AthenaMPToolBase::initialize());
+  ATH_CHECK(serviceLocator()->service(m_evtSelName,m_evtSeek));
   ATH_CHECK(m_chronoStatSvc.retrieve());
   ATH_CHECK(m_incidentSvc.retrieve());
   
@@ -738,7 +721,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_WARNING("Unable to finalize AppMgr");
+      std::cout << "Unable to finalize AppMgr" << std::endl;
     }
   }
 

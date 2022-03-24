@@ -13,5 +13,7 @@ atlas_add_library( InDetGeoModelUtils
                    src/*.cxx
                    PUBLIC_HEADERS InDetGeoModelUtils
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} ${XERCESC_LIBRARIES} AthenaKernel CxxUtils GaudiKernel RDBAccessSvcLib GeoPrimitives PathResolver AthenaBaseComps
-                   PRIVATE_LINK_LIBRARIES GeoModelInterfaces GeoModelUtilities GeometryDBSvcLib StoreGateLib )
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} ${XERCESC_LIBRARIES}
+                   AthenaKernel AthenaBaseComps CxxUtils GaudiKernel
+                   GeoModelInterfaces GeoModelUtilities GeoPrimitives PathResolver RDBAccessSvcLib
+                   PRIVATE_LINK_LIBRARIES GeometryDBSvcLib StoreGateLib )

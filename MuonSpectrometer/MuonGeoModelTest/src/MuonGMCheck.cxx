@@ -254,9 +254,9 @@ void MuonGMCheck::checkreadoutrpcgeo() {
                         int stationName = p_MuonMgr->rpcStationName(sname_index);
                         bool isValid = false;
                         Identifier id =
-                            p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true,
-                                                                &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                            // measuresPhi, int strip, bool check, bool* isValid
+                            p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, isValid);  
+                                                                            // last 4 arguments are: int doubletPhi, int gasGap, int
+                                                                            // measuresPhi, int strip, bool& isValid
                         if (!isValid) continue;
                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
 
@@ -1002,11 +1002,11 @@ void MuonGMCheck::checkreadoutmmgeo() {
                 }
                 fout << "------------------------------------- ISL, etaC, iphi8, ml " << iSL << " " << etaC << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const Identifier id_c = helper.elementID(iSL, etaC, iphi8, iml + 1);
+                const Identifier id_c = helper.channelID(iSL, etaC, iphi8, iml + 1, 1 ,1);
                 const MMReadoutElement* mmC = p_MuonMgr->getMMReadoutElement(id_c);
                 fout << "------------------------------------- ISL, etaA, iphi8, ml " << iSL << " " << etaA << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const Identifier id_a = helper.elementID(iSL, etaA, iphi8, iml + 1);                
+                const Identifier id_a = helper.channelID(iSL, etaA, iphi8, iml + 1, 1 ,1);                
                 const MMReadoutElement* mmA = p_MuonMgr->getMMReadoutElement(id_a);
 
                 if (!mmC)
@@ -1099,11 +1099,11 @@ void MuonGMCheck::checkreadoutstgcgeo() {
                 }
                 fout << "------------------------------------- ISL, etaC, iphi8, ml " << iSL << " " << etaC << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const Identifier idc = helper.elementID(iSL, etaC, iphi8, iml + 1);
+                const Identifier idc = helper.channelID(iSL, etaC, iphi8, iml + 1, 1, 0 ,1);
                 const sTgcReadoutElement* mmC = p_MuonMgr->getsTgcReadoutElement(idc);
                 fout << "------------------------------------- ISL, etaA, iphi8, ml " << iSL << " " << etaA << " " << iphi8 << " "
                      << iml + 1 << std::endl;
-                const Identifier ida = helper.elementID(iSL, etaA, iphi8, iml + 1);
+                const Identifier ida = helper.channelID(iSL, etaA, iphi8, iml + 1, 1, 0 ,1);
                 const sTgcReadoutElement* mmA = p_MuonMgr->getsTgcReadoutElement(ida);
 
                 if (!mmC)
@@ -2741,9 +2741,9 @@ void MuonGMCheck::testRpcCache_here() {
                         int stationName = p_MuonMgr->rpcStationName(sname_index);
                         bool isValid = false;
                         Identifier id =
-                            p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true,
-                                                                &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                            // measuresPhi, int strip, bool check, bool* isValid
+                            p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, isValid);  
+                                                                             // last 4 arguments are: int doubletPhi, int gasGap, int
+                                                                            // measuresPhi, int strip, bool& isValid
                         if (!isValid) continue;
                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
                         if (!rpc) { continue; }
@@ -3212,7 +3212,7 @@ Identifier MuonGMCheck::getMdtIdentifier(const int sname_index, const int seta_i
     const int stEta = seta_index - MuonGM::MuonDetectorManager::NMdtStEtaOffset;
     const int stPhi = sphi_index + 1;
     const int ml = dbr_index + 1;
-    return m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 1, 1, true, &isValid);
+    return m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 1, 1, isValid);
 }
 Identifier MuonGMCheck::getCscIdentifier(const int sname_index, const int seta_index, const int sphi_index, const int ml,
                                          bool& isValid) const {
@@ -3220,12 +3220,12 @@ Identifier MuonGMCheck::getCscIdentifier(const int sname_index, const int seta_i
     const int stEta = seta_index - MuonGM::MuonDetectorManager::NCscStEtaOffset;
     const int stPhi = sphi_index + 1;
     const int stMl = ml + 1;
-    return m_idHelperSvc->cscIdHelper().channelID(stName, stEta, stPhi, stMl, 0, 0, 1, true, &isValid);
+    return m_idHelperSvc->cscIdHelper().channelID(stName, stEta, stPhi, stMl, 0, 0, 1, isValid);
 }
 Identifier MuonGMCheck::getTgcIdentifier(const int sname_index, const int seta_index, const int sphi_index, bool& valid) const {
     const int stationName = sname_index - MuonGM::MuonDetectorManager::NTgcStatTypeOff;
     const int stationPhi = sphi_index + 1;
     const int zi = seta_index - MuonGM::MuonDetectorManager::NTgcStEtaOffset;
     const int stationEta = zi + (seta_index >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
-    return m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, &valid);
+    return m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, valid);
 }

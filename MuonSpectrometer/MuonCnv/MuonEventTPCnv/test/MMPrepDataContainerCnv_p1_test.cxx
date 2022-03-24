@@ -94,14 +94,14 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
     auto coll = std::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
 
     bool isValid=false;
-    Identifier collId = muo_dd.mmIdHelper()->elementID (55, 1, hash, true, &isValid);
+    Identifier collId = muo_dd.mmIdHelper()->elementID (55, 1, hash, isValid);
     assert(isValid==true);
     coll->setIdentifier (collId);
 
     for (int i=0; i < 10; i++) {
       int offs = i*10 + hash*100;
       isValid=false;
-      Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash, 1, 1, muo_dd.mmIdHelper()->channelMin()+i, true, &isValid);
+      Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash, 1, 1, muo_dd.mmIdHelper()->channelMin()+i, isValid);
       assert(isValid==true);
       int clusHash = 567 + offs;
 

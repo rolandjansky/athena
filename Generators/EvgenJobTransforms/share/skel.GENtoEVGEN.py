@@ -19,6 +19,10 @@ import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+acam.athMasterSeq += xAODMaker__EventInfoCnvAlg(xAODKey="TMPEvtInfo")
+
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
@@ -53,7 +57,7 @@ perfmonjp.PerfMonFlags.doMonitoring = True
 perfmonjp.PerfMonFlags.doSemiDetailedMonitoring = True
 
 ## Random number services
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc, AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc, AtRanluxGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr += AtRanluxGenSvc()
 
@@ -105,7 +109,8 @@ if not hasattr(runArgs, "randomSeed"):
     # TODO: or guess it from the JO name??
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
-
+if ( runArgs.firstEvent <= 0):
+    evgenLog.warning("Run argument firstEvent should be > 0") 
 
 ##==============================================================
 ## Configure standard Athena and evgen services
@@ -137,7 +142,7 @@ svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
 if not hasattr(postSeq, "CopyEventWeight"):
-    postSeq += CopyEventWeight()
+    postSeq += CopyEventWeight(mcEventWeightsKey="TMPEvtInfo.mcEventWeights")
 
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
@@ -149,7 +154,9 @@ theApp.EvtMax = -1
 #  theApp.EvtMax = runArgs.maxEvents
 
 if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
+    postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
+                          OutputEventInfo="EventInfo",
+                          mcEventWeightsKey="TMPEvtInfo.mcEventWeights")
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
@@ -446,10 +453,10 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
     else:
         raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, noTag=True, eventInfoKey="EventInfo")
 
     StreamEVGEN.ForceRead = True
-    StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+    StreamEVGEN.ItemList += ["EventInfo#*", "xAOD::EventInfo#EventInfo*", "xAOD::EventAuxInfo#EventInfoAux.*", "McEventCollection#*"]
     StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
     ## Used for pile-up (remove dynamic variables except flavour labels)
     if evgenConfig.saveJets:
@@ -533,6 +540,29 @@ def checkBlackList(relFlavour,cache,generatorName) :
                 isError=relFlavour+","+cache+" is blacklisted for " + badGens
                 return isError
     return isError
+
+def checkPurpleList(relFlavour,cache,generatorName) :
+    isError = None
+    with open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common/PurpleList_generators.txt') as bfile:
+        for line in bfile.readlines():
+            if not line.strip():
+                continue
+            # Purple-listed release flavours
+            purpleRelFlav=line.split(',')[0].strip()
+            # Purple-listed caches
+            purpleCache=line.split(',')[1].strip()
+            # Purple-listed generators
+            purpleGens=line.split(',')[2].strip()
+            # Purple-listed process
+            purpleProcess=line.split(',')[3].strip()
+
+            used_gens = ','.join(generatorName)
+            #Match Generator and release type e.g. AtlasProduction, MCProd
+            if relFlavour==purpleRelFlav and cache==purpleCache and re.search(purpleGens,used_gens) is not None:
+                isError=relFlavour+","+cache+" is blacklisted for " + purpleGens + " if it uses " + purpleProcess
+                return isError
+    return isError
+
 ## Announce start of JO checkingrelease number checking
 evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
 rel = os.popen("echo $AtlasVersion").read()
@@ -541,6 +571,11 @@ errorBL = checkBlackList("AthGeneration",rel,gennames)
 if (errorBL): 
    raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)  
 #    evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
+errorPL = checkPurpleList("AthGeneration",rel,gennames)
+if (errorPL):
+   evgenLog.warning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+   evgenLog.warning("!!! WARNING  !!! "+ errorPL )
+   evgenLog.warning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 ##==============================================================
 ## Handling of a post-include/exec args at the end of standard configuration
@@ -608,7 +643,7 @@ def find_unique_file(pattern):
     "Return a matching file, provided it is unique"
     import glob
     files = glob.glob(pattern)
-    ## Check that there is exactly 1 match
+## Check that there is exactly 1 match
     if not files:
         raise RuntimeError("No '%s' file found" % pattern)
     elif len(files) > 1:

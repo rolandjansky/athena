@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CablingCondAlgFromText_H
@@ -22,7 +22,6 @@
 
 //Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ICondSvc.h"
 
 //STL includes
 #include <string>
@@ -52,7 +51,6 @@ private:
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) const;
   StringProperty m_source{this, "DataSource", "SCT_MC_FullCabling_svc.dat", "a plain text file for the SCT Cabing"};
   SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   const SCT_ID* m_idHelper{nullptr};
 };//end of class

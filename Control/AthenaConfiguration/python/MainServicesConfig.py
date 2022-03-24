@@ -77,6 +77,10 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     ClassIDSvc=CompFactory.ClassIDSvc
     cfg.addService(ClassIDSvc(CLIDDBFiles= ['clid.db',"Gaudi_clid.db" ]))
 
+    AlgContextSvc=CompFactory.AlgContextSvc
+    cfg.addService(AlgContextSvc(BypassIncidents=True))
+    cfg.addAuditor(CompFactory.AlgContextAuditor())
+
     StoreGateSvc=CompFactory.StoreGateSvc
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))

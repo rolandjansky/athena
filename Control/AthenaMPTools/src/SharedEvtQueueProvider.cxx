@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedEvtQueueProvider.h"
@@ -27,7 +27,6 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 					       , const std::string& name
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
-  , m_isPileup(false)
   , m_nprocesses(-1)
   , m_useSharedReader(false)
   , m_nEventsBeforeFork(0)
@@ -41,7 +40,6 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 {
   declareInterface<IAthenaMPTool>(this);
 
-  declareProperty("IsPileup",m_isPileup);
   declareProperty("UseSharedReader",m_useSharedReader);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("ChunkSize",m_nChunkSize);
@@ -51,29 +49,6 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 
 SharedEvtQueueProvider::~SharedEvtQueueProvider()
 {
-}
-
-StatusCode SharedEvtQueueProvider::initialize()
-{
-  ATH_MSG_DEBUG( "In initialize" );
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO( "The job running in pileup mode" );
-  }
-  else {
-    ATH_MSG_INFO( "The job running in non-pileup mode" );
-  }
-
-  StatusCode sc = AthenaMPToolBase::initialize();
-  if(!sc.isSuccess())
-    return sc;
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SharedEvtQueueProvider::finalize()
-{
-  return StatusCode::SUCCESS;
 }
 
 int SharedEvtQueueProvider::makePool(int maxevt, int nprocs, const std::string& topdir)
@@ -344,7 +319,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
     }
     else { 
       if(m_appMgr->finalize().isFailure()) {
-	ATH_MSG_ERROR("Unable to finalize AppMgr");
+	std::cerr << "Unable to finalize AppMgr" << std::endl;
 	all_ok=false;
       }
     }

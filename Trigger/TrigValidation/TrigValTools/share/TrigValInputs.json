@@ -280,5 +280,12 @@
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigInDetValidation/samples/mc16_13TeV.448024.MGPy8EG_A14NNPDF23LO_TT_RPVdirectBL_1200_tau_1ns.recon.RDO.e6768_s3338_r11265_tid19016862_00/RDO.19016862._000006.pool.root.1",
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigInDetValidation/samples/mc16_13TeV.448024.MGPy8EG_A14NNPDF23LO_TT_RPVdirectBL_1200_tau_1ns.recon.RDO.e6768_s3338_r11265_tid19016862_00/RDO.19016862._000007.pool.root.1"
         ]
+    },
+    "data_run2_reco_run3_AOD": {
+        "source": "data",
+        "format": "AOD",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357772.physics_Main.recon.AOD.r13286/AOD.27654050._000557.pool.root.1"
+        ] 
     }
 }

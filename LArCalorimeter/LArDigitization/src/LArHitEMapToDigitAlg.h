@@ -175,7 +175,7 @@ const T* LArHitEMapToDigitAlg::pointerFromKey(const EventContext& context, const
   const T* object = *aHandle;
   if (object == nullptr) ATH_MSG_ERROR("Object could not be fetched with key " << aHandle.key() );
   return object;
-};
+}
 
 #endif
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDCSCondStateAlg.h"
@@ -16,13 +16,8 @@ StatusCode PixelDCSCondStateAlg::initialize() {
   ATH_MSG_DEBUG("PixelDCSCondStateAlg::initialize()");
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-  ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKeyState.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKeyState.initialize());
-  if (m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

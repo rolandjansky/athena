@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -15,6 +15,7 @@ import re
 from enum import Enum
 from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result, running_in_CI
+from TestTools.logfiles import grep_with_context
 
 
 class Step(object):
@@ -191,23 +192,24 @@ class Step(object):
                 and self.result != 0 \
                 and running_in_CI() \
                 and self.output_stream==self.OutputStream.FILE_ONLY:
-            self.log.error('Step failure while running in CI. Printing full log %s', self.get_log_file_name())
-            with open(self.get_log_file_name()) as log_file:
-                log=log_file.read()
-                print(log)  # noqa: ATL901
-                # Print also sub-step logs for transforms
-                if self.executable.endswith('_tf.py'):
-                    step_matches = re.findall('Logs for (.*) are in (.*)', log)
-                    if not step_matches:
-                        self.log.warning('Failed to determine sub-step log names, cannot print the full sub-step logs')
-                    else:
-                        step_log_names = [m[1] for m in step_matches]
-                        for step_log_name in step_log_names:
-                            if os.path.isfile(step_log_name):
-                                with open(step_log_name) as step_log_file:
-                                    step_log = step_log_file.read()
-                                    self.log.info('Printing sub-step log file %s', step_log_name)
-                                    print(step_log)  # noqa: ATL901
+            self.log.error('Step failure while running in CI. Printing partial log %s', self.get_log_file_name())
+
+            # Common error patterns (might be good to use all patterns from check_log.py)
+            error_patterns = '^ERROR| ERROR | FATAL |[Tt]raceback'
+            grep_with_context(open(self.get_log_file_name()), error_patterns, lines=100)
+
+            # Print also sub-step logs for transforms
+            if self.executable.endswith('_tf.py'):
+                log = open(self.get_log_file_name()).read()
+                step_matches = re.findall('Logs for (.*) are in (.*)', log)
+                if not step_matches:
+                    self.log.warning('Failed to determine sub-step log names, cannot print the full sub-step logs')
+                else:
+                    step_log_names = [m[1] for m in step_matches]
+                    for step_log_name in step_log_names:
+                        if os.path.isfile(step_log_name):
+                            self.log.info('Printing partial sub-step log file %s', step_log_name)
+                            grep_with_context(open(step_log_name), error_patterns, lines=100)
 
         return self.result, cmd
 

@@ -23,9 +23,6 @@ Output: [ '{LB}/Pixel/LumiBlock/DefectMap_IBL',
           '{LB}/Pixel/LumiBlock/DefectMap_onlyBLayer',  
           '{LB}/Pixel/LumiBlock/DefectMap_onlyLayer1',  
           '{LB}/Pixel/LumiBlock/DefectMap_onlyLayer2',  
-          '{LB}/Pixel/LumiBlock/DefectMap_onlyBL',  
-          '{LB}/Pixel/LumiBlock/DefectMap_onlyL1',  
-          '{LB}/Pixel/LumiBlock/DefectMap_onlyL2',  
           'Pixel/Status/TotalDegradationPerLumi' 
         ]
 Function: PixelMonitoring.PixelPostProcessing.badEtaPhi_forAllMaskPatterns

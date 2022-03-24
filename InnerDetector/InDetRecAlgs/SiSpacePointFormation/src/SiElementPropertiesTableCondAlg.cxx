@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiElementPropertiesTableCondAlg.h"
@@ -13,7 +13,6 @@ namespace InDet {
 
   SiElementPropertiesTableCondAlg::SiElementPropertiesTableCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : ::AthReentrantAlgorithm(name, pSvcLocator)
-    , m_condSvc{"CondSvc", name}
 {
 }
 
@@ -26,10 +25,6 @@ namespace InDet {
 
     // Write Handle
     ATH_CHECK(m_writeKey.initialize());
-    // CondSvc
-    ATH_CHECK(m_condSvc.retrieve());
-    // Register write handle
-    ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
     ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
 

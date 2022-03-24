@@ -55,7 +55,7 @@ namespace MuonCombined {
 
         Gaudi::Property<unsigned int> m_extrapolationStrategy{this, "ExtrapolationStrategy", 0};
 
-        Gaudi::Property<bool> m_comissioning{this, "Commissioning", false,
+        Gaudi::Property<bool> m_commissioning{this, "Commissioning", false,
                                              "Flag deciding whether the candidate belongs to the comissioning."};
     };
 

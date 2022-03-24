@@ -1,0 +1,1283 @@
+Metadata:
+
+HanConfigGroup: top_level
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN SUB REGIONS of "top_level"
+
+HanConfigGroup: Summary
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN SUB REGIONS of "Summary"
+
+HanConfigGroup: Individual
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN ASSESSMENTS of "Individual"
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_0
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000004"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_0
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_1
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000005"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_1
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_2
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000006"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_2
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_3
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000007"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_3
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_4
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000008"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_4
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_5
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000009"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_5
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_6
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000010"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_6
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_7
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000011"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_7
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_8
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000012"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_8
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_9
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000013"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_9
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_10
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000014"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_10
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_11
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000015"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_11
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_12
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000016"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_12
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_13
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000017"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_13
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_14
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000018"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_14
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_15
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000019"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_15
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_16
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000020"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_16
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_17
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000021"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_17
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_18
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000022"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_18
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_19
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000023"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_19
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_20
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000024"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_20
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_21
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000025"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_21
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_22
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000026"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_22
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_23
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000027"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_23
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_24
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000028"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_24
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_25
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000029"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_25
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_26
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000030"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_26
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_27
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000031"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_27
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_28
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000032"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_28
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_29
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000033"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_29
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_30
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000034"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_30
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_31
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000035"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_31
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_32
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000036"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_32
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_33
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000037"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_33
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_34
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000038"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_34
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_35
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000039"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_35
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_36
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000040"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_36
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_37
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000041"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_37
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_38
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000042"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_38
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_39
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000043"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_39
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_40
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000044"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_40
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_41
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000045"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_41
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_42
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000046"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_42
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_43
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000047"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_43
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_44
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000048"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_44
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_45
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000049"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_45
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_46
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000050"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_46
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_47
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000051"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_47
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_48
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000052"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_48
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_49
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000053"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_49
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_50
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000054"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_50
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_51
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000055"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_51
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_52
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000056"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_52
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_53
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000057"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_53
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_54
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000058"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_54
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_55
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000059"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_55
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_56
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000060"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_56
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_57
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000061"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_57
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_58
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000062"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_58
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_59
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000063"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_59
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_60
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000064"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_60
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_61
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000065"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_61
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_62
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000066"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_62
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_63
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000067"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_63
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_64
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000068"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_64
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_65
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000069"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_65
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_66
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000070"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_66
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_67
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000071"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_67
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_68
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000072"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_68
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_69
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000073"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_69
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_70
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000074"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_70
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_71
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000075"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_71
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_72
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000076"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_72
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_73
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000077"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_73
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_74
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000078"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_74
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_75
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000079"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_75
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_76
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000080"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_76
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_77
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000081"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_77
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_78
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000082"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_78
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_79
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000083"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_79
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_80
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000084"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_80
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_81
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000085"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_81
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_82
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000086"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_82
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_83
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000087"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_83
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_84
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000088"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_84
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_85
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000089"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_85
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_86
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000090"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_86
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_87
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000091"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_87
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_88
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000092"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_88
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_89
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000093"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_89
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_90
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000094"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_90
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_91
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000095"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_91
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_92
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000096"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_92
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_93
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000097"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_93
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_94
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000098"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_94
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_95
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000099"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_95
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_96
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000100"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_96
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_97
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000101"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_97
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_98
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000102"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_98
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/gaus_99
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000103"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/gaus_99
+  }
+
+<<  END ASSESSMENTS of "Individual"
+
+<<  END SUB REGIONS of "Summary"
+
+>>  BEGIN ASSESSMENTS of "Summary"
+
+HanConfigAssessor: eb1/Stats/Gaussian/meanPull
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000000"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/meanPull
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/nthMean
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000001"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/nthMean
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/nthMeanPull
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000002"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/nthMeanPull
+  }
+
+HanConfigAssessor: eb1/Stats/Gaussian/nthRMS
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000003"
+  Weight = 1
+  Algorithm Limits = {
+    chi2 = { green = 2, red = 3 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/Gaussian/nthRMS
+  }
+
+<<  END ASSESSMENTS of "Summary"
+
+<<  END SUB REGIONS of "top_level"

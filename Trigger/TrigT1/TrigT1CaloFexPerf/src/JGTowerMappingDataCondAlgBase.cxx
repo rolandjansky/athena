@@ -21,9 +21,7 @@ namespace LVL1
 
   StatusCode JGTowerMappingDataCondAlgBase::initialize()
   {
-    ATH_CHECK(m_condSvc.retrieve());
     ATH_CHECK(m_outputKey.initialize());
-    ATH_CHECK(m_condSvc->regHandle(this, m_outputKey));
     ATH_CHECK(detStore()->retrieve(m_ccid));
     ATH_CHECK(detStore()->retrieve(m_scid));
     return StatusCode::SUCCESS;

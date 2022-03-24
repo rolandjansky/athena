@@ -8,7 +8,8 @@ from ActsTrkFinding.ActsSequenceConfiguration import acts_sequence_configuration
 
 @acts_sequence_configuration
 def ActsTrackingSequenceFromAthenaCfg(ConfigFlags, 
-                                      inputCollections: list = []):
+                                      inputCollections: list = [],
+                                      **kwargs):
     # prepare entire sequence
     with ConfigurableRun3Behavior():
         acc = ComponentAccumulator()
@@ -19,6 +20,7 @@ def ActsTrackingSequenceFromAthenaCfg(ConfigFlags,
             # for later use (i.e. performance-check algorithm)
             seedingOptions = { 'OutputSpacePoints' : f'ActsSpacePoint_{i_collection}',
                                'OutputSpacePointData' : f'ActsSpacePointData_{i_collection}' }
+            seedingOptions.update(kwargs)
 
             acc.merge(ActsSeedingAlgorithmCfg(ConfigFlags,
                                               name = 'ActsSeedingFromAthenaAlgorithm',
@@ -36,4 +38,11 @@ def ActsTrackingSequenceFromAthenaToAthena(ConfigFlags,
     with ConfigurableRun3Behavior():
         CAtoGlobalWrapper(ActsTrackingSequenceFromAthenaCfg, ConfigFlags, **options)
     
-
+def ActsTrackingSequenceITkPostInclude(flags):
+    acc = ComponentAccumulator()
+    acc.merge(ActsTrackingSequenceFromAthenaCfg(flags,
+                                                inputCollections = [
+                                                    "ITkPixelSpacePoints",
+                                                    "ITkStripSpacePoints"
+                                                ]))
+    return acc

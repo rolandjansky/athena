@@ -32,12 +32,13 @@ namespace xAOD {
 
    private:
       std::vector< uint32_t > word;
+      std::vector< int > tobEtScale;
       std::vector< uint8_t >  saturated;
       std::vector< int > globalType;
       std::vector< uint8_t >  statusOne;
       std::vector< uint8_t >  statusTwo;
-      std::vector< uint16_t >  quantityOne;
-      std::vector< uint16_t >  quantityTwo;
+      std::vector< int16_t >  quantityOne;
+      std::vector< int16_t >  quantityTwo;
 
    }; // class gFexGlobalRoIAuxContainer_v1
 

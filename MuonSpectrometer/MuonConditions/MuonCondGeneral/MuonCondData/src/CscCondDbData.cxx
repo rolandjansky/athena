@@ -533,7 +533,7 @@ CscCondDbData::onlineToOfflineIds(const CscIdHelper* idHelper, const unsigned in
     // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
-    channelId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
+    channelId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,isValid);
     static std::atomic<bool> conversionFailPrinted = false;
     if (!isValid) {
       if (!conversionFailPrinted) {

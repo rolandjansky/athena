@@ -290,7 +290,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TileHitVecToCntTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TileHitVecToCntTool'
-        expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'PileUpMergeSvc', 'RndmSvc', 'TileCablingSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
+        expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'PileUpMergeSvc', 'RndmSvc', 'TileCablingSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileSamplingFraction', 'TriggerTimeTool']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-200', 'TileHitVectors': '["TileHitVec", "MBTSHits"]'}
         expected_string_properties = {'TileHitContainer': 'TileHitCnt'}
         self._detailed_ConfigurablePropertiesCheck(

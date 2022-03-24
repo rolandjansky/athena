@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RootCollection )
@@ -31,7 +31,8 @@ atlas_add_library( RootCollectionComponents
 atlas_add_test( read_test
                 SOURCES
                 test/read_test.cxx
-                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection CxxUtils )
+                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection CxxUtils
+                LOG_IGNORE_PATTERN "POOLCollectionID.*Value=" )
 
 atlas_add_test( update_test
                 SOURCES

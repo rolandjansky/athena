@@ -78,6 +78,11 @@ StatusCode MuFastSteering::initialize()
   m_dataPreparator->setRoadWidthForFailure(m_rWidth_RPC_Failed, m_rWidth_TGC_Failed);
 
   m_dataPreparator->setRpcGeometry(m_use_rpc);
+  
+  // set the flag whether to use NSW or not
+  m_dataPreparator->setStgcGeometry(m_use_stgc);
+  m_dataPreparator->setMmGeometry(m_use_mm);
+  
   m_dataPreparator->setRoIBasedDataAccess(m_use_RoIBasedDataAccess_MDT,
                                           m_use_RoIBasedDataAccess_RPC,
                                           m_use_RoIBasedDataAccess_TGC,
@@ -699,12 +704,16 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         sc = m_stationFitter->findSuperPointsSimple(*p_roids,
 						    muonRoad,
 						    tgcFitResult,
-						    trackPatterns);
+						    trackPatterns,
+						    stgcHits,
+						    mmHits);
       }else{
         sc = m_stationFitter->findSuperPoints(*p_roids,
                                               muonRoad,
                                               tgcFitResult,
-                                              trackPatterns);
+                                              trackPatterns,
+                                              stgcHits,
+                                              mmHits);
       }
       /////csc SuperPoint
       m_cscsegmaker->FindSuperPointCsc(cscHits,trackPatterns,tgcFitResult,muonRoad);
@@ -1027,12 +1036,16 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         sc = m_stationFitter->findSuperPointsSimple(*p_roids,
 						    muonRoad,
 						    tgcFitResult,
-						    trackPatterns);
+						    trackPatterns,
+						    stgcHits,
+						    mmHits);
       }else{
         sc = m_stationFitter->findSuperPoints(*p_roids,
                                               muonRoad,
                                               tgcFitResult,
-                                              trackPatterns);
+                                              trackPatterns,
+                                              stgcHits,
+                                              mmHits);
       }
       /////csc SuperPoint
       m_cscsegmaker->FindSuperPointCsc(cscHits,trackPatterns,tgcFitResult,muonRoad);
@@ -1374,7 +1387,9 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	sc = m_stationFitter->findSuperPointsSimple(*p_roids,
 						    muonRoad,
 						    tgcFitResult,
-						    trackPatterns);
+						    trackPatterns,
+						    stgcHits,
+						    mmHits);
 	/////csc SuperPoint
 	m_cscsegmaker->FindSuperPointCsc(cscHits,trackPatterns,tgcFitResult,muonRoad);
 	if (!sc.isSuccess()) {
@@ -1711,7 +1726,9 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	sc = m_stationFitter->findSuperPointsSimple(*p_roids,
 						    muonRoad,
 						    tgcFitResult,
-						    trackPatterns);
+						    trackPatterns,
+						    stgcHits,
+						    mmHits);
 	/////csc SuperPoint
 	m_cscsegmaker->FindSuperPointCsc(cscHits,trackPatterns,tgcFitResult,muonRoad);
 	if (!sc.isSuccess()) {
@@ -2091,14 +2108,18 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
         stationFitterTimer.start();
         if(!m_use_new_segmentfit){
           sc = m_stationFitter->findSuperPointsSimple(*p_roids,
-	       					      muonRoad,
+                                                      muonRoad,
                                                       tgcFitResult,
-                                                      trackPatterns);
+                                                      trackPatterns,
+                                                      stgcHits,
+                                                      mmHits);
         }else{
           sc = m_stationFitter->findSuperPoints(*p_roids,
                                                 muonRoad,
                                                 tgcFitResult,
-                                                trackPatterns);
+                                                trackPatterns,
+                                                stgcHits,
+                                                mmHits);
         }
         /////csc SuperPoint
         m_cscsegmaker->FindSuperPointCsc(cscHits,trackPatterns,tgcFitResult,muonRoad);
@@ -2446,14 +2467,18 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
         stationFitterTimer.start();
         if(!m_use_new_segmentfit){
           sc = m_stationFitter->findSuperPointsSimple(*p_roids,
-	       					      muonRoad,
+                                                      muonRoad,
                                                       tgcFitResult,
-                                                      trackPatterns);
+                                                      trackPatterns,
+                                                      stgcHits,
+                                                      mmHits);
         }else{
           sc = m_stationFitter->findSuperPoints(*p_roids,
                                                 muonRoad,
                                                 tgcFitResult,
-                                                trackPatterns);
+                                                trackPatterns,
+                                                stgcHits,
+                                                mmHits);
         }
         /////csc SuperPoint
         m_cscsegmaker->FindSuperPointCsc(cscHits,trackPatterns,tgcFitResult,muonRoad);

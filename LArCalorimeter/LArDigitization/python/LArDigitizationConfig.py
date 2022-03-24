@@ -231,6 +231,6 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
 
     return CfgMgr.LArHitEMapToDigitAlg(name, **kwargs)
 
-def getLArDigitMaker(name="digitmaker1" , **kwargs):
+def getLArHitEMapMaker(name="digitmaker1" , **kwargs):
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')
-    return CfgMgr.LArDigitMaker(name, **kwargs)
+    return CfgMgr.LArHitEMapMaker(name, **kwargs)

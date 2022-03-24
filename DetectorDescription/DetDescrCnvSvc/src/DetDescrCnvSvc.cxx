@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -72,7 +72,7 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
     declareProperty("FCAL3DNeighborsNextFileName", m_fcal3dNeighborsNextName);
     declareProperty("FCAL3DNeighborsPrevFileName", m_fcal3dNeighborsPrevName);
     declareProperty("TileNeighborsFileName",       m_tileNeighborsName);
-    
+
     declareProperty("useGeomDB_InDet",       m_useGeomDB_InDet);
 }
 
@@ -165,6 +165,8 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(2518, "TRT_ID");
     if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(131939624, "PLR_ID");
+    if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(79264207, "HGTD_ID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(129452393, "SiliconID");
@@ -210,13 +212,13 @@ DetDescrCnvSvc::initialize()     {
     status =  addToDetStore(4172, "RPCIDHELPER");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(4173, "TGCIDHELPER");
-    if (status != StatusCode::SUCCESS) return status;    
+    if (status != StatusCode::SUCCESS) return status;
     if (m_hasSTgc) {
         status =  addToDetStore(4174, "STGCIDHELPER");
         if (status != StatusCode::SUCCESS) return status;
     }
     if (m_hasMM) {
-        status =  addToDetStore(4175, "MMIDHELPER");     
+        status =  addToDetStore(4175, "MMIDHELPER");
         if (status != StatusCode::SUCCESS) return status;
     }
     status =  addToDetStore(108133391, "CaloLVL1_ID");

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # TauCommon.py
@@ -197,3 +197,47 @@ def addDiTauLowPt(Seq=None):
                                      Rcore=0.1,
                                      Tools=ditauTools)
     Seq += DiTauLowPtBuilder
+
+
+#=======================================
+# TauWP decoration
+#=======================================
+def addTauWPDecoration(Seq=None, evetoFixTag=None):
+
+    if not Seq or hasattr(Seq,"TauWPDecorator"+Seq.name()):
+        print("TauWP Decoration will not be scheduled")
+        return
+
+    print ("Adding Tau WP Decoration")
+    TauWPDecorations = []
+    from AthenaCommon.AppMgr import ToolSvc
+    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauWPDecoratorWrapper
+    
+    if (evetoFixTag == "v1"):
+        if not hasattr(ToolSvc,"TauWPDecoratorEvetoWrapper"):
+            
+            from tauRecTools.tauRecToolsConf import TauWPDecorator
+
+            evetoTauWPDecorator = TauWPDecorator( name = 'TauWPDecoratorEleRNN'+Seq.name(),
+                                                  flatteningFile1Prong = "rnneveto_mc16d_flat_1p_fix.root",
+                                                  flatteningFile3Prong = "rnneveto_mc16d_flat_3p_fix.root",
+                                                  DecorWPNames = [ "EleRNNLoose_"+evetoFixTag, "EleRNNMedium_"+evetoFixTag, "EleRNNTight_"+evetoFixTag ],
+                                                  DecorWPCutEffs1P = [0.95, 0.90, 0.85],
+                                                  DecorWPCutEffs3P = [0.98, 0.95, 0.90],
+                                                  UseEleBDT = True,
+                                                  ScoreName = "RNNEleScore",
+                                                  NewScoreName = "RNNEleScoreSigTrans_"+evetoFixTag,
+                                                  DefineWPs = True )
+            ToolSvc += evetoTauWPDecorator
+
+            evetoTauWPDecoratorWrapper = DerivationFramework__TauWPDecoratorWrapper(name               = "TauWPDecoratorEvetoWrapper",
+                                                                                    TauContainerName   = "TauJets",
+                                                                                    TauWPDecorator     = evetoTauWPDecorator)
+            ToolSvc += evetoTauWPDecoratorWrapper
+        else:
+            evetoTauWPDecoratorWrapper = getattr(ToolSvc,"TauWPDecoratorEvetoWrapper")
+
+        TauWPDecorations.append(evetoTauWPDecoratorWrapper)
+
+    if TauWPDecorations:
+        Seq += CfgMgr.DerivationFramework__DerivationKernel("TauWPDecorator"+Seq.name(), AugmentationTools = TauWPDecorations)

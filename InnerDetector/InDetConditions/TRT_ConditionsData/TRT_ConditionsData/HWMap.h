@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HWMAP_H
@@ -23,6 +23,9 @@ namespace TRTCond{
     m_EndcapC_HV_CoolChanNums  = new std::vector<int>(nEndcapCellsTotal,-1);
     // These are moved to CondStore which takes care of their deletion 
   }
+
+  HWMap (const HWMap&) = delete;
+  HWMap& operator= (const HWMap&) = delete;
 
   virtual ~HWMap() {}
 

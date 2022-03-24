@@ -1,46 +1,12 @@
 /*
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
+ #include "PixelDigitizationUtilities.h"
  #include "BichselData.h"
  #include <cmath> //for pow
  #include <algorithm> //for std::clamp
  
-namespace{
-  std::pair<int, int> 
-  FastSearch(std::vector<double> vec, double item) {
-    std::pair<int, int> output{-1, -1};
-    if (vec.empty()) return output;
-    int index_low = 0;
-    int index_up = vec.size() - 1;
 
-    if ((item < vec[index_low]) || (item > vec[index_up])) {
-      return output;
-    } else if (item == vec[index_low]) {
-      output.first = index_low;
-      output.second = index_low;
-      return output;
-    } else if (item == vec[index_up]) {
-      output.first = index_up;
-      output.second = index_up;
-      return output;
-    }
-
-    while ((index_up - index_low) != 1) {
-      int index_middle = int(1.0 * (index_up + index_low) / 2.);
-      if (item < vec[index_middle]) index_up = index_middle;
-      else if (item > vec[index_middle]) index_low = index_middle;
-      else { // accurate hit. Though this is nearly impossible ...
-        output.first = index_middle;
-        output.second = index_middle;
-        return output;
-      }
-    }
-
-    output.first = index_low;
-    output.second = index_up;
-    return output;
-    }
- }
  
 double 
 BichselData::lastBetaGammaValue() const{ 
@@ -89,7 +55,7 @@ BichselData::getBetaGammaIndices(double BetaGammaLog10) const {
     indices_BetaGammaLog10.first = logBetaGammaVector.size() - 1;
     indices_BetaGammaLog10.second = logBetaGammaVector.size() - 1;
   } else {
-    indices_BetaGammaLog10 = FastSearch(logBetaGammaVector, BetaGammaLog10);
+    indices_BetaGammaLog10 =PixelDigitization::fastSearch(logBetaGammaVector, BetaGammaLog10);
   }
 
   return indices_BetaGammaLog10;
@@ -109,7 +75,7 @@ BichselData::interpolateCollisionEnergy(std::pair<int, int> indices_BetaGammaLog
 
   // BetaGammaLog10_2 then
   std::pair<int, int> indices_IntXLog10_x2 =
-    FastSearch(logIntegratedCrossSectionsVectorOfVector[indices_BetaGammaLog10.second], IntXLog10);
+    PixelDigitization::fastSearch(logIntegratedCrossSectionsVectorOfVector[indices_BetaGammaLog10.second], IntXLog10);
   if (indices_IntXLog10_x2.first < 0) {
     return -1;
   }

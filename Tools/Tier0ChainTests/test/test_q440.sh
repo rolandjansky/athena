@@ -2,11 +2,6 @@
 #
 # art-description: RecoTrf
 # art-type: grid
-# art-include: 21.0/Athena
-# art-include: master/Athena
-# art-include: 22.0-mc20/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
 # art-athena-mt: 8
 
 # MT enabled for "RDOtoRDOTrigger, RAWtoESD, and ESDtoAOD as discussed in https://its.cern.ch/jira/browse/ATR-22498

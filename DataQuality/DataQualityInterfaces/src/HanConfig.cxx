@@ -2,10 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// **********************************************************************
-// $Id: HanConfig.cxx,v 1.30 2009-05-07 14:45:54 ponyisi Exp $
-// **********************************************************************
-
 #include "DataQualityInterfaces/HanConfig.h"
 
 #include <string.h>	// strncmp()
@@ -49,9 +45,9 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/pointer_cast.hpp>
-#include <boost/regex.hpp>
 #include <utility>
 
 ClassImp(dqi::HanConfig)
@@ -82,6 +78,16 @@ HanConfig::
   delete m_metadata;
 }
 
+namespace {
+  bool TestMiniNodeIsRegex(const MiniConfigTreeNode* node) {
+    std::string regexflag(node->GetAttribute("regex"));
+    boost::algorithm::to_lower(regexflag);
+    if (regexflag == "1" || regexflag == "true" || regexflag == "yes") {
+    	return true;
+    }
+    return false;
+  }
+}
 
 void
 HanConfig::
@@ -96,6 +102,7 @@ AssembleAndSave( std::string infileName, std::string outfileName, std::string co
   refconfig.AddKeyword("reference");
   refconfig.ReadFile(infileName);
   TMap refsourcedata;
+  refsourcedata.SetOwnerKeyValue();
   RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
 
@@ -182,11 +189,12 @@ BuildMonitorsNewRoot( std::string configName, HanInputRootFile& input, dqm_core:
   }
 
   TDirectory* topdir = const_cast<TDirectory*>(input.getBasedir());
+  TPython::Bind(m_config, "config");
   TPython::Bind(m_top_level, "top_level");
   TPython::Bind(topdir, "path");
   TPython::Exec("from DataQualityInterfaces.han import FixRegion");
   TPython::Exec("import logging; logging.basicConfig(level='INFO')");
-  HanConfigGroup* new_top_level = TPython::Eval("FixRegion(top_level, path)");
+  HanConfigGroup* new_top_level = TPython::Eval("FixRegion(config, top_level, path)");
   delete m_top_level;
   m_top_level = new_top_level;
 
@@ -277,40 +285,33 @@ std::string
 SplitReference(std::string refPath, const std::string& refName )
 {
   // this will never be run in a multithread environment
-  static std::unordered_set<std::string> badPaths;
-  //Split comma sepated inputs into individual file names
-  std::string delimiter = ",";
-  std::vector<std::string> refFileList;
-  size_t pos = 0;
-  std::string token;
-  while ((pos = refPath.find(delimiter)) != std::string::npos) {
-    token = refPath.substr(0, pos);
-    refFileList.push_back(token);
-    refPath.erase(0, pos + delimiter.length());
-  }
-  refFileList.push_back(refPath);
+  static std::map<std::string, std::string> mappingCache;
 
-  //Try to open each file in the list
-  for(std::size_t i=0; i<refFileList.size(); i++){
-    std::string fileName=refFileList.at(i)+refName;
-    size_t first = fileName.find_first_not_of(' ');
-    fileName.erase(0, first);
-    if (badPaths.find(fileName) != badPaths.end()) continue;
-    if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
-      return fileName;
-    }
-    else {
-      if(TFile::Open(fileName.c_str())){
-	return fileName;
-      }
-      else{
-        badPaths.insert(fileName);
-	std::cerr << "Unable to open " << fileName << ", trying next reference file option" << std::endl;
-      }
-    }
+  //Split comma sepated inputs into individual file names
+  std::vector<std::string> refFileDirList;
+  boost::split(refFileDirList, refPath, boost::is_any_of(","));
+
+  // construct vector of files (& clean up leading/trailing spaces)
+  std::vector<std::string> refFileList;
+  for (const auto& dir : refFileDirList ) {
+    refFileList.push_back(boost::algorithm::trim_copy(dir+refName));
   }
-  std::cerr << "Unable to open any reference file, reference will not be included" << std::endl;
-  return "";
+
+  // Use TFile::Open | syntax to try opening the files in sequence
+  std::string tfilestring = boost::algorithm::join(refFileList, "|");
+  // have we already resolved?
+  const auto& cachehit = mappingCache.find(tfilestring);
+  if (cachehit != mappingCache.end()) {
+    return cachehit->second;
+  }
+  // if not, do lookup
+  if (const auto* f = TFile::Open(tfilestring.c_str())) {
+    mappingCache[tfilestring] = f->GetName();
+  } else {
+  	std::cerr << "Unable to open any reference files in " << tfilestring << ", reference will not be included" << std::endl;
+    mappingCache[tfilestring] = "";
+  }
+  return mappingCache[tfilestring];
 }
 
 const HanConfigAssessor*
@@ -388,7 +389,7 @@ Visit( const MiniConfigTreeNode* node ) const
     m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
 			 fnameostr);
     if (! m_refsourcedata->FindObject(fileName.c_str())) {
-      m_refsourcedata->Add(fnameostr, refInfo != "" ? new TObjString(refInfo.c_str())
+      m_refsourcedata->Add(fnameostr->Clone(), refInfo != "" ? new TObjString(refInfo.c_str())
 			   : new TObjString("Reference"));
     }
   }
@@ -460,6 +461,28 @@ GetROOTFile( std::string& fname ) const
   }
 }
 
+void
+HanConfig::AssessmentVisitorBase::
+PopulateKeyCache(std::string& fname, std::shared_ptr<TFile> file) const {
+  auto& vec = m_keycache[fname];
+  dolsr(file.get(), vec);
+}
+
+void
+HanConfig::AssessmentVisitorBase::
+EnsureKeyCache(std::string& fname) const {
+  DisableMustClean dmc;
+  auto file = GetROOTFile(fname);
+  if (file) {
+    if (m_keycache.find(fname) != m_keycache.end()) {
+      return;
+    } else {
+      m_keycache[fname].reserve(100000);
+      PopulateKeyCache(fname, file);
+    }
+  }
+}
+
 float AttribToFloat(const MiniConfigTreeNode* node, const std::string& attrib,
 		    const std::string& warningString, bool local=false)
 {
@@ -513,17 +536,20 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
         std::string thrAttVal = m_thrConfig.GetStringAttribute( thrID, thrAttName );
         std::string limName = thrAttVal + std::string("/") + thrAttName;
         HanConfigAlgLimit algLim;
-	if (pos != std::string::npos) {
-	  algLim.SetName( (*i).substr(0, pos) + std::string("|") + *t );
-	} else {
-	  algLim.SetName( *t );
-	}
+        if (pos != std::string::npos) {
+          algLim.SetName( (*i).substr(0, pos) + std::string("|") + *t );
+        } else {
+          algLim.SetName( *t );
+        }
         algLim.SetGreen( m_thrConfig.GetFloatAttribute(limName,"warning") );
         algLim.SetRed( m_thrConfig.GetFloatAttribute(limName,"error") );
         dqpar->AddAlgLimit( algLim );
       }
     }
     else if( *i == "reference" ) {
+      // structure: if regex, store TMap of matching hist name -> names of reference objects
+      // if not regex, just store names of reference objects
+      // reference objects are TObjArrays if multiple references, else some kind of TObject
       std::string tmpRefID=m_algConfig.GetStringAttribute(algID,"reference");
       //std::cout<<"Got tmpRefID=\""<<tmpRefID<<"\""<<std::endl;
       dqi::ConditionsSingleton &CS=dqi::ConditionsSingleton::getInstance();
@@ -533,178 +559,221 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
       std::stringstream newRefString;
       // for each condition ...
       for(size_t t=0;t<condPairs.size();t++){
-	std::string refID=condPairs.at(t).second;
-	std::string cond=condPairs.at(t).first;
-	std::vector<std::string> refIDVec;
-	TObjArray *toarray(0);
-	bool isMultiRef(false);
-	if (refID[0] == '[') {
-	  std::string cleanedRefID = refID;
-	  boost::algorithm::trim_if(cleanedRefID, boost::is_any_of("[] "));
-	  isMultiRef = true;
-	  boost::split(refIDVec, cleanedRefID, boost::is_any_of(","));
-	  toarray = new TObjArray();
-	  toarray->SetOwner(kTRUE);
-	} else {
-	  refIDVec.push_back(refID);
-	}
-	std::string newRefId;
-	std::string absAlgRefName("");	
-	for (const auto& thisRefID : refIDVec) {
-	  std::string algRefName( m_refConfig.GetStringAttribute(thisRefID,"name") );
-	  std::string algRefPath( m_refConfig.GetStringAttribute(thisRefID,"path") );
-	  std::string algRefInfo( m_refConfig.GetStringAttribute(thisRefID,"info") );
-    if (algRefInfo == "") {
-      std::cerr << "INFO: Reference " << thisRefID << " is defined without an \"info\" attribute. Consider adding one" 
-                << std::endl;
-    }
-	  absAlgRefName = "";
-	  if( algRefPath != "" ) {
-	    absAlgRefName += algRefPath;
-	    absAlgRefName += "/";
-	  }
-	  if( algRefName == "same_name" ) {//sameName alg
-	    algRefName = assessorName;
-	    absAlgRefName += algRefName;
-	    std::string algRefFile( m_refConfig.GetStringAttribute(thisRefID,"file") );
-	    algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+        bool refsuccess(false);
+        std::string refID=condPairs.at(t).second;
+        std::string cond=condPairs.at(t).first;
+        std::vector<std::string> refIDVec;
+        // the following allows us to accumulate objects as necessary
+        std::vector<std::vector<std::pair<std::string, std::shared_ptr<TObject>>>> objects;
+        std::string newRefId("");
+        bool isMultiRef(false);
+        std::vector<std::string> sourceMatches;
+        if (refID[0] == '[') {
+          std::string cleanedRefID = refID;
+          boost::algorithm::trim_if(cleanedRefID, boost::is_any_of("[] "));
+          isMultiRef = true;
+          boost::split(refIDVec, cleanedRefID, boost::is_any_of(","));
+          // toarray = new TObjArray();
+          // toarray->SetOwner(kTRUE);
+        } else {
+          refIDVec.push_back(refID);
+        }
 
-	    if( algRefFile != "" ) {
-	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
-	      if ( ! infile.get() ) {
-		std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
-		continue;
-	      }
-	      TKey* key = getObjKey( infile.get(), absAlgRefName );
-	      if( key == 0 ) {
-		// Quiet this error ...
-		//std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
-		//<< "Reference not found: \"" << absAlgRefName << "\"\n";
-		continue;
-	      }
-	      // TDirectory* dir = ChangeOutputDir( m_outfile, absAlgRefName, m_directories );
-	      //dir->cd();
-	      m_outfile->cd(); //we are writing to the / folder of file
-	      TObject* obj;
-	      obj = key->ReadObj();
-	      if (isMultiRef) {
-		TObject* cobj = obj->Clone();
-		TH1* hobj = dynamic_cast<TH1*>(cobj);
-		if (hobj) {
-		  hobj->SetName(thisRefID.c_str());
-		}
-		toarray->Add(cobj);
-		delete obj;
-	      } else {
-		std::string algRefUniqueName=algRefFile+":/"+absAlgRefName;
-		newRefId=CS.getNewReferenceName(algRefUniqueName,true);
-		if(newRefId.empty()){
-		  newRefId=CS.getNewRefHistoName();
-		  CS.setNewReferenceName(algRefUniqueName,newRefId);
-		  auto algRefFileostr = new TObjString(algRefFile.c_str());
-		  m_refsourcedata->Add(new TObjString(newRefId.c_str()),
-				       algRefFileostr);
-		  if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
-		    m_refsourcedata->Add(algRefFileostr, 
-				   new TObjString(algRefInfo != "" ? algRefInfo.c_str() : "Reference"));
-		  }
-		}
-	      //std::cout<<"Writing algref with algrefname= "<<algRefUniqueName<<", newRefId="<<newRefId<<std::endl;
-		obj->Write(newRefId.c_str());//write object with a new reference name
-		delete obj;
-	      }
-	    }
-	  } else {
-	    // not "same_name" - assign properly
-	    absAlgRefName=algRefName;
-	    if (isMultiRef) {
-	      newRefId=CS.getNewReferenceName(absAlgRefName,true);
-              TObject* obj = m_outfile->Get(newRefId.c_str());
-	      if (obj) {
-		TNamed* hobj = dynamic_cast<TNamed*>(obj);
-		if (hobj) {
-		  hobj->SetName(algRefInfo != "" ? algRefInfo.c_str() : "Reference");
-		}
-		toarray->Add(obj);
-	      } else {
-		std::cerr << "Internal error retrieving stored reference " << absAlgRefName << std::endl;
-	      }
-	    } else {
-	      newRefId=CS.getNewReferenceName(algRefName,true);
-	      
-	      if(newRefId.empty()){
-		std::cerr<<"Warning New reference id is empty for refId=\""
-			 <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
-			 <<assessorName<<"\", algRefName=\""
-			 <<algRefName<<"\""<<std::endl;
-		std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
-	      }
-	    }
-	  }
-	}
+        // special case: not same_name, and is not a multiple reference
+        // in these cases, things have been copied into file already
+        std::string algRefName( m_refConfig.GetStringAttribute(refID,"name") );
+        std::string algRefInfo( m_refConfig.GetStringAttribute(refID,"info") );
+        std::string algRefFile( m_refConfig.GetStringAttribute(refID,"file") );
+        if (algRefName != "same_name" && !isMultiRef) {
+          newRefId=CS.getNewReferenceName(algRefName,true);
+          
+          if(newRefId.empty()){
+            std::string algRefPath( m_refConfig.GetStringAttribute(refID,"path") );
+            std::cerr<<"Warning New reference id is empty for refId=\""
+                    <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
+                    <<assessorName<<"\", algRefName=\""
+                    <<algRefName<<"\""<<std::endl;
+            std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
+          } else {
+            refsuccess = true;
+          }
+        } else {
+          // is same_name, or a regex multiple reference
+          objects.resize(refIDVec.size());
+          std::string absAlgRefName, algRefPath, algRefInfo;	
+          for (size_t iRefID = 0; iRefID < refIDVec.size(); ++iRefID) {
+            const auto& thisRefID = refIDVec[iRefID];
+            algRefName = m_refConfig.GetStringAttribute(thisRefID,"name");
+            algRefPath = m_refConfig.GetStringAttribute(thisRefID,"path");
+            algRefInfo = m_refConfig.GetStringAttribute(thisRefID,"info");
+            algRefFile = m_refConfig.GetStringAttribute(thisRefID,"file");
+            if (algRefInfo == "") {
+              std::cerr << "INFO: Reference " << thisRefID << " is defined without an \"info\" attribute. Consider adding one" 
+                        << std::endl;
+            }
+            absAlgRefName = "";
+            if( algRefPath != "" ) {
+              absAlgRefName += algRefPath;
+              absAlgRefName += "/";
+            }
+            if( algRefName == "same_name" ) {//sameName reference
+              algRefName = assessorName;
+              absAlgRefName += algRefName;
+              algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
 
-	if (isMultiRef) {
-	  std::string algRefUniqueName=cond+"_multiple:/"+absAlgRefName;
-	  newRefId=CS.getNewReferenceName(algRefUniqueName,true);
-	  if(newRefId.empty()){
-	    newRefId=CS.getNewRefHistoName();
-	    CS.setNewReferenceName(algRefUniqueName,newRefId);
-	    m_refsourcedata->Add(new TObjString(newRefId.c_str()),
-				 new TObjString("Multiple references"));
-	  }
-	  m_outfile->cd();
-	  toarray->Write(newRefId.c_str(), 1);//write object with a new reference name
-	  delete toarray;
-	}
+              if( algRefFile != "" ) {
+                std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
+                if ( ! infile.get() ) {
+                  std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
+                  continue;
+                }
+                std::vector<std::string> localMatches;
+                if (dqpar->GetIsRegex()) {
+                  if (! sourceMatches.empty()) {
+                    std::cerr << "same_name appears twice in a reference request???" << std::endl;
+                  } else {
+                    // change Python to Boost syntax for named captures
+                    boost::regex re(boost::replace_all_copy(absAlgRefName, "(?P", "(?"));
+                    EnsureKeyCache(algRefFile);
+                    for (const auto& iKey: m_keycache[algRefFile]) {
+                      if (boost::regex_match(iKey, re)) {
+                        sourceMatches.push_back(iKey);
+                        TKey* key = getObjKey(infile.get(), iKey);
+                        m_outfile->cd(); //we are writing to the / folder of file
+                        objects[iRefID].emplace_back(iKey, key->ReadObj());
+                      }
+                    }
+                  }
+                } else {
+                  TKey* key = getObjKey( infile.get(), absAlgRefName );
+                  if( key == 0 ) {
+                    // no reference
+                    continue;
+                  }
+                  m_outfile->cd(); //we are writing to the / folder of file
+                  std::shared_ptr<TObject> q(key->ReadObj());
+                  objects[iRefID].emplace_back(absAlgRefName, key->ReadObj());
+                }
+              }
+            } else {
+              absAlgRefName += algRefName;
+              algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
 
-	/*      if(newRefId.empty()){
-	  newRefId=CS.getNewReferenceName(algRefName,true);
-	  if(newRefId.empty()){
-	    std::cerr<<"Warning New reference id is empty for refId=\""
-		     <<refID<<"\", cond=\""<<cond<<"\", assessorName= \""
-		     <<assessorName<<"\""<<std::endl;
-		     }
-	} */
+              if( algRefFile != "" ) {
+                std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
+                if ( ! infile.get() ) {
+                  std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
+                  continue;
+                }
 
-	if(!cond.empty()){
-	  newRefString<<cond<<":"<<newRefId<<";";
-	}else{
-	  newRefString<<newRefId;
-	}
+                TKey* key = getObjKey( infile.get(), absAlgRefName );
+                if( key == 0 ) {
+                  // no reference
+                  std::cerr << "Couldn't find reference " << absAlgRefName << std::endl;
+                  continue;
+                }
+                m_outfile->cd(); //we are writing to the / folder of file
+                std::shared_ptr<TObject> q(key->ReadObj());
+                objects[iRefID].emplace_back(absAlgRefName, key->ReadObj());
+              } else {
+                std::cerr << "No file specified for " << absAlgRefName << " ?" << std::endl;
+              }
+            }
+          }
+
+          std::shared_ptr<TObject> toWriteOut;
+          std::string algRefUniqueName;
+          std::string algRefSourceInfo = (algRefInfo != "" ? algRefInfo.c_str() : "Reference");
+;
+          if (!isMultiRef) {
+            // is this a regex?
+            if (dqpar->GetIsRegex() && !objects[0].empty()) {
+              refsuccess = true;
+              TMap* tmapobj = new TMap();
+              tmapobj->SetOwnerKeyValue();
+              for (const auto& thisPair: objects[0]) {
+                std::unique_ptr<TObject> cobj(thisPair.second->Clone());
+                TNamed* hobj = dynamic_cast<TNamed*>(cobj.get());
+                if (hobj) {
+                  hobj->SetName(refID.c_str());
+                }
+                algRefUniqueName = algRefFile+":/"+thisPair.first;
+                newRefId=CS.getNewReferenceName(algRefUniqueName,true);
+                if(newRefId.empty()){
+                  newRefId=CS.getNewRefHistoName();
+                  CS.setNewReferenceName(algRefUniqueName,newRefId);
+                  m_refsourcedata->Add(new TObjString(newRefId.c_str()),
+                    new TObjString(algRefFile.c_str()));
+                  cobj->Write(newRefId.c_str(), 1);
+                }
+                m_outfile->cd();
+                std::string maprefstring(thisPair.first);
+                if (algRefPath != "") {
+                  boost::replace_first(maprefstring, algRefPath + "/", "");
+                }
+                tmapobj->Add(new TObjString(maprefstring.c_str()), 
+                            new TObjString(newRefId.c_str()));
+              }
+              toWriteOut.reset(tmapobj);
+              algRefUniqueName = algRefFile+"_regex:/"+dqpar->GetUniqueName();
+            }
+            else {
+              algRefUniqueName = algRefFile+":/"+absAlgRefName;
+              if (! objects[0].empty()) {
+                refsuccess = true;
+                toWriteOut = objects[0][0].second;
+              }
+            }
+          } else { // is multiref
+            algRefUniqueName=cond+"_multiple:/"+absAlgRefName;
+            algRefSourceInfo="Multiple references";
+            // is this a regex?
+            if (dqpar->GetIsRegex()) {
+              // not implemented for now
+            } else {
+              TObjArray* toarray = new TObjArray();
+              toarray->SetOwner(true);
+              for (size_t iRef = 0; iRef < objects.size(); ++iRef) {
+                toarray->Add(objects[iRef][0].second->Clone());
+              }
+              toWriteOut.reset(toarray);
+              refsuccess = true;
+            }
+          }
+
+          if (refsuccess && toWriteOut) {
+            // register top level object
+            newRefId=CS.getNewReferenceName(algRefUniqueName,true);
+            if(newRefId.empty()){
+              newRefId=CS.getNewRefHistoName();
+              CS.setNewReferenceName(algRefUniqueName,newRefId);
+              m_refsourcedata->Add(new TObjString(newRefId.c_str()),
+                new TObjString(algRefFile.c_str()));
+            }
+            if (! isMultiRef) {
+              // register file information
+              if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
+                m_refsourcedata->Add(new TObjString(algRefFile.c_str()), 
+                  new TObjString(algRefInfo != "" ? algRefInfo.c_str() : "Reference"));
+              }
+            }
+            m_outfile->cd();
+            if (toWriteOut) {
+              toWriteOut->Write(newRefId.c_str(), 1);
+            }
+          }
+        }
+
+        if (!newRefId.empty()) {
+          if(!cond.empty()){
+            newRefString<<cond<<":"<<newRefId<<";";
+          }else{
+            newRefString<<newRefId;
+          }
+        }
       }
       dqpar->SetAlgRefName((newRefString.str()));
 
-//       std::string algRefName( m_refConfig.GetStringAttribute(refID,"name") );
-//       std::string algRefPath( m_refConfig.GetStringAttribute(refID,"path") );
-//       std::string absAlgRefName("");
-//       if( algRefPath != "" ) {
-//         absAlgRefName += algRefPath;
-//         absAlgRefName += "/";
-//       }
-//       if( algRefName != "same_name" ) {
-//         absAlgRefName += algRefName;
-//         dqpar->SetAlgRefName( absAlgRefName );
-//       }
-//       else {
-//         algRefName = assessorName;
-//         absAlgRefName += algRefName;
-//         std::string algRefFile( m_refConfig.GetStringAttribute(refID,"file") );
-//         if( algRefFile != "" ) {
-//           std::unique_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
-//           TKey* key = getObjKey( infile.get(), absAlgRefName );
-//           if( key == 0 ) {
-//             std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
-//                       << "Key not found: \"" << absAlgRefName << "\"\n";
-//             continue;
-//           }
-//           TDirectory* dir = ChangeOutputDir( m_outfile, absAlgRefName, m_directories );
-//           dir->cd();
-//           TObject* obj;
-//           obj = key->ReadObj();
-// 	  obj->Write();
-// 	  delete obj;
-//           dqpar->SetAlgRefName( absAlgRefName );
-//         }
     }else {
       HanConfigAlgPar algPar;
       algPar.SetName( *i );
@@ -840,11 +909,7 @@ Visit( const MiniConfigTreeNode* node ) const
     HanConfigAssessor dqpar;
     dqpar.SetName( histNode->GetPathName() );
 
-    std::string regexflag(histNode->GetAttribute("regex"));
-    boost::algorithm::to_lower(regexflag);
-    if (regexflag == "1" || regexflag == "true" || regexflag == "yes") {
-    	dqpar.SetIsRegex(true);
-    }
+    dqpar.SetIsRegex(TestMiniNodeIsRegex(histNode));
 
     if (histNode->GetAttribute("weight") != "") {
       std::ostringstream err;

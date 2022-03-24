@@ -111,6 +111,7 @@ class TrigBmuxComboHypo: public ::ComboHypo {
 
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isInMassRange(double mass, const std::pair<double, double>& range) const { return (mass > range.first && mass < range.second); }
+  double getTrkImpactParameterZ0(const xAOD::TrackParticle& track, const Amg::Vector3D& vertex) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackCollectionKey", "InDetTrackParticles", "input TrackParticle container name"};
@@ -118,10 +119,18 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     "MuonCollectionKey", "Muons", "input EF Muon container name"};
   SG::WriteHandleKey<xAOD::TrigBphysContainer> m_trigBphysContainerKey {this,
     "TrigBphysCollectionKey", "TrigBphysContainer", "output TrigBphysContainer name"};
+  SG::ReadCondHandleKey<InDet::BeamSpotData>
+    m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
   // general properties
   Gaudi::Property<double> m_deltaR {this,
     "DeltaR", 0.01, "minimum deltaR between same-sign tracks (overlap removal)"};
+  Gaudi::Property<double> m_trkZ0 {this,
+    "TrkZ0", 10., "maximum of |z0_trk - z0_muon|, where z0_trk(z0_muon) is impact parameter of the track(muon) wrt BeamSpot; no preselection if negative"};
+  Gaudi::Property<size_t> m_fitAttemptsWarningThreshold {this,
+    "FitAttemptsWarningThreshold", 200, "Events processing this many calls of the vertex fitter will generate a WARNING message (time-out protect)"};
+  Gaudi::Property<size_t> m_fitAttemptsBreakThreshold {this,
+    "FitAttemptsBreakThreshold", 1000, "Events processing this many calls of the vertex fitter will generate a second WARNING message and the loop over combinations will be terminated at this point (time-out protect)"};
 
   // B+ -> mu+ nu_mu anti-D0(-> K+ pi-) and B0 -> mu+ nu_mu D*-(-> anti-D0(-> K+ pi-) pi-)
   Gaudi::Property<bool> m_BToD0 {this,
@@ -132,6 +141,10 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     "BToD0_minD0KaonPt", 1000., "minimum pT of kaon track from D0"};
   Gaudi::Property<double> m_BToD0_minD0PionPt {this,
     "BToD0_minD0PionPt", 1000., "minimum pT of pion track from D0"};
+  Gaudi::Property<double> m_BToD0_minD0Pt {this,
+    "BToD0_minD0Pt", -1., "minimum pT of D0"};
+  Gaudi::Property<double> m_BToD0_minDstarPt {this,
+    "BToD0_minDstarPt", 4500., "minimum pT of D*-"};
   Gaudi::Property<double> m_BToD0_minDstarPionPt {this,
     "BToD0_minDstarPionPt", 1000., "minimum pT of pion track from D*-"};
   Gaudi::Property<double> m_BToD0_maxDstarPionZ0 {this,
@@ -149,9 +162,11 @@ class TrigBmuxComboHypo: public ::ComboHypo {
   Gaudi::Property<bool> m_BdToD {this,
     "BdToD", true, "switch on/off B0 -> mu+ nu_mu D-(-> K+ pi- pi-) decay"};
   Gaudi::Property<double> m_BdToD_minKaonPt {this,
-    "BdToD_minKaonPt", 1000., "minimum pT of kaon track from D-"};
+    "BdToD_minKaonPt", 1250., "minimum pT of kaon track from D-"};
   Gaudi::Property<double> m_BdToD_minPionPt {this,
     "BdToD_minPionPt", 1000., "minimum pT of pion track from D-"};
+  Gaudi::Property<double> m_BdToD_minDPt {this,
+    "BdToD_minDPt", 4500., "minimum pT of D-"};
   Gaudi::Property<std::pair<double, double>> m_BdToD_massRange {this,
     "BdToD_massRange", {-1., 10000.}, "B0 mass range"};
   Gaudi::Property<std::pair<double, double>> m_BdToD_DMassRange {this,
@@ -166,12 +181,14 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     "BsToDs_minKaonPt", 1000., "minimum pT of kaon track from phi(1020)"};
   Gaudi::Property<double> m_BsToDs_minPionPt {this,
     "BsToDs_minPionPt", 1000., "minimum pT of pion track from D_s-"};
+  Gaudi::Property<double> m_BsToDs_minDsPt {this,
+    "BsToDs_minDsPt", 3500., "minimum pT of D_s-"};
   Gaudi::Property<std::pair<double, double>> m_BsToDs_massRange {this,
     "BsToDs_massRange", {-1., 10000.}, "B_s0 mass range"};
   Gaudi::Property<std::pair<double, double>> m_BsToDs_phiMassRange {this,
     "BsToDs_phiMassRange", {940., 1100.}, "phi(1020) mass range"};
   Gaudi::Property<std::pair<double, double>> m_BsToDs_DsMassRange {this,
-    "BsToDs_DsMassRange", {1850., 2100.}, "D_s- mass range"};
+    "BsToDs_DsMassRange", {1750., 2100.}, "D_s- mass range"};
   Gaudi::Property<float> m_BsToDs_chi2 {this,
     "BsToDs_chi2", 27., "maximum chi2 of the fitted D_s- vertex"};
 
@@ -179,11 +196,13 @@ class TrigBmuxComboHypo: public ::ComboHypo {
   Gaudi::Property<bool> m_LambdaBToLambdaC {this,
     "LambdaBToLambdaC", true, "switch on/off Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-) decay"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minProtonPt {this,
-    "LambdaBToLambdaC_minProtonPt", 2000., "minimum pT of proton track"};
+    "LambdaBToLambdaC_minProtonPt", 2500., "minimum pT of proton track"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minKaonPt {this,
-    "LambdaBToLambdaC_minKaonPt", 1000., "minimum pT of kaon track"};
+    "LambdaBToLambdaC_minKaonPt", 1250., "minimum pT of kaon track"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minPionPt {this,
     "LambdaBToLambdaC_minPionPt", 1000., "minimum pT of pion track"};
+  Gaudi::Property<double> m_LambdaBToLambdaC_minLambdaCPt {this,
+    "LambdaBToLambdaC_minLambdaCPt", 4500., "minimum pT of Lambda_c-"};
   Gaudi::Property<std::pair<double, double>> m_LambdaBToLambdaC_massRange {this,
     "LambdaBToLambdaC_massRange", {-1., 10000.}, "Lambda_b0 mass range"};
   Gaudi::Property<std::pair<double, double>> m_LambdaBToLambdaC_LambdaCMassRange {this,

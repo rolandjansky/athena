@@ -9,7 +9,7 @@
 // +==========================================================================+
 //
 
-#include "LArDigitization/LArPileUpTool.h"
+#include "LArPileUpTool.h"
 
 #include "LArDigitization/LArHitEMap.h"
 

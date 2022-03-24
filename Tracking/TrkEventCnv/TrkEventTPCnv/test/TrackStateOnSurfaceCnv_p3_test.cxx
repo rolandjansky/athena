@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TrkEventTPCnv/test/TrackStateOnSurfaceCnv_p3_test.cxx
@@ -170,14 +170,14 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   Trk::FitQuality fq (10, 20);
   Trk::MaterialEffectsOnTrack me (12.5, psurf);
 
-  Trk::TrackStateOnSurface trans1 (new Trk::PseudoMeasurementOnTrack (pmeas),
-                                   new Trk::Perigee (perigee),
-                                   new Trk::FitQuality (fq),
-                                   new Trk::MaterialEffectsOnTrack (me),
+  Trk::TrackStateOnSurface trans1 (std::make_unique<Trk::PseudoMeasurementOnTrack>(pmeas),
+                                   std::make_unique<Trk::Perigee> (perigee),
+                                   std::make_unique<Trk::FitQuality> (fq),
+                                   std::make_unique<Trk::MaterialEffectsOnTrack> (me),
                                    nullptr);
   testit (trans1);
 
-  Trk::TrackStateOnSurface trans2 (new Trk::PseudoMeasurementOnTrack (pmeas),
+  Trk::TrackStateOnSurface trans2 (std::make_unique<Trk::PseudoMeasurementOnTrack> (pmeas),
                                    nullptr,
                                    nullptr,
                                    nullptr,
@@ -185,7 +185,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit (trans2);
 
   Trk::TrackStateOnSurface trans3 (nullptr,
-                                   new Trk::Perigee (perigee),
+                                   std::make_unique<Trk::Perigee> (perigee),
                                    nullptr,
                                    nullptr,
                                    nullptr);
@@ -193,7 +193,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
 
   Trk::TrackStateOnSurface trans4 (nullptr,
                                    nullptr,
-                                   new Trk::FitQuality (fq),
+                                   std::make_unique<Trk::FitQuality> (fq),
                                    nullptr,
                                    nullptr);
   testit (trans4);
@@ -201,7 +201,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   Trk::TrackStateOnSurface trans5 (nullptr,
                                    nullptr,
                                    nullptr,
-                                   new Trk::MaterialEffectsOnTrack (me),
+                                   std::make_unique<Trk::MaterialEffectsOnTrack> (me),
                                    nullptr);
   testit (trans5);
 }

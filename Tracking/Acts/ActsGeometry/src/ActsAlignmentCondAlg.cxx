@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsAlignmentCondAlg.h"
@@ -32,7 +32,7 @@
 
 ActsAlignmentCondAlg::ActsAlignmentCondAlg(const std::string &name,
                                            ISvcLocator *pSvcLocator)
-    : ::AthAlgorithm(name, pSvcLocator), m_cs("CondSvc", name),
+    : ::AthAlgorithm(name, pSvcLocator),
       m_trackingGeometrySvc("ActsTrackingGeometrySvc", name) {}
 
 ActsAlignmentCondAlg::~ActsAlignmentCondAlg() {}
@@ -43,28 +43,8 @@ StatusCode ActsAlignmentCondAlg::initialize() {
   ATH_CHECK(m_pixelAlignStoreReadKey.initialize());
   ATH_CHECK(m_sctAlignStoreReadKey.initialize());
 
-  if (m_cs.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve CondSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_wchk.initialize());
 
-  if (m_wchk.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize WriteCondHandle with key"
-                  << m_wchk.key());
-    return StatusCode::FAILURE;
-  }
-
-  if (m_cs->regHandle(this, m_wchk).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey()
-                                                        << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode ActsAlignmentCondAlg::finalize() {
-  ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 

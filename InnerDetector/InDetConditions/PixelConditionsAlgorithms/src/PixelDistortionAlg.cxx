@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDistortionAlg.h"
@@ -12,7 +12,7 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "PathResolver/PathResolver.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-
+#include "InDetIdentifier/PixelID.h"
 #include <cmath>
 
 #include <cstdint>
@@ -31,14 +31,10 @@ StatusCode PixelDistortionAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
   ATH_CHECK(m_rndmSvc.retrieve());
-  ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
-  if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -82,14 +78,14 @@ StatusCode PixelDistortionAlg::execute() {
     writeCdo -> setVersion(moduleData->getDistortionVersion());
 
     std::string file_name = moduleData->getDistortionFileName();
+    if (file_name.empty()) {
+        ATH_MSG_ERROR("Distortion filename is empty  not found! No pixel distortion will be applied.");
+        return StatusCode::FAILURE;
+    }
     if (file_name[0] != '/') {
       PathResolver::find_file(moduleData->getDistortionFileName(), "DATAPATH");
-      if (file_name.empty()) {
-        ATH_MSG_ERROR("Distortion file " << moduleData->getDistortionFileName() << " not found! No pixel distortion will be applied.");
-        return StatusCode::FAILURE;
-      }
     }
-    std::ifstream input(file_name.c_str());
+    std::ifstream input(file_name);
     if (!input.good()) {
       ATH_MSG_ERROR("Cannot open " << file_name);
       return StatusCode::FAILURE;

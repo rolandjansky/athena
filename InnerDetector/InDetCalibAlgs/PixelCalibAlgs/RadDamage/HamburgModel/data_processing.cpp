@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -25,7 +25,7 @@ Attention 3: to change from one detector type to another, change mainly 3 things
 #include <cstdlib>			// convert arguments of function call into int, float,...
 #include <string>
 #include <vector>
-#include <math.h>           		// for fabs()
+#include <cmath>           		// for fabs()
 #include <sstream>         		// to get string into stream
 #include <TFile.h>          		// more root stuff
 #include <TCanvas.h>
@@ -518,7 +518,8 @@ if(debug) cout << t<<" "<< constants.get_gA(Temperature)<<" "<<phi<<" "<<constan
 
 //function to read in the temp/rad profile
 
-vector<DataElement> get_Profile(string filename)                                 // reads in a file of format (timestep/temperature/radiation_dose_rate) and gives back a vector of DataElements containing each the timestep/temperature/dose_rate information of one line of the input file
+vector<DataElement> 
+get_Profile(const string & filename)                                 // reads in a file of format (timestep/temperature/radiation_dose_rate) and gives back a vector of DataElements containing each the timestep/temperature/dose_rate information of one line of the input file
 {
     ifstream input_file(filename.c_str());                                              // open stream to data file
     vector<DataElement> Temperature_Profile_vector;
@@ -574,7 +575,8 @@ vector<DataElement> get_Profile(string filename)                                
 
 //function to plot different informations in root and pdf files
 
-void plot_vectors(vector<double> vecx, vector<double> vecy, string yName, string xName, long double totalDose, string plotname, int mode)
+void 
+plot_vectors(const vector<double> & vecx, const vector<double> & vecy, const string & yName, const string & xName, long double totalDose, const string & plotname, int mode)
 {
     string output_file_name_pdf=output_file_name;
     output_file_name_pdf.insert(output_file_name_pdf.size(),"_");

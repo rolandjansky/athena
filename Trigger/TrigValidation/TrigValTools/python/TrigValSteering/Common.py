@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -71,6 +71,7 @@ def find_file_in_path(filename, path_env_var):
         if os.access(f, os.R_OK):
             return f
     return None
+
 
 @lru_cache
 def check_job_options(jo_path):

@@ -11,8 +11,6 @@ from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst=getConfiguration()
 
 from AthenaCommon import CfgMgr
-from AthenaCommon import Logging
-from AthenaCommon.Constants import WARNING
 
 from JetRec.JetRecConf import JetAlgorithm
 
@@ -243,93 +241,6 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
 
   return OutputJetCollectionName
 
-
-#========================================================================
-# Hbb Tagger
-#========================================================================
-def get_unique_name(strings):
-    clean_strings = []
-    for string in strings:
-        chars = []
-        for char in string:
-            chars += char if (char.isalpha() or char.isdigit()) else '_'
-        clean_strings.append(''.join(chars))
-    return '_'.join(clean_strings)
-
-def addHbbTagger(
-        sequence, ToolSvc, logger=None,
-        output_level=WARNING,
-        jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
-        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json",
-        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json"):
-    if logger is None:
-        logger = Logging.logging.getLogger('HbbTaggerLog')
-
-    fat_calibrator_name = get_unique_name(["HbbCalibrator", jet_collection])
-    is_data = not isMC
-    if not hasattr(ToolSvc, fat_calibrator_name):
-        fatCalib = CfgMgr.JetCalibrationTool(
-            fat_calibrator_name,
-            OutputLevel=output_level,
-            JetCollection=jet_collection,
-            ConfigFile="JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config",
-            CalibSequence="EtaJES_JMS",
-            CalibArea="00-04-81",
-            IsData=is_data)
-        ToolSvc += fatCalib
-        logger.info('set up {}'.format(fatCalib))
-    else:
-        logger.info('took {} from tool svc'.format(fat_calibrator_name))
-        fatCalib = getattr(ToolSvc, fat_calibrator_name)
-
-    # short name for naming tools
-    nn_short_file = nn_file_name.split('/')[-1].split('.')[0]
-
-    hbb_tagger_name = get_unique_name(["HbbTagger",nn_short_file])
-    if not hasattr(ToolSvc, hbb_tagger_name):
-        hbbTagger = CfgMgr.HbbTaggerDNN(
-            hbb_tagger_name,
-            OutputLevel=output_level,
-            neuralNetworkFile=nn_file_name,
-            configurationFile=nn_config_file)
-        ToolSvc += hbbTagger
-        logger.info('set up {}'.format(hbbTagger))
-    else:
-        logger.info('took {} from tool svc'.format(hbb_tagger_name))
-        hbbTagger = getattr(ToolSvc, hbb_tagger_name)
-
-    tagger_alg_name = get_unique_name(
-        ["HbbTaggerAlg",jet_collection, nn_short_file])
-    if not hasattr(sequence, tagger_alg_name):
-        if tagger_alg_name in DFJetAlgs:
-            sequence += DFJetAlgs[tagger_alg_name]
-            logger.info('took {} from jet algs'.format(tagger_alg_name))
-        else:
-            tagger_alg = CfgMgr.HbbTaggingAlgorithm(
-                tagger_alg_name,
-                OutputLevel=output_level,
-                jetCollectionName=(jet_collection + "Jets"),
-                minPt=250e3,
-                maxEta=2.0,
-                tagger=hbbTagger,
-                calibrationTool=fatCalib)
-            DFJetAlgs[tagger_alg_name] = tagger_alg
-            sequence += tagger_alg
-            logger.info('set up {}'.format(tagger_alg))
-    else:
-        logger.info('{} already scheduled for {}'.format(
-            tagger_alg_name, jet_collection))
-
-def addRecommendedXbbTaggers(sequence, ToolSvc, logger=None):
-    addHbbTagger(sequence, ToolSvc, logger)
-    addHbbTagger(
-        sequence, ToolSvc,
-        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
-        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
-
-xbbTaggerExtraVariables = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD"]
 
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets

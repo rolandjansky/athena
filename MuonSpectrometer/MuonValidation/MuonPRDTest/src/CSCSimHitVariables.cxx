@@ -46,7 +46,7 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		// &bool isValid -> reference to boolean, which will be false in case of invalid identifier
 		// the channelID() function of the CscIdHelper needs also a measuresPhi and a stripNumber, but the CscHitIdHelper 
 		// does not seem to return this, so we just give measuresPhi=0 and stripNumber=1 for now
-		Identifier offid = m_CscIdHelper->channelID(stname, steta, stphi, clayer, wlayer, 0, 1, true, &isValid);
+		Identifier offid = m_CscIdHelper->channelID(stname, steta, stphi, clayer, wlayer, 0, 1, isValid);
 		if (!isValid) {
             ATH_MSG_WARNING("Cannot build a valid Identifier for CSC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", chamberLayer="<<clayer<<", wireLayer="<<wlayer<<"; skipping...");
 			continue;

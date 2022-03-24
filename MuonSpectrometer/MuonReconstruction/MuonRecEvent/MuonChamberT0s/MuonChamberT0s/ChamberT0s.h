@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCHAMBERT0S_CHAMBERT0S_H
@@ -8,7 +8,6 @@
 #include "Identifier/Identifier.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include <algorithm>
-#include <ext/functional>
 
 namespace Muon {
 /**
@@ -53,13 +52,15 @@ namespace Muon {
 
 inline bool ChamberT0s::haveChamber(const Identifier& id) const {
     std::vector< std::pair < Identifier, float > >::const_iterator it 
-      = std::find_if(m_t0s.begin(), m_t0s.end(), __gnu_cxx::compose1(bind2nd(std::equal_to<Identifier>(), id), __gnu_cxx::select1st<std::pair <Identifier, float> >()));
+      = std::find_if(m_t0s.begin(), m_t0s.end(),
+                     [&] (const auto& p) { return p.first == id; });
     return (it!=m_t0s.end());
 }
 
 inline float ChamberT0s::getT0(const Identifier& id) const {
     std::vector< std::pair < Identifier, float > >::const_iterator it 
-      = std::find_if(m_t0s.begin(), m_t0s.end(), __gnu_cxx::compose1(bind2nd(std::equal_to<Identifier>(), id), __gnu_cxx::select1st<std::pair <Identifier, float> >()));
+      = std::find_if(m_t0s.begin(), m_t0s.end(),
+                     [&] (const auto& p) { return p.first == id; });
     if (it==m_t0s.end()) return ChamberUnknown; // No such chamber known.
     return (it->second);
 }

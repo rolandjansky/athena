@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,7 +27,7 @@ int Root::TPhotonEfficiencyCorrectionTool::initialize(){
    return Root::TElectronEfficiencyCorrectionTool::initialize();
 }
 
-typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
+using Result = Root::TPhotonEfficiencyCorrectionTool::Result;
 const Result Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::ParticleDataType::DataType dataType,
                                   const unsigned int runnumber,
                                   const double cluster_eta,

@@ -27,11 +27,15 @@ EGElectronLikelihoodToolWrapper::EGElectronLikelihoodToolWrapper(
   , m_cut("")
   , m_sgName("")
   , m_storeTResult(false)
+  , m_sgMultipleNames({})
+  , m_storeMultipleOutputs(false)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("CutType", m_cut);
   declareProperty("StoreGateEntryName", m_sgName);
   declareProperty("StoreTResult", m_storeTResult);
+  declareProperty("StoreGateEntryMultipleNames", m_sgMultipleNames);
+  declareProperty("StoreMultipleOutputs", m_storeMultipleOutputs);
 }
 
 StatusCode
@@ -61,6 +65,12 @@ EGElectronLikelihoodToolWrapper::initialize()
     m_decoratorResult = m_ContainerName.key() + "." + m_sgName + "Result";
     ATH_CHECK(m_decoratorResult.initialize(m_storeTResult));
   }
+  if (m_storeMultipleOutputs) {
+    for (auto& sgName : m_sgMultipleNames) {
+      m_decoratorMultipleOutputs.emplace_back(m_ContainerName.key() + "." + sgName);
+    }
+    ATH_CHECK(m_decoratorMultipleOutputs.initialize(m_storeMultipleOutputs));
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -86,6 +96,8 @@ EGElectronLikelihoodToolWrapper::addBranches() const
       std::make_unique<SG::WriteDecorHandle<xAOD::EgammaContainer, double>>(
         m_decoratorResult, ctx);
   }
+
+  auto decoratorMultipleOutputs = m_decoratorMultipleOutputs.makeHandles();
 
   bool applyFF = (!m_fudgeMCTool.empty());
   // Write mask for each element and record to SG for subsequent selection
@@ -145,6 +157,14 @@ EGElectronLikelihoodToolWrapper::addBranches() const
         (*decoratorResult)(*par) =
           static_cast<double>(m_tool->calculate(ctx, pCopy));
       }
+      if (m_storeMultipleOutputs) {
+        // calculateMultipleOutputs only supports xAOD::Electron as input
+        const xAOD::Electron *eCopy = static_cast<const xAOD::Electron *>(pCopy);
+        std::vector<float> toolOutput = m_tool->calculateMultipleOutputs(ctx, eCopy);
+        for (size_t i = 0; i < toolOutput.size(); i++){
+          decoratorMultipleOutputs.at(i)(*par) = toolOutput.at(i);
+        }
+      }
     } else {
       if (theAccept.getCutResult(m_cut)) {
         decoratorPass(*par) = 1;
@@ -157,6 +177,14 @@ EGElectronLikelihoodToolWrapper::addBranches() const
                                                                  "Result");
         (*decoratorResult)(*par) =
           static_cast<double>(m_tool->calculate(ctx, pCopy));
+      }
+      if (m_storeMultipleOutputs) {
+        // calculateMultipleOutputs only supports xAOD::Electron as input
+        const xAOD::Electron* eCopy = static_cast<const xAOD::Electron*>(pCopy);
+        std::vector<float> toolOutput = m_tool->calculateMultipleOutputs(ctx, eCopy);
+        for (size_t i = 0; i < toolOutput.size(); i++){
+          decoratorMultipleOutputs.at(i)(*par) = toolOutput.at(i);
+        }
       }
     }
     // delete the particle copy

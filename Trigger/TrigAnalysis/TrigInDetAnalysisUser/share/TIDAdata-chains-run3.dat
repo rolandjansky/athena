@@ -31,6 +31,7 @@ testChains = {
     "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
     "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
 
+    "HLT_mu4_cosmic_L1MU3V_EMPTY:HLT_IDTrack_Cosmic_IDTrig",
 
     // "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron",
     // "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_IDTrig",
@@ -88,14 +89,15 @@ testChains = {
 
 #endif
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
-    "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
-    "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
-    
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
-    "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
+    
+    "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
-
-
-
-
+    
+    "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
+    "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
+    
+    "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
+    "HLT_j45_pf_ftf_preselj20_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet"
+    
 };

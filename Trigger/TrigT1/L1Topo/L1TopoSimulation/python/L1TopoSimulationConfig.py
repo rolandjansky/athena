@@ -30,6 +30,8 @@ def L1LegacyTopoSimulationCfg(flags):
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1LegacyTopoSimulation",
                                                     EMTAUInputProvider = emtauProvider,
                                                     IsLegacyTopo = True,
+                                                    InputDumpFile = "inputdump_legacy.txt",
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump, 
                                                     MonHistBaseDir = "L1/L1LegacyTopoAlgorithms")
 
     # No muon inputs to legacy Topo
@@ -61,6 +63,13 @@ def L1TopoSimulationCfg(flags):
     emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
     jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
     energyProvider = CompFactory.LVL1.EnergyInputProviderFEX("EnergyInputProviderFEX")
+    if not flags.Trigger.enableL1CaloPhase1:
+        emtauProvider.eFexEMRoIKey = ""
+        emtauProvider.eFexTauRoIKey = ""
+        jetProvider.jFexSRJetRoIKey = ""
+        jetProvider.jFexLRJetRoIKey = ""
+        jetProvider.jFexTauRoIKey = ""
+        jetProvider.jFexMETRoIKey = ""
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,

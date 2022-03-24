@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_FILESCHEDULINGTOOL_H
@@ -17,7 +17,6 @@ class FileSchedulingTool final : public AthenaMPToolBase
 
   virtual ~FileSchedulingTool() override;
   
-  virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
   // _________IAthenaMPTool_________   
@@ -42,8 +41,6 @@ class FileSchedulingTool final : public AthenaMPToolBase
 
   AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          
   AthenaInterprocess::SharedQueue*  m_sharedFinQueue;   // Shared queue for scheduling worker finalizations (fighting memory spikes)
-
-  bool                           m_isPileup;
 };
 
 #endif

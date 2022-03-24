@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // This is a general-purpose multi-b-jet filter. It can cut on:
 //    - Multiplicity of b-jets (both min and max can be specified)
@@ -104,8 +104,7 @@ StatusCode MultiBjetFilter::filterEvent() {
   int bJetCounter = 0;
   double weight = 1;
   McEventCollection::const_iterator itr;
-  for(itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
-    const HepMC::GenEvent* genEvt = (*itr);
+  for(const HepMC::GenEvent* genEvt : *events_const()) {
     weight = genEvt->weights().front();
     // Make a vector containing all the event's b-hadrons
     std::vector< HepMC::ConstGenParticlePtr > bHadrons;

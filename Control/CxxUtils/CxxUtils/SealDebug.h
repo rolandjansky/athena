@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,6 +15,7 @@
  *        logstream references.
  *
  *        sss: Add stacktraceLine.
+ *        fwinkl: Add enableCoreFiles, disableCoreFiles.
  */
 
 #ifndef CXXUTILS_SEAL_DEBUG_H // wlav SEAL_BASE_DEBUG_H
@@ -69,6 +70,9 @@ public:
                                                                       unsigned long addr);
     static void                 setStackTraceAddr2Line ATLAS_NOT_THREAD_SAFE (const char* path);
 
+    // fwinkl
+    static unsigned long        enableCoreFiles();
+    static void                 disableCoreFiles();
 private:
     static std::atomic<IOFD>	 s_stackTraceFd;
 };

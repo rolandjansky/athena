@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixeldEdxAlg.h
@@ -22,7 +22,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixeldEdxAlg : public AthAlgorithm {  
@@ -45,9 +44,6 @@ class PixeldEdxAlg : public AthAlgorithm {
 
     Gaudi::Property<double> m_mindedxformass
     {this, "MinimumdEdxForMass", 1.8, "Minimum dEdx for mass"};
-
-    ServiceHandle<ICondSvc> m_condSvc
-    {this, "CondSvc", "CondSvc", ""};
 
     SG::ReadCondHandleKey<AthenaAttributeList> m_readKey
     {this, "ReadKey", "/PIXEL/PixdEdx", "Input readout folder"};

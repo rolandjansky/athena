@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedEvtQueueConsumer.h"
@@ -36,7 +36,6 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_useSharedReader(false)
   , m_useSharedWriter(false)
-  , m_isPileup(false)
   , m_isRoundRobin(false)
   , m_nEventsBeforeFork(0)
   , m_nSkipEvents(0)
@@ -58,7 +57,6 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
 
   declareProperty("UseSharedReader",m_useSharedReader);
   declareProperty("UseSharedWriter",m_useSharedWriter);
-  declareProperty("IsPileup",m_isPileup);
   declareProperty("IsRoundRobin",m_isRoundRobin);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("Debug", m_debug);
@@ -76,14 +74,6 @@ StatusCode SharedEvtQueueConsumer::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
 
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job running in non-pileup mode");
-  }
-  
   ATH_CHECK(AthenaMPToolBase::initialize());
 
   // For pile-up jobs use event loop manager for seeking
@@ -725,7 +715,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::fin_f
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      std::cerr << "Unable to finalize AppMgr" << std::endl;
       all_ok=false;
     }
   }

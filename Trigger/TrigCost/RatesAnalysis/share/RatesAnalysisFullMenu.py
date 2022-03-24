@@ -140,11 +140,18 @@ if __name__=='__main__':
     
     for chain_name, ch in l1ps_json_file['cutValues'].items():
       prescaleL1_input = ch['info'].split()[1]
-      prescales[chain_name] = float(prescaleL1_input)
+      p = {'prescale': float(prescaleL1_input)}
+      prescales[chain_name] = p
     
     for chain_name, ch in hltps_json_file['prescales'].items():
       prescaleHLT_input = ch['prescale']
-      prescales[chain_name] = float(prescaleHLT_input)
+      prescaleExpressHLT_input = ch['prescale_express'] if 'prescale_express' in ch else -1
+
+      p = {
+        'prescale': float(prescaleHLT_input),
+        'prescale_express': float(prescaleExpressHLT_input)
+      }
+      prescales[chain_name] = p
 
     
   rates.PrescalesJSON = prescales

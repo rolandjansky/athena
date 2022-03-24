@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -18,6 +18,10 @@ import os, re, string
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+acam.athMasterSeq += xAODMaker__EventInfoCnvAlg(xAODKey="TMPEvtInfo")
+
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
@@ -50,7 +54,7 @@ perfmonjp.PerfMonFlags.doMonitoring = True
 perfmonjp.PerfMonFlags.doSemiDetailedMonitoring = True
 
 ## Random number services
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc, AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc, AtRanluxGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr += AtRanluxGenSvc()
 
@@ -94,6 +98,8 @@ if not hasattr(runArgs, "randomSeed"):
     raise RuntimeError("No random seed provided.")
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
+if (runArgs.firstEvent <= 0):
+    evgenLog.warning("Run argument firstEvent should be > 0")
 
 if hasattr(runArgs, "inputEVNT_PreFile"):
    evgenLog.info("inputEVNT_PreFile = " + ','.join(runArgs.inputEVNT_PreFile))
@@ -118,10 +124,6 @@ if not hasattr(svcMgr, 'THistSvc'):
     svcMgr += THistSvc()
 svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE'"]
 
-## Copy the event weight from HepMC to the Athena EventInfo class
-# TODO: Rewrite in Python?
-from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
@@ -130,12 +132,23 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
+    postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
+                          OutputEventInfo="EventInfo",
+                          mcEventWeightsKey="")
+
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
 postSeq.CountHepMC.CorrectRunNumber = False
+
+if hasattr(runArgs,"inputEVNT_PreFile"):
+   from AthenaCommon.AppMgr import ServiceMgr
+   #fix iov metadata
+   if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+      ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+   runNum = int(runArgs.jobConfig[0])
+   ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runNum, runNum+1]
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -373,21 +386,15 @@ elif hasattr(runArgs, "outputEVNT_PreFile"):
 else:
   raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-# The xAOD::EventInfo is required to build the EventInfoTag
-# which is scheduled by the output stream
-if not hasattr(topSeq, "EventInfoCnvAlg"):
-   from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-   topSeq += xAODMaker__EventInfoCnvAlg()
-   # intnetionally skip adding the xAOD::EventInfo to the ItemList
 
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=False )
+StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=True , eventInfoKey="EventInfo")
 if hasattr(runArgs, "inputEVNT_PreFile") :
   svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
   StreamEVGEN.TakeItemsFromInput = True
   postSeq.CountHepMC.CorrectRunNumber = True
 
 StreamEVGEN.ForceRead = True
-StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+StreamEVGEN.ItemList += ["EventInfo#*", "xAOD::EventInfo#EventInfo*", "xAOD::EventAuxInfo#EventInfoAux.*", "McEventCollection#*"]
 StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 ## Used for pile-up (remove dynamic variables except flavour labels)
 if evgenConfig.saveJets:

@@ -415,7 +415,7 @@ class ComponentAccumulator(object):
             seq=self._sequence
         else:
             seq = findSubSequence(self._sequence, seqName )
-        return list( set( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ) )
+        return list( collections.OrderedDict.fromkeys( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ).keys() )
 
     def addCondAlgo(self,algo,primary=False):
         if not isinstance(algo,GaudiConfig2._configurables.Configurable) and not isinstance(algo,AthenaPython.Configurables.CfgPyAlgorithm):

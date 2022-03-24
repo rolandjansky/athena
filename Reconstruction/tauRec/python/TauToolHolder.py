@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 #
@@ -231,7 +231,7 @@ def TauTrackFinderCfg(flags):
                                     removeDuplicateCoreTracks = flags.Tau.RemoveDupeCoreTracks,
                                     useGhostTracks = flags.Tau.useGhostTracks,
                                     ghostTrackDR = flags.Tau.ghostTrackDR,
-                                    Key_jetContainer = (flags.Tau.JetCollection if flags.Tau.useGhostTracks else ""),
+                                    Key_jetContainer = (flags.Tau.SeedJetCollection if flags.Tau.useGhostTracks else ""),
                                     Key_trackPartInputContainer = flags.Tau.TrackCollection,
                                     Key_LargeD0TrackInputContainer = (flags.Tau.LargeD0TrackContainer if flags.Tau.associateLRT else ""),
                                     TrackToVertexIPEstimator = result.popToolsAndMerge(TauTrackToVertexIPEstimatorCfg(flags)) )
@@ -262,7 +262,7 @@ def TauVertexedClusterDecoratorCfg(flags):
 
     TauVertexedClusterDecorator = CompFactory.getComp("TauVertexedClusterDecorator")
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
-                                                                SeedJet = flags.Tau.JetCollection)
+                                                                SeedJet = flags.Tau.SeedJetCollection)
 
     result.setPrivateTools(myTauVertexedClusterDecorator)
     return result
@@ -361,14 +361,14 @@ def CellWeightToolCfg(flags):
 
     # copied from CaloClusterCorrection/python/StandardCellWeightCalib
     H1WeightToolCSC12Generic = CompFactory.H1WeightToolCSC12Generic  # CaloClusterCorrection
-    isMC = flags.isMC 
+    isMC = flags.Input.isMC 
 
     finder = "Cone"
     mainparam = 0.4
     inputn = "Topo"
     onlyCellWeight = False
     from CaloClusterCorrection.StandardCellWeightCalib import H1Calibration, editParm
-    (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,inputn, onlyCellWeight, isMC,flags)
+    (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,inputn, onlyCellWeight, isMC)
     # H1Calibration.loadCaloFolder(result, flags, folder, tag, isMC)
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     if isMC:
@@ -418,9 +418,14 @@ def TauShotFinderCfg(flags):
     shotPtCut_1Photon = flags.Tau.shotPtCut_1Photon
     shotPtCut_2Photons = flags.Tau.shotPtCut_2Photons
 
+    
+    from CaloClusterCorrection.StandardCellWeightCalib import getCellWeightTool
+    CaloWeightTool = getCellWeightTool(flags=flags)
+
+
     TauShotFinder = CompFactory.getComp("TauShotFinder")
     TauShotFinder = TauShotFinder(name = _name,
-                                  CaloWeightTool = result.popToolsAndMerge(CellWeightToolCfg(flags)),
+                                  CaloWeightTool = result.popToolsAndMerge(CaloWeightTool),
                                   NCellsInEta           = 5,
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,

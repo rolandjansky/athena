@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 # Declare the package
@@ -21,7 +21,7 @@ atlas_add_component(
   TrigT1CaloFexPerf
   src/components/*.cxx src/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel CaloDetDescrLib CaloEvent CaloIdentifier CaloConditions CxxUtils GaudiKernel PathResolver StoreGateLib TileEvent TrigT1CaloFexPerfLib xAODBase xAODCore xAODTrigCalo xAODTrigL1Calo xAODTrigger )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloConditions CxxUtils GaudiKernel PathResolver StoreGateLib TileEvent TrigT1CaloFexPerfLib xAODBase xAODCore xAODEventInfo xAODTrigCalo xAODTrigL1Calo xAODTrigger )
 
 # Install files from the package
 atlas_install_python_modules( python/*.py )

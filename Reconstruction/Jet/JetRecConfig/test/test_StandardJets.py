@@ -3,7 +3,8 @@
 
 
 # should choose a better default ??
-DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
+#DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
+DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root"
 
 from argparse import ArgumentParser
 parser = ArgumentParser(prog="StandardTests: runs standard jet reconstruction from an ESD",
@@ -166,4 +167,5 @@ pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 cfg.getService("StoreGateSvc").Dump = args.dumpSG
 
 # Run the job
-cfg.run(maxEvents=args.nEvents)
+if args.nEvents>0:
+    cfg.run(maxEvents=args.nEvents)

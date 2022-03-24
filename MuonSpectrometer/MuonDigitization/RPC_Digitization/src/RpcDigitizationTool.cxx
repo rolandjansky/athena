@@ -2323,8 +2323,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                 bool isValid = false;
                                 Identifier rpcId =
                                     m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                          true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                            // measuresPhi, int strip, bool check, bool* isValid
+                                                                 isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                            // measuresPhi, int strip, bool& isValid
                                 if (!isValid) continue;
                                 const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
 
@@ -2634,8 +2634,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     bool isValid = false;
                                     Identifier rpcId =
                                         m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                              true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                // measuresPhi, int strip, bool check, bool* isValid
+                                                                    isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                                // measuresPhi, int strip, bool& isValid
                                     if (!isValid) continue;
                                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                     if (!rpc) continue;
@@ -2711,8 +2711,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     bool isValid = false;
                                     Identifier rpcId =
                                         m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                              true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                // measuresPhi, int strip, bool check, bool* isValid
+                                                              isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                                // measuresPhi, int strip, bool& isValid
                                     if (!isValid) continue;
                                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                     if (!rpc) continue;
@@ -2818,9 +2818,9 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     for (int strip = 1; strip != 81; strip++) {
                                         bool isValid = false;
                                         Identifier rpcId = m_idHelper->channelID(
-                                            stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true,
-                                            &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip,
-                                                        // bool check, bool* isValid
+                                            stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, 
+                                            isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip,
+                                                        // bool& isValid
                                         if (!isValid) continue;
                                         const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                         if (!rpc) continue;

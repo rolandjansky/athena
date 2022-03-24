@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITKPIXELOFFLINECALIBCONDALG
@@ -13,7 +13,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/ITkPixelOfflineCalibData.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -46,8 +45,6 @@ class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm
 
     SG::WriteCondHandleKey<ITk::PixelOfflineCalibData> m_writeKey
     {this, "WriteKey", "ITkPixelOfflineCalibData", "Output key of pixel module data"};
-
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
     StoreGateSvc* m_detStore{nullptr};
     const PixelID* m_pixelid{nullptr};

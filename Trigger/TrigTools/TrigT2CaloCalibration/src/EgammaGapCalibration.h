@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,7 +44,6 @@ class EgammaGapCalibration :
   virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) const override;
   
  private:
-  MsgStream* m_log;
   // Correction Variables
   Constant<CxxUtils::Array<2> >  m_correction      { this, "correction" };
   Constant<float>                m_eta_start_crack { this, "eta_start_crack" };

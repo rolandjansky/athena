@@ -14,7 +14,6 @@
 #include "TileByteStream/TileCellCont.h"
 #include "TrigT2CaloCommon/LArCellCont.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
-#include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileL2Container.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRoiDescriptor.h"
@@ -49,10 +48,10 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   
   virtual StatusCode loadCollections ( const EventContext& context,
                                        const IRoiDescriptor& roi,
-                                       TileCellCollection& loadedCells ) override;
+                                       std::vector<const TileCell*>& loadedCells ) override;
   
   virtual StatusCode loadMBTS ( const EventContext& context,
-                                                    TileCellCollection& loadedCells ) override;
+                                                    std::vector<const TileCell*>& loadedCells ) override;
 
 
   

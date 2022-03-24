@@ -34,6 +34,7 @@
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
+#include <iterator> //std::advance
 
 // constructor
 InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -911,8 +912,12 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
         if ( r>rbounds[ir].first ) break; 
         ir--;
       }
-      rbounds.insert(rbounds.begin()+ir+1,std::pair<float,float> (r,db->rMax()));  
-      discOrder.insert(discOrder.begin()+ir+1,id);           
+      auto rboundsInsertionPt(rbounds.begin());
+      std::advance(rboundsInsertionPt, ir+1);
+      rbounds.insert(rboundsInsertionPt,std::pair<float,float> (r,db->rMax())); 
+      auto discOrderInsertionPt(discOrder.begin());
+      std::advance(discOrderInsertionPt, ir+1); 
+      discOrder.insert(discOrderInsertionPt,id);           
     }
     id++;
   }

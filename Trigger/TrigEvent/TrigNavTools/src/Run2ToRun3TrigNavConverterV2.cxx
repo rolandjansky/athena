@@ -942,47 +942,51 @@ StatusCode Run2ToRun3TrigNavConverterV2::linkRoiNode(ConvProxySet_t &convProxies
 
 StatusCode Run2ToRun3TrigNavConverterV2::linkTrkNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure &run2Nav) const
 {
-
   for (auto &proxy : convProxies)
   {
     for (auto &trk : proxy->tracks)
     {
       if (proxy->imNode->hasObjectLink(TrigCompositeUtils::roiString()))
       {
-        ElementLink<TrigRoiDescriptorCollection> ROIElementLink = proxy->imNode->objectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::roiString());
-        if (ROIElementLink.isValid())
+        try 
         {
-          SG::AuxElement::Decorator<ElementLink<TrigRoiDescriptorCollection>> viewBookkeeper("viewIndex");
-          auto [sgKey, sgCLID, sgName] = getSgKey(run2Nav, trk);
-          if (sgCLID == m_TrackParticleContainerCLID || sgCLID == m_TauTrackContainerCLID)
+          ElementLink<TrigRoiDescriptorCollection> ROIElementLink = proxy->imNode->objectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::roiString());
+          if (ROIElementLink.isValid())
           {
-            const char *tName = sgCLID == m_TrackParticleContainerCLID ? "TEMP_TRACKS" : "TEMP_TAU_TRACKS";
-            auto d = std::make_unique<TrigCompositeUtils::Decision>();
-            d->makePrivateStore();
-            d->typelessSetObjectLink(tName, sgKey, sgCLID, trk.getIndex().objectsBegin());
-            if (sgCLID == m_TrackParticleContainerCLID)
+            SG::AuxElement::Decorator<ElementLink<TrigRoiDescriptorCollection>> viewBookkeeper("viewIndex");
+            auto [sgKey, sgCLID, sgName] = getSgKey(run2Nav, trk);
+            if (sgCLID == m_TrackParticleContainerCLID || sgCLID == m_TauTrackContainerCLID)
             {
-              for (const ElementLink<xAOD::TrackParticleContainer> &track : d->objectCollectionLinks<xAOD::TrackParticleContainer>(tName))
+              const char *tName = sgCLID == m_TrackParticleContainerCLID ? "TEMP_TRACKS" : "TEMP_TAU_TRACKS";
+              auto d = std::make_unique<TrigCompositeUtils::Decision>();
+              d->makePrivateStore();
+              d->typelessSetObjectLink(tName, sgKey, sgCLID, trk.getIndex().objectsBegin());
+              if (sgCLID == m_TrackParticleContainerCLID)
               {
-                if (track.isValid())
+                for (const ElementLink<xAOD::TrackParticleContainer> &track : d->objectCollectionLinks<xAOD::TrackParticleContainer>(tName))
                 {
-                  const xAOD::TrackParticle *t = *track;
-                  viewBookkeeper(*t) = ROIElementLink;
+                  if (track.isValid())
+                  {
+                    const xAOD::TrackParticle *t = *track;
+                    viewBookkeeper(*t) = ROIElementLink;
+                  }
                 }
               }
-            }
-            if (m_includeTauTrackFeatures == false && sgCLID == m_TauTrackContainerCLID)
-            {
-              for (const ElementLink<xAOD::TauTrackContainer> &track : d->objectCollectionLinks<xAOD::TauTrackContainer>(tName))
+              if (m_includeTauTrackFeatures == false && sgCLID == m_TauTrackContainerCLID)
               {
-                if (track.isValid())
+                for (const ElementLink<xAOD::TauTrackContainer> &track : d->objectCollectionLinks<xAOD::TauTrackContainer>(tName))
                 {
-                  const xAOD::TauTrack_v1 *t = *track;
-                  viewBookkeeper(*t) = ROIElementLink;
+                  if (track.isValid())
+                  {
+                    const xAOD::TauTrack_v1 *t = *track;
+                    viewBookkeeper(*t) = ROIElementLink;
+                  }
                 }
               }
             }
           }
+        } catch (SG::ExcBadForwardLink&) {
+          ATH_MSG_WARNING("Unable to create an ElementLink into a container with no entries");
         }
       }
     }

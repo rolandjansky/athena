@@ -5,7 +5,7 @@ def addLArCalibFlags(flags):
     flags.Input.isMC=False
     flags.addFlag("LArCalib.isSC",False)
     flags.addFlag("LArCalib.BadChannelDB","COOLOFL_LAR")
-    flags.addFlag("LArCalib.BadChannelTag","-UPD3-00")
+    flags.addFlag("LArCalib.BadChannelTag","-RUN2-UPD3-00")
 
     #Folders:
     def _prefix(prevFlags):
@@ -32,6 +32,8 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.GroupingType",lambda prevFlags: "SuperCells" if prevFlags.LArCalib.isSC else "ExtendedSubDetector")
     flags.addFlag("LArCalib.Output.POOLFile","ouput.pool.root")
     flags.addFlag("LArCalib.Output.ROOTFile","")
+    flags.addFlag("LArCalib.Output.POOLFile2","ouput2.pool.root")
+    flags.addFlag("LArCalib.Output.ROOTFile2","")
 
     flags.addFlag("LArCalib.Gain",0)
 
@@ -45,8 +47,10 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.Input.Type","calibration_LArElec-Pedestal")
     flags.addFlag("LArCalib.Input.Files",_getInputFiles)
     flags.addFlag("LArCalib.Input.SubDet","") #EM, HEC or FCAL 
+    flags.addFlag("LArCalib.Input.isRawData",False)
     
     flags.addFlag("LArCalib.Input.Database","LAR_OFL") #In practice, a sqlite file
+    flags.addFlag("LArCalib.Input.Database2","LAR_OFL") #In practice, a sqlite file, sometimes we need 2 of them
 
     flags.addFlag("LArCalib.Input.ChannelSelection","") #Read only a subset of COOL channels. Format like '3,4,5:10' 
 

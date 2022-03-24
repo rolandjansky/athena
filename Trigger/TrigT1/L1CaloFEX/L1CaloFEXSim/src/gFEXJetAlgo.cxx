@@ -136,8 +136,11 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   }
 
   // Apply pileup threshold
-  pileUpCorrectionAB(AjetsRestricted,pucA);
-  pileUpCorrectionAB(BjetsRestricted,pucB);
+  // Apply pileup correction (if enabled)
+  if (FEXAlgoSpaceDefs::ENABLE_PUC){
+    pileUpCorrectionAB(AjetsRestricted,pucA);
+    pileUpCorrectionAB(BjetsRestricted,pucB);
+  }
 
 
   //Emulate switch to unsigned values by zeroing everything below the jet threshold
@@ -594,7 +597,9 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
         // switch to 800 MeV LSB 
-        gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        if (FEXAlgoSpaceDefs::APPLY_TRUNC){
+          gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        }
         // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
         if ( gBlkSum[irow][jcolumn] < 0 ){
           gBlkSum[irow][jcolumn] = 0;
@@ -878,7 +883,6 @@ void gFEXJetAlgo::pileUpCalculation(gTowersCentral &twrs, int rhoThreshold_Max, 
 void gFEXJetAlgo::pileUpCorrectionAB(gTowersCentral &jets, int puc){
   int rows = jets.size();
   int cols = jets[0].size();
-  // add partial sums
   for(int irow=0;irow<rows;irow++){
     for(int icolumn=0;icolumn<cols;icolumn++){
       jets[irow][icolumn] =   jets[irow][icolumn] - puc;
@@ -929,8 +933,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
     }
     // Turncate to 15 bits as in firmware
     if( jetOutL[ieng] >  (1<<16) - 1 )  jetOutL[ieng] = 0x00007FFF;
-    // reduce by 3 bits prior to sorting done here
-    jetOutL[ieng] = jetOutL[ieng]/8; 
+    if (FEXAlgoSpaceDefs::APPLY_TRUNC){
+      // reduce by 3 bits prior to sorting done here
+      jetOutL[ieng] = jetOutL[ieng]/8;
+    } 
   }
   // loop over right engines
   for(int ieng=0; ieng<FEXAlgoSpaceDefs::ABCrows; ieng++){
@@ -945,7 +951,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
     // Turncate to 15 bits as in firmware 
     if( jetOutR[ieng] >  (1<<16) - 1 )  jetOutR[ieng] = 0x00007FFF;
     // reduce by 3 bits prior to sorting done here
-    jetOutR[ieng] = jetOutR[ieng]/8; 
+    if (FEXAlgoSpaceDefs::APPLY_TRUNC){  
+      // reduce by 3 bits prior to sorting done here
+      jetOutR[ieng] = jetOutR[ieng]/8; 
+    } 
 
   }
 

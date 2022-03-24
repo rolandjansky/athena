@@ -152,13 +152,9 @@ JetChainParts = {
        'preselj200',
        'preselj225',
        # Multijets
-       'presel2j140',
        'presel2j180',
-       'presel2j200',
        'presel2j225',
        'presel3j45',
-       'presel3j100',
-       'presel3j125',
        'presel3j150',
        'presel4j20',
        'presel4c20',
@@ -189,10 +185,12 @@ JetChainParts = {
        'preselc60XXj45XXf40',
        'preselj60XXj45XXf40',
        'presela60XXa40XX2a25',
-       'preseljHT350',
        'preseljHT400',
        'preselcHT400',
        'preseljHT500',
+       'preselcHT500',
+       'preseljHT600',
+       'preselcHT600',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -215,51 +213,28 @@ JetChainParts = {
                       #     djdphi sel (optional)
                       #     djdeta sel (optional)
                       #
-                      # et threshold cuts
-                      'DIJET80j12etXX0j12eta240XX700djmass', # Test dijet mass sel
-                      'DIJET80j12etXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
-                      'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
-                      'DIJET50j12etXX1000djmass',
-                      'DIJET50j12etXX1000djmassXXdjdphi240',
-                      'DIJET50j12etXX900djmass',
-                      'DIJET35j12etXX1000djmass',
-                      'DIJET20j12etXX110djmass',  # very loose cuts for testing
                       # pt threshold cuts
-                      'DJMASS200j20', # alias, for TLA
-                      'DJMASS350j20', # alias, for TLA
                       'DJMASS500j35', # alias
                       'DJMASS700j35', # alias
                       'DJMASS1000j35', # alias
-                      'DJMASS700j40', # alias
-                      'DJMASS700j50x0eta240', # alias
-                      'DJMASS700j80x0eta240', # alias
                       'DJMASS900j50', # alias
                       'DJMASS1000j50', # alias
                       'DJMASS1000j50dphi240', # alias
                       'DJMASS1000j50dphi200x400deta', # alias
-                      'DIJET80j12ptXX0j12eta240XX700djmass', # Test dijet mass sel
-                      'DIJET80j12ptXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
-                      'DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
-                      'DIJET20j12ptXX110djmass',  # very loose cuts for testing
-                      'DIJETaliasExample',        # example of an alias for a dijet scenario with very loose cuts for testing
-                      # no explicit pt cuts
-                      'DIJET35j12ptXX700djmass',
-                      'DIJET35j12ptXX500djmass',
+                      
+                      'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # needed for hypoToolTests.py
+                      'DIJET80j12etXX0j12eta240XX700djmass', # needed for hypoToolTests.py
+
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'HT0',
                       'HT1000',
                       'HT300',
                       'HT500',
-                      'HT1000XX30et',
-                      'HT500XX30et',
                       'HT50',
-                      'HT50XX010jvt', # example of a HT chain using only jets passing JVT
-                      'HT50XX30et',
-                      'HT50XX30etXX010jvt', # example of a HT chain using only jets passing JVT
-                      'HT100XX10et',
-                      'HT50XX10etXX0eta320', # HT selection with explicit jet et/eta cuts
-                      'HT50XX10ptXX0eta320', # HT selection with explicit jet et/eta cuts
                       'HT1000XX0eta240',
+                      'HT1000XX020jvt',
+                      'HT1000XX0eta240XX020jvt',
+                      'HT50XX10etXX0eta320'  # needed for hypoToolTests.py
                       ],
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
@@ -363,7 +338,7 @@ MuonChainParts = {
     'etaRange'       : ['0eta105'],
     'threshold'      : '',
     'tnpInfo'        : ['probe'],
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
@@ -703,8 +678,8 @@ MinBiasChainParts = {
                         'sp1000', 'sp1100', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup0','pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup180', 'pusup190',
-                        'pusup200', 'pusup240', 'pusup250', 'pusup260', 'pusup270', 'pusup280', 'pusup290', 'pusup300'],
+    'pileupInfo'     : ['pusup0', 'pusup20', 'pusup30', 'pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup150', 'pusup180', 'pusup190',
+                        'pusup200', 'pusup220', 'pusup240', 'pusup250', 'pusup260', 'pusup270', 'pusup280', 'pusup290', 'pusup300'],
     'hypoTrkInfo'    : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280', 'trk290',
                          '2trk6', '1trk5'], #ranges for exclusive tracks
@@ -1099,7 +1074,7 @@ UnconventionalTrackingChainParts_Default = {
     'isoInfo'        : '',
     'threshold'      : '',
     'extra'          : '',
-    'addInfo'        : [],
+    'addInfo'        : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0

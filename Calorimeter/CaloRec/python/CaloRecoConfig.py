@@ -32,7 +32,7 @@ def CaloRecoCfg(configFlags, clustersname=None):
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
         result.merge(TileRawChannelMakerCfg(configFlags))
 
-    if not configFlags.Input.isMC:
+    if not configFlags.Input.isMC and not configFlags.Common.isOnline:
         from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
         result.merge(LArTimeVetoAlgCfg(configFlags))
 

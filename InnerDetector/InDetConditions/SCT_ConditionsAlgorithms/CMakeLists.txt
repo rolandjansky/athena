@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_ConditionsAlgorithms )
@@ -11,13 +11,13 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps StoreGateLib Identifier DetDescrConditions GeoModelUtilities GeoPrimitives GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetConditionsSummaryService InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry TrkSurfaces SCT_ConditionsToolsLib MuonReadoutGeometry TRT_ReadoutGeometry)
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib Identifier DetDescrConditions GeoModelUtilities GeoPrimitives GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetConditionsSummaryService InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry TrkSurfaces SCT_ConditionsToolsLib MuonReadoutGeometry TRT_ReadoutGeometry)
 
 # Helper functions for test definitions:
 function( _add_athena_test name )
    atlas_add_test( ${name}
       SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/${name}.py
-      POST_EXEC_SCRIPT nopost.sh
+      POST_EXEC_SCRIPT noerror.sh
       PROPERTIES TIMEOUT 600
       ENVIRONMENT THREADS=5 )
 endfunction()
@@ -25,7 +25,7 @@ endfunction()
 function( _add_test name )
    atlas_add_test( ${name}
       SCRIPT python -m SCT_ConditionsAlgorithms.${name}
-      POST_EXEC_SCRIPT nopost.sh
+      POST_EXEC_SCRIPT noerror.sh
       PROPERTIES TIMEOUT 600 )
 endfunction()
 
@@ -62,13 +62,13 @@ _add_test( SCT_TdaqEnabledTestAlgConfig )
 
 atlas_add_test( TestLinkMasking
                 SCRIPT share/TestLinkMasking.sh
-                POST_EXEC_SCRIPT nopost.sh
+                POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
 atlas_add_test( TestLinkMaskingNewConf
                 SCRIPT share/TestLinkMaskingNewConf.sh
-                POST_EXEC_SCRIPT nopost.sh
+                POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

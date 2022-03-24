@@ -12,8 +12,8 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileCellMonTool.h"
-#include "TileMonitoring/PairBuilder.h"
+#include "TileCellMonTool.h"
+#include "PairBuilder.h"
 
 #include "xAODEventInfo/EventInfo.h"
 

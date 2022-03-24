@@ -3,4 +3,5 @@
   <class name = "SCT_ID"/>
   <class name = "SiliconID"/>
   <class name = "TRT_ID"/>
+  <class name = "PLR_ID"/>
 </lcgdict>

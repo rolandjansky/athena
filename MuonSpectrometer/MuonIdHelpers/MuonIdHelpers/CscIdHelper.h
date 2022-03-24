@@ -81,16 +81,26 @@ public:
     ///////////// compact identifier stuff ends //////////////////////////////////////
 
     // Identifier builders
+    Identifier elementID(int stationName, int stationEta, int stationPhi) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
 
-    Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
+    
     Identifier elementID(const Identifier& channelID) const;
+    
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi, int strip) const;    
     Identifier channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi, int strip,
-                         bool check = false, bool* isValid = 0) const;
+                         bool& isValid) const;
+    
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
-                         int measuresPhi, int strip, bool check = false, bool* isValid = 0) const;
-    Identifier channelID(const Identifier& id, int chamberLayer, int wireLayer, int measurePhi, int strip, bool check = false,
-                         bool* isValid = 0) const;
+                         int measuresPhi, int strip) const;
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
+                         int measuresPhi, int strip, bool& isValid) const;
+
+    Identifier channelID(const Identifier& id, int chamberLayer, int wireLayer, int measurePhi, int strip) const;
+    Identifier channelID(const Identifier& id, int chamberLayer, int wireLayer, int measurePhi, int strip, bool& isValid) const;
+
 
     Identifier parentID(const Identifier& id) const;
 
@@ -145,14 +155,15 @@ public:
     bool validElement(const Identifier& id) const;
 
 private:
+    bool isStNameInTech(const std::string& stationName) const override;
     int init_id_to_hashes();
     unsigned int m_module_hashes[60][3][8]{};
     unsigned int m_detectorElement_hashes[60][3][8][2]{};
 
     // compact id indices
-    size_type m_CHAMBERLAYER_INDEX;
-    size_type m_WIRELAYER_INDEX;
-    size_type m_MEASURESPHI_INDEX;
+    size_type m_CHAMBERLAYER_INDEX{0};
+    size_type m_WIRELAYER_INDEX{0};
+    size_type m_MEASURESPHI_INDEX{0};
 
     IdDictFieldImplementation m_cla_impl;
     IdDictFieldImplementation m_lay_impl;
@@ -195,10 +206,10 @@ private:
         StripMax = 216  // up to AMDB P
     };
     int m_hashOffset[2][2]{};
-
-    unsigned int m_stripMaxPhi;  // maximum number of strips for layer which measuresPhi
-    unsigned int m_stripMaxEta;  // maximum number of strips for layer which does not measure phi
-    bool m_hasChamLay1;
+  
+    unsigned int m_stripMaxPhi{UINT_MAX};  // maximum number of strips for layer which measuresPhi
+    unsigned int m_stripMaxEta{UINT_MAX};  // maximum number of strips for layer which does not measure phi
+    bool m_hasChamLay1{false};
 };
 
 // For backwards compatibility

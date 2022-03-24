@@ -1,6 +1,4 @@
-################################################################################
-# Package: MuonRegionSelector
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonRegionSelector )
@@ -21,7 +19,7 @@ atlas_add_component( MuonRegionSelector
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives 
                      RegSelLUT GaudiKernel Identifier CSCcablingLib StoreGateLib MuonCablingData
-                     MuonMDT_CablingLib MuonTGC_CablingLib RPC_CondCablingLib
+                     MuonTGC_CablingLib RPC_CondCablingLib
                      MuonReadoutGeometry MuonAGDDDescription MuonRegionSelectorLib )
 
 

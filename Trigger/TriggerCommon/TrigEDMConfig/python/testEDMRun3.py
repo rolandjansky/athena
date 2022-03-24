@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerEDMRun3 import TriggerHLTListRun3, EDMDetailsRun3, AllowedOutputFormats
 from AthenaCommon.Logging import logging
@@ -20,7 +20,7 @@ def main():
   #Check for duplicates
   if len(set(TriggerHLTListRun3))!=len(TriggerHLTListRun3):
     log.error("Duplicates in TriggerHLTListRun3")
-    import collections
+    import collections.abc
     for item, count in collections.Counter(TriggerHLTListRun3).items():
         if count > 1:
           log.error(str(count) + "x: " + str(item))

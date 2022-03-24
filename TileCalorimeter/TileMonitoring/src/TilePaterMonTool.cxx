@@ -12,7 +12,7 @@
 // July 2006	
 // ********************************************************************
 
-#include "TileMonitoring/TilePaterMonTool.h"
+#include "TilePaterMonTool.h"
 
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"

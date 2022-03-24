@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -40,7 +40,7 @@
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
-#include "../TrkTrackSummaryUpdater/TrackSummaryUpdater.h"
+#include "../src/TrackSummaryUpdater.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include <vector>
 #include "test/SummaryToolStub.h"

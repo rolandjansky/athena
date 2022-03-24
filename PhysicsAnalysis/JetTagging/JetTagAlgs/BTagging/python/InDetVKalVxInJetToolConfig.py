@@ -38,7 +38,7 @@ def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults
         for option in defaults:
             options.setdefault(option, defaults[option])
 
-        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+        if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
             acc.merge(IDEtaDependentCuts_SV1_SvcCfg(ConfigFlags, name="IDEtaDepCutsSvc_" + name))
             options.setdefault("InDetEtaDependentCutsSvc", acc.getService("IDEtaDepCutsSvc_" + name))
             options.setdefault("useVertexCleaningPix", False) # Would use hardcoded InDet Pixel geometry

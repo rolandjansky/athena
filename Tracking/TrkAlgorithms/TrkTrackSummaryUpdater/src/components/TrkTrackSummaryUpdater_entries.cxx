@@ -1,5 +1,5 @@
 
-#include "TrkTrackSummaryUpdater/TrackSummaryUpdater.h"
+#include "../TrackSummaryUpdater.h"
 #include "test/SummaryToolStub.h"
 
 DECLARE_COMPONENT( Trk::TrackSummaryUpdater )

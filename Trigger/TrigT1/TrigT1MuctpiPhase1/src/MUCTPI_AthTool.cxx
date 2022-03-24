@@ -1,5 +1,5 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
@@ -26,6 +26,7 @@
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
 #include "TrigT1Result/MuCTPIRoI.h"
+#include "TrigT1MuctpiBits/HelpersPhase1.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
 
@@ -48,11 +49,8 @@ namespace LVL1MUCTPIPHASE1 {
   const std::string MUCTPI_AthTool::m_DEFAULT_side0LUTFile             = "TrigConfMuctpi/lookup_0_20201214.json";
   const std::string MUCTPI_AthTool::m_DEFAULT_side1LUTFile             = "TrigConfMuctpi/lookup_1_20201214.json";
 
-  MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, 
-				 const IInterface* parent)
-    :
-    AthAlgTool(type, name, parent),
-    m_MuCTPIL1TopoKey(LVL1MUCTPI::DEFAULT_MuonL1TopoLocation)
+  MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, const IInterface* parent)
+  : AthAlgTool(type, name, parent)
   {
     
     // Init message
@@ -77,16 +75,10 @@ namespace LVL1MUCTPIPHASE1 {
     declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RoIOutputLocID", m_roiOutputLocId = m_DEFAULT_locationMuCTPItoRoIB );
     declareProperty( "CTPOutputLocID", m_ctpOutputLocId = m_DEFAULT_locationMuCTPItoCTP );
-    declareProperty( "L1TopoOutputLocID", m_MuCTPIL1TopoKey, "Storegate key for MuCTPItoL1Topo ");
 
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
     declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );
-  }
-  
-  MUCTPI_AthTool::~MUCTPI_AthTool()
-  {
-    
   }
 
   StatusCode MUCTPI_AthTool::initialize()
@@ -183,17 +175,8 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_CHECK(m_muctpiPhase1KeyRPC.initialize());
     ATH_CHECK(m_muctpiPhase1KeyTGC.initialize());
     ATH_CHECK(m_MuCTPICTPWriteKey.initialize());
-    ATH_CHECK(m_MuCTPI_xAODWriteKey.initialize());
-    ATH_CHECK(m_MuCTPIL1TopoKey.initialize());
-
-    m_MuCTPIL1TopoKey_m2 = m_MuCTPIL1TopoKey.key()+std::to_string(-2);
-    ATH_CHECK(m_MuCTPIL1TopoKey_m2.initialize());
-    m_MuCTPIL1TopoKey_m1 = m_MuCTPIL1TopoKey.key()+std::to_string(-1);
-    ATH_CHECK(m_MuCTPIL1TopoKey_m1.initialize());
-    m_MuCTPIL1TopoKey_p1 = m_MuCTPIL1TopoKey.key()+std::to_string(1);
-    ATH_CHECK(m_MuCTPIL1TopoKey_p1.initialize());
-    m_MuCTPIL1TopoKey_p2 = m_MuCTPIL1TopoKey.key()+std::to_string(2);
-    ATH_CHECK(m_MuCTPIL1TopoKey_p2.initialize());
+    ATH_CHECK(m_MuCTPI_xAODWriteKeys.initialize());
+    ATH_CHECK(m_MuCTPIL1TopoKeys.initialize());
 
     ATH_CHECK( m_rpcTool.retrieve() );
     ATH_CHECK( m_tgcTool.retrieve() );
@@ -296,31 +279,38 @@ namespace LVL1MUCTPIPHASE1 {
 
     //always process the central slice, which defaults to bcidOffset = 0
     // process the input in the MUCTPI simulation
-    MUCTPIResults results;
-    std::string ret = m_theMuctpi.processData(&mergedInput, results, 0);
+    MUCTPIResults resultsBC0;
+    std::string ret = m_theMuctpi.processData(&mergedInput, resultsBC0, 0);
     if (ret != "")
     {
       REPORT_ERROR( StatusCode::FAILURE ) << "Error while processing MUCTPI data: " << ret;
       return StatusCode::FAILURE;
     }
     // Save the output of the simulation
-    CHECK( saveOutput(results) );
+    CHECK( saveOutput(resultsBC0) );
       
     // check the other 4 possible BC offset values in case the input objects tells us there are
     // out of time candidates
-
     if (mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idBarrelSystem()) ||
         mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
         mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
       
-      for (std::vector<int>::const_iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
-        if (! mergedInput.isEmptyAll( (*it) ) ){
+      for (const int bcidOffset : m_bcidOffsetList) {
+        if ( !mergedInput.isEmptyAll(bcidOffset) ) {
+          MUCTPIResults results;
           // process the input in the MUCTPI simulation
-	  MUCTPIResults results;
-          m_theMuctpi.processData( &mergedInput, results, (*it));      
+          m_theMuctpi.processData(&mergedInput, results, bcidOffset);
           // Save the output of the simulation
-          CHECK( saveOutput( results, (*it) ) );
+          CHECK( saveOutput(results, bcidOffset) );
+        } else {
+          // Record empty outputs
+          CHECK( saveOutput(std::nullopt, bcidOffset) );
         }
+      }
+    } else {
+      // Record emtpy outputs
+      for (const int bcidOffset : m_bcidOffsetList) {
+        CHECK( saveOutput(std::nullopt, bcidOffset) );
       }
     }
 
@@ -405,74 +395,72 @@ namespace LVL1MUCTPIPHASE1 {
 
 
 
-  StatusCode MUCTPI_AthTool::saveOutput(MUCTPIResults& results, int bcidOffset) const {
+  StatusCode MUCTPI_AthTool::saveOutput(std::optional<std::reference_wrapper<MUCTPIResults>> results, int bcidOffset) const {
 
-    /// the standart processing is done for the central slice, with no Bcid offset
-    if (bcidOffset == 0 ) {
-      // store CTP result in interface object and put to StoreGate
-      const std::vector<unsigned int>& ctpData = results.ctp_words;
+    // Record an empty MuCTPI xAOD container (filled later below)
+    auto xAODRoIsKeyIt = m_MuCTPI_xAODWriteKeys.begin();
+    std::advance(xAODRoIsKeyIt, bcidOffset+2);
+    auto xAODRoIs = SG::makeHandle(*xAODRoIsKeyIt);
+    ATH_CHECK(xAODRoIs.record(std::make_unique<xAOD::MuonRoIContainer>(),
+                              std::make_unique<xAOD::MuonRoIAuxContainer>()));
+    ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << xAODRoIs.key());
 
-      LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
-      SG::WriteHandle<LVL1::MuCTPICTP> wh_muctpi_ctp(m_MuCTPICTPWriteKey);
-      ATH_CHECK(wh_muctpi_ctp.record(std::make_unique<LVL1::MuCTPICTP>(*theCTPResult)));
-      ATH_MSG_DEBUG( "CTP word recorded to StoreGate" );
+    // Create a WriteHandle for L1Topo output
+    auto l1topoKeyIt = m_MuCTPIL1TopoKeys.begin();
+    std::advance(l1topoKeyIt, bcidOffset+2);
+    SG::WriteHandle<LVL1::MuCTPIL1Topo> l1topo(*l1topoKeyIt);
 
-      // size check
-      // check that the multiplicity was properly filled
-      int multSize = ctpData.size();
-      if( multSize < 1 ) {
-        REPORT_ERROR( StatusCode::FAILURE )
-          << "TriggerProcessor didn't provide correct CTP data";
+    // If no results for this BCID, record empty outputs and return
+    if (!results.has_value()) {
+      ATH_CHECK(l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>()));
+      ATH_MSG_DEBUG("L1Topo output recorded to StoreGate with key " << l1topo.key());
+      ATH_MSG_DEBUG("No results for BCID offset " << bcidOffset << " - recorded empty outputs");
+      return StatusCode::SUCCESS;
+    }
+
+    // Store CTP result in interface object and put to StoreGate (only for BC=0)
+    if (bcidOffset==0) {
+      // Check that the multiplicity was filled
+      const std::vector<unsigned int>& ctpData = results->get().ctp_words;
+      if (ctpData.empty()) {
+        ATH_MSG_ERROR("TriggerProcessor didn't provide correct CTP data");
         return StatusCode::FAILURE;
       }
-
-      // create MuCTPI RDO
-      const std::vector<DAQData>& daqData = results.daq_data;
-
-      // create MuCTPI xAOD
-      auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);
-      ATH_CHECK(xAODRoIs.record(std::make_unique<xAOD::MuonRoIContainer>(), std::make_unique<xAOD::MuonRoIAuxContainer>()));
-      ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_MuCTPI_xAODWriteKey.key());
-      for (DAQData data : daqData) {
-        xAODRoIs->push_back(new xAOD::MuonRoI);
-
-        LVL1::TrigT1MuonRecRoiData roiData;
-        if (m_rpcTool->getSystem(data.dataWord) == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiData = m_rpcTool->roiData(data.dataWord);
-        else roiData = m_tgcTool->roiData(data.dataWord); // Endcap/Forward
-
-        std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
-
-        xAODRoIs->back()->initialize(data.dataWord, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);
-      }
-
-      // get outputs for L1Topo and store into Storegate
-      ATH_MSG_DEBUG("Getting the output for L1Topo");
-      LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(results.l1topoData.getCandidates());
-      SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey);
-      ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topo)));
+      // Record
+      SG::WriteHandle<LVL1::MuCTPICTP> muctpi_ctp(m_MuCTPICTPWriteKey);
+      ATH_CHECK(muctpi_ctp.record(std::make_unique<LVL1::MuCTPICTP>(ctpData)));
+      ATH_MSG_DEBUG("CTP word recorded to StoreGate with key " << muctpi_ctp.key());
     }
 
-    /// if we have a bcid offset, then just get the topo output and put it on storegate
-    if (bcidOffset  != 0) {
-      ATH_MSG_DEBUG("Getting the output for L1Topo for BCID slice");
-      LVL1::MuCTPIL1Topo* l1topoBC = new LVL1::MuCTPIL1Topo(results.l1topoData.getCandidates());
-      l1topoBC->setBcidOffset(bcidOffset);
+    // Create MuCTPI xAOD and fill the container
+    for (const DAQData& data : results->get().daq_data) {
+      xAODRoIs->push_back(std::make_unique<xAOD::MuonRoI>());
 
-      if (bcidOffset == -2){
-	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_m2);
-	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
-      } else if (bcidOffset == -1){
-	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_m1);
-	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
-      } else if (bcidOffset == +1){
-	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_p1);
-	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
-      } else if (bcidOffset == +2){
-	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_p2);
-	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
+      LVL1::TrigT1MuonRecRoiData roiData;
+      switch (LVL1::MuCTPIBits::getSubsysID(data.dataWord, /*onlineFormat=*/ false)) {
+        case LVL1::MuCTPIBits::SubsysID::Endcap: // same for Endcap and Forward
+        case LVL1::MuCTPIBits::SubsysID::Forward: {
+          roiData = m_tgcTool->roiData(data.dataWord);
+          break;
+        }
+        case LVL1::MuCTPIBits::SubsysID::Barrel: {
+          roiData = m_rpcTool->roiData(data.dataWord);
+          break;
+        }
+        default: {
+          ATH_MSG_ERROR("Failed to determine Sector ID from RoI word 0x" << std::hex << data.dataWord << std::dec);
+          return StatusCode::FAILURE;
+        }
       }
+
+      std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
+      xAODRoIs->back()->initialize(data.dataWord, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);
     }
 
+    // Get outputs for L1Topo and store into Storegate
+    ATH_CHECK(l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(results->get().l1topoData.getCandidates())));
+    if (bcidOffset!=0) {l1topo->setBcidOffset(bcidOffset);}
+    ATH_MSG_DEBUG("L1Topo output recorded to StoreGate with key " << l1topo.key());
 
     return StatusCode::SUCCESS;
   }

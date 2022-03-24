@@ -159,7 +159,10 @@ def defineMenu():
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
 
         # AFP
-        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C', 'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C',
+        'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_eEM9_AFP_A_OR_C','L1_eEM9_AFP_A_AND_C',
+
         'L1_AFP_A_OR_C_J12', 'L1_AFP_A_AND_C_J12',
         'L1_AFP_A_OR_C_jJ20', 'L1_AFP_A_AND_C_jJ20',
         'L1_AFP_A_OR_C_jJ30', 'L1_AFP_A_AND_C_jJ30',
@@ -209,12 +212,12 @@ def defineMenu():
         'L1_MBTS_1_A_ALFA_C', 'L1_MBTS_1_C_ALFA_A', 'L1_EM3_ALFA_ANY', 'L1_J12_ALFA_ANY', 'L1_MU3V_ALFA_ANY', 'L1_TE5_ALFA_ANY',  
         'L1_MU3V_ALFA_EINE', 'L1_EM3_ALFA_EINE','L1_2EM3_ALFA_EINE', 'L1_J12_ALFA_EINE', 'L1_TE5_ALFA_EINE',
 
-        'L1_TE5', # also for HMT triggers
+        'L1_TE3', 'L1_TE5', 'L1_TE10', 'L1_TE40'# also for HMT triggers
         ]
 
 
 
-# Run this file as python python/l1menu/Menu_MC_pp_v7.py to print out available IDs
+# Run this file as python python/L1/Menu_MC_HI_run3_v1.py to print out available IDs
 # CTP IDs 509-511 are reserved for CALREQ
     
     L1MenuFlags.CtpIdMap = {

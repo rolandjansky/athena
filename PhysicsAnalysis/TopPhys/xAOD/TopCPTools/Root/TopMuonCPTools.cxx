@@ -304,6 +304,8 @@ namespace top {
                  "Failed to set doExtraSmearing for " + name + " tool");
       top::check(asg::setProperty(tool, "do2StationsHighPt", do2StationsHighPt),
                  "Failed to set do2StationsHighPt for " + name + " tool");
+      top::check(asg::setProperty(tool, "calibrationMode", 0),
+                 "Failed to set do2StationsHighPt for " + name + " tool");     
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

@@ -28,6 +28,7 @@ Digi_tf.py \
 --digiSteeringConf 'StandardSignalOnlyTruth' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC16d.py' \
+--postExec 'RDOMergeAthenaMP0:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1");conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")' \
 --skipEvents 0
 
 rc=$?

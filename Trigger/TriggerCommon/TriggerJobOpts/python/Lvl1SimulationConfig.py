@@ -15,10 +15,11 @@ def Lvl1SimulationCfg(flags, seqName = None):
 
     from AthenaCommon.CFElements import seqAND
     acc.addSequence(seqAND('L1SimSeq'))
-    
-    acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloLegacySimCfg
-    acc.merge(L1CaloLegacySimCfg(flags), sequenceName='L1CaloLegacySimSeq')
+
+    if flags.Trigger.enableL1CaloLegacy:
+        acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
+        from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloLegacySimCfg
+        acc.merge(L1CaloLegacySimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
     acc.addSequence(seqAND('L1CaloSimSeq'), parentName='L1SimSeq')
 
@@ -26,17 +27,22 @@ def Lvl1SimulationCfg(flags, seqName = None):
         from L1CaloFEXSim.L1CaloFEXSimCfg import L1CaloFEXSimCfg
         acc.merge(L1CaloFEXSimCfg(flags), sequenceName = 'L1CaloSimSeq')
 
-    acc.addSequence(seqAND('L1MuonSimSeq'), parentName='L1SimSeq')
-    from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
-    acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName='L1MuonSimSeq')
 
-    acc.addSequence(seqAND('L1LegacyTopoSimSeq'), parentName='L1SimSeq')
-    from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationCfg
-    acc.merge(L1LegacyTopoSimulationCfg(flags), sequenceName='L1LegacyTopoSimSeq')
-    
-    acc.addSequence(seqAND('L1TopoSimSeq'), parentName='L1SimSeq')
-    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationCfg
-    acc.merge(L1TopoSimulationCfg(flags), sequenceName='L1TopoSimSeq')
+    if flags.Trigger.enableL1MuonPhase1:
+        acc.addSequence(seqAND('L1MuonSimSeq'), parentName='L1SimSeq')
+        from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
+        acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName='L1MuonSimSeq')
+
+    if flags.Trigger.L1.doTopo:
+        acc.addSequence(seqAND('L1TopoSimSeq'), parentName='L1SimSeq')
+        from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationCfg
+        acc.merge(L1TopoSimulationCfg(flags), sequenceName='L1TopoSimSeq')
+
+        if flags.Trigger.enableL1CaloLegacy:
+            acc.addSequence(seqAND('L1LegacyTopoSimSeq'), parentName='L1SimSeq')
+            from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationCfg
+            acc.merge(L1LegacyTopoSimulationCfg(flags), sequenceName='L1LegacyTopoSimSeq')
+
     
     acc.addSequence(seqAND('L1CTPSimSeq'), parentName='L1SimSeq')
     from TrigT1CTP.CTPSimulationConfig import CTPSimulationCfg

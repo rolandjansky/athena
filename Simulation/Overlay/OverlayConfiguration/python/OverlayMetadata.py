@@ -227,12 +227,11 @@ def writeOverlayDigitizationMetadata(flags,pileupDict):
 
 def overlayMetadataWrite(flags):
     """Write overlay metadata"""
-    from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
     acc = IOVDbSvcCfg(flags)
     if not flags.Overlay.DataOverlay:
         iovDbSvc=acc.getPrimary()
         folder = "/Digitization/Parameters"
-        dbConnection = "sqlite://;schema=DigitParams.db;dbname=DIGPARAM"
-        iovDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
         iovDbSvc.FoldersToMetaData += [ folder ]
+        acc.merge(addFolders(flags,[folder,],detDb="DigitParams.db",db="DIGPARAM",className='AthenaAttributeList'))
     return acc

@@ -120,59 +120,61 @@ def createLegacyCaloRoIUnpackers():
 def createCaloRoIUnpackers():
     from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    maxRoICount = 150  # used for histogram range, 144 is the hardware limit
+    maxRoICount_eFex = 150  # used for histogram range, 144 is the hardware limit
+    maxRoICount_jFex = 200  # used for histogram range
+    maxRoICount_gFex = 100  # used for histogram range
     eFexEMUnpacker = CompFactory.eFexEMRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eEM"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeEM"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eEM")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=maxRoICount_eFex))
     eFexTauUnpacker = CompFactory.eFexTauRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eTAU"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeTAU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eTAU")),
         RoIHalfWidthEta = 0.4,
         RoIHalfWidthPhi = math.pi/8,
-        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=maxRoICount_eFex))
     jFexTauUnpacker = CompFactory.jFexTauRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("jTAU"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEjTAU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jTAU")),
         RoIHalfWidthEta = 0.4,
         RoIHalfWidthPhi = math.pi/8,
-        MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=maxRoICount_jFex))
     cTauUnpacker = CompFactory.cTauRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("cTAU"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEcTAU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("cTAU")),
         RoIHalfWidthEta = 0.4,
         RoIHalfWidthPhi = math.pi/8,
-        MonTool = RoIsUnpackingMonitoring(prefix="cTAU", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="cTAU", maxCount=maxRoICount_eFex))
     jFexSRJetUnpacker = CompFactory.jFexSRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("jJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="jJ", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="jJ", maxCount=maxRoICount_jFex))
     gFexLRJetUnpacker = CompFactory.gFexLRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("jLJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jLJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="jLJ", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="jLJ", maxCount=maxRoICount_gFex))
     gFexSRJetUnpacker = CompFactory.gFexSRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("gJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("gJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="gJ", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="gJ", maxCount=maxRoICount_gFex))
     jFexLRJetUnpacker = CompFactory.jFexLRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("gLJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("gLJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="gLJ", maxCount=maxRoICount))
+        MonTool = RoIsUnpackingMonitoring(prefix="gLJ", maxCount=maxRoICount_jFex))
 
     return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker, cTauUnpacker,
             jFexSRJetUnpacker, gFexLRJetUnpacker, gFexSRJetUnpacker, jFexLRJetUnpacker]
@@ -319,7 +321,7 @@ def HLTSeedingCfg(flags, seqName = None):
     decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1 else ""
     decoderAlg.HLTSeedingSummaryKey = "HLTSeedingSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.HLTSeeding.forceEnableAllChains,
-                                                           MonTool = CTPUnpackingMonitoring(512, 200) )
+                                                           MonTool = CTPUnpackingMonitoring(512, 400) )
 
     def checkConsistency(thrName):
         '''Filter out threshold types for which HLT doesn't read TOBs from L1 readout'''

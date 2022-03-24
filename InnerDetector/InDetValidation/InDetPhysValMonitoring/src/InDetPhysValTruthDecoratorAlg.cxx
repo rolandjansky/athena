@@ -91,7 +91,7 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
   SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> pixelClusters(m_truthPixelClusterName, ctx); 
   //only decorate the truth particles with truth silicon hits if both containers are available 
   if (sctClusters.isValid() && pixelClusters.isValid()) {
-    for (const auto& sct : *sctClusters) {
+    for (const auto sct : *sctClusters) {
       const xAOD::TrackMeasurementValidation* sctCluster = sct;
       std::vector<int> truth_barcode;
       static const SG::AuxElement::ConstAccessor< std::vector<int> > barcodeAcc("truth_barcode");
@@ -105,7 +105,7 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
       }
     } // Loop over SCT clusters
    
-    for (const auto& pix : *pixelClusters) {
+    for (const auto pix : *pixelClusters) {
       const xAOD::TrackMeasurementValidation* pixCluster = pix;
       std::vector<int> truth_barcode;
       static const SG::AuxElement::ConstAccessor< std::vector<int> > barcodeAcc("truth_barcode");

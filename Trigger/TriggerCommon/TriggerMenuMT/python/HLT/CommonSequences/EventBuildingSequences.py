@@ -87,7 +87,6 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT'])
         tool.EtaWidth = 0.1
         tool.PhiWidth = 0.1
-        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'LArPEBCalib' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
@@ -121,15 +120,18 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'LATOMEPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs(LATOMESourceIDs) # add full-scan LATOME data
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'RPCPEBSecondaryReadout' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'SCTPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,
                          SubDetector.SCT_BARREL_C_SIDE,
                          SubDetector.SCT_ENDCAP_A_SIDE,
-                         SubDetector.SCT_ENDCAP_C_SIDE
+                         SubDetector.SCT_ENDCAP_C_SIDE,
+                         SubDetector.TDAQ_CTP
         ])
     elif 'TilePEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
@@ -166,6 +168,11 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'ZDCPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.FORWARD_ZDC,
+                         SubDetector.TDAQ_CTP
+        ])
+    elif 'AFPPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_AFP,
                          SubDetector.TDAQ_CTP
         ])
 
@@ -308,9 +315,12 @@ if __name__ == "__main__":
         robs = tool.ROBList if tool.getType() == 'StaticPEBInfoWriterTool' else tool.ExtraROBs
         dets = tool.SubDetList if tool.getType() == 'StaticPEBInfoWriterTool' else tool.ExtraSubDets
         robs_check_passed = True
+        is_data_scouting = False
         for rob_id in robs:
             rob_sid = SourceIdentifier(rob_id)
             rob_det_id = rob_sid.subdetector_id()
+            if rob_det_id == SubDetector.TDAQ_HLT and rob_sid.module_id() != DataScoutingInfo.getFullHLTResultID():
+                is_data_scouting = True
             if int(rob_det_id) in dets:
                 robs_check_passed = False
                 log.error('Redundant configuration for %s: ROB %s added to the ROB list while full SubDetector '
@@ -320,7 +330,19 @@ if __name__ == "__main__":
             failures += 1
             continue
 
-        log.info('%s correctly configured', tool.name)
+        # Check for always-present fragment to avoid PEB becoming FEB (ATR-24378)
+        # DataScouting is exempt as it always comes with a dedicated HLT result
+        always_present_rob = SourceIdentifier(SubDetector.TDAQ_CTP, 0)  # cannot run HLT without CTP so it is always present
+        if not is_data_scouting and \
+                always_present_rob.code() not in robs and \
+                always_present_rob.subdetector_id() not in dets:
+            log.error('Bug-prone configuration for %s: without always-present CTP data in the PEB list, the '
+                      'streaming may break when all requested detectors are disabled. Add CTP data to this PEB '
+                      'configuration to prevent the bug (ATR-24378).', eb_identifier)
+            failures += 1
+            continue
+
+        log.info('%s correctly configured', tool.name() if callable(tool.name) else tool.name)
 
     import sys
     sys.exit(failures)

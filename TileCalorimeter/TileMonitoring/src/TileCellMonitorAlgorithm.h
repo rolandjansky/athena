@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILECELLMONITORALGORITHM_H
@@ -50,6 +50,9 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
 
     Gaudi::Property<float> m_energyThresholdForTime{this,
         "EnergyThresholdForTime", 500.0F, "Energy threshold for timing in MeV"};
+
+    Gaudi::Property<float> m_energyLimitForTime{this,
+        "EnergyLimitForTime", 1000000.0F, "Energy limit for timing in MeV"};
 
     Gaudi::Property<float> m_energyBalanceThreshold{this,
         "EnergyBalanceThreshold", 3.0F, "Energy ratio threshold"};

@@ -76,8 +76,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& tau, xAOD::CaloCluster
     shotPFOContainer.push_back(shot);
 
     // -- Construct the shot cluster 
-    xAOD::CaloCluster* shotCluster = createShotCluster(cell, phiNeigCell, *cellContainer);
-    shotClusterContainer.push_back(shotCluster);
+    xAOD::CaloCluster* shotCluster = createShotCluster(cell, phiNeigCell, *cellContainer, &shotClusterContainer);
    
     ElementLink<xAOD::CaloClusterContainer> clusElementLink;
     clusElementLink.toContainedElement( shotClusterContainer, shotCluster );
@@ -364,10 +363,11 @@ void TauShotFinder::addEtaNeighbours(const CaloCell& cell,
 
 
 xAOD::CaloCluster* TauShotFinder::createShotCluster(const CaloCell* cell, 
-                                                    const CaloCell* phiNeigCell, 
-                                                    const CaloCellContainer& cellContainer) const {
+						    const CaloCell* phiNeigCell, 
+						    const CaloCellContainer& cellContainer,
+						    xAOD::CaloClusterContainer* clusterContainer) const {
     
-  xAOD::CaloCluster* shotCluster = CaloClusterStoreHelper::makeCluster(&cellContainer);
+  xAOD::CaloCluster* shotCluster = CaloClusterStoreHelper::makeCluster(clusterContainer,&cellContainer);
   
   int maxDepth = (m_nCellsInEta - 1) / 2;
 

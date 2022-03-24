@@ -80,8 +80,20 @@ def getNewConfigFlags():
     ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
 
+
+    # LAr Flags
     from LArConditionsCommon.LArCondFlags import larCondFlags 
     ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
+    from LArROD.LArRODFlags import larRODFlags
+    ConfigFlags.LAr.ROD.DoOFCPileupOptimization=larRODFlags.doOFCPileupOptimization()
+    ConfigFlags.LAr.ROD.NumberOfCollisions=larRODFlags.NumberOfCollisions()
+    ConfigFlags.LAr.ROD.nSamples=larRODFlags.nSamples()
+    ConfigFlags.LAr.ROD.FirstSample=larRODFlags.firstSample()
+    ConfigFlags.LAr.ROD.UseHighestGainAutoCorr=larRODFlags.useHighestGainAutoCorr()
+    ConfigFlags.LAr.ROD.DoOFCMixedOptimization=larRODFlags.doOFCMixedOptimization()
+    ConfigFlags.LAr.ROD.UseDelta=larRODFlags.UseDelta()
+    ConfigFlags.LAr.ROD.forceIter=larRODFlags.forceIter()
+
 
     # data overlay
     from AthenaCommon.GlobalFlags import globalflags

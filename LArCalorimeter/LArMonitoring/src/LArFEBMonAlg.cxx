@@ -424,8 +424,10 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 // ********************************************************************
 void LArFEBMonAlg::fillErrorsSummary(unsigned int partitNb_2,int ft,int slot,uint16_t error, bool lar_inerror, std::bitset<13> &rejectionBits, bool &currentFebStatus, bool &eventRejected) const
 {  
+
   if (m_badFebs.count(std::make_pair(slot,ft)) != 0) return;
-  
+
+
   auto part = Monitored::Scalar<int>("part",partitNb_2);
   auto ferror = Monitored::Scalar<int>("febError",-1);
   if ( error & (1<<0) ){

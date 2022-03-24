@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -48,7 +48,7 @@ QStringList TrackCollHandle_TrkTrack::availableCollections(IVP1System*sys)
     sys->messageDebug("TrackCollHandle_TrkTrack::availableCollections: Neither"
 		      " Pixel, SCT, TRT or Muon geometry available. Won't"
 		      " look in event store for Trk::Track collections");
-    return QStringList();
+    return {};
   }
 
   QStringList keysInSG;

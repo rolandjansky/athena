@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: StaticConfigs.h 457114 2011-09-05 09:35:49Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_STATICCONFIGS_H
 #define TRIGBUNCHCROSSINGTOOL_STATICCONFIGS_H
 
@@ -2590,7 +2589,7 @@ static const int BGK_CONF_KEY[ BGK_CONF_N ] = {
    90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
    100, 101, 102, 103, 104, 105, 106, 107, 108, 109
 };
-static const int* BGK_CONF[ BGK_CONF_N ] = {
+static const int * const BGK_CONF[ BGK_CONF_N ] = {
    BGK_1, BGK_3, BGK_4, BGK_5, BGK_6, BGK_7, BGK_8, BGK_9, BGK_10,
    BGK_53, BGK_55, BGK_56, BGK_57, BGK_58, BGK_59,
    BGK_61, BGK_62, BGK_65, BGK_68, BGK_69,

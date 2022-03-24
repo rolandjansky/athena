@@ -7,7 +7,7 @@
 // author lampen@physics.arizona.edu
 // Update: Apr 10, 2007. No longer reads - Caleb Parnell-Lampen <lampen@physics.arizona.edu>
 
-#include "MuonCondCool/CscReadWriteCoolStr.h"
+#include "CscReadWriteCoolStr.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "MuonCondData/CscCondParType.h"

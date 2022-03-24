@@ -34,7 +34,6 @@ if [ ${status} -ne 0 ]; then
 EOF
 fi
 
-
 # This time stamp is used by NICOS:
 echo "[CITest][${ATLAS_CTEST_TESTNAME}] end time: `date` (`date +%s.%N`)"
 

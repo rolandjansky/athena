@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -43,6 +43,7 @@
 # else
 #  include <unistd.h>
 #  include <sys/wait.h>
+#  include <sys/resource.h>         // fwinkl
 #  if HAVE_BACKTRACE_SYMBOLS_FD		// GNU
 #   include <execinfo.h>
 #   include <sys/uio.h>
@@ -1012,6 +1013,42 @@ DebugAids::coredump (int sig, ...)
 }
 
 
+/**
+ * Try to enable core dump files by raising the soft size limit to the
+ * hard limit. There might be other reason though why the system does not
+ * produce core files, so this is only one of the prerequisites.
+ *
+ * Returns the currently valid soft size limit.
+ *
+ * This is equivalent to using `ulimit -Sc` in bash.
+ */
+unsigned long
+DebugAids::enableCoreFiles()
+{
+  struct rlimit core_limit;
+  getrlimit(RLIMIT_CORE, &core_limit);
+
+  unsigned long old_limit = core_limit.rlim_cur;
+  core_limit.rlim_cur = core_limit.rlim_max;
+  if ( setrlimit(RLIMIT_CORE, &core_limit) == 0 ) {
+    return core_limit.rlim_cur;
+  }
+  else {
+    return old_limit;
+  }
+}
+
+/**
+ * Disable core dump files by setting the soft limit to 0.
+ *
+ * This is equivalent to `ulimit -Sc 0` in bash.
+ */
+void DebugAids::disableCoreFiles()
+{
+  struct rlimit core_limit;
+  core_limit.rlim_cur = 0;
+  setrlimit(RLIMIT_CORE, &core_limit);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////

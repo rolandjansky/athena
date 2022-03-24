@@ -19,13 +19,36 @@ class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):
     def __init__(self,name="MdtCondDbAlg",**kwargs):
         if athenaCommonFlags.isOnline:
             kwargs['isOnline'] = True  # COOL folders not available online
+            kwargs['ReadKey_MC_DE'] = ''
+            kwargs['ReadKey_MC_DT'] = ''
         else:    
             kwargs['isOnline'] = False # COOL folders not available online
             if globalflags.DataSource != 'data':
                 kwargs['isData'] = False
+                kwargs['ReadKey_MC_DE'] = ''
+                kwargs['ReadKey_MC_DT'] = ''
+                kwargs['ReadKey_DataR1_DC'] = ''
+                kwargs['ReadKey_DataR1_HV'] = ''
+                kwargs['ReadKey_DataR1_LV'] = ''
+                kwargs['ReadKey_DataR1_V0'] = ''
+                kwargs['ReadKey_DataR1_V1'] = ''
+                kwargs['ReadKey_DataR2_HV'] = ''
+                kwargs['ReadKey_DataR2_LV'] = ''
             if globalflags.DataSource == 'data':
                 kwargs['isData'] = True
-                kwargs['isRun1'] = conddb.dbname == 'COMP200'
+                if conddb.dbname == 'COMP200':
+                    kwargs['isRun1'] = True
+                    kwargs['ReadKey_DataR2_HV'] = ''
+                    kwargs['ReadKey_DataR2_LV'] = ''
+                else:
+                    kwargs['isRun1'] = False
+                    kwargs['ReadKey_MC_DE'] = ''
+                    kwargs['ReadKey_MC_DT'] = ''
+                    kwargs['ReadKey_DataR1_DC'] = ''
+                    kwargs['ReadKey_DataR1_HV'] = ''
+                    kwargs['ReadKey_DataR1_LV'] = ''
+                    kwargs['ReadKey_DataR1_V0'] = ''
+                    kwargs['ReadKey_DataR1_V1'] = ''
                 kwargs['useRun1SetPoints'] = False
         super(MdtCondDbAlg,self).__init__(name,**kwargs)
         if athenaCommonFlags.isOnline: return
@@ -43,6 +66,13 @@ class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):
         else: # if MC or simulation
             addFolder(self, "DCS_OFL", "/MDT/DCS/DROPPEDCH"  )
             addFolder(self, "DCS_OFL", "/MDT/DCS/PSLVCHSTATE")
+            kwargs['ReadKey_DataR1_DC'] = ''
+            kwargs['ReadKey_DataR1_HV'] = ''
+            kwargs['ReadKey_DataR1_LV'] = ''
+            kwargs['ReadKey_DataR1_V0'] = ''
+            kwargs['ReadKey_DataR1_V1'] = ''
+            kwargs['ReadKey_DataR2_HV'] = ''
+            kwargs['ReadKey_DataR2_LV'] = ''
 
 
 class RpcCondDbAlg(CfgMgr.RpcCondDbAlg):

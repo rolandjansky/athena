@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-#include "MuonCondTool/MDT_MapConversion.h"
+#include "MDT_MapConversion.h"
 
 
 #include "MuonCondSvc/MdtStringUtils.h"

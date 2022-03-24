@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileCalibAlgs/TileTopCalibAlg.h"
+#include "TileTopCalibAlg.h"
 
 // ROOT includes
 #include "TFile.h"

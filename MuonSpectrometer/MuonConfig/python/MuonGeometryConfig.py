@@ -11,7 +11,7 @@ def MuonIdHelperSvcCfg(flags):
         HasCSC=flags.Detector.GeometryCSC,
         HasSTgc=flags.Detector.GeometrysTGC,
         HasMM=flags.Detector.GeometryMM
-        ) )
+        ), primary=True )
     return acc
 
 

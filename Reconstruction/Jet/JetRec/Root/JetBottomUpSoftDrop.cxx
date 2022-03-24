@@ -77,7 +77,10 @@ int JetBottomUpSoftDrop::groom(const xAOD::Jet& jin,
   PseudoJet pjsoftdrop = softdropper(*ppjin);
   int npsoftdrop = pjsoftdrop.pieces().size();
   xAOD::Jet* pjet = m_bld->add(pjsoftdrop, pjContainer, jets, &jin);
-
+  if ( pjet == nullptr ) {
+    ATH_MSG_ERROR("Unable to add jet to container");
+    return 1;
+  }
   pjet->setAttribute<float>("ZCut", m_zcut);
   pjet->setAttribute<float>("SoftDropBeta", m_beta);
   pjet->setAttribute<float>("SoftDropR0", m_R0);
@@ -87,11 +90,9 @@ int JetBottomUpSoftDrop::groom(const xAOD::Jet& jin,
   ATH_MSG_DEBUG("   ncon: " << pjsoftdrop.constituents().size() << "/"
                             << ppjin->constituents().size());
   ATH_MSG_DEBUG("   nsub: " << npsoftdrop);
-  if ( pjet == 0 ) {
-    ATH_MSG_ERROR("Unable to add jet to container");
-  } else {
-    ATH_MSG_DEBUG("Added jet to container.");
-  }
+ 
+  ATH_MSG_DEBUG("Added jet to container.");
+  
   return 0;
 }
 

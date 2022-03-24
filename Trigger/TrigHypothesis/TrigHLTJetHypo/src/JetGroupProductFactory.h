@@ -14,8 +14,11 @@ using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 
 std::unique_ptr<IJetGroupProduct>
 makeJetGroupProduct(const std::vector<std::size_t>& siblings,
+		    const std::vector<bool>& leaves,
 		    const CondInd2JetGroupsInds& satisfiedBy,
 		    const std::vector<std::size_t>& condMult,
+		    const std::vector<unsigned int>& condCap,
+		    const std::vector<int>& condClique,
 		    const JetGroupInd2ElemInds& jg2elemjgs,
 		    std::size_t parCapacity,
 		    const Collector& collector);

@@ -8,6 +8,23 @@ ExclMinBiasTrkMonAlg::ExclMinBiasTrkMonAlg(const std::string& name, ISvcLocator*
     : AthMonitorAlgorithm(name, pSvcLocator) {}
 
 StatusCode ExclMinBiasTrkMonAlg::initialize() {
+  // Populate m_cuts map
+  const std::regex cutsRegex("([\\d]+)trk([\\d]+)_pt([\\d]+)");
+
+  for (const auto& trigger : m_triggerList) {
+    std::smatch cutsMatch;
+    if (not std::regex_search(trigger, cutsMatch, cutsRegex)) {
+      m_cuts[trigger] = {0, -1, 0.};
+      continue;
+    }
+
+    const int minTrack = std::stoi(cutsMatch[1].str());
+    const int maxTrack = std::stoi(cutsMatch[2].str());
+    const float minPt  = std::stof(cutsMatch[3].str());
+
+    m_cuts[trigger] = {minTrack, maxTrack, minPt};
+  }
+
   ATH_CHECK(m_trkCountsKey.initialize());
   ATH_CHECK(m_offlineTrkKey.initialize());
   ATH_CHECK(m_onlineTrkKey.initialize());
@@ -139,18 +156,27 @@ StatusCode ExclMinBiasTrkMonAlg::fillHistograms(const EventContext& context) con
     ATH_MSG_DEBUG("Reference: " << ref << " passed.");
 
     for (const auto& trig : m_triggerList) {
-      ATH_MSG_DEBUG("Checking " << trig << " vs " << ref << "...");
-      const auto passed  = trigDecTool->isPassed(trig, TrigDefs::requireDecision);
-      auto passedRefTrig = Scalar("passedRefTrig", static_cast<int>(passed));
+      static constexpr int exclMaxTrk    = 15;
+      const auto [minTrk, maxTrk, minPt] = m_cuts.at(trig);
 
+      ATH_MSG_DEBUG("\tChecking " << trig << " vs " << ref << " ...");
+      const auto trigPassed = trigDecTool->isPassed(trig, TrigDefs::requireDecision);
+
+      ATH_MSG_DEBUG("\tChecking " << ref << " vs " << trig << " cuts");
+      auto trkCounter      = [pt = minPt * 1e3](const auto& trk) { return trk->pt() > pt; };
+      const auto nTrk      = std::count_if(onlineTrkHandle->cbegin(), onlineTrkHandle->cend(), trkCounter);
+      const auto trkPassed = (nTrk >= minTrk and nTrk <= maxTrk and nTrkOnlineAny <= exclMaxTrk);
+
+      ATH_MSG_DEBUG("\t" << ref << " vs " << trig << ", cuts: " << trkPassed << ", trig: " << trigPassed);
+
+      if (not trkPassed) { continue; }
+      ATH_MSG_DEBUG("\t" << ref << " passed same track selection as " << trig);
+
+      auto passedRefTrig = Scalar("passedRefTrig", static_cast<int>(trigPassed));
       fill(ref + "_" + trig, passedRefTrig, evtPileUp, leadPtOffline, leadPtOnline);
-      if (countPassingPt1) { fill(ref + "_" + trig + "_Pt1", passedRefTrig, evtPileUp, leadPtOffline, leadPtOnline); }
-      if (countPassingPt2) { fill(ref + "_" + trig + "_Pt2", passedRefTrig, evtPileUp, leadPtOffline, leadPtOnline); }
-      if (countPassingPt4) { fill(ref + "_" + trig + "_Pt4", passedRefTrig, evtPileUp, leadPtOffline, leadPtOnline); }
-      if (countPassingPt6) { fill(ref + "_" + trig + "_Pt6", passedRefTrig, evtPileUp, leadPtOffline, leadPtOnline); }
 
-      if (not passed) { continue; }
-      ATH_MSG_DEBUG(ref << " vs " << trig << " passed.");
+      if (not trigPassed) { continue; }
+      ATH_MSG_DEBUG("\t" << ref << " vs " << trig << " accepted.");
 
       fill(ref + "_" + trig + "_passed", nTrkOfflineAll, nTrkOfflineAny, nTrkOfflinePt1, nTrkOfflinePt2, nTrkOfflinePt4,
            nTrkOfflinePt6, trackPt, trackEta, trackPhi, trackD0, trackZ0, trackCuts, nTrkOnlineAll, nTrkOnlineAny, nTrkOnlinePt1,

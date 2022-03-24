@@ -105,7 +105,7 @@ class H1Calibration(object):
             from AthenaCommon.GlobalFlags import globalflags
             isMC=(globalflags.DataSource()!="data")
         else:
-            isMC=flags.isMC
+            isMC=flags.Input.isMC
 
         return H1Calibration.forceOverrideFolder or isMC
 
@@ -240,15 +240,15 @@ def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=F
         #ComponentAccumulator case
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         result=ComponentAccumulator()
-        (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,input, onlyCellWeight, flags.isMC)
+        (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,input, onlyCellWeight, flags.Input.isMC)
         from IOVDbSvc.IOVDbSvcConfig import addFolders
-        result.merge(addFolders(flags,folder,'CALO_OFL' if flags.isMC else 'CALO',className = 'CaloRec::ToolConstants',
-                                tag=tag if H1Calibration.overrideFolder() else None))
+        result.merge(addFolders(flags,folder,'CALO_OFL' if flags.Input.isMC else 'CALO',className = 'CaloRec::ToolConstants',
+                                tag=tag if H1Calibration.overrideFolder(flags) else None))
         
          #-- configure tool
         toolName = finder + editParm(mainparam) + input
         cellcalibtool = H1WeightToolCSC12Generic("H1Weight"+toolName)
         cellcalibtool.DBHandleKey = key
-        result.setPrivateAlgTools(cellcalibtool)
+        result.setPrivateTools(cellcalibtool)
         return result
 

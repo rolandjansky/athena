@@ -3,9 +3,10 @@
 # reductionConf flag JETM9 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
+DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addRscanJets
 #from DerivationFrameworkJetEtMiss.METCommon import *
 
 #====================================================================

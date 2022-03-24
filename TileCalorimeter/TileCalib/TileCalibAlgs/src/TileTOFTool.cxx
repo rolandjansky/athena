@@ -6,7 +6,7 @@
 
 #include "StoreGate/ReadHandle.h"
 
-#include "TileCalibAlgs/TileTOFTool.h"
+#include "TileTOFTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
 #include "CaloIdentifier/TileID.h"

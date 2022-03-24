@@ -21,8 +21,8 @@
 #include <map>
 #include <string>
 //#include "MuonCondInterface/IMDT_DCSConditionsTool.h" 
-#include "MuonCondTool/MDT_DCSConditionsTool.h"
-#include "MuonCondTool/MDT_MapConversion.h"
+#include "MDT_DCSConditionsTool.h"
+#include "MDT_MapConversion.h"
 
 #include "MuonCondSvc/MdtStringUtils.h"
 

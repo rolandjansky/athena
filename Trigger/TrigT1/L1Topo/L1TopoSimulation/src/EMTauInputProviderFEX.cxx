@@ -40,19 +40,8 @@ EMTauInputProviderFEX::initialize() {
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
 
-   auto is_eEM_EDMvalid = m_eEM_EDMKey.initialize();
-
-   //Temporarily check EDM status by hand to avoid the crash!
-   if (is_eEM_EDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for eFEX..");
-   }
-
-   auto is_eTau_EDMvalid = m_eTau_EDMKey.initialize();
-
-   //Temporarily check EDM status by hand to avoid the crash!
-   if (is_eTau_EDMvalid != StatusCode::SUCCESS) {
-     ATH_MSG_WARNING("No EDM found for eFEX..");
-   }
+   CHECK(m_eEM_EDMKey.initialize(SG::AllowEmpty));
+   CHECK(m_eTau_EDMKey.initialize(SG::AllowEmpty));
 
    return StatusCode::SUCCESS;
 }
@@ -66,7 +55,7 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hEmEt = std::make_unique<TH1I>( "eEmTOBEt", "eEm TOB Et", 200, 0, 200);
+   auto hEmEt = std::make_unique<TH1I>( "eEmTOBEt", "eEm TOB Et", 200, 0, 400);
    hEmEt->SetXTitle("E_{T} [GeV]");
    auto hEmREta = std::make_unique<TH1I>( "eEmTOBREta", "eEm TOB rEta isolation", 3, 0, 3);
    hEmREta->SetXTitle("rEta isolation");
@@ -74,47 +63,44 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    hEmRHad->SetXTitle("rHad isolation");
    auto hEmWsTot = std::make_unique<TH1I>( "eEmTOBWsTot", "eEm TOB WsTot isolation", 3, 0, 3);
    hEmWsTot->SetXTitle("WsTot isolation");
-   auto hEmPhiEta = std::make_unique<TH2I>( "eEmTOBPhiEta", "eEm TOB Location", 200, -200, 200, 64, 0, 128);
+   auto hEmPhiEta = std::make_unique<TH2I>( "eEmTOBPhiEta", "eEm TOB Location", 200, -200, 200, 128, 0, 128);
    hEmPhiEta->SetXTitle("#eta#times40");
    hEmPhiEta->SetYTitle("#phi#times20");
-   auto hEmPhiEta_local = std::make_unique<TH2I>( "eEmTOBPhiEta_local", "eEm TOB local phi vs eta", 200, -200, 200, 64, 0, 128);
-   hEmPhiEta_local->SetXTitle("#eta#times10");
-   hEmPhiEta_local->SetYTitle("#phi#times10");
-   auto hEmEtEta = std::make_unique<TH2I>( "eEmTOBEtEta", "eEm TOB Et vs eta", 200, -200, 200, 100, 0, 200);
+   auto hEmEtEta = std::make_unique<TH2I>( "eEmTOBEtEta", "eEm TOB Et vs eta", 200, -200, 200, 200, 0, 400);
    hEmEtEta->SetXTitle("#eta#times40");
    hEmEtEta->SetYTitle("E_{t} [GeV]");
-   auto hEmEtPhi = std::make_unique<TH2I>( "eEmTOBEtPhi", "eEm TOB Et vs phi", 64, 0, 128, 100, 0, 200);
+   auto hEmEtPhi = std::make_unique<TH2I>( "eEmTOBEtPhi", "eEm TOB Et vs phi", 128, 0, 128, 200, 0, 400);
    hEmEtPhi->SetXTitle("#phi#times20");
    hEmEtPhi->SetYTitle("E_{t} [GeV]");
-   auto hEmEtREta = std::make_unique<TH2I>( "eEmTOBEtREta", "eEm TOB Et vs rEta isolation", 3, 0, 3, 100, 0, 200);
+   auto hEmEtREta = std::make_unique<TH2I>( "eEmTOBEtREta", "eEm TOB Et vs rEta isolation", 3, 0, 3, 200, 0, 400);
    hEmEtREta->SetXTitle("rEta isolation");
    hEmEtREta->SetYTitle("E_{t} [GeV]");
-   auto hEmEtRHad = std::make_unique<TH2I>( "eEmTOBEtRHad", "eEm TOB Et vs rHad isolation", 3, 0, 3, 100, 0, 200);
+   auto hEmEtRHad = std::make_unique<TH2I>( "eEmTOBEtRHad", "eEm TOB Et vs rHad isolation", 3, 0, 3, 200, 0, 400);
    hEmEtRHad->SetXTitle("rHad isolation");
    hEmEtRHad->SetYTitle("E_{t} [GeV]");
-   auto hEmEtWsTot = std::make_unique<TH2I>( "eEmTOBEtWsTot", "eEm TOB Et vs WsTot isolation", 3, 0, 3, 100, 0, 200);
+   auto hEmEtWsTot = std::make_unique<TH2I>( "eEmTOBEtWsTot", "eEm TOB Et vs WsTot isolation", 3, 0, 3, 200, 0, 400);
    hEmEtWsTot->SetXTitle("WsTot isolation");
    hEmEtWsTot->SetYTitle("E_{t} [GeV]");
 
-   auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 200);
+   auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 400);
    hTauEt->SetXTitle("E_{T} [GeV]");
-   auto hTauRCore = std::make_unique<TH1I>( "eTauRCore", "eTau TOB rCore isolation", 3, 0, 3);
+   auto hTauRCore = std::make_unique<TH1I>( "eTauTOBRCore", "eTau TOB rCore isolation", 3, 0, 3);
    hTauRCore->SetXTitle("rCore isolation");
-   auto hTauRHad = std::make_unique<TH1I>( "eTauRHad", "eTau TOB rHad isolation", 3, 0, 3);
+   auto hTauRHad = std::make_unique<TH1I>( "eTauTOBRHad", "eTau TOB rHad isolation", 3, 0, 3);
    hTauRHad->SetXTitle("rHad isolation");
-   auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 400, -200, 200, 128, 0, 128);
+   auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 200, -200, 200, 128, 0, 128);
    hTauPhiEta->SetXTitle("#eta#times40");
    hTauPhiEta->SetYTitle("#phi#times20");
-   auto hTauEtEta = std::make_unique<TH2I>( "eTauTOBEtEta", "eTau TOB Et vs eta", 200, -200, 200, 100, 0, 200);
+   auto hTauEtEta = std::make_unique<TH2I>( "eTauTOBEtEta", "eTau TOB Et vs eta", 200, -200, 200, 200, 0, 400);
    hTauEtEta->SetXTitle("#eta#times40");
    hTauEtEta->SetYTitle("E_{t} [GeV]");
-   auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 64, 0, 128, 100, 0, 200);
+   auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 128, 0, 128, 200, 0, 400);
    hTauEtPhi->SetXTitle("#phi#times20");
    hTauEtPhi->SetYTitle("E_{t} [GeV]");
-   auto hTauEtRCore = std::make_unique<TH2I>( "eTauTOBEtRCore", "eTau TOB Et vs rCore isolation", 3, 0, 3, 100, 0, 200);
+   auto hTauEtRCore = std::make_unique<TH2I>( "eTauTOBEtRCore", "eTau TOB Et vs rCore isolation", 3, 0, 3, 200, 0, 400);
    hTauEtRCore->SetXTitle("rCore isolation");
    hTauEtRCore->SetYTitle("E_{t} [GeV]");
-   auto hTauEtRHad = std::make_unique<TH2I>( "eTauTOBEtRHad", "eTau TOB Et vs rHad isolation", 3, 0, 3, 100, 0, 200);
+   auto hTauEtRHad = std::make_unique<TH2I>( "eTauTOBEtRHad", "eTau TOB Et vs rHad isolation", 3, 0, 3, 200, 0, 400);
    hTauEtRHad->SetXTitle("rHad isolation");
    hTauEtRHad->SetYTitle("E_{t} [GeV]");
 
@@ -147,12 +133,6 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    }
    else{
      ATH_MSG_WARNING("Could not register eEmTOBPhiEta histogram for EMTauProviderFEX");
-   }
-   if (m_histSvc->regShared( histPath + "eEmTOBPhiEta_local", std::move(hEmPhiEta_local), m_hEmPhiEta_local ).isSuccess()){
-     ATH_MSG_DEBUG("eEmTOBPhiEta (local coordinates) histogram has been registered successfully for EMTauProviderFEX.");
-   }
-   else{
-     ATH_MSG_WARNING("Could not register eEmTOBPhiEta (local coordinates) histogram for EMTauProviderFEX");
    }
    if (m_histSvc->regShared( histPath + "eEmTOBEtEta", std::move(hEmEtEta), m_hEmEtEta ).isSuccess()){
      ATH_MSG_DEBUG("eEmTOBEtEta histogram has been registered successfully for EMTauProviderFEX.");
@@ -190,17 +170,17 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register eTauTOBEt histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauRCore", std::move(hTauRCore), m_hTauRCore ).isSuccess()){
-     ATH_MSG_DEBUG("eTauRCore histogram has been registered successfully for EMTauProviderFEX.");
+   if (m_histSvc->regShared( histPath + "eTauTOBRCore", std::move(hTauRCore), m_hTauRCore ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBRCore histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eTauRCore histogram for EMTauProviderFEX");
+     ATH_MSG_WARNING("Could not register eTauTOBRCore histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauRHad", std::move(hTauRHad), m_hTauRHad ).isSuccess()){
-     ATH_MSG_DEBUG("eTauRHad histogram has been registered successfully for EMTauProviderFEX.");
+   if (m_histSvc->regShared( histPath + "eTauTOBRHad", std::move(hTauRHad), m_hTauRHad ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBRHad histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eTauRHad histogram for EMTauProviderFEX");
+     ATH_MSG_WARNING("Could not register eTauTOBRHad histogram for EMTauProviderFEX");
    }
    if (m_histSvc->regShared( histPath + "eTauTOBPhiEta", std::move(hTauPhiEta), m_hTauPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("eTauTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
@@ -237,16 +217,14 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
 
 StatusCode
-EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
-
-  //eEM
-  SG::ReadHandle<xAOD::eFexEMRoIContainer> eEM_EDM(m_eEM_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!eEM_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eEM_EDMKey.key() << ". No eFEX input for L1Topo");
-    
+EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
+  if (m_eEM_EDMKey.empty()) {
+    ATH_MSG_DEBUG("eFex EM input disabled, skip filling");
     return StatusCode::SUCCESS;
   }
+
+  SG::ReadHandle<xAOD::eFexEMRoIContainer> eEM_EDM(m_eEM_EDMKey);
+  ATH_CHECK(eEM_EDM.isValid());
 
   for(const auto it : * eEM_EDM){
     const xAOD::eFexEMRoI* eFexRoI = it;
@@ -277,7 +255,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     unsigned int wstot = eFexRoI->WstotThresholds();
 
     //Em TOB
-    TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
+    TCS::eEmTOB eem( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
     eem.setEtDouble( static_cast<double>(EtTopo/10.) );
     eem.setEtaDouble( static_cast<double>(etaTopo/40.) );
     eem.setPhiDouble( static_cast<double>(phiTopo/20.) );
@@ -292,7 +270,6 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     m_hEmRHad->Fill(eem.Rhad());
     m_hEmWsTot->Fill(eem.Wstot());
     m_hEmPhiEta->Fill(eem.eta(),eem.phi());
-    m_hEmPhiEta_local->Fill(eFexRoI->iEta(),eFexRoI->iPhi());
     m_hEmEtEta->Fill(eem.eta(),eem.EtDouble());
     m_hEmEtPhi->Fill(eem.phi(),eem.EtDouble());
     m_hEmEtREta->Fill(eem.Reta(),eem.EtDouble());
@@ -301,16 +278,20 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
   }
 
-  //eTau
-  SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!
-  if(!eTau_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eTau_EDMKey.key() << ". No eFEX input for L1Topo");
-    
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
+  if (m_eTau_EDMKey.empty()) {
+    ATH_MSG_DEBUG("eFex Tau input disabled, skip filling");
     return StatusCode::SUCCESS;
   }
-  
-  // TODO: read eTau isolation variables from eTau RoI
+
+  SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
+  ATH_CHECK(eTau_EDM.isValid());
+
   for(const auto it : * eTau_EDM){
     const xAOD::eFexTauRoI* eFexTauRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
@@ -337,7 +318,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     unsigned int rHad = eFexTauRoI->rHadThresholds();
 
     //Tau TOB
-    TCS::eTauTOB etau( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
+    TCS::eTauTOB etau( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
     etau.setEtDouble(  static_cast<double>(EtTopo/10.) );
     etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     etau.setPhiDouble( static_cast<double>(phiTopo/20.) );
@@ -358,6 +339,13 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     m_hTauEtRHad->Fill(etau.rHad(),etau.EtDouble());
   }
 
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+  ATH_CHECK(fillEM(inputEvent));
+  ATH_CHECK(fillTau(inputEvent));
   return StatusCode::SUCCESS;
 }
 

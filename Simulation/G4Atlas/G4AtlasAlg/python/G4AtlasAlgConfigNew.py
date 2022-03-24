@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg, PhysicsListSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg, InputConverterCfg
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
@@ -7,10 +7,9 @@ from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
 from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 
-def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
+def G4AtlasAlgCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     """Return ComponentAccumulator configured for Atlas G4 simulation, without output"""
     # wihout output
     result = ComponentAccumulator()
@@ -89,106 +88,3 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     result.addEventAlgo(CompFactory.G4AtlasAlg(name, **kwargs))
 
     return result
-
-
-def G4AtlasAlgOutputCfg(ConfigFlags):
-    """
-    Return ComponentAccumulator with output for G4 simulation. Not standalone.
-
-    follows G4Atlas.flat.configuration.py
-    """
-    ItemList = ["EventInfo#*",
-                "McEventCollection#TruthEvent",
-                "JetCollection#*"]
-
-    if ConfigFlags.Sim.IncludeParentsInG4Event:
-        ItemList += ["McEventCollection#GEN_EVENT"]
-
-    ItemList += ["xAOD::JetContainer#*",
-                 "xAOD::JetAuxContainer#*"]
-
-    if ConfigFlags.Detector.EnableID:
-        ItemList += ["SiHitCollection#*",
-                     "TRTUncompressedHitCollection#*",
-                     "TrackRecordCollection#CaloEntryLayer"]
-
-    if ConfigFlags.Detector.EnableITk:
-        ItemList += ["SiHitCollection#*",
-                     "TrackRecordCollection#CaloEntryLayer"]
-
-    if ConfigFlags.Detector.EnableCalo:
-        ItemList += ["CaloCalibrationHitContainer#*",
-                     "LArHitContainer#*",
-                     "TileHitVector#*",
-                     "TrackRecordCollection#MuonEntryLayer"]
-
-    if ConfigFlags.Detector.EnableMuon:
-        ItemList += ["RPCSimHitCollection#*",
-                     "TGCSimHitCollection#*",
-                     "MDTSimHitCollection#*",
-                     "TrackRecordCollection#MuonExitLayer"]
-        if ConfigFlags.Detector.EnableCSC:
-            ItemList += ["CSCSimHitCollection#*"]
-        if ConfigFlags.Detector.EnablesTGC:
-            ItemList += ["sTGCSimHitCollection#*"]
-        if ConfigFlags.Detector.EnableMM:
-            ItemList += ["MMSimHitCollection#*"]
-
-    if ConfigFlags.Detector.EnableLucid:
-        ItemList += ["LUCID_SimHitCollection#*"]
-
-    if ConfigFlags.Detector.EnableFwdRegion:
-        ItemList += ["SimulationHitCollection#*"]
-
-    if ConfigFlags.Detector.EnableZDC:
-        ItemList += ["ZDC_SimPixelHit_Collection#*",
-                     "ZDC_SimStripHit_Collection#*"]
-
-    if ConfigFlags.Detector.EnableALFA:
-        ItemList += ["ALFA_HitCollection#*",
-                     "ALFA_ODHitCollection#*"]
-
-    if ConfigFlags.Detector.EnableAFP:
-        ItemList += ["AFP_TDSimHitCollection#*",
-                     "AFP_SIDSimHitCollection#*"]
-
-    # TimingAlg
-    ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
-
-    # FIXME reproduce to support non standard setups
-    #0140         ## Add cosmics and test beam configuration hit persistency if required cf. geom tag
-    #0141         layout = simFlags.SimLayout.get_Value()
-    #0142         if "tb" not in layout:
-    #0143             from AthenaCommon.BeamFlags import jobproperties
-    #0144             if jobproperties.Beam.beamType() == 'cosmics' or \
-    #0145                     (hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn) or \
-    #0146                     (hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn):
-    #0147                 stream1.ItemList += ["TrackRecordCollection#CosmicRecord", "TrackRecordCollection#CosmicPerigee"]
-    #0148         else:
-    #0149             ## CTB-specific
-    #0150             if layout.startswith("ctb"):
-    #0151                 if simFlags.LArFarUpstreamMaterial.statusOn and simFlags.LArFarUpstreamMaterial.get_Value():
-    #0152                     stream1.ItemList.append("TrackRecordCollection#LArFarUpstreamMaterialExitLayer")
-    #0153             ## Persistency of test-beam layout
-    #0154             if layout.startswith('ctb') or layout.startswith('tb_Tile2000_'):
-    #0155                 stream1.ItemList += ["TBElementContainer#*"]
-    acc = OutputStreamCfg(ConfigFlags,"HITS", ItemList=ItemList, disableEventTag=True)
-
-    # Make stream aware of aborted events
-    OutputStreamHITS = acc.getEventAlgo("OutputStreamHITS")
-    OutputStreamHITS.AcceptAlgs += ["G4AtlasAlg"]
-
-    # G4Atlas.flat.configuration.py#0333 onwards
-    # FIXME unifyset now fails
-    #PoolAttributes = ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
-    #PoolAttributes += ["DatabaseName = '" + ConfigFlags.Output.HITSFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
-    #acc.addService(CompFactory.AthenaPoolCnvSvc(PoolAttributes=PoolAttributes))
-
-    return acc
-
-
-def G4AtlasAlgCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
-    """Return ComponentAccumulator configured for Atlas G4 simulation, with output"""
-    acc = G4AtlasAlgBasicCfg(ConfigFlags, **kwargs)
-    acc.merge(G4AtlasAlgOutputCfg(ConfigFlags))
-    return acc

@@ -1,4 +1,4 @@
-#include "TrackToVertex/TrackToVertex.h"
+#include "../TrackToVertex.h"
 
 using namespace Reco;
 

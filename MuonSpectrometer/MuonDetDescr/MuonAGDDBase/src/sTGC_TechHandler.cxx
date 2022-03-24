@@ -18,29 +18,32 @@ sTGC_TechHandler::sTGC_TechHandler(const std::string& s,
 void sTGC_TechHandler::ElementHandle(AGDDController& c,
                                      xercesc::DOMNode *t)
 {
-    
+
 //    std::cout<<" this is sTGC_TechHandler::Handle"<<std::endl;
 
 	bool ret=true;
 	std::string name=getAttributeAsString(c, t, "type",ret);
-	
+
 	MuonGM::sTGC_Technology *tech=new MuonGM::sTGC_Technology(name, c.GetDetectorStore());
-	
-	tech->nlayers=getAttributeAsInt(c, t, "nLayers",ret);
+
+  tech->nlayers=getAttributeAsInt(c, t, "nLayers",ret);
 	tech->thickness=getAttributeAsDouble(c, t, "Tck",ret);
 	tech->gasThickness=getAttributeAsDouble(c, t, "gasTck",ret);
-    tech->pcbThickness=getAttributeAsDouble(c, t, "pcbTck",ret);
+  tech->pcbThickness=getAttributeAsDouble(c, t, "pcbTck",ret);
+  tech->pcbThickness150=getAttributeAsDouble(c, t, "pcbTck150",ret);
+  tech->pcbThickness200=getAttributeAsDouble(c, t, "pcbTck200",ret);
+  tech->coverThickness=getAttributeAsDouble(c, t, "coverTck",ret);
 
-    tech->f4Thickness=getAttributeAsDouble(c, t, "f4",ret);
-    tech->f5Thickness=getAttributeAsDouble(c, t, "f5",ret);
-    tech->f6Thickness=getAttributeAsDouble(c, t, "f6",ret);
-		
+  tech->f4Thickness=getAttributeAsDouble(c, t, "f4",ret);
+  tech->f5Thickness=getAttributeAsDouble(c, t, "f5",ret);
+  tech->f6Thickness=getAttributeAsDouble(c, t, "f6",ret);
+
 	// std::cout<<" sTGC_Tech "<<name<<tech->nlayers<<" "<<tech->thickness<<" "<<tech->gasThickness<<" "<<tech->pcbThickness<<std::endl;
 
-	
+
 	tech->geoLevel=getAttributeAsInt(c, t, "geometryLevel",ret);
-		
-        AGDDParameterStore& prs = c.GetParameterStore();
+
+  AGDDParameterStore& prs = c.GetParameterStore();
 	if(prs.Exist(name)) {
 		std::cout << " parameters for technology " << name << " already registered" << std::endl;
 	}

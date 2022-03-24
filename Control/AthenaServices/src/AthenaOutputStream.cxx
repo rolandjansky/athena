@@ -1202,7 +1202,7 @@ StatusCode AthenaOutputStream::io_finalize() {
       ATH_MSG_FATAL("Cannot get the IncidentSvc");
       return StatusCode::FAILURE;
    }
-   if (m_dataStore->clearStore().isSuccess()) {
+   if (m_dataStore->clearStore().isFailure()) {
       ATH_MSG_WARNING("Cannot clear the DataStore");
    }
    incSvc->removeListener(this, "MetaDataStop");

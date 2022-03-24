@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+# corresponding EOS path: /eos/atlas/atlascerngroupdisk/data-art/grid-input/WorkflowReferences
 references_CVMFS_path = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/WorkflowReferences"
-references_EOS_path = "/eos/atlas/atlascerngroupdisk/data-art/grid-input/WorkflowReferences"
 
 #####
 # CI special input files

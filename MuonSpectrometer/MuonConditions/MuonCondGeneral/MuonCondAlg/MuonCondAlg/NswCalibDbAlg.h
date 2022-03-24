@@ -10,7 +10,6 @@
 #include <vector>
 
 // Gaudi includes
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -56,7 +55,6 @@ private:
     Gaudi::Property<bool> m_isOnline{this, "isOnline", false, "This algo is being used online"};
     Gaudi::Property<bool> m_isData  {this, "isData"  , true , "Processing data"};
 
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
     writeKeyTdoPdo_t m_writeKey_tdopdo{this, "WriteKey_TdoPdo", "NswCalibDbTimeChargeData", "Key of output calibration data (TDOs and PDOs)" };

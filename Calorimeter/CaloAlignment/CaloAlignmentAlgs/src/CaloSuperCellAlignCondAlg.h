@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOALIGNMENTALGS_CALOSUPERCELLALIGNCONDALG_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -40,8 +39,6 @@ class CaloSuperCellAlignCondAlg final : public AthAlgorithm
       , "CaloSuperCellDetDescrManager"
       , "CaloSuperCellDetDescrManager"
       , "SG key of the resulting CaloSuperCellDetDescrManager" };
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   ToolHandle<ICaloSuperCellIDTool> m_scidTool {this
       , "CaloSuperCellIDTool"

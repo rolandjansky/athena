@@ -40,9 +40,9 @@ StatusCode TauProcessorAlg::initialize() {
   ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
   ATH_CHECK( m_tauPi0CellOutputContainer.initialize(SG::AllowEmpty) );
 
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  ATH_CHECK(m_trtDetEleContKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_trtDetEleContKey.initialize(SG::AllowEmpty));
 
   if(!m_tauPi0CellOutputContainer.empty()) {
     ATH_CHECK( detStore()->retrieve(m_cellID) );

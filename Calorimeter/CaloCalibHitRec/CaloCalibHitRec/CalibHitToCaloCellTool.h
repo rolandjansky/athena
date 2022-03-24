@@ -17,6 +17,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteHandleKeyArray.h"
 
 #include <string>
 #include <vector>
@@ -26,6 +27,7 @@ class CaloDM_ID;
 
 class CaloCell;
 class CaloCellContainer;
+class CaloCellLinkContainer;
 
 static const InterfaceID IID_CalibHitToCaloCellTool("CalibHitToCaloCellTool", 1, 0);
 
@@ -47,8 +49,8 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
  private:
   int m_caloGain;
   std::vector<std::string> m_calibHitContainerNames;
-  bool m_writeTruthCellContainers;
-  bool m_writeTruthClusterContainers;
+  //bool m_writeTruthCellContainers;
+  //bool m_writeTruthClusterContainers;
   int m_singleParticleBarcode;
   
   std::string m_tileActiveHitCnt;
@@ -76,6 +78,11 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
   std::string m_outputCellContainerName;
   std::string m_outputClusterContainerName;
   
+  SG::WriteHandleKeyArray<CaloCellContainer> m_cellContKeys;
+  SG::WriteHandleKeyArray<xAOD::CaloClusterContainer> m_clusterContKeys;
+  SG::WriteHandleKeyArray<CaloClusterCellLinkContainer> m_cellLinkKeys;
+
+  const std::array<std::string, 3> m_energyTypeToStr{"Eem","Evis","Etot"};
   
 };
 

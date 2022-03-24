@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4RUNCONTROL_LARGEOTB2004OPTIONS_H
@@ -25,7 +25,7 @@ class LArGeoTB2004Options {
   {}
 
   void saveMe();
-  void printMe();
+  void printMe() const;
 
   // Set methods
   inline void CryoXPosition(double value)			{ m_CryoXPosition    = value; }

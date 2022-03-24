@@ -442,7 +442,7 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
             int nPadRowsFromDesign=padEtaMaxFromDesign-padEtaMinFromDesign;
             if( thisEta>nPadRowsFromDesign || thisPhi > nPadCols  ) continue;
 
-            Identifier pid=m_idHelperSvc->stgcIdHelper().padID(id,  multilayer,  gasgap,  channeltype,  thisEta,  thisPhi,true);
+            Identifier pid=m_idHelperSvc->stgcIdHelper().padID(id,  multilayer,  gasgap,  channeltype,  thisEta,  thisPhi);
             auto pad=std::make_shared<PadOfflineData>(pid, 0, 0, m_detManager);
             pad->fillGeometricInformation();
             sectorPads.push_back(pad);
@@ -472,7 +472,7 @@ StatusCode PadTriggerLookupTool::printGeometry( const std::vector<std::shared_pt
                 float x=p->m_cornerXyz[index][0];
                 float y=p->m_cornerXyz[index][1];
                 Vertex vtx(x,y);
-                padVertices.push_back(vtx);
+                padVertices.push_back(std::move(vtx));
             }
             std::string secType= p->sectorType()==1 ? "LARGE": "SMALL";
             float layerZ=p->m_cornerXyz[0][2];

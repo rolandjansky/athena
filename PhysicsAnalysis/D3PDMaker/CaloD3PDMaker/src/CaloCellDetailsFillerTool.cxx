@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloD3PDMaker/src/CaloCellDetailsFillerTool.cxx
  * @author Hong Ma
@@ -72,6 +70,26 @@ CaloCellDetailsFillerTool::CaloCellDetailsFillerTool
 }
 
 
+StatusCode CaloCellDetailsFillerTool::initialize()
+{
+  if (m_saveCellStatus) {
+    CHECK( m_pb_tool.retrieve());
+  }
+
+
+  // retrieve the noise tool
+  if(m_saveSigma) m_useNoise = true;
+  if (m_useNoise) {
+    CHECK( m_caloNoiseKey.initialize (SG::AllowEmpty) );
+  }
+  else {
+    CHECK( m_caloNoiseKey.initialize (false) );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
 /**
  * @brief Book variables for this block.
  */
@@ -94,25 +112,6 @@ StatusCode CaloCellDetailsFillerTool::book()
 
    if (m_saveSigma) CHECK( addVariable ("Sigma", m_sigma) );
    
-
-  if (m_saveCellStatus) {
-    CHECK( m_pb_tool.retrieve());
-  }
-
-
-  // retrieve the noise tool
-  if(m_saveSigma) m_useNoise = true;
-  if(m_useNoise) {
-    if(!m_caloNoiseKey.empty()){
-      ATH_CHECK( m_caloNoiseKey.initialize() );
-    } else {
-       ATH_MSG_ERROR( "CellFillerTool::book() : CaloNoise empty."
-                      << "Information on cell noise will not be stored" );
-      m_useNoise = false;
-    }
-  }
-
-
 
   return StatusCode::SUCCESS;
     
@@ -150,7 +149,7 @@ StatusCode CaloCellDetailsFillerTool::fill ( const CaloCell& c)
   if (m_saveId)       *m_offId = id.get_identifier32().get_compact()     ;
   if (m_saveCellStatus)    *m_badCell = m_pb_tool->caloStatus(id).packedData() ;
 
-  if (m_useNoise && m_saveSigma) {
+  if (!m_caloNoiseKey.empty()) {
     SG::ReadCondHandle<CaloNoise> caloNoise{m_caloNoiseKey};
     *m_sigma = caloNoise-> getNoise(cell->ID(), cell->gain());
   }

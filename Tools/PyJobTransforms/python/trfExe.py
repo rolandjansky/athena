@@ -1422,7 +1422,9 @@ class athenaExecutor(scriptExecutor):
             currentSubstep = 'all'
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
-            if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
+            if self._isCAEnabled():
+                msg.info('ComponentAccumulator-based transforms do not support "--drop-and-reload" yet')
+            elif 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
                 msg.info('Disabling "--drop-and-reload" because the job is configured to use Valgrind')
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
@@ -1777,7 +1779,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
 
 
 ## @brief Specialist executor to manage the handling of multiple implicit input
-#  and output files within the reduction framework. 
+#  and output files within the derivation framework. 
 class reductionFrameworkExecutor(athenaExecutor):
     ## @brief Take inputDAODFile and setup the actual outputs needed
     #  in this job.
@@ -1785,15 +1787,19 @@ class reductionFrameworkExecutor(athenaExecutor):
         self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
         if 'NTUP_PILEUP' not in output:
-            if 'reductionConf' not in self.conf.argdict:
+            # New derivation framework transform uses "requiredDerivedFormats"
+            if 'reductionConf' not in self.conf.argdict and 'requiredDerivedFormats' not in self.conf.argdict:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No reduction configuration specified')
 
             if ('DAOD' not in output) and ('D2AOD' not in output):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No base name for DAOD reduction')
-        
-            for reduction in self.conf.argdict['reductionConf'].value:
+
+            formatList = []
+            if 'reductionConf' in self.conf.argdict: formatList = self.conf.argdict['reductionConf'].value
+            if 'requiredDerivedFormats' in self.conf.argdict: formatList = self.conf.argdict['requiredDerivedFormats'].value        
+            for reduction in formatList:
                 if ('DAOD' in output):
                     dataType = 'DAOD_' + reduction
                     outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]

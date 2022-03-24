@@ -269,7 +269,8 @@ namespace MuonCombined {
                             hits = &extendedLargeHits;
                             holes = &extendedLargeHoles;
                         } else {
-                            ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::chName(index));
+                            ATH_MSG_WARNING("Unknown ChamberIndex " << Muon::MuonStationIndex::chName(index)<<
+                                                                  "that is found for "<<m_idHelperSvc->toString(chId));
                         }
                         if (hits) {
                             if (isMdt || isMM) {

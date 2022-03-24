@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGORITHMS_PIXELDETECTORELEMENTCONDALG_H
@@ -15,8 +15,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 //dependencies to limit lifetime of SiDetElColl for TrackingGeometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -52,8 +50,6 @@ class PixelDetectorElementCondAlg : public AthReentrantAlgorithm
     {this, "TRT_DetEltContKey", "", "TRT ReadKey for IOV Range intersection"};
   SG::ReadCondHandleKey<GeoAlignmentStore> m_SCT_readKey
     {this, "SCTAlignmentStore", "", "SCTAlignmentStore ReadKey for IOV Range intersection "};
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   StringProperty m_detManagerName{this, "DetManagerName", "Pixel", "Name of the DeterctorManager to retrieve"};
   const InDetDD::PixelDetectorManager* m_detManager{nullptr};

@@ -34,6 +34,7 @@ LArReadCells::LArReadCells( const std::string& name, ISvcLocator* pSvcLocator ) 
    m_ProvCell.reserve(250000);
    m_QuaCell.reserve(250000);
    m_GainCell.reserve(250000);
+   m_ChidCell.reserve(250000);
    m_HwidCell.reserve(250000);
    m_ADC.reserve(250000);
 }
@@ -65,6 +66,7 @@ StatusCode LArReadCells::initialize() {
   m_tree->Branch("ProvCell", m_ProvCell.data(),"provCell[ncells]/I");
   m_tree->Branch("QuaCell", m_QuaCell.data(),"quaCell[ncells]/I");
   m_tree->Branch("GainCell", m_GainCell.data(),"gainCell[ncells]/I");
+  m_tree->Branch("ChidCell", m_ChidCell.data(),"chidCell[ncells]/I");
   m_tree->Branch("HwidCell", m_HwidCell.data(),"hwidCell[ncells]/I");
   m_tree->Branch("ADC",m_ADC.data(),"ADC[ncells][32]/F");
 
@@ -194,12 +196,17 @@ StatusCode LArReadCells::execute() {
            int channel   = m_lar_online_id->channel(hwid);
            if (barrel_ec<2 && pos_neg<2 && FT<32 && slot<16 && channel<128) 
             myid = (channel) | (slot << 7) | (FT<<11) | (pos_neg << 16) | (barrel_ec << 17);
+           if (myid < 128) {
+             ATH_MSG_WARNING("Why we have such cell: "<<barrel_ec<<" "<<pos_neg<<" "<<FT<<" "<<slot<<" "<<channel<<" | "<<myid);
+             ATH_MSG_WARNING("from: "<<hwid.get_identifier32().get_compact());
+           }
  
            if (larPedestal) {
             pedestal =  larPedestal->pedestal(hwid,(*first_cell)->gain());
            }
       
            m_HwidCell[m_ncells]=myid;
+           m_ChidCell[m_ncells]=hwid.get_identifier32().get_compact();
            int index = (int) (m_calo_id->calo_cell_hash(cellID));
            if (IndexDigit[index]) {
                const std::vector<short>& vSamples=(IndexDigit[index])->samples();

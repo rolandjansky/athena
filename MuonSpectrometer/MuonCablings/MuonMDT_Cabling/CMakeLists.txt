@@ -1,18 +1,14 @@
-################################################################################
-# Package: MuonMDT_Cabling
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonMDT_Cabling )
 
+# External dependencies:
+find_package( CORAL COMPONENTS CoralBase )
+
 # Component(s) in the package:
-atlas_add_library( MuonMDT_CablingLib
-                   src/*.cxx
-                   PUBLIC_HEADERS MuonMDT_Cabling
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib MuonIdHelpersLib MuonCondInterface MuonCablingData AthenaPoolUtilities EventInfoMgtLib
-                   PRIVATE_LINK_LIBRARIES  Identifier MuonCondSvcLib PathResolver )
-
 atlas_add_component( MuonMDT_Cabling
+                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel EventInfoMgtLib MuonMDT_CablingLib )
-
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib MuonIdHelpersLib MuonCablingData AthenaPoolUtilities MuonCondSvcLib PathResolver SGTools )

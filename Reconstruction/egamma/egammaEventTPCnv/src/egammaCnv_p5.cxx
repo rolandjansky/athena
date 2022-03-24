@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // egammaCnv_p5.cxx 
@@ -96,9 +96,6 @@ void egammaCnv_p5::persToTrans( const egamma_p5* pers,
   ElementLink<CaloRingsContainer> rings;
   m_ringsCnv.persToTrans( &pers->m_rings, &rings, msg);
   trans->setRingsElementLink (rings);
-//   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endmsg;
-  return;
 }
 
 void egammaCnv_p5::transToPers( const egamma* trans, 
@@ -156,7 +153,4 @@ void egammaCnv_p5::transToPers( const egamma* trans,
   }
 
   m_ringsCnv.transToPers (&trans->ringsElementLink(), &pers->m_rings, msg);
-//   msg << MSG::DEBUG << "Created persistent state of egamma [OK]"
-//       << endmsg;
-  return;
 }

@@ -30,7 +30,7 @@ Digi_tf.py \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'all:Campaigns/MC21a.py' 'HITtoRDO:Campaigns/PileUpMC21a.py' \
+--preInclude 'all:Campaigns/MC21a.py' 'HITtoRDO:Campaigns/PileUpMC21aSingleBeamspot.py' \
 --skipEvents 0 \
 --athenaopts '"--config-only=DigiPUConfigCG.pkl"'
 
@@ -48,7 +48,7 @@ Digi_tf.py \
 --outputRDOFile ${DigiOutFileNameCG} \
 --postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'all:Campaigns/MC21a.py' 'HITtoRDO:Campaigns/PileUpMC21a.py' \
+--preInclude 'all:Campaigns/MC21a.py' 'HITtoRDO:Campaigns/PileUpMC21aSingleBeamspot.py' \
 --skipEvents 0
 
 rc=$?
@@ -73,7 +73,7 @@ then
     --maxEvents ${Events} \
     --outputRDOFile ${DigiOutFileNameCA} \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
-    --preInclude 'HITtoRDO:Campaigns.MC21a' \
+    --preInclude 'HITtoRDO:Campaigns.MC21aSingleBeamspot' \
     --skipEvents 0
 
     rc2=$?
@@ -105,7 +105,7 @@ then
     rc4=$?
     status=$rc4
 fi
-echo "art-result: $rc1 OLDvsFixedRef"
+echo "art-result: $rc4 OLDvsFixedRef"
 
 rc5=-9999
 if [[ $rc -eq 0 ]]

@@ -526,51 +526,55 @@ namespace InDet{
 
   void InDetVKalVxInJetTool::fillVrtNTup( std::vector<Vrt2Tr>  & all2TrVrt)
   const
-  {	 if(!m_curTup)return;
+  {
+         if (!m_h) return;
+         Hists& h = getHists();
          int ipnt=0;
          Amg::Vector3D pf1,pf2; 
          for(auto & vrt : all2TrVrt) {
            if(ipnt==DevTuple::maxNTrk)break;
-           m_curTup->VrtDist2D[ipnt]=vrt.fitVertex.perp();
-           m_curTup->VrtSig3D[ipnt]=vrt.signif3D;
-	   m_curTup->VrtSig2D[ipnt]=vrt.signif2D;
-	   m_curTup->itrk[ipnt]=vrt.i;
-	   m_curTup->jtrk[ipnt]=vrt.j;
-	   m_curTup->mass[ipnt]=vrt.momentum.M();
-	   m_curTup->Chi2[ipnt]=vrt.chi2;
-	   m_curTup->badVrt[ipnt]=vrt.badVrt;
-	   m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
-	   m_curTup->VrtErrR[ipnt]= vrtRadiusError(vrt.fitVertex, vrt.errorMatrix);
+           h.m_curTup->VrtDist2D[ipnt]=vrt.fitVertex.perp();
+           h.m_curTup->VrtSig3D[ipnt]=vrt.signif3D;
+	   h.m_curTup->VrtSig2D[ipnt]=vrt.signif2D;
+	   h.m_curTup->itrk[ipnt]=vrt.i;
+	   h.m_curTup->jtrk[ipnt]=vrt.j;
+	   h.m_curTup->mass[ipnt]=vrt.momentum.M();
+	   h.m_curTup->Chi2[ipnt]=vrt.chi2;
+	   h.m_curTup->badVrt[ipnt]=vrt.badVrt;
+	   h.m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
+	   h.m_curTup->VrtErrR[ipnt]= vrtRadiusError(vrt.fitVertex, vrt.errorMatrix);
            Amg::setRThetaPhi(pf1, 1., vrt.trkAtVrt[0][1], vrt.trkAtVrt[0][0]);
            Amg::setRThetaPhi(pf2, 1., vrt.trkAtVrt[1][1], vrt.trkAtVrt[1][0]);
-           m_curTup->VrtdRtt[ipnt]=Amg::deltaR(pf1,pf2);
-           ipnt++; m_curTup->nVrt=ipnt;
+           h.m_curTup->VrtdRtt[ipnt]=Amg::deltaR(pf1,pf2);
+           ipnt++; h.m_curTup->nVrt=ipnt;
         }
   } 
 
   void InDetVKalVxInJetTool::fillNVrtNTup(std::vector<WrkVrt> & VrtSet, std::vector< std::vector<float> > & trkScore,
                                           const xAOD::Vertex  & PV, const TLorentzVector & JetDir)
   const
-  {	 if(!m_curTup)return;
+  {
+         if (!m_h) return;
+         Hists& h = getHists();
          int ipnt=0;
          TLorentzVector VertexMom;
          for(auto & vrt : VrtSet) {
 	   if(ipnt==DevTuple::maxNVrt)break;
-	   m_curTup->NVrtDist2D[ipnt]=vrt.vertex.perp();
-	   m_curTup->NVrtNT[ipnt]=vrt.selTrk.size();
-           m_curTup->NVrtTrkI[ipnt]=vrt.selTrk[0];
-	   m_curTup->NVrtM[ipnt]=vrt.vertexMom.M();
-	   m_curTup->NVrtChi2[ipnt]=vrt.chi2;
+	   h.m_curTup->NVrtDist2D[ipnt]=vrt.vertex.perp();
+	   h.m_curTup->NVrtNT[ipnt]=vrt.selTrk.size();
+           h.m_curTup->NVrtTrkI[ipnt]=vrt.selTrk[0];
+	   h.m_curTup->NVrtM[ipnt]=vrt.vertexMom.M();
+	   h.m_curTup->NVrtChi2[ipnt]=vrt.chi2;
            float maxW=0., sumW=0.;
            for(auto trk : vrt.selTrk){ sumW+=trkScore[trk][0]; maxW=std::max(trkScore[trk][0], maxW);}
-	   m_curTup->NVrtMaxW[ipnt]=maxW;
-	   m_curTup->NVrtAveW[ipnt]=sumW/vrt.selTrk.size();
+	   h.m_curTup->NVrtMaxW[ipnt]=maxW;
+	   h.m_curTup->NVrtAveW[ipnt]=sumW/vrt.selTrk.size();
            TLorentzVector SVPV(vrt.vertex.x()-PV.x(),vrt.vertex.y()-PV.y(),vrt.vertex.z()-PV.z(),1.);
-           m_curTup->NVrtDR[ipnt]=JetDir.DeltaR(SVPV);
+           h.m_curTup->NVrtDR[ipnt]=JetDir.DeltaR(SVPV);
            VertexMom += vrt.vertexMom;
-           ipnt++; m_curTup->nNVrt=ipnt;
+           ipnt++; h.m_curTup->nNVrt=ipnt;
         }
-        m_curTup->TotM=VertexMom.M();
+        h.m_curTup->TotM=VertexMom.M();
   } 
 
 

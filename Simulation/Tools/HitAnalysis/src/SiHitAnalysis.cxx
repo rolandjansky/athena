@@ -77,17 +77,17 @@ StatusCode SiHitAnalysis::initialize()
     radius_up = 170;
     radius_down = 0;
   } else if (detName == "ITkPixel") {
-    bin_down = -325;
-    bin_up = 325;
-    radius_up = 325;
+    bin_down = -350;
+    bin_up = 350;
+    radius_up = 350;
     radius_down = 0;
-    z_max = 3000;
+    z_max = 3400;
   } else if (detName == "ITkStrip") {
-    bin_down = -1000;
-    bin_up = 1000;
-    radius_up = 1000;
+    bin_down = -1100;
+    bin_up = 1100;
+    radius_up = 1100;
     radius_down = 0;
-    z_max = 3000;
+    z_max = 3400;
   } else if (detName == "HGTD") {
     bin_down = -1000;
     bin_up = 1000;
@@ -152,6 +152,8 @@ StatusCode SiHitAnalysis::initialize()
   m_h_module_phi = new TH1D(("h_"+detName+"_module_phi").c_str(), ("h_"+detName+ " module in #phi").c_str(), 100, 0, 100);
   m_h_module_phi->StatOverflows();
 
+  ATH_CHECK(m_thistSvc.retrieve());
+
   ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_x->GetName(), m_h_hits_x));
   ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_y->GetName(), m_h_hits_y));
   ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_z->GetName(), m_h_hits_z));
@@ -175,7 +177,18 @@ StatusCode SiHitAnalysis::initialize()
   ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_module_eta->GetName(), m_h_module_eta));
   ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_module_phi->GetName(), m_h_module_phi));
 
-  ATH_CHECK(m_thistSvc.retrieve());
+  // Special shared ITk histograms
+  if (detName.find("ITk") != std::string::npos) {
+    std::string xy_name = "h_ITk_xy";
+    auto xy = std::make_unique<TH2D>(xy_name.c_str(), xy_name.c_str(), 2200, -1100, 1100, 2200, -1100, 1100);
+    xy->StatOverflows();
+    ATH_CHECK(m_thistSvc->regShared(m_histPath + xy_name, std::move(xy), m_h_xy_shared));
+
+    std::string zr_name = "h_ITk_zr";
+    auto zr = std::make_unique<TH2D>(zr_name.c_str(), zr_name.c_str(), 6800, -3400, 3400, 1100, 0, 1100);
+    zr->StatOverflows();
+    ATH_CHECK(m_thistSvc->regShared(m_histPath + zr_name, std::move(zr), m_h_zr_shared));
+  }
 
   /** now add branches and leaves to the tree */
   m_tree = new TTree(ntupName.c_str(), ntupName.c_str());
@@ -256,6 +269,12 @@ StatusCode SiHitAnalysis::execute()
       m_h_hits_r->Fill(p.perp());
       m_h_xy->Fill(p.x(), p.y());
       m_h_zr->Fill(p.z(), p.perp());
+      if (m_h_xy_shared.get() != nullptr) {
+        m_h_xy_shared->Fill(p.x(), p.y());
+      }
+      if (m_h_zr_shared.get() != nullptr) {
+        m_h_zr_shared->Fill(p.z(), p.perp());
+      }
       m_h_hits_eloss->Fill(hit.energyLoss());
       m_h_hits_time->Fill(hit.meanTime());
       double step_length = (hit.localStartPosition() - hit.localEndPosition()).mag();

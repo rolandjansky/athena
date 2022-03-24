@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
                                                                       
@@ -147,3 +147,53 @@ def getOriginCorrVxTool(jetdef, modspec):
       OnlyAssignPV = True,
     )
     return origin_setpv
+
+
+def getJetPtAssociationTool(jetdef, modspec):
+
+    from JetRecConfig.JetDefinition import buildJetAlgName
+
+    truthJetAlg = buildJetAlgName(jetdef.algorithm, jetdef.radius)+'Truth'+str(modspec)+'Jets'
+
+    jetPtAssociation = CompFactory.JetPtAssociationTool('jetPtAssociation',
+                                                        MatchingJetContainer = truthJetAlg,
+                                                        AssociationName = "GhostTruth")
+
+    return jetPtAssociation
+
+
+def getQGTaggingTool(jetdef, modspec):
+
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec or jetdef.context)
+
+    trackingKeys = jetContextDic[modspec or jetdef.context]
+
+    qgtagging = CompFactory.JetQGTaggerVariableTool('qgtagging',
+                                                    VertexContainer = trackingKeys["Vertices"],
+                                                    TrackVertexAssociation = trackingKeys["TVA"],
+                                                    TrackSelector = jettrackselloose
+                                                   )
+
+    return qgtagging
+
+
+def getPFlowfJVTTool(jetdef, modspec):
+
+    from JetCalibTools import JetCalibToolsConfig
+    jetCalibrationTool = JetCalibToolsConfig.getJetCalibToolFromString(jetdef, "AnalysisLatest:mc:JetArea_Residual_EtaJES")
+
+    wPFOTool = CompFactory.CP__WeightPFOTool("fJVT__wPFO")
+
+    trackingKeys = jetContextDic[modspec or jetdef.context]
+
+    fJVTTool = CompFactory.JetForwardPFlowJvtTool('fJVT',
+                                                  verticesName = trackingKeys["Vertices"],
+                                                  TrackVertexAssociation = trackingKeys["TVA"],
+                                                  WeightPFOTool = wPFOTool,
+                                                  JetCalibrationTool = jetCalibrationTool,
+                                                  FEName = jetdef.inputdef.containername,
+                                                  ORName = "",
+                                                  FjvtRawName = 'DFCommonJets_fJvt',
+                                                  includePV = True)
+
+    return fJVTTool

@@ -7,6 +7,7 @@
 
 #include "./IJetGroupProduct.h"
 #include "./ProductGen.h"
+#include "./JetStreamer.h"
 #include "./DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <vector>
@@ -42,8 +43,15 @@ class JetGroupProduct: public IJetGroupProduct{
   std::vector<std::vector<std::size_t>>  m_condIndices;
   std::vector<bool>  m_jetMask;
   std::size_t  m_jetEnd{0};
-  ProductGen m_productGen;
+  // ProductGen m_productGen;
   std::vector<std::vector<std::size_t>> m_seenIndices;
+  std::unique_ptr<JetStreamer> m_jetstreamer{nullptr};
+  bool m_valid{false};
+
+  void init(const std::vector<std::size_t>& siblings,
+	    const CondInd2JetGroupsInds& satisfiedBy,
+	    const std::vector<std::size_t>& condMult
+	    );
 
 };
 

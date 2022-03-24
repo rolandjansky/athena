@@ -43,8 +43,8 @@ namespace MuonCombined {
         if (t1FQ && t2FQ) { return t1FQ->chiSquared() < t2FQ->chiSquared(); }
         return t1.segments().size() < t2.segments().size();
     }
-    void MuGirlTag::setComissioning(bool b) { m_isComissioning = b; }
-    bool MuGirlTag::isComissioning() const { return m_isComissioning; }
+    void MuGirlTag::setCommissioning(bool b) { m_isCommissioning = b; }
+    bool MuGirlTag::isCommissioning() const { return m_isCommissioning; }
    
 
 }  // namespace MuonCombined

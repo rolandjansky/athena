@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetIdentifier )
@@ -11,6 +11,7 @@ atlas_add_library( InDetIdentifier
                    src/PixelID.cxx
                    src/SCT_ID.cxx
                    src/TRT_ID.cxx
+                   src/PLR_ID.cxx
                    src/SiliconID.cxx
                    PUBLIC_HEADERS InDetIdentifier
                    LINK_LIBRARIES AthenaKernel AtlasDetDescr IdDict Identifier

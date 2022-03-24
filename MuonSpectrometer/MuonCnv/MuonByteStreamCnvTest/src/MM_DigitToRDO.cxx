@@ -65,7 +65,7 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
           ///
           /// set the rdo id to a value consistent with the channel number
           ///
-          bool isValid;
+          bool isValid{false};
           int stationName = m_idHelperSvc->mmIdHelper().stationName(id);
           int stationEta  = m_idHelperSvc->mmIdHelper().stationEta(id);
           int stationPhi  = m_idHelperSvc->mmIdHelper().stationPhi(id);
@@ -75,7 +75,7 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
           int channel     = digit->stripResponsePosition().at(i);
 
           Identifier newId = m_idHelperSvc->mmIdHelper().channelID(stationName,stationEta,
-                                                   stationPhi,multilayer,gasGap,channel,true,&isValid);
+                                                   stationPhi,multilayer,gasGap,channel, isValid);
 
           if (!isValid) {
             ATH_MSG_WARNING("Invalid MM identifier. StationName="<<stationName <<

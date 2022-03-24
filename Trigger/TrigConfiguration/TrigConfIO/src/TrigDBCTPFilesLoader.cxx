@@ -48,6 +48,14 @@ TrigConf::TrigDBCTPFilesLoader::TrigDBCTPFilesLoader(const std::string & connect
       q.extendOutput<coral::Blob>( "L1CF_MON_DMX" );
    }
 
+   {
+      // ctp files >= v6
+      // in version 6 this field (ctp core switchmatrix) was added
+      auto q = m_ctpfiles_queries[3];
+      q.extendOutput<coral::Blob>( "L1CF_SMX" );
+      m_ctpfiles_queries[6] = q;
+   }
+
    { // ctp smx
       auto & q = m_ctpsmx_queries[3];
       // tables
@@ -151,34 +159,34 @@ TrigConf::TrigDBCTPFilesLoader::loadHardwareFiles (unsigned int smk,
    if(ctpFilesID>0 && (loadMask & 0x01)!=0 ) {
       QueryDefinition qdef = getQueryDefinition(sv, m_ctpfiles_queries);
       qdef.setBoundValue<unsigned int>("id", ctpFilesID);
-      loadCTPFiles(ctpfiles, qdef.createQuery( session.get() ) );
+      loadCTPFiles(ctpfiles, qdef.createQuery( session.get() ), sv );
    }
 
    if(ctpSmxID>0 && (loadMask & 0x02)!=0) {
       QueryDefinition qdef = getQueryDefinition(sv, m_ctpsmx_queries);
       qdef.setBoundValue<unsigned int>("id", ctpSmxID);
-      loadCTPSMX(ctpfiles, qdef.createQuery( session.get() ) );
+      loadCTPSMX(ctpfiles, qdef.createQuery( session.get() ), sv );
    }
    
    if(tmcSignalsID>0 && (loadMask & 0x04)!=0) {
       QueryDefinition qdef = getQueryDefinition(sv, m_tmcsig_queries);
       qdef.setBoundValue<unsigned int>("id", tmcSignalsID);
-      loadTMC(ctpfiles, qdef.createQuery( session.get() ) );
+      loadTMC(ctpfiles, qdef.createQuery( session.get() ), sv );
    }
    
    if(muctpiID>0 && (loadMask & 0x08)!=0) {
       QueryDefinition qdef = getQueryDefinition(sv, m_muctpi_queries);
       qdef.setBoundValue<unsigned int>("id", muctpiID);
-      loadMUCTPI(ctpfiles, qdef.createQuery( session.get() ) );
+      loadMUCTPI(ctpfiles, qdef.createQuery( session.get() ), sv );
    }   
    return true;
 }
 
 
 void
-TrigConf::TrigDBCTPFilesLoader::loadCTPFiles(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const
+TrigConf::TrigDBCTPFilesLoader::loadCTPFiles(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t schemaVersion) const
 {
-   TRG_MSG_INFO("Loading data from table L1_CTP_FILES");
+   TRG_MSG_INFO("Loading data from table L1_CTP_FILES.");
    try
    {
       auto & cursor = query->execute();
@@ -194,6 +202,12 @@ TrigConf::TrigDBCTPFilesLoader::loadCTPFiles(L1CTPFiles & ctpfiles, std::unique_
             loadDBFieldIntoVector(row, "L1CF_CAM", L1CTPFiles::CTPCORE_CAM_SIZE)
          );
       }
+      if(schemaVersion>=6) {
+         ctpfiles.set_Ctpcore_SMX(
+            loadDBFieldIntoVector(row, "L1CF_SMX", L1CTPFiles::CTPCORE_SMX_SIZE)
+         );
+      }
+
       {
          ctpfiles.set_Ctpin_MonSelector_Slot7(
             loadDBFieldIntoVector(row, "L1CF_MON_SEL_SLOT7", L1CTPFiles::CTPIN_MONSEL_SIZE)
@@ -248,7 +262,7 @@ TrigConf::TrigDBCTPFilesLoader::loadCTPFiles(L1CTPFiles & ctpfiles, std::unique_
 }
 
 void
-TrigConf::TrigDBCTPFilesLoader::loadCTPSMX(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const {
+TrigConf::TrigDBCTPFilesLoader::loadCTPSMX(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t) const {
    TRG_MSG_INFO("Loading data from table L1_CTP_SMX");
    try
    {
@@ -272,7 +286,7 @@ TrigConf::TrigDBCTPFilesLoader::loadCTPSMX(L1CTPFiles & ctpfiles, std::unique_pt
 }
 
 void
-TrigConf::TrigDBCTPFilesLoader::loadMUCTPI(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const {
+TrigConf::TrigDBCTPFilesLoader::loadMUCTPI(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t) const {
    TRG_MSG_INFO("Loading data from table L1_MUCTPI_FILES");
 
    bool incomplete = false;
@@ -332,7 +346,7 @@ TrigConf::TrigDBCTPFilesLoader::loadMUCTPI(L1CTPFiles & ctpfiles, std::unique_pt
 }
 
 void
-TrigConf::TrigDBCTPFilesLoader::loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query) const {
+TrigConf::TrigDBCTPFilesLoader::loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<coral::IQuery> query, size_t) const {
    TRG_MSG_INFO("Loading data from table L1_TMC_SIGNALS");
    boost::property_tree::ptree pt;
    try
@@ -351,27 +365,58 @@ TrigConf::TrigDBCTPFilesLoader::loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<c
    DataStructure ds("L1_TMC", std::move(pt));
 
    // should always be the correct type
-   if( auto ft = ds.getAttribute<std::string>("fileType"); ft != "inputMapping" ) {
-      throw TrigConf::ParsingException("TrigDBCTPFilesLoader::loadTMC: json structure of unexpected file type found. Expected 'inputMapping', but found " + ft);
+   if( auto ft = ds.getAttribute<std::string>("filetype"); ft != "tmcresult" ) {
+      throw TrigConf::ParsingException("TrigDBCTPFilesLoader::loadTMC: json structure of unexpected file type found. Expected 'tmcresult', but found " + ft);
    }
 
    // read the ctpcore inputs
-   if( auto dv = ds.getList_optional("ctpCoreInputs") ) {
+   if (auto dv = ds.getObject_optional("CTPCORE.TriggerInputs"))
+   {
       std::vector<TrigConf::L1CTPFiles::CTPCoreInput> ctpcoreInputs;
-      for(const TrigConf::DataStructure & inp : *dv) {
+      for (const std::string &k : dv->getKeys())
+      {
+         const TrigConf::DataStructure &inp = dv->getObject(k);
+         const std::string &inputType = inp["type"];
+         TrigConf::L1CTPFiles::CTPCoreInput::InputType inpEnum = TrigConf::L1CTPFiles::CTPCoreInput::NONE;
+         if (inputType == "PIT")
+         {
+            inpEnum = TrigConf::L1CTPFiles::CTPCoreInput::PIT;
+         }
+         else if (inputType == "DIR")
+         {
+            inpEnum = TrigConf::L1CTPFiles::CTPCoreInput::DIR;
+         }
          ctpcoreInputs.push_back(
-            TrigConf::L1CTPFiles::CTPCoreInput(inp.getAttribute<size_t>("inputNumber"), inp.getAttribute<std::string>("name"), inp.getAttribute<size_t>("bit"), inp.getAttribute<size_t>("phase"))
-         );
+            TrigConf::L1CTPFiles::CTPCoreInput(
+               inp.getAttribute<size_t>("number"), inp.getAttribute<std::string>("name"),
+               inp.getAttribute<size_t>("bit"), inp.getAttribute<size_t>("phase"),
+               inpEnum));
       }
       TRG_MSG_INFO("Loading ctpcore inputs " << ctpcoreInputs.size());
       ctpfiles.set_Tmc_CtpcoreInputs(std::move(ctpcoreInputs));
    }
 
    // read the ctpin map
-   if( auto dv = ds.getObject_optional("ctpinMap") ) {
+   {
       std::map<std::string, size_t> ctpin;
-      for(const std::string & k : dv->getKeys()) {
-         ctpin[k] = dv->getAttribute<size_t>(k);
+      for (size_t slot : {7, 8, 9})
+      {
+         for (size_t conn : {0, 1, 2, 3})
+         {
+            std::string path = "CTPINs.SLOT" + std::to_string(slot) + ".Monitoring.Cables.CON" + std::to_string(conn);
+            if (auto dv = ds.getObject_optional(path))
+            {
+               if (auto ov = dv->getList_optional("outputs"))
+               {
+                  for (const DataStructure &output : *ov)
+                  {
+                     size_t number = output.getAttribute<size_t>("number");
+                     unsigned int mapping = number + 64 * conn + 256 * (slot - 7);
+                     ctpin[output.getAttribute<std::string>("TriggerCounter")] = mapping;
+                  }
+               }
+            }
+         }
       }
       TRG_MSG_INFO("Loading ctpin counters " << ctpin.size());
       ctpfiles.set_Tmc_CtpinCounters(std::move(ctpin));
@@ -387,13 +432,17 @@ TrigConf::TrigDBCTPFilesLoader::loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<c
       TRG_MSG_INFO("Loading ctp mon counters " << ctpmon.size());
    }
 
+   ctpfiles.set_Tmc_Data(std::move(ds));
+
    ctpfiles.set_HasCompleteTmcData(true);
 }
 
 std::vector<uint32_t>
 TrigConf::TrigDBCTPFilesLoader::loadDBFieldIntoVector(const coral::AttributeList& row, const std::string& field, size_t size) const {
    std::vector<uint32_t> vec;
-   vec.reserve(size);
+   if(size>0) {
+      vec.reserve(size);
+   }
    try {
       TRG_MSG_INFO("Loading " << field << " of size (#words) " << size);
       const coral::Blob& blob = row[field].data<coral::Blob>();
@@ -407,7 +456,8 @@ TrigConf::TrigDBCTPFilesLoader::loadDBFieldIntoVector(const coral::AttributeList
       }
    }
    catch(const coral::AttributeException & e) {} // NULL content
-   if(size != vec.size()) {
+   // check the size if a positive size was requested
+   if(size > 0 && size != vec.size()) {
       TRG_MSG_ERROR("File content from DB of size " << vec.size() << ", but expect " << size);
       throw std::runtime_error( "CTPFilesLoader: file of unexpected size" );
    }

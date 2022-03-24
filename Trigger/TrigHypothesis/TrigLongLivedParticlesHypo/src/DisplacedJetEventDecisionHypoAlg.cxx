@@ -60,7 +60,7 @@ StatusCode DisplacedJetEventDecisionHypoAlg::execute(const EventContext& context
 
     //get the linked jet feature
     //for safety check that I have 1 jet by getting all links
-    std::vector<TrigCompositeUtils::LinkInfo<xAOD::JetContainer>> jet_feature_links = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString());
+    std::vector<TrigCompositeUtils::LinkInfo<xAOD::JetContainer>> jet_feature_links = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
     ATH_CHECK(jet_feature_links.size() == 1); //ensure we only have 1 link
     const TrigCompositeUtils::LinkInfo<xAOD::JetContainer> jet_feature_link = jet_feature_links.at(0);
     //verify if the feature link is valid
@@ -70,8 +70,22 @@ StatusCode DisplacedJetEventDecisionHypoAlg::execute(const EventContext& context
     //reattach jet feature link
     d->setObjectLink(featureString(), jet_feature_link.link);
 
+    //get my count object which has been linked to the decision
+    auto count_links = TrigCompositeUtils::findLinks<xAOD::TrigCompositeContainer>(previousDecision, "djtrig_counts");
+    ATH_CHECK(count_links.size() == 1); //ensure we only have 1 link
+    auto count_link = count_links.at(0);
+    ATH_CHECK(count_link.isValid());
+    const xAOD::TrigComposite* count = *(count_link.link);
+
+    //get the jet class object which is also linked
+    auto info_links = TrigCompositeUtils::findLinks<xAOD::TrigCompositeContainer>(previousDecision, "djtrig_info");
+    ATH_CHECK(info_links.size() == 1); //ensure we only have 1 link
+    auto info_link = info_links.at(0);
+    ATH_CHECK(info_link.isValid());
+    const xAOD::TrigComposite* info = *(info_link.link);
+
     //make a tuple for this jet
-    DisplacedJetEventDecisionHypoTool::DecisionTuple t{d, prev, jet};
+    DisplacedJetEventDecisionHypoTool::DecisionTuple t{d,previousDecision, prev, jet, count, info};
 
     tuples.push_back(t);
   }

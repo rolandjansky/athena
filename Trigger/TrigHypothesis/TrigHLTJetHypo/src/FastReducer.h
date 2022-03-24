@@ -54,6 +54,8 @@ class FastReducer {
   // conditions owned by the matcher
   const ConditionPtrs& m_conditions;
   std::vector<std::size_t> m_conditionMult;
+  std::vector<unsigned int> m_conditionCap;
+  std::vector<int> m_conditionClique;
 
   // conditionFilters owned by the matcher
   const ConditionFilters& m_conditionFilters;

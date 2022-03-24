@@ -52,6 +52,9 @@ def createRecoConfigFlags():
     flags.addFlag("Reco.PostProcessing.GeantTruthThinning",
                   lambda prevFlags: prevFlags.Reco.EnablePostProcessing and
                   prevFlags.Input.isMC)
+    flags.addFlag("Reco.PostProcessing.InDetForwardTrackParticleThinning",
+                  lambda prevFlags: prevFlags.Reco.EnablePostProcessing and
+                  prevFlags.Reco.EnableTracking and prevFlags.Reco.EnableCombinedMuon)
     return flags
 
 

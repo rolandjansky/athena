@@ -19,6 +19,7 @@ from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg
 # for Digitization
 from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+from LArROD.LArNNChannelBuilder import LArNNRawChannelBuilderCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 # for Trigger Tower
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
@@ -216,8 +217,13 @@ def LArDigitizationBasicCfg(flags, **kwargs):
         PileUpTools = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
         kwargs["PileUpTools"] = PileUpTools
     acc.merge(PileUpToolsCfg(flags, **kwargs))
+
     acc.merge(LArHitEMapToDigitAlgCfg(flags))
-    acc.merge(LArRawChannelBuilderAlgCfg(flags))
+    if flags.LAr.ROD.NNRawChannelBuilding:
+        acc.merge(LArNNRawChannelBuilderCfg(flags))
+    else:
+        acc.merge(LArRawChannelBuilderAlgCfg(flags))
+
     if flags.Digitization.AddCaloDigiThinned:
         acc.merge(LArDigitThinnerCfg(flags))
     return acc
@@ -244,8 +250,8 @@ def LArOverlayDigitizationBasicCfg(flags, name="digitmaker1", **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
-    LArDigitMaker = CompFactory.LArDigitMaker
-    acc.addEventAlgo(LArDigitMaker(name, **kwargs))
+    LArHitEMapMaker = CompFactory.LArHitEMapMaker
+    acc.addEventAlgo(LArHitEMapMaker(name, **kwargs))
     acc.merge(LArHitEMapToDigitAlgCfg(flags))
 
     acc.merge(LArRawChannelBuilderAlgCfg(flags))
@@ -281,7 +287,12 @@ def LArAutoCorrNoiseCondSCAlgCfg(flags, **kwargs):
 
 def LArSCL1MakerCfg(flags, **kwargs):
     """Return ComponentAccumulator for LArSCL1Maker"""
-    acc = LArDigitizationBasicCfg(flags)
+    acc = ComponentAccumulator()
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        acc.merge(LArOverlayDigitizationBasicCfg(flags))
+    else:
+        acc.merge(LArDigitizationBasicCfg(flags))
+
     kwargs.setdefault("LArHitEMapKey", "StoreGateSvc+LArHitEMap") # Provided by LArPileUpTool
 
     from LArRecUtils.LArADC2MeVSCCondAlgConfig import LArADC2MeVSCCondAlgCfg
@@ -309,6 +320,8 @@ def LArSCL1MakerCfg(flags, **kwargs):
                       acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("SCL1ContainerName",flags.Overlay.BkgPrefix + "LArDigitSCL2") # Output - why L2??
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        kwargs.setdefault("BkgDigitKey","Bkg_LArDigitSCL2")
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc
@@ -364,6 +377,15 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
 
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
+    return acc
+
+
+def LArSuperCellOverlayCfg(flags, **kwargs):
+    acc = LArSCL1MakerCfg(flags)
+    from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg,LArSuperCellBCIDAlgCfg
+    acc.merge(LArSuperCellBuilderAlgCfg(flags))
+    acc.merge(LArSuperCellBCIDAlgCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ["CaloCellContainer#SCell"]))
     return acc
 
 

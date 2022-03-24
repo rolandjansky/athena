@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsData/PixelDistortionData.h
@@ -20,8 +20,8 @@
 class PixelDistortionData {
   public:
     void setVersion(int version);
-    void setIds(std::unordered_map<uint32_t,unsigned long long> ids);
-    void setDistortionMap(std::unordered_map<uint32_t,std::vector<float>> distortionMap);
+    void setIds(const std::unordered_map<uint32_t,unsigned long long>& ids);
+    void setDistortionMap(const std::unordered_map<uint32_t,std::vector<float>>& distortionMap);
 
     int getVersion() const;
     unsigned long long getId(uint32_t hashID) const;
@@ -46,8 +46,8 @@ class PixelDistortionData {
 };
 
 inline void PixelDistortionData::setVersion(int version) { m_version=version; }
-inline void PixelDistortionData::setIds(std::unordered_map<uint32_t,unsigned long long> ids) { m_ids=ids; }
-inline void PixelDistortionData::setDistortionMap(std::unordered_map<uint32_t,std::vector<float>> distortionMap) { m_distortionMap=distortionMap; }
+inline void PixelDistortionData::setIds(const std::unordered_map<uint32_t,unsigned long long>& ids) { m_ids=ids; }
+inline void PixelDistortionData::setDistortionMap(const std::unordered_map<uint32_t,std::vector<float>>& distortionMap) { m_distortionMap=distortionMap; }
 
 inline int PixelDistortionData::getVersion() const { return m_version; }
 

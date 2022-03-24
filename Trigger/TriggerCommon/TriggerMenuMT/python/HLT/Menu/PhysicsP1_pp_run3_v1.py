@@ -16,6 +16,7 @@ import TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 as physics_menu
 
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (
     SingleMuonGroup,
+    SingleMETGroup,
     SinglePhotonGroup,
     SingleJetGroup,
     JetStreamersGroup,
@@ -111,12 +112,41 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_larpsall_L1J30_FIRSTEMPTY', l1SeedThresholds=['J30'], stream=['LArNoiseBurst'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
         
         ## larpsall/em*EMPTY
-        ChainProp(name='HLT_larpsallem_L1EM3_EMPTY', l1SeedThresholds=['EM3'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
-        ChainProp(name='HLT_larpsallem_L1EM7_EMPTY', l1SeedThresholds=['EM7'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
-        ChainProp(name='HLT_larpsall_L1J12_EMPTY', l1SeedThresholds=['J12'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
-        ChainProp(name='HLT_larpsall_L1J30_EMPTY', l1SeedThresholds=['J30'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
-        ChainProp(name='HLT_larpsall_L1TAU8_EMPTY', l1SeedThresholds=['TAU8'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
-        ChainProp(name='HLT_larpsall_L1J30p31ETA49_EMPTY', l1SeedThresholds=['J30p31ETA49'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+        ChainProp(name='HLT_larpsallem_L1EM3_EMPTY', l1SeedThresholds=['EM3'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+        ChainProp(name='HLT_larpsallem_L1EM7_EMPTY', l1SeedThresholds=['EM7'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+        ChainProp(name='HLT_larpsall_L1J12_EMPTY', l1SeedThresholds=['J12'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+        ChainProp(name='HLT_larpsall_L1J30_EMPTY', l1SeedThresholds=['J30'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+        ChainProp(name='HLT_larpsall_L1TAU8_EMPTY', l1SeedThresholds=['TAU8'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+        ChainProp(name='HLT_larpsall_L1J30p31ETA49_EMPTY', l1SeedThresholds=['J30p31ETA49'], stream=['CosmicCalo'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
+
+        # ATR-25019 Test the definition for the 'AFPCalib' stream
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
+        # ATR-25019 AFPCalib streamers
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_NSA_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_NSC_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSA_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSC_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSA_TOF_T0_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSA_TOF_T1_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSA_TOF_T2_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSA_TOF_T3_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSC_TOF_T0_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSC_TOF_T1_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSC_TOF_T2_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_FSC_TOF_T3_BGRP12', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_C', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_AND_C', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_AND_C_TOF_T0T1', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C_UNPAIRED_NONISO', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1AFP_A_OR_C_FIRSTEMPTY', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
+
+        # IDCalib Chains
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1J100', stream=['IDCalib'], groups=SingleJetGroup+SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']), 
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1XE50', stream=['IDCalib'], groups=SingleMETGroup+SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']),
     ]
 
     chainsP1['Cosmic'] = [
@@ -232,12 +262,6 @@ def addP1Signatures(chains):
 #        ChainProp(name='HLT_noalg_L1MBTS_2_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
 #        ChainProp(name='HLT_noalg_L1MBTS_1_1_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
 
-
-        # ZDCCalib
-        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_A', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportGroup),
-        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_C', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportGroup),
-        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportGroup),
- 
     ]
 
     chainsP1['Monitor'] = [

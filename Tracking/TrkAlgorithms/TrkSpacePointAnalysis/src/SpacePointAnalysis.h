@@ -11,6 +11,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
 #include <string>
 #include <vector>
@@ -34,6 +35,7 @@ public:
 
 private:
   SG::ReadHandleKey<SpacePointContainer> m_inputKey{this, "InputKey", "PixelSpacePoints", "Key of input space points"};
+  SG::ReadHandleKey<SpacePointOverlapCollection> m_inputOverlapKey{this, "InputOverlapKey", "OverlapSpacePoints", "Key of input for overlap space points"};
   const PixelID *m_pixelID{};
   const SCT_ID *m_stripID{};
 
@@ -44,6 +46,7 @@ private:
   std::vector<int>* m_sideModule{};
   std::vector<int>* m_isInnermost{};
   std::vector<int>* m_isNextToInnermost{};
+  std::vector<int>* m_isOverlap{};
   std::vector<double>* m_eta{};
   std::vector<double>* m_globalX{};
   std::vector<double>* m_globalY{};
@@ -69,6 +72,7 @@ private:
   ServiceHandle<ITHistSvc> m_thistSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
 
   BooleanProperty m_usePixel{this, "UsePixel", true, "enable use of pixel ID or SCT ID"};
+  BooleanProperty m_useOverlap{this, "UseOverlap", true, "enable use of overlap for SCT ID"};
 
 };
 

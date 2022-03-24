@@ -2,8 +2,6 @@
 #
 # art-description: RecoTrf
 # art-type: grid
-# art-include: master/Athena
-# art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
 Reco_tf.py \
@@ -15,5 +13,5 @@ Reco_tf.py \
 --maxEvents=500 \
 --outputAODFile=q441.AOD.pool.root --outputESDFile=q441.ESD.pool.root
 
-#This test currently has the muon isolation reconstruction switched off. It should be switched back on at a later date. 
+#This test currently has the muon isolation reconstruction switched off. It should be switched back on at a later date.
 echo "art-result: $?"

@@ -1,4 +1,4 @@
-#include "CscOverlay/CscOverlay.h"
+#include "../CscOverlay.h"
 
 DECLARE_COMPONENT( CscOverlay )
 

@@ -88,8 +88,7 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
   this->setUVfactor(uvfactor);
 
   for (int ihds = 0; ihds < (int)hitDatas.size(); ihds++) {
-    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager);
-    myhit->updateHitProperties(par);
+    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager, par);
     if (myhit->verifyHit()) {
       m_hitslopes.push_back(myhit->getRZSlope());
       entry.ev_hits.push_back(myhit);

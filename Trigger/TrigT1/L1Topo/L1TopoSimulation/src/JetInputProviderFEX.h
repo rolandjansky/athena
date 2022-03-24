@@ -14,6 +14,7 @@
 #include "xAODTrigger/jFexSRJetRoIContainer.h" //small R jets from jFEX
 #include "xAODTrigger/jFexLRJetRoIContainer.h" //large R jets from jFEX
 #include "xAODTrigger/jFexTauRoIContainer.h" //taus from jFEX
+#include "xAODTrigger/jFexMETRoIContainer.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -35,6 +36,10 @@ namespace LVL1 {
       virtual void handle(const Incident&) override final;
 
    private:
+      StatusCode fillSRJet(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode fillLRJet(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode fillTau(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode filljXE(TCS::TopoInputEvent& inputEvent) const;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
@@ -51,9 +56,16 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hjTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hjTauIsolationEta ATLAS_THREAD_SAFE;
 
-      SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jEDMKey {this, "L1_jFexSRJetRoI", "L1_jFexSRJetRoI", "jFEX EDM"};
-      SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_JEDMKey {this, "L1_jFexLRJetRoI", "L1_jFexLRJetRoI", "JFEX EDM"};
-      SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jTauEDMKey {this, "L1_jFexTauRoI", "L1_jFexTauRoI", "JFEX EDM"};
+      mutable LockedHandle<TH1> m_hjEmPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjEmPhiEta ATLAS_THREAD_SAFE;
+
+      mutable LockedHandle<TH1> m_h_jxe_Pt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jxe_Phi ATLAS_THREAD_SAFE;
+
+      SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jEDMKey {this, "jFexSRJetRoIKey", "L1_jFexSRJetRoI", "jFEX EDM"};
+      SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_JEDMKey {this, "jFexLRJetRoIKey", "L1_jFexLRJetRoI", "JFEX EDM"};
+      SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jTauEDMKey {this, "jFexTauRoIKey", "L1_jFexTauRoI", "JFEX EDM"};
+      SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_jMet_EDMKey {this, "jFexMETRoIKey", "L1_jFexMETRoI", "jFEX Met EDM"};
      
   };
 }

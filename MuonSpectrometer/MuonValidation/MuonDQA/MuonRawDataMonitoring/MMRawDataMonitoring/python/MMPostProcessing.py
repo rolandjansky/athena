@@ -3,7 +3,7 @@
 #
 
 from ROOT import TH2F
-from .MMMonUtils import getMMLabelX
+from .MMMonUtils import getMMLabelX, get_MPV_charge, get_mean_and_sigma
 
 def make_eff_histo_per_PCB(inputs):
 	inputs = list(inputs)
@@ -65,6 +65,88 @@ def make_eff_histo_per_PCB(inputs):
 			xbin+=1
 
 	return [h_eff_per_PCB]
+
+def residual_map(inputs):
+	inputs = list(inputs)
+
+	side = 'A'
+	if('CSide' in inputs[0][1][0].GetName()):
+		side = 'C'
+	eta='eta2'
+	if('stationEta1' in inputs[0][1][0].GetName()):
+		eta='eta1'
+
+	output1 = TH2F("h_residual_sigma_"+eta+"_E"+side,"EndCap"+side+": Sigma of Gaussian Fit - residuals",8, 0, 8, 16, 1, 17)
+	output2 = TH2F("h_residual_mean_"+eta+"_E"+side,"EndCap"+side+": Mean of Gaussian Fit - residuals",8, 0, 8, 16, 1, 17)
+	thisLabelx=getMMLabelX("x_lab_mpv")
+	
+	for xbin in range(len(thisLabelx)):
+		output1.GetXaxis().SetBinLabel(xbin+1, thisLabelx[xbin])
+		output2.GetXaxis().SetBinLabel(xbin+1, thisLabelx[xbin])
+	output1.GetYaxis().SetTitle('Sector')
+	output1.GetZaxis().SetTitle('#sigma [mm]')
+	output2.GetYaxis().SetTitle('Sector')
+	output2.GetZaxis().SetTitle('Mean [mm]')
+	
+	for ihisto in range(len(inputs)):
+		h = inputs[ihisto][1][0]
+		sector = inputs[ihisto][1][0].GetName()[19:21]
+		ml = inputs[ihisto][1][0].GetName()[43:44]
+		gap = inputs[ihisto][1][0].GetName()[52:53]
+		if '_' in sector:
+			sector = inputs[ihisto][1][0].GetName()[19:20]
+			ml = inputs[ihisto][1][0].GetName()[42:43]
+			gap = inputs[ihisto][1][0].GetName()[51:52]
+
+		ybin = int(sector)
+		xbin = int(gap) + (int(ml) -1)*4
+		
+		if (h.GetEntries()==0):
+			continue
+		else:
+			mean,sigma = get_mean_and_sigma(h)
+			output1.SetBinContent(xbin,ybin,sigma)
+			output2.SetBinContent(xbin,ybin,mean)
+
+	return [output1,output2]
+
+def charge_map(inputs):
+	inputs = list(inputs)
+
+	side = 'A'
+	if('CSide' in inputs[0][1][0].GetName()):
+		side = 'C'
+	eta='eta2'
+	if('stEta1' in inputs[0][1][0].GetName()):
+		eta='eta1'
+
+	output = TH2F("h_landau_"+eta+"_E"+side,"EndCap"+side+": MPV of Landau Fit to Cluster charge",8, 0, 8, 16, 1, 17)
+	thisLabelx=getMMLabelX("x_lab_mpv")
+	
+	for xbin in range(len(thisLabelx)):
+		output.GetXaxis().SetBinLabel(xbin+1, thisLabelx[xbin])
+	output.GetYaxis().SetTitle('Sector')
+	output.GetZaxis().SetTitle('MPV')
+	
+	for ihisto in range(len(inputs)):
+		h = inputs[ihisto][1][0]
+		sector = inputs[ihisto][1][0].GetName()[18:20]
+		ml = inputs[ihisto][1][0].GetName()[37:38]
+		gap = inputs[ihisto][1][0].GetName()[42:43]
+		if '_' in sector:
+			sector = inputs[ihisto][1][0].GetName()[18:19]
+			ml = inputs[ihisto][1][0].GetName()[36:37]
+			gap = inputs[ihisto][1][0].GetName()[41:42]
+		ybin = int(sector)
+		xbin = int(gap) + (int(ml) -1)*4
+
+		if (h.GetEntries()==0):
+			continue
+		else:
+			mpv = get_MPV_charge(h)
+			output.SetBinContent(xbin,ybin,mpv)
+
+	return[output]
 
 def test(inputs):
 	""" HitsPerEventInXXPerChamber_[onSegm]_ADCCut """

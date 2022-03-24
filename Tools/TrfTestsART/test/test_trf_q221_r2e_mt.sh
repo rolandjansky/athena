@@ -2,8 +2,6 @@
 #
 # art-description: Reco_tf.py q221 HITStoRDO and RAWtoESD in MT mode, RDOtoRDOTrigger in 21.0
 # art-type: grid
-# art-include: master/Athena
-# art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
 Reco_tf.py \

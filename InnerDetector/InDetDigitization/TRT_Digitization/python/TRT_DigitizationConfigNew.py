@@ -170,6 +170,7 @@ def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **
     kwargs.setdefault("Override_noiseInSimhits", 0)
     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
     kwargs.setdefault("Override_isOverlay", 1)
+    kwargs.setdefault("MergeSvc", '')
     tool = acc.popToolsAndMerge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc

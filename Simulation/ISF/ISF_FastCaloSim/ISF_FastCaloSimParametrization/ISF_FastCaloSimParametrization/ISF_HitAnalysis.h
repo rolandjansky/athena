@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_HIT_ANALYSIS_H
@@ -15,6 +15,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+
+#include "TileConditions/TileSamplingFraction.h"
+#include "TileConditions/TileCablingSvc.h"
 
 //#####################################
 #include "CaloDetDescr/ICaloCoordinateTool.h"
@@ -50,10 +53,10 @@ namespace Trk
 ************************************************************** */
 
 class TileID;
+class TileHWID;
 class TileDetDescrManager;
 class TTree;
 class ITHistSvc;
-class TileInfo;
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
@@ -85,14 +88,28 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
  private:
 
-   const IGeoModelSvc *m_geoModel;
-   const TileInfo *m_tileInfo;
-   const LArEM_ID *m_larEmID;
-   const LArFCAL_ID *m_larFcalID;
-   const LArHEC_ID *m_larHecID;
-   const TileID * m_tileID;
-   const TileDetDescrManager * m_tileMgr;
+   const IGeoModelSvc *m_geoModel{nullptr};
+   const LArEM_ID *m_larEmID{nullptr};
+   const LArFCAL_ID *m_larFcalID{nullptr};
+   const LArHEC_ID *m_larHecID{nullptr};
+   const TileID * m_tileID{nullptr};
+   const TileHWID*     m_tileHWID{nullptr};
+   const TileCablingService* m_tileCabling{nullptr};
+
+   const TileDetDescrManager * m_tileMgr{nullptr};
    SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
+
+   /**
+    * @brief Name of TileSamplingFraction in condition store
+    */
+   SG::ReadCondHandleKey<TileSamplingFraction> m_tileSamplingFractionKey{this,
+       "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
+
+   /**
+    * @brief Name of Tile cabling service
+    */
+   ServiceHandle<TileCablingSvc> m_tileCablingSvc{ this,
+      "TileCablingSvc", "TileCablingSvc", "Tile cabling service"};
 
    /** Simple variables by Ketevi */
    std::vector<float>* m_hit_x;

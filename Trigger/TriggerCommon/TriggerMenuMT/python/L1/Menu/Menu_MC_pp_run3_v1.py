@@ -116,7 +116,6 @@ def defineMenu():
         'L1_gJ40':'',
         'L1_gJ50':'',
         'L1_gJ100':'',
-        'L1_gJ160':'',
 
         # combined non-primary
         'L1_MU8F_2J20':'',
@@ -174,10 +173,6 @@ def defineMenu():
         'L1_RD3_FILLED':'',
 
         'L1_TGC_BURST':'',
-
-        'L1_ZDC_A':'', 
-        'L1_ZDC_C':'', 
-        'L1_ZDC_AND':'',
 
         'L1_LUCID_A':'', 
         'L1_LUCID_C':'',

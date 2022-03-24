@@ -2,17 +2,24 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArFebErrorSummaryMaker=CompFactory.LArFebErrorSummaryMaker
 from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
+from AthenaCommon.Logging import logging
+
 
 def LArFebErrorSummaryMakerCfg(configFlags):
 
+    log = logging.getLogger('LArFebErrorSummaryMakerConfig')
     febSummaryMaker =LArFebErrorSummaryMaker()
     projectName=configFlags.Input.ProjectName
-    
+
+    streamName=configFlags.Input.ProcessingTags
+    if len(streamName) > 0 and len(streamName[0])>4 and streamName[0].endswith("PEB"):
+        log.info("StreamName %s suggests partial event building. Do not check for FEB completeness",str(streamName))
+        febSummaryMaker.CheckAllFEB=False
+
+
     if projectName == "data_test":
         from datetime import date
         yearNumber=date.today().year-2000
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger('LArFebErrorSummaryMakerConfig')
         log.info("Found project name data_test, assume year number to be %d",yearNumber)
     else:
         yearNumber=int(projectName[4:6])

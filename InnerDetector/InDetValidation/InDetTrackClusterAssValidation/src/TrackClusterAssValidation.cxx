@@ -9,7 +9,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetTrackClusterAssValidation/TrackClusterAssValidation.h"
+#include "TrackClusterAssValidation.h"
 #include "StoreGate/ReadHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "AtlasHepMC/GenParticle.h"

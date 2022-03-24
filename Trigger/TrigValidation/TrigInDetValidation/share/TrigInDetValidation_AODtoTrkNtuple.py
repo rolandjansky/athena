@@ -63,14 +63,11 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if doTier0Mon :
+if doTier0Mon and not doNewTier0Mon:
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 
   montools = TrigIDtrkMonitoringTool()
-
-  #  print "\n\nMonTools\n"
-  #  print montools
 
   HLTMonManager.AthenaMonTools += montools
 
@@ -80,17 +77,16 @@ if doTier0Mon :
   HLTMonManager.FileKey = "AANT"
 
 
-if doNewTier0Mon :
+if doNewTier0Mon :   
 
-# this is the new location ...
+  # this is the new location ...
   from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
   for git in TIDAMonitoring( "idtrigger" ):
     algseq += git
 
   from GaudiSvc.GaudiSvcConf import THistSvc
   ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-new-tier0.root' OPT='RECREATE'"]
-  HLTMonManager.FileKey = "AANT"
+  ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
 
 
 
@@ -175,8 +171,8 @@ if ( True ) :
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_IDTrig",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
-    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
-    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
+    "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+    "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
 
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
@@ -253,9 +249,9 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_FTF",
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here

@@ -5,8 +5,18 @@
 # Pre-exec script used for all CI tests
 #
 
+branch=${gitlabTargetBranch:-${AtlasBuildBranch}}
+if [ -n "${branch}" ]; then
+    url="https://gitlab.cern.ch/atlas/athena/-/tree/${branch}/AtlasTest/CITest"
+else
+    url="the AtlasTest/CITest package"
+fi
+
 # This time stamp is used by NICOS:
 echo "[CITest][${ATLAS_CTEST_TESTNAME}] start time: `date` (`date +%s.%N`)"
+echo "[CITest][${ATLAS_CTEST_TESTNAME}] on machine `hostname`"
+echo "[CITest][${ATLAS_CTEST_TESTNAME}] to run this test locally see ${url}"
+echo "----------------------------------------------------------"
 
 # Clean private working directory:
 if [ -n "@CI_WORKDIR@" ]; then

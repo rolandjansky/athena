@@ -169,20 +169,19 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(
   if (not egamma or not egamma->caloCluster())
     return result;
 
-  xAOD::CaloCluster* egcClone(nullptr);
+  std::unique_ptr<xAOD::CaloCluster> egcClone;
   if (not egamma->author(xAOD::EgammaParameters::AuthorCaloTopo35)) {
     egcClone =
       CaloClusterStoreHelper::makeCluster(cellCont,
                                           egamma->caloCluster()->eta0(),
                                           egamma->caloCluster()->phi0(),
                                           egamma->caloCluster()->clusterSize());
-    m_tool->makeCorrection(ctx, egcClone);
+    m_tool->makeCorrection(ctx, egcClone.get());
   }
 
   for (unsigned int layer : m_layers) {
     result.emplace_back(egcClone ? egcClone->energyBE(layer) : 0.);
   }
-  delete egcClone;
 
   return result;
 }

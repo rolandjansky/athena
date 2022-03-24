@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonCondTool/CSC_DCSConditionsTool.h"
+#include "CSC_DCSConditionsTool.h"
 
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
@@ -119,12 +119,10 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
       
       if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("NOT 0 HV : " << hv_state << " ChamberName : "<<tokens[0] << "wirelayer" << tokens[1]);
       int eta=0; int phi=0;
-      //std::string chamber_name;
+      std::string chamber_name;
       std::string_view layer = tokens[1];
       std::string_view number_layer =tokens[1].substr(1,2);
       int wirelayer = MuonCalib::MdtStringUtils::atoi(number_layer);
-      //std::string chamber_name = tokens[0];
-      std::string_view chamber_name;
       char eta_side = tokens[0][0];
       if (eta_side == 'A') eta = +1;
       if (eta_side == 'C') eta = -1;
@@ -238,7 +236,7 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
   for(unsigned int tot=0; tot<m_cachedDeadStationsStr.size(); tot++){
     int eta=0; int phi=0;
 
-    std::string_view chamber_name;
+    std::string chamber_name;
     char eta_side = m_cachedDeadStationsStr[tot][0];
     if (eta_side == 'A') eta = +1;
     if (eta_side == 'C') eta = -1;

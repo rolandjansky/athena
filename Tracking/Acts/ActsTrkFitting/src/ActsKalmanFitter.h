@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSKALMANFITTER_H
 #define ACTSGEOMETRY_ACTSKALMANFITTER_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/EventContext.h"
+
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 
@@ -21,20 +22,22 @@
 #include "Acts/Propagator/Propagator.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ATLASSourceLink.h"
-#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
 #include "ActsGeometryInterfaces/IActsATLASConverterTool.h"
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 
 // STL
-#include <memory>
-#include <vector>
-#include <fstream>
-#include <mutex>
+#include <string>
+#include <memory>//unique_ptr
+#include <limits>//for numeric_limits
+#include <cmath> //std::abs
 
 class EventContext;
+
+namespace Trk{
+  class Track;
+}
 
 class ActsKalmanFitter : virtual public Trk::ITrackFitter, public AthAlgTool {
 public:
@@ -145,7 +148,7 @@ public:
     /// @retval True if we use the reverse filtering for the smoothing of the track
     bool operator()(Acts::MultiTrajectory::ConstTrackStateProxy trackState) const {
       // can't determine an outlier w/o a measurement or predicted parameters
-      auto momentum = fabs(1 / trackState.filtered()[Acts::eBoundQOverP]);
+      auto momentum = std::abs(1. / trackState.filtered()[Acts::eBoundQOverP]);
       return (momentum <= momentumMax);
     }
   };

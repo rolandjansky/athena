@@ -15,7 +15,7 @@
 #include "StoreGate/ReadHandle.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileCisDefaultCalibTool.h"
+#include "TileCisDefaultCalibTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"

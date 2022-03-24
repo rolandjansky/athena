@@ -16,7 +16,7 @@ def Geant4SimCfg(flags, name="ISFG4SimSvc", **kwargs):
 
     G4_DDDBEnvelopeDefSvc = CompFactory.DetDescrDBEnvelopeSvc("G4EnvelopeDefSvc")
     G4_DDDBEnvelopeDefSvc.DBBeamPipeNode = "BPipeEnvelopeG4"
-    G4_DDDBEnvelopeDefSvc.DBInDetNode = "InDetEnvelopeG4" if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] else "ITkEnvelopeG4"
+    G4_DDDBEnvelopeDefSvc.DBInDetNode = "InDetEnvelopeG4" if flags.GeoModel.Run < LHCPeriod.Run4 else "ITkEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBCaloNode = "CaloEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBMSNode = "MuonEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBCavernNode = "CavernEnvelopeG4"

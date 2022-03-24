@@ -14,6 +14,7 @@ from .Physics_pp_run3_v1 import (
     SingleJetGroup,
     SingleBjetGroup,
     SingleMuonGroup,
+    SingleTauGroup,
     MultiMuonGroup,
     EgammaMuonGroup,
     PrimaryLegGroup,
@@ -23,7 +24,8 @@ from .Physics_pp_run3_v1 import (
     JetStreamersGroup,
     METStreamersGroup,
     TauStreamersGroup,
-    EgammaStreamersGroup
+    EgammaStreamersGroup,
+    SupportGroup
 )
 
 def setupMenu():
@@ -45,12 +47,19 @@ def setupMenu():
         # idperf ATR-24675
         ChainProp(name='HLT_mu4_idperf_L1MU3V', l1SeedThresholds=['MU3V'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
 
+        # ATR-24977 - LRT muon chains
+        ChainProp(name='HLT_mu24_LRT_d0loose_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu6_LRT_idperf_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
     ]
 
     chains['Egamma'] = [
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_g3_etcut_LArPEB_L1EM3', stream=['LArCells'], groups=['RATE:SinglePhoton', 'BW:Egamma']),
         ChainProp(name='HLT_e5_etcut_L1EM3',stream=['Main'], groups=['RATE:SingleElectron', 'BW:Egamma']),
+    ]
+
+    chains['Tau'] = [
+        ChainProp(name='HLT_tau0_ptonly_L1TAU8', l1SeedThresholds=['TAU8'], stream=['Main'], groups=PrimaryLegGroup+SingleTauGroup),
     ]
 
     chains['Jet'] = [
@@ -72,6 +81,10 @@ def setupMenu():
     chains['MinBias'] = [
         ChainProp(name='HLT_mb_sptrk_costr_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=['Rate:MinBias','BW:MinBias']),
         ChainProp(name='HLT_mb_sptrk_costr_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=['Rate:Cosmic_MinBias','BW:MinBias']),
+    ]
+
+    chains['Monitor'] = [
+        ChainProp(name='HLT_noalg_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['Primary:CostAndRate', 'RATE:Monitoring', 'BW:Other']), # HLT_costmonitor
     ]
 
     chains['Streaming'] = [

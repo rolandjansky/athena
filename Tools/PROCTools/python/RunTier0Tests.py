@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## RunTier0Tests.py - Brief description of the purpose of this script (Has to be in PROC tools)
 # $Id$
@@ -601,6 +601,10 @@ def main():
 
     (options,args)=parser.parse_args()
 
+    logging.error("RunTier0Tests.py is obsolete. Use RunWorkflowTests_Run[2,3,4].py instead.")
+    logging.error("See https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/WorkflowTests")
+    sys.exit(-1)
+
     extraArg        = options.extraArgs
     RunSim          = options.sim_flag
     RunOverlay      = options.overlay_flag
@@ -649,7 +653,7 @@ def main():
         logging.error("")
         logging.error("RunTier0Tests.py  --cleanDir <ExistingDirectory>")
         logging.error("")
-        sys.exit(-1)            
+        sys.exit(-1)
 
 
 ########### Is an ATLAS release setup?

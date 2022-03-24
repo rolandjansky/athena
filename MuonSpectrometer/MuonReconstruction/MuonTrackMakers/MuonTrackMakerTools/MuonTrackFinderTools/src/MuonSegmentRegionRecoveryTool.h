@@ -13,7 +13,10 @@
 #ifndef MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 #define MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 
-
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -22,7 +25,6 @@
 #include "IRegionSelector/RegSelEnums.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonChamberHoleRecoveryTool.h"
-#include "MuonCondData/MdtCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
@@ -40,7 +42,6 @@
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "MuonTrackMakerUtils/TrackStateOnSurfaceComparisonFunction.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -51,11 +52,7 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+#include "MuonStationIntersectCond/MuonIntersectGeoData.h"
 
 class IRoiDescriptor;
 
@@ -134,21 +131,18 @@ namespace Muon {
 
         std::unique_ptr<Trk::Track> findHoles(const EventContext& ctx, const Trk::Track& track, MuonData& data) const;
 
-        SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
-                                                                                "Key of input MuonDetectorManager condition data"};
-
+       
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-                                                        "Handle to the service providing the IMuonEDMHelperSvc interface"};
-        ServiceHandle<MuonStationIntersectSvc> m_intersectSvc{this, "MuonStationIntersectSvc", "MuonStationIntersectSvc"};
+                                                        "Handle to the service providing the IMuonEDMHelperSvc interface"};        
+      
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
         ToolHandle<IMuonSeededSegmentFinder> m_seededSegmentFinder{this, "SeededSegmentFinder",
                                                                    "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
         ToolHandle<IMuonTrackSegmentMatchingTool> m_trackSegmentMatchingTool{this, "TrackSegmentMatchingTool",
                                                                              "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
-       
-        ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{
-            this, "ChamberHoleRecoveryTool", "", "hit-based hole search"};
+
+        ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{this, "ChamberHoleRecoveryTool", "", "hit-based hole search"};
         ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};
         ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", ""};
         ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBSLFitter"};
@@ -162,7 +156,8 @@ namespace Muon {
         PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
-        SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
+        SG::ReadCondHandleKey<Muon::MuonIntersectGeoData> m_chamberGeoKey{this, "ChamberGeoKey", "MuonStationIntersects", "Pointer to hole search service"};
+   
         // properties
         Gaudi::Property<double> m_deta{this, "DeltaEtaRegion", 0.05};
         Gaudi::Property<double> m_dphi{this, "DeltaPhiRegion", 0.1};
@@ -171,8 +166,7 @@ namespace Muon {
         Gaudi::Property<bool> m_useFitterOutlierLogic{this, "UseFitterOutlierLogic", true};
 
         Gaudi::Property<bool> m_recoverMM{this, "RecoverMM", true, "Pick up dropped micromega chambers"};
-        Gaudi::Property<bool> m_recoverSTGC{this, "RecoverSTGC", true, "Pick up dropped sTGC chambers" };
-
+        Gaudi::Property<bool> m_recoverSTGC{this, "RecoverSTGC", true, "Pick up dropped sTGC chambers"};
     };
 }  // namespace Muon
 

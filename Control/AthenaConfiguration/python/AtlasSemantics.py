@@ -2,6 +2,7 @@
 
 import GaudiConfig2.semantics
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray, PublicToolHandle, ServiceHandle
+from GaudiKernel.DataHandle import DataHandle
 import re
 import copy
 
@@ -40,14 +41,35 @@ class MapMergeNoReplaceSemantics(GaudiConfig2.semantics.MappingSemantics):
             a[k] = b[k]
         return a
 
-class VarHandleSematics(GaudiConfig2.semantics.StringSemantics):
+
+class VarHandleKeySemantics(GaudiConfig2.semantics.PropertySemantics):
     '''
-    Treat VarHandleKeys like strings
+    Semantics for all data handle keys (Read, Write, Decor, Cond).
     '''
-    __handled_types__ = ("SG::VarHandleKey",)
-    def __init__(self,cpp_type,name=None):
-        super(VarHandleSematics,self).__init__(cpp_type, name)
-        pass
+    __handled_types__ = (re.compile(r"SG::.*HandleKey<.*>$"),)
+
+    def __init__(self, cpp_type, name=None):
+        super().__init__(cpp_type, name)
+        # Deduce actual handle type
+        self._type = next(GaudiConfig2.semantics.extract_template_args(cpp_type))
+        self._isCond = 'CondHandle' in cpp_type
+
+        if cpp_type.startswith("SG::Read"):
+            self._mode = "R"
+        elif cpp_type.startswith("SG::Write"):
+            self._mode = "W"
+        else:
+            raise TypeError(f"C++ type {cpp_type} not supported")
+
+    def store(self, value):
+        if isinstance(value, DataHandle):
+            v = value.Path
+        elif isinstance(value, str):
+            v = value
+        else:
+            raise TypeError(f"cannot assign {value!r} ({type(value)}) to {self.name}"
+                            ", expected string or DataHandle")
+        return DataHandle(v, self._mode, self._type, self._isCond)
 
 
 class VarHandleArraySematics(GaudiConfig2.semantics.PropertySemantics):
@@ -210,7 +232,7 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
 
 
 GaudiConfig2.semantics.SEMANTICS.append(AppendListSemantics)
-GaudiConfig2.semantics.SEMANTICS.append(VarHandleSematics)
+GaudiConfig2.semantics.SEMANTICS.append(VarHandleKeySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(VarHandleArraySematics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)

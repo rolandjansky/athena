@@ -1,17 +1,21 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULT_MUCTPI_DATAWORD_DECODER_H
 #define TRIGT1RESULT_MUCTPI_DATAWORD_DECODER_H
 
-// System include(s):
-#include <cstdint>
 
 // Local include(s):
 #include "TrigT1Result/MuCTPI_RDO.h"
+
+// Gaudi include(s):
+#include "GaudiKernel/MsgStream.h"
+
+// System include(s):
+#include <cstdint>
 
 /**
  *   $Date: 2007-07-05 13:26:22 $

@@ -10,13 +10,15 @@ def LArCalibBaseCfg(flags):
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     result.merge(LArGMCfg(flags))
 
-    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArCalibIdMappingCfg, LArOnOffIdMappingSCCfg#, LArCalibIdMappingSCCfg
     if flags.LArCalib.isSC:
         #Setup SuperCell cabling
+        from LArCabling.LArCablingConfig import LArOnOffIdMappingSCCfg, LArCalibIdMappingSCCfg, LArLATOMEMappingCfg
         result.merge(LArOnOffIdMappingSCCfg(flags))
+        result.merge(LArCalibIdMappingSCCfg(flags))
+        result.merge(LArLATOMEMappingCfg(flags))
     else:
         #Setup regular cabling
-
+        from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArCalibIdMappingCfg
         result.merge(LArOnOffIdMappingCfg(flags))
         result.merge(LArCalibIdMappingCfg(flags))
     

@@ -35,16 +35,6 @@ if DerivationFrameworkIsMonteCarlo:
                                                                     AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
                                                                      )
 
-    # Add in some jets - global config if we are running on EVNT
-    if dfInputIsEVNT:
-        from JetRec.JetRecFlags import jetFlags
-        jetFlags.useTruth = True
-        jetFlags.useTracks = False
-        jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-                                    "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                                    "TausFinal",
-                                    "Partons",
-                                    ]
 
 # Helper for adding truth jet collections via new jet config
 def addTruthJets(kernel=None, decorationDressing=None):

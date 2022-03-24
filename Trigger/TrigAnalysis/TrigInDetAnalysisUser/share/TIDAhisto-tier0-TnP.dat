@@ -11,8 +11,8 @@ dist_panel = {
   "testtrk_pT",    "p_{T} rec", "xaxis:log:auto:0.5:400",   "Trigger p_{T} [GeV]",   "yaxis:log:autonw",   "(1/N)dN/dp_{T} [GeV^{-1}]"  ,
   "testtrk_eta",    "eta rec",  "xaxis:lin:-3:3",         "Trigger #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
   "testtrk_phi",    "phi rec",  "xaxis:lin:-3.14:3.14",   "Trigger #phi",          "yaxis:lin:auton",    "Normalised entries",
-  "Minv_TnP",      "Tracks M_{INV}^{tag+probe}",      "xaxis:lin:autow",        "Offline tracks M_{INV} [GeV]",     "yaxis:lin:autow",  ""  , 
-  "Minv_obj_TnP",  "Electrons M_{INV}^{tag+probe}",       "xaxis:lin:autow",        "Offline dielectron M_{INV} [GeV]",     "yaxis:lin:autow",  "" 
+  "invmass",      "Tracks M_{INV}^{tag+probe}",      "xaxis:lin:autow",        "Offline tracks M_{INV} [GeV]",     "yaxis:lin:autow",  "Entries"  , 
+  "invmass_obj",  "Electrons M_{INV}^{tag+probe}",       "xaxis:lin:autow",        "Offline dielectron M_{INV} [GeV]",     "yaxis:lin:autow",  "Entries" 
 };
 
 

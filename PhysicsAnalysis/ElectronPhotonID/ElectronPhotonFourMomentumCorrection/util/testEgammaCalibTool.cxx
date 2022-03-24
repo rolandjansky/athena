@@ -123,7 +123,7 @@ int main( int argc, char* argv[] ) {
      CHECK( event.retrieve( event_info, "EventInfo" ) );
 
 
-     const xAOD::PhotonContainer* photons;
+     const xAOD::PhotonContainer* photons = nullptr;
      CHECK( event.retrieve(photons, "Photons") );
 
      //Clone
@@ -163,7 +163,7 @@ int main( int argc, char* argv[] ) {
 
 
 
-     const xAOD::ElectronContainer* electrons;
+     const xAOD::ElectronContainer* electrons = nullptr;
      CHECK( event.retrieve(electrons, "Electrons") );
 
      //Clone

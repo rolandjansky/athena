@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -88,7 +88,7 @@ SCT_RODVetoTool::isGood(const IdentifierHash& hashId) const {
 
 const IdentifierSet*
 SCT_RODVetoTool::getCondData(const EventContext& ctx) const {
-  SG::ReadHandle<IdentifierSet> condData{m_badModuleIds, ctx};
+  SG::ReadCondHandle<IdentifierSet> condData{m_badModuleIds, ctx};
   if (not condData.isValid()) {
     ATH_MSG_ERROR("Failed to get " << m_badModuleIds.key());
     return nullptr;

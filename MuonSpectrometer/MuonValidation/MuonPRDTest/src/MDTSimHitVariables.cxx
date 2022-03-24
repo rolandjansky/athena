@@ -44,7 +44,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     // the last 2 arguments are:
     // bool check -> set to true for validity check of identifier
     // &bool isValid -> reference to boolean, which will be false in case of invalid identifier
-    Identifier offid = m_MdtIdHelper->channelID(stname, steta, stphi,ml,tl,tube,true,&isValid);
+    Identifier offid = m_MdtIdHelper->channelID(stname, steta, stphi,ml,tl,tube, isValid);
     if (!isValid) {
        ATH_MSG_WARNING("Cannot build a valid Identifier for MDT stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", multiLayer="<<ml<<", tubeLayer="<<tl<<", tube="<<tube<<"; skipping...");
        continue;

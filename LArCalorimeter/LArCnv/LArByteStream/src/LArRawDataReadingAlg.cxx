@@ -138,13 +138,22 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
         }
       } else {
         if(rob.rob_source_id()& 0x1000 ){
-               ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rob_source_id());
+               //ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rob_source_id());
                rodBlock=nullptr;
                continue;
-        } else {  
-	       ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
+        } else if(!(rob.rod_source_id()>>12& 0x0F) //0xnn0nnn must be
+                 && ((rob.rod_source_id()>>20) == 4) ){ //0x4nnnnn must be
+        
+	       ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType << " event: "<<ctx.eventID().event_number());
+               SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+               ATH_MSG_ERROR("Source id: 0x"<<std::hex<<rob.rod_source_id()<<std::dec<<" Lvl1ID: "<<eventInfo->extendedLevel1ID());
 	       return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
-        }
+            } else {
+	       ATH_MSG_DEBUG("Found not LAr fragment " << " event: "<<ctx.eventID().event_number());
+               SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+               ATH_MSG_ERROR("Rob source id.: 0x"<<  std::hex << rob.rob_source_id () <<std::dec  <<" ROD Source id: 0x"<<std::hex<<rob.rod_source_id()<<std::dec<<" Lvl1ID: "<<eventInfo->extendedLevel1ID());
+               continue;
+            }
       }
     }//End if need to re-init RodBlock
 

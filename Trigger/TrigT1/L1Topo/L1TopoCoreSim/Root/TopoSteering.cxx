@@ -69,6 +69,7 @@ TopoSteering::reset() {
    LateMuonTOB::clearHeap();
    MuonNextBCTOB::clearHeap();
    MetTOB::clearHeap();
+   jXETOB::clearHeap();
    GenericTOB::clearHeap();
    CompositeTOB::clearHeap();
 

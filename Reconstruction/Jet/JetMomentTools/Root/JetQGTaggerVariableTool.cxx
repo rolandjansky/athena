@@ -41,6 +41,8 @@ StatusCode JetQGTaggerVariableTool::initialize() {
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_eventInfo_key.initialize());
 
+  ATH_CHECK(m_tva_key.initialize());
+
   ATH_CHECK(m_nTrkKey.initialize());
   ATH_CHECK(m_trkWidthKey.initialize());
   ATH_CHECK(m_trkC1Key.initialize());
@@ -92,6 +94,15 @@ StatusCode JetQGTaggerVariableTool::decorate(const xAOD::JetContainer& jetCont) 
   //Find the HS vertex
   const xAOD::Vertex* HSvertex = findHSVertex(vertices);
 
+  // Get the track-vertex association
+  auto handle_tva = SG::makeHandle (m_tva_key);
+  if (!handle_tva.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " << m_tva_key.key());
+    return StatusCode::FAILURE;
+  }
+
+  auto tva = handle_tva.cptr();
+
   //Loop over the jets
   for(const xAOD::Jet* jet : jetCont){
 
@@ -121,8 +132,8 @@ StatusCode JetQGTaggerVariableTool::decorate(const xAOD::JetContainer& jetCont) 
       // 3) associated to primary vertex OR within 3mm of the primary vertex                                                                                                                            
 
       bool accept = (trk->pt()>500 &&
-      		     m_trkSelectionTool->accept(*trk) &&
-		     (m_trkVertexAssocTool->isCompatible(*trk,*HSvertex) || (!m_trkVertexAssocTool->isCompatible(*trk,*HSvertex) && fabs((trk->z0()+trk->vz()-HSvertex->z())*sin(trk->theta()))<3.))
+		     m_trkSelectionTool->keep(*trk) &&
+		     (HSvertex == tva->associatedVertex(trk) || (HSvertex != tva->associatedVertex(trk) && std::abs((trk->z0()+trk->vz()-HSvertex->z())*sin(trk->theta()))<3.))
 		     );
 
       IsGoodTrack.push_back(accept);

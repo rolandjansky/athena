@@ -89,10 +89,61 @@ namespace ActsTrk {
 	"lower cutoff for seeds"}; // Also used by SpacePointGridConfig
     Gaudi::Property< float > m_cotThetaMax {this,"cotThetaMax",7.40627,
 	"cot of maximum theta angle"}; // Also used by SpacePointGridConfig 
-    Gaudi::Property< float > m_deltaRMin {this,"deltaRMin",5. * Acts::UnitConstants::mm,
+
+    Gaudi::Property< float > m_deltaRMin {this, "deltaRMin", 5. * Acts::UnitConstants::mm,
 	"minimum distance in r between two measurements within one seed"}; // Also used by SeedFilterConfig
-    Gaudi::Property< float > m_deltaRMax {this,"deltaRMax",60. * Acts::UnitConstants::mm,
+    Gaudi::Property< float > m_deltaRMax {this, "deltaRMax", 60. * Acts::UnitConstants::mm,
 	"maximum distance in r between two measurements within one seed"}; // Also used by SpacePointGridConfig 
+    Gaudi::Property< float > m_deltaRMinTopSP {this, "deltaRMinTopSP", 5. * Acts::UnitConstants::mm,
+	"minimum distance in r between middle and top SP"}; 
+    Gaudi::Property< float > m_deltaRMaxTopSP {this, "deltaRMaxTopSP", 60. * Acts::UnitConstants::mm,
+	"maximum distance in r between middle and top SP"}; 
+    Gaudi::Property< float > m_deltaRMinBottomSP {this, "deltaRMinBottomSP", 5. * Acts::UnitConstants::mm,
+	"minimum distance in r between middle and top SP"}; 
+    Gaudi::Property< float > m_deltaRMaxBottomSP {this, "deltaRMaxBottomSP", 60. * Acts::UnitConstants::mm,
+	"maximum distance in r between middle and top SP"};
+
+    Gaudi::Property< std::vector<std::vector<double>> > m_rRangeMiddleSP {this, "rRangeMiddleSP", {},
+  "radial range for middle SP"};
+    Gaudi::Property<bool> m_useVariableMiddleSPRange {this, "useVariableMiddleSPRange", false,
+	"use variable middle SP range or not"};
+    Gaudi::Property< float > m_deltaRMiddleSPRange {this, "deltaRMiddleSPRange", 10. /** Acts::UnitConstants::mm*/, // this will have to change to ACTS units, but right now isn't correctly converted on the ACTS side.
+	"delta R for middle SP range"};
+
+
+    Gaudi::Property<bool> m_seedConfirmation {this, "seedConfirmation", false,
+  "run seed confirmation"};
+
+    Gaudi::Property<float> m_seedConfCentralZMin {this, "seedConfCentralZMin", 0,
+  "minimum z for central seed confirmation "};
+    Gaudi::Property<float> m_seedConfCentralZMax {this, "seedConfCentralZMax", 0,
+  "maximum z for central seed confirmation "};
+    Gaudi::Property<float> m_seedConfCentralRMax {this, "seedConfCentralRMax", 0,
+  "maximum r for central seed confirmation "};
+    Gaudi::Property<size_t> m_seedConfCentralNTop {this, "seedConfCentralNTop", 0,
+  "nTop for central seed confirmation"};
+    Gaudi::Property<size_t> m_seedConfCentralNTopLR {this, "seedConfCentralNTopLR", 0,
+  "nTop for large R central seed confirmation"};
+    Gaudi::Property<size_t> m_seedConfCentralNTopSR {this, "seedConfCentralNTopSR", 0,
+  "nTop for small R central seed confirmation"};
+
+    Gaudi::Property<float> m_seedConfForwardZMin {this, "seedConfForwardZMin", 0,
+  "minimum z for forward seed confirmation "};
+    Gaudi::Property<float> m_seedConfForwardZMax {this, "seedConfForwardZMax", 0,
+  "maximum z for forward seed confirmation "};
+    Gaudi::Property<float> m_seedConfForwardRMax {this, "seedConfForwardRMax", 0,
+  "maximum r for forward seed confirmation "};
+    Gaudi::Property<size_t> m_seedConfForwardNTop {this, "seedConfForwardNTop", 0,
+  "nTop for forward seed confirmation"};
+    Gaudi::Property<size_t> m_seedConfForwardNTopLR {this, "seedConfForwardNTopLR", 0,
+  "nTop for large R forward seed confirmation"};
+    Gaudi::Property<size_t> m_seedConfForwardNTopSR {this, "seedConfForwardNTopSR", 0,
+  "nTop for small R forward seed confirmation"};
+
+    Gaudi::Property<bool> m_enableCutsForSortedSP {this, "enableCutsForSortedSP", false,
+  "enables cuts based on SPs sorted by cotTheta"};
+
+
     Gaudi::Property< float > m_impactMax {this,"impactMax",3. * Acts::UnitConstants::mm,
 	"maximum impact parameter"}; // Also used by SpacePointGridConfig 
     Gaudi::Property< float > m_sigmaScattering {this,"sigmaScattering",5,
@@ -142,7 +193,8 @@ namespace ActsTrk {
     Gaudi::Property< int > m_numPhiNeighbors {this, "numPhiNeighbors", 1, 
 	"sets of consecutive phi bins in the seed making step"};
     Gaudi::Property< std::vector<float> > m_zBinEdges {this, "zBinEdges", {} , 
-	"enable non equidistant binning in z"}; 
+	"enable non equidistant binning in z"}; // Also used by SpacePointGridConfig 
+
   };
   
 } // namespace

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,7 +31,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "LArHVScaleCorrTool.h"
 
@@ -94,8 +93,6 @@ private:
 
   Gaudi::Property<bool> m_doAffected{this,"doAffected",true,"create affected region info"};
   Gaudi::Property<bool> m_doAffectedHV{this,"doAffectedHV",true,"include HV non nominal regions info"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
   Gaudi::Property<std::vector<std::string> > m_fixHVStrings{this,"fixHVCorr"};
 

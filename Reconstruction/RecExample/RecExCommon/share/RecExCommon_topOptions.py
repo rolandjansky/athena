@@ -535,7 +535,7 @@ if rec.readRDO():
 #
 # Write beamspot information into xAOD::EventInfo.
 #
-if globalflags.InputFormat.is_bytestream():
+if globalflags.InputFormat.is_bytestream() and not athenaCommonFlags.isOnline():
     topSequence += CfgMgr.xAODMaker__EventInfoBeamSpotDecoratorAlg()
     pass
 
@@ -570,15 +570,6 @@ if rec.doWriteBS():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
-pdr.flag_domain('tagraw')
-## add in RawInfoSummaryForTagWriter
-if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.doTagRawSummary()):
-    try:
-        include("EventTagRawAlgs/RawInfoSummaryForTagWriter_jobOptions.py")
-    except Exception:
-        logRecExCommon_topOptions.warning("Could not load RawInfoSummaryForTagWriter_joboptions !" )
-        pass
-    pass
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
 if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
@@ -889,7 +880,7 @@ if rec.doWriteESD():
                 raise Exception
             # Get an instance of the random number generator
             # The actual seeds are dummies since event reseeding is used
-            from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+            from RngComps.RngCompsConf import AtRanluxGenSvc
             if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
                 svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                           OutputLevel    = ERROR,
@@ -1020,7 +1011,7 @@ if rec.doDPD():
 
     # Get an instance of the random number generator
     # The actual seeds are dummies since event reseeding is used
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+    from RngComps.RngCompsConf import AtRanluxGenSvc
     if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
         svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                   OutputLevel    = ERROR,
@@ -1066,9 +1057,7 @@ if rec.doDPD():
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
             CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
-            from PyUtils.MetaReaderPeeker import convert_metadata_items
-            #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(convert_metadata_items(layout='#join'))
+            #Explicitly add file metadata from the transient store
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass

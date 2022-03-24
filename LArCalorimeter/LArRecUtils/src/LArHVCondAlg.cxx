@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./LArHVCondAlg.h" 
@@ -77,22 +77,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK(m_outputHVScaleCorrKey.initialize());
   ATH_CHECK(m_affectedKey.initialize());
 
-  if(m_doHV || m_doAffectedHV) {
-    if (m_condSvc->regHandle(this, m_outputHVScaleCorrKey).isFailure()) {
-      ATH_MSG_ERROR("unable to register WriteCondHandle " << m_outputHVScaleCorrKey.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-  if(m_doAffected) {
-     if (m_condSvc->regHandle(this, m_affectedKey).isFailure()) {
-       ATH_MSG_ERROR("unable to register WriteCondHandle " << m_affectedKey.fullKey() << " with CondSvc");
-       return StatusCode::FAILURE;
-     }
-  }
-
-  ATH_CHECK( m_condSvc.retrieve() );
-
-  m_scaleTool=std::make_unique<LArHVScaleCorrTool>(m_calocellID,msg(),m_fixHVStrings); 
+  m_scaleTool=std::make_unique<LArHVScaleCorrTool>(m_calocellID,msg(),m_fixHVStrings);
 
   ATH_MSG_DEBUG("Configured with doHV " << m_doHV << " doAffected " << m_doAffected << " doAffectedHV " << m_doAffectedHV);
 

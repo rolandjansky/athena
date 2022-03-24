@@ -92,7 +92,7 @@ namespace Rec{
          for (j=i+1; j<NTracks; j++) {
              if(trackSignif[j]<m_trkSigCut || dRdZratio[j]<m_dRdZRatioCut )continue;
              PSum2T=selectedTracks[i]->p4()+selectedTracks[j]->p4();
-             if(PSum2T.M()>m_vrt2TrMassLimit)continue;
+             if(PSum2T.M()>1.5*m_vrt2TrMassLimit)continue;  //Approximate mass
              if( std::abs(selectedTracks[i]->eta()-selectedTracks[j]->eta())==0 &&
                  std::abs(selectedTracks[i]->phi()-selectedTracks[j]->phi())==0 &&
                  std::abs(selectedTracks[i]->pt() -selectedTracks[j]->pt())==0 ) continue; //remove duplicated tracks
@@ -199,7 +199,6 @@ namespace Rec{
                 m_curTup->VrtDZ    [m_curTup->n2Vrt] = minDZ;
                 m_curTup->VrtDisk  [m_curTup->n2Vrt] = idisk1+10*idisk2+20*idisk3+30*jdisk1+40*jdisk2+50*jdisk3;
                 m_curTup->VSigMat  [m_curTup->n2Vrt] = dstMatSignif;
-                //m_curTup->VSigMat  [m_curTup->n2Vrt] = bestDZ;
                 if(m_curTup->n2Vrt<DevTuple::maxNVrt-1)m_curTup->n2Vrt++;
              }
 //-------------------BDT based rejection
@@ -218,7 +217,6 @@ namespace Rec{
              float wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);
              if( m_fillHist && m_curTup ) m_curTup->VrtBDT[m_curTup->n2Vrt-1] = wgtSelect;
              if(wgtSelect<m_v2tIniBDTCut) continue;
-             //if(weights[2]>weights[0] && weights[2]>weights[1])continue;
 //
 //---  Save good candidate for multi-vertex fit
 //

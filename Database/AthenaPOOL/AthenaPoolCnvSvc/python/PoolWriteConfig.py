@@ -88,5 +88,5 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", auto_flush ) ]
 
     acc.addService(AthenaPoolCnvSvc(PoolAttributes = PoolAttributes))
-    acc.addService(CompFactory.EvtPersistencySvc(CnvServices=["AthenaPoolCnvSvc"]))
+    acc.addService(CompFactory.EvtPersistencySvc("EventPersistencySvc",CnvServices=["AthenaPoolCnvSvc"]))
     return acc
