@@ -14,6 +14,9 @@
 // This code was updated on 2018-02-22 by following
 // Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools/test/GenParticleGenericFilter_test.cxx
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 // Google Test
 #include "gtest/gtest.h"
 
