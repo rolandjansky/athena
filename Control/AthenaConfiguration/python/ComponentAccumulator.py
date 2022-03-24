@@ -838,7 +838,13 @@ class ComponentAccumulator(object):
                         getCompsToBeAdded(v1, namePrefix=name + ".")
                 elif (
                     not isSequence(comp) and k != "Members"
-                ):  # This property his handled separately
+                ):  # This property is handled separately
+                    # For a list of DataHandle, we need to stringify
+                    # each element individually.  Otherwise, we get the repr
+                    # version of the elements, which Gaudi JO will choke on.
+                    from GaudiKernel.DataHandle import DataHandle
+                    if isinstance(v, list) and v and isinstance(v[0], DataHandle):
+                        v = [str(x) for x in v]
                     vstr = "" if v is None else str(v)
                     bshPropsToSet.append((name, k, vstr))
 
