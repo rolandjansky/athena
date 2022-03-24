@@ -2,6 +2,7 @@
 
 # art-description: MC+MC Overlay chain for MC20e, ttbar, full reco chain
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 
