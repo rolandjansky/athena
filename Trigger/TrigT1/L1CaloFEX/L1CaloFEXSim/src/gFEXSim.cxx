@@ -239,31 +239,41 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
    int gXE_seedThrA = 0;
    int gXE_seedThrB = 0;
+   int gXE_seedThrC = 0;
    gXE_seedThrA = thr_gXE.seedThr('A'); //defined in GeV by default
    gXE_seedThrA = gXE_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
    gXE_seedThrB = thr_gXE.seedThr('B'); //defined in GeV by default
    gXE_seedThrB = gXE_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gXE_seedThrC = thr_gXE.seedThr('C'); //defined in GeV by default
+   gXE_seedThrC = gXE_seedThrC/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
 
 
-   unsigned int aFPGA_A = 0;
-   unsigned int bFPGA_A = 0;
-   unsigned int aFPGA_B = 0;
-   unsigned int bFPGA_B = 0;
-   // aFPGA_A = thr_gXE.JWOJ_param('A','a');
-   // bFPGA_A = thr_gXE.JWOJ_param('A','b');
-   // aFPGA_B = thr_gXE.JWOJ_param('B','a');
-   // bFPGA_B = thr_gXE.JWOJ_param('B','b');
+   float aFPGA_A = 0;
+   float bFPGA_A = 0;
+   float aFPGA_B = 0;
+   float bFPGA_B = 0;
+   float aFPGA_C = 0;
+   float bFPGA_C = 0;
+   aFPGA_A = thr_gXE.JWOJ_param('A','a') / (pow(2, 10)-1);
+   bFPGA_A = thr_gXE.JWOJ_param('A','b') / (pow(2, 10)-1);
+   aFPGA_B = thr_gXE.JWOJ_param('B','a') / (pow(2, 10)-1);
+   bFPGA_B = thr_gXE.JWOJ_param('B','b') / (pow(2, 10)-1);
+   aFPGA_C = thr_gXE.JWOJ_param('C','a') / (pow(2, 10)-1);
+   bFPGA_C = thr_gXE.JWOJ_param('C','b') / (pow(2, 10)-1);
    
    aFPGA_A = 1;
    bFPGA_A = 1;
    aFPGA_B = 1;
    bFPGA_B = 1;
+   aFPGA_C = 1;
+   bFPGA_C = 1;
 
    m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
                                        aFPGA_B, bFPGA_B,
-                                       gXE_seedThrA, gXE_seedThrB);
+                                       aFPGA_C, bFPGA_C,
+                                       gXE_seedThrA, gXE_seedThrB, gXE_seedThrC);
 
-   auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
+   auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, CNtwr, CPtwr, outTOB);
 
    m_gScalarEJwojTobWords.resize(1);
    m_gMETComponentsJwojTobWords.resize(1);
