@@ -59,7 +59,7 @@ namespace MuonCalib{
         char delimiter = ' ';
         auto tokens = MdtStringUtils::tokenize(line, delimiter);
 
-        if(tokens.size() != 25){
+        if(tokens.size() < 22){
           MsgStream log(Athena::getMessageSvc(), "NSWCondUtils");
           log<<MSG::WARNING<<"Invalid length in string retrieved from the test file "<< filename << "String length is "<< tokens.size()<< endmsg;
           break;
