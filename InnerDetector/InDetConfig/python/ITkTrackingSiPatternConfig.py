@@ -2,7 +2,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg, ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
 import InDetConfig.ITkTrackingCommonConfig as TC
 from ActsTrkFinding.ActsSiSpacePointsSeedMakerConfig import ActsSiSpacePointsSeedMakerCfg
 
@@ -54,86 +53,21 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     acc.setPrivateTools(ITkSiSpacePointsSeedMaker)
     return acc
 
-def ITkSiDetElementsRoadMaker_xkCfg(flags, name="ITkSiRoadMaker", **kwargs) :
-    acc = ComponentAccumulator()
-    #
-    # --- SCT and Pixel detector elements road builder
-    #
-    ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
-
-    kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel )
-    kwargs.setdefault("PixManagerLocation", 'ITkPixel')
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip)
-    kwargs.setdefault("SCTManagerLocation", 'ITkStrip')
-    kwargs.setdefault("RoadWidth", flags.ITk.Tracking.ActivePass.roadWidth)
-
-    ITkSiDetElementsRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-    acc.setPrivateTools(ITkSiDetElementsRoadMaker)
-    return acc
-
-def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwargs) :
-    acc = ComponentAccumulator()
-
-    #
-    # --- Local track finding using sdCaloSeededSSSpace point seed
-    #
-    ITkRotCreatorDigital = acc.getPrimaryAndMerge(TC.ITkRotCreatorDigitalCfg(flags))
-    ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
-    ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
-
-    ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
-
-    kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
-    kwargs.setdefault("UpdatorTool", ITkPatternUpdator)
-    kwargs.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
-    kwargs.setdefault("RIOonTrackTool", ITkRotCreatorDigital)
-    kwargs.setdefault("usePixel", flags.Detector.EnableITkPixel)
-    kwargs.setdefault("useSCT", flags.Detector.EnableITkStrip)
-    kwargs.setdefault("PixelClusterContainer", 'ITkPixelClusters')
-    kwargs.setdefault("SCT_ClusterContainer", 'ITkStripClusters')
-    kwargs.setdefault("PixelDetElementBoundaryLinks_xk", "ITkPixelDetElementBoundaryLinks_xk")
-    kwargs.setdefault("SCT_DetElementBoundaryLinks_xk", "ITkStripDetElementBoundaryLinks_xk")
-    kwargs.setdefault("SCTDetEleCollKey","ITkStripDetectorElementCollection")
-    kwargs.setdefault("ITkGeometry", True)
-    kwargs.setdefault("doFastTracking", flags.ITk.Tracking.doFastTracking)
-
-    if flags.Detector.EnableITkPixel:
-        from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
-        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
-    else:
-        kwargs.setdefault("PixelSummaryTool", None)
-
-    if flags.Detector.EnableITkStrip:
-        from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
-        kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags)))
-    else:
-        kwargs.setdefault("SctSummaryTool", None)
-
-    ITkSiComTrackFinder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-    acc.setPrivateTools(ITkSiComTrackFinder)
-    return acc
-
 def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
 
+    from InDetConfig.SiDetElementsRoadToolConfig import ITkSiDetElementsRoadMaker_xkCfg
     ITkSiDetElementsRoadMaker = acc.popToolsAndMerge(ITkSiDetElementsRoadMaker_xkCfg(flags))
 
     if flags.ITk.Tracking.ActivePass.useITkPixel:
-        acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksPixelCondAlg",
-                                                                                ReadKey  = "ITkPixelDetectorElementCollection",
-                                                                                WriteKey = "ITkPixelDetElementBoundaryLinks_xk",
-                                                                                ITkGeometry = True ) )
+        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg
+        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg(flags))
+
     if flags.ITk.Tracking.ActivePass.useITkStrip:
-        acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "ITkSiDetElementsRoadCondAlg_xk",
-                                                                      PixelDetEleCollKey = "ITkPixelDetectorElementCollection",
-                                                                      SCTDetEleCollKey = "ITkStripDetectorElementCollection"))
+        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg
+        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg(flags))
 
-        acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksSCTCondAlg",
-                                                                                ReadKey  = "ITkStripDetectorElementCollection",
-                                                                                WriteKey = "ITkStripDetElementBoundaryLinks_xk",
-                                                                                ITkGeometry = True ) )
-
+    from InDetConfig.SiCombinatorialTrackFinderToolConfig import ITkSiCombinatorialTrackFinder_xkCfg
     track_finder = acc.popToolsAndMerge(ITkSiCombinatorialTrackFinder_xkCfg(flags))
 
     kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip)
@@ -269,188 +203,6 @@ def ITkCopyAlgForAmbiCfg(flags, name="ITkCopyAlgForAmbi", InputTrackCollection =
     acc.addEventAlgo(ITkCopyAlgForAmbi)
     return acc
 
-
-def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwargs) :
-    acc = ComponentAccumulator()
-
-    # ------------------------------------------------------------
-    #
-    # ---------- Ambiguity solving
-    #
-    # ------------------------------------------------------------
-
-    #
-    # --- load InnerDetector TrackSelectionTool
-    #
-
-    ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
-
-    kwargs.setdefault("DriftCircleCutTool", None)
-    kwargs.setdefault("AssociationTool" , ITkPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
-    kwargs.setdefault("UseParameterization" , False)
-    kwargs.setdefault("Cosmics"             , flags.Beam.Type is BeamType.Cosmics)
-    kwargs.setdefault("doPixelSplitting"    , flags.ITk.Tracking.doPixelClusterSplitting )
-    kwargs.setdefault("doITk" , True)
-
-    kwargs.setdefault("sharedProbCut"             , flags.ITk.Tracking.pixelClusterSplitProb1)
-    kwargs.setdefault("sharedProbCut2"            , flags.ITk.Tracking.pixelClusterSplitProb2)
-    kwargs.setdefault("minSiHitsToAllowSplitting" , 9)
-    kwargs.setdefault("minUniqueSCTHits"          , 4)
-    kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-    kwargs.setdefault("minPtSplit"                , 1000)       #Only allow split clusters on track withe pt greater than this MeV
-    kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
-    kwargs.setdefault("minNotSharedInROI"         , 2)     #Minimum number of unique modules for tracks in ROI
-    kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
-    kwargs.setdefault("phiWidth"                  , 0.05)     #Split cluster ROI size
-    kwargs.setdefault("etaWidth"                  , 0.05)     #Split cluster ROI size
-    kwargs.setdefault("doEmCaloSeed"              , flags.ITk.Tracking.doCaloSeededAmbi)   #Only split in cluster in region of interest
-    kwargs.setdefault("InputEmClusterContainerName", 'ITkCaloClusterROIs')
-    if flags.Detector.EnableCalo:
-        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
-        acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("doHadCaloSeed"             , flags.ITk.Tracking.doCaloSeededAmbi)   #Do special cuts in region of interest
-    kwargs.setdefault("InputHadClusterContainerName", "ITkHadCaloClusterROIs" + "Bjet")
-    if flags.Detector.EnableCalo:
-        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkHadCaloClusterROI_SelectorCfg
-        acc.merge(ITkHadCaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
-    kwargs.setdefault("minPtBjetROI"              , 10000)
-    kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
-    kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
-
-    if 'InDetEtaDependentCutsSvc' not in kwargs :
-        acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
-        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
-
-    ITkAmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-    acc.setPrivateTools(ITkAmbiTrackSelectionTool)
-    return acc
-
-def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbiguityScoreProcessor", ClusterSplitProbContainer='', **kwargs) :
-    acc = ComponentAccumulator()
-    #
-    # --- set up different Scoring Tool for collisions and cosmics
-    #
-    if flags.Beam.Type is BeamType.Cosmics:
-        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
-    else:
-        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
-
-    from InDetConfig.ITkSiliconPreProcessing import ITkNnPixelClusterSplitProbToolCfg
-    ITkNnPixelClusterSplitProbTool = acc.popToolsAndMerge(ITkNnPixelClusterSplitProbToolCfg(flags))
-    ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
-    ITkPRDtoTrackMapTool = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolCfg(flags))
-
-    kwargs.setdefault("sharedProbCut",  flags.ITk.Tracking.pixelClusterSplitProb1)
-    kwargs.setdefault("sharedProbCut2", flags.ITk.Tracking.pixelClusterSplitProb2)
-    kwargs.setdefault("SplitClusterMap_new", 'SplitClusterAmbiguityMap'+flags.ITk.Tracking.ActivePass.extension)
-
-    kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
-    kwargs.setdefault("SplitProbTool", ITkNnPixelClusterSplitProbTool if flags.ITk.Tracking.doPixelClusterSplitting else None,)
-    kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationToolNotGanged", ITkPRDtoTrackMapTool)
-    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.ActivePass.extension)
-    kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.ActivePass.extension)
-
-    # DenseEnvironmentsAmbiguityScoreProcessorTool
-    ITkAmbiguityScoreProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityScoreProcessorTool(name=name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-
-    acc.setPrivateTools(ITkAmbiguityScoreProcessor)
-    return acc
-
-def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", **kwargs) :
-    acc = ComponentAccumulator()
-
-    #
-    # --- set up different Scoring Tool for collisions and cosmics
-    #
-    if flags.Beam.Type is BeamType.Cosmics:
-        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
-    else:
-        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
-
-    fitter_args = {}
-    fitter_args.setdefault("DoHoleSearch", True)
-
-    ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
-    fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
-
-    fitter_list=[]
-    ITkTrackFitterAmbi = acc.popToolsAndMerge(TC.ITkTrackFitterAmbiCfg(flags,
-                                                                   name='ITkTrackFitterAmbi'+flags.ITk.Tracking.ActivePass.extension,
-                                                                   **fitter_args))
-    fitter_list.append(ITkTrackFitterAmbi)
-
-    ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
-
-    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolCfg( flags,
-                                                                                name = "ITkAmbiguityProcessorSplitProbTrackSummaryTool" + flags.ITk.Tracking.ActivePass.extension))
-
-    ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
-
-
-    kwargs.setdefault("Fitter", fitter_list)
-    kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.ActivePass.extension)
-    kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
-    kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
-    kwargs.setdefault("SelectionTool", ITkAmbiTrackSelectionTool)
-    kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.ActivePass.extension)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.ActivePass.extension)
-    kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.ITk.Tracking.doBremRecovery and flags.Detector.EnableCalo and flags.ITk.Tracking.ActivePass.extension == "") # Disabled for second passes in reco
-    kwargs.setdefault("caloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
-    kwargs.setdefault("pTminBrem", flags.ITk.Tracking.ActivePass.minPTBrem[0])
-    kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("KeepHolesFromBeforeRefit", False)
-
-    # DenseEnvironmentsAmbiguityProcessorTool
-    ProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool
-    ITkAmbiguityProcessor = ProcessorTool(name=name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-    acc.setPrivateTools(ITkAmbiguityProcessor)
-    return acc
-
-def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackCollectionKey = None, ClusterSplitProbContainer='', **kwargs) :
-    acc = ComponentAccumulator()
-    #
-    # --- set input and output collection
-    #
-    InputTrackCollection = SiSPSeededTrackCollectionKey
-
-    ITkAmbiguityScoreProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
-
-    #
-    # --- configure Ambiguity (score) solver
-    #
-    kwargs.setdefault("TrackInput" , [ InputTrackCollection ])
-    kwargs.setdefault("TrackOutput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.ActivePass.extension)
-    kwargs.setdefault("AmbiguityScoreProcessor" ,  ITkAmbiguityScoreProcessor ) ## TODO: check the case when it is None object
-
-    ITkAmbiguityScore = CompFactory.Trk.TrkAmbiguityScore(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-    acc.addEventAlgo(ITkAmbiguityScore)
-    return acc
-
-
-def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackCollectionKey = None, **kwargs):
-    acc = ComponentAccumulator()
-    SiTrackCollection = ResolvedTrackCollectionKey
-
-    # DenseEnvironmentsAmbiguityProcessorTool
-    ITkAmbiguityProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags))
-
-    #
-    # --- configure Ambiguity solver
-    #
-    kwargs.setdefault("TrackInput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.ActivePass.extension)
-    kwargs.setdefault("TrackOutput", SiTrackCollection)
-    kwargs.setdefault( "AmbiguityProcessor", ITkAmbiguityProcessor)
-
-    ITkAmbiguitySolver = CompFactory.Trk.TrkAmbiguitySolver(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
-    acc.addEventAlgo(ITkAmbiguitySolver )
-    return acc
-
 # ------------------------------------------------------------
 #
 # ----------- Setup Si Pattern for New tracking
@@ -490,6 +242,7 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
                                         OutputTrackCollection = ResolvedTrackCollectionKey ))
 
     else:
+        from TrkConfig.TrkAmbiguitySolverConfig import ITkTrkAmbiguityScoreCfg, ITkTrkAmbiguitySolverCfg
         acc.merge(ITkTrkAmbiguityScoreCfg( flags,
                                            SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey,
                                            ClusterSplitProbContainer = ClusterSplitProbContainer))
