@@ -174,10 +174,6 @@ def defineMenu():
 
         'L1_TGC_BURST':'',
 
-        'L1_ZDC_A':'', 
-        'L1_ZDC_C':'', 
-        'L1_ZDC_AND':'',
-
         'L1_LUCID_A':'', 
         'L1_LUCID_C':'',
 

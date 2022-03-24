@@ -223,10 +223,6 @@ def defineMenu():
         #LUCID
         'L1_LUCID_A', 'L1_LUCID_C',
 
-        # ZDC 
-        # TODO: request for pilot run (ATR-22904), to be removed for pp
-        'L1_ZDC_A', 'L1_ZDC_C', 'L1_ZDC_AND',
-
         # VDM
 
         # TRT
