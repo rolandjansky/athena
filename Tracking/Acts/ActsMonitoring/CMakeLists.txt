@@ -10,7 +10,7 @@ atlas_add_component( ActsMonitoring
 		     src/*.h
 		     src/*.cxx
 		     src/components/*.cxx
-		     LINK_LIBRARIES ActsEDM
+		     LINK_LIBRARIES ActsTrkEvent
 		     AthenaMonitoringKernelLib AthenaMonitoringLib )
 
 # Install files from the package:
