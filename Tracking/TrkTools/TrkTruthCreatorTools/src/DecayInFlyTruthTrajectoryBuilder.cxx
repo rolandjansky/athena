@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko, 2008
@@ -69,7 +69,7 @@ buildTruthTrajectory(TruthTrajectory *result, HepMC::ConstGenParticlePtr input) 
 
 //================================================================
 DecayInFlyTruthTrajectoryBuilder::MotherDaughter
-DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) const
+DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) 
 {
   HepMC::ConstGenParticlePtr mother{nullptr};
   HepMC::ConstGenParticlePtr daughter{nullptr};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ namespace Trk {
     const TransportJacobian*   m_transportJacobian;//!< Jacobian from propagator
     bool                       m_iOwnJacobian;     //!< flag to steer ownership of Jacobian
     const TrackParameters*     m_referenceParameters; //!< reference TrkParameters from propagator
-    bool                       m_iOwnRefPars;      //!< flag to steer ownership of ref pars
+    bool                       m_iOwnRefPars = false;      //!< flag to steer ownership of ref pars
     std::unique_ptr<const AmgVector(5)>        m_parametersDifference; //!< vector of diff reference minus filtered pars
 
     std::unique_ptr<const AmgSymMatrix(5)>     m_parametersCovariance; //!< covariance matrix of fitted parameters

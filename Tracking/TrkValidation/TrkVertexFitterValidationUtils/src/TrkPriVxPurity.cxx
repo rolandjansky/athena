@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,7 @@ namespace Trk
   sl<<"***** Primary Vertex Purity Info *****"<<std::endl;
   sl<<"Total number of fitted tracks "<<m_fittedTracks<<std::endl;
   sl<<"Number of track with internally broken links "<<m_brokenLinks<<std::endl;
-  if(0!=m_inWeights.size())
+  if(!m_inWeights.empty())
   {
    sl<<"The weights of inlier tracks:  ";
    std::vector<double>::const_iterator i =  m_inWeights.begin();
@@ -32,7 +32,7 @@ namespace Trk
    sl<<std::endl;
   }
   
-  if(0!=m_outWeights.size())
+  if(!m_outWeights.empty())
   { 
    sl<<"The weights of outlier tracks:  ";
    std::vector<double>::const_iterator i =  m_outWeights.begin();
@@ -40,7 +40,7 @@ namespace Trk
    sl<<std::endl;
   }
 
-  if(0!=m_puWeights.size())
+  if(!m_puWeights.empty())
   {
    sl<<"The weights of tracks from PileUp:  ";
    std::vector<double>::const_iterator i =  m_puWeights.begin();
@@ -48,7 +48,7 @@ namespace Trk
    sl<<std::endl;
   }
   
-  if(0!=m_noTruth.size())
+  if(!m_noTruth.empty())
   {
    sl<<"The weights of tracks w/o truth matching:  ";
    std::vector<double>::const_iterator i =  m_noTruth.begin();
@@ -64,7 +64,7 @@ namespace Trk
  sl<<"***** Primary Vertex Purity Info *****"<<std::endl;
   sl<<"Total number of fitted tracks "<<m_fittedTracks<<std::endl;
   sl<<"Number of track with internally broken links "<<m_brokenLinks<<std::endl;
-  if(0!=m_inWeights.size())
+  if(!m_inWeights.empty())
   {
    sl<<"The weights of inlier tracks:  ";
    std::vector<double>::const_iterator i =  m_inWeights.begin();
@@ -72,7 +72,7 @@ namespace Trk
    sl<<std::endl;
   }
   
-  if(0!=m_outWeights.size())
+  if(!m_outWeights.empty())
   { 
    sl<<"The weights of outlier tracks:  ";
    std::vector<double>::const_iterator i =  m_outWeights.begin();
@@ -80,7 +80,7 @@ namespace Trk
    sl<<std::endl;
   }
 
-  if(0!=m_puWeights.size())
+  if(!m_puWeights.empty())
   {
    sl<<"The weights of tracks from PileUp:  ";
    std::vector<double>::const_iterator i =  m_puWeights.begin();
@@ -88,7 +88,7 @@ namespace Trk
    sl<<std::endl;
   }
   
-  if(0!=m_noTruth.size())
+  if(!m_noTruth.empty())
   {
    sl<<"The weights of tracks w/o truth matching:  ";
    std::vector<double>::const_iterator i =  m_noTruth.begin();

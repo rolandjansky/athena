@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ StatusCode Trk::TruthNtupleTool::initBranches(const std::vector<const Trk::ITrac
     }
 
     // add branches with links to the reconstructed tracks:
-    if (m_TrackLinkIndex.size()>0) {
+    if (!m_TrackLinkIndex.empty()) {
       ATH_MSG_ERROR ("Track links seem to be already initialized! Do NOT call initBranches() twice!");
       return StatusCode::FAILURE;
     }
@@ -325,7 +325,7 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
             // do statistics:
             for (unsigned int classIndex = 0; classIndex < m_classifications.size(); ++classIndex ) {
                 m_truthTrackCounts[classIndex][m_classifications[classIndex]]->Fill(std::fabs(m_mc_eta));
-                if (truthData[index].truthToTrackIndices[0].size() > 0) {
+                if (!truthData[index].truthToTrackIndices[0].empty()) {
                     // TODO: do statistics for each input track collection
                     m_recoTrackCounts[classIndex][m_classifications[classIndex]]->Fill(std::fabs(m_mc_eta));
                 }

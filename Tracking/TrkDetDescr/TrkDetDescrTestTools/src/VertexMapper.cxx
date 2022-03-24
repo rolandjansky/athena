@@ -147,6 +147,6 @@ Trk::MappedVertex Trk::VertexMapper::mapToLocal(const Amg::Vector3D& vertex) con
         }
     }
     // did not succeed return an invalid solution
-    return Trk::MappedVertex();
+    return {};
 }
 

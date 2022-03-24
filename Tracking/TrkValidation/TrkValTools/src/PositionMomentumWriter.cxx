@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -189,7 +189,7 @@ void Trk::PositionMomentumWriter::finalizeTrack() const
 {
     if (m_tree){
         
-        if (m_pMomentumX->size()){
+        if (!m_pMomentumX->empty()){
             // the index of the last momentum record
             size_t lIndex = size_t(m_pMomentumX->size()-1);
             Amg::Vector3D lastMom(m_pMomentumX->at(lIndex),

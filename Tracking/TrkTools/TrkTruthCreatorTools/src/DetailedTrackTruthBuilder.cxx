@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTruthCreatorTools/DetailedTrackTruthBuilder.h"
@@ -219,7 +219,7 @@ public:
    }
 
    HepMcParticleLink makeLink(HepMcParticleLink::barcode_type other_particle_barcode, IProxyDict *proxy) {
-      return HepMcParticleLink(other_particle_barcode, m_eventIndex,m_eventCollection, (m_isPosition ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX ), proxy);
+      return {other_particle_barcode, m_eventIndex,m_eventCollection, (m_isPosition ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX ), proxy};
    }
 
 private:
@@ -438,7 +438,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   ATH_MSG_VERBOSE("addTrack(): #sprouts = "<<sprouts.size()<<", output->size() = "<<output->size());
 }
 //================================================================
-void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) const {
+void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) {
   // invert the map from Identifier (reco hit) to HepMcParticleLink,
   // to allow lookup of all Identifiers produced by a given HepMcParticleLink.
   // the result is only used in countPRDsOnTruth. since that code ignores
