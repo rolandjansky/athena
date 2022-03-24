@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELREADOUTSPEEDDATA_H
@@ -16,7 +16,7 @@ class PixelReadoutSpeedData {
     PixelReadoutSpeedData(const PixelReadoutSpeedData &other) = delete;
     PixelReadoutSpeedData& operator= (const PixelReadoutSpeedData &other) = delete;
 
-    void setReadoutMap(std::map<uint32_t,bool> rodReadoutMap);
+    void setReadoutMap(const std::map<uint32_t,bool>& rodReadoutMap);
     const std::map<uint32_t,bool>& getReadoutMap() const;
 
     void clear();
@@ -25,7 +25,7 @@ class PixelReadoutSpeedData {
     std::map<uint32_t,bool> m_rodReadoutMap;     ///< Readout speed for each ROD. false=40MBit, true=80MBit
 };
 
-inline void PixelReadoutSpeedData::setReadoutMap(std::map<uint32_t,bool> rodReadoutMap) { m_rodReadoutMap=rodReadoutMap; }
+inline void PixelReadoutSpeedData::setReadoutMap(const std::map<uint32_t,bool>& rodReadoutMap) { m_rodReadoutMap=rodReadoutMap; }
 
 inline const std::map<uint32_t,bool>& PixelReadoutSpeedData::getReadoutMap() const { return m_rodReadoutMap; }
 
