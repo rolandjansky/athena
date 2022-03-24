@@ -40,6 +40,14 @@ class fourtops(PowhegV2):
         """
         super(fourtops, self).__init__(base_directory, "fourtops", **kwargs)
 
+        import os
+
+        # hack in place to help powheg executable find all dynamic libraries
+        logger.warning("Applying manual, hard-coded fixes for library paths")
+        OLPath = os.path.dirname(self.executable)+"/obj-gfortran"
+        os.environ['OpenLoopsPath'] = OLPath
+        logger.info("OpenLoopsPath defined as = {0}".format(os.getenv('OpenLoopsPath')))
+
         # Add algorithms to the sequence
         self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ t t~ [QCD]"))
 
@@ -73,8 +81,10 @@ class fourtops(PowhegV2):
         self.add_keyword("compress_lhe")
         self.add_keyword("compress_upb")
         self.add_keyword("compute_rwgt")
+        self.add_keyword("dampscfact", 1.0)
         self.add_keyword("decay_signature", "0")
         self.add_keyword("doublefsr")
+        self.add_keyword("dynamic_hdamp", 1)
         self.add_keyword("evenmaxrat")
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
@@ -86,6 +96,7 @@ class fourtops(PowhegV2):
         self.add_keyword("foldy")
         self.add_keyword("fullrwgt")
         self.add_keyword("fullrwgtmode")
+        self.add_keyword("hbzd", 5.0)
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
@@ -137,6 +148,7 @@ class fourtops(PowhegV2):
         self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
+        self.add_keyword("scalechoice", 1)
         self.add_keyword("skipextratests")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
@@ -158,7 +170,7 @@ class fourtops(PowhegV2):
         self.add_keyword("tdec/wwidth")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
-        self.add_keyword("topdecaymode", "t t~ > all", name="decay_mode")
+        self.add_keyword("topdecaymode", "t t~ > all [MadSpin]", name="decay_mode")
         self.add_keyword("ubexcess_correct")
         self.add_keyword("ubsigmadetails")
         self.add_keyword("use-old-grid")
@@ -188,7 +200,7 @@ class fourtops(PowhegV2):
 
         if _decay_mode_lookup[self.decay_mode] in _signature_lookup: # special handling of decays with #decay_signature keyword
             self.parameters_by_keyword("decay_signature")[0].value = _decay_mode_lookup[self.decay_mode]
-            self.parameters_by_keyword("topdecaymode")[0].value = "00000"
+            self.parameters_by_keyword("topdecaymode")[0].value = "44444"
         else: # usual handling of decays with #topdecaymode keyword
             self.parameters_by_keyword("decay_signature")[0].value = "0"
             self.parameters_by_keyword("topdecaymode")[0].value = _decay_mode_lookup[self.decay_mode]

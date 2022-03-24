@@ -39,6 +39,8 @@ class ExternalMadSpin(ExternalBase):
         self.add_keyword("MadSpin_nFlavours")
         self.add_keyword("MadSpin_process", process)
         self.add_keyword("MadSpin_taus_are_leptons")
+        self.add_keyword("MadSpin_max_weight_ps_point")
+        self.add_keyword("MadSpin_Nevents_for_max_weight")
         self.add_keyword("mass_b")
         self.add_keyword("mass_H")
         self.add_keyword("mass_t")
