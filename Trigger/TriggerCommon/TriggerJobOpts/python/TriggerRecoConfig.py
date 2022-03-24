@@ -95,7 +95,7 @@ def TriggerEDMCfg(flags):
     else:
         log.info("AOD list is subset of ESD list - good.")
 
-    # there is internal gating  in addTo* if AOD or ESD do not need to be written out
+    # there is internal gating in addTo* if AOD or ESD do not need to be written out
     acc.merge(addToESD(flags, _asList(_TriggerESDList), MetadataItemList = menuMetadata))
     acc.merge(addToAOD(flags, _asList(_TriggerAODList), MetadataItemList = menuMetadata))
     
@@ -140,7 +140,7 @@ def Run2Run1NavigationSlimingCfg(flags):
 
     if flags.Output.doWriteESD:
         _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
-        thinningSvc = acc.getPrimaryAndMerge(TrigNavigationThinningSvcCfg(flags, 
+        thinningSvc = acc.getPrimaryAndMerge(TrigNavigationThinningSvcCfg(flags,
                                                                           {'name' : 'HLTNav_StreamESD',
                                                                            'mode' : 'cleanup_noreload', 
                                                                            'result' : 'HLTResult_HLT',
@@ -256,9 +256,8 @@ def Run1xAODConversionCfg(flags):
     acc.addEventAlgo(xaodConverter)
 
     # write the xAOD (Run-2) classes to the output
-    edm = _asList(getTriggerEDMList(flags.Trigger.ESDEDMSet, 2))
-    acc.merge(addToESD(flags, edm))
-    acc.merge(addToAOD(flags, edm))
+    acc.merge(addToESD(flags, _asList(getTriggerEDMList(flags.Trigger.ESDEDMSet, runVersion=2))))
+    acc.merge(addToAOD(flags, _asList(getTriggerEDMList(flags.Trigger.AODEDMSet, runVersion=2))))
 
     return acc
 
