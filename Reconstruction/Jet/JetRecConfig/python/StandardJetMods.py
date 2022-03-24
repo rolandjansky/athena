@@ -109,7 +109,7 @@ stdJetModifiers.update(
     LArHVCorr =       JetModifier("JetLArHVTool", "larhvcorr",
                                    prereqs = ["mod:EMScaleMom"],JetContainer = _jetname),
     OriginSetPV =     JetModifier("JetOriginCorrectionTool", "origin_setpv",
-                                   prereqs = [ "mod:JVF" ],JetContainer = _jetname),
+                                   prereqs = [ "mod:JVF" ],JetContainer = _jetname, OnlyAssignPV=True),
     TrackMoments =    JetModifier("JetTrackMomentsTool", "trkmoms",
                                   createfn=JetMomentToolsConfig.getTrackMomentsTool,
                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ],JetContainer = _jetname),
