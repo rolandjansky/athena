@@ -163,7 +163,6 @@ LOBJECTS  = \
         $(OBJDIR)/TagNProbe.o \
         $(OBJDIR)/Track.o \
         $(OBJDIR)/TIDAVertex.o   \
-        $(OBJDIR)/TIDAVertexNew.o   \
         $(OBJDIR)/TIDAChain.o   \
         $(OBJDIR)/TIDARoi.o   \
         $(OBJDIR)/TIDARoiParameters.o  \

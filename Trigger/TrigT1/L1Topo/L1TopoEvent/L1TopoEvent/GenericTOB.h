@@ -142,6 +142,7 @@ namespace TCS {
 
       int m_Ex { 0 };
       int m_Ey { 0 };
+      unsigned int m_Et2 { 0 };
 
       int m_eta { 0 };
       int m_phi { 0 };
@@ -156,7 +157,8 @@ namespace TCS {
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
 
-      double m_Et2 { 0 };
+      double m_ExDouble { 0 };
+      double m_EyDouble { 0 };
 
       unsigned int m_reta {0};
       unsigned int m_rhad {0};

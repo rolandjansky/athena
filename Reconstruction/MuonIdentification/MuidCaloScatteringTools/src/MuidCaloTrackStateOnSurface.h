@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ namespace Rec {
                                                                               const Trk::TrackParameters& parameters,
                                                                               const short layer) const;
 
-        bool useEtaPhiFromDirection(const Trk::TrackParameters& parameters) const;
+        static bool useEtaPhiFromDirection(const Trk::TrackParameters& parameters) ;
 
         // helpers, managers, tools
         ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyDeposit{

@@ -26,17 +26,17 @@ public:
   // Offline Clusters
   const std::vector<HTTCluster>& getOfflineClusters() const { return m_OfflineClusters; }
   size_t nOfflineClusters() const { return m_OfflineClusters.size(); }
-  void addOfflineCluster(HTTCluster c) { m_OfflineClusters.push_back(c); }
+  void addOfflineCluster(const HTTCluster& c) { m_OfflineClusters.push_back(c); }
 
   // Offline Tracks
   const std::vector<HTTOfflineTrack>& getOfflineTracks() const { return m_OfflineTracks; }
   size_t nOfflineTracks() const { return m_OfflineTracks.size(); }
-  void addOfflineTrack(HTTOfflineTrack t) { m_OfflineTracks.push_back(t); };
+  void addOfflineTrack(const HTTOfflineTrack& t) { m_OfflineTracks.push_back(t); };
 
   // Truth Tracks
   const std::vector<HTTTruthTrack>& getTruthTracks() const { return m_TruthTracks; }
   size_t nTruthTracks() const { return m_TruthTracks.size(); }
-  void addTruthTrack(HTTTruthTrack t) { m_TruthTracks.push_back(t); };
+  void addTruthTrack(const HTTTruthTrack& t) { m_TruthTracks.push_back(t); };
 
 
   //reserve sizes

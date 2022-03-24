@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -202,7 +202,7 @@ void TrackCollHandleBase::setupSettingsFromController(TrackSystemController* con
   assert(controller);
   largeChangesBegin();
 
-  connect(controller->customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),this,SLOT(clipVolumeChanged(double)));
+  connect(TrackSystemController::customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),this,SLOT(clipVolumeChanged(double)));
 
   connect(controller,SIGNAL(propagatorChanged(Trk::IExtrapolator *)),this,SLOT(setPropagator(Trk::IExtrapolator *)));
   setPropagator(controller->propagator());
@@ -610,7 +610,7 @@ void TrackCollHandleBase::setLabelTrkOffset( float offset)
 }
 
 //____________________________________________________________________
-void TrackCollHandleBase::setLabelPosOffsets( QList<int> offsets)
+void TrackCollHandleBase::setLabelPosOffsets( const QList<int>& offsets)
 {
   messageVerbose("setLabelPosOffsets called");
   if (m_labelsPosOffsets==offsets)
@@ -827,7 +827,6 @@ void TrackCollHandleBase::setCutAllowedPhi(const QList<VP1Interval>& allowedPhi)
     return;
   }
   recheckCutStatusOfAllHandles();
-  return;
 }
 
 //____________________________________________________________________
@@ -1288,7 +1287,7 @@ QByteArray TrackCollHandleBase::persistifiableState() const
 {
   if (!m_d->matButton) {
     message("ERROR: persistifiableState() called before init()");
-    return QByteArray();
+    return {};
   }
   VP1Serialise serialise(1/*version*/);
   serialise.disableUnsavedChecks();

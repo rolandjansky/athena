@@ -37,9 +37,11 @@ namespace LVL1 {
 
     virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
                                  unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 int gXE_seedThrA, int gXE_seedThrB) override;
+                                 unsigned int aFPGA_C, unsigned int bFPGA_C,
+                                 int gXE_seedThrA, int gXE_seedThrB, int gXE_seedThrC) override;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
+                                                               gTowersForward CNtwr, gTowersForward CPtwr,
                                                                std::array<uint32_t, 4> & outTOB) override;
 
 
@@ -50,24 +52,30 @@ namespace LVL1 {
     int m_bFPGA_A;
     int m_aFPGA_B;
     int m_bFPGA_B;
+    int m_aFPGA_C;
+    int m_bFPGA_C;
     int m_gBlockthresholdA;
     int m_gBlockthresholdB;
-
+    int m_gBlockthresholdC;
+ 
+    virtual void makeFPGAC(gTowersForward twrsCN, gTowersForward twrsCP, gTowersCentral & twrsC);
 
     virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
     virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
+                           unsigned int aFPGA, unsigned int bFPGA,
                            int & MHT_x, int & MHT_y,
                            int & MST_x, int & MST_y,
                            int & MET_x, int & MET_y);
 
     virtual void metTotal(int A_MET_x, int A_MET_y,
                           int B_MET_x, int B_MET_y,
+                          int C_MET_x, int C_MET_y,
                           int & MET_x, int & MET_y, int & MET);
 
     virtual void sumEtFPGA(gTowersCentral twrs, int & partial_sumEt);
 
-    virtual void sumEt(int  A_sumEt, int  B_sumEt, int & total_sumEt);
+    virtual void sumEt(int  A_sumEt, int  B_sumEt, int  C_sumEt, int & total_sumEt);
 
     virtual float sinLUT(unsigned int phiIDX, unsigned int aw);
 

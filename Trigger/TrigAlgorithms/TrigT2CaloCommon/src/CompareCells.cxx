@@ -30,7 +30,7 @@ StatusCode CompareCells::execute( const EventContext& context ) const {
   CaloConstCellContainer c(SG::VIEW_ELEMENTS);
   m_dataAccessSvc->loadFullCollections( context,  c).ignore();
 
-  TileCellCollection mbts (SG::VIEW_ELEMENTS); // testing
+  std::vector<const TileCell*> mbts; // testing
   m_dataAccessSvc->loadMBTS( context,  mbts).ignore();
 
   ATH_MSG_DEBUG("MBTS Dump");

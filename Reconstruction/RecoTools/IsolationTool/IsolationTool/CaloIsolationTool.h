@@ -349,12 +349,6 @@ namespace xAOD {
 	  "TopoClusterEDForwardContainer", "TopoClusterIsoForwardEventShape", 
 	  "Name of TopoCluster ED Forward"};
 
-      //JB
-      /** Property: Name of the forward topocluster energy-density container. */ 
-      SG::ReadHandleKey<EventShape> m_tpEDveryForward {this,
-	  "TopoClusterEDveryForwardContainer", "TopoClusterIsoVeryForwardEventShape", 
-	  "Name of TopoCluster ED very Forward"};
-
       /** Property: Name of the central neutral energy flow energy-density container. */ 
       SG::ReadHandleKey<EventShape> m_efEDCentral {this,
 	  "EFlowEDCentralContainer", "NeutralParticleFlowIsoCentralEventShape", 

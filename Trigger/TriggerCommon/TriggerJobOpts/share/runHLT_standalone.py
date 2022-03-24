@@ -44,8 +44,8 @@ class opt:
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
-    enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
-    enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
+    enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
     enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
     enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
     enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
@@ -266,7 +266,6 @@ else:           # More data modifiers
                      #Set muComb/muIso Backextrapolator tuned for real data
                      #Monitoring for L1 muon group
                      #Monitoring L1Topo at ROB level
-                     'forceTileRODMap',
                      'enableSchedulerMon'
     ]
 

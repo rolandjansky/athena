@@ -1485,6 +1485,12 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       std::vector< TgcTrig > tgcTrigMap_LPT_Strip;
       std::vector< TgcTrig > tgcTrigMap_LPT_Endcap_Strip;
       std::vector< TgcTrig > tgcTrigMap_LPT_Forward_Strip;
+      std::vector< TgcTrig > tgcTrigMap_EIFI_Wire;
+      std::vector< TgcTrig > tgcTrigMap_EIFI_Endcap_Wire;
+      std::vector< TgcTrig > tgcTrigMap_EIFI_Forward_Wire;
+      std::vector< TgcTrig > tgcTrigMap_EIFI_Strip;
+      std::vector< TgcTrig > tgcTrigMap_EIFI_Endcap_Strip;
+      std::vector< TgcTrig > tgcTrigMap_EIFI_Forward_Strip;
       int n_TgcCoin_detElementIsNull = 0;
       int n_TgcCoin_postOutPtrIsNull = 0;
       for (auto thisCoin : tgcCoin) {
@@ -1497,7 +1503,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 		 data->posOutPtr() == nullptr )continue; // to avoid FPE
 	    TgcTrig tgcTrig;
 	    tgcTrig.lb = GetEventInfo(ctx)->lumiBlock();
-	    const int type = data->type();
 	    const Amg::Vector3D &posIn = data->globalposIn();
 	    tgcTrig.x_In = posIn[0];
 	    tgcTrig.y_In = posIn[1];
@@ -1510,7 +1515,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	    tgcTrig.phi = posOut.phi();
 	    tgcTrig.width_In = data->widthIn();
 	    tgcTrig.width_Out = data->widthOut();
-	    if (type == Muon::TgcCoinData::TYPE_SL) {
+	    if (data->type() == Muon::TgcCoinData::TYPE_SL) {
 	      const Amg::MatrixX &matrix = data->errMat();
 	      tgcTrig.width_R = matrix(0, 0);
 	      tgcTrig.width_Phi = matrix(1, 1);
@@ -1535,7 +1540,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	    tgcTrig.isStrip = data->isStrip();
 	    tgcTrig.isInner = data->isInner();
 	    tgcTrig.isPositiveDeltaR = data->isPositiveDeltaR();
-	    tgcTrig.type = type;
+	    tgcTrig.type = data->type();
 	    tgcTrig.trackletId = data->trackletId();
 	    tgcTrig.trackletIdStrip = data->trackletIdStrip();
 	    tgcTrig.sector = (data->isAside())?(data->phi()):(-data->phi());
@@ -1546,44 +1551,64 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	    tgcTrig.veto = data->veto();
 	    tgcTrig.bunch = bunch;
 	    tgcTrig.inner = data->inner();
-	    if (type == Muon::TgcCoinData::TYPE_SL && !tgcTrig.isForward) {
-	      tgcTrigMap_SL_Endcap.push_back(tgcTrig);
-	      tgcTrigMap_SL.push_back(tgcTrig);
-	    }else if (type == Muon::TgcCoinData::TYPE_SL && tgcTrig.isForward) {
-	      tgcTrigMap_SL_Forward.push_back(tgcTrig);
-	      tgcTrigMap_SL.push_back(tgcTrig);
-	    }else if(type == Muon::TgcCoinData::TYPE_HIPT && !tgcTrig.isForward){
-	      if(tgcTrig.isStrip){
-		tgcTrigMap_HPT_Endcap_Strip.push_back(tgcTrig);
-		tgcTrigMap_HPT_Strip.push_back(tgcTrig);
-	      }else{
-		tgcTrigMap_HPT_Endcap_Wire.push_back(tgcTrig);
-		tgcTrigMap_HPT_Wire.push_back(tgcTrig);
+	    if( !data->isInner() ){
+	      if (data->type() == Muon::TgcCoinData::TYPE_SL && !data->isForward()) {
+		tgcTrigMap_SL_Endcap.push_back(tgcTrig);
+		tgcTrigMap_SL.push_back(tgcTrig);
+	      }else if (data->type() == Muon::TgcCoinData::TYPE_SL && data->isForward()) {
+		tgcTrigMap_SL_Forward.push_back(tgcTrig);
+		tgcTrigMap_SL.push_back(tgcTrig);
+	      }else if(data->type() == Muon::TgcCoinData::TYPE_HIPT && !data->isForward()){
+		if(tgcTrig.isStrip){
+		  tgcTrigMap_HPT_Endcap_Strip.push_back(tgcTrig);
+		  tgcTrigMap_HPT_Strip.push_back(tgcTrig);
+		}else{
+		  tgcTrigMap_HPT_Endcap_Wire.push_back(tgcTrig);
+		  tgcTrigMap_HPT_Wire.push_back(tgcTrig);
+		}
+	      }else if(data->type() == Muon::TgcCoinData::TYPE_HIPT && data->isForward()){
+		if(tgcTrig.isStrip){
+		  tgcTrigMap_HPT_Forward_Strip.push_back(tgcTrig);
+		  tgcTrigMap_HPT_Strip.push_back(tgcTrig);
+		}else{
+		  tgcTrigMap_HPT_Forward_Wire.push_back(tgcTrig);
+		  tgcTrigMap_HPT_Wire.push_back(tgcTrig);
+		}
+	      }else if(data->type() == Muon::TgcCoinData::TYPE_TRACKLET && !data->isForward()){
+		if(tgcTrig.isStrip){
+		  tgcTrigMap_LPT_Endcap_Strip.push_back(tgcTrig);
+		  tgcTrigMap_LPT_Strip.push_back(tgcTrig);
+		}else{
+		  tgcTrigMap_LPT_Endcap_Wire.push_back(tgcTrig);
+		  tgcTrigMap_LPT_Wire.push_back(tgcTrig);
+		}
+	      }else if(data->type() == Muon::TgcCoinData::TYPE_TRACKLET && data->isForward()){
+		if(tgcTrig.isStrip){
+		  tgcTrigMap_LPT_Forward_Strip.push_back(tgcTrig);
+		  tgcTrigMap_LPT_Strip.push_back(tgcTrig);
+		}else{
+		  tgcTrigMap_LPT_Forward_Wire.push_back(tgcTrig);
+		  tgcTrigMap_LPT_Wire.push_back(tgcTrig);
+		}
+	      }else if(data->type() == Muon::TgcCoinData::TYPE_TRACKLET_EIFI && !data->isForward()){
+		if(tgcTrig.isStrip){
+		  tgcTrigMap_EIFI_Endcap_Strip.push_back(tgcTrig);
+		  tgcTrigMap_EIFI_Strip.push_back(tgcTrig);
+		}else{
+		  tgcTrigMap_EIFI_Endcap_Wire.push_back(tgcTrig);
+		  tgcTrigMap_EIFI_Wire.push_back(tgcTrig);
+		}
+	      }else if(data->type() == Muon::TgcCoinData::TYPE_TRACKLET_EIFI && data->isForward()){
+		if(tgcTrig.isStrip){
+		  tgcTrigMap_EIFI_Forward_Strip.push_back(tgcTrig);
+		  tgcTrigMap_EIFI_Strip.push_back(tgcTrig);
+		}else{
+		  tgcTrigMap_EIFI_Forward_Wire.push_back(tgcTrig);
+		  tgcTrigMap_EIFI_Wire.push_back(tgcTrig);
+		}
 	      }
-	    }else if(type == Muon::TgcCoinData::TYPE_HIPT && tgcTrig.isForward){
-	      if(tgcTrig.isStrip){
-		tgcTrigMap_HPT_Forward_Strip.push_back(tgcTrig);
-		tgcTrigMap_HPT_Strip.push_back(tgcTrig);
-	      }else{
-		tgcTrigMap_HPT_Forward_Wire.push_back(tgcTrig);
-		tgcTrigMap_HPT_Wire.push_back(tgcTrig);
-	      }
-	    }else if(type == Muon::TgcCoinData::TYPE_TRACKLET && !tgcTrig.isForward){
-	      if(tgcTrig.isStrip){
-		tgcTrigMap_LPT_Endcap_Strip.push_back(tgcTrig);
-		tgcTrigMap_LPT_Strip.push_back(tgcTrig);
-	      }else{
-		tgcTrigMap_LPT_Endcap_Wire.push_back(tgcTrig);
-		tgcTrigMap_LPT_Wire.push_back(tgcTrig);
-	      }
-	    }else if(type == Muon::TgcCoinData::TYPE_TRACKLET && tgcTrig.isForward){
-	      if(tgcTrig.isStrip){
-		tgcTrigMap_LPT_Forward_Strip.push_back(tgcTrig);
-		tgcTrigMap_LPT_Strip.push_back(tgcTrig);
-	      }else{
-		tgcTrigMap_LPT_Forward_Wire.push_back(tgcTrig);
-		tgcTrigMap_LPT_Wire.push_back(tgcTrig);
-	      }
+	    }else{ // inner coincidence, i.e. EI/FI/Tile/BIS78/NSW
+
 	    }
 	  }
 	}
@@ -1600,7 +1625,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       tgcCoin_variables.push_back(mon_nTgcCoin_postOutPtrIsNull);
 
       std::vector<Monitored::ObjectsCollection<std::vector<TgcTrig>, double>> vo_coin;
-      vo_coin.reserve(26 * 15);
+      vo_coin.reserve(38 * 21);
 
       fillTgcCoin("SL",tgcTrigMap_SL,vo_coin,tgcCoin_variables);
       fillTgcCoin("SL_Endcap",tgcTrigMap_SL_Endcap,vo_coin,tgcCoin_variables);
@@ -1617,19 +1642,25 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       fillTgcCoin("LPT_Strip",tgcTrigMap_LPT_Strip,vo_coin,tgcCoin_variables);
       fillTgcCoin("LPT_Endcap_Strip",tgcTrigMap_LPT_Endcap_Strip,vo_coin,tgcCoin_variables);
       fillTgcCoin("LPT_Forward_Strip",tgcTrigMap_LPT_Forward_Strip,vo_coin,tgcCoin_variables);
+      fillTgcCoin("EIFI_Wire",tgcTrigMap_EIFI_Wire,vo_coin,tgcCoin_variables);
+      fillTgcCoin("EIFI_Endcap_Wire",tgcTrigMap_EIFI_Endcap_Wire,vo_coin,tgcCoin_variables);
+      fillTgcCoin("EIFI_Forward_Wire",tgcTrigMap_EIFI_Forward_Wire,vo_coin,tgcCoin_variables);
+      fillTgcCoin("EIFI_Strip",tgcTrigMap_EIFI_Strip,vo_coin,tgcCoin_variables);
+      fillTgcCoin("EIFI_Endcap_Strip",tgcTrigMap_EIFI_Endcap_Strip,vo_coin,tgcCoin_variables);
+      fillTgcCoin("EIFI_Forward_Strip",tgcTrigMap_EIFI_Forward_Strip,vo_coin,tgcCoin_variables);
       
-      std::vector<Monitored::ObjectsCollection<std::vector<double>, double>> vo_double;
-      vo_double.reserve(3 * 5);
-      std::vector<double> extEta_SL,extPhi_SL,extMatched_SL;
-      std::vector<double> extEta_HPT_Wire,extPhi_HPT_Wire,extMatched_HPT_Wire;
-      std::vector<double> extEta_HPT_Strip,extPhi_HPT_Strip,extMatched_HPT_Strip;
-      std::vector<double> extEta_LPT_Wire,extPhi_LPT_Wire,extMatched_LPT_Wire;
-      std::vector<double> extEta_LPT_Strip,extPhi_LPT_Strip,extMatched_LPT_Strip;
-      fillTgcCoinEff("SL",tgcTrigMap_SL,extpositions_pivot,extEta_SL,extPhi_SL,extMatched_SL,vo_double,tgcCoin_variables);
-      fillTgcCoinEff("HPT_Wire",tgcTrigMap_HPT_Wire,extpositions_pivot,extEta_HPT_Wire,extPhi_HPT_Wire,extMatched_HPT_Wire,vo_double,tgcCoin_variables);
-      fillTgcCoinEff("HPT_Strip",tgcTrigMap_HPT_Strip,extpositions_pivot,extEta_HPT_Strip,extPhi_HPT_Strip,extMatched_HPT_Strip,vo_double,tgcCoin_variables);
-      fillTgcCoinEff("LPT_Wire",tgcTrigMap_LPT_Wire,extpositions_pivot,extEta_LPT_Wire,extPhi_LPT_Wire,extMatched_LPT_Wire,vo_double,tgcCoin_variables);
-      fillTgcCoinEff("LPT_Strip",tgcTrigMap_LPT_Strip,extpositions_pivot,extEta_LPT_Strip,extPhi_LPT_Strip,extMatched_LPT_Strip,vo_double,tgcCoin_variables);
+      std::vector<Monitored::ObjectsCollection<std::vector<ExtTrigInfo>, double>> vo_exttriginfo;
+      vo_exttriginfo.reserve(13 * 5);
+      std::vector<ExtTrigInfo> extTrigInfo_SL;
+      std::vector<ExtTrigInfo> extTrigInfo_HPT_Wire;
+      std::vector<ExtTrigInfo> extTrigInfo_HPT_Strip;
+      std::vector<ExtTrigInfo> extTrigInfo_LPT_Wire;
+      std::vector<ExtTrigInfo> extTrigInfo_LPT_Strip;
+      fillTgcCoinEff("SL",tgcTrigMap_SL,extpositions_pivot,extTrigInfo_SL,vo_exttriginfo,tgcCoin_variables);
+      fillTgcCoinEff("HPT_Wire",tgcTrigMap_HPT_Wire,extpositions_pivot,extTrigInfo_HPT_Wire,vo_exttriginfo,tgcCoin_variables);
+      fillTgcCoinEff("HPT_Strip",tgcTrigMap_HPT_Strip,extpositions_pivot,extTrigInfo_HPT_Strip,vo_exttriginfo,tgcCoin_variables);
+      fillTgcCoinEff("LPT_Wire",tgcTrigMap_LPT_Wire,extpositions_pivot,extTrigInfo_LPT_Wire,vo_exttriginfo,tgcCoin_variables);
+      fillTgcCoinEff("LPT_Strip",tgcTrigMap_LPT_Strip,extpositions_pivot,extTrigInfo_LPT_Strip,vo_exttriginfo,tgcCoin_variables);
       
       fill(m_packageName+"_TgcCoin", tgcCoin_variables);
 
@@ -1658,7 +1689,31 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::string & type,
   variables.push_back(varowner.back());
   varowner.push_back(Monitored::Collection(type+"_coin_sector",tgcTrigs,[](const TgcTrig&m){return m.sector;}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_pt",tgcTrigs,[](const TgcTrig&m){return m.pt;}));
+  varowner.push_back(Monitored::Collection(type+"_coin_pt",tgcTrigs,[](const TgcTrig&m){return m.pt & 0xF;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagQ",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagQ)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagQpos",tgcTrigs,[](const TgcTrig&m){return ((m.pt>>CoinFlagQ)&0x1)==1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagQneg",tgcTrigs,[](const TgcTrig&m){return ((m.pt>>CoinFlagQ)&0x1)==0;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlags",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlags)&0x7;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagF",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagF)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagC",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagC)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagH",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagH)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_InnerCoinType",tgcTrigs,[](const TgcTrig&m){return (m.pt>>InnerCoinFlags)&0xF;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagEI",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagEI)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagTile",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagTile)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagRPC",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagRPC)&0x1;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_CoinFlagNSW",tgcTrigs,[](const TgcTrig&m){return (m.pt>>CoinFlagNSW)&0x1;}));
   variables.push_back(varowner.back());
   varowner.push_back(Monitored::Collection(type+"_coin_veto",tgcTrigs,[](const TgcTrig&m){return m.veto;}));
   variables.push_back(varowner.back());
@@ -1668,48 +1723,54 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::string & type,
   variables.push_back(varowner.back());
   varowner.push_back(Monitored::Collection(type+"_coin_isPositiveDeltaR",tgcTrigs,[](const TgcTrig&m){return m.isPositiveDeltaR;}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt1",tgcTrigs,[](const TgcTrig&m){return (m.pt==1);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt1",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==1);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt2",tgcTrigs,[](const TgcTrig&m){return (m.pt==2);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt2",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==2);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt3",tgcTrigs,[](const TgcTrig&m){return (m.pt==3);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt3",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==3);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt4",tgcTrigs,[](const TgcTrig&m){return (m.pt==4);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt4",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==4);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt5",tgcTrigs,[](const TgcTrig&m){return (m.pt==5);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt5",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==5);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt6",tgcTrigs,[](const TgcTrig&m){return (m.pt==6);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt6",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==6);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt7",tgcTrigs,[](const TgcTrig&m){return (m.pt==7);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt7",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==7);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt8",tgcTrigs,[](const TgcTrig&m){return (m.pt==8);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt8",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==8);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt9",tgcTrigs,[](const TgcTrig&m){return (m.pt==9);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt9",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==9);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt10",tgcTrigs,[](const TgcTrig&m){return (m.pt==10);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt10",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==10);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt11",tgcTrigs,[](const TgcTrig&m){return (m.pt==11);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt11",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==11);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt12",tgcTrigs,[](const TgcTrig&m){return (m.pt==12);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt12",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==12);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt13",tgcTrigs,[](const TgcTrig&m){return (m.pt==13);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt13",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==13);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt14",tgcTrigs,[](const TgcTrig&m){return (m.pt==14);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt14",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==14);}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt15",tgcTrigs,[](const TgcTrig&m){return (m.pt==15);}));
+  varowner.push_back(Monitored::Collection(type+"_coin_cutmask_pt15",tgcTrigs,[](const TgcTrig&m){return ((m.pt&0xF)==15);}));
   variables.push_back(varowner.back());
 }
 void TgcRawDataMonitorAlgorithm::fillTgcCoinEff(const std::string & type,
 						const std::vector<TgcTrig>& tgcTrigs, 
 						const std::vector<ExtPos>& extpositions_pivot,
-						std::vector<double>& extEta,std::vector<double>& extPhi,std::vector<double>& extMatched,
-						std::vector<Monitored::ObjectsCollection<std::vector<double>, double>>& varowner,
+						std::vector<ExtTrigInfo>& extTrigInfoVec,
+						std::vector<Monitored::ObjectsCollection<std::vector<ExtTrigInfo>, double>>& varowner,
 						MonVariables& variables) const {
-  extEta.clear();
-  extPhi.clear();
-  extMatched.clear();
   for(const auto& ext : extpositions_pivot){
-    double matched = 0;
+    if(ext.muon->pt() < pt_10_cut )continue;
+    bool matched = false;
+    bool matchedQ = false;
+    bool matchedF = false;
+    bool matchedC = false;
+    bool matchedH = false;
+    bool matchedEI = false;
+    bool matchedTile = false;
+    bool matchedRPC = false;
+    bool matchedNSW = false;
     for(const auto& tgcTrig : tgcTrigs){
       if(tgcTrig.bunch!=0)continue; // only the current bunch
       if(tgcTrig.isAside==1 && ext.extPos.z()<0)continue;
@@ -1718,17 +1779,55 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoinEff(const std::string & type,
       double deltaPhi = vec.DeltaPhi( TVector2(ext.extPos.x(), ext.extPos.y()) );
       double deltaR = vec.Mod() - TVector2(ext.extPos.x(), ext.extPos.y()).Mod();
       if( std::abs(deltaPhi) > m_dPhiCutOnM3 || std::abs(deltaR) > m_dRCutOnM3 )continue;
-      matched = 1;
-      break;
+      matched |= 1;
+      int charge = ((tgcTrig.pt>>CoinFlagQ)&0x1) ? (+1) : (-1);
+      matchedQ |= (ext.muon->charge()*charge>0);
+      matchedF |= (tgcTrig.pt>>CoinFlagF) & 0x1;
+      matchedC |= (tgcTrig.pt>>CoinFlagC) & 0x1;
+      matchedH |= (tgcTrig.pt>>CoinFlagH) & 0x1;
+      matchedEI |= (tgcTrig.pt>>CoinFlagEI) & 0x1;
+      matchedTile |= (tgcTrig.pt>>CoinFlagTile) & 0x1;
+      matchedRPC |= (tgcTrig.pt>>CoinFlagRPC) & 0x1;
+      matchedNSW |= (tgcTrig.pt>>CoinFlagNSW) & 0x1;
     }
-    extEta.push_back(ext.extPos.eta());
-    extPhi.push_back(ext.extPos.phi());
-    extMatched.push_back(matched);
+    ExtTrigInfo extTrigInfo;
+    extTrigInfo.eta = ext.extPos.eta();
+    extTrigInfo.phi = ext.extPos.phi();
+    extTrigInfo.matched = matched;
+    extTrigInfo.matchedQ = matchedQ;
+    extTrigInfo.matchedF = matchedF;
+    extTrigInfo.matchedC = matchedC;
+    extTrigInfo.matchedH = matchedH;
+    extTrigInfo.matchedEI = matchedEI;
+    extTrigInfo.matchedTile = matchedTile;
+    extTrigInfo.matchedRPC = matchedRPC;
+    extTrigInfo.matchedNSW = matchedNSW;
+    extTrigInfoVec.push_back(extTrigInfo);
   }
-  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched",extMatched,[](const double&m){return m;}));
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_eta",extTrigInfoVec,[](const ExtTrigInfo&m){return m.eta;}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_ext_eta",extEta,[](const double&m){return m;}));
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_phi",extTrigInfoVec,[](const ExtTrigInfo&m){return m.phi;}));
   variables.push_back(varowner.back());
-  varowner.push_back(Monitored::Collection(type+"_coin_ext_phi",extPhi,[](const double&m){return m;}));
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matched;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_eta",extTrigInfoVec,[](const ExtTrigInfo&m){return (m.matched)?m.eta:(-10);}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_phi",extTrigInfoVec,[](const ExtTrigInfo&m){return (m.matched)?m.phi:(-10);}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagQ",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedQ;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagF",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedF;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagC",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedC;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagH",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedH;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagEI",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedEI;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagTile",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedTile;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagRPC",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedRPC;}));
+  variables.push_back(varowner.back());
+  varowner.push_back(Monitored::Collection(type+"_coin_ext_matched_CoinFlagNSW",extTrigInfoVec,[](const ExtTrigInfo&m){return m.matchedNSW;}));
   variables.push_back(varowner.back());
 }

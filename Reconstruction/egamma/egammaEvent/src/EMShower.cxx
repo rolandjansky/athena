@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -77,7 +77,7 @@ const std::string& EMShower::className() const
 double EMShower::parameter(egammaParameters::ParamDef key) const {
 
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
 
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();

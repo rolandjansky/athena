@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -11,22 +11,6 @@ namespace Trk {
 TrackStateOnSurface::TrackStateOnSurface() {}
 
 TrackStateOnSurface::TrackStateOnSurface(
-  const MeasurementBase* meas,
-  const TrackParameters* trackParameters,
-  const FitQualityOnSurface* fitQoS,
-  const MaterialEffectsBase* materialEffects,
-  const AlignmentEffectsOnTrack* alignmentEffectsOnTrack)
-  : m_fitQualityOnSurface(fitQoS)
-  , m_trackParameters(trackParameters)
-  , m_measurementOnTrack(meas)
-  , m_materialEffectsOnTrack(materialEffects)
-  , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
-{
-  assert(isSane());
-  setFlags();
-}
-
-TrackStateOnSurface::TrackStateOnSurface(
   std::unique_ptr<const MeasurementBase> meas,
   std::unique_ptr<const TrackParameters> trackParameters,
   std::unique_ptr<const FitQualityOnSurface> fitQoS,
@@ -40,24 +24,6 @@ TrackStateOnSurface::TrackStateOnSurface(
 {
   assert(isSane());
   setFlags();
-}
-
-TrackStateOnSurface::TrackStateOnSurface(
-  const MeasurementBase* meas,
-  const TrackParameters* trackParameters,
-  const FitQualityOnSurface* fitQoS,
-  const MaterialEffectsBase* materialEffects,
-  const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
-    typePattern,
-  const AlignmentEffectsOnTrack* alignmentEffectsOnTrack)
-  : m_fitQualityOnSurface(fitQoS)
-  , m_trackParameters(trackParameters)
-  , m_measurementOnTrack(meas)
-  , m_materialEffectsOnTrack(materialEffects)
-  , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
-  , m_typeFlags(typePattern)
-{
-  assert(isSane());
 }
 
 TrackStateOnSurface::TrackStateOnSurface(
@@ -76,15 +42,6 @@ TrackStateOnSurface::TrackStateOnSurface(
   , m_typeFlags(typePattern)
 {
   assert(isSane());
-}
-
-TrackStateOnSurface::TrackStateOnSurface(const MeasurementBase* meas,
-                                         const TrackParameters* trackParameters)
-{
-  m_trackParameters.reset(trackParameters);
-  m_measurementOnTrack.reset(meas);
-  assert(isSane());
-  setFlags();
 }
 
 TrackStateOnSurface::TrackStateOnSurface(

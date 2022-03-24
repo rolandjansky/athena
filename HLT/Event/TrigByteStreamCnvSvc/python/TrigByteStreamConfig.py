@@ -9,6 +9,10 @@ from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
 
 def getTrigByteStreamInputSvc(name='ByteStreamInputSvc'):
     svc = CompFactory.TrigByteStreamInputSvc(name)
+
+    # Enable checking the CTP ROB with module ID 1 (the RoIB ROB), ATR-25217
+    svc.CheckCTPFragmentModuleID = 1  # ROB ID 0x770001
+
     svc.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
     svc.MonTool.defineHistogram('L1Result_NumROBs', path='EXPERT', type='TH1F',
                                 title='Number of ROBs received in L1 result;Number of ROBs;Events',

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -107,7 +107,7 @@ AscObjSelectionManager::~AscObjSelectionManager()
 }
 
 //____________________________________________________________________
-QString AscObjSelectionManager::toString(MODE m) const
+QString AscObjSelectionManager::toString(MODE m) 
 {
   if (m==SINGLE) return "SINGLE";
   else if (m==TOGGLE) return "TOGGLE";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVALHISTUTILS_TRUTHTRKEXTRAPOLATIONPLOTS_H
@@ -15,7 +15,7 @@ namespace Trk{
   public:
     ExtrLayerPlots(PlotBase *pParent, const std::string& sDir, std::string sLayerName);
 
-    void fill (const xAOD::TruthParticle& truthprt, const std::string& sLayerName, float weight=1.0);
+    void fill (const xAOD::TruthParticle& truthprt, const std::string& sLayerName, float weight=1.0) const;
     std::string m_sLayerName;
 
     TH1* p;
@@ -43,7 +43,7 @@ namespace Trk{
   public:
     ExtrRegionPlots(PlotBase *pParent, const std::string& sDir, std::string sRegionBegin, std::string sRegionEnd);
 
-    void fill (const xAOD::TruthParticle& truthprt, const std::string& sRegionBegin, const std::string& sRegionEnd, float weight=1.0);
+    void fill (const xAOD::TruthParticle& truthprt, const std::string& sRegionBegin, const std::string& sRegionEnd, float weight=1.0) const;
     std::string m_sRegionBegin;
     std::string m_sRegionEnd;
 
@@ -87,7 +87,7 @@ namespace Trk{
 class TruthTrkExtrapolationPlots: public PlotBase {
   public:
     TruthTrkExtrapolationPlots(PlotBase *pParent, const std::string& sDir);
-    void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
+    void fill(const xAOD::TruthParticle& truthprt, float weight=1.0) const;
 
     ExtrLayerPlots m_CaloEntry;
     ExtrLayerPlots m_MuonEntry;

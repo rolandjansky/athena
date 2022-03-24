@@ -51,6 +51,10 @@ class doValidateLargeD0Tracks(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class doValidateMergedLargeD0Tracks(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
 
 class doValidateDBMTracks(InDetPhysValFlagsJobProperty):
     statusOn = True
@@ -233,6 +237,7 @@ _list_InDetPhysValJobProperties = [
     doExpertOutput,
     setTruthStrategy,
     doValidateLargeD0Tracks,
+    doValidateMergedLargeD0Tracks,
     doTruthOriginPlots,
     doPerAuthorPlots,
     doHitLevelPlots,

@@ -9,6 +9,10 @@
 #ifndef PERFMONCOMPS_PERFMONMTUTILS_H
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
+// Thread-safety-checker
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
+
 // PerfMon includes
 #include "SemiDetMisc.h"   // borrow from existing code
 #include "PerfMonEvent/mallinfo.h"

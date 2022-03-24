@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ StatusCode Trk::TrackingVolumeDisplayer::finalize()
 }
 
 
-void Trk::TrackingVolumeDisplayer::openFile(std::ofstream& out, const std::string& filename) const
+void Trk::TrackingVolumeDisplayer::openFile(std::ofstream& out, const std::string& filename) 
 {
     // open the file
     out.open(filename.c_str());
@@ -115,7 +115,7 @@ void Trk::TrackingVolumeDisplayer::openFile(std::ofstream& out, const std::strin
 }
 
 
-void Trk::TrackingVolumeDisplayer::closeFile(std::ofstream& out) const
+void Trk::TrackingVolumeDisplayer::closeFile(std::ofstream& out) 
 {
     out << "worldnode->cd();" << '\n';
     out << "worldnode->Draw(\"ogl\");" << '\n';
@@ -369,7 +369,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, siz
 }
 
 
-int Trk::TrackingVolumeDisplayer::colorCodeFromMaterial(const Trk::MaterialProperties* prop, std::ofstream& output) const
+int Trk::TrackingVolumeDisplayer::colorCodeFromMaterial(const Trk::MaterialProperties* prop, std::ofstream& output) 
 {
     if (!prop) return 6;
     // start from 100 and reduce by radiation length

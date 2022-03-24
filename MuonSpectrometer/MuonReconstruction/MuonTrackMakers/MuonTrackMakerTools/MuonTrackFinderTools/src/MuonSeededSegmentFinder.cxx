@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSeededSegmentFinder.h"
@@ -50,7 +50,7 @@ namespace Muon {
 
         if (mdtPrds.empty()) {
             ATH_MSG_DEBUG(" no MdtPrepData found ");
-            return std::unique_ptr<Trk::SegmentCollection>();
+            return {};
         }
 
         // find segments
@@ -64,7 +64,7 @@ namespace Muon {
 
         if (mdtPrds.empty()) {
             ATH_MSG_DEBUG(" no MdtPrepData found ");
-            return std::unique_ptr<Trk::SegmentCollection>();
+            return {};
         }
 
         // find segments
@@ -161,7 +161,7 @@ namespace Muon {
             mdtPrdContainer = h_mdtPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
-            return std::vector<const MdtPrepData*>();
+            return {};
         }
 
         // vector to store pointers to collections

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -93,46 +93,31 @@ namespace InDet {
       // Protected data
       ///////////////////////////////////////////////////////////////////
 
-      bool                               m_usePIX                 ;
-      bool                               m_useSCT                 ;
-      bool                               m_useTRT                 ;
-      bool                               m_useOutliers            ;
-      int                                m_pdg                    ;
+      bool                               m_usePIX{}                 ;
+      bool                               m_useSCT{}                 ;
+      bool                               m_useTRT{}                 ;
+      bool                               m_useOutliers{}            ;
+      int                                m_pdg{}                    ;
       struct TrackCollectionStat_t {
       public:
-        int                                m_efficiency   [6]  ;
-        int                                m_efficiencyN  [6][5];
-        int                                m_efficiencyBTE[6][5][4];
-        int                                m_efficiencyPOS[6]  ;
-        int                                m_efficiencyNEG[6]  ;
-        int                                m_ntracksPOSB       ;
-        int                                m_ntracksPOSE       ;
-        int                                m_ntracksPOSDBM;
-        int                                m_ntracksNEGB       ;
-        int                                m_ntracksNEGE       ;
-        int                                m_ntracksNEGDBM;
-        int                                m_total        [50] ;
-        int                                m_fake         [50] ;
+        int                                m_efficiency   [6]={0}  ;
+        int                                m_efficiencyN  [6][5]={0};
+        int                                m_efficiencyBTE[6][5][4]={0};
+        int                                m_efficiencyPOS[6]={0}  ;
+        int                                m_efficiencyNEG[6]={0}  ;
+        int                                m_ntracksPOSB{}       ;
+        int                                m_ntracksPOSE{}       ;
+        int                                m_ntracksPOSDBM{};
+        int                                m_ntracksNEGB{}       ;
+        int                                m_ntracksNEGE{}       ;
+        int                                m_ntracksNEGDBM{};
+        int                                m_total        [50]={0} ;
+        int                                m_fake         [50]={0} ;
         int                                m_events{}                 ;
         int                                m_eventsPOS{}              ;
         int                                m_eventsNEG{}              ;
-        int                                m_eventsBTE[4]           ;
+        int                                m_eventsBTE[4]={0}           ;
 
-        TrackCollectionStat_t()
-        : m_efficiency    {},
-          m_efficiencyN   {},
-          m_efficiencyBTE {},
-          m_efficiencyPOS {},
-          m_efficiencyNEG {},
-          m_ntracksPOSB   {},
-          m_ntracksPOSE   {},
-          m_ntracksPOSDBM {},
-          m_ntracksNEGB   {},
-          m_ntracksNEGE   {},
-          m_ntracksNEGDBM {},
-          m_total         {},
-          m_fake          {}
-        {}
 
         TrackCollectionStat_t &operator+=(const TrackCollectionStat_t &a_stat) {
             for (int i=0; i<6; ++i) { m_efficiency[i]+=a_stat.m_efficiency[i];}
@@ -156,57 +141,33 @@ namespace InDet {
 
       struct EventStat_t {
       public:
-        int                                m_events      ;
-        int                                m_eventsPOS   ;
-        int                                m_eventsNEG   ;
-        int                                m_eventsBTE[4];
+        int                                m_events{}      ;
+        int                                m_eventsPOS{}   ;
+        int                                m_eventsNEG{}   ;
+        int                                m_eventsBTE[4]={0};
 
-        int                                m_particleClusters   [50];
-        int                                m_particleSpacePoints[50];
-        int                                m_particleClustersBTE   [50][4];
-        int                                m_particleSpacePointsBTE[50][4];
+        int                                m_particleClusters   [50]={0};
+        int                                m_particleSpacePoints[50]={0};
+        int                                m_particleClustersBTE   [50][4]={0};
+        int                                m_particleSpacePointsBTE[50][4]={0};
 
-        int                                m_nclustersPosBP         ;
-        int                                m_nclustersPosBS         ;
-        int                                m_nclustersPosEP         ;
-        int                                m_nclustersPosES         ;
-        int                                m_nclustersPosDBM;
-        int                                m_nclustersNegBP         ;
-        int                                m_nclustersNegBS         ;
-        int                                m_nclustersNegEP         ;
-        int                                m_nclustersNegES         ;
-        int                                m_nclustersNegDBM;
+        int                                m_nclustersPosBP{}         ;
+        int                                m_nclustersPosBS{}         ;
+        int                                m_nclustersPosEP{}         ;
+        int                                m_nclustersPosES{}         ;
+        int                                m_nclustersPosDBM{};
+        int                                m_nclustersNegBP{}         ;
+        int                                m_nclustersNegBS{}         ;
+        int                                m_nclustersNegEP{}         ;
+        int                                m_nclustersNegES{}         ;
+        int                                m_nclustersNegDBM{};
         //
-        int                                m_nclustersPTOT          ;
-        int                                m_nclustersPTOTt         ;
-        int                                m_nclustersSTOT          ;
-        int                                m_nclustersSTOTt         ;
+        int                                m_nclustersPTOT{}          ;
+        int                                m_nclustersPTOTt{}         ;
+        int                                m_nclustersSTOT{}          ;
+        int                                m_nclustersSTOTt{}         ;
 
-        EventStat_t()
-        : m_events                 {},
-          m_eventsPOS              {},
-          m_eventsNEG              {},
-          m_eventsBTE              {},
-          m_particleClusters       {},
-          m_particleSpacePoints    {},
-          m_particleClustersBTE    {},
-          m_particleSpacePointsBTE {},
-          m_nclustersPosBP         {},
-          m_nclustersPosBS         {},
-          m_nclustersPosEP         {},
-          m_nclustersPosES         {},
-          m_nclustersPosDBM        {},
-          m_nclustersNegBP         {},
-          m_nclustersNegBS         {},
-          m_nclustersNegEP         {},
-          m_nclustersNegES         {},
-          m_nclustersNegDBM        {},
-          m_nclustersPTOT          {},
-	        m_nclustersPTOTt         {},
-	        m_nclustersSTOT          {},
-	        m_nclustersSTOTt         {}
-        {}
-
+       
         EventStat_t &operator+=(const EventStat_t &a_stat) {
           m_events += a_stat.m_events;
           m_eventsPOS += a_stat.m_eventsPOS;
@@ -238,15 +199,15 @@ namespace InDet {
       mutable std::vector<TrackCollectionStat_t>   m_trackCollectionStat ATLAS_THREAD_SAFE; // Guarded by m_statMutex
       mutable EventStat_t                          m_eventStat ATLAS_THREAD_SAFE; // Guarded by m_statMutex
 
-      unsigned int                       m_clcut                  ;
-      unsigned int                       m_clcutTRT               ;
-      unsigned int                       m_spcut                  ;
-      double                             m_ptcut                  ;
-      double                             m_ptcutmax               ;
-      double                             m_rapcut                 ;
-      double                             m_tcut                   ;
-      double                             m_rmin                   ;
-      double                             m_rmax                   ;
+      unsigned int                       m_clcut{}                  ;
+      unsigned int                       m_clcutTRT{}               ;
+      unsigned int                       m_spcut{}                  ;
+      double                             m_ptcut{}                  ;
+      double                             m_ptcutmax{}               ;
+      double                             m_rapcut{}                 ;
+      double                             m_tcut{}                   ;
+      double                             m_rmin{}                   ;
+      double                             m_rmax{}                   ;
       SG::ReadHandleKeyArray<TrackCollection>        m_tracklocation;
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname;
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixelname;
@@ -264,15 +225,7 @@ namespace InDet {
 
       struct EventData_t {
       public:
-        EventData_t()
-        : m_nspacepoints(0),
-          m_nclusters(0),
-          m_nqtracks(0),
-          m_nclustersTRT(0),
-          m_truthPIX{},
-          m_truthSCT{},
-          m_truthTRT{}
-        {}
+        
 
         EventData_t(unsigned int n_collections)
         : m_nspacepoints(0),
@@ -289,18 +242,18 @@ namespace InDet {
           m_trackCollectionStat.resize(n_collections);
         }
 
-        int                                m_nspacepoints           ;
-        int                                m_nclusters              ;
-        int                                m_nqtracks               ;
-        int                                m_nclustersTRT           ;
+        int                                m_nspacepoints{}           ;
+        int                                m_nclusters{}              ;
+        int                                m_nqtracks{}               ;
+        int                                m_nclustersTRT{}           ;
 
         std::vector<std::unique_ptr<SG::VarHandleBase> >  m_clusterHandles;
         std::vector<SG::ReadHandle<TrackCollection> >     m_trackcontainer;
         std::vector<SG::ReadHandle<SpacePointContainer> > m_spacePointContainer;
         std::unique_ptr<SG::ReadHandle<SpacePointOverlapCollection> > m_spacepointsOverlap;
-        const PRD_MultiTruthCollection           * m_truthPIX       ;
-        const PRD_MultiTruthCollection           * m_truthSCT       ;
-        const PRD_MultiTruthCollection           * m_truthTRT       ;
+        const PRD_MultiTruthCollection           * m_truthPIX{}       ;
+        const PRD_MultiTruthCollection           * m_truthSCT{}       ;
+        const PRD_MultiTruthCollection           * m_truthTRT{}       ;
         std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
         std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
         std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
@@ -308,10 +261,10 @@ namespace InDet {
         std::vector<std::list<int> >               m_difference     ;
         std::vector<std::multimap<int,int> >       m_tracks         ;
         std::vector<TrackCollectionStat_t>         m_trackCollectionStat;
-        EventStat_t                                m_eventStat;
+        EventStat_t                                m_eventStat{};
       };
 
-      const HepPDT::ParticleDataTable*        m_particleDataTable ;
+      const HepPDT::ParticleDataTable*        m_particleDataTable{} ;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods

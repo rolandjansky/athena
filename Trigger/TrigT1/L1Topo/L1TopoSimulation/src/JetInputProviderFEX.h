@@ -56,6 +56,9 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hjTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hjTauIsolationEta ATLAS_THREAD_SAFE;
 
+      mutable LockedHandle<TH1> m_hjEmPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjEmPhiEta ATLAS_THREAD_SAFE;
+
       mutable LockedHandle<TH1> m_h_jxe_Pt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_h_jxe_Phi ATLAS_THREAD_SAFE;
 

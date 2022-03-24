@@ -41,11 +41,11 @@ namespace LVL1 {
       SG::ReadHandleKey<DataVector<LVL1::CPCMXTopoData>> m_emTauLocation;    //!<  EMTAU ROI SG key
 
       mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEMEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEMEtPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtPhi ATLAS_THREAD_SAFE;
 

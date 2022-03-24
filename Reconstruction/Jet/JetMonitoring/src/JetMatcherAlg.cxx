@@ -111,41 +111,38 @@ StatusCode JetMatcherAlg::finalize() {
 
 //**********************************************************************
 
-TLorentzVector JetMatcherAlg::GetTLV(const xAOD::Jet* jet) const {
+StatusCode JetMatcherAlg::GetTLV(const xAOD::Jet* jet, TLorentzVector& tlv) const {
 
-  TLorentzVector tlv = TLorentzVector(0.,0.,0.,0.);
   if (m_calibScale == "" ) {
     tlv.SetPtEtaPhiE(jet->pt(),jet->eta(),jet->phi(),jet->e());
   } else { //retrieve fourmomentum at specified calibration scale
     xAOD::JetFourMom_t fourVec;
     bool status = jet->getAttribute<xAOD::JetFourMom_t>( "Jet"+m_calibScale+"Momentum", fourVec );
     if(!status) {
-      ATH_MSG_ERROR("evtStore() cannot retrieve JetFourMomentum at " << m_calibScale);
-      return tlv;
+      ATH_MSG_WARNING("evtStore() cannot retrieve JetFourMomentum at " << m_calibScale);
+      return StatusCode::FAILURE;
     }
     tlv.SetPtEtaPhiE(fourVec.Pt(),fourVec.Eta(),fourVec.Phi(),fourVec.E());
   }
-  return tlv;
+  return StatusCode::SUCCESS;
 }
 
-TLorentzVector JetMatcherAlg::GetTLV(const xAOD::JetRoI* jet) const {
+StatusCode JetMatcherAlg::GetTLV(const xAOD::JetRoI* jet, TLorentzVector& tlv) const {
 
-  TLorentzVector tlv = TLorentzVector(0.,0.,0.,0.);
   tlv.SetPtEtaPhiM(jet->et8x8(),jet->eta(),jet->phi(),0.);
-  return tlv;
+  return StatusCode::SUCCESS;
 }
 
-TLorentzVector JetMatcherAlg::GetTLV(const xAOD::jFexSRJetRoI* jet) const {
+StatusCode JetMatcherAlg::GetTLV(const xAOD::jFexSRJetRoI* jet, TLorentzVector& tlv) const {
 
-  TLorentzVector tlv = TLorentzVector(0.,0.,0.,0.);
   tlv.SetPtEtaPhiM(jet->et(),jet->eta(),jet->phi(),0.);
-  return tlv;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
 template <typename T>
-void JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1,
+StatusCode JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1,
 				SG::ReadHandle<xAOD::JetContainer> jets2,
 				SG::WriteDecorHandleKey<DataVector<T>> matchedHandleKey,
 				std::vector<std::reference_wrapper<SG::WriteDecorHandleKey<DataVector<T>>>> varHandleKeys,
@@ -164,7 +161,12 @@ void JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1,
   std::vector<int> matchedIndices; //remembers which jets in jets2 are already matched, so they are not considered in future matching
   // Loop over first jet collection
   for (const T *j1 : *jets1) {
-    TLorentzVector tlvjet1 = GetTLV(j1);
+    TLorentzVector tlvjet1 = TLorentzVector(); 
+    StatusCode status = GetTLV(j1, tlvjet1);
+    if (!status) {
+        ATH_MSG_WARNING("Could not retrieve full jet 4-momentum. Skipping jet matching.");
+        return StatusCode::SUCCESS;
+    }
     bool j1matched = false;
     double ptDiff  = -999., energyDiff = -999., massDiff = -999., ptResp = -999., energyResp = -999., massResp = -999., ptRef = -999., etaRef = -999.;
     if (tlvjet1.Pt() < 10000.) { // minimum pT cut of 10 GeV for jet matching
@@ -221,7 +223,7 @@ void JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1,
     etaRefHandle(*j1)     = etaRef;
     if (j1matched) matchedIndices.push_back(jetMatchIndex);
   }
-  return;
+  return StatusCode::SUCCESS;
 
 }
 
@@ -242,21 +244,21 @@ StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
       ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey1);
       return StatusCode::FAILURE;
     }
-    jetMatching(jets1, jets2, m_matchedKey, m_jetVarHandleKeys, ctx);
+    return jetMatching(jets1, jets2, m_matchedKey, m_jetVarHandleKeys, ctx);
   } else if(m_matchType == MatchType::JetRoI) { // perform jet matching for L1 JetRoI container
     SG::ReadHandle<xAOD::JetRoIContainer> jets1(m_l1jetContainerKey1, ctx);
     if (!jets1.isValid() ) {
       ATH_MSG_ERROR("evtStore() does not contain L1 jet Collection with name "<< m_l1jetContainerKey1);
       return StatusCode::FAILURE;
     }
-    jetMatching(jets1, jets2, m_l1matchedKey, m_l1JetVarHandleKeys, ctx);
+    return jetMatching(jets1, jets2, m_l1matchedKey, m_l1JetVarHandleKeys, ctx);
   } else if (m_matchType == MatchType::jFexSRJetRoI) { // perform jet matching for L1 jFexSRJetRoI container
     SG::ReadHandle<xAOD::jFexSRJetRoIContainer> jets1(m_jFexSRJetRoIKey, ctx);
     if (!jets1.isValid() ) {
       ATH_MSG_ERROR("evtStore() does not contain L1 jet Collection with name "<< m_jFexSRJetRoIKey);
       return StatusCode::FAILURE;
     }
-    jetMatching(jets1, jets2, m_l1jFexSRmatchedKey, m_l1jFexSRJetVarHandleKeys, ctx);
+    return jetMatching(jets1, jets2, m_l1jFexSRmatchedKey, m_l1jFexSRJetVarHandleKeys, ctx);
   }
 
   return StatusCode::SUCCESS;

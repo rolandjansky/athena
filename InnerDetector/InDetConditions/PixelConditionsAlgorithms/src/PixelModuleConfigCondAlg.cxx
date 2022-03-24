@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelModuleConfigCondAlg.h"
@@ -20,7 +20,6 @@ StatusCode PixelModuleConfigCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelModuleConfigCondAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
-  ATH_CHECK(m_readDeadMapKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -46,60 +45,6 @@ StatusCode PixelModuleConfigCondAlg::execute(const EventContext& ctx) const {
                                               0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
   const EventIDBase stop {EventIDBase::UNDEFNUM,   EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, 
                           EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-
-  //==============
-  // Set dead map
-  //==============
-  EventIDRange rangeDeadMap{start, stop};
-  if (!m_readDeadMapKey.empty()) {
-    ATH_MSG_INFO("Obsolate!! It shouldn't be called here..." << m_readDeadMapKey.key());
-
-    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readDeadMapKey, ctx);
-    const CondAttrListCollection* readCdo = *readHandle; 
-    if (readCdo==nullptr) {
-      ATH_MSG_FATAL("Null pointer to the read conditions object");
-      return StatusCode::FAILURE;
-    }
-    // Get the validitiy range
-    if (not readHandle.range(rangeDeadMap)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeDeadMap);
-
-    // Read dead map info
-    for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-      const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
-      const CondAttrListCollection::AttributeList &payload = attrList->second;
-
-      // RUN-1, RUN-2 format
-      if (payload.exists("moduleID") and not payload["moduleID"].isNull() && payload.exists("ModuleSpecialPixelMap_Clob") and not payload["ModuleSpecialPixelMap_Clob"].isNull()) {
-
-        int moduleHash = payload["moduleID"].data<int>();
-        const std::string &stringStatus = payload["ModuleSpecialPixelMap_Clob"].data<std::string>();
-
-        std::stringstream ss(stringStatus);
-        std::vector<std::string> moduleStringStatus;
-        std::string buffer;
-        while (std::getline(ss,buffer,' ')) { moduleStringStatus.push_back(buffer); }
-
-        if (moduleStringStatus.size()<2) {
-          ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() << " < 2 for channel " <<  channelNumber << " read from " << readHandle.fullKey());
-          return StatusCode::FAILURE;
-        }
-
-        int moduleStatus = std::atoi(moduleStringStatus[0].c_str());
-        int chipStatus   = std::atoi(moduleStringStatus[1].c_str());
-
-        if (moduleStatus>0) { writeCdo->setModuleStatus(moduleHash, moduleStatus); }
-        if (chipStatus>0)   { writeCdo->setChipStatus(moduleHash, chipStatus); }
-      } 
-      else {
-        ATH_MSG_WARNING("Can not retrieve " << channelNumber);
-      }
-    }
-  }
 
   // Digitization parameters
   writeCdo -> setBunchSpace(m_bunchSpace);
@@ -225,8 +170,6 @@ StatusCode PixelModuleConfigCondAlg::execute(const EventContext& ctx) const {
   // Combine time interval
   //=======================
   EventIDRange rangeW{start, stop};
-  rangeW = rangeDeadMap;
-
   if (rangeW.stop().isValid() && rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
     return StatusCode::FAILURE;

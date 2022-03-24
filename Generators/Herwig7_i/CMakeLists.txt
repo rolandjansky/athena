@@ -38,7 +38,7 @@ atlas_add_component( Herwig7_i
    -DHAVE_HEPMC3
    LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES}
    ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} ${OPENLOOPS_LIBRARIES}
-   GeneratorModulesLib EventInfo GaudiKernel PathResolver AtlasHepMCLib powhegHerwig )
+   GeneratorModulesLib xAODEventInfo GaudiKernel PathResolver AtlasHepMCLib powhegHerwig )
 
 else()
 find_package( HepMC )
@@ -50,7 +50,7 @@ atlas_add_component( Herwig7_i
    -DHWVER_IS_72=\"${HW3_VER_IS_72}\"
    LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES}
    ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} ${OPENLOOPS_LIBRARIES}
-   GeneratorModulesLib EventInfo GaudiKernel PathResolver AtlasHepMCLib powhegHerwig )
+   GeneratorModulesLib xAODEventInfo GaudiKernel PathResolver AtlasHepMCLib powhegHerwig )
 endif()
 
 # Install files from the package:

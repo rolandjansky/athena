@@ -5,7 +5,6 @@ logging.getLogger().info("Importing %s", __name__)
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -395,10 +394,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 
     kwargs.setdefault("TgcPrepDataContainer", 
                       'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
-    #MDT conditions information not available online
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
-
+   
     # MuonCompetingClustersCreator apparently just takes default
     kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/SameParticleHardScatteringFilter.h"
@@ -27,9 +27,7 @@ StatusCode SameParticleHardScatteringFilter::filterEvent() {
   N_Parent[0] = 0;
   N_Parent[1] = 0;
 
-  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!= events_const()->end(); ++itr)  
-    {
-      const HepMC::GenEvent* genEvt = (*itr);
+  for (const HepMC::GenEvent* genEvt : *events_const()) {
       for (auto pitr: *genEvt) 
 	{
 	  int id = pitr->pdg_id();

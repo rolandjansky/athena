@@ -7,7 +7,7 @@ from AthenaCommon.Logging import logging
 
 
 def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
-                    disableEventTag=False, trigNavThinningSvc=None):
+                    disableEventTag=False, trigNavThinningSvc=None, AcceptAlgs=[]):
    eventInfoKey = "EventInfo"
    if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
       eventInfoKey = configFlags.Overlay.BkgPrefix + "EventInfo"
@@ -37,6 +37,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       MetadataItemList = MetadataItemList,
       OutputFile=fileName,
    )
+   outputStream.AcceptAlgs += AcceptAlgs 
    outputStream.ExtraOutputs += [("DataHeader", f"StoreGateSvc+{outputStreamName}")]
    result.addService(CompFactory.StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")

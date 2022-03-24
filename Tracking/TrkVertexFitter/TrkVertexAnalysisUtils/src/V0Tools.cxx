@@ -474,7 +474,7 @@ namespace Trk
     return lorentz;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::positiveTrack4Momentum(const xAOD::Vertex * vxCandidate, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::positiveTrack4Momentum(const xAOD::Vertex * vxCandidate, double mass) 
   {
     Amg::Vector3D mom = positiveTrackMomentum(vxCandidate);
     xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
@@ -484,7 +484,7 @@ namespace Trk
     return lorentz;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::negativeTrack4Momentum(const xAOD::Vertex * vxCandidate, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::negativeTrack4Momentum(const xAOD::Vertex * vxCandidate, double mass) 
   {
     Amg::Vector3D mom = negativeTrackMomentum(vxCandidate);
     xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
@@ -494,7 +494,7 @@ namespace Trk
     return lorentz;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::V04Momentum(const xAOD::Vertex * vxCandidate, double V0Mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::V04Momentum(const xAOD::Vertex * vxCandidate, double V0Mass) 
   {
     Amg::Vector3D mom = V0Momentum(vxCandidate);
     double tmp = V0Mass*V0Mass + mom.x()*mom.x() + mom.y()*mom.y() + mom.z()*mom.z();
@@ -601,7 +601,7 @@ namespace Trk
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::pT (const xAOD::Vertex * vxCandidate) const
+  double V0Tools::pT (const xAOD::Vertex * vxCandidate) 
   {
     return V0Momentum(vxCandidate).perp();
   }
@@ -679,7 +679,7 @@ namespace Trk
     return (PtErrsq>0.) ? sqrt(PtErrsq) : 0.;
   }
 
-  Amg::Vector3D V0Tools::pca(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  Amg::Vector3D V0Tools::pca(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     assert(vxCandidate!=0);
     if(nullptr == vxCandidate) {
@@ -724,7 +724,7 @@ namespace Trk
     return sepVar;
   }
 
-  double V0Tools::a0xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::a0xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     double cosineTheta_xy = cosTheta_xy(vxCandidate,vertex);
     double sinTheta_xy = ((1.-cosineTheta_xy*cosineTheta_xy)>0.) ? sqrt((1.-cosineTheta_xy*cosineTheta_xy)) : 0.;
@@ -732,7 +732,7 @@ namespace Trk
     //return (vtx(vxCandidate)-vertex->position()).perp() * sqrt(1.-cosineTheta_xy*cosineTheta_xy);
   }
 
-  double V0Tools::a0z(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::a0z(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     Amg::Vector3D pv = vertex->position();
     Amg::Vector3D ca_point = pca(vxCandidate,vertex);
@@ -740,7 +740,7 @@ namespace Trk
     return a0_vec.z();
   }
 
-  double V0Tools::a0(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::a0(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     double cosineTheta = cosTheta(vxCandidate,vertex);
     double sinTheta = ((1.-cosineTheta*cosineTheta)>0.) ? sqrt((1.-cosineTheta*cosineTheta)) : 0.;
@@ -988,7 +988,7 @@ namespace Trk
     return a0Err;
   }
 
-  double V0Tools::lxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::lxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     auto vert = vxCandidate->position() - vertex->position();
     double dx = vert.x();
@@ -1102,7 +1102,7 @@ namespace Trk
     return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
   }
 
-  double V0Tools::lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     auto vert = vxCandidate->position() - vertex->position();
     double dx = vert.x();
@@ -1270,7 +1270,7 @@ namespace Trk
     return Tau + deltaTau;
   }
 
-  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) const
+  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) 
   {
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
@@ -1561,7 +1561,7 @@ namespace Trk
     return CONST*M*LXYZ/P;
   }
 
-  double V0Tools::tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) const
+  double V0Tools::tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) 
   {
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
@@ -1816,7 +1816,7 @@ namespace Trk
     return CONST*tauErr;
   }
 
-  double V0Tools::thetaStar(const xAOD::Vertex * vxCandidate, double mass1, double mass2) const
+  double V0Tools::thetaStar(const xAOD::Vertex * vxCandidate, double mass1, double mass2) 
   {
     double theta = 0.;
     xAOD::TrackParticle::FourMom_t V1 = positiveTrack4Momentum(vxCandidate, mass1);
@@ -1832,7 +1832,7 @@ namespace Trk
     return theta;
   }
 
-  double V0Tools::cosThetaStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::cosThetaStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) 
   {
     xAOD::TrackParticle::FourMom_t PosMom = positiveTrack4Momentum(vxCandidate, posTrackMass);
     xAOD::TrackParticle::FourMom_t NegMom = negativeTrack4Momentum(vxCandidate, negTrackMass);
@@ -1856,7 +1856,7 @@ namespace Trk
   }
 
   //double V0Tools::phiStar(xAOD::Vertex * vxCandidate) const
-  double V0Tools::phiStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::phiStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) 
   {
     xAOD::TrackParticle::FourMom_t V_pos = positiveTrack4Momentum(vxCandidate,posTrackMass);
     xAOD::TrackParticle::FourMom_t V_neg = negativeTrack4Momentum(vxCandidate,negTrackMass);
@@ -1883,7 +1883,7 @@ namespace Trk
     return phiStar;
   }
 
-  double V0Tools::cosTheta(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
+  double V0Tools::cosTheta(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) 
   {
     auto mom = V0Momentum(vxCandidate);
     auto vtx1 = vtx(vxCandidate);
@@ -1891,7 +1891,7 @@ namespace Trk
     return (mom.dot(vtx1))/(mom.mag()*(vtx1).mag());
   }
 
-  double V0Tools::cosTheta(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::cosTheta(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     auto mom = V0Momentum(vxCandidate);
     auto vtx1 = vtx(vxCandidate);
@@ -1899,7 +1899,7 @@ namespace Trk
     return (mom.dot((vtx1)))/(mom.mag()*(vtx1).mag());
   }
 
-  double V0Tools::cosTheta_xy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
+  double V0Tools::cosTheta_xy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) 
   {
     auto mom = V0Momentum(vxCandidate);
     auto vtx1 = vtx(vxCandidate);
@@ -1908,7 +1908,7 @@ namespace Trk
     return (mom.x()*vtx1.x()+mom.y()*vtx1.y())/(pT*vtx1.perp());
   }
 
-  double V0Tools::cosTheta_xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  double V0Tools::cosTheta_xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
   {
     auto mom = V0Momentum(vxCandidate);
     auto vtx1 = vtx(vxCandidate);

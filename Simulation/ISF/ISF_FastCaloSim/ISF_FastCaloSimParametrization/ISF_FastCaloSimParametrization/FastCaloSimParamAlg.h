@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef ISF_FASTCALOSIMPARAMETRIZATION_ISF_FastCaloSimParamAlg_H
-#define ISF_FASTCALOSIMPARAMETRIZATION_ISF_FastCaloSimParamAlg_H
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_ISF_FASTCALOSIMPARAMALG_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_ISF_FASTCALOSIMPARAMALG_H
 
 
 // STL includes
@@ -16,9 +16,9 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
 // CLHEP include(s)
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -82,7 +82,10 @@ class FastCaloSimParamAlg : public AthAlgorithm {
 
   StringArrayProperty       m_lib_struct_files;
 
-  const CaloDetDescrManager* m_calo_dd_man;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
 }; //
 

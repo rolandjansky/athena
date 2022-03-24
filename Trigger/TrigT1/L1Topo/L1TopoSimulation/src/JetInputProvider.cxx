@@ -52,15 +52,15 @@ JetInputProvider::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hPt1 = std::make_unique<TH1I>( "TOBPt1", "Jet TOB Pt 1", 40, 0, 200);
-   hPt1->SetXTitle("p_{T}");
+   auto hPt1 = std::make_unique<TH1I>( "TOBPt1", "Jet TOB Pt 1", 200, 0, 1000);
+   hPt1->SetXTitle("p_{T} [GeV]");
 
-   auto hPt2 = std::make_unique<TH1I>( "TOBPt2", "Jet TOB Pt 2", 40, 0, 200);
-   hPt2->SetXTitle("p_{T}");
+   auto hPt2 = std::make_unique<TH1I>( "TOBPt2", "Jet TOB Pt 2", 200, 0, 400);
+   hPt2->SetXTitle("p_{T} [GeV]");
 
-   auto hEtaPhi = std::make_unique<TH2I>( "TOBPhiEta", "Jet TOB Location", 25, -50, 50, 64, 0, 64);
-   hEtaPhi->SetXTitle("#eta");
-   hEtaPhi->SetYTitle("#phi");
+   auto hPhiEta = std::make_unique<TH2I>( "TOBPhiEta", "Jet TOB Location", 200, -50, 50, 128, 0, 64);
+   hPhiEta->SetXTitle("#eta#times10");
+   hPhiEta->SetYTitle("#phi#times10");
 
 
    if (m_histSvc->regShared( histPath + "TOBPt1", std::move(hPt1), m_hPt1 ).isSuccess()){
@@ -76,7 +76,7 @@ JetInputProvider::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register TOBPt2 histogram for JetProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hEtaPhi), m_hEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hPhiEta), m_hPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("TOBPhiEta histogram has been registered successfully for JetProvider.");
    }
    else{
@@ -123,7 +123,7 @@ JetInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          inputEvent.addJet( jet );
          m_hPt1->Fill(jet.Et1());
          m_hPt2->Fill(jet.Et2());
-         m_hEtaPhi->Fill(jet.eta(),jet.phi());
+         m_hPhiEta->Fill(jet.eta(),jet.phi());
       }
       if(topoData->overflow()){
           inputEvent.setOverflowFromJetInput(true);

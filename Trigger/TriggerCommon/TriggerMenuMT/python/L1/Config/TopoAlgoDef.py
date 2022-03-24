@@ -617,6 +617,43 @@ class TopoAlgoDef:
                 alg.addvariable('DeltaRMax', d.maxDR[bitId]*d.maxDR[bitId]*_dr_conversion*_dr_conversion, bitId)
             tm.registerTopoAlgo(alg)
 
+
+        # INVM for 2MU3VFab
+        # output lines = '7INVM14-2MU3VFab', '7INVM22-2MU3VFab'
+        INVM_2MU3VFab_Map = [
+            {
+            "algoname": "INVM_2MU3VFab",
+            "minInvm" : 7,
+            "maxInvm" : [14,22],
+            "otype1"  : "MU3VFab",
+            "mult1"   : 2
+        }
+        ]
+        for x in INVM_2MU3VFab_Map:
+            class d:
+                pass
+            for k in x:
+                setattr(d,k,x[k])
+            inputList = d.otype1 
+            toponames = []
+            for bitId in range(len(d.maxInvm)):
+                toponames.append("%iINVM%i-%i%s" % ( d.minInvm, d.maxInvm[bitId],
+                                                                d.mult1, d.otype1
+                                                                )
+                )
+            alg = AlgConf.InvariantMassInclusive1( name = d.algoname, inputs = inputList, outputs = toponames)
+            alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+            alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            alg.addgeneric('NumResultBits', len(toponames))
+            for bitId in range(len(toponames)):
+                alg.addvariable('MinET1',    0*_et_conversion, bitId)
+                alg.addvariable('MinET2',    0*_et_conversion, bitId)
+                alg.addvariable('MinMSqr',   d.minInvm*d.minInvm*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('MaxMSqr',   d.maxInvm[bitId]*d.maxInvm[bitId]*_et_conversion*_et_conversion, bitId)
+            tm.registerTopoAlgo(alg)
+
+
+
         # INVM_EM for Jpsi
         invm_map = { "algoname": 'INVM_eEMs6' , "ocutlist": [ 7, 12 ], "minInvm": 1, "maxInvm": 5, "otype" : "eEM", "olist" : "s",
                      "nleading" : 1, "inputwidth": HW.eEmOutputWidthSort}
@@ -680,10 +717,8 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #8INVM15-2MU5VFab
             {"minInvm": 2, "maxInvm": 9,  "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #2INVM9-2MU5VFab 
             {"minInvm": 7, "maxInvm": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM15-2MU3Vab 
-            {"minInvm": 7, "maxInvm": 22, "mult": 2, "otype1" : "MU3VFab", "otype2" : "",      }, #7INVM22-2MU3VFab, ATR-21566
             {"minInvm": 7, "maxInvm": 22, "mult": 1, "otype1" : "MU5VFab", "otype2" : "MU3VFab",}, #7INVM22-MU5VFab-MU3VFab, ATR-21566
             {"minInvm": 7, "maxInvm": 14, "mult": 1, "otype1" : "MU5VFab", "otype2" : "MU3VFab",}, #7INVM14-MU5VFab-MU3VFab, ATR-22782
-            {"minInvm": 7, "maxInvm": 14, "mult": 2, "otype1" : "MU3VFab", "otype2" : "",      }, #7INVM14-2MU3VFab, ATR-22782
             {"minInvm": 7, "maxInvm": 14, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM14-2MU3Vab, ATR-22782
         ]
         for x in listofalgos:
@@ -965,12 +1000,6 @@ class TopoAlgoDef:
             { "minDr": 0, "maxDr": 28, "otype1" : "eTAU" ,"ocut1": 20, "olist1" : "abm",
               "nleading1": HW.eTauOutputWidthSelect, "inputwidth1": HW.eTauOutputWidthSelect,"otype2" : "eTAU", "ocut2": 12, "olist2" : "abm",
               "nleading2": HW.eTauOutputWidthSelect, "inputwidth2": HW.eTauOutputWidthSelect}, # 0DR28-eTAU20abm-eTAU12abm
-            { "minDr": 0, "maxDr": 28, "otype1" : "eTAU" ,"ocut1": 20, "olist1" : "ab",
-              "nleading1": HW.eTauOutputWidthSelect, "inputwidth1": HW.eTauOutputWidthSelect,"otype2" : "eTAU", "ocut2": 12, "olist2" : "ab",
-              "nleading2": HW.eTauOutputWidthSelect, "inputwidth2": HW.eTauOutputWidthSelect}, # 0DR28-eTAU20ab-eTAU12ab
-            { "minDr": 0, "maxDr": 25, "otype1" : "eTAU" ,"ocut1": 20, "olist1" : "ab",
-              "nleading1": HW.eTauOutputWidthSelect, "inputwidth1": HW.eTauOutputWidthSelect,"otype2" : "eTAU", "ocut2": 12, "olist2" : "ab",
-              "nleading2": HW.eTauOutputWidthSelect, "inputwidth2": HW.eTauOutputWidthSelect}, # 0DR25-eTAU20ab-eTAU12ab
         ]
         for x in algolist:
             class d:
@@ -1005,6 +1034,113 @@ class TopoAlgoDef:
                 alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion, 0)
             tm.registerTopoAlgo(alg)
 
+
+
+        # DISAMB Lines with DR Cut
+        # output lines = 2DISAMB-jJ25ab-0DR25-eTAU20ab-eTAU12ab'
+        #               '2DISAMB-jJ25ab-0DR28-eTAU20ab-eTAU12ab',
+        DISAMB_DR_jJ_eTau_eTau_Map = [
+        {
+            "algoname": "2DISAMB_jJ25ab_DR_eTAU_eTAU",
+            "disamb" :  2,
+            "minDR"   : 0,
+            "maxDR"   : [25,28],
+            "otype1"  : "eTAU",
+            "ocut1"   : 20,
+            "olist1": "ab",
+            "nleading1": HW.eTauOutputWidthSelect,
+            "inputwidth1": HW.eTauOutputWidthSelect,
+            "otype2"  : "eTAU",
+            "ocut2"   : 12,
+            "nleading2": HW.eTauOutputWidthSelect,
+            "inputwidth2": HW.eTauOutputWidthSelect,
+            "olist2": "ab",
+            "otype3"  : "jJ",
+            "ocut3"   : 25,
+            "nleading3": HW.jJetOutputWidthSelect,
+            "inputwidth3": HW.jJetOutputWidthSelect,
+            "olist3": "ab",
+        }
+        ]
+        for x in DISAMB_DR_jJ_eTau_eTau_Map:
+            class d:
+                pass
+            for k in x:
+                setattr(d,k,x[k])
+            inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2, d.otype3 + d.olist3]
+            toponames = []
+            for bitId in range(len(d.maxDR)):
+                obj1 = "-%s%s%s" % (d.otype1, str(d.ocut1), d.olist1)
+                obj2 = "-%s%s%s" % (d.otype2, str(d.ocut2), d.olist2)
+                obj3 = "%s%s%s"  % (d.otype3, str(d.ocut3), d.olist3)
+                toponames.append("%sDISAMB-%s-%dDR%d%s%s"  % ( str(d.disamb) if d.disamb>0 else "", 
+                                                               obj3, d.minDR, d.maxDR[bitId], obj1, obj2))
+            
+            alg = AlgConf.DisambiguationDRIncl3( name = d.algoname, inputs = inputList, outputs =  toponames )
+            
+            alg.addgeneric('InputWidth1', d.inputwidth1)
+            alg.addgeneric('InputWidth2', d.inputwidth2)
+            alg.addgeneric('InputWidth3', d.inputwidth3)
+            alg.addgeneric('MaxTob1', d.nleading1)
+            alg.addgeneric('MaxTob2', d.nleading2)
+            alg.addgeneric('MaxTob3', d.nleading3)
+            alg.addgeneric('NumResultBits', len(toponames))
+
+            for bitId in range(len(toponames)):
+                alg.addvariable('MinET1', d.ocut1*_et_conversion, bitId)
+                alg.addvariable('MinET2', d.ocut2*_et_conversion, bitId)
+                alg.addvariable('MinET3', d.ocut3*_et_conversion, bitId)
+                alg.addvariable('DisambDRSqrMin', d.minDR*d.minDR*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('DisambDRSqrMax', d.maxDR[bitId]*d.maxDR[bitId]*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('DisambDRSqr', d.disamb*d.disamb*_dr_conversion*_dr_conversion, bitId)
+                
+            tm.registerTopoAlgo(alg)
+      
+
+        # DR for eTAU20ab_eTAU12ab
+        # output lines : '0DR25-eTAU20ab-eTAU12ab' 
+        #                '0DR28-eTAU20ab-eTAU12ab' 
+        DR_eTau20_eTau12_Map = [
+        {
+            "algoname": "DR_eTAU20ab_eTAU12ab",
+            "minDR"   : 0,
+            "maxDR"   : [25,28],
+            "otype1"  : "eTAU",
+            "ocut1"   : 20,
+            "olist1": "ab",
+            "otype2"  : "eTAU",
+            "ocut2"   : 12,
+            "inputwidth": HW.eTauOutputWidthSelect,
+            "olist2": "ab",
+        }
+        ]
+        for x in DR_eTau20_eTau12_Map:
+            class d:
+                pass
+            for k in x:
+                setattr(d,k,x[k])
+            inputList = [d.otype1 + d.olist1]
+            toponames = []
+            for bitId in range(len(d.maxDR)):
+                obj1 = "-%s%s%s" % (d.otype1, str(d.ocut1), d.olist1)
+                obj2 = "-%s%s%s" % (d.otype2, str(d.ocut2), d.olist2)
+                toponames.append("%dDR%d%s%s"  % (  d.minDR, d.maxDR[bitId], obj1, obj2))
+            
+            alg = AlgConf.DeltaRSqrIncl1( name = d.algoname, inputs = inputList, outputs =  toponames )
+            
+            alg.addgeneric('InputWidth', d.inputwidth)
+            alg.addgeneric('MaxTob', HW.eTauOutputWidthSelect)
+            alg.addgeneric('NumResultBits', len(toponames) )
+
+            for bitId in range(len(toponames)):
+                alg.addvariable('MinET1', d.ocut1*_et_conversion, bitId)
+                alg.addvariable('MinET2', d.ocut2*_et_conversion, bitId)
+                alg.addvariable('DeltaRMin', d.minDR*d.minDR*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('DeltaRMax', d.maxDR[bitId]*d.maxDR[bitId]*_dr_conversion*_dr_conversion, bitId)
+               
+                
+            tm.registerTopoAlgo(alg)
+      
         # DISAMB 3 lists with DR cut to 2nd and 3rd lists
         algolist=[
             { "disamb": 2,
@@ -1012,16 +1148,6 @@ class TopoAlgoDef:
               "otype2" : "eTAU", "ocut2": 12, "olist2": "abm", "nleading2": HW.eTauOutputWidthSelect, "inputwidth2": HW.eTauOutputWidthSelect,
               "otype3" : "jJ", "ocut3": 25, "olist3": "ab", "nleading3": HW.jJetOutputWidthSelect, "inputwidth3": HW.jJetOutputWidthSelect,
               "drcutmin": 0, "drcutmax": 28}, # 2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm
-            { "disamb": 2,
-              "otype1" : "eTAU",  "ocut1": 20, "olist1": "ab","nleading1": HW.eTauOutputWidthSelect, "inputwidth1": HW.eTauOutputWidthSelect,
-              "otype2" : "eTAU", "ocut2": 12, "olist2": "ab", "nleading2": HW.eTauOutputWidthSelect, "inputwidth2": HW.eTauOutputWidthSelect,
-              "otype3" : "jJ", "ocut3": 25, "olist3": "ab", "nleading3": HW.jJetOutputWidthSelect, "inputwidth3": HW.jJetOutputWidthSelect,
-              "drcutmin": 0, "drcutmax": 28}, # 2DISAMB-jJ25ab-0DR28-eTAU20ab-eTAU12ab
-            { "disamb": 2,
-              "otype1" : "eTAU",  "ocut1": 20, "olist1": "ab","nleading1": HW.eTauOutputWidthSelect, "inputwidth1": HW.eTauOutputWidthSelect,
-              "otype2" : "eTAU", "ocut2": 12, "olist2": "ab", "nleading2": HW.eTauOutputWidthSelect, "inputwidth2": HW.eTauOutputWidthSelect,
-              "otype3" : "jJ", "ocut3": 25, "olist3": "ab", "nleading3": HW.jJetOutputWidthSelect, "inputwidth3": HW.jJetOutputWidthSelect,
-              "drcutmin": 0, "drcutmax": 25}, # 2DISAMB-jJ25ab-0DR25-eTAU20ab-eTAU12ab
         ]
         for x in algolist:
             class d:
@@ -1274,52 +1400,65 @@ class TopoAlgoDef:
         alg.addvariable('MinET1',      0*_et_conversion)
         tm.registerTopoAlgo(alg)
 
-        #ATR-18815
-        toponame = "0INVM10-0DR15-eEM8abl-MU8Fab"
-        log.debug("Define %s", toponame)
-        inputList = ['eEMabl','MU8Fab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth1', HW.eEmOutputWidthSelect)
-        alg.addgeneric('InputWidth2', HW.muonOutputWidthSelect)
-        alg.addgeneric('MaxTob1', HW.eEmOutputWidthSort)
-        alg.addgeneric('MaxTob2', HW.muonOutputWidthSelect)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     0*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr', 10*10*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',      8*_et_conversion)
-        alg.addvariable('MinET2',      0*_et_conversion)
-        alg.addgeneric('ApplyEtaCut',  0)
-        alg.addvariable('MinEta1',     0*_eta_conversion)
-        alg.addvariable('MinEta2',     0*_eta_conversion)
-        alg.addvariable('MaxEta1',    49*_eta_conversion)
-        alg.addvariable('MaxEta2',    49*_eta_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
 
-        #ATR-18815
-        toponame = "0INVM10-0DR15-eEM12abl-MU5VFab"
-        log.debug("Define %s", toponame)
-        inputList = ['eEMabl','MU5VFab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth1', HW.eEmOutputWidthSelect)
-        alg.addgeneric('InputWidth2', HW.muonOutputWidthSelect)
-        alg.addgeneric('MaxTob1', HW.eEmOutputWidthSort)
-        alg.addgeneric('MaxTob2', HW.muonOutputWidthSelect)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     0*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr', 10*10*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',     12*_et_conversion)
-        alg.addvariable('MinET2',      0*_et_conversion)
-        alg.addgeneric('ApplyEtaCut',  0)
-        alg.addvariable('MinEta1',     0*_eta_conversion)
-        alg.addvariable('MinEta2',     0*_eta_conversion)
-        alg.addvariable('MaxEta1',    49*_eta_conversion)
-        alg.addvariable('MaxEta2',    49*_eta_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
+        # LFV
+        # output lines: 0INVM10-0DR15-eEM8abl-MU8Fab, 0INVM10-0DR15-eEM12abl-MU5VFab
+        INVM_DR_eEM_MU_Map = [{
+            "algoname": "INVM_DR_eEM_MU",
+            "minInvm" : 0,
+            "maxInvm" : 10,
+            "minDR"   : 0,
+            "maxDR"   : 15,
+            "otype1"  : "eEM",
+            "ocut1"   : [8,12],
+            "olist1": "abl",
+            "otype2"  : "MU",
+            "olist2": ["Fab","VFab"],
+            "ocut2"   : 5,
+            "ocut2Offset" : [3,0]
+            
+        }]
 
+        for x in INVM_DR_eEM_MU_Map:
+            class d:
+                pass
+            for k in x:
+                setattr(d,k,x[k])
+            inputList = [d.otype1 + d.olist1, d.otype2 + str(d.ocut2) + d.olist2[1] ]
+            toponames = []
+            for bitId in range(len(d.ocut1)):
+                obj1 = "-%s%s%s" % (d.otype1, str( d.ocut1[bitId] ) , d.olist1)
+                obj2 = "-%s%s%s" % (d.otype2, str( d.ocut2 + d.ocut2Offset[bitId] ) , d.olist2[bitId])
+                toponames.append("%dINVM%d-%dDR%d%s%s"  % (  d.minInvm, d.maxInvm, d.minDR, d.maxDR, obj1, obj2))
+            
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl2( name = d.algoname, inputs = inputList, outputs =  toponames )
+            
+            alg.addgeneric('InputWidth1', HW.eEmOutputWidthSelect)
+            alg.addgeneric('InputWidth2', HW.muonOutputWidthSelect)
+            alg.addgeneric('MaxTob1', HW.eEmOutputWidthSort)
+            alg.addgeneric('MaxTob2', HW.muonOutputWidthSelect)
+            alg.addgeneric('ApplyEtaCut',  0)
+
+            alg.addgeneric('NumResultBits', len(toponames) )
+
+            for bitId in range(len(toponames)):
+                alg.addvariable('MinMSqr',     d.minInvm*d.minInvm*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('MaxMSqr',     d.maxInvm*d.maxInvm*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('DeltaRMin',   d.minDR*d.minDR*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('DeltaRMax',   d.maxDR*d.maxDR*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('MinET1',      d.ocut1[bitId]*_et_conversion, bitId)
+                alg.addvariable('MinET2',      (d.ocut2 + d.ocut2Offset[bitId])*_et_conversion, bitId) 
+                alg.addvariable('MinEta1',     0*_eta_conversion, bitId)
+                alg.addvariable('MinEta2',     0*_eta_conversion, bitId)
+                alg.addvariable('MaxEta1',    49*_eta_conversion, bitId)
+                alg.addvariable('MaxEta2',    49*_eta_conversion, bitId)
+                               
+                
+            tm.registerTopoAlgo(alg)
+      
+
+
+    
 
         #ATR-18824 ZAFB-DPHI
         # TODO: update with fwd electrons
@@ -1391,28 +1530,112 @@ class TopoAlgoDef:
             alg.addvariable('MaxDeltaPhi', d.maxDphi*_phi_conversion)
             tm.registerTopoAlgo(alg)
 
+
+        # DR Map for INVM_DR_2MU3 Trigger. Output lines:
+        #'7INVM22-0DR20-2MU3Vab'
+        #'7INVM22-0DR12-2MU3Vab'
+        INVM_DR_2MU3Vab_Map = [
+        {
+            "algoname": "7INVM22_DR_2MU3Vab",
+            "minInvm" : 7,
+            "maxInvm" : 22,
+            "minDR"   : [0,0],
+            "maxDR"   : [12,20],
+            "otype1"  : "MU3Vab",
+            "mult1"   : 2
+        }
+        ]
+        for x in INVM_DR_2MU3Vab_Map:
+            class d:
+                pass
+            for k in x:
+                setattr(d,k,x[k])
+            inputList = d.otype1 
+            toponames = []
+            for bitId in range(len(d.minDR)):
+                toponames.append("%iINVM%i-%iDR%i-%i%s" % ( d.minInvm, d.maxInvm,
+                                                                d.minDR[bitId] , d.maxDR[bitId], 
+                                                                d.mult1, d.otype1
+                                                                )
+                )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = d.algoname, inputs = inputList, outputs = toponames)
+            alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+            alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            alg.addgeneric('NumResultBits', len(toponames))
+            for bitId in range(len(toponames)):
+                alg.addvariable('MinET1',    0*_et_conversion, bitId)
+                alg.addvariable('MinET2',    0*_et_conversion, bitId)
+                alg.addvariable('MinMSqr',   d.minInvm*d.minInvm*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('MaxMSqr',   d.maxInvm*d.maxInvm*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('DeltaRMin', d.minDR[bitId]*d.minDR[bitId]*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('DeltaRMax', d.maxDR[bitId]*d.maxDR[bitId]*_dr_conversion*_dr_conversion, bitId)
+            tm.registerTopoAlgo(alg)
+
+
+        # INVM_DR_2MU3VFab 
+        # Output lines: '2INVM9-0DR15-2MU3VFab' 
+                    #   '7INVM11-25DR99-2MU3VFab', 
+        
+
+        INVM_DR_2MU3VFab_Map = [
+        {
+            "algoname": "INVM_DR_2MU3VFab",
+            "minInvm" : [2,7],
+            "maxInvm" : [9,11,22],
+            "minDR"   : [0,25],
+            "maxDR"   : [15,99],
+            "otype1"  : "MU3VFab",
+            "mult1"   : 2
+        }
+        ]
+        for x in INVM_DR_2MU3VFab_Map:
+            class d:
+                pass
+            for k in x:
+                setattr(d,k,x[k])
+            inputList = d.otype1 
+            toponames = []
+            for bitId in range(len(d.minDR)):
+                toponames.append("%iINVM%i-%iDR%i-%i%s" % ( d.minInvm[bitId], d.maxInvm[bitId],
+                                                                d.minDR[bitId] , d.maxDR[bitId], 
+                                                                d.mult1, d.otype1
+                                                                )
+                )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = d.algoname, inputs = inputList, outputs = toponames)
+            alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+            alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            alg.addgeneric('NumResultBits', len(toponames))
+            for bitId in range(len(toponames)):
+                alg.addvariable('MinET1',    0*_et_conversion, bitId)
+                alg.addvariable('MinET2',    0*_et_conversion, bitId)
+                alg.addvariable('MinMSqr',   d.minInvm[bitId]*d.minInvm[bitId]*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('MaxMSqr',   d.maxInvm[bitId]*d.maxInvm[bitId]*_et_conversion*_et_conversion, bitId)
+                alg.addvariable('DeltaRMin', d.minDR[bitId]*d.minDR[bitId]*_dr_conversion*_dr_conversion, bitId)
+                alg.addvariable('DeltaRMax', d.maxDR[bitId]*d.maxDR[bitId]*_dr_conversion*_dr_conversion, bitId)
+            tm.registerTopoAlgo(alg)
+    
+
+
         #ATR-19720 and ATR-22782, BPH DR+M dimuon
         listofalgos=[
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #2INVM9-0DR15-MU5VFab-MU3Vab 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #8INVM15-0DR22-MU5VFab-MU3Vab
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",       }, #2INVM9-0DR15-2MU3Vab
-            {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",      }, #2INVM9-0DR15-2MU3VFab
+           
 
             {"minInvm": 0, "maxInvm": 16, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-20DR99-2MU3Vab
             {"minInvm": 0, "maxInvm": 16, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-15DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-20DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-15DR99-2MU3Vab
 
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",   "otype2": "",},        #7INVM22-0DR20-2MU3Vab, ATR-21566          
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM22-0DR20-2MU3VFab, ATR-21566 
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR12-2MU3Vab, ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM22-0DR20-2MU3VFab, ATR-21566
 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "CMU5VFab","otype2": "CMU3Vab",}, #8INVM15-0DR22-CMU5VFab-CMU3Vab
  
             {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #7INVM14-0DR25-MU5VFab-MU3Vab
             {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #7INVM11-25DR99-2MU3Vab
             {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3VFab", }, #7INVM14-0DR25-MU5VFab-MU3VFab
-            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM11-25DR99-2MU3VFab, ATR-22782
+
 
         ]
         for x in listofalgos:

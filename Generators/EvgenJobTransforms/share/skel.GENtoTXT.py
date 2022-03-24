@@ -21,6 +21,10 @@ import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AthenaCommonFlags import jobproperties
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+acam.athMasterSeq += xAODMaker__EventInfoCnvAlg(xAODKey="TMPEvtInfo")
+
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
@@ -108,7 +112,7 @@ from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, g
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
-if (runArgs.firstEvents <= 0):
+if (runArgs.firstEvent <= 0):
    evgenLog.warning("Run argument firstEvent should be > 0")
 
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
@@ -116,7 +120,9 @@ theApp.EvtMax = -1
 
 #evgenConfig.nEventsPerJob = 1
 if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
+   postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
+                         OutputEventInfo="EventInfo",
+                         mcEventWeightsKey="")
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True

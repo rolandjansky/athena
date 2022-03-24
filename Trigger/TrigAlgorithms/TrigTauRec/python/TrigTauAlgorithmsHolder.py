@@ -77,32 +77,6 @@ def getTauAxis():
     return TauAxisSetter
 
 ########################################################################
-# Tau energy calibration
-def getEnergyCalibrationLC(caloOnly=False):
- 
-    _name = sPrefix +'EnergyCalibrationLC'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    calibFileName = "TES2016_LC_online.root"
-    if caloOnly:
-        calibFileName = "TES2016_LC_online_inc.root"
-    
-    from tauRecTools.tauRecToolsConf import TauCalibrateLC
-    TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = calibFileName,
-                                    doPtResponse = False,
-                                    VertexCorrection = doVertexCorrection)
-
-    TauCalibrateLC.isCaloOnly = caloOnly
-    #Need to empty the vertex key collection in the trigger case
-    TauCalibrateLC.Key_vertexInputContainer = ""
-
-    cached_instances[_name] = TauCalibrateLC                
-    return TauCalibrateLC
-
-########################################################################
 # MvaTESVariableDecorator
 def getMvaTESVariableDecorator():
 

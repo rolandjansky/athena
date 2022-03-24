@@ -379,7 +379,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -403,6 +403,7 @@ def muEFSARecoSequence( RoIs, name ):
     # Sets up and configures the muon alignment:
     from MuonRecExample import MuonAlignConfig # noqa: F401
 
+  MuonStationsInterSectAlg()
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
       theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",  CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
                                                     sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),
@@ -621,10 +622,14 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
   efAlgs = []
 
-  viewNodeName="efmuInsideOutViewNode"
+  viewNodeName="efmuInsideOutViewNode_"+name
   if "Late" in name:
     viewNodeName = "latemuInsideOutViewNode"
   efmuInsideOutRecoSequence = parOR(viewNodeName)
+  
+  candidatesName = "MuonCandidates"
+  if 'FS' in name:
+    candidatesName = "MuonCandidates_FS"
 
   if "Late" in name:
 
@@ -687,9 +692,10 @@ def muEFInsideOutRecoSequence(RoIs, name):
   else:
     # for non-latemu chains, the decoding/hough transform is run in an earlier step
     #Need PRD containers for inside-out reco
-    ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
+    ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier_"+name)
     ViewVerifyInsideOut.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
+                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
+                                       ( 'MuonCandidateCollection' , 'StoreGateSvc+'+candidatesName )]
     if not isCosmic(): ViewVerifyInsideOut.DataObjects += [( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
     if MuonGeometryFlags.hasCSC():
       ViewVerifyInsideOut.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
@@ -712,7 +718,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     inDetExtensionAlg = MuonInDetToMuonSystemExtensionAlg("TrigInDetMuonExtensionAlg_"+name, InputInDetCandidates="InDetCandidates_"+name,
                                                           WriteInDetCandidates="InDetCandidatesSystemExtended_"+name)
     theInsideOutRecoAlg = MuonInsideOutRecoAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidatesSystemExtended_"+name)
-    insideoutcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgInsideOut_"+name, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
+    insideoutcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgInsideOut_"+name,  MuonCandidateLocation={candidatesName}, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
                                          MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodInsideOutCBSegments", TrackSegmentContainerName = "TrkInsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
                                          MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon", MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgInsideOut_"+name))
     efAlgs.append(inDetExtensionAlg)

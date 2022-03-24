@@ -8,6 +8,7 @@
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODJet/Jet.h"
+#include "xAODTruth/TruthVertex.h"
 
 #include <vector>
 
@@ -17,6 +18,7 @@ namespace ParticleJetTools {
     std::string singleint;
     std::string doubleint;
     std::string pt;
+    std::string Lxy;
   };
 
   struct Particles {

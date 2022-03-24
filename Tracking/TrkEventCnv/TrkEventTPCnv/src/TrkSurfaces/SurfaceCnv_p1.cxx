@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 void SurfaceCnv_p1::persToTrans( const Trk::Surface_p1 *persObj, Trk::Surface *transObj, MsgStream &) {
    transObj->m_associatedDetElementId = Identifier(Identifier32(persObj->m_associatedDetElementId));
-   if( persObj->m_transform.size() ) {
+   if( !persObj->m_transform.empty() ) {
 
       Amg::Transform3D trans{};
       trans(0,0)=persObj->m_transform[0];

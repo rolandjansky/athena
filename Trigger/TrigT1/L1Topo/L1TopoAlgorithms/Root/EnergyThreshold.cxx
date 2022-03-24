@@ -71,10 +71,10 @@ TCS::StatusCode TCS::EnergyThreshold::process( const TCS::InputTOBArray & input,
       jxe != jXEArray.end();
       ++jxe ) {
 
-    bool passed = (*jxe)->Et() >= jXEThr.thrValue100MeV();
+    bool passed = (*jxe)->Et2() >= std::pow(jXEThr.thrValue100MeV(), 2);
     if (passed) {
       counting++;
-      fillHist1D(m_histAccept[0], ((*jxe)->Et()/10.));
+      fillHist1D(m_histAccept[0], ((*jxe)->EtDouble()));
     }
   }
 

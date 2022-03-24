@@ -100,7 +100,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::LARHEC);
 	// TILE PART
 	{
-	TileCellCollection sel;
+	std::vector<const TileCell*> sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
 	for( const auto cell : sel ) { 
 	  if(m_tileCellsInROI && !tileCellEtaInRoi(cell, roiDescriptor)) continue;
@@ -179,7 +179,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         c->setHasCalo(CaloCell_ID::LARHEC);
         // TILE PART
         {
-        TileCellCollection sel;
+        std::vector<const TileCell*>  sel;
         ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
         for( const auto cell : sel ) {
 	  if(m_tileCellsInROI && !tileCellEtaInRoi(cell, roiDescriptor)) continue;

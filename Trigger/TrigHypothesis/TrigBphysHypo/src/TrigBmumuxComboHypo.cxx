@@ -338,12 +338,11 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
     selectedTrackZ0.reserve(tracks.size());
     if (m_trkZ0 > 0.) {
       for (const auto& trackEL : tracks) {
-        const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(**trackEL, dimuon->position());
-        if (fabs(perigee->parameters()[Trk::z0]) < m_trkZ0) {
+        std::unique_ptr<const Trk::Perigee> perigee(m_trackToVertexTool->perigeeAtVertex(**trackEL, dimuon->position()));
+        if (std::abs(perigee->parameters()[Trk::z0]) < m_trkZ0) {
           selectedTracks.push_back(trackEL);
           selectedTrackZ0.push_back(perigee->parameters()[Trk::z0]);
         }
-        delete perigee;
       }
       ATH_MSG_DEBUG( "Found " << selectedTracks.size() << " tracks consistent with dimuon vertex " << idx );
     }
@@ -627,7 +626,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
               p_trk3.SetM(PDG::mPion);
 
               if (p_trk3.Pt() > m_BcToDstarMuMu_minDstarPionPt &&
-                  (m_BcToDstarMuMu_maxDstarPionZ0 < 0. || fabs(selectedTrackZ0[itrk3]) < m_BcToDstarMuMu_maxDstarPionZ0) &&
+                  (m_BcToDstarMuMu_maxDstarPionZ0 < 0. || std::abs(selectedTrackZ0[itrk3]) < m_BcToDstarMuMu_maxDstarPionZ0) &&
                   isInMassRange((p_D0 + p_trk3).M() - p_D0.M() + PDG::mD0, m_BcToDstarMuMu_DstarMassRange)) {
                 auto Bc_vtx1 = fit(state.context(), trackParticleLinks_vtx1, kB_PsiPi);
                 ++iterations;

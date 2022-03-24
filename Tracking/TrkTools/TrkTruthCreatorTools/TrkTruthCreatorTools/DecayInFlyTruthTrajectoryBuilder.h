@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -47,7 +47,7 @@ namespace Trk {
      * between mother and daughter particles; i.e. TruthTrajectories
      * are not allowed to branch.
      */
-    MotherDaughter truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) const;
+    static MotherDaughter truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) ;
   };
   
 } // end namespace Trk

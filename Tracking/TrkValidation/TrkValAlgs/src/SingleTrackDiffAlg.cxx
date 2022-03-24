@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +57,7 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
     const TrackCollection* referenceTracks = nullptr;
     const TrackCollection* comparedTracks = nullptr;
     // get reference collection
-    if (m_referenceTrackCollection != "") {
+    if (!m_referenceTrackCollection.empty()) {
         sc = evtStore()->retrieve(referenceTracks, m_referenceTrackCollection);
         if (sc.isFailure()) {
             msg(MSG::ERROR) <<"Reference tracks not found:  " << m_referenceTrackCollection << endmsg;
@@ -70,7 +70,7 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
         return StatusCode::FAILURE;
     }
     // get collection for comparison
-    if (m_comparedTrackCollection != "") {
+    if (!m_comparedTrackCollection.empty()) {
         sc = evtStore()->retrieve(comparedTracks, m_comparedTrackCollection);
         if (sc.isFailure()) {
             msg(MSG::ERROR) <<"Tracks for comparison not found:  " << m_comparedTrackCollection << endmsg;

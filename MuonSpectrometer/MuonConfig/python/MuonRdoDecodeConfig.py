@@ -113,6 +113,17 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
     acc.addEventAlgo(CompFactory.TgcRdoToTgcPrepData(name, **kwargs))
     return acc
 
+def TgcPrepDataReplicationToolAllBCto3BC(flags, name = "TgcPrepDataAllBCto3BCTool", **kwargs):
+    acc = ComponentAccumulator()
+    the_tool = CompFactory.Muon.TgcPrepDataReplicationToolAllBCto3BC(name, **kwargs)
+    acc.setPrivateTools(the_tool)
+    return acc
+    
+def TgcPrepDataAllBCto3BCCfg(flags, name="TgcPrepDataAllTo3Replicator", **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("Tool", acc.popToolsAndMerge(TgcPrepDataReplicationToolAllBCto3BC(flags)))
+    acc.addEventAlgo(CompFactory.Muon.TgcPrepDataReplicationAlg(name, **kwargs))
+    return acc
 
 def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc = ComponentAccumulator()

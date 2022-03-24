@@ -89,7 +89,7 @@ namespace MuonCombined {
                 ATH_MSG_VERBOSE("Failed to get layer data");
                 continue;
             }
-            m_segmentFinder->find(layer_intersect, segments, layerPrepRawData, ctx);
+            m_segmentFinder->find(ctx, layer_intersect, layerPrepRawData, segments);
             if (segments.empty()) continue;
 
             // fill validation content
@@ -99,7 +99,7 @@ namespace MuonCombined {
 
             // match segments to intersection
             std::vector<std::shared_ptr<const Muon::MuonSegment>> selectedSegments;
-            m_segmentMatchingTool->select(layer_intersect, segments, selectedSegments);
+            m_segmentMatchingTool->select(ctx, layer_intersect, segments, selectedSegments);
             if (selectedSegments.empty()) continue;
 
             // fill validation content

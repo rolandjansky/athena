@@ -10,18 +10,18 @@
 #include "AthenaKernel/errorcheck.h"
 
 
-xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(const CaloCellContainer* cellCont) {
-  xAOD::CaloCluster* cluster=new xAOD::CaloCluster();
+std::unique_ptr<xAOD::CaloCluster> CaloClusterStoreHelper::makeCluster(const CaloCellContainer* cellCont) {
+  std::unique_ptr<xAOD::CaloCluster> cluster = std::make_unique<xAOD::CaloCluster>();
   cluster->makePrivateStore();
-  if (cellCont) cluster->addCellLink(new CaloClusterCellLink(cellCont));
+  if (cellCont) cluster->addCellLink(std::make_unique<CaloClusterCellLink>(cellCont));
   return cluster;
 }
  
 
-xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(const CaloCellContainer* cellCont,
-						       const double eta0, const double phi0,
-						       const xAOD::CaloCluster_v1::ClusterSize clusterSize) {
-  xAOD::CaloCluster* cluster=CaloClusterStoreHelper::makeCluster(cellCont);
+std::unique_ptr<xAOD::CaloCluster> CaloClusterStoreHelper::makeCluster(const CaloCellContainer* cellCont,
+								       const double eta0, const double phi0,
+								       const xAOD::CaloCluster_v1::ClusterSize clusterSize) {
+  std::unique_ptr<xAOD::CaloCluster> cluster=CaloClusterStoreHelper::makeCluster(cellCont);
   cluster->setEta0(eta0);
   cluster->setPhi0(phi0);
   cluster->setClusterSize(clusterSize);
@@ -31,9 +31,9 @@ xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(const CaloCellContainer* 
 
 xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(xAOD::CaloClusterContainer* cont, 
 						       const CaloCellContainer* cellCont) {
-  xAOD::CaloCluster* cluster=new xAOD::CaloCluster();
-  cont->push_back(cluster);
-  if (cellCont) cluster->addCellLink(new CaloClusterCellLink(cellCont));
+
+  xAOD::CaloCluster* cluster=cont->push_back(std::make_unique<xAOD::CaloCluster>());
+  if (cellCont) cluster->addCellLink(std::make_unique<CaloClusterCellLink>(cellCont));
   return cluster;
 }
 
@@ -71,8 +71,7 @@ void CaloClusterStoreHelper::copyContainer (const xAOD::CaloClusterContainer* ol
   newColl->clear();
   newColl->reserve (oldColl->size());
   for (const xAOD::CaloCluster* oldCluster : *oldColl) { 
-    xAOD::CaloCluster* newClu=new xAOD::CaloCluster();
-    newColl->push_back (newClu);
+    xAOD::CaloCluster* newClu=newColl->push_back(std::make_unique<xAOD::CaloCluster>());
     *newClu=*oldCluster;
     //new xAOD::CaloCluster (*oldCluster)); //Copy c'tor creates a private AuxStore and a private ClusterCellLink obj
   }

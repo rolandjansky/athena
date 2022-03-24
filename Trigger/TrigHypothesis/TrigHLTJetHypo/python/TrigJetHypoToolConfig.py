@@ -87,18 +87,26 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
     return  CompFactory.TrigJetTLAHypoTool(chain_dict['chainName'])
 
 def  trigJetEJsHypoToolFromDict(chain_dict):
-    chain_name = chain_dict['chainName']
+    if len(chain_dict['chainParts']) > 1:
+        raise Exception("misconfiguration of emerging jet chain")
 
-    if 'emerging' in chain_name:
+    if len(chain_dict['chainParts'][0]['exotHypo']) > 0:
+        exot_hypo = chain_dict['chainParts'][0]['exotHypo'][0]
+    else:
+        raise Exception("Unable to extract exotHypo emerging jet configuration from chain dict")
+
+    if 'emerging' in exot_hypo:
         trackless = int(0)
-        ptf = float(chain_name.split('PTF')[1].split('dR')[0].replace('p', '.'))
-        dr  = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
-    elif 'trackless' in chain_name:
+        ptf = float(exot_hypo.split('PTF')[1].split('dR')[0].replace('p', '.'))
+        dr  = float(exot_hypo.split('dR')[1].split('_')[0].replace('p', '.'))
+    elif 'trackless' in exot_hypo:
         trackless = int(1)
         ptf = 0.0
-        dr = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
+        dr = float(exot_hypo.split('dR')[1].split('_')[0].replace('p', '.'))
     else:
         raise Exception("misconfiguration of emerging jet chain")
+
+    chain_name = chain_dict['chainName']
 
     hypo = CompFactory.TrigJetEJsHypoTool(chain_name)
     hypo.PTF       = ptf

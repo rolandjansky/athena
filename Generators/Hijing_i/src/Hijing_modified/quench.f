@@ -61,7 +61,7 @@ C******* find the wounded proj which can interact with jet***
              RDP(KP)=COS(DPHI)*RD0
  100          CONTINUE
 C*******       rearrange according decending rd************
-          DO 110 I2=1,KP-1
+          DO 111 I2=1,KP-1
              DO 110 J2=I2+1,KP
                IF(RDP(I2).LT.RDP(J2)) GO TO 110
                RD=RDP(I2)
@@ -71,6 +71,7 @@ C*******       rearrange according decending rd************
                RDP(J2)=RD
                LQP(J2)=LQ
  110             CONTINUE
+ 111           CONTINUE
 C****** find wounded targ which can interact with jet********
              KT=0
              DO 120 I2=1,IHNT2(3)
@@ -88,7 +89,7 @@ C****** find wounded targ which can interact with jet********
                RDT(KT)=COS(DPHI)*RD0
  120             CONTINUE
 C*******       rearrange according decending rd************
-             DO 130 I2=1,KT-1
+             DO 131 I2=1,KT-1
                DO 130 J2=I2+1,KT
                   IF(RDT(I2).LT.RDT(J2)) GO TO 130
                   RD=RDT(I2)
@@ -98,6 +99,7 @@ C*******       rearrange according decending rd************
                   RDT(J2)=RD
                   LQT(J2)=LQ
  130               CONTINUE
+ 131             CONTINUE
               
                MP=0
                MT=0
@@ -229,7 +231,7 @@ C******* find the wounded proj which can interact with jet***
                   RDP(KP)=COS(DPHI)*RD0
  500               CONTINUE
 C*******       rearrange according to decending rd************
-               DO 510 I2=1,KP-1
+               DO 511 I2=1,KP-1
                   DO 510 J2=I2+1,KP
                      IF(RDP(I2).LT.RDP(J2)) GO TO 510
                      RD=RDP(I2)
@@ -239,6 +241,7 @@ C*******       rearrange according to decending rd************
                      RDP(J2)=RD
                      LQP(J2)=LQ
  510                  CONTINUE
+ 511                CONTINUE
 C****** find wounded targ which can interact with jet********
                   KT=0
                   DO 520 I2=1,IHNT2(3)
@@ -256,7 +259,7 @@ C****** find wounded targ which can interact with jet********
                      RDT(KT)=COS(DPHI)*RD0
  520                  CONTINUE
 C*******       rearrange according to decending rd************
-                  DO 530 I2=1,KT-1
+                  DO 531 I2=1,KT-1
                      DO 530 J2=I2+1,KT
                        IF(RDT(I2).LT.RDT(J2)) GO TO 530
                        RD=RDT(I2)
@@ -266,6 +269,7 @@ C*******       rearrange according to decending rd************
                        RDT(J2)=RD
                        LQT(J2)=LQ
  530                     CONTINUE
+ 531                   CONTINUE
                      
                      MP=0
                      MT=0
@@ -399,7 +403,7 @@ C
              RDP(KP)=COS(DPHI)*RD0
  2500          CONTINUE
 C*******       rearrange according to decending rd************
-          DO 2510 I2=1,KP-1
+          DO 2511 I2=1,KP-1
              DO 2510 J2=I2+1,KP
                IF(RDP(I2).LT.RDP(J2)) GO TO 2510
                RD=RDP(I2)
@@ -409,6 +413,7 @@ C*******       rearrange according to decending rd************
                RDP(J2)=RD
                LQP(J2)=LQ
  2510             CONTINUE
+ 2511           CONTINUE
 C****** find wounded targ which can interact with jet********
              KT=0
              DO 2520 I2=1,IHNT2(3)
@@ -426,7 +431,7 @@ C****** find wounded targ which can interact with jet********
                RDT(KT)=COS(DPHI)*RD0
  2520             CONTINUE
 C*******       rearrange according to decending rd************
-             DO 2530 I2=1,KT-1
+             DO 2531 I2=1,KT-1
                DO 2530 J2=I2+1,KT
                   IF(RDT(I2).LT.RDT(J2)) GO TO 2530
                   RD=RDT(I2)
@@ -436,6 +441,7 @@ C*******       rearrange according to decending rd************
                   RDT(J2)=RD
                   LQT(J2)=LQ
  2530               CONTINUE
+ 2531             CONTINUE
               
                MP=0
                MT=0

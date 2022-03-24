@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef V0TOOLS_H
@@ -88,9 +88,9 @@ namespace Trk
  *  and the V0 for a given hypothesis for the masses of the input tracks and the V0 mass.
  */
   static xAOD::TrackParticle::FourMom_t track4Momentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex, double trackMass) ;
-  xAOD::TrackParticle::FourMom_t positiveTrack4Momentum(const xAOD::Vertex * vxCandidate, double posTrackMass) const;
-  xAOD::TrackParticle::FourMom_t negativeTrack4Momentum(const xAOD::Vertex * vxCandidate, double negTrackMass) const;
-  xAOD::TrackParticle::FourMom_t V04Momentum(const xAOD::Vertex * vxCandidate, double V0Mass) const;
+  static xAOD::TrackParticle::FourMom_t positiveTrack4Momentum(const xAOD::Vertex * vxCandidate, double posTrackMass) ;
+  static xAOD::TrackParticle::FourMom_t negativeTrack4Momentum(const xAOD::Vertex * vxCandidate, double negTrackMass) ;
+  static xAOD::TrackParticle::FourMom_t V04Momentum(const xAOD::Vertex * vxCandidate, double V0Mass) ;
 
 /**
  *  NDoF of the vertex fit
@@ -150,7 +150,7 @@ namespace Trk
 /**
  * transverse momentum of the V0
  */
-  double pT(const xAOD::Vertex * vxCandidate) const;
+  static double pT(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * error on the transverse momentum of the V0
@@ -168,18 +168,18 @@ namespace Trk
   * a0xy using transverse measurements only
   * a0z using the point of closest approach (3D)
   */
-  double a0xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
-  double a0z(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double a0xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
+  static double a0z(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
   * closest distance of the momentum vector to an xAOD::Vertex
   */
-  double a0(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double a0(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
   * point of closest approach of the momentum vector to an xAOD::Vertex
   */
-  Amg::Vector3D pca(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static Amg::Vector3D pca(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
   * errors on a0xy and a0z
@@ -196,7 +196,7 @@ namespace Trk
  * projection of distance in xy of the vertex wrt an xAOD::Vertex vertex along the momentum direction
  * (Px*dx+Py*dy)/pT
  */
-  double lxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double lxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
  * error on lxy
@@ -207,7 +207,7 @@ namespace Trk
  * projection of distance in 3D of the vertex wrt an xAOD::Vertex vertex along the momentum direction
  * (Px*dx+Py*dy+Pz*dz)/p
  */
-  double lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
  * error on lxyz
@@ -241,7 +241,7 @@ namespace Trk
  * proper time wrt an xAOD::Vertex vertex assuming massV0
  * imposing a V0 mass without making an adjustment 
  */
-  double tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) const;
+  static double tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) ;
 
 /**
  * proper time error wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass
@@ -288,7 +288,7 @@ namespace Trk
  * proper time in 3D wrt an xAOD::Vertex vertex assuming massV0
  * imposing a V0 mass without making an adjustment 
  */
-  double tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) const;
+  static double tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) ;
 
 /**
  * proper time error in 3D wrt an xAOD::Vertex vertex assuming track masses
@@ -306,32 +306,32 @@ namespace Trk
  *
  * thetaStar (in rad)
  */
-  double thetaStar(const xAOD::Vertex * vxCandidate, double mass1, double mass2) const;
+  static double thetaStar(const xAOD::Vertex * vxCandidate, double mass1, double mass2) ;
 
 /**
  * cosThetaStar
  */
-  double cosThetaStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  static double cosThetaStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) ;
   static double cosThetaStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) ;
 
 /**
  * phiStar
  */
   //double phiStar(xAOD::Vertex * vxCandidate) const;
-  double phiStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  static double phiStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) ;
   static double phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) ;
 
 /**
  * cosTheta (pointing angle to an Amg::Vector3D or an xAOD::Vertex)
  */
-  double cosTheta(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const;
-  double cosTheta(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double cosTheta(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) ;
+  static double cosTheta(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
  * cosTheta (pointing angle to an Amg::Vector3D or an xAOD::Vertex in transverse plane)
  */
-  double cosTheta_xy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const;
-  double cosTheta_xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double cosTheta_xy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) ;
+  static double cosTheta_xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
  * sum of the charges of the tracks in the vertex

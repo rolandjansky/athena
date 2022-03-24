@@ -11,7 +11,7 @@ atlas_add_component( TruthIO
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib AthenaBaseComps GaudiKernel GeneratorModulesLib StoreGateLib EventInfo GeneratorObjects )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib AthenaBaseComps GaudiKernel GeneratorModulesLib StoreGateLib xAODEventInfo GeneratorObjects )
 
 # Install files from the package:
 atlas_install_joboptions( share/common/*.py )

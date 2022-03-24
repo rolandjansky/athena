@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // -*- C++ -*-
 
@@ -18,6 +18,7 @@
 #include "ThePEG/EventRecord/Event.h"
 #include "Herwig/API/HerwigUI.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 /// Interface to the %Herwig7 API
 class Herwig7API : public Herwig::HerwigUI {
@@ -195,6 +196,11 @@ private:
 
   /// Scale integrated cross section by a factor for MetaData output
   double m_xsscale;
+
+  SG::ReadHandleKey<xAOD::EventInfo>  m_evtInfoKey{this
+      , "EventInfo"
+      ,  "EventInfo"
+      , "ReadHandleKey for xAOD::EventInfo"};
 
   //@}
 

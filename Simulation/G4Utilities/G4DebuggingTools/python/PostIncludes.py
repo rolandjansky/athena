@@ -1,9 +1,16 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from G4DebuggingTools.G4DebuggingToolsConfigNew import VolumeDebugger
 
 def VolumeDebuggerAtlas(configFlags, name="G4UA::ISFFullUserActionSvc", **kwargs):
-    kwargs.setdefault("TargetVolume","Atlas::Atlas")
+    kwargs.setdefault("TargetVolume","")
+    result = VolumeDebugger(configFlags,name,**kwargs)
+    return result
+
+def VolumeDebuggerAtlasDumpOnly(configFlags, name="G4UA::ISFFullUserActionSvc", **kwargs):
+    kwargs.setdefault("RunGeoTest", False)
+    kwargs.setdefault("TargetVolume", "")
+    kwargs.setdefault("OutputPath", "AtlasFullDump.gdml")
     result = VolumeDebugger(configFlags,name,**kwargs)
     return result
 

@@ -159,7 +159,10 @@ def defineMenu():
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
 
         # AFP
-        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C', 'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C',
+        'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_eEM9_AFP_A_OR_C','L1_eEM9_AFP_A_AND_C',
+
         'L1_AFP_A_OR_C_J12', 'L1_AFP_A_AND_C_J12',
         'L1_AFP_A_OR_C_jJ20', 'L1_AFP_A_AND_C_jJ20',
         'L1_AFP_A_OR_C_jJ30', 'L1_AFP_A_AND_C_jJ30',
@@ -214,7 +217,7 @@ def defineMenu():
 
 
 
-# Run this file as python python/l1menu/Menu_MC_pp_v7.py to print out available IDs
+# Run this file as python python/L1/Menu_MC_HI_run3_v1.py to print out available IDs
 # CTP IDs 509-511 are reserved for CALREQ
     
     L1MenuFlags.CtpIdMap = {

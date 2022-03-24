@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "ISF_FastCaloSimParametrization/FastCaloSimParamAlg.h"
-
-  /**
-   *
-   *
-   */
 
 // STL include(s):
 #include <sstream>
@@ -45,7 +40,6 @@ FastCaloSimParamAlg::FastCaloSimParamAlg(const std::string& name, ISvcLocator* p
   : AthAlgorithm(name, pSvcLocator)
   , m_inputCollectionKey("EventSteps")
   , m_outputCollectionKey("MergedEventSteps")
-  , m_calo_dd_man(nullptr)
 {
   declareProperty("InputCollectionName", m_inputCollectionKey, "");
   declareProperty("OutputCollectionName", m_outputCollectionKey, "");
@@ -87,7 +81,7 @@ StatusCode FastCaloSimParamAlg::initialize()
   ATH_MSG_DEBUG("Initializing");
   ATH_CHECK(m_inputCollectionKey.initialize());
   ATH_CHECK(m_outputCollectionKey.initialize());
-  m_calo_dd_man  = CaloDetDescrManager::instance();
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_DEBUG("FastCaloSimParamAlg " << this->name() << " initialized");
   return StatusCode::SUCCESS;
 }
@@ -125,6 +119,10 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
   }
   ATH_MSG_DEBUG("Check: total energy before clusterize "<<total_energy1);
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
   // Try this if it will be faster: split to cells first
   std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*> FCS_SIC_cells;
   for (const auto step: *stepinfo) {
@@ -144,7 +142,7 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
   // Then do merging for each cell
   for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it) {
     std::stable_sort(FCS_SIC_cells[it->first]->begin(), FCS_SIC_cells[it->first]->end(), SortByE());
-    if (! m_calo_dd_man->get_element(it->first)) {
+    if (! calo_dd_man->get_element(it->first)) {
         // Bad identifier
         ATH_MSG_WARNING("Something wrong with identifier: "<<it->first);
         continue;
@@ -153,7 +151,7 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
         continue; // Go to next iterator
       }
 
-    const CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(it->first)->getSampling();
+    const CaloCell_ID::CaloSample layer = calo_dd_man->get_element(it->first)->getSampling();
     double dsame(0.);
     double tsame(0.);
     if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3) {

@@ -86,8 +86,13 @@ atlas_add_test( test_athena_variable_shape3
 atlas_add_test( test_athena_variable_shape_merged
                 SCRIPT test_athena_variable_shape_merged.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/ref.data.merged.ascii
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
-                POST_EXEC_SCRIPT nopost.sh
-                PROPERTIES DEPENDS "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
+                POST_EXEC_SCRIPT nopost.sh )
+# Passing PROPERTIES DEPENDS in atlas_add_test doesn't work if there's
+# more than one dependency.
+set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
+                      PROPERTIES DEPENDS
+                      "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
+           
 
 atlas_add_test( test_athena_multtuple
                 SCRIPT test/test_athena_multtuple.sh

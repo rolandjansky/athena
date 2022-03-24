@@ -16,9 +16,6 @@ TCS::jLargeRJetTOB::jLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32
    , m_Et(Et)
    , m_eta(eta)
    , m_phi(phi)
-   , m_EtDouble(Et/10.)
-   , m_etaDouble(eta/40.)
-   , m_phiDouble(phi/20.)
 {}
 
 // copy constructor

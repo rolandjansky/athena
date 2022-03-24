@@ -141,7 +141,8 @@ auto floatAccessors = initAccessors<float>(
   "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing",
   "vsi_mass", "vsi_pT", "vsi_charge",
   "vsi_twoCirc_dr", "vsi_twoCirc_dphi", "vsi_twoCirc_int_r", "vsi_vrtFast_r", "vsi_vrtFast_eta", "vsi_vrtFast_phi",
-  "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2"
+  "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2",
+  "eProbabilityNN"
   );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
@@ -163,7 +164,7 @@ auto vfloatAccessors = initAccessors<std::vector<float>>(
   "IP3D_sigZ0wrtPVofTracks", "IP3D_valD0wrtPVofTracks", "IP3D_valZ0wrtPVofTracks",
   "JetFitter_fittedCov", "JetFitter_fittedPosition", "JetFitter_tracksAtPVchi2", "JetFitter_tracksAtPVndf",
   "EnergyPerSampling", "SumPtChargedPFOPt500", "SumPtTrkPt1000", "SumPtTrkPt500", "TrackWidthPt1000",
-  "pTcuts", "z0cuts", "btagIp_trackMomentum", "btagIp_trackDisplacement",
+  "pTcuts", "z0cuts", "vertexZcuts", "btagIp_trackMomentum", "btagIp_trackDisplacement",
   "vsi_vrtFast_trkd0", "vsi_vrtFast_trkz0");
 
 auto elroiAccessors = initAccessors<ElementLink<TrigRoiDescriptorCollection>>("viewIndex");

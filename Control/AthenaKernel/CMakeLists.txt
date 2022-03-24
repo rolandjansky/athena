@@ -152,3 +152,7 @@ atlas_add_test( getThinningCache_test
 atlas_add_test( AlgorithmTimer_test
   SOURCES test/AlgorithmTimer_test.cxx
   LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( ILockableTool_test
+  SOURCES test/ILockableTool_test.cxx
+  LINK_LIBRARIES AthenaKernel )

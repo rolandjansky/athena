@@ -75,10 +75,28 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
   ATH_CHECK(tracksHandle.isValid());
   ATH_MSG_DEBUG("spacepoint handle size: " << tracksHandle->size() << "...");
 
-  int ntrks = tracksHandle->size();
+  float vertexZ = 0;
+  float maxWeight = -1;
+  auto linkToVertex =  findLink<xAOD::TrigCompositeContainer>(previousDecisionsHandle->at(0), featureString());
+  if ( linkToVertex.link.isValid() ) {
+    auto all_verties = linkToVertex.link.getDataPtr();
+    for ( auto vtxInfo: *all_verties) {
+      const float weight = vtxInfo->getDetail<float>("zfinder_vtx_weight");
+      if ( weight > maxWeight ) {
+        maxWeight = weight;
+        vertexZ = vtxInfo->getDetail<float>("zfinder_vtx_z"); 
+      }
+    }
+    ATH_MSG_DEBUG("Obtained vertex from ZFinder z:" << vertexZ << " weight " << maxWeight);
+  } else {
+    ATH_MSG_DEBUG("No vertex from ZFinder");
+  }
+
+
+  const int ntrks = tracksHandle->size();
   ATH_MSG_DEBUG("Successfully retrieved track container of size" << ntrks);
   auto trkPt   = Monitored::Collection("trkPt", *tracksHandle, [](const auto& trk){ return trk->pt()*1.e-3; } );
-  auto trkEta  = Monitored::Collection("trkEta", *tracksHandle, [](const auto& trk){ return trk->eta(); } );
+  auto trkEta  = Monitored::Collection("trkEta", *tracksHandle, [](const auto& trk){ return trk->eta(); } );  
   Monitored::Group(m_monTool, trkPt, trkEta);
   std::vector<int> counts(m_minPt.size());
   for (const auto trackPtr : *tracksHandle)
@@ -88,7 +106,9 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
 
     for (long unsigned int i = 0; i < m_minPt.size(); i++)
     {
-      if (pT >= m_minPt[i] && std::fabs(z0) < m_maxZ0[i])
+      if (pT >= m_minPt[i] 
+          && std::fabs(z0) < m_maxZ0[i] 
+          && ( std::abs(z0-vertexZ) < m_vertexZ[i] ) )
         counts[i]++;
     }
   }
@@ -108,9 +128,8 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
   trackCount->setDetail("ntrks", ntrks);
   trackCount->setDetail("pTcuts", static_cast<std::vector<float>>(m_minPt));
   trackCount->setDetail("z0cuts", static_cast<std::vector<float>>(m_maxZ0));
+  trackCount->setDetail("vertexZcuts", static_cast<std::vector<float>>(m_vertexZ));
   trackCount->setDetail("counts", counts);
-
-  // TODO revisit
 
   auto mon_ntrks = Monitored::Scalar<int>("ntrks", ntrks);
   Monitored::Group(m_monTool, mon_ntrks);

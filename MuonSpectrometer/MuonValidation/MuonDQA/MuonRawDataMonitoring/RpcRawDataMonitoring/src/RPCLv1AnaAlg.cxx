@@ -41,9 +41,9 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
   //
   // read muons
   //
-  SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
+  SG::ReadHandle<xAOD::MuonContainer> muonsHandle(m_MuonContainerKey, ctx);
 
-  if(!muons.isValid()) {
+  if(!muonsHandle.isValid()) {
     ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
     return StatusCode::FAILURE;
   }
@@ -51,8 +51,9 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
   //
   // fill muon Pt
   //
-  muPtfullVec.reserve(muons->size());
-  for(const auto muonItr : *muons) {
+  muPtfullVec.reserve(muonsHandle->size());
+  const xAOD::MuonContainer *muons = muonsHandle.cptr();
+  for(const xAOD::Muon* muonItr : *muons) {
     nmuon ++;
     muPtfullVec.push_back(muonItr->pt());
   }
@@ -61,12 +62,6 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
   //
   // read rois
   // 
-  std::vector<double> roiEtaVec       = {};
-  std::vector<double> roiBarrelEtaVec = {};
-  std::vector<int>    roiBarrelThrVec = {};
-  std::vector<const xAOD::MuonRoI*> roisBarrel;
-  std::vector< std::vector<const xAOD::MuonRoI*> > roisBarrelThr1(6);
-
   /* raw LVL1MuonRoIs */
   if (!m_l1RoiContainerKey.empty()) {
     SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiContainerKey, ctx);
@@ -75,12 +70,18 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
       ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiContainerKey);
       return StatusCode::FAILURE;
     }
+    const xAOD::MuonRoIContainer *rois = muonRoIs.cptr();
+
+    std::vector<double> roiEtaVec       = {};
+    std::vector<double> roiBarrelEtaVec = {};
+    std::vector<int>    roiBarrelThrVec = {};
+    std::vector<const xAOD::MuonRoI*> roisBarrel;
 
     roiEtaVec.reserve(muonRoIs->size());
     roiBarrelEtaVec.reserve(muonRoIs->size());
     roiBarrelThrVec.reserve(muonRoIs->size());
     roisBarrel.reserve(muonRoIs->size());
-    for(const auto roi : *muonRoIs) {
+    for(const xAOD::MuonRoI *roi : *rois) {
       roiEtaVec.push_back(roi->eta());
       if(roi->getSource() != xAOD::MuonRoI::RoISource::Barrel) {
         continue;
@@ -89,13 +90,6 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
       roiBarrelEtaVec.push_back(roi->eta());
       roiBarrelThrVec.push_back(roi->getThrNumber());
       roisBarrel.push_back(roi);
-      //
-      // collect roi according to the threshold
-      //
-      int thr = roi->getThrNumber();
-      for (int i_thr=0;i_thr < thr ;i_thr++){
-        roisBarrelThr1[i_thr].push_back(roi);
-      }
     }
 
     auto roiEtaCollection       = Collection("roiEta",       roiEtaVec);
@@ -104,7 +98,6 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
     fill(tool, roiEtaCollection);
     fill(tool, roiBarrelEtaCollection);
     fill(tool, roiBarrelThrCollection);
-
 
     //
     // match muon and roi
@@ -136,22 +129,27 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
       auto i_phiDen       = Scalar<double>("muPhiDen",      phi);
       auto i_passTrigger  = Scalar<bool>("passTrigger", false);
 
-      for (int i_thr=0;i_thr<6;i_thr++){
-        i_passTrigger = false;
+      for(const xAOD::MuonRoI *roi : *rois) {
 
-        for(const auto& roi : roisBarrelThr1[i_thr]) {
+        const double dphi = TVector2::Phi_mpi_pi(roi->phi() - phi);
+        const double deta = roi->eta() - eta;
+        const double dr   = std::sqrt(dphi*dphi + deta*deta);
 
-          const double dphi = TVector2::Phi_mpi_pi(roi->phi() - phi);
-          const double deta = roi->eta() - eta;
-          const double dr   = std::sqrt(dphi*dphi + deta*deta);
-
-          if(dr > m_l1trigMatchWindow) {
-            continue;
-          }
-          i_passTrigger = true;
+        if(dr > m_l1trigMatchWindow) {
+          continue;
         }
-        
-        fill(m_tools[m_TriggerThrGroup.at(std::to_string(i_thr+1))], i_pt, i_eta, i_phi, i_passTrigger);
+
+        int thr = roi->getThrNumber();
+        for (int i_thr=1;i_thr<7;i_thr++){
+            if (i_thr <= thr){
+              i_passTrigger = true;
+            } 
+            else {
+              i_passTrigger = false;
+            }
+
+            fill(m_tools[m_TriggerThrGroup.at(std::to_string(i_thr))], i_pt, i_eta, i_phi, i_passTrigger);
+        }
       }
 
       //

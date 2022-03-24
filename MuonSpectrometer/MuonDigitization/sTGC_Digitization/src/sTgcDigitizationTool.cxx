@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -374,14 +374,31 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       if(eventTime < earliestEventTime) earliestEventTime = eventTime;
       // Cut on energy deposit of the particle
       if(hit.depositEnergy() < m_energyDepositThreshold) {
-        ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() << " less than 300.eV  Skip this hit." );
+        ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() 
+                        << " less than " << m_energyDepositThreshold << ". Skip this hit." );
         continue;
       }
 
-      // Temporary workaround to prevent FPE errors, skipping tracks perpendicular to the beam line
-      if (std::abs(hit.globalPosition().z() - hit.globalPrePosition().z()) < 0.01) {
-        ATH_MSG_VERBOSE("Skip hit with a difference between the start and end position less than 0.01 mm.");
-        continue;
+      // Old HITS format doesn't have kinetic energy (i.e it is set to -1).
+      float hit_kineticEnergy = hit.kineticEnergy();
+
+      // Skip digitizing some problematic hits, if processing compatible HITS format
+      if (hit_kineticEnergy > 0.) {
+        // Skip electron with low kinetic energy, since electrons are mainly secondary particles.
+        if ((std::abs(hit.particleEncoding()) == 11) && (hit_kineticEnergy < m_limitElectronKineticEnergy)) {
+          ATH_MSG_DEBUG("Skip electron hit with kinetic energy " << hit_kineticEnergy 
+                      << ", which is less than the lower limit of " << m_limitElectronKineticEnergy);
+          continue;
+        }
+
+       // No support for particles with direction perpendicular to the beam line, since such particles
+       // can deposit energy on a lot of strips and pads of the gas gap. So a good model of charge 
+       // spreading should be implemented. Also, these particles are rare, and most of them are 
+       // secondary particles suh as electrons.
+       if (std::abs(hit.globalPosition().z() - hit.globalPrePosition().z()) < 0.00001) {
+         ATH_MSG_VERBOSE("Skip hit with a direction perpendicular to the beam line, ie z-component is less than 0.00001 mm.");
+         continue;
+       }
       }
 
       if(eventTime != 0){
@@ -404,27 +421,30 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       /// apply the smearing tool to decide if the hit has to be digitized or not
       /// based on layer efficiency
       if ( m_doSmearing ) {
-  bool acceptHit = true;
-  ATH_CHECK(m_smearingTool->isAccepted(layid,acceptHit));
-  if ( !acceptHit ) {
-    ATH_MSG_DEBUG("Dropping the hit - smearing tool");
-    continue;
-  }
+        bool acceptHit = true;
+        ATH_CHECK(m_smearingTool->isAccepted(layid,acceptHit));
+        if ( !acceptHit ) {
+          ATH_MSG_DEBUG("Dropping the hit - smearing tool");
+          continue;
+        }
       }
 
       const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);  //retreiving the sTGC this hit is located in
       if( !detEL ){
-        msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelperSvc->stgcIdHelper().stationEta(layid) << " phi " << m_idHelperSvc->stgcIdHelper().stationPhi(layid) << " ml " << m_idHelperSvc->stgcIdHelper().multilayer(layid)  << endmsg;
+        ATH_MSG_WARNING("Failed to retrieve detector element for: isSmall " << isSmall 
+                         << " eta " << m_idHelperSvc->stgcIdHelper().stationEta(layid) 
+                         << " phi " << m_idHelperSvc->stgcIdHelper().stationPhi(layid) 
+                         << " ml " << m_idHelperSvc->stgcIdHelper().multilayer(layid));
         continue;
       }
 
-
       // project the hit position to wire surface (along the incident angle)
       ATH_MSG_VERBOSE("Projecting hit to Wire Surface" );
-      Amg::Vector3D HPOS(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());  //Global position of the hit
+      const Amg::Vector3D& HPOS{hit.globalPosition()};  //Global position of the hit
       const Amg::Vector3D GLOBAL_ORIG(0., 0., 0.);
       const Amg::Vector3D GLOBAL_Z(0., 0., 1.);
-      const Amg::Vector3D GLODIRE(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+      const Amg::Vector3D& GLODIRE{hit.globalDirection()};
+      Amg::Vector3D global_preStepPos{hit.globalPrePosition()};
 
       ATH_MSG_VERBOSE("Global Z " << GLOBAL_Z );
       ATH_MSG_VERBOSE("Global Direction " << GLODIRE );
@@ -439,7 +459,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
       Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire plane in local coordinates
 
-      ATH_MSG_VERBOSE("Local Z: (" << LOCAL_Z.x() << ", " << LOCAL_Z.y() << ", " << LOCAL_Z.y() <<")" );
+      ATH_MSG_VERBOSE("Local Z: (" << LOCAL_Z.x() << ", " << LOCAL_Z.y() << ", " << LOCAL_Z.z() <<")" );
       ATH_MSG_VERBOSE("Local Direction: (" << LOCDIRE.x() << ", " << LOCDIRE.y() << ", " << LOCDIRE.z() << ")" );
       ATH_MSG_VERBOSE("Local Position: (" << LPOS.x() << ", " << LPOS.y() << ", " << LPOS.z() << ")" );
 
@@ -454,7 +474,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
        *  direction vector.
        */
 
-      double e = 1e-5;
+      constexpr double e = 1e-5;
 
       bool X_1 = std::abs( std::abs(LOCAL_Z.x()) - 1. ) < e;
       bool Y_1 = std::abs( std::abs(LOCAL_Z.y()) - 1. ) < e;
@@ -463,30 +483,53 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       bool Y_s = std::abs(LOCAL_Z.y()) < e;
       bool Z_s = std::abs(LOCAL_Z.z()) < e;
 
-      double scale = 0;
-      if(X_1 && Y_s && Z_s)
+      double scale = 0.;
+      if (X_1 && Y_s && Z_s && std::abs(LOCDIRE.x()) > e)
         scale = -LPOS.x() / LOCDIRE.x();
-      if(X_s && Y_1 && Z_s)
+      else if (X_s && Y_1 && Z_s && std::abs(LOCDIRE.y()) > e)
         scale = -LPOS.y() / LOCDIRE.y();
-      if(X_s && Y_s && Z_1)
+      else if (X_s && Y_s && Z_1 && std::abs(LOCDIRE.z()) > e)
         scale = -LPOS.z() / LOCDIRE.z();
       else
-        ATH_MSG_ERROR(" Wrong scale! ");
+        ATH_MSG_DEBUG(" Wrong scale! ");
 
       // Hit on the wire surface in local coordinates
-      Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
-      Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
+      Amg::Vector3D hitOnSurf_wire = LPOS + scale * LOCDIRE;
 
-      double kinetic_energy = hit.kineticEnergy();
-      Amg::Vector3D global_preStepPos = hit.globalPrePosition();
-      // If kinetic energy is negative, than hits are from old persistent classes
-      if (kinetic_energy < 0.0) {
+      // Some hits are created inside the gas gap, thus they pass through only a portion of the gap.
+      if (hit_kineticEnergy > 0.0) {
+        // Processing HITS format with valid pre-step position
+        double segment_length = (HPOS - global_preStepPos).mag();
+        // If segment doesn't intersect the wire plane, then find the hit position on the segment 
+        // and project onto the wire plane.
+        if (std::abs(scale) > segment_length) {
+          Amg::Vector3D temp_hit_pos = LPOS + (scale / std::abs(scale)) * segment_length * LOCDIRE;
+          hitOnSurf_wire = Amg::Vector3D(temp_hit_pos.x(), temp_hit_pos.y(), 0.0);
+        }
+      } else {
+        // Processing an old HITS format, so assume the particle passes through the gas gap following a straight line.
+        // However, skip electron hit with scale factor greater than 8.0mm. For half-gap thickness of 1.425mm,
+        //   a scale factor of 8 corresponds to an incident angle of about 80deg and the final position on the wire plane 
+        //   is more than two strips away from the post-step position.
+        // With how the extrapolation is done, electron hit with large scale factor might result in a ionization 
+        //   position far from where it should be if the electron is created inside the gas gap.
+        //if ((std::abs(hit.particleEncoding()) == 11) && (std::abs(scale) > 8.0)) {
+        //  continue;
+        //}
         Amg::Vector3D local_preStepPos = LPOS + 2 * scale * LOCDIRE;
         global_preStepPos = SURF_WIRE.transform() * local_preStepPos;
       }
 
-      ATH_MSG_VERBOSE("Local Hit on Wire Surface: (" << HITONSURFACE_WIRE.x() << ", " << HITONSURFACE_WIRE.y() << ", " << HITONSURFACE_WIRE.z() << ")"  );
-      ATH_MSG_VERBOSE("Global Hit on Wire Surface: (" << G_HITONSURFACE_WIRE.x() << ", " << G_HITONSURFACE_WIRE.y() << ", " << G_HITONSURFACE_WIRE.z() << ")" );
+      // In the local frame of the wire plane, the z-component of the hit on the wire surface is zero
+      if (hitOnSurf_wire.z() > e) {
+        ATH_MSG_DEBUG("Local Hit position on Wire surface (" << hitOnSurf_wire.x() << ", " << hitOnSurf_wire.y() << ", " << hitOnSurf_wire.z() << ") has non-zero z-component.");
+      }
+
+      //The hit on the wire in Global coordinates
+      Amg::Vector3D glob_hitOnSurf_wire = SURF_WIRE.transform() * hitOnSurf_wire;
+
+      ATH_MSG_VERBOSE("Local Hit on Wire Surface: (" << hitOnSurf_wire.x() << ", " << hitOnSurf_wire.y() << ", " << hitOnSurf_wire.z() << ")"  );
+      ATH_MSG_VERBOSE("Global Hit on Wire Surface: (" << glob_hitOnSurf_wire.x() << ", " << glob_hitOnSurf_wire.y() << ", " << glob_hitOnSurf_wire.z() << ")" );
 
       ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
 
@@ -495,12 +538,12 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       const int barcode = hit.particleLink().barcode();
       const HepMcParticleLink particleLink(barcode, eventId, evColl, idxFlag);
       const sTGCSimHit temp_hit(hit.sTGCId(), hit.globalTime(),
-                                G_HITONSURFACE_WIRE,
+                                HPOS,
                                 hit.particleEncoding(),
                                 hit.globalDirection(),
                                 hit.depositEnergy(),
                                 particleLink,
-                                kinetic_energy,
+                                hit_kineticEnergy,
                                 global_preStepPos
                                 );
 
@@ -570,10 +613,10 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         std::vector<MuonSimData::Deposit> deposits;
         deposits.push_back(deposit);
         MuonSimData simData(std::move(deposits), hit.particleEncoding());
-        // The sTGC SDO should be placed at the center of the gap, same as the digits.
+        // The sTGC SDO should be placed at the center of the gap, on the wire plane.
         // We use the position from the hit on the wire surface which is by construction in the center of the gap
-        // G_HITONSURFACE_WIRE projects the whole hit to the center of the gap
-        simData.setPosition(G_HITONSURFACE_WIRE);
+        // glob_hitOnSurf_wire projects the whole hit to the center of the gap
+        simData.setPosition(glob_hitOnSurf_wire);
         simData.setTime(globalHitTime);
 
         if(newChannelType == 0){ //Pad Digit

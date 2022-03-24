@@ -45,7 +45,7 @@ namespace Muon {
                                         const std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder) const;
 
         void resolveSmallLargeOverlaps(const EventContext& ctx, std::vector<MuonLayerIntersection>& existingLayerIntersections,
-                                       const std::vector<MuonLayerIntersection>& newLayerIntersections) const;
+                                       std::vector<MuonLayerIntersection>& newLayerIntersections) const;
 
         bool match(const EventContext& ctx, const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKTOSEGMENTTOOL_H
@@ -10,15 +10,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCondData/MdtCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkParameters/TrackParameters.h"
+#include "MuonStationIntersectCond/MuonIntersectGeoData.h"
 
 namespace Trk {
     class Track;
@@ -41,11 +39,8 @@ namespace Muon {
     */
     class MuonTrackToSegmentTool : virtual public IMuonTrackToSegmentTool, public AthAlgTool {
     public:
-        typedef std::vector<const Trk::MeasurementBase*> MeasVec;
-        typedef MeasVec::iterator MeasIt;
-        typedef MeasVec::const_iterator MeasCit;
-
-    public:
+        using MeasVec = std::vector<const Trk::MeasurementBase*>;       
+   
         /** default AlgTool constructor */
         MuonTrackToSegmentTool(const std::string&, const std::string&, const IInterface*);
 
@@ -63,11 +58,7 @@ namespace Muon {
         std::vector<Identifier> calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars,
                                                const MeasVec& measurements) const;
 
-        SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
-                                                                                "Key of input MuonDetectorManager condition data"};
-
-        ServiceHandle<MuonStationIntersectSvc> m_intersectSvc{this, "MuonStationIntersectSvc", "MuonStationIntersectSvc",
-                                                              "pointer to hole search service"};
+       
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{
             this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
@@ -76,8 +67,9 @@ namespace Muon {
         PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                        "helper to nicely print out tracks"};
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
-
-        SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
+      
+        SG::ReadCondHandleKey<Muon::MuonIntersectGeoData> m_chamberGeoKey{this, "ChamberGeoKey", "MuonStationIntersects", "Pointer to hole search service"};
+   
     };
 
 }  // namespace Muon

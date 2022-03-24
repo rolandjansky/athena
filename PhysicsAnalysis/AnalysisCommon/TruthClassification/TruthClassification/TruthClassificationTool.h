@@ -11,6 +11,7 @@
 #include <AsgTools/AsgTool.h>
 #include <xAODEgamma/Electron.h>
 #include <xAODMuon/Muon.h>
+#include <xAODTruth/TruthParticle.h>
 
 
 /// \brief a tool to classify particles based on their type and origin
@@ -31,21 +32,26 @@ public:
 
 private:
   /// \brief electron classification helper
-  StatusCode classify(const xAOD::Electron &electron,
-                      Truth::Type &classification) const;
+  StatusCode classifyElectron(const xAOD::IParticle &electron,
+                              Truth::Type &classification) const;
 
   /// \brief muon classification helper
-  StatusCode classify(const xAOD::Muon &muon,
-                      Truth::Type &classification) const;
+  StatusCode classifyMuon(const xAOD::IParticle &muon,
+                          Truth::Type &classification) const;
 
   /// \brief separately store charge-flip electrons/muons
   bool m_separateChargeFlipElectrons = false;
   bool m_separateChargeFlipMuons = false;
 
+  /// \brief use truth particle decorations
+  bool m_useTruthParticleDecorations{false};
+
   // accessors
   const SG::AuxElement::ConstAccessor<int> m_truthType{"truthType"};
   const SG::AuxElement::ConstAccessor<int> m_truthOrigin{"truthOrigin"};
   const SG::AuxElement::ConstAccessor<int> m_truthPdgId{"truthPdgId"};
+  const SG::AuxElement::ConstAccessor<unsigned int> m_classifierParticleType{"classifierParticleType"};
+  const SG::AuxElement::ConstAccessor<unsigned int> m_classifierParticleOrigin{"classifierParticleOrigin"};
   const SG::AuxElement::ConstAccessor<int> m_firstMotherTruthType{"firstEgMotherTruthType"};
   const SG::AuxElement::ConstAccessor<int> m_firstMotherTruthOrigin{"firstEgMotherTruthOrigin"};
   const SG::AuxElement::ConstAccessor<int> m_firstMotherPdgId{"firstEgMotherPdgId"};
@@ -57,11 +63,17 @@ private:
   const SG::AuxElement::ConstAccessor<float> m_fallbackDR{"TruthClassifierFallback_dR"};
 
   /// \brief a helper to check if an electron is prompt
-  bool isPromptElectron(const xAOD::Electron &electron) const;
+  bool isPromptElectron(const xAOD::IParticle &electron,
+                        bool isTruthParticle,
+                        const xAOD::TruthParticle *truthParticle) const;
   /// \brief a helper to check if an electron has an incorrectly reconstructed charge
-  bool isChargeFlipElectron(const xAOD::Electron &electron) const;
-  /// \brief a helper to check if an muon has an incorrectly reconstructed charge
-  bool isChargeFlipMuon(const xAOD::Muon &muon) const;
+  bool isChargeFlipElectron(const xAOD::IParticle &electron,
+                            bool isTruthParticle,
+                            const xAOD::TruthParticle *truthParticle) const;
+  /// \brief a helper to check if a muon has an incorrectly reconstructed charge
+  bool isChargeFlipMuon(const xAOD::IParticle &muon,
+                        bool isTruthParticle,
+                        const xAOD::TruthParticle *truthParticle) const;
 
   /// \brief a helper to check if the origin is a b-hadron
   bool hasBHadronOrigin(int origin) const;

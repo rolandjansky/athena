@@ -35,20 +35,29 @@ StatusCode gFEXJwoJAlgo::initialize(){
 
 void gFEXJwoJAlgo::setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
                                    unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                   int gXE_seedThrA, int gXE_seedThrB) {
+                                   unsigned int aFPGA_C, unsigned int bFPGA_C,
+                                   int gXE_seedThrA, int gXE_seedThrB, int gXE_seedThrC) {
   m_aFPGA_A = aFPGA_A;
   m_bFPGA_A = bFPGA_A;
   m_aFPGA_B = aFPGA_B;
   m_bFPGA_B = bFPGA_B;
+  m_aFPGA_C = aFPGA_C;
+  m_bFPGA_C = bFPGA_C;
   m_gBlockthresholdA = gXE_seedThrA;
   m_gBlockthresholdB = gXE_seedThrB;
+  m_gBlockthresholdC = gXE_seedThrC;
 
 }
 
 
 
 std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
+                                                                 gTowersForward CNtwr, gTowersForward CPtwr,
                                                                  std::array<uint32_t, 4> & outTOB) {
+
+
+  gTowersCentral Ctwr = {{{0}}};
+  makeFPGAC(CNtwr, CPtwr, Ctwr);
 
 
   // find gBlocks
@@ -59,6 +68,9 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   gTowersCentral gBLKB;
   gBlockAB(Btwr, gBLKB);
 
+
+  gTowersCentral gBLKC;
+  gBlockAB(Ctwr, gBLKC);
 
   //FPGA A observables
   int A_MHT_x = 0x0;
@@ -80,6 +92,18 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
 
   int B_sumEt = 0x0;
 
+
+  //FPGA C observables
+  int C_MHT_x = 0x0;
+  int C_MHT_y = 0x0;
+  int C_MST_x = 0x0;
+  int C_MST_y = 0x0;
+  int C_MET_x = 0x0;
+  int C_MET_y = 0x0;
+
+  int C_sumEt = 0x0;
+
+
   //Global observables
   int MET_x = 0x0;
   int MET_y = 0x0;
@@ -92,19 +116,22 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   int MST_y = 0x0;
 
 
-  metFPGA(Atwr, gBLKA, m_gBlockthresholdA, A_MHT_x, A_MHT_y, A_MST_x, A_MST_y, A_MET_x, A_MET_y);
-  metFPGA(Btwr, gBLKB, m_gBlockthresholdB, B_MHT_x, B_MHT_y, B_MST_x, B_MST_y, B_MET_x, B_MET_y);
+  metFPGA(Atwr, gBLKA, m_gBlockthresholdA, m_aFPGA_A, m_bFPGA_A, A_MHT_x, A_MHT_y, A_MST_x, A_MST_y, A_MET_x, A_MET_y);
+  metFPGA(Btwr, gBLKB, m_gBlockthresholdB, m_aFPGA_B, m_bFPGA_B, B_MHT_x, B_MHT_y, B_MST_x, B_MST_y, B_MET_x, B_MET_y);
+  metFPGA(Ctwr, gBLKC, m_gBlockthresholdC, m_aFPGA_C, m_bFPGA_C, C_MHT_x, C_MHT_y, C_MST_x, C_MST_y, C_MET_x, C_MET_y);
 
-  metTotal(A_MET_x, A_MET_y, B_MET_x, B_MET_y, MET_x, MET_y, MET);
-
+  metTotal(A_MET_x, A_MET_y, B_MET_x, B_MET_y, C_MET_x, C_MET_y, MET_x, MET_y, MET);
+      
   sumEtFPGA(Atwr, A_sumEt);
   sumEtFPGA(Btwr, B_sumEt);
+  sumEtFPGA(Ctwr, C_sumEt);
 
-  sumEt(A_sumEt, B_sumEt, total_sumEt);
-  sumEt(A_MHT_x, B_MHT_x, MHT_x);
-  sumEt(A_MHT_y, B_MHT_y, MHT_y);
-  sumEt(A_MST_x, B_MST_x, MST_x);
-  sumEt(A_MST_y, B_MST_y, MST_y);
+  sumEt(A_sumEt, B_sumEt, C_sumEt, total_sumEt);
+
+  sumEt(A_MHT_x, B_MHT_x, C_MHT_x, MHT_x);
+  sumEt(A_MHT_y, B_MHT_y, C_MHT_y, MHT_y);
+  sumEt(A_MST_x, B_MST_x, C_MST_x, MST_x);
+  sumEt(A_MST_y, B_MST_y, C_MST_y, MST_y);
 
   //Define a vector to be filled with all the TOBs of one event
   std::vector<std::unique_ptr<gFEXJwoJTOB>> tobs_v;
@@ -192,6 +219,38 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
 
 }
 
+void gFEXJwoJAlgo::makeFPGAC(gTowersForward twrsCN, gTowersForward twrsCP, gTowersCentral & twrsC){
+
+  int rows = twrsC.size();
+  int cols = twrsC[0].size();
+  for( int irow = 0; irow < rows; irow++ ){ 
+    for(int jcolumn = 0; jcolumn<2; jcolumn++){
+      if (irow%2 == 0) {
+        twrsC[irow][jcolumn] = twrsCN[irow/2][2*jcolumn];
+      }
+      else {
+        twrsC[irow][jcolumn] = twrsCN[irow/2][2*jcolumn+1];
+      }
+    }
+    for(int jcolumn = 2; jcolumn<6; jcolumn++){
+      twrsC[irow][jcolumn] = twrsCN[irow][jcolumn+2];
+
+    }
+    for(int jcolumn = 6; jcolumn<10; jcolumn++){
+      twrsC[irow][jcolumn] = twrsCP[irow][jcolumn-6];
+
+    }
+    for(int jcolumn = 10; jcolumn<cols; jcolumn++){
+      if(irow%2 == 0) {
+        twrsC[irow][jcolumn] = twrsCP[irow/2][2*jcolumn-16];
+      }
+      else {
+        twrsC[irow][jcolumn] = twrsCP[irow/2][(2*jcolumn-15)];
+      }
+    }
+  }
+}
+
 
 
 void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
@@ -236,6 +295,7 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
 
 void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
+                           unsigned int aFPGA, unsigned int bFPGA,
                            int & MHT_x, int & MHT_y,
                            int & MST_x, int & MST_y,
                            int & MET_x, int & MET_y){
@@ -255,17 +315,24 @@ void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gB
       }
     }
   }
-  MET_x = m_aFPGA_A * MHT_x + m_bFPGA_A * MST_x;
-  MET_y = m_aFPGA_B * MHT_y + m_bFPGA_B * MST_y;
+  MET_x = aFPGA * MHT_x + bFPGA * MST_x;
+  MET_y = aFPGA * MHT_y + bFPGA * MST_y;
 
 }
 
 void gFEXJwoJAlgo::metTotal(int A_MET_x, int A_MET_y,
                             int B_MET_x, int B_MET_y,
+                            int C_MET_x, int C_MET_y,
                             int & MET_x, int & MET_y, int & MET){
 
   MET_x = A_MET_x + B_MET_x;
   MET_y = A_MET_y + B_MET_y;
+
+  if (FEXAlgoSpaceDefs::ENABLE_JWOJ_C){
+    MET_x = MET_x + C_MET_x;
+    MET_y = MET_y + C_MET_y;
+  }
+
   MET   = sqrt((MET_x * MET_x) + (MET_y * MET_y));
 
 }
@@ -281,12 +348,14 @@ void gFEXJwoJAlgo::sumEtFPGA(gTowersCentral twrs, int & partial_sumEt ){
       partial_sumEt += twrs[irow][jcolumn];
     }
   }
-  
 }
 
-void gFEXJwoJAlgo::sumEt(int  A_sumEt, int  B_sumEt, int & total_sumEt ){
+void gFEXJwoJAlgo::sumEt(int  A_sumEt, int  B_sumEt, int  C_sumEt, int & total_sumEt ){
 
   total_sumEt = A_sumEt + B_sumEt;
+  if (FEXAlgoSpaceDefs::ENABLE_JWOJ_C){
+    total_sumEt = total_sumEt + C_sumEt;
+  }
 
 }
 
@@ -296,7 +365,7 @@ void gFEXJwoJAlgo::sumEt(int  A_sumEt, int  B_sumEt, int & total_sumEt ){
 float gFEXJwoJAlgo::sinLUT(unsigned int phiIDX, unsigned int aw)
 {
   float c = ((float)phiIDX)/pow(2,aw);
-  float rad = ( (2*M_PI) + (M_PI/32) ) *c;
+  float rad = (2*M_PI) *c;
   float rsin = sin(rad);
   return rsin;
 }
@@ -307,7 +376,7 @@ float gFEXJwoJAlgo::sinLUT(unsigned int phiIDX, unsigned int aw)
 float gFEXJwoJAlgo::cosLUT(unsigned int phiIDX, unsigned int aw)
 {
   float c = ((float)phiIDX)/pow(2,aw);
-  float rad = ( (2*M_PI) + (M_PI/32) ) *c;
+  float rad = (2*M_PI) *c;
   float rcos = cos(rad);
   return rcos;
 }

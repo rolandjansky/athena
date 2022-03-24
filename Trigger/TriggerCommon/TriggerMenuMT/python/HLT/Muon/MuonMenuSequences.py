@@ -601,12 +601,34 @@ def muEFCBFSAlgSequence(ConfigFlags):
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.InViewMuonCandidates = "MuonCandidates_FS"
 
-    from .MuonRecoSequences import muEFCBRecoSequence
-    muEFCBFSRecoSequence, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
+    from TrigMuonEF.TrigMuonEFConf import MuonFilterAlg, MergeEFMuonsAlg
+    from .MuonRecoSequences import muEFCBRecoSequence, muEFInsideOutRecoSequence 
+    #outside-in reco sequence
+    muEFCBFSRecoSequence, sequenceOutCB = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
+    
+    #Alg fitltering for no muon events
+    muonFilter =  MuonFilterAlg("FilterZeroMuonsEFCBFS")
+    muonFilter.MuonContainerLocation = sequenceOutCB
 
-    efcbfsInputMaker.ViewNodeName = muEFCBFSRecoSequence.name()
+    #If filter passed
+    muonEFInsideOutRecoSequence, sequenceOutInsideOut = muEFInsideOutRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
+    muonInsideOutSequence =  seqAND("muonEFCBFSInsideOutSequence", [muonFilter,muonEFInsideOutRecoSequence])
 
-    muonEFCBFSSequence = seqAND( "muonEFFSCBSequence", [efcbfsInputMaker, muEFCBFSRecoSequence] )
+    #combine O-I and I-O seqs
+    muonRecoSequence = parOR("muonEFCBFSInsideOutRecoSequence", [muEFCBFSRecoSequence, muonInsideOutSequence])
+
+    #Merge muon containers from O-I and I-O reco
+    muonMerger = MergeEFMuonsAlg("MergeEFCBFSMuons")
+    muonMerger.MuonCBContainerLocation = sequenceOutCB
+    muonMerger.MuonInsideOutContainerLocation = sequenceOutInsideOut
+    muonMerger.MuonOutputLocation = muNames.EFCBName
+    sequenceOut = muonMerger.MuonOutputLocation
+
+    #Add merging alg in seq with reco seq
+    mergeSequence = seqOR("muonCBInsideOutMergingSequenceEFCBFS", [muonRecoSequence, muonMerger])
+
+    efcbfsInputMaker.ViewNodeName = mergeSequence.name()    
+    muonEFCBFSSequence = seqAND( "muonEFFSCBSequence", [efcbfsInputMaker, mergeSequence] )
 
     return (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut)
 

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEDCSSTATE_H
@@ -219,7 +219,7 @@ class TileDCSState {
 #include "AthenaKernel/CondCont.h"
 
 CLASS_DEF(TileDCSState, 125804125, 0)
-CONDCONT_DEF(TileDCSState, 38603143);
+CONDCONT_MIXED_DEF(TileDCSState, 38603143);
 
 // inlines
 

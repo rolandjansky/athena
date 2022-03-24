@@ -66,41 +66,7 @@ atlas_install_scripts( scripts/han_lark_tester.py )
 atlas_install_data( data/* )
 
 # Tests:
-atlas_add_test( build_config
-    SCRIPT cp ${CMAKE_CURRENT_SOURCE_DIR}/share/* . && han-config-gen histogramAnalysis.config
+atlas_add_test( han_functions
+    SCRIPT test/test_han_functions.sh ${CMAKE_CURRENT_SOURCE_DIR}/share
     PROPERTIES TIMEOUT 300
-    POST_EXEC_SCRIPT nopost.sh
-)
-
-atlas_add_test( build_config_regex
-    SCRIPT han-config-gen histogramAnalysisRegex.config
-    PROPERTIES TIMEOUT 300
-    POST_EXEC_SCRIPT nopost.sh
-    PROPERTIES DEPENDS DataQualityInterfaces_build_config
-)
-
-atlas_add_test( run_han
-    SCRIPT han histogramAnalysis.hcfg Data.root Data_han.root
-    PROPERTIES TIMEOUT 300
-    POST_EXEC_SCRIPT nopost.sh
-    PROPERTIES DEPENDS DataQualityInterfaces_build_config
-)
-
-atlas_add_test( run_han_regex
-    SCRIPT han histogramAnalysisRegex.hcfg Data.root Data_han_regex.root
-    PROPERTIES TIMEOUT 300
-    POST_EXEC_SCRIPT nopost.sh
-    PROPERTIES DEPENDS DataQualityInterfaces_build_config_regex
-)
-
-atlas_add_test( han_config_dump
-    SCRIPT han-config-print histogramAnalysis.hcfg
-    PROPERTIES TIMEOUT 300
-    PROPERTIES DEPENDS DataQualityInterfaces_build_config
-)
-
-atlas_add_test( han_config_dump_regex
-    SCRIPT han-config-print histogramAnalysisRegex.hcfg
-    PROPERTIES TIMEOUT 300
-    PROPERTIES DEPENDS DataQualityInterfaces_build_config_regex
 )

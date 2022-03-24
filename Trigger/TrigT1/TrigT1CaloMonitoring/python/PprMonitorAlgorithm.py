@@ -147,7 +147,7 @@ def PprMonitoringConfig(inputFlags):
             groupLUTCP_LB.defineHistogram('etaTT_2D,phiTT_2D;ppm_{0}_2d_etaPhi_tt_lutcp_Threshold_0{1}'.format(layer.lower(), i), 
                                            title='#eta - #phi map of {0} LUT-CP > {1} GeV/2'.format(layer, threshVec[i]), 
                                            type='TH2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, 
-                                           opt='kLBNHistoryDepth=10, kAlwaysCreate' if isOnline else 'kAlwaysCreate', 
+                                           opt='kLBNHistoryDepth=10,kAlwaysCreate' if isOnline else 'kAlwaysCreate', 
                                            duration='' if isOnline else 'lb')
                   
 
@@ -209,7 +209,7 @@ def PprMonitoringConfig(inputFlags):
             groupLUTJEP_LB.defineHistogram('etaTT_2D,phiTT_2D;ppm_{0}_2d_etaPhi_tt_lutjep_Threshold_0{1}'.format(layer.lower(), i), 
                                             title='#eta - #phi map of {0} LUT-JEP > {1} GeV'.format(layer, threshVec[i]), 
                                             type='TH2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, 
-                                            opt='kLBNHistoryDepth=10, kAlwaysCreate' if isOnline else 'kAlwaysCreate', 
+                                            opt='kLBNHistoryDepth=10,kAlwaysCreate' if isOnline else 'kAlwaysCreate', 
                                             duration='' if isOnline else 'lb') 
 
 
