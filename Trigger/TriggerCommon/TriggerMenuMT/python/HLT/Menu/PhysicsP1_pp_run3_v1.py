@@ -262,12 +262,6 @@ def addP1Signatures(chains):
 #        ChainProp(name='HLT_noalg_L1MBTS_2_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
 #        ChainProp(name='HLT_noalg_L1MBTS_1_1_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
 
-
-        # ZDCCalib
-        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_A', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportGroup),
-        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_C', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportGroup),
-        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportGroup),
- 
     ]
 
     chainsP1['Monitor'] = [
