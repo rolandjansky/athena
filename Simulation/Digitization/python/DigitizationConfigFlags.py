@@ -152,11 +152,14 @@ def digitizationRunArgsToFlags(runArgs, flags):
     if hasattr(runArgs, "AddCaloDigi"):
         flags.Digitization.AddCaloDigi = runArgs.AddCaloDigi
 
-    flags.Digitization.RandomSeedOffset = 0
-    if hasattr(runArgs,"digiSeedOffset1"):
-        flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset1)
-    if hasattr(runArgs,"digiSeedOffset2"):
-        flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset2)
+    if hasattr(runArgs, "digiSeedOffset1") or hasattr(runArgs, "digiSeedOffset2"):
+        flags.Digitization.RandomSeedOffset = 0
+        if hasattr(runArgs, "digiSeedOffset1"):
+            flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset1)
+        if hasattr(runArgs, "digiSeedOffset2"):
+            flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset2)
+    else:
+        flags.Digitization.RandomSeedOffset = 3  # for legacy compatibility
 
     if hasattr(runArgs, "digiSteeringConf"):
         flags.Digitization.DigiSteeringConf = runArgs.digiSteeringConf + "PileUpToolsAlg"
