@@ -16,9 +16,9 @@ def EMVertexBuilderCfg(flags, name="EMVertexBuilder", **kwargs):
     if "VertexFinderTool" not in kwargs:
         vtxFlags = flags.cloneAndReplace(
             "InDet.SecVertex", "InDet.SecVertexEGammaPileUp")
-        from InDetConfig.ConversionFindingConfig import ConversionFinderCfg
+        from InDetConfig.InDetConversionFinderToolsConfig import InDetConversionFinderToolsCfg
         kwargs["VertexFinderTool"] = acc.popToolsAndMerge(
-            ConversionFinderCfg(vtxFlags))
+            InDetConversionFinderToolsCfg(vtxFlags))
 
     alg = CompFactory.EMVertexBuilder(name, **kwargs)
     acc.addEventAlgo(alg)

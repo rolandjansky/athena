@@ -1159,37 +1159,6 @@ def InDetCosmicExtenScoringToolCfg(flags, name='InDetCosmicExtenScoringTool',**k
     acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicsScoringToolBaseCfg(flags, name = 'InDetCosmicExtenScoringTool', **kwargs)))
     return acc
 
-def SiCombinatorialTrackFinder_xkCfg(flags, name='InDetSiComTrackFinder', **kwargs):
-    acc = ComponentAccumulator()
-
-    InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
-    InDetPatternUpdator = acc.getPrimaryAndMerge(InDetPatternUpdatorCfg())
-
-    InDetRotCreatorDigital = acc.popToolsAndMerge(InDetRotCreatorDigitalCfg(flags))
-    acc.addPublicTool(InDetRotCreatorDigital)
-
-    from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
-    InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-
-    kwargs.setdefault("PropagatorTool",  InDetPatternPropagator)
-    kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
-    kwargs.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
-    kwargs.setdefault("RIOonTrackTool", InDetRotCreatorDigital)
-    kwargs.setdefault("usePixel", flags.Detector.EnablePixel) #DetFlags.haveRIO.pixel_on()
-    kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
-    kwargs.setdefault("PixelClusterContainer", 'PixelClusters') #InDetKeys.PixelClusters()
-    kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
-    if "PixelSummaryTool" not in kwargs:
-        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
-    if "SctSummaryTool" not in kwargs:
-        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-        kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags)))
-
-    InDetSiComTrackFinder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name=name, **kwargs)
-    acc.setPrivateTools(InDetSiComTrackFinder)
-    return acc
-
 def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs) :
     acc = ComponentAccumulator()
     InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
