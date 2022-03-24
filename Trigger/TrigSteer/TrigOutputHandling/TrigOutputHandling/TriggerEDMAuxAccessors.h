@@ -141,7 +141,8 @@ auto floatAccessors = initAccessors<float>(
   "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing",
   "vsi_mass", "vsi_pT", "vsi_charge",
   "vsi_twoCirc_dr", "vsi_twoCirc_dphi", "vsi_twoCirc_int_r", "vsi_vrtFast_r", "vsi_vrtFast_eta", "vsi_vrtFast_phi",
-  "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2"
+  "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2",
+  "eProbabilityNN"
   );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");

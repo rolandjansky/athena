@@ -668,7 +668,7 @@ def _trackConverterCfg(flags, signature, inputTracksKey, outputTrackParticleKey)
                                                           TrackToVertex         = track_to_vertex,
                                                           KeepParameters        = True,
                                                           ComputeAdditionalInfo = True,
-                                                          ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'])
+                                                         )
   acc.addPublicTool(creatorTool)
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
