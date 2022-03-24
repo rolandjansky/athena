@@ -262,6 +262,8 @@ class Registry(object):
         self.add_default("MadSpin_nFlavours", "4", description="which flavour scheme to use. [4; 5]")
         self.add_default("MadSpin_process", "", description="process that MadSpin is operating on")
         self.add_default("MadSpin_taus_are_leptons", True, description="whether lepton definitions should include taus. [False: do not include taus, True: include taus]")
+        self.add_default("MadSpin_max_weight_ps_point", -1, description="max_weight_ps_point parameter for MadSpin card to improve madspin integration. [-1: would use MadSpin default; any positive value: include it in the MadSpin run card]")
+        self.add_default("MadSpin_Nevents_for_max_weight", -1, description="Nevents_for_max_weight parameter for MadSpin card to improve madspin integration. [-1: would use MadSpin default; any positive value: include it in the MadSpin run card]")
         self.add_default("manyseeds", 0, description="read multiple seeds for the random number generator from pwgseeds.dat. [1:enabled]")
         self.add_default("mass_b", powheg_atlas_common.mass.b, description="b-quark mass in GeV")
         self.add_default("mass_c", powheg_atlas_common.mass.c, name="mass_c", description="c-quark mass in GeV")

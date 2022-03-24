@@ -54,6 +54,10 @@ class ttj_MiNNLO(PowhegV2):
 
         # hack in place to help powheg executable find all dynamic libraries
         logger.warning("Applying manual, hard-coded fixes for Virtuals library paths")
+        OLPath = os.path.dirname(self.executable) + "/OpenLoops2"
+        os.environ['OpenLoopsPath'] = OLPath
+        logger.info("OpenLoopsPath defined as = {0}".format(os.getenv('OpenLoopsPath')))
+
         logger.debug("LD_LIBRARY_PATH (before) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
         VirtualsPath = os.path.dirname(self.executable) + "/Virtuals/obj-gnu"
         ChaplinPath = os.path.dirname(self.executable) + "/../../External/chaplin-1.2/lib"
@@ -141,7 +145,9 @@ class ttj_MiNNLO(PowhegV2):
         self.add_keyword("minlo", 1)
         self.add_keyword("minnlo", 1)
         self.add_keyword("ncall1", 51000)
+        self.add_keyword("ncall1rm")
         self.add_keyword("ncall2", 91000)
+        self.add_keyword("ncall2rm")
         self.add_keyword("nubound", 11000)
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
