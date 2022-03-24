@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -72,7 +72,7 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
   case egammaPIDObs::IsGoodOQ:
     return (double)egammaIDint(key, found);
   default:
-    typedef std::pair<egammaPIDObs::PID,double> elParams;
+    using elParams = std::pair<egammaPIDObs::PID, double>;
 
     std::vector<elParams>::const_iterator p = m_egammaID.begin();
     
