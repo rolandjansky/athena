@@ -105,6 +105,12 @@ namespace MuonGM {
         */
         void spacePointPosition(const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos) const;
 
+        /** space point position, corrected for chamber deformations (b-lines), if b-lines are enabled.
+            Accepts a precision (x) coordinate and a y-seed, in the local layer frame, and returns a 3D position, 
+            in the same frame so that sTgcReadoutElement::transform() can be directly cast on it. 
+        */
+        void spacePointPosition(const Identifier& layerId, double locXpos, double locYpos, Amg::Vector3D& pos) const;
+
         /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only      */
         Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const;
 
@@ -158,16 +164,25 @@ namespace MuonGM {
 
         // double getSectorOpeningAngle(bool isLargeSector);
 
-        inline double getALine_rots() const;
-        inline double getALine_rotz() const;
-        inline double getALine_rott() const;
-        inline bool has_ALines() const;
-        inline bool has_BLines() const;
-        void setDelta(double, double, double, double, double, double);
+        /** read A-line parameters and include the chamber rotation/translation 
+            in the local-to-global (ATLAS) reference frame transformaton */
+        void setDelta(const ALinePar& aline);
         void setDelta(MuonDetectorManager* mgr);
-        void setBLinePar(BLinePar* bLine);
-        inline void clearBLinePar();
 
+        /** read B-line (chamber-deformation) parameters */
+        void setBLinePar(const BLinePar& bLine);
+        void setBLinePar(MuonDetectorManager* mgr);
+    
+        /** transform a position (in chamber-frame coordinates) to the deformed-chamber geometry */
+        void posOnDefChamber(Amg::Vector3D& locPosML) const;
+
+        bool  has_ALines() const { return (m_ALinePar != nullptr); }
+        bool  has_BLines() const { return (m_BLinePar != nullptr); }
+        const ALinePar* getALinePar() const { return m_ALinePar; }
+        const BLinePar* getBLinePar() const { return m_BLinePar; }
+        void  clearALinePar();
+        void  clearBLinePar() { m_BLinePar = nullptr; }
+        
     private:
         std::vector<MuonChannelDesign> m_phiDesign;
         std::vector<MuonChannelDesign> m_etaDesign;
@@ -179,14 +194,14 @@ namespace MuonGM {
         int    m_nlayers{0};
         int    m_ml{0};
         double m_offset{0.};
-        double m_rots{0.};
-        double m_rotz{0.};
-        double m_rott{0.};
-
-        bool m_diamondShape{false};
-        bool m_hasALines{false};
-        bool m_hasBLines{false};
-
+        
+        double m_sWidthChamber{0.}; // bottom base length (full chamber)
+        double m_lWidthChamber{0.}; // top base length (full chamber)
+        double m_lengthChamber{0.}; // radial size (full chamber)
+        double m_tckChamber{0.};    // thickness (full chamber)
+        bool   m_diamondShape{false};
+        const ALinePar*  m_ALinePar{nullptr};
+        const BLinePar*  m_BLinePar{nullptr};
         Amg::Transform3D m_delta{Amg::Transform3D::Identity()};
 
         // const double m_largeSectorOpeningAngle = 28.0;
@@ -201,23 +216,17 @@ namespace MuonGM {
         std::vector<double> m_PadminHalfY;
         std::vector<double> m_PadmaxHalfY;
 
-        BLinePar* m_BLinePar = nullptr;
-
         // transforms (RE->layer)
         Amg::Transform3D m_Xlg[4];
     };
 
-    void sTgcReadoutElement::clearBLinePar() { m_BLinePar = 0; }
-
-    double sTgcReadoutElement::getALine_rots() const { return m_rots; }
-
-    double sTgcReadoutElement::getALine_rotz() const { return m_rotz; }
-
-    double sTgcReadoutElement::getALine_rott() const { return m_rott; }
-
-    bool sTgcReadoutElement::has_ALines() const { return m_hasALines; }
-
-    bool sTgcReadoutElement::has_BLines() const { return m_hasBLines; }
+    inline void sTgcReadoutElement::clearALinePar() {
+        if (has_ALines()) {
+            m_ALinePar = nullptr; 
+            m_delta = Amg::Transform3D::Identity(); 
+            refreshCache();
+        }
+    }
 
     inline int sTgcReadoutElement::surfaceHash(const Identifier& id) const {
         return surfaceHash(manager()->stgcIdHelper()->gasGap(id), manager()->stgcIdHelper()->channelType(id));
