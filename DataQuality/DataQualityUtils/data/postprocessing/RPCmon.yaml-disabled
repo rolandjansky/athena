@@ -4,7 +4,7 @@ Input : ['Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB',
          'Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run']
 Output : ['Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NEvent_VS_Lumi']
 Function: RpcRawDataMonitoring.RPCPostProcessing.make_evt_lumi
-Description: X_Lumi__Y_NEvent
+Description: RPC X_Lumi__Y_NEvent
 
 ---
 # HitMultiplicity, hit cluster
@@ -29,7 +29,7 @@ Output : [
   'Muon/MuonRawDataMonitoring/RPC/TrackMatch/averageClusterSize_per_panel_phiView',
 ]
 Function: RpcRawDataMonitoring.RPCPostProcessing.make_hitMulti
-Description: HitMultiplicity, average cluster
+Description: RPC HitMultiplicity, average cluster
 
 ---
 # outtime-time (on-track hits) fration
@@ -54,7 +54,7 @@ Output : [
   'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_onTrack_per_panel_phiView'
 ]
 Function: RpcRawDataMonitoring.RPCPostProcessing.make_hitFrac
-Description: outtime-time (on-track hits) fration
+Description: RPC outtime-time (on-track hits) fration
 
 ---
 # detection efficiency
@@ -894,7 +894,7 @@ Output : [
   'Muon/MuonRawDataMonitoring/RPC/TrackMatch/MuonDetectionEff/SubDetector/Summary_Sector14_Layer8_dbPhi2_measPhi1_detEff',
 ]
 Function: RpcRawDataMonitoring.RPCPostProcessing.make_detection_eff
-Description: detection efficiency
+Description: RPC detection efficiency
 
 ---
 # Hit rate
@@ -3432,4 +3432,4 @@ Output : [
   'Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/HitRate_vs_InstLumi/SubDetector/Summary_Sector14_Layer8_dbPhi2_measPhi1_predRate_All',
 ]
 Function: RpcRawDataMonitoring.RPCPostProcessing.make_hit_rate
-Description: HitRate
+Description: RPC HitRate
