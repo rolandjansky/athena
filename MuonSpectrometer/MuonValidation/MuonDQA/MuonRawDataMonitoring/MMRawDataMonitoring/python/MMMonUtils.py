@@ -30,3 +30,13 @@ def get_mean_and_sigma(histo):
 	mean = fgaus.GetParameter(1)
 	sigma = fgaus.GetParameter(2)
 	return mean,sigma
+
+def getXYbins(nPCB, iphi, start0, histoname, histo_list):
+	ybin = iphi
+	ind = 0
+	if start0 is True:
+		ind = histo_list[iphi].index(histoname)
+	else:
+		ind = histo_list[iphi-1].index(histoname)
+	xbin = (ind+1) + (nPCB-1)*ind
+	return xbin,ybin
