@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -435,7 +435,7 @@ ElementLink<Rec::TrackParticleContainer> egamma::trackParticleElementLink(unsign
   if(index < m_trackParticle.size()){
     return m_trackParticle.at(index);
   }
-    return ElementLink<Rec::TrackParticleContainer>();
+    return {};
   
 }
 
@@ -452,7 +452,7 @@ ElementLink<VxContainer> egamma::conversionElementLink(unsigned int index) const
   if(index < m_conversion.size()){
     return m_conversion.at(index);
   }
-    return ElementLink<VxContainer>();
+    return {};
   
 }
 
@@ -869,7 +869,7 @@ const egDetail* egamma::detail (const std::string& className,
 ElementLink<egDetailContainer> egamma::detailElementLink (int i) const
 {
   if (i < 0 || i >= (int)m_egDetails.size())
-    return ElementLink<egDetailContainer>();
+    return {};
   return m_egDetails[i];
 }
 

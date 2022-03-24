@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaRecEvent/egammaRec.h"
@@ -32,7 +32,7 @@ ElementLink<xAOD::CaloClusterContainer>
 egammaRec::caloClusterElementLink(size_t index) const
 {
   if (index >= m_caloClusters.size() || !m_caloClusters[index].isValid()){
-    return ElementLink<xAOD::CaloClusterContainer>();
+    return {};
   }
   return m_caloClusters[index];
 }
@@ -50,7 +50,7 @@ ElementLink<xAOD::TrackParticleContainer>
 egammaRec::trackParticleElementLink(size_t index) const
 {
   if (index >= m_trackParticles.size() || !m_trackParticles[index].isValid()){
-    return ElementLink<xAOD::TrackParticleContainer>();
+    return {};
   }
   return m_trackParticles[index];
 }
@@ -67,7 +67,7 @@ egammaRec::vertex(size_t index) const
 ElementLink<xAOD::VertexContainer>
 egammaRec::vertexElementLink(size_t index) const{
   if (index >= m_vertices.size() || !m_vertices[index].isValid()){
-    return ElementLink<xAOD::VertexContainer>();
+    return {};
   }
   return m_vertices.at(index);
 }

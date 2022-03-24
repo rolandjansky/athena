@@ -837,7 +837,7 @@ sTgcDigitMaker::Ionization sTgcDigitMaker::pointClosestApproach(const Identifier
   ionization.posOnWire = pos_on_wire;
 
   return ionization;
-};
+}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
 bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi,const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const {

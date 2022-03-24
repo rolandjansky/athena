@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PhotonVertexSelection_ElectronRemovalTool_h
@@ -30,7 +30,7 @@ namespace CP {
 
   private:
 
-    std::vector<const xAOD::TrackParticle *> getElectronTPs( xAOD::ElectronContainer & electrons) const;
+    static std::vector<const xAOD::TrackParticle *> getElectronTPs( xAOD::ElectronContainer & electrons) ;
 
   public:
     ElectronRemovalTool(const std::string &name);

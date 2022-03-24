@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhotonVertexSelectionAlg.cxx
@@ -68,7 +68,7 @@ namespace CP {
     ATH_CHECK( evtStore()->retrieve(photons, m_inGamColl) );
 
     ConstDataVector<PhotonContainer> photons_presel(SG::VIEW_ELEMENTS);
-    for(const auto ph : *photons) {
+    for(const auto *const ph : *photons) {
       if(acceptPhoton(*ph)) photons_presel.push_back( ph );
     }
 
@@ -79,7 +79,7 @@ namespace CP {
     } else {
       const VertexContainer* vxIn(nullptr);
       ATH_CHECK( evtStore()->retrieve(vxIn, m_inVxColl) );
-      for(const auto vx : *vxIn) {
+      for(const auto *const vx : *vxIn) {
 	if(vx->vertexType()==VxType::PriVtx) *vxOut->front() = *vx;
       }
     }

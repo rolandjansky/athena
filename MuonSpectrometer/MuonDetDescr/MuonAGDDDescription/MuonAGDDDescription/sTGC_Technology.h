@@ -16,17 +16,20 @@ public:
 	double thickness;
 	int nlayers;
 	double gasThickness;
-	double pcbThickness;
+	double pcbThickness; // Included for Backwards Compatibility
+	double pcbThickness150;
+	double pcbThickness200;
+	double coverThickness;
 	double f4Thickness;
-        double f5Thickness;
-        double f6Thickness;
+  double f5Thickness;
+  double f6Thickness;
 
-	
+
 
 	int geoLevel;
 
 	// inner structure parameters (to be defined)
-	
+
 	// constructor
 	inline sTGC_Technology(const std::string& s,
                                AGDDDetectorStore& ds);
@@ -35,8 +38,6 @@ public:
 
 sTGC_Technology::sTGC_Technology(const std::string& s,
                                  AGDDDetectorStore& ds): AGDDTechnology(s, ds),
-  thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.),
-  f4Thickness(0.), f5Thickness(0.), f6Thickness(0.),
   geoLevel(0)
 {
 }
