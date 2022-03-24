@@ -3,6 +3,7 @@
 # art-description: Run digitization of an mc16d ttbar sample with 2016d geometry and conditions, 25ns pile-up in AthenaMP
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-output: mc16d_ttbar.MP.RDO.pool.root
 
