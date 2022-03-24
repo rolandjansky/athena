@@ -237,7 +237,7 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   Gaudi::Property<std::pair<double, double>> m_BcToDsMuMu_phiMassRange {this,
     "BcToDsMuMu_phiMassRange", {940., 1100.}, "phi(1020) mass range"};
   Gaudi::Property<std::pair<double, double>> m_BcToDsMuMu_DsMassRange {this,
-    "BcToDsMuMu_DsMassRange", {1850., 2100.}, "D_s+ mass range"};
+    "BcToDsMuMu_DsMassRange", {1750., 2100.}, "D_s+ mass range"};
   Gaudi::Property<float> m_BcToDsMuMu_chi2 {this,
     "BcToDsMuMu_chi2", 60., "maximum chi2 of the fitted B_c+ vertex"};
 

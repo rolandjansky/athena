@@ -87,7 +87,7 @@ def BmumuxComboHypoCfg(name):
         BcToDsMuMu_massRange = (5500., 7300.),
         BcToDsMuMu_dimuonMassRange = (2500., 4300.),
         BcToDsMuMu_phiMassRange = (940., 1100.),
-        BcToDsMuMu_DsMassRange = (1850., 2100.),
+        BcToDsMuMu_DsMassRange = (1750., 2100.),
         BcToDsMuMu_chi2 = 60.,
         # B_c+ -> J/psi(-> mu+ mu-) D+(-> K- pi+ pi+)
         BcToDplusMuMu = True,
