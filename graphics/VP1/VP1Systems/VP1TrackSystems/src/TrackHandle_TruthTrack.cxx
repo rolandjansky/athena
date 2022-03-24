@@ -51,7 +51,7 @@ public:
   {
     if (!p)
       return nullptr;//Fixme: message!
-    auto *v = p->production_vertex();
+    HepMC::ConstGenVertexPtr v = p->production_vertex();
     if (!v)
       return nullptr;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
@@ -66,7 +66,7 @@ public:
   {
     if (!p)
       return nullptr;//Fixme: message!
-    auto *v = p->end_vertex();
+    HepMC::ConstGenVertexPtr v = p->end_vertex();
     if (!v)
       return nullptr;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
@@ -267,7 +267,7 @@ bool TrackHandle_TruthTrack::hasVertexAtIR(const double& rmaxsq, const double& z
 {
   if (!m_d->genParticle)
     return false;
-  auto *v = m_d->genParticle->production_vertex();
+  HepMC::ConstGenVertexPtr v = m_d->genParticle->production_vertex();
   if (!v)
     return false;
 
