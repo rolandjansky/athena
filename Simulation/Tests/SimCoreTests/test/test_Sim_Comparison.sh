@@ -3,6 +3,7 @@
 # art-description: Simulation example to test agreement between ConfGetter and ComponentAccumulator configurations.
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.HITS.pool.root
 # art-output: myHITSnew.pool.root
 
