@@ -108,10 +108,8 @@ def _determineRawChannelSource(prevFlags):
     log.info("runType %d",lri.runType())
     if (lri.runType()==0):
         return RawChannelSource.Calculated #Have only digits in bytestream
-    elif (lri.runType()==1):
+    elif (lri.runType()==1 or lri.runType()==2):
         return RawChannelSource.Both       #Have both, digits and raw-channels in bytestream
-    elif (lri.runType()==2):
-        return RawChannelSource.Input      #Have only raw-channels in bytestream
     else:
         log.warning("Unknown LAr run type %i",lri.runType())
         return RawChannelSource.Both
