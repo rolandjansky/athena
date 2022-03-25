@@ -250,7 +250,7 @@ void PixelModuleData::setUseFEI4SpecialScalingFunction(bool UseFEI4SpecialScalin
 float PixelModuleData::getFEI4ChargScaling() const { return m_scaleFEI4; }
 bool PixelModuleData::getUseFEI4SpecialScalingFunction() const { return m_UseFEI4SpecialScalingFunction; }
 
-void PixelModuleData::setFEI4ToTSigma(std::vector<double> FEI4ToTSigma) { m_FEI4ToTSigma = FEI4ToTSigma; }
+void PixelModuleData::setFEI4ToTSigma(std::vector<double> FEI4ToTSigma) { m_FEI4ToTSigma = std::move(FEI4ToTSigma); }
 double PixelModuleData::getFEI4ToTSigma(int tot) const {
   if (tot<(int)m_FEI4ToTSigma.size()) { return m_FEI4ToTSigma.at(tot); }
   return 0.0;
