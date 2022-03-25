@@ -1,0 +1,36 @@
+HepMCWeightSvc/HepMCWeightSvc_test
+
+
+Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3h/build-x86_64-centos7-gcc11-opt/x86_64-centos7-gcc11-opt/jobOptions/HepMCWeightSvc/HepMCWeightSvc_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3h/build-x86_64-centos7-gcc11-opt/x86_64-centos7-gcc11-opt/jobOptions/HepMCWeightSvc/HepMCWeightSvc_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["HepMCWeightSvc/test1"]
+JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3h/build-x86_64-centos7-gcc11-opt/x86_64-centos7-gcc11-opt/jobOptions/HepMCWeightSvc/HepMCWeightSvc_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v36r4)
+                                          running on lxplus774.cern.ch on Mon Mar 21 21:24:50 2022
+====================================================================================================================================
+ClassIDSvc           INFO getRegistryEntries: read 954 CLIDRegistry entries for module ALL
+ApplicationMgr       INFO Application Manager Configured successfully
+test1                INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+test1                INFO Storing /Generation/Parameters :: WeightNames = { 'one' : 1 , 'three' : 3 , 'two' : 2 }
+IOVMetaDataContainer ::
+Payload size : 1
+IOVs and attribute lists : 
+{[0,0] - [2147483647,4294967295]} iov size 0
+chan, attr: 12345
+[HepMCWeightNames (string) : { 'one' : 1 , 'three' : 3 , 'two' : 2 }], [HepMCWeightSvcVersion (int) : 2]
+
+IOVMetaDataContainer ::
+Payload size : 1
+IOVs and attribute lists : 
+{[0,0] - [2147483647,4294967295]} iov size 0
+chan, attr: 12345
+[HepMCWeightNames (string) : { 'one' : 1 , 'three' : 3 , 'two' : 2 }], [HepMCWeightSvcVersion (int) : 2]
+
+test2
