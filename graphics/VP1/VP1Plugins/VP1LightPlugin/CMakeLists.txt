@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1LightPlugin )
-
-# Install files from the package:
-atlas_install_headers( VP1LightPlugin )
 
 # External dependencies:
 find_package( Qt5 COMPONENTS Core OpenGL Gui Widgets )

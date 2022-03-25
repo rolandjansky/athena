@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1TriggerDecisionSystems/VP1TriggerDecisionSystem.h"
-#include <string>
-#include <vector>
 
 // TODO: check the include of the Chain.h file here below, maybe it's obsolete because it seems it's not used
 //#include "TrigSteering/Chain.h" // OLD include
@@ -13,6 +11,11 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
+
+#include <string>
+#include <vector>
+#include <stdexcept>
+
 
 class VP1TriggerDecisionSystem::Clockwork
 {
@@ -35,17 +38,11 @@ VP1TriggerDecisionSystem::Clockwork::Clockwork()
 //____________________________________________________________________
 VP1TriggerDecisionSystem::VP1TriggerDecisionSystem()
   : IVP1System("TriggerDecison",
-	       "System for browsing the Trigger Decison [unmaintained]",
-	       "Weiyi Zhang, wyizhang@cern.ch"), 
+           "System for browsing the Trigger Decison [unmaintained]",
+           "Weiyi Zhang, wyizhang@cern.ch, Riccardo.Maria.BIANCHI@cern.ch"), 
     m_clock(new Clockwork())
 {
   m_clock->theclass=this;
-}
-
-
-//____________________________________________________________________
-VP1TriggerDecisionSystem::~VP1TriggerDecisionSystem()
-{
 }
 
 
@@ -68,8 +65,8 @@ void VP1TriggerDecisionSystem::refresh( StoreGateSvc* )
   if(!l1triggers.empty()) {
     for (std::vector<std::string>::const_iterator aItemName = l1triggers.begin(); aItemName != l1triggers.end(); ++aItemName) {
       if((*aItemName!="") && (*aItemName!=" ")) {
-	std::ostringstream os1; 	os1 << *aItemName; 	entry_key << os1.str().c_str();
-	std::ostringstream os2; 	os2 << m_clock->m_trigDec->isPassed(*aItemName);  entry_type << os2.str().c_str();
+    std::ostringstream os1;     os1 << *aItemName;  entry_key << os1.str().c_str();
+    std::ostringstream os2;     os2 << m_clock->m_trigDec->isPassed(*aItemName);  entry_type << os2.str().c_str();
       }
       updateGUI();
     }
@@ -85,8 +82,8 @@ void VP1TriggerDecisionSystem::refresh( StoreGateSvc* )
     //const std::vector<HLT::Chain*>* allChains = m_clock->m_trigDec->getConfiguredChains(TrigDec::L2);
     for (std::vector<std::string>::const_iterator aChainName = l2triggers.begin(); aChainName != l2triggers.end(); ++aChainName) {
       if((*aChainName!=" ") && (*aChainName!="")) {
-	std::ostringstream os1;  os1 << *aChainName;   	entry_key << os1.str().c_str();
-	std::ostringstream os2;  os2 << m_clock->m_trigDec->isPassed(*aChainName) ;  	entry_type << os2.str().c_str();
+    std::ostringstream os1;  os1 << *aChainName;    entry_key << os1.str().c_str();
+    std::ostringstream os2;  os2 << m_clock->m_trigDec->isPassed(*aChainName) ;     entry_type << os2.str().c_str();
       }
       updateGUI();
     }
@@ -101,8 +98,8 @@ void VP1TriggerDecisionSystem::refresh( StoreGateSvc* )
   if(!eftriggers.empty()) {
     for (std::vector<std::string>::const_iterator aChainName = eftriggers.begin(); aChainName != eftriggers.end(); ++aChainName) {
       if((*aChainName!=" ") && (*aChainName!="")) {
-	std::ostringstream os1;  os1 << *aChainName;   	entry_key << os1.str().c_str();
-	std::ostringstream os2;  os2 << m_clock->m_trigDec->isPassed(*aChainName);  	entry_type << os2.str().c_str();
+    std::ostringstream os1;  os1 << *aChainName;    entry_key << os1.str().c_str();
+    std::ostringstream os2;  os2 << m_clock->m_trigDec->isPassed(*aChainName);      entry_type << os2.str().c_str();
       }
       updateGUI();
     }
@@ -131,7 +128,7 @@ QStringList VP1TriggerDecisionSystem::getInfoForEntry(QString key,QString type)
   try {
     m_clock->getInfo(key.toStdString(),type.toStdString(),os);
   }
-  catch (std::runtime_error e) {
+  catch (std::runtime_error &e) {
     os  << "Exception thrown when getting info for key="<<key.toStdString()<<" of type="<<type.toStdString();
     os  << "Exception: " << e.what() << std::endl;
   }
@@ -147,13 +144,13 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
 
   // For LV1 ROI informations
   if(key.find("L1",0)!= std::string::npos) {
-    os << "	LV1: " << key << std::endl;
+    os << " LV1: " << key << std::endl;
     const LVL1CTP::Lvl1Item*  l1iterm = m_trigDec->ExperimentalAndExpertMethods().getItemDetails(key);
     if(l1iterm) {
-      os << "	LV1 " << l1iterm->name() << " isPassed: " 	<< l1iterm->isPassed() << std::endl;
-      os << "	LV1 " << l1iterm->name() << " isPrescaled: " 	<< l1iterm->isPrescaled()
-	        << " : "  <<  l1iterm->prescaleFactor()   << std::endl;
-      os << "	LV1 " << l1iterm->name() << " isVeto: " 		<< l1iterm->isVeto() << std::endl;
+      os << "   LV1 " << l1iterm->name() << " isPassed: "   << l1iterm->isPassed() << std::endl;
+      os << "   LV1 " << l1iterm->name() << " isPrescaled: "    << l1iterm->isPrescaled()
+            << " : "  <<  l1iterm->prescaleFactor()   << std::endl;
+      os << "   LV1 " << l1iterm->name() << " isVeto: "         << l1iterm->isVeto() << std::endl;
     }
   }
 
@@ -161,16 +158,16 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
     Trig::FeatureContainer fc = m_trigDec->features(key);
     std::vector<Trig::Feature<TrigRoiDescriptor> > roif = fc.get<TrigRoiDescriptor>();
     if(!roif.empty()) {
-      os << "	LV2: " << 	key 	<< "   VecSize: " << roif.size() << std::endl;
+      os << "   LV2: " <<   key     << "   VecSize: " << roif.size() << std::endl;
       std::vector<Trig::Feature<TrigRoiDescriptor> >::iterator roiIt = roif.begin();
       for ( ;roiIt != roif.end(); ++roiIt ) {
-	const TrigRoiDescriptor* roi = *roiIt;
-	if (!roi) {
-	  theclass->message("ERROR: get roi failed");
-	  continue;
-	}
-	os << "  "<<  roiIt->label() << " ROI: "
-	   <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;
+    const TrigRoiDescriptor* roi = *roiIt;
+    if (!roi) {
+      theclass->message("ERROR: get roi failed");
+      continue;
+    }
+    os << "  "<<  roiIt->label() << " ROI: "
+       <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;
       }
     }
     
@@ -181,18 +178,18 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
     Trig::FeatureContainer fc = m_trigDec->features(key);
     std::vector<Trig::Feature<TrigRoiDescriptor> > roif = fc.get<TrigRoiDescriptor>();
     if(!roif.empty()) {
-      os << "      EF: " << 	key 	<< "   VecSize: " << roif.size() << std::endl;
+      os << "      EF: " <<     key     << "   VecSize: " << roif.size() << std::endl;
       
       std::vector<Trig::Feature<TrigRoiDescriptor> >::iterator roiIt = roif.begin();
       for ( ;roiIt != roif.end(); ++roiIt ) {
-	const TrigRoiDescriptor* roi = *roiIt;
-	if (!roi) {
-	  theclass->message("ERROR: get roi failed");
-	  continue;
-	}
-	
-	os << "  "<<  roiIt->label() << " ROI: "
-	   <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;
+    const TrigRoiDescriptor* roi = *roiIt;
+    if (!roi) {
+      theclass->message("ERROR: get roi failed");
+      continue;
+    }
+    
+    os << "  "<<  roiIt->label() << " ROI: "
+       <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;
       }
     }
   }
