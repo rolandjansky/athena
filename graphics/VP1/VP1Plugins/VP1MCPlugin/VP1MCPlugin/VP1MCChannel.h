@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -8,8 +8,11 @@
 //                                                         //
 //  Author: Thomas Kittelmann <Thomas.Kittelmann@cern.ch>  //
 //                                                         //
-//  Initial version: June 2007                             //
-//                                                         //
+//  Initial version: June 2007
+//
+//  Major updates:
+//  - 2022/03, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+//                                                         
 /////////////////////////////////////////////////////////////
 
 #ifndef VP1MCCHANNEL_H
@@ -17,8 +20,13 @@
 
 #include "VP1Base/IVP1ChannelWidget.h"
 
+#include <memory>
+
+
+// fwd declarations
 class QTreeWidget;
 class VP1MCSystem;
+
 
 class VP1MCChannel : public IVP1ChannelWidget {
 
@@ -27,15 +35,15 @@ class VP1MCChannel : public IVP1ChannelWidget {
 public:
   VP1MCChannel();
   void init();
-  virtual ~VP1MCChannel(){}
+  virtual ~VP1MCChannel();
 
   Type type() const { return NUMBERS; };//Fixme: Need better type for this kind of system. Maybe an OTHER type?
   void create();
 
 
 private:
-  QTreeWidget  * treeWidget;
-  std::unique_ptr<VP1MCSystem> mcsystem;
+  QTreeWidget  * m_treeWidget;
+  std::unique_ptr<VP1MCSystem> m_mcsystem;
 };
 
 #endif

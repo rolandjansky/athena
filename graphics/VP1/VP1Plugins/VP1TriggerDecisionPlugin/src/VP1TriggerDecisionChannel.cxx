@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
 //                                                         //
 //  Implementation of class VP1TriggerDecisionChannel      //
-//  Weiyi Zhang  <wyizhang@cern.ch>  			   //
-//  June 18 2007                             		   //
-//                                                         //
+//  Weiyi Zhang  <wyizhang@cern.ch>                        //
+//  June 18 2007                                           //
+//
+//  Major Updates:
+//  - 2022/03, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+//                                                         
 /////////////////////////////////////////////////////////////
 
 #include "VP1TriggerDecisionPlugin/VP1TriggerDecisionChannel.h"
@@ -17,72 +20,72 @@
 
 //_________________________________________________________
 VP1TriggerDecisionChannel::VP1TriggerDecisionChannel()
-  	: IVP1ChannelWidget(VP1CHANNELNAMEINPLUGIN(VP1TriggerDecisionChannel,"TriggerDecision"),
-		      "This channel simply shows the trigger decision, provided by the VP1TrigDecSystem.",
-		      "wyizhang@cern.ch"),
-    	tableWidget(0)
+    : IVP1ChannelWidget(VP1CHANNELNAMEINPLUGIN(VP1TriggerDecisionChannel,"TriggerDecision"),
+              "This channel simply shows the trigger decision, provided by the VP1TrigDecSystem.",
+              "wyizhang@cern.ch, Riccardo.Maria.Bianchi@cern.ch"),
+        m_tableWidget(0)
 {
 }
 
 //_________________________________________________________
 void VP1TriggerDecisionChannel::init()
 {
-  trigdecsystem = new VP1TriggerDecisionSystem();
-  registerSystem(trigdecsystem);
+  m_trigdecsystem = new VP1TriggerDecisionSystem();
+  registerSystem(m_trigdecsystem);
 
-  connect(trigdecsystem,SIGNAL(entriesChanged(const QStringList&,const QStringList&)),
-	  this, SLOT(  entriesChanged(const QStringList&,const QStringList&)) );
+  connect(m_trigdecsystem,SIGNAL(entriesChanged(const QStringList&,const QStringList&)),
+      this, SLOT(  entriesChanged(const QStringList&,const QStringList&)) );
 }
 
 //_________________________________________________________
 void VP1TriggerDecisionChannel::create()
 {
 
-  	//Setup this widget
-  	Ui::TrigDecChannelWidgetForm ui;
-  	ui.setupUi(this);
-  	tableWidget=ui.tableWidget;
-  	tableWidget->setColumnCount(2);
-  	tableWidget->setHorizontalHeaderLabels((QStringList()<<"Signature"<<"Passed?"));
-  	tableWidget->setAlternatingRowColors ( true );
-  	tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    //Setup this widget
+    Ui::TrigDecChannelWidgetForm ui;
+    ui.setupUi(this);
+    m_tableWidget=ui.tableWidget;
+    m_tableWidget->setColumnCount(2);
+    m_tableWidget->setHorizontalHeaderLabels((QStringList()<<"Signature"<<"Passed?"));
+    m_tableWidget->setAlternatingRowColors ( true );
+    m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-  	connect(tableWidget,SIGNAL(cellActivated(int,int)),this,SLOT(cellActivated(int,int)));
+    connect(m_tableWidget,SIGNAL(cellActivated(int,int)),this,SLOT(cellActivated(int,int)));
 }
 
 //_________________________________________________________
 void VP1TriggerDecisionChannel::entriesChanged( const QStringList& entry_key,const QStringList& entry_type )
 {
-  	clearAll();
+    clearAll();
 
-  	if (entry_key.count()!=entry_type.count())
-	{
-    		message("Error: Received data has wrong format!");
-    		return;
-  	}
+    if (entry_key.count()!=entry_type.count())
+    {
+            message("Error: Received data has wrong format!");
+            return;
+    }
 
-  	tableWidget->setUpdatesEnabled(false);
+    m_tableWidget->setUpdatesEnabled(false);
 
-  	//Turn sorting off while inserting (otherwise the correct row index to use will likely change in the middle of insertions):
-  	tableWidget->setSortingEnabled(false);
+    //Turn sorting off while inserting (otherwise the correct row index to use will likely change in the middle of insertions):
+    m_tableWidget->setSortingEnabled(false);
 
-  	for (int irow = 0; irow<entry_key.count();++irow)
-	{
-    		tableWidget->insertRow ( irow );
-    		tableWidget->setItem(irow, 0, new QTableWidgetItem(entry_key.at(irow)));
-    		tableWidget->setItem(irow, 1, new QTableWidgetItem(entry_type.at(irow)));
-  	}
+    for (int irow = 0; irow<entry_key.count();++irow)
+    {
+            m_tableWidget->insertRow ( irow );
+            m_tableWidget->setItem(irow, 0, new QTableWidgetItem(entry_key.at(irow)));
+            m_tableWidget->setItem(irow, 1, new QTableWidgetItem(entry_type.at(irow)));
+    }
 
-  	tableWidget->setSortingEnabled(true);
-  	tableWidget->resizeColumnsToContents();
-  	tableWidget->resizeRowsToContents();
-  	tableWidget->setUpdatesEnabled(true);
+    m_tableWidget->setSortingEnabled(true);
+    m_tableWidget->resizeColumnsToContents();
+    m_tableWidget->resizeRowsToContents();
+    m_tableWidget->setUpdatesEnabled(true);
 }
 
 //_________________________________________________________
 void VP1TriggerDecisionChannel::systemErased(IVP1System*)
 {
-  	clearAll();
+    clearAll();
 }
 
 //_________________________________________________________
@@ -94,27 +97,27 @@ void VP1TriggerDecisionChannel::systemRefreshed(IVP1System*)
 //_________________________________________________________
 void VP1TriggerDecisionChannel::clearAll()
 {
-  	tableWidget->setUpdatesEnabled(false);
-  	tableWidget->setSortingEnabled(false);
-  	tableWidget->clearContents();
+    m_tableWidget->setUpdatesEnabled(false);
+    m_tableWidget->setSortingEnabled(false);
+    m_tableWidget->clearContents();
 
-  	while (tableWidget->rowCount()>0)
-    		tableWidget->removeRow(tableWidget->rowCount()-1);
-  	tableWidget->setUpdatesEnabled(true);
+    while (m_tableWidget->rowCount()>0)
+            m_tableWidget->removeRow(m_tableWidget->rowCount()-1);
+    m_tableWidget->setUpdatesEnabled(true);
 
 }
 
 //_________________________________________________________
 void VP1TriggerDecisionChannel::cellActivated( int row, int /*column*/ )
 {
-  	QString key = tableWidget->item(row,0)->text();
-  	QString type = tableWidget->item(row,1)->text();
+    QString key = m_tableWidget->item(row,0)->text();
+    QString type = m_tableWidget->item(row,1)->text();
 
-  	QStringList info = trigdecsystem->getInfoForEntry(key,type);
+    QStringList info = m_trigdecsystem->getInfoForEntry(key,type);
 
-   	message("===== "+key+" ("+(type.isEmpty()? 0 :type)+"):");
+    message("===== "+key+" ("+(type.isEmpty()? 0 :type)+"):");
 
-	foreach(QString line,info)
-     		message(line);
+    foreach(QString line,info)
+            message(line);
 
 }
