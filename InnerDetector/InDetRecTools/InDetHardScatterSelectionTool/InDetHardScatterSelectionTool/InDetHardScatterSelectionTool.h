@@ -127,7 +127,7 @@ namespace InDet {
     std::unique_ptr<Sum> m_sum;
 
     /// A flag which will be true if an InDetTrackSelectionTool was provided
-    bool m_doTrkSelection;
+    bool m_doTrkSelection = false;
 
     /// xAOD::EventInfo ReadHandleKey
     SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey {this, "EventInfo", "EventInfo", "EventInfo key"};

@@ -100,19 +100,19 @@ namespace InDet {
       int                                m_pdg{}                    ;
       struct TrackCollectionStat_t {
       public:
-        int                                m_efficiency   [6]={0}  ;
-        int                                m_efficiencyN  [6][5]={0};
-        int                                m_efficiencyBTE[6][5][4]={0};
-        int                                m_efficiencyPOS[6]={0}  ;
-        int                                m_efficiencyNEG[6]={0}  ;
+        int                                m_efficiency   [6]={}  ;
+        int                                m_efficiencyN  [6][5]={};
+        int                                m_efficiencyBTE[6][5][4]={};
+        int                                m_efficiencyPOS[6]={}  ;
+        int                                m_efficiencyNEG[6]={}  ;
         int                                m_ntracksPOSB{}       ;
         int                                m_ntracksPOSE{}       ;
         int                                m_ntracksPOSDBM{};
         int                                m_ntracksNEGB{}       ;
         int                                m_ntracksNEGE{}       ;
         int                                m_ntracksNEGDBM{};
-        int                                m_total        [50]={0} ;
-        int                                m_fake         [50]={0} ;
+        int                                m_total        [50]={} ;
+        int                                m_fake         [50]={} ;
         int                                m_events{}                 ;
         int                                m_eventsPOS{}              ;
         int                                m_eventsNEG{}              ;
@@ -144,12 +144,12 @@ namespace InDet {
         int                                m_events{}      ;
         int                                m_eventsPOS{}   ;
         int                                m_eventsNEG{}   ;
-        int                                m_eventsBTE[4]={0};
+        int                                m_eventsBTE[4]={};
 
-        int                                m_particleClusters   [50]={0};
-        int                                m_particleSpacePoints[50]={0};
-        int                                m_particleClustersBTE   [50][4]={0};
-        int                                m_particleSpacePointsBTE[50][4]={0};
+        int                                m_particleClusters   [50]={};
+        int                                m_particleSpacePoints[50]={};
+        int                                m_particleClustersBTE   [50][4]={};
+        int                                m_particleSpacePointsBTE[50][4]={};
 
         int                                m_nclustersPosBP{}         ;
         int                                m_nclustersPosBS{}         ;
