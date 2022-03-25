@@ -146,6 +146,8 @@ class TrigBmumuxComboHypoConfig(object):
 
         tool.Decay = trigDecayDict[decay]
 
-        tool.MonTool = TrigBmumuxComboHypoToolMonitoring('MonTool')
+        monGroups = ['bphysMon:online']
+        if any(group in monGroups for group in chainDict['monGroups']):
+            tool.MonTool = TrigBmumuxComboHypoToolMonitoring('MonTool')
 
         return tool
