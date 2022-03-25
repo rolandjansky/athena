@@ -45,8 +45,8 @@ class FastReductionMatcher: public IJetsMatcher {
   std::string toString() const override;
 
 
-  bool valid() const override;
-  std::string msg() const override;
+  virtual bool valid() const override;
+  virtual std::string msg() const override;
   
 
  private:
