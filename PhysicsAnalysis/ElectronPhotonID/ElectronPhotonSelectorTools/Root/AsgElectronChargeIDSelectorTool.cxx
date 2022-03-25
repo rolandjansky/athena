@@ -649,6 +649,11 @@ AsgElectronChargeIDSelectorTool::getNPrimVertices(const EventContext& ctx) const
 {
   unsigned int nVtx(0);
   SG::ReadHandle<xAOD::VertexContainer> vtxCont(m_primVtxContKey, ctx);
+  if (!vtxCont.isValid()) {
+    ATH_MSG_WARNING("Cannot find " << m_primVtxContKey.key()
+		    << " container, returning default nVtx");
+    return m_nPVdefault;
+  }
   for (unsigned int i = 0; i < vtxCont->size(); i++) {
     const xAOD::Vertex* vxcand = vtxCont->at(i);
     if (vxcand->nTrackParticles() >= 2)
