@@ -68,7 +68,7 @@ namespace PixelDigitization{
  
     while (getline(inputFile, thisLine)) {
  
-      const auto [logBetaGamma, logCollisionEnergy, logCrossSection] = parseThreeDoubles(thisLine);
+      const auto & [logBetaGamma, logCollisionEnergy, logCrossSection] = parseThreeDoubles(thisLine);
  
       iData.addEntry(logBetaGamma, logCollisionEnergy, logCrossSection);
  
@@ -87,8 +87,10 @@ namespace PixelDigitization{
   parseThreeDoubles(const std::string & line){
  
     std::tuple<double, double, double> result{0., 0.,0.};
- 
-    std::regex threeDoublesRx("^([-+.0-9eE]+)\\s+([-+.0-9eE]+)\\s+([-+.0-9eE]+)$");
+    //in local testing, making the following 'static const' reduced the test time (one parse)
+    //from 1 637us to 455us. A total file parse test (209 lines of data) was reduced from 
+    //54 156us to 3 657us
+    static const std::regex threeDoublesRx("^([-+.0-9eE]+)\\s+([-+.0-9eE]+)\\s+([-+.0-9eE]+)$");
  
     std::smatch x3;
  
