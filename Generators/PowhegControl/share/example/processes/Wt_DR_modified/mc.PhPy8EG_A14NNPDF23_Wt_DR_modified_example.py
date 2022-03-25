@@ -11,12 +11,12 @@
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 W+t (diagram removal) production with A14 NNPDF2.3 tune. Modified to allow for dynamic scale."
 evgenConfig.keywords = ["SM", "W", "top"]
-evgenConfig.contact = ["james.robinson@cern.ch"]
+evgenConfig.contact = ["tpelzer@cern.ch"]
 
 # --------------------------------------------------------------
-# Load ATLAS defaults for the Powheg Wt_DR_Modified process
+# Load ATLAS defaults for the Powheg Wt_DR_modified process
 # --------------------------------------------------------------
-include("PowhegControl/PowhegControl_Wt_DR_Modified_Common.py")
+include("PowhegControl/PowhegControl_Wt_DR_modified_Common.py")
 
 
 # --------------------------------------------------------------

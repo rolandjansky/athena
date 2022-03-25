@@ -120,32 +120,6 @@ class LHEFilters(object):
                     lhe_files[0] = my_lhe_file
                 athMsgLog.info("Using uncompressed LHE file '{}' as input of LHEFilter".format(lhe_files[0]))
                 self.fIn = open(lhe_files[0], 'r')
-            #if ".tar.gz" in inFile or ".tgz" in inFile: # if the input files are compressed, they should already have been uncompressed by Gen_tf
-                #athMsgLog.info("input lhe File '{}' is compressed - will look for uncompressed LHE file".format(inFile))
-                #tarredLhe_files = inFile.split(',') # if there are several input files, their names are separated by comas
-                #lhe_files = []
-                #for compressedFile in tarredLhe_files:
-                    #lhe_files.append(tarfile.open(compressedFile).getnames()[0]) # retrieve the name of the compressed lhe file
-                #athMsgLog.info("Number of lhe files: {}".format(len(lhe_files)))
-                #if len(lhe_files) == 0:
-                    #athMsgLog.error("Could not find uncompressed LHE file")
-                    #raise RuntimeError
-                #for lhe_file in lhe_files:
-                    #athMsgLog.info("Checking for duplicates in "+lhe_file)
-                    #FindDuplicates(inFileName=lhe_file)
-                #if len(lhe_files) > 1:
-                    #athMsgLog.info("Found more than one uncompressed LHE file: {}".format(lhe_files))
-                    ## skeleton.GENtoEVGEN splits the file name on "._" (in rel. 20.7.9.9.6,MCProd,
-                    ## so insert this in the merged file name - to make it run also for this release)
-                    #my_lhe_file = "merged_lhef._0.events"
-                    #merge_lhe_files(lhe_files, my_lhe_file )
-                    #lhe_files[0] = my_lhe_file
-                #athMsgLog.info("Using uncompressed LHE file '{}' as input of LHEFilter".format(lhe_files[0]))
-                #self.fIn = open(lhe_files[0], 'r')
-            #else:
-                #athMsgLog.info("Checking for duplicates in "+lhe_files[0])
-                #FindDuplicates(inFileName=lhe_files[0])
-                #self.fIn = open(inFile, 'r')
         except:
             athMsgLog.error("Impossible to use input lhe file {}".format(inFile))
             raise RuntimeError
