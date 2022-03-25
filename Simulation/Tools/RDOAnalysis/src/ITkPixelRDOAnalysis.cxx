@@ -454,7 +454,7 @@ StatusCode PixelRDOAnalysis::execute() {
               for( ; nextdeposit!=lastdeposit; ++nextdeposit) {
 	              const HepMcParticleLink& particleLink = nextdeposit->first;
                 if(particleLink.isValid() && !findMatch){
-                  const HepMC::GenParticle *genPart(particleLink.cptr());
+                  HepMC::ConstGenParticlePtr genPart(particleLink.cptr());
                   if(genPart->parent_event() == hardScatterEvent) m_h_truthMatchedRDOs->Fill(3.5);
                   m_h_truthMatchedRDOs->Fill(2.5);
                   findMatch = true;

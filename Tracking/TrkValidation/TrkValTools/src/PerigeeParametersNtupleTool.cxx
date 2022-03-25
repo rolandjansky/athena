@@ -275,7 +275,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackTruthData ( const TrackPar
   m_mc_prob=trackTruth.probability();
   m_mc_truthTreeIndex = indexInTruthTree;
   
-  const HepMC::GenParticle* genParticle = particleLink.cptr();
+  HepMC::ConstGenParticlePtr genParticle = particleLink.cptr();
 
   if ( genParticle ){
     m_mc_particleID = genParticle->pdg_id();
