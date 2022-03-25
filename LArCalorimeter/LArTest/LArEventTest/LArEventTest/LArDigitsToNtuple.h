@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,6 +28,9 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArElecCalib/ILArPedestal.h"
+#include "LArRawEvent/LArDigitContainer.h"
+#include "LArRawEvent/LArFebHeaderContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/INTupleSvc.h"
@@ -45,6 +48,8 @@ class LArDigitsToNtuple : public AthAlgorithm
   StatusCode finalize();
  private:
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"};
+  SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal conditions object"};
+
   const LArOnlineID *m_onlineHelper; 
   const LArEM_ID    *m_emId;
   const LArHEC_ID   *m_hecId;
@@ -53,16 +58,19 @@ class LArDigitsToNtuple : public AthAlgorithm
   NTuple::Item<long> m_nt_event;
   NTuple::Item<long> m_nt_layer, m_nt_eta, m_nt_phi, m_nt_gain;
   NTuple::Item<long> m_nt_region,m_nt_barrel_ec, m_nt_pos_neg, m_nt_FT, m_nt_slot, m_nt_channel;
+  NTuple::Item<long> m_nt_onlId;
   NTuple::Item<long> m_nt_detector;
-  NTuple::Array<long> m_nt_samples;
+  NTuple::Array<short> m_nt_samples;
   NTuple::Array<long> m_nt_sca;
   NTuple::Item<double> m_nt_tdc;
   NTuple::Item<double> m_nt_ped;
   NTuple::Item<long> m_nt_trigger;
   NTuple::Item<double> m_nt_S1;
   NTuple::Tuple* m_nt;
+  
+  SG::ReadHandleKey<LArDigitContainer> m_contKey{this,"ContainerKey","FREE","SG Key of LArDigitContainer"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this,"LArFebHeaderKey","LArFebHeader","SG key of LArFebHeader"};
 
-  std::string m_contKey;
   int  m_nsamples;
   int m_accept, m_reject;
   int m_phase;
