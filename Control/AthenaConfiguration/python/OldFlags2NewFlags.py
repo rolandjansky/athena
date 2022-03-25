@@ -79,6 +79,7 @@ def getNewConfigFlags():
     from InDetRecExample.InDetJobProperties import InDetFlags
     ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+    ConfigFlags.InDet.PriVertex.doVertexFinding = InDetFlags.doVertexFinding()
 
 
     # LAr Flags
