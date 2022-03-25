@@ -987,14 +987,19 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
         if "PrivateToolHandleArray" in propType:
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, indent=__indent( indent ), parent = sourceConf2Instance.getName() ) for tool in pvalue] )
             _log.debug( "%sSetting private tool array property %s of %s", indent, pname, destConfigurableInstance.name() )
-        elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-            _log.debug( "%sSetting private tool property %s of %s", indent,  pname, destConfigurableInstance.name() )
+        elif ("PrivateToolHandle" in propType or
+              "GaudiConfig2.Configurables" in propType or
+              "ServiceHandle" in propType):
+
+            _log.debug( "%sSetting property %s of %s", indent, pname, destConfigurableInstance.name() )
             try: #sometimes it is not printable
-                _log.debug("%sTool: %s", indent, pvalue)
+                _log.debug("%sComponent: %s", indent, pvalue)
             except Exception:
                 pass
             if pvalue is not None:
-                setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ), parent = sourceConf2Instance.getName() ) )
+                setattr( destConfigurableInstance, pname,
+                         conf2toConfigurable( pvalue, indent=__indent( indent ),
+                                              parent = sourceConf2Instance.getName() ) )
             else:
                 setattr( destConfigurableInstance, pname, pvalue )
 
