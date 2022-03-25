@@ -22,6 +22,7 @@
 #include "MuonRDO/TgcRdoContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTrigger/MuonRoI.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <fstream>
 #include <string>
@@ -95,6 +96,7 @@ namespace TrigL2MuonSA {
 
     Gaudi::Property< bool > m_writeToFile { this, "WriteToFile", false, "" };
     SG::ReadHandleKey<TgcRdoContainer> m_tgcRdoKey{this, "TgcRdoContainer", "TGCRDO", "Tgc RDO Input"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfoKey", "EventInfo", "" };
 
     // name of the calibration buffer or of the 
     // output file
