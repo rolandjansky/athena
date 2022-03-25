@@ -18,66 +18,64 @@ namespace ActsTrk {
 				   const std::string& name,
 				   const IInterface* parent) 
     : base_class(type, name, parent)  
-  {
-    declareInterface<ISeedingTool>(this);
-  }
+  {}
   
   StatusCode SeedingTool::initialize() {
     ATH_MSG_INFO( "Initializing " << name() << "..." );
     
-    ATH_MSG_INFO( "Properties Summary:" );
-    ATH_MSG_INFO( "   " << m_zBinNeighborsTop );
-    ATH_MSG_INFO( "   " << m_zBinNeighborsBottom );
+    ATH_MSG_DEBUG( "Properties Summary:" );
+    ATH_MSG_DEBUG( "   " << m_zBinNeighborsTop );
+    ATH_MSG_DEBUG( "   " << m_zBinNeighborsBottom );
 
-    ATH_MSG_INFO( " * Used by SeedfinderConfig:");
-    ATH_MSG_INFO( "   " << m_minPt );
-    ATH_MSG_INFO( "   " << m_cotThetaMax );
-    ATH_MSG_INFO( "   " << m_deltaRMin );
-    ATH_MSG_INFO( "   " << m_deltaRMax );
-    ATH_MSG_INFO( "   " << m_deltaRMinTopSP );
-    ATH_MSG_INFO( "   " << m_deltaRMaxTopSP );
-    ATH_MSG_INFO( "   " << m_deltaRMinBottomSP );
-    ATH_MSG_INFO( "   " << m_deltaRMaxBottomSP );
-    ATH_MSG_INFO( "   " << m_useVariableMiddleSPRange );
-    ATH_MSG_INFO( "   " << m_deltaRMiddleSPRange );
-    ATH_MSG_INFO( "   " << m_seedConfirmation );
-    ATH_MSG_INFO( "   " << m_enableCutsForSortedSP );
-    ATH_MSG_INFO( "   " << m_impactMax );
-    ATH_MSG_INFO( "   " << m_sigmaScattering );    
-    ATH_MSG_INFO( "   " <<  m_maxPtScattering );
-    ATH_MSG_INFO( "   " << m_maxSeedsPerSpM );
-    ATH_MSG_INFO( "   " << m_collisionRegionMin );
-    ATH_MSG_INFO( "   " << m_collisionRegionMax );
-    ATH_MSG_INFO( "   " <<  m_phiMin );
-    ATH_MSG_INFO( "   " <<  m_phiMax );
-    ATH_MSG_INFO( "   " << m_zMin );
-    ATH_MSG_INFO( "   " << m_zMax );
-    ATH_MSG_INFO( "   " << m_rMax );
-    ATH_MSG_INFO( "   " <<  m_rMin );
-    ATH_MSG_INFO( "   " << m_radLengthPerSeed );
-    ATH_MSG_INFO( "   " <<  m_zAlign );
-    ATH_MSG_INFO( "   " <<  m_rAlign );
-    ATH_MSG_INFO( "   " <<  m_sigmaError );
+    ATH_MSG_DEBUG( " * Used by SeedfinderConfig:");
+    ATH_MSG_DEBUG( "   " << m_minPt );
+    ATH_MSG_DEBUG( "   " << m_cotThetaMax );
+    ATH_MSG_DEBUG( "   " << m_deltaRMin );
+    ATH_MSG_DEBUG( "   " << m_deltaRMax );
+    ATH_MSG_DEBUG( "   " << m_deltaRMinTopSP );
+    ATH_MSG_DEBUG( "   " << m_deltaRMaxTopSP );
+    ATH_MSG_DEBUG( "   " << m_deltaRMinBottomSP );
+    ATH_MSG_DEBUG( "   " << m_deltaRMaxBottomSP );
+    ATH_MSG_DEBUG( "   " << m_useVariableMiddleSPRange );
+    ATH_MSG_DEBUG( "   " << m_deltaRMiddleSPRange );
+    ATH_MSG_DEBUG( "   " << m_seedConfirmation );
+    ATH_MSG_DEBUG( "   " << m_enableCutsForSortedSP );
+    ATH_MSG_DEBUG( "   " << m_impactMax );
+    ATH_MSG_DEBUG( "   " << m_sigmaScattering );    
+    ATH_MSG_DEBUG( "   " <<  m_maxPtScattering );
+    ATH_MSG_DEBUG( "   " << m_maxSeedsPerSpM );
+    ATH_MSG_DEBUG( "   " << m_collisionRegionMin );
+    ATH_MSG_DEBUG( "   " << m_collisionRegionMax );
+    ATH_MSG_DEBUG( "   " <<  m_phiMin );
+    ATH_MSG_DEBUG( "   " <<  m_phiMax );
+    ATH_MSG_DEBUG( "   " << m_zMin );
+    ATH_MSG_DEBUG( "   " << m_zMax );
+    ATH_MSG_DEBUG( "   " << m_rMax );
+    ATH_MSG_DEBUG( "   " <<  m_rMin );
+    ATH_MSG_DEBUG( "   " << m_radLengthPerSeed );
+    ATH_MSG_DEBUG( "   " <<  m_zAlign );
+    ATH_MSG_DEBUG( "   " <<  m_rAlign );
+    ATH_MSG_DEBUG( "   " <<  m_sigmaError );
 
 
-    ATH_MSG_INFO( " * Used by SeedFilterConfig:");
-    ATH_MSG_INFO( "   " << m_deltaInvHelixDiameter );
-    ATH_MSG_INFO( "   " << m_impactWeightFactor);
-    ATH_MSG_INFO( "   " << m_compatSeedWeight);
-    ATH_MSG_INFO( "   " << m_deltaRMin );
-    ATH_MSG_INFO( "   " << m_maxSeedsPerSpM );
-    ATH_MSG_INFO( "   " << m_compatSeedLimit);
+    ATH_MSG_DEBUG( " * Used by SeedFilterConfig:");
+    ATH_MSG_DEBUG( "   " << m_deltaInvHelixDiameter );
+    ATH_MSG_DEBUG( "   " << m_impactWeightFactor);
+    ATH_MSG_DEBUG( "   " << m_compatSeedWeight);
+    ATH_MSG_DEBUG( "   " << m_deltaRMin );
+    ATH_MSG_DEBUG( "   " << m_maxSeedsPerSpM );
+    ATH_MSG_DEBUG( "   " << m_compatSeedLimit);
 
-    ATH_MSG_INFO( " *  Used by SpacePointGridConfig" );
-    ATH_MSG_INFO( "   " << m_minPt );
-    ATH_MSG_INFO( "   " << m_rMax );
-    ATH_MSG_INFO( "   " << m_zMax );
-    ATH_MSG_INFO( "   " << m_zMin );
-    ATH_MSG_INFO( "   " << m_deltaRMax );
-    ATH_MSG_INFO( "   " << m_cotThetaMax );
-    ATH_MSG_INFO( "   " << m_impactMax );
-    ATH_MSG_INFO( "   " << m_numPhiNeighbors );
-    ATH_MSG_INFO( "   " << m_zBinEdges );
+    ATH_MSG_DEBUG( " *  Used by SpacePointGridConfig" );
+    ATH_MSG_DEBUG( "   " << m_minPt );
+    ATH_MSG_DEBUG( "   " << m_rMax );
+    ATH_MSG_DEBUG( "   " << m_zMax );
+    ATH_MSG_DEBUG( "   " << m_zMin );
+    ATH_MSG_DEBUG( "   " << m_deltaRMax );
+    ATH_MSG_DEBUG( "   " << m_cotThetaMax );
+    ATH_MSG_DEBUG( "   " << m_impactMax );
+    ATH_MSG_DEBUG( "   " << m_numPhiNeighbors );
+    ATH_MSG_DEBUG( "   " << m_zBinEdges );
 
     if (m_zBinEdges.size() - 1 != 
 	m_zBinNeighborsTop.size() and
