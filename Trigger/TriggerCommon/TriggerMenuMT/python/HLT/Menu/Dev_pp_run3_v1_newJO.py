@@ -30,6 +30,7 @@ def setupMenu():
         ChainProp(name='HLT_mu20_L1MU14FCH', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU8F', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_L1MU5VF',   groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu4_L12MU3V', groups=MultiMuonGroup),
 
         ChainProp(name='HLT_mu20_msonly_L1MU14FCH', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_msonly_L1MU8F', groups=SingleMuonGroup),
