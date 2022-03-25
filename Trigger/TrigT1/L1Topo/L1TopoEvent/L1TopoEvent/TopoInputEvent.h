@@ -50,8 +50,8 @@ namespace TCS {
       const cTauTOBArray & cTaus() const { return m_cTaus; }
       const ClusterTOBArray & taus() const { return m_taus; }
       const JetTOBArray & jets() const { return m_jets; }
-      const jLargeRJetTOBArray & jLrageRJets() const { return m_jLargeRJets; }
-      const gLargeRJetTOBArray & gLrageRJets() const { return m_gLargeRJets; }
+      const jLargeRJetTOBArray & jLargeRJets() const { return m_jLargeRJets; }
+      const gLargeRJetTOBArray & gLargeRJets() const { return m_gLargeRJets; }
       const jJetTOBArray & jJets() const { return m_jJets; }
       const gJetTOBArray & gJets() const { return m_gJets; }
       const MuonTOBArray & muons() const { return m_muons; }
