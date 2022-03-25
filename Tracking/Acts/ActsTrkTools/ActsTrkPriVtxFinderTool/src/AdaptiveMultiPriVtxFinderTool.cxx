@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsAdaptiveMultiPriVtxFinderTool.h"
+#include "src/AdaptiveMultiPriVtxFinderTool.h"
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
@@ -39,13 +39,14 @@ namespace
   };
 } //anonymous namespace
 
-ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
-								     const IInterface* parent)
+ActsTrk::AdaptiveMultiPriVtxFinderTool::AdaptiveMultiPriVtxFinderTool(const std::string& type,
+                                                                      const std::string& name,
+                                                                      const IInterface* parent)
   : base_class(type, name, parent)
 {}
 
 StatusCode
-ActsAdaptiveMultiPriVtxFinderTool::initialize()
+ActsTrk::AdaptiveMultiPriVtxFinderTool::initialize()
 {
     using namespace std::literals::string_literals;
 
@@ -131,7 +132,8 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const TrackCollection* trackTES) const
+ActsTrk::AdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx,
+                                                   const TrackCollection* trackTES) const
 {
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
   const Trk::RecVertex& beamposition(beamSpotHandle->beamVtx());
@@ -163,7 +165,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const Tra
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAOD::TrackParticleContainer* trackParticles) const
+ActsTrk::AdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx,
+                                                   const xAOD::TrackParticleContainer* trackParticles) const
 {
 
   std::vector<std::unique_ptr<Trk::ITrackLink>> selectedTracks;
@@ -205,7 +208,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAO
 
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const
+ActsTrk::AdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx,
+                                                   const std::vector<std::unique_ptr<Trk::ITrackLink>>& trackVector) const
 {
     using namespace Acts::UnitLiterals; // !!!
     
@@ -376,8 +380,10 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
 }
 
 
-Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3& surfCenter) const {
+Trk::Perigee*
+ActsTrk::AdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(const Acts::BoundTrackParameters& bound,
+                                                              const Acts::Vector3& surfCenter) const
+{
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5) cov =  AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov.col(Trk::qOverP) *= 1_MeV;
@@ -389,7 +395,8 @@ Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
 }
 
 double
-ActsAdaptiveMultiPriVtxFinderTool::estimateSignalCompatibility(xAOD::Vertex* vtx) const {
+ActsTrk::AdaptiveMultiPriVtxFinderTool::estimateSignalCompatibility(xAOD::Vertex* vtx) const
+{
   double totalPt2 = 0;
   unsigned int nTracks = 0;
 
