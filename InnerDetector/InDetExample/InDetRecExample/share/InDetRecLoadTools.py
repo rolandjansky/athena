@@ -838,17 +838,17 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                       do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
     else:
       from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
-      from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+      from ActsTrkPriVtxFinderTool.ActsTrkPriVtxFinderToolConf import ActsTrk__AdaptiveMultiPriVtxFinderTool
       actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
       actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
       actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
-      InDetPriVxFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool",
-                                                               TrackSelector     = InDetTrackSelectorTool,
-                                                               useBeamConstraint = InDetFlags.useBeamConstraint(),
-                                                               tracksMaxZinterval = 3,#mm 
-                                                               do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
-                                                               TrackingGeometryTool = actsTrackingGeometryTool,
-                                                               ExtrapolationTool = actsExtrapolationTool)
+      InDetPriVxFinderTool = ActsTrk__AdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool",
+                                                                    TrackSelector     = InDetTrackSelectorTool,
+                                                                    useBeamConstraint = InDetFlags.useBeamConstraint(),
+                                                                    tracksMaxZinterval = 3,#mm
+                                                                    do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
+                                                                    TrackingGeometryTool = actsTrackingGeometryTool,
+                                                                    ExtrapolationTool = actsExtrapolationTool)
 
   else:
     #
@@ -875,20 +875,20 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
       # --- ACTS IVF configured with Full Billoir Vertex Fitter  
       #
       from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
-      from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsIterativePriVtxFinderTool
+      from ActsTrkPriVtxFinderTool.ActsTrkPriVtxFinderToolConf import ActsTrk__IterativePriVtxFinderTool
       actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
       actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
       actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
-      InDetPriVxFinderTool = ActsIterativePriVtxFinderTool(name  = "ActsIterativePriVtxFinderTool",
-                                                           TrackSelector     = InDetTrackSelectorTool,
-                                                           useBeamConstraint=InDetFlags.useBeamConstraint(),
-                                                           significanceCutSeeding=12,
-                                                           maximumChi2cutForSeeding=49,
-                                                           maxVertices=InDetPrimaryVertexingCuts.maxVertices(),
-                                                           doMaxTracksCut=InDetPrimaryVertexingCuts.doMaxTracksCut(),
-                                                           maxTracks=InDetPrimaryVertexingCuts.MaxTracks(),
-                                                           TrackingGeometryTool=actsTrackingGeometryTool,
-                                                           ExtrapolationTool=actsExtrapolationTool)
+      InDetPriVxFinderTool = ActsTrk__IterativePriVtxFinderTool(name  = "ActsIterativePriVtxFinderTool",
+                                                                TrackSelector     = InDetTrackSelectorTool,
+                                                                useBeamConstraint=InDetFlags.useBeamConstraint(),
+                                                                significanceCutSeeding=12,
+                                                                maximumChi2cutForSeeding=49,
+                                                                maxVertices=InDetPrimaryVertexingCuts.maxVertices(),
+                                                                doMaxTracksCut=InDetPrimaryVertexingCuts.doMaxTracksCut(),
+                                                                maxTracks=InDetPrimaryVertexingCuts.MaxTracks(),
+                                                                TrackingGeometryTool=actsTrackingGeometryTool,
+                                                                ExtrapolationTool=actsExtrapolationTool)
   ToolSvc += InDetPriVxFinderTool
   if (InDetFlags.doPrintConfigurables()):
     printfunc(InDetPriVxFinderTool)

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsIterativePriVtxFinderTool.h"
+#include "src/IterativePriVtxFinderTool.h"
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
@@ -39,13 +39,14 @@ namespace
   };
   } //anonymous namespace
 
-  ActsIterativePriVtxFinderTool::ActsIterativePriVtxFinderTool(const std::string& type, const std::string& name,
-    const IInterface* parent)
+ActsTrk::IterativePriVtxFinderTool::IterativePriVtxFinderTool(const std::string& type,
+                                                              const std::string& name,
+                                                              const IInterface* parent)
   : base_class(type, name, parent)
-  {}
+{}
 
 StatusCode
-ActsIterativePriVtxFinderTool::initialize()
+ActsTrk::IterativePriVtxFinderTool::initialize()
 {
   using namespace std::literals::string_literals;
 
@@ -117,7 +118,8 @@ ActsIterativePriVtxFinderTool::initialize()
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, const TrackCollection* trackTES) const
+ActsTrk::IterativePriVtxFinderTool::findVertex(const EventContext& ctx,
+                                               const TrackCollection* trackTES) const
 {
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
@@ -150,7 +152,8 @@ ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, const TrackCo
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, const xAOD::TrackParticleContainer* trackParticles) const
+ActsTrk::IterativePriVtxFinderTool::findVertex(const EventContext& ctx,
+                                               const xAOD::TrackParticleContainer* trackParticles) const
 {
 
   std::vector<std::unique_ptr<Trk::ITrackLink>> selectedTracks;
@@ -191,7 +194,8 @@ ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, const xAOD::T
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-ActsIterativePriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const
+ActsTrk::IterativePriVtxFinderTool::findVertex(const EventContext& ctx,
+                                               const std::vector<std::unique_ptr<Trk::ITrackLink>>& trackVector) const
 {
 
   using namespace Acts::UnitLiterals;
@@ -385,8 +389,9 @@ for(const auto& trk : allTracks){
   return std::make_pair(theVertexContainer, theVertexAuxContainer);
 }
 
-Trk::Perigee* ActsIterativePriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3& surfCenter) const {
+Trk::Perigee*
+ActsTrk::IterativePriVtxFinderTool::actsBoundToTrkPerigee(const Acts::BoundTrackParameters& bound,
+                                                          const Acts::Vector3& surfCenter) const {
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5) cov =  AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov.col(Trk::qOverP) *= 1_MeV;
