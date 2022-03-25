@@ -110,8 +110,8 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
   std::vector<int> bcidOffsetsWrtROB; // diffs between BCID in timeslice header and BCID in ROB header
   auto monBCIDOffsetsWrtROB = Monitored::Collection("BCIDOffsetsWrtROB", bcidOffsetsWrtROB);
 
-  // We don't know the readout window size at this point, so will collect start and end of roi words for each time
-  // slice and decode them later directly into the right time slice output container when we know which slice is which
+  // We don't assume the window size at this point. Instead, we collect the start and size of candidate list for
+  // each time slice and decode them later directly into the right time slice output container.
   std::vector<std::pair<size_t,size_t>> roiSlices; // v of {start, length}
 
   size_t iWord{0};
@@ -170,11 +170,15 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
     ++iWord;
   } // Loop over all ROD words
 
-  // Now decode the RoI candidate words in each time slice
+  // Validate the number of slices and decode the RoI candidate words in each time slice
   const size_t nSlices{roiSlices.size()};
   const size_t nOutputSlices{static_cast<size_t>(m_readoutWindow)};
   if (nSlices > nOutputSlices) {
     ATH_MSG_ERROR("Found " << nSlices << " time slices, but only " << m_readoutWindow << " outputs are configured");
+    return StatusCode::FAILURE;
+  } else if (nSlices != static_cast<size_t>(rob->rod_detev_type())) {
+    ATH_MSG_ERROR("Found " << nSlices << " time slices, but Detector Event Type word indicates there should be "
+                  << rob->rod_detev_type());
     return StatusCode::FAILURE;
   } else if (nSlices!=1 && nSlices!=3 && nSlices!=5) {
     ATH_MSG_ERROR("Expected 1, 3 or 5 time slices but found " << nSlices);
@@ -184,31 +188,29 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
   auto outputIt = handles.begin();
   std::advance(outputIt, outputOffset);
   for (const auto& [sliceStart,sliceSize] : roiSlices) {
-    for (const uint32_t onlineWord : CxxUtils::span{data+sliceStart, sliceSize}) {
-      ATH_MSG_DEBUG("Decoding RoI word 0x" << std::hex << onlineWord << std::dec << " into the " << outputIt->key() << " container");
-      uint32_t offlineWord = LVL1::MuCTPIBits::convertSectorIDOnlineToOffline(onlineWord);
-      ATH_MSG_DEBUG("Converted the RoI word to offline format: 0x" << std::hex << offlineWord << std::dec);
+    for (const uint32_t word : CxxUtils::span{data+sliceStart, sliceSize}) {
+      ATH_MSG_DEBUG("Decoding RoI word 0x" << std::hex << word << std::dec << " into the " << outputIt->key() << " container");
 
       // Create a new xAOD::MuonRoI object for this candidate in the output container
       (*outputIt)->push_back(std::make_unique<xAOD::MuonRoI>());
 
       // Decode eta/phi information using the right tool for the subsystem
       LVL1::TrigT1MuonRecRoiData roiData;
-      const LVL1::MuCTPIBits::SubsysID subsysID = LVL1::MuCTPIBits::getSubsysID(onlineWord, /*onlineFormat=*/ true);
+      const LVL1::MuCTPIBits::SubsysID subsysID = LVL1::MuCTPIBits::getSubsysID(word);
       switch (subsysID) {
         case LVL1::MuCTPIBits::SubsysID::Endcap: // same for Endcap and Forward
         case LVL1::MuCTPIBits::SubsysID::Forward: {
           ATH_MSG_DEBUG("This is an Endcap/Forward candidate, calling the " << m_tgcTool.typeAndName());
-          roiData = m_tgcTool->roiData(offlineWord);
+          roiData = m_tgcTool->roiData(word);
           break;
         }
         case LVL1::MuCTPIBits::SubsysID::Barrel: {
           ATH_MSG_DEBUG("This is a Barrel candidate, calling the " << m_rpcTool.typeAndName());
-          roiData = m_rpcTool->roiData(offlineWord);
+          roiData = m_rpcTool->roiData(word);
           break;
         }
         default: {
-          ATH_MSG_ERROR("Failed to determine Sector ID from RoI word 0x" << std::hex << onlineWord << std::dec);
+          ATH_MSG_ERROR("Failed to determine Sector ID from RoI word 0x" << std::hex << word << std::dec);
           return StatusCode::FAILURE;
         }
       }
@@ -216,11 +218,11 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
       // Get the threshold decisions to find the lowest pt threshold passed
       // This is required by xAOD::MuonRoI::initialize() but not used for HLT seeding (a threshold pattern bit mask is used instead)
       const std::pair<std::string, double> minThrInfo = m_thresholdTool->getMinThresholdNameAndValue(
-        m_thresholdTool->getThresholdDecisions(offlineWord, eventContext),
+        m_thresholdTool->getThresholdDecisions(word, eventContext),
         roiData.eta());
 
       // Fill the xAOD::MuonRoI object
-      (*outputIt)->back()->initialize((offlineWord | 0x1u<<31), // Flag Run-3 format in the unused MSB
+      (*outputIt)->back()->initialize((word | 0x1u<<31), // Flag Run-3 format in the unused MSB
                                       roiData.eta(),
                                       roiData.phi(),
                                       minThrInfo.first,
@@ -294,7 +296,7 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
       // Fill per-candidate monitoring histograms
       const uint32_t word = roi.roiWord();
       using SubsysID_ut = std::underlying_type_t<LVL1::MuCTPIBits::SubsysID>;
-      const LVL1::MuCTPIBits::SubsysID subsysID = LVL1::MuCTPIBits::getSubsysID(word, /*onlineFormat=*/ false);
+      const LVL1::MuCTPIBits::SubsysID subsysID = LVL1::MuCTPIBits::getSubsysID(word);
       Monitored::Scalar<SubsysID_ut> monSubsysID{"SubsysID", static_cast<SubsysID_ut>(subsysID)};
       std::string sectorName{s_sectorNames[static_cast<size_t>(subsysID)]};
       Monitored::Scalar<double> monEta{"roiEta_"+sectorName, roi.eta()};
@@ -327,9 +329,8 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
     // Candidate words
     for (const xAOD::MuonRoI* roi : **inputIt) {
       monitorCandidate(m_monTool, *roi);
-      data[iWord++] = LVL1::MuCTPIBits::convertSectorIDOfflineToOnline(roi->roiWord());
-      ATH_MSG_DEBUG("Added RoI word 0x" << std::hex << roi->roiWord() << std::dec
-                    << " converted to online format: 0x" << std::hex << data[iWord-1] << std::dec);
+      data[iWord++] = roi->roiWord();
+      ATH_MSG_DEBUG("Added RoI word 0x" << std::hex << roi->roiWord() << std::dec);
     }
     wordTypeCounts[static_cast<size_t>(LVL1::MuCTPIBits::WordType::Candidate)] += (*inputIt)->size();
     ATH_MSG_DEBUG("Added " << (*inputIt)->size() << " candidate words");
