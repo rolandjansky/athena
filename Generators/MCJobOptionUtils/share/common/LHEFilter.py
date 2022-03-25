@@ -31,6 +31,7 @@ import re
 import sys
 import glob
 import tarfile
+import subprocess
 
 # This code is stored in gencontrol
 include('MCJobOptionUtils/LHETools.py')
@@ -51,7 +52,8 @@ class BaseLHEFilter(object):
 # LHEFilters class, to combine several filters
 class LHEFilters(object):
     def __init__(self):
-        self.inputLHE = '' # if left empty, runArgs.inputGeneratorFile will be used
+        self.inputLHE = '' # if left empty, runArgs.inputGeneratorFile will be used; if not empty, we handle the input lhe file name by hand
+
         self.outputLHE = 'filtered_lhef._0.events' # runArgs.inputGeneratorFile will be updated with it if self.inputLHE is empty
 
         self.total_events = 0
@@ -93,13 +95,16 @@ class LHEFilters(object):
         # opening the input lhe file, and merge them if there are more than one of them
         try:
             # this portion of code was adapted from MCJobOptionUtils/Herwig7_LHEF.py
-            if ".tar.gz" in inFile or ".tgz" in inFile:
+            inputLhe_files = inFile.split(',') # if there are several input files, their names are separated by comas
+            lhe_files = []
+            is_compressed = (".tar.gz" in inFile or ".tgz" in inFile)
+            if is_compressed:
                 athMsgLog.info("input lhe File '{}' is compressed - will look for uncompressed LHE file".format(inFile))
-                tarredLhe_files = inFile.split(',') # if there are several input files, their names are separated by comas
-                lhe_files = []
-                for compressedFile in tarredLhe_files:
+            for inputLhe_file in inputLhe_files:
+                if is_compressed:
                     lhe_files.append(tarfile.open(compressedFile).getnames()[0]) # retrieve the name of the compressed lhe file
-                athMsgLog.info("Number of lhe files: {}".format(len(lhe_files)))
+                else:
+                    lhe_files.append(inputLhe_file)
                 if len(lhe_files) == 0:
                     athMsgLog.error("Could not find uncompressed LHE file")
                     raise RuntimeError
@@ -115,10 +120,6 @@ class LHEFilters(object):
                     lhe_files[0] = my_lhe_file
                 athMsgLog.info("Using uncompressed LHE file '{}' as input of LHEFilter".format(lhe_files[0]))
                 self.fIn = open(lhe_files[0], 'r')
-            else:
-                athMsgLog.info("Checking for duplicates in "+lhe_files[0])
-                FindDuplicates(inFileName=lhe_files[0])
-                self.fIn = open(inFile, 'r')
         except:
             athMsgLog.error("Impossible to use input lhe file {}".format(inFile))
             raise RuntimeError
@@ -161,9 +162,33 @@ class LHEFilters(object):
         print "MetaData: %s = %s" % ("lheFilterNames", sequence)
         print "MetaData: %s = %e" % ("LHEFiltEff", self.accepted_weights / self.total_weights)
 
+        # if an outputTXTFile is specified, will use it for the name of the filtered lhe file
+        if hasattr(runArgs, "outputTXTFile"):
+            untarredOutFile = ''
+            for tarball_suffix in [x for x in [".tar.gz", ".tgz"] if x in runArgs.outputTXTFile]:
+                ## Name of output LHE file
+                untarredOutFile = runArgs.outputTXTFile.split(tarball_suffix)[0] + ".events"
+            if untarredOutFile is '':
+                athMsgLog.error("Impossible to use outputTXTFile lhe file {} which doesn't contain .tar.gz or .tgz".format(runArgs.outputTXTFile))
+                raise RuntimeError
+            # check if the untarred outputTXTFile exists; if yes rename it
+            if (os.path.isfile(untarredOutFile)):
+                athMsgLog.info('Moving existing file "{}" into "{}", to be replaced by filtered lhe file'.format(untarredOutFile,untarredOutFile+'-old'))
+                os.rename(untarredOutFile,untarredOutFile+'-old')
+            # check if the outputTXTFile exists; if yes delete it
+            if (os.path.isfile(runArgs.outputTXTFile)):
+                athMsgLog.info('Deleting existing file "{}", to be replaced by filtered, compressed lhe file'.format(runArgs.outputTXTFile))
+                os.remove(runArgs.outputTXTFile)
+            # rename the filtered lhe file
+            os.rename(self.outputLHE,untarredOutFile)
+            self.outputLHE = untarredOutFile
+            # create the tarball
+            for line in subprocess.check_output(["tar", "cvzf", runArgs.outputTXTFile, untarredOutFile], stderr=subprocess.STDOUT).splitlines():
+                athMsgLog.info(line)
+
         # finally, use the filtered lhe file as inputGeneratorFile, but only if self.inputLHE was empty
         if (self.inputLHE == ''):
-            runArgs.inputGeneratorFile = self.outputLHE
+            runArgs.inputGeneratorFile = self.outputLHE # this ensures that Pythia8 or Herwig7 will use the filtered file as input
 
     # copying header of the possibly merged lhe file
     def copy_header(self):
