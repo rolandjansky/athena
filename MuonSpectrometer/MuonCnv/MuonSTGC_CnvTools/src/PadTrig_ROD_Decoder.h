@@ -38,7 +38,7 @@ class PadTrig_ROD_Decoder : public IPadTrig_ROD_Decoder, public AthAlgTool
   // Properties
   Gaudi::Property<bool> m_pfebBCIDs{this,"pFEBBCIDs", false, "Are pFEB BCIDs present?"};
   Gaudi::Property<bool> m_toTPData{this, "toTPData", false,  "Is to-TP data present?"};
-  Gaudi::Property<bool> m_channelMapping{this, "channelMapping", "Are pFEB channels re-mapped?"};
+  Gaudi::Property<bool> m_channelMapping{this, "channelMapping", false, "Are pFEB channels re-mapped?"};
   
   // Mappings (go from pFEB0 to pFEB23)
   // Large sector:
