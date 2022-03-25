@@ -1,24 +1,30 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+import GaudiConfig2
+import GaudiKernel.GaudiHandles as GaudiHandles
+
+import AthenaPython.Configurables
 from AthenaCommon.Logging import logging
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,\
-    checkSequenceConsistency, findAllAlgorithmsByName
-from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Debugging import DbgStage
 from AthenaCommon.Constants import INFO
+from AthenaCommon.CFElements import (isSequence, findSubSequence, findAlgorithm, flatSequencers,
+                                     checkSequenceConsistency, findAllAlgorithmsByName)
 
-import GaudiKernel.GaudiHandles as GaudiHandles
-import GaudiConfig2
-import AthenaPython
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Deduplication import deduplicate, deduplicateOne, DeduplicationFailed
-from AthenaConfiguration.DebuggingContext import Context, raiseWithCurrentContext, shortCallStack, createContextForDeduplication
-
-import collections
+from AthenaConfiguration.DebuggingContext import (Context, raiseWithCurrentContext, shortCallStack,
+                                                  createContextForDeduplication)
+from collections import OrderedDict
+from collections.abc import Sequence
 import sys
 
 class ConfigurationError(RuntimeError):
     pass
-_basicServicesToCreateOrder=("CoreDumpSvc/CoreDumpSvc", "GeoModelSvc/GeoModelSvc", "DetDescrCnvSvc/DetDescrCnvSvc")
+
+# Always create these services in this order:
+_basicServicesToCreateOrder=("CoreDumpSvc/CoreDumpSvc",
+                             "GeoModelSvc/GeoModelSvc",
+                             "DetDescrCnvSvc/DetDescrCnvSvc")
 
 
 def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOnly=False):
@@ -32,32 +38,33 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
         propval=getattr(c,propname)
         # Ignore empty lists
 
-        if isinstance(propval,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)) and propval.data is None:
+        if isinstance(propval,(GaudiConfig2.semantics._ListHelper,
+                               GaudiConfig2.semantics._DictHelper)) and propval.data is None:
             continue
         # Printing EvtStore could be relevant for Views?
-        if  not c.is_property_set(propname) and propname in ["DetStore","EvtStore", "AuditFinalize", "AuditInitialize", "AuditReinitialize", "AuditRestart", "AuditStart", "AuditStop", "AuditTools", "ExtraInputs", "ExtraOutputs"]:
+        if not c.is_property_set(propname) and propname in ["DetStore","EvtStore", "AuditFinalize", "AuditInitialize", "AuditReinitialize", "AuditRestart", "AuditStart", "AuditStop", "AuditTools", "ExtraInputs", "ExtraOutputs"]:
             continue
 
-        if isinstance( propval, GaudiConfig2.Configurable ):
-            msg.info( "%s    * %s: %s/%s", " "*nestLevel, propname, propval.__cpp_type__, propval.getName() )
+        if isinstance(propval, GaudiConfig2.Configurable):
+            msg.info("%s    * %s: %s/%s", " "*nestLevel, propname, propval.__cpp_type__, propval.getName())
             printProperties(msg, propval, nestLevel+3)
             continue
-        propstr=""
-        if isinstance(propval,GaudiHandles.PublicToolHandleArray):
+
+        propstr = ""
+        if isinstance(propval, GaudiHandles.PublicToolHandleArray):
             ths = [th.getName() for th in propval]
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
-        elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
+        elif isinstance(propval, GaudiHandles.PrivateToolHandleArray):
             msg.info( "%s    * %s: PrivateToolHandleArray of size %s", " "*nestLevel, propname, len(propval))
-            propstr = ""
             for el in propval:
                 msg.info( "%s    * %s/%s", " "*(nestLevel+3), el.__cpp_type__, el.getName())
                 printProperties(msg, el, nestLevel+6)
-        elif isinstance(propval,GaudiHandles.GaudiHandle): # Any other handle
+        elif isinstance(propval, GaudiHandles.GaudiHandle): # Any other handle
             propstr = "Handle( {0} )".format(propval.typeAndName)
         elif not onlyComponentsOnly:
             propstr = str(propval)
         if propstr:
-            msg.info( " "*nestLevel +"    * %s: %s", propname, propstr)
+            msg.info("%s    * %s: %s", " "*nestLevel, propname, propstr)
     return
 
 
@@ -65,13 +72,13 @@ def filterComponents (comps, onlyComponents = []):
     ret = []
     for c in comps:
         if not onlyComponents or c.getName() in onlyComponents:
-            ret.append ((c, True))
+            ret.append((c, True))
         elif c.getName()+'-' in onlyComponents:
-            ret.append ((c, False))
+            ret.append((c, False))
     return ret
 
 
-class ComponentAccumulator(object):
+class ComponentAccumulator:
     # the debug mode is combination of the following strings:
     # trackCA - to track CA creation,
     # track[EventAlgo|CondAlgo|PublicTool|PrivateTool|Service|Sequence] - to track categories components addition
@@ -86,45 +93,49 @@ class ComponentAccumulator(object):
                 kwargs.setdefault('ExtraDataForDynamicConsumers',[])
                 import traceback
                 traceback.print_stack
-            AthSequencer=CompFactory.AthSequencer
-            sequence=AthSequencer(sequence, **kwargs)    #(Nested) default sequence of event processing algorithms per sequence + their private tools
-        self._sequence = sequence
-        self._allSequences = [ self._sequence ]
-        self._algorithms = {}            #Flat algorithms list, useful for merging
-        self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
-        self._services=[]                #List of service, not yet sure if the order matters here in the MT age
-        self._servicesToCreate=[]
-        self._auditors=[]                #List of auditors
-        self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
-        self._primaryComp=None           #A placeholder to designate the primary service
 
-        self._theAppProps=dict()        #Properties of the ApplicationMgr
+            # (Nested) default sequence of event processing algorithms per sequence + their private tools
+            sequence = CompFactory.AthSequencer(sequence, **kwargs)
+
+        self._sequence = sequence
+        self._allSequences = [self._sequence]
+        self._algorithms = {}            #Flat algorithms list, useful for merging
+        self._conditionsAlgs = []        #Unordered list of conditions algorithms + their private tools
+        self._services = []              #List of service, not yet sure if the order matters here in the MT age
+        self._servicesToCreate = []
+        self._auditors = []              #List of auditors
+        self._privateTools = None        #A placeholder to carry a private tool(s) not yet attached to its parent
+        self._primaryComp = None         #A placeholder to designate the primary service
+
+        self._theAppProps = dict()        #Properties of the ApplicationMgr
 
         #Backward compatibility hack: Allow also public tools:
-        self._publicTools=[]
+        self._publicTools = []
 
         #To check if this accumulator was merged:
-        self._wasMerged=False
-        self._isMergable=True
-        self._lastAddedComponent="Unknown"
+        self._wasMerged = False
+        self._isMergable = True
+        self._lastAddedComponent = "Unknown"
         self._creationCallStack = Context.hint if "trackCA" not in ComponentAccumulator.debugMode else shortCallStack()
         self._componentsContext = dict()
-        self._debugStage=DbgStage()
+        self._debugStage = DbgStage()
 
     def setAsTopLevel(self):
         self._isMergable = False
 
-
     def _inspect(self): #Create a string some basic info about this CA, useful for debugging
         summary = "This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
             .format(len(self._services),len(self._conditionsAlgs),len(self._algorithms),len(self._publicTools))
-        if (self._privateTools):
-            if (isinstance(self._privateTools, list)):
+
+        if self._privateTools:
+            if isinstance(self._privateTools, list):
                 summary += "  Private AlgTool: " + self._privateTools[-1].getFullJobOptName() + "\n"
             else:
                 summary += "  Private AlgTool: " + self._privateTools.getFullJobOptName() + "\n"
-        if (self._primaryComp):
+
+        if self._primaryComp:
             summary += "  Primary Component: " + self._primaryComp.getFullJobOptName() + "\n"
+
         summary += "  Sequence(s): " + ", ".join([s.name+(" (main)" if s == self._sequence else "") for s in self._allSequences]) + "\n"
         summary += "  Last component added: " + self._lastAddedComponent+"\n"
         summary += "  Created by: " + self._creationCallStack
@@ -132,8 +143,8 @@ class ComponentAccumulator(object):
 
 
     def empty(self):
-        return len(self._sequence.Members)+len(self._conditionsAlgs)+len(self._services)+\
-            len(self._publicTools)+len(self._theAppProps) == 0
+        return (len(self._sequence.Members)+len(self._conditionsAlgs)+len(self._services)+
+                len(self._publicTools)+len(self._theAppProps) == 0)
 
     def __del__(self):
          if not getattr(self,'_wasMerged',True) and not self.empty() and not sys.exc_info():
@@ -146,9 +157,7 @@ class ComponentAccumulator(object):
          if getattr(self,'_privateTools',None) is not None:
              log = logging.getLogger("ComponentAccumulator")
              log.error("Deleting a ComponentAccumulator with dangling private tool(s): %s", 
-                        " ".join([t.name for t in self._privateTools]) if isinstance(self._privateTools, collections.abc.Sequence) else self._privateTools.name)
-
-        #pass
+                        " ".join([t.name for t in self._privateTools]) if isinstance(self._privateTools, Sequence) else self._privateTools.name)
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -228,7 +237,7 @@ class ComponentAccumulator(object):
         msg.info( "Private Tools")
         msg.info( "[" )
         if self._privateTools:
-            for tool in self._privateTools if isinstance(self._privateTools, collections.abc.Sequence) else [self._privateTools]:
+            for tool in self._privateTools if isinstance(self._privateTools, Sequence) else [self._privateTools]:
                 msg.info( "  %s,", tool.getFullJobOptName() + self._componentsContext.get(tool.name,""))
                 if summariseProps:
                     printProperties(msg, tool, printDefaults, printComponentsOnly)
@@ -321,19 +330,22 @@ class ComponentAccumulator(object):
         The method accepts either a single private AlgTool or a list of private AlgTools (typically assigned to ToolHandleArray)
         """
         if self._privateTools is not None:
-            raise ConfigurationError("This ComponentAccumulator holds already a (list of) private tool. Only one (list of)  private tool(s) is allowed")
+            raise ConfigurationError("This ComponentAccumulator holds already a (list of) private tool(s). "
+                                     "Only one (list of) private tool(s) is allowed")
 
-        if isinstance(privTool,collections.abc.Sequence):
+        if isinstance(privTool, Sequence):
             for t in privTool:
                 if t.__component_type__ != 'AlgTool':
-                    raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered {} in a list" % format(type(t)))
+                    raise ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools "
+                                             f"or lists of ConfigurableAlgTools. Encountered {type(t)} in a list")
         else:
             if privTool.__component_type__ != "AlgTool":
-                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered {} ".format(type(privTool)))
+                raise ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools "
+                                          f"or lists of ConfigurableAlgTools. Encountered {type(privTool)}")
 
         self._privateTools=privTool
         if "trackPrivateTool" in ComponentAccumulator.debugMode:
-            for tool in self._privateTools if isinstance(privTool,collections.abc.Sequence) else [self._privateTools]:
+            for tool in self._privateTools if isinstance(privTool, Sequence) else [self._privateTools]:
                 self._componentsContext[tool.name] = shortCallStack()
 
         return
@@ -343,23 +355,25 @@ class ComponentAccumulator(object):
         The CA will not keep any reference to the AlgTool. Throw an exception if
         no tools are available unless quiet=True.
         """
-        tool=self._privateTools
+        tool = self._privateTools
         if not quiet and tool is None:
             raise ConfigurationError("Private tool(s) requested, but none are present")
         self._privateTools=None
         return tool
 
     def popToolsAndMerge(self, other):
-        """ Merging in the other accumulator and getting the (list of) private AlgTools from this ComponentAccumulator.
+        """ Merging in the other accumulator and getting the (list of) private AlgTools
+        from this ComponentAccumulator.
         """
         if other is None:
-            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
+            raise RuntimeError("popToolsAndMerge called on object of type None: "
+                               "did you forget to return a CA from a config function?")
         tool = other.popPrivateTools()
         self.merge(other)
         return tool
 
     def addEventAlgo(self, algorithms,sequenceName=None,primary=False):
-        if not isinstance(algorithms,collections.abc.Sequence):
+        if not isinstance(algorithms, Sequence):
             #Swallow both single algorithms as well as lists or tuples of algorithms
             algorithms=[algorithms,]
 
@@ -372,11 +386,12 @@ class ComponentAccumulator(object):
             raise ConfigurationError("Can not find sequence {}".format(sequenceName))
 
         for algo in algorithms:
-            if not isinstance(algo,GaudiConfig2._configurables.Configurable) and not isinstance(algo,AthenaPython.Configurables.CfgPyAlgorithm):
-                raise TypeError("Attempt to add wrong type: {} as event algorithm".format(type( algo ).__name__))
+            if not isinstance(algo, (GaudiConfig2._configurables.Configurable,
+                                     AthenaPython.Configurables.CfgPyAlgorithm)):
+                raise TypeError(f"Attempt to add wrong type: {type(algo).__name__} as event algorithm")
 
             if algo.__component_type__ != "Algorithm":
-                raise TypeError("Attempt to add an {} as event algorithm".format(algo.__component_type__))
+                raise TypeError(f"Attempt to add an {algo.__component_type__} as event algorithm")
 
             if algo.name in self._algorithms:
                 context = createContextForDeduplication("Merging with existing Event Algorithm", algo.name, self._componentsContext) # noqa : F841
@@ -391,79 +406,89 @@ class ComponentAccumulator(object):
 
         if primary:
             if len(algorithms)>1:
-                self._msg.warning("Called addEvenAlgo with a list of algorithms and primary==True. Designating the first algorithm as primary component")
+                self._msg.warning("Called addEvenAlgo with a list of algorithms and primary==True. "
+                                  "Designating the first algorithm as primary component")
             if self._primaryComp:
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.__cpp_type__, self._primaryComp.name,
                                   algorithms[0].__cpp_type__, algorithms[0].name)
             #keep a ref of the algorithm as primary component
-            self._primaryComp=algorithms[0]
-        self._lastAddedComponent=algorithms[-1].name
+            self._primaryComp = algorithms[0]
+        self._lastAddedComponent = algorithms[-1].name
+
         if "trackEventAlgo" in ComponentAccumulator.debugMode:
             for algo in algorithms:
                 self._componentsContext[algo.name] = shortCallStack()
+
         return None
 
-    def getEventAlgo(self,name=None):
+    def getEventAlgo(self, name=None):
+        """Get algorithm with `name`"""
         if name not in self._algorithms:
             raise ConfigurationError("Can not find an algorithm of name {} ".format(name))
         return self._algorithms[name]
 
-    def getEventAlgos(self,seqName=None):
+    def getEventAlgos(self, seqName=None):
+        """Get all algorithms within sequence"""
         if seqName is None:
             seq=self._sequence
         else:
             seq = findSubSequence(self._sequence, seqName )
-        return list( collections.OrderedDict.fromkeys( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ).keys() )
+        return list( OrderedDict.fromkeys( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ).keys() )
 
     def addCondAlgo(self,algo,primary=False):
-        if not isinstance(algo,GaudiConfig2._configurables.Configurable) and not isinstance(algo,AthenaPython.Configurables.CfgPyAlgorithm):
-            raise TypeError("Attempt to add wrong type: {} as conditions algorithm".format(type( algo ).__name__))
+        """Add Conditions algorithm"""
+        if not isinstance(algo, (GaudiConfig2._configurables.Configurable,
+                                 AthenaPython.Configurables.CfgPyAlgorithm)):
+            raise TypeError(f"Attempt to add wrong type: {type(algo).__name__} as conditions algorithm")
 
         if algo.__component_type__ != "Algorithm":
-            raise TypeError("Attempt to add wrong type: {} as conditions algorithm".format(algo.__component_type__))
-            pass
+            raise TypeError(f"Attempt to add wrong type: {algo.__component_type__} as conditions algorithm")
 
         context = createContextForDeduplication("Merging with existing Conditions Algorithm", algo.name, self._componentsContext) # noqa : F841
 
-        deduplicate(algo,self._conditionsAlgs) #will raise on conflict
+        deduplicate(algo, self._conditionsAlgs) #will raise on conflict
         if primary:
             if self._primaryComp:
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
-                                  self._primaryComp.__cpp_type__,self._primaryComp.name,algo.__cpp_type__,algo.name)
+                                  self._primaryComp.__cpp_type__, self._primaryComp.name,
+                                  algo.__cpp_type__, algo.name)
             #keep a ref of the de-duplicated conditions algorithm as primary component
-            self._primaryComp=self.__getOne( self._conditionsAlgs, algo.name, "ConditionsAlgos")
+            self._primaryComp = self.__getOne(self._conditionsAlgs, algo.name, "ConditionsAlgos")
+
         self._lastAddedComponent=algo.name
         if "trackCondAlgo" in ComponentAccumulator.debugMode:
             self._componentsContext[algo.name] = shortCallStack()
+
         return algo
 
 
-    def getCondAlgo(self,name):
-        hits=[a for a in self._conditionsAlgs if a.name==name]
-        if (len(hits)>1):
-            raise ConfigurationError("More than one conditions algorithm with name {} found".format(name))
-        if (len(hits)==0):
-            raise ConfigurationError("No conditions algorithm with name {} found".format(name))
+    def getCondAlgo(self, name):
+        """Get Conditions algorithm"""
+        hits = [a for a in self._conditionsAlgs if a.name==name]
+        if len(hits)!=1:
+            raise ConfigurationError(f"{len(hits)} conditions algorithms with name {name} found")
 
         return hits[0]
 
-    def addService(self,newSvc,primary=False,create=False):
 
-        if not isinstance(newSvc,GaudiConfig2._configurables.Configurable) and not isinstance(newSvc,AthenaPython.Configurables.CfgPyService):
-            raise TypeError("Attempt to add wrong type: {} as service".format(type( newSvc ).__name__))
+    def addService(self, newSvc, primary=False, create=False):
+        """Add service"""
+        if not isinstance(newSvc, (GaudiConfig2._configurables.Configurable,
+                                   AthenaPython.Configurables.CfgPyService)):
+            raise TypeError(f"Attempt to add wrong type: {type(newSvc).__name__} as service")
 
         if newSvc.__component_type__ != "Service":
-            raise TypeError("Attempt to add wrong type: {} as service".format(newSvc.__component_type__))
-            pass
+            raise TypeError(f"Attempt to add wrong type: {newSvc.__component_type__} as service")
 
         context = createContextForDeduplication("Merging with existing Service", newSvc.name, self._componentsContext) # noqa : F841
 
-        deduplicate(newSvc,self._services)  #may raise on conflict
+        deduplicate(newSvc, self._services)  #may raise on conflict
         if primary:
             if self._primaryComp:
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
-                                  self._primaryComp.__cpp_type__,self._primaryComp.name,newSvc.__cpp_type__,newSvc.name)
+                                  self._primaryComp.__cpp_type__, self._primaryComp.name,
+                                  newSvc.__cpp_type__, newSvc.name)
             #keep a ref of the de-duplicated service as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.name, "Services")
         self._lastAddedComponent=newSvc.name
@@ -474,30 +499,33 @@ class ComponentAccumulator(object):
                 self._servicesToCreate.append(sname)
         if "trackService" in  ComponentAccumulator.debugMode:
             self._componentsContext[newSvc.name] = shortCallStack()
-        return
+
 
     def addAuditor(self, auditor):
         """Add Auditor to ComponentAccumulator.
         This function will also create the required AuditorSvc."""
-        if not isinstance(auditor,GaudiConfig2._configurables.Configurable) and not isinstance(auditor,AthenaPython.Configurables.CfgPyAud):
-            raise TypeError("Attempt to add wrong type: {} as auditor".format(type( auditor ).__name__))
+        if not isinstance(auditor, (GaudiConfig2._configurables.Configurable,
+                                    AthenaPython.Configurables.CfgPyAud)):
+            raise TypeError(f"Attempt to add wrong type: {type(auditor).__name__} as auditor")
 
         if auditor.__component_type__ != "Auditor":
-            raise TypeError("Attempt to add wrong type: {} as auditor".format(auditor.__component_type__))
+            raise TypeError(f"Attempt to add wrong type: {auditor.__component_type__} as auditor")
 
         context = createContextForDeduplication("Merging with existing auditors", auditor.name, self._componentsContext) # noqa : F841
 
         deduplicate(auditor, self._auditors)  #may raise on conflict
         self.addService(CompFactory.AuditorSvc(Auditors=[auditor.getFullJobOptName()]))
         self._lastAddedComponent = auditor.name
-        return
 
-    def addPublicTool(self,newTool,primary=False):
-        if not isinstance(newTool,GaudiConfig2._configurables.Configurable) and not isinstance(newTool,AthenaPython.Configurables.CfgPyAlgTool):
-            raise TypeError("Attempt to add wrong type: {} as public AlgTool".format(type( newTool ).__name__))
+
+    def addPublicTool(self, newTool, primary=False):
+        """Add public tool"""
+        if not isinstance(newTool, (GaudiConfig2._configurables.Configurable,
+                                    AthenaPython.Configurables.CfgPyAlgTool)):
+            raise TypeError(f"Attempt to add wrong type: {type(newTool).__name__} as public AlgTool")
 
         if newTool.__component_type__ != "AlgTool":
-            raise TypeError("Attempt to add wrong type: {} as public AlgTool".format(newTool.__component_type__))
+            raise TypeError(f"Attempt to add wrong type: {newTool.__component_type__} as public AlgTool")
 
         context = createContextForDeduplication("Merging with existing Public Tool", newTool.name, self._componentsContext) # noqa : F841
 
@@ -505,16 +533,17 @@ class ComponentAccumulator(object):
         if primary:
             if self._primaryComp:
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
-                                  self._primaryComp.__cpp_type__,self._primaryComp.name,newTool.__cpp_type__,newTool.name)
+                                  self._primaryComp.__cpp_type__, self._primaryComp.name,
+                                  newTool.__cpp_type__, newTool.name)
             #keep a ref of the de-duplicated tool as primary component
             self._primaryComp=self.__getOne( self._publicTools, newTool.name, "Public Tool")
         self._lastAddedComponent=newTool.name
         if "trackPublicTool" in ComponentAccumulator.debugMode:
             self._componentsContext[newTool.name] = shortCallStack()
-        return
 
 
     def getPrimary(self):
+        """Get designated primary component"""
         if self._privateTools:
             return self.popPrivateTools()
         elif self._primaryComp:
@@ -523,8 +552,7 @@ class ComponentAccumulator(object):
             raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n{}".format(self._inspect()))
 
     def getPrimaryAndMerge(self, other):
-        """ Merging in the other accumulator and getting the primary component
-        """
+        """ Merging in the other accumulator and getting the primary component"""
         if other is None:
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
         comp = other.getPrimary()
@@ -570,48 +598,56 @@ class ComponentAccumulator(object):
         else:
             if self._theAppProps[key] == value:
                 self._msg.debug("ApplicationMgr property '%s' already set to '%s'.", key, value)
-            elif isinstance(self._theAppProps[key],collections.abc.Sequence) and not isinstance(self._theAppProps[key],str):
+            elif isinstance(self._theAppProps[key], Sequence) and not isinstance(self._theAppProps[key],str):
                 value=self._theAppProps[key] + [el for el in value if el not in self._theAppProps[key]]
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
                 self._theAppProps[key]=value
             else:
                 raise DeduplicationFailed("AppMgr property {} set twice: {} and {}".format(key, self._theAppProps[key], value))
-        pass
 
 
     def setDebugStage(self,stage):
         if stage not in DbgStage.allowed_values:
             raise RuntimeError("Allowed arguments for setDebugStage are [{}]".format(",".join(DbgStage.allowed_values)))
-        self._debugStage.value=stage
-        pass
+        self._debugStage.value = stage
+
 
     def merge(self,other, sequenceName=None):
         """Merging in the other accumulator"""
         if other is None:
-            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?\n")
+            raise RuntimeError("merge called on object of type None: "
+                               "did you forget to return a CA from a config function?")
 
         if not isinstance(other,ComponentAccumulator):
-            raise TypeError("Attempt merge wrong type {}. Only instances of ComponentAccumulator can be added".format(type(other).__name__))
+            raise TypeError(f"Attempt to merge wrong type {type(other).__name__}. "
+                            "Only instances of ComponentAccumulator can be added")
 
-        context = Context.hint if not ComponentAccumulator.debugMode else Context("When merging the ComponentAccumulator:\n{} \nto:\n{}".format(other._inspect(), self._inspect())) # noqa : F841
-        if (other._privateTools is not None):
-            if isinstance(other._privateTools,collections.abc.Sequence):
-                raiseWithCurrentContext(RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools\n"))
+        context = (Context.hint if not ComponentAccumulator.debugMode else   # noqa: F841
+                   Context("When merging the ComponentAccumulator:\n{} \nto:\n{}".format(other._inspect(), self._inspect())))
+
+        if other._privateTools is not None:
+            if isinstance(other._privateTools, Sequence):
+                raiseWithCurrentContext(RuntimeError(
+                    "merge called on ComponentAccumulator with a dangling (array of) private tools\n"))
             else:
-                raiseWithCurrentContext(RuntimeError("merge called with a ComponentAccumulator a dangling private tool {}/{}".format(
-                                                       other._privateTools.__cpp_type__,other._privateTools.name)))
-
-
+                raiseWithCurrentContext(RuntimeError(
+                    "merge called on ComponentAccumulator with a dangling private tool "
+                    f"{other._privateTools.__cpp_type__}/{other._privateTools.name}"))
 
         if not other._isMergable:
-            raiseWithCurrentContext(ConfigurationError("Attempted to merge the ComponentAccumulator that was unsafely manipulated (likely with foreach_component, ...) or is a top level ComponentAccumulator, in such case revert the order\n"))
+            raiseWithCurrentContext(ConfigurationError(
+                "Attempted to merge the ComponentAccumulator that was unsafely manipulated "
+                "(likely with foreach_component, ...) or is a top level ComponentAccumulator, "
+                "in such case revert the order\n"))
 
         def mergeSequences( dest, src ):
             if dest.name == src.name:
                 for seqProp in dest._descriptors.keys():
                     if getattr(dest, seqProp) != getattr(src, seqProp) and seqProp != "Members":
-                        raise RuntimeError("merge called with sequences: '%s' having property '%s' of different values %s vs %s (from ComponentAccumulator being merged)" %
-                                            (str((dest.name, src.name)), seqProp, str(getattr(dest, seqProp)), str(getattr(src, seqProp))) )
+                        raise RuntimeError(
+                            f"merge called with sequences: '{(dest.name, src.name)}' having property '{seqProp}'"
+                            f"of different values {getattr(dest, seqProp)} vs {getattr(src, seqProp)}")
+
             for childIdx, c in enumerate(src.Members):
                 if isSequence( c ):
                     sub = findSubSequence( dest, c.name ) #depth=1 ???
@@ -633,6 +669,7 @@ class ComponentAccumulator(object):
                             for _, parent, idx in existingAlgs: # put the deduplicated algo back into original sequences
                                 parent.Members[idx] = self._algorithms[name]
                         dest.Members.append(c)
+
                 else: # an algorithm
                     if c.name in self._algorithms:
                         dedupContext1 = createContextForDeduplication("While merging sequences adding incoming algorithm", c.name, other._componentsContext) # noqa : F841
