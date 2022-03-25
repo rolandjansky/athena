@@ -173,15 +173,6 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  SCT_ClusterCollection* SCT_ClusteringTool::clusterize(const InDetRawDataCollection<SCT_RDORawData>& collection,
-                                                        const SCT_ID& idHelper,
-                                                        const SCT_ChannelStatusAlg* /*status */,
-                                                        const bool /*CTBBadChannels */) const
-  {
-    ATH_MSG_INFO( "You have invoked the deprecated form of clusterize(...), please use the new interface, of the form  clusterize(InDetRawDataCollection<SCT_RDORawData> & collection,SCT_ID& idHelper)");
-    return clusterize(collection, idHelper, nullptr);
-  }
-  
   void SCT_ClusteringTool::addStripsToCluster(const Identifier& firstStripId, unsigned int nStrips,
                                               std::vector<Identifier>& clusterVector, const SCT_ID& idHelper) const{
     const unsigned int firstStripNumber(idHelper.strip(firstStripId));

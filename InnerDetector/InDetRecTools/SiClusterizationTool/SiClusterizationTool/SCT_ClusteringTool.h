@@ -54,13 +54,6 @@ namespace InDet {
     /// Defaul destructor
     virtual ~SCT_ClusteringTool() = default;
 
-    /// Deprecated clusterize method of the SCT RDOs. Deprecated form passes explicit channel status object.
-    virtual SCT_ClusterCollection*
-    clusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
-               const SCT_ID& idHelper,
-               const SCT_ChannelStatusAlg* status,
-               const bool CTBBadChannels) const;
-    
     /// Clusterize method the SCT RDOs. This method is the main one of this class.
     virtual SCT_ClusterCollection*
     clusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
