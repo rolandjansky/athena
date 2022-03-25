@@ -1,6 +1,5 @@
 <lcgdict>
 
-   <class name="MsgStream" />
    <class name="IProxyDict" />
    <class name="IStringPool" />
    <class name="IEventSeek"/>
@@ -30,5 +29,8 @@
    <class name="CondContBase"/>
    <class name="CondContSingleBase"/>
    <class name="CondContMixedBase"/>
+
+   <class name="MsgStream" />
+   <function name="Athena::getMessageSvc"/>
 
 </lcgdict>
