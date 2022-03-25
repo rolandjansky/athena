@@ -141,8 +141,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
        ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
      }
   }
-  // For additional information on container contents, this function can be used 
-  //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
 
   return StatusCode::SUCCESS;
 }
@@ -174,8 +172,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
        ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
      }
   }
-  // For additional information on container contents, this function can be used
-  //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
 
   return StatusCode::SUCCESS;
 }
