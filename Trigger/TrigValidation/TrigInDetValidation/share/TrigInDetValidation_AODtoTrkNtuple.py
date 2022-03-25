@@ -82,7 +82,7 @@ if doNewTier0Mon :
 
   # this is the new location ...
   from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
-  for git in TIDAMonitoring( "idtrigger" ):
+  for git in TIDAMonitoring( None, "idtrigger" ):
     algseq += git
 
   from GaudiSvc.GaudiSvcConf import THistSvc
