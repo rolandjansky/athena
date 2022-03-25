@@ -22,9 +22,7 @@ namespace ActsTrk {
 
   SiSpacePointsSeedMaker::SiSpacePointsSeedMaker(const std::string &t, const std::string &n, const IInterface *p)
     : base_class(t, n, p)
-  {
-    declareInterface<InDet::ISiSpacePointsSeedMaker>(this);
-  }
+  {}
 
   StatusCode SiSpacePointsSeedMaker::initialize()
   {
