@@ -51,19 +51,19 @@ if rec.doAFP() and rec.doESD():
     topSequence+=AFP_Raw2Digi()
   
   #cluster reconstruction
-  from AFP_SiClusterTools.AFP_SiClusterTools_joboption import AFP_SiClusterTools_Cfg
+  from AFP_SiClusterTools.AFP_SiClusterTools import AFP_SiClusterTools_Cfg
   topSequence+=AFP_SiClusterTools_Cfg()
   
   # tracks reconstruction
-  from AFP_LocReco.AFP_LocReco_joboption import AFP_LocReco_SiD_Cfg, AFP_LocReco_TD_Cfg
+  from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_Cfg, AFP_LocReco_TD_Cfg
   topSequence+=AFP_LocReco_SiD_Cfg()
   topSequence+=AFP_LocReco_TD_Cfg()
    
   # protons reconstruction
-  from AFP_GlobReco.AFP_GlobReco_joboption import AFP_GlobReco_Cfg
+  from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_Cfg
   topSequence+=AFP_GlobReco_Cfg()
   
   # vertex reconstruction
-  from AFP_VertexReco.AFP_VertexReco_joboption import AFP_VertexReco_Cfg
+  from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_Cfg
   topSequence+=AFP_VertexReco_Cfg()
   
