@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CavernInfraDetectorFactory01.h"
@@ -386,7 +386,8 @@ const CavernInfraDetectorManager * CavernInfraDetectorFactory01::getDetectorMana
   return m_detectorManager;
 }
 
-void CavernInfraDetectorFactory01::setTagNode(std::string tag, std::string node)
+void CavernInfraDetectorFactory01::setTagNode(const std::string& tag,
+                                              const std::string& node)
 {
   m_versionTag = tag;
   m_versionNode = node;

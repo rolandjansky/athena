@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CavernInfraDetectorTool.h"
@@ -10,6 +10,7 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 CavernInfraDetectorTool::CavernInfraDetectorTool( const std::string& type, 
 						  const std::string& name,
@@ -56,7 +57,7 @@ StatusCode CavernInfraDetectorTool::create()
     return sc;
   }
 
-  if(cavernInfraVersion.find("CavernInfra")==0) {
+  if (boost::starts_with (cavernInfraVersion, "CavernInfra")) {
     std::string geoVersion = cavernInfraVersion.substr(12,2);
     if(geoVersion=="00" || geoVersion=="01") {
       msg(MSG::ERROR) << "ERROR. Version " << cavernInfraVersion << " is obsolete and cannot be supported anymore" << endmsg;
