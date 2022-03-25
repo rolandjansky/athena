@@ -22,6 +22,8 @@ def createHLTDQConfigFlags():
     # b-jets disabled for cosmics following ATR-25036
     acf.addFlag('DQ.Steering.HLT.doBjet', lambda flags: flags.Input.Format is Format.POOL and flags.Beam.Type is BeamType.Collisions)
 
+
+    acf.addFlag('DQ.Steering.HLT.doInDet', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doBphys', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doCalo', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doEgamma', lambda flags: flags.Input.Format is Format.POOL)
@@ -51,6 +53,10 @@ def TrigHLTMonTopConfig(inputFlags):
         if inputFlags.DQ.Steering.HLT.doGeneral:
             from TrigHLTMonitoring.TrigGeneralMonitorAlgorithm import TrigGeneralMonConfig
             result.merge(TrigGeneralMonConfig(inputFlags))
+
+        if inputFlags.DQ.Steering.HLT.doInDet:
+            from TrigIDtrkMonitoring.TIDAMonitoring import TrigInDetMonConfig
+            result.merge(TrigInDetMonConfig(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doBjet:
             from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig

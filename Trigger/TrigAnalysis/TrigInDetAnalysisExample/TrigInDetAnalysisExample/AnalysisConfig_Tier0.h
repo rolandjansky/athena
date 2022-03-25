@@ -13,7 +13,7 @@
 #define TrigInDetAnalysisExample_AnalysisConfig_Tier0_H
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "TrigInDetAnalysisExample/T_AnalysisConfig_Tier0.h"
 #include "TrigInDetAnalysisExample/T_AnalysisConfigMT_Tier0.h"
@@ -21,7 +21,7 @@
 
 typedef T_AnalysisConfig_Tier0<IHLTMonTool>                      AnalysisConfig_Tier0;
 typedef T_AnalysisConfigMT_Tier0<IHLTMonTool>                    AnalysisConfigMT_Tier0;
-typedef T_AnalysisConfigR3_Tier0<AthAlgorithm,AnalysisR3_Tier0>  AnalysisConfigR3_Tier0;
+typedef T_AnalysisConfigR3_Tier0<AthReentrantAlgorithm,AnalysisR3_Tier0>  AnalysisConfigR3_Tier0;
   
 #endif  // TrigInDetAnalysisExample_AnalysisConfig_Tier0_H
 
