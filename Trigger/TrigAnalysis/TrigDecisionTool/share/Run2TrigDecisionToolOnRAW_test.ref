@@ -14,7 +14,6 @@ Py:UnitTest          INFO     * Navigation: HLT::Navigation/Navigation
 Py:UnitTest          INFO        * Dlls: ['TrigSteeringEvent', 'TrigMuonEvent', 'TrigBphysicsEvent', 'TrigCaloEvent', 'TrigInDetEvent', 'TrigParticle', 'TrigMissingEtEvent', 'TrigDecisionEvent', 'TrigMonitoringEvent', 'TrigTopoEvent', 'TrigCombinedEvent', 'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet', 'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo', 'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 'xAODHIEvent', 'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict', 'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict', 'xAODTrigMinBiasDict', 'xAODBTaggingDict', 'xAODHIEventDict']
 Py:UnitTest          INFO     * NavigationFormat: TriggerElement
 Py:UnitTest          INFO     * TrigConfigSvc: TrigConf::xAODConfigSvc/xAODConfigSvc
-Py:UnitTest          INFO     * TrigDecisionKey: TrigDecision
 Py:UnitTest          INFO     * UseAODDecision: True
 Py:UnitTest          INFO ]
 Py:UnitTest          INFO Private Tools
