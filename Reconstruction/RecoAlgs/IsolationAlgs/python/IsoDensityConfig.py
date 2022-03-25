@@ -55,6 +55,8 @@ def NFlowInputAlgCfg(flags, name='NFlowInputAlg', **kwargs):
 
 def DensityForIsoAlgCfg(flags, name = "CentralDensityForTopoIso", **kwargs):
 
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     mlog = logging.getLogger(name)
     mlog.info('Starting density alg for isolation configuration')
 
@@ -65,12 +67,12 @@ def DensityForIsoAlgCfg(flags, name = "CentralDensityForTopoIso", **kwargs):
     
     # And then the density tool and algs. By default the central one
     if name.find('Topo') >= 0:
-        inputO = 'PseudoJetEMTopo'
+        inputconstit = cst.EMTopo
         outputS = 'TopoCluster'
     elif name.find('NFlow') >= 0:
-        inputO = 'PseudoJetNFlow'
+        inputconstit = cst.EMPFlow # needed to call configEventDensityTool, but no effect since we'll override input and output names        
+        kwargs['InputContainer'] = 'PseudoJetNFlow'    
         outputS = 'NeutralParticleFlow'
-    kwargs['InputContainer'] = inputO
     kwargs['JetRadius'] = 0.5
     kwargs['UseFourMomArea'] = True
     kwargs['VoronoiRfact'] = 0.9
@@ -83,8 +85,9 @@ def DensityForIsoAlgCfg(flags, name = "CentralDensityForTopoIso", **kwargs):
         kwargs['OutputContainer'] = outputS+'IsoForwardEventShape'
         kwargs['AbsRapidityMin'] = 1.5
         kwargs['AbsRapidityMax'] = 3.0
-    densityTool = CompFactory.EventDensityTool(
-        name = name+'Tool',**kwargs)
+
+    densityTool = configEventDensityTool(name+'Tool',
+                                         inputconstit, **kwargs)
     
     densityAlg = CompFactory.EventDensityAthAlg(
         name = name+'Alg',

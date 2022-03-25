@@ -165,7 +165,7 @@ def addDiTauLowPt(Seq=None):
     from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 
-    AntiKt10EMPFlow = AntiKt10LCTopo.clone(inputdef = cst.EMPFlow)
+    AntiKt10EMPFlow = AntiKt10LCTopo.clone(inputdef = cst.GPFlow)
     jetList = [AntiKt10EMPFlow]
 
     addDAODJets(jetList,Seq)

@@ -39,7 +39,7 @@ calibmods_lowCut = (
 
 standardmods = (
     "LArHVCorr", "Width",
-     "CaloQuality", "TrackMoments","TrackSumMoments",
+    "CaloQuality", "TrackMoments","TrackSumMoments",
     "JVF", "JVT", "Charge",
 )
 
@@ -75,7 +75,7 @@ AntiKt4PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
 # *********************************************************
 
 
-AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.GPFlow,
                                ghostdefs = standardghosts+flavourghosts,
                                modifiers = calibmods+("Filter:10000",)+truthmods+standardmods,
                                standardRecoMode = True,                               
@@ -87,7 +87,7 @@ AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
 
 AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
                               ghostdefs = standardghosts+flavourghosts, 
-                              modifiers = calibmods+("Filter:15000",)+standardmods+clustermods,
+                              modifiers = calibmods+("Filter_ifnotESD:15000","OriginSetPV")+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
 )
@@ -104,7 +104,7 @@ AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
 # *********************************************************
 # EMPFlow CSSK jets
 # *********************************************************
-AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
+AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.GPFlowCSSK,
                                    ghostdefs = standardghosts+flavourghosts,
                                    modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1","JetPtAssociation")+truthmods+standardmods,
                                    ptmin = 2000,
@@ -115,7 +115,7 @@ AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
 # *********************************************************
 # Low and no pT cut containers used in JETMX derivations
 # *********************************************************
-AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.GPFlow,
                                       infix = "NoPtCut",
                                       ghostdefs = standardghosts+flavourghosts,
                                       modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+("JetPtAssociation",),
@@ -134,7 +134,7 @@ AntiKt4EMTopoNoPtCut = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                                      lock = True
 )
 
-AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.GPFlow,
                                     infix = "LowPt",
                                     ghostdefs = standardghosts+flavourghosts,
                                     modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+("JetPtAssociation",),
