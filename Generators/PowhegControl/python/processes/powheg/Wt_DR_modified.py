@@ -7,7 +7,7 @@ from ..powheg_V2 import PowhegV2
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class Wt_DR_Modified(PowhegV2):
+class Wt_DR_modified(PowhegV2):
     """! Default Powheg configuration for single top production with an associated W-boson through the t-channel (diagram removal).
 
     Create a configurable object with all applicable Powheg options.
@@ -21,7 +21,7 @@ class Wt_DR_Modified(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(Wt_DR_Modified, self).__init__(base_directory, "ST_wtch_DR_Modified", **kwargs)
+        super(Wt_DR_modified, self).__init__(base_directory, "ST_wtch_DR_modified", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
