@@ -45,12 +45,12 @@ def configEventDensityTool( name, jetOrConstitdef, radius=0.4, **options ):
     toolProperties = dict(
         JetAlgorithm        = "Kt",
         JetRadius           = radius,
-        InputContainer      = getPJContName( jetOrConstitdef), #"PseudoJet"+inputlabel,
+        InputContainer      = getPJContName( jetOrConstitdef), 
         AbsRapidityMin      = 0.0,
         AbsRapidityMax      = 2.0,
         AreaDefinition      = "Voronoi",
         VoronoiRfact        = 0.9,
-        OutputContainer     = getEventShapeName( jetOrConstitdef) , #"Kt"+str(int(10*radius))+inputlabel + "EventShape",
+        OutputContainer     = getEventShapeName( jetOrConstitdef) , 
         UseFourMomArea      = True,
     )
     # Override properties with user-supplied options.

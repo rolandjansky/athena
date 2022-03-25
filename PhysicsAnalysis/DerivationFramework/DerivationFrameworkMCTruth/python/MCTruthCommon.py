@@ -417,8 +417,6 @@ def addTruthEnergyDensity(kernel=None):
                                                             AbsRapidityMax      = 1.5,
                                                             OutputContainer     = "TruthIsoCentralEventShape",
                                                            )
-        # Note the helper function mangles the naming in a specific way that is not sufficiently general
-        #DFCommonTruthCentralEDTool.InputContainer = "PseudoJet"+cst.Truth.label
         ToolSvc += DFCommonTruthCentralEDTool
         kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
     if not hasattr(ToolSvc,'EDTruthForwardTool'):
@@ -429,8 +427,6 @@ def addTruthEnergyDensity(kernel=None):
                                                             AbsRapidityMax      = 3.0,
                                                             OutputContainer     = "TruthIsoForwardEventShape",
                                                            )
-        # Note the helper function mangles the naming in a specific way that is not sufficiently general
-        #DFCommonTruthForwardEDTool.InputContainer = "PseudoJet"+cst.Truth.label
         ToolSvc += DFCommonTruthForwardEDTool
         kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 

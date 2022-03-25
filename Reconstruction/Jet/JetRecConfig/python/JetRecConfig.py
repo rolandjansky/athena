@@ -406,7 +406,6 @@ def getGhostPJGAlg(ghostdef):
         OutputContainer= "PseudoJetGhost"+ghostdef.containername,
         Label=              label,
         SkipNegativeEnergy= True,
-        #OutputLevel = 3,
     )
 
     pjaclass = CompFactory.PseudoJetAlgorithm
