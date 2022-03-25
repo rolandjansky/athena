@@ -463,7 +463,7 @@ bool TrackCollHandle_TruthTracks::load()
   const double minSpacialSeparation = 1.0e-3*CLHEP::mm;
   const double minSepSq = minSpacialSeparation*minSpacialSeparation;
   for (itGenPart=genParticles.begin();itGenPart!=itGenPartEnd;++itGenPart) {
-    const auto *p = itGenPart->second;
+    HepMC::ConstGenParticlePtr p = itGenPart->second;
     if (!p)
       continue;
      if (abs(p->pdg_id())>=Imp::maxPdgCode)//Internal particle... (fixme: find proper limit!!)
@@ -765,7 +765,7 @@ bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(HepMC::ConstGenP
   static double unknown = -1.0e99;
   double mom(unknown), time(unknown);
   if (p) {
-    auto *v = p->production_vertex();
+    HepMC::ConstGenVertexPtr v = p->production_vertex();
     if (v) {
       mom = mag(p->momentum());
       time = v->position().t()/CLHEP::c_light;
