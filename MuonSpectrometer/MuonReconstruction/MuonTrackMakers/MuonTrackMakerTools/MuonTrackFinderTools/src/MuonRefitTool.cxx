@@ -857,7 +857,7 @@ namespace Muon {
                             if (settings.removeBarrelEndcapOverlap) type = Trk::TrackStateOnSurface::Outlier;
 
                         } else if (deweightEndcap &&
-                                  std::find(endcap_stations.begin(), endcap_stations.end(), stIndex) != barel_stations.end())  {  // BEE chambers enter the endcap alignment system!
+                                  std::find(endcap_stations.begin(), endcap_stations.end(), stIndex) != endcap_stations.end())  {  // BEE chambers enter the endcap alignment system!
                             rot.reset(m_mdtRotCreator->updateError(*mdt, pars, &m_errorStrategyBarEnd));
                             if (settings.removeBarrelEndcapOverlap) type = Trk::TrackStateOnSurface::Outlier;
 
@@ -1378,6 +1378,7 @@ namespace Muon {
             ++index;
         }
 
+        if (!detEl) return false;
         // define axis of chamber in global coordinates
         Amg::Transform3D amdbToGlobal = detEl->AmdbLRSToGlobalTransform();
 
@@ -1395,7 +1396,6 @@ namespace Muon {
         Amg::Vector3D locDirTrack(gToStation.linear() * dir);
         double track_angleYZ = std::atan2(locDirTrack.z(), locDirTrack.y());
 
-        if (!detEl) return false;
         // transform nominal pointing chamber position into surface frame
         Amg::Vector3D dirCh(gToStation.linear() * detEl->center());
         double chamber_angleYZ = std::atan2(dirCh.z(), dirCh.y());
